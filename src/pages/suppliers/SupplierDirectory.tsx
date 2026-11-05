@@ -28,6 +28,8 @@ import { Input } from "@/components/ui/shadcn/input";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { useAuth } from "@/lib/auth";
 import { useSeo, SITE_URL } from "@/lib/seo";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 import { classNames } from "@/lib/utils";
 import { formatByCode } from "@/lib/international/currency-format";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
@@ -332,171 +334,199 @@ export default function SupplierDirectory() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-      <header className="max-w-3xl">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-          Construction material suppliers
-        </h1>
-        <p className="mt-2 text-sm text-slate-600 sm:text-base">
-          Search suppliers by market, city and category. Every badge states what
-          FRELUX checked. A registered account is not a recommendation, and
-          prices are supplier-declared until their verification level says a
-          check has been run.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          <Link
-            to="/suppliers/register"
-            className="font-medium text-sky-700 hover:underline"
-          >
-            Register as a supplier
-          </Link>
-          <span className="text-slate-300">|</span>
-          <Link
-            to="/procurement"
-            className="font-medium text-sky-700 hover:underline"
-          >
-            Post a material request
-          </Link>
-          <span className="text-slate-300">|</span>
-          <Link
-            to="/material-prices"
-            className="font-medium text-sky-700 hover:underline"
-          >
-            Material price index
-          </Link>
-        </div>
-      </header>
-
-      <section className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cement, 42.5R, block moulding…"
-              className="pl-9"
-              aria-label="Search suppliers and products"
-            />
-          </label>
-          <select
-            value={marketCode}
-            onChange={(e) => setMarketCode(e.target.value)}
-            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
-            aria-label="Market"
-          >
-            {MARKETS.map((country) => (
-              <option key={country.code} value={country.code}>
-                {country.name}
-              </option>
-            ))}
-          </select>
-          <Input
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="City or neighbourhood"
-            aria-label="City or neighbourhood"
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
-            aria-label="Material category"
-          >
-            <option value="">All material categories</option>
-            {SUPPLIER_CATEGORIES.map((entry) => (
-              <option key={entry.slug} value={entry.slug}>
-                {entry.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-600">
-          <select
-            value={verification}
-            onChange={(e) => setVerification(e.target.value)}
-            className="h-9 rounded-md border border-slate-200 bg-white px-2"
-            aria-label="Verification level"
-          >
-            <option value="any">Any verification level</option>
-            <option value="platform_verified">Platform verified</option>
-            <option value="address_checked">Address checked or higher</option>
-            <option value="documents_reviewed">
-              Documents reviewed or higher
-            </option>
-            <option value="identity_checked">Identity checked or higher</option>
-          </select>
-          <label className="inline-flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => setInStockOnly(e.target.checked)}
-            />
-            In stock only
-          </label>
-          <label className="inline-flex items-center gap-1.5">
-            <input
-              type="checkbox"
-              checked={deliveryOnly}
-              onChange={(e) => setDeliveryOnly(e.target.checked)}
-            />
-            Delivers
-          </label>
-          {compare.length > 0 ? (
+    <>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[{ label: "Home", path: "/" }, { label: "Suppliers" }]}
+        eyebrow="Supplier directory"
+        title="Construction material suppliers"
+        subtitle="Search suppliers by market, city and category. Every badge states what FRELUX checked. A registered account is not a recommendation, and prices are supplier declared until their verification level says a check has been run."
+        actions={
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
             <Link
-              to={compareHref}
-              className="ml-auto inline-flex items-center gap-1 font-medium text-sky-700"
+              to="/suppliers/register"
+              className="font-medium text-primary hover:underline"
             >
-              Compare {compare.length} selected{" "}
-              <ArrowRight className="h-3.5 w-3.5" />
+              Register as a supplier
             </Link>
-          ) : null}
-        </div>
-      </section>
+            <Link
+              to="/procurement"
+              className="font-medium text-primary hover:underline"
+            >
+              Post a material request
+            </Link>
+            <Link
+              to="/material-prices"
+              className="font-medium text-primary hover:underline"
+            >
+              Material price index
+            </Link>
+          </div>
+        }
+      />
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div>
-          {loading ? (
-            <div className="flex items-center gap-2 py-10 text-sm text-slate-500">
-              <Loader2 className="h-4 w-4 animate-spin" /> Searching suppliers…
-            </div>
-          ) : error ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-              The directory could not load right now. {error}
-            </div>
-          ) : total === 0 ? (
-            <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-600">
-              <p className="font-medium text-slate-900">
-                No supplier matches these filters yet.
-              </p>
-              <p className="mt-1">
-                Nothing here is hidden to make the directory look fuller. Try a
-                wider city, another category, or register your own business if
-                you supply materials in this market.
-              </p>
-              <Link to="/suppliers/register" className="mt-3 inline-block">
-                <Button size="sm">Register a supplier</Button>
+      <Container className="max-w-6xl pb-12 pt-8">
+        <section className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cement, 42.5R, block moulding…"
+                className="pl-9"
+                aria-label="Search suppliers and products"
+              />
+            </label>
+            <select
+              value={marketCode}
+              onChange={(e) => setMarketCode(e.target.value)}
+              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
+              aria-label="Market"
+            >
+              {MARKETS.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+            <Input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="City or neighbourhood"
+              aria-label="City or neighbourhood"
+            />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
+              aria-label="Material category"
+            >
+              <option value="">All material categories</option>
+              {SUPPLIER_CATEGORIES.map((entry) => (
+                <option key={entry.slug} value={entry.slug}>
+                  {entry.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+            <select
+              value={verification}
+              onChange={(e) => setVerification(e.target.value)}
+              className="h-9 rounded-md border border-slate-200 bg-white px-2"
+              aria-label="Verification level"
+            >
+              <option value="any">Any verification level</option>
+              <option value="platform_verified">Platform verified</option>
+              <option value="address_checked">Address checked or higher</option>
+              <option value="documents_reviewed">
+                Documents reviewed or higher
+              </option>
+              <option value="identity_checked">
+                Identity checked or higher
+              </option>
+            </select>
+            <label className="inline-flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+              />
+              In stock only
+            </label>
+            <label className="inline-flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                checked={deliveryOnly}
+                onChange={(e) => setDeliveryOnly(e.target.checked)}
+              />
+              Delivers
+            </label>
+            {compare.length > 0 ? (
+              <Link
+                to={compareHref}
+                className="ml-auto inline-flex items-center gap-1 font-medium text-sky-700"
+              >
+                Compare {compare.length} selected{" "}
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {promoted.length > 0 ? (
+            ) : null}
+          </div>
+        </section>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div>
+            {loading ? (
+              <div className="flex items-center gap-2 py-10 text-sm text-slate-500">
+                <Loader2 className="h-4 w-4 animate-spin" /> Searching
+                suppliers…
+              </div>
+            ) : error ? (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                The directory could not load right now. {error}
+              </div>
+            ) : total === 0 ? (
+              <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-600">
+                <p className="font-medium text-slate-900">
+                  No supplier matches these filters yet.
+                </p>
+                <p className="mt-1">
+                  Nothing here is hidden to make the directory look fuller. Try
+                  a wider city, another category, or register your own business
+                  if you supply materials in this market.
+                </p>
+                <Link to="/suppliers/register" className="mt-3 inline-block">
+                  <Button size="sm">Register a supplier</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {promoted.length > 0 ? (
+                  <section>
+                    <div className="mb-2 flex items-center gap-2">
+                      <h2 className="text-sm font-semibold text-slate-900">
+                        Featured suppliers
+                      </h2>
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
+                        Paid placement
+                      </span>
+                    </div>
+                    <p className="mb-3 text-xs text-slate-500">
+                      These suppliers paid for placement. Being featured says
+                      nothing about verification level, price or reliability,
+                      and does not affect the order of the organic results
+                      below.
+                    </p>
+                    <div className="grid gap-3">
+                      {promoted.map((result) => (
+                        <SupplierCard
+                          key={result.supplier.id}
+                          result={result}
+                          saved={savedIds.includes(result.supplier.id)}
+                          onToggleSave={() => toggleSave(result.supplier.id)}
+                          selected={compare.includes(result.supplier.id)}
+                          onToggleCompare={() =>
+                            toggleCompare(result.supplier.id)
+                          }
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+
                 <section>
-                  <div className="mb-2 flex items-center gap-2">
+                  <div className="mb-2 flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-slate-900">
-                      Featured suppliers
+                      {total} {total === 1 ? "supplier" : "suppliers"}
                     </h2>
-                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
-                      Paid placement
+                    <span className="text-xs text-slate-500">
+                      Ordered by verification, reviews, responsiveness and price
+                      freshness
                     </span>
                   </div>
-                  <p className="mb-3 text-xs text-slate-500">
-                    These suppliers paid for placement. Being featured says
-                    nothing about verification level, price or reliability, and
-                    does not affect the order of the organic results below.
-                  </p>
                   <div className="grid gap-3">
-                    {promoted.map((result) => (
+                    {organic.map((result) => (
                       <SupplierCard
                         key={result.supplier.id}
                         result={result}
@@ -510,104 +540,80 @@ export default function SupplierDirectory() {
                     ))}
                   </div>
                 </section>
-              ) : null}
+              </div>
+            )}
+          </div>
 
-              <section>
-                <div className="mb-2 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    {total} {total === 1 ? "supplier" : "suppliers"}
-                  </h2>
-                  <span className="text-xs text-slate-500">
-                    Ordered by verification, reviews, responsiveness and price
-                    freshness
-                  </span>
-                </div>
-                <div className="grid gap-3">
-                  {organic.map((result) => (
-                    <SupplierCard
-                      key={result.supplier.id}
-                      result={result}
-                      saved={savedIds.includes(result.supplier.id)}
-                      onToggleSave={() => toggleSave(result.supplier.id)}
-                      selected={compare.includes(result.supplier.id)}
-                      onToggleCompare={() => toggleCompare(result.supplier.id)}
-                    />
-                  ))}
-                </div>
-              </section>
+          <aside className="space-y-4">
+            <MapPanel
+              layers={["suppliers"]}
+              title="Supplier locations"
+              subtitle="Pins come from a supplier's tracked trading city, not an estimate."
+              height={280}
+              defaultLayer="suppliers"
+              exploreHref="/suppliers"
+            />
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" /> What the
+                badges mean
+              </h3>
+              <ul className="mt-2 space-y-2 text-xs text-slate-600">
+                {[
+                  "unverified",
+                  "identity_checked",
+                  "documents_reviewed",
+                  "address_checked",
+                  "platform_verified",
+                ].map((level) => {
+                  const entry = verificationDefinition(level);
+                  return (
+                    <li key={level}>
+                      <span className="font-medium text-slate-800">
+                        {entry.shortLabel}:
+                      </span>{" "}
+                      {entry.meaning}
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-2 flex gap-1.5 text-[11px] text-slate-500">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                No level is a warranty. Agree specifications, quantities and
+                delivery terms in writing before you pay.
+              </p>
             </div>
-          )}
+            <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+              <h3 className="flex items-center gap-2 font-semibold text-slate-900">
+                <Store className="h-4 w-4" /> Own a supply business?
+              </h3>
+              <p className="mt-1 text-xs text-slate-600">
+                Publish your catalogue, delivery coverage and prices, then
+                answer material requests from buyers in your market.
+              </p>
+              <Link to="/suppliers/register" className="mt-2 inline-block">
+                <Button size="sm" variant="outline">
+                  List your business
+                </Button>
+              </Link>
+            </div>
+          </aside>
         </div>
 
-        <aside className="space-y-4">
-          <MapPanel
-            layers={["suppliers"]}
-            title="Supplier locations"
-            subtitle="Pins come from a supplier's tracked trading city, not an estimate."
-            height={280}
-            defaultLayer="suppliers"
-            exploreHref="/suppliers"
-          />
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" /> What the
-              badges mean
-            </h3>
-            <ul className="mt-2 space-y-2 text-xs text-slate-600">
-              {[
-                "unverified",
-                "identity_checked",
-                "documents_reviewed",
-                "address_checked",
-                "platform_verified",
-              ].map((level) => {
-                const entry = verificationDefinition(level);
-                return (
-                  <li key={level}>
-                    <span className="font-medium text-slate-800">
-                      {entry.shortLabel}:
-                    </span>{" "}
-                    {entry.meaning}
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-2 flex gap-1.5 text-[11px] text-slate-500">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              No level is a warranty. Agree specifications, quantities and
-              delivery terms in writing before you pay.
-            </p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
-            <h3 className="flex items-center gap-2 font-semibold text-slate-900">
-              <Store className="h-4 w-4" /> Own a supply business?
-            </h3>
-            <p className="mt-1 text-xs text-slate-600">
-              Publish your catalogue, delivery coverage and prices, then answer
-              material requests from buyers in your market.
-            </p>
-            <Link to="/suppliers/register" className="mt-2 inline-block">
-              <Button size="sm" variant="outline">
-                List your business
-              </Button>
-            </Link>
-          </div>
-        </aside>
-      </div>
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: "Construction material suppliers",
-            url: `${SITE_URL}/suppliers`,
-            description:
-              "Verified-level construction material suppliers with prices, delivery coverage and verification levels.",
-          }),
-        }}
-      />
-    </div>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CollectionPage",
+              name: "Construction material suppliers",
+              url: `${SITE_URL}/suppliers`,
+              description:
+                "Verified-level construction material suppliers with prices, delivery coverage and verification levels.",
+            }),
+          }}
+        />
+      </Container>
+    </>
   );
 }

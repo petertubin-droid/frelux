@@ -40,6 +40,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { formatByCode } from "@/lib/international/currency-format";
 import { tx } from "@/lib/i18n";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -283,95 +285,71 @@ export default function MarketplaceHome() {
 
   return (
     <div>
-      {/* ── Hero Section: BUILD. BUY. SELL. CONNECT. ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/20">
-        {/* Decorative grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-        <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
-
-        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-          <div className="text-center">
-            {/* Regional directory badge */}
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-primary-foreground/80 backdrop-blur">
-              <Store
-                aria-hidden="true"
-                className="h-3.5 w-3.5 text-brand-purple-lighter"
-              />
-              {tx("Construction Trade Marketplace")}
-            </div>
-
-            {/* Tagline words */}
-            <div className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
-              <span className="text-primary-foreground">{tx("BUILD.")}</span>
-              <span className="text-brand-purple-lighter">{tx("BUY.")}</span>
-              <span className="text-primary-foreground">{tx("SELL.")}</span>
-              <span className="text-brand-purple-lighter">
-                {tx("CONNECT.")}
-              </span>
-            </div>
-
-            <p className="mx-auto max-w-2xl text-sm text-muted-foreground/80 sm:text-base">
-              {tx(
-                "Find construction materials, professional services, and building projects in available locations. Marketplace listings vary by region.",
-              )}
-            </p>
-
-            {/* Quick action buttons */}
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                to="/marketplace/post/"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
-              >
-                <Plus aria-hidden="true" className="h-4 w-4" />{" "}
-                {tx("Post a Job")}
-              </Link>
-              <Link
-                to="/marketplace/products/post/"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
-              >
-                <Store className="h-4 w-4" /> {tx("Sell a Product")}
-              </Link>
-              <Link
-                to="/pro-connect/register/"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
-              >
-                <Briefcase className="h-4 w-4" /> {tx("Become a Pro")}
-              </Link>
-            </div>
-
-            {/* Stats bar */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground sm:gap-10">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary-foreground">
-                  {jobsTotal + productsTotal}
-                </span>
-                <span>{tx("Active Listings")}</span>
-              </div>
-              <div className="hidden h-8 w-px bg-white/10 sm:block" />
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary-foreground">
-                  14
-                </span>
-                <span>{tx("Categories")}</span>
-              </div>
-              <div className="hidden h-8 w-px bg-white/10 sm:block" />
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary-foreground">
-                  36
-                </span>
-                <span>{tx("States Covered")}</span>
-              </div>
-            </div>
+      <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: tx("Marketplace") },
+        ]}
+        eyebrow={tx("Construction trade marketplace")}
+        title={tx("Marketplace")}
+        subtitle={tx(
+          "Find construction materials, professional services, and building projects in available locations. Marketplace listings vary by region.",
+        )}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/marketplace/post/"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" /> {tx("Post a Job")}
+            </Link>
+            <Link
+              to="/marketplace/products/post/"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              <Store className="h-4 w-4" /> {tx("Sell a Product")}
+            </Link>
+            <Link
+              to="/pro-connect/register/"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+            >
+              <Briefcase className="h-4 w-4" /> {tx("Become a Pro")}
+            </Link>
           </div>
-        </div>
+        }
+      />
+
+      {/* Live counts sit under the header rather than inside it, so the
+          figures stay honest when the directory is empty. */}
+      <div className="border-b border-border/60 dark:border-white/5">
+        <Container className="max-w-7xl">
+          <dl className="flex flex-wrap items-center gap-x-8 gap-y-3 py-4 text-sm">
+            <div className="flex items-baseline gap-2">
+              <dt className="order-2 text-muted-foreground">
+                {tx("Active Listings")}
+              </dt>
+              <dd className="order-1 text-base font-semibold text-foreground">
+                {jobsTotal + productsTotal}
+              </dd>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <dt className="order-2 text-muted-foreground">
+                {tx("Categories")}
+              </dt>
+              <dd className="order-1 text-base font-semibold text-foreground">
+                14
+              </dd>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <dt className="order-2 text-muted-foreground">
+                {tx("States Covered")}
+              </dt>
+              <dd className="order-1 text-base font-semibold text-foreground">
+                36
+              </dd>
+            </div>
+          </dl>
+        </Container>
       </div>
 
       {/* ── Category Showcase ── */}
