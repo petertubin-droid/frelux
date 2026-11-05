@@ -49,6 +49,7 @@ const CATEGORY_PHRASES: Record<string, string> = {
   sitework: "groundwork and site clearance",
   commercial: "quoting, records and reference",
   components: "components and fixtures",
+  interiors: "interior decor and window treatments",
   ai: "measurement with extraction",
 };
 
