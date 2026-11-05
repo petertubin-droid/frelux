@@ -36,6 +36,12 @@ export interface BlindTypeDefinition {
   observedBand: string;
   /** Rigid slats tolerate less cutting waste than fabric. */
   wastage: number;
+  /**
+   * Widest single panel the type is fabricated in, in metres. A wider
+   * opening needs two or more panels joined, which the estimator reports
+   * rather than silently pricing as one impossible piece.
+   */
+  maxPanelWidthM: number;
   /** Sample window this type is usually sold against, in metres. */
   sample: { widthM: number; heightM: number };
   /** Anything the reader should know before trusting the number. */
@@ -49,6 +55,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Fabric, plain",
     observedBand: "8,500 to 12,500 per m2",
     wastage: 0.1,
+    maxPanelWidthM: 3.0,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Sold per window as often as per metre. Wide drops and blackout fabric sit above this band.",
   },
@@ -58,6 +65,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Double fabric, alternating stripes",
     observedBand: "8,000 to 13,500 per m2",
     wastage: 0.1,
+    maxPanelWidthM: 2.8,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Premium prints quote 20,000 to 38,000 per window, so grade matters more than size here.",
   },
@@ -67,6 +75,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Striped sheer and opaque",
     observedBand: "8,000 to 12,500 per m2",
     wastage: 0.1,
+    maxPanelWidthM: 2.8,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Priced with day and night in most Nigerian shops.",
   },
@@ -76,6 +85,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Fabric louvres on a track",
     observedBand: "15,000 to 18,000 per m2",
     wastage: 0.12,
+    maxPanelWidthM: 4.5,
     sample: { widthM: 1.83, heightM: 2.13 },
     note: "Track and louvre count drive the price, so wide openings climb faster than tall ones.",
   },
@@ -85,6 +95,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Aluminium mini slat",
     observedBand: "4,500 to 6,000 per m2",
     wastage: 0.08,
+    maxPanelWidthM: 2.4,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "The cheapest type per metre, and the one most often quoted with a minimum charge.",
   },
@@ -94,6 +105,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Aluminium wide slat",
     observedBand: "6,500 to 8,000 per m2",
     wastage: 0.08,
+    maxPanelWidthM: 3.0,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Wide slats span further before sagging, so they suit large windows better.",
   },
@@ -103,6 +115,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Folded fabric on a batten",
     observedBand: "12,000 to 15,000 per m2",
     wastage: 0.15,
+    maxPanelWidthM: 2.2,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Fold allowance is the reason roman blinds waste more fabric than a roller.",
   },
@@ -112,6 +125,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Composite slat",
     observedBand: "15,000 to 20,000 per m2",
     wastage: 0.08,
+    maxPanelWidthM: 2.4,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Handles humidity better than real timber, at roughly half the cost.",
   },
@@ -121,6 +135,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Real timber slat",
     observedBand: "15,000 to 25,000 per m2",
     wastage: 0.08,
+    maxPanelWidthM: 2.4,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "Least standardised category in the market. Sellers quote 33,000 to 75,000 per window instead.",
   },
@@ -130,6 +145,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Honeycomb or folded speciality",
     observedBand: "40,000 per m2, single vendor",
     wastage: 0.12,
+    maxPanelWidthM: 2.4,
     sample: { widthM: 1.219, heightM: 1.219 },
     note: "One seller only. Treat as indicative until a second source agrees.",
   },
@@ -139,6 +155,7 @@ export const BLIND_TYPES: BlindTypeDefinition[] = [
     family: "Woven natural roll up",
     observedBand: "Import resale only, 21,000 to 128,000 per piece",
     wastage: 0.1,
+    maxPanelWidthM: 2.4,
     sample: { widthM: 1.83, heightM: 2.13 },
     note: "No reliable local per metre rate. The estimator asks for a manual price instead of guessing.",
   },

@@ -80,6 +80,7 @@ export default function WindowBlindsEstimator() {
   const [activeRow, setActiveRow] = useState<string | null>(null);
   const [manualRate, setManualRate] = useState("");
   const [manualMinimum, setManualMinimum] = useState("");
+  const [taxRate, setTaxRate] = useState("");
   const [extras, setExtras] = useState<Partial<Record<BlindExtraKey, string>>>(
     {},
   );
@@ -102,6 +103,7 @@ export default function WindowBlindsEstimator() {
       extras: extrasNumbers,
       manualPerM2: Number(manualRate) || undefined,
       manualMinimumPerWindow: Number(manualMinimum) || undefined,
+      taxRatePct: Number(taxRate) || undefined,
     });
   }, [
     market,
@@ -112,6 +114,7 @@ export default function WindowBlindsEstimator() {
     extras,
     manualRate,
     manualMinimum,
+    taxRate,
   ]);
 
   const money = (value: number | null) =>
@@ -180,6 +183,8 @@ export default function WindowBlindsEstimator() {
       "Per window",
       "Blinds",
       "Extras",
+      "Panels",
+      "Panel width m",
     ];
     const rows = result.rows.map((row) => [
       row.label,
@@ -194,6 +199,8 @@ export default function WindowBlindsEstimator() {
       row.perWindow === null ? "manual" : String(row.perWindow),
       row.blindsTotal === null ? "manual" : String(row.blindsTotal),
       row.extrasTotal === null ? "manual" : String(row.extrasTotal),
+      String(row.panels),
+      String(row.panelWidthM),
     ]);
     const summary = [
       [],
@@ -223,7 +230,20 @@ export default function WindowBlindsEstimator() {
         "Total before tax",
         result.totals.total === null ? "manual" : String(result.totals.total),
       ],
-      ["Tax", result.taxStatus],
+      [
+        "Tax percent",
+        result.taxRatePct === null ? "not applied" : String(result.taxRatePct),
+      ],
+      [
+        "Tax",
+        result.totals.tax === null ? "manual" : String(result.totals.tax),
+      ],
+      [
+        "Total including tax",
+        result.totals.totalInclTax === null
+          ? "manual"
+          : String(result.totals.totalInclTax),
+      ],
       [],
       ["Assumption"],
       ...result.assumptions.map((a) => [a]),
@@ -451,16 +471,38 @@ export default function WindowBlindsEstimator() {
                           }
                         />
                       </label>
-                      <label className="flex items-end gap-2 pb-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(row.motorised)}
-                          onChange={(e) =>
-                            patch(row.id, { motorised: e.target.checked })
-                          }
-                        />
-                        Motorised
-                      </label>
+                      <div className="flex flex-wrap items-end gap-3 pb-2 text-xs">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(row.motorised)}
+                            onChange={(e) =>
+                              patch(row.id, { motorised: e.target.checked })
+                            }
+                          />
+                          Motorised
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(row.cassette)}
+                            onChange={(e) =>
+                              patch(row.id, { cassette: e.target.checked })
+                            }
+                          />
+                          Cassette
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(row.removeOld)}
+                            onChange={(e) =>
+                              patch(row.id, { removeOld: e.target.checked })
+                            }
+                          />
+                          Remove old
+                        </label>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -489,7 +531,19 @@ export default function WindowBlindsEstimator() {
                 much by supplier for a made up figure. Enter what you were
                 quoted and the estimator adds it.
               </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="space-y-1 text-xs">
+                  <span className="text-muted-foreground">
+                    Tax percent (optional)
+                  </span>
+                  <input
+                    className={fieldClass}
+                    inputMode="decimal"
+                    placeholder="VAT or sales tax"
+                    value={taxRate}
+                    onChange={(e) => setTaxRate(e.target.value)}
+                  />
+                </label>
                 {BLIND_EXTRAS.map((extra) => (
                   <label key={extra.key} className="space-y-1 text-xs">
                     <span className="text-muted-foreground">
@@ -592,9 +646,31 @@ export default function WindowBlindsEstimator() {
                     {money(result.totals.total)}
                   </dd>
                 </div>
+                {result.taxRatePct !== null && (
+                  <>
+                    <div
+                      className="flex items-baseline justify-between gap-3"
+                      data-testid="tax-line"
+                    >
+                      <dt className="text-muted-foreground">
+                        Tax at {result.taxRatePct} percent
+                      </dt>
+                      <dd>{money(result.totals.tax)}</dd>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <dt className="font-medium">Total including tax</dt>
+                      <dd className="text-lg font-semibold">
+                        {money(result.totals.totalInclTax)}
+                      </dd>
+                    </div>
+                  </>
+                )}
               </dl>
               <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                <Ruler className="h-3.5 w-3.5" /> Tax not determined for blinds
+                <Ruler className="h-3.5 w-3.5" />
+                {result.taxRatePct === null
+                  ? "Tax is not applied until you enter a rate"
+                  : "Tax is the rate you entered, not a local assumption"}
               </p>
               <button
                 type="button"
@@ -622,7 +698,12 @@ export default function WindowBlindsEstimator() {
                       <div className="text-xs text-muted-foreground">
                         {row.typeLabel} · {row.widthM} x {row.heightM} m ·{" "}
                         {row.quantity} off
+                        {row.panels > 1
+                          ? ` · ${row.panels} panels of ${row.panelWidthM} m`
+                          : ""}
                         {row.motorised ? " · motorised" : ""}
+                        {row.cassette ? " · cassette" : ""}
+                        {row.removeOld ? " · removal" : ""}
                       </div>
                     </div>
                     <div className="text-right">

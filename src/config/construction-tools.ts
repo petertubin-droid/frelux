@@ -72,6 +72,7 @@ export type ToolCategoryId =
   | "structure"
   | "services"
   | "components"
+  | "interiors"
   | "project"
   | "ai"
   | "pro";
@@ -104,6 +105,12 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     id: "components",
     label: "Building Components",
     blurb: "Doors, windows and other configurable components.",
+  },
+  {
+    id: "interiors",
+    label: "Interior Decors",
+    blurb:
+      "Window treatments, blinds and the pieces that dress a finished room.",
   },
   {
     id: "project",
@@ -200,7 +207,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   {
     slug: "window-blinds",
     title: "Window blind cost calculator",
-    category: "structure",
+    category: "interiors",
     icon: Blinds,
     does: "Price window blinds from the measured opening, with waste, the minimum charge per window and fitting.",
     enters:

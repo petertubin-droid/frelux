@@ -188,14 +188,101 @@ describe("window blind project", () => {
     expect(result.totals.extras).toBeNull();
   });
 
-  it("adds extras once the motor price is supplied", () => {
+  it("charges an extra only to the windows that ask for it", () => {
+    // Two windows in the job, one motorised and one to be stripped out.
+    // The old engine charged both extras to every window, which overpriced
+    // the job; each extra now follows the opening that selected it.
     const result = calculateBlindProject({
       ...base,
-      openings: [opening({ motorised: true, quantity: 2 })],
+      openings: [
+        opening({ id: "a", motorised: true }),
+        opening({ id: "b", typeKey: "roller", removeOld: true }),
+      ],
       extras: { motorPerWindow: 120000, removeOldPerWindow: 3000 },
     });
-    expect(result.totals.extras).toBe(246000);
+    expect(result.rows[0].extrasTotal).toBe(120000);
+    expect(result.rows[1].extrasTotal).toBe(3000);
+    expect(result.totals.extras).toBe(123000);
     expect(result.status).toBe("priced");
+  });
+
+  it("multiplies a per window extra by that opening's quantity only", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [
+        opening({ id: "a", motorised: true, quantity: 3 }),
+        opening({ id: "b", typeKey: "roller" }),
+      ],
+      extras: { motorPerWindow: 120000 },
+    });
+    expect(result.rows[0].extrasTotal).toBe(360000);
+    expect(result.rows[1].extrasTotal).toBe(0);
+    expect(result.totals.extras).toBe(360000);
+  });
+
+  it("asks for the cassette price when a cassette is selected", () => {
+    const result = calculateBlindProject({
+      ...base,
+      openings: [opening({ cassette: true })],
+    });
+    expect(result.status).toBe("manual_price_required");
+    expect(result.missing).toContain("cassettePerWindow");
+  });
+
+  it("reports how many panels a wide opening needs", () => {
+    const result = calculateBlindProject({
+      ...base,
+      unit: "m",
+      openings: [opening({ typeKey: "roman", width: 5 })],
+    });
+    // Roman tops out at 2.2 m, so 5 m cannot be one piece.
+    expect(result.rows[0].panels).toBe(3);
+    expect(result.rows[0].panelWidthM).toBeCloseTo(1.67, 2);
+    expect(result.assumptions.some((a) => /three panels/i.test(a))).toBe(true);
+  });
+
+  it("keeps a narrow opening as a single panel", () => {
+    const result = calculateBlindProject({
+      ...base,
+      unit: "m",
+      openings: [opening({ typeKey: "roller", width: 1.5 })],
+    });
+    expect(result.rows[0].panels).toBe(1);
+    expect(result.rows[0].panelWidthM).toBeCloseTo(1.5, 2);
+  });
+
+  it("rounds the measured opening up to the next centimetre", () => {
+    // 1.234 by 1.234 m is sold as 1.24 by 1.24 m, the way a shop cuts it.
+    const result = calculateBlindProject({
+      ...base,
+      unit: "m",
+      openings: [opening({ width: 1.234, height: 1.234 })],
+    });
+    expect(result.rows[0].widthM).toBe(1.24);
+    expect(result.rows[0].heightM).toBe(1.24);
+    expect(result.rows[0].areaM2).toBe(1.54);
+  });
+
+  it("adds the tax rate the user supplies and nothing when they do not", () => {
+    const untaxed = calculateBlindProject({ ...base, openings: [opening()] });
+    expect(untaxed.totals.tax).toBeNull();
+    expect(untaxed.totals.totalInclTax).toBe(untaxed.totals.total);
+    expect(untaxed.taxStatus).toBe("tax_not_determined");
+
+    const taxed = calculateBlindProject({
+      ...base,
+      openings: [opening()],
+      taxRatePct: 7.5,
+    });
+    expect(taxed.totals.tax).toBeCloseTo(
+      Math.round((taxed.totals.total as number) * 0.075 * 100) / 100,
+      2,
+    );
+    expect(taxed.totals.totalInclTax).toBeCloseTo(
+      (taxed.totals.total as number) + (taxed.totals.tax as number),
+      2,
+    );
+    expect(taxed.taxStatus).toBe("tax_applied");
   });
 
   it("reports a blended rate over the charged area", () => {

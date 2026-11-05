@@ -99,6 +99,24 @@ export function toMetres(value: number, unit: LengthUnit): number {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/**
+ * Shops measure to the nearest centimetre and always round UP before pricing,
+ * because the fabric is cut to the measured opening. Pricing 1.234 m at 1.234
+ * understates the cut, so the width and drop are lifted to the next centimetre
+ * here and the assumption is stated.
+ */
+export function roundUpToCentimetre(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.ceil(value * 100) / 100;
+}
+
+/** How many panels a width is fabricated in, at the type's maximum width. */
+export function panelsForWidth(widthM: number, maxPanelWidthM: number): number {
+  if (!Number.isFinite(widthM) || widthM <= 0) return 1;
+  if (!Number.isFinite(maxPanelWidthM) || maxPanelWidthM <= 0) return 1;
+  return Math.max(1, Math.ceil(round2(widthM / maxPanelWidthM)));
+}
+
 export function calculateWindowBlinds(input: BlindsInput): BlindsResult {
   const type = BLIND_TYPE_BY_KEY[input.typeKey];
   const book = blindBookFor(input.market);
@@ -278,6 +296,10 @@ export interface BlindOpening {
   height: number;
   quantity: number;
   motorised?: boolean;
+  /** Enclosed top box on this opening. */
+  cassette?: boolean;
+  /** Take down and dispose of existing blinds on this opening. */
+  removeOld?: boolean;
 }
 
 export type BlindExtras = Partial<Record<BlindExtraKey, number>>;
@@ -292,6 +314,11 @@ export interface BlindProjectInput {
   extras?: BlindExtras;
   manualPerM2?: number;
   manualMinimumPerWindow?: number;
+  /**
+   * VAT or sales tax percent to add. Never assumed: the shop decides whether
+   * blinds are taxed at that rate in that market.
+   */
+  taxRatePct?: number;
 }
 
 export interface BlindProjectRow {
@@ -312,6 +339,12 @@ export interface BlindProjectRow {
   extrasPerWindow: number | null;
   extrasTotal: number | null;
   motorised: boolean;
+  cassette: boolean;
+  removeOld: boolean;
+  /** Panels the opening is fabricated in, at the type's maximum width. */
+  panels: number;
+  /** Width of each panel, in metres. */
+  panelWidthM: number;
   priced: boolean;
 }
 
@@ -329,8 +362,12 @@ export interface BlindProjectResult {
     blinds: number | null;
     extras: number | null;
     installation: number | null;
+    /** Total before tax. */
     total: number | null;
+    tax: number | null;
+    totalInclTax: number | null;
   };
+  taxRatePct: number | null;
   geometry: {
     unit: LengthUnit;
     windowCount: number;
@@ -338,7 +375,7 @@ export interface BlindProjectResult {
     totalChargeableAreaM2: number;
     blendedRatePerM2: number | null;
   };
-  taxStatus: "tax_not_determined";
+  taxStatus: "tax_applied" | "tax_not_determined";
   assumptions: string[];
   provenance: { gradeNote: string; source: string };
 }
@@ -355,11 +392,17 @@ export function calculateBlindProject(
   const rows: BlindProjectRow[] = input.openings.map((opening) => {
     const type = BLIND_TYPE_BY_KEY[opening.typeKey];
     const wastage = input.wastage ?? type?.wastage ?? 0.1;
-    const widthM = toMetres(Math.max(0, opening.width), input.unit);
-    const heightM = toMetres(Math.max(0, opening.height), input.unit);
+    const widthM = roundUpToCentimetre(
+      toMetres(Math.max(0, opening.width), input.unit),
+    );
+    const heightM = roundUpToCentimetre(
+      toMetres(Math.max(0, opening.height), input.unit),
+    );
     const quantity = Math.max(1, Math.round(opening.quantity || 1));
     const areaM2 = widthM * heightM;
     const chargeableAreaM2 = areaM2 * (1 + wastage);
+    const panels = panelsForWidth(widthM, type?.maxPanelWidthM ?? 0);
+    const panelWidthM = panels > 0 ? round2(widthM / panels) : widthM;
 
     const band = book?.types?.[opening.typeKey];
     let rate: number | null = band?.perM2 ?? null;
@@ -379,7 +422,7 @@ export function calculateBlindProject(
       minimum = input.manualMinimumPerWindow;
     }
     if (rate === null) {
-      missing.add(band ? "ratePerM2" : "ratePerM2");
+      missing.add(band ? "ratePerM2" : "priceBook");
     }
 
     const gradedRate = rate === null ? null : round2(rate * grade.multiplier);
@@ -391,22 +434,26 @@ export function calculateBlindProject(
     const blindsTotal =
       perWindow === null ? null : round2(perWindow * quantity);
 
+    // Extras belong to the opening that asks for them. Charging a cassette or
+    // a removal to every row because the job priced one was overcharging the
+    // windows that did not need it.
+    const wantsMotor = Boolean(opening.motorised);
+    const wantsCassette = Boolean(opening.cassette);
+    const wantsRemoval = Boolean(opening.removeOld);
+
     let extrasPerWindow: number | null = 0;
-    if (opening.motorised) {
-      const motor = extrasIn.motorPerWindow;
-      if (typeof motor === "number" && motor > 0) extrasPerWindow += motor;
-      else if (typeof motor === "number") extrasPerWindow += 0;
+    const addExtra = (key: BlindExtraKey, needed: boolean) => {
+      if (!needed || extrasPerWindow === null) return;
+      const value = extrasIn[key];
+      if (typeof value === "number" && value > 0) extrasPerWindow += value;
       else {
-        missing.add("motorPerWindow");
+        missing.add(key);
         extrasPerWindow = null;
       }
-    }
-    if (extrasPerWindow !== null) {
-      if (typeof extrasIn.cassettePerWindow === "number")
-        extrasPerWindow += extrasIn.cassettePerWindow;
-      if (typeof extrasIn.removeOldPerWindow === "number")
-        extrasPerWindow += extrasIn.removeOldPerWindow;
-    }
+    };
+    addExtra("motorPerWindow", wantsMotor);
+    addExtra("cassettePerWindow", wantsCassette);
+    addExtra("removeOldPerWindow", wantsRemoval);
     const extrasTotal =
       extrasPerWindow === null ? null : round2(extrasPerWindow * quantity);
 
@@ -428,7 +475,11 @@ export function calculateBlindProject(
       extrasPerWindow:
         extrasPerWindow === null ? null : round2(extrasPerWindow),
       extrasTotal,
-      motorised: Boolean(opening.motorised),
+      motorised: wantsMotor,
+      cassette: wantsCassette,
+      removeOld: wantsRemoval,
+      panels,
+      panelWidthM,
       priced: perWindow !== null && extrasTotal !== null,
     };
   });
@@ -456,13 +507,35 @@ export function calculateBlindProject(
     );
   else
     assumptions.push(
-      `Fitting at ${book?.currencySymbol ?? ""}${installPerWindow.toLocaleString()} per window, ${windowCount} windows.`,
+      `Fitting at ${book?.currencySymbol ?? ""}${installPerWindow.toLocaleString()} per window, ${windowCount} ${windowCount === 1 ? "window" : "windows"}.`,
     );
 
-  const total =
+  const beforeTax =
     blinds !== null && extras !== null && installation !== null
       ? round2(blinds + extras + installation)
       : null;
+
+  // Tax is only computed when the shop supplies a rate. Nothing is inferred
+  // from the market, because whether blinds carry VAT at that rate is the
+  // seller's fact, not the estimator's.
+  const taxRatePct =
+    typeof input.taxRatePct === "number" &&
+    Number.isFinite(input.taxRatePct) &&
+    input.taxRatePct > 0
+      ? round2(input.taxRatePct)
+      : null;
+  // No rate means the tax is unknown, not zero, so the row stays null and the
+  // interface says "not determined" rather than implying nothing is due.
+  const tax =
+    beforeTax !== null && taxRatePct !== null
+      ? round2((beforeTax * taxRatePct) / 100)
+      : null;
+  const totalInclTax =
+    beforeTax === null
+      ? null
+      : tax === null
+        ? beforeTax
+        : round2(beforeTax + tax);
 
   const totalChargeableAreaM2 = round2(
     rows.reduce((a, r) => a + r.chargeableAreaM2 * r.quantity, 0),
@@ -491,13 +564,29 @@ export function calculateBlindProject(
       "Feet are converted to metres before pricing, so a 4 by 4 opening prices as 1.49 m2.",
     );
   }
+  for (const row of rows.filter((r) => r.panels > 1)) {
+    const maxWidth = BLIND_TYPE_BY_KEY[row.typeKey]?.maxPanelWidthM;
+    const countWord =
+      ["one", "two", "three", "four", "five", "six"][row.panels - 1] ??
+      String(row.panels);
+    assumptions.push(
+      `${row.label || row.typeLabel} is wider than one piece, so it is fabricated as ${countWord} panels of about ${row.panelWidthM} m each${maxWidth ? ` (${row.typeLabel} tops out at ${maxWidth} m)` : ""}. The price is unchanged because shops charge by area, but the fabricator has to make the join.`,
+    );
+  }
   assumptions.push(
-    "Tax is not determined for blinds. Quote the total before tax.",
+    "Measured width and drop are rounded up to the next centimetre before pricing, the way a shop cuts fabric to the opening.",
+  );
+  assumptions.push(
+    taxRatePct === null
+      ? "Tax is not applied: no rate was entered. Add your local VAT or sales tax rate to see the total a customer pays."
+      : `Tax at ${taxRatePct} percent is added on top of ${book?.currencySymbol ?? ""}${beforeTax?.toLocaleString() ?? "the total"}. Confirm the rate before sending the quote.`,
   );
 
   return {
     status:
-      missing.size === 0 && total !== null ? "priced" : "manual_price_required",
+      missing.size === 0 && beforeTax !== null
+        ? "priced"
+        : "manual_price_required",
     market: (input.market ?? "").toUpperCase(),
     currency: book?.currency ?? null,
     currencySymbol: book?.currencySymbol ?? null,
@@ -506,7 +595,15 @@ export function calculateBlindProject(
     gradeMultiplier: grade.multiplier,
     missing: [...missing],
     rows,
-    totals: { blinds, extras, installation, total },
+    totals: {
+      blinds,
+      extras,
+      installation,
+      total: beforeTax,
+      tax,
+      totalInclTax,
+    },
+    taxRatePct,
     geometry: {
       unit: input.unit,
       windowCount,
@@ -514,7 +611,7 @@ export function calculateBlindProject(
       totalChargeableAreaM2,
       blendedRatePerM2,
     },
-    taxStatus: "tax_not_determined",
+    taxStatus: taxRatePct === null ? "tax_not_determined" : "tax_applied",
     assumptions,
     provenance: {
       gradeNote: grade.note,
