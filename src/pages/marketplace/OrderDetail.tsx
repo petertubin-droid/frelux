@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  ArrowLeft,
   Loader2,
   Check,
   Wallet,
@@ -32,6 +31,7 @@ import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
 
 const STATUS_FLOW = [
   "pending_start",
@@ -176,53 +176,46 @@ export default function OrderDetail() {
 
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
+      <PageHeader
+        variant="data"
+        backTo="/marketplace"
+        backLabel={t("Marketplace")}
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Marketplace"), path: "/marketplace" },
+          { label: t("Order") },
+        ]}
+        eyebrow={t("Order")}
+        title={order.listing?.title || "Untitled Job"}
+        subtitle={`${order.order_number} · ${PROJECT_TYPE_LABELS[order.listing?.project_type || "painting"]}`}
+        actions={
+          <div className="text-right">
+            <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
+              {formatByCode(order.agreed_price, order.currency)}
+            </p>
+            {order.agreed_timeline_days && (
+              <p className="text-xs text-muted-foreground">
+                <Calendar
+                  aria-hidden="true"
+                  className="mr-0.5 inline h-3 w-3"
+                />{" "}
+                {order.agreed_timeline_days} days
+              </p>
+            )}
+          </div>
+        }
+      />
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> {t("Back")}
-        </Button>
-
-        {/* Order header */}
         <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-muted-foreground">
-                  {order.order_number}
-                </span>
-                <span
-                  className={classNames(
-                    "rounded-md px-2 py-0.5 text-xs font-semibold",
-                    STATUS_COLORS[order.status],
-                  )}
-                >
-                  {ORDER_STATUS_LABELS[order.status]}
-                </span>
-              </div>
-              <h1 className="mt-2 text-lg font-bold text-foreground dark:text-primary-foreground">
-                {order.listing?.title || "Untitled Job"}
-              </h1>
-              <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                {PROJECT_TYPE_LABELS[order.listing?.project_type || "painting"]}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
-                {formatByCode(order.agreed_price, order.currency)}
-              </p>
-              {order.agreed_timeline_days && (
-                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  <Calendar
-                    aria-hidden="true"
-                    className="mr-0.5 inline h-3 w-3"
-                  />{" "}
-                  {order.agreed_timeline_days} days
-                </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={classNames(
+                "rounded-md px-2 py-0.5 text-xs font-semibold",
+                STATUS_COLORS[order.status],
               )}
-            </div>
+            >
+              {ORDER_STATUS_LABELS[order.status]}
+            </span>
           </div>
 
           {/* Participant info */}

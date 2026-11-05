@@ -33,6 +33,7 @@ import { classNames } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function ProConnectRegister() {
   const { t } = useLanguage();
@@ -311,23 +312,24 @@ export default function ProConnectRegister() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link
-        to="/pro-connect/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
-      >
-        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-        {t("Back to directory")}
-      </Link>
-
-      <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-        {existingProfile
-          ? "Edit Professional Profile"
-          : "Become a FRELUX Professional"}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-        Join the FRELUX Pro Connect network and connect with customers who need
-        your services.
-      </p>
+      <PageHeader
+        backTo="/pro-connect/"
+        backLabel={t("Back to directory")}
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Pro Connect"), path: "/pro-connect/" },
+          { label: t("Professional registration") },
+        ]}
+        eyebrow={t("Pro Connect")}
+        title={
+          existingProfile
+            ? t("Edit Professional Profile")
+            : t("Become a FRELUX Professional")
+        }
+        subtitle={t(
+          "Join the FRELUX Pro Connect network and connect with customers who need your services.",
+        )}
+      />
 
       {/* Progress bar */}
       <div className="mb-8 mt-6">
