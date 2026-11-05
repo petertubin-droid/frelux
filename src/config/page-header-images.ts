@@ -45,6 +45,7 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
     image: "/assets/headers/colors.jpg",
   },
   { test: /^\/faq$/, image: "/assets/headers/learn.jpg" },
+  { test: /^\/borehole/, image: "/assets/headers/mep.jpg" },
   {
     // Specialty takeoffs: retaining wall, steel sections, eaves finishing,
     // conduit runs. Specific routes first, so the broad rules below only
@@ -253,6 +254,11 @@ export const PAGE_CATALOG: CatalogEntry[] = [
   },
   { path: "/flooring", title: "Flooring", group: "Calculators" },
   { path: "/waterproofing", title: "Waterproofing", group: "Calculators" },
+  {
+    path: "/borehole-water-system-estimator",
+    title: "Borehole & Water Supply Estimator",
+    group: "Calculators",
+  },
   {
     path: "/tyrolene-estimator",
     title: "Tyrolene Estimator",

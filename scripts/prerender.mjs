@@ -2677,6 +2677,12 @@ const routes = [
       "Calculate dead load, wind overturning safety factor and a preliminary steel or concrete bill of quantities for overhead water tank towers, with pad footing sizes and a step by step animated build sequence.",
   },
   {
+    path: "/borehole-water-system-estimator",
+    title: "Autonomous Borehole & Water Supply System Estimator | FRELUX SMART CALC",
+    description:
+      "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
+  },
+  {
     path: "/global-site-safety-estimator",
     title: "Global Site Safety & PPE Estimator | FRELUX SMART CALC",
     description:

@@ -583,6 +583,9 @@ const ConduitWiringEstimator = lazy(
   () => import("@/pages/ConduitWiringEstimator"),
 );
 const WaterTowerEstimator = lazy(() => import("@/pages/WaterTowerEstimator"));
+const BoreholeWaterSystemEstimator = lazy(
+  () => import("@/pages/BoreholeWaterSystemEstimator"),
+);
 const GlobalSiteSafetyEstimator = lazy(
   () => import("@/pages/GlobalSiteSafetyEstimator"),
 );
@@ -2146,6 +2149,14 @@ export default function App() {
                         <Route
                           path="/water-tower-staging-estimator"
                           element={<WaterTowerEstimator />}
+                        />
+                        <Route
+                          path="/borehole-water-system-estimator"
+                          element={<BoreholeWaterSystemEstimator />}
+                        />
+                        <Route
+                          path="/borehole-estimator"
+                          element={<BoreholeWaterSystemEstimator />}
                         />
                         <Route
                           path="/global-site-safety-estimator"

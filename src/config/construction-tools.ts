@@ -375,6 +375,21 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "borehole-water-system-estimator",
+    title: "Autonomous Borehole & Water Supply",
+    category: "services",
+    icon: Droplets,
+    does: "Calculate drilling strata, casing, gravel pack, sanitary grout seal, submersible pump hydraulics, check valves, multi-barrier filtration, overhead rush buffering, and gravity reticulation.",
+    enters:
+      "Drilling depth, static water level, safe yield, aquifer hydrogeology, occupants, water quality assay, and tower elevation.",
+    gets: "Total Dynamic Head (TDH), submersible motor HP, check valve schedule, 4-stage water treatment train, peak rush buffer volume, overhead tank sizing, tap hydrostatic pressure, and complete Bill of Quantities.",
+    to: "/borehole-water-system-estimator",
+    navVisible: true,
+    seoTitle: "Autonomous Borehole & Water Supply System Estimator | FRELUX",
+    seoDescription:
+      "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
+  },
+  {
     slug: "temporary-works-calculator",
     title: "Formwork & Temporary Works",
     category: "structure",

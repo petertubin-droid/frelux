@@ -365,6 +365,11 @@ const routes = [
     changefreq: "monthly",
   },
   {
+    path: "/borehole-water-system-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
     path: "/global-site-safety-estimator",
     priority: "0.9",
     changefreq: "monthly",
