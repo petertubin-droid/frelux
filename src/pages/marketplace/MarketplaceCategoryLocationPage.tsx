@@ -14,6 +14,7 @@ import type {
 import type { DbMarketplaceListing } from "@/types/marketplace";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
 
 // ============================================================
 // SEO Page: /marketplace/:categorySlug/:locationSlug
@@ -145,45 +146,20 @@ export default function MarketplaceCategoryLocationPage() {
 
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
-      {/* Breadcrumb */}
-      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
-            <Link to="/" className="hover:text-brand-purple">
-              {t("Home")}
-            </Link>
-            <span>/</span>
-            <Link to="/marketplace/" className="hover:text-brand-purple">
-              {t("Marketplace")}
-            </Link>
-            <span>/</span>
-            <Link
-              to={`/marketplace/category/${categorySlug}/`}
-              className="hover:text-brand-purple"
-            >
-              {category?.name}
-            </Link>
-            <span>/</span>
-            <span className="text-foreground dark:text-primary-foreground">
-              {location?.city}
-            </span>
-          </nav>
-        </div>
-      </div>
-
-      {/* Header */}
-      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-            {pageTitle}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
-            {category?.description ||
-              `Find ${category?.name} professionals and jobs${locationLabel ? ` in ${locationLabel}` : ""}.`}
-          </p>
-        </div>
-      </div>
-
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: t("Marketplace"), path: "/marketplace/" },
+          { label: pageTitle },
+        ]}
+        eyebrow={t("Marketplace")}
+        title={pageTitle}
+        subtitle={
+          category?.description ||
+          `Find ${category?.name} professionals and jobs${locationLabel ? ` in ${locationLabel}` : ""}.`
+        }
+      />
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (

@@ -15,6 +15,7 @@ import type {
 } from "@/types/pro-connect";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLanguage } from "@/lib/i18n";
+import PageHeader from "@/components/ui/PageHeader";
 
 // ============================================================
 // SEO Page: /pro/:categorySlug/:locationSlug
@@ -129,41 +130,20 @@ export default function ProCategoryLocationPage() {
 
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
-      {/* Breadcrumb */}
-      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
-            <Link to="/" className="hover:text-brand-purple">
-              {t("Home")}
-            </Link>
-            <span>/</span>
-            <Link to="/pro-connect/" className="hover:text-brand-purple">
-              {t("Pro Connect")}
-            </Link>
-            <span>/</span>
-            <span className="text-foreground dark:text-primary-foreground">
-              {professionLabel} in {location?.city || "..."}
-            </span>
-          </nav>
+      <PageHeader
+        variant="data"
+        breadcrumbs={[
+          { label: t("Home"), path: "/" },
+          { label: `${professionLabel} in ${locationLabel || "..."}` },
+        ]}
+        eyebrow={t("Pro Connect")}
+        title={`${professionLabel} in ${locationLabel || "..."}`}
+        subtitle={`Browse verified ${professionLabel.toLowerCase()} in ${locationLabel}. Check ratings, portfolios, and connect directly.`}
+      >
+        <div className="mt-4">
+          <LocationPicker compact />
         </div>
-      </div>
-
-      {/* Header */}
-      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-            {professionLabel} in {locationLabel || "..."}
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
-            Browse verified {professionLabel.toLowerCase()} in {locationLabel}.
-            Check ratings, portfolios, and connect directly.
-          </p>
-          <div className="mt-4">
-            <LocationPicker compact />
-          </div>
-        </div>
-      </div>
-
+      </PageHeader>
       {/* Professionals */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
