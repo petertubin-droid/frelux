@@ -13,6 +13,7 @@
 // =========================================================
 
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Blinds, Info, Plus, Ruler, Trash2, Wrench } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -241,8 +242,14 @@ export default function WindowBlindsEstimator() {
     <div className="bg-background">
       <Container className="py-8 md:py-12">
         <PageHeader
+          variant="tool"
+          eyebrow="Finishes"
           title="Window blind estimator"
           subtitle="List every opening, pick the type and grade, and see the price per window and for the whole job before a shop quotes you."
+          breadcrumbs={[
+            { label: "Calculators", path: "/calculators" },
+            { label: "Window blinds" },
+          ]}
         />
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
@@ -662,9 +669,145 @@ export default function WindowBlindsEstimator() {
           </aside>
         </div>
 
-        <section className="mt-10 space-y-4">
+        <section aria-labelledby="blind-steps" className="mt-10 space-y-4">
+          <h2
+            id="blind-steps"
+            className="text-lg font-semibold text-foreground"
+          >
+            How this estimate is built
+          </h2>
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                n: "1",
+                title: "Measure the opening",
+                body: "Width across the reveal and the drop from head to sill, in feet or metres. Both are converted to metres before any rate is applied.",
+              },
+              {
+                n: "2",
+                title: "Charge the area",
+                body: "The measured area is multiplied by the waste allowance for that blind type, because folded fabric is cut with more spare than a rigid slat.",
+              },
+              {
+                n: "3",
+                title: "Apply rate and minimum",
+                body: "The area is priced at the market rate, then lifted to the minimum charge per window whenever the opening prices below it.",
+              },
+              {
+                n: "4",
+                title: "Scale and finish",
+                body: "Count, grade, extras and fitting are added, giving a price per window and a total for the schedule before tax.",
+              },
+            ].map((step) => (
+              <li
+                key={step.n}
+                className="rounded-xl border border-border bg-card p-4"
+              >
+                <span className="text-xs font-medium text-muted-foreground">
+                  Step {step.n}
+                </span>
+                <h3 className="mt-1 text-sm font-medium text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {step.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section aria-labelledby="blind-types" className="mt-10 space-y-4">
+          <h2
+            id="blind-types"
+            className="text-lg font-semibold text-foreground"
+          >
+            Blind types and what they cost
+          </h2>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            Every band below is the top of what the Nigerian market actually
+            quotes, from vendor price lists and marketplace listings scanned in
+            November 2026. The estimator prices at the top of the band, because
+            under quoting a blind costs the installer money.
+          </p>
+          <div className="overflow-x-auto rounded-xl border border-border bg-card">
+            <table className="w-full min-w-[520px] text-left text-sm">
+              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th scope="col" className="p-3 font-medium">
+                    Type
+                  </th>
+                  <th scope="col" className="p-3 font-medium">
+                    Made of
+                  </th>
+                  <th scope="col" className="p-3 font-medium">
+                    Local band
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {BLIND_TYPES.map((type) => (
+                  <tr key={type.key}>
+                    <th scope="row" className="p-3 font-medium text-foreground">
+                      {type.label}
+                    </th>
+                    <td className="p-3 text-muted-foreground">{type.family}</td>
+                    <td className="p-3 text-muted-foreground">
+                      {type.observedBand}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="blind-next" className="mt-10 space-y-3">
+          <h2 id="blind-next" className="text-lg font-semibold text-foreground">
+            Next in the job
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              {
+                to: "/fence-block-calculator",
+                label: "Fence and coach blocks",
+                note: "Perimeter wall, blocks, cement and sand.",
+              },
+              {
+                to: "/german-floor-calculator",
+                label: "German floor",
+                note: "Laterite, slab and mix for a ground floor.",
+              },
+              {
+                to: "/construction-tools",
+                label: "All construction tools",
+                note: "Every calculator in the FRELUX set.",
+              },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="rounded-xl border border-border bg-card p-4 hover:bg-muted"
+              >
+                <span className="block text-sm font-medium text-foreground">
+                  {link.label}
+                </span>
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  {link.note}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="blind-faq" className="mt-10 space-y-4">
           <h2 className="text-lg font-semibold text-foreground">
-            Blind pricing questions
+            <h2
+              id="blind-faq"
+              className="text-lg font-semibold text-foreground"
+            >
+              Blind pricing questions
+            </h2>
           </h2>
           {[
             {

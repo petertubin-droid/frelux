@@ -30,6 +30,11 @@ export interface HeaderImageRule {
 /** Ordered rules: first match wins, most specific patterns first. */
 const HEADER_IMAGE_RULES: HeaderImageRule[] = [
   // ── Trade tools ──────────────────────────────────────────
+  {
+    // Window treatments: blind estimator and window covering pages.
+    test: /^\/(window-blind|blinds)/,
+    image: "/assets/headers/blinds.jpg",
+  },
   { test: /^\/screeding/, image: "/assets/headers/screed.jpg" },
   { test: /^\/pop-ceiling/, image: "/assets/headers/pop.jpg" },
   { test: /^\/(tile|flooring)/, image: "/assets/headers/tile.jpg" },
