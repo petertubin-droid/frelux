@@ -32,6 +32,10 @@ import {
   CasingMaterial,
 } from "@/lib/estimation/borehole-water-system-engine";
 import BoreholeWaterSystemAnimation from "@/components/tools/BoreholeWaterSystemAnimation";
+import {
+  calculateTankStand,
+  type StandStructure,
+} from "@/lib/estimation/tank-stand";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 
 export default function BoreholeWaterSystemEstimator() {
@@ -61,6 +65,8 @@ export default function BoreholeWaterSystemEstimator() {
   const [coliformDetected, setColiformDetected] = useState<boolean>(false);
 
   const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
+  const [standStructure, setStandStructure] =
+    useState<StandStructure>("blockwork");
 
   const inputs: BoreholeSystemInputs = useMemo(
     () => ({
@@ -117,6 +123,19 @@ export default function BoreholeWaterSystemEstimator() {
     return calculateBoreholeWaterSystem(inputs);
   }, [inputs]);
 
+  // The stand under the tank the engine just sized, at the height the design
+  // puts it. Structure and ground conditions stay in the user's hands.
+  const stand = useMemo(
+    () =>
+      calculateTankStand({
+        market: "NG",
+        capacityLitres: result.storage.commercialTankSizeLiters,
+        standHeightM: towerHeightM,
+        structure: standStructure,
+      }),
+    [result.storage.commercialTankSizeLiters, towerHeightM, standStructure],
+  );
+
   useSeo({
     title: "Autonomous Borehole & Water Supply System Estimator | FRELUX",
     description:
@@ -154,40 +173,134 @@ export default function BoreholeWaterSystemEstimator() {
       ["Unit System", unitSystem.toUpperCase()],
       ["", ""],
       ["--- WELL CONSTRUCTION & STRATA ---", ""],
-      ["Total Drilling Depth", `${result.well.totalDepthMeters} m (${(result.well.totalDepthMeters * 3.28084).toFixed(1)} ft)`],
+      [
+        "Total Drilling Depth",
+        `${result.well.totalDepthMeters} m (${(result.well.totalDepthMeters * 3.28084).toFixed(1)} ft)`,
+      ],
       ["Plain Casing Pipe", `${result.well.plainCasingMeters} m`],
-      ["Slotted Well Screen", `${result.well.screenMeters} m (Slot size: ${result.well.screenSlotSizeMm} mm)`],
-      ["Sanitary Grout Depth", `${result.well.sanitaryGroutDepthMeters} m (Blocks surface runoff)`],
-      ["Portland Cement (50kg bags)", String(result.well.sanitaryGroutCementBags50kg)],
+      [
+        "Slotted Well Screen",
+        `${result.well.screenMeters} m (Slot size: ${result.well.screenSlotSizeMm} mm)`,
+      ],
+      [
+        "Sanitary Grout Depth",
+        `${result.well.sanitaryGroutDepthMeters} m (Blocks surface runoff)`,
+      ],
+      [
+        "Portland Cement (50kg bags)",
+        String(result.well.sanitaryGroutCementBags50kg),
+      ],
       ["Sodium Bentonite Seal (kg)", String(result.well.bentoniteSealKg)],
-      ["Graded Silica Gravel Pack (25kg bags)", String(result.well.gravelPackBags25kg)],
+      [
+        "Graded Silica Gravel Pack (25kg bags)",
+        String(result.well.gravelPackBags25kg),
+      ],
       ["", ""],
       ["--- SUBMERSIBLE PUMPING & HYDRAULICS ---", ""],
       ["Static Water Level", `${result.pumping.staticWaterLevelMeters} m`],
       ["Drawdown Under Pumping", `${result.pumping.drawdownMeters} m`],
       ["Dynamic Water Level", `${result.pumping.dynamicWaterLevelMeters} m`],
       ["Pump Setting Depth", `${result.pumping.pumpSettingDepthMeters} m`],
-      ["Total Dynamic Head (TDH)", `${result.pumping.totalDynamicHeadMeters} m (${result.pumping.totalDynamicHeadFeet} ft)`],
-      ["Design Flow Rate", `${result.pumping.designFlowRateM3PerHour} m³/h (${result.pumping.designFlowRateGpm} GPM)`],
-      ["Recommended Motor Power", `${result.pumping.recommendedMotorHp} HP (${result.pumping.motorElectricalPowerKw} kW)`],
-      ["Check Valve Count", `${result.pumping.checkValveCount} units (Spring-loaded non-return)`],
-      ["Submersible Cable Size", `${result.pumping.submersibleCableMm2} mm² (Drop: ${result.pumping.voltageDropPercent}%)`],
+      [
+        "Total Dynamic Head (TDH)",
+        `${result.pumping.totalDynamicHeadMeters} m (${result.pumping.totalDynamicHeadFeet} ft)`,
+      ],
+      [
+        "Design Flow Rate",
+        `${result.pumping.designFlowRateM3PerHour} m³/h (${result.pumping.designFlowRateGpm} GPM)`,
+      ],
+      [
+        "Recommended Motor Power",
+        `${result.pumping.recommendedMotorHp} HP (${result.pumping.motorElectricalPowerKw} kW)`,
+      ],
+      [
+        "Check Valve Count",
+        `${result.pumping.checkValveCount} units (Spring-loaded non-return)`,
+      ],
+      [
+        "Submersible Cable Size",
+        `${result.pumping.submersibleCableMm2} mm² (Drop: ${result.pumping.voltageDropPercent}%)`,
+      ],
       ["", ""],
       ["--- STORAGE & PEAK RUSH BUFFERING ---", ""],
-      ["Daily Total Demand", `${result.storage.dailyTotalDemandLiters} L/day (${result.storage.dailyTotalDemandUsGal} US Gal)`],
-      ["Peak Morning Rush Demand Rate", `${result.storage.peakRushDemandLitersPerHour} L/h`],
+      [
+        "Daily Total Demand",
+        `${result.storage.dailyTotalDemandLiters} L/day (${result.storage.dailyTotalDemandUsGal} US Gal)`,
+      ],
+      [
+        "Peak Morning Rush Demand Rate",
+        `${result.storage.peakRushDemandLitersPerHour} L/h`,
+      ],
       ["Pump Hourly Delivery", `${result.storage.pumpHourlyOutputLiters} L/h`],
-      ["Peak Rush Deficit Rate", `${result.storage.peakRushDeficitLitersPerHour} L/h`],
-      ["Peak Rush Buffer Volume Needed", `${result.storage.rushBufferNeededLiters} L`],
-      ["Recommended Commercial Tank Size", `${result.storage.commercialTankSizeLiters} L (${result.storage.commercialTankSizeUsGal} US Gal)`],
-      ["Tank Overflow Pipe Diameter", `${result.storage.overflowPipeDiameterMm} mm`],
+      [
+        "Peak Rush Deficit Rate",
+        `${result.storage.peakRushDeficitLitersPerHour} L/h`,
+      ],
+      [
+        "Peak Rush Buffer Volume Needed",
+        `${result.storage.rushBufferNeededLiters} L`,
+      ],
+      [
+        "Recommended Commercial Tank Size",
+        `${result.storage.commercialTankSizeLiters} L (${result.storage.commercialTankSizeUsGal} US Gal)`,
+      ],
+      [
+        "Tank Overflow Pipe Diameter",
+        `${result.storage.overflowPipeDiameterMm} mm`,
+      ],
+      ["", ""],
+      ["--- TANK STAND STRUCTURE ---", ""],
+      ["Stand Structure", standStructure.replace("_", " ")],
+      ["Stand Height to Platform", `${stand.result?.standHeightM ?? 0} m`],
+      [
+        "Loaded Mass",
+        `${stand.result?.loads.totalKg ?? 0} kg (${stand.result?.loads.totalKn ?? 0} kN)`,
+      ],
+      [
+        "Footing Pad Size",
+        `${stand.result?.concrete?.padSideM ?? 0} m square x ${stand.result?.concrete?.padDepthM ?? 0} m`,
+      ],
+      [
+        "Footing Concrete",
+        `${stand.result?.concrete?.footingConcreteM3 ?? 0} m³`,
+      ],
+      [
+        "Footing Reinforcement",
+        `${stand.result?.concrete?.reinforcementKg ?? 0} kg`,
+      ],
+      ["Blocks for Piers", `${stand.result?.blockwork?.blocksTotal ?? 0}`],
+      ["Cement for Mortar", `${stand.result?.blockwork?.cementBags ?? 0} bags`],
+      ["Sand for Mortar", `${stand.result?.blockwork?.sandM3 ?? 0} m³`],
+      [
+        "Applied Bearing Pressure",
+        `${stand.result?.bearing.appliedPressureKpa ?? 0} kPa of ${stand.result?.bearing.soilBearingKpa ?? 0} kPa allowable`,
+      ],
+      ...(stand.result?.checks ?? []).map((c) => [
+        `Check: ${c.label}`,
+        `${c.status.toUpperCase()} - ${c.detail}`,
+      ]),
       ["", ""],
       ["--- RETICULATION & GRAVITY PRESSURE ---", ""],
-      ["Overhead Tower Elevation", `${result.distribution.towerHeightMeters} m`],
-      ["Ground Hydrostatic Pressure", `${result.distribution.groundHydrostaticPressureBar} bar (${result.distribution.groundHydrostaticPressurePsi} psi)`],
-      ["Pressure Adequacy Rating", result.distribution.pressureAdequacy.toUpperCase()],
-      ["Buried Trench Depth", `${result.distribution.buriedTrenchDepthMeters} m`],
-      ["Buried Distribution Pipe OD", `${result.distribution.buriedPipeDiameterMm} mm`],
+      [
+        "Overhead Tower Elevation",
+        `${result.distribution.towerHeightMeters} m`,
+      ],
+      [
+        "Ground Hydrostatic Pressure",
+        `${result.distribution.groundHydrostaticPressureBar} bar (${result.distribution.groundHydrostaticPressurePsi} psi)`,
+      ],
+      [
+        "Pressure Adequacy Rating",
+        result.distribution.pressureAdequacy.toUpperCase(),
+      ],
+      [
+        "Buried Trench Depth",
+        `${result.distribution.buriedTrenchDepthMeters} m`,
+      ],
+      [
+        "Buried Distribution Pipe OD",
+        `${result.distribution.buriedPipeDiameterMm} mm`,
+      ],
       ["", ""],
       ["--- COMPLETE ITEMIZED BILL OF QUANTITIES ---", "", "", "", ""],
       ["Category", "Item", "Specification", "Quantity", "Unit", "Notes"],
@@ -249,13 +362,16 @@ export default function BoreholeWaterSystemEstimator() {
                 System Engineering Parameters
               </h2>
               <p className="text-xs text-muted-foreground">
-                Calibrated against WHO, NIS 554, FMWR, EPA SDWA, and BS EN 806 standards
+                Calibrated against WHO, NIS 554, FMWR, EPA SDWA, and BS EN 806
+                standards
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Units:</span>
+            <span className="text-xs font-medium text-muted-foreground">
+              Units:
+            </span>
             <div className="inline-flex rounded-lg border border-border bg-muted p-0.5">
               <button
                 type="button"
@@ -304,7 +420,8 @@ export default function BoreholeWaterSystemEstimator() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Layers className="h-4 w-4 text-primary" /> 1. Geological Strata & Drilling
+                  <Layers className="h-4 w-4 text-primary" /> 1. Geological
+                  Strata & Drilling
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-xs sm:text-sm">
@@ -313,7 +430,9 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="flex justify-between font-medium">
                     <label htmlFor="depth-slider">Total Drilling Depth</label>
                     <span className="font-mono text-primary font-semibold">
-                      {depthM} m {unitSystem === "imperial" && `(${(depthM * 3.28084).toFixed(0)} ft)`}
+                      {depthM} m{" "}
+                      {unitSystem === "imperial" &&
+                        `(${(depthM * 3.28084).toFixed(0)} ft)`}
                     </span>
                   </div>
                   <input
@@ -326,7 +445,8 @@ export default function BoreholeWaterSystemEstimator() {
                     onChange={(e) => {
                       const val = Number(e.target.value);
                       setDepthM(val);
-                      if (staticLevelM >= val - 5) setStaticLevelM(Math.max(5, val - 10));
+                      if (staticLevelM >= val - 5)
+                        setStaticLevelM(Math.max(5, val - 10));
                     }}
                     className="w-full accent-primary"
                   />
@@ -340,9 +460,13 @@ export default function BoreholeWaterSystemEstimator() {
                 {/* Static Water Level */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-medium">
-                    <label htmlFor="static-level">Static Water Level (Below Surface)</label>
+                    <label htmlFor="static-level">
+                      Static Water Level (Below Surface)
+                    </label>
                     <span className="font-mono text-foreground">
-                      {staticLevelM} m {unitSystem === "imperial" && `(${(staticLevelM * 3.28084).toFixed(0)} ft)`}
+                      {staticLevelM} m{" "}
+                      {unitSystem === "imperial" &&
+                        `(${(staticLevelM * 3.28084).toFixed(0)} ft)`}
                     </span>
                   </div>
                   <input
@@ -371,10 +495,18 @@ export default function BoreholeWaterSystemEstimator() {
                     onChange={(e) => setAquifer(e.target.value as AquiferType)}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
                   >
-                    <option value="fractured_basement">Fractured Crystalline Basement (Granite/Gneiss)</option>
-                    <option value="confined_sand">Confined Sandstone / Deep Alluvial Sand</option>
-                    <option value="unconfined_gravel">Unconfined Fluvial Sand & Coarse Gravel</option>
-                    <option value="sedimentary_sandstone">Sedimentary Sandstone Aquifer</option>
+                    <option value="fractured_basement">
+                      Fractured Crystalline Basement (Granite/Gneiss)
+                    </option>
+                    <option value="confined_sand">
+                      Confined Sandstone / Deep Alluvial Sand
+                    </option>
+                    <option value="unconfined_gravel">
+                      Unconfined Fluvial Sand & Coarse Gravel
+                    </option>
+                    <option value="sedimentary_sandstone">
+                      Sedimentary Sandstone Aquifer
+                    </option>
                   </select>
                 </div>
 
@@ -386,11 +518,17 @@ export default function BoreholeWaterSystemEstimator() {
                   <select
                     id="casing-material"
                     value={casingMat}
-                    onChange={(e) => setCasingMat(e.target.value as CasingMaterial)}
+                    onChange={(e) =>
+                      setCasingMat(e.target.value as CasingMaterial)
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
                   >
-                    <option value="upvc">Heavy Duty Class 9/12 uPVC (Corrosion Resistant)</option>
-                    <option value="steel">Seamless Mild Steel / Stainless Steel Casing</option>
+                    <option value="upvc">
+                      Heavy Duty Class 9/12 uPVC (Corrosion Resistant)
+                    </option>
+                    <option value="steel">
+                      Seamless Mild Steel / Stainless Steel Casing
+                    </option>
                   </select>
                 </div>
               </CardContent>
@@ -400,7 +538,8 @@ export default function BoreholeWaterSystemEstimator() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-emerald-500" /> 2. Submersible Pumping Hydraulics
+                  <Zap className="h-4 w-4 text-emerald-500" /> 2. Submersible
+                  Pumping Hydraulics
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-xs sm:text-sm">
@@ -409,7 +548,9 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="flex justify-between font-medium">
                     <label htmlFor="safe-yield">Well Safe Yield Capacity</label>
                     <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                      {yieldM3h} m³/h {unitSystem === "imperial" && `(${(yieldM3h * 4.40287).toFixed(1)} GPM)`}
+                      {yieldM3h} m³/h{" "}
+                      {unitSystem === "imperial" &&
+                        `(${(yieldM3h * 4.40287).toFixed(1)} GPM)`}
                     </span>
                   </div>
                   <input
@@ -440,19 +581,31 @@ export default function BoreholeWaterSystemEstimator() {
                     onChange={(e) => setPower(e.target.value as PowerSupply)}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
                   >
-                    <option value="single_phase_220v">Single Phase 220V - 240V / 50Hz (Standard)</option>
-                    <option value="three_phase_380v">Three Phase 380V - 415V / 50Hz (Industrial/High Yield)</option>
-                    <option value="single_phase_110v">Single Phase 110V - 120V / 60Hz (North America)</option>
-                    <option value="solar_dc">Solar DC Direct Brushless Pumping</option>
+                    <option value="single_phase_220v">
+                      Single Phase 220V - 240V / 50Hz (Standard)
+                    </option>
+                    <option value="three_phase_380v">
+                      Three Phase 380V - 415V / 50Hz (Industrial/High Yield)
+                    </option>
+                    <option value="single_phase_110v">
+                      Single Phase 110V - 120V / 60Hz (North America)
+                    </option>
+                    <option value="solar_dc">
+                      Solar DC Direct Brushless Pumping
+                    </option>
                   </select>
                 </div>
 
                 {/* Overhead Tower Height */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-medium">
-                    <label htmlFor="tower-height">Overhead Water Tower Height</label>
+                    <label htmlFor="tower-height">
+                      Overhead Water Tower Height
+                    </label>
                     <span className="font-mono text-foreground">
-                      {towerHeightM} m {unitSystem === "imperial" && `(${(towerHeightM * 3.28084).toFixed(0)} ft)`}
+                      {towerHeightM} m{" "}
+                      {unitSystem === "imperial" &&
+                        `(${(towerHeightM * 3.28084).toFixed(0)} ft)`}
                     </span>
                   </div>
                   <input
@@ -477,10 +630,19 @@ export default function BoreholeWaterSystemEstimator() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-sky-500" /> 3. Water Quality & Lab Testing
+                    <Filter className="h-4 w-4 text-sky-500" /> 3. Water Quality
+                    & Lab Testing
                   </span>
-                  <Badge variant={result.treatment.isPotableWithoutTreatment ? "outline" : "destructive"}>
-                    {result.treatment.isPotableWithoutTreatment ? "Potable Baseline" : "Treatment Required"}
+                  <Badge
+                    variant={
+                      result.treatment.isPotableWithoutTreatment
+                        ? "outline"
+                        : "destructive"
+                    }
+                  >
+                    {result.treatment.isPotableWithoutTreatment
+                      ? "Potable Baseline"
+                      : "Treatment Required"}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -501,11 +663,16 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setIron(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">Limit: ≤ 0.3 mg/L</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Limit: ≤ 0.3 mg/L
+                    </span>
                   </div>
 
                   <div className="space-y-1">
-                    <label htmlFor="manganese-level" className="font-medium text-xs">
+                    <label
+                      htmlFor="manganese-level"
+                      className="font-medium text-xs"
+                    >
                       Manganese (Mn, mg/L)
                     </label>
                     <input
@@ -518,14 +685,19 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setManganese(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">Limit: ≤ 0.1 mg/L</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Limit: ≤ 0.1 mg/L
+                    </span>
                   </div>
                 </div>
 
                 {/* Hardness & Turbidity */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label htmlFor="hardness-level" className="font-medium text-xs">
+                    <label
+                      htmlFor="hardness-level"
+                      className="font-medium text-xs"
+                    >
                       Hardness (CaCO₃, mg/L)
                     </label>
                     <input
@@ -538,11 +710,16 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setHardness(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">Soft: &lt;60 | Hard: &gt;120</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Soft: &lt;60 | Hard: &gt;120
+                    </span>
                   </div>
 
                   <div className="space-y-1">
-                    <label htmlFor="turbidity-level" className="font-medium text-xs">
+                    <label
+                      htmlFor="turbidity-level"
+                      className="font-medium text-xs"
+                    >
                       Turbidity (NTU)
                     </label>
                     <input
@@ -555,14 +732,18 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setTurbidity(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">WHO Limit: ≤ 5 NTU</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      WHO Limit: ≤ 5 NTU
+                    </span>
                   </div>
                 </div>
 
                 {/* Coliform Toggle */}
                 <div className="flex items-center justify-between rounded-lg border border-border p-2.5 bg-muted/20">
                   <div className="space-y-0.5">
-                    <span className="font-medium text-xs">Microbial Coliform Bacteria</span>
+                    <span className="font-medium text-xs">
+                      Microbial Coliform Bacteria
+                    </span>
                     <p className="text-[11px] text-muted-foreground">
                       Fecal coliforms / E. coli presence from surface runoff
                     </p>
@@ -586,14 +767,19 @@ export default function BoreholeWaterSystemEstimator() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Sliders className="h-4 w-4 text-primary" /> 4. Household Demand & Rush Buffering
+                  <Sliders className="h-4 w-4 text-primary" /> 4. Household
+                  Demand & Rush Buffering
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-xs sm:text-sm">
                 <div className="space-y-1.5">
                   <div className="flex justify-between font-medium">
-                    <label htmlFor="occupants-num">Household Occupants Served</label>
-                    <span className="font-mono text-primary font-semibold">{occupants} people</span>
+                    <label htmlFor="occupants-num">
+                      Household Occupants Served
+                    </label>
+                    <span className="font-mono text-primary font-semibold">
+                      {occupants} people
+                    </span>
                   </div>
                   <input
                     id="occupants-num"
@@ -617,9 +803,15 @@ export default function BoreholeWaterSystemEstimator() {
                     onChange={(e) => setTier(e.target.value as ConsumptionTier)}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm"
                   >
-                    <option value="rural_basic">Basic Residential / Rural (80 L/capita/day)</option>
-                    <option value="suburban_standard">Standard Suburban Household (150 L/capita/day)</option>
-                    <option value="urban_high">Luxury / High Consumption (250 L/capita/day)</option>
+                    <option value="rural_basic">
+                      Basic Residential / Rural (80 L/capita/day)
+                    </option>
+                    <option value="suburban_standard">
+                      Standard Suburban Household (150 L/capita/day)
+                    </option>
+                    <option value="urban_high">
+                      Luxury / High Consumption (250 L/capita/day)
+                    </option>
                   </select>
                 </div>
               </CardContent>
@@ -633,13 +825,15 @@ export default function BoreholeWaterSystemEstimator() {
               <Card className="border-border shadow-sm bg-gradient-to-br from-card to-muted/30">
                 <CardContent className="p-3.5 space-y-1">
                   <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                    <Zap className="h-3.5 w-3.5 text-emerald-500" /> Submersible Pump
+                    <Zap className="h-3.5 w-3.5 text-emerald-500" /> Submersible
+                    Pump
                   </span>
                   <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                     {result.pumping.recommendedMotorHp} HP
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    TDH: {result.pumping.totalDynamicHeadMeters}m ({result.pumping.totalDynamicHeadFeet} ft)
+                    TDH: {result.pumping.totalDynamicHeadMeters}m (
+                    {result.pumping.totalDynamicHeadFeet} ft)
                   </p>
                 </CardContent>
               </Card>
@@ -647,13 +841,15 @@ export default function BoreholeWaterSystemEstimator() {
               <Card className="border-border shadow-sm bg-gradient-to-br from-card to-muted/30">
                 <CardContent className="p-3.5 space-y-1">
                   <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                    <Droplets className="h-3.5 w-3.5 text-sky-500" /> Overhead Tank
+                    <Droplets className="h-3.5 w-3.5 text-sky-500" /> Overhead
+                    Tank
                   </span>
                   <div className="text-xl font-bold text-sky-600 dark:text-sky-400">
                     {result.storage.commercialTankSizeLiters.toLocaleString()} L
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    {result.storage.commercialTankSizeUsGal.toLocaleString()} US Gal capacity
+                    {result.storage.commercialTankSizeUsGal.toLocaleString()} US
+                    Gal capacity
                   </p>
                 </CardContent>
               </Card>
@@ -661,13 +857,15 @@ export default function BoreholeWaterSystemEstimator() {
               <Card className="border-border shadow-sm bg-gradient-to-br from-card to-muted/30">
                 <CardContent className="p-3.5 space-y-1">
                   <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                    <ShieldCheck className="h-3.5 w-3.5 text-amber-500" /> Sanitary Grout
+                    <ShieldCheck className="h-3.5 w-3.5 text-amber-500" />{" "}
+                    Sanitary Grout
                   </span>
                   <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                     {result.well.sanitaryGroutCementBags50kg} Bags
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    Top {result.well.sanitaryGroutDepthMeters}m sealed runoff barrier
+                    Top {result.well.sanitaryGroutDepthMeters}m sealed runoff
+                    barrier
                   </p>
                 </CardContent>
               </Card>
@@ -681,7 +879,8 @@ export default function BoreholeWaterSystemEstimator() {
                     {result.distribution.groundHydrostaticPressureBar} bar
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    {result.distribution.groundHydrostaticPressurePsi} psi hydrostatic head
+                    {result.distribution.groundHydrostaticPressurePsi} psi
+                    hydrostatic head
                   </p>
                 </CardContent>
               </Card>
@@ -692,14 +891,22 @@ export default function BoreholeWaterSystemEstimator() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-sky-500" /> Morning Rush Peak Buffering Analysis
+                  <Droplets className="h-4 w-4 text-sky-500" /> Morning Rush
+                  Peak Buffering Analysis
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-xs sm:text-sm">
                 <p className="text-muted-foreground leading-relaxed">
-                  During the peak morning window (showers, toilets, cooking running concurrently), household water
-                  demand surges to <strong className="text-foreground">{result.storage.peakRushDemandLitersPerHour} L/hour</strong> (2.8× average).
-                  The borehole pump delivers <strong className="text-foreground">{result.storage.pumpHourlyOutputLiters} L/hour</strong>.
+                  During the peak morning window (showers, toilets, cooking
+                  running concurrently), household water demand surges to{" "}
+                  <strong className="text-foreground">
+                    {result.storage.peakRushDemandLitersPerHour} L/hour
+                  </strong>{" "}
+                  (2.8× average). The borehole pump delivers{" "}
+                  <strong className="text-foreground">
+                    {result.storage.pumpHourlyOutputLiters} L/hour
+                  </strong>
+                  .
                 </p>
 
                 <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
@@ -718,7 +925,8 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="flex justify-between items-center text-xs border-t border-border pt-1 font-medium">
                     <span>Peak Rush Buffer Deficit:</span>
                     <span className="font-mono text-primary font-bold">
-                      {result.storage.rushBufferNeededLiters} Liters needed for 2h rush
+                      {result.storage.rushBufferNeededLiters} Liters needed for
+                      2h rush
                     </span>
                   </div>
                 </div>
@@ -726,18 +934,225 @@ export default function BoreholeWaterSystemEstimator() {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                   <span>
-                    Selected <strong>{result.storage.commercialTankSizeLiters.toLocaleString()}L</strong> overhead tank comfortably absorbs the morning surge and guarantees <strong>{result.inputs.reserveDays} days</strong> emergency supply.
+                    Selected{" "}
+                    <strong>
+                      {result.storage.commercialTankSizeLiters.toLocaleString()}
+                      L
+                    </strong>{" "}
+                    overhead tank comfortably absorbs the morning surge and
+                    guarantees <strong>{result.inputs.reserveDays} days</strong>{" "}
+                    emergency supply.
                   </span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 2. Multi-Barrier Treatment Train Stages */}
+            {/* 2. Tank stand structure and footings */}
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <Filter className="h-4 w-4 text-sky-500" /> Multi-Barrier Water Treatment Train
+                    <Layers className="h-4 w-4 text-primary" /> Tank Stand &
+                    Footings
+                  </span>
+                  <div className="flex gap-1">
+                    {(
+                      [
+                        "blockwork",
+                        "reinforced_concrete",
+                        "steel",
+                      ] as StandStructure[]
+                    ).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        aria-pressed={standStructure === option}
+                        onClick={() => setStandStructure(option)}
+                        className={
+                          standStructure === option
+                            ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[10px] font-semibold"
+                            : "rounded-md border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted"
+                        }
+                      >
+                        {option === "reinforced_concrete"
+                          ? "Concrete"
+                          : option.charAt(0).toUpperCase() + option.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-xs sm:text-sm">
+                {stand.result ? (
+                  <>
+                    <p className="text-muted-foreground leading-relaxed">
+                      A {standStructure.replace("_", " ")} stand carrying{" "}
+                      <strong className="text-foreground">
+                        {stand.result.capacityLitres.toLocaleString()} L
+                      </strong>{" "}
+                      of water at{" "}
+                      <strong className="text-foreground">
+                        {stand.result.standHeightM} m
+                      </strong>{" "}
+                      puts{" "}
+                      <strong className="text-foreground">
+                        {stand.result.loads.totalKn} kN
+                      </strong>{" "}
+                      on {stand.result.legs} footings, about{" "}
+                      {stand.result.loads.perLegKg.toLocaleString()} kg each.
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      <div className="rounded-lg border border-border bg-muted/30 p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Loaded mass
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.loads.totalKg.toLocaleString()} kg
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border bg-muted/30 p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Footing pads
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.concrete?.padSideM}m sq
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border bg-muted/30 p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Footing concrete
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.concrete?.footingConcreteM3} m³
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-border bg-muted/30 p-2">
+                        <div className="text-[10px] text-muted-foreground">
+                          Bearing pressure
+                        </div>
+                        <div className="font-mono font-semibold">
+                          {stand.result.bearing.appliedPressureKpa} kPa
+                        </div>
+                      </div>
+                    </div>
+
+                    {stand.result.blockwork ? (
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Blocks
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.blockwork.blocksTotal}
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Cement
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.blockwork.cementBags} bags
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Sharp sand
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.blockwork.sandM3} m³
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Courses
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.blockwork.courses}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {stand.result.steel ? (
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Legs
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.steel.legSection}
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Steel length
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.steel.legLengthM} m
+                          </div>
+                        </div>
+                        <div className="rounded-lg border border-border p-2">
+                          <div className="text-[10px] text-muted-foreground">
+                            Anchor bolts
+                          </div>
+                          <div className="font-mono font-semibold">
+                            {stand.result.steel.anchorBoltCount}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div className="space-y-1.5">
+                      {stand.result.checks.map((check) => (
+                        <div
+                          key={check.id}
+                          className="flex items-start gap-2 rounded-lg border border-border p-2"
+                        >
+                          <AlertTriangle
+                            className={
+                              check.status === "ok"
+                                ? "mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500"
+                                : check.status === "warn"
+                                  ? "mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500"
+                                  : "mt-0.5 h-3.5 w-3.5 shrink-0 text-rose-500"
+                            }
+                          />
+                          <div>
+                            <div className="text-[11px] font-semibold text-foreground">
+                              {check.label}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              {check.detail}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-[10px] text-muted-foreground">
+                      Quantities only. Bearing capacity is assumed unless a soil
+                      test exists, and the stand must be checked by a licensed
+                      engineer before it carries water.
+                    </p>
+                  </>
+                ) : (
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {stand.errors.map((error) => (
+                      <li key={error}>{error}</li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* 3. Multi-Barrier Treatment Train Stages */}
+            <Card className="border-border shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-sky-500" /> Multi-Barrier
+                    Water Treatment Train
                   </span>
                   <Badge variant="secondary" className="text-xs">
                     4 Progressive Barriers
@@ -772,47 +1187,83 @@ export default function BoreholeWaterSystemEstimator() {
               </CardContent>
             </Card>
 
-            {/* 3. Pumping & Mechanical Hydraulic Specs */}
+            {result.pumping.warnings.length > 0 ? (
+              <Card className="border-amber-500/40 shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" /> Pump
+                    Selection Checks
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1.5">
+                  {result.pumping.warnings.map((warning) => (
+                    <p
+                      key={warning}
+                      className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed"
+                    >
+                      {warning}
+                    </p>
+                  ))}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {/* 4. Pumping & Mechanical Hydraulic Specs */}
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-emerald-500" /> Mechanical & Hydraulic Head Breakdown
+                  <Zap className="h-4 w-4 text-emerald-500" /> Mechanical &
+                  Hydraulic Head Breakdown
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-xs sm:text-sm">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Pump Setting Depth</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Pump Setting Depth
+                    </span>
                     <div className="font-semibold font-mono text-sm">
                       {result.pumping.pumpSettingDepthMeters} m
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Dynamic Water Level</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Dynamic Water Level
+                    </span>
                     <div className="font-semibold font-mono text-sm">
                       {result.pumping.dynamicWaterLevelMeters} m
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Riser Pipe Friction Loss</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Riser Pipe Friction Loss
+                    </span>
                     <div className="font-semibold font-mono text-sm">
                       {result.pumping.riserFrictionLossMeters} m
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Total Dynamic Head (TDH)</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Total Dynamic Head (TDH)
+                    </span>
                     <div className="font-semibold font-mono text-sm text-primary">
-                      {result.pumping.totalDynamicHeadMeters} m ({result.pumping.totalDynamicHeadFeet} ft)
+                      {result.pumping.totalDynamicHeadMeters} m (
+                      {result.pumping.totalDynamicHeadFeet} ft)
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Submersible Cable</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Submersible Cable
+                    </span>
                     <div className="font-semibold font-mono text-sm">
-                      {result.pumping.submersibleCableMm2} mm² (Drop: {result.pumping.voltageDropPercent}%)
+                      {result.pumping.submersibleCableMm2} mm² (Drop:{" "}
+                      {result.pumping.voltageDropPercent}%)
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">Safety Wire Rope (316 SS)</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Safety Wire Rope (316 SS)
+                    </span>
                     <div className="font-semibold font-mono text-sm">
                       {result.pumping.safetyRopeBreakingLoadKn} kN breaking load
                     </div>
@@ -822,12 +1273,15 @@ export default function BoreholeWaterSystemEstimator() {
                 {/* Check Valve Notice */}
                 <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-xs text-amber-800 dark:text-amber-300 space-y-1">
                   <div className="font-semibold flex items-center gap-1.5">
-                    <AlertTriangle className="h-3.5 w-3.5" /> Check Valve Schedule:
+                    <AlertTriangle className="h-3.5 w-3.5" /> Check Valve
+                    Schedule:
                   </div>
                   <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
                     {result.pumping.checkValves.map((cv, i) => (
                       <li key={i}>
-                        {cv.locationMetersFromPump === 0 ? "Pump Discharge Collar:" : `Intermediate Riser at ${cv.locationMetersFromPump}m:`}{" "}
+                        {cv.locationMetersFromPump === 0
+                          ? "Pump Discharge Collar:"
+                          : `Intermediate Riser at ${cv.locationMetersFromPump}m:`}{" "}
                         {cv.description}
                       </li>
                     ))}
@@ -840,7 +1294,8 @@ export default function BoreholeWaterSystemEstimator() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <FileSpreadsheet className="h-4 w-4 text-primary" /> Itemized Bill of Quantities (BOQ)
+                  <FileSpreadsheet className="h-4 w-4 text-primary" /> Itemized
+                  Bill of Quantities (BOQ)
                 </CardTitle>
                 <Badge variant="outline" className="text-xs">
                   {result.billOfQuantities.length} Line Items
@@ -859,10 +1314,17 @@ export default function BoreholeWaterSystemEstimator() {
                     </thead>
                     <tbody className="divide-y divide-border">
                       {result.billOfQuantities.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-muted/20 transition-colors">
+                        <tr
+                          key={idx}
+                          className="hover:bg-muted/20 transition-colors"
+                        >
                           <td className="p-2.5">
-                            <div className="font-medium text-foreground">{item.item}</div>
-                            <div className="text-[10px] text-muted-foreground">{item.category}</div>
+                            <div className="font-medium text-foreground">
+                              {item.item}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {item.category}
+                            </div>
                           </td>
                           <td className="p-2.5 text-[11px] text-muted-foreground max-w-xs">
                             {item.specification}
@@ -870,7 +1332,9 @@ export default function BoreholeWaterSystemEstimator() {
                           <td className="p-2.5 text-right font-mono font-semibold text-foreground">
                             {item.quantity}
                           </td>
-                          <td className="p-2.5 text-muted-foreground">{item.unit}</td>
+                          <td className="p-2.5 text-muted-foreground">
+                            {item.unit}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -878,8 +1342,14 @@ export default function BoreholeWaterSystemEstimator() {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button variant="default" size="sm" onClick={exportCsv} className="gap-1.5 text-xs">
-                    <Download className="h-3.5 w-3.5" /> Download Full Engineering Takeoff CSV
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={exportCsv}
+                    className="gap-1.5 text-xs"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Download Full
+                    Engineering Takeoff CSV
                   </Button>
                 </div>
               </CardContent>
@@ -890,17 +1360,23 @@ export default function BoreholeWaterSystemEstimator() {
         {/* Engineering Standards & Governance Footnote */}
         <div className="rounded-xl border border-border bg-muted/20 p-4 text-xs text-muted-foreground space-y-2">
           <div className="flex items-center gap-2 font-semibold text-foreground">
-            <ShieldCheck className="h-4 w-4 text-emerald-500" /> Regulatory Code & Jurisdictional Standards
+            <ShieldCheck className="h-4 w-4 text-emerald-500" /> Regulatory Code
+            & Jurisdictional Standards
           </div>
           <p className="leading-relaxed">
-            Calculated in accordance with World Health Organization (WHO) Guidelines for Drinking-water Quality,
-            Nigerian Standards for Drinking Water Quality (NIS 554:2015), Federal Ministry of Water Resources (FMWR)
-            Water Well Code of Practice, US EPA Safe Drinking Water Act (SDWA), NGWA-01-14 Water Well Standard,
-            and British Standard BS EN 806.
+            Calculated in accordance with World Health Organization (WHO)
+            Guidelines for Drinking-water Quality, Nigerian Standards for
+            Drinking Water Quality (NIS 554:2015), Federal Ministry of Water
+            Resources (FMWR) Water Well Code of Practice, US EPA Safe Drinking
+            Water Act (SDWA), NGWA-01-14 Water Well Standard, and British
+            Standard BS EN 806.
           </p>
           <div className="pt-1 text-[11px] text-muted-foreground/80">
-            <strong>Professional Notice:</strong> Geological hydrogeology, aquifer recovery rate, and chemical water composition vary by geographical coordinates.
-            Always conduct geophysical resistivity sounding before drilling and obtain certified laboratory water assay before drinking raw groundwater.
+            <strong>Professional Notice:</strong> Geological hydrogeology,
+            aquifer recovery rate, and chemical water composition vary by
+            geographical coordinates. Always conduct geophysical resistivity
+            sounding before drilling and obtain certified laboratory water assay
+            before drinking raw groundwater.
           </div>
         </div>
       </Container>

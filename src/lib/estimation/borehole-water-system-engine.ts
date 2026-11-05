@@ -40,10 +40,7 @@ export type ConsumptionTier =
   | "custom";
 
 export type PowerSupply =
-  | "single_phase_220v"
-  | "three_phase_380v"
-  | "single_phase_110v"
-  | "solar_dc";
+  "single_phase_220v" | "three_phase_380v" | "single_phase_110v" | "solar_dc";
 
 export interface WaterQualityInput {
   turbidityNtu?: number; // NTU, standard <= 5, target < 1
@@ -207,6 +204,8 @@ export interface BoreholeSystemResult {
     voltageDropPercent: number;
     safetyRopeBreakingLoadKn: number;
     riserPipeDiameterMm: number;
+    /** Site checks that limited or changed the pump selection. */
+    warnings: string[];
   };
 
   /** Multi-barrier water treatment specification */
@@ -311,7 +310,10 @@ export function calculateBoreholeWaterSystem(
   rawInputs: BoreholeSystemInputs,
 ): BoreholeSystemResult {
   // Input validation with clear, explanatory messages
-  if (!Number.isFinite(rawInputs.drillingDepthMeters) || rawInputs.drillingDepthMeters < 10) {
+  if (
+    !Number.isFinite(rawInputs.drillingDepthMeters) ||
+    rawInputs.drillingDepthMeters < 10
+  ) {
     throw new RangeError(
       `Drilling depth must be at least 10 meters (received: ${rawInputs.drillingDepthMeters}).`,
     );
@@ -325,7 +327,10 @@ export function calculateBoreholeWaterSystem(
       `Static water level must be between 0 and drilling depth (${rawInputs.drillingDepthMeters}m).`,
     );
   }
-  if (!Number.isFinite(rawInputs.householdOccupants) || rawInputs.householdOccupants < 1) {
+  if (
+    !Number.isFinite(rawInputs.householdOccupants) ||
+    rawInputs.householdOccupants < 1
+  ) {
     throw new RangeError(
       `Household occupants must be at least 1 person (received: ${rawInputs.householdOccupants}).`,
     );
@@ -342,13 +347,15 @@ export function calculateBoreholeWaterSystem(
   const horizRun = Math.max(0, rawInputs.horizontalRunMeters ?? 15.0);
   const buriedRun = Math.max(0, rawInputs.buriedDeliveryRunMeters ?? 25.0);
   const occupants = Math.round(rawInputs.householdOccupants);
-  const tier: ConsumptionTier = rawInputs.consumptionTier ?? "suburban_standard";
+  const tier: ConsumptionTier =
+    rawInputs.consumptionTier ?? "suburban_standard";
   const reserveDays = Math.max(1, rawInputs.reserveDays ?? 1.5);
   const towerElevation = Math.max(2, rawInputs.tankElevationMeters ?? 6.0);
   const tankMat = rawInputs.tankMaterial ?? "polyethylene";
   const power: PowerSupply = rawInputs.powerSupply ?? "single_phase_220v";
   const marketCode = (rawInputs.marketCode ?? "NG").toUpperCase();
-  const unitSystem = rawInputs.unitSystem ?? (marketCode === "US" ? "imperial" : "metric");
+  const unitSystem =
+    rawInputs.unitSystem ?? (marketCode === "US" ? "imperial" : "metric");
 
   const wq: WaterQualityInput = rawInputs.waterQuality ?? {
     turbidityNtu: 3.5,
@@ -382,14 +389,16 @@ export function calculateBoreholeWaterSystem(
       depthFromM: 0,
       depthToM: Math.min(3, Math.round(depth * 0.05)),
       stratumName: "Topsoil & Organic Loam",
-      description: "Loose surface soil vulnerable to surface runoff and microbial contamination.",
+      description:
+        "Loose surface soil vulnerable to surface runoff and microbial contamination.",
       recommendedBit: "Drag Bit / Auger",
     },
     {
       depthFromM: Math.min(3, Math.round(depth * 0.05)),
       depthToM: Math.min(18, Math.round(depth * 0.25)),
       stratumName: "Clayey Alluvium & Weathered Silt",
-      description: "Low-permeability cohesive layer acting as an impermeable confining aquitard.",
+      description:
+        "Low-permeability cohesive layer acting as an impermeable confining aquitard.",
       recommendedBit: "Roller Cone Tricone Bit (Mud Rotary)",
     },
     {
@@ -399,7 +408,8 @@ export function calculateBoreholeWaterSystem(
         aquifer === "fractured_basement"
           ? "Transition Saprolite / Weathered Rock"
           : "Medium to Coarse Sand & Pebble Beds",
-      description: "Semi-consolidated transitional zone requiring permanent casing support.",
+      description:
+        "Semi-consolidated transitional zone requiring permanent casing support.",
       recommendedBit: "Tricone TCI (Tungsten Carbide Insert)",
     },
     {
@@ -409,7 +419,8 @@ export function calculateBoreholeWaterSystem(
         aquifer === "fractured_basement"
           ? "Fractured Crystalline Bedrock (Aquifer Target)"
           : "Water-Bearing Coarse Aquifer Sand & Gravel",
-      description: "Primary water-yielding zone. High transmissivity and clean water recharge.",
+      description:
+        "Primary water-yielding zone. High transmissivity and clean water recharge.",
       recommendedBit: "DTH (Down-the-Hole) Air Hammer with Button Bit",
     },
   ];
@@ -417,10 +428,14 @@ export function calculateBoreholeWaterSystem(
   // Annular volumes
   const holeRadiusM = holeDiaMm / 2000;
   const casingRadiusM = casingDiaMm / 2000;
-  const annularAreaM2 = Math.PI * (holeRadiusM * holeRadiusM - casingRadiusM * casingRadiusM);
+  const annularAreaM2 =
+    Math.PI * (holeRadiusM * holeRadiusM - casingRadiusM * casingRadiusM);
 
   // Sanitary surface grout: minimum 6m (or 20ft as per NGWA and NIS standards)
-  const sanitaryGroutDepthM = Math.min(plainCasingLength, Math.max(6, Math.round(depth * 0.1)));
+  const sanitaryGroutDepthM = Math.min(
+    plainCasingLength,
+    Math.max(6, Math.round(depth * 0.1)),
+  );
   const sanitaryGroutVolM3 = annularAreaM2 * sanitaryGroutDepthM;
   // Neat cement grout: ~33 standard 50kg bags per m³ of grout + 5% bentonite powder
   const cementBags50kg = ceilU(sanitaryGroutVolM3 * 33 * 1.15); // with 15% wastage allowance
@@ -430,9 +445,14 @@ export function calculateBoreholeWaterSystem(
   const gravelPackHeightM = screenLength + 2;
   const gravelPackVolM3 = annularAreaM2 * gravelPackHeightM;
   // Graded silica gravel bulk density ~1600 kg/m³, 25kg bags
-  const gravelPackBags25kg = ceilU((gravelPackVolM3 * 1600) / 25 * 1.1);
+  const gravelPackBags25kg = ceilU(((gravelPackVolM3 * 1600) / 25) * 1.1);
 
-  const screenSlotSizeMm = aquifer === "unconfined_gravel" ? 1.0 : aquifer === "confined_sand" ? 0.5 : 0.75;
+  const screenSlotSizeMm =
+    aquifer === "unconfined_gravel"
+      ? 1.0
+      : aquifer === "confined_sand"
+        ? 0.5
+        : 0.75;
   const wellCapSpec = `Cast aluminium / heavy gauge stainless steel sanitary sanitary well cap with 1.5" threaded drop pipe adapter, neoprene gasket seal, screened air breather vent, and rubber cable compression gland.`;
 
   // ─────────────────────────────────────────────
@@ -441,15 +461,24 @@ export function calculateBoreholeWaterSystem(
   // Estimated drawdown based on safe yield and aquifer specific capacity
   // Average specific capacity: 0.25 - 0.6 m³/(h·m) for basement, 1.0 - 2.5 for sand/gravel
   const specificCapacity =
-    aquifer === "confined_sand" ? 1.8 : aquifer === "unconfined_gravel" ? 2.2 : 0.55;
-  const drawdownM = Math.min(depth - staticLevel - screenLength - 2, yieldM3h / specificCapacity);
+    aquifer === "confined_sand"
+      ? 1.8
+      : aquifer === "unconfined_gravel"
+        ? 2.2
+        : 0.55;
+  // Drawdown is clamped at zero: a well cannot have a negative drawdown, and the
+  // earlier formula returned one when the screen sat deep in a shallow hole.
+  const drawdownHeadroomM = Math.max(0, depth - staticLevel - screenLength - 2);
+  const drawdownM = Math.max(
+    0,
+    Math.min(drawdownHeadroomM, yieldM3h / specificCapacity),
+  );
   const dynamicWaterLevelM = staticLevel + drawdownM;
 
-  // Pump setting depth: set 3m to 6m below dynamic water level, and at least 2m above well screen
-  const pumpSettingDepthM = Math.min(
-    plainCasingLength - 2,
-    Math.round(dynamicWaterLevelM + 5),
-  );
+  // Pump setting depth: 5 m below the pumping water level, never past the cased
+  // section of the hole.
+  const desiredSettingM = Math.round(dynamicWaterLevelM + 5);
+  const pumpSettingDepthM = Math.min(plainCasingLength - 2, desiredSettingM);
 
   // Riser pipe: DN32 (1.25" / inner 27mm) for yield <= 3m³/h; DN40 (1.5" / inner 35mm) for yield > 3m³/h
   const riserDiameterMm = yieldM3h > 3.5 ? 40 : 32;
@@ -476,7 +505,12 @@ export function calculateBoreholeWaterSystem(
   // Residual pressure at tank discharge nozzle (0.5 bar = ~5.1m water head)
   const residualPressure = 5.0;
 
-  const totalDynamicHeadM = staticLift + riserFriction + surfaceFriction + fittingsLoss + residualPressure;
+  const totalDynamicHeadM =
+    staticLift +
+    riserFriction +
+    surfaceFriction +
+    fittingsLoss +
+    residualPressure;
   const totalDynamicHeadFt = totalDynamicHeadM * 3.28084;
 
   // Power calculation
@@ -492,7 +526,30 @@ export function calculateBoreholeWaterSystem(
   const motorElectricalKw = hydraulicKw / (pumpEfficiency * motorEfficiency);
   const motorHp = motorElectricalKw * 1.34102;
 
-  // Find standard commercial motor rating
+  // Site checks on the pump setting itself. These are reported rather than
+  // silently corrected, because they change what the driller has to do.
+  const pumpingWarnings: string[] = [];
+  if (pumpSettingDepthM < desiredSettingM) {
+    pumpingWarnings.push(
+      `The cased section is too shallow to set the pump ${desiredSettingM} m down. It is set at ${pumpSettingDepthM} m instead, which is only ${(pumpSettingDepthM - dynamicWaterLevelM).toFixed(1)} m below the pumping water level. Deepen the casing or accept a lower pump setting.`,
+    );
+  }
+  if (pumpSettingDepthM <= dynamicWaterLevelM + 2) {
+    pumpingWarnings.push(
+      `The pump setting leaves less than 2 m of submergence below the pumping water level (${dynamicWaterLevelM.toFixed(1)} m). Risk of the pump breaking suction at peak drawdown.`,
+    );
+  }
+  if (pumpSettingDepthM <= staticLevel + screenLength) {
+    pumpingWarnings.push(
+      `The pump is set at ${pumpSettingDepthM} m, at or below the top of the screen. Move it up so it does not sit in the gravel pack.`,
+    );
+  }
+
+  // Find standard commercial motor rating. When the required power sits above
+  // the largest stocked motor the result must say so: the old loop silently
+  // returned the top step and under specified the pump.
+  const largestStockedHp =
+    STANDARD_MOTOR_HP_STEPS[STANDARD_MOTOR_HP_STEPS.length - 1];
   let recommendedMotorHp = STANDARD_MOTOR_HP_STEPS[0];
   for (const step of STANDARD_MOTOR_HP_STEPS) {
     if (step >= motorHp) {
@@ -501,29 +558,39 @@ export function calculateBoreholeWaterSystem(
     }
     recommendedMotorHp = step;
   }
+  if (motorHp > largestStockedHp) {
+    pumpingWarnings.push(
+      `Required motor power is ${motorHp.toFixed(1)} HP, above the largest standard rating of ${largestStockedHp} HP. Split the duty across two pumps or specify a larger commercial motor.`,
+    );
+  }
 
-  // Check valve schedule:
-  // - 1 immediately at pump discharge outlet
-  // - If TDH > 50m, add intermediate non-return valve every 50m of vertical head to prevent water hammer
+  // Check valve schedule, placed by riser length because that is where water
+  // hammer acts:
+  // - 1 immediately at the pump discharge collar
+  // - an intermediate valve once the riser passes 55 m
+  // - a second once it passes 110 m
   const checkValves: CheckValveItem[] = [
     {
       locationMetersFromPump: 0,
       nominalDiameterMm: riserDiameterMm,
-      description: "Heavy-duty spring-loaded non-return valve directly mounted on pump discharge collar.",
+      description:
+        "Heavy-duty spring-loaded non-return valve directly mounted on pump discharge collar.",
     },
   ];
   if (pumpSettingDepthM > 55) {
     checkValves.push({
       locationMetersFromPump: 45,
       nominalDiameterMm: riserDiameterMm,
-      description: "Intermediate spring-loaded check valve on column pipe to absorb hydraulic shock and eliminate water hammer.",
+      description:
+        "Intermediate spring-loaded check valve on column pipe to absorb hydraulic shock and eliminate water hammer.",
     });
   }
   if (pumpSettingDepthM > 110) {
     checkValves.push({
       locationMetersFromPump: 95,
       nominalDiameterMm: riserDiameterMm,
-      description: "Second intermediate spring-loaded check valve for deep well column protection.",
+      description:
+        "Second intermediate spring-loaded check valve for deep well column protection.",
     });
   }
 
@@ -554,14 +621,19 @@ export function calculateBoreholeWaterSystem(
     standardCableSizes.find((s) => s >= minCableAreaMm2) ?? 4.0;
   const actualVoltageDrop =
     power === "three_phase_380v"
-      ? (Math.sqrt(3) * cableLengthM * currentAmps * 0.0175) / submersibleCableMm2
+      ? (Math.sqrt(3) * cableLengthM * currentAmps * 0.0175) /
+        submersibleCableMm2
       : (2 * cableLengthM * currentAmps * 0.0175) / submersibleCableMm2;
-  const voltageDropPercent = Number(((actualVoltageDrop / voltage) * 100).toFixed(2));
+  const voltageDropPercent = Number(
+    ((actualVoltageDrop / voltage) * 100).toFixed(2),
+  );
 
   // Safety wire rope: 316 Marine Grade Stainless Steel
   // Dead weight: Pump (~18kg) + motor (~14kg) + water-filled column pipe (~2.5kg/m * depth)
   const deadWeightKg = 32 + pumpSettingDepthM * 2.5;
-  const safetyRopeBreakingLoadKn = Number(((deadWeightKg * 9.81 * 5) / 1000).toFixed(1)); // 5x safety factor
+  const safetyRopeBreakingLoadKn = Number(
+    ((deadWeightKg * 9.81 * 5) / 1000).toFixed(1),
+  ); // 5x safety factor
 
   // ─────────────────────────────────────────────
   // 3. Water Quality & Multi-Barrier Treatment
@@ -573,23 +645,29 @@ export function calculateBoreholeWaterSystem(
     id: "stage-1-sediment",
     stageNumber: 1,
     name: "Coarse Disc / Spin-Down Sediment Filter (50–100 μm)",
-    purpose: "Stops sand grains, silt, and drilling fines before they foul valves or media vessels.",
-    equipmentSpecification: '1" or 1.5" bronze/composite spin-down sediment filter with manual purge valve.',
+    purpose:
+      "Stops sand grains, silt, and drilling fines before they foul valves or media vessels.",
+    equipmentSpecification:
+      '1" or 1.5" bronze/composite spin-down sediment filter with manual purge valve.',
     recommended: true,
-    reason: "Standard protection for pump and downstream treatment valves against abrasive sand fines.",
+    reason:
+      "Standard protection for pump and downstream treatment valves against abrasive sand fines.",
   });
 
   // Stage 2: Media Filtration Vessel
-  const needsIronRemoval = (wq.ironMgL ?? 0) > 0.3 || (wq.manganeseMgL ?? 0) > 0.1;
+  const needsIronRemoval =
+    (wq.ironMgL ?? 0) > 0.3 || (wq.manganeseMgL ?? 0) > 0.1;
   const needsHardnessSoftening = (wq.hardnessMgL ?? 0) > 120;
-  const _needsCarbonFilter = (wq.tdsMgL ?? 0) > 500 || (wq.turbidityNtu ?? 0) > 5;
+  const _needsCarbonFilter =
+    (wq.tdsMgL ?? 0) > 500 || (wq.turbidityNtu ?? 0) > 5;
 
   if (needsIronRemoval) {
     stages.push({
       id: "stage-2-iron",
       stageNumber: 2,
       name: "Catalytic Iron & Manganese Removal Pressure Vessel",
-      purpose: "Oxidizes and filters dissolved ferrous iron and manganese to prevent staining and metallic taste.",
+      purpose:
+        "Oxidizes and filters dissolved ferrous iron and manganese to prevent staining and metallic taste.",
       equipmentSpecification:
         '10" x 54" FRP pressure vessel with Birm / Greensand Plus catalytic media and automatic backwash control valve.',
       recommended: true,
@@ -600,7 +678,8 @@ export function calculateBoreholeWaterSystem(
       id: "stage-2-softener",
       stageNumber: 2,
       name: "Ion-Exchange Water Softener Resin Vessel",
-      purpose: "Exchanges calcium and magnesium hardness ions with sodium, preventing scale in geysers and pipes.",
+      purpose:
+        "Exchanges calcium and magnesium hardness ions with sodium, preventing scale in geysers and pipes.",
       equipmentSpecification:
         '10" x 54" FRP vessel with food-grade strong acid cation resin, automatic regenerator valve, and 70L brine tank.',
       recommended: true,
@@ -611,11 +690,13 @@ export function calculateBoreholeWaterSystem(
       id: "stage-2-multimedia",
       stageNumber: 2,
       name: "Multi-Media & Activated Carbon Filter Vessel",
-      purpose: "Polishes water, removes organic traces, neutralizes odor, and removes colloidal particles.",
+      purpose:
+        "Polishes water, removes organic traces, neutralizes odor, and removes colloidal particles.",
       equipmentSpecification:
         '10" x 54" FRP composite tank with dual-layer graded silica sand, anthracite, and acid-washed activated carbon.',
       recommended: true,
-      reason: "General clarification, taste improvement, and organic filtration.",
+      reason:
+        "General clarification, taste improvement, and organic filtration.",
     });
   }
 
@@ -624,22 +705,26 @@ export function calculateBoreholeWaterSystem(
     id: "stage-3-polisher",
     stageNumber: 3,
     name: "Fine 5-Micron Melt-Blown Polypropylene Polishing Cartridge",
-    purpose: "Captures microscopic sediment particles and protects UV disinfection chamber quartz sleeve from fouling.",
+    purpose:
+      "Captures microscopic sediment particles and protects UV disinfection chamber quartz sleeve from fouling.",
     equipmentSpecification:
       '20" Big Blue (BB) polypropylene filter housing with 5-micron melt-blown polypropylene cartridge.',
     recommended: true,
-    reason: "Ensures high optical transmittance (UVT > 90%) for the ultraviolet disinfection chamber.",
+    reason:
+      "Ensures high optical transmittance (UVT > 90%) for the ultraviolet disinfection chamber.",
   });
 
   // Stage 4: Ultraviolet (UV) Disinfection Sterilizer
-  const coliformRisk = wq.coliformDetected === true || wq.coliformBacteriaTested === false;
+  const coliformRisk =
+    wq.coliformDetected === true || wq.coliformBacteriaTested === false;
   stages.push({
     id: "stage-4-uv",
     stageNumber: 4,
     name: "Ultraviolet (UV-C 254nm) Disinfection Sterilizer",
-    purpose: "Destroys bacterial DNA, inactivates pathogens, coliforms, and viruses without chemical residual.",
+    purpose:
+      "Destroys bacterial DNA, inactivates pathogens, coliforms, and viruses without chemical residual.",
     equipmentSpecification:
-      '304/316 Stainless Steel UV reactor chamber with high-output 254nm UV lamp, electronic ballast, and audible ballast lamp-failure alarm. Rated dosage >= 35 mJ/cm² at design flow.',
+      "304/316 Stainless Steel UV reactor chamber with high-output 254nm UV lamp, electronic ballast, and audible ballast lamp-failure alarm. Rated dosage >= 35 mJ/cm² at design flow.",
     recommended: true,
     reason: coliformRisk
       ? "Coliform bacteria detected or unverified. UV sterilizer is mandatory for microbiological safety."
@@ -664,7 +749,9 @@ export function calculateBoreholeWaterSystem(
   else if (tier === "urban_high") perCapitaLpd = 250;
 
   const dailyDemandLiters =
-    tier === "custom" && rawInputs.customDailyDemandLiters && rawInputs.customDailyDemandLiters > 0
+    tier === "custom" &&
+    rawInputs.customDailyDemandLiters &&
+    rawInputs.customDailyDemandLiters > 0
       ? rawInputs.customDailyDemandLiters
       : occupants * perCapitaLpd;
 
@@ -688,8 +775,9 @@ export function calculateBoreholeWaterSystem(
 
   // Find standard commercial tank size
   const commercialTankL =
-    COMMERCIAL_TANK_SIZES_LITERS.find((size) => size >= totalRecommendedStorageL) ??
-    ceilU(totalRecommendedStorageL / 1000) * 1000;
+    COMMERCIAL_TANK_SIZES_LITERS.find(
+      (size) => size >= totalRecommendedStorageL,
+    ) ?? ceilU(totalRecommendedStorageL / 1000) * 1000;
 
   // Overflow pipe must be larger than inlet pipe to avoid pressure burst
   const overflowDiaMm = riserDiameterMm <= 32 ? 50 : 63;
@@ -700,10 +788,15 @@ export function calculateBoreholeWaterSystem(
   // ─────────────────────────────────────────────
   // Hydrostatic pressure at ground level tap: P = rho * g * H
   // 1 meter of water column = 0.0980665 bar = 1.42233 psi
-  const hydrostaticPressureBar = Number(((rho * g * towerElevation) / 100000).toFixed(2));
-  const hydrostaticPressurePsi = Number((hydrostaticPressureBar * 14.5038).toFixed(1));
+  const hydrostaticPressureBar = Number(
+    ((rho * g * towerElevation) / 100000).toFixed(2),
+  );
+  const hydrostaticPressurePsi = Number(
+    (hydrostaticPressureBar * 14.5038).toFixed(1),
+  );
 
-  let pressureAdequacy: "adequate" | "marginal" | "booster_recommended" = "adequate";
+  let pressureAdequacy: "adequate" | "marginal" | "booster_recommended" =
+    "adequate";
   if (hydrostaticPressureBar < 0.5) {
     pressureAdequacy = "booster_recommended";
   } else if (hydrostaticPressureBar < 0.8) {
@@ -725,14 +818,16 @@ export function calculateBoreholeWaterSystem(
       title: "Drill Through Geological Strata to Aquifer",
       detail: `Mobilize drilling rig (mud rotary or DTH air hammer). Drill ${holeDiaMm} mm hole through topsoil, clay, and weathered rock to depth of ${depth} m until reaching sustainable groundwater recharge zone (${aquifer.replace("_", " ")}).`,
       check: `Measure static water level at ${staticLevel} m and test aquifer recovery rate before withdrawing drill string.`,
-      safetyNote: "Maintain borehole wall stability with bentonite drilling mud to prevent loose ground collapse.",
+      safetyNote:
+        "Maintain borehole wall stability with bentonite drilling mud to prevent loose ground collapse.",
     },
     {
       id: "casing-screen-grout",
       title: "Install Casing, Slotted Screen & Sanitary Surface Grout",
       detail: `Lower ${casingDiaMm} mm ${casingMaterial.toUpperCase()} casing down the hole. Set ${screenLength} m of precision slotted screen (${screenSlotSizeMm} mm slots) across the water column. Pour ${gravelPackBags25kg} bags (${gravelPackVolM3.toFixed(2)} m³) of graded silica gravel envelope around the screen. Seal the top ${sanitaryGroutDepthM} m annular gap with ${cementBags50kg} bags of cement-bentonite sanitary grout to block surface runoff contamination. Install sanitary wellhead seal cap.`,
       check: `Verify that gravel pack level reaches 2m above screen and annular grout cures at surface before installing pump.`,
-      safetyNote: "Never leave the annular gap unsealed: contaminated lawn runoff will pollute the drinking aquifer.",
+      safetyNote:
+        "Never leave the annular gap unsealed: contaminated lawn runoff will pollute the drinking aquifer.",
     },
     {
       id: "submersible-pump-valve",
@@ -745,7 +840,8 @@ export function calculateBoreholeWaterSystem(
       title: "Test Water Quality & Commission Multi-Barrier Filtration",
       detail: `Conduct certified laboratory water assay (TDS, iron, manganese, hardness, coliform bacteria). Connect multi-barrier treatment train: coarse 50 μm spin-down sand separator, ${stages.find((s) => s.stageNumber === 2)?.name ?? "media filter vessel"}, 5-micron Big Blue polishing cartridge, and UV-C 254nm disinfection sterilizer chamber.`,
       check: `Verify zero water leaks under 4 bar operating pressure and confirm UV ballast indicator lamp is green.`,
-      safetyNote: "Clear water does not mean safe water: pathogenic bacteria and dissolved heavy metals require certified testing.",
+      safetyNote:
+        "Clear water does not mean safe water: pathogenic bacteria and dissolved heavy metals require certified testing.",
     },
     {
       id: "tower-storage-buffering",
@@ -778,7 +874,8 @@ export function calculateBoreholeWaterSystem(
       specification: `${holeDiaMm} mm diameter drilling through overburden, clay, and rock formations to target aquifer`,
       quantity: depth,
       unit: "meters",
-      notes: "Includes rig mobilization, drilling consumables, and geological strata logging",
+      notes:
+        "Includes rig mobilization, drilling consumables, and geological strata logging",
     },
     {
       category: "Drilling & Well Construction",
@@ -799,7 +896,8 @@ export function calculateBoreholeWaterSystem(
     {
       category: "Drilling & Well Construction",
       item: "Graded Silica Gravel Filter Pack",
-      specification: "2.0 mm - 4.0 mm washed and graded round silica gravel (25 kg bags)",
+      specification:
+        "2.0 mm - 4.0 mm washed and graded round silica gravel (25 kg bags)",
       quantity: gravelPackBags25kg,
       unit: "bags",
       notes: `Fills annular envelope around ${screenLength}m screen + 2m collar`,
@@ -807,7 +905,8 @@ export function calculateBoreholeWaterSystem(
     {
       category: "Drilling & Well Construction",
       item: "Portland Cement for Sanitary Grout",
-      specification: "Grade 42.5N Portland Cement for annular seal (50 kg bags)",
+      specification:
+        "Grade 42.5N Portland Cement for annular seal (50 kg bags)",
       quantity: cementBags50kg,
       unit: "bags",
       notes: `Seals top ${sanitaryGroutDepthM}m against surface water runoff contamination`,
@@ -815,7 +914,8 @@ export function calculateBoreholeWaterSystem(
     {
       category: "Drilling & Well Construction",
       item: "Sodium Bentonite Powder",
-      specification: "High-yield sodium bentonite powder additive for impermeable seal",
+      specification:
+        "High-yield sodium bentonite powder additive for impermeable seal",
       quantity: bentoniteSealKg,
       unit: "kg",
       notes: "Blended with cement grout to prevent shrinkage cracks",
@@ -896,7 +996,8 @@ export function calculateBoreholeWaterSystem(
       specification: `${overflowDiaMm} mm PVC pipe with insect-proof stainless steel mesh screen`,
       quantity: towerElevation + 2,
       unit: "meters",
-      notes: "Safely discharges excess water if level sensor is ever overridden",
+      notes:
+        "Safely discharges excess water if level sensor is ever overridden",
     },
     {
       category: "Storage Tank & Tower Buffering",
@@ -911,7 +1012,8 @@ export function calculateBoreholeWaterSystem(
     {
       category: "Electrical, Automation & Level Controls",
       item: "Automatic Overhead Float Switch Kit",
-      specification: "Heavy-duty dual microswitch liquid level float controller with counterweight and 15m cable",
+      specification:
+        "Heavy-duty dual microswitch liquid level float controller with counterweight and 15m cable",
       quantity: 1,
       unit: "kit",
       notes: "Automatically shuts off pump when full and restarts on low level",
@@ -919,7 +1021,8 @@ export function calculateBoreholeWaterSystem(
     {
       category: "Electrical, Automation & Level Controls",
       item: "Borehole Dry-Run Electrode Probe Kit",
-      specification: "3-wire stainless steel borehole water-level electrode sensors with DIN-rail relay module",
+      specification:
+        "3-wire stainless steel borehole water-level electrode sensors with DIN-rail relay module",
       quantity: 1,
       unit: "kit",
       notes: "Protects pump motor from burning out when water table recedes",
@@ -948,7 +1051,8 @@ export function calculateBoreholeWaterSystem(
       specification: `Fine river sand for 150mm pipe bedding and surround in ${trenchDepthM}m deep trench`,
       quantity: beddingSandVolM3,
       unit: "m³",
-      notes: "Cushions buried distribution pipe against sharp rocks and ground movement",
+      notes:
+        "Cushions buried distribution pipe against sharp rocks and ground movement",
     },
     {
       category: "Plumbing Reticulation & Fixture Delivery",
@@ -1036,6 +1140,7 @@ export function calculateBoreholeWaterSystem(
       voltageDropPercent,
       safetyRopeBreakingLoadKn,
       riserPipeDiameterMm: riserDiameterMm,
+      warnings: pumpingWarnings,
     },
     treatment: {
       stages,
