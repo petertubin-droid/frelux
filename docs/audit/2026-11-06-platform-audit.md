@@ -312,6 +312,23 @@ released, overdue returned to 29, and readiness ranks GB 36 observations, AU 14,
 SA 8, DE 5, CA 4, NG 2, US 2, PL 2, with NL (141 sources) and IN (83) configured
 but never having produced an observation.
 
+### The same shadowing defect, three times
+
+`dispatch_market_scans` returns `TABLE(market text, dispatched boolean)`, so
+`market` is an output parameter. The 06:52 revision added a per-market yield
+subquery containing a bare `market` column and every call failed:
+
+```
+ERROR: column reference "market" is ambiguous
+QUERY: select s.market, ... left join (select market, count(*) ...
+```
+
+`20261106140000` aliases the subquery table and its output column
+(`select o2.market as obs_market`), renames the cursor field to `scan_market`, and
+fails the migration if an unaliased reference returns. A test pins the shape. The
+lesson recorded here: this function has now produced this defect three times, and
+only execution catches it.
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access

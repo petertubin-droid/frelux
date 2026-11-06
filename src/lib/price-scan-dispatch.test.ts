@@ -44,6 +44,19 @@ describe("market scan dispatch", () => {
     expect(latest!.sql).not.toMatch(/select\s+token\s+into\s+token/i);
   });
 
+  it("never selects an unaliased market column inside the dispatch loop", () => {
+    // Third instance of the same defect class: RETURNS TABLE(market text) makes
+    // `market` an output parameter, so a bare column reference in a new subquery
+    // raises 42702 at call time.
+    const definitions = dispatchDefinitions();
+    const latest = definitions[definitions.length - 1]!.sql;
+    const cursor = latest.slice(latest.indexOf("for v_row in"));
+    expect(cursor).not.toMatch(/select\s+market\s*,/);
+    expect(cursor).toContain("select o2.market as obs_market");
+    expect(cursor).toContain("join");
+    expect(latest).toContain("still selects an unaliased market column");
+  });
+
   it("qualifies the UPDATE so the output parameter cannot shadow the column", () => {
     expect(shadowFix).toMatch(/update public\.market_scan_settings s/i);
     expect(shadowFix).toMatch(/where s\.market = v_row\.market/i);
