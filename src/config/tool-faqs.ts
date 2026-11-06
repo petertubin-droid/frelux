@@ -159,11 +159,11 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "How do free match, straight match and half-drop affect the estimate?",
-        a: "Free-match uses no pattern repeat. Straight match rounds the drop cut up to the repeat you enter. Half-drop alternates a half-repeat offset between cuts, which can require more paper. Read the match symbol and repeat from the product label; the simplified estimate is not a full installer cutting schedule.",
+        a: "Free-match uses no pattern repeat. Straight match rounds every drop cut up to the repeat you enter. Half-drop rounds the same way and then cuts every second drop half a repeat longer, so the motif lines up across strips instead of only on alternate ones. Read the match symbol and repeat from the product label; the simplified estimate is not a full installer cutting schedule.",
       },
       {
         q: "Do doors and windows reduce the number of wallpaper rolls?",
-        a: "Their measured area is subtracted from the net-area display, but the roll takeoff still plans full-height drops across the wall. That avoids assuming that small offcuts around an opening can reliably replace a complete drop. The actual layout and reusable pieces depend on opening positions and the installer.",
+        a: "Their measured area is always subtracted from the net area. A drop is removed from the takeoff only when the opening reaches the ceiling, because wallpaper cannot run behind it. A door or window with wall above it keeps its drop, since the strip still has to pass the opening and is cut around it. The actual layout and reusable pieces depend on opening positions and the installer.",
       },
       {
         q: "Does the calculator show live wallpaper prices or labor rates?",
