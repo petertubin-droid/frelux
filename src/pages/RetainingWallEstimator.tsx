@@ -136,7 +136,11 @@ export default function RetainingWallEstimator() {
             />
           )}
           <p className="mt-3">
-            Rules in use: footing {rules.footing_width_m} m wide and {rules.footing_thickness_m} m thick, {rules.blocks_per_m2} blocks per m², {rules.waste_pct}% block waste, weep holes every {rules.weep_spacing_m} m, bars at {rules.bar_spacing_m} m centres. These are visible planning defaults, not a design.
+            Rules in use: footing {rules.footing_width_m} m wide and{" "}
+            {rules.footing_thickness_m} m thick, {rules.blocks_per_m2} blocks
+            per m², {rules.waste_pct}% block waste, weep holes every{" "}
+            {rules.weep_spacing_m} m, bars at {rules.bar_spacing_m} m centres.
+            These are visible planning defaults, not a design.
           </p>
         </>
       }
@@ -145,6 +149,7 @@ export default function RetainingWallEstimator() {
           <FieldGroup title="Wall">
             <NumberField
               label="Wall length"
+              required
               unit="m"
               value={length}
               onChange={setLength}
@@ -152,6 +157,7 @@ export default function RetainingWallEstimator() {
             />
             <NumberField
               label="Wall height"
+              required
               unit="m"
               value={height}
               onChange={setHeight}

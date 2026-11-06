@@ -15,6 +15,9 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import ToolFaqs from "@/components/seo/ToolFaqs";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { useMarket } from "@/lib/international/market-context";
 import { useEngineAccess } from "@/lib/use-engine-access";
@@ -100,6 +103,8 @@ export function SpecialtyCalculatorShell({
   const symbol = market?.currencySymbol || displaySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
   const totalsId = useId();
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback();
 
   useSeo({ title: seoTitle, description: seoDescription });
   useBreadcrumbJsonLd([
@@ -188,6 +193,10 @@ export function SpecialtyCalculatorShell({
           </div>
         )}
 
+        <div className="mb-6">
+          <MeasurementTip what="measurement type and units" />
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,1.15fr)]">
           {/* Inputs */}
           <section
@@ -200,11 +209,13 @@ export function SpecialtyCalculatorShell({
                 Your measurements
               </h2>
             </div>
-            <div className="space-y-4">{inputs}</div>
+            <div ref={fieldsRef} className="space-y-4">
+              {inputs}
+            </div>
 
             <button
               type="button"
-              onClick={onRun}
+              onClick={() => handleCalculate(onRun)}
               disabled={running}
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
             >
@@ -217,7 +228,8 @@ export function SpecialtyCalculatorShell({
           </section>
 
           {/* Results */}
-          <section aria-label="Results" className="space-y-4">
+          <section ref={resultsRef} aria-label="Results" className="space-y-4">
+            <MissingFieldsNotice fields={missing} />
             {result && !result.ok && result.errors.length > 0 ? (
               <div
                 role="alert"

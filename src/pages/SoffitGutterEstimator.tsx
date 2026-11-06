@@ -114,13 +114,23 @@ export default function SoffitGutterEstimator() {
         <>
           <CalculatorSchematic
             kind="gutter"
-            perimeter={mode === "perimeter" ? `${perimeter || "0"} m` : `${(2 * (Number(length || 0) + Number(width || 0))).toFixed(1)} m (derived from footprint)`}
+            perimeter={
+              mode === "perimeter"
+                ? `${perimeter || "0"} m`
+                : `${(2 * (Number(length || 0) + Number(width || 0))).toFixed(1)} m (derived from footprint)`
+            }
             overhang={`${overhang || "0"} m`}
             material={SOFFIT_MATERIAL_LABELS[material]}
-            downpipes={result?.lines.find((line) => /downpipe/i.test(line.label))?.quantity?.toString() ?? "calculated after takeoff"}
+            downpipes={
+              result?.lines
+                .find((line) => /downpipe/i.test(line.label))
+                ?.quantity?.toString() ?? "calculated after takeoff"
+            }
           />
           <p className="mt-3">
-            Rules in use: {rules.waste_pct}% cutting waste, downpipes every {rules.downpipe_spacing_m} m, brackets every {rules.bracket_spacing_m} m.
+            Rules in use: {rules.waste_pct}% cutting waste, downpipes every{" "}
+            {rules.downpipe_spacing_m} m, brackets every{" "}
+            {rules.bracket_spacing_m} m.
           </p>
         </>
       }
@@ -152,6 +162,7 @@ export default function SoffitGutterEstimator() {
             {mode === "perimeter" ? (
               <NumberField
                 label="Roof perimeter at the eaves"
+                required
                 unit="m"
                 value={perimeter}
                 onChange={setPerimeter}
@@ -162,12 +173,14 @@ export default function SoffitGutterEstimator() {
               <>
                 <NumberField
                   label="Building length"
+                  required
                   unit="m"
                   value={length}
                   onChange={setLength}
                 />
                 <NumberField
                   label="Building width"
+                  required
                   unit="m"
                   value={width}
                   onChange={setWidth}
@@ -176,6 +189,7 @@ export default function SoffitGutterEstimator() {
             )}
             <NumberField
               label="Eaves overhang width"
+              required
               unit="m"
               value={overhang}
               onChange={setOverhang}

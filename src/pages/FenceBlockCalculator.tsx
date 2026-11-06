@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Ruler, Layers, BrickWall, Truck } from "lucide-react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
@@ -127,6 +128,10 @@ export default function FenceBlockCalculator() {
             >
               {t("Three inputs")}
             </h2>
+
+            <div className="mt-4">
+              <MeasurementTip what="market, block size and plot measurement" />
+            </div>
 
             <div className="mt-5 space-y-5">
               <div>

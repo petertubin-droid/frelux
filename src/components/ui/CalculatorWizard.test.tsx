@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { CalculatorWizard, type WizardStep } from "@/components/ui/CalculatorWizard";
+import {
+  CalculatorWizard,
+  type WizardStep,
+} from "@/components/ui/CalculatorWizard";
 
 const steps: WizardStep[] = [
   { title: "Step 1", content: <div>Content 1</div>, canProceed: true },
@@ -85,5 +88,43 @@ describe("CalculatorWizard", () => {
     renderWizard();
     fireEvent.click(screen.getByLabelText("Step 3"));
     expect(screen.getByText("See Results")).toBeTruthy();
+  });
+
+  it("names an empty required field instead of advancing the step", () => {
+    const validateStep: WizardStep = {
+      title: "Measure",
+      content: (
+        <label htmlFor="plot-length">
+          <span>Plot length</span>
+          <input id="plot-length" aria-required="true" defaultValue="" />
+        </label>
+      ),
+    };
+    const { onComplete } = renderWizard({ steps: [validateStep, steps[1]] });
+
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+
+    expect(screen.getByRole("alert").textContent).toContain("Plot length");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Measure",
+    );
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it("advances once the required field has a figure", () => {
+    const validateStep: WizardStep = {
+      title: "Measure",
+      content: (
+        <label htmlFor="plot-length">
+          <span>Plot length</span>
+          <input id="plot-length" aria-required="true" defaultValue="30" />
+        </label>
+      ),
+    };
+    renderWizard({ steps: [validateStep, steps[1]] });
+
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    expect(screen.getByText("Content 2")).toBeDefined();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

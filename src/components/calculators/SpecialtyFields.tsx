@@ -1,5 +1,22 @@
 import { useId, type ReactNode } from "react";
 
+/**
+ * Marks a field as one the calculation cannot run without.
+ *
+ * `required` alone would hand validation to the browser and show its own bubble
+ * in its own language, and these fields are not inside a submitted form. The
+ * data attributes let the page's own audit name the field a reader recognises
+ * ("Span length"), the same wording as the visible label.
+ */
+function requiredAttributes(label: string, required?: boolean) {
+  if (!required) return {};
+  return {
+    "aria-required": "true" as const,
+    "data-required": "true" as const,
+    "data-field-label": label,
+  };
+}
+
 export function NumberField({
   label,
   value,
@@ -9,6 +26,7 @@ export function NumberField({
   min = 0,
   step = "any",
   placeholder,
+  required,
 }: {
   label: string;
   value: string;
@@ -18,6 +36,8 @@ export function NumberField({
   min?: number;
   step?: number | "any";
   placeholder?: string;
+  /** The calculation cannot run without this figure. */
+  required?: boolean;
 }) {
   const id = useId();
   const hintId = hint ? `${id}-hint` : undefined;
@@ -41,6 +61,7 @@ export function NumberField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         aria-describedby={hintId}
+        {...requiredAttributes(label, required)}
         className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
       />
       {hint ? (
@@ -58,12 +79,14 @@ export function SelectField<T extends string>({
   onChange,
   options,
   hint,
+  required,
 }: {
   label: string;
   value: T;
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
   hint?: string;
+  required?: boolean;
 }) {
   const id = useId();
   const hintId = hint ? `${id}-hint` : undefined;
@@ -77,6 +100,7 @@ export function SelectField<T extends string>({
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         aria-describedby={hintId}
+        {...requiredAttributes(label, required)}
         className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
       >
         {options.map((o) => (

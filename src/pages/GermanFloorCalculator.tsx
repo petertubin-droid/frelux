@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Layers, Package, Truck, Shield } from "lucide-react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
@@ -112,6 +113,10 @@ export default function GermanFloorCalculator() {
               {t("Floor and layers")}
             </h2>
 
+            <div className="mt-4">
+              <MeasurementTip what="market, measurement system and slab mix" />
+            </div>
+
             <div className="mt-5 space-y-5">
               <div>
                 <span className="text-sm font-medium text-foreground">
@@ -153,6 +158,9 @@ export default function GermanFloorCalculator() {
                         min={0}
                         step="0.01"
                         inputMode="decimal"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label={t("Length (m)")}
                         value={custom.length}
                         onChange={(event) =>
                           setCustom((prev) => ({
@@ -172,6 +180,9 @@ export default function GermanFloorCalculator() {
                         min={0}
                         step="0.01"
                         inputMode="decimal"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label={t("Width (m)")}
                         value={custom.width}
                         onChange={(event) =>
                           setCustom((prev) => ({

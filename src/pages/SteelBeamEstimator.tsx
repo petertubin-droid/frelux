@@ -124,7 +124,9 @@ export default function SteelBeamEstimator() {
             span={span ? `${span} m` : "not entered"}
             profile={STEEL_PROFILE_BY_KEY[profile]?.label ?? profile}
             count={count || "0"}
-            mass={mass === null ? "not calculated" : `${mass.toLocaleString()} kg`}
+            mass={
+              mass === null ? "not calculated" : `${mass.toLocaleString()} kg`
+            }
           />
           <p className="mt-3">
             Mass uses the published nominal weight per metre for each profile.
@@ -166,6 +168,7 @@ export default function SteelBeamEstimator() {
           <FieldGroup title="Span">
             <NumberField
               label="Span length"
+              required
               unit="m"
               value={span}
               onChange={setSpan}
@@ -173,6 +176,7 @@ export default function SteelBeamEstimator() {
             />
             <NumberField
               label="Number of beams"
+              required
               unit="count"
               value={count}
               onChange={setCount}
