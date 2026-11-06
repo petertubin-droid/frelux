@@ -10,9 +10,12 @@ import {
 import { resolveClimateProfile } from "@/lib/engineering/climate-profile";
 import { resolveTypologyProfile } from "@/lib/engineering/typology-profile";
 import { useMarket } from "@/lib/international/market-context";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { missingField } from "@/lib/forms/missing-fields";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -82,7 +85,33 @@ export default function ProjectTimeline() {
     typeof estimateTimeline
   > | null>(null);
 
+  // The engine normalises footprint area with a floor of half the 100 m2 base,
+  // so a cleared dimension still returns a complete, confident schedule. A
+  // building with no length, no width or no floors has no schedule to show, so
+  // the press names the blanks instead of inventing durations.
+  const blankDimensions = useCallback(
+    () =>
+      [
+        length > 0 ? null : missingField("timeline-length", "Length"),
+        width > 0 ? null : missingField("timeline-width", "Width"),
+        floors >= 1 ? null : missingField("timeline-floors", "Floors"),
+      ].filter((field): field is ReturnType<typeof missingField> =>
+        Boolean(field),
+      ),
+    [length, width, floors],
+  );
+
+  const { missing, reportMissing, clearMissing } = useCalculatorFeedback();
+
   const calculate = useCallback(() => {
+    const blank = blankDimensions();
+    if (blank.length > 0) {
+      setResult(null);
+      reportMissing(blank);
+      return;
+    }
+    clearMissing();
+
     const input: TimelineInput = {
       market_code: market.marketCode,
       building_type: buildingType,
@@ -109,9 +138,18 @@ export default function ProjectTimeline() {
     foundationType,
     roofType,
     hasEngineer,
+    blankDimensions,
+    reportMissing,
+    clearMissing,
   ]);
 
-  if (!result) calculate();
+  // The first schedule is drawn on mount. This used to run during render,
+  // which turned a refusal (state set to null again) into an endless re-render.
+  useEffect(() => {
+    if (!result) calculate();
+    // Mount only: later edits arrive through the Estimate button.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -141,18 +179,21 @@ export default function ProjectTimeline() {
               }))}
             />
             <Num
+              id="timeline-length"
               label="Length (m)"
               value={length}
               onChange={setLength}
               step="0.5"
             />
             <Num
+              id="timeline-width"
               label="Width (m)"
               value={width}
               onChange={setWidth}
               step="0.5"
             />
             <Num
+              id="timeline-floors"
               label="Floors"
               value={floors}
               onChange={(v) => setFloors(Math.floor(v))}
@@ -217,6 +258,13 @@ export default function ProjectTimeline() {
             />
             {t("Structural engineer engaged (has reinforcement schedule)")}
           </label>
+
+          {missing.length > 0 && (
+            <MissingFieldsNotice
+              fields={missing}
+              className="mt-4 rounded-xl border border-destructive/40 bg-destructive/5 p-4"
+            />
+          )}
 
           <Button
             variant="default"
@@ -496,13 +544,16 @@ function Num({
   value,
   onChange,
   step,
+  id,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   step?: string;
+  id?: string;
 }) {
-  const fieldId = useId();
+  const generatedId = useId();
+  const fieldId = id ?? generatedId;
   return (
     <div>
       <label
