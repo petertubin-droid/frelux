@@ -13,6 +13,9 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
@@ -359,12 +362,16 @@ export default function FlooringEstimator() {
     }
   }, [result, saving, user, input, labourMode, currencyCode]);
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const numberInput = (
     label: string,
     state: string,
     setter: (v: string) => void,
     placeholder = "0",
     key?: string,
+    required?: boolean,
   ) => (
     <label key={key ?? label} className="block text-sm">
       <span className="mb-1 block font-medium">{label}</span>
@@ -375,6 +382,9 @@ export default function FlooringEstimator() {
         value={state}
         onChange={(e) => setter(e.target.value)}
         placeholder={placeholder}
+        aria-required={required ? "true" : undefined}
+        data-required={required ? "true" : undefined}
+        data-field-label={label}
         className="w-full rounded-md border border-input bg-background px-3 py-2"
       />
     </label>
@@ -399,7 +409,10 @@ export default function FlooringEstimator() {
       />
 
       {/* Inputs */}
-      <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
+      <div
+        ref={fieldsRef}
+        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+      >
         <h3 className="mb-1 font-semibold">
           {t("Flooring type and measurements")}
         </h3>
@@ -408,6 +421,9 @@ export default function FlooringEstimator() {
           skirting run. Leave a field blank when it needs a decision (the
           estimate is marked incomplete); enter 0 only when there is truly none.
         </p>
+        <div className="mb-4">
+          <MeasurementTip what="flooring unit and waste setting" />
+        </div>
         <label className="mb-3 block text-sm sm:max-w-xs">
           <span className="mb-1 block font-medium">{t("Flooring type")}</span>
           <select
@@ -423,7 +439,14 @@ export default function FlooringEstimator() {
           </select>
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
-          {numberInput("Floor area (m²)", areaInput, setAreaInput)}
+          {numberInput(
+            "Floor area (m²)",
+            areaInput,
+            setAreaInput,
+            "0",
+            undefined,
+            true,
+          )}
           {numberInput(
             "Skirting run: room perimeter (m)",
             skirtingInput,
@@ -490,7 +513,8 @@ export default function FlooringEstimator() {
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
-            onClick={run}
+            type="button"
+            onClick={() => handleCalculate(run)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             {t("Calculate estimate")}
@@ -580,6 +604,10 @@ export default function FlooringEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 
+      <div className="mb-4">
+        <MissingFieldsNotice fields={missing} />
+      </div>
+
       {/* Errors */}
       {result && !result.ok && (
         <div
@@ -602,6 +630,7 @@ export default function FlooringEstimator() {
         <>
           {/* Status banner */}
           <div
+            ref={resultsRef}
             className={`mb-4 rounded-lg border p-4 text-sm ${
               result.incomplete
                 ? "border-amber-600/40 bg-amber-600/5"

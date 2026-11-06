@@ -32,11 +32,11 @@ export interface UseCalculatorFeedbackOptions {
   offset?: number;
 }
 
-export interface CalculatorFeedback {
+export interface CalculatorFeedback<T extends HTMLElement = HTMLElement> {
   /** Attach to the element that contains the fields to audit. */
   fieldsRef: RefObject<HTMLDivElement>;
   /** Attach to the start of the result, the element the page scrolls to. */
-  resultsRef: RefObject<HTMLElement>;
+  resultsRef: RefObject<T>;
   /** Fields found empty on the last press, in page order. Empty once complete. */
   missing: MissingField[];
   /** Validate, then run the calculation or report what is missing. */
@@ -45,11 +45,13 @@ export interface CalculatorFeedback {
   clearMissing: () => void;
 }
 
-export function useCalculatorFeedback(
+export function useCalculatorFeedback<T extends HTMLElement = HTMLElement>(
   options: UseCalculatorFeedbackOptions = {},
-): CalculatorFeedback {
+): CalculatorFeedback<T> {
   const fieldsRef = useRef<HTMLDivElement>(null);
-  const resultsRef = useRef<HTMLElement>(null);
+  // The result anchor is whatever element the page starts its answers with,
+  // a div on one page and a section on another.
+  const resultsRef = useRef<T>(null) as RefObject<T>;
   const [missing, setMissing] = useState<MissingField[]>([]);
   const { onValid, offset } = options;
 

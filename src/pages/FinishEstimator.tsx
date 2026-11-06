@@ -10,6 +10,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import ResultCard from "@/components/ui/ResultCard";
 import {
@@ -336,6 +339,9 @@ export default function FinishEstimator({
 
   const finishTypesList: FinishType[] = ["painting", "tyrolene", "grafitex"];
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <>
       {!embedded && (
@@ -442,6 +448,9 @@ export default function FinishEstimator({
                   "Enter your wall dimensions to calculate the paintable area.",
                 )}
               </p>
+              <div className="mt-3">
+                <MeasurementTip what="measurement unit and finish type" />
+              </div>
 
               <div className="mt-6 space-y-5">
                 {/* Method toggle */}
@@ -484,7 +493,7 @@ export default function FinishEstimator({
 
                 {/* Dimensions */}
                 {areaInput.method === "full_room" ? (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div ref={fieldsRef} className="grid grid-cols-2 gap-4">
                     <div>
                       <label
                         className="section-label"
@@ -496,6 +505,9 @@ export default function FinishEstimator({
                         id="finish-room-length"
                         type="number"
                         className="input-field"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label={t("Room Length")}
                         value={areaInput.roomLength || ""}
                         onChange={(e) =>
                           updateArea(
@@ -522,6 +534,9 @@ export default function FinishEstimator({
                         id="finish-room-width"
                         type="number"
                         className="input-field"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label={t("Room Width")}
                         value={areaInput.roomWidth || ""}
                         onChange={(e) =>
                           updateArea(
@@ -551,6 +566,9 @@ export default function FinishEstimator({
                         id="finish-wall-width"
                         type="number"
                         className="input-field"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label={t("Wall Width")}
                         value={areaInput.wallWidth || ""}
                         onChange={(e) =>
                           updateArea(
@@ -600,6 +618,9 @@ export default function FinishEstimator({
                       id="finish-wall-height"
                       type="number"
                       className="input-field"
+                      aria-required="true"
+                      data-required="true"
+                      data-field-label={t("Wall Height")}
                       value={areaInput.wallHeight || ""}
                       onChange={(e) =>
                         updateArea(
@@ -700,13 +721,16 @@ export default function FinishEstimator({
               <Button
                 variant="default"
                 type="button"
-                onClick={compute}
+                onClick={() => handleCalculate(compute)}
                 className="btn-glow mt-6 w-full"
                 disabled={loading}
               >
                 {t("Calculate Estimate")}
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Button>
+              <div className="mt-3">
+                <MissingFieldsNotice fields={missing} />
+              </div>
               {errors.area && (
                 <p className="mt-2 text-center text-xs text-red-500">
                   {errors.area}
@@ -717,7 +741,7 @@ export default function FinishEstimator({
         )}
 
         {!loading && result && (
-          <div className="space-y-6">
+          <div ref={resultsRef} className="space-y-6">
             {(result.warnings ?? []).length > 0 && (
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
                 <p className="mb-1 font-medium">

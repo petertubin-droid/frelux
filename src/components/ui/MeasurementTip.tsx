@@ -22,7 +22,6 @@ export default function MeasurementTip({
 }: MeasurementTipProps) {
   return (
     <div
-      role="note"
       data-testid="measurement-tip"
       className={classNames(
         "flex items-start gap-3 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-900",
