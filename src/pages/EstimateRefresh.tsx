@@ -19,6 +19,9 @@ import { formatCurrency } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
 import Container from "@/components/ui/Container";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchEstimates,
@@ -98,6 +101,8 @@ export default function EstimateRefresh() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [result, setResult] = useState<RefreshResult | null>(null);
+  const { resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -116,7 +121,14 @@ export default function EstimateRefresh() {
   const selected = estimates.find((e) => e.id === selectedId) ?? null;
 
   const run = async () => {
-    if (!selected) return;
+    // The button was disabled until an estimate was picked, so an empty form
+    // gave no reason. Name the choice instead; the busy state still guards
+    // against a double run.
+    if (!selected) {
+      setResult(null);
+      reportMissing([missingField("refresh-estimate", "Saved estimate")]);
+      return;
+    }
     setRefreshing(true);
     setResult(null);
     try {
@@ -223,6 +235,8 @@ export default function EstimateRefresh() {
             <label className="grid gap-1 text-sm font-medium">
               {t("Saved estimate")}
               <select
+                id="refresh-estimate"
+                aria-label={t("Saved estimate")}
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={selectedId}
                 onChange={(e) => {
@@ -239,10 +253,11 @@ export default function EstimateRefresh() {
                 ))}
               </select>
             </label>
+            <MissingFieldsNotice fields={missing} />
             <button
               type="button"
-              onClick={run}
-              disabled={!selected || refreshing}
+              onClick={() => handleCalculate(run)}
+              disabled={refreshing}
               className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {refreshing ? "Refreshing…" : "Refresh to today's prices"}
@@ -261,7 +276,7 @@ export default function EstimateRefresh() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             {/* Summary tiles */}
             <div className="grid gap-4 sm:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">

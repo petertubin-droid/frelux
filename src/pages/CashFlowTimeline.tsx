@@ -11,6 +11,9 @@
  */
 
 import { useEffect, useState } from "react";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -44,6 +47,8 @@ export default function CashFlowTimeline() {
       "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
   });
 
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
   const [templates, setTemplates] = useState<CashFlowTemplate[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -73,6 +78,20 @@ export default function CashFlowTimeline() {
   const selected = templates.find((t) => t.id === templateId) ?? null;
 
   const run = () => {
+    // Pressing the button on an incomplete form used to do nothing at all: the
+    // button was disabled, so the page never said what it was waiting for.
+    const gaps = [
+      ...(selected ? [] : [missingField("cash-template", "Template")]),
+      ...(total.trim() === ""
+        ? [missingField("cash-total", "Estimate total")]
+        : []),
+      ...(startDate ? [] : [missingField("cash-start", "Start date")]),
+    ];
+    if (gaps.length > 0) {
+      setResult(null);
+      reportMissing(gaps);
+      return;
+    }
     if (!selected) return;
     const r = calculateCashFlow({
       total_amount: Number(total),
@@ -103,7 +122,10 @@ export default function CashFlowTimeline() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
           {templates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No cash-flow templates configured yet. The admin team defines
@@ -115,6 +137,8 @@ export default function CashFlowTimeline() {
               <label className="grid gap-1 text-sm font-medium">
                 {t("Template")}
                 <select
+                  id="cash-template"
+                  aria-label={t("Template")}
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={templateId}
                   onChange={(e) => {
@@ -132,6 +156,8 @@ export default function CashFlowTimeline() {
               <label className="grid gap-1 text-sm font-medium">
                 {t("Estimate total (your market currency)")}
                 <input
+                  id="cash-total"
+                  aria-label={t("Estimate total (your market currency)")}
                   type="number"
                   min="1"
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
@@ -143,6 +169,8 @@ export default function CashFlowTimeline() {
               <label className="grid gap-1 text-sm font-medium">
                 {t("Start date")}
                 <input
+                  id="cash-start"
+                  aria-label={t("Start date")}
                   type="date"
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={startDate}
@@ -150,11 +178,11 @@ export default function CashFlowTimeline() {
                 />
               </label>
               <div className="sm:col-span-3">
+                <MissingFieldsNotice fields={missing} />
                 <button
                   type="button"
-                  onClick={run}
-                  disabled={!selected || !total || !startDate}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  onClick={() => handleCalculate(run)}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 >
                   {t("Generate Schedule")}
                 </button>
@@ -174,7 +202,7 @@ export default function CashFlowTimeline() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             {result.warnings.map((w, i) => (
               <p
                 key={i}

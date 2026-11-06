@@ -137,10 +137,17 @@ describe("DefectDiagnosis page", () => {
     });
   });
 
-  it("disables Diagnose until a symptom is selected", async () => {
+  it("names the missing symptom instead of disabling Diagnose", async () => {
     renderPage();
     await screen.findByRole("combobox");
-    expect(screen.getByRole("button", { name: /Diagnose/i })).toBeDisabled();
+
+    const diagnose = screen.getByRole("button", { name: /Diagnose/i });
+    expect(diagnose).toBeEnabled();
+    fireEvent.click(diagnose);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Symptom/i);
+    expect(document.activeElement?.id).toBe("defect-symptom");
   });
 
   it("shows the empty state when no symptoms are configured", async () => {

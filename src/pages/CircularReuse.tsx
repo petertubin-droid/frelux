@@ -33,6 +33,9 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 
 export default function CircularReuse() {
   const { t } = useLanguage();
@@ -70,7 +73,25 @@ export default function CircularReuse() {
 
   const selected = factors.find((f) => f.category === category);
 
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const run = () => {
+    // Pressing with an empty form used to do nothing: the button was disabled.
+    // Name the two inputs instead so the page can say what it is waiting for.
+    const gaps = [
+      ...(category
+        ? []
+        : [missingField("reuse-category", "Material category")]),
+      ...(quantity.trim() === ""
+        ? [missingField("reuse-quantity", "Quantity")]
+        : []),
+    ];
+    if (gaps.length > 0) {
+      setResult(null);
+      reportMissing(gaps);
+      return;
+    }
     setResult(null);
     const factorMap: Record<
       string,
@@ -121,11 +142,16 @@ export default function CircularReuse() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm font-medium">
               {t("Material category")}
               <select
+                id="reuse-category"
+                aria-label={t("Material category")}
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={category}
                 onChange={(e) => {
@@ -146,6 +172,8 @@ export default function CircularReuse() {
             <label className="grid gap-1 text-sm font-medium">
               Quantity {selected ? `(${selected.unit})` : ""}
               <input
+                id="reuse-quantity"
+                aria-label="Quantity"
                 type="number"
                 min="1"
                 step="1"
@@ -155,11 +183,11 @@ export default function CircularReuse() {
               />
             </label>
           </div>
+          <MissingFieldsNotice fields={missing} />
           <button
             type="button"
-            onClick={run}
-            disabled={!category || !quantity}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            onClick={() => handleCalculate(run)}
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             {t("Plan recovery")}
           </button>
@@ -176,7 +204,7 @@ export default function CircularReuse() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">

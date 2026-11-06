@@ -73,9 +73,11 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/supabase-lazy", () => ({
   getSupabase: vi.fn().mockResolvedValue({
     functions: {
-      invoke: vi.fn().mockRejectedValue(
-        new Error("ec3-epd-lookup is not available in tests"),
-      ),
+      invoke: vi
+        .fn()
+        .mockRejectedValue(
+          new Error("ec3-epd-lookup is not available in tests"),
+        ),
     },
   }),
 }));
@@ -136,7 +138,9 @@ describe("CarbonFootprint page", () => {
       expect(screen.getAllByText(/320 kgCO₂e/).length).toBeGreaterThan(0);
     });
     // The RICS/EN 15978 module breakdown is part of the result (Pillar 5).
-    expect(screen.getByText(/RICS whole life carbon modules/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/RICS whole life carbon modules/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Module A1/)).toBeInTheDocument();
   });
 
@@ -147,12 +151,20 @@ describe("CarbonFootprint page", () => {
     expect(await screen.findByText(/ICE v3 cement/)).toBeInTheDocument();
   });
 
-  it("disables Calculate until a line is filled", async () => {
+  it("names every empty line instead of disabling Calculate", async () => {
     renderPage();
     await screen.findAllByRole("combobox");
-    expect(
-      screen.getByRole("button", { name: /Calculate Carbon/i }),
-    ).toBeDisabled();
+
+    const calculate = screen.getByRole("button", {
+      name: /Calculate Carbon/i,
+    });
+    expect(calculate).toBeEnabled();
+    fireEvent.click(calculate);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Line 1 material/i);
+    expect(notice.textContent).toMatch(/Line 1 quantity/i);
+    expect(document.activeElement?.id).toBe("carbon-category-0");
   });
 });
 

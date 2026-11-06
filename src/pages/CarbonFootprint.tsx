@@ -10,6 +10,9 @@
  */
 
 import { useEffect, useState } from "react";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -51,6 +54,8 @@ export default function CarbonFootprint() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [lines, setLines] = useState<LineForm[]>([{ ...emptyLine }]);
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
   const [result, setResult] = useState<EmbodiedCarbonResult | null>(null);
 
   useEffect(() => {
@@ -116,6 +121,27 @@ export default function CarbonFootprint() {
     );
 
   const calculate = () => {
+    // A line is only usable once both halves are filled. The button used to be
+    // disabled until one line qualified, which said nothing about which line.
+    const gaps = lines.flatMap((line, i) => {
+      const usable = line.category && line.quantity !== "";
+      if (usable) return [];
+      const row = i + 1;
+      return [
+        ...(line.category
+          ? []
+          : [missingField(`carbon-category-${i}`, `Line ${row} material`)]),
+        ...(line.quantity !== ""
+          ? []
+          : [missingField(`carbon-quantity-${i}`, `Line ${row} quantity`)]),
+      ];
+    });
+    if (gaps.length > 0) {
+      setResult(null);
+      reportMissing(gaps);
+      return;
+    }
+
     const r = calculateEmbodiedCarbon({
       lines: lines
         .filter((l) => l.category && l.quantity !== "")
@@ -162,7 +188,10 @@ export default function CarbonFootprint() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
           <h2 className="mb-3 text-base font-semibold">
             {t("Estimate lines")}
           </h2>
@@ -184,6 +213,7 @@ export default function CarbonFootprint() {
                     className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]"
                   >
                     <select
+                      id={`carbon-category-${i}`}
                       aria-label={`Line ${i + 1} material or finish`}
                       className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
                       value={line.category}
@@ -200,6 +230,7 @@ export default function CarbonFootprint() {
                       })}
                     </select>
                     <input
+                      id={`carbon-quantity-${i}`}
                       aria-label={`Line ${i + 1} quantity`}
                       type="number"
                       min="0"
@@ -227,6 +258,7 @@ export default function CarbonFootprint() {
                   </div>
                 );
               })}
+              <MissingFieldsNotice fields={missing} />
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
@@ -239,9 +271,8 @@ export default function CarbonFootprint() {
                 </button>
                 <button
                   type="button"
-                  onClick={calculate}
-                  disabled={!lines.some((l) => l.category && l.quantity !== "")}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  onClick={() => handleCalculate(calculate)}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 >
                   {t("Calculate Carbon")}
                 </button>
@@ -261,7 +292,7 @@ export default function CarbonFootprint() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             {result.warnings.map((w, i) => (
               <p
                 key={i}

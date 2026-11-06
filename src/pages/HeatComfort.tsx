@@ -11,6 +11,9 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -54,6 +57,8 @@ export default function HeatComfort() {
   const [currentCat, setCurrentCat] = useState("");
   const [proposedCat, setProposedCat] = useState("");
   const [result, setResult] = useState<HeatComfortResult | null>(null);
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
 
   const load = useCallback(async () => {
     const f = await fetchThermalFinishFactors(true);
@@ -73,6 +78,19 @@ export default function HeatComfort() {
   const surfaceFactors = factors.filter((f) => f.surface_type === surfaceType);
 
   const run = () => {
+    // The button used to sit disabled until both finishes were picked, so an
+    // empty form gave no reason at all. It now runs and names what it needs.
+    const gaps = [
+      ...(currentCat ? [] : [missingField("heat-current", "Current finish")]),
+      ...(proposedCat
+        ? []
+        : [missingField("heat-proposed", "Proposed finish")]),
+    ];
+    if (gaps.length > 0) {
+      setResult(null);
+      reportMissing(gaps);
+      return;
+    }
     setResult(null);
     const factorMap: Record<string, { solar_reflectance: number }> = {};
     for (const f of factors)
@@ -111,7 +129,10 @@ export default function HeatComfort() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm font-medium">
               {t("Surface type")}
@@ -143,6 +164,8 @@ export default function HeatComfort() {
             <label className="grid gap-1 text-sm font-medium">
               {t("Current finish")}
               <select
+                id="heat-current"
+                aria-label={t("Current finish")}
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={currentCat}
                 onChange={(e) => {
@@ -161,6 +184,8 @@ export default function HeatComfort() {
             <label className="grid gap-1 text-sm font-medium">
               {t("Proposed finish")}
               <select
+                id="heat-proposed"
+                aria-label={t("Proposed finish")}
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={proposedCat}
                 onChange={(e) => {
@@ -177,11 +202,12 @@ export default function HeatComfort() {
               </select>
             </label>
           </div>
+          <MissingFieldsNotice fields={missing} />
+
           <button
             type="button"
-            onClick={run}
-            disabled={!currentCat || !proposedCat}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            onClick={() => handleCalculate(run)}
+            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             {t("Compare finishes")}
           </button>
@@ -198,7 +224,7 @@ export default function HeatComfort() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">

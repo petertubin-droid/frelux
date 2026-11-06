@@ -122,12 +122,21 @@ describe("CashFlowTimeline page", () => {
     expect(screen.getByText(/cumulative ₦750,000/)).toBeInTheDocument();
   });
 
-  it("disables Generate until a total is entered", async () => {
+  it("names the missing total instead of disabling Generate", async () => {
     renderPage();
     await screen.findByRole("combobox");
-    expect(
-      screen.getByRole("button", { name: /Generate Schedule/i }),
-    ).toBeDisabled();
+
+    // The schedule cannot run without a total, but a dead button hides that.
+    const generate = screen.getByRole("button", {
+      name: /Generate Schedule/i,
+    });
+    expect(generate).toBeEnabled();
+    fireEvent.click(generate);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Estimate total/i);
+    expect(document.activeElement?.id).toBe("cash-total");
+    expect(screen.queryByText(/scheduled$/i)).not.toBeInTheDocument();
   });
 
   it("shows the empty state when no templates are configured", async () => {

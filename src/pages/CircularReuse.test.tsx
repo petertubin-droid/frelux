@@ -167,24 +167,28 @@ describe("CircularReuse page", () => {
     ).toBeInTheDocument();
   });
 
-  it("disables Plan recovery until material and quantity are given", async () => {
+  it("names the missing material and quantity instead of disabling", async () => {
     renderPage();
     await screen.findByRole("option", { name: "Ceramic tiles" });
-    expect(
-      screen.getByRole("button", { name: /Plan recovery/i }),
-    ).toBeDisabled();
+
+    // A live button that reports both gaps is more useful than a dead one.
+    const plan = screen.getByRole("button", { name: /Plan recovery/i });
+    expect(plan).toBeEnabled();
+    fireEvent.click(plan);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Material category/i);
+    expect(notice.textContent).toMatch(/Quantity/i);
+    expect(document.activeElement?.id).toBe("reuse-category");
+
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "ceramic_tiles" },
     });
+    fireEvent.click(plan);
     expect(
-      screen.getByRole("button", { name: /Plan recovery/i }),
-    ).toBeDisabled();
-    fireEvent.change(screen.getByRole("spinbutton"), {
-      target: { value: "100" },
-    });
-    expect(
-      screen.getByRole("button", { name: /Plan recovery/i }),
-    ).not.toBeDisabled();
+      (await screen.findByTestId("missing-fields-notice")).textContent,
+    ).toMatch(/Quantity/i);
+    expect(document.activeElement?.id).toBe("reuse-quantity");
   });
 });
 

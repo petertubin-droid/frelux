@@ -21,6 +21,9 @@ import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
 import { checkAndSpendCredits } from "@/lib/ai-credit-gate";
 import { AiFeatureGate } from "@/components/credits/CreditsWallet";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
@@ -135,8 +138,18 @@ export default function CountVision() {
    * before the edge function is called. Guests stay on the edge
    * function's own rate limits, same contract as the Copilot.
    */
+  const { resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const runCount = useCallback(async () => {
-    if (!photo || counting) return;
+    // Counting used to be gated by a disabled button, so pressing nothing
+    // explained nothing. Ask for the photo by name instead.
+    if (!photo) {
+      setError(null);
+      reportMissing([missingField("count-photo", "Site photo")]);
+      return;
+    }
+    if (counting) return;
     if (user) {
       const gate = await checkAndSpendCredits("count_vision");
       if (!gate.allowed) {
@@ -181,6 +194,7 @@ export default function CountVision() {
         <label className="block text-sm">
           <span className="mb-1 block font-medium">{t("Site photo")}</span>
           <input
+            id="count-photo"
             ref={fileRef}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/heic"
@@ -207,10 +221,12 @@ export default function CountVision() {
           </div>
         )}
 
+        <MissingFieldsNotice fields={missing} />
+
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
-            onClick={runCount}
-            disabled={!photo || counting}
+            onClick={() => handleCalculate(runCount)}
+            disabled={counting}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {counting ? "Counting…" : "Count what's visible"}
@@ -243,6 +259,7 @@ export default function CountVision() {
       {/* The honest result */}
       {result && (
         <div
+          ref={resultsRef}
           className="mb-8 rounded-lg border bg-card p-6 shadow-sm"
           role="status"
           data-testid="count-result"

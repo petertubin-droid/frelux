@@ -31,6 +31,9 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -77,7 +80,17 @@ export default function DefectDiagnosis() {
     ? allCauses.filter((c) => c.defect_id === selected.id)
     : [];
 
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const run = () => {
+    // Diagnose was disabled until a symptom was chosen, so an empty form gave
+    // no reason. It now runs and names the choice it needs.
+    if (!symptomKey) {
+      setResult(null);
+      reportMissing([missingField("defect-symptom", "Symptom")]);
+      return;
+    }
     if (!selected) return;
     const r = diagnoseDefect({
       symptom_key: symptomKey,
@@ -108,7 +121,10 @@ export default function DefectDiagnosis() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
           {defects.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No defect symptoms configured yet. The knowledge base is entered
@@ -119,6 +135,8 @@ export default function DefectDiagnosis() {
               <label className="grid gap-1 text-sm font-medium sm:col-span-2">
                 {t("Symptom")}
                 <select
+                  id="defect-symptom"
+                  aria-label={t("Symptom")}
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={symptomKey}
                   onChange={(e) => {
@@ -147,11 +165,11 @@ export default function DefectDiagnosis() {
                 />
               </label>
               <div className="sm:col-span-3">
+                <MissingFieldsNotice fields={missing} />
                 <button
                   type="button"
-                  onClick={run}
-                  disabled={!symptomKey}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  onClick={() => handleCalculate(run)}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
                 >
                   {t("Diagnose")}
                 </button>
@@ -171,7 +189,7 @@ export default function DefectDiagnosis() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             {result.warnings.map((w, i) => (
               <p
                 key={i}

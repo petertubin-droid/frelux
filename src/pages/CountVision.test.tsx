@@ -201,7 +201,17 @@ describe("CountVision page", () => {
     expect(
       screen.queryByAltText(/ready for counting/i),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/count what's visible/i)).toBeDisabled();
+
+    // Nothing left to count, but the button still answers: it asks for a photo
+    // rather than sitting disabled and silent.
+    const recount = screen.getByRole("button", {
+      name: /count what's visible/i,
+    });
+    expect(recount).toBeEnabled();
+    fireEvent.click(recount);
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Site photo/i);
+    expect(document.activeElement?.id).toBe("count-photo");
   });
 });
 

@@ -197,12 +197,17 @@ describe("EstimateRefresh page", () => {
     );
   });
 
-  it("disables Refresh until an estimate is selected", async () => {
+  it("names the missing estimate instead of disabling Refresh", async () => {
     renderPage();
-    await screen.findByRole("combobox");
-    expect(
-      screen.getByRole("button", { name: /Refresh to today/i }),
-    ).toBeDisabled();
+    const refresh = await screen.findByRole("button", {
+      name: /Refresh to today's prices/i,
+    });
+    expect(refresh).toBeEnabled();
+    fireEvent.click(refresh);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Saved estimate/i);
+    expect(document.activeElement?.id).toBe("refresh-estimate");
   });
 
   it("shows the sign-in gate when there is no user", async () => {

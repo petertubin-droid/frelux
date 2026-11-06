@@ -161,21 +161,31 @@ describe("HeatComfort page", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 
-  it("disables Compare until both finishes are selected", async () => {
+  it("names a missing finish instead of disabling Compare", async () => {
     renderPage();
     await waitFor(() => {
       expect(
         screen.getAllByRole("option", { name: "Dark membrane" }).length,
       ).toBe(2);
     });
-    expect(
-      screen.getByRole("button", { name: /Compare finishes/i }),
-    ).toBeDisabled();
+
+    // A live button that explains itself beats a dead one that does not.
+    const compare = screen.getByRole("button", { name: /Compare finishes/i });
+    expect(compare).toBeEnabled();
+    fireEvent.click(compare);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice.textContent).toMatch(/Current finish/i);
+    expect(document.activeElement?.id).toBe("heat-current");
+
+    // Picking only one finish still leaves the comparison unfinished.
     const boxes = screen.getAllByRole("combobox");
     fireEvent.change(boxes[1], { target: { value: "dark_membrane" } });
+    fireEvent.click(compare);
     expect(
-      screen.getByRole("button", { name: /Compare finishes/i }),
-    ).toBeDisabled();
+      (await screen.findByTestId("missing-fields-notice")).textContent,
+    ).toMatch(/Proposed finish/i);
+    expect(screen.queryByText(/Current albedo/i)).not.toBeInTheDocument();
   });
 
   it("honestly reports a warmer result for a darker proposed finish", async () => {

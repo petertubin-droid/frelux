@@ -32,6 +32,8 @@ import {
 } from "@/components/measurement/MeasurementInput";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { missingField } from "@/lib/forms/missing-fields";
 import {
   useMeasurementProject,
   useEngineFeatures,
@@ -240,7 +242,9 @@ export default function ScreedingCalculator({
   const {
     fieldsRef,
     resultsRef,
+    missing,
     handleCalculate: calculateWithScroll,
+    reportMissing,
   } = useCalculatorFeedback<HTMLDivElement>();
 
   return (
@@ -274,6 +278,7 @@ export default function ScreedingCalculator({
           >
             <MeasurementTip what="measurement unit and surface dimensions" />
             <MeasurementInput
+              containerId="screeding-measurements"
               project={project}
               context="screeding"
               validation={validation}
@@ -309,11 +314,29 @@ export default function ScreedingCalculator({
               )}
             </MeasurementInput>
 
+            <MissingFieldsNotice fields={missing} />
+
             <Button
               variant="default"
               type="button"
-              onClick={() => calculateWithScroll(handleCalculate)}
-              disabled={!validation.valid}
+              onClick={() => {
+                if (!validation.valid) {
+                  // The button used to sit disabled here, so a visitor with an
+                  // empty length saw a dead control and no reason for it.
+                  reportMissing(
+                    validation.errors
+                      .slice(0, 3)
+                      .map((message) =>
+                        missingField(
+                          "screeding-measurements",
+                          message.replace(/\.$/, ""),
+                        ),
+                      ),
+                  );
+                  return;
+                }
+                calculateWithScroll(handleCalculate);
+              }}
               className="w-full btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Calculate {finishTerm} Area

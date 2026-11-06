@@ -75,6 +75,10 @@ import {
 import { useMarket } from "@/lib/international/market-context";
 import { DimensionalInput } from "@/components/measurement/DimensionalInput";
 import { parseDimensionalInput } from "@/lib/globalization/dimensional-parser";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import type { ExtendedLengthUnit } from "@/lib/measurement/extended-units";
 import {
   calculateConcreteTakeoff,
@@ -285,6 +289,9 @@ export function ConcreteTakeoffCalculator() {
   useEffect(() => {
     setDimensionUnit(preferredLengthUnit);
   }, [market.marketCode, preferredLengthUnit]);
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const calculate = () => {
     const parsedDimensions = [length, width, depth].map((value) =>
       parseDimensionalInput(value, {
@@ -301,6 +308,22 @@ export function ConcreteTakeoffCalculator() {
     if (dimensionErrors.length) {
       setErrors(dimensionErrors);
       setResult(null);
+      // The amber block below lists every problem; the notice also returns the
+      // cursor to the first box, which a message alone does not do.
+      reportMissing(
+        parsedDimensions.flatMap((parsed, index) =>
+          parsed.ok
+            ? []
+            : [
+                missingField(
+                  ["takeoff-length", "takeoff-width", "takeoff-depth"][index],
+                  ["Concrete length", "Concrete width", "Concrete depth"][
+                    index
+                  ],
+                ),
+              ],
+        ),
+      );
       return;
     }
     const [lengthParsed, widthParsed, depthParsed] = parsedDimensions;
@@ -451,8 +474,10 @@ export function ConcreteTakeoffCalculator() {
     label: string,
     value: string,
     set: (value: string) => void,
+    id?: string,
   ) => (
     <DimensionalInput
+      id={id}
       label={label}
       value={value}
       onValueChange={set}
@@ -464,8 +489,9 @@ export function ConcreteTakeoffCalculator() {
   );
   return (
     <div className="space-y-6">
-      <div className="card p-5 sm:p-7">
-        <h2 className="text-xl font-bold">
+      <div ref={fieldsRef} className="card p-5 sm:p-7">
+        <MeasurementTip what="concrete element type and its three dimensions" />
+        <h2 className="mt-4 text-xl font-bold">
           {t("Measured concrete quantities")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -494,16 +520,19 @@ export function ConcreteTakeoffCalculator() {
             `${elementType === "column" ? "Column height" : elementType === "beam" ? "Beam length" : elementType === "footing" ? "Footing length" : "Slab length"}`,
             length,
             setLength,
+            "takeoff-length",
           )}
           {dimensionField(
             `${elementType === "column" ? "Column side A" : elementType === "beam" ? "Beam width" : elementType === "footing" ? "Footing width" : "Slab width"}`,
             width,
             setWidth,
+            "takeoff-width",
           )}
           {dimensionField(
             `${elementType === "column" ? "Column side B" : elementType === "beam" ? "Beam depth" : elementType === "footing" ? "Footing depth" : "Slab thickness"}`,
             depth,
             setDepth,
+            "takeoff-depth",
           )}
           {field("Mix cement parts", cement, setCement, "Specified mix")}
           {field("Mix sand parts", sand, setSand, "Specified mix")}
@@ -595,7 +624,15 @@ export function ConcreteTakeoffCalculator() {
             </button>
           </div>
         ))}
-        <Button className="mt-5" onClick={calculate}>
+        <MissingFieldsNotice fields={missing} />
+
+        <Button
+          className="mt-5"
+          onClick={() => {
+            if (missing.length > 0) reportMissing([]);
+            handleCalculate(calculate);
+          }}
+        >
           {t("Calculate concrete takeoff")}
         </Button>
         {errors.length > 0 && (
@@ -637,7 +674,7 @@ export function ConcreteTakeoffCalculator() {
         </div>
       )}
       {result && (
-        <div className="card-elevated p-5 sm:p-7">
+        <div ref={resultsRef} className="card-elevated p-5 sm:p-7">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("Material quantity schedule")}

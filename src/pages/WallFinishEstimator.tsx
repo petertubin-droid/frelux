@@ -24,6 +24,10 @@ import {
 } from "@/lib/international/room-unit-defaults";
 import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField, type MissingField } from "@/lib/forms/missing-fields";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -376,6 +380,26 @@ export default function WallFinishEstimator() {
     assemblies,
   ]);
 
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLElement>();
+
+  // A room with no length, width or height has nothing to finish, and the
+  // engine would return an empty project with no cost. Name the box instead.
+  const findRoomGaps = useCallback(() => {
+    const gaps: MissingField[] = [];
+    for (const room of rooms) {
+      for (const f of ["lengthM", "widthM", "heightM"] as const) {
+        if (n(room[f]) > 0) continue;
+        const label =
+          f === "lengthM" ? "Length" : f === "widthM" ? "Width" : "Height";
+        gaps.push(
+          missingField(`room-${room.id}-${f}`, `${room.name} ${label}`),
+        );
+      }
+    }
+    return gaps;
+  }, [rooms]);
+
   const calculate = useCallback(async () => {
     setBusy(true);
     setError(null);
@@ -561,6 +585,7 @@ export default function WallFinishEstimator() {
 
         {/* ── Project ── */}
         <section className="card p-6 space-y-4">
+          <MeasurementTip what="measurement unit and room dimensions" />
           <h2 className="text-lg font-semibold">1. Project</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="space-y-1.5">
@@ -632,7 +657,7 @@ export default function WallFinishEstimator() {
         </section>
 
         {/* ── Rooms ── */}
-        <section className="card p-6 space-y-4">
+        <section ref={fieldsRef} className="card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">2. Rooms</h2>
             <div className="flex items-center gap-2">
@@ -706,6 +731,7 @@ export default function WallFinishEstimator() {
                           : `Height (${unitShortLabel(unit)})`}
                     </span>
                     <input
+                      id={`room-${r.id}-${f}`}
                       type="number"
                       min={0}
                       step="0.1"
@@ -832,9 +858,18 @@ export default function WallFinishEstimator() {
           </div>
         </section>
 
+        <MissingFieldsNotice fields={missing} />
+
         <button
           type="button"
-          onClick={calculate}
+          onClick={() => {
+            const gaps = findRoomGaps();
+            if (gaps.length > 0) {
+              reportMissing(gaps);
+              return;
+            }
+            handleCalculate(() => void calculate());
+          }}
           disabled={busy}
           className="btn-primary w-full text-base"
         >
@@ -844,7 +879,7 @@ export default function WallFinishEstimator() {
 
         {/* ── Results ── */}
         {result && (
-          <section className="space-y-6">
+          <section ref={resultsRef} className="space-y-6">
             {result.errors.length > 0 && (
               <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
                 {result.errors.map((e, i) => (

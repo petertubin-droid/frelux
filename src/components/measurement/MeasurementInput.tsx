@@ -714,6 +714,8 @@ export interface MeasurementInputProps {
   marketCode?: string;
   /** House / Building mode: seed the room list from a preset. */
   onApplyPreset?: (presetId: string) => void;
+  /** Id for the root, so a page can name this block in a missing-field notice. */
+  containerId?: string;
   children?: ReactNode;
 }
 
@@ -727,6 +729,7 @@ export function MeasurementInput({
   onRemoveMeasurement,
   marketCode = "NG",
   onApplyPreset,
+  containerId,
   children,
 }: MeasurementInputProps) {
   const { t } = useLanguage();
@@ -778,7 +781,7 @@ export function MeasurementInput({
           : "Add Another Room";
 
   return (
-    <div className="space-y-4">
+    <div id={containerId} className="space-y-4">
       <ProjectModeSelector
         value={project.projectMode}
         onChange={onProjectModeChange}

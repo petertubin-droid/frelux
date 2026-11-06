@@ -750,7 +750,14 @@ export default function PaintCalculator({
   }
 
   function next() {
-    if (!validateStep(step)) return;
+    if (!validateStep(step)) {
+      // Continue used to fail silently, leaving only the inline messages. The
+      // step notice is the one place that says the step is not finished yet,
+      // so a blocked press has to raise it here as well as on Calculate.
+      setStepAttempted(true);
+      return;
+    }
+    setStepAttempted(false);
     if (step === 1) {
       track("calculator_started", { projectType: input.projectType });
       logAnalyticsEvent("calculator_started", {
@@ -771,6 +778,7 @@ export default function PaintCalculator({
       setStepAttempted(true);
       return;
     }
+    setStepAttempted(false);
 
     // Validate quality selection if estimation products are available
     if (

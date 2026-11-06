@@ -115,4 +115,32 @@ describe("StructuralCalculator", () => {
     ).toBeInTheDocument();
     expect(await screen.findByText(/Foundation ties/i)).toBeInTheDocument();
   });
+
+  it("names an empty concrete dimension and keeps the cursor there", async () => {
+    await renderPage();
+
+    // The takeoff lives on its own tab; the page opens on the beam tab.
+    const concreteTab = (await screen.findAllByRole("button")).find((b) =>
+      b.textContent?.includes("Concrete Takeoff"),
+    );
+    expect(concreteTab).toBeTruthy();
+    fireEvent.click(concreteTab!);
+
+    const takeoff = (await screen.findAllByRole("button")).find((b) =>
+      b.textContent?.includes("Calculate concrete takeoff"),
+    );
+    expect(takeoff).toBeTruthy();
+
+    // The takeoff opens with no dimensions, so a press must not produce a
+    // schedule. It must name the boxes that are empty instead.
+    fireEvent.click(takeoff!);
+
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice).toBeInTheDocument();
+    expect(notice.textContent).toMatch(/Concrete length/i);
+    expect(document.activeElement?.id).toBe("takeoff-length");
+    expect(
+      screen.queryByText(/Material quantity schedule/i),
+    ).not.toBeInTheDocument();
+  });
 });
