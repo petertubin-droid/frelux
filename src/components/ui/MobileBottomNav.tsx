@@ -25,13 +25,13 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="neon-edge fixed inset-x-0 bottom-0 z-30 border-t border-border/50 bg-background/70 backdrop-blur-xl backdrop-saturate-150 md:hidden dark:border-white/10 dark:bg-background/65"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-background/40 backdrop-blur-2xl backdrop-saturate-150 md:hidden dark:border-white/10 dark:bg-background/45"
       aria-label="Bottom navigation"
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
       <div
-        className="flex items-stretch justify-around px-1 py-0.5"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="flex items-stretch justify-around px-1 py-1"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 2px)" }}
       >
         {navItems.map((item) => {
           const active =
@@ -43,7 +43,7 @@ export default function MobileBottomNav() {
               to={item.to}
               aria-current={active ? "page" : undefined}
               className={classNames(
-                "flex flex-1 flex-col items-center gap-0 rounded-lg py-1 text-[10px] font-medium transition-all",
+                "relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-0.5 text-[9.5px] font-semibold leading-none transition-colors",
                 active
                   ? "text-brand-purple dark:text-brand-purple-lighter"
                   : "text-muted-foreground dark:text-muted-foreground",
@@ -51,14 +51,15 @@ export default function MobileBottomNav() {
             >
               <span
                 className={classNames(
-                  "relative inline-flex h-6 w-6 items-center justify-center rounded-lg transition-all",
-                  active && "bg-primary/10 dark:bg-primary/15",
+                  "relative inline-flex h-[22px] w-[22px] items-center justify-center rounded-md transition-all duration-200",
+                  active &&
+                    "bg-primary/10 ring-1 ring-inset ring-primary/15 dark:bg-primary/20",
                 )}
               >
                 <item.icon
                   className={classNames(
-                    "h-[18px] w-[18px] transition-transform",
-                    active && "scale-110",
+                    "h-4 w-4 transition-transform duration-200",
+                    active && "scale-105",
                   )}
                 />
                 {item.badge !== undefined && item.badge > 0 && (
@@ -67,7 +68,14 @@ export default function MobileBottomNav() {
                   </span>
                 )}
               </span>
-              {t(item.label)}
+              <span className="truncate">{t(item.label)}</span>
+              <span
+                aria-hidden="true"
+                className={classNames(
+                  "absolute bottom-0 h-[2px] w-4 rounded-full bg-brand-purple transition-opacity duration-200",
+                  active ? "opacity-100" : "opacity-0",
+                )}
+              />
             </Link>
           );
         })}

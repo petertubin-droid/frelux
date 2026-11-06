@@ -11,8 +11,13 @@ import {
   ClipboardList,
   Crown,
   FileStack,
+  ArrowRight,
+  BookOpen,
+  Building2,
   FileText,
   Gem,
+  LayoutGrid,
+  Map,
   LayoutDashboard,
   SlidersHorizontal,
   LogIn,
@@ -198,16 +203,15 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          "neon-edge fixed top-0 z-40 w-full transition-all duration-500",
-          "border-b backdrop-blur-xl backdrop-saturate-150",
+          "neon-edge fixed top-0 z-40 w-full border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500",
           scrolled
-            ? "border-border/50 bg-background/65 shadow-sm dark:border-white/10 dark:bg-background/60"
-            : "border-transparent bg-background/45 dark:bg-background/35",
+            ? "border-border/40 bg-background/55 shadow-[0_12px_32px_-28px_rgba(16,12,40,0.75)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-background/50"
+            : "border-transparent bg-transparent backdrop-blur-none",
         )}
       >
         <nav
           ref={navRef}
-          className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+          className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-16 lg:px-8"
         >
           {/* Logo, left */}
           <div className="flex items-center gap-3">
@@ -705,7 +709,7 @@ export default function Navbar() {
         {/* Scrim */}
         <div
           className={classNames(
-            "absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300",
+            "absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300",
             mobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={() => setMobileOpen(false)}
@@ -713,23 +717,28 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "absolute left-0 top-0 h-full w-[300px] max-w-[300px] overflow-y-auto bg-card shadow-2xl transition-transform duration-300 dark:bg-background",
+            "absolute left-0 top-0 h-full w-[318px] max-w-[88vw] overflow-y-auto overscroll-contain rounded-r-3xl border-r border-border/50 bg-card/95 shadow-[24px_0_60px_-40px_rgba(16,12,40,0.65)] backdrop-blur-2xl transition-transform duration-300 ease-out dark:border-white/10 dark:bg-background/95",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           {/* Drawer header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 dark:border-white/5">
-            <Link to="/" onClick={() => setMobileOpen(false)} aria-label="FRELUX home" className="group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border/50 bg-gradient-to-b from-primary/[0.07] to-transparent px-4 py-3.5 backdrop-blur-xl dark:border-white/5">
+            <Link
+              to="/"
+              onClick={() => setMobileOpen(false)}
+              aria-label="FRELUX home"
+              className="group min-w-0 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
               <Logo />
             </Link>
             <Button
               variant="ghost"
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 dark:hover:bg-white/5"
               aria-label="Close menu"
             >
-              <X className="h-5 w-5" />
+              <X className="h-[18px] w-[18px]" />
             </Button>
           </div>
 
@@ -742,19 +751,38 @@ export default function Navbar() {
             </p>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {[
-                { label: "Unit Converter", to: "/unit-converter" },
-                { label: "Building types", to: "/building-types" },
-                { label: "Explore Map", to: "/map" },
-                { label: "Price book", to: "/prices" },
-                { label: "All tools", to: "/construction-tools" },
+                {
+                  label: "Unit Converter",
+                  to: "/unit-converter",
+                  icon: Calculator,
+                },
+                {
+                  label: "Building types",
+                  to: "/building-types",
+                  icon: Building2,
+                },
+                { label: "Explore Map", to: "/map", icon: Map },
+                { label: "Price book", to: "/prices", icon: BookOpen },
+                {
+                  label: "All tools",
+                  to: "/construction-tools",
+                  icon: LayoutGrid,
+                },
               ].map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/30 px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-muted dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+                  className="group flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-2.5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:border-brand-purple/30 hover:bg-muted dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
                 >
-                  {item.label}
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                    <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                  <ChevronRight
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5"
+                  />
                 </Link>
               ))}
             </div>
@@ -776,9 +804,9 @@ export default function Navbar() {
                         )
                       }
                       className={classNames(
-                        "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                        "relative flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         location.pathname.startsWith(workspace.path)
-                          ? "bg-primary/10 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                           : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )}
                     >
@@ -877,9 +905,9 @@ export default function Navbar() {
                     to={workspace.path}
                     className={({ isActive }) =>
                       classNames(
-                        "block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                        "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         isActive
-                          ? "bg-primary/10 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                           : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )
                     }
