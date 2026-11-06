@@ -7,6 +7,7 @@ import {
   MASONRY_UNITS,
   PLOT_PRESETS,
   coachesToMetres,
+  masonryUnitsForMarket,
   metresToCoaches,
   perimeterM,
   unitFaceAreaM2,
@@ -158,5 +159,58 @@ describe("fence blockwork engine", () => {
     expect(result!.assumptions.join(" ")).toMatch(/Prices, tax and labour/i);
     const asText = JSON.stringify(result);
     expect(asText).not.toMatch(/ngn|₦|usd|\$/i);
+  });
+
+  it("deducts the gate opening from the wall, mortar and footing", () => {
+    const open = calculateFenceBlockwork({
+      ...base,
+      gateWidthM: 3,
+      gateCoaches: 4,
+    }).result!;
+    const closed = calculateFenceBlockwork(base).result!;
+    expect(closed.gate.widthM).toBe(0);
+    expect(open.gate.deductedAreaM2).toBeCloseTo(3 * 4 * 0.235, 2);
+    expect(open.wall.areaM2).toBeCloseTo(
+      closed.wall.areaM2 - open.gate.deductedAreaM2,
+      2,
+    );
+    expect(open.blocks.net).toBeLessThan(closed.blocks.net);
+  });
+
+  it("counts foundation courses and the strip footing they sit on", () => {
+    const withFoundation = calculateFenceBlockwork({
+      ...base,
+      foundationCourses: 3,
+    }).result!;
+    const above = calculateFenceBlockwork(base).result!;
+    const foundationArea =
+      withFoundation.site.perimeterM * 3 * withFoundation.wall.courseHeightM;
+    expect(withFoundation.wall.areaM2).toBeCloseTo(
+      above.wall.areaM2 + foundationArea,
+      1,
+    );
+    expect(withFoundation.foundation.blocksTotal).toBeGreaterThan(0);
+    expect(withFoundation.blocks.total).toBeGreaterThan(above.blocks.total);
+    // Strip footing: wall thickness wide, 200 mm deep, run under the wall.
+    expect(withFoundation.foundation.footingConcreteM3).toBeCloseTo(
+      withFoundation.site.perimeterM * withFoundation.wall.thicknessM * 0.2,
+      2,
+    );
+    expect(withFoundation.foundation.cementBags).toBeGreaterThan(0);
+    expect(withFoundation.cement.bags).toBeGreaterThan(above.cement.bags);
+  });
+
+  it("offers a unit for every market it is driven by", () => {
+    for (const market of ["NG", "UK", "US", "IN"]) {
+      const units = masonryUnitsForMarket(market);
+      expect(units.length).toBeGreaterThan(0);
+      const result = calculateFenceBlockwork({
+        ...base,
+        market,
+        unitKey: units[0].key,
+      }).result!;
+      expect(result.unit.key).toBe(units[0].key);
+      expect(result.blocks.total).toBeGreaterThan(0);
+    }
   });
 });

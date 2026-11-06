@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
@@ -62,5 +62,25 @@ describe("FenceBlockCalculator page", () => {
         name: /How many trips of sand does a fence need/i,
       }),
     ).toBeDefined();
+  });
+
+  it("switches the block list with the market instead of hiding the choice", () => {
+    renderPage();
+    const market = screen.getByLabelText("Market") as HTMLSelectElement;
+    // Both controls used to write the block: the market select set us-cmu while
+    // the radios stayed on the two Nigerian blocks, so no radio was checked.
+    expect(screen.getByRole("radio", { name: /9 inch block/i })).toBeDefined();
+    fireEvent.change(market, { target: { value: "US" } });
+    const cmu = screen.getByRole("radio", { name: /CMU/i }) as HTMLInputElement;
+    expect(cmu.checked).toBe(true);
+    expect(screen.queryByRole("radio", { name: /9 inch block/i })).toBeNull();
+  });
+
+  it("asks for the gate and the foundation it used to ignore", () => {
+    renderPage();
+    expect(screen.getByLabelText(/Gate width/)).toBeDefined();
+    expect(screen.getByLabelText(/Gate height/)).toBeDefined();
+    expect(screen.getByLabelText(/Courses below ground/)).toBeDefined();
+    expect(screen.getByText(/strip footing concrete/)).toBeDefined();
   });
 });

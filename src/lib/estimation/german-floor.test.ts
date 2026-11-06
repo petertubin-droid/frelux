@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   CONCRETE_DRY_FACTOR,
   CONCRETE_MIXES,
+  HARDCORE_LOOSE_BULKING,
+  MEMBRANE_LAP_PERCENT,
   SLAB_LAYER_DEFAULTS,
   calculateGermanFloor,
 } from "./german-floor";
@@ -136,5 +138,45 @@ describe("german floor engine", () => {
     expect(a).toEqual(b);
     expect(JSON.stringify(a)).not.toMatch(/ngn|₦|usd|\$/i);
     expect(a.assumptions.join(" ")).toMatch(/Prices, tax and labour/i);
+  });
+
+  it("orders hardcore loose and adds loss to every layer", () => {
+    const { result } = calculateGermanFloor(base);
+    // 150 mm over the plot is measured compacted; fill only reaches that
+    // density after compaction, so the order is larger by the bulking factor.
+    const compacted = result!.layers.hardcore.cubicMetres;
+    expect(result!.layers.hardcore.purchaseCubicMetres).toBeCloseTo(
+      compacted * HARDCORE_LOOSE_BULKING * 1.05,
+      2,
+    );
+    expect(result!.layers.blinding.purchaseCubicMetres).toBeCloseTo(
+      result!.layers.blinding.cubicMetres * 1.05,
+      2,
+    );
+    expect(result!.layers.slab.purchaseCubicMetres).toBeCloseTo(
+      result!.layers.slab.cubicMetres * 1.05,
+      2,
+    );
+  });
+
+  it("orders the membrane with laps", () => {
+    const { result } = calculateGermanFloor(base);
+    expect(result!.membrane.lapPercent).toBe(MEMBRANE_LAP_PERCENT);
+    expect(result!.membrane.orderM2).toBeCloseTo(
+      result!.membraneM2 * (1 + MEMBRANE_LAP_PERCENT / 100),
+      1,
+    );
+    expect(result!.membrane.orderM2).toBeGreaterThan(result!.membraneM2);
+  });
+
+  it("counts cement in the pack the market sells", () => {
+    // Germany sells 25 kg bags, so the same volume is twice the bag count. The
+    // table used to fall back to 50 kg for every market it did not name.
+    const ng = calculateGermanFloor({ ...base, market: "NG" }).result!;
+    const de = calculateGermanFloor({ ...base, market: "DE" }).result!;
+    expect(ng.cement.bagKg).toBe(50);
+    expect(de.cement.bagKg).toBe(25);
+    expect(de.cement.bags).toBeGreaterThanOrEqual(ng.cement.bags * 2 - 1);
+    expect(de.cement.bags).toBeLessThanOrEqual(ng.cement.bags * 2);
   });
 });

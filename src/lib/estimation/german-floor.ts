@@ -62,6 +62,17 @@ export const CONCRETE_MIXES: Record<ConcreteMixKey, ConcreteMix> = {
 /** Dry concrete needs about half again the volume of the wet slab. */
 export const CONCRETE_DRY_FACTOR = 1.54;
 
+/**
+ * Hardcore is bought loose and compacted in place, so the volume to order is
+ * larger than the compacted layer: 150 mm compacted needs about 188 mm loose.
+ * The old model reported the compacted volume as the purchase volume, which
+ * under-ordered the fill by a quarter.
+ */
+export const HARDCORE_LOOSE_BULKING = 1.25;
+
+/** Membrane rolls are laid with 150 mm laps, so the area to buy exceeds the floor. */
+export const MEMBRANE_LAP_PERCENT = 10;
+
 /** Ordinary Portland cement bulking and shrinkage allowance on site. */
 export const SLAB_LAYER_DEFAULTS = {
   hardcoreMm: 150,
@@ -85,7 +96,10 @@ export interface GermanFloorInput {
 
 export interface LayerVolume {
   thicknessMm: number;
+  /** Compacted, in place volume of the layer. */
   cubicMetres: number;
+  /** Volume to order, including bulking and the site loss allowance. */
+  purchaseCubicMetres: number;
 }
 
 export interface GermanFloorResult {
@@ -117,7 +131,9 @@ export interface GermanFloorResult {
     cubicMetres: number;
     trips: Array<{ label: string; count: number; cubicMetres: number }>;
   };
+  /** Net floor area covered by the membrane. */
   membraneM2: number;
+  membrane: { netM2: number; orderM2: number; lapPercent: number };
   assumptions: string[];
 }
 
@@ -180,12 +196,18 @@ export function calculateGermanFloor(
   const mix = CONCRETE_MIXES[input.mixKey ?? "1:2:4"];
   const areaM2 = lengthM * widthM;
 
-  const layer = (mm: number): LayerVolume => ({
-    thicknessMm: mm,
-    cubicMetres: Number((areaM2 * (mm / 1000)).toFixed(3)),
-  });
+  const layer = (mm: number, bulking = 1): LayerVolume => {
+    const cubicMetres = areaM2 * (mm / 1000);
+    return {
+      thicknessMm: mm,
+      cubicMetres: Number(cubicMetres.toFixed(3)),
+      purchaseCubicMetres: Number(
+        (cubicMetres * bulking * (1 + wastage)).toFixed(3),
+      ),
+    };
+  };
 
-  const hardcore = layer(hardcoreMm);
+  const hardcore = layer(hardcoreMm, HARDCORE_LOOSE_BULKING);
   const blinding = layer(blindingMm);
   const slab = layer(slabMm);
 
@@ -211,7 +233,9 @@ export function calculateGermanFloor(
     `Floor area is ${areaM2.toFixed(2)} m², measured as length times width.`,
     `Layers: hardcore ${hardcoreMm} mm, blinding ${blindingMm} mm, slab ${slabMm} mm.`,
     `Concrete is a ${mix.key} mix, ${mix.use.replace(/\.$/, "").toLowerCase()}.`,
-    `${(wastage * 100).toFixed(0)} percent is added to the slab volume for spillage and level variation.`,
+    `${(wastage * 100).toFixed(0)} percent is added to every layer for spillage and level variation.`,
+    `Hardcore is ordered loose at ${HARDCORE_LOOSE_BULKING} times its compacted volume, because fill only reaches ${hardcoreMm} mm dense after compaction.`,
+    `The membrane is ordered at ${MEMBRANE_LAP_PERCENT} percent over the floor area for the laps between rolls.`,
     `Dry concrete is taken as ${CONCRETE_DRY_FACTOR} times the wet volume.`,
     `Cement is counted in ${bagKg} kg bags for this market and blinding sand is added to the concrete sand.`,
     "Quantities only. Prices, tax and labour come from the price book and your own figures, never from this page.",
@@ -249,6 +273,11 @@ export function calculateGermanFloor(
         trips: tripsFor(aggregateM3, input.market),
       },
       membraneM2: Number(areaM2.toFixed(2)),
+      membrane: {
+        netM2: Number(areaM2.toFixed(2)),
+        orderM2: Number((areaM2 * (1 + MEMBRANE_LAP_PERCENT / 100)).toFixed(2)),
+        lapPercent: MEMBRANE_LAP_PERCENT,
+      },
       assumptions,
     },
   };

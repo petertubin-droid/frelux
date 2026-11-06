@@ -5,7 +5,12 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
-import { PLOT_PRESETS, type PlotPresetKey } from "@/config/masonry-units";
+import {
+  CEMENT_MARKETS,
+  MARKET_NAMES,
+  PLOT_PRESETS,
+  type PlotPresetKey,
+} from "@/config/masonry-units";
 import {
   CONCRETE_MIXES,
   calculateGermanFloor,
@@ -22,12 +27,10 @@ const chip = (active: boolean) =>
 const display = (n: number) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
 
-const MARKETS = [
-  { code: "NG", name: "Nigeria" },
-  { code: "GH", name: "Ghana" },
-  { code: "UK", name: "United Kingdom" },
-  { code: "US", name: "United States" },
-];
+const MARKETS = CEMENT_MARKETS.map((code) => ({
+  code,
+  name: MARKET_NAMES[code] ?? code,
+}));
 
 export default function GermanFloorCalculator() {
   const { t } = useLanguage();
@@ -358,13 +361,13 @@ export default function GermanFloorCalculator() {
                     />
                     <span className="text-sm text-foreground">
                       <strong className="font-semibold">
-                        {display(result.layers.hardcore.cubicMetres)} m³{" "}
+                        {display(result.layers.hardcore.purchaseCubicMetres)} m³{" "}
                         {t(vocab.fillWord.toLowerCase())}
                       </strong>
                       <span className="block text-xs text-muted-foreground">
                         {display(result.layers.hardcore.thicknessMm)} mm{" "}
-                        {t("compacted in layers")} ·{" "}
-                        {display(result.layers.blinding.cubicMetres)} m³{" "}
+                        {t("compacted in layers, ordered loose")} ·{" "}
+                        {display(result.layers.blinding.purchaseCubicMetres)} m³{" "}
                         {t("blinding")}
                       </span>
                     </span>
@@ -376,13 +379,13 @@ export default function GermanFloorCalculator() {
                     />
                     <span className="text-sm text-foreground">
                       <strong className="font-semibold">
-                        {display(result.membraneM2)} m²{" "}
+                        {display(result.membrane.orderM2)} m²{" "}
                         {t(vocab.membraneWord.toLowerCase())}
                       </strong>
                       <span className="block text-xs text-muted-foreground">
-                        {t(
-                          "Laid under the slab with laps, so order the same area plus laps",
-                        )}
+                        {t("Covers")} {display(result.membrane.netM2)} m²{" "}
+                        {t("of floor plus")} {result.membrane.lapPercent}%{" "}
+                        {t("for laps between rolls")}
                       </span>
                     </span>
                   </li>

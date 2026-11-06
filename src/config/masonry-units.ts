@@ -223,26 +223,162 @@ export function perimeterM(lengthM: number, widthM: number): number {
   return 2 * (lengthM + widthM);
 }
 
-/** Portland cement bag mass, because 50 kg, 25 kg and 94 lb bags all exist. */
+/**
+ * Portland cement retail pack mass, because 50 kg, 25 kg, 40 kg and 94 lb bags
+ * all exist and every bag count on a calculator is wrong if the pack size is
+ * taken from another market.
+ *
+ * A missing market fell back to 50 kg silently, which overstated the bag count
+ * for Germany, the Netherlands, Italy, Poland, Sweden, Switzerland and Japan
+ * (25 kg), Korea and Indonesia (40 kg) and France (35 kg). Every market this
+ * platform serves is now named explicitly, and an unknown market still falls
+ * back to 50 kg for a regionally traded pack.
+ */
 export const CEMENT_BAG_KG: Record<string, number> = {
+  // 50 kg bags
   NG: 50,
   GH: 50,
   KE: 50,
+  TZ: 50,
+  ET: 50,
+  CI: 50,
+  EG: 50,
   ZA: 50,
+  ZM: 50,
+  UG: 50,
   IN: 50,
   PK: 50,
   AE: 50,
   SA: 50,
   QA: 50,
   KW: 50,
+  CN: 50,
+  BR: 50,
+  MX: 50,
+  TR: 50,
+  SG: 50,
+  MY: 50,
+  TH: 50,
+  VN: 50,
+  PH: 40,
+  // 25 kg bags
   UK: 25,
   IE: 25,
+  DE: 25,
+  AT: 25,
+  CH: 25,
+  NL: 25,
+  BE: 25,
+  PL: 25,
+  SE: 25,
+  DK: 25,
+  NO: 25,
+  FI: 25,
+  IT: 25,
+  ES: 25,
+  PT: 25,
+  JP: 25,
+  // Other pack sizes
+  FR: 35,
+  KR: 40,
+  ID: 40,
   CA: 40,
   AU: 20,
+  NZ: 20,
   US: 42.64,
+  GB: 25,
 };
 
-/** Loose bulk density of ordinary Portland cement, kg per cubic metre. */
+/** Market names for the market pickers, so every calculator offers the same list. */
+export const MARKET_NAMES: Record<string, string> = {
+  NG: "Nigeria",
+  GH: "Ghana",
+  KE: "Kenya",
+  TZ: "Tanzania",
+  ET: "Ethiopia",
+  CI: "Cote d'Ivoire",
+  EG: "Egypt",
+  ZA: "South Africa",
+  IN: "India",
+  AE: "United Arab Emirates",
+  SA: "Saudi Arabia",
+  CN: "China",
+  BR: "Brazil",
+  MX: "Mexico",
+  TR: "Turkey",
+  SG: "Singapore",
+  UK: "United Kingdom",
+  IE: "Ireland",
+  DE: "Germany",
+  AT: "Austria",
+  CH: "Switzerland",
+  NL: "Netherlands",
+  BE: "Belgium",
+  PL: "Poland",
+  SE: "Sweden",
+  DK: "Denmark",
+  IT: "Italy",
+  ES: "Spain",
+  PT: "Portugal",
+  JP: "Japan",
+  FR: "France",
+  KR: "South Korea",
+  ID: "Indonesia",
+  CA: "Canada",
+  AU: "Australia",
+  US: "United States",
+  GB: "United Kingdom",
+};
+
+/** The cement bag markets, in the order a market picker should show them. */
+export const CEMENT_MARKETS = [
+  "NG",
+  "GH",
+  "KE",
+  "TZ",
+  "ET",
+  "CI",
+  "EG",
+  "ZA",
+  "UK",
+  "IE",
+  "FR",
+  "DE",
+  "AT",
+  "CH",
+  "NL",
+  "BE",
+  "PL",
+  "SE",
+  "DK",
+  "IT",
+  "ES",
+  "PT",
+  "US",
+  "CA",
+  "BR",
+  "MX",
+  "TR",
+  "SA",
+  "AE",
+  "IN",
+  "PK",
+  "CN",
+  "JP",
+  "KR",
+  "SG",
+  "MY",
+  "TH",
+  "VN",
+  "PH",
+  "ID",
+  "AU",
+  "NZ",
+] as const;
+
+/**
+ * Loose bulk density of ordinary Portland cement, kg per cubic metre.
+ */
 export const CEMENT_DENSITY_KG_M3 = 1440;
 
 export function cementBagKg(market: string): number {

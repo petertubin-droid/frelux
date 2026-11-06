@@ -7,6 +7,7 @@ import { useSeo } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 import {
   PLOT_PRESETS,
+  masonryUnitsForMarket,
   type MasonryUnitKey,
   type PlotPresetKey,
 } from "@/config/masonry-units";
@@ -38,6 +39,9 @@ export default function FenceBlockCalculator() {
   const [custom, setCustom] = useState({ length: "30.48", width: "15.24" });
   const [coaches, setCoaches] = useState(5);
   const [unitKey, setUnitKey] = useState<MasonryUnitKey>("ng-block-9");
+  const [gateWidth, setGateWidth] = useState("3");
+  const [gateCoaches, setGateCoaches] = useState("4");
+  const [foundationCourses, setFoundationCourses] = useState("3");
 
   const vocab = regionalVocabulary(market);
   const units = vocabularyMarkets();
@@ -51,8 +55,21 @@ export default function FenceBlockCalculator() {
         widthM: Number(custom.width),
         coaches,
         unitKey,
+        gateWidthM: Number(gateWidth),
+        gateCoaches: Number(gateCoaches),
+        foundationCourses: Number(foundationCourses),
       }),
-    [market, preset, custom.length, custom.width, coaches, unitKey],
+    [
+      market,
+      preset,
+      custom.length,
+      custom.width,
+      coaches,
+      unitKey,
+      gateWidth,
+      gateCoaches,
+      foundationCourses,
+    ],
   );
 
   const result = outcome.result;
@@ -80,7 +97,11 @@ export default function FenceBlockCalculator() {
               onChange={(event) => {
                 const next = event.target.value;
                 setMarket(next);
-                setUnitKey(next === "US" ? "us-cmu" : "ng-block-9");
+                // The block list is built from this market, so the selection
+                // has to land on a unit that exists in it. Hard coding
+                // ng-block-9 left US on a CMU the radios could not show and
+                // left UK and India on a Nigerian block.
+                setUnitKey(masonryUnitsForMarket(next)[0].key);
               }}
               className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
@@ -228,41 +249,101 @@ export default function FenceBlockCalculator() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block" htmlFor="fence-gate-width">
+                  <span className={labelClass}>{t("Gate width (m)")}</span>
+                  <input
+                    id="fence-gate-width"
+                    type="number"
+                    min={0}
+                    step="0.1"
+                    inputMode="decimal"
+                    value={gateWidth}
+                    onChange={(event) => setGateWidth(event.target.value)}
+                    className={`${fieldClass} mt-1`}
+                  />
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {t("0 if the wall has no opening")}
+                  </span>
+                </label>
+                <label className="block" htmlFor="fence-gate-coaches">
+                  <span className={labelClass}>
+                    {t("Gate height (coaches)")}
+                  </span>
+                  <input
+                    id="fence-gate-coaches"
+                    type="number"
+                    min={0}
+                    step={1}
+                    inputMode="numeric"
+                    value={gateCoaches}
+                    onChange={(event) => setGateCoaches(event.target.value)}
+                    className={`${fieldClass} mt-1`}
+                  />
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {t("Capped at the wall height")}
+                  </span>
+                </label>
+              </div>
+
+              <label className="block" htmlFor="fence-foundation">
+                <span className={labelClass}>
+                  {t("Courses below ground (foundation)")}
+                </span>
+                <input
+                  id="fence-foundation"
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={1}
+                  inputMode="numeric"
+                  value={foundationCourses}
+                  onChange={(event) => setFoundationCourses(event.target.value)}
+                  className={`${fieldClass} mt-1`}
+                />
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  {t(
+                    "Courses below ground level over a strip footing. Enter 0 for a wall counted above ground only",
+                  )}
+                </span>
+              </label>
+
               <fieldset>
                 <legend className={labelClass}>{t("Block size")}</legend>
                 <div className="mt-2 space-y-2">
-                  {(
-                    [
-                      ["ng-block-9", t("9 inch block"), "225 mm thick"],
-                      ["ng-block-6", t("6 inch block"), "150 mm thick"],
-                    ] as Array<[MasonryUnitKey, string, string]>
-                  ).map(([key, title, hint]) => (
-                    <label
-                      key={key}
-                      className={
-                        unitKey === key
-                          ? "flex cursor-pointer items-start gap-3 rounded-lg border border-primary bg-primary/5 px-3 py-2"
-                          : "flex cursor-pointer items-start gap-3 rounded-lg border border-border px-3 py-2"
-                      }
-                    >
-                      <input
-                        type="radio"
-                        name="block-size"
-                        value={key}
-                        checked={unitKey === key}
-                        onChange={() => setUnitKey(key)}
-                        className="mt-1"
-                      />
-                      <span>
-                        <span className="block text-sm font-medium text-foreground">
-                          {title}
+                  {masonryUnitsForMarket(market).map((option) => {
+                    const key = option.key;
+                    const title = t(option.label);
+                    const hint = `${(option.thicknessM * 1000).toFixed(0)} mm thick`;
+                    return (
+                      <label
+                        key={key}
+                        className={
+                          unitKey === key
+                            ? "flex cursor-pointer items-start gap-3 rounded-lg border border-primary bg-primary/5 px-3 py-2"
+                            : "flex cursor-pointer items-start gap-3 rounded-lg border border-border px-3 py-2"
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name="block-size"
+                          value={key}
+                          checked={unitKey === key}
+                          onChange={() => setUnitKey(key)}
+                          className="mt-1"
+                        />
+                        <span>
+                          <span className="block text-sm font-medium text-foreground">
+                            {title}
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            {hint}, {(option.lengthM * 1000).toFixed(0)} mm
+                            long, {(option.heightM * 1000).toFixed(0)} mm high
+                          </span>
                         </span>
-                        <span className="block text-xs text-muted-foreground">
-                          {hint}, 450 mm long, 225 mm high
-                        </span>
-                      </span>
-                    </label>
-                  ))}
+                      </label>
+                    );
+                  })}
                 </div>
               </fieldset>
             </div>
@@ -292,6 +373,18 @@ export default function FenceBlockCalculator() {
                   {t(vocab.coachWordPlural)} {t("high")}, (
                   {formatHeight(result.wall.heightM, market)}),{" "}
                   {display(result.site.perimeterM)} m {t("of perimeter")}.
+                  {result.gate.widthM > 0
+                    ? ` ${t("A")} ${display(result.gate.widthM)} m ${t(
+                        "gate",
+                      )} ${display(result.gate.coaches)} ${t(
+                        vocab.coachWordPlural,
+                      )} ${t("high is deducted")}.`
+                    : ""}
+                  {result.foundation.courses > 0
+                    ? ` ${display(result.foundation.courses)} ${t(
+                        "courses below ground are included over the strip footing",
+                      )}.`
+                    : ""}
                 </p>
 
                 <ul className="space-y-3">
@@ -307,6 +400,16 @@ export default function FenceBlockCalculator() {
                       <span className="block text-xs text-muted-foreground">
                         {display(result.blocks.net)} {t("laid")} +{" "}
                         {display(result.blocks.breakage)} {t("for breakage")}
+                        {result.foundation.blocksTotal > 0
+                          ? `, ${display(
+                              result.foundation.blocksTotal,
+                            )} ${t("of them below ground")}`
+                          : ""}
+                        {result.gate.deductedAreaM2 > 0
+                          ? `, ${display(
+                              result.gate.deductedAreaM2,
+                            )} m² ${t("opening deducted")}`
+                          : ""}
                       </span>
                     </span>
                   </li>
@@ -351,6 +454,27 @@ export default function FenceBlockCalculator() {
                       </span>
                     </span>
                   </li>
+                  {result.foundation.footingConcreteM3 > 0 ? (
+                    <li className="flex items-start gap-3">
+                      <Layers
+                        aria-hidden="true"
+                        className="mt-0.5 h-5 w-5 text-muted-foreground"
+                      />
+                      <span className="text-sm text-foreground">
+                        <strong className="font-semibold">
+                          {display(result.foundation.footingConcreteM3)} m³{" "}
+                          {t("of strip footing concrete")}
+                        </strong>
+                        <span className="block text-xs text-muted-foreground">
+                          {display(result.foundation.cementBags)}{" "}
+                          {t(vocab.cementBagLabel)} {t("and")}{" "}
+                          {display(result.foundation.sandM3)} m³ {t("sand and")}{" "}
+                          {display(result.foundation.aggregateM3)} m³{" "}
+                          {t("granite in the totals above")}
+                        </span>
+                      </span>
+                    </li>
+                  ) : null}
                   <li className="flex items-start gap-3">
                     <Ruler
                       aria-hidden="true"

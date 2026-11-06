@@ -42,6 +42,20 @@ export const MORTAR_DRY_FACTOR = 1.33;
 /** Breakage, cutting and site loss on blocks, before any negotiation. */
 export const DEFAULT_BLOCK_WASTAGE = 0.05;
 
+/**
+ * A strip footing under the wall. Fence walls are not laid on the ground: they
+ * sit on a concrete strip the width of the block, and the first courses are
+ * below ground level, so a take off that counts only the visible wall is short
+ * of blocks and has no concrete in it at all.
+ */
+export const FOOTING_DEPTH_M = 0.2;
+
+/** Footing concrete is a lean 1:3:6 mix, not the mortar mix. */
+export const FOOTING_MIX = { cement: 1, sand: 3, aggregate: 6 };
+
+/** Dry concrete needs about half again the wet volume. */
+export const CONCRETE_DRY_FACTOR = 1.54;
+
 export interface FenceBlockworkInput {
   market: string;
   /** A standard site size, when the user picks one. */
@@ -53,6 +67,12 @@ export interface FenceBlockworkInput {
   /** Wall height in coaches, the local way of saying rows of blocks. */
   coaches: number;
   unitKey: MasonryUnitKey;
+  /** Width of the gate opening, deducted from the wall. */
+  gateWidthM?: number;
+  /** Height of the gate opening in coaches, capped at the wall height. */
+  gateCoaches?: number;
+  /** Courses built below ground level, over the strip footing. */
+  foundationCourses?: number;
   /** Cement to sand ratio by volume of the mortar, 4 means 1:4. */
   mortarRatio?: number;
   /** Share of blocks allowed for breakage, 0.05 means 5 percent. */
@@ -83,8 +103,20 @@ export interface FenceBlockworkResult {
     coaches: number;
     courseHeightM: number;
     heightM: number;
+    /** Gross wall area, perimeter times height. */
+    grossAreaM2: number;
+    /** Area actually built after the gate opening and foundation courses. */
     areaM2: number;
     thicknessM: number;
+  };
+  gate: { widthM: number; coaches: number; deductedAreaM2: number };
+  foundation: {
+    courses: number;
+    blocksTotal: number;
+    footingConcreteM3: number;
+    cementBags: number;
+    sandM3: number;
+    aggregateM3: number;
   };
   blocks: {
     perSquareMetre: number;
@@ -192,10 +224,33 @@ export function calculateFenceBlockwork(
   const perimeter = perimeterM(lengthM, widthM);
   const courseHeight = courseHeightM(unit);
   const heightM = coachesToMetres(coaches, unit);
-  const areaM2 = perimeter * heightM;
+  const grossAreaM2 = perimeter * heightM;
+
+  // The gate is a hole in the wall: it takes out blocks, mortar and footing.
+  const gateWidthM = Math.min(
+    Math.max(Number(input.gateWidthM ?? 0) || 0, 0),
+    Math.max(perimeter - unit.lengthM, 0),
+  );
+  const gateCoaches = Math.min(
+    Math.max(Math.floor(Number(input.gateCoaches ?? 0) || 0), 0),
+    coaches,
+  );
+  const gateAreaM2 = gateWidthM * gateCoaches * courseHeight;
+
+  // Courses below ground over the footing: built over the same run as the wall.
+  const foundationCourses = Math.max(
+    Math.floor(Number(input.foundationCourses ?? 0) || 0),
+    0,
+  );
+  const foundationAreaM2 =
+    Math.max(perimeter - gateWidthM, 0) * foundationCourses * courseHeight;
+
   const faceArea = unitFaceAreaM2(unit);
   const perSquareMetre = 1 / faceArea;
+  const wallAreaM2 = Math.max(grossAreaM2 - gateAreaM2, 0);
+  const areaM2 = wallAreaM2 + foundationAreaM2;
   const net = Math.ceil(areaM2 * perSquareMetre);
+  const foundationBlocks = Math.ceil(foundationAreaM2 * perSquareMetre);
   const breakage = Math.ceil(net * wastage);
   const total = net + breakage;
 
@@ -209,14 +264,37 @@ export function calculateFenceBlockwork(
   const cementM3 = dryM3 / (1 + ratio);
   const sandM3 = (dryM3 * ratio) / (1 + ratio);
 
+  // Strip footing: the wall's own thickness wide, FOOTING_DEPTH_M deep, run
+  // under everything except the gate.
+  const footingRunM = Math.max(perimeter - gateWidthM, 0);
+  const footingConcreteM3 =
+    foundationCourses > 0 ? footingRunM * unit.thicknessM * FOOTING_DEPTH_M : 0;
+  const footingDryM3 = footingConcreteM3 * CONCRETE_DRY_FACTOR;
+  const footingParts =
+    FOOTING_MIX.cement + FOOTING_MIX.sand + FOOTING_MIX.aggregate;
+  const footingCementM3 = footingDryM3 / footingParts;
+  const footingSandM3 = (footingDryM3 * FOOTING_MIX.sand) / footingParts;
+  const footingAggregateM3 =
+    (footingDryM3 * FOOTING_MIX.aggregate) / footingParts;
+
   const bagKg = cementBagKg(input.market);
   const bagM3 = bagKgForMarket(input.market) / CEMENT_DENSITY_KG_M3;
-  const bags = bagM3 > 0 ? Math.ceil(cementM3 / bagM3) : 0;
+  const cementTotalM3 = cementM3 + footingCementM3;
+  const bags = bagM3 > 0 ? Math.ceil(cementTotalM3 / bagM3) : 0;
+  const foundationBagM3 = bagKgForMarket(input.market) / CEMENT_DENSITY_KG_M3;
+  const foundationBags =
+    foundationBagM3 > 0 ? Math.ceil(footingCementM3 / foundationBagM3) : 0;
 
   const assumptions = [
     `One coach is one course of ${unit.label.toLowerCase()}: ${(courseHeight * 1000).toFixed(0)} mm of block plus its ${(MORTAR_JOINT_M * 1000).toFixed(0)} mm bed joint.`,
     `Blocks are counted at ${perSquareMetre.toFixed(2)} per square metre of wall, joint included.`,
     `${(wastage * 100).toFixed(0)} percent is added for breakage and cutting.`,
+    gateWidthM > 0
+      ? `The ${gateWidthM.toFixed(2)} m gate opening, ${gateCoaches} coach(es) high, is deducted from the wall, the mortar and the footing.`
+      : "No gate opening is deducted. Enter the gate width if the wall has one.",
+    foundationCourses > 0
+      ? `${foundationCourses} course(s) below ground are counted over the wall run, on a ${(unit.thicknessM * 1000).toFixed(0)} mm wide strip footing ${(FOOTING_DEPTH_M * 1000).toFixed(0)} mm deep in a 1:3:6 concrete.`
+      : "No courses below ground and no strip footing are counted. Enter the foundation courses if the wall sits on a footing.",
     `Mortar is a 1:${ratio} cement to sand mix by volume, with a ${MORTAR_DRY_FACTOR} dry volume factor.`,
     `Cement is counted in ${bagKg} kg bags for this market.`,
     "Quantities only. Prices, tax and labour come from the price book and your own figures, never from this page.",
@@ -237,8 +315,22 @@ export function calculateFenceBlockwork(
         coaches,
         courseHeightM: Number(courseHeight.toFixed(3)),
         heightM: Number(heightM.toFixed(2)),
+        grossAreaM2: Number(grossAreaM2.toFixed(2)),
         areaM2: Number(areaM2.toFixed(2)),
         thicknessM: unit.thicknessM,
+      },
+      gate: {
+        widthM: Number(gateWidthM.toFixed(2)),
+        coaches: gateCoaches,
+        deductedAreaM2: Number(gateAreaM2.toFixed(2)),
+      },
+      foundation: {
+        courses: foundationCourses,
+        blocksTotal: foundationBlocks,
+        footingConcreteM3: Number(footingConcreteM3.toFixed(3)),
+        cementBags: foundationBags,
+        sandM3: Number(footingSandM3.toFixed(3)),
+        aggregateM3: Number(footingAggregateM3.toFixed(3)),
       },
       blocks: {
         perSquareMetre: Number(perSquareMetre.toFixed(2)),
@@ -254,7 +346,7 @@ export function calculateFenceBlockwork(
         sandM3: Number(sandM3.toFixed(3)),
       },
       cement: { bagKg, bags },
-      sand: sandInLocalUnits(sandM3, input.market),
+      sand: sandInLocalUnits(sandM3 + footingSandM3, input.market),
       assumptions,
     },
   };
