@@ -219,6 +219,47 @@ ET with dispatched true, overdue markets fell from 43 to 40, and the edge
 function answered 200 with real runs (CI: 2 sources scanned, 1 candidate
 created; ET: 1 source scanned, 1 failed).
 
+### Observation integrity: the evidence was being dropped
+
+Once the dispatcher was alive, the edge function reported the contradiction
+directly:
+
+```
+{"market":"CI","scanned":2,"candidates_created":1,"observations_filed":0,"auto_applied":1}
+```
+
+A price was published while the observation behind it was never stored. The
+writer sends a PostgREST upsert whose conflict target is
+`source_id,supplier_name,market,material_slug,brand,specification,unit,observed_on`,
+but the only unique index on `market_price_observations` was built on
+`COALESCE(...)` expressions, which Postgres cannot use to infer an `ON CONFLICT`
+target. Every write failed with 42P10 and the function discarded the error
+because it only counted rows when `!obsError`.
+
+Second defect in the same run: `price-intel-scan` writes `observations_filed`,
+`markets_scanned` and `prices_updated` to `price_scan_runs`, and those columns
+did not exist, so PostgREST rejected the whole close. The three runs started that
+morning were still `running` with no `finished_at`, while every run from 3
+November or earlier was `completed`.
+
+A reading that had to be corrected: the 54 rows covering 6 pairs looked like
+duplication (one AU pair repeated 7 times), but grouping by day shows one
+observation per day across 7 to 8 days. That is a daily series, not duplication,
+and nothing was deleted on that basis. 0 rows were removed by the cleanup.
+
+Fixed and applied (`20261106110000`, `20261106113000`):
+
+- plain unique index on exactly the conflict target, with defaults that stop a
+  future NULL column from defeating it, plus a before-insert trigger that skips
+  an exact same-supplier, same-day repeat for any writer.
+- `is_outlier` is now set by that trigger when a price deviates more than 40%
+  from the peer median of at least 5 recent observations, so the flag means
+  something instead of being null on every row.
+- `price_scan_runs` gains the counters the writer sends.
+- `price-intel-scan` reports `observations_failed` and `observations_error`,
+  refuses to auto-apply any group when the observation write failed, and logs a
+  rejected run close instead of leaving a silent `running` row.
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access

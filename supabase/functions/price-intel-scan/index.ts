@@ -1284,6 +1284,13 @@ serveWithCors(async (req: Request) => {
   // The unique (source, supplier, material, variant, day) index makes a second
   // run on the same day a no-op instead of a duplicate fact.
   let observationsFiled = 0;
+  // A failed observation write used to be invisible: the run still reported a
+  // created candidate, and the price could be auto-applied while the evidence
+  // behind it was never stored. Measured on 6 November 2026, CI returned
+  // {"observations_filed":0,"auto_applied":1}. The write is now reported, and a
+  // failure blocks auto-apply for the run.
+  let observationsFailed = 0;
+  let observationsError: string | null = null;
   if (observations.length > 0) {
     const rows = observations.map((o) => ({
       market: o.market,
@@ -1313,7 +1320,17 @@ serveWithCors(async (req: Request) => {
           ignoreDuplicates: true,
         })
         .select("id");
-      if (!obsError && inserted) observationsFiled += inserted.length;
+      if (obsError) {
+        observationsFailed += chunk.length;
+        observationsError =
+          (observationsError ?? obsError.message) || "observation write failed";
+        console.error(
+          "price-intel-scan: observation write failed",
+          obsError.message,
+        );
+      } else if (inserted) {
+        observationsFiled += inserted.length;
+      }
     }
   }
 
@@ -1514,6 +1531,18 @@ serveWithCors(async (req: Request) => {
 
     for (const [key, group] of groups) {
       const [market, slug] = key.split("|");
+      // A price must not be published when the observation behind it could not
+      // be stored: the audit trail is the only thing that makes the price
+      // reviewable later.
+      if (observationsError) {
+        autoApplySkipped.push({
+          market,
+          slug,
+          reason: `observation write failed, staying pending: ${observationsError}`,
+        });
+        continue;
+      }
+
       const rule = rules.get(market);
       if (!rule) {
         autoApplySkipped.push({ market, slug, reason: "no active rule" });
@@ -1689,7 +1718,7 @@ serveWithCors(async (req: Request) => {
 
   // ── Close the run audit row ──
   const finishedAt = new Date().toISOString();
-  await supabase
+  const { error: runCloseError } = await supabase
     .from("price_scan_runs")
     .update({
       status: "completed",
@@ -1698,6 +1727,7 @@ serveWithCors(async (req: Request) => {
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
       observations_filed: observationsFiled,
+      observations_failed: observationsFailed,
       markets_scanned: touchedMarkets.length,
       prices_updated: [...appliedByMarket.values()].reduce((a, b) => a + b, 0),
       auto_applied: autoApplied,
@@ -1714,6 +1744,14 @@ serveWithCors(async (req: Request) => {
             : "") || null,
     })
     .eq("id", runId);
+  if (runCloseError) {
+    // The audit row is how an operator sees what a run did. A rejected close used
+    // to leave the run 'running' with no counters and no error anywhere.
+    console.error(
+      "price-intel-scan: run audit close failed",
+      runCloseError.message,
+    );
+  }
 
   return new Response(
     JSON.stringify({
@@ -1725,6 +1763,8 @@ serveWithCors(async (req: Request) => {
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
       observations_filed: observationsFiled,
+      observations_failed: observationsFailed,
+      observations_error: observationsError,
       markets_scanned: touchedMarkets.length,
       prices_updated: [...appliedByMarket.values()].reduce((a, b) => a + b, 0),
       auto_applied: autoApplied,
