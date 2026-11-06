@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import React from "react";
 
@@ -57,6 +57,57 @@ vi.mock("@/components/MarketScopeNotice", () => ({
 vi.mock("@/lib/estimation/quote-export", () => ({
   printQuote: vi.fn(),
 }));
+const downloadCsv = vi.fn();
+vi.mock("@/lib/export-utils", () => ({
+  downloadCsv: (...args: unknown[]) => downloadCsv(...args),
+}));
+vi.mock("@/lib/estimation/doors-windows-engine", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@/lib/estimation/doors-windows-engine")
+    >();
+  return {
+    ...actual,
+    calculateDoorsWindows: () => ({
+      ok: true,
+      errors: [],
+      warnings: ["Hinges per door is not configured for this market."],
+      steps: [],
+      lines: [
+        {
+          key: "flush_doors",
+          label: "Flush doors",
+          material_slug: "flush-door",
+          quantity: 5,
+          quantity_source: "user_provided",
+          unit: "no",
+          detail: "5 entered",
+          unit_price: 45000,
+          line_total: 225000,
+        },
+        {
+          key: "locksets",
+          label: "Locksets",
+          material_slug: "lockset",
+          quantity: 5,
+          quantity_source: "rule_derived",
+          unit: "no",
+          detail: "one per door",
+          unit_price: null,
+          line_total: null,
+        },
+      ],
+      priced_subtotal: 225000,
+      material_subtotal: null,
+      labour_total: 0,
+      grand_total: null,
+      incomplete: true,
+      missing: [
+        "Price for lockset is not configured in the material database.",
+      ],
+    }),
+  };
+});
 vi.mock("@/lib/international/market-context", () => ({
   useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
@@ -245,5 +296,39 @@ describe("DoorsWindowsEstimator", () => {
         /The US price book covers 1 of 8 door and window material types/i,
       ),
     ).toBeInTheDocument();
+  });
+
+  it("exports every line with its sizing basis and flags unpriced lines", () => {
+    downloadCsv.mockClear();
+    render(
+      <MemoryRouter>
+        <DoorsWindowsEstimator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Calculate estimate/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Export CSV/i }));
+
+    expect(downloadCsv).toHaveBeenCalledTimes(1);
+    const [filename, rows] = downloadCsv.mock.calls[0] as [
+      string,
+      Record<string, unknown>[],
+    ];
+    expect(filename).toContain("doors-windows");
+    const locksets = rows.find((r) => r.item === "Locksets");
+    expect(locksets?.basis).toBe("rule_derived");
+    expect(locksets?.unit_price).toBe("");
+    expect(locksets?.note).toBe(
+      "Price not configured in the material database",
+    );
+    // The totals and the incomplete flag travel with the lines.
+    expect(rows.find((r) => r.item === "Priced subtotal")?.line_total).toBe(
+      225000,
+    );
+    expect(rows.find((r) => r.item === "Grand total")?.note).toBe(
+      "Estimate incomplete",
+    );
+    expect(rows.some((r) => r.item === "Missing")).toBe(true);
   });
 });
