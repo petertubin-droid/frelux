@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -307,8 +307,13 @@ describe("LearnArticle FAQ block", () => {
     const { getByText, getAllByText } = await renderArticle();
 
     await waitFor(() => {
-      expect(getByText("Frequently Asked Questions")).toBeTruthy();
+      expect(
+        document.querySelectorAll("[data-faq-insert]").length,
+      ).toBeGreaterThan(0);
     });
+    // The questions live inside the article body now, not in a collapsed panel.
+    expect(document.querySelector("#faqs")).toBeTruthy();
+    expect(screen.queryByText("Frequently Asked Questions")).toBeNull();
     for (let i = 1; i <= 6; i += 1) {
       // The first three also appear in the in-article quick answers block, so
       // the question is expected more than once; what matters is that each one
@@ -318,8 +323,8 @@ describe("LearnArticle FAQ block", () => {
       ).toBeGreaterThanOrEqual(1);
     }
     expect(
-      document.querySelectorAll("#faqs details, #faqs [data-faq-item]").length,
-    ).toBeGreaterThanOrEqual(0);
+      document.querySelectorAll("[data-faq-insert] dl dt").length,
+    ).toBeGreaterThanOrEqual(6);
 
     const blocks = Array.from(
       document.querySelectorAll('script[type="application/ld+json"]'),

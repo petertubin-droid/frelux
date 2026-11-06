@@ -15,8 +15,6 @@ import {
   AlertCircle,
   Clock,
   User,
-  ImageOff,
-  ChevronDown,
   Share2,
   Check,
   BookOpen,
@@ -33,6 +31,7 @@ import type {
 } from "@/types/database";
 import { ArticleInsertBlock } from "@/components/learn/ArticleInserts";
 import { ArticleMarkdown } from "@/components/learn/ArticleMarkdown";
+import { ArticleTopicList } from "@/components/learn/ArticleTopicList";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
 import { Button } from "@/components/ui/shadcn/button";
 import { SITE_URL } from "@/lib/site-config";
@@ -53,7 +52,6 @@ export default function LearnArticle() {
   const [status, setStatus] = useState<Status>("loading");
   const [readingProgress, setReadingProgress] = useState(0);
   const [activeHeading, setActiveHeading] = useState<string>("");
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [copied, setCopied] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
@@ -301,6 +299,36 @@ export default function LearnArticle() {
     };
   }, [inserts]);
 
+  // FAQs arrive as in-article inserts: each one is placed after an H2 section
+  // so the reader meets the question inside the argument, not in a collapsed
+  // panel at the foot of the page. Questions beyond the section count close
+  // the body in a single insert.
+  const { faqsByHeading, trailingFaqs } = useMemo(() => {
+    const byHeading: Record<string, DbLearnArticleFaq[]> = {};
+    if (faqs.length === 0 || !article?.content) {
+      return { faqsByHeading: byHeading, trailingFaqs: faqs };
+    }
+    const headings = article.content
+      .split("\n")
+      .filter((line) => line.startsWith("## "))
+      .map((line) => slugifyHeading(line.slice(3)));
+    if (headings.length === 0) {
+      return { faqsByHeading: byHeading, trailingFaqs: faqs };
+    }
+    const perHeading = Math.ceil(faqs.length / headings.length);
+    faqs.forEach((faq, index) => {
+      const slot = Math.min(
+        headings.length - 1,
+        Math.floor(index / perHeading),
+      );
+      (byHeading[headings[slot]] ??= []).push(faq);
+    });
+    return {
+      faqsByHeading: byHeading,
+      trailingFaqs: [] as DbLearnArticleFaq[],
+    };
+  }, [faqs, article?.content]);
+
   // Split the article body into up-to-4 chunks at H2 section boundaries so
   // in-content ad slots sit BETWEEN sections instead of being jammed at the
   // article footer. Splitting only at real section starts keeps every heading
@@ -524,21 +552,9 @@ export default function LearnArticle() {
               </div>
             </header>
 
-            {/* Cover photo. When an article has none, nothing is reserved:
-                an empty dashed frame read as a broken page, and the shared
-                header above already carries the blended backdrop. */}
-            {article.cover_image_url && (
-              <figure className="mb-10 overflow-hidden rounded-xl border border-border/70 dark:border-white/10">
-                <img
-                  src={article.cover_image_url}
-                  alt={article.title}
-                  className="w-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
-            )}
-
+            {/* No cover figure: the shared header above already carries the
+                blended backdrop, and a full width photo pushed the argument of
+                the article below the fold. */}
             {/* Top in-article inserts (Summary etc.) */}
             {topInserts.length > 0 && (
               <div className="mb-10">
@@ -579,6 +595,12 @@ export default function LearnArticle() {
                   <ArticleMarkdown
                     content={chunk}
                     insertsByHeading={insertsByHeading}
+                    faqsByHeading={faqsByHeading}
+                    trailingFaqs={
+                      idx === contentChunks.length - 1
+                        ? trailingFaqs
+                        : undefined
+                    }
                   />
                   {/* In-content ad slots. Five per article page, spaced
                       after the 2nd, 3rd and 4th sections (never two units
@@ -650,56 +672,6 @@ export default function LearnArticle() {
                 answer: faq.answer,
               }))}
             />
-
-            {/* FAQ Section */}
-            {faqs.length > 0 && (
-              <section id="faqs" className="mt-14 scroll-mt-20">
-                <div className="overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-muted/50/50 to-card p-7 dark:border-white/10 dark:from-card dark:to-background sm:p-9">
-                  <div className="mb-6">
-                    <h2 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
-                      Frequently Asked Questions
-                    </h2>
-                    <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
-                      Quick answers to common questions about this topic
-                    </p>
-                  </div>
-                  <div className="space-y-3">
-                    {faqs.map((faq, idx) => (
-                      <div
-                        key={faq.id}
-                        className="overflow-hidden rounded-xl border border-border/80 bg-card transition-all dark:border-white/10 dark:bg-background"
-                      >
-                        <Button
-                          variant="ghost"
-                          onClick={() =>
-                            setOpenFaq(openFaq === idx ? null : idx)
-                          }
-                          className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-primary/[0.02]"
-                        >
-                          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-                            {faq.question}
-                          </span>
-                          <ChevronDown
-                            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
-                              openFaq === idx ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ${
-                            openFaq === idx ? "max-h-96" : "max-h-0"
-                          }`}
-                        >
-                          <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground dark:text-foreground/80">
-                            {faq.answer}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
 
             {/* CTA section */}
             <div className="relative mt-14 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center sm:p-10">
@@ -794,116 +766,27 @@ export default function LearnArticle() {
               </Link>
             </div>
 
-            {/* Related articles */}
+            {/* Related and recent articles: topic-only lists. Cover imagery
+                belongs on the article being read, not on a wall of thumbnails
+                competing with it. */}
             {related.length > 0 && (
               <section className="mt-14">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                    <BookOpen className="h-4 w-4 text-brand-purple" />
-                  </div>
-                  <div>
-                    <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                      Related Articles
-                    </h2>
-                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                      Continue learning about this topic
-                    </p>
-                  </div>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-3">
-                  {related.map((a) => (
-                    <Link
-                      key={a.id}
-                      to={`/learn/${a.slug}/`}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
-                    >
-                      {a.cover_image_url ? (
-                        <div className="aspect-[16/10] overflow-hidden">
-                          <img
-                            src={a.cover_image_url}
-                            alt={a.title}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
-                          <ImageOff className="h-6 w-6 text-muted-foreground/80" />
-                        </div>
-                      )}
-                      <div className="flex flex-1 flex-col p-4">
-                        <h3 className="text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
-                          {a.title}
-                        </h3>
-                        {a.read_time_minutes && (
-                          <span className="mt-auto flex items-center gap-1 pt-3 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" /> {a.read_time_minutes}{" "}
-                            min read
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                  Related Articles
+                </h2>
+                <ArticleTopicList items={related} label="Related articles" />
               </section>
             )}
 
-            {/* Recently published */}
             {recent.length > 0 && (
               <section className="mt-12">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                    <Clock className="h-4 w-4 text-brand-purple" />
-                  </div>
-                  <div>
-                    <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                      Recently Published
-                    </h2>
-                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                      Latest from our editorial desk
-                    </p>
-                  </div>
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                  {recent.map((a) => (
-                    <Link
-                      key={a.id}
-                      to={`/learn/${a.slug}/`}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
-                    >
-                      {a.cover_image_url ? (
-                        <div className="aspect-[16/10] overflow-hidden">
-                          <img
-                            src={a.cover_image_url}
-                            alt={a.title}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
-                          <ImageOff className="h-6 w-6 text-muted-foreground/80" />
-                        </div>
-                      )}
-                      <div className="flex flex-1 flex-col p-4">
-                        <span className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-brand-purple">
-                          {a.category_slug.replace(/-/g, " ")}
-                        </span>
-                        <h3 className="text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
-                          {a.title}
-                        </h3>
-                        {a.published_at && (
-                          <span className="mt-auto block pt-3 text-xs text-muted-foreground">
-                            {new Date(a.published_at).toLocaleDateString(
-                              "en-US",
-                              { month: "short", day: "numeric" },
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                  Recently Published
+                </h2>
+                <ArticleTopicList
+                  items={recent}
+                  label="Recently published articles"
+                />
               </section>
             )}
 

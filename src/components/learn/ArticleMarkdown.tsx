@@ -1,7 +1,10 @@
 import React from "react";
-import { ArticleInsertBlock } from "@/components/learn/ArticleInserts";
+import {
+  ArticleInsertBlock,
+  FaqInsertBlock,
+} from "@/components/learn/ArticleInserts";
 import { slugifyHeading } from "@/lib/learn/heading-slug";
-import type { DbLearnArticleInsert } from "@/types/database";
+import type { DbLearnArticleFaq, DbLearnArticleInsert } from "@/types/database";
 
 function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g);
@@ -94,9 +97,13 @@ function renderTable(lines: string[], key: number): React.ReactNode {
 export function ArticleMarkdown({
   content,
   insertsByHeading,
+  faqsByHeading,
+  trailingFaqs,
 }: {
   content: string;
   insertsByHeading?: Record<string, DbLearnArticleInsert[]>;
+  faqsByHeading?: Record<string, DbLearnArticleFaq[]>;
+  trailingFaqs?: DbLearnArticleFaq[];
 }) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
@@ -104,6 +111,8 @@ export function ArticleMarkdown({
   let key = 0;
 
   // In-article inserts placed right after their target heading
+  let faqAnchorUsed = false;
+
   const pushHeadingInserts = (headingId: string) => {
     const inserts = insertsByHeading?.[headingId];
     if (inserts && inserts.length > 0) {
@@ -112,6 +121,17 @@ export function ArticleMarkdown({
           <ArticleInsertBlock key={`ins-${ins.id}`} insert={ins} />,
         );
       });
+    }
+    const faqs = faqsByHeading?.[headingId];
+    if (faqs && faqs.length > 0) {
+      elements.push(
+        <FaqInsertBlock
+          key={`faq-${headingId}`}
+          faqs={faqs}
+          id={faqAnchorUsed ? undefined : "faqs"}
+        />,
+      );
+      faqAnchorUsed = true;
     }
   };
 
@@ -221,6 +241,17 @@ export function ArticleMarkdown({
       );
     }
     i++;
+  }
+
+  // FAQs with no matching heading still need a home: they close the body.
+  if (trailingFaqs && trailingFaqs.length > 0) {
+    elements.push(
+      <FaqInsertBlock
+        key="faq-trailing"
+        faqs={trailingFaqs}
+        id={faqAnchorUsed ? undefined : "faqs"}
+      />,
+    );
   }
 
   return <>{elements}</>;

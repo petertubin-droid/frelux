@@ -7,7 +7,7 @@ import {
   Quote,
   Sparkles,
 } from "lucide-react";
-import type { DbLearnArticleInsert } from "@/types/database";
+import type { DbLearnArticleFaq, DbLearnArticleInsert } from "@/types/database";
 
 /**
  * In-Article Insert blocks, admin-configured content cards rendered
@@ -37,13 +37,15 @@ const INSERT_META: Record<
   key_takeaways: {
     label: "Key Takeaways",
     icon: CheckCircle2,
-    accent: "border-l-accent-green bg-accent-green/[0.05] dark:bg-accent-green/[0.07]",
+    accent:
+      "border-l-accent-green bg-accent-green/[0.05] dark:bg-accent-green/[0.07]",
     chip: "bg-accent-green/15 text-accent-green",
   },
   what_to_watch: {
     label: "What to Watch",
     icon: Eye,
-    accent: "border-l-accent-orange bg-accent-orange/[0.05] dark:bg-accent-orange/[0.07]",
+    accent:
+      "border-l-accent-orange bg-accent-orange/[0.05] dark:bg-accent-orange/[0.07]",
     chip: "bg-accent-orange/15 text-accent-orange",
   },
   pro_tip: {
@@ -55,7 +57,8 @@ const INSERT_META: Record<
   stat_highlight: {
     label: "Stat",
     icon: TrendingUp,
-    accent: "border-l-accent-cyan bg-accent-cyan/[0.05] dark:bg-accent-cyan/[0.07]",
+    accent:
+      "border-l-accent-cyan bg-accent-cyan/[0.05] dark:bg-accent-cyan/[0.07]",
     chip: "bg-accent-cyan/15 text-accent-cyan",
   },
   quote: {
@@ -70,7 +73,11 @@ function isListInsert(type: DbLearnArticleInsert["insert_type"]) {
   return LIST_TYPES.includes(type);
 }
 
-export function ArticleInsertBlock({ insert }: { insert: DbLearnArticleInsert }) {
+export function ArticleInsertBlock({
+  insert,
+}: {
+  insert: DbLearnArticleInsert;
+}) {
   const meta = INSERT_META[insert.insert_type] ?? INSERT_META.summary;
   const Icon = meta.icon;
 
@@ -145,6 +152,46 @@ export function ArticleInsertBlock({ insert }: { insert: DbLearnArticleInsert })
           {insert.body}
         </p>
       )}
+    </aside>
+  );
+}
+
+/**
+ * FAQ insert: the common questions for an article, set into the body where the
+ * reader meets the topic rather than parked in a collapsed panel at the foot of
+ * the page. Answers are always visible, so the insert also serves the reader who
+ * never opens an accordion.
+ */
+export function FaqInsertBlock({
+  faqs,
+  id,
+}: {
+  faqs: DbLearnArticleFaq[];
+  /** Anchor for deep links, set on the first FAQ insert only. */
+  id?: string;
+}) {
+  if (faqs.length === 0) return null;
+  return (
+    <aside
+      id={id}
+      data-faq-insert="true"
+      className="mb-6 rounded-2xl border border-border/80 border-l-4 border-l-brand-orange bg-card/60 p-5 shadow-sm scroll-mt-24 dark:border-white/10 sm:p-6"
+    >
+      <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-orange/10 px-2.5 text-[11px] font-bold uppercase tracking-wider text-brand-orange">
+        Common questions
+      </span>
+      <dl className="mt-4 space-y-4">
+        {faqs.map((faq, index) => (
+          <div key={faq.id ?? `faq-${index}`}>
+            <dt className="text-sm font-bold text-foreground dark:text-primary-foreground">
+              {faq.question}
+            </dt>
+            <dd className="mt-1 text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/90">
+              {faq.answer}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </aside>
   );
 }
