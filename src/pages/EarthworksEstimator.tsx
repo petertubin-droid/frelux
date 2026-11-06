@@ -8,6 +8,7 @@ import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
+import { downloadCsv } from "@/lib/export-utils";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -83,6 +84,96 @@ export default function EarthworksEstimator() {
         ["Bank-equivalent fill", result.fillBankEquivalentM3, "m³"],
       ]
     : [];
+
+  /**
+   * One file carries both the volume summary and the interval schedule, because
+   * a summary without its intervals cannot be checked back to the survey.
+   */
+  const exportCsv = () => {
+    if (!result) return;
+    const rows: Record<string, unknown>[] = [
+      ...earthworkRows.map(([item, value, unit]) => ({
+        section: "Summary",
+        item,
+        from: "",
+        to: "",
+        cut: "",
+        fill: "",
+        value,
+        unit,
+      })),
+      ...(result.netBankSurplusM3 !== null
+        ? [
+            {
+              section: "Balance",
+              item:
+                result.importBankM3 === 0
+                  ? "Potential bank-volume surplus"
+                  : "Indicative bank-volume import",
+              from: "",
+              to: "",
+              cut: "",
+              fill: "",
+              value:
+                result.importBankM3 === 0
+                  ? result.netBankSurplusM3
+                  : result.importBankM3,
+              unit: "m³",
+            },
+          ]
+        : []),
+      ...result.intervals.map((row) => ({
+        section: "Interval",
+        item: `Chainage ${row.fromM} to ${row.toM} m`,
+        from: row.fromM,
+        to: row.toM,
+        cut: row.cutM3,
+        fill: row.fillM3,
+        value: "",
+        unit: "m³",
+      })),
+      {
+        section: "Input",
+        item: "Bulking factor",
+        from: "",
+        to: "",
+        cut: "",
+        fill: "",
+        value: Number(bulking),
+        unit: "%",
+      },
+      {
+        section: "Input",
+        item: "Shrinkage factor",
+        from: "",
+        to: "",
+        cut: "",
+        fill: "",
+        value: Number(shrinkage),
+        unit: "%",
+      },
+      {
+        section: "Input",
+        item: "Cut suitable for fill",
+        from: "",
+        to: "",
+        cut: "",
+        fill: "",
+        value: reuse ? "yes" : "no",
+        unit: "",
+      },
+    ];
+    downloadCsv("frelux-earthworks-cut-fill", rows, [
+      { header: "Section", key: "section" },
+      { header: "Item", key: "item" },
+      { header: "From (m)", key: "from" },
+      { header: "To (m)", key: "to" },
+      { header: "Cut (m3)", key: "cut" },
+      { header: "Fill (m3)", key: "fill" },
+      { header: "Value", key: "value" },
+      { header: "Unit", key: "unit" },
+    ]);
+  };
 
   const { fieldsRef, resultsRef, missing, handleCalculate } =
     useCalculatorFeedback<HTMLDivElement>();
@@ -318,9 +409,18 @@ export default function EarthworksEstimator() {
                   </div>
                 )}
                 <div className="mt-5">
-                  <h3 className="text-sm font-semibold">
-                    {t("Interval schedule")}
-                  </h3>
+                  <div className="mt-5 flex items-center justify-between gap-3">
+                    <h3 className="text-sm font-semibold">
+                      {t("Interval schedule")}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={exportCsv}
+                      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+                    >
+                      Export CSV
+                    </button>
+                  </div>
                   <div className="mt-2 space-y-2">
                     {result.intervals.map((row) => (
                       <p
