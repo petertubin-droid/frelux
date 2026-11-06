@@ -35,6 +35,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import PipeSizingPanel from "@/components/calculators/PipeSizingPanel";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
 import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -542,6 +543,21 @@ export default function PlumbingEstimator() {
         <p className="mt-2 text-xs italic text-muted-foreground">
           {plumbingProfile.notes}
         </p>
+      </div>
+
+      <div className="mb-6">
+        <CalculatorSchematic
+          kind="plumbing"
+          counts={(Object.keys(NUM_LABELS) as NumField[]).map((key) => ({
+            label: NUM_LABELS[key],
+            value: counts[key] || "0",
+          }))}
+          runs={(Object.keys(RUN_LABELS) as RunField[]).map((key) => ({
+            label: RUN_LABELS[key].replace("(m)", isFeet ? "(ft)" : "(m)"),
+            value: runs[key],
+            entered: runs[key].trim() !== "",
+          }))}
+        />
       </div>
 
       {/* Inputs */}

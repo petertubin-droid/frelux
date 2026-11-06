@@ -21,6 +21,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   NumberField,
   SelectField,
@@ -110,11 +111,18 @@ export default function SoffitGutterEstimator() {
         },
       ]}
       notes={
-        <p>
-          Rules in use: {rules.waste_pct}% cutting waste, downpipes every{" "}
-          {rules.downpipe_spacing_m} m, brackets every {rules.bracket_spacing_m}{" "}
-          m.
-        </p>
+        <>
+          <CalculatorSchematic
+            kind="gutter"
+            perimeter={mode === "perimeter" ? `${perimeter || "0"} m` : `${(2 * (Number(length || 0) + Number(width || 0))).toFixed(1)} m (derived from footprint)`}
+            overhang={`${overhang || "0"} m`}
+            material={SOFFIT_MATERIAL_LABELS[material]}
+            downpipes={result?.lines.find((line) => /downpipe/i.test(line.label))?.quantity?.toString() ?? "calculated after takeoff"}
+          />
+          <p className="mt-3">
+            Rules in use: {rules.waste_pct}% cutting waste, downpipes every {rules.downpipe_spacing_m} m, brackets every {rules.bracket_spacing_m} m.
+          </p>
+        </>
       }
       inputs={
         <>

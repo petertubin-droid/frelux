@@ -2457,3 +2457,9 @@ h2 {
   border-color: rgb(var(--brand-primary) / 0.45);
   background: rgb(var(--brand-primary) / 0.12);
 }
+
+/* Subtle calculator diagram motion; all animation is disabled for reduced-motion users. */
+@keyframes schematic-flow { to { stroke-dashoffset: -34; } }
+@keyframes schematic-load { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+
+.reduced-motion [data-testid^="calculator-schematic"] * { animation: none !important; transition: none !important; }

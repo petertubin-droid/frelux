@@ -3,6 +3,7 @@ import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   SLAB_LAYERS,
   concreteElementSequence,
@@ -1949,6 +1950,16 @@ function BeamCalculator() {
 
       {result && (
         <ResultCard>
+          <div className="mb-6">
+            <CalculatorSchematic
+              kind="beam"
+              span={`${span} ${lengthUnit}`}
+              support={support}
+              section={`${result.recommended_width} × ${result.recommended_depth} mm`}
+              bars={`${result.recommended_bar_count}Y${result.recommended_bar_diameter}`}
+              load={`${result.factored_load.toFixed(2)} kN/m`}
+            />
+          </div>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <StatBox
               label="Recommended Size"
@@ -2217,6 +2228,15 @@ function ColumnCalculator() {
 
       {result && (
         <ResultCard>
+          <div className="mb-6">
+            <CalculatorSchematic
+              kind="column"
+              height={`${height} ${columnLengthUnit}`}
+              section={`${result.recommended_width} × ${result.recommended_depth} mm`}
+              bars={`${result.recommended_bar_count}Y${result.recommended_bar_diameter}`}
+              load={`${result.factored_load.toFixed(1)} kN`}
+            />
+          </div>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <StatBox
               label={isRect ? "Section Size" : "Diameter"}
@@ -2529,6 +2549,16 @@ function SlabCalculator() {
 
       {result && (
         <ResultCard>
+          <div className="mb-6">
+            <CalculatorSchematic
+              kind="slab"
+              spanX={`${spanX} m`}
+              spanY={`${spanY} m`}
+              thickness={`${result.recommended_thickness} mm`}
+              bars={`Y${result.recommended_bar_diameter} @ ${result.recommended_bar_spacing} mm c/c`}
+              slabType={result.slab_type.replace(/_/g, " ")}
+            />
+          </div>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
             <StatBox
               label="Thickness"

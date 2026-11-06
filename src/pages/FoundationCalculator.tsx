@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import { useMarket } from "@/lib/international/market-context";
 import {
   designFoundation,
@@ -340,6 +341,22 @@ export default function FoundationCalculator() {
                 </h2>
               </div>
               <EngineerReviewBadge discipline="foundation" />
+            </div>
+
+            <div className="mb-6">
+              <CalculatorSchematic
+                kind="foundation"
+                shape={result.shape}
+                width={`${result.recommended_width} mm`}
+                length={result.shape === "pad"
+                  ? `${result.recommended_length ?? result.recommended_width} mm`
+                  : result.shape === "strip"
+                    ? `${(buildingLength * 2 + buildingWidth * 2).toFixed(1)} m perimeter`
+                    : `${buildingLength} × ${buildingWidth} m footprint`}
+                depth={`${depth} ${measurementUnit}`}
+                bearing={`${result.bearing_capacity}`}
+                pressure={`${result.applied_pressure}`}
+              />
             </div>
 
             {/* Key results, premium stat cards */}

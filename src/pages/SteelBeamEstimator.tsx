@@ -21,6 +21,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   NumberField,
   SelectField,
@@ -117,10 +118,19 @@ export default function SteelBeamEstimator() {
         },
       ]}
       notes={
-        <p>
-          Mass uses the published nominal weight per metre for each profile.
-          Merchant weighbridge tickets are the check on what actually arrives.
-        </p>
+        <>
+          <CalculatorSchematic
+            kind="steel"
+            span={span ? `${span} m` : "not entered"}
+            profile={STEEL_PROFILE_BY_KEY[profile]?.label ?? profile}
+            count={count || "0"}
+            mass={mass === null ? "not calculated" : `${mass.toLocaleString()} kg`}
+          />
+          <p className="mt-3">
+            Mass uses the published nominal weight per metre for each profile.
+            Merchant weighbridge tickets are the check on what actually arrives.
+          </p>
+        </>
       }
       inputs={
         <>

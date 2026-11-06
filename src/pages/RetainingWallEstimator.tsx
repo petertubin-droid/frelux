@@ -23,6 +23,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   NumberField,
   SelectField,
@@ -123,13 +124,21 @@ export default function RetainingWallEstimator() {
         },
       ]}
       notes={
-        <p>
-          Rules in use: footing {rules.footing_width_m} m wide and{" "}
-          {rules.footing_thickness_m} m thick, {rules.blocks_per_m2} blocks per
-          m², {rules.waste_pct}% block waste, weep holes every{" "}
-          {rules.weep_spacing_m} m, bars at {rules.bar_spacing_m} m centres.
-          These are visible planning defaults, not a design.
-        </p>
+        <>
+          {preview && (
+            <CalculatorSchematic
+              kind="retaining-wall"
+              length={`${length || "0"} m`}
+              height={`${height || "0"} m`}
+              footingWidth={`${preview.recommended_footing_width_m} m`}
+              soil={SOIL_LABELS[soil]}
+              stem={stem === "block" ? "hollow block" : "poured concrete"}
+            />
+          )}
+          <p className="mt-3">
+            Rules in use: footing {rules.footing_width_m} m wide and {rules.footing_thickness_m} m thick, {rules.blocks_per_m2} blocks per m², {rules.waste_pct}% block waste, weep holes every {rules.weep_spacing_m} m, bars at {rules.bar_spacing_m} m centres. These are visible planning defaults, not a design.
+          </p>
+        </>
       }
       inputs={
         <>

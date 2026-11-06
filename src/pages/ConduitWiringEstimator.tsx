@@ -23,6 +23,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   SliderField,
   FieldGroup,
@@ -293,6 +294,12 @@ export default function ConduitWiringEstimator() {
                   hint="Wall sockets, including air conditioner and dedicated outlets."
                 />
               </FieldGroup>
+              <CalculatorSchematic
+                kind="electrical"
+                area={area.toLocaleString()}
+                lights={lights.toLocaleString()}
+                sockets={sockets.toLocaleString()}
+              />
             </>
           ) : (
             <div className="space-y-6">
