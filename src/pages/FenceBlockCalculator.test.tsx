@@ -4,6 +4,11 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
+const downloadCsv = vi.fn();
+vi.mock("@/lib/export-utils", () => ({
+  downloadCsv: (...args: unknown[]) => downloadCsv(...args),
+}));
+
 import FenceBlockCalculator from "@/pages/FenceBlockCalculator";
 
 const renderPage = () =>
@@ -82,5 +87,41 @@ describe("FenceBlockCalculator page", () => {
     expect(screen.getByLabelText(/Gate height/)).toBeDefined();
     expect(screen.getByLabelText(/Courses below ground/)).toBeDefined();
     expect(screen.getByText(/strip footing concrete/)).toBeDefined();
+  });
+
+  it("exports the purchase list with the geometry and assumptions behind it", () => {
+    downloadCsv.mockClear();
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /Export CSV/i }));
+
+    expect(downloadCsv).toHaveBeenCalledTimes(1);
+    const [filename, rows] = downloadCsv.mock.calls[0] as [
+      string,
+      Record<string, unknown>[],
+    ];
+    expect(filename).toContain("fence");
+    const blocks = rows.find(
+      (r) => r.section === "Blocks" && String(r.item).startsWith("Blocks ("),
+    );
+    expect(Number(blocks?.quantity)).toBeGreaterThan(0);
+    // The gate and the foundation courses are part of the record, not only the
+    // screen: a count without them cannot be rechecked.
+    expect(
+      rows.some(
+        (r) => r.section === "Wall" && /Gate opening/.test(String(r.item)),
+      ),
+    ).toBe(true);
+    expect(
+      rows.some(
+        (r) =>
+          r.section === "Blocks" && /Foundation course/.test(String(r.item)),
+      ),
+    ).toBe(true);
+    // Cement is exported in the bag size the market actually sells.
+    const cement = rows.find(
+      (r) => r.section === "Cement" && String(r.item).startsWith("Cement ("),
+    );
+    expect(String(cement?.item)).toMatch(/kg bags/);
+    expect(rows.some((r) => r.section === "Assumption")).toBe(true);
   });
 });

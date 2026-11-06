@@ -5,6 +5,7 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
+import { downloadCsv } from "@/lib/export-utils";
 import { useLanguage } from "@/lib/i18n";
 import {
   PLOT_PRESETS,
@@ -46,6 +47,175 @@ export default function FenceBlockCalculator() {
 
   const vocab = regionalVocabulary(market);
   const units = vocabularyMarkets();
+
+  /**
+   * The purchase list, the wall geometry and the assumptions travel together:
+   * a block count without the coaches and gate it was built from cannot be
+   * checked, and a quote that hides its assumptions cannot be defended.
+   */
+  const exportCsv = () => {
+    if (!result) return;
+    const rows: Record<string, unknown>[] = [
+      {
+        section: "Wall",
+        item: "Perimeter",
+        quantity: result.site.perimeterM,
+        unit: "m",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Wall",
+        item: "Coaches",
+        quantity: result.wall.coaches,
+        unit: "",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Wall",
+        item: "Wall height",
+        quantity: result.wall.heightM,
+        unit: "m",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Wall",
+        item: "Gross wall area",
+        quantity: result.wall.grossAreaM2,
+        unit: "m2",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Wall",
+        item: "Built area after gate and foundation courses",
+        quantity: result.wall.areaM2,
+        unit: "m2",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Wall",
+        item: "Gate opening deducted",
+        quantity: result.gate.deductedAreaM2,
+        unit: "m2",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Blocks",
+        item: `Blocks (${result.unit.label})`,
+        quantity: result.blocks.total,
+        unit: result.unit.noun,
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Blocks",
+        item: "Blocks per square metre",
+        quantity: result.blocks.perSquareMetre,
+        unit: "blocks/m2",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Blocks",
+        item: "Breakage allowance",
+        quantity: result.blocks.breakage,
+        unit: result.unit.noun,
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Blocks",
+        item: "Foundation course blocks",
+        quantity: result.foundation.blocksTotal,
+        unit: result.unit.noun,
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Foundation",
+        item: "Footing concrete",
+        quantity: result.foundation.footingConcreteM3,
+        unit: "m3",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Mortar",
+        item: "Dry mortar volume",
+        quantity: result.mortar.dryM3,
+        unit: "m3",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Mortar",
+        item: "Mortar sand",
+        quantity: result.mortar.sandM3,
+        unit: "m3",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Cement",
+        item: `Cement (${result.cement.bagKg} kg bags)`,
+        quantity: result.cement.bags,
+        unit: "bags",
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Sand",
+        item: `Sand (${result.sand.defaultUnitLabel})`,
+        quantity: result.sand.defaultUnitCount,
+        unit: result.sand.defaultUnitLabel,
+        unitCost: "",
+        lineTotal: "",
+      },
+      {
+        section: "Sand",
+        item: "Sand volume",
+        quantity: result.sand.cubicMetres,
+        unit: "m3",
+        unitCost: "",
+        lineTotal: "",
+      },
+      ...result.sand.trips.map((trip) => ({
+        section: "Sand",
+        item: `Sand by tipper (${trip.label})`,
+        quantity: trip.count,
+        unit: "trips",
+        unitCost: "",
+        lineTotal: "",
+      })),
+      {
+        section: "Site",
+        item: "Market",
+        quantity: "",
+        unit: result.market,
+        unitCost: "",
+        lineTotal: "",
+      },
+      ...result.assumptions.map((note) => ({
+        section: "Assumption",
+        item: note,
+        quantity: "",
+        unit: "",
+        unitCost: "",
+        lineTotal: "",
+      })),
+    ];
+    downloadCsv("frelux-fence-blockwork", rows, [
+      { header: "Section", key: "section" },
+      { header: "Item", key: "item" },
+      { header: "Quantity", key: "quantity" },
+      { header: "Unit", key: "unit" },
+    ]);
+  };
 
   const outcome = useMemo(
     () =>
@@ -358,12 +528,23 @@ export default function FenceBlockCalculator() {
             aria-labelledby="fence-results"
             className="rounded-xl border border-border bg-card p-5 sm:p-6"
           >
-            <h2
-              id="fence-results"
-              className="font-heading text-lg font-semibold text-foreground"
-            >
-              {t("What to buy")}
-            </h2>
+            <div className="flex items-start justify-between gap-3">
+              <h2
+                id="fence-results"
+                className="font-heading text-lg font-semibold text-foreground"
+              >
+                {t("What to buy")}
+              </h2>
+              {result && (
+                <button
+                  type="button"
+                  onClick={exportCsv}
+                  className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+                >
+                  {t("Export CSV")}
+                </button>
+              )}
+            </div>
 
             {outcome.errors.length > 0 ? (
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground">

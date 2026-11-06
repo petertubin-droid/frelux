@@ -22,6 +22,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { downloadCsv } from "@/lib/export-utils";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -625,6 +626,85 @@ export default function DoorsWindowsEstimator() {
       )}
 
       {/* Result */}
+      {result?.ok && (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              if (!result) return;
+              const rows: Record<string, unknown>[] = [
+                ...result.lines.map((line) => ({
+                  item: line.label,
+                  quantity: line.quantity === null ? "" : line.quantity,
+                  unit: line.unit,
+                  basis: line.quantity_source,
+                  detail: line.detail,
+                  unit_price: line.unit_price === null ? "" : line.unit_price,
+                  line_total: line.line_total === null ? "" : line.line_total,
+                  note:
+                    line.unit_price === null && line.quantity !== null
+                      ? "Price not configured in the material database"
+                      : "",
+                })),
+                {
+                  item: "Priced subtotal",
+                  quantity: "",
+                  unit: "",
+                  basis: "",
+                  detail: "",
+                  unit_price: "",
+                  line_total: result.priced_subtotal,
+                  note: "",
+                },
+                {
+                  item: "Labour",
+                  quantity: "",
+                  unit: "",
+                  basis: "",
+                  detail: "",
+                  unit_price: "",
+                  line_total: result.labour_total,
+                  note: "",
+                },
+                {
+                  item: "Grand total",
+                  quantity: "",
+                  unit: "",
+                  basis: "",
+                  detail: "",
+                  unit_price: "",
+                  line_total: result.grand_total ?? "",
+                  note: result.incomplete ? "Estimate incomplete" : "",
+                },
+                ...result.missing.map((item) => ({
+                  item: "Missing",
+                  quantity: "",
+                  unit: "",
+                  basis: "",
+                  detail: item,
+                  unit_price: "",
+                  line_total: "",
+                  note: "",
+                })),
+              ];
+              downloadCsv("frelux-doors-windows-takeoff", rows, [
+                { header: "Material", key: "item" },
+                { header: "Quantity", key: "quantity" },
+                { header: "Unit", key: "unit" },
+                { header: "Basis", key: "basis" },
+                { header: "How it was sized", key: "detail" },
+                { header: "Unit price", key: "unit_price" },
+                { header: "Line total", key: "line_total" },
+                { header: "Note", key: "note" },
+              ]);
+            }}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted"
+          >
+            {t("Export CSV")}
+          </button>
+        </div>
+      )}
+
       {result?.ok && (
         <>
           {/* Status banner */}
