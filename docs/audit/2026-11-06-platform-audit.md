@@ -172,9 +172,68 @@ and the two that feed the product carry no verification stamps at all.
   including verified-without-date demotion, aging versus stale, future stamps
   and unparseable input.
 
-Remaining: no ingestion, deduplication or outlier job was verified, and
-`frelux_price_observations` being empty means one advertised pipeline has never
-run. Scheduled collection and admin approval flow need their own audit.
+### Ingestion: the scanner was dead while every indicator read healthy
+
+The cron job `market-scan-dispatch` was scheduled, enabled and firing every 20
+minutes. In the 24 hours to 06:00 it ran 72 times and failed 72 times:
+
+```
+ERROR: column reference "token" is ambiguous
+QUERY: select token into token from public.price_intel_tokens limit 1
+```
+
+`dispatch_market_scans` declared a PL/pgSQL variable named `token` that shadowed
+the column it selected, so the function raised before dispatching anything. All
+43 rows in `market_scan_settings` were left overdue (oldest `next_run_at`
+2026-10-30) and observations stopped at 54 rows across three markets.
+
+Renaming the variable exposed a second instance of the same class one statement
+later, found only by running the function after the first fix:
+
+```
+ERROR: column reference "market" is ambiguous
+QUERY: update public.market_scan_settings ... where market = m.market
+```
+
+A function declared `RETURNS TABLE(market text, ...)` has an output parameter
+named `market`, so the unqualified UPDATE predicate resolved against that
+parameter.
+
+A third defect sat beside them: `price-digest-weekly` passed a single literal
+argument to `jsonb_build_object`, so it failed every Monday with "argument list
+must have even number of elements".
+
+Fixed and applied to production (`20261106100000`, `20261106103000`):
+
+- `dispatch_market_scans` uses `v_token` and `v_row`, qualifies every column,
+  picks the newest active unexpired token deterministically, and raises instead
+  of dispatching an empty token header.
+- `price_intel_tokens` gains `is_active` and `expires_at`.
+- `price-digest-weekly` carries a valid JSONB body.
+- `price_scan_coverage()` reports per market the active sources, how many are
+  actually scannable, blocked count, never-scanned count and last success, so a
+  source count is never mistaken for reach.
+
+Live verification after applying: `dispatch_market_scans(3)` returned EG, CI and
+ET with dispatched true, overdue markets fell from 43 to 40, and the edge
+function answered 200 with real runs (CI: 2 sources scanned, 1 candidate
+created; ET: 1 source scanned, 1 failed).
+
+### Why coverage is still thin
+
+`price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access
+status of the active rows: 1324 `search_page_only`, 61 `live`, 29
+`bot_blocked`, 46 null. Scan status: 1166 never scanned, 193 failed, 58 ok.
+Measured reach per market: GB 112 active sources but 12 scannable, DE 57 and 7,
+NG 81 and 4, US 62 and 12 with no success ever recorded. Aggregated errors:
+78 HTTP 403, 60 "no price found", 16 HTTP 404, 17 HTTP 503, 8 HTTP 429.
+
+Reviving the dispatcher restores the schedule, it does not manufacture coverage:
+most configured sources are retailer search pages that cannot yield a product
+price, and a further 78 are refused outright. Real coverage for the required
+markets needs live product sources or permitted APIs, which is a sourcing task,
+not a code fix. Until then the provenance work above keeps unevidenced prices
+labelled as such.
 
 ## 6. Security
 
