@@ -24,6 +24,9 @@ import { EstimateDisclaimer } from "@/components/calculators";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import {
@@ -306,6 +309,9 @@ export default function SolarPvEstimator() {
     !!cableRun &&
     (mode === "roof_area" ? !!roofArea : !!energyTarget);
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <Container>
       <div className="space-y-6">
@@ -325,7 +331,13 @@ export default function SolarPvEstimator() {
           </div>
         )}
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
+          <div className="mb-3">
+            <MeasurementTip what="roof or array measurement and units" />
+          </div>
           <div className="grid gap-3">
             <div className="flex gap-2 text-sm">
               <button
@@ -426,7 +438,7 @@ export default function SolarPvEstimator() {
 
           <button
             type="button"
-            onClick={run}
+            onClick={() => handleCalculate(run)}
             disabled={!canRun}
             className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
@@ -444,8 +456,12 @@ export default function SolarPvEstimator() {
           </div>
         )}
 
+        <div className="mt-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
+
         {result?.ok && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-xs font-medium uppercase text-muted-foreground">

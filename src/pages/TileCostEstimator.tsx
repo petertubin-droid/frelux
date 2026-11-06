@@ -2,6 +2,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { calculateTile } from "@/lib/pop-tile-calc";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { calculateLabourCost } from "@/lib/labour";
@@ -173,6 +176,9 @@ export default function TileCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const navigate = useNavigate();
   const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
@@ -440,7 +446,10 @@ export default function TileCostEstimator({
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
+          <div
+            ref={fieldsRef}
+            className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3"
+          >
             {marketNotConfigured && (
               <div
                 className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
@@ -478,6 +487,9 @@ export default function TileCostEstimator({
                 and prices for your market before ordering.
               </div>
             )}
+            <div className="mb-4">
+              <MeasurementTip what="measurement unit and surface dimensions" />
+            </div>
             <Section title={t("Surface")}>
               <Field label="Surface type">
                 <select
@@ -510,6 +522,13 @@ export default function TileCostEstimator({
                     type="number"
                     min={0}
                     step="0.01"
+                    aria-required="true"
+                    data-required="true"
+                    data-field-label={
+                      input.surfaceType === "floor"
+                        ? "Floor length"
+                        : "Wall length"
+                    }
                     value={input.length || ""}
                     onChange={(e) => update("length", Number(e.target.value))}
                     className="input-field dark:bg-card dark:border-white/10"
@@ -525,6 +544,9 @@ export default function TileCostEstimator({
                       type="number"
                       min={0}
                       step="0.01"
+                      aria-required="true"
+                      data-required="true"
+                      data-field-label="Floor width"
                       value={input.width || ""}
                       onChange={(e) => update("width", Number(e.target.value))}
                       className="input-field dark:bg-card dark:border-white/10"
@@ -540,6 +562,9 @@ export default function TileCostEstimator({
                       type="number"
                       min={0}
                       step="0.01"
+                      aria-required="true"
+                      data-required="true"
+                      data-field-label="Wall height"
                       value={input.height || ""}
                       onChange={(e) => update("height", Number(e.target.value))}
                       className="input-field dark:bg-card dark:border-white/10"
@@ -677,12 +702,15 @@ export default function TileCostEstimator({
               last
             />
 
+            <div className="mt-4">
+              <MissingFieldsNotice fields={missing} />
+            </div>
+
             <Button
               variant="default"
               type="button"
-              onClick={compute}
-              disabled={input.length <= 0}
-              className="mt-6 w-full disabled:opacity-50 sm:w-auto"
+              onClick={() => handleCalculate(compute)}
+              className="mt-6 w-full sm:w-auto"
             >
               Generate Estimate{" "}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -690,7 +718,7 @@ export default function TileCostEstimator({
           </div>
 
           {/* Results panel */}
-          <div className="lg:col-span-2">
+          <div ref={resultsRef} className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
               <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
                 <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">

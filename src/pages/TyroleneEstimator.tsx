@@ -41,6 +41,9 @@ import {
   Box,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import Container from "@/components/ui/Container";
 import { supabase } from "@/lib/supabase";
@@ -203,6 +206,13 @@ export default function TyroleneEstimator({
     passed.projectLocation ?? null,
   );
   const currency = projectCurrencyCode ?? "NGN";
+  const {
+    fieldsRef,
+    resultsRef,
+    missing,
+    handleCalculate: calculateWithScroll,
+  } = useCalculatorFeedback<HTMLDivElement>();
+
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
@@ -924,8 +934,15 @@ export default function TyroleneEstimator({
           </div>
         </div>
 
+        <div className="mb-3">
+          <MeasurementTip what="measurement unit and partition dimensions" />
+        </div>
+
         {/* Input Mode Toggle */}
-        <div className="rounded-xl border border-border bg-card dark:border-border border-border dark:bg-card-foreground/90 p-5">
+        <div
+          ref={fieldsRef}
+          className="rounded-xl border border-border bg-card dark:border-border border-border dark:bg-card-foreground/90 p-5"
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground flex items-center gap-2">
               <Layers className="h-4 w-4 text-brand-purple" />
@@ -981,6 +998,9 @@ export default function TyroleneEstimator({
                 <input
                   id="tyrolene-standard-partitions"
                   aria-label={t("Number of standard partitions")}
+                  aria-required="true"
+                  data-required="true"
+                  data-field-label={t("Number of standard partitions")}
                   type="number"
                   min="0"
                   value={standardCount}
@@ -1171,15 +1191,14 @@ export default function TyroleneEstimator({
         </div>
 
         {/* Calculate Button */}
+        <div className="mt-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
         <div className="flex gap-3">
           <Button
             variant="default"
-            onClick={handleCalculate}
-            disabled={
-              calculating ||
-              (inputMode === "actual" &&
-                (!standardPartition.width || !standardPartition.height))
-            }
+            onClick={() => calculateWithScroll(handleCalculate)}
+            disabled={calculating}
             className="btn-glow flex flex-1 items-center justify-center gap-2 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {calculating ? (
@@ -1207,7 +1226,7 @@ export default function TyroleneEstimator({
 
         {/* Result */}
         {result && (
-          <div className="space-y-4">
+          <div ref={resultsRef} className="space-y-4">
             {/* Errors */}
             {result.errors.length > 0 && (
               <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-4">

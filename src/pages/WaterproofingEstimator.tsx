@@ -13,6 +13,9 @@
 import { useMarket } from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
@@ -343,6 +346,9 @@ export default function WaterproofingEstimator() {
     </label>
   );
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <Container>
       <MarketScopeNotice />
@@ -357,7 +363,13 @@ export default function WaterproofingEstimator() {
       />
 
       {/* Inputs */}
-      <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
+      <div
+        ref={fieldsRef}
+        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+      >
+        <div className="mb-4">
+          <MeasurementTip what="measured areas, run lengths and units" />
+        </div>
         <h3 className="mb-1 font-semibold">{t("Measured areas and runs")}</h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never assumes surfaces. Enter your measured DPC run, DPM
@@ -405,7 +417,8 @@ export default function WaterproofingEstimator() {
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
-            onClick={run}
+            type="button"
+            onClick={() => handleCalculate(run)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             {t("Calculate estimate")}
@@ -464,6 +477,10 @@ export default function WaterproofingEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 
+      <div className="mb-4">
+        <MissingFieldsNotice fields={missing} />
+      </div>
+
       {/* Errors */}
       {result && !result.ok && (
         <div
@@ -486,6 +503,7 @@ export default function WaterproofingEstimator() {
         <>
           {/* Status banner */}
           <div
+            ref={resultsRef}
             className={`mb-4 rounded-lg border p-4 text-sm ${
               result.incomplete
                 ? "border-amber-600/40 bg-amber-600/5"

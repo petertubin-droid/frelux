@@ -30,6 +30,8 @@ import {
   MeasurementInput,
   CalculationBreakdown,
 } from "@/components/measurement/MeasurementInput";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import {
   useMeasurementProject,
   useEngineFeatures,
@@ -235,6 +237,12 @@ export default function ScreedingCalculator({
       })
     : null;
 
+  const {
+    fieldsRef,
+    resultsRef,
+    handleCalculate: calculateWithScroll,
+  } = useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <>
       {!embedded && (
@@ -260,7 +268,11 @@ export default function ScreedingCalculator({
         className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
       >
         {!screedingResult && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-6">
+          <div
+            ref={fieldsRef}
+            className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-6"
+          >
+            <MeasurementTip what="measurement unit and surface dimensions" />
             <MeasurementInput
               project={project}
               context="screeding"
@@ -300,7 +312,7 @@ export default function ScreedingCalculator({
             <Button
               variant="default"
               type="button"
-              onClick={handleCalculate}
+              onClick={() => calculateWithScroll(handleCalculate)}
               disabled={!validation.valid}
               className="w-full btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -310,7 +322,10 @@ export default function ScreedingCalculator({
         )}
 
         {screedingResult && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-4">
+          <div
+            ref={resultsRef}
+            className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-4"
+          >
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
               <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
