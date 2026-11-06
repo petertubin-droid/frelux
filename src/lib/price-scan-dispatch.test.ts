@@ -30,7 +30,7 @@ function dispatchDefinitions(): { file: string; sql: string }[] {
       file: f,
       sql: readFileSync(join(migrationsDir, f), "utf8"),
     }))
-    .filter((m) => /function public\.dispatch_market_scans/i.test(m.sql));
+    .filter((m) => /create\s+or\s+replace\s+function public\.dispatch_market_scans/i.test(m.sql));
 }
 
 describe("market scan dispatch", () => {
@@ -100,5 +100,13 @@ describe("market scan dispatch", () => {
     expect(tokenFix).toMatch(
       /grant execute on function public\.price_scan_coverage\(\) to authenticated, service_role/i,
     );
+  });
+});
+
+describe("market scan dispatcher privileges", () => {
+  it("re-locks execution to service_role after the final replacement", () => {
+    const lock = readFileSync(join(migrationsDir, "20261106150000_relock_market_scan_dispatch.sql"), "utf8");
+    expect(lock).toMatch(/revoke all on function public\.dispatch_market_scans\(integer\)\s+from public, anon, authenticated/i);
+    expect(lock).toMatch(/grant execute on function public\.dispatch_market_scans\(integer\)\s+to service_role/i);
   });
 });

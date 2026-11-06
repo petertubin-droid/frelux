@@ -78,7 +78,6 @@ export type CalculatorSchematicProps =
   | GutterDiagram;
 
 const labelClass = "fill-current text-[11px]";
-const mutedClass = "fill-muted-foreground text-[10px]";
 
 /** Input-linked schematics clarify the measured geometry; they are not drawings for construction. */
 export function CalculatorSchematic(props: CalculatorSchematicProps) {
