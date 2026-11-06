@@ -209,7 +209,7 @@ export async function fetchIndexBenchmark(input: {
   const { data, error } = await supabase
     .from("market_material_prices")
     .select(
-      "material_slug, product_name, currency, current_price, median_price, avg_price, frelux_price, verification_status, last_verified_at, last_scanned_at, suppliers_count, observations_count",
+      "material_slug, product_name, currency, current_price, median_price, avg_price, verification_status, last_verified_at, last_scanned_at, suppliers_count, observations_count",
     )
     .eq("market", input.marketCode)
     .ilike("material_slug", `%${slug}%`)

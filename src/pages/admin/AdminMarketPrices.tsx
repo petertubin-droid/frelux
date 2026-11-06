@@ -77,7 +77,6 @@ interface MaterialRow {
   local_estimate: number | null;
   transport_cost: number | null;
   delivery_cost: number | null;
-  frelux_price: number | null;
   min_observed: number | null;
   max_observed: number | null;
   supplier_name: string | null;
