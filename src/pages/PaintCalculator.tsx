@@ -35,6 +35,8 @@ import {
   Trash2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import MultiStepProgress from "@/components/ui/MultiStepProgress";
@@ -278,6 +280,11 @@ export default function PaintCalculator({
     includePrimer: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Set when a step button is pressed and the step is not finished, so the
+  // summary only appears in answer to a press and not while typing.
+  const [stepAttempted, setStepAttempted] = useState(false);
+  const { fieldsRef, resultsRef, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
 
   // Template prefill (?template=<id>): public/private templates open
   // the calculator with their inputs pre-filled, already converted to
@@ -754,11 +761,16 @@ export default function PaintCalculator({
   }
 
   function back() {
+    setStepAttempted(false);
+    setErrors({});
     setStep((s) => Math.max(1, s - 1));
   }
 
   function compute() {
-    if (!validateStep(3)) return;
+    if (!validateStep(3)) {
+      setStepAttempted(true);
+      return;
+    }
 
     // Validate quality selection if estimation products are available
     if (
@@ -1138,7 +1150,10 @@ export default function PaintCalculator({
         )}
 
         {!result && paintTypes.length > 0 ? (
-          <div className="mt-8 card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+          <div
+            ref={fieldsRef}
+            className="mt-8 card p-6 sm:p-8 dark:border-white/5 dark:bg-card"
+          >
             <div className="mb-6 flex justify-end">
               <TemplatePicker
                 calculatorType="paint"
@@ -1153,6 +1168,10 @@ export default function PaintCalculator({
                 update("unit", system === "imperial" ? "feet" : "meters")
               }
             />
+            <div className="mb-5">
+              <MeasurementTip what="measurement unit, surface and room sizes" />
+            </div>
+
             {step === 1 && <Step1 input={input} update={update} />}
             {step === 2 && (
               <Step2
@@ -1195,6 +1214,26 @@ export default function PaintCalculator({
               />
             )}
 
+            {stepAttempted && Object.keys(errors).length > 0 && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                data-testid="paint-step-notice"
+                className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-4"
+              >
+                <p className="text-sm font-semibold text-foreground">
+                  {Object.keys(errors).length === 1
+                    ? "This step is not finished"
+                    : "This step has unfinished fields"}
+                </p>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  {Object.entries(errors).map(([key, message]) => (
+                    <li key={key}>{message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
               <Button
                 variant="secondary"
@@ -1218,7 +1257,7 @@ export default function PaintCalculator({
                 <Button
                   variant="default"
                   type="button"
-                  onClick={compute}
+                  onClick={() => handleCalculate(compute)}
                   className="btn-glow"
                 >
                   {t("Calculate")}
@@ -1230,22 +1269,24 @@ export default function PaintCalculator({
         ) : null}
 
         {result && (
-          <ResultCard
-            result={result}
-            input={input}
-            paintTypeName={selectedPaintType?.name ?? input.paintType}
-            qualityName={selectedQuality?.name ?? null}
-            qualityId={selectedQuality?.id ?? null}
-            qualityPrice={selectedQualityPrice?.price ?? null}
-            qualityPriceCurrency={selectedQualityPrice?.currency ?? null}
-            onAgain={() => setResult(null)}
-            onStartOver={startOver}
-            calcDefaults={calcDefaults}
-            onSave={handleSave}
-            onExport={handleExport}
-            onShare={handleShare}
-            onAskAi={handleAskAi}
-          />
+          <div ref={resultsRef}>
+            <ResultCard
+              result={result}
+              input={input}
+              paintTypeName={selectedPaintType?.name ?? input.paintType}
+              qualityName={selectedQuality?.name ?? null}
+              qualityId={selectedQuality?.id ?? null}
+              qualityPrice={selectedQualityPrice?.price ?? null}
+              qualityPriceCurrency={selectedQualityPrice?.currency ?? null}
+              onAgain={() => setResult(null)}
+              onStartOver={startOver}
+              calcDefaults={calcDefaults}
+              onSave={handleSave}
+              onExport={handleExport}
+              onShare={handleShare}
+              onAskAi={handleAskAi}
+            />
+          </div>
         )}
 
         {result && (
