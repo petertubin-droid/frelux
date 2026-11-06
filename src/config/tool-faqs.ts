@@ -50,7 +50,7 @@ export const FAQ_CATEGORIES: { id: FaqCategoryId; label: string }[] = [
   { id: "project", label: "Programme, labour and cash flow" },
   { id: "commercial", label: "Costing and commercial control" },
   { id: "quotes", label: "Quotes and client estimates" },
-  { id: "interiors", label: "Interior decor and window treatments" },
+  { id: "interiors", label: "Home decor and window treatments" },
   { id: "platform", label: "Using FRELUX" },
 ];
 
@@ -143,7 +143,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
     slug: "wallpaper-calculator",
     route: "/wallpaper-calculator",
     name: "Wallpaper Calculator",
-    category: "finishes",
+    category: "interiors",
     questions: [
       {
         q: "How does the wallpaper calculator estimate the number of rolls?",
@@ -151,7 +151,7 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
       },
       {
         q: "Can I estimate wide rolls, US single or double rolls, and mural panels?",
-        a: "Yes. Choose an example roll preset, enter custom dimensions, or select fixed mural panels. Presets are not global standards. Enter the usable dimensions printed on the exact package. Enter the usable width and length of one physical roll, then specify how many physical rolls are inside one priced package. The estimator packs cuts within each physical roll, counts labour per roll, and prices complete packages. Fixed mural panels are counted individually, with an optional panel count per priced set.",
+        a: "Yes. Choose a preset or enter the dimensions printed on the package. Set physical rolls per priced package, or select fixed mural panels and panels per priced set. The estimator packs cuts within roll lengths and prices whole packages; panels are counted individually. Presets are examples, not universal standards.",
       },
       {
         q: "Can I estimate paper, vinyl, non-woven, textile, peel-and-stick and patterned wallpaper?",

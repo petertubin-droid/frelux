@@ -24,13 +24,13 @@ beforeEach(() => {
 });
 
 describe("WindowBlindsEstimator", () => {
-  it("places the page in Interior Decors and links up to the category", () => {
+  it("places the page in Home Decor and links up to the category", () => {
     renderPage();
     const categoryLink = screen
       .getAllByRole("link")
       .find((a) => a.getAttribute("href") === "/tools/interiors");
     expect(categoryLink).toBeTruthy();
-    expect(screen.getAllByText("Interior Decors").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Home Decor").length).toBeGreaterThan(0);
   });
 
   it("leaves tax unapplied when no rate is entered", () => {

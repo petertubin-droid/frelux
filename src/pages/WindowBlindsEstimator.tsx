@@ -265,13 +265,13 @@ export default function WindowBlindsEstimator() {
       <Container className="py-8 md:py-12">
         <PageHeader
           variant="tool"
-          eyebrow="Interior Decors"
+          eyebrow="Home Decor"
           title="Window blind estimator"
           subtitle="List every opening, pick the type and grade, and see the price per window and for the whole job before a shop quotes you."
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
-            { label: "Interior Decors", path: "/tools/interiors" },
+            { label: "Home Decor", path: "/tools/interiors" },
             { label: "Window blinds" },
           ]}
         />

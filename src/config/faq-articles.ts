@@ -51,6 +51,31 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
   },
 
+  "wallpaper-calculator": {
+    summary:
+      "Plans wallpaper rolls or mural panels from measured walls, product dimensions, pattern repeat and your own budget inputs.",
+    description:
+      "A wallpaper order starts with the wall, but the quantity depends on the product width, roll length, pattern match and the cuts that fit within each roll. This calculator works from those details and shows how the estimate is assembled, while keeping wall area and full height drops distinct.",
+    functions: [
+      "Counts full height drops across each wall from its measured width and the product width.",
+      "Calculates cut lengths from wall height, trimming allowance and the pattern repeat you enter.",
+      "Packs cut lengths against usable roll length, then rounds to whole rolls or priced packages.",
+      "Estimates fixed mural panels separately, using their dimensions and panels per priced set.",
+      "Shows opening area as a deduction while retaining full height drops across the wall for ordering.",
+    ],
+    advantages: [
+      "Product dimensions and pattern repeat remain visible inputs, not hidden market assumptions.",
+      "The roll takeoff and wall area are reported separately, so an opening deduction cannot conceal the ordering method.",
+      "Material and fitting prices are entered by the user and are not labelled as live supplier prices.",
+      "Multiple walls, package formats and mural panels can be planned in one estimate.",
+    ],
+    limits: [
+      "It does not create a full installer cutting plan or use the positions of doors and windows to recover offcuts.",
+      "Pattern direction, batch matching, substrate preparation and product hanging instructions require product and site checks.",
+      "Example roll presets are not universal standards; verify usable dimensions on the package.",
+      "Prices and fitting rates are manual inputs, not verified market data, and tax is not inferred.",
+    ],
+  },
   "window-blinds": {
     summary:
       "Prices a schedule of window blinds per window and per square metre, with the minimum charge and the waste allowance shown.",

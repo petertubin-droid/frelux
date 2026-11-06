@@ -108,9 +108,9 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   },
   {
     id: "interiors",
-    label: "Interior Decors",
+    label: "Home Decor",
     blurb:
-      "Interior decor, TV consoles, media units, window treatments and blinds.",
+      "Wallpaper, interior finishes, TV consoles, media units, window treatments and blinds.",
   },
   {
     id: "project",
@@ -237,7 +237,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   {
     slug: "wallpaper",
     title: "Wallpaper Calculator",
-    category: "finishes",
+    category: "interiors",
     icon: Blinds,
     does: "Estimate wallpaper rolls, adhesive packs and an optional installation budget from measured wall drops.",
     enters: "Wall dimensions, openings, roll size, pattern repeat and your local material and labour quotes.",

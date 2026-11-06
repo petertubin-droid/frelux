@@ -303,6 +303,9 @@ export default function PopCeilingCalculator({
     setTimeout(() => setSaveMsg(""), 3000);
   }
 
+  const { resultsRef, handleCalculate: calculateWithScroll } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   if (loading) {
     return (
       <>
@@ -326,8 +329,6 @@ export default function PopCeilingCalculator({
     );
   }
 
-  const { resultsRef, handleCalculate: calculateWithScroll } =
-    useCalculatorFeedback<HTMLDivElement>();
   return (
     <>
       {!embedded && (

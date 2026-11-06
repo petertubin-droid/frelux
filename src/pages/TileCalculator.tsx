@@ -633,6 +633,9 @@ export default function TileCalculator({
     setTimeout(() => setSaveMsg(""), 3000);
   }
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   if (loading) {
     return (
       <>
@@ -658,9 +661,6 @@ export default function TileCalculator({
       </>
     );
   }
-
-  const { fieldsRef, resultsRef, missing, handleCalculate } =
-    useCalculatorFeedback<HTMLDivElement>();
 
   return (
     <>

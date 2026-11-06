@@ -8,22 +8,28 @@ import {
 describe("tool catalogue categories", () => {
   const categoryIds = TOOL_CATEGORIES.map((c) => c.id);
 
-  it("publishes an Interior Decors category", () => {
-    const interiors = TOOL_CATEGORIES.find((c) => c.id === "interiors");
-    expect(interiors?.label).toBe("Interior Decors");
-    expect(interiors?.blurb.length).toBeGreaterThan(20);
+  it("publishes a Home Decor category", () => {
+    const homeDecor = TOOL_CATEGORIES.find((c) => c.id === "interiors");
+    expect(homeDecor?.label).toBe("Home Decor");
+    expect(homeDecor?.blurb.length).toBeGreaterThan(20);
   });
 
-  it("files the TV console calculator under Interior Decors", () => {
+  it("files the TV console calculator under Home Decor", () => {
     const consoleTool = CONSTRUCTION_TOOLS.find((t) => t.slug === "tv-console-calculator");
     expect(consoleTool?.category).toBe("interiors");
     expect(consoleTool?.to).toBe("/tv-console-calculator");
   });
 
-  it("files the window blind calculator under Interior Decors", () => {
+  it("files the window blind calculator under Home Decor", () => {
     const blinds = CONSTRUCTION_TOOLS.find((t) => t.slug === "window-blinds");
     expect(blinds).toBeDefined();
     expect(blinds?.category).toBe("interiors");
+  });
+
+  it("files the wallpaper calculator under Home Decor", () => {
+    const wallpaper = CONSTRUCTION_TOOLS.find((t) => t.slug === "wallpaper");
+    expect(wallpaper).toBeDefined();
+    expect(wallpaper?.category).toBe("interiors");
   });
 
   it("only uses categories that exist", () => {

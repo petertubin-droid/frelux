@@ -384,7 +384,7 @@ export default function TvConsoleCalculator() {
     <main className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
       <PageHeader
         title="TV Console & Media Unit Calculator"
-        eyebrow="Interior decor · panel, sheet and cost takeoff"
+        eyebrow="Home decor · panel, sheet and cost takeoff"
         subtitle="Choose a concept, set the carcass details, and see the panel arithmetic, the packed sheet count, edge banding, hardware and a full cost roll-up from your own rates. Planning estimate, not a cut list."
       />
       <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">

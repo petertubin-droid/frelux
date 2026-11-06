@@ -19,7 +19,7 @@ export const CATEGORY_LABELS = {
   structure: "Building Structure",
   services: "Building Services",
   components: "Building Components",
-  interiors: "Interior Decors",
+  interiors: "Home Decor",
   project: "Project & Cost",
   ai: "AI Assistants",
   pro: "Pro & Field",
@@ -46,7 +46,7 @@ const CATEGORY_BLURBS = {
   components:
     "Doors and windows as configurable components, with the frame, leaf and finishing quantities that follow from each opening.",
   interiors:
-    "Window treatments and the pieces that dress a finished room, priced from the measured opening with waste, panel joins, minimum charges and fitting kept separate.",
+    "Wallpaper, window treatments and room finishes, with quantities and budgets based on measured surfaces, product dimensions and the prices you enter.",
   project:
     "Budgets, bills of quantities, labour, timelines and long-term cost planning, tied to the same quantities the calculators produce.",
   ai: "Photo, chat and vision assistants that read a drawing, a plan or a site photo, then hand the extracted measurements to the deterministic engines.",

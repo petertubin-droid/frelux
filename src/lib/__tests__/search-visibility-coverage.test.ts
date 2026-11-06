@@ -3,7 +3,7 @@
  *
  * A new category or tool is only discoverable if every layer knows about it:
  * the SPA route, the prerendered HTML, the noscript body, the sitemap, and the
- * crawler-facing summary. When Interior Decors shipped, the catalogue and the
+ * crawler-facing summary. When the interiors category shipped, the catalogue and the
  * page were correct but the category had no prerendered page, no sitemap entry
  * and no static body, so the page existed without being reachable.
  *
@@ -96,9 +96,9 @@ describe("tool parity across the visibility layers", () => {
     expect(llmsTxt).toContain(`${SITE}/faq/window-blinds/`);
   });
 
-  it("finds the blind calculator filed under Interior Decors", () => {
+  it("finds the blind calculator filed under Home Decor", () => {
     const interiors = TOOL_CATEGORIES.find((c) => c.id === "interiors");
-    expect(interiors?.label).toBe("Interior Decors");
+    expect(interiors?.label).toBe("Home Decor");
     const blinds = CONSTRUCTION_TOOLS.find(
       (t) => t.to === "/window-blind-calculator",
     );

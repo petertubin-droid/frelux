@@ -2626,9 +2626,9 @@ const routes = [
   },
   {
     path: "/tools/interiors",
-    title: "Interior Decor Tools and Calculators | FRELUX SMART CALC",
+    title: "Home Decor Tools and Calculators | FRELUX SMART CALC",
     description:
-      "Price window blinds and interior finishing work from measured openings, with waste, panel joins, minimum charges and fitting shown separately.",
+      "Estimate wallpaper rolls, mural panels, window blinds and interior finishes from measured dimensions and product details.",
     priority: "0.8",
     changefreq: "monthly",
   },
