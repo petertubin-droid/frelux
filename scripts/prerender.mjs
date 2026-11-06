@@ -3322,7 +3322,10 @@ async function fetchLearnPages() {
                 name: "FRELUX",
                 logo: {
                   "@type": "ImageObject",
-                  url: `${SITE_URL}/favicon-32.png`,
+                  // Google needs a logo of at least 112 px; a 32 px favicon fails.
+                  url: `${SITE_URL}/icon-512.png`,
+                  width: 512,
+                  height: 512,
                 },
               },
               datePublished,

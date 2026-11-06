@@ -52,11 +52,11 @@ describe("LogoMark", () => {
   it("swaps to the white knock-out for dark surfaces", () => {
     const light = render(<LogoMark variant="light" />);
     expect(light.container.querySelector("img")?.getAttribute("src")).toBe(
-      "/logo-mark-light.png",
+      "/brand/frelux-mark-light.svg",
     );
     const dark = render(<LogoMark variant="dark" />);
     expect(dark.container.querySelector("img")?.getAttribute("src")).toBe(
-      "/logo-mark.png",
+      "/brand/frelux-mark.svg",
     );
   });
 

@@ -64,6 +64,12 @@ describe("brand assets behind link previews", () => {
     };
     for (const icon of manifest.icons) {
       expect(existsSync(`public${icon.src}`), icon.src).toBe(true);
+      if (icon.src.endsWith(".svg")) {
+        // Vector entries declare "any" and are checked by their viewBox instead.
+        expect(icon.sizes, icon.src).toBe("any");
+        expect(read(`public${icon.src}`)).toContain('viewBox="0 0 512 512"');
+        continue;
+      }
       const size = pngSize(`public${icon.src}`);
       expect(`${size.width}x${size.height}`, icon.src).toBe(icon.sizes);
     }
@@ -111,5 +117,108 @@ describe("brand assets behind link previews", () => {
     for (const name of referenced) {
       expect(existsSync(`public/${name}`), name).toBe(true);
     }
+  });
+});
+
+describe("site icon set", () => {
+  const icoSizes = () => {
+    const buf = readFileSync("public/favicon.ico");
+    const count = buf.readUInt16LE(4);
+    const sizes: number[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const base = 6 + i * 16;
+      const declared = buf.readUInt8(base) || 256;
+      sizes.push(declared);
+    }
+    return sizes;
+  };
+
+  it("ships every icon size the browsers and platforms ask for", () => {
+    const expected: Record<string, number> = {
+      "public/favicon-16.png": 16,
+      "public/favicon-32.png": 32,
+      "public/favicon-48.png": 48,
+      "public/apple-touch-icon.png": 180,
+      "public/icon-192.png": 192,
+      "public/icon-512.png": 512,
+      "public/icon-maskable-512.png": 512,
+    };
+    for (const [path, size] of Object.entries(expected)) {
+      expect(existsSync(path), path).toBe(true);
+      expect(pngSize(path), path).toEqual({ width: size, height: size });
+    }
+    expect(existsSync("public/favicon.svg")).toBe(true);
+  });
+
+  it("packs three resolutions into the ico container", () => {
+    expect(icoSizes().sort((a, b) => a - b)).toEqual([16, 32, 48]);
+  });
+
+  it("keeps the tab icon legible: a solid tile, not a thin sliver of art", async () => {
+    const sharp = (await import("sharp")).default;
+    const { data, info } = await sharp("public/favicon-32.png")
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    let opaque = 0;
+    let glyph = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] > 200) opaque += 1;
+      // White glyph pixels against the purple tile.
+      if (data[i] > 220 && data[i + 1] > 220 && data[i + 2] > 220) glyph += 1;
+    }
+    const total = info.width * info.height;
+    // A rounded tile fills most of the frame; the white monogram is a real mark.
+    expect(opaque / total).toBeGreaterThan(0.85);
+    expect(glyph / total).toBeGreaterThan(0.08);
+    expect(glyph / total).toBeLessThan(0.35);
+  });
+
+  it("bleeds the maskable and apple icons edge to edge", async () => {
+    const sharp = (await import("sharp")).default;
+    for (const path of [
+      "public/icon-maskable-512.png",
+      "public/apple-touch-icon.png",
+    ]) {
+      const { data, info } = await sharp(path)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      // Top-left corner must be opaque: no transparent wedge when a platform mask clips it.
+      expect(data[3], path).toBe(255);
+      expect(data[(info.width - 1) * 4 + 3], path).toBe(255);
+    }
+  });
+
+  it("ships the in-app mark as vector with a square frame", () => {
+    for (const path of [
+      "public/brand/frelux-mark.svg",
+      "public/brand/frelux-mark-light.svg",
+    ]) {
+      const svg = read(path);
+      expect(svg).toContain('viewBox="0 0 512 512"');
+      expect(svg).toContain("#6D28D9");
+    }
+  });
+
+  it("declares one brand colour across the manifest and the browser chrome", () => {
+    const manifest = JSON.parse(read("public/manifest.json"));
+    expect(manifest.theme_color).toBe("#6D28D9");
+    const icons = manifest.icons.map((icon: { src: string }) => icon.src);
+    expect(icons).toContain("/favicon.svg");
+    expect(icons).toContain("/icon-maskable-512.png");
+    expect(
+      manifest.icons.some(
+        (icon: { purpose?: string }) => icon.purpose === "maskable",
+      ),
+    ).toBe(true);
+    const index = read("index.html");
+    expect(index).toContain(
+      'content="#6D28D9" media="(prefers-color-scheme: light)"',
+    );
+    expect(index).toContain(
+      '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />',
+    );
+    expect(index).not.toContain('content="#7C3AED"');
   });
 });

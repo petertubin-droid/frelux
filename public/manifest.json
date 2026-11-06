@@ -7,13 +7,19 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "background_color": "#FFFFFF",
-  "theme_color": "#4B0082",
+  "theme_color": "#6D28D9",
   "orientation": "any",
   "scope": "/",
   "lang": "en",
   "dir": "ltr",
   "categories": ["business", "productivity", "lifestyle", "utilities"],
   "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",

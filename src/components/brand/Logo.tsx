@@ -55,7 +55,7 @@ export default function Logo({
         />
       ) : (
         <LogoMark
-          className="h-9 w-auto shrink-0"
+          className="h-9 w-9 shrink-0"
           variant={light || theme === "dark" ? "light" : "dark"}
         />
       )}
@@ -98,12 +98,12 @@ export function LogoMark({
   const light = variant === "light" || (variant === "auto" && theme === "dark");
   return (
     <img
-      src={light ? "/logo-mark-light.png" : "/logo-mark.png"}
+      src={light ? "/brand/frelux-mark-light.svg" : "/brand/frelux-mark.svg"}
       alt={`${siteConfig.name} logo`}
       aria-hidden="true"
       width={size}
       height={size}
-      className={className}
+      className={classNames("aspect-square object-contain", className)}
     />
   );
 }
