@@ -42,3 +42,38 @@ export function cartoTileUrl(
   const base = `https://${subdomain}.basemaps.cartocdn.com/${LAYER_PATH[layer]}/${z}/${x}/${y}@2x.png`;
   return key ? `${base}?key=${encodeURIComponent(key)}` : base;
 }
+
+/** True when the build carries a CARTO basemap key. */
+export function cartoConfigured(key: string = cartoApiKey()): boolean {
+  return key.trim().length > 0;
+}
+
+const OSM_ATTRIBUTION = "© OpenStreetMap contributors";
+const CARTO_ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
+
+/**
+ * One raster tile for the non-WebGL map, in colour.
+ *
+ * Keyless CARTO answers with an "API KEY REQUIRED" watermark, which renders as a
+ * flat grey sheet rather than a map, so the unkeyed path falls back to
+ * OpenStreetMap standard tiles. They are in colour and need no key; CARTO stays
+ * the preferred source when the build has one.
+ */
+export function basemapRasterUrl(
+  subdomain: string,
+  dark: boolean,
+  z: number,
+  x: number,
+  y: number,
+  key: string = cartoApiKey(),
+): string {
+  if (cartoConfigured(key)) {
+    return cartoTileUrl(subdomain, dark ? "dark" : "light", z, x, y, key);
+  }
+  const sub = subdomain === "d" ? "a" : subdomain;
+  return `https://${sub}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+}
+
+export function basemapAttribution(key: string = cartoApiKey()): string {
+  return cartoConfigured(key) ? CARTO_ATTRIBUTION : OSM_ATTRIBUTION;
+}

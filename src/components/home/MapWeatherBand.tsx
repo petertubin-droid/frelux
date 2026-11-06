@@ -121,7 +121,7 @@ export default function MapWeatherBand() {
   return (
     <section
       aria-label={t("Map and measurements")}
-      className="relative w-full overflow-hidden border-y border-border/60 bg-background"
+      className="relative w-full overflow-hidden bg-background"
     >
       {/* Heading: full width, the widgets below run to the viewport edges */}
       <div className="px-4 pb-8 pt-14 sm:px-6 sm:pt-16 lg:px-10">
@@ -182,18 +182,19 @@ export default function MapWeatherBand() {
             </Link>
           </div>
 
-          <div className="px-4 pb-4 pt-3 sm:px-6 lg:px-8">
+          <div className="pt-3">
             <Suspense
               fallback={
                 <div
-                  className="w-full animate-pulse rounded-xl bg-muted/50 dark:bg-white/5"
+                  className="w-full animate-pulse bg-muted/50 dark:bg-white/5"
                   style={{ height: "clamp(260px, 40vw, 420px)" }}
                   aria-hidden="true"
                 />
               }
             >
               <GlobeMap
-                className="frelux-map-surface overflow-hidden rounded-xl"
+                bleed
+                className="frelux-map-surface"
                 points={points}
                 center={viewerPoint}
                 height="clamp(260px, 40vw, 420px)"

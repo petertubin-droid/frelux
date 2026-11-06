@@ -3,6 +3,7 @@ import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   ArrowUpRight,
+  Crosshair,
   Compass,
   Globe2,
   Maximize2,
@@ -19,7 +20,9 @@ import { defaultMapOpening } from "@/lib/map/defaults";
 import { Raster2DMap } from "@/components/map/Raster2DMap";
 
 const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
-const DARK_STYLE = "https://tiles.openfreemap.org/styles/dark";
+// "dark" paints at zero saturation, which reads as a grey sheet. "fiord" keeps
+// colour in dark mode while staying dark enough for the chrome to sit on.
+const DARK_STYLE = "https://tiles.openfreemap.org/styles/fiord";
 // Terrain tiles from the public AWS elevation set (Terrarium encoding).
 const TERRAIN_TILES =
   "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
@@ -28,6 +31,8 @@ export interface GlobeMapProps {
   points: MapPoint[];
   /** Where the map opens when there are no points to fit. */
   center?: { lat: number; lon: number } | null;
+  /** Borderless, full bleed surface blending into the page background. */
+  bleed?: boolean;
   /** Opening zoom; defaults to the visitor's region, or the whole globe. */
   zoom?: number;
   /** Fly the camera here whenever `key` changes (place search, deep links). */
@@ -93,6 +98,7 @@ export function GlobeMap({
   height = 420,
   className,
   interactive = true,
+  bleed = false,
   showTerrain = true,
   onSelect,
   onPickCoordinate,
@@ -124,6 +130,10 @@ export function GlobeMap({
   }, []);
   const [ready, setReady] = useState(false);
   const [rasterFallback, setRasterFallback] = useState(false);
+  const [userPin, setUserPin] = useState<MapPoint | null>(null);
+  const [locateState, setLocateState] = useState<
+    "idle" | "locating" | "ready" | "denied"
+  >("idle");
   const [view, setView] = useState<ViewState>({
     bearing: 0,
     pitch: 0,
@@ -222,6 +232,16 @@ export function GlobeMap({
           return;
         }
         mapRef.current = map;
+
+        // Pinch is the primary zoom on a phone. Rotation stays off so a
+        // two-finger gesture can never twist the map away from north.
+        try {
+          map.touchZoomRotate.enable();
+          map.touchZoomRotate.disableRotation();
+          map.doubleClickZoom.enable();
+        } catch {
+          // Older runtimes already enable these by default.
+        }
 
         // If a browser creates WebGL but cannot render the style, switch to
         // the non-WebGL raster renderer instead of leaving a blank map.
@@ -356,7 +376,8 @@ export function GlobeMap({
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
-      for (const point of points) {
+      const plotted = userPin ? [...points, userPin] : points;
+      for (const point of plotted) {
         const el = document.createElement("button");
         el.type = "button";
         el.setAttribute(
@@ -496,6 +517,40 @@ export function GlobeMap({
     [view.bearing],
   );
 
+  // Ask the browser for the visitor's position, then plot it as a pin. The
+  // request only runs on a tap, so opening a page never prompts for location.
+  const locate = useCallback(() => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setLocateState("denied");
+      return;
+    }
+    setLocateState("locating");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const pin: MapPoint = {
+          id: "you",
+          kind: "you",
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+          title: "Your location",
+          meta: `±${Math.round(position.coords.accuracy)} m`,
+        };
+        setUserPin(pin);
+        setLocateState("ready");
+        const map = mapRef.current;
+        if (map) {
+          map.flyTo({
+            center: [pin.lon, pin.lat],
+            zoom: Math.max(map.getZoom(), 13),
+            duration: 900,
+          });
+        }
+      },
+      () => setLocateState("denied"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  }, []);
+
   const resetNorth = () => {
     mapRef.current?.easeTo({
       bearing: 0,
@@ -521,6 +576,7 @@ export function GlobeMap({
         height={height}
         className={className}
         interactive={interactive}
+        bleed={bleed}
         onSelect={onSelect}
         onPickCoordinate={onPickCoordinate}
         activeId={activeId}
@@ -536,7 +592,10 @@ export function GlobeMap({
     <div
       ref={rootRef}
       className={classNames(
-        "frelux-map frelux-map--enter relative isolate overflow-hidden rounded-2xl border border-border/70 bg-muted/40 shadow-[0_30px_80px_-50px_rgba(16,12,40,0.55)] dark:border-white/10 dark:bg-background",
+        "frelux-map frelux-map--enter relative isolate overflow-hidden",
+        bleed
+          ? "frelux-map--bleed bg-background"
+          : "rounded-2xl border border-border/70 bg-muted/40 shadow-[0_30px_80px_-50px_rgba(16,12,40,0.55)] dark:border-white/10 dark:bg-background",
         fullscreen && "rounded-none border-0",
         className,
       )}
@@ -577,6 +636,27 @@ export function GlobeMap({
       {/* Compass dial + zoom keys */}
       {ready && interactive && (
         <div className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={locate}
+            className="frelux-map__dial group"
+            aria-label={
+              locateState === "denied"
+                ? "Location unavailable. Allow location access to place your pin."
+                : "Show my current location"
+            }
+            title="Show my current location"
+            data-locate-state={locateState}
+          >
+            <Crosshair
+              className={classNames(
+                "h-4 w-4",
+                locateState === "locating" && "animate-pulse",
+                locateState === "ready" && "text-emerald-500",
+              )}
+              aria-hidden="true"
+            />
+          </button>
           <button
             type="button"
             onClick={resetNorth}

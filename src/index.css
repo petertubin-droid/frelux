@@ -2415,3 +2415,38 @@ h2 {
     animation: none;
   }
 }
+
+/* Borderless map surface: the map blends into the page background instead of
+   sitting inside a framed card, and spans its container edge to edge. */
+.frelux-map--bleed {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: hsl(var(--background));
+}
+
+/* Current location pin: a steady core with a slow halo so it reads as "you"
+   rather than as another record. */
+.frelux-pin--you .frelux-pin__halo {
+  animation: frelux-you-pulse 2.6s ease-out infinite;
+}
+
+@keyframes frelux-you-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frelux-pin--you .frelux-pin__halo {
+    animation: none;
+  }
+}

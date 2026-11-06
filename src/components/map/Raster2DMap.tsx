@@ -9,7 +9,11 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 import { Link } from "react-router-dom";
-import { cartoApiKey, cartoTileUrl } from "@/lib/map/cartoTiles";
+import {
+  basemapAttribution,
+  basemapRasterUrl,
+  cartoApiKey,
+} from "@/lib/map/cartoTiles";
 import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 import {
   ArrowUpRight,
@@ -39,6 +43,8 @@ export interface Raster2DMapProps {
   height?: number | string;
   className?: string;
   interactive?: boolean;
+  /** Borderless, full bleed surface that blends into the page background. */
+  bleed?: boolean;
   onSelect?: (point: MapPoint) => void;
   onPickCoordinate?: (coords: { lat: number; lon: number }) => void;
   activeId?: string | null;
@@ -95,6 +101,7 @@ export function Raster2DMap({
   height = 420,
   className,
   interactive = true,
+  bleed = false,
   onSelect,
   onPickCoordinate,
   activeId,
@@ -154,6 +161,15 @@ export function Raster2DMap({
   }, [cartoKey]);
   const [fullscreen, setFullscreen] = useState(false);
   const [selected, setSelected] = useState<MapPoint | null>(null);
+  const pinch = useRef<{
+    active: boolean;
+    startDist: number;
+    startZoom: number;
+  }>({
+    active: false,
+    startDist: 0,
+    startZoom: 0,
+  });
   const drag = useRef<{
     active: boolean;
     moved: boolean;
@@ -332,7 +348,19 @@ export function Raster2DMap({
     }
   };
   const handleTouchStart = (event: ReactTouchEvent) => {
-    if (!interactive || event.touches.length !== 1) return;
+    if (!interactive) return;
+    // Two fingers pinch the map instead of paging the document.
+    if (event.touches.length === 2) {
+      const [a, b] = [event.touches[0], event.touches[1]];
+      pinch.current = {
+        active: true,
+        startDist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+        startZoom: zoom,
+      };
+      drag.current.active = false;
+      return;
+    }
+    if (event.touches.length !== 1) return;
     const touch = event.touches[0];
     drag.current = {
       active: true,
@@ -343,6 +371,17 @@ export function Raster2DMap({
     };
   };
   const handleTouchMove = (event: ReactTouchEvent) => {
+    if (!interactive) return;
+    if (event.touches.length === 2 && pinch.current.active) {
+      const [a, b] = [event.touches[0], event.touches[1]];
+      const spread = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      if (pinch.current.startDist > 0 && spread > 0) {
+        const next =
+          pinch.current.startZoom + Math.log2(spread / pinch.current.startDist);
+        setZoom(clamp(Math.round(next * 10) / 10, 2, 18));
+      }
+      return;
+    }
     if (!drag.current.active || event.touches.length !== 1) return;
     const touch = event.touches[0];
     if (
@@ -402,8 +441,10 @@ export function Raster2DMap({
         const sub = ["a", "b", "c", "d"][Math.abs(wrappedX + y) % 4];
         result.push({
           key: `${level}-${x}-${y}`,
-          src: cartoTileUrl(sub, dark ? "dark" : "light", level, wrappedX, y, cartoKey),
-          fallback: `https://tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`,
+          src: basemapRasterUrl(sub, dark, level, wrappedX, y, cartoKey),
+          // A failed tile retries against the other provider, so a single
+          // missing tile never leaves a hole in the surface.
+          fallback: `https://a.tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`,
           left: Math.round((x * TILE_SIZE - origin.x) * scale + size.width / 2),
           top: Math.round((y * TILE_SIZE - origin.y) * scale + size.height / 2),
           size: Math.ceil(TILE_SIZE * scale),
@@ -447,7 +488,10 @@ export function Raster2DMap({
     <div
       ref={rootRef}
       className={classNames(
-        "frelux-map frelux-map--enter relative isolate overflow-hidden rounded-2xl border border-border/70 bg-muted/40 shadow-[0_30px_80px_-50px_rgba(16,12,40,0.55)] select-none dark:border-white/10 dark:bg-background",
+        "frelux-map frelux-map--enter relative isolate overflow-hidden select-none",
+        bleed
+          ? "frelux-map--bleed bg-background"
+          : "rounded-2xl border border-border/70 bg-muted/40 shadow-[0_30px_80px_-50px_rgba(16,12,40,0.55)] dark:border-white/10 dark:bg-background",
         fullscreen && "rounded-none border-0",
         className,
       )}
@@ -468,6 +512,7 @@ export function Raster2DMap({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={() => {
+          pinch.current.active = false;
           drag.current.active = false;
         }}
         onWheel={handleWheel}
@@ -684,16 +729,21 @@ export function Raster2DMap({
             className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
           >
             OpenStreetMap
-          </a>{" "}
-          ·{" "}
-          <a
-            href="https://carto.com/attributions"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
-          >
-            CARTO
           </a>
+          {cartoKey && (
+            <>
+              {" "}
+              ·{" "}
+              <a
+                href="https://carto.com/attributions"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
+              >
+                CARTO
+              </a>
+            </>
+          )}
         </span>
       </div>
 

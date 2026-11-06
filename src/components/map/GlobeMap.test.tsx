@@ -22,23 +22,38 @@ describe("GlobeMap", () => {
     render(
       <MemoryRouter>
         <GlobeMap
-          points={[{
-            id: "test-pro",
-            lat: 51.5074,
-            lon: -0.1278,
-            title: "London builder",
-            kind: "pro",
-          }]}
+          points={[
+            {
+              id: "test-pro",
+              lat: 51.5074,
+              lon: -0.1278,
+              title: "London builder",
+              kind: "pro",
+            },
+          ]}
           center={{ lat: 51.5074, lon: -0.1278 }}
           label="Professionals map"
         />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("application", { name: "Professionals map" })).toBeTruthy();
-    expect(await screen.findByRole("button", { name: "Professional: London builder" })).toBeTruthy();
+    expect(
+      screen.getByRole("application", { name: "Professionals map" }),
+    ).toBeTruthy();
+    expect(
+      await screen.findByRole("button", {
+        name: "Professional: London builder",
+      }),
+    ).toBeTruthy();
     expect(screen.getByText("2D mode for browser compatibility")).toBeTruthy();
-    expect(document.querySelector('img[src*="basemaps.cartocdn.com"]')).toBeTruthy();
+    // Tile imagery must come from a real basemap, never the unkeyed CARTO
+    // watermark sheet that renders as a blank grey surface.
+    const tiles = Array.from(document.querySelectorAll("img")).filter((img) =>
+      /tile\.openstreetmap\.org|basemaps\.cartocdn\.com/.test(
+        img.getAttribute("src") ?? "",
+      ),
+    );
+    expect(tiles.length).toBeGreaterThan(0);
     expect(screen.queryByText(/needs WebGL/i)).toBeNull();
   });
 });
