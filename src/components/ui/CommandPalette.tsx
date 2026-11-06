@@ -63,6 +63,15 @@ const ALL_COMMANDS: CommandItem[] = [
     category: "Calculators",
   },
   {
+    id: "wallpaper-calc",
+    label: "Wallpaper Calculator",
+    description: "Estimate wallpaper rolls and installation budget",
+    icon: Layers,
+    path: "/wallpaper-calculator",
+    keywords: "wall covering rolls wallpaper adhesive pattern",
+    category: "Calculators",
+  },
+  {
     id: "tile-calc",
     label: "Tile Calculator",
     description: "Calculate tile quantities",

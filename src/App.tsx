@@ -94,6 +94,7 @@ const PopCeilingCalculatorHub = lazy(
   () => import("@/pages/PopCeilingCalculatorHub"),
 );
 const TileCalculatorHub = lazy(() => import("@/pages/TileCalculatorHub"));
+const WallpaperCalculator = lazy(() => import("@/pages/WallpaperCalculator"));
 const FinishingCalculatorHub = lazy(
   () => import("@/pages/FinishingCalculatorHub"),
 );
@@ -984,6 +985,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <PopCeilingCalculatorHub />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/wallpaper-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <WallpaperCalculator />
                             </Suspense>
                           }
                         />

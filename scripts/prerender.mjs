@@ -657,6 +657,32 @@ const routes = [
     ],
   },
   {
+    path: "/wallpaper-calculator",
+    title: "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
+    description: "Estimate wallpaper rolls from measured walls, openings, roll dimensions and pattern repeat. See a wall-strip diagram and an editable material and installation budget.",
+    priority: "0.8",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX Wallpaper Calculator",
+        applicationCategory: "CalculatorApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0" },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "Construction Tools", item: `${SITE_URL}/construction-tools` },
+          { "@type": "ListItem", position: 3, name: "Wallpaper Calculator", item: `${SITE_URL}/wallpaper-calculator` },
+        ],
+      },
+    ],
+  },
+  {
     path: "/tile-calculator",
     title: "Tile Calculator: How Many Tiles Do I Need? | FRELUX SMART CALC",
     description:

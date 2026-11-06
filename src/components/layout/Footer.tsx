@@ -32,6 +32,7 @@ const calculateLinks = [
   { label: "Screeding Calculator", path: "/screeding-calculator" },
   { label: "POP Ceiling Calculator", path: "/pop-ceiling-calculator" },
   { label: "Tile Calculator", path: "/tile-calculator" },
+  { label: "Wallpaper Calculator", path: "/wallpaper-calculator" },
   { label: "Finishing Calculator", path: "/finish-estimator" },
 ];
 

@@ -35,6 +35,7 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
     test: /^\/(window-blind|blinds)/,
     image: "/assets/headers/blinds.jpg",
   },
+  { test: /^\/wallpaper/, image: "/assets/headers/paint.jpg" },
   { test: /^\/screeding/, image: "/assets/headers/screed.jpg" },
   { test: /^\/pop-ceiling/, image: "/assets/headers/pop.jpg" },
   { test: /^\/(tile|flooring)/, image: "/assets/headers/tile.jpg" },

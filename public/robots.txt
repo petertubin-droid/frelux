@@ -18,6 +18,7 @@ Allow: /start-building
 Allow: /paint-calculator
 Allow: /screeding-calculator
 Allow: /pop-ceiling-calculator
+Allow: /wallpaper-calculator
 Allow: /tile-calculator
 Allow: /finish-estimator
 Allow: /build-to-roof-estimator

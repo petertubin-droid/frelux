@@ -80,6 +80,7 @@ const routes = [
   { path: "/paint-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/screeding-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/pop-ceiling-calculator", priority: "0.8", changefreq: "monthly" },
+  { path: "/wallpaper-calculator", priority: "0.8", changefreq: "monthly" },
   { path: "/tile-calculator", priority: "0.8", changefreq: "monthly" },
   { path: "/finish-estimator", priority: "0.7", changefreq: "monthly" },
   { path: "/colors", priority: "0.8", changefreq: "weekly" },
