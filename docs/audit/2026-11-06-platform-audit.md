@@ -329,6 +329,35 @@ fails the migration if an unaliased reference returns. A test pins the shape. Th
 lesson recorded here: this function has now produced this defect three times, and
 only execution catches it.
 
+### The red CI run and the grant it was hiding
+
+The failing CI step was "Privileged grant locks", not the tests: recreating
+`dispatch_market_scans` in `20261106130000` and `20261106140000` reissued the
+PostgreSQL default EXECUTE grant to PUBLIC, which `20261106150000` relocked. That
+commit made CI green again, but it was never applied to production, and the gate
+did not list the audit's own SECURITY DEFINER additions:
+
+```
+sync_price_evidence_counts   acl = NULL (default PUBLIC execute)
+```
+
+A function that writes `market_material_prices` was callable through PostgREST by
+any anonymous client, while CI reported green. `20261106160000` revokes PUBLIC,
+anon and authenticated from `sync_price_evidence_counts` and
+`market_price_observation_guard`, keeps the reporting functions
+(`price_scan_coverage`, `price_market_readiness`) on authenticated plus
+service_role, and raises if either privilege returns. The gate now lists all four,
+so a future recreation fails CI instead of passing silently. Both migrations are
+applied:
+
+```
+dispatch_market_scans           postgres=X service_role=X
+market_price_observation_guard  postgres=X service_role=X
+price_market_readiness          postgres=X authenticated=X service_role=X
+price_scan_coverage             postgres=X authenticated=X service_role=X
+sync_price_evidence_counts      postgres=X service_role=X
+```
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access

@@ -63,6 +63,8 @@ PROTECTED = [
     "process_catalogue_responses",
     "recompute_source_reliability",
     "mark_observation_outliers",
+    "sync_price_evidence_counts",
+    "market_price_observation_guard",
     "charge_api_request",
     "consume_reward_grant",
     "get_user_push_subscriptions",
@@ -78,6 +80,8 @@ PROTECTED = [
     "check_pro_level_eligibility",
     "price_group_progress",
     "complete_credit_task",
+    "price_scan_coverage",
+    "price_market_readiness",
 ]
 
 # Names that were never real functions. They are skipped so a rename cannot

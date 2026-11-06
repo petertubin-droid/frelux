@@ -23,6 +23,10 @@ const dedupMigration = read(
 const countersMigration = read(
   "supabase/migrations/20261106113000_price_scan_run_counters.sql",
 );
+const lockMigration = read(
+  "supabase/migrations/20261106160000_lock_price_evidence_sync.sql",
+);
+const grantGate = read("scripts/check-privileged-grants.py");
 const scanFn = read("supabase/functions/price-intel-scan/index.ts");
 
 /** The conflict target the writer actually sends to PostgREST. */
@@ -99,6 +103,38 @@ describe("price observation integrity", () => {
     ]) {
       expect(written).toContain(`${column}:`);
       expect(countersMigration).toContain(`add column if not exists ${column}`);
+    }
+  });
+
+  it("locks the SECURITY DEFINER evidence functions to service_role", () => {
+    // Production carried acl = NULL (default PUBLIC execute) on
+    // sync_price_evidence_counts, which writes market_material_prices.
+    for (const fn of [
+      "sync_price_evidence_counts",
+      "market_price_observation_guard",
+    ]) {
+      expect(lockMigration).toContain(
+        `revoke all on function public.${fn}() from public;`,
+      );
+      expect(lockMigration).toContain(
+        `grant execute on function public.${fn}() to service_role;`,
+      );
+    }
+    expect(lockMigration).toContain("still executable by PUBLIC");
+    expect(lockMigration).toContain(
+      "reporting functions still executable by anon",
+    );
+  });
+
+  it("covers the pricing functions in the CI grant gate", () => {
+    // CI went green while the grant stayed open because the gate did not list it.
+    for (const fn of [
+      "sync_price_evidence_counts",
+      "market_price_observation_guard",
+      "price_scan_coverage",
+      "price_market_readiness",
+    ]) {
+      expect(grantGate).toContain(`"${fn}"`);
     }
   });
 
