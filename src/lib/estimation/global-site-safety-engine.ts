@@ -107,8 +107,10 @@ export function calculateSiteSafety(input: SiteSafetyInput): SiteSafetyResult {
     highVisibilityVests: crew + reserve,
     safetyBootPairs: crew,
     fallProtectionUsers: input.hasFallRisk ? workersAtHeight : 0,
+    // A cleared tape-line count means no tape is planned, so it must not be
+    // read as one line. Substituting a value the user removed invents an order.
     excavationTapeMeters: input.hasExcavation
-      ? Math.ceil(excavationPerimeter * Math.max(1, input.tapeLines))
+      ? Math.ceil(excavationPerimeter * safeNonNegative(input.tapeLines))
       : 0,
     excavationSigns: input.hasExcavation
       ? Math.ceil(safeNonNegative(input.excavationSignCount))

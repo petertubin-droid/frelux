@@ -1358,7 +1358,13 @@ export function calculateTallBuilding(
   const raftAloneOk = bearingPressureRaftOnly <= soil.allowable_bearing_kpa;
   // The scheme carries the load when either the raft alone is adequate, or the
   // piles are within capacity and spaced workably.
-  const bearingOk = pilesRequired === 0 ? raftAloneOk : pileLoadOk;
+  // The bearing flag describes the soil contact pressure against the allowable,
+  // so it has to agree with the utilisation printed beside it. Reading it from
+  // the pile check produced a foundation reported as bearing OK at 368 percent
+  // of the allowable, because the piles happened to fit. Whether the scheme
+  // carries the load is reported by pile_load_ok, pile_spacing_ok, settlement_ok
+  // and punching_ok, each on its own criterion.
+  const bearingOk = raftAloneOk;
 
   // Settlement. A raft is treated as a rigid footing on an elastic half space,
   // q B (1 - v²) / Es with v = 0.3. A pile group is treated as an equivalent

@@ -65,4 +65,29 @@ describe("global site safety planning arithmetic", () => {
       "not a universal trigger",
     );
   });
+
+  it("plans no barricade tape when the tape-line count is cleared", () => {
+    // A cleared count used to be read as one line, which invented an order the
+    // user had removed.
+    expect(
+      calculateSiteSafety({ ...base, tapeLines: 0 }).excavationTapeMeters,
+    ).toBe(0);
+  });
+
+  it("plans tape for exactly the lines entered", () => {
+    expect(
+      calculateSiteSafety({ ...base, tapeLines: 3 }).excavationTapeMeters,
+    ).toBe(60);
+  });
+
+  it("plans no tape or excavation signs when there is no excavation", () => {
+    const result = calculateSiteSafety({
+      ...base,
+      hasExcavation: false,
+      tapeLines: 4,
+      excavationSignCount: 6,
+    });
+    expect(result.excavationTapeMeters).toBe(0);
+    expect(result.excavationSigns).toBe(0);
+  });
 });

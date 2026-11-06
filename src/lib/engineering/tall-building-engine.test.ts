@@ -455,3 +455,31 @@ describe("tall building engine: architectural coupling", () => {
     );
   });
 });
+
+describe("tall building engine: bearing honesty", () => {
+  it("never reports bearing OK while the contact pressure exceeds the allowable", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    const { foundation } = result;
+
+    expect(foundation.bearing_utilisation_pct).toBeGreaterThan(100);
+    expect(foundation.bearing_ok).toBe(false);
+    expect(foundation.raft_alone_ok).toBe(false);
+    // The scheme is still viable through the piles, reported on its own flag.
+    expect(foundation.foundation_type).toBe("piled_raft");
+    expect(foundation.pile_load_ok).toBe(true);
+  });
+
+  it("agrees with the utilisation on a raft that does fit", () => {
+    const result = calculateTallBuilding({
+      floors: 8,
+      soil_type: "dense_sand",
+      plan_length: 40,
+      plan_width: 30,
+      live_load_kpa: 2,
+    });
+    const { foundation } = result;
+    expect(foundation.bearing_utilisation_pct).toBeLessThanOrEqual(100);
+    expect(foundation.bearing_ok).toBe(true);
+    expect(foundation.foundation_type).toBe("raft");
+  });
+});
