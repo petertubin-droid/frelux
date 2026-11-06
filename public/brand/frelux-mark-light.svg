@@ -7,10 +7,9 @@
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#tile)"/>
 
-    <g transform="translate(-30.720 -30.720) scale(1.12)">
-      <rect x="156" y="120" width="64" height="264" fill="#FFFFFF"/>
-      <rect x="156" y="120" width="200" height="64" fill="#FFFFFF"/>
-      <rect x="156" y="232" width="160" height="60" fill="#FFFFFF"/>
-      <rect x="140" y="404" width="232" height="26" rx="13" fill="#F97316"/>
+    <g transform="translate(-22.640 -38.840) scale(1.08)">
+      <!-- Architectural Cantilever Monogram F -->
+      <path d="M 144 108 L 372 108 L 338 178 L 222 178 L 222 230 L 320 230 L 286 294 L 222 294 L 222 398 L 144 398 Z" fill="#FFFFFF"/>
+      <rect x="144" y="412" width="228" height="26" rx="13" fill="#F97316"/>
     </g>
 </svg>

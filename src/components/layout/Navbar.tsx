@@ -221,7 +221,7 @@ export default function Navbar() {
             >
               <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
             </Button>
-            <Link to="/" aria-label="FRELUX home" className="shrink-0">
+            <Link to="/" aria-label="FRELUX home" className="group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
               <Logo />
             </Link>
           </div>
@@ -719,7 +719,7 @@ export default function Navbar() {
         >
           {/* Drawer header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 dark:border-white/5">
-            <Link to="/" onClick={() => setMobileOpen(false)}>
+            <Link to="/" onClick={() => setMobileOpen(false)} aria-label="FRELUX home" className="group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
               <Logo />
             </Link>
             <Button

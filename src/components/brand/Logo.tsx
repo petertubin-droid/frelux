@@ -38,7 +38,10 @@ export default function Logo({
     <span
       role="img"
       aria-label={displayName}
-      className={classNames("inline-flex items-center gap-2.5", className)}
+      className={classNames(
+        "inline-flex items-center gap-2.5 sm:gap-3 select-none",
+        className,
+      )}
     >
       {logoUrl ? (
         <img
@@ -51,7 +54,7 @@ export default function Logo({
         />
       ) : (
         <LogoMark
-          className="h-9 w-9 shrink-0"
+          className="h-9 w-9 shrink-0 drop-shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
           variant={light || theme === "dark" ? "light" : "dark"}
         />
       )}
@@ -59,16 +62,19 @@ export default function Logo({
         <span className="flex flex-col justify-center leading-none">
           <span
             className={classNames(
-              "text-[17px] font-extrabold tracking-[-0.01em]",
+              "font-display text-[17px] font-extrabold tracking-[-0.01em]",
               brandText,
             )}
           >
             {shortName}
           </span>
-          <span className="mt-1.5 flex items-center gap-1.5">
+          <span className="mt-1 flex items-center gap-1.5">
             <span
               aria-hidden="true"
-              className={classNames("h-[2px] w-3 rounded-full", accentBar)}
+              className={classNames(
+                "h-[2px] w-3 rounded-full shrink-0",
+                accentBar,
+              )}
             />
             <span
               className={classNames(

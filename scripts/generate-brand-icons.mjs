@@ -24,28 +24,32 @@ const BRAND = {
   glyph: "#FFFFFF",
 };
 
-/** Monogram geometry on a 512 grid, centred on x 256 with an optical centre. */
-const GLYPH = {
-  stem: { x: 156, y: 120, w: 64, h: 264 },
-  topArm: { x: 156, y: 120, w: 200, h: 64 },
-  middleArm: { x: 156, y: 232, w: 160, h: 60 },
-};
-
+/**
+ * Architectural Cantilever Monogram on a 512 grid.
+ *
+ * Precision structural engineering geometry:
+ * - Vertical structural column: x 144 to 222 (width 78, y 108 to 398)
+ * - Upper cantilever beam with 45° chamfered end: x 144 to 372 (height 70, y 108 to 178)
+ * - Mid cantilever beam with matching 45° chamfer: x 144 to 320 (height 64, y 230 to 294)
+ * - Foundation grade beam / datum plinth in #F97316: x 144 to 372 (height 26, rx 13)
+ *   aligning the mark into a balanced structural silhouette.
+ */
 function markSvg({
   radius = 112,
-  glyphScale = 1,
+  glyphScale = 1.08,
   plinth = true,
   tileTop = BRAND.tileTop,
   tileBottom = BRAND.tileBottom,
   bleed = false,
 } = {}) {
-  const t = (256 - 256 * glyphScale).toFixed(3);
+  // Center of glyph assembly: x = 258, y = 273
+  const tX = (256 - 258 * glyphScale).toFixed(3);
+  const tY = (256 - 273 * glyphScale).toFixed(3);
   const glyph = `
-    <g transform="translate(${t} ${t}) scale(${glyphScale})">
-      <rect x="${GLYPH.stem.x}" y="${GLYPH.stem.y}" width="${GLYPH.stem.w}" height="${GLYPH.stem.h}" fill="${BRAND.glyph}"/>
-      <rect x="${GLYPH.topArm.x}" y="${GLYPH.topArm.y}" width="${GLYPH.topArm.w}" height="${GLYPH.topArm.h}" fill="${BRAND.glyph}"/>
-      <rect x="${GLYPH.middleArm.x}" y="${GLYPH.middleArm.y}" width="${GLYPH.middleArm.w}" height="${GLYPH.middleArm.h}" fill="${BRAND.glyph}"/>
-      ${plinth ? `<rect x="140" y="404" width="232" height="26" rx="13" fill="${BRAND.accent}"/>` : ""}
+    <g transform="translate(${tX} ${tY}) scale(${glyphScale})">
+      <!-- Architectural Cantilever Monogram F -->
+      <path d="M 144 108 L 372 108 L 338 178 L 222 178 L 222 230 L 320 230 L 286 294 L 222 294 L 222 398 L 144 398 Z" fill="${BRAND.glyph}"/>
+      ${plinth ? `<rect x="144" y="412" width="228" height="26" rx="13" fill="${BRAND.accent}"/>` : ""}
     </g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FRELUX">
   <defs>
@@ -88,20 +92,20 @@ const png = (svg, size) =>
 async function main() {
   await mkdir("public/brand", { recursive: true });
 
-  const appMark = markSvg({ glyphScale: 1.12 });
-  const headerMark = markSvg({ radius: 112, glyphScale: 1.12 });
+  const appMark = markSvg({ glyphScale: 1.08 });
+  const headerMark = markSvg({ radius: 112, glyphScale: 1.08 });
   const headerMarkDark = markSvg({
     radius: 112,
-    glyphScale: 1.12,
+    glyphScale: 1.08,
     tileTop: BRAND.tileTopDark,
     tileBottom: BRAND.tileBottomDark,
   });
-  // A tab icon reads at 16 px: flatter radius, no plinth, slightly larger glyph.
-  const tabMark = markSvg({ radius: 88, glyphScale: 1.32, plinth: false });
-  // Maskable art must survive an aggressive circular crop: full bleed, small glyph.
-  const maskable = markSvg({ radius: 0, glyphScale: 0.7, plinth: false, bleed: true });
+  // Tab icon: slightly flatter radius, crisp optical weight
+  const tabMark = markSvg({ radius: 88, glyphScale: 1.15, plinth: true });
+  // Maskable art must survive an aggressive circular crop: full bleed, small glyph inside safe zone.
+  const maskable = markSvg({ radius: 0, glyphScale: 0.72, plinth: true, bleed: true });
   // Apple applies its own mask, so the source is a full bleed square.
-  const apple = markSvg({ radius: 0, glyphScale: 0.72, bleed: true });
+  const apple = markSvg({ radius: 0, glyphScale: 0.74, bleed: true });
 
   await writeFile("public/brand/frelux-mark.svg", appMark);
   await writeFile("public/brand/frelux-mark-light.svg", headerMarkDark);

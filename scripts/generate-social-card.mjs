@@ -23,21 +23,18 @@ const BRAND = {
   faint: "#8C80B4",
 };
 
-const GLYPH = {
-  stem: { x: 156, y: 120, w: 64, h: 264 },
-  topArm: { x: 156, y: 120, w: 200, h: 64 },
-  middleArm: { x: 156, y: 232, w: 160, h: 60 },
-};
-
-/** The tile mark on its 512 grid, drawn at the origin so a group can scale it. */
+/** The architectural mark on its 512 grid, drawn at the origin so a group can scale it. */
 function markGroup(size) {
   const k = (size / 512).toFixed(5);
+  const glyphScale = 1.08;
+  const tX = (256 - 258 * glyphScale).toFixed(3);
+  const tY = (256 - 273 * glyphScale).toFixed(3);
   return `<g transform="scale(${k})">
     <rect width="512" height="512" rx="112" fill="url(#tile)"/>
-    <rect x="${GLYPH.stem.x}" y="${GLYPH.stem.y}" width="${GLYPH.stem.w}" height="${GLYPH.stem.h}" fill="${BRAND.glyph}"/>
-    <rect x="${GLYPH.topArm.x}" y="${GLYPH.topArm.y}" width="${GLYPH.topArm.w}" height="${GLYPH.topArm.h}" fill="${BRAND.glyph}"/>
-    <rect x="${GLYPH.middleArm.x}" y="${GLYPH.middleArm.y}" width="${GLYPH.middleArm.w}" height="${GLYPH.middleArm.h}" fill="${BRAND.glyph}"/>
-    <rect x="140" y="404" width="232" height="26" rx="13" fill="${BRAND.accent}"/>
+    <g transform="translate(${tX} ${tY}) scale(${glyphScale})">
+      <path d="M 144 108 L 372 108 L 338 178 L 222 178 L 222 230 L 320 230 L 286 294 L 222 294 L 222 398 L 144 398 Z" fill="${BRAND.glyph}"/>
+      <rect x="144" y="412" width="228" height="26" rx="13" fill="${BRAND.accent}"/>
+    </g>
   </g>`;
 }
 
