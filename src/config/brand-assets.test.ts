@@ -7,7 +7,7 @@
  * until someone shares a link. This suite reads the references and checks them
  * against the files that actually ship.
  */
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, statSync } from "fs";
 import { describe, expect, it } from "vitest";
 
 const read = (path: string) => readFileSync(path, "utf8");
@@ -56,6 +56,41 @@ describe("brand assets behind link previews", () => {
       expect(pngSize(path), path).toEqual({ width: px, height: px });
     }
     expect(existsSync("public/favicon.ico"), "favicon.ico").toBe(true);
+  });
+
+  it("ships one branded social card at the Open Graph size", () => {
+    for (const file of ["social-cover.png", "og-image.png"]) {
+      const size = pngSize(`public/${file}`);
+      expect(`${size.width}x${size.height}`, file).toBe("1200x630");
+      expect(statSync(`public/${file}`).size, file).toBeLessThan(250_000);
+    }
+    const jpeg = statSync("public/og-image-opt.jpg");
+    expect(jpeg.size).toBeLessThan(250_000);
+  });
+
+  it("draws the icon and the social card from the same brand accent", () => {
+    const mark = read("public/brand/frelux-mark.svg");
+    const card = read("scripts/generate-social-card.mjs");
+    const icons = read("scripts/generate-brand-icons.mjs");
+    for (const source of [mark, card, icons]) {
+      expect(source).toContain("#F97316");
+      expect(source).not.toContain("#F59E0B");
+    }
+  });
+
+  it("brands every surface through the shared logo component", () => {
+    for (const page of [
+      "src/components/layout/Navbar.tsx",
+      "src/components/layout/Footer.tsx",
+      "src/pages/Login.tsx",
+      "src/pages/admin/AdminLogin.tsx",
+      "src/components/ui/BrandedLoader.tsx",
+    ]) {
+      expect(read(page), page).toContain("brand/Logo");
+    }
+    const share = read("src/pages/QuoteShare.tsx");
+    expect(share).toContain("/brand/frelux-mark.svg");
+    expect(share).not.toContain("blue-600");
   });
 
   it("declares the same icons in the manifest and the document head", () => {

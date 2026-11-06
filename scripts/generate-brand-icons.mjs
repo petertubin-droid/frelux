@@ -20,7 +20,7 @@ const BRAND = {
   tileBottom: "#3B0B75",
   tileTopDark: "#8B5CF6",
   tileBottomDark: "#6D28D9",
-  accent: "#F59E0B",
+  accent: "#F97316",
   glyph: "#FFFFFF",
 };
 

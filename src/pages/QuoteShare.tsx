@@ -147,9 +147,25 @@ export default function QuoteShare() {
     <Container>
       <div className="mx-auto max-w-5xl py-8">
         <div className={CARD}>
+          <div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-4">
+            <img
+              src="/brand/frelux-mark.svg"
+              alt=""
+              aria-hidden="true"
+              width={28}
+              height={28}
+              className="h-7 w-7"
+            />
+            <span className="text-sm font-extrabold tracking-tight text-brand-purple">
+              FRELUX
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-purple/70">
+              Smart Calc
+            </span>
+          </div>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple">
                 {quoteShareHeading(snapshot.mode)}
               </p>
               <h1 className="mt-1 text-xl font-semibold text-slate-900">
@@ -165,7 +181,7 @@ export default function QuoteShare() {
                 type="button"
                 onClick={() => void downloadPdf()}
                 disabled={busy}
-                className="h-9 rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+                className="h-9 rounded-lg bg-brand-purple px-3 text-xs font-semibold text-white transition hover:bg-brand-purple/90 disabled:opacity-60"
               >
                 {busy ? "Preparing…" : "Download PDF"}
               </button>

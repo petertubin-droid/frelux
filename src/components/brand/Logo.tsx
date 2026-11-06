@@ -16,14 +16,10 @@ export default function Logo({
 }: LogoProps) {
   const { branding } = useBranding();
   const { theme } = useTheme();
-  const brandText =
-    light || theme === "dark"
-      ? "text-primary-foreground dark:text-primary-foreground"
-      : "text-foreground";
-  const subText =
-    light || theme === "dark"
-      ? "text-primary-foreground/70 dark:text-primary-foreground/70"
-      : "text-muted-foreground dark:text-muted-foreground";
+  const onDark = light || theme === "dark";
+  const brandText = onDark ? "text-white" : "text-brand-purple";
+  const subText = onDark ? "text-white/70" : "text-brand-purple/70";
+  const accentBar = onDark ? "bg-brand-orange" : "bg-brand-orange";
 
   const logoUrl =
     theme === "dark" ? branding?.dark_logo_url : branding?.light_logo_url;
@@ -60,22 +56,28 @@ export default function Logo({
         />
       )}
       {variant === "full" && (
-        <span className="flex flex-col leading-none">
+        <span className="flex flex-col justify-center leading-none">
           <span
             className={classNames(
-              "text-base font-bold tracking-tight",
+              "text-[17px] font-extrabold tracking-[-0.01em]",
               brandText,
             )}
           >
             {shortName}
           </span>
-          <span
-            className={classNames(
-              "text-[10px] font-semibold uppercase tracking-[0.18em]",
-              subText,
-            )}
-          >
-            {tagline}
+          <span className="mt-1.5 flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className={classNames("h-[2px] w-3 rounded-full", accentBar)}
+            />
+            <span
+              className={classNames(
+                "text-[10px] font-semibold uppercase tracking-[0.18em]",
+                subText,
+              )}
+            >
+              {tagline}
+            </span>
           </span>
         </span>
       )}
