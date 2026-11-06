@@ -224,7 +224,8 @@ export default function BoreholeWaterSystemEstimator() {
     const rows: string[][] = [
       ["FRELUX AUTONOMOUS BOREHOLE & WATER SUPPLY SYSTEM TAKEOFF", ""],
       ["Generated Date", new Date().toISOString().split("T")[0]],
-      ["Unit System", unitSystem.toUpperCase()],
+      ["Input slider units", unitSystem.toUpperCase()],
+      ["Result units", "METRIC AND IMPERIAL, BOTH PRINTED"],
       ["", ""],
       ["--- WELL CONSTRUCTION & STRATA ---", ""],
       [
@@ -443,7 +444,7 @@ export default function BoreholeWaterSystemEstimator() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Metric (m, m³/h, bar)
+                Metric inputs
               </button>
               <button
                 type="button"
@@ -454,9 +455,13 @@ export default function BoreholeWaterSystemEstimator() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Imperial (ft, GPM, psi)
+                Imperial inputs
               </button>
             </div>
+            <span className="text-[11px] text-muted-foreground">
+              Slider readouts only. Every result and the CSV carry both metric
+              and imperial values.
+            </span>
 
             <Button
               variant="outline"

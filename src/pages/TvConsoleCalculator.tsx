@@ -157,9 +157,12 @@ export default function TvConsoleCalculator() {
   const selected = TV_CONSOLE_TEMPLATES.find((t) => t.id === selectedId)!;
   const optional = (value: string) => (value === "" ? null : Number(value));
 
-  const result = useMemo(() => {
+  // The engine throws a precise reason for every refusal. Swallowing it left
+  // the card guessing ("check dimensions, thickness, settings"), so the exact
+  // message is kept and shown instead.
+  const { result, resultError } = useMemo(() => {
     try {
-      return calculateConsoleEstimate(
+      const estimate = calculateConsoleEstimate(
         {
           widthMm: width,
           heightMm: height,
@@ -190,8 +193,15 @@ export default function TvConsoleCalculator() {
         },
         currency,
       );
-    } catch {
-      return null;
+      return { result: estimate, resultError: null as string | null };
+    } catch (err) {
+      return {
+        result: null,
+        resultError:
+          err instanceof Error
+            ? err.message
+            : "This configuration cannot be calculated.",
+      };
     }
   }, [
     width,
@@ -728,9 +738,12 @@ export default function TvConsoleCalculator() {
                   </ul>
                 </>
               ) : (
-                <p className="mt-3 text-sm text-destructive">
-                  Check dimensions, panel thickness, drawer and door settings,
-                  board size, allowance and currency code.
+                <p
+                  className="mt-3 text-sm text-destructive"
+                  data-testid="tv-console-reason"
+                >
+                  {resultError ??
+                    "Check dimensions, panel thickness, drawer and door settings, board size, allowance and currency code."}
                 </p>
               )}
             </div>

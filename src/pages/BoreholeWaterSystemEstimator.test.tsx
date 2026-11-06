@@ -126,3 +126,34 @@ describe("BoreholeWaterSystemEstimator subscription gate", () => {
     expect(csv.disabled).toBe(false);
   });
 });
+
+describe("BoreholeWaterSystemEstimator unit toggle honesty", () => {
+  afterEach(() => resetEntitlement());
+
+  it("claims only what it does: the sliders read in the chosen unit", () => {
+    publishEntitlement({ isPaid: true, isAdmin: false });
+    renderPage();
+    expect(
+      screen.getByRole("button", { name: "Metric inputs" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Imperial inputs" }),
+    ).toBeInTheDocument();
+    // The old labels promised ft, GPM and psi for the whole tool; the engine
+    // computes in SI and every result prints both, so the promise was false.
+    expect(screen.queryByRole("button", { name: /GPM, psi/i })).toBeNull();
+    expect(hasText("Every result and the CSV carry both metric")).toBe(true);
+  });
+
+  it("keeps both units on the result cards whichever slider unit is chosen", () => {
+    publishEntitlement({ isPaid: true, isAdmin: false });
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Imperial inputs" }));
+    expect(hasText("ft)")).toBe(true);
+    expect(hasText("US Gal")).toBe(true);
+    expect(hasText("psi")).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Metric inputs" }));
+    expect(hasText("ft)")).toBe(true);
+    expect(hasText("psi")).toBe(true);
+  });
+});
