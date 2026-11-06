@@ -10,6 +10,7 @@ import {
   robotsAllows,
   splitCsvLine,
   toNumber,
+  productMatchesMaterial,
 } from "../../../supabase/functions/_shared/market-feeds";
 
 describe("toNumber", () => {
@@ -204,5 +205,91 @@ describe("robots.txt", () => {
     );
     expect(robotsAllows(rules, "/data/secret", true)).toBe(false);
     expect(robotsAllows(rules, "/data/public/list", true)).toBe(true);
+  });
+});
+
+/**
+ * The product-to-slug check that the scanner now refuses a page with.
+ *
+ * The names here are the real ones from production. Three different Thistle
+ * plasters were filed under gb-thistle-multifinish-25kg because a category
+ * page's first product was priced at face value, and a keyword search for
+ * drainage pipe filed a pipe wrench. These assertions hold the matcher to
+ * refusing those while still accepting the one product each slug names.
+ */
+describe("productMatchesMaterial", () => {
+  const multifinish = {
+    slug: "gb-thistle-multifinish-25kg",
+    name: "Thistle MultiFinish Plaster (25 kg)",
+    category: "plaster",
+  };
+  const dwvPipe = {
+    slug: "ca-pipe-drainage",
+    name: 'ABS DWV pipe, 3" x 12ft, per metre (CA)',
+    category: "pipe",
+  };
+  const pexPipe = {
+    slug: "ca-pipe-cold",
+    name: 'PEX-B pipe, 3/4" x 100ft, per metre (CA)',
+    category: "pipe",
+  };
+
+  it("accepts the product the slug actually names", () => {
+    expect(
+      productMatchesMaterial(
+        "MultiFinish Plaster (Thistle) \u2013 25kg Bag",
+        multifinish,
+        "GB",
+      ),
+    ).toBe(true);
+  });
+
+  it("refuses other plasters filed under the same slug", () => {
+    expect(
+      productMatchesMaterial(
+        "Bonding Coat Plaster (Thistle) \u2013 25kg Bag",
+        multifinish,
+        "GB",
+      ),
+    ).toBe(false);
+    expect(
+      productMatchesMaterial(
+        "BoardFinish Plaster (Thistle) \u2013 25kg Bag",
+        multifinish,
+        "GB",
+      ),
+    ).toBe(false);
+  });
+
+  it("refuses a tool that a keyword search returned as drainage pipe", () => {
+    expect(
+      productMatchesMaterial(
+        'Irwin 18" Pipe Wrench Cast Iron - Default Title',
+        dwvPipe,
+        "CA",
+      ),
+    ).toBe(false);
+  });
+
+  it("refuses a pipe of another material and diameter", () => {
+    expect(
+      productMatchesMaterial(
+        '4" X 30" Aluminum Pipe - Default Title',
+        pexPipe,
+        "CA",
+      ),
+    ).toBe(false);
+    expect(
+      productMatchesMaterial(
+        "1\" X 100' Utility Poly Pipe - Default Title",
+        pexPipe,
+        "CA",
+      ),
+    ).toBe(false);
+  });
+
+  it("refuses an unnamed page rather than assuming it is the material", () => {
+    expect(productMatchesMaterial(null, multifinish, "GB")).toBe(false);
+    expect(productMatchesMaterial("  ", multifinish, "GB")).toBe(false);
   });
 });

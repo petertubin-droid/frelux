@@ -413,12 +413,107 @@ const STOP_WORDS = new Set([
   "a",
 ]);
 
+/** Words that describe a kind of building product rather than a particular
+ *  one. They may be missing from a shop's title without meaning the product
+ *  differs; anything outside this list is treated as the product's identity. */
+const GENERIC_MATERIAL_WORDS = new Set([
+  "plaster",
+  "pipe",
+  "pipes",
+  "cement",
+  "concrete",
+  "sand",
+  "ballast",
+  "gravel",
+  "aggregate",
+  "stone",
+  "brick",
+  "bricks",
+  "block",
+  "blocks",
+  "timber",
+  "wood",
+  "lumber",
+  "steel",
+  "rebar",
+  "reinforcement",
+  "board",
+  "boards",
+  "sheet",
+  "panel",
+  "tile",
+  "tiles",
+  "paint",
+  "primer",
+  "undercoat",
+  "filler",
+  "adhesive",
+  "sealant",
+  "silicone",
+  "insulation",
+  "cable",
+  "wire",
+  "conduit",
+  "switch",
+  "socket",
+  "outlet",
+  "valve",
+  "fitting",
+  "connector",
+  "coupling",
+  "elbow",
+  "tee",
+  "nail",
+  "nails",
+  "screw",
+  "screws",
+  "bolt",
+  "bolts",
+  "door",
+  "window",
+  "frame",
+  "gloss",
+  "matt",
+  "satin",
+  "smooth",
+  "textured",
+  "white",
+  "black",
+  "grey",
+  "gray",
+  "natural",
+  "washed",
+  "sharp",
+  "fine",
+  "coarse",
+  "heavy",
+  "light",
+  "standard",
+  "trade",
+  "premium",
+  "bag",
+  "bags",
+  "box",
+  "pack",
+  "length",
+  "roll",
+  "bucket",
+  "tub",
+  "kit",
+]);
+
 function tokens(value: string): string[] {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9. ]+/g, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 1 && !STOP_WORDS.has(t));
+  return (
+    value
+      .toLowerCase()
+      // "25kg" and "25 kg" are the same size written two ways, and a catalogue
+      // writes one while the shop writes the other. Splitting the number from
+      // its unit lets the size check below compare sizes rather than spellings.
+      .replace(/(\d)\s*([a-z])/g, "$1 $2")
+      .replace(/[^a-z0-9. ]+/g, " ")
+      .split(/\s+/)
+      .filter((t) => t.length > 1 && !STOP_WORDS.has(t))
+  );
 }
 
 /** How well a feed row name describes a material: 0 (no) to 1 (the name). */
@@ -432,6 +527,14 @@ export function matchScore(rowName: string, materialName: string): number {
   // does not, the row is a different product and must not be priced as this one.
   const distinctive = b.filter((t) => /\d/.test(t));
   if (distinctive.some((t) => !aSet.has(t))) return 0;
+  // A product line is not a size. "MultiFinish" and "BoardFinish" are both
+  // plaster in 25kg bags, so the size check alone cannot tell them apart and
+  // a category page could file either as MultiFinish. Every material word
+  // that is not a generic building term must appear in the row.
+  const specific = b.filter(
+    (t) => !/\d/.test(t) && !GENERIC_MATERIAL_WORDS.has(t),
+  );
+  if (specific.some((t) => !aSet.has(t))) return 0;
   const shared = b.filter((t) => aSet.has(t)).length;
   if (shared === 0) return 0;
   const coverage = shared / b.length; // material covered by the row
@@ -467,6 +570,28 @@ export function matchMaterials(
     }
   }
   return out;
+}
+
+/** Does a scraped product name describe this material?
+ *
+ *  A product page or a keyword search answers with whatever the retailer
+ *  curated: a search for drainage pipe returns a pipe wrench, and a plaster
+ *  category page leads with Bonding Coat. Filing those under the requested
+ *  material puts another product's price into the median. This is the same
+ *  catalogue matcher the feed path uses, applied to one name, so a caller can
+ *  refuse a mismatch instead of pricing it.
+ */
+export function productMatchesMaterial(
+  productName: string | null | undefined,
+  material: MaterialRef,
+  market?: string,
+  threshold = 0.6,
+): boolean {
+  if (!productName || !productName.trim()) return false;
+  const score = market
+    ? aliasMatchScore(productName, material.name, market)
+    : matchScore(productName, material.name);
+  return score >= threshold;
 }
 
 /** Catalogue names carry a market suffix ("N-grade rebar 20mm x 12m (AU)")

@@ -54,6 +54,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   matchMaterials,
+  productMatchesMaterial,
   parseFeed,
   parseRobots,
   robotsAllows,
@@ -610,20 +611,32 @@ function extract(html: string): ExtractedPrice {
  *  embed many products; product pages embed one). */
 function collectJsonLdPrices(
   node: unknown,
-  found: Array<{ price: number; currency: string | null }>,
+  found: Array<{
+    price: number;
+    currency: string | null;
+    name?: string | null;
+  }>,
   depth = 0,
+  parentName?: string | null,
 ): void {
   if (depth > 6 || node === null || typeof node !== "object") return;
   const obj = node as Record<string, unknown>;
+  // A search page lists many products. The product's own name travels with
+  // its offer so the caller can tell a matching product from a stray one
+  // instead of pricing whatever happened to sort first.
+  const name =
+    obj["@type"] === "Product" && typeof obj.name === "string"
+      ? obj.name
+      : parentName;
   if (Array.isArray(obj["@graph"])) {
     for (const child of obj["@graph"] as unknown[])
-      collectJsonLdPrices(child, found, depth + 1);
+      collectJsonLdPrices(child, found, depth + 1, name);
   }
   if (Array.isArray(obj.offers)) {
     for (const offer of obj.offers as unknown[])
-      collectJsonLdPrices(offer, found, depth + 1);
+      collectJsonLdPrices(offer, found, depth + 1, name);
   } else if (obj.offers && typeof obj.offers === "object") {
-    collectJsonLdPrices(obj.offers, found, depth + 1);
+    collectJsonLdPrices(obj.offers, found, depth + 1, name);
   }
   if (obj["@type"] === "Offer" || obj["@type"] === "AggregateOffer") {
     const raw = obj.lowPrice ?? obj.highPrice ?? obj.price;
@@ -634,13 +647,14 @@ function collectJsonLdPrices(
           price: num,
           currency:
             typeof obj.priceCurrency === "string" ? obj.priceCurrency : null,
+          name: name ?? null,
         });
       }
     }
   }
   for (const v of Object.values(obj)) {
     if (v !== null && typeof v === "object")
-      collectJsonLdPrices(v, found, depth + 1);
+      collectJsonLdPrices(v, found, depth + 1, name);
   }
 }
 
@@ -684,13 +698,24 @@ function collectHtmlListingPrices(
   }
 }
 
-function extractSearchMedian(html: string): {
+function extractSearchMedian(
+  html: string,
+  material?: MaterialRef | null,
+  market?: string,
+): {
   price: number | null;
   currency: string | null;
   agreeing: number;
   confidence: "high" | "medium" | "low" | null;
+  /** Listings whose product name matched the material, or 0 when the page
+   *  carried no names to check. Read by the caller to say why it refused. */
+  matchedListings?: number;
 } {
-  const found: Array<{ price: number; currency: string | null }> = [];
+  const found: Array<{
+    price: number;
+    currency: string | null;
+    name?: string | null;
+  }> = [];
   const ldBlocks =
     html.match(
       /<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi,
@@ -706,16 +731,56 @@ function extractSearchMedian(html: string): {
   if (found.length < 2) {
     collectHtmlListingPrices(html, found);
   }
-  if (found.length < 2) {
+
+  // A keyword search page answers with whatever the retailer thinks is
+  // relevant: a search for drainage pipe returned a pipe wrench and filed its
+  // price as drain pipe. When the material is known, only listings that name
+  // it may contribute to the median. Markup-only prices carry no name, so they
+  // cannot be checked and are not used for a named material.
+  let matchedListings = 0;
+  let priced = found;
+  if (material) {
+    const named = found.filter((f) => Boolean(f.name));
+    const matched = matchMaterials(
+      named.map((f) => ({
+        price: f.price,
+        currency: f.currency,
+        name: f.name ?? null,
+        unit: null,
+        brand: null,
+        specification: null,
+        supplier: null,
+        location: null,
+      })),
+      [material],
+      0.6,
+      market,
+    );
+    const keptPrices = new Set(matched.map((m) => m.price));
+    priced = named.filter((f) => keptPrices.has(f.price));
+    matchedListings = priced.length;
+    if (priced.length < 2) {
+      return {
+        price: null,
+        currency: null,
+        agreeing: 0,
+        confidence: null,
+        matchedListings,
+      };
+    }
+  }
+
+  const visible = priced;
+  if (visible.length < 2) {
     return { price: null, currency: null, agreeing: 0, confidence: null };
   }
   // Drop 3x/one-third outliers around the raw median, then re-median.
-  const sorted = found.map((f) => f.price).sort((a, b) => a - b);
+  const sorted = visible.map((f) => f.price).sort((a, b) => a - b);
   const rawMedian =
     sorted.length % 2 === 1
       ? sorted[(sorted.length - 1) / 2]
       : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
-  const kept = found.filter(
+  const kept = visible.filter(
     (f) => f.price >= rawMedian / 3 && f.price <= rawMedian * 3,
   );
   if (kept.length < 2) {
@@ -735,7 +800,7 @@ function extractSearchMedian(html: string): {
   }
   const currency =
     agreeing.find((f) => f.currency)?.currency ??
-    found.find((f) => f.currency)?.currency ??
+    visible.find((f) => f.currency)?.currency ??
     null;
   const confidence = agreeing.length >= 4 ? "high" : "medium";
   return {
@@ -743,6 +808,7 @@ function extractSearchMedian(html: string): {
     currency,
     agreeing: agreeing.length,
     confidence,
+    matchedListings,
   };
 }
 
@@ -757,6 +823,7 @@ async function scanOneSource(
   source: ScanSource,
   runId: string,
   knownMaterialId?: string | null,
+  targetMaterial?: MaterialRef | null,
 ): Promise<{
   filed: boolean;
   failed: boolean;
@@ -831,7 +898,11 @@ async function scanOneSource(
   // listings agreed (the observation count for the auto-apply gate).
   let observations = 1;
   if (!fetchError && source.source_type === "search") {
-    const searchMedian = extractSearchMedian(html);
+    const searchMedian = extractSearchMedian(
+      html,
+      targetMaterial,
+      source.market,
+    );
     if (searchMedian.price !== null) {
       result.price = searchMedian.price;
       result.currency = searchMedian.currency;
@@ -839,7 +910,12 @@ async function scanOneSource(
       result.confidence = searchMedian.confidence;
       confidence = searchMedian.confidence;
       observations = searchMedian.agreeing;
-      notes.push(`search median of ${searchMedian.agreeing} agreeing listings`);
+      notes.push(
+        `search median of ${searchMedian.agreeing} agreeing listings` +
+          (targetMaterial
+            ? ` matching ${targetMaterial.name} (${searchMedian.matchedListings ?? 0} checked by name)`
+            : ""),
+      );
     } else {
       // No agreeing listings on the search page: a single stray amount from a
       // banner is not a price for this material, so drop it rather than file a
@@ -850,7 +926,44 @@ async function scanOneSource(
       result.confidence = null;
       confidence = "low";
       observations = 0;
-      notes.push("search page yielded no agreeing product listings");
+      notes.push(
+        targetMaterial
+          ? `search page yielded no agreeing listings for ${targetMaterial.name} (${searchMedian.matchedListings ?? 0} matched by name)`
+          : "search page yielded no agreeing product listings",
+      );
+    }
+  }
+
+  // A product page that answers with a different product is not a price for
+  // this material. One supplier's category page filed Bonding Coat and
+  // BoardFinish plaster as MultiFinish plaster because the first product on
+  // the page was priced at face value, so a median quietly mixed three
+  // different products. The catalogue matcher decides; a name it cannot place
+  // is refused instead of filed. A page with no product name is left alone:
+  // its URL is already material-specific.
+  if (
+    !fetchError &&
+    source.source_type !== "search" &&
+    result.price !== null &&
+    targetMaterial &&
+    result.product_name
+  ) {
+    if (
+      !productMatchesMaterial(
+        result.product_name,
+        targetMaterial,
+        source.market,
+      )
+    ) {
+      notes.push(
+        `page product "${result.product_name}" does not match ${targetMaterial.name}; refused`,
+      );
+      result.price = null;
+      result.currency = null;
+      result.extraction = null;
+      result.confidence = null;
+      confidence = "low";
+      observations = 0;
     }
   }
 
@@ -1201,6 +1314,7 @@ serveWithCors(async (req: Request) => {
           source,
           runId,
           materialIdBySlug.get(source.material_slug) ?? null,
+          materials.find((m) => m.slug === source.material_slug) ?? null,
         );
         return {
           kind: "html" as const,
