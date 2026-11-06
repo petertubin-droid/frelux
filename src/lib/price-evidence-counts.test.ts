@@ -15,6 +15,11 @@ const migration = readFileSync(
   "utf8",
 );
 
+const yieldMigration = readFileSync(
+  join(root, "supabase/migrations/20261106130000_yield_not_labels.sql"),
+  "utf8",
+);
+
 describe("price evidence counts", () => {
   it("derives the counts from observations, not from the book", () => {
     expect(migration).toMatch(
@@ -58,17 +63,49 @@ describe("price evidence counts", () => {
     );
   });
 
-  it("parks a market whose sources cannot yield a price", () => {
-    expect(migration).toMatch(/set next_run_at = now\(\) \+ interval '7 days'/);
-    expect(migration).toMatch(/not in \('search_page_only', 'bot_blocked'\)/);
+  it("parks a market only when it has no active source at all", () => {
+    const dispatch = yieldMigration.slice(
+      yieldMigration.indexOf("Only a market with no active source at all"),
+    );
+    expect(dispatch).toMatch(/not exists \(/);
+    expect(dispatch).toMatch(/where p\.market = s\.market and p\.is_active/);
+    // An access_status label is not a capability: SA and PL have no source
+    // outside 'search_page_only' and still filed 8 and 2 observations.
+    expect(yieldMigration).toContain(
+      "Parking SA for seven days would have stopped a market that was working",
+    );
   });
 
-  it("spends the dispatch budget where a scan can produce data", () => {
-    const dispatch = migration.slice(
-      migration.indexOf("for v_row in"),
-      migration.indexOf("order by scannable desc"),
+  it("counts a search page as scannable because it yields data", () => {
+    const coverage = yieldMigration.slice(
+      yieldMigration.indexOf(
+        "create or replace function public.price_scan_coverage()",
+      ),
+      yieldMigration.indexOf(
+        "revoke all on function public.price_scan_coverage()",
+      ),
     );
-    expect(dispatch).toContain("as scannable");
+    expect(coverage).toMatch(/access_status, ''\) <> 'bot_blocked'/);
+    expect(coverage).not.toMatch(/not in \('search_page_only'/);
+  });
+
+  it("prioritises the markets that are actually yielding observations", () => {
+    expect(yieldMigration).toContain(
+      "order by coalesce(o.obs, 0) desc, scannable desc, s.next_run_at asc",
+    );
+    expect(yieldMigration).toMatch(/from public\.market_price_observations/);
+  });
+
+  it("releases markets that the label rule parked", () => {
+    expect(yieldMigration).toMatch(
+      /set next_run_at = now\(\),\s+updated_at = now\(\)/,
+    );
+    expect(yieldMigration).toMatch(
+      /interval '6 days' and now\(\) \+ interval '8 days'/,
+    );
+  });
+
+  it("keeps the dispatch budget assertion for markets with scannable sources", () => {
     expect(migration).toContain("order by scannable desc, s.next_run_at asc");
   });
 });

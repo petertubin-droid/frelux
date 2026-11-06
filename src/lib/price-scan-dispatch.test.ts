@@ -37,9 +37,9 @@ describe("market scan dispatch", () => {
   it("never declares a plpgsql variable that shadows the token column", () => {
     const definitions = dispatchDefinitions();
     const latest = definitions[definitions.length - 1];
-    expect(latest?.file).toBe(
-      "20261106103000_fix_dispatch_output_shadowing.sql",
-    );
+    // Any later revision must keep the fixed shape, because the newest
+    // definition is the one production runs.
+    expect(latest).toBeTruthy();
     expect(latest!.sql).toContain("v_token text;");
     expect(latest!.sql).not.toMatch(/select\s+token\s+into\s+token/i);
   });

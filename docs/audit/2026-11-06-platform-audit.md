@@ -292,6 +292,26 @@ next three dispatches went to US, GB and DE instead of arbitrary overdue rows.
 book rows and a verdict: `unconfigured`, `configured, no data yet`, `live,
 evidence ageing`, or `live`.
 
+### Correction: an access_status label was treated as a capability
+
+The parking rule added in `20261106120000` assumed a market whose active sources
+were all `search_page_only` could not produce a price. The 05:40 runs disproved
+it: SA and PL have no source outside that label, and the scanner filed 8 and 2
+observations from them with `source_format` `search` and extraction `json_ld`.
+The label describes the page type; the scanner extracts structured data from
+search pages.
+
+Parking SA for seven days would have stopped a market that was producing data,
+so `20261106130000` removes the rule, releases the markets it parked, and orders
+dispatch by demonstrated yield: observations in the last 90 days, then sources
+with a recorded success, then the most overdue. A market is parked only when it
+has no active source at all.
+
+After the correction: zero markets are structurally unconfigured, SA and PL are
+released, overdue returned to 29, and readiness ranks GB 36 observations, AU 14,
+SA 8, DE 5, CA 4, NG 2, US 2, PL 2, with NL (141 sources) and IN (83) configured
+but never having produced an observation.
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access
