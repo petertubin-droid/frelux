@@ -83,6 +83,11 @@
 # Google chose different canonical" reports. seo.ts also sets noindex
 # client-side as defense in depth.
 
+/es
+  X-Robots-Tag: noindex, nofollow
+/es/*
+  X-Robots-Tag: noindex, nofollow
+
 /fr
   X-Robots-Tag: noindex, nofollow
 /fr/*

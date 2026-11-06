@@ -13,6 +13,7 @@ import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
+import { isLocalePrefixed } from "./lib/locale-paths.mjs";
 
 /**
  * FAQ article slugs, read from the registries so a new answer page is indexed
@@ -624,12 +625,25 @@ const manifestOnlyRoutes = manifest
   .filter((p) => !marketTemplateRoutes.some((r) => r.path === p))
   .map((path) => ({ path, priority: "0.5", changefreq: "monthly" }));
 
-const allRoutes = [
+const candidateRoutes = [
   ...routes,
   ...learnRoutes,
   ...marketTemplateRoutes,
   ...manifestOnlyRoutes,
 ];
+
+// Enforce the English-only rule at assembly time, not only in the static list.
+// Learn and template URLs arrive from Supabase, and a translated row would
+// otherwise put a locale-prefixed duplicate into the sitemap even though
+// public/_headers marks that URL noindex. Production carried 157 such /es/
+// URLs before this guard.
+const allRoutes = candidateRoutes.filter((r) => !isLocalePrefixed(r.path));
+const droppedLocaleRoutes = candidateRoutes.length - allRoutes.length;
+if (droppedLocaleRoutes > 0) {
+  console.log(
+    `  ℹ️  sitemap dropped ${droppedLocaleRoutes} locale-prefixed URL(s) that are noindex by policy`,
+  );
+}
 
 // Netlify's "pretty URLs" force-redirect every path to its trailing-slash
 // form (301 /calculators -> /calculators/). The sitemap must list the final
