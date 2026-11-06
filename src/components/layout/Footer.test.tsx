@@ -92,8 +92,14 @@ describe("Footer theme + mobile compaction", () => {
     const calculators = container.querySelector(
       "#footer-calculators",
     ) as HTMLUListElement;
-    // Calculate (5) + Estimate (5) links in the merged group
-    expect(within(calculators).getAllByRole("link").length).toBe(10);
+    // Calculate plus Estimate links share the merged group. The exact count
+    // is not asserted: a hardcoded number goes red every time a calculator
+    // ships, which is how this broke when the wallpaper tool was added.
+    const calculatorLinks = within(calculators).getAllByRole("link");
+    expect(calculatorLinks.length).toBeGreaterThanOrEqual(10);
+    expect(calculatorLinks.map((link) => link.getAttribute("href"))).toContain(
+      "/wallpaper-calculator",
+    );
   });
 
   it("keeps the ungrouped footer short on phones", () => {

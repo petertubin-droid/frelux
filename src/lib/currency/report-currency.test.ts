@@ -3,16 +3,21 @@ import { buildCopyText } from "@/lib/results/copy-results";
 import { autoDisplayForReport } from "./quote-display";
 import type { RateTable } from "./engine";
 
+// REFUSE_AFTER_MS is 7 days, so a hardcoded timestamp makes this file fail the
+// day the fixture ages out. The rate VALUE stays fixed; only the moment it was
+// fetched is relative to now, which is what a live table looks like.
+const RECENT = new Date(Date.now() - 60_000).toISOString();
+
 const table: RateTable = {
   source: "database",
-  fetchedAt: "2026-10-30T17:20:14Z",
+  fetchedAt: RECENT,
   quotes: [
     {
       base: "USD",
       quote: "NGN",
       rate: 1346.223823,
       provider: "open.er-api.com",
-      fetchedAt: "2026-10-30T17:20:14Z",
+      fetchedAt: RECENT,
     },
   ],
 };
