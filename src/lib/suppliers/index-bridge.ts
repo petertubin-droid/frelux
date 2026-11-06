@@ -15,6 +15,10 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import {
+  describePriceProvenance,
+  type PriceProvenance,
+} from "@/lib/pricing/provenance";
 
 export interface IndexCity {
   slug: string;
@@ -171,7 +175,13 @@ export interface IndexBenchmark {
   observationsCount: number | null;
   /** Percentage the listing sits above (+) or below (-) the benchmark. */
   differencePct: number | null;
+  /**
+   * How well the benchmark price is evidenced. isVerified mirrors
+   * provenance.isVerified so older call sites keep working, but a stale or
+   * unsourced price now reports false here.
+   */
   isVerified: boolean;
+  provenance: PriceProvenance;
 }
 
 function firstNumber(...candidates: unknown[]): number | null {
@@ -225,6 +235,18 @@ export async function fetchIndexBenchmark(input: {
       ? Math.round(((input.listingPrice - price) / price) * 1000) / 10
       : null;
 
+  // The provenance is derived once and reused, so a badge, a tooltip and the
+  // summary sentence cannot disagree about whether this price is verified.
+  const provenance = describePriceProvenance({
+    verificationStatus: (row.verification_status as string) ?? null,
+    lastVerifiedAt: (row.last_verified_at as string) ?? null,
+    lastScannedAt: (row.last_scanned_at as string) ?? null,
+    observationsCount:
+      row.observations_count === null || row.observations_count === undefined
+        ? null
+        : Number(row.observations_count),
+  });
+
   return {
     productName: String(row.product_name ?? slug),
     currency: benchmarkCurrency,
@@ -248,14 +270,22 @@ export async function fetchIndexBenchmark(input: {
         ? null
         : Number(row.observations_count),
     differencePct,
-    isVerified: (row.verification_status as string) === "verified",
+    isVerified: provenance.isVerified,
+    provenance,
   };
 }
 
 export function benchmarkSummary(benchmark: IndexBenchmark | null): string {
   if (!benchmark) return "No published index price for this material yet.";
-  if (!benchmark.isVerified) {
-    return "The index holds a last-known price for this material but it has not been verified for this market.";
+  const { provenance } = benchmark;
+  if (provenance.state === "no_data") {
+    return "The index holds no price for this material in this market.";
+  }
+  if (provenance.state === "stale") {
+    return `${provenance.label}: ${provenance.detail}`;
+  }
+  if (provenance.state === "unverified" || provenance.state === "observed") {
+    return `${provenance.label}: ${provenance.detail}`;
   }
   if (benchmark.differencePct === null) {
     return "Index price is in a different currency, so no percentage comparison is shown.";

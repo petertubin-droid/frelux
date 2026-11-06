@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { ageInDays, STALE_AFTER_DAYS } from "@/lib/pricing/provenance";
 import { invalidatePriceCache } from "@/lib/price-index/cache";
 import {
   classifyEvidence,
@@ -480,8 +481,15 @@ export async function fetchMarketPriceBook(
     }
     const stamp = row.last_verified_at ?? row.last_scanned_at;
     if (stamp) asOf.set(row.material_id, stamp);
-    if (row.verification_status === "verified") verified.add(row.material_id);
-    else if (
+    // Age decides, not only the status column: a row verified two years ago is
+    // last-known evidence. A verified row with no stamp cannot be checked at
+    // all, so it is treated as unverified rather than trusted.
+    const age = ageInDays(stamp);
+    const tooOld = age === null || age > STALE_AFTER_DAYS;
+    if (row.verification_status === "verified") {
+      if (tooOld) stale.add(row.material_id);
+      else verified.add(row.material_id);
+    } else if (
       row.verification_status === "stale" ||
       row.verification_status === "unverified"
     ) {

@@ -30,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { describePriceProvenance } from "@/lib/pricing/provenance";
 import {
   AdminCard,
   AdminHeader as AdminPageHeader,
@@ -775,9 +776,25 @@ export default function AdminMarketPrices() {
                                 {row.verification_status.replace("_", " ")}
                               </span>
                               <div className="mt-1 text-xs text-muted-foreground">
-                                {ago(
-                                  row.last_verified_at ?? row.last_scanned_at,
-                                )}
+                                {(() => {
+                                  const provenance = describePriceProvenance({
+                                    verificationStatus: row.verification_status,
+                                    lastVerifiedAt: row.last_verified_at,
+                                    lastScannedAt: row.last_scanned_at,
+                                    sourceUrl: row.source_url,
+                                    supplierName: row.supplier_name,
+                                    observationsCount: row.observations_count,
+                                  });
+                                  return (
+                                    <span title={provenance.detail}>
+                                      {provenance.label} ·{" "}
+                                      {ago(
+                                        row.last_verified_at ??
+                                          row.last_scanned_at,
+                                      )}
+                                    </span>
+                                  );
+                                })()}
                               </div>
                             </td>
                           </tr>

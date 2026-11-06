@@ -115,15 +115,66 @@ the list originates from Supabase at build time.
 
 ## 5. Prices and market data
 
-`market_material_prices`, `market_price_observations` and `price_submissions`
-exist in the schema. Freshness could not be measured: the Supabase management
-token in the conversation environment returns `Invalid access token`, and the
-repository carries no anon key. Verifying staleness, duplicates and outliers
-(section 4 of the brief) requires a working token.
+Measured against production on 6 November 2026. The earlier "not measurable" note
+is superseded: the replacement Supabase token returns rows.
 
-No price was asserted as live in this report. The interface labels and the
-"last verified" rendering must be checked against real rows before any claim of
-price intelligence is made.
+| Store                       | Rows | Groups     | Freshest stamp                                                  | Oldest stamp |
+| --------------------------- | ---- | ---------- | --------------------------------------------------------------- | ------------ |
+| `market_material_prices`    | 1369 | 40 markets | `last_verified_at` null everywhere                              | -            |
+| `estimation_prices`         | 1996 | 40 markets | `verified_at` null everywhere, last `effective_date` 2026-08-22 | 2026-08-22   |
+| `market_price_observations` | 54   | 3 markets  | 2026-11-06                                                      | 2026-10-30   |
+| `frelux_price_observations` | 0    | 0          | -                                                               | -            |
+| `estimation_materials`      | 634  | 634        | 2026-10-29                                                      | 2026-10-06   |
+| `material_catalog`          | 58   | -          | `price_updated_at` null everywhere                              | -            |
+| `material_prices`           | 7    | 1 currency | 2026-10-29                                                      | 2026-10-15   |
+
+Provenance inside `market_material_prices`:
+
+- 1366 rows `verification_status = 'unverified'`, 3 rows `'no_data'`, zero rows
+  `'verified'`.
+- 9 rows carry a `last_scanned_at`, a `source_url` and a `supplier_name`. The
+  other 1360 carry none of the three.
+- Per market: US 76 prices, GB 70, DE 61, CA 60, AU 59, ZA 59, BR 58, IT 57,
+  KE 57, FR 56, MX 56, IN 56. Observations exist for three markets only, so the
+  index publishes prices for 37 markets it has never observed.
+
+Interpretation: the price stack is a derived price book, not a live market feed.
+Four parallel stores exist (`market_material_prices`, `estimation_prices`,
+`market_price_observations`, `frelux_price_observations`), one of which is empty,
+and the two that feed the product carry no verification stamps at all.
+
+### Defects found
+
+1. No age check anywhere in the read paths. A row marked `verified` was trusted
+   permanently, so a two-year-old verification would present as current.
+2. A row marked `verified` with no date was trusted, although the claim cannot
+   be checked without a stamp.
+3. The supplier benchmark summary said "last-known price ... not verified" but
+   never stated how old the price was, which the brief requires.
+4. The admin price table showed a relative date under the status pill with no
+   explanation of what backs the number, so an unreviewed row read like a
+   reviewed one.
+
+### Fixed in this batch
+
+- `src/lib/pricing/provenance.ts`: single description of price evidence with
+  five states (`verified`, `stale`, `observed`, `unverified`, `no_data`), a
+  sourced flag, an age in days, and labels that never call an unsourced number
+  confirmed. `STALE_AFTER_DAYS = 90`, `AGING_AFTER_DAYS = 45`.
+- `src/lib/suppliers/index-bridge.ts`: the benchmark carries a `provenance`
+  object, `isVerified` is derived from it rather than from the status column,
+  and the summary sentence states the state and the age.
+- `src/lib/estimation/queries.ts`: a `verified` row older than 90 days, or with
+  no stamp, moves to the stale set instead of the verified set.
+- `src/pages/admin/AdminMarketPrices.tsx`: the row shows the provenance label
+  with the detail as a tooltip.
+- `src/lib/pricing/provenance.test.ts`: 10 assertions over the boundaries,
+  including verified-without-date demotion, aging versus stale, future stamps
+  and unparseable input.
+
+Remaining: no ingestion, deduplication or outlier job was verified, and
+`frelux_price_observations` being empty means one advertised pipeline has never
+run. Scheduled collection and admin approval flow need their own audit.
 
 ## 6. Security
 
