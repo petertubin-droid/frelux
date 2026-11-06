@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import {
   basemapAttribution,
+  basemapRasterFallbackUrl,
   basemapRasterUrl,
   cartoApiKey,
 } from "@/lib/map/cartoTiles";
@@ -444,7 +445,7 @@ export function Raster2DMap({
           src: basemapRasterUrl(sub, dark, level, wrappedX, y, cartoKey),
           // A failed tile retries against the other provider, so a single
           // missing tile never leaves a hole in the surface.
-          fallback: `https://a.tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`,
+          fallback: basemapRasterFallbackUrl(level, wrappedX, y, cartoKey),
           left: Math.round((x * TILE_SIZE - origin.x) * scale + size.width / 2),
           top: Math.round((y * TILE_SIZE - origin.y) * scale + size.height / 2),
           size: Math.ceil(TILE_SIZE * scale),
@@ -721,19 +722,18 @@ export function Raster2DMap({
           <span className="tabular-nums">{scaleLabel}</span>
         </span>
         <span className="frelux-map__credit pointer-events-auto">
-          ©{" "}
-          <a
-            href="https://www.openstreetmap.org/copyright"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
-          >
-            OpenStreetMap
-          </a>
-          {cartoKey && (
+          {cartoKey ? (
             <>
-              {" "}
-              ·{" "}
+              ©{" "}
+              <a
+                href="https://www.openstreetmap.org/copyright"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
+              >
+                OpenStreetMap
+              </a>
+              {" · "}
               <a
                 href="https://carto.com/attributions"
                 target="_blank"
@@ -742,6 +742,19 @@ export function Raster2DMap({
               >
                 CARTO
               </a>
+            </>
+          ) : (
+            <>
+              Imagery ©{" "}
+              <a
+                href="https://www.esri.com"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
+              >
+                Esri
+              </a>
+              , Maxar, Earthstar Geographics
             </>
           )}
         </span>

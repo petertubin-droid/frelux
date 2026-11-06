@@ -49,7 +49,7 @@ describe("GlobeMap", () => {
     // Tile imagery must come from a real basemap, never the unkeyed CARTO
     // watermark sheet that renders as a blank grey surface.
     const tiles = Array.from(document.querySelectorAll("img")).filter((img) =>
-      /tile\.openstreetmap\.org|basemaps\.cartocdn\.com/.test(
+      /tile\.openstreetmap\.org|basemaps\.cartocdn\.com|World_Imagery/.test(
         img.getAttribute("src") ?? "",
       ),
     );

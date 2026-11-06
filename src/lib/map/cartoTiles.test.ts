@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   basemapAttribution,
+  basemapRasterFallbackUrl,
   basemapRasterUrl,
   cartoApiKey,
   cartoConfigured,
   cartoTileUrl,
+  esriSatelliteTileUrl,
 } from "@/lib/map/cartoTiles";
 
 const LIGHT =
@@ -63,19 +65,34 @@ describe("colour basemap fallback", () => {
     );
   });
 
-  it("falls back to colour OpenStreetMap tiles without a key", () => {
+  it("falls back to satellite imagery without a key", () => {
     // Unkeyed CARTO answers 200 with an "API KEY REQUIRED" watermark, which
     // renders as a flat grey sheet, so the unkeyed path must not use it.
-    expect(basemapRasterUrl("b", false, 10, 545, 352, "")).toBe(
-      "https://b.tile.openstreetmap.org/10/545/352.png",
+    const url = basemapRasterUrl("b", false, 10, 511, 340, "");
+    expect(url).toContain("World_Imagery/MapServer/tile/10/340/511");
+    expect(url).not.toContain("cartocdn");
+    expect(url).not.toContain("openstreetmap");
+  });
+
+  it("keeps the satellite row before column", () => {
+    // Esri takes /tile/{z}/{y}/{x}; swapping the last two silently returns the
+    // wrong part of the world, so the order is pinned here.
+    const url = esriSatelliteTileUrl(10, 511, 340);
+    expect(url.endsWith("/tile/10/340/511")).toBe(true);
+    expect(url.endsWith("/tile/10/511/340")).toBe(false);
+  });
+
+  it("retries a failed tile against a different provider", () => {
+    expect(basemapRasterFallbackUrl(10, 511, 340, "")).toBe(
+      "https://a.tile.openstreetmap.org/10/511/340.png",
     );
-    expect(basemapRasterUrl("b", true, 10, 545, 352, "")).not.toContain(
-      "cartocdn",
+    expect(basemapRasterFallbackUrl(10, 511, 340, "carto-key-123")).toContain(
+      "World_Imagery",
     );
   });
 
   it("credits only the providers actually serving tiles", () => {
-    expect(basemapAttribution("")).toBe("© OpenStreetMap contributors");
+    expect(basemapAttribution("")).toContain("Esri");
     expect(basemapAttribution("carto-key-123")).toContain("CARTO");
   });
 });

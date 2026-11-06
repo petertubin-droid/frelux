@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { ESRI_SATELLITE_TEMPLATE } from "@/lib/map/cartoTiles";
 import {
   ArrowUpRight,
   Crosshair,
+  Satellite,
   Compass,
   Globe2,
   Maximize2,
@@ -24,6 +26,9 @@ const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 // colour in dark mode while staying dark enough for the chrome to sit on.
 const DARK_STYLE = "https://tiles.openfreemap.org/styles/fiord";
 // Terrain tiles from the public AWS elevation set (Terrarium encoding).
+const SATELLITE_SOURCE = "frelux-satellite";
+const SATELLITE_LAYER = "frelux-satellite-layer";
+
 const TERRAIN_TILES =
   "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
@@ -131,6 +136,45 @@ export function GlobeMap({
   const [ready, setReady] = useState(false);
   const [rasterFallback, setRasterFallback] = useState(false);
   const [userPin, setUserPin] = useState<MapPoint | null>(null);
+  const [satellite, setSatellite] = useState(false);
+  const satelliteRef = useRef(false);
+
+  // Satellite imagery is a raster layer over the vector basemap, so street
+  // styling stays available and the toggle costs no extra map instance.
+  const applySatellite = useCallback((map: MapLibreMap, on: boolean) => {
+    try {
+      if (on) {
+        if (!map.getSource(SATELLITE_SOURCE)) {
+          map.addSource(SATELLITE_SOURCE, {
+            type: "raster",
+            tiles: [ESRI_SATELLITE_TEMPLATE],
+            tileSize: 256,
+            maxzoom: 19,
+            attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+          });
+        }
+        if (!map.getLayer(SATELLITE_LAYER)) {
+          map.addLayer({
+            id: SATELLITE_LAYER,
+            type: "raster",
+            source: SATELLITE_SOURCE,
+            paint: { "raster-opacity": 1 },
+          });
+        }
+        map.setLayoutProperty(SATELLITE_LAYER, "visibility", "visible");
+      } else if (map.getLayer(SATELLITE_LAYER)) {
+        map.setLayoutProperty(SATELLITE_LAYER, "visibility", "none");
+      }
+    } catch {
+      // Imagery is an enhancement; the vector basemap still works.
+    }
+  }, []);
+
+  useEffect(() => {
+    satelliteRef.current = satellite;
+    const map = mapRef.current;
+    if (map) applySatellite(map, satellite);
+  }, [satellite, applySatellite]);
   const [locateState, setLocateState] = useState<
     "idle" | "locating" | "ready" | "denied"
   >("idle");
@@ -312,6 +356,10 @@ export function GlobeMap({
         });
         resizeObserver.observe(containerRef.current);
 
+        map.on("style.load", () => {
+          if (satelliteRef.current) applySatellite(map, true);
+        });
+
         themeObserver = new MutationObserver(() => {
           map.setStyle(isDarkTheme() ? DARK_STYLE : LIGHT_STYLE, {
             diff: true,
@@ -430,7 +478,7 @@ export function GlobeMap({
     return () => {
       cancelled = true;
     };
-  }, [points, ready, activeId, choose, t]);
+  }, [points, ready, activeId, choose, t, userPin]);
 
   // A record chosen outside the map (for example from the list beside it)
   // brings the camera to it and opens its card.
@@ -636,6 +684,28 @@ export function GlobeMap({
       {/* Compass dial + zoom keys */}
       {ready && interactive && (
         <div className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSatellite((on) => !on)}
+            aria-label={
+              satellite ? "Show the street map" : "Show satellite imagery"
+            }
+            aria-pressed={satellite}
+            title={satellite ? "Street map" : "Satellite"}
+            data-satellite={satellite ? "on" : "off"}
+            className={classNames(
+              "frelux-map__dial group",
+              satellite && "frelux-map__dial--active",
+            )}
+          >
+            <Satellite
+              className={classNames(
+                "h-4 w-4",
+                satellite && "text-brand-purple",
+              )}
+              aria-hidden="true"
+            />
+          </button>
           <button
             type="button"
             onClick={locate}

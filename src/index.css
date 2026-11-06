@@ -2450,3 +2450,10 @@ h2 {
     animation: none;
   }
 }
+
+/* Active state for a map control that switches a layer, so the satellite
+   toggle reads as engaged rather than as a plain button. */
+.frelux-map__dial--active {
+  border-color: rgb(var(--brand-primary) / 0.45);
+  background: rgb(var(--brand-primary) / 0.12);
+}

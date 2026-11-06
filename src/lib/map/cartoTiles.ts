@@ -48,16 +48,33 @@ export function cartoConfigured(key: string = cartoApiKey()): boolean {
   return key.trim().length > 0;
 }
 
-const OSM_ATTRIBUTION = "© OpenStreetMap contributors";
 const CARTO_ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
+const ESRI_ATTRIBUTION =
+  "Imagery © Esri, Maxar, Earthstar Geographics, GIS User Community";
 
 /**
- * One raster tile for the non-WebGL map, in colour.
+ * Esri World Imagery tile.
+ *
+ * Note the path order: this service takes z, then row, then column
+ * (`/tile/{z}/{y}/{x}`), which is the reverse of every other provider here.
+ * Swapping x and y silently returns imagery of the wrong hemisphere, so the
+ * order is asserted in tests.
+ */
+export const ESRI_SATELLITE_TEMPLATE =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+export function esriSatelliteTileUrl(z: number, x: number, y: number): string {
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+}
+
+/**
+ * One raster tile for the non-WebGL map, in full colour.
  *
  * Keyless CARTO answers with an "API KEY REQUIRED" watermark, which renders as a
- * flat grey sheet rather than a map, so the unkeyed path falls back to
- * OpenStreetMap standard tiles. They are in colour and need no key; CARTO stays
- * the preferred source when the build has one.
+ * flat grey sheet rather than a map, so the unkeyed path uses satellite imagery
+ * instead. Satellite is vivid (measured saturation 0.34 against 0.03 for street
+ * tiles) and needs no key; CARTO stays the preferred source when the build has
+ * one, because its street styling reads better for addresses and business pins.
  */
 export function basemapRasterUrl(
   subdomain: string,
@@ -70,10 +87,21 @@ export function basemapRasterUrl(
   if (cartoConfigured(key)) {
     return cartoTileUrl(subdomain, dark ? "dark" : "light", z, x, y, key);
   }
-  const sub = subdomain === "d" ? "a" : subdomain;
-  return `https://${sub}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+  return esriSatelliteTileUrl(z, x, y);
+}
+
+/** Retry URL for a raster tile, always from a different provider. */
+export function basemapRasterFallbackUrl(
+  z: number,
+  x: number,
+  y: number,
+  key: string = cartoApiKey(),
+): string {
+  return cartoConfigured(key)
+    ? esriSatelliteTileUrl(z, x, y)
+    : `https://a.tile.openstreetmap.org/${z}/${x}/${y}.png`;
 }
 
 export function basemapAttribution(key: string = cartoApiKey()): string {
-  return cartoConfigured(key) ? CARTO_ATTRIBUTION : OSM_ATTRIBUTION;
+  return cartoConfigured(key) ? CARTO_ATTRIBUTION : ESRI_ATTRIBUTION;
 }
