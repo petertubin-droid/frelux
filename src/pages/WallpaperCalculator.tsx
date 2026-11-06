@@ -14,6 +14,9 @@ import { useSeo } from "@/lib/seo";
 import { calculateWallpaperEstimate, type WallpaperWallInput } from "@/lib/calculators/wallpaper-calculator";
 import { formatNumber } from "@/lib/utils";
 import { formatWithSymbol } from "@/lib/international/currency-format";
+import AdSlot from "@/components/ui/AdSlot";
+import ToolFaqs from "@/components/seo/ToolFaqs";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 
 const METRES_PER_FOOT = 0.3048;
 const INITIAL_WALL: WallpaperWallInput = {
@@ -53,9 +56,15 @@ export default function WallpaperCalculator() {
   }, [market.marketCode, market.currencyCode, preferredLengthUnit]);
   const [walls, setWalls] = useState<WallpaperWallInput[]>([{ ...INITIAL_WALL }]);
   const [roll, setRoll] = useState("standard");
-  const [pattern, setPattern] = useState<"random" | "straight" | "drop">("random");
   const [wasteRate, setWasteRate] = useState(0);
   const [patternRepeat, setPatternRepeat] = useState(0);
+  const [trimAllowance, setTrimAllowance] = useState(0.3);
+  const [wallpaperType, setWallpaperType] = useState("nonwoven");
+  const [installationMethod, setInstallationMethod] = useState("pasted");
+  const [visualStyle, setVisualStyle] = useState("plain");
+  const pattern: "random" | "straight" | "drop" = visualStyle === "plain" ? "random" : visualStyle === "floral" ? "drop" : "straight";
+  const [customRollWidth, setCustomRollWidth] = useState(0.53);
+  const [customRollLength, setCustomRollLength] = useState(10);
   const [doorWidth, setDoorWidth] = useState(1.0);
   const [doorHeight, setDoorHeight] = useState(2.1);
   const [windowWidth, setWindowWidth] = useState(1.25);
@@ -64,30 +73,40 @@ export default function WallpaperCalculator() {
   const [extraRoll, setExtraRoll] = useState(false);
   // Example figures shown in the supplied screenshot are illustrative, not verified prices.
   const [rollPrice, setRollPrice] = useState(market.currencyCode === "NGN" ? 12500 : 0);
+  const [unitsPerPackage, setUnitsPerPackage] = useState(1);
   const [labourPerRoll, setLabourPerRoll] = useState(market.currencyCode === "NGN" ? 4500 : 0);
   const [adhesivePerRolls, setAdhesivePerRolls] = useState(5);
+  const [adhesivePackPrice, setAdhesivePackPrice] = useState(0);
   const [previewWallId, setPreviewWallId] = useState(INITIAL_WALL.id);
 
   const rollSpec = roll === "wide"
     ? { widthM: 1.06, lengthM: 15.6, label: "Wide · 1.06 × 15.6 m" }
-    : { widthM: 0.53, lengthM: 10, label: "Standard · 0.53 × 10 m" };
+    : roll === "custom" || roll === "panel"
+      ? { widthM: customRollWidth, lengthM: customRollLength, label: roll === "panel" ? "Fixed mural panel dimensions" : "Custom roll dimensions" }
+      : { widthM: 0.53, lengthM: 10, label: "Standard · 0.53 × 10 m" };
+  const isPanelFormat = roll === "panel";
 
   const estimate = useMemo(() => calculateWallpaperEstimate({
     walls,
     rollWidthM: rollSpec.widthM,
     rollLengthM: rollSpec.lengthM,
+    stockFormat: isPanelFormat ? "fixed-panel" : "roll",
+    unitsPerPackage,
     openingDoorWidthM: doorWidth,
     openingDoorHeightM: doorHeight,
     openingWindowWidthM: windowWidth,
     openingWindowHeightM: windowHeight,
     pattern,
     patternRepeatM: patternRepeat,
+    trimAllowanceM: trimAllowance,
     wasteRate,
     extraRoll,
     rollPrice,
     labourPerRoll,
     adhesivePerRolls,
-  }), [walls, rollSpec.widthM, rollSpec.lengthM, doorWidth, doorHeight, windowWidth, windowHeight, pattern, patternRepeat, wasteRate, extraRoll, rollPrice, labourPerRoll, adhesivePerRolls]);
+    adhesivePackPrice,
+    adhesiveRequired: installationMethod === "pasted",
+  }), [walls, rollSpec.widthM, rollSpec.lengthM, isPanelFormat, unitsPerPackage, doorWidth, doorHeight, windowWidth, windowHeight, pattern, patternRepeat, trimAllowance, wasteRate, extraRoll, rollPrice, labourPerRoll, adhesivePerRolls, adhesivePackPrice, installationMethod]);
 
   const previewWall = walls.find((wall) => wall.id === previewWallId) ?? walls[0];
   const previewBaseStrips = previewWall ? Math.ceil(previewWall.widthM / rollSpec.widthM) : 0;
@@ -99,9 +118,9 @@ export default function WallpaperCalculator() {
 
   useSeo({
     title: "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
-    description: "Estimate wallpaper rolls from measured wall dimensions, openings, roll sizes and pattern allowance. See the wall-strip diagram, materials and optional installation budget.",
+    description: "Estimate wallpaper rolls and mural panels from global product dimensions, measured walls, pattern matches and trimming allowance. Review an accessible wall diagram, materials, adhesive and local quotes.",
     canonicalPath: "/wallpaper-calculator",
-    keywords: "wallpaper calculator, wallpaper rolls, wall covering, wallpaper installation cost, wallpaper pattern waste",
+    keywords: "wallpaper calculator, wallpaper rolls, wall covering, wallpaper installation cost, wallpaper pattern repeat, wallpaper mural estimate",
   });
 
   const updateWall = (id: string, patch: Partial<WallpaperWallInput>) => {
@@ -115,8 +134,12 @@ export default function WallpaperCalculator() {
   };
   const reset = () => {
     setWalls([{ ...INITIAL_WALL }]);
-    setRoll("standard"); setPattern("random"); setWasteRate(0.05);
-    setPatternRepeat(0); setExtraRoll(false); setShowOpeningSizes(false);
+    setRoll("standard"); setVisualStyle("plain"); setWasteRate(0);
+    setPatternRepeat(0); setTrimAllowance(0.3); setExtraRoll(false); setShowOpeningSizes(false);
+    setWallpaperType("nonwoven"); setInstallationMethod("pasted"); setPreviewWallId(INITIAL_WALL.id);
+    setRollPrice(market.currencyCode === "NGN" ? 12500 : 0);
+    setLabourPerRoll(market.currencyCode === "NGN" ? 4500 : 0);
+    setAdhesivePackPrice(0); setAdhesivePerRolls(5); setUnitsPerPackage(1);
   };
 
   return (
@@ -136,15 +159,17 @@ export default function WallpaperCalculator() {
               <div className="mb-5 flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-foreground">Measure your walls</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Enter each wall separately. Openings reduce net area; full-height drops remain in the roll cut estimate.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Enter each wall separately. Openings reduce net area; full-height drops remain in the material takeoff. Preset dimensions are examples, not market-wide standards.</p>
                 </div>
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{market.countryName}</span>
               </div>
               <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_1fr]">
-                <Field label="Wallpaper roll" hint="Roll sizes from the supplied brief">
+                <Field label="Product package format" hint="Example presets; confirm usable dimensions on the product package">
                   <select className={inputClass} value={roll} onChange={(event) => setRoll(event.target.value)}>
-                    <option value="standard">Standard · 0.53 × 10 m</option>
-                    <option value="wide">Wide · 1.06 × 15.6 m</option>
+                    <option value="standard">Example preset · 0.53 × 10 m</option>
+                    <option value="wide">Example preset · 1.06 × 15.6 m</option>
+                    <option value="custom">Custom roll / package format</option>
+                    <option value="panel">Fixed-size mural panels</option>
                   </select>
                 </Field>
                 <Field label="Dimension unit" hint="Choose the unit used in the form">
@@ -155,6 +180,11 @@ export default function WallpaperCalculator() {
                   </select>
                 </Field>
               </div>
+              {(roll === "custom" || isPanelFormat) && <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/30 p-4">
+                <NumberField label={`${isPanelFormat ? "Panel" : "Product"} width (${labelUnit})`} value={toDisplay(customRollWidth, unit)} min="0.01" step="0.01" onChange={(value) => setCustomRollWidth(toMetres(value, unit))} />
+                <NumberField label={`${isPanelFormat ? "Panel height" : "Usable package length"} (${labelUnit})`} value={toDisplay(customRollLength, unit)} min="0.01" step="0.01" onChange={(value) => setCustomRollLength(toMetres(value, unit))} />
+                <p className="col-span-2 text-xs text-muted-foreground">{isPanelFormat ? "Enter one fixed panel's usable width and height. Every wall drop counts as a separate numbered panel; the calculator does not reuse offcuts between panels." : "Enter the usable width and total continuous length in one priced package. This supports single, double or multi-roll packages; confirm usable dimensions and package contents on the label."}</p>
+              </div>}
 
               <div className="space-y-3">
                 {walls.map((wall, index) => (
@@ -189,12 +219,30 @@ export default function WallpaperCalculator() {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-              <h2 className="text-lg font-bold text-foreground">Pattern & cutting allowance</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Allowances are planning options, not verified Nigerian market standards. Pattern repeat increases cut length when supplied.</p>
+              <h2 className="text-lg font-bold text-foreground">Wallpaper type & installation</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Material type informs the hanging method. Exact roll or panel dimensions and the printed pattern repeat drive quantities. Follow the product maker's instructions.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Field label="Pattern match">
-                  <select className={inputClass} value={pattern} onChange={(event) => setPattern(event.target.value as typeof pattern)}>
-                    <option value="random">Random / plain</option><option value="straight">Straight match</option><option value="drop">Half-drop match</option>
+                <Field label="Wallpaper material / finish">
+                  <select className={inputClass} value={wallpaperType} onChange={(event) => { const nextType = event.target.value; setWallpaperType(nextType); if (nextType === "peel-stick") setInstallationMethod("self-adhesive"); }}>
+                    <option value="paper">Paper</option><option value="vinyl">Vinyl-coated or solid vinyl</option><option value="nonwoven">Non-woven</option><option value="textile">Textile / natural fibre</option><option value="peel-stick">Peel-and-stick</option><option value="mural">Printed mural wallpaper</option>
+                  </select>
+                </Field>
+                <Field label="Product installation method">
+                  <select className={inputClass} value={installationMethod} onChange={(event) => setInstallationMethod(event.target.value)}>
+                    <option value="pasted">Paste required</option><option value="pre-pasted">Pre-pasted / water activated</option><option value="self-adhesive">Self-adhesive</option>
+                  </select>
+                </Field>
+                <div className="flex items-center rounded-xl bg-muted/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">Selected: {wallpaperType === "nonwoven" ? "Non-woven" : wallpaperType === "peel-stick" ? "Peel-and-stick" : wallpaperType === "mural" ? "Printed mural / panel" : wallpaperType === "textile" ? "Textile / natural fibre" : wallpaperType === "vinyl" ? "Vinyl" : "Paper"}. No unsupported coverage or price multiplier is applied. For numbered murals, choose fixed-panel format.</div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <h2 className="text-lg font-bold text-foreground">Pattern & cutting allowance</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Design choice sets a planning match type. Confirm the exact match symbol and repeat printed on the product label. Numbered murals use fixed-panel counting.</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <Field label="Design style & match" hint="Planning match only; confirm the exact match on the product label">
+                  <select className={inputClass} value={visualStyle} disabled={isPanelFormat} onChange={(event) => setVisualStyle(event.target.value)}>
+                    <option value="plain">Plain / texture · free match</option><option value="stripe">Stripe · straight match</option><option value="geometric">Geometric / repeating · straight match</option><option value="floral">Large floral / motif · half-drop match</option>
                   </select>
                 </Field>
                 <Field label="Planning waste allowance">
@@ -202,24 +250,29 @@ export default function WallpaperCalculator() {
                     <option value={0}>0% · no additional allowance</option><option value={0.05}>5% · illustrative</option><option value={0.12}>12% · illustrative</option><option value={0.20}>20% · illustrative</option>
                   </select>
                 </Field>
-                <NumberField label={`Pattern repeat (${labelUnit}; 0 if unknown)`} value={toDisplay(patternRepeat, unit)} min="0" step="0.01" onChange={(value) => setPatternRepeat(toMetres(value, unit))} />
+                <NumberField label={`Pattern repeat (${labelUnit}; read product label)`} value={toDisplay(patternRepeat, unit)} min="0" step="0.01" disabled={isPanelFormat || pattern === "random"} onChange={(value) => setPatternRepeat(toMetres(value, unit))} />
+                <NumberField label={`Extra length per drop for trimming (${labelUnit})`} value={toDisplay(trimAllowance, unit)} min="0" step="0.01" onChange={(value) => setTrimAllowance(toMetres(value, unit))} />
                 <label className="flex items-center gap-3 rounded-xl border border-border px-3 py-2.5 text-sm">
                   <input type="checkbox" className="h-4 w-4 accent-primary" checked={extraRoll} onChange={(event) => setExtraRoll(event.target.checked)} />
-                  <span><span className="block font-medium text-foreground">Add one spare roll</span><span className="text-xs text-muted-foreground">Optional, shown separately in the total</span></span>
+                  <span><span className="block font-medium text-foreground">Add one spare {isPanelFormat ? "panel" : "physical roll"}</span><span className="text-xs text-muted-foreground">Optional, shown separately in the total</span></span>
                 </label>
               </div>
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <h2 className="text-lg font-bold text-foreground">Local quote & accessories</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Edit these example figures with current supplier and installer quotes. FRELUX does not verify these prices.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Enter prices for the selected roll package or fixed panel, plus a local fitting quote. FRELUX does not verify these prices.</p>
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <NumberField label={`Price per roll (${currency})`} value={rollPrice} min="0" step="100" onChange={setRollPrice} />
-                <NumberField label={`Labour per roll (${currency})`} value={labourPerRoll} min="0" step="100" onChange={setLabourPerRoll} />
-                <NumberField label="Adhesive pack covers (rolls)" value={adhesivePerRolls} min="1" step="1" onChange={(value) => setAdhesivePerRolls(Math.max(1, Math.floor(value)))} />
-                <div className="flex items-center rounded-xl bg-muted/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">Adhesive coverage is product-specific. The initial 1 pack per 5 rolls is an editable planning assumption; follow the package instructions.</div>
+                <NumberField label={`Price per ${isPanelFormat ? "panel set / package" : "priced package"} (${currency})`} value={rollPrice} min="0" step="100" onChange={setRollPrice} />
+                <NumberField label={`${isPanelFormat ? "Panels" : "Physical rolls"} per priced ${isPanelFormat ? "set" : "package"}`} value={unitsPerPackage} min="1" step="1" onChange={(value) => setUnitsPerPackage(Math.max(1, Math.floor(value)))} />
+                <NumberField label={`Labour per ${isPanelFormat ? "panel" : "physical roll"} (${currency})`} value={labourPerRoll} min="0" step="100" onChange={setLabourPerRoll} />
+                {installationMethod === "pasted" && <>
+                  <NumberField label="Adhesive pack covers (rolls)" value={adhesivePerRolls} min="1" step="1" onChange={(value) => setAdhesivePerRolls(Math.max(1, Math.floor(value)))} />
+                  <NumberField label={`Adhesive pack price (${currency})`} value={adhesivePackPrice} min="0" step="100" onChange={setAdhesivePackPrice} />
+                </>}
+                <div className="flex items-center rounded-xl bg-muted/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">{installationMethod === "pasted" ? "Adhesive coverage is product-specific. Enter the coverage shown on the adhesive pack." : installationMethod === "pre-pasted" ? "The selected method uses the product's activated backing; separate adhesive packs are not counted." : "The selected method is self-adhesive; separate paste packs are not counted."}</div>
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">The displayed price and labour values are illustrative figures from the supplied screenshot, not live market prices or a supplier quote.</p>
+              <p className="mt-3 text-xs text-muted-foreground">The displayed roll, paste and labour figures are illustrative inputs, not live market prices or a supplier quote. For mural panels, price this field per panel.</p>
             </div>
           </section>
 
@@ -230,19 +283,20 @@ export default function WallpaperCalculator() {
                   <div><p className="text-sm font-medium text-muted-foreground">Estimated project budget</p><p className="mt-1 text-3xl font-bold tracking-tight text-foreground">{money(estimate.totalCost)}</p></div>
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Layers className="h-6 w-6" /></span>
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">Based on {estimate.rolls} rolls and {areaDisplay(estimate.netAreaM2, preferredAreaUnit)} net wall area · manual prices</p>
+                <p className="mt-2 text-xs text-muted-foreground">Takeoff: {estimate.rolls} {isPanelFormat ? "panels" : "physical rolls"} across {estimate.packages} priced {isPanelFormat ? "panel sets" : "packages"} · {areaDisplay(estimate.netAreaM2, preferredAreaUnit)} net area</p>
                 {estimate.invalidWall && <p role="alert" className="mt-3 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">Check {estimate.invalidWall}: dimensions or opening deductions are invalid.</p>}
               </div>
-              <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-4">
-                <ResultMetric label="Rolls" value={`${estimate.rolls}`} />
+              <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-5">
+                <ResultMetric label={isPanelFormat ? "Mural panels" : "Physical rolls"} value={`${estimate.rolls}`} />
+                <ResultMetric label={isPanelFormat ? "Priced panel sets" : "Priced packages"} value={`${estimate.packages}`} />
                 <ResultMetric label="Net area" value={areaDisplay(estimate.netAreaM2, preferredAreaUnit)} />
-                <ResultMetric label="Material" value={money(estimate.materialCost)} />
+                <ResultMetric label="Materials + paste" value={money(estimate.materialCost)} />
                 <ResultMetric label="Installation" value={money(estimate.labourCost)} />
               </div>
-              <WallDiagram wall={previewWall} rollWidthM={rollSpec.widthM} strips={previewStripCount} allowanceDrops={previewAllowanceDrops} unit={unit} doorWidthM={doorWidth} doorHeightM={doorHeight} windowWidthM={windowWidth} windowHeightM={windowHeight} />
+              <WallDiagram wall={previewWall} rollWidthM={rollSpec.widthM} strips={previewStripCount} allowanceDrops={previewAllowanceDrops} unit={unit} doorWidthM={doorWidth} doorHeightM={doorHeight} windowWidthM={windowWidth} windowHeightM={windowHeight} isPanelFormat={isPanelFormat} />
               <div className="grid grid-cols-2 gap-3 p-5">
-                <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Adhesive packs</p><p className="mt-1 font-semibold text-foreground">{estimate.adhesivePacks} packs</p></div>
-                <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Estimated wall drops</p><p className="mt-1 font-semibold text-foreground">{estimate.strips} strips</p></div>
+                <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Adhesive packs for installed rolls</p><p className="mt-1 font-semibold text-foreground">{estimate.adhesivePacks} packs · {money(estimate.adhesiveCost)}</p></div>
+                <div className="rounded-xl bg-muted/50 p-3"><p className="text-xs text-muted-foreground">Estimated wall drops</p><p className="mt-1 font-semibold text-foreground">{estimate.strips} {isPanelFormat ? "panels" : "drops"}</p></div>
               </div>
               <div className="border-t border-border p-5">
                 <p className="text-xs leading-relaxed text-muted-foreground">Planning estimate only. Pattern repeat, usable offcuts, wall irregularities and product coverage affect actual quantities. Confirm measurements, roll batch, adhesive coverage and labour with your installer before purchase.</p>
@@ -257,16 +311,21 @@ export default function WallpaperCalculator() {
             </div>
           </aside>
         </div>
+        <div className="mt-8"><ToolFaqs slug="wallpaper-calculator" /></div>
+        <RelatedTools links={[CALC_LINKS.paintCalculator, CALC_LINKS.tileCalc, CALC_LINKS.finishEstimator]} />
         <section className="mt-10 rounded-2xl border border-border bg-card p-5 sm:p-7">
           <h2 className="text-xl font-bold text-foreground">How this estimate works</h2>
           <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
             <li>Net wall area is gross measured wall area less the editable door and window dimensions. Deductions are capped by each wall’s area.</li>
-            <li>Roll count is based on full-height wallpaper drops, actual selected roll length and width, and an efficient estimate of reusable offcuts. It is not based on theoretical roll area alone.</li>
-            <li>Pattern repeats lengthen cuts when you enter the repeat. The optional percentage adds strips; it is a planning allowance, not an industry standard.</li>
-            <li>Adhesive is estimated from the coverage you enter. Always follow the selected adhesive manufacturer’s coverage instructions.</li>
+            <li>Quantity is based on full-height drops, product dimensions, trimming allowance and pattern repeat. Continuous rolls can share usable offcuts; numbered mural panels are counted one panel per drop.</li>
+            <li>Free-match designs do not use a repeat; straight and half-drop matching use the repeat you enter. Confirm match symbols and repeat on the product label before ordering.</li>
+            <li>The optional percentage allowance rounds up to additional drops. Adhesive is only counted for paste-required installation and uses the pack coverage you enter.</li>
           </ol>
         </section>
       </main>
+      {/* FRELUX calculator pages use two ad placements: mid-content and native. */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
     </>
   );
 }
@@ -275,13 +334,13 @@ const inputClass = "w-full rounded-xl border border-input bg-background px-3 py-
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return <label className="block text-sm font-medium text-foreground">{label}{children}<span className="sr-only">{hint}</span></label>;
 }
-function NumberField({ label, value, min, step, onChange }: { label: string; value: number; min: string; step: string; onChange: (value: number) => void }) {
-  return <label className="block text-sm font-medium text-foreground">{label}<input className={`${inputClass} mt-1.5`} type="number" value={Number.isFinite(value) ? Number(value.toFixed(3)) : 0} min={min} step={step} onChange={(event) => onChange(Math.max(0, Number(event.target.value) || 0))} /></label>;
+function NumberField({ label, value, min, step, onChange, disabled = false }: { label: string; value: number; min: string; step: string; onChange: (value: number) => void; disabled?: boolean }) {
+  return <label className="block text-sm font-medium text-foreground">{label}<input className={`${inputClass} mt-1.5`} type="number" value={Number.isFinite(value) ? Number(value.toFixed(3)) : 0} min={min} step={step} disabled={disabled} onChange={(event) => onChange(Math.max(0, Number(event.target.value) || 0))} /></label>;
 }
 function ResultMetric({ label, value }: { label: string; value: string }) {
   return <div className="min-w-0 bg-background p-3 text-center"><p className="text-[11px] text-muted-foreground">{label}</p><p className="mt-1 truncate text-sm font-semibold text-foreground">{value}</p></div>;
 }
-function WallDiagram({ wall, rollWidthM, strips, allowanceDrops, unit, doorWidthM, doorHeightM, windowWidthM, windowHeightM }: { wall?: WallpaperWallInput; rollWidthM: number; strips: number; allowanceDrops: number; unit: DisplayUnit; doorWidthM: number; doorHeightM: number; windowWidthM: number; windowHeightM: number }) {
+function WallDiagram({ wall, rollWidthM, strips, allowanceDrops, unit, doorWidthM, doorHeightM, windowWidthM, windowHeightM, isPanelFormat }: { wall?: WallpaperWallInput; rollWidthM: number; strips: number; allowanceDrops: number; unit: DisplayUnit; doorWidthM: number; doorHeightM: number; windowWidthM: number; windowHeightM: number; isPanelFormat: boolean }) {
   if (!wall) return null;
   const wallWidth = Math.max(wall.widthM, 0.1);
   const wallHeight = Math.max(wall.heightM, 0.1);
@@ -292,7 +351,7 @@ function WallDiagram({ wall, rollWidthM, strips, allowanceDrops, unit, doorWidth
   const windowW = Math.min(windowWidthM / wallWidth * width, width * 0.3);
   const windowH = Math.min(windowHeightM / wallHeight * height, height * 0.4);
   return <div className="border-b border-border bg-muted/30 px-3 py-5 sm:px-5">
-    <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground"><span>Strip layout · {wall.label}</span><span>{rollWidthM.toFixed(2)} m roll width</span></div>
+    <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground"><span>Strip layout · {wall.label}</span><span>{rollWidthM.toFixed(2)} m {isPanelFormat ? "panel" : "roll"} width</span></div>
     <svg viewBox="0 0 460 290" role="img" aria-label={`${wall.label}, ${toDisplay(wall.widthM, unit).toFixed(2)} ${unit} wide by ${toDisplay(wall.heightM, unit).toFixed(2)} ${unit} high, shown as ${strips} vertical wallpaper drops`} className="mx-auto block w-full max-w-lg">
       <text x="228" y="22" textAnchor="middle" className="fill-foreground" fontSize="13">Width: {toDisplay(wall.widthM, unit).toFixed(2)} {unit}</text>
       <text x="18" y="140" textAnchor="start" className="fill-foreground" fontSize="13">Height:</text>

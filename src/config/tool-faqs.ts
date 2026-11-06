@@ -140,6 +140,42 @@ const BASE_TOOL_FAQS: ToolFaqGroup[] = [
     ],
   },
   {
+    slug: "wallpaper-calculator",
+    route: "/wallpaper-calculator",
+    name: "Wallpaper Calculator",
+    category: "finishes",
+    questions: [
+      {
+        q: "How does the wallpaper calculator estimate the number of rolls?",
+        a: "It divides each measured wall width by the product width to estimate full-height drops, adds the selected allowance, calculates each drop's cut length from wall height, trimming allowance and pattern repeat, then packs those lengths against the roll length. This is a planning estimate; it does not replace a product-specific cutting plan or installer check.",
+      },
+      {
+        q: "Can I estimate wide rolls, US single or double rolls, and mural panels?",
+        a: "Yes. Choose an example roll preset, enter custom dimensions, or select fixed mural panels. Presets are not global standards. Enter the usable dimensions printed on the exact package. Enter the usable width and length of one physical roll, then specify how many physical rolls are inside one priced package. The estimator packs cuts within each physical roll, counts labour per roll, and prices complete packages. Fixed mural panels are counted individually, with an optional panel count per priced set.",
+      },
+      {
+        q: "Can I estimate paper, vinyl, non-woven, textile, peel-and-stick and patterned wallpaper?",
+        a: "Yes. Choose the material description and a visual design/match type. The material label does not trigger an invented coverage multiplier: the estimate uses the product dimensions, wall measurements, selected pattern repeat and trim allowance. Follow the exact product's hanging, direction and adhesive instructions.",
+      },
+      {
+        q: "How do free match, straight match and half-drop affect the estimate?",
+        a: "Free-match uses no pattern repeat. Straight match rounds the drop cut up to the repeat you enter. Half-drop alternates a half-repeat offset between cuts, which can require more paper. Read the match symbol and repeat from the product label; the simplified estimate is not a full installer cutting schedule.",
+      },
+      {
+        q: "Do doors and windows reduce the number of wallpaper rolls?",
+        a: "Their measured area is subtracted from the net-area display, but the roll takeoff still plans full-height drops across the wall. That avoids assuming that small offcuts around an opening can reliably replace a complete drop. The actual layout and reusable pieces depend on opening positions and the installer.",
+      },
+      {
+        q: "Does the calculator show live wallpaper prices or labor rates?",
+        a: "No. Material and installation amounts are editable manual quotes shown in the selected market currency. FRELUX does not claim they are live or verified supplier prices, and changing markets does not convert one market's quote into another currency.",
+      },
+      {
+        q: "How much wallpaper paste should I buy?",
+        a: "Paste packs are estimated only when Paste required is selected, using the number of rolls or panels covered by one pack that you enter; you can also enter its price. Pre-pasted and self-adhesive options do not add separate paste packs. Follow the wallpaper and adhesive manufacturers' instructions because coverage depends on the specific products and surface.",
+      },
+    ],
+  },
+  {
     slug: "screeding-calculator",
     route: "/screeding-calculator",
     name: "Screeding Calculator",
