@@ -20,6 +20,9 @@ import {
   MapPin,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { calculatePopCeiling } from "@/lib/pop-tile-calc";
 import { track } from "@/lib/analytics";
@@ -323,6 +326,8 @@ export default function PopCeilingCalculator({
     );
   }
 
+  const { resultsRef, handleCalculate: calculateWithScroll } =
+    useCalculatorFeedback<HTMLDivElement>();
   return (
     <>
       {!embedded && (
@@ -351,6 +356,10 @@ export default function PopCeilingCalculator({
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+            <div className="mb-5">
+              <MeasurementTip what="measurement unit and room dimensions" />
+            </div>
+
             {/* Workflow selection */}
             <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               {tx("Choose workflow")}
@@ -490,7 +499,7 @@ export default function PopCeilingCalculator({
             <Button
               variant="default"
               type="button"
-              onClick={compute}
+              onClick={() => calculateWithScroll(compute)}
               className="btn-glow mt-6 w-full sm:w-auto"
             >
               {tx("Calculate POP Ceiling")}
@@ -500,25 +509,27 @@ export default function PopCeilingCalculator({
         )}
 
         {result && (
-          <PopResultCard
-            result={result}
-            input={input}
-            currencySymbol={currencySymbol}
-            onAgain={() => setResult(null)}
-            onStartOver={startOver}
-            calcDefaults={{
-              howCalculatedText:
-                (calcDefaults.howCalculatedText as string) || "",
-              estimateDisclaimer: calcDefaults.estimateDisclaimer,
-            }}
-            user={user}
-            onSave={handleSave}
-            saving={saving}
-            saveMsg={saveMsg}
-            engine={engine}
-            alreadyHave={alreadyHave}
-            onAlreadyHaveChange={setAlreadyHave}
-          />
+          <div ref={resultsRef}>
+            <PopResultCard
+              result={result}
+              input={input}
+              currencySymbol={currencySymbol}
+              onAgain={() => setResult(null)}
+              onStartOver={startOver}
+              calcDefaults={{
+                howCalculatedText:
+                  (calcDefaults.howCalculatedText as string) || "",
+                estimateDisclaimer: calcDefaults.estimateDisclaimer,
+              }}
+              user={user}
+              onSave={handleSave}
+              saving={saving}
+              saveMsg={saveMsg}
+              engine={engine}
+              alreadyHave={alreadyHave}
+              onAlreadyHaveChange={setAlreadyHave}
+            />
+          </div>
         )}
 
         {result && (

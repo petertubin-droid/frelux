@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useCalculatorFeedback } from "./useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 
 function Probe({ onCalculate }: { onCalculate: () => void }) {
@@ -55,5 +56,33 @@ describe("useCalculatorFeedback", () => {
     expect(onCalculate).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(scrollTo).toHaveBeenCalled());
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("reports fields a page validated from its own state", () => {
+    function StateProbe() {
+      const { resultsRef, missing, reportMissing } =
+        useCalculatorFeedback<HTMLDivElement>();
+      return (
+        <div>
+          <input id="state-length" defaultValue="0" />
+          <button
+            type="button"
+            onClick={() =>
+              reportMissing([missingField("state-length", "Wall length")])
+            }
+          >
+            Check
+          </button>
+          <MissingFieldsNotice fields={missing} />
+          <div ref={resultsRef}>Results</div>
+        </div>
+      );
+    }
+    render(<StateProbe />);
+    fireEvent.click(screen.getByRole("button", { name: "Check" }));
+    const notice = screen.getByRole("alert");
+    expect(notice.textContent).toContain("Wall length");
+    // The notice is a way back to the box, so the press must focus it.
+    expect(document.activeElement?.id).toBe("state-length");
   });
 });

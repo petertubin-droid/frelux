@@ -114,12 +114,17 @@ describe("LabourEstimator page", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 
-  it("disables Estimate until a task and quantity are chosen", async () => {
+  it("names the task and quantity instead of disabling Estimate", async () => {
     renderPage();
     await screen.findByRole("combobox");
-    expect(
-      screen.getByRole("button", { name: /Estimate Labour/i }),
-    ).toBeDisabled();
+    const button = screen.getByRole("button", { name: /Estimate Labour/i });
+    // A disabled button says nothing about which field it is waiting for, so
+    // the button stays live and the press reports what is missing.
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    const notice = await screen.findByTestId("missing-fields-notice");
+    expect(notice).toHaveTextContent(/Task/);
+    expect(notice).toHaveTextContent(/Quantity/);
   });
 
   it("shows the empty state when no rates are configured", async () => {

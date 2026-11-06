@@ -50,6 +50,8 @@ import {
   Briefcase,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useToast } from "@/components/ui/Toast";
 import { supabase } from "@/lib/supabase";
@@ -699,6 +701,9 @@ export default function PaintingEstimator({
   // =========================================================
   // Calculate
   // =========================================================
+  const { resultsRef, handleCalculate: calculateWithScroll } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   const handleCalculate = useCallback(async () => {
     setCalculating(true);
     setSaved(false);
@@ -1143,7 +1148,7 @@ export default function PaintingEstimator({
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <Button
             variant="default"
-            onClick={handleCalculate}
+            onClick={() => calculateWithScroll(handleCalculate)}
             disabled={calculating}
             className="btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
           >
@@ -1173,20 +1178,22 @@ export default function PaintingEstimator({
 
         {/* Results */}
         {result && (
-          <EstimateResult
-            result={result}
-            showCalculation={showCalculation}
-            onToggleCalculation={() => setShowCalculation(!showCalculation)}
-            onSave={handleSave}
-            saved={saved}
-            onAddAdjustment={addAdjustment}
-            engine={engine}
-            alreadyHave={alreadyHave}
-            onAlreadyHaveChange={setAlreadyHave}
-            labourConfig={labourConfig}
-            setLabourConfig={setLabourConfig}
-            marketCode={marketCode}
-          />
+          <div ref={resultsRef}>
+            <EstimateResult
+              result={result}
+              showCalculation={showCalculation}
+              onToggleCalculation={() => setShowCalculation(!showCalculation)}
+              onSave={handleSave}
+              saved={saved}
+              onAddAdjustment={addAdjustment}
+              engine={engine}
+              alreadyHave={alreadyHave}
+              onAlreadyHaveChange={setAlreadyHave}
+              labourConfig={labourConfig}
+              setLabourConfig={setLabourConfig}
+              marketCode={marketCode}
+            />
+          </div>
         )}
       </div>
 

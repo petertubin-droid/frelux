@@ -41,6 +41,8 @@ export interface CalculatorFeedback<T extends HTMLElement = HTMLElement> {
   missing: MissingField[];
   /** Validate, then run the calculation or report what is missing. */
   handleCalculate: (calculate?: () => void) => boolean;
+  /** Report fields a page validated from its own state rather than the markup. */
+  reportMissing: (fields: MissingField[]) => void;
   /** Clear the notice, for a page that wants to reset. */
   clearMissing: () => void;
 }
@@ -56,6 +58,15 @@ export function useCalculatorFeedback<T extends HTMLElement = HTMLElement>(
   const { onValid, offset } = options;
 
   const clearMissing = useCallback(() => setMissing([]), []);
+
+  // A calculator that keeps numbers in state renders them as 0 rather than an
+  // empty box, so the markup cannot tell a blank field from a real zero. Those
+  // pages validate their own state and hand the list over here, which keeps one
+  // notice and one jump-to-field behaviour across both kinds of page.
+  const reportMissing = useCallback((fields: MissingField[]) => {
+    setMissing(fields);
+    if (fields.length > 0) focusMissingField(fields[0]);
+  }, []);
 
   const handleCalculate = useCallback(
     (calculate?: () => void): boolean => {
@@ -88,5 +99,12 @@ export function useCalculatorFeedback<T extends HTMLElement = HTMLElement>(
     [offset, onValid],
   );
 
-  return { fieldsRef, resultsRef, missing, handleCalculate, clearMissing };
+  return {
+    fieldsRef,
+    resultsRef,
+    missing,
+    handleCalculate,
+    reportMissing,
+    clearMissing,
+  };
 }

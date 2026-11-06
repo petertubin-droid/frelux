@@ -26,6 +26,10 @@ import {
   RotateCcw,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
@@ -37,6 +41,13 @@ import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function FoundationCalculator() {
+  const {
+    fieldsRef,
+    resultsRef,
+    missing,
+    handleCalculate: calculateWithScroll,
+    reportMissing,
+  } = useCalculatorFeedback<HTMLDivElement>();
   const { t } = useLanguage();
   const { preferredLengthUnit } = useMarket();
   useSeo({
@@ -96,6 +107,26 @@ export default function FoundationCalculator() {
 
   if (!result) calculate();
 
+  // The dimensions live in state and render as 0, so an untouched form looks
+  // filled to the markup. Name what is missing before the engine divides by it.
+  function runChecked() {
+    const gaps = [
+      buildingLength <= 0 && missingField("fnd-length", "Building length"),
+      buildingWidth <= 0 && missingField("fnd-width", "Building width"),
+      depth <= 0 && missingField("fnd-depth", "Foundation depth"),
+      shape === "pad"
+        ? columnLoad <= 0 && missingField("fnd-load", "Column load")
+        : wallLoad <= 0 && missingField("fnd-load", "Wall load per metre"),
+    ].filter((field): field is ReturnType<typeof missingField> =>
+      Boolean(field),
+    );
+    if (gaps.length > 0) {
+      reportMissing(gaps);
+      return;
+    }
+    calculateWithScroll(calculate);
+  }
+
   return (
     <SubscriptionGate feature="foundation_calculator">
       <PageHeader
@@ -134,7 +165,13 @@ export default function FoundationCalculator() {
         </div>
 
         {/* Inputs */}
-        <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <div
+          ref={fieldsRef}
+          className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card"
+        >
+          <div className="mb-5">
+            <MeasurementTip what="measurement unit and foundation dimensions" />
+          </div>
           <div className="mb-5 flex items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">
               Measurement unit:
@@ -320,9 +357,10 @@ export default function FoundationCalculator() {
             </p>
           </div>
 
+          <MissingFieldsNotice fields={missing} />
           <Button
             variant="default"
-            onClick={calculate}
+            onClick={runChecked}
             className="mt-5 btn-glow inline-flex items-center gap-2 px-6 py-3"
           >
             <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate
@@ -332,7 +370,7 @@ export default function FoundationCalculator() {
 
         {/* Results */}
         {result && (
-          <div className="card-elevated p-6 sm:p-8">
+          <div ref={resultsRef} className="card-elevated p-6 sm:p-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Layers className="h-5 w-5 text-brand-purple" />
@@ -348,11 +386,13 @@ export default function FoundationCalculator() {
                 kind="foundation"
                 shape={result.shape}
                 width={`${result.recommended_width} mm`}
-                length={result.shape === "pad"
-                  ? `${result.recommended_length ?? result.recommended_width} mm`
-                  : result.shape === "strip"
-                    ? `${(buildingLength * 2 + buildingWidth * 2).toFixed(1)} m perimeter`
-                    : `${buildingLength} × ${buildingWidth} m footprint`}
+                length={
+                  result.shape === "pad"
+                    ? `${result.recommended_length ?? result.recommended_width} mm`
+                    : result.shape === "strip"
+                      ? `${(buildingLength * 2 + buildingWidth * 2).toFixed(1)} m perimeter`
+                      : `${buildingLength} × ${buildingWidth} m footprint`
+                }
                 depth={`${depth} ${measurementUnit}`}
                 bearing={`${result.bearing_capacity}`}
                 pressure={`${result.applied_pressure}`}

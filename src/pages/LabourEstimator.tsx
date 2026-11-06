@@ -16,6 +16,10 @@ import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchLabourRates, fetchCalcRules } from "@/lib/estimation/queries";
 import {
@@ -58,6 +62,9 @@ export default function LabourEstimator() {
   }, []);
 
   const selected = rates.find((r) => r.task_key === taskKey) ?? null;
+
+  const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
+    useCalculatorFeedback<HTMLDivElement>();
 
   const run = () => {
     const r = calculateLabour({
@@ -103,7 +110,13 @@ export default function LabourEstimator() {
           </span>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+        <div
+          ref={fieldsRef}
+          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+        >
+          <div className="mb-3">
+            <MeasurementTip what="measurement unit and work quantity" />
+          </div>
           {rates.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No labour rates configured yet. Rates are entered by FRELUX team
@@ -115,6 +128,7 @@ export default function LabourEstimator() {
               <label className="grid gap-1 text-sm font-medium">
                 {t("Task")}
                 <select
+                  id="labour-task"
                   className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                   value={taskKey}
                   onChange={(e) => {
@@ -134,6 +148,7 @@ export default function LabourEstimator() {
               <label className="grid gap-1 text-sm font-medium">
                 {selected ? `Quantity (${selected.unit})` : "Quantity"}
                 <input
+                  id="labour-quantity"
                   type="number"
                   min="1"
                   step="any"
@@ -155,10 +170,28 @@ export default function LabourEstimator() {
                 />
               </label>
               <div className="sm:col-span-3">
+                <MissingFieldsNotice
+                  fields={missing}
+                  className="mb-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3"
+                />
+              </div>
+              <div className="sm:col-span-3">
                 <button
                   type="button"
-                  onClick={run}
-                  disabled={!taskKey || !quantity}
+                  onClick={() => {
+                    if (!taskKey || !quantity) {
+                      reportMissing([
+                        ...(!taskKey
+                          ? [missingField("labour-task", "Task")]
+                          : []),
+                        ...(!quantity
+                          ? [missingField("labour-quantity", "Quantity")]
+                          : []),
+                      ]);
+                      return;
+                    }
+                    handleCalculate(run);
+                  }}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   {t("Estimate Labour")}
@@ -179,65 +212,67 @@ export default function LabourEstimator() {
         )}
 
         {result?.ok && (
-          <div className="space-y-4">
-            {result.warnings.map((w, i) => (
-              <p
-                key={i}
-                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
-              >
-                {w}
-              </p>
-            ))}
-            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <p className="text-sm text-muted-foreground">
-                {result.task_label} · {result.quantity} {result.unit} · crew of{" "}
-                {result.crew_size}
-              </p>
-              <div className="mt-1 flex items-baseline gap-3">
-                <p className="text-3xl font-bold">
-                  {result.calendar_days} day
-                  {result.calendar_days === 1 ? "" : "s"}
+          <div ref={resultsRef}>
+            <div className="space-y-4">
+              {result.warnings.map((w, i) => (
+                <p
+                  key={i}
+                  className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
+                >
+                  {w}
                 </p>
+              ))}
+              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <p className="text-sm text-muted-foreground">
-                  {result.worker_days} worker-days at {result.effective_rate}{" "}
-                  {result.unit}/worker-day
+                  {result.task_label} · {result.quantity} {result.unit} · crew
+                  of {result.crew_size}
+                </p>
+                <div className="mt-1 flex items-baseline gap-3">
+                  <p className="text-3xl font-bold">
+                    {result.calendar_days} day
+                    {result.calendar_days === 1 ? "" : "s"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {result.worker_days} worker-days at {result.effective_rate}{" "}
+                    {result.unit}/worker-day
+                  </p>
+                </div>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Rate: {result.base_rate} {result.unit}/wd (source:{" "}
+                  {result.source_reference}), less{" "}
+                  {result.efficiency_loss_percent}% site efficiency.
                 </p>
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                Rate: {result.base_rate} {result.unit}/wd (source:{" "}
-                {result.source_reference}), less{" "}
-                {result.efficiency_loss_percent}% site efficiency.
-              </p>
+              <button
+                type="button"
+                className="inline-flex rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
+                onClick={() => {
+                  stageStudioImport({
+                    title: `Labour schedule · ${result.task_label}`,
+                    document_type: "labour_schedule",
+                    currency: market.currencyCode || "NGN",
+                    notes: `Quantity: ${result.quantity} ${result.unit}. Crew size: ${result.crew_size}. Calendar duration: ${result.calendar_days} days. Worker-days: ${result.worker_days}. Rate: ${result.base_rate} ${result.unit}/worker-day (source: ${result.source_reference}). Efficiency adjustment: ${result.efficiency_loss_percent}%. Labour cost is not supplied by this estimator; no cost is fabricated.`,
+                    materials: [],
+                  });
+                  window.location.assign("/document-studio?calculatorImport=1");
+                }}
+              >
+                {t("Customize labour schedule in Document Studio")}
+              </button>
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("Calculation breakdown")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
-            <button
-              type="button"
-              className="inline-flex rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/5"
-              onClick={() => {
-                stageStudioImport({
-                  title: `Labour schedule · ${result.task_label}`,
-                  document_type: "labour_schedule",
-                  currency: market.currencyCode || "NGN",
-                  notes: `Quantity: ${result.quantity} ${result.unit}. Crew size: ${result.crew_size}. Calendar duration: ${result.calendar_days} days. Worker-days: ${result.worker_days}. Rate: ${result.base_rate} ${result.unit}/worker-day (source: ${result.source_reference}). Efficiency adjustment: ${result.efficiency_loss_percent}%. Labour cost is not supplied by this estimator; no cost is fabricated.`,
-                  materials: [],
-                });
-                window.location.assign("/document-studio?calculatorImport=1");
-              }}
-            >
-              {t("Customize labour schedule in Document Studio")}
-            </button>
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("Calculation breakdown")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
           </div>
         )}
       </div>

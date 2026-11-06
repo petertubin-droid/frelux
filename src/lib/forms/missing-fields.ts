@@ -218,3 +218,17 @@ export function focusMissingField(
   }
   return field;
 }
+
+/**
+ * A field a page validated from its own state, named for the shared notice.
+ *
+ * The markup route reads the page; this route exists for a page whose numbers
+ * live in state and render as zero, where an empty box and a real zero look the
+ * same to the DOM. The element is resolved by id so the notice can still put the
+ * cursor in the right box.
+ */
+export function missingField(id: string, label: string): MissingField {
+  const element =
+    typeof document === "undefined" ? null : document.getElementById(id);
+  return { id, label, element: (element ?? document.body) as HTMLElement };
+}

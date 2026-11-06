@@ -26,6 +26,10 @@ import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
+import { missingField } from "@/lib/forms/missing-fields";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
@@ -213,6 +217,14 @@ export default function ConfigurableFinishCalculator({
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
+
+  const {
+    fieldsRef,
+    resultsRef,
+    missing,
+    handleCalculate: calculateWithScroll,
+    reportMissing,
+  } = useCalculatorFeedback<HTMLDivElement>();
 
   // ── Calculation (engine call only - no math in this page) ──
   const handleCalculate = useCallback(() => {
@@ -477,12 +489,19 @@ export default function ConfigurableFinishCalculator({
         ) : (
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             {/* ── Inputs ── */}
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div
+              ref={fieldsRef}
+              className="rounded-lg border border-border bg-card p-6"
+            >
               <h2 className="mb-4 text-base font-semibold">{t("Inputs")}</h2>
+              <div className="mb-4">
+                <MeasurementTip what="measurement unit and surface area" />
+              </div>
               <div className="grid gap-4">
                 <label className="grid gap-1 text-sm font-medium">
                   {t("Product")}
                   <select
+                    id="finish-product"
                     className="rounded-lg border border-border bg-background px-3 py-2"
                     value={productId}
                     onChange={(e) => setProductId(e.target.value)}
@@ -499,6 +518,7 @@ export default function ConfigurableFinishCalculator({
                 <label className="grid gap-1 text-sm font-medium">
                   {t("Application profile")}
                   <select
+                    id="finish-profile"
                     className="rounded-lg border border-border bg-background px-3 py-2"
                     value={profileId}
                     onChange={(e) => {
@@ -594,10 +614,30 @@ export default function ConfigurableFinishCalculator({
                   </span>
                 </label>
 
+                <MissingFieldsNotice fields={missing} />
+
                 <button
                   type="button"
-                  onClick={handleCalculate}
-                  disabled={calculating || !selectedProduct}
+                  onClick={() => {
+                    if (!selectedProduct || !selectedProfile) {
+                      reportMissing([
+                        ...(!selectedProduct
+                          ? [missingField("finish-product", "Product")]
+                          : []),
+                        ...(!selectedProfile
+                          ? [
+                              missingField(
+                                "finish-profile",
+                                "Application profile",
+                              ),
+                            ]
+                          : []),
+                      ]);
+                      return;
+                    }
+                    calculateWithScroll(handleCalculate);
+                  }}
+                  disabled={calculating}
                   className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   {t("Calculate")}
@@ -606,7 +646,10 @@ export default function ConfigurableFinishCalculator({
             </div>
 
             {/* ── Result ── */}
-            <div className="rounded-lg border border-border bg-card p-6">
+            <div
+              ref={resultsRef}
+              className="rounded-lg border border-border bg-card p-6"
+            >
               <h2 className="mb-4 text-base font-semibold">{t("Result")}</h2>
               {!result ? (
                 <p className="text-sm text-muted-foreground">
