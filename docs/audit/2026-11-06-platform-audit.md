@@ -260,6 +260,38 @@ Fixed and applied (`20261106110000`, `20261106113000`):
   refuses to auto-apply any group when the observation write failed, and logs a
   rejected run close instead of leaving a silent `running` row.
 
+### Counts that were never evidence
+
+`market_material_prices` holds 1381 rows and every one carried
+`observations_count > 0`, maximum 7, while `market_price_observations` covers 6
+market-material pairs. The counts came from
+`20261103190500_backfill_market_prices_from_book.sql`, which copied them from the
+estimation book. `describePriceProvenance` renders them as "N observations
+recorded, none reviewed yet" in `AdminMarketPrices` and in
+`suppliers/index-bridge`, so 1357 rows asserted evidence that does not exist.
+Only 24 rows carry a `source_url` or `supplier_name`.
+
+Fixed and applied (`20261106120000`): counts are derived from observations over a
+90 day window, statement-level triggers keep them in step for insert, update and
+delete, and the migration aborts if any row still reports observations for a pair
+that has none. Rows claiming observations fell from 1381 to 34, matching the six
+pairs that exist.
+
+### Dispatch now spends its budget where data can exist
+
+Of the 28 markets Frelux must cover, 12 have no scannable source at all (CH, CN,
+GH, ID, JP, KR, MX, NL, PL, SA, SE, SG), 16 have between 1 and 12, and 6 have any
+observation in the last 90 days. Dispatch ordered only by `next_run_at`, so a
+market with nothing to scan consumed a slot every day and reported failure.
+
+`dispatch_market_scans` now parks a market whose active sources are all
+`search_page_only` or `bot_blocked` for seven days and orders the rest by
+scannable source count. Overdue markets fell from 38 to 19 immediately, and the
+next three dispatches went to US, GB and DE instead of arbitrary overdue rows.
+`price_market_readiness()` reports per market the scannable reach, observations,
+book rows and a verdict: `unconfigured`, `configured, no data yet`, `live,
+evidence ageing`, or `live`.
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access
