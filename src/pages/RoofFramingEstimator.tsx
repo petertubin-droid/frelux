@@ -3,6 +3,9 @@ import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
@@ -255,6 +258,9 @@ export default function RoofFramingEstimator() {
       ...form.extra,
       { label: "", count: "", lengthM: "", widthIn: "", depthIn: "" },
     ]);
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <>
       <PageHeader
@@ -291,7 +297,10 @@ export default function RoofFramingEstimator() {
           <>
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(330px,.8fr)]">
               <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
-                <h2 className="text-xl font-bold">{t("Roof geometry")}</h2>
+                <div ref={fieldsRef}>
+                  <MeasurementTip what="roof measurements and units" />
+                </div>
+                <h2 className="mt-4 text-xl font-bold">{t("Roof geometry")}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Use measured wall dimensions and choose a simple rectangular
                   roof type.
@@ -467,11 +476,14 @@ export default function RoofFramingEstimator() {
                 ))}
                 <button
                   type="button"
-                  onClick={run}
+                  onClick={() => handleCalculate(run)}
                   className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
                 >
                   {t("Calculate framing takeoff")}
                 </button>
+                <div className="mt-4">
+                  <MissingFieldsNotice fields={missing} />
+                </div>
                 {errors.length > 0 && (
                   <div
                     role="alert"
@@ -483,7 +495,10 @@ export default function RoofFramingEstimator() {
                   </div>
                 )}
               </section>
-              <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <aside
+                ref={resultsRef}
+                className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7"
+              >
                 <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
                   {t("Quantity schedule")}
                 </p>

@@ -12,6 +12,9 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
@@ -421,6 +424,9 @@ export default function PlumbingEstimator() {
     </label>
   );
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <Container>
       <PageHeader
@@ -561,7 +567,13 @@ export default function PlumbingEstimator() {
       </div>
 
       {/* Inputs */}
-      <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
+      <div
+        ref={fieldsRef}
+        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+      >
+        <div className="mb-4">
+          <MeasurementTip what="measurement unit and pipe run figures" />
+        </div>
         <h3 className="mb-2 font-semibold">{t("Fixtures and equipment")}</h3>
         <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
@@ -626,7 +638,8 @@ export default function PlumbingEstimator() {
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
-            onClick={run}
+            type="button"
+            onClick={() => handleCalculate(run)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             {t("Calculate estimate")}
@@ -690,6 +703,10 @@ export default function PlumbingEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 
+      <div className="mb-4">
+        <MissingFieldsNotice fields={missing} />
+      </div>
+
       {/* Errors */}
       {result && !result.ok && (
         <div
@@ -712,6 +729,7 @@ export default function PlumbingEstimator() {
         <>
           {/* Status banner */}
           <div
+            ref={resultsRef}
             className={`mb-4 rounded-lg border p-4 text-sm ${
               result.incomplete
                 ? "border-amber-600/40 bg-amber-600/5"

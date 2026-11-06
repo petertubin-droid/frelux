@@ -13,6 +13,9 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
@@ -378,6 +381,9 @@ export default function ReinforcementEstimator() {
     </label>
   );
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <Container>
       <PageHeader
@@ -463,7 +469,13 @@ export default function ReinforcementEstimator() {
       )}
 
       {/* Inputs */}
-      <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
+      <div
+        ref={fieldsRef}
+        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+      >
+        <div className="mb-4">
+          <MeasurementTip what="bar sizes, spacing and units" />
+        </div>
         <h3 className="mb-1 font-semibold">
           {reinforcementTerm} schedule: cutting lengths per diameter
         </h3>
@@ -519,7 +531,8 @@ export default function ReinforcementEstimator() {
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
-            onClick={run}
+            type="button"
+            onClick={() => handleCalculate(run)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             {t("Calculate estimate")}
@@ -585,6 +598,10 @@ export default function ReinforcementEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
 
+      <div className="mb-4">
+        <MissingFieldsNotice fields={missing} />
+      </div>
+
       {/* Errors */}
       {result && !result.ok && (
         <div
@@ -607,6 +624,7 @@ export default function ReinforcementEstimator() {
         <>
           {/* Status banner */}
           <div
+            ref={resultsRef}
             className={`mb-4 rounded-lg border p-4 text-sm ${
               result.incomplete
                 ? "border-amber-600/40 bg-amber-600/5"

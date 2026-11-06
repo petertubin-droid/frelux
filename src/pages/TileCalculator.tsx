@@ -111,6 +111,9 @@ import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import { useWasteSettings } from "@/lib/waste/use-waste-settings";
 import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
 import UnitToggle from "@/components/measurement/UnitToggle";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { tx } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 const ADVANCED_FEATURES = [
@@ -656,6 +659,9 @@ export default function TileCalculator({
     );
   }
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <>
       {!embedded && (
@@ -847,10 +853,13 @@ export default function TileCalculator({
                       onChange={(u) => update("unit", u)}
                     />
                   </div>
+                  <div className="mt-3">
+                    <MeasurementTip what="measurement unit and tile size" />
+                  </div>
                 </div>
 
                 {/* Dimensions */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div ref={fieldsRef} className="mt-6 grid gap-4 sm:grid-cols-2">
                   <Field
                     label={
                       input.surfaceType === "floor"
@@ -864,6 +873,13 @@ export default function TileCalculator({
                       type="number"
                       min={0}
                       step="0.01"
+                      aria-required="true"
+                      data-required="true"
+                      data-field-label={
+                        input.surfaceType === "floor"
+                          ? "Floor length"
+                          : "Wall length"
+                      }
                       value={input.length || ""}
                       onChange={(e) => update("length", Number(e.target.value))}
                       className="input-field"
@@ -880,6 +896,9 @@ export default function TileCalculator({
                         type="number"
                         min={0}
                         step="0.01"
+                        aria-required="true"
+                        data-required="true"
+                        data-field-label="Floor width"
                         value={input.width || ""}
                         onChange={(e) =>
                           update("width", Number(e.target.value))
@@ -1312,6 +1331,10 @@ export default function TileCalculator({
               />
             </div>
 
+            <div className="mt-4">
+              <MissingFieldsNotice fields={missing} />
+            </div>
+
             {Object.keys(errors).length > 0 && (
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 <AlertCircle
@@ -1325,7 +1348,7 @@ export default function TileCalculator({
             <Button
               variant="default"
               type="button"
-              onClick={compute}
+              onClick={() => handleCalculate(compute)}
               className="btn-glow mt-6 w-full sm:w-auto"
             >
               {tx("Calculate Tiles")} <ArrowRight className="h-4 w-4" />
@@ -1334,26 +1357,28 @@ export default function TileCalculator({
         )}
 
         {result && (
-          <TileResultCard
-            result={result}
-            input={input}
-            tileSizeLabel={tileSizeLabel}
-            currencySymbol={currencySymbol}
-            onAgain={() => setResult(null)}
-            onStartOver={startOver}
-            user={user}
-            onSave={handleSave}
-            saving={saving}
-            saveMsg={saveMsg}
-            calcDefaults={{
-              howCalculatedText:
-                (calcDefaults.howCalculatedText as string) || "",
-              estimateDisclaimer: calcDefaults.estimateDisclaimer,
-            }}
-            engine={engine}
-            alreadyHave={alreadyHave}
-            onAlreadyHaveChange={setAlreadyHave}
-          />
+          <div ref={resultsRef}>
+            <TileResultCard
+              result={result}
+              input={input}
+              tileSizeLabel={tileSizeLabel}
+              currencySymbol={currencySymbol}
+              onAgain={() => setResult(null)}
+              onStartOver={startOver}
+              user={user}
+              onSave={handleSave}
+              saving={saving}
+              saveMsg={saveMsg}
+              calcDefaults={{
+                howCalculatedText:
+                  (calcDefaults.howCalculatedText as string) || "",
+                estimateDisclaimer: calcDefaults.estimateDisclaimer,
+              }}
+              engine={engine}
+              alreadyHave={alreadyHave}
+              onAlreadyHaveChange={setAlreadyHave}
+            />
+          </div>
         )}
 
         {result && (

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import Container from "@/components/ui/Container";
+import MeasurementTip from "@/components/ui/MeasurementTip";
+import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
+import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
@@ -81,6 +84,9 @@ export default function EarthworksEstimator() {
       ]
     : [];
 
+  const { fieldsRef, resultsRef, missing, handleCalculate } =
+    useCalculatorFeedback<HTMLDivElement>();
+
   return (
     <>
       <PageHeader
@@ -97,6 +103,9 @@ export default function EarthworksEstimator() {
       <Container className="py-8 sm:py-10">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,.8fr)]">
           <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+            <div ref={fieldsRef}>
+              <MeasurementTip what="chainage and section area units" />
+            </div>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl font-bold">
@@ -236,11 +245,14 @@ export default function EarthworksEstimator() {
             </label>
             <button
               type="button"
-              onClick={run}
+              onClick={() => handleCalculate(run)}
               className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm"
             >
               {t("Calculate cut & fill")}
             </button>
+            <div className="mt-4">
+              <MissingFieldsNotice fields={missing} />
+            </div>
             {errors.length > 0 && (
               <div
                 role="alert"
@@ -252,7 +264,10 @@ export default function EarthworksEstimator() {
               </div>
             )}
           </section>
-          <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+          <aside
+            ref={resultsRef}
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7"
+          >
             <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
               {t("Quantity report")}
             </p>
