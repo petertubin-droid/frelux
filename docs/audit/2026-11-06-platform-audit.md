@@ -358,6 +358,39 @@ price_scan_coverage             postgres=X authenticated=X service_role=X
 sync_price_evidence_counts      postgres=X service_role=X
 ```
 
+### The red X that stayed red: Supabase Preview, not CI
+
+Workflow CI was green on `0453e622` while the commit still showed a red X. The
+four check runs on that commit were E2E success, Lighthouse success, Type Check
+and Test success, and **Supabase Preview failure**. That check was failing on
+every commit, and its output named the reason:
+
+```
+violates foreign key constraint "learn_wall_finishing_sources_reviewed_by_fkey"
+Key (reviewed_by)=(d74ffbd7-...) is not present in table "users"
+```
+
+`learn_wall_finishing_sources.reviewed_by` references `auth.users(id)`, and 27
+migration files attribute editorial review to the owner account. That row exists
+in production and never in a replay, so the preview stopped at the first such
+statement. `20260101000000` seeds the attribution row at the head of the chain
+when absent; it is a no-op in production and the preview branch is disposable.
+
+Production checks run in the same pass: zero client errors in 24 hours
+(`error_logs` rows are all August bundle errors, unresolved but old), zero HTTP
+responses at or above 400 from `net.http_post` in six hours, and 38 of 38 market
+scan runs completed. Two cron jobs were failing at run time:
+
+```
+signup-digest-daily      07:05  argument list must have even number of elements
+product-updates-digest   08:00  same body, next scheduled run
+```
+
+Both called `jsonb_build_object('{}')` with a single argument, the same defect
+that price-digest-weekly carried. `20261106170000` reschedules both with a jsonb
+literal, refuses to leave a live job carrying the single-argument form, and the
+manual invocation now returns `200 {"new_users":0,"email_sent":true}`.
+
 ### Why coverage is still thin
 
 `price_scan_sources` holds 2119 rows across 43 markets, 1464 active. Access
