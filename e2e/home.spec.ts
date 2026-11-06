@@ -10,7 +10,9 @@ test.describe("Home page", () => {
     await dismissCookieBanner(page);
     await page.goto("/");
     await expect(page).toHaveTitle(/FRELUX/);
-    await expect(page.locator('a[aria-label="FRELUX home"]')).toBeVisible();
+    await expect(
+      page.getByRole("banner").getByRole("link", { name: "FRELUX home" }),
+    ).toBeVisible();
   });
 
   test("navigates to the calculators page", async ({ page }) => {
