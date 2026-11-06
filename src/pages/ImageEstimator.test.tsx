@@ -1,9 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
-vi.mock("@/lib/credits", () => ({ getCreditWallet: vi.fn().mockResolvedValue(null), getActivityStreak: vi.fn().mockResolvedValue(null), recordActivity: vi.fn().mockResolvedValue(true), REWARD_EVENTS: {} }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
+vi.mock("@/lib/credits", () => ({
+  getCreditWallet: vi.fn().mockResolvedValue(null),
+  getActivityStreak: vi.fn().mockResolvedValue(null),
+  recordActivity: vi.fn().mockResolvedValue(true),
+  REWARD_EVENTS: {},
+}));
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("ImageEstimator", () => {
   it("module exports something", async () => {
@@ -36,5 +45,21 @@ describe("describeVisionFailure", () => {
     );
     expect(describeVisionFailure(null)).toMatch(/reach/i);
   });
-});
 
+  it("passes through the refusal reasons for unpriced markets and unusable photos", async () => {
+    const { describeVisionFailure } = await import("@/pages/ImageEstimator");
+    expect(
+      describeVisionFailure({
+        code: "PRICE_NOT_DETERMINED",
+        error:
+          "Photo estimation cannot price this market: only the Nigerian price book is configured here.",
+      }),
+    ).toMatch(/only the Nigerian price book/i);
+    expect(
+      describeVisionFailure({
+        code: "NO_USABLE_DIMENSIONS",
+        error: "The photo did not give a usable building dimension.",
+      }),
+    ).toMatch(/usable building dimension/i);
+  });
+});

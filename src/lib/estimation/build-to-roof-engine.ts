@@ -2326,6 +2326,42 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
       errors.push(`${label} cannot be negative (got ${v})`);
   };
 
+  // Enumerations are validated, not assumed. An unrecognised string used to
+  // fall through to a different quantity path and produce a plausible total
+  // for a roof type the user never chose (measured: "hip roof" differed from
+  // both "hip" and "gable" with nothing on screen saying why).
+  const oneOf = (label: string, value: unknown, allowed: readonly string[]) => {
+    if (!allowed.includes(String(value))) {
+      errors.push(
+        `${label} "${String(value)}" is not recognised. Use one of: ${allowed.join(", ")}`,
+      );
+    }
+  };
+  oneOf("Building type", input.building_type, [
+    "bungalow",
+    "duplex",
+    "two_storey",
+    "apartment",
+    "office",
+    "shop",
+    "custom",
+  ]);
+  oneOf("Roof type", input.roof_type, [
+    "gable",
+    "hip",
+    "mono_pitch",
+    "flat",
+    "custom",
+  ]);
+  oneOf("Roofing material", input.roofing_material, [
+    "long_span_aluminium",
+    "stone_coated",
+    "gi_sheet",
+    "shingle",
+    "custom",
+  ]);
+  oneOf("Block size", input.block_size, ["9inch", "6inch", "5inch", "custom"]);
+
   num("Building length", input.building_length, 1, 300);
   num("Building width", input.building_width, 1, 300);
   num("Number of floors", input.number_of_floors, 1, 100, true);

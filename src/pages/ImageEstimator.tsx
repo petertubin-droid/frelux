@@ -44,6 +44,7 @@ import type {
   BuildToRoofInput,
   BuildToRoofResult,
 } from "@/types/build-to-roof";
+import { useMarket } from "@/lib/international/market-context";
 import { formatCurrency } from "@/lib/utils";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
@@ -110,6 +111,16 @@ export function describeVisionFailure(
       return "You have used all your free image estimations for today. Come back tomorrow!";
     case "NO_API_KEY":
       return "The AI service is not configured yet. Please check back later.";
+    case "PRICE_NOT_DETERMINED":
+      return (
+        body?.error ??
+        "Photo estimation cannot price this market yet. Use the Build-to-Roof Estimator so local prices and units are used."
+      );
+    case "NO_USABLE_DIMENSIONS":
+      return (
+        body?.error ??
+        "The photo did not give a usable building dimension. Retake it square-on with a door or window in frame, or enter dimensions manually."
+      );
   }
   if (body?.error) {
     return "The AI vision service hit a problem analysing this image. Please try again, or use the manual Build-to-Roof Estimator.";
@@ -118,6 +129,7 @@ export function describeVisionFailure(
 }
 
 export default function ImageEstimator() {
+  const market = useMarket().market;
   useSeo({
     title: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
     description:
@@ -248,6 +260,9 @@ export default function ImageEstimator() {
             clientHash,
             projectName: projectName || "AI-Estimated Building",
             location: location || "Nigeria",
+            // The function prices from the Nigerian book only. Without the
+            // market it could not tell, so every visitor was priced in naira.
+            market: market?.marketCode ?? "NG",
           },
         },
       );

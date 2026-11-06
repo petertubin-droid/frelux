@@ -19,6 +19,11 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  buildEstimateInput,
+  parseVisionJson,
+  type AiAnalysis,
+} from "../_shared/ai-building-input.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -383,156 +388,9 @@ Always include in verification_checklist:
   const textContent = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!textContent) throw new Error("No response text from Gemini");
 
-  return JSON.parse(textContent);
-}
-
-// ── Default prices/labour/wastage (mirror of engine defaults) ──
-
-// Mirrors src/lib/estimation/build-to-roof-engine.ts DEFAULT_PRICES/DEFAULT_LABOUR/DEFAULT_WASTAGE.
-// IMPORTANT: keep these in sync with the engine — this edge function runs in Deno and
-// cannot import the frontend module directly. Missing/misnamed fields here silently
-// produce NaN totals (undefined * number = NaN) in the calculator.
-const DEFAULT_PRICES = {
-  cement_per_bag: 10000,
-  block_per_piece: 450,
-  sand_per_m3: 55000,
-  sand_per_trip: 192500,
-  granite_per_m3: 110000,
-  granite_per_trip: 385000,
-  hardcore_per_m3: 40000,
-  reinforcement_per_tonne: 1350000,
-  rebar_12mm_per_length: 9500,
-  rebar_16mm_per_length: 16500,
-  rebar_20mm_per_length: 25500,
-  rebar_25mm_per_length: 38000,
-  binding_wire_per_kg: 3000,
-  timber_per_m: 3500,
-  roofing_sheet_per_piece: 12000,
-  ridge_cap_per_meter: 4500,
-  roofing_screws_per_piece: 200,
-  fascia_per_meter: 3000,
-  dpc_per_meter: 1000,
-  dpm_per_m2: 1500,
-  formwork_per_m2: 5500,
-  price_date: new Date().toISOString().split("T")[0],
-  price_source:
-    "FRELUX default price book, Nigeria, indicative and undated for this market",
-};
-
-const DEFAULT_LABOUR = {
-  excavation_per_m3: 4000,
-  blockwork_per_block: 200,
-  concrete_per_m3: 30000,
-  reinforcement_per_tonne: 180000,
-  formwork_per_m2: 6000,
-  roofing_per_m2: 6000,
-  blinding_per_m3: 10000,
-  hardcore_per_m3: 7000,
-  sand_filling_per_m3: 6000,
-  compaction_per_m3: 3500,
-  backfilling_per_m3: 3000,
-  general_labour_per_day: 12000,
-  general_labour_days: 5,
-  bricklayer_per_day: 10000,
-  bricklayer_days: 20,
-  contractor_fee: 600000,
-  contractor_fee_type: "contract",
-  contractor_days: 30,
-  supervisor_per_day: 12000,
-  supervisor_days: 30,
-  foreman_per_day: 8000,
-  foreman_days: 25,
-  carpenter_per_day: 10000,
-  carpenter_days: 15,
-  concrete_labourer_per_day: 7000,
-  concrete_labourer_days: 15,
-};
-
-const DEFAULT_WASTAGE = {
-  blocks: 5,
-  cement: 5,
-  sand: 10,
-  granite: 10,
-  reinforcement: 3,
-  timber: 10,
-  roofing_sheets: 5,
-  hardcore: 5,
-};
-
-// ── Build the estimate input from AI analysis ──
-
-function buildEstimateInput(
-  analysis: Record<string, unknown>,
-  projectName: string,
-  location: string,
-) {
-  const openings = Array.isArray(analysis.detected_openings)
-    ? analysis.detected_openings.map((o: Record<string, unknown>) => ({
-        type: (o.type as "door" | "window") ?? "window",
-        width: Number(o.estimated_width) || 1.2,
-        height: Number(o.estimated_height) || 1.2,
-        count: Math.floor(Number(o.estimated_count) || 1),
-      }))
-    : [];
-
-  // Ensure at least some openings if none detected
-  if (openings.length === 0) {
-    openings.push(
-      { type: "door", width: 0.9, height: 2.1, count: 4 },
-      { type: "window", width: 1.2, height: 1.2, count: 6 },
-    );
-  }
-
-  return {
-    project_name: projectName || "AI-Estimated Building",
-    location: location || "Nigeria",
-    building_type: (analysis.detected_building_type as string) || "bungalow",
-    number_of_floors: Math.max(
-      1,
-      Math.floor(Number(analysis.estimated_floors) || 1),
-    ),
-    building_length: Math.max(1, Number(analysis.estimated_length) || 15),
-    building_width: Math.max(1, Number(analysis.estimated_width) || 10),
-    floor_to_floor_height: Math.max(
-      2.5,
-      Number(analysis.estimated_height_per_floor) || 3,
-    ),
-    wall_thickness: 0.225,
-    internal_wall_length: Math.max(
-      0,
-      Number(analysis.estimated_internal_wall_length) || 25,
-    ),
-    internal_wall_thickness: 0.15,
-    openings,
-    foundation_type:
-      (analysis.detected_foundation_type as string) || "strip_footing",
-    foundation_depth: 0.9,
-    foundation_width: 0.675,
-    footing_thickness: 0.225,
-    blinding_thickness: 0.075,
-    hardcore_thickness: 0.15,
-    dpc_length: 50,
-    block_size: (analysis.detected_block_type as string) || "9inch",
-    block_length: 18,
-    block_height: 9,
-    block_width: 9,
-    concrete_mix_cement: 1,
-    concrete_mix_sand: 2,
-    concrete_mix_granite: 4,
-    mortar_mix_cement: 1,
-    mortar_mix_sand: 6,
-    roof_type: (analysis.detected_roof_type as string) || "gable",
-    roof_pitch_degrees: Number(analysis.estimated_roof_pitch) || 25,
-    roof_overhang: 0.6,
-    roofing_material:
-      (analysis.detected_roofing_material as string) || "long_span_aluminium",
-    structural_members: [],
-    has_engineer_schedule: false,
-    wastage: DEFAULT_WASTAGE,
-    prices: DEFAULT_PRICES,
-    labour: DEFAULT_LABOUR,
-    contingency_percent: 5,
-  };
+  // A markdown fence or a stray sentence around the JSON used to fail the whole
+  // request with a 500 after the model call had already been paid for.
+  return parseVisionJson(textContent);
 }
 
 // ── AI output validation ──
@@ -838,7 +696,34 @@ serveWithCors(async (req: Request) => {
     }
 
     // ── Build estimate input ──
-    const estimateInput = buildEstimateInput(analysis, projectName, location);
+    // Every value the builder derives by rule instead of reading it from the
+    // photo is appended to the warnings, so the review screen can show which
+    // numbers are assumptions rather than observations.
+    const built = buildEstimateInput(
+      analysis as AiAnalysis,
+      projectName,
+      location,
+      new Date().toISOString().split("T")[0],
+    );
+    if (built.refusal || !built.input) {
+      // The model call itself completed and was already finalised above; only
+      // the estimate is refused, so the reservation is not finalised twice.
+      return jsonResponse(
+        {
+          error: built.refusal ?? "The photo did not give a usable estimate.",
+          code: "NO_USABLE_DIMENSIONS",
+          analysis,
+        },
+        422,
+      );
+    }
+    if (built.notes.length > 0) {
+      analysis.warnings = [
+        ...((analysis.warnings as string[]) ?? []),
+        ...built.notes.map((note) => `[ASSUMED] ${note}`),
+      ];
+    }
+    const estimateInput = built.input;
 
     // ── Save to database if authenticated ──
     let savedId: string | null = null;
