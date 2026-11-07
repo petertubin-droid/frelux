@@ -12,9 +12,22 @@
 //   - FAQ section where appropriate
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 
+/**
+ * The market block names already carry their dimensions in most markets
+ * ("9-inch Hollow Sandcrete Block (450x225x225mm)"), so appending them again
+ * printed the same numbers twice on every market hub.
+ */
+function blockWithDimensions(m) {
+  const dims = `${m.blockLengthMm} x ${m.blockHeightMm} x ${m.blockWidthMm} mm`;
+  return m.blockName.includes(`${m.blockWidthMm}mm`) ||
+    m.blockName.includes(`${m.blockWidthMm} mm`)
+    ? m.blockName
+    : `${m.blockName} (${dims})`;
+}
+
 function marketLandingContent(m) {
   const path = `/market/${m.code.toLowerCase()}/`;
-  return `<h1>Construction Calculator for ${m.countryName}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Markets &rsaquo; ${m.countryName}</nav><p>Free construction calculators preconfigured for ${m.countryName}. FRELUX runs every calculation with this market's template defaults: local wall units, ${m.cementBagKg}kg cement bags, and local electrical and plumbing practice. Prices come from the live price database in ${m.currency} (${m.currencySymbol}).</p><h2>${m.countryName} building-practice defaults</h2><ul><li><strong>Default wall unit</strong>: ${m.blockName} (${m.blockLengthMm} x ${m.blockHeightMm} x ${m.blockWidthMm} mm)</li><li><strong>Cement bag weight</strong>: ${m.cementBagKg} kg</li><li><strong>Currency</strong>: ${m.currency} (${m.currencySymbol})</li></ul><h2>Electrical practice</h2><ul><li><strong>Standards</strong>: ${m.electricalStandard}</li><li><strong>Nominal voltage</strong>: ${m.electricalVoltage}</li><li><strong>Typical wiring</strong>: ${m.electricalWiring}</li></ul><h2>Plumbing practice</h2><ul><li><strong>Standards</strong>: ${m.plumbingStandard}</li><li><strong>Water supply piping</strong>: ${m.plumbingSupply}</li></ul><h2>Start a calculation</h2><ul><li><a href="/build-to-roof-estimator/">Build-to-Roof Estimator</a>: full construction cost from foundation to roof</li><li><a href="/boq-generator/">BOQ Generator</a>: bill of quantities with VAT and contingency</li><li><a href="/electrical/">Electrical Estimator</a>: wiring takeoff per ${m.countryName} practice</li><li><a href="/plumbing/">Plumbing Estimator</a>: water supply and drainage takeoff</li><li><a href="/regional-cost-index/">Regional Cost Index</a>: current material price levels</li></ul><h2>Are these figures certified for ${m.countryName}?</h2><p>They are template starting defaults for quantity takeoffs, referenced to the standards listed above. Always confirm sizes, materials and current prices with your local supplier or licensed professional before purchasing.</p>`;
+  return `<h1>Construction Calculator for ${m.countryName}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; Markets &rsaquo; ${m.countryName}</nav><p>Free construction calculators preconfigured for ${m.countryName}. FRELUX runs every calculation with this market's template defaults: local wall units, ${m.cementBagKg}kg cement bags, and local electrical and plumbing practice. Prices come from the live price database in ${m.currency} (${m.currencySymbol}).</p><h2>${m.countryName} building-practice defaults</h2><ul><li><strong>Default wall unit</strong>: ${blockWithDimensions(m)}</li><li><strong>Cement bag weight</strong>: ${m.cementBagKg} kg</li><li><strong>Currency</strong>: ${m.currency} (${m.currencySymbol})</li></ul><h2>Electrical practice</h2><ul><li><strong>Standards</strong>: ${m.electricalStandard}</li><li><strong>Nominal voltage</strong>: ${m.electricalVoltage}</li><li><strong>Typical wiring</strong>: ${m.electricalWiring}</li></ul><h2>Plumbing practice</h2><ul><li><strong>Standards</strong>: ${m.plumbingStandard}</li><li><strong>Water supply piping</strong>: ${m.plumbingSupply}</li></ul><h2>Start a calculation</h2><ul><li><a href="/build-to-roof-estimator/">Build-to-Roof Estimator</a>: full construction cost from foundation to roof</li><li><a href="/boq-generator/">BOQ Generator</a>: bill of quantities with VAT and contingency</li><li><a href="/electrical/">Electrical Estimator</a>: wiring takeoff per ${m.countryName} practice</li><li><a href="/plumbing/">Plumbing Estimator</a>: water supply and drainage takeoff</li><li><a href="/regional-cost-index/">Regional Cost Index</a>: current material price levels</li></ul><h2>Are these figures certified for ${m.countryName}?</h2><p>They are template starting defaults for quantity takeoffs, referenced to the standards listed above. Always confirm sizes, materials and current prices with your local supplier or licensed professional before purchasing.</p>`;
 }
 
 const marketLandingSeo = Object.fromEntries(

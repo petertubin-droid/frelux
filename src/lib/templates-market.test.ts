@@ -32,6 +32,13 @@ describe("market registry", () => {
     expect(listTemplateMarkets()).toHaveLength(32);
   });
 
+  it("lists markets alphabetically so no market leads the sitewide block", () => {
+    const names = listTemplateMarkets().map((m) => m.country_name);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "en")));
+    expect(names[0]).not.toBe("Nigeria");
+    expect(names).toContain("Nigeria");
+  });
+
   it("resolves any market by code, case-insensitively", () => {
     expect(getTemplateMarketProfile("de")?.country_name).toBe("Germany");
     expect(getTemplateMarketProfile("NG")?.country_name).toBe("Nigeria");

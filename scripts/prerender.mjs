@@ -16,6 +16,7 @@ import {
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
+import { marketLandingDescription } from "./lib/market-description.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import {
   loadMarketPriceFacts,
@@ -179,6 +180,15 @@ const routes = [
         "@type": "Organization",
         name: "FRELUX SMART CALC",
         url: SITE_URL,
+        description:
+          "Multi-market construction calculator and estimation platform. Price books, units and building practice are configured per market.",
+        // Stated, not implied: without an explicit reach, a search engine
+        // infers the organisation's home market from whichever country the
+        // copy and internal links mention most. The list is generated from
+        // the same market registry the hubs and price books use.
+        areaServed: [...marketLandingRoutes]
+          .sort((a, b) => a.countryName.localeCompare(b.countryName, "en"))
+          .map((m) => ({ "@type": "Country", name: m.countryName })),
       },
       {
         "@context": "https://schema.org",
@@ -3654,6 +3664,13 @@ for (const tool of toolRegistry) {
       tool,
       toolsByCategory.get(tool.category) ?? [],
     );
+  } else if (!/<h1[\s>]/i.test(contentMap[tool.path])) {
+    // Some tool pages receive their static body from a fragment that starts at
+    // an H2 (the build-sequence copy for masonry and paving). Prepending the
+    // registry title keeps exactly one H1 on every tool page instead of leaving
+    // those two with none.
+    contentMap[tool.path] =
+      `<h1>${escapeHtml(tool.title)}</h1>` + contentMap[tool.path];
   }
   // Every tool page carries the same two blocks of structured data: the
   // calculator as a free web application, and the breadcrumb that the static
@@ -4468,15 +4485,38 @@ console.log(
 // flash of raw text on every reload. The shield is a plain-CSS branded cover
 // that keeps that markup out of sight while the app boots, and lifts by itself
 // after a few seconds so non-JavaScript visitors still reach the content.
+// Alphabetical by country, matching the footer. The block appears on every
+// page, so whichever market leads it reads as the site's home market; data
+// order (Nigeria first in the registry) must not decide that.
 const marketHubNav =
   `<nav aria-label="Market template hubs"><h2>Estimate templates by market</h2><ul>` +
-  marketLandingRoutes
+  [...marketLandingRoutes]
+    .sort((a, b) => a.countryName.localeCompare(b.countryName, "en"))
     .map(
       (m) =>
         `<li><a href="/market/${m.code.toLowerCase()}/templates">${escapeHtml(m.countryName)} estimates</a></li>`,
     )
     .join("") +
   `</ul></nav>`;
+
+/**
+ * Every indexable URL ships at least one heading.
+ *
+ * Families whose body is built from database rows (case studies, glossary,
+ * prices, the Learn library) add their own copy only when rows exist. If a
+ * table is empty at build time the page would otherwise go out as a shell with
+ * no H1 at all, while still being advertised in the sitemap. This pass fills
+ * that gap from the route's own title and nothing else.
+ */
+function withHeading(route, content) {
+  if (typeof content === "string" && /<h1[\s>]/i.test(content)) return content;
+  const heading = String(route.title || "")
+    .split("|")[0]
+    .replace(/\s*[–—-]\s*/g, ": ")
+    .trim();
+  if (!heading) return content;
+  return `<h1>${escapeHtml(heading)}</h1>${content || ""}`;
+}
 
 const prerenderShell = (inner) =>
   `<div class="frelux-prerender"><div class="frelux-prerender__shield" aria-hidden="true">` +
@@ -4676,7 +4716,7 @@ for (const m of marketLandingRoutes) {
   routes.push({
     path,
     title: `Construction Calculator for ${m.countryName} | FRELUX SMART CALC`,
-    description: `Free construction calculators preconfigured for ${m.countryName}: ${m.blockName} (${m.blockLengthMm}x${m.blockHeightMm}x${m.blockWidthMm}mm), ${m.cementBagKg}kg cement bags, electrical practice per ${m.electricalStandard}, plumbing per ${m.plumbingStandard}. Prices in ${m.currency} (${m.currencySymbol}).`,
+    description: marketLandingDescription(m),
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -4999,8 +5039,10 @@ for (const route of routes) {
   // route.content covers families whose copy is built inline (market
   // templates); contentMap covers the curated pages; FAQ bodies are generated
   // from the article registries.
-  const pageContent =
-    contentMap[route.path] ?? route.content ?? faqContentByPath[route.path];
+  const pageContent = withHeading(
+    route,
+    contentMap[route.path] ?? route.content ?? faqContentByPath[route.path],
+  );
   if (pageContent) {
     html = html.replace(
       /(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/,

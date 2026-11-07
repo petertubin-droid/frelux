@@ -34,11 +34,19 @@ export interface TemplateSeoSource {
   seoDescription?: string | null;
 }
 
-/** Visible, active markets, in the canonical display order. */
+/**
+ * Visible, active markets, in alphabetical country order.
+ *
+ * Order is a ranking signal as much as a visual one: whatever sits first in a
+ * list that appears on every page is read as the site's home market. Sorting
+ * by country name keeps the list complete and stable without promoting one
+ * market above the rest. `sort_order` in the profile data stays as editorial
+ * metadata; it no longer decides what a visitor or a crawler sees first.
+ */
 export function listTemplateMarkets(): MarketProfile[] {
   return BUILTIN_MARKET_PROFILES.filter(
     (p) => p.is_visible && p.status === "active",
-  ).sort((a, b) => a.sort_order - b.sort_order);
+  ).sort((a, b) => a.country_name.localeCompare(b.country_name, "en"));
 }
 
 /** Honest lookup: null for unknown markets, never a silent fallback. */
