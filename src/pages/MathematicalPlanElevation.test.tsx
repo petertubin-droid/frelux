@@ -42,6 +42,13 @@ async function renderPage() {
   );
 }
 
+// Stage two of the form (roof, walls, openings) is folded away until a reader
+// asks for it, so these tests open it the way a person would.
+async function openDetailStage() {
+  const disclosure = screen.queryByRole("button", { name: /Step 2 of 3/i });
+  if (disclosure) fireEvent.click(disclosure);
+}
+
 describe("MathematicalPlanElevation page", () => {
   it("renders the registry questions instead of a local copy", async () => {
     await renderPage();
@@ -56,6 +63,7 @@ describe("MathematicalPlanElevation page", () => {
 
   it("switches length fields to feet and keeps the engine in metres", async () => {
     await renderPage();
+    await openDetailStage();
     expect(screen.getByText("Building Length (m)")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Imperial" }));
@@ -74,6 +82,7 @@ describe("MathematicalPlanElevation page", () => {
 
   it("accepts a footprint typed in feet", async () => {
     await renderPage();
+    await openDetailStage();
     fireEvent.click(screen.getByRole("button", { name: "Imperial" }));
     const label = screen.getByText("Building Length (ft)");
     const input = label

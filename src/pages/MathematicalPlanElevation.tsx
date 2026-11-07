@@ -7,6 +7,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
+import SectionJumpNav from "@/components/ui/SectionJumpNav";
 import AdSlot from "@/components/ui/AdSlot";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import ToolFaqs from "@/components/seo/ToolFaqs";
@@ -116,17 +117,34 @@ export default function MathematicalPlanElevation() {
         eyebrow="Plan reading with confirmed values · deterministic calculation"
       />
 
-      {/* ── Core Mathematical Engine Component ── */}
-      <MathematicalElevationPanel
-        onApplyDerivedInput={handleApplyToBuildToRoof}
-        onOpenTool={(path, state) => navigate(path, { state })}
+      <SectionJumpNav
+        label="Jump to a part of this page"
+        sections={[
+          { id: "elevation-start", label: "Start" },
+          { id: "elevation-results", label: "Results" },
+          { id: "stage-details", label: "Roof & ground" },
+          { id: "elevation-formulas", label: "Formulas" },
+          { id: "elevation-faq", label: "Questions" },
+          { id: "elevation-related", label: "Related tools" },
+        ]}
       />
+
+      {/* ── Core Mathematical Engine Component ── */}
+      <div id="elevation-start" className="scroll-mt-24">
+        <MathematicalElevationPanel
+          onApplyDerivedInput={handleApplyToBuildToRoof}
+          onOpenTool={(path, state) => navigate(path, { state })}
+        />
+      </div>
 
       {/* ── Mid Content Ad Banner ── */}
       <AdSlot slotKey="calculator_mid" className="my-6" />
 
       {/* ── Engineering Mathematics & Regulatory Explainer Cards ── */}
-      <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-6">
+      <div
+        id="elevation-formulas"
+        className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-6"
+      >
         <div className="flex items-center gap-3 border-b border-border pb-4">
           <BookOpen className="h-6 w-6 text-brand-purple" />
           <div>
@@ -268,13 +286,17 @@ export default function MathematicalPlanElevation() {
       <AdSlot slotKey="calculator_native" className="my-6" />
 
       {/* ── Questions from the registry, rendered with matching FAQ markup ── */}
-      <ToolFaqs
-        slug="mathematical-plan-elevation"
-        title="Elevation questions"
-      />
+      <div id="elevation-faq" className="scroll-mt-24">
+        <ToolFaqs
+          slug="mathematical-plan-elevation"
+          title="Elevation questions"
+        />
+      </div>
 
       {/* ── Related Tools Links ── */}
-      <RelatedToolsLinks />
+      <div id="elevation-related" className="scroll-mt-24">
+        <RelatedToolsLinks />
+      </div>
     </div>
   );
 }

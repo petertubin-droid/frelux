@@ -314,11 +314,14 @@ describe("eaves and ridge heights", () => {
   it("reports the wall-top height separately from the peak", () => {
     const result = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
     const roof = result.levels.level_5_roof;
-    // The peak is the eaves line plus the ridge rise, so the two never drift.
-    expect(roof.total_building_height_m).toBeCloseTo(
-      roof.eaves_height_m + roof.ridge_rise_m,
-      2,
-    );
+    // The peak is the eaves line plus the ridge rise. Each figure is rounded
+    // once for display from unrounded geometry, so the printed total can sit
+    // one rounding step (1 cm) from the sum of the printed parts; adding two
+    // rounded figures first is what used to make the peak drift.
+    const printedParts = roof.eaves_height_m + roof.ridge_rise_m;
+    expect(
+      Math.abs(roof.total_building_height_m - printedParts),
+    ).toBeLessThanOrEqual(0.011);
     // The bi-monthly question "how tall are the walls" must not be derived
     // from the peak by anyone reading the page.
     expect(roof.eaves_height_m).toBeLessThan(roof.total_building_height_m);
