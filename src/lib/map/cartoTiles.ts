@@ -43,14 +43,30 @@ export function cartoTileUrl(
   return key ? `${base}?key=${encodeURIComponent(key)}` : base;
 }
 
+/**
+ * Plain OpenStreetMap raster tile.
+ *
+ * Used for a street sheet when the build has no CARTO key: CARTO answers a
+ * keyless request with a watermark, and satellite is not a street map.
+ */
+export function osmTileUrl(z: number, x: number, y: number): string {
+  const sub = ["a", "b", "c"][Math.abs(x + y) % 3];
+  return `https://${sub}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+}
+
 /** True when the build carries a CARTO basemap key. */
 export function cartoConfigured(key: string = cartoApiKey()): boolean {
   return key.trim().length > 0;
 }
 
 const CARTO_ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
-const ESRI_ATTRIBUTION =
+export const ESRI_ATTRIBUTION =
   "Imagery © Esri, Maxar, Earthstar Geographics, GIS User Community";
+
+/** Credit line for imagery, used wherever satellite tiles are drawn. */
+export function esriAttribution(): string {
+  return ESRI_ATTRIBUTION;
+}
 
 /**
  * Esri World Imagery tile.

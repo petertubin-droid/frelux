@@ -123,6 +123,7 @@ export function MapPanel({
           className="frelux-map-surface"
           points={points}
           center={viewerPoint}
+          you={viewerPoint}
           height={height}
           label={`${meta.label} map`}
           emptyTitle={t(error ? "Map data unavailable" : "No pins here yet")}

@@ -45,7 +45,13 @@ describe("GlobeMap", () => {
         name: "Professional: London builder",
       }),
     ).toBeTruthy();
-    expect(screen.getByText("2D mode for browser compatibility")).toBeTruthy();
+    // The notice names the actual reason, so a visitor knows whether to try
+    // another browser or whether the map is simply in a safe mode.
+    expect(
+      screen.getByText(
+        /2D mode( for browser compatibility|: this browser has no WebGL)/,
+      ),
+    ).toBeTruthy();
     // Tile imagery must come from a real basemap, never the unkeyed CARTO
     // watermark sheet that renders as a blank grey surface.
     const tiles = Array.from(document.querySelectorAll("img")).filter((img) =>

@@ -32,6 +32,32 @@ const SATELLITE_LAYER = "frelux-satellite-layer";
 const TERRAIN_TILES =
   "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png";
 
+/**
+ * Style used when the hosted vector style cannot be reached.
+ *
+ * A block on the style host used to drop the whole map into the 2D canvas
+ * renderer, losing the globe, tilt and terrain even though WebGL was fine.
+ * This plain raster style keeps the WebGL map (and the satellite overlay on
+ * top of it) working, so only a browser without WebGL ends up in 2D.
+ */
+const INLINE_RASTER_STYLE = {
+  version: 8 as const,
+  sources: {
+    streets: {
+      type: "raster" as const,
+      tiles: [
+        "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: "© OpenStreetMap contributors",
+    },
+  },
+  layers: [{ id: "streets", type: "raster" as const, source: "streets" }],
+};
+
 export interface GlobeMapProps {
   points: MapPoint[];
   /** Where the map opens when there are no points to fit. */
@@ -58,6 +84,8 @@ export interface GlobeMapProps {
    * coordinate (used by location pickers such as the Climate Advisor).
    */
   onPickCoordinate?: (coords: { lat: number; lon: number }) => void;
+  /** The visitor's own position, so a located page shows its dot in 3D too. */
+  you?: { lat: number; lon: number; accuracy?: number } | null;
   activeId?: string | null;
   /** Accessible name and the caption used by the fallback. */
   label: string;
@@ -107,6 +135,7 @@ export function GlobeMap({
   showTerrain = true,
   onSelect,
   onPickCoordinate,
+  you: youProp,
   activeId,
   label,
   emptyTitle,
@@ -135,7 +164,11 @@ export function GlobeMap({
   }, []);
   const [ready, setReady] = useState(false);
   const [rasterFallback, setRasterFallback] = useState(false);
+  const [fallbackReason, setFallbackReason] = useState<
+    "webgl" | "style" | null
+  >(null);
   const [userPin, setUserPin] = useState<MapPoint | null>(null);
+  const [userAccuracy, setUserAccuracy] = useState<number | null>(null);
   const [satellite, setSatellite] = useState(false);
   const satelliteRef = useRef(false);
 
@@ -251,6 +284,7 @@ export function GlobeMap({
     let resizeObserver: ResizeObserver | null = null;
     let themeObserver: MutationObserver | null = null;
     let fallbackTimer: number | null = null;
+    let retriedWithInlineStyle = false;
 
     (async () => {
       if (!containerRef.current) return;
@@ -272,6 +306,7 @@ export function GlobeMap({
             fadeDuration: 260,
           });
         } catch {
+          setFallbackReason("webgl");
           setRasterFallback(true);
           return;
         }
@@ -289,13 +324,37 @@ export function GlobeMap({
 
         // If a browser creates WebGL but cannot render the style, switch to
         // the non-WebGL raster renderer instead of leaving a blank map.
+        // The hosted vector style can be blocked on a slow or filtered
+        // network. That is not a reason to lose the globe: retry once with a
+        // plain raster style, and only fall back to 2D if that fails too.
         fallbackTimer = window.setTimeout(() => {
-          if (!disposed && !map.loaded()) {
+          if (disposed || map.loaded() || retriedWithInlineStyle) return;
+          retriedWithInlineStyle = true;
+          try {
+            map.setStyle(INLINE_RASTER_STYLE);
+          } catch {
+            setFallbackReason("style");
             setRasterFallback(true);
             map.remove();
             mapRef.current = null;
+            return;
           }
-        }, 12000);
+          window.setTimeout(() => {
+            if (!disposed && map.loaded()) {
+              mapLoadedRef.current = true;
+              setReady(true);
+            } else if (!disposed) {
+              setFallbackReason("style");
+              setRasterFallback(true);
+              mapRef.current = null;
+              try {
+                map.remove();
+              } catch {
+                /* already gone */
+              }
+            }
+          }, 7000);
+        }, 9000);
 
         // MapLibre v4 renders the globally navigable Mercator map directly.
         // Do not call setProjection here: that method is not present in the
@@ -327,12 +386,21 @@ export function GlobeMap({
           map.on(event as "move", syncChrome);
         }
         map.on("error", () => {
-          if (!disposed && !mapLoadedRef.current) {
-            setRasterFallback(true);
+          if (disposed || mapLoadedRef.current) return;
+          if (!retriedWithInlineStyle) {
+            retriedWithInlineStyle = true;
             if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
-            map.remove();
-            mapRef.current = null;
+            try {
+              map.setStyle(INLINE_RASTER_STYLE);
+              return;
+            } catch {
+              /* fall through to 2D */
+            }
           }
+          setFallbackReason("style");
+          setRasterFallback(true);
+          map.remove();
+          mapRef.current = null;
         });
 
         // Optional coordinate picking: only fires when a parent attaches
@@ -357,10 +425,37 @@ export function GlobeMap({
         resizeObserver.observe(containerRef.current);
 
         map.on("style.load", () => {
+          if (disposed) return;
+          // A retried style (or a theme swap) rebuilds every source, so the
+          // satellite overlay and the terrain relief have to be re-attached.
           if (satelliteRef.current) applySatellite(map, true);
+          if (showTerrain) {
+            try {
+              if (!map.getSource("frelux-terrain")) {
+                map.addSource("frelux-terrain", {
+                  type: "raster-dem",
+                  tiles: [TERRAIN_TILES],
+                  tileSize: 256,
+                  encoding: "terrarium",
+                  maxzoom: 13,
+                });
+              }
+              map.setTerrain({ source: "frelux-terrain", exaggeration: 1.15 });
+            } catch {
+              // Terrain is an enhancement; the globe still works without it.
+            }
+          }
+          if (map.loaded()) {
+            mapLoadedRef.current = true;
+            setReady(true);
+            syncChrome();
+          }
         });
 
         themeObserver = new MutationObserver(() => {
+          // Never swap back to the hosted style after a retry: it is the style
+          // that failed in the first place.
+          if (retriedWithInlineStyle) return;
           map.setStyle(isDarkTheme() ? DARK_STYLE : LIGHT_STYLE, {
             diff: true,
           });
@@ -370,7 +465,10 @@ export function GlobeMap({
           attributeFilter: ["class"],
         });
       } catch {
-        if (!disposed) setRasterFallback(true);
+        if (!disposed) {
+          setFallbackReason("style");
+          setRasterFallback(true);
+        }
       }
     })();
 
@@ -424,7 +522,23 @@ export function GlobeMap({
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
 
-      const plotted = userPin ? [...points, userPin] : points;
+      // The page may already know where the visitor is (a located panel), in
+      // which case its point is plotted before the visitor taps "locate".
+      const suppliedYou: MapPoint | null = youProp
+        ? {
+            id: "you",
+            kind: "you",
+            lat: youProp.lat,
+            lon: youProp.lon,
+            title: "Your location",
+            meta:
+              youProp.accuracy && Number.isFinite(youProp.accuracy)
+                ? `±${Math.round(youProp.accuracy)} m`
+                : undefined,
+          }
+        : null;
+      const activeYou = userPin ?? suppliedYou;
+      const plotted = activeYou ? [...points, activeYou] : points;
       for (const point of plotted) {
         const el = document.createElement("button");
         el.type = "button";
@@ -478,7 +592,7 @@ export function GlobeMap({
     return () => {
       cancelled = true;
     };
-  }, [points, ready, activeId, choose, t, userPin]);
+  }, [points, ready, activeId, choose, t, userPin, youProp]);
 
   // A record chosen outside the map (for example from the list beside it)
   // brings the camera to it and opens its card.
@@ -584,6 +698,7 @@ export function GlobeMap({
           meta: `±${Math.round(position.coords.accuracy)} m`,
         };
         setUserPin(pin);
+        setUserAccuracy(position.coords.accuracy);
         setLocateState("ready");
         const map = mapRef.current;
         if (map) {
@@ -614,6 +729,15 @@ export function GlobeMap({
       : `${Math.round(scale.km * 1000)} m`
     : null;
 
+  const locatedYou = userPin
+    ? {
+        lat: userPin.lat,
+        lon: userPin.lon,
+        accuracy: userAccuracy ?? undefined,
+      }
+    : null;
+  const webglBlocked = fallbackReason === "webgl";
+
   if (rasterFallback) {
     return (
       <Raster2DMap
@@ -631,7 +755,12 @@ export function GlobeMap({
         label={label}
         emptyTitle={emptyTitle}
         emptyHint={emptyHint}
-        notice="2D mode for browser compatibility"
+        you={youProp ?? locatedYou}
+        notice={
+          webglBlocked
+            ? "2D mode: this browser has no WebGL"
+            : "2D mode for browser compatibility"
+        }
       />
     );
   }

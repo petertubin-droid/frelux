@@ -14,6 +14,8 @@ import {
   basemapRasterFallbackUrl,
   basemapRasterUrl,
   cartoApiKey,
+  esriSatelliteTileUrl,
+  osmTileUrl,
 } from "@/lib/map/cartoTiles";
 import { resolveClientProviderKey } from "@/lib/integrations/provider-keys";
 import {
@@ -24,6 +26,7 @@ import {
   Minus,
   Plus,
   RotateCcw,
+  Satellite,
   X,
 } from "lucide-react";
 import { classNames } from "@/lib/utils";
@@ -53,6 +56,8 @@ export interface Raster2DMapProps {
   emptyTitle?: string;
   emptyHint?: string;
   notice?: string;
+  /** The visitor's own position, drawn as a dot with an accuracy ring. */
+  you?: { lat: number; lon: number; accuracy?: number } | null;
 }
 
 const LAYER_NOUN: Record<MapPoint["kind"], string> = {
@@ -110,6 +115,7 @@ export function Raster2DMap({
   emptyTitle,
   emptyHint,
   notice,
+  you,
 }: Raster2DMapProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
@@ -161,6 +167,7 @@ export function Raster2DMap({
     };
   }, [cartoKey]);
   const [fullscreen, setFullscreen] = useState(false);
+  const [satellite, setSatellite] = useState(true);
   const [selected, setSelected] = useState<MapPoint | null>(null);
   const pinch = useRef<{
     active: boolean;
@@ -442,10 +449,18 @@ export function Raster2DMap({
         const sub = ["a", "b", "c", "d"][Math.abs(wrappedX + y) % 4];
         result.push({
           key: `${level}-${x}-${y}`,
-          src: basemapRasterUrl(sub, dark, level, wrappedX, y, cartoKey),
+          // Imagery for satellite, a street sheet otherwise: CARTO when the
+          // build carries a key, OpenStreetMap when it does not.
+          src: satellite
+            ? esriSatelliteTileUrl(level, wrappedX, y)
+            : cartoKey
+              ? basemapRasterUrl(sub, dark, level, wrappedX, y, cartoKey)
+              : osmTileUrl(level, wrappedX, y),
           // A failed tile retries against the other provider, so a single
           // missing tile never leaves a hole in the surface.
-          fallback: basemapRasterFallbackUrl(level, wrappedX, y, cartoKey),
+          fallback: satellite
+            ? `https://a.tile.openstreetmap.org/${level}/${wrappedX}/${y}.png`
+            : basemapRasterFallbackUrl(level, wrappedX, y, cartoKey),
           left: Math.round((x * TILE_SIZE - origin.x) * scale + size.width / 2),
           top: Math.round((y * TILE_SIZE - origin.y) * scale + size.height / 2),
           size: Math.ceil(TILE_SIZE * scale),
@@ -453,12 +468,57 @@ export function Raster2DMap({
       }
     }
     return result;
-  }, [center.lat, center.lon, zoom, size.width, size.height, dark, cartoKey]);
+  }, [
+    center.lat,
+    center.lon,
+    zoom,
+    size.width,
+    size.height,
+    dark,
+    cartoKey,
+    satellite,
+  ]);
 
   const origin = useMemo(
     () => project(center.lat, center.lon, zoom),
     [center.lat, center.lon, zoom],
   );
+  // The visitor's own position. Unlike a record pin this is a dot, so it can
+  // never be confused with a business, and the ring shows how precise the
+  // reading is rather than implying a surveyed point.
+  const youMarker = useMemo(() => {
+    if (!you || !Number.isFinite(you.lat) || !Number.isFinite(you.lon))
+      return null;
+    const projected = project(you.lat, you.lon, zoom);
+    const x = projected.x - origin.x + size.width / 2;
+    const y = projected.y - origin.y + size.height / 2;
+    const metresPerPixel =
+      (156543.03392 * Math.cos((you.lat * Math.PI) / 180)) / 2 ** zoom;
+    const accuracyPx =
+      you.accuracy && Number.isFinite(you.accuracy) && metresPerPixel > 0
+        ? you.accuracy / metresPerPixel
+        : 0;
+    return {
+      x,
+      y,
+      accuracyPx,
+      visible:
+        x > -120 && x < size.width + 120 && y > -120 && y < size.height + 120,
+    };
+  }, [you, zoom, origin.x, origin.y, size.width, size.height]);
+
+  // Once the visitor's position is known the map moves to it and opens in
+  // close enough that the dot is unmistakably their own site.
+  const locatedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!you || !Number.isFinite(you.lat) || !Number.isFinite(you.lon)) return;
+    const key = `${you.lat.toFixed(4)},${you.lon.toFixed(4)}`;
+    if (locatedRef.current === key) return;
+    locatedRef.current = key;
+    setCenter({ lat: you.lat, lon: you.lon });
+    setZoom((current) => Math.max(current, 12));
+  }, [you]);
+
   const markers = useMemo(
     () =>
       points.map((point) => {
@@ -549,6 +609,37 @@ export function Raster2DMap({
         <div className="pointer-events-none absolute inset-0 z-10 frelux-map__vignette" />
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 frelux-map__fade-top" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 frelux-map__fade-bottom" />
+        {youMarker?.visible && (
+          <div
+            className="pointer-events-none absolute"
+            style={{
+              left: youMarker.x,
+              top: youMarker.y,
+              transform: "translate(-50%, -50%)",
+              zIndex: 18,
+            }}
+          >
+            {youMarker.accuracyPx > 10 && (
+              <span
+                className="absolute left-1/2 top-1/2 rounded-full border border-blue-500/40 bg-blue-500/15"
+                style={{
+                  width: youMarker.accuracyPx * 2,
+                  height: youMarker.accuracyPx * 2,
+                  transform: "translate(-50%, -50%)",
+                }}
+                aria-hidden="true"
+              />
+            )}
+            <span className="relative flex h-4 w-4 items-center justify-center">
+              <span
+                className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-blue-500/45"
+                aria-hidden="true"
+              />
+              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-blue-600 shadow-md" />
+            </span>
+            <span className="sr-only">Your location</span>
+          </div>
+        )}
         <div className="absolute inset-0 pointer-events-none">
           {markers.map(
             ({ point, x, y, visible }) =>
@@ -619,6 +710,24 @@ export function Raster2DMap({
             title="Recenter map"
           >
             <RotateCcw className="h-3.5 w-3.5 text-foreground transition-transform group-hover:-rotate-45" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSatellite((on) => !on)}
+            className="frelux-map__dial group"
+            aria-pressed={satellite}
+            aria-label={
+              satellite ? "Show the street map" : "Show satellite imagery"
+            }
+            title={satellite ? "Street map" : "Satellite"}
+          >
+            <Satellite
+              className={classNames(
+                "h-3.5 w-3.5 transition-colors",
+                satellite ? "text-brand-purple" : "text-foreground",
+              )}
+              aria-hidden="true"
+            />
           </button>
           <div className="frelux-map__keys">
             <button
@@ -722,7 +831,7 @@ export function Raster2DMap({
           <span className="tabular-nums">{scaleLabel}</span>
         </span>
         <span className="frelux-map__credit pointer-events-auto">
-          {cartoKey ? (
+          {!satellite ? (
             <>
               ©{" "}
               <a
@@ -733,15 +842,19 @@ export function Raster2DMap({
               >
                 OpenStreetMap
               </a>
-              {" · "}
-              <a
-                href="https://carto.com/attributions"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
-              >
-                CARTO
-              </a>
+              {cartoKey && (
+                <>
+                  {" · "}
+                  <a
+                    href="https://carto.com/attributions"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="underline decoration-border/60 underline-offset-2 hover:text-foreground"
+                  >
+                    CARTO
+                  </a>
+                </>
+              )}
             </>
           ) : (
             <>

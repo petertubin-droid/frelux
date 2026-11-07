@@ -272,6 +272,7 @@ export default function ExploreMap() {
             className="frelux-map-surface"
             points={filtered}
             center={viewerPoint}
+            you={viewerPoint}
             focus={focus}
             height={520}
             label={`${t(meta.label)} ${t("map")}`}
