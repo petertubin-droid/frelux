@@ -225,14 +225,23 @@ describe("WallFinishingArticle (premium market article page)", () => {
     await waitFor(() => {
       expect(container.textContent).toContain("Sources Reviewed");
     });
-    // useSeo injects JSON-LD into document.head, not the page container
-    const ldJson = Array.from(
+    // useSeo injects JSON-LD into document.head, not the page container, and
+    // it does so in an effect. Reading the head synchronously after the body
+    // check raced that effect under load: on CI the page rendered, the
+    // assertion ran, and the head was still empty.
+    await waitFor(() => {
+      const types = Array.from(
+        document.querySelectorAll('script[type="application/ld+json"]'),
+      )
+        .map((el) => JSON.parse(el.textContent ?? "{}"))
+        .map((data) => (data as { "@type"?: string })["@type"]);
+      expect(types).toContain("Article");
+    });
+    const types = Array.from(
       document.querySelectorAll('script[type="application/ld+json"]'),
     )
-      .map((el) => el.textContent ?? "")
-      .map((t) => JSON.parse(t));
-    const types = ldJson.map((d) => (d as { "@type"?: string })["@type"]);
-    expect(types).toContain("Article");
+      .map((el) => JSON.parse(el.textContent ?? "{}"))
+      .map((data) => (data as { "@type"?: string })["@type"]);
     expect(types).toContain("BreadcrumbList");
     expect(types).toContain("FAQPage");
   });
