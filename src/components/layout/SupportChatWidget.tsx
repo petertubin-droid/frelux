@@ -285,8 +285,8 @@ export default function SupportChatWidget() {
                           <div
                             className={
                               m.from === "user"
-                                ? "break-words rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground"
-                                : "break-words rounded-2xl rounded-bl-md bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5"
+                                ? "break-words rounded-[22px] rounded-br-[8px] bg-primary px-3.5 py-2 text-sm text-primary-foreground"
+                                : "break-words rounded-[22px] rounded-bl-[8px] bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5"
                             }
                           >
                             <p className="whitespace-pre-wrap leading-relaxed">
@@ -308,7 +308,7 @@ export default function SupportChatWidget() {
                     {/* Typing indicator */}
                     {loading && (
                       <div className="flex justify-start">
-                        <div className="rounded-2xl rounded-bl-md bg-card px-4 py-3 shadow-sm border border-border/50 dark:bg-white/10 dark:border-white/5">
+                        <div className="rounded-[22px] rounded-bl-[8px] bg-card px-4 py-3 shadow-sm border border-border/50 dark:bg-white/10 dark:border-white/5">
                           <div className="flex items-center gap-1">
                             <span
                               className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"

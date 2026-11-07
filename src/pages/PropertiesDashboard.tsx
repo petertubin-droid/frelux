@@ -949,7 +949,7 @@ function PropertyEditor({
     >
       <form
         onSubmit={submit}
-        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border/40 bg-card shadow-premium-lg sm:rounded-2xl sm:p-6"
+        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-[26px] border border-border/40 bg-card shadow-premium-lg sm:rounded-[22px] sm:p-6"
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-border/40 bg-card/95 px-5 py-4 backdrop-blur sm:px-6">
           <h2 className="font-heading text-lg font-semibold">

@@ -85,7 +85,6 @@ function isDisplayAdsEnabled(provider: DbAdProvider): boolean {
   return provider.settings?.display_ads_enabled !== false;
 }
 
-
 // ============================================================
 // Page-level ad density ceiling (owner directive 2026-10-29)
 // Long pages (home, learn articles) may show 3 units; every other page 2.
@@ -1125,7 +1124,7 @@ export default function AdSlot({
   if (resolved === "none") {
     return (
       <div
-        className={`hidden rounded-lg border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
+        className={`hidden rounded-2xl border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
         aria-hidden="true"
         data-ad-reserved={slotKey}
       >
@@ -1150,7 +1149,7 @@ export default function AdSlot({
   if (!isDisplayAdsEnabled(provider)) {
     return (
       <div
-        className={`hidden rounded-lg border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
+        className={`hidden rounded-2xl border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
         aria-hidden="true"
         data-ad-reserved={slotKey}
       />

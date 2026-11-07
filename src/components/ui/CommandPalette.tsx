@@ -317,7 +317,7 @@ export function CommandPalette({
       />
 
       {/* Panel */}
-      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl dark:border-white/10 dark:bg-card animate-fade-in-up">
+      <div className="surface-float relative w-full max-w-xl overflow-hidden rounded-3xl animate-fade-in-up">
         {/* Search input */}
         <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3 dark:border-white/5">
           <Search

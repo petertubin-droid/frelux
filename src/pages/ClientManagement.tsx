@@ -504,7 +504,7 @@ function ClientDetailDrawer({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-card p-6 sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-[26px] bg-card p-6 sm:rounded-[22px]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">

@@ -104,6 +104,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
         "xl-lg": "0.875rem",
         "2xl-lg": "1.25rem",
+        // FRELUX curve scale: content panels, floating chrome, full sheets.
+        "3xl-lg": "1.75rem",
+        "4xl": "2.25rem",
       },
       boxShadow: {
         card: "0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)",
@@ -121,6 +124,11 @@ export default {
         "inner-glow": "inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
         "dark-card":
           "0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
+        // A hairline top highlight plus a low, wide shadow: the edge reads as
+        // a bevel on a curved surface rather than a flat drop shadow.
+        curve:
+          "inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 18px 44px -30px rgba(16, 12, 40, 0.40)",
+        float: "0 14px 38px -22px rgba(16, 12, 40, 0.35)",
         "dark-card-hover":
           "0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3)",
       },

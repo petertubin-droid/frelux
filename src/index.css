@@ -382,7 +382,7 @@
 
   /* Glassmorphism */
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 dark:bg-white/5 dark:border-white/10;
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl dark:bg-white/5 dark:border-white/10;
   }
   .glass-dark {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
@@ -391,10 +391,114 @@
      through the fixed navbar/tab bars. Dark styling is built in
      (dark: variants can't be applied to component classes). */
   .glass-premium {
-    @apply bg-white/85 backdrop-blur-xl border border-white/20;
+    @apply bg-white/85 backdrop-blur-xl border border-white/20 rounded-3xl;
   }
   .dark .glass-premium {
     @apply bg-[#0A0A1A]/90 border-white/10;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     FRELUX curve system
+     One radius language for the whole site so edges look deliberate
+     rather than random: content panels sit on 24px corners, floating
+     chrome on 28px, full sheets and drawers on 32px. `.edge-rim` adds the
+     hairline top highlight that makes a curve read as a bevel.
+     ═══════════════════════════════════════════════════════════════════ */
+  .edge-curve {
+    border-radius: 1.5rem;
+  }
+  .edge-curve-lg {
+    border-radius: 1.75rem;
+  }
+  .edge-sheet {
+    border-radius: 2rem;
+  }
+  .edge-rim {
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+      0 18px 44px -30px rgba(16, 12, 40, 0.4);
+  }
+  .dark .edge-rim {
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 20px 50px -30px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Translucency, applied only where it is accurate: floating layers that
+     sit above moving content (bars, sheets, menus, dialogs). Never below
+     72% opacity, always blurred, so text keeps its contrast. Content cards
+     stay at or above 90%. */
+  .surface-float {
+    background-color: hsl(var(--card) / 0.85);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid hsl(var(--border) / 0.55);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+      0 18px 44px -28px rgba(16, 12, 40, 0.42);
+  }
+  .dark .surface-float {
+    background-color: hsl(var(--card) / 0.78);
+    border-color: hsl(0 0% 100% / 0.1);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 22px 56px -30px rgba(0, 0, 0, 0.8);
+  }
+  /* Opaque equivalents: no blur support, or a visitor who asked the OS for
+     less transparency or more contrast. */
+  @supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
+    .surface-float {
+      background-color: hsl(var(--card));
+    }
+  }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .surface-float {
+      background-color: hsl(var(--card));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     Radius calibration
+     Tailwind's default radius scale is a touch tight for FRELUX, so the
+     whole scale is nudged one step curvier here instead of editing
+     thousands of class strings. This block is unlayered author CSS, so it
+     settles after Tailwind's layered utilities and applies to every page,
+     admin screen, popover and form control at once. The ordering stays
+     monotonic — sm < md < lg < xl < 2xl < 3xl < full — so nested surfaces
+     always read as nested, never inverted.
+     ═══════════════════════════════════════════════════════════════════ */
+  .rounded-sm {
+    border-radius: calc(var(--radius) - 2px);
+  }
+  .rounded-md {
+    border-radius: calc(var(--radius) - 1px);
+  }
+  .rounded-lg {
+    border-radius: calc(var(--radius) + 2px);
+  }
+  .rounded-xl {
+    border-radius: calc(var(--radius) + 6px); /* ~18px */
+  }
+  .rounded-2xl {
+    border-radius: calc(var(--radius) + 10px); /* ~22px */
+  }
+  .rounded-3xl {
+    border-radius: calc(var(--radius) + 14px); /* ~26px */
+  }
+  @media (min-width: 640px) {
+    .sm\:rounded-lg {
+      border-radius: calc(var(--radius) + 2px);
+    }
+    .sm\:rounded-xl {
+      border-radius: calc(var(--radius) + 6px);
+    }
+    .sm\:rounded-2xl {
+      border-radius: calc(var(--radius) + 10px);
+    }
   }
 
   /* Smooth scrollbar */
@@ -458,16 +562,16 @@
   }
   /* Premium card - layered shadow, subtle border */
   .card {
-    @apply bg-card border border-border/60 rounded-xl shadow-card dark:bg-card dark:border-white/5;
+    @apply bg-card border border-border/60 rounded-3xl shadow-card dark:bg-card dark:border-white/5;
   }
   /* Premium card - elevated */
   .card-elevated {
-    @apply bg-card border border-border/40 rounded-2xl shadow-premium dark:bg-card dark:border-white/10;
+    @apply bg-card border border-border/40 rounded-3xl shadow-premium dark:bg-card dark:border-white/10;
   }
   /* Admin surfaces, the same glass and depth language as the marketing
      pages, tuned for dense management screens. */
   .admin-surface {
-    @apply bg-card/80 border border-border/60 rounded-2xl shadow-card backdrop-blur-xl transition-all duration-300 dark:bg-card/70 dark:border-white/10;
+    @apply bg-card/80 border border-border/60 rounded-3xl shadow-card backdrop-blur-xl transition-all duration-300 dark:bg-card/70 dark:border-white/10;
   }
   .admin-surface-hover {
     @apply hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-premium;
@@ -2459,7 +2563,22 @@ h2 {
 }
 
 /* Subtle calculator diagram motion; all animation is disabled for reduced-motion users. */
-@keyframes schematic-flow { to { stroke-dashoffset: -34; } }
-@keyframes schematic-load { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes schematic-flow {
+  to {
+    stroke-dashoffset: -34;
+  }
+}
+@keyframes schematic-load {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
 
-.reduced-motion [data-testid^="calculator-schematic"] * { animation: none !important; transition: none !important; }
+.reduced-motion [data-testid^="calculator-schematic"] * {
+  animation: none !important;
+  transition: none !important;
+}

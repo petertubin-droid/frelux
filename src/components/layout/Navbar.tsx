@@ -272,7 +272,7 @@ export default function Navbar() {
                       <div className="absolute left-0 top-full z-50 pt-1">
                         {/* Premium mega-menu panel */}
                         <div
-                          className="origin-top-left rounded-2xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
+                          className="origin-top-left rounded-3xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
                           style={{
                             animation:
                               "navDropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both",

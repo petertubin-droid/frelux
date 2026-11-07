@@ -125,7 +125,7 @@ export default function Footer() {
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="neon-edge-soft relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
+      className="neon-edge-soft relative overflow-hidden rounded-t-[2rem] border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
       style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
     >
       {/* Subtle top gradient */}
