@@ -49,6 +49,76 @@ const SAMPLE_SIZES = [
   { label: "Door 3 x 7 ft", width: 3, height: 7 },
 ];
 
+/**
+ * Whole-home starting points. Most people arrive knowing their house, not their
+ * window schedule, so these fill the openings list with ordinary Nigerian room
+ * sizes and let them correct the few numbers that differ. Sized in feet; the
+ * setter converts when the page is measuring in metres.
+ */
+const HOME_PRESETS: {
+  key: string;
+  label: string;
+  note: string;
+  rooms: {
+    label: string;
+    typeKey: BlindTypeKey;
+    width: number;
+    height: number;
+  }[];
+}[] = [
+  {
+    key: "flat-3",
+    label: "3-bedroom flat",
+    note: "8 openings",
+    rooms: [
+      { label: "Living room, main", typeKey: "day-night", width: 6, height: 4 },
+      { label: "Living room, side", typeKey: "day-night", width: 4, height: 4 },
+      { label: "Dining", typeKey: "day-night", width: 4, height: 4 },
+      { label: "Bedroom 1", typeKey: "roller", width: 4, height: 4 },
+      { label: "Bedroom 2", typeKey: "roller", width: 4, height: 4 },
+      { label: "Bedroom 3", typeKey: "roller", width: 3, height: 4 },
+      { label: "Kitchen", typeKey: "roller", width: 3, height: 3 },
+      { label: "Bathroom", typeKey: "roller", width: 2, height: 3 },
+    ],
+  },
+  {
+    key: "duplex-4",
+    label: "4-bedroom duplex",
+    note: "11 openings",
+    rooms: [
+      { label: "Living room, main", typeKey: "day-night", width: 6, height: 5 },
+      { label: "Living room, side", typeKey: "day-night", width: 5, height: 4 },
+      { label: "Dining", typeKey: "day-night", width: 5, height: 4 },
+      { label: "Kitchen", typeKey: "roller", width: 4, height: 3 },
+      { label: "Bedroom 1", typeKey: "roller", width: 5, height: 4 },
+      { label: "Bedroom 2", typeKey: "roller", width: 4, height: 4 },
+      { label: "Bedroom 3", typeKey: "roller", width: 4, height: 4 },
+      { label: "Bedroom 4", typeKey: "roller", width: 4, height: 4 },
+      { label: "Study", typeKey: "roller", width: 4, height: 4 },
+      { label: "Bathroom 1", typeKey: "roller", width: 2, height: 3 },
+      { label: "Bathroom 2", typeKey: "roller", width: 2, height: 3 },
+    ],
+  },
+  {
+    key: "single-room",
+    label: "Single room",
+    note: "2 openings",
+    rooms: [
+      { label: "Room, main", typeKey: "day-night", width: 4, height: 4 },
+      { label: "Room, side", typeKey: "roller", width: 3, height: 3 },
+    ],
+  },
+  {
+    key: "shop",
+    label: "Shop front",
+    note: "2 openings",
+    rooms: [
+      { label: "Shop front", typeKey: "roller", width: 8, height: 7 },
+      { label: "Back door", typeKey: "roller", width: 3, height: 7 },
+    ],
+  },
+];
+
 let rowSeq = 0;
 const nextId = () => `row-${++rowSeq}`;
 
@@ -170,6 +240,40 @@ export default function WindowBlindsEstimator() {
       height: Math.round(sample.height * factor * 100) / 100,
     });
   };
+
+  /** Replace the schedule with a typical home, converted to the current unit. */
+  const applyHomePreset = (preset: (typeof HOME_PRESETS)[number]) => {
+    const factor = unit === "m" ? 0.3048 : 1;
+    const round = (n: number) => Math.round(n * factor * 100) / 100;
+    setOpenings(
+      preset.rooms.map((room) =>
+        newOpening({
+          label: room.label,
+          typeKey: room.typeKey,
+          width: round(room.width),
+          height: round(room.height),
+        }),
+      ),
+    );
+    setActiveRow(null);
+  };
+
+  /**
+   * One sentence in plain words, above the line items. The figures below stay
+   * exactly as the engine computed them; this only says what they mean.
+   */
+  const windowCount = result.geometry.windowCount;
+  const jobTotal = result.totals.totalInclTax ?? result.totals.total;
+  const plainSummary = (() => {
+    const noun = windowCount === 1 ? "window" : "windows";
+    const head = `You are covering ${windowCount} ${noun}, about ${result.geometry.totalChargeableAreaM2} m2 of blind.`;
+    if (jobTotal === null) {
+      return `${head} Add a local rate below to turn this into a price.`;
+    }
+    return windowCount > 0
+      ? `${head} That is roughly ${money(jobTotal / windowCount)} per window at the rates you entered.`
+      : head;
+  })();
 
   const downloadCsv = () => {
     const header = [
@@ -367,6 +471,33 @@ export default function WindowBlindsEstimator() {
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+              <h2 className="text-sm font-medium text-foreground">
+                Start with a typical home
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tap the closest match. It fills the whole schedule, then you
+                only change the windows that differ.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {HOME_PRESETS.map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => applyHomePreset(preset)}
+                    className="rounded-xl border border-border px-3 py-2 text-left hover:bg-muted"
+                  >
+                    <span className="block text-sm font-medium text-foreground">
+                      {preset.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {preset.note}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -613,6 +744,9 @@ export default function WindowBlindsEstimator() {
               <h2 className="text-sm font-medium text-foreground">
                 Job estimate
               </h2>
+              <p className="mt-1 text-sm text-foreground" aria-live="polite">
+                {plainSummary}
+              </p>
               <dl className="mt-3 space-y-2 text-sm">
                 <div className="flex items-baseline justify-between gap-3">
                   <dt className="text-muted-foreground">Charged area</dt>

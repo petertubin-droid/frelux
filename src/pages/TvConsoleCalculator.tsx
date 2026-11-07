@@ -367,6 +367,12 @@ export default function TvConsoleCalculator() {
     ["Workshop allowance %", waste, setWaste, 0, 100, 1],
   ] as const;
 
+  // Width, height and depth are the three numbers a buyer actually knows. The
+  // rest are joinery conventions that already carry workable defaults, so they
+  // sit in "Build details" instead of asking for fourteen answers up front.
+  const mainSizeFields = dimensionFields.slice(0, 3);
+  const buildDetailFields = dimensionFields.slice(3);
+
   const rateFields = [
     ["Carcass board per sheet", sheetPrice, setSheetPrice],
     ["Back board per sheet", backSheetPrice, setBackSheetPrice],
@@ -461,16 +467,14 @@ export default function TvConsoleCalculator() {
                 <Ruler className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="font-semibold">
-                  Carcass dimensions & configuration
-                </h2>
+                <h2 className="font-semibold">Size and layout</h2>
                 <p className="text-xs text-muted-foreground">
-                  Selected: {selected.name} · outer dimensions in millimetres
+                  {selected.name} · measure in millimetres, so 1800 is 1.8 m
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              {dimensionFields.map(([label, value, setter, min, max, step]) => (
+            <div className="grid grid-cols-3 gap-4">
+              {mainSizeFields.map(([label, value, setter, min, max, step]) => (
                 <div key={label} className="min-w-0 space-y-1.5">
                   <Label htmlFor={`console-${label}`}>{label}</Label>
                   <NumericInput
@@ -483,6 +487,40 @@ export default function TvConsoleCalculator() {
                   />
                 </div>
               ))}
+              <p className="col-span-3 text-xs text-muted-foreground">
+                Width is the wall you are filling, height is the top surface and
+                depth is how far it comes out from the wall.
+              </p>
+            </div>
+
+            <details className="mt-4 rounded-xl border bg-muted/30 p-4">
+              <summary className="cursor-pointer text-sm font-medium">
+                Build details · defaults suit most consoles
+              </summary>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Only change these if your carpenter works to different panel
+                sizes or you want a different number of bays, drawers or doors.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-4">
+                {buildDetailFields.map(
+                  ([label, value, setter, min, max, step]) => (
+                    <div key={label} className="min-w-0 space-y-1.5">
+                      <Label htmlFor={`console-${label}`}>{label}</Label>
+                      <NumericInput
+                        id={`console-${label}`}
+                        min={min}
+                        max={max}
+                        step={step}
+                        value={value}
+                        onValueChange={setter}
+                      />
+                    </div>
+                  ),
+                )}
+              </div>
+            </details>
+
+            <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="min-w-0 space-y-1.5">
                 <Label htmlFor="console-currency">Currency code</Label>
                 <Input
@@ -536,12 +574,28 @@ export default function TvConsoleCalculator() {
             <div className="mt-5 rounded-xl bg-muted/50 p-4">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm font-medium">
-                  Panel schedule & material takeoff
+                  What you need to buy
                 </span>
                 <Badge variant="outline">Preliminary</Badge>
               </div>
               {result ? (
                 <>
+                  <p className="mt-3 text-sm text-foreground">
+                    A {(width / 1000).toFixed(1)} m wide unit with{" "}
+                    {dividers + 1} bay{dividers + 1 === 1 ? "" : "s"}
+                    {shelves > 0 &&
+                      `, ${shelves} shelf${shelves === 1 ? "" : "ves"}`}
+                    {drawers > 0 &&
+                      `, ${drawers} drawer${drawers === 1 ? "" : "s"}`}
+                    {doors > 0 && `, ${doors} door${doors === 1 ? "" : "s"}`}{" "}
+                    takes {result.carcassSheets.sheetsWithAllowance} {thickness}{" "}
+                    mm board
+                    {result.carcassSheets.sheetsWithAllowance === 1 ? "" : "s"}
+                    {result.backSheets.sheetsWithAllowance > 0 &&
+                      ` plus ${result.backSheets.sheetsWithAllowance} backing board${result.backSheets.sheetsWithAllowance === 1 ? "" : "s"}`}
+                    , with {result.edgeBandingMetres.toFixed(1)} m of edge
+                    banding.
+                  </p>
                   <figure className="mt-3 overflow-hidden rounded-xl border bg-background p-3">
                     <div className="aspect-[2/1] w-full sm:aspect-[5/2]">
                       <ConsoleElevation
@@ -573,7 +627,7 @@ export default function TvConsoleCalculator() {
                         {result.carcassAreaM2.toFixed(3)} m²
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        carcass panel area
+                        board area to cut
                       </div>
                     </div>
                     <div>
@@ -582,7 +636,7 @@ export default function TvConsoleCalculator() {
                         {result.backSheets.sheetsWithAllowance}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        carcass + back boards
+                        boards + backing
                       </div>
                     </div>
                     <div className="border-t pt-3">

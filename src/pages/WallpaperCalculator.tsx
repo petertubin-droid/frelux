@@ -43,6 +43,96 @@ function areaDisplay(squareMetres: number, areaUnit: "sqm" | "sqft") {
     : `${formatNumber(squareMetres)} m²`;
 }
 
+/**
+ * Room starting points. People know the room they are papering, not each wall
+ * length, so each preset lays out the four walls of an ordinary room at a
+ * standard ceiling height. Every number stays editable afterwards.
+ */
+const ROOM_PRESETS: {
+  key: string;
+  label: string;
+  note: string;
+  walls: {
+    label: string;
+    widthM: number;
+    heightM: number;
+    doors: number;
+    windows: number;
+  }[];
+}[] = [
+  {
+    key: "bedroom",
+    label: "Bedroom, 4.2 x 3.6 m",
+    note: "4 walls, 2.7 m ceiling",
+    walls: [
+      {
+        label: "Wall 1 (door)",
+        widthM: 4.2,
+        heightM: 2.7,
+        doors: 1,
+        windows: 0,
+      },
+      {
+        label: "Wall 2 (window)",
+        widthM: 3.6,
+        heightM: 2.7,
+        doors: 0,
+        windows: 1,
+      },
+      { label: "Wall 3", widthM: 4.2, heightM: 2.7, doors: 0, windows: 0 },
+      { label: "Wall 4", widthM: 3.6, heightM: 2.7, doors: 0, windows: 0 },
+    ],
+  },
+  {
+    key: "living",
+    label: "Living room, 5.5 x 4.5 m",
+    note: "4 walls, 2.9 m ceiling",
+    walls: [
+      {
+        label: "Wall 1 (door)",
+        widthM: 5.5,
+        heightM: 2.9,
+        doors: 1,
+        windows: 0,
+      },
+      {
+        label: "Wall 2 (windows)",
+        widthM: 4.5,
+        heightM: 2.9,
+        doors: 0,
+        windows: 2,
+      },
+      { label: "Wall 3", widthM: 5.5, heightM: 2.9, doors: 0, windows: 0 },
+      { label: "Wall 4", widthM: 4.5, heightM: 2.9, doors: 0, windows: 0 },
+    ],
+  },
+  {
+    key: "single-room",
+    label: "Single room, 3 x 3 m",
+    note: "4 walls, 2.7 m ceiling",
+    walls: [
+      { label: "Wall 1 (door)", widthM: 3, heightM: 2.7, doors: 1, windows: 0 },
+      {
+        label: "Wall 2 (window)",
+        widthM: 3,
+        heightM: 2.7,
+        doors: 0,
+        windows: 1,
+      },
+      { label: "Wall 3", widthM: 3, heightM: 2.7, doors: 0, windows: 0 },
+      { label: "Wall 4", widthM: 3, heightM: 2.7, doors: 0, windows: 0 },
+    ],
+  },
+  {
+    key: "feature-wall",
+    label: "One feature wall",
+    note: "1 wall, 4 x 2.7 m",
+    walls: [
+      { label: "Feature wall", widthM: 4, heightM: 2.7, doors: 0, windows: 0 },
+    ],
+  },
+];
+
 export default function WallpaperCalculator() {
   const { market, preferredLengthUnit, preferredAreaUnit } = useMarket();
   const [unit, setUnit] = useState<DisplayUnit>(
@@ -254,6 +344,22 @@ export default function WallpaperCalculator() {
     setWalls((current) => [...current, next]);
     setPreviewWallId(id);
   };
+  /** Replace the wall list with a whole room, measured in metres. */
+  const applyRoomPreset = (preset: (typeof ROOM_PRESETS)[number]) => {
+    const stamp = Date.now();
+    const next = preset.walls.map((wall, index) => ({
+      ...INITIAL_WALL,
+      id: `wall-${stamp}-${index}`,
+      label: wall.label,
+      widthM: wall.widthM,
+      heightM: wall.heightM,
+      doors: wall.doors,
+      windows: wall.windows,
+    }));
+    setWalls(next);
+    setPreviewWallId(next[0]?.id ?? null);
+  };
+
   const reset = () => {
     setWalls([{ ...INITIAL_WALL }]);
     setRoll("standard");
@@ -289,6 +395,34 @@ export default function WallpaperCalculator() {
       <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(330px,0.9fr)]">
           <section className="space-y-5" aria-label="Wallpaper measurements">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <h2 className="text-lg font-bold text-foreground">
+                Start with a room
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Pick the room you are papering. It lays out the four walls at a
+                normal ceiling height, then you change only the walls that
+                differ.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {ROOM_PRESETS.map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => applyRoomPreset(preset)}
+                    className="rounded-xl border border-border px-3 py-2 text-left hover:bg-muted"
+                  >
+                    <span className="block text-sm font-medium text-foreground">
+                      {preset.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {preset.note}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <div className="mb-5 flex items-start justify-between gap-3">
                 <div>
@@ -743,6 +877,14 @@ export default function WallpaperCalculator() {
                     <Layers className="h-6 w-6" />
                   </span>
                 </div>
+                <p className="mt-2 text-sm text-foreground">
+                  {isPanelFormat
+                    ? `You need ${estimate.rolls} numbered panel${estimate.rolls === 1 ? "" : "s"}, sold as ${estimate.packages} set${estimate.packages === 1 ? "" : "s"}.`
+                    : `You need ${estimate.rolls} roll${estimate.rolls === 1 ? "" : "s"}, which is ${estimate.packages} package${estimate.packages === 1 ? "" : "s"} from the shop.`}{" "}
+                  That covers{" "}
+                  {areaDisplay(estimate.netAreaM2, preferredAreaUnit)} of wall,
+                  with pattern matching and trimming already counted in.
+                </p>
                 <p className="mt-2 text-xs text-muted-foreground">
                   Takeoff: {estimate.rolls}{" "}
                   {isPanelFormat ? "panels" : "physical rolls"} across{" "}
