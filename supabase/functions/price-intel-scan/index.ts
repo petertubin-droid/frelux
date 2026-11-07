@@ -53,6 +53,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
+  catalogueForMarket,
   matchMaterials,
   productMatchesMaterial,
   parseFeed,
@@ -64,6 +65,10 @@ import {
   type RobotsRules,
   type SourceFormat,
 } from "../_shared/market-feeds.ts";
+import {
+  currencyAmounts,
+  firstAmountIsUsablePrice,
+} from "../_shared/price-guards.ts";
 
 const CONCURRENCY = 6;
 const STAGGER_MS = 700;
@@ -271,6 +276,7 @@ async function scanFeedSource(
   source: ScanSource,
   materials: MaterialRef[],
   marketCurrency: string,
+  marketCodes: string[],
 ): Promise<{
   ok: boolean;
   notModified: boolean;
@@ -382,18 +388,36 @@ async function scanFeedSource(
   }
 
   // A feed row binds to a material either because the source targets one slug
-  // explicitly, or because its name matches the catalogue.
+  // explicitly, or because its name matches this market's catalogue. Catalogue
+  // slugs are namespaced by market, so scoring a UK feed against all 634 active
+  // materials bound a Bravikon sand bag to the Japanese suna slug and a UK
+  // aggregate to the UAE bag: measured on the live feed, 87 of 153 rows matched
+  // and only 37 of those were GB or shared names.
   const catalogue: MaterialRef[] =
     source.material_slug && source.material_slug !== "*"
       ? materials.filter((m) => m.slug === source.material_slug)
-      : materials;
+      : catalogueForMarket(materials, source.market, marketCodes);
   const matched = matchMaterials(rows, catalogue, 0.6, source.market);
   const observations: ObservationDraft[] = [];
   let rejected = 0;
 
+  const knownCodes = new Set(marketCodes.map((c) => c.toLowerCase()));
+  const ownMarket = source.market.toLowerCase();
   for (const row of matched) {
     const currency = (row.currency ?? source.currency).toUpperCase();
     if (currency !== marketCurrency.toUpperCase()) {
+      rejected += 1;
+      continue;
+    }
+    // A catalogue slug names its market ("gb-pipe-cold", "jp-suna-25kg"). A
+    // source with an explicit material_slug could still point at another
+    // market's row, and a GBP price must never be filed under it.
+    const slugPrefix = row.material.slug.slice(0, 2).toLowerCase();
+    if (
+      row.material.slug.charAt(2) === "-" &&
+      knownCodes.has(slugPrefix) &&
+      slugPrefix !== ownMarket
+    ) {
       rejected += 1;
       continue;
     }
@@ -581,15 +605,18 @@ function extract(html: string): ExtractedPrice {
     }
   }
 
-  // 3. Currency-amount regex fallback — low.
-  const currencyMatch = html.match(
-    /(?:[$£€₹¥₩R$]|NGN|GHS|KES|ZAR|AED|SAR|BRL|JPY|EUR|USD|GBP|MXN|CNY|IDR|KRW|INR|CAD|AUD)\s?([\d][\d.,]{1,12})/,
-  );
-  if (currencyMatch) {
-    const num = Number(currencyMatch[1].replace(/,/g, ""));
-    if (Number.isFinite(num) && num > 0) {
+  // 3. Currency-amount regex fallback, low confidence.
+  //
+  // The first currency amount on a page is only a price when the page shows one
+  // product. Three Screwfix catalogue pages filed GBP 99 for unrelated
+  // materials (a 1L primer, a 150m tape, a 5L sealer) because 99 was the first
+  // amount in the markup, which is site chrome, not any of those products. The
+  // guards live in _shared/price-guards.ts so they can be tested directly.
+  if (firstAmountIsUsablePrice(html)) {
+    const [first] = currencyAmounts(html);
+    if (first && Number.isFinite(first.value) && first.value > 0) {
       return {
-        price: num,
+        price: first.value,
         currency: null,
         product_name: null,
         extraction: "regex",
@@ -1172,9 +1199,18 @@ serveWithCors(async (req: Request) => {
     trigger = "admin";
   }
 
-  const bodyParam = url.searchParams.get("market") ?? undefined;
-  const marketFilter: string | undefined =
-    (parsedBody.market as string) ?? bodyParam;
+  // Body accepts "market" or "markets". The plural form was silently ignored
+  // once, so a run labelled GB scanned every due source in every market; both
+  // spellings are accepted rather than trusting the caller to remember.
+  const requestedMarkets = [
+    ...(Array.isArray(parsedBody.markets) ? parsedBody.markets : []),
+    parsedBody.market,
+    url.searchParams.get("market"),
+    url.searchParams.get("markets"),
+  ]
+    .map((m) => (typeof m === "string" ? m.trim().toUpperCase() : ""))
+    .filter((m) => /^[A-Z]{2}$/.test(m));
+  const marketFilter: string | undefined = requestedMarkets[0];
 
   // ── Open the run audit row ──
   const { data: run, error: runError } = await supabase
@@ -1260,6 +1296,9 @@ serveWithCors(async (req: Request) => {
   }
   const currencyByMarket = new Map<string, string>();
   const nameByMarket = new Map<string, string>();
+  // Every market code the catalogue namespaces its slugs by. A slug beginning
+  // with one of these is that market's own product, not a shared generic.
+  const marketCodes: string[] = [];
   for (const row of (marketRows ?? []) as Array<{
     country_code: string;
     currency_code: string;
@@ -1267,6 +1306,7 @@ serveWithCors(async (req: Request) => {
   }>) {
     currencyByMarket.set(row.country_code, row.currency_code);
     nameByMarket.set(row.country_code, row.country_name);
+    marketCodes.push(row.country_code);
   }
 
   // ── Scan with a small concurrency pool; stagger politely ──
@@ -1302,6 +1342,7 @@ serveWithCors(async (req: Request) => {
             source,
             materials,
             currencyByMarket.get(source.market) ?? source.currency,
+            marketCodes,
           );
           return {
             kind: "feed" as const,
@@ -1398,6 +1439,13 @@ serveWithCors(async (req: Request) => {
   // The unique (source, supplier, material, variant, day) index makes a second
   // run on the same day a no-op instead of a duplicate fact.
   let observationsFiled = 0;
+  // A fact already recorded for this source, supplier, material and day is left
+  // alone by the unique index, so a repeat run reports zero filed rows while its
+  // candidates carry real prices. Run 64b1083f on 7 November 2026 showed exactly
+  // that: five GB candidates, observations_filed 0, and the five evidence rows
+  // stamped by the earlier run 45b03789 that first saw them. Counting skipped
+  // duplicates keeps the report honest instead of reading like a write failure.
+  let observationsDuplicate = 0;
   // A failed observation write used to be invisible: the run still reported a
   // created candidate, and the price could be auto-applied while the evidence
   // behind it was never stored. Measured on 6 November 2026, CI returned
@@ -1442,8 +1490,10 @@ serveWithCors(async (req: Request) => {
           "price-intel-scan: observation write failed",
           obsError.message,
         );
-      } else if (inserted) {
-        observationsFiled += inserted.length;
+      } else {
+        const written = inserted?.length ?? 0;
+        observationsFiled += written;
+        observationsDuplicate += chunk.length - written;
       }
     }
   }
@@ -1841,6 +1891,7 @@ serveWithCors(async (req: Request) => {
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
       observations_filed: observationsFiled,
+      observations_duplicate: observationsDuplicate,
       observations_failed: observationsFailed,
       markets_scanned: touchedMarkets.length,
       prices_updated: [...appliedByMarket.values()].reduce((a, b) => a + b, 0),
@@ -1877,6 +1928,7 @@ serveWithCors(async (req: Request) => {
       candidates_created: candidatesCreated,
       candidates_failed: candidatesFailed,
       observations_filed: observationsFiled,
+      observations_duplicate: observationsDuplicate,
       observations_failed: observationsFailed,
       observations_error: observationsError,
       markets_scanned: touchedMarkets.length,

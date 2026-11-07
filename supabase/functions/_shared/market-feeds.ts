@@ -1,4 +1,4 @@
-import { canonicalisePair } from "./supplier-aliases.ts";
+import { canonicalisePair, canonicaliseProduct } from "./supplier-aliases.ts";
 // =========================================================
 // market-feeds — structured price source adapters
 //
@@ -518,8 +518,18 @@ function tokens(value: string): string[] {
 
 /** How well a feed row name describes a material: 0 (no) to 1 (the name). */
 export function matchScore(rowName: string, materialName: string): number {
-  const a = tokens(rowName);
-  const b = tokens(materialName);
+  return scoreTokens(tokens(rowName), tokens(materialName));
+}
+
+/**
+ * The scoring rule itself, over tokens already extracted.
+ *
+ * Split out so a scan can tokenise the catalogue once and every row once
+ * instead of re-tokenising both sides for every pair. The GB Bravikon feed
+ * compares 153 rows against the catalogue, and doing the full name pipeline per
+ * pair is what pushed that invocation past its limit.
+ */
+export function scoreTokens(a: string[], b: string[]): number {
   if (!a.length || !b.length) return 0;
   const aSet = new Set(a);
   // A size, thickness or grade token ("50kg", "20mm", "1.5") distinguishes two
@@ -555,21 +565,87 @@ export function matchMaterials(
   threshold = 0.6,
   market?: string,
 ): MatchedRow[] {
+  const matcher = createMaterialMatcher(materials, market);
   const out: MatchedRow[] = [];
   for (const row of rows) {
     if (!row.name) continue;
-    let best: { material: MaterialRef; score: number } | null = null;
-    for (const material of materials) {
-      const score = market
-        ? aliasMatchScore(row.name, material.name, market)
-        : matchScore(row.name, material.name);
-      if (!best || score > best.score) best = { material, score };
-    }
+    const best = matcher.match(row.name);
     if (best && best.score >= threshold) {
       out.push({ ...row, material: best.material, score: best.score });
     }
   }
   return out;
+}
+
+/**
+ * A matcher that prepares the catalogue once.
+ *
+ * Each material name is canonicalised and tokenised a single time, and each
+ * row name a single time, so the cost of a scan is (rows + materials) rather
+ * than rows x materials. Both paths run the same rules, so a score is identical
+ * to what matchScore returns for the same pair.
+ */
+export function createMaterialMatcher(
+  materials: MaterialRef[],
+  market?: string,
+): {
+  match: (rowName: string) => { material: MaterialRef; score: number } | null;
+  size: number;
+} {
+  const prepared: Array<{ material: MaterialRef; b: string[] }> = [];
+  for (const material of materials) {
+    const b = materialTokens(material.name, market);
+    if (b.length === 0) continue;
+    prepared.push({ material, b });
+  }
+  return {
+    size: prepared.length,
+    match(rowName: string) {
+      const a = materialTokens(rowName, market);
+      if (a.length === 0) return null;
+      let best: { material: MaterialRef; score: number } | null = null;
+      for (const entry of prepared) {
+        const score = scoreTokens(a, entry.b);
+        if (!best || score > best.score)
+          best = { material: entry.material, score };
+      }
+      return best && best.score > 0 ? best : null;
+    },
+  };
+}
+
+/** Tokens for one name, in the market's vocabulary. Empty when the name is
+ *  not a material at all, which is how tools and accessories are refused. */
+function materialTokens(name: string, market?: string): string[] {
+  if (!market) return tokens(name ?? "");
+  const verdict = canonicaliseProduct(stripMarketSuffix(name ?? ""), market);
+  if (verdict.kind === "rejected") return [];
+  return tokens(verdict.canonical);
+}
+
+/**
+ * The materials a market's feed may be priced against.
+ *
+ * Catalogue slugs are namespaced by market ("gb-pipe-cold", "jp-suna-25kg"), so
+ * a UK feed scored against the whole catalogue could bind a Bravikon sand bag
+ * to the Japanese suna slug and file a GBP price under it. Measured on the live
+ * Bravikon feed, 87 of 153 rows matched and only 12 of those were GB names.
+ * Shared slugs with no market prefix stay available to every market.
+ */
+export function catalogueForMarket(
+  materials: MaterialRef[],
+  market: string,
+  marketCodes: Iterable<string>,
+): MaterialRef[] {
+  const codes = new Set<string>();
+  for (const code of marketCodes) codes.add(String(code).toLowerCase());
+  const own = market.toLowerCase();
+  return materials.filter((m) => {
+    const prefix = (m.slug ?? "").slice(0, 2).toLowerCase();
+    const hyphen = (m.slug ?? "").charAt(2) === "-";
+    if (!hyphen || !codes.has(prefix)) return true;
+    return prefix === own;
+  });
 }
 
 /** Does a scraped product name describe this material?

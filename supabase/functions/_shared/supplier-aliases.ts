@@ -119,6 +119,46 @@ const NON_MATERIAL_TERMS = [
   "mixer paddle",
 ];
 
+/**
+ * The rejection terms compiled once. A market scan scores tens of thousands of
+ * name pairs, and building two RegExp objects per term per pair was the bulk of
+ * the cost that pushed the GB scan past its invocation limit.
+ */
+const NON_MATERIAL_PATTERNS = NON_MATERIAL_TERMS.map((term) => ({
+  term,
+  pattern: new RegExp(`(^| )${term.replace(/ /g, " ")}( |$)`),
+}));
+
+/** One market's alias phrases, longest first, with patterns built once. */
+interface AliasTable {
+  phrase: string;
+  label: string;
+  match: RegExp;
+  replace: RegExp;
+}
+
+const ALIAS_TABLE_CACHE = new Map<string, AliasTable[]>();
+
+function aliasTableFor(market: string): AliasTable[] {
+  const key = market.toUpperCase();
+  const cached = ALIAS_TABLE_CACHE.get(key);
+  if (cached) return cached;
+  const raw = ALIASES[key] ?? {};
+  const built = Object.keys(raw)
+    .sort((a, b) => b.length - a.length)
+    .map((phrase) => {
+      const label = raw[phrase];
+      return {
+        phrase,
+        label,
+        match: new RegExp(`(^| )${phrase}( |$)`),
+        replace: new RegExp(`(^| )${phrase}( |$)`, "g"),
+      };
+    });
+  ALIAS_TABLE_CACHE.set(key, built);
+  return built;
+}
+
 export type RowVerdict =
   | { kind: "material"; canonical: string; applied: string[] }
   | { kind: "rejected"; reason: string };
@@ -146,8 +186,8 @@ export function canonicaliseProduct(name: string, market: string): RowVerdict {
   const cleaned = clean(name ?? "");
   if (!cleaned) return { kind: "rejected", reason: "empty product name" };
 
-  for (const term of NON_MATERIAL_TERMS) {
-    if (new RegExp(`(^| )${term.replace(/ /g, " ")}( |$)`).test(cleaned)) {
+  for (const { term, pattern } of NON_MATERIAL_PATTERNS) {
+    if (pattern.test(cleaned)) {
       return {
         kind: "rejected",
         reason: `not a material (${term})`,
@@ -155,18 +195,12 @@ export function canonicaliseProduct(name: string, market: string): RowVerdict {
     }
   }
 
-  const table = ALIASES[(market ?? "").toUpperCase()] ?? {};
-  const phrases = Object.keys(table).sort((a, b) => b.length - a.length);
   const applied: string[] = [];
   let canonical = cleaned;
-  for (const phrase of phrases) {
-    const pattern = new RegExp(`(^| )${phrase}( |$)`);
-    if (pattern.test(canonical)) {
-      canonical = canonical.replace(
-        new RegExp(pattern, "g"),
-        ` ${table[phrase]} `,
-      );
-      applied.push(`${phrase} → ${table[phrase]}`);
+  for (const alias of aliasTableFor(market ?? "")) {
+    if (alias.match.test(canonical)) {
+      canonical = canonical.replace(alias.replace, ` ${alias.label} `);
+      applied.push(`${alias.phrase} → ${alias.label}`);
     }
   }
 
