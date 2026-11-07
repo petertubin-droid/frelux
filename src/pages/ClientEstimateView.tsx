@@ -313,7 +313,7 @@ export default function ClientEstimateView() {
 
         {/* Action buttons */}
         {canAct && (
-          <div className="sticky bottom-0 rounded-2xl border bg-card/95 backdrop-blur-md p-6 shadow-lg">
+          <div className="sticky bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] rounded-2xl border bg-card/95 p-6 shadow-lg backdrop-blur-md md:bottom-0">
             {showFeedback ? (
               <div className="space-y-4">
                 <textarea

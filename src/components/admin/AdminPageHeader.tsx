@@ -38,7 +38,7 @@ export default function AdminPageHeader({
 }) {
   return (
     <header
-      className={`mb-6 border-b border-border pb-4 dark:border-white/10 ${className}`}
+      className={`mb-6 rounded-b-3xl border-b border-border pb-4 dark:border-white/10 ${className}`}
     >
       {eyebrow && (
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

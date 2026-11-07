@@ -49,10 +49,10 @@ export default function PageHeader({
   return (
     <div
       data-header-variant={variant}
-      className={`relative overflow-hidden ${
+      className={`relative overflow-hidden rounded-b-[2rem] ${
         resolvedImage
-          ? "bg-background"
-          : "border-b border-border/80 bg-card dark:border-white/5 dark:bg-card"
+          ? "bg-background shadow-[0_20px_46px_-38px_rgba(16,12,40,0.6)]"
+          : "border-b border-border/80 bg-card shadow-[0_20px_46px_-38px_rgba(16,12,40,0.55)] dark:border-white/5 dark:bg-card"
       }`}
     >
       {/* Blended photo band: decorative, faded into the page surface so

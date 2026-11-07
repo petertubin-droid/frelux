@@ -203,9 +203,9 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          "neon-edge fixed top-0 z-40 w-full border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-500",
+          "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,backdrop-filter,border-radius] duration-500",
           scrolled
-            ? "border-border/40 bg-background/55 shadow-[0_12px_32px_-28px_rgba(16,12,40,0.75)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-background/50"
+            ? "border-border/40 bg-background/60 shadow-[0_18px_44px_-34px_rgba(16,12,40,0.8)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-background/55"
             : "border-transparent bg-transparent backdrop-blur-none",
         )}
       >

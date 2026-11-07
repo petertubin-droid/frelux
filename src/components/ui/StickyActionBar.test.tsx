@@ -14,13 +14,16 @@ describe("StickyActionBar", () => {
     expect(screen.getByLabelText("Quick actions")).toBeTruthy();
   });
 
-  it("clears the mobile bottom navigation and safe-area inset", () => {
+  it("clears the floating mobile bottom navigation and safe-area inset", () => {
     render(<StickyActionBar onSave={vi.fn()} />);
     const toolbar = screen.getByRole("toolbar");
+    // The mobile nav is a floating island (12px floor + ~52px tall + inset),
+    // so the toolbar has to sit above 84px or it overlaps the last tab.
     expect(toolbar.className).toContain(
-      "bottom-[calc(3.5rem+env(safe-area-inset-bottom))]",
+      "bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))]",
     );
-    expect(toolbar.className).toContain("md:bottom-0");
+    expect(toolbar.className).toContain("md:bottom-3");
+    expect(toolbar.className).toContain("surface-float");
   });
 
   it("renders Save button with default label", () => {

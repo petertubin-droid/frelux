@@ -56,7 +56,7 @@ export default function StickyActionBar({
     <div
       role="toolbar"
       aria-label="Quick actions"
-      className="action-bar-glow sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 mt-6 md:bottom-0 border-t border-border/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-background-mid/90 animate-fade-in-up"
+      className="action-bar-glow surface-float sticky bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] z-30 mx-3 mt-6 rounded-[26px] md:bottom-3 animate-fade-in-up"
     >
       <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-3">
         {buttons.map((btn) => (
