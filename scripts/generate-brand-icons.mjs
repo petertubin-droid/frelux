@@ -143,4 +143,33 @@ const icoImages = await Promise.all(
 await mkdir("public", { recursive: true });
 await writeFile("public/favicon.ico", packIco(icoImages));
 
+/**
+ * Served copies under /brand.
+ *
+ * A browser caches a tab icon by URL and keeps it far longer than any cache
+ * header: a phone can hold an old mark for weeks after a deploy. These are the
+ * files index.html and the manifest actually point at, so a regenerate puts the
+ * tab icon on a URL that has never been cached rather than on /favicon.ico,
+ * which every browser already has a copy of.
+ */
+await mkdir("public/brand", { recursive: true });
+await write("public/brand/icon-512.png", await transparentSquare(512, 0.94));
+await write("public/brand/icon-192.png", await transparentSquare(192, 0.94));
+await write("public/brand/favicon-48.png", await transparentSquare(48, 0.98));
+await write("public/brand/favicon-32.png", await transparentSquare(32, 0.98));
+await write("public/brand/favicon-16.png", await transparentSquare(16, 0.98));
+await write("public/brand/icon-maskable-512.png", await opaqueSquare(512, 0.7));
+await write("public/brand/apple-touch-icon.png", await opaqueSquare(180, 0.78));
+await writeFile(
+  "public/brand/favicon.ico",
+  packIco(
+    await Promise.all(
+      [48, 32, 16].map(async (size) => ({
+        size,
+        data: await transparentSquare(size, 0.98),
+      })),
+    ),
+  ),
+);
+
 console.log("brand icons regenerated from", SOURCE);

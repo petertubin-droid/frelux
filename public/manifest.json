@@ -15,19 +15,19 @@
   "categories": ["business", "productivity", "lifestyle", "utilities"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/brand/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/brand/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-maskable-512.png",
+      "src": "/brand/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -42,7 +42,7 @@
       "description": "Calculate paint quantities for your project",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/brand/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -54,7 +54,7 @@
       "description": "Calculate wall screeding requirements",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/brand/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -66,7 +66,7 @@
       "description": "Browse and compare paint colors",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/brand/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -78,7 +78,7 @@
       "description": "Estimate painting project costs",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/brand/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -90,7 +90,7 @@
       "description": "Get AI-powered color recommendations",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/brand/icon-192.png",
           "sizes": "192x192"
         }
       ]

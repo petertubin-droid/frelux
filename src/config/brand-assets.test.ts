@@ -50,6 +50,14 @@ describe("brand assets behind link previews", () => {
       "public/favicon-16.png": 16,
       "public/logo-mark.png": 256,
       "public/logo-mark-light.png": 256,
+      // The copies the tab, home screen and manifest actually request.
+      "public/brand/favicon-16.png": 16,
+      "public/brand/favicon-32.png": 32,
+      "public/brand/favicon-48.png": 48,
+      "public/brand/icon-192.png": 192,
+      "public/brand/icon-512.png": 512,
+      "public/brand/icon-maskable-512.png": 512,
+      "public/brand/apple-touch-icon.png": 180,
     };
     for (const [path, px] of Object.entries(expected)) {
       expect(existsSync(path), path).toBe(true);
@@ -112,14 +120,14 @@ describe("brand assets behind link previews", () => {
     expect(manifest.icons.some((i) => i.purpose === "maskable")).toBe(true);
 
     const head = read("index.html");
-    expect(head).toContain('href="/favicon.ico"');
-    expect(head).toContain('sizes="180x180" href="/apple-touch-icon.png"');
+    expect(head).toContain('href="/brand/favicon.ico');
+    expect(head).toContain('sizes="180x180" href="/brand/apple-touch-icon.png');
   });
 
   it("declares the organisation logo at its real size", () => {
     const index = read("index.html");
     const logo =
-      /"logo": \{[^}]*"url": "https:\/\/freluxtools\.com\/([a-z0-9-]+\.png)",([^}]*)\}/.exec(
+      /"logo": \{[^}]*"url": "https:\/\/freluxtools\.com\/([a-z0-9\-/]+\.png)",([^}]*)\}/.exec(
         index,
       );
     expect(logo, "organisation logo block").not.toBeNull();
@@ -261,8 +269,8 @@ describe("site icon set", () => {
     const manifest = JSON.parse(read("public/manifest.json"));
     expect(manifest.theme_color).toBe("#6D28D9");
     const icons = manifest.icons.map((icon: { src: string }) => icon.src);
-    expect(icons).toContain("/icon-192.png");
-    expect(icons).toContain("/icon-maskable-512.png");
+    expect(icons).toContain("/brand/icon-192.png");
+    expect(icons).toContain("/brand/icon-maskable-512.png");
     expect(
       manifest.icons.some(
         (icon: { purpose?: string }) => icon.purpose === "maskable",
@@ -275,7 +283,94 @@ describe("site icon set", () => {
     // A vector tab icon would shadow the new mark, so the raster set is the
     // only source declared in the head.
     expect(index).not.toContain("image/svg+xml");
-    expect(index).toContain('<link rel="icon" href="/favicon.ico"');
+    expect(index).toContain('<link rel="icon" href="/brand/favicon.ico');
     expect(index).not.toContain('content="#7C3AED"');
+  });
+});
+
+describe("the tab icon is the current mark", () => {
+  it("points the document and the manifest at the served brand copies", () => {
+    const index = read("index.html");
+    for (const size of [16, 32, 48]) {
+      expect(index, `favicon-${size}`).toContain(`/brand/favicon-${size}.png`);
+    }
+    expect(index).toContain("/brand/favicon.ico");
+    expect(index).toContain("/brand/apple-touch-icon.png");
+    // Nothing may still ask for the root copies: those are the URLs a phone has
+    // already cached, and a browser will show the old mark from them.
+    expect(index).not.toMatch(/rel="icon"[^>]*href="\/favicon-/);
+    expect(index).not.toMatch(
+      /rel="apple-touch-icon"[^>]*href="\/apple-touch-icon/,
+    );
+
+    const manifest = JSON.parse(read("public/manifest.json")) as {
+      icons: Array<{ src: string }>;
+    };
+    expect(manifest.icons.length).toBeGreaterThan(0);
+    for (const icon of manifest.icons) {
+      expect(icon.src, icon.src).toMatch(/^\/brand\/icon-/);
+    }
+  });
+
+  it("serves the current artwork rather than the old letter mark", async () => {
+    // A stale icon is invisible in code review and only shows up as an old
+    // letter in someone's tab strip. The retired mark was a single purple
+    // plate; the current artwork is a purple-blue-orange-green gradient, so the
+    // palette is a stable fingerprint for "this file is the new logo".
+    const { default: sharp } = await import("sharp");
+
+    const share = async (path: string) => {
+      const { data, info } = await sharp(path)
+        .resize(64, 64, {
+          fit: "contain",
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        })
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      const counts = { purple: 0, blue: 0, green: 0, orange: 0 };
+      let opaque = 0;
+      for (let i = 0; i < data.length; i += info.channels) {
+        if (data[i + 3] < 60) continue;
+        opaque += 1;
+        const r = data[i] / 255;
+        const g = data[i + 1] / 255;
+        const b = data[i + 2] / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const light = (max + min) / 2;
+        const sat =
+          max === min ? 0 : (max - min) / (1 - Math.abs(2 * light - 1));
+        if (sat < 0.2) continue;
+        let hue = 0;
+        if (max === r) hue = ((g - b) / (max - min)) % 6;
+        else if (max === g) hue = (b - r) / (max - min) + 2;
+        else hue = (r - g) / (max - min) + 4;
+        const deg = (hue * 60 + 360) % 360;
+        if (deg >= 250 && deg <= 300) counts.purple += 1;
+        else if (deg >= 190 && deg < 250) counts.blue += 1;
+        else if (deg >= 60 && deg < 160) counts.green += 1;
+        else if (deg >= 20 && deg < 60) counts.orange += 1;
+      }
+      const total = Math.max(opaque, 1);
+      return {
+        purple: counts.purple / total,
+        cool: (counts.blue + counts.green) / total,
+        orange: counts.orange / total,
+      };
+    };
+
+    for (const path of [
+      "public/brand/favicon-32.png",
+      "public/brand/favicon-48.png",
+      "public/brand/icon-192.png",
+    ]) {
+      const palette = await share(path);
+      // Blue and green only appear in the current gradient artwork.
+      expect(palette.cool, `${path} cool hues`).toBeGreaterThan(0.15);
+      expect(palette.orange, `${path} warm hues`).toBeGreaterThan(0.05);
+      // The retired mark was almost entirely one purple.
+      expect(palette.purple, `${path} single-hue dominance`).toBeLessThan(0.45);
+    }
   });
 });
