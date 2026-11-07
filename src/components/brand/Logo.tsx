@@ -29,6 +29,23 @@ import { useTheme } from "@/lib/theme";
 
 type LogoSize = "sm" | "md" | "lg";
 
+/**
+ * Formats that carry an alpha channel.
+ *
+ * A logo sits on whatever surface the page happens to use, so it has to be
+ * transparent. JPEG cannot store transparency: an uploaded JPEG logo arrives
+ * as a solid rectangle, which reads on screen as a white box with a visible
+ * edge around the mark. Branding uploads in that format are ignored here and
+ * the vector mark is used instead, so the header cannot regress to a boxed
+ * image no matter what is uploaded.
+ */
+const TRANSPARENT_LOGO_PATTERN = /\.(svg|png|webp|avif)(?:$|[?#])/i;
+
+export function usableBrandLogo(url?: string | null): string | null {
+  if (!url) return null;
+  return TRANSPARENT_LOGO_PATTERN.test(url) ? url : null;
+}
+
 interface LogoProps {
   className?: string;
   variant?: "full" | "mark";
@@ -89,8 +106,9 @@ export default function Logo({
   const onDark = light || theme === "dark";
   const token = SIZE_TOKENS[size];
 
-  const logoUrl =
-    theme === "dark" ? branding?.dark_logo_url : branding?.light_logo_url;
+  const logoUrl = usableBrandLogo(
+    theme === "dark" ? branding?.dark_logo_url : branding?.light_logo_url,
+  );
   const displayName = branding?.website_name ?? siteConfig.name;
   const shortName =
     (branding?.website_name ?? siteConfig.shortName).split(" ")[0] ?? "FRELUX";

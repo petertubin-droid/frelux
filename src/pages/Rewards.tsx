@@ -724,31 +724,41 @@ export default function Rewards() {
           <WeeklyMissionCard mission={mission} progress={missionProgress} />
         )}
 
-        {/* Tabs */}
-        <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
-          {(
-            [
-              { key: "rewards", label: "Rewards", icon: Gift },
-              { key: "achievements", label: "Achievements", icon: Trophy },
-              { key: "offerwall", label: "Offers", icon: ExternalLink },
-              { key: "history", label: "History", icon: Clock },
-            ] as const
-          ).map((tab) => (
-            <Button
-              variant="ghost"
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={classNames(
-                "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
-                activeTab === tab.key
-                  ? "border-brand-purple text-brand-purple"
-                  : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
-              )}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </Button>
-          ))}
+        {/* Tabs. Four labels with icons do not fit a 412px phone, so the row
+            scrolls inside its own box. Without that, the row widened the
+            document and the whole page lost its right edge on mobile. */}
+        <div className="-mx-4 mb-6 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            role="tablist"
+            aria-label={t("Rewards sections")}
+            className="flex w-max min-w-full gap-2 border-b border-border dark:border-white/5"
+          >
+            {(
+              [
+                { key: "rewards", label: "Rewards", icon: Gift },
+                { key: "achievements", label: "Achievements", icon: Trophy },
+                { key: "offerwall", label: "Offers", icon: ExternalLink },
+                { key: "history", label: "History", icon: Clock },
+              ] as const
+            ).map((tab) => (
+              <Button
+                variant="ghost"
+                key={tab.key}
+                role="tab"
+                aria-selected={activeTab === tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={classNames(
+                  "flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
+                  activeTab === tab.key
+                    ? "border-brand-purple text-brand-purple"
+                    : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
+                )}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Tab content */}

@@ -180,8 +180,11 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     root.style.setProperty("--primary", primaryHsl);
     root.style.setProperty("--ring", primaryHsl);
 
-    // Favicon
-    if (branding.favicon_url) {
+    // Favicon. Only an icon that carries transparency can replace the shipped
+    // set: a JPEG upload has no alpha channel and renders as a white tile in
+    // the tab strip, which is the same defect as a boxed header logo.
+    const transparentIcon = /\.(svg|png|webp|avif|ico)(?:$|[?#])/i;
+    if (branding.favicon_url && transparentIcon.test(branding.favicon_url)) {
       let link = document.querySelector<HTMLLinkElement>("link[rel='icon']");
       if (!link) {
         link = document.createElement("link");

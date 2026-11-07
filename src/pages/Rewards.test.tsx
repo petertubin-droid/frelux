@@ -67,4 +67,24 @@ describe("Rewards", () => {
     const { container } = await renderPage();
     expect(container.innerHTML).not.toBe("");
   });
+
+  it("keeps the tab row inside the viewport on a phone", async () => {
+    const { useAuth } = await import("@/lib/auth");
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "user-1", email: "member@example.com" },
+      profile: { full_name: "Member" },
+      loading: false,
+    } as never);
+    const { container } = await renderPage();
+    const tablist = container.querySelector('[role="tablist"]');
+    expect(tablist).toBeTruthy();
+    // The row scrolls inside its own box, so it cannot widen the document.
+    const strip = tablist?.parentElement;
+    expect(strip?.className).toContain("overflow-x-auto");
+    expect(tablist?.className).toContain("min-w-full");
+    for (const tab of Array.from(tablist?.children ?? [])) {
+      expect(tab.className).toContain("shrink-0");
+      expect(tab.className).toContain("whitespace-nowrap");
+    }
+  });
 });

@@ -25,6 +25,7 @@ import { getSupabase } from "@/lib/supabase-lazy";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
+import { isCalculatorPath } from "@/lib/market-notice";
 import {
   adsAllowedForViewer,
   hideAdContainers,
@@ -519,7 +520,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-clip">
       {/* Whisper-quiet brand backdrop behind all page content (the
           hero and footer carry the visible treatment on top of this) */}
       <div
@@ -563,18 +564,37 @@ export default function Layout() {
         className="w-full flex-1 pt-16 pb-36 md:pb-0"
         role="main"
       >
+        {/* The market caveat qualifies a calculation result, so it is scoped
+            to calculator pages rather than printed above every route. */}
         {[
-          "US", "GB", "CN", "AU", "IN", "NG", "MX", "SA", "CA", "DE", "JP", "NL",
-        ].includes(marketCode) && (
-          <div
-            role="note"
-            aria-label="Market estimate notice"
-            className="mx-auto mt-2 w-[min(100%-2rem,80rem)] rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
-          >
-            <strong className="font-semibold">{marketCode} estimates are preliminary.</strong>{" "}
-            Local standards, methods, product sizes, and prices may be unverified. Confirm project-specific requirements and current supplier pricing locally; structural and safety-critical results require review by a licensed local professional.
-          </div>
-        )}
+          "US",
+          "GB",
+          "CN",
+          "AU",
+          "IN",
+          "NG",
+          "MX",
+          "SA",
+          "CA",
+          "DE",
+          "JP",
+          "NL",
+        ].includes(marketCode) &&
+          isCalculatorPath(location.pathname) && (
+            <div
+              role="note"
+              aria-label="Market estimate notice"
+              className="mx-auto mt-2 w-[min(100%-2rem,80rem)] rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
+            >
+              <strong className="font-semibold">
+                {marketCode} estimates are preliminary.
+              </strong>{" "}
+              Local standards, methods, product sizes, and prices may be
+              unverified. Confirm project-specific requirements and current
+              supplier pricing locally; structural and safety-critical results
+              require review by a licensed local professional.
+            </div>
+          )}
         <Outlet />
         <LocalePrompt />
       </main>

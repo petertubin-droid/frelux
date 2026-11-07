@@ -217,34 +217,43 @@ export default function AdminRewards() {
     <div>
       <AdminPageHeader title={tr("FRELUX Credits & Rewards")} />
 
-      {/* Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
-        {(
-          [
-            { key: "overview", label: "Overview", icon: TrendingUp },
-            { key: "rewards", label: "Reward Catalogue", icon: Gift },
-            { key: "settings", label: "Settings", icon: Settings },
-            {
-              key: "suspicious",
-              label: "Suspicious Activity",
-              icon: AlertTriangle,
-            },
-          ] as const
-        ).map((t) => (
-          <Button
-            variant="ghost"
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={classNames(
-              "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
-              tab === t.key
-                ? "border-brand-purple text-brand-purple"
-                : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
-            )}
-          >
-            <t.icon className="h-4 w-4" /> {t.label}
-          </Button>
-        ))}
+      {/* Tabs. The same four-label row, with the same mobile constraint as
+          the member Rewards page: scroll inside the row, never widen the page. */}
+      <div className="mb-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          role="tablist"
+          aria-label="Rewards tabs"
+          className="flex w-max min-w-full gap-2 border-b border-border dark:border-white/5"
+        >
+          {(
+            [
+              { key: "overview", label: "Overview", icon: TrendingUp },
+              { key: "rewards", label: "Reward Catalogue", icon: Gift },
+              { key: "settings", label: "Settings", icon: Settings },
+              {
+                key: "suspicious",
+                label: "Suspicious Activity",
+                icon: AlertTriangle,
+              },
+            ] as const
+          ).map((t) => (
+            <Button
+              variant="ghost"
+              key={t.key}
+              role="tab"
+              aria-selected={tab === t.key}
+              onClick={() => setTab(t.key)}
+              className={classNames(
+                "flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
+                tab === t.key
+                  ? "border-brand-purple text-brand-purple"
+                  : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
+              )}
+            >
+              <t.icon className="h-4 w-4" /> {t.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* Overview tab */}
