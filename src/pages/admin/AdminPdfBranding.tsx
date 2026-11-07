@@ -49,6 +49,7 @@ import type {
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 export default function AdminPdfBranding() {
   const { t: tr } = useLanguage();
@@ -741,17 +742,12 @@ export default function AdminPdfBranding() {
                 <tr key={l.plan}>
                   <td className="py-2.5 font-medium capitalize">{l.plan}</td>
                   <td className="py-2.5">
-                    <input
-                      type="number"
+                    <NumericInput
+                      value={l.monthly_exports}
                       min={0}
                       max={10000}
-                      value={l.monthly_exports}
-                      onChange={(e) =>
-                        handleLimitChange(
-                          l.plan,
-                          "monthly_exports",
-                          parseInt(e.target.value) || 0,
-                        )
+                      onValueChange={(n) =>
+                        handleLimitChange(l.plan, "monthly_exports", n)
                       }
                       className="w-20 rounded border border-border px-2 py-1 text-xs dark:bg-background"
                     />

@@ -28,7 +28,7 @@ import { createPortal } from "react-dom";
 import {
   Info,
   Heart,
-  Sparkles,
+  Tag,
   Lock,
   TrendingUp,
   Crown,
@@ -95,7 +95,7 @@ const DESTINATIONS: Dest[] = [
 /* Per-destination creative assets for thumbnails. */
 const DEST_CREATIVES: { icon: React.ElementType; gradient: string }[] = [
   { icon: Heart, gradient: "from-rose-500 to-pink-600" },
-  { icon: Sparkles, gradient: "from-pink-500 to-fuchsia-600" },
+  { icon: Tag, gradient: "from-pink-500 to-fuchsia-600" },
   { icon: Lock, gradient: "from-fuchsia-500 to-purple-600" },
   { icon: TrendingUp, gradient: "from-red-500 to-rose-600" },
   { icon: Crown, gradient: "from-amber-500 to-rose-500" },

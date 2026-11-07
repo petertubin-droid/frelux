@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import AdSlot from "@/components/ui/AdSlot";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 export default function FoundationCalculator() {
   const {
@@ -265,13 +266,10 @@ export default function FoundationCalculator() {
                 >
                   Bearing capacity (kN/m²)
                 </label>
-                <input
+                <NumericInput
                   id="fnd-bearing"
-                  type="number"
                   value={customBearing}
-                  onChange={(e) =>
-                    setCustomBearing(parseFloat(e.target.value) || 0)
-                  }
+                  onValueChange={setCustomBearing}
                   className="input-field"
                 />
               </div>
@@ -283,14 +281,11 @@ export default function FoundationCalculator() {
               >
                 {shape === "pad" ? "Column load (kN)" : "Wall load (kN/m)"}
               </label>
-              <input
+              <NumericInput
                 id="fnd-load"
-                type="number"
                 value={shape === "pad" ? columnLoad : wallLoad}
-                onChange={(e) =>
-                  shape === "pad"
-                    ? setColumnLoad(parseFloat(e.target.value) || 0)
-                    : setWallLoad(parseFloat(e.target.value) || 0)
+                onValueChange={(n) =>
+                  shape === "pad" ? setColumnLoad(n) : setWallLoad(n)
                 }
                 className="input-field"
               />
@@ -302,12 +297,11 @@ export default function FoundationCalculator() {
               >
                 Foundation depth ({measurementUnit})
               </label>
-              <input
+              <NumericInput
                 id="fnd-depth"
-                type="number"
                 value={depth}
-                step="0.1"
-                onChange={(e) => setDepth(parseFloat(e.target.value) || 0)}
+                step={0.1}
+                onValueChange={setDepth}
                 className="input-field"
               />
             </div>
@@ -318,14 +312,11 @@ export default function FoundationCalculator() {
               >
                 Building length ({measurementUnit})
               </label>
-              <input
+              <NumericInput
                 id="fnd-length"
-                type="number"
                 value={buildingLength}
-                step="0.5"
-                onChange={(e) =>
-                  setBuildingLength(parseFloat(e.target.value) || 0)
-                }
+                step={0.5}
+                onValueChange={setBuildingLength}
                 className="input-field"
               />
             </div>
@@ -336,14 +327,11 @@ export default function FoundationCalculator() {
               >
                 Building width ({measurementUnit})
               </label>
-              <input
+              <NumericInput
                 id="fnd-width"
-                type="number"
                 value={buildingWidth}
-                step="0.5"
-                onChange={(e) =>
-                  setBuildingWidth(parseFloat(e.target.value) || 0)
-                }
+                step={0.5}
+                onValueChange={setBuildingWidth}
                 className="input-field"
               />
             </div>

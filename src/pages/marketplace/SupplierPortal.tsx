@@ -24,7 +24,6 @@ import {
   Truck,
   Phone,
   ShieldCheck,
-  Sparkles,
   ArrowRight,
 } from "lucide-react";
 import {
@@ -49,6 +48,7 @@ import type {
 } from "@/types/hybrid-pricing";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 const MARKET_OPTIONS = COUNTRY_OPTIONS.flatMap(
   (group) => group.countries,
@@ -571,15 +571,10 @@ export default function SupplierPortal() {
                           </td>
                           <td className="py-3 px-3">
                             <div className="flex items-center gap-1.5">
-                              <Input
-                                aria-label={`Price for ${item.product_name}`}
-                                type="number"
+                              <NumericInput
                                 value={item.unit_price}
-                                onChange={(e) =>
-                                  handlePriceChange(
-                                    item.id,
-                                    parseFloat(e.target.value) || 0,
-                                  )
+                                onValueChange={(n) =>
+                                  handlePriceChange(item.id, n)
                                 }
                                 className="w-24 h-7 text-xs font-bold font-mono text-slate-900 dark:text-slate-100"
                               />

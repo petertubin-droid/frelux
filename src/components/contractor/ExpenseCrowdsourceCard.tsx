@@ -3,7 +3,6 @@ import {
   Users,
   ShieldCheck,
   TrendingUp,
-  Sparkles,
   HelpCircle,
   CheckCircle2,
 } from "lucide-react";

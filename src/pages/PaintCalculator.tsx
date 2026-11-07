@@ -178,6 +178,7 @@ import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 import { useWasteBridge } from "@/lib/waste/use-waste-settings";
 import DisplayPreferencesBar from "@/components/measurement/DisplayPreferencesBar";
 import { stageStudioImport } from "@/lib/document-studio";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 export default function PaintCalculator({
   embedded = false,
@@ -1781,28 +1782,26 @@ function Step2({
                       />
                     </Field>
                     <Field label="Doors">
-                      <input
-                        type="number"
+                      <NumericInput
+                        value={row.doors}
                         min={0}
                         step={1}
-                        value={row.doors}
-                        onChange={(e) =>
+                        onValueChange={(n) =>
                           onUpdateHouseRoom(row.id, {
-                            doors: Math.max(0, Number(e.target.value) || 0),
+                            doors: Math.max(0, n),
                           })
                         }
                         className="input-field"
                       />
                     </Field>
                     <Field label="Windows">
-                      <input
-                        type="number"
+                      <NumericInput
+                        value={row.windows}
                         min={0}
                         step={1}
-                        value={row.windows}
-                        onChange={(e) =>
+                        onValueChange={(n) =>
                           onUpdateHouseRoom(row.id, {
-                            windows: Math.max(0, Number(e.target.value) || 0),
+                            windows: Math.max(0, n),
                           })
                         }
                         className="input-field"
@@ -1994,28 +1993,26 @@ function Step2({
                     />
                   </Field>
                   <Field label="Doors / Gates">
-                    <input
-                      type="number"
+                    <NumericInput
+                      value={run.doors}
                       min={0}
                       step={1}
-                      value={run.doors}
-                      onChange={(e) =>
+                      onValueChange={(n) =>
                         onUpdateRun(run.id, {
-                          doors: Math.max(0, Number(e.target.value) || 0),
+                          doors: Math.max(0, n),
                         })
                       }
                       className="input-field"
                     />
                   </Field>
                   <Field label="Windows">
-                    <input
-                      type="number"
+                    <NumericInput
+                      value={run.windows}
                       min={0}
                       step={1}
-                      value={run.windows}
-                      onChange={(e) =>
+                      onValueChange={(n) =>
                         onUpdateRun(run.id, {
-                          windows: Math.max(0, Number(e.target.value) || 0),
+                          windows: Math.max(0, n),
                         })
                       }
                       className="input-field"

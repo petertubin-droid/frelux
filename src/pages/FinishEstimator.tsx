@@ -73,6 +73,7 @@ import {
   type FreluxLocation,
 } from "@/lib/location-intelligence";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -501,21 +502,12 @@ export default function FinishEstimator({
                       >
                         Room Length ({unitShortLabel(areaInput.unit)})
                       </label>
-                      <input
+                      <NumericInput
                         id="finish-room-length"
-                        type="number"
-                        className="input-field"
-                        aria-required="true"
-                        data-required="true"
-                        data-field-label={t("Room Length")}
                         value={areaInput.roomLength || ""}
-                        onChange={(e) =>
-                          updateArea(
-                            "roomLength",
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
                         placeholder="0"
+                        onValueChange={(n) => updateArea("roomLength", n)}
+                        className="input-field"
                       />
                       {errors.roomLength && (
                         <p className="mt-1 text-xs text-red-500">
@@ -530,21 +522,12 @@ export default function FinishEstimator({
                       >
                         Room Width ({unitShortLabel(areaInput.unit)})
                       </label>
-                      <input
+                      <NumericInput
                         id="finish-room-width"
-                        type="number"
-                        className="input-field"
-                        aria-required="true"
-                        data-required="true"
-                        data-field-label={t("Room Width")}
                         value={areaInput.roomWidth || ""}
-                        onChange={(e) =>
-                          updateArea(
-                            "roomWidth",
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
                         placeholder="0"
+                        onValueChange={(n) => updateArea("roomWidth", n)}
+                        className="input-field"
                       />
                       {errors.roomWidth && (
                         <p className="mt-1 text-xs text-red-500">
@@ -562,21 +545,12 @@ export default function FinishEstimator({
                       >
                         Wall Width ({unitShortLabel(areaInput.unit)})
                       </label>
-                      <input
+                      <NumericInput
                         id="finish-wall-width"
-                        type="number"
-                        className="input-field"
-                        aria-required="true"
-                        data-required="true"
-                        data-field-label={t("Wall Width")}
                         value={areaInput.wallWidth || ""}
-                        onChange={(e) =>
-                          updateArea(
-                            "wallWidth",
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
                         placeholder="0"
+                        onValueChange={(n) => updateArea("wallWidth", n)}
+                        className="input-field"
                       />
                       {errors.wallWidth && (
                         <p className="mt-1 text-xs text-red-500">
@@ -614,21 +588,12 @@ export default function FinishEstimator({
                     >
                       Wall Height ({unitShortLabel(areaInput.unit)})
                     </label>
-                    <input
+                    <NumericInput
                       id="finish-wall-height"
-                      type="number"
-                      className="input-field"
-                      aria-required="true"
-                      data-required="true"
-                      data-field-label={t("Wall Height")}
                       value={areaInput.wallHeight || ""}
-                      onChange={(e) =>
-                        updateArea(
-                          "wallHeight",
-                          parseFloat(e.target.value) || 0,
-                        )
-                      }
                       placeholder="0"
+                      onValueChange={(n) => updateArea("wallHeight", n)}
+                      className="input-field"
                     />
                     {errors.wallHeight && (
                       <p className="mt-1 text-xs text-red-500">
@@ -641,32 +606,26 @@ export default function FinishEstimator({
                       <label className="section-label" htmlFor="finish-doors">
                         {t("Doors")}
                       </label>
-                      <input
+                      <NumericInput
                         id="finish-doors"
-                        type="number"
-                        className="input-field"
                         value={areaInput.doors || ""}
-                        onChange={(e) =>
-                          updateArea("doors", parseInt(e.target.value) || 0)
-                        }
+                        min={0}
                         placeholder="0"
-                        min="0"
+                        onValueChange={(n) => updateArea("doors", n)}
+                        className="input-field"
                       />
                     </div>
                     <div>
                       <label className="section-label" htmlFor="finish-windows">
                         {t("Windows")}
                       </label>
-                      <input
+                      <NumericInput
                         id="finish-windows"
-                        type="number"
-                        className="input-field"
                         value={areaInput.windows || ""}
-                        onChange={(e) =>
-                          updateArea("windows", parseInt(e.target.value) || 0)
-                        }
+                        min={0}
                         placeholder="0"
-                        min="0"
+                        onValueChange={(n) => updateArea("windows", n)}
+                        className="input-field"
                       />
                     </div>
                   </div>

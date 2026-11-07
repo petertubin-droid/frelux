@@ -8,7 +8,6 @@ import {
   ImagePlus,
   LockKeyhole,
   Ruler,
-  Sparkles,
 } from "lucide-react";
 import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
@@ -18,6 +17,7 @@ import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
+import { NumericInput } from "@/components/ui/NumericInput";
 import { Label } from "@/components/ui/shadcn/label";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Checkbox } from "@/components/ui/shadcn/checkbox";
@@ -473,14 +473,13 @@ export default function TvConsoleCalculator() {
               {dimensionFields.map(([label, value, setter, min, max, step]) => (
                 <div key={label} className="min-w-0 space-y-1.5">
                   <Label htmlFor={`console-${label}`}>{label}</Label>
-                  <Input
+                  <NumericInput
                     id={`console-${label}`}
-                    type="number"
                     min={min}
                     max={max}
                     step={step}
                     value={value}
-                    onChange={(e) => setter(number(e.target.value, 0))}
+                    onValueChange={setter}
                   />
                 </div>
               ))}
@@ -838,7 +837,6 @@ export default function TvConsoleCalculator() {
                   {file ? "Change image" : "Choose image"}
                 </Button>
                 <Button onClick={analyze} disabled={!file || extracting}>
-                  <Sparkles className="mr-2 h-4 w-4" />
                   {extracting ? "Analyzing…" : "Extract rough dimensions"}
                 </Button>
               </div>
@@ -957,7 +955,6 @@ export default function TvConsoleCalculator() {
         </p>
       </section>
       <div className="flex items-center gap-2 rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-        <Sparkles className="h-4 w-4 shrink-0 text-primary" />
         Template mode is available without sign-in. Only AI image parsing
         requires an active Pro or higher subscription.
       </div>

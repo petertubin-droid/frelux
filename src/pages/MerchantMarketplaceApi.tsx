@@ -11,7 +11,6 @@ import {
   Layers,
   Code2,
   CheckCircle2,
-  Sparkles,
   Webhook,
   Building2,
   ShoppingCart,

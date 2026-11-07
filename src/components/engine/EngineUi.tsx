@@ -40,6 +40,7 @@ import type {
 } from "@/lib/measurement/use-engine-features";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 // ============================================================
 // WASTE SELECTOR
@@ -168,15 +169,11 @@ export function EngineAlreadyHaveInput({
           <div className="text-xs text-muted-foreground">
             {t("Already Have")}
           </div>
-          <input
-            aria-label={t("Already have quantity")}
-            type="number"
+          <NumericInput
+            value={alreadyHave || ""}
             min={0}
             max={required}
-            value={alreadyHave || ""}
-            onChange={(e) =>
-              onAlreadyHaveChange(parseFloat(e.target.value) || 0)
-            }
+            onValueChange={onAlreadyHaveChange}
             className="w-full rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
           />
         </div>

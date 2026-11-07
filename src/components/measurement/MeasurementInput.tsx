@@ -53,6 +53,7 @@ import {
   type BuildingPreset,
 } from "@/lib/measurement/building-presets";
 import { Button } from "@/components/ui/shadcn/button";
+import { NumericInput } from "@/components/ui/NumericInput";
 import { useLanguage } from "@/lib/i18n";
 
 // =========================================================
@@ -104,15 +105,14 @@ function DimensionInput({
       >
         {label}
       </label>
-      <input
+      <NumericInput
         id={id}
-        type="number"
-        value={value || ""}
+        value={value}
+        onValueChange={onChange}
         min={0}
         step="any"
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
         placeholder="0"
+        className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
       />
     </div>
   );
@@ -338,20 +338,19 @@ function EntryCard({
             >
               Waste Allowance (%)
             </label>
-            <input
+            <NumericInput
               id={`mi-waste-${entry.id}`}
-              type="number"
               value={entry.wasteMarginPercent ?? 0}
               min={0}
               max={100}
-              step="0.5"
-              onChange={(e) =>
+              step={0.5}
+              placeholder="0"
+              onValueChange={(n) =>
                 onUpdate({
-                  wasteMarginPercent: parseFloat(e.target.value) || 0,
+                  wasteMarginPercent: n,
                 })
               }
               className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
-              placeholder="0"
             />
           </div>
 

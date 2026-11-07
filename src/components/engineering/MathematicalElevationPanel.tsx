@@ -49,6 +49,7 @@ import {
 import { ElevationGlance } from "./ElevationGlance";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 import { downloadCsv } from "@/lib/export-utils";
+import { NumericInput } from "@/components/ui/NumericInput";
 import {
   ELEVATION_CSV_COLUMNS,
   ELEVATION_CSV_FILENAME,
@@ -896,16 +897,15 @@ export function MathematicalElevationPanel({
               <Label className="text-xs text-muted-foreground">
                 {material.item} · {material.unit}
               </Label>
-              <Input
-                type="number"
-                min="0"
-                step="any"
+              <NumericInput
                 value={unitRates[material.item] ?? ""}
+                min={0}
+                step="any"
                 placeholder="Unit rate"
-                onChange={(e) =>
+                onValueChange={(n) =>
                   setUnitRates((prev) => ({
                     ...prev,
-                    [material.item]: Math.max(0, Number(e.target.value) || 0),
+                    [material.item]: Math.max(0, n),
                   }))
                 }
                 className="h-8 text-xs font-mono"

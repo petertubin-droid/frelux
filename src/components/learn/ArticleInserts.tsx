@@ -5,7 +5,6 @@ import {
   Zap,
   TrendingUp,
   Quote,
-  Sparkles,
 } from "lucide-react";
 import type { DbLearnArticleFaq, DbLearnArticleInsert } from "@/types/database";
 
@@ -110,9 +109,9 @@ export function ArticleInsertBlock({
               key={i}
               className="flex items-start gap-2.5 text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/90"
             >
-              <Sparkles
+              <span
                 aria-hidden="true"
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple/70"
+                className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-purple/50"
               />
               <span>{line}</span>
             </li>

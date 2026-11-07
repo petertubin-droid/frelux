@@ -13,6 +13,7 @@ export interface CalculatorInputProps {
   label: string;
   value: string | number;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   type?: "text" | "number" | "email" | "tel";
   unit?: string;
   placeholder?: string;
@@ -39,6 +40,7 @@ export const CalculatorInput = React.forwardRef<
       label,
       value,
       onChange,
+      onBlur,
       type = "number",
       unit,
       placeholder,
@@ -73,6 +75,7 @@ export const CalculatorInput = React.forwardRef<
               type={type}
               value={value ?? ""}
               onChange={(e) => onChange(e.target.value)}
+              onBlur={onBlur}
               min={min}
               max={max}
               step={step}

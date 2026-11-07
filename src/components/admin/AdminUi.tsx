@@ -299,12 +299,48 @@ export function GroupControls({
 import { Input as ShadcnInput } from "@/components/ui/shadcn/input";
 import { Textarea as ShadcnTextarea } from "@/components/ui/shadcn/textarea";
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 export function AdminInput({
   className,
+  type,
+  value,
+  onChange,
   ...props
 }: InputHTMLAttributes<HTMLInputElement>) {
-  return <ShadcnInput className={classNames("h-11", className)} {...props} />;
+  // Number fields hold a draft so an emptied box stays empty instead of
+  // snapping to 0 and forcing the next entry to be typed behind a zero.
+  if (type === "number") {
+    return (
+      <NumericInput
+        value={typeof value === "number" ? value : Number(value ?? 0) || 0}
+        id={props.id}
+        min={typeof props.min === "number" ? props.min : undefined}
+        max={typeof props.max === "number" ? props.max : undefined}
+        step={props.step as number | string | undefined}
+        placeholder={props.placeholder}
+        disabled={props.disabled}
+        required={props.required}
+        name={props.name}
+        autoFocus={props.autoFocus}
+        className={classNames("h-11", className)}
+        onValueChange={(next) =>
+          onChange?.({
+            target: { value: String(next) },
+          } as React.ChangeEvent<HTMLInputElement>)
+        }
+      />
+    );
+  }
+  return (
+    <ShadcnInput
+      className={classNames("h-11", className)}
+      type={type}
+      value={value}
+      onChange={onChange}
+      {...props}
+    />
+  );
 }
 
 export function AdminTextarea({

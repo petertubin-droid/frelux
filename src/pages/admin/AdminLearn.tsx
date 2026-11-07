@@ -12,7 +12,6 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronRight,
-  Sparkles,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -919,7 +918,6 @@ export default function AdminLearn() {
                   ) : (
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}
-                  <Sparkles className="h-4 w-4 text-brand-purple" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
                       {article.title}
@@ -1185,10 +1183,8 @@ function InsertEditor({
           disabled={aiDrafting}
           className="gap-1.5"
         >
-          {aiDrafting ? (
+          {aiDrafting && (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles aria-hidden="true" className="h-4 w-4" />
           )}
           {aiDrafting ? "Drafting…" : "AI Draft"}
         </AdminButton>

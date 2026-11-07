@@ -125,6 +125,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { NumericInput } from "@/components/ui/NumericInput";
 // =========================================================
 // Types
 // =========================================================
@@ -2483,12 +2484,11 @@ function NumberField({
         </span>
       )}
       <div className="flex items-center gap-1">
-        <input
-          type="number"
+        <NumericInput
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
           min={0}
           step={0.1}
+          onValueChange={onChange}
           className="mt-0.5 w-full rounded-lg border border-border bg-card px-2 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
         />
         {unit && <span className="text-xs text-muted-foreground">{unit}</span>}

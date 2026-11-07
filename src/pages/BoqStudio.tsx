@@ -49,6 +49,7 @@ import {
 import { downloadBoqXlsx } from "@/lib/boq/xlsx";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import { openBoqPrint } from "@/lib/boq/print";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 /**
  * BOQ Studio.
@@ -701,14 +702,11 @@ export default function BoqStudio() {
               </div>
               <div>
                 <label className={LABEL}>Revision</label>
-                <input
-                  type="number"
-                  min={0}
-                  className={FIELD}
+                <NumericInput
                   value={doc.revision}
-                  onChange={(e) =>
-                    patch({ revision: Number(e.target.value) || 0 })
-                  }
+                  min={0}
+                  onValueChange={(n) => patch({ revision: n })}
+                  className={FIELD}
                 />
               </div>
             </div>
@@ -1110,19 +1108,18 @@ export default function BoqStudio() {
                   ).map(([key, label]) => (
                     <div key={key}>
                       <label className={LABEL}>{label}</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        className={FIELD}
+                      <NumericInput
                         value={doc.commercials[key]}
-                        onChange={(e) =>
+                        step={0.1}
+                        onValueChange={(n) =>
                           patch({
                             commercials: {
                               ...doc.commercials,
-                              [key]: Number(e.target.value) || 0,
+                              [key]: n,
                             },
                           })
                         }
+                        className={FIELD}
                       />
                     </div>
                   ))}

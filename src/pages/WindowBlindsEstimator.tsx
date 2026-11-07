@@ -35,6 +35,7 @@ import {
 } from "@/lib/estimation/window-blinds-engine";
 import AdSlot from "@/components/ui/AdSlot";
 import { getToolFaqGroup } from "@/config/tool-faqs";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 const labelClass = "text-sm font-medium text-foreground";
 const fieldClass =
@@ -435,30 +436,30 @@ export default function WindowBlindsEstimator() {
                         <span className="text-muted-foreground">
                           Width ({unit})
                         </span>
-                        <input
-                          className={fieldClass}
-                          inputMode="decimal"
+                        <NumericInput
                           value={row.width}
-                          onChange={(e) =>
+                          inputMode="decimal"
+                          onValueChange={(n) =>
                             patch(row.id, {
-                              width: Number(e.target.value) || 0,
+                              width: n,
                             })
                           }
+                          className={fieldClass}
                         />
                       </label>
                       <label className="space-y-1 text-xs">
                         <span className="text-muted-foreground">
                           Drop ({unit})
                         </span>
-                        <input
-                          className={fieldClass}
-                          inputMode="decimal"
+                        <NumericInput
                           value={row.height}
-                          onChange={(e) =>
+                          inputMode="decimal"
+                          onValueChange={(n) =>
                             patch(row.id, {
-                              height: Number(e.target.value) || 0,
+                              height: n,
                             })
                           }
+                          className={fieldClass}
                         />
                       </label>
                       <label className="space-y-1 text-xs">

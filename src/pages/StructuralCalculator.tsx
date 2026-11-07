@@ -110,6 +110,7 @@ import EngineerReviewBadge from "@/components/EngineerReviewBadge";
 import { useLanguage } from "@/lib/i18n";
 import AdSlot from "@/components/ui/AdSlot";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -2792,12 +2793,11 @@ function NumInput({
       >
         {label}
       </label>
-      <input
+      <NumericInput
         id={fieldId}
-        type="number"
         value={value}
         step={step}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onValueChange={onChange}
         className="input-field"
       />
     </div>

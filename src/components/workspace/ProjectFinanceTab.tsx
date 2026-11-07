@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/shadcn/select";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 interface Props {
   project: DbContractorProject;
@@ -411,13 +412,12 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
             <Label className="text-xs text-muted-foreground whitespace-nowrap">
               FX Volatility Contingency Margin:
             </Label>
-            <Input
-              type="number"
-              min="0"
-              max="1000"
-              step="25"
+            <NumericInput
               value={riskMarginBps}
-              onChange={(e) => setRiskMarginBps(parseInt(e.target.value) || 0)}
+              min={0}
+              max={1000}
+              step={25}
+              onValueChange={setRiskMarginBps}
               className="w-24 h-8 text-xs font-mono"
             />
             <span className="text-xs text-muted-foreground">
@@ -461,14 +461,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               <Label className="text-[11px] text-muted-foreground">
                 Preliminaries (%)
               </Label>
-              <Input
-                type="number"
-                min="0"
-                max="30"
+              <NumericInput
                 value={prelimsPercent}
-                onChange={(e) =>
-                  setPrelimsPercent(parseFloat(e.target.value) || 0)
-                }
+                min={0}
+                max={30}
+                onValueChange={setPrelimsPercent}
                 className="h-7 text-xs mt-1"
               />
             </div>
@@ -476,12 +473,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               <Label className="text-[11px] text-muted-foreground">
                 Overhead & Profit (%)
               </Label>
-              <Input
-                type="number"
-                min="0"
-                max="40"
+              <NumericInput
                 value={ohpPercent}
-                onChange={(e) => setOhpPercent(parseFloat(e.target.value) || 0)}
+                min={0}
+                max={40}
+                onValueChange={setOhpPercent}
                 className="h-7 text-xs mt-1"
               />
             </div>
@@ -489,14 +485,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               <Label className="text-[11px] text-muted-foreground">
                 Contingency (%)
               </Label>
-              <Input
-                type="number"
-                min="0"
-                max="25"
+              <NumericInput
                 value={contingencyPercent}
-                onChange={(e) =>
-                  setContingencyPercent(parseFloat(e.target.value) || 0)
-                }
+                min={0}
+                max={25}
+                onValueChange={setContingencyPercent}
                 className="h-7 text-xs mt-1"
               />
             </div>
@@ -504,14 +497,11 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               <Label className="text-[11px] text-muted-foreground">
                 Retention / Holdback (%)
               </Label>
-              <Input
-                type="number"
-                min="0"
-                max="20"
+              <NumericInput
                 value={retentionPercent}
-                onChange={(e) =>
-                  setRetentionPercent(parseFloat(e.target.value) || 0)
-                }
+                min={0}
+                max={20}
+                onValueChange={setRetentionPercent}
                 className="h-7 text-xs mt-1"
               />
             </div>

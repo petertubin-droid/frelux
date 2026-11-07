@@ -267,6 +267,45 @@ function Field({
   required?: boolean;
   className?: string;
 }) {
+  // A number field keeps its own draft so an emptied box stays empty. The
+  // page commits `parseFloat(v) || 0`, which would otherwise paint "0" back
+  // and make the next number be typed behind a zero.
+  const [draft, setDraft] = useState(() => String(value ?? ""));
+  const [editing, setEditing] = useState(false);
+  useEffect(() => {
+    if (!editing) setDraft(String(value ?? ""));
+  }, [value, editing]);
+
+  if (type === "number") {
+    return (
+      <CalculatorInput
+        id={id}
+        label={label}
+        type={type}
+        unit={unit}
+        placeholder={placeholder}
+        step={step}
+        min={min}
+        max={max}
+        hint={hint}
+        error={error}
+        required={required}
+        className={className}
+        value={draft}
+        onChange={(raw) => {
+          setEditing(true);
+          setDraft(raw);
+          if (raw.trim() === "") return; // keep the last committed number
+          onChange(raw);
+        }}
+        onBlur={() => {
+          setEditing(false);
+          if (draft.trim() === "") setDraft(String(value ?? ""));
+        }}
+      />
+    );
+  }
+
   return (
     <CalculatorInput
       id={id}

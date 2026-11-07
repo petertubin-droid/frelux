@@ -18,7 +18,6 @@ import {
   ShieldCheck,
   Smartphone,
   CloudLightning,
-  Sparkles,
 } from "lucide-react";
 import {
   isEdgeOnline,

@@ -14,7 +14,6 @@ import {
   Send,
   UserPlus,
   Compass,
-  Sparkles,
   MapPin,
   ExternalLink,
 } from "lucide-react";

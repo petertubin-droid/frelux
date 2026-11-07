@@ -384,7 +384,7 @@ export default function MarketplaceHome() {
               {
                 slug: "pop-ceiling",
                 label: "POP & Ceiling",
-                icon: "✨",
+                icon: "◆",
                 count: null,
               },
               {
@@ -766,8 +766,8 @@ function JobsTab(props: {
                       listing.project_type}
                   </span>
                   {listing.is_featured && (
-                    <span className="text-xs font-bold text-brand-purple">
-                      ★
+                    <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-purple">
+                      Featured
                     </span>
                   )}
                 </div>

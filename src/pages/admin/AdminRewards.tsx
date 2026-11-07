@@ -30,6 +30,7 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 export default function AdminRewards() {
   const { t: tr } = useLanguage();
@@ -308,12 +309,9 @@ export default function AdminRewards() {
                 <label className="block text-xs text-muted-foreground mb-1">
                   {tr("Amount")}
                 </label>
-                <input
-                  type="number"
+                <NumericInput
                   value={adjustAmount}
-                  onChange={(e) =>
-                    setAdjustAmount(parseInt(e.target.value) || 0)
-                  }
+                  onValueChange={setAdjustAmount}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
@@ -502,16 +500,12 @@ export default function AdminRewards() {
                     <label className="block text-xs text-muted-foreground mb-1">
                       {tr("Credit Cost")}
                     </label>
-                    <input
-                      type="number"
+                    <NumericInput
                       value={draft?.credit_cost ?? 0}
-                      onChange={(e) =>
-                        setEditingReward((p) => ({
-                          ...p,
-                          [reward.id]: {
-                            ...p[reward.id],
-                            credit_cost: parseInt(e.target.value) || 0,
-                          },
+                      onValueChange={(n) =>
+                        setEditingReward((prev) => ({
+                          ...prev,
+                          [reward.id]: { ...prev[reward.id], credit_cost: n },
                         }))
                       }
                       className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -610,18 +604,11 @@ export default function AdminRewards() {
                 <label className="block text-xs text-muted-foreground mb-1">
                   {tr("Weekly Mission Reward (credits)")}
                 </label>
-                <input
-                  type="number"
+                <NumericInput
                   value={settingsDraft.weekly_mission_credits}
-                  onChange={(e) =>
-                    setSettingsDraft((s) =>
-                      s
-                        ? {
-                            ...s,
-                            weekly_mission_credits:
-                              parseInt(e.target.value) || 0,
-                          }
-                        : s,
+                  onValueChange={(n) =>
+                    setSettingsDraft((d) =>
+                      d ? { ...d, weekly_mission_credits: n } : d,
                     )
                   }
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -631,17 +618,11 @@ export default function AdminRewards() {
                 <label className="block text-xs text-muted-foreground mb-1">
                   7-Day Streak Reward (credits)
                 </label>
-                <input
-                  type="number"
+                <NumericInput
                   value={settingsDraft.streak_7_day_credits}
-                  onChange={(e) =>
-                    setSettingsDraft((s) =>
-                      s
-                        ? {
-                            ...s,
-                            streak_7_day_credits: parseInt(e.target.value) || 0,
-                          }
-                        : s,
+                  onValueChange={(n) =>
+                    setSettingsDraft((d) =>
+                      d ? { ...d, streak_7_day_credits: n } : d,
                     )
                   }
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -651,17 +632,11 @@ export default function AdminRewards() {
                 <label className="block text-xs text-muted-foreground mb-1">
                   {tr("Streak Grace Days")}
                 </label>
-                <input
-                  type="number"
+                <NumericInput
                   value={settingsDraft.streak_grace_days}
-                  onChange={(e) =>
-                    setSettingsDraft((s) =>
-                      s
-                        ? {
-                            ...s,
-                            streak_grace_days: parseInt(e.target.value) || 0,
-                          }
-                        : s,
+                  onValueChange={(n) =>
+                    setSettingsDraft((d) =>
+                      d ? { ...d, streak_grace_days: n } : d,
                     )
                   }
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"

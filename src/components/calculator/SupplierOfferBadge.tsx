@@ -5,7 +5,6 @@ import {
   ExternalLink,
   Phone,
   Package,
-  Sparkles,
   Percent,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/shadcn/card";

@@ -14,7 +14,6 @@ import {
   Plus,
   Zap,
   Globe2,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
 } from "lucide-react";

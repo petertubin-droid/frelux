@@ -232,7 +232,7 @@ export default function CalculatorNearMe({
                           ? "✓ Verified"
                           : ""}{" "}
                         {pro.rating_avg > 0
-                          ? `· ${pro.rating_avg.toFixed(1)}★`
+                          ? `· ${pro.rating_avg.toFixed(1)} rating`
                           : ""}{" "}
                         · {formatDistance(pro.distance_km)}
                       </p>

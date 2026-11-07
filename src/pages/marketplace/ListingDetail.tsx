@@ -553,12 +553,9 @@ export default function ListingDetail() {
                         {bid.pro_profile && (
                           <div className="flex items-center gap-3 text-xs text-muted-foreground dark:text-muted-foreground">
                             {bid.pro_profile.rating_avg > 0 && (
-                              <span className="inline-flex items-center gap-0.5">
-                                <span className="text-amber-400 text-xs">
-                                  ★
-                                </span>
-                                {bid.pro_profile.rating_avg.toFixed(1)} (
-                                {bid.pro_profile.rating_count})
+                              <span>
+                                {bid.pro_profile.rating_avg.toFixed(1)} rating
+                                from {bid.pro_profile.rating_count}
                               </span>
                             )}
                             <span className="inline-flex items-center gap-0.5">

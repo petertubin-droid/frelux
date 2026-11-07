@@ -123,6 +123,7 @@ import LabourCostSection, {
 import { calculateLabourCost } from "@/lib/labour";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { NumericInput } from "@/components/ui/NumericInput";
 // =========================================================
 // Constants
 // =========================================================
@@ -995,18 +996,11 @@ export default function TyroleneEstimator({
                 >
                   –
                 </Button>
-                <input
+                <NumericInput
                   id="tyrolene-standard-partitions"
-                  aria-label={t("Number of standard partitions")}
-                  aria-required="true"
-                  data-required="true"
-                  data-field-label={t("Number of standard partitions")}
-                  type="number"
-                  min="0"
                   value={standardCount}
-                  onChange={(e) =>
-                    setStandardCount(Math.max(0, parseInt(e.target.value) || 0))
-                  }
+                  min={0}
+                  onValueChange={(n) => setStandardCount(Math.max(0, n))}
                   className="w-24 text-center rounded-lg border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-lg font-semibold text-foreground dark:text-primary-foreground focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
                 />
                 <Button
@@ -1104,17 +1098,12 @@ export default function TyroleneEstimator({
                       >
                         {t("Qty")}
                       </label>
-                      <input
+                      <NumericInput
                         id={`partition-quantity-${pt.id}`}
-                        type="number"
-                        min="0"
                         value={pt.quantity}
-                        onChange={(e) =>
-                          updatePartitionType(
-                            pt.id,
-                            "quantity",
-                            Math.max(0, parseInt(e.target.value) || 0),
-                          )
+                        min={0}
+                        onValueChange={(n) =>
+                          updatePartitionType(pt.id, "quantity", Math.max(0, n))
                         }
                         className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />
@@ -1126,18 +1115,13 @@ export default function TyroleneEstimator({
                       >
                         {t("Width")} ({unitShortLabel(dimUnit)})
                       </label>
-                      <input
+                      <NumericInput
                         id={`partition-width-${pt.id}`}
-                        type="number"
-                        min="0"
-                        step="0.1"
                         value={pt.width}
-                        onChange={(e) =>
-                          updatePartitionType(
-                            pt.id,
-                            "width",
-                            parseFloat(e.target.value) || 0,
-                          )
+                        min={0}
+                        step={0.1}
+                        onValueChange={(n) =>
+                          updatePartitionType(pt.id, "width", n)
                         }
                         className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />
@@ -1149,18 +1133,13 @@ export default function TyroleneEstimator({
                       >
                         {t("Height")} ({unitShortLabel(dimUnit)})
                       </label>
-                      <input
+                      <NumericInput
                         id={`partition-height-${pt.id}`}
-                        type="number"
-                        min="0"
-                        step="0.1"
                         value={pt.height}
-                        onChange={(e) =>
-                          updatePartitionType(
-                            pt.id,
-                            "height",
-                            parseFloat(e.target.value) || 0,
-                          )
+                        min={0}
+                        step={0.1}
+                        onValueChange={(n) =>
+                          updatePartitionType(pt.id, "height", n)
                         }
                         className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />

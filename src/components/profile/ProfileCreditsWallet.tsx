@@ -18,7 +18,6 @@ import {
 import { getClientHash } from "@/lib/rewarded-access";
 import {
   Coins,
-  Sparkles,
   PlayCircle,
   ArrowUpRight,
   ArrowDownLeft,
@@ -249,7 +248,7 @@ export const ProfileCreditsWallet: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-primary" />
+              <Coins className="w-4 h-4 text-primary" />
               {t("Eligible Reward Tasks")}
             </h3>
             <span className="text-xs text-muted-foreground">

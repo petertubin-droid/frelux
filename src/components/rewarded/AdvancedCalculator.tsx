@@ -23,6 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
 import { Button } from "@/components/ui/shadcn/button";
 import { tx } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 interface Props {
   /** Identifies which calculator this is attached to, e.g. "paint", "tile", "pop", "screeding" */
@@ -1000,12 +1001,11 @@ function NumField({
       >
         {label}
       </label>
-      <input
+      <NumericInput
         id={fieldId}
-        type="number"
         value={value}
         step={step}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onValueChange={onChange}
         className="input-field mt-1 w-full"
       />
     </div>

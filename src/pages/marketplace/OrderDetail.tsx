@@ -438,19 +438,9 @@ export default function OrderDetail() {
                     <span className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/80">
                       {t("Client")}
                     </span>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className={classNames(
-                          "text-sm",
-                          i < order.client_rating!
-                            ? "text-amber-400"
-                            : "text-muted-foreground/80",
-                        )}
-                      >
-                        ★
-                      </span>
-                    ))}
+                    <span className="text-sm font-semibold text-foreground">
+                      {order.client_rating} / 5
+                    </span>
                   </div>
                   {order.client_review && (
                     <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
@@ -475,19 +465,9 @@ export default function OrderDetail() {
                     <span className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/80">
                       {t("Pro Worker")}
                     </span>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className={classNames(
-                          "text-sm",
-                          i < order.pro_rating!
-                            ? "text-amber-400"
-                            : "text-muted-foreground/80",
-                        )}
-                      >
-                        ★
-                      </span>
-                    ))}
+                    <span className="text-sm font-semibold text-foreground">
+                      {order.pro_rating} / 5
+                    </span>
                   </div>
                   {order.pro_review && (
                     <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">

@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  CheckCircle2,
-  ClipboardList,
-  RefreshCw,
-  Sparkles,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, ClipboardList, RefreshCw, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
   AdminHeader,
@@ -295,7 +289,7 @@ export default function AdminPriceSubmissions() {
               )}
               {r.status === "community_verified" && (
                 <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                  <Sparkles className="h-3 w-3" /> {t("Consensus")}
+                  {t("Consensus")}
                 </span>
               )}
               <span className="ml-auto text-[11px] text-muted-foreground">

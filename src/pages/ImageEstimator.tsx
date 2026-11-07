@@ -49,6 +49,7 @@ import { formatCurrency } from "@/lib/utils";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 type Phase = "upload" | "analyzing" | "review" | "result" | "locked" | "error";
 
@@ -1533,12 +1534,11 @@ function NumberField({
       >
         {label}
       </label>
-      <input
+      <NumericInput
         id={fieldId}
-        type="number"
         value={value}
         step={step}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onValueChange={onChange}
         className="w-full rounded-lg border border-border px-2.5 py-1.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       />
     </div>

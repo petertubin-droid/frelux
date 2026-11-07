@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/shadcn/select";
 import { useToast } from "@/components/ui/Toast";
 import { useLanguage } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 interface Props {
   project: DbContractorProject;
@@ -287,16 +288,12 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
               <Label htmlFor="workers">{t("Workers On Site")}</Label>
               <div className="relative">
                 <Users className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
+                <NumericInput
                   id="workers"
-                  type="number"
-                  min="0"
-                  className="pl-8"
                   value={workersCount}
-                  onChange={(e) =>
-                    setWorkersCount(parseInt(e.target.value) || 0)
-                  }
-                  required
+                  min={0}
+                  onValueChange={setWorkersCount}
+                  className="pl-8"
                 />
               </div>
             </div>
@@ -369,19 +366,14 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                       handleMaterialChange(idx, "material_name", e.target.value)
                     }
                   />
-                  <Input
-                    type="number"
+                  <NumericInput
+                    value={mat.quantity || ""}
                     step="any"
                     placeholder={t("Qty")}
-                    className="w-24 text-sm"
-                    value={mat.quantity || ""}
-                    onChange={(e) =>
-                      handleMaterialChange(
-                        idx,
-                        "quantity",
-                        parseFloat(e.target.value) || 0,
-                      )
+                    onValueChange={(n) =>
+                      handleMaterialChange(idx, "quantity", n)
                     }
+                    className="w-24 text-sm"
                   />
                   <Input
                     placeholder={t("Unit (bags, m³, kg)")}

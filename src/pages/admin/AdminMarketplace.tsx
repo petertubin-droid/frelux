@@ -571,12 +571,7 @@ function OrdersTab() {
               </p>
               <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>
-                {o.client_rating && (
-                  <span className="inline-flex items-center gap-0.5">
-                    <span className="text-amber-400 text-xs">★</span>{" "}
-                    {o.client_rating}
-                  </span>
-                )}
+                {o.client_rating && <span>{o.client_rating} rating</span>}
               </div>
             </div>
           ))}
@@ -990,19 +985,9 @@ function ReviewsTab() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <div className="flex">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <span
-                          key={i}
-                          className={classNames(
-                            "text-sm",
-                            i <= r.rating
-                              ? "text-amber-400"
-                              : "text-muted-foreground/80",
-                          )}
-                        >
-                          ★
-                        </span>
-                      ))}
+                      <span className="text-xs font-medium text-foreground">
+                        {r.rating} / 5
+                      </span>
                     </div>
                     <span className="text-xs text-muted-foreground">
                       · {r.review_type}
@@ -1245,7 +1230,7 @@ function SellersTab() {
                     <span>· {s.total_sales} sales</span>
                     {s.rating_count > 0 && (
                       <span>
-                        · ⭐ {s.rating_avg.toFixed(1)} ({s.rating_count})
+                        · {s.rating_avg.toFixed(1)} rating ({s.rating_count})
                       </span>
                     )}
                     {s.is_suspended && (

@@ -46,6 +46,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { StatusBadge } from "@/components/admin/AdminUi";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 type Tab =
   | "overview"
@@ -481,15 +482,14 @@ export default function AdminCreditsAds() {
                     <label className="text-[10px] font-semibold text-muted-foreground">
                       {t("Credit Cost")}
                     </label>
-                    <input
-                      type="number"
+                    <NumericInput
                       value={draft.credit_cost ?? f.credit_cost}
-                      onChange={(e) =>
+                      onValueChange={(n) =>
                         setEditingFeature((s) => ({
                           ...s,
                           [f.id]: {
                             ...s[f.id],
-                            credit_cost: parseInt(e.target.value) || 0,
+                            credit_cost: n,
                           },
                         }))
                       }
@@ -500,15 +500,14 @@ export default function AdminCreditsAds() {
                     <label className="text-[10px] font-semibold text-muted-foreground">
                       Daily Usage Limit (0=unlimited)
                     </label>
-                    <input
-                      type="number"
+                    <NumericInput
                       value={draft.daily_usage_limit ?? f.daily_usage_limit}
-                      onChange={(e) =>
+                      onValueChange={(n) =>
                         setEditingFeature((s) => ({
                           ...s,
                           [f.id]: {
                             ...s[f.id],
-                            daily_usage_limit: parseInt(e.target.value) || 0,
+                            daily_usage_limit: n,
                           },
                         }))
                       }
@@ -647,13 +646,12 @@ export default function AdminCreditsAds() {
               <label className="text-[10px] font-semibold text-muted-foreground">
                 {t("Cooldown (seconds)")}
               </label>
-              <input
-                type="number"
+              <NumericInput
                 value={adConfigDraft.cooldown_seconds}
-                onChange={(e) =>
+                onValueChange={(n) =>
                   setAdConfigDraft({
                     ...adConfigDraft,
-                    cooldown_seconds: parseInt(e.target.value) || 0,
+                    cooldown_seconds: n,
                   })
                 }
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -663,13 +661,12 @@ export default function AdminCreditsAds() {
               <label className="text-[10px] font-semibold text-muted-foreground">
                 {t("Min Interval Between Ads (seconds)")}
               </label>
-              <input
-                type="number"
+              <NumericInput
                 value={adConfigDraft.min_interval_seconds}
-                onChange={(e) =>
+                onValueChange={(n) =>
                   setAdConfigDraft({
                     ...adConfigDraft,
-                    min_interval_seconds: parseInt(e.target.value) || 0,
+                    min_interval_seconds: n,
                   })
                 }
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -728,14 +725,13 @@ export default function AdminCreditsAds() {
                 <label className="text-[10px] font-semibold text-muted-foreground">
                   {t("Tokens per Pack")}
                 </label>
-                <input
-                  type="number"
-                  min={1}
+                <NumericInput
                   value={tokenConfigDraft.token_amount}
-                  onChange={(e) =>
+                  min={1}
+                  onValueChange={(n) =>
                     setTokenConfigDraft({
                       ...tokenConfigDraft,
-                      token_amount: parseInt(e.target.value) || 0,
+                      token_amount: n,
                     })
                   }
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -745,16 +741,13 @@ export default function AdminCreditsAds() {
                 <label className="text-[10px] font-semibold text-muted-foreground">
                   Price (₦)
                 </label>
-                <input
-                  type="number"
-                  min={100}
+                <NumericInput
                   value={tokenConfigDraft.price_kobo / 100}
-                  onChange={(e) =>
+                  min={100}
+                  onValueChange={(n) =>
                     setTokenConfigDraft({
                       ...tokenConfigDraft,
-                      price_kobo: Math.round(
-                        (parseFloat(e.target.value) || 0) * 100,
-                      ),
+                      price_kobo: Math.round(n * 100),
                     })
                   }
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -971,11 +964,10 @@ export default function AdminCreditsAds() {
                 onChange={(e) => setAdjustUserId(e.target.value)}
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
-              <input
-                type="number"
-                placeholder={t("Amount (+/-)")}
+              <NumericInput
                 value={adjustAmount}
-                onChange={(e) => setAdjustAmount(parseInt(e.target.value) || 0)}
+                placeholder={t("Amount (+/-)")}
+                onValueChange={setAdjustAmount}
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <input

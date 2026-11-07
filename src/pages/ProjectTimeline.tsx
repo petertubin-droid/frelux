@@ -18,6 +18,7 @@ import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { missingField } from "@/lib/forms/missing-fields";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { NumericInput } from "@/components/ui/NumericInput";
 import {
   evaluateStageWeatherRisk,
   type WeatherRiskAlert,
@@ -84,6 +85,15 @@ export default function ProjectTimeline() {
   const [result, setResult] = useState<ReturnType<
     typeof estimateTimeline
   > | null>(null);
+  // An emptied dimension keeps the last number for the maths but must still be
+  // reported as missing, so a cleared footprint never returns a schedule.
+  const [blankFields, setBlankFields] = useState<string[]>([]);
+  const markBlank = useCallback((field: string, blank: boolean) => {
+    setBlankFields((prev) => {
+      if (blank) return prev.includes(field) ? prev : [...prev, field];
+      return prev.includes(field) ? prev.filter((f) => f !== field) : prev;
+    });
+  }, []);
 
   // The engine normalises footprint area with a floor of half the 100 m2 base,
   // so a cleared dimension still returns a complete, confident schedule. A
@@ -92,13 +102,19 @@ export default function ProjectTimeline() {
   const blankDimensions = useCallback(
     () =>
       [
-        length > 0 ? null : missingField("timeline-length", "Length"),
-        width > 0 ? null : missingField("timeline-width", "Width"),
-        floors >= 1 ? null : missingField("timeline-floors", "Floors"),
+        length > 0 && !blankFields.includes("length")
+          ? null
+          : missingField("timeline-length", "Length"),
+        width > 0 && !blankFields.includes("width")
+          ? null
+          : missingField("timeline-width", "Width"),
+        floors >= 1 && !blankFields.includes("floors")
+          ? null
+          : missingField("timeline-floors", "Floors"),
       ].filter((field): field is ReturnType<typeof missingField> =>
         Boolean(field),
       ),
-    [length, width, floors],
+    [length, width, floors, blankFields],
   );
 
   const { missing, reportMissing, clearMissing } = useCalculatorFeedback();
@@ -180,6 +196,7 @@ export default function ProjectTimeline() {
             />
             <Num
               id="timeline-length"
+              onBlankChange={(blank) => markBlank("length", blank)}
               label="Length (m)"
               value={length}
               onChange={setLength}
@@ -187,6 +204,7 @@ export default function ProjectTimeline() {
             />
             <Num
               id="timeline-width"
+              onBlankChange={(blank) => markBlank("width", blank)}
               label="Width (m)"
               value={width}
               onChange={setWidth}
@@ -194,6 +212,7 @@ export default function ProjectTimeline() {
             />
             <Num
               id="timeline-floors"
+              onBlankChange={(blank) => markBlank("floors", blank)}
               label="Floors"
               value={floors}
               onChange={(v) => setFloors(Math.floor(v))}
@@ -545,12 +564,14 @@ function Num({
   onChange,
   step,
   id,
+  onBlankChange,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   step?: string;
   id?: string;
+  onBlankChange?: (blank: boolean) => void;
 }) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
@@ -562,12 +583,12 @@ function Num({
       >
         {label}
       </label>
-      <input
+      <NumericInput
         id={fieldId}
-        type="number"
         value={value}
         step={step}
-        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onValueChange={onChange}
+        onBlankChange={onBlankChange}
         className="w-full rounded-lg border border-border px-2.5 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       />
     </div>

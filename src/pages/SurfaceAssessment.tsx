@@ -37,7 +37,7 @@ const CONDITIONS = [
     key: "smooth",
     label: "Smooth Surface",
     desc: "Even, well-prepared surface",
-    icon: "✨",
+    icon: "🟦",
   },
   {
     key: "rough",

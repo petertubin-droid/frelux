@@ -7,7 +7,7 @@ import {
   getClientId,
 } from "@/lib/ai-access";
 import {
-  Sparkles,
+  Loader2,
   Lock,
   Coins,
   ShieldCheck,
@@ -55,7 +55,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
-        <Sparkles className="w-4 h-4 mr-2 animate-spin text-primary" />
+        <Loader2 className="w-4 h-4 mr-2 animate-spin text-primary" />
         {t("Checking AI Access & Entitlements...")}
       </div>
     );

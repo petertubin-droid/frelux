@@ -7,7 +7,6 @@ import {
   Layers,
   Ruler,
   Paintbrush,
-  Sparkles,
   Info,
   ShieldCheck,
   FileText,
@@ -543,7 +542,7 @@ export function VisualFinishingEstimator({
               variant="outline"
               className="border-primary/40 bg-primary/10 text-primary"
             >
-              <Sparkles className="mr-1 h-3 w-3" /> {t("FRELUX Visual Engine")}
+              {t("FRELUX Visual Engine")}
             </Badge>
             <Badge variant="secondary" className="text-xs">
               {t("Phase 1 Finishing Takeoff")}
@@ -1318,7 +1317,6 @@ export function VisualFinishingEstimator({
 
             <div className="mt-6 flex justify-end">
               <Button onClick={handleCalculateEstimate} className="gap-2">
-                <Sparkles className="h-4 w-4" />{" "}
                 {t("Calculate Material Takeoff")}
               </Button>
             </div>

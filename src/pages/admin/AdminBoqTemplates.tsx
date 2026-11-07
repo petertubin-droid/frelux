@@ -10,6 +10,7 @@ import {
   saveTemplate,
 } from "@/lib/boq/queries";
 import type { BoqSectionLibraryRow, BoqTemplateRow } from "@/lib/boq/types";
+import { NumericInput } from "@/components/ui/NumericInput";
 
 /**
  * Admin: BOQ templates and the standard section library.
@@ -162,75 +163,68 @@ export default function AdminBoqTemplates() {
                   </div>
                   <div>
                     <label className={LABEL}>Rounding decimals</label>
-                    <input
-                      type="number"
+                    <NumericInput
+                      value={t.rounding_decimals}
                       min={0}
                       max={4}
-                      className={FIELD}
-                      value={t.rounding_decimals}
-                      onChange={(e) =>
+                      onValueChange={(n) =>
                         updateTemplate(t.id, {
-                          rounding_decimals: Number(e.target.value) || 0,
+                          rounding_decimals: n,
                         })
                       }
+                      className={FIELD}
                     />
                   </div>
                   <div>
                     <label className={LABEL}>Default preliminaries %</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className={FIELD}
+                    <NumericInput
                       value={t.default_preliminaries_pct}
-                      onChange={(e) =>
+                      step={0.1}
+                      onValueChange={(n) =>
                         updateTemplate(t.id, {
-                          default_preliminaries_pct:
-                            Number(e.target.value) || 0,
+                          default_preliminaries_pct: n,
                         })
                       }
+                      className={FIELD}
                     />
                   </div>
                   <div>
                     <label className={LABEL}>Default overhead %</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className={FIELD}
+                    <NumericInput
                       value={t.default_overhead_profit_pct}
-                      onChange={(e) =>
+                      step={0.1}
+                      onValueChange={(n) =>
                         updateTemplate(t.id, {
-                          default_overhead_profit_pct:
-                            Number(e.target.value) || 0,
+                          default_overhead_profit_pct: n,
                         })
                       }
+                      className={FIELD}
                     />
                   </div>
                   <div>
                     <label className={LABEL}>Default contingency %</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className={FIELD}
+                    <NumericInput
                       value={t.default_contingency_pct}
-                      onChange={(e) =>
+                      step={0.1}
+                      onValueChange={(n) =>
                         updateTemplate(t.id, {
-                          default_contingency_pct: Number(e.target.value) || 0,
+                          default_contingency_pct: n,
                         })
                       }
+                      className={FIELD}
                     />
                   </div>
                   <div>
                     <label className={LABEL}>Default retention %</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      className={FIELD}
+                    <NumericInput
                       value={t.default_retention_pct}
-                      onChange={(e) =>
+                      step={0.1}
+                      onValueChange={(n) =>
                         updateTemplate(t.id, {
-                          default_retention_pct: Number(e.target.value) || 0,
+                          default_retention_pct: n,
                         })
                       }
+                      className={FIELD}
                     />
                   </div>
                   <div>
@@ -354,15 +348,14 @@ export default function AdminBoqTemplates() {
               </div>
               <div className="w-24">
                 <label className={LABEL}>Order</label>
-                <input
-                  type="number"
-                  className={FIELD}
+                <NumericInput
                   value={s.sort_order}
-                  onChange={(e) =>
+                  onValueChange={(n) =>
                     updateSection(s.id, {
-                      sort_order: Number(e.target.value) || 0,
+                      sort_order: n,
                     })
                   }
+                  className={FIELD}
                 />
               </div>
               <div className="w-28">

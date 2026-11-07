@@ -220,10 +220,7 @@ export default function NearbyResults({
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
                           {pro.rating_avg > 0 && (
-                            <span className="inline-flex items-center gap-0.5">
-                              <span className="text-amber-400 text-xs">★</span>
-                              {pro.rating_avg.toFixed(1)}
-                            </span>
+                            <span>{pro.rating_avg.toFixed(1)} rating</span>
                           )}
                           {pro.project_count > 0 && (
                             <span>· {pro.project_count} projects</span>

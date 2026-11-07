@@ -204,7 +204,7 @@ export default function SellerDashboard() {
             value={products.length}
           />
           <StatCard
-            icon={<span className="text-amber-400">★</span>}
+            icon={null}
             label="Rating"
             value={
               profile
