@@ -155,6 +155,12 @@ export default function ImageEstimator() {
   const [estimate, setEstimate] = useState<BuildToRoofResult | null>(null);
   const [error, setError] = useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
+  // The 1024px JPEG the model actually read. The result card shows this
+  // instead of decoding the visitor's original, which can be several
+  // megapixels, while the full-size link still opens the original.
+  const [analysisPreviewUrl, setAnalysisPreviewUrl] = useState<string | null>(
+    null,
+  );
   const [pdfGateOpen, setPdfGateOpen] = useState(false);
   const [pdfUnlocked, setPdfUnlocked] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -197,6 +203,7 @@ export default function ImageEstimator() {
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       setImageDataUrl(dataUrl);
+      setAnalysisPreviewUrl(null);
       setImageFile(file);
       setError("");
     };
@@ -243,6 +250,7 @@ export default function ImageEstimator() {
 
     try {
       const resizedImage = await resizeImage(imageDataUrl);
+      setAnalysisPreviewUrl(resizedImage);
       const clientId =
         localStorage.getItem("frelux_estimation_client_id") || "unknown";
       // The rewarded-unlock client hash, the edge function checks this
@@ -437,8 +445,9 @@ export default function ImageEstimator() {
                 <div className="space-y-4">
                   <img
                     src={imageDataUrl}
-                    alt="Building"
-                    className="max-h-80 mx-auto rounded-lg shadow-md"
+                    alt="Photo selected for estimation"
+                    decoding="async"
+                    className="mx-auto max-h-80 rounded-lg shadow-md object-contain"
                   />
                   <Button
                     variant="ghost"
@@ -605,8 +614,9 @@ export default function ImageEstimator() {
               {imageDataUrl && (
                 <img
                   src={imageDataUrl}
-                  alt="Building"
-                  className="w-full max-h-64 object-cover rounded-lg mb-4"
+                  alt="Photo of the building being estimated"
+                  decoding="async"
+                  className="mb-4 max-h-64 w-full rounded-lg bg-muted/30 object-contain"
                 />
               )}
 
@@ -855,6 +865,7 @@ export default function ImageEstimator() {
             estimate={estimate}
             analysis={analysis}
             buildingPhoto={imageDataUrl}
+            photoPreview={analysisPreviewUrl}
             savedId={savedId}
             onEdit={() => setPhase("review")}
             isPaid={isPaid}
@@ -1061,6 +1072,7 @@ export function EstimateResultView({
   estimate,
   analysis,
   buildingPhoto,
+  photoPreview,
   savedId,
   onEdit,
   isPaid,
@@ -1072,6 +1084,8 @@ export function EstimateResultView({
   estimate: BuildToRoofResult;
   analysis: BuildingAnalysisResult | null;
   buildingPhoto: string | null;
+  /** Compressed copy the model read; falls back to the original. */
+  photoPreview?: string | null;
   savedId: string | null;
   onEdit: () => void;
   isPaid: boolean;
@@ -1080,6 +1094,8 @@ export function EstimateResultView({
   setPdfGateOpen: (open: boolean) => void;
   setPdfUnlocked: (unlocked: boolean) => void;
 }) {
+  const [photoExpanded, setPhotoExpanded] = useState(false);
+
   const handlePrintEstimate = () => {
     if (!estimate) return;
     printQuote(
@@ -1131,32 +1147,76 @@ export function EstimateResultView({
 
   return (
     <div className="space-y-6">
-      {/* Keep the complete source photo visible before any cost figures. */}
+      {buildingPhoto && (
+        <a
+          href="#estimate-totals"
+          className="sr-only rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+        >
+          Skip the photo and go to the totals
+        </a>
+      )}
+      {/* The photo comes before the figures, but it must not push them off
+          the screen. It is bounded, expandable, and linked full size. */}
       {buildingPhoto && (
         <section
           aria-labelledby="estimate-building-photo-title"
           data-testid="estimate-source-photo"
           className="overflow-hidden rounded-2xl border border-border bg-card shadow-card"
         >
-          <div className="border-b border-border/60 px-5 py-4 sm:px-6">
-            <h2
-              id="estimate-building-photo-title"
-              className="font-semibold text-foreground"
-            >
-              Building photo used for this estimate
-            </h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Full image shown for reference. The estimate is preliminary and
-              should be checked against site measurements and drawings.
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border/60 px-5 py-4 sm:px-6">
+            <div>
+              <h2
+                id="estimate-building-photo-title"
+                className="font-semibold text-foreground"
+              >
+                Photo this estimate was read from
+              </h2>
+              <p className="mt-1 max-w-md text-xs text-muted-foreground">
+                Uploaded photo, uncropped. Dimensions are read from a compressed
+                copy of it, so treat every measurement and cost as preliminary
+                until they are checked on site.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPhotoExpanded((open) => !open)}
+                aria-expanded={photoExpanded}
+                aria-controls="estimate-photo-frame"
+                data-testid="estimate-photo-toggle"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {photoExpanded ? "Fit to card" : "Show full photo"}
+              </button>
+              <a
+                href={buildingPhoto}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="estimate-photo-open"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Open full size
+              </a>
+            </div>
           </div>
-          <div className="flex min-h-48 items-center justify-center bg-muted/30 p-3 sm:p-5">
+          <div
+            id="estimate-photo-frame"
+            className="flex items-center justify-center bg-muted/30 p-3 sm:p-5"
+          >
             <img
-              src={buildingPhoto}
-              alt={`Full building photo used to prepare the estimate for ${estimate.project_name || "this project"}`}
-              className="block h-auto max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+              src={photoPreview || buildingPhoto}
+              alt={`Building photo supplied for the estimate of ${estimate.project_name || "this project"}`}
+              decoding="async"
+              loading="lazy"
+              className={`block h-auto w-auto max-w-full rounded-lg object-contain transition-[max-height] ${
+                photoExpanded ? "max-h-[80vh]" : "max-h-[34vh] sm:max-h-[46vh]"
+              }`}
             />
           </div>
+          <p className="border-t border-border/60 px-5 py-3 text-xs text-muted-foreground sm:px-6">
+            The photo is kept for this visit only and is not stored with the
+            saved estimate.
+          </p>
         </section>
       )}
 
@@ -1204,9 +1264,16 @@ export function EstimateResultView({
       </div>
 
       {/* Grand total */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div
+        id="estimate-totals"
+        tabIndex={-1}
+        className="grid gap-4 focus-visible:outline-none md:grid-cols-4"
+      >
         <div className="rounded-2xl border border-border bg-brand-navy p-6 text-primary-foreground">
-          <p data-testid="estimate-total" className="text-xs text-primary-foreground/60 mb-1">
+          <p
+            data-testid="estimate-total"
+            className="text-xs text-primary-foreground/60 mb-1"
+          >
             Estimated Build-to-Roof Cost
           </p>
           <p className="text-2xl font-bold">

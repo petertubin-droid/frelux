@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { EstimateResultView } from "@/pages/ImageEstimator";
 import type { BuildToRoofResult } from "@/types/build-to-roof";
 
@@ -20,6 +20,20 @@ vi.mock("@/lib/credits", () => ({
 beforeEach(() => {
   vi.clearAllMocks();
 });
+
+const photoEstimate = {
+  project_name: "Test building",
+  location: "Lagos",
+  building_type: "bungalow",
+  total_floor_area: 120,
+  confidence: "moderate",
+  stages: [],
+  materials_total: 100,
+  labour_total: 50,
+  contingency: 15,
+  grand_total: 165,
+  limitations: [],
+} as unknown as BuildToRoofResult;
 
 describe("ImageEstimator", () => {
   it("module exports something", async () => {
@@ -67,14 +81,81 @@ describe("ImageEstimator", () => {
     expect(
       Boolean(
         photoPanel &&
-          total &&
-          (photoPanel.compareDocumentPosition(total) &
-            Node.DOCUMENT_POSITION_FOLLOWING),
+        total &&
+        photoPanel.compareDocumentPosition(total) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
       ),
     ).toBe(true);
   });
-});
 
+  it("renders the compressed copy the model read, bounded, and links the original", () => {
+    const { container } = render(
+      <EstimateResultView
+        estimate={photoEstimate}
+        analysis={null}
+        buildingPhoto="data:image/jpeg;base64,original"
+        photoPreview="data:image/jpeg;base64,preview"
+        savedId={null}
+        onEdit={() => {}}
+        isPaid={false}
+        pdfGateOpen={false}
+        pdfUnlocked={false}
+        setPdfGateOpen={() => {}}
+        setPdfUnlocked={() => {}}
+      />,
+    );
+
+    const photo = container.querySelector(
+      '[data-testid="estimate-source-photo"] img',
+    );
+    // The card shows the 1024px copy, not the visitor's full-resolution
+    // upload, and the photo does not exceed the viewport before the totals.
+    expect(photo).toHaveAttribute("src", "data:image/jpeg;base64,preview");
+    expect(photo?.className).toContain("max-h-[34vh]");
+    expect(photo).toHaveAttribute("decoding", "async");
+
+    const open = screen.getByTestId("estimate-photo-open");
+    expect(open).toHaveAttribute("href", "data:image/jpeg;base64,original");
+    expect(open).toHaveAttribute("rel", "noopener noreferrer");
+    expect(open).toHaveAttribute("target", "_blank");
+  });
+
+  it("expands the photo on request and says it is not stored with the estimate", () => {
+    const { container } = render(
+      <EstimateResultView
+        estimate={photoEstimate}
+        analysis={null}
+        buildingPhoto="data:image/jpeg;base64,original"
+        savedId={null}
+        onEdit={() => {}}
+        isPaid={false}
+        pdfGateOpen={false}
+        pdfUnlocked={false}
+        setPdfGateOpen={() => {}}
+        setPdfUnlocked={() => {}}
+      />,
+    );
+
+    const toggle = screen.getByTestId("estimate-photo-toggle");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(toggle).toHaveAttribute("aria-controls", "estimate-photo-frame");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(
+      container.querySelector('[data-testid="estimate-source-photo"] img')
+        ?.className,
+    ).toContain("max-h-[80vh]");
+
+    expect(
+      screen.getByText(/not stored with the saved estimate/i),
+    ).toBeInTheDocument();
+    // The keyboard route past the photo lands on the focusable totals block.
+    expect(container.querySelector("#estimate-totals")).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
+  });
+});
 
 describe("describeVisionFailure", () => {
   it("never claims the service is undeployed", async () => {
