@@ -48,6 +48,67 @@ describe("resolveScreedPrices", () => {
     expect(out.puttyPricePerUnit).toBe(11000);
   });
 
+  it("keeps the configured white cement price instead of grey cement", async () => {
+    const mix = {
+      systemType: "white_cement_paint",
+      displayName: "White Cement + Screeding Paint",
+      coverageAreaM2: 20,
+      defaultCoats: 2,
+      wastePercentage: 20,
+      currency: "NGN",
+      currencySymbol: "₦",
+      paintName: "Screeding Paint",
+      paintQuantity: 2,
+      paintUnit: "bucket",
+      paintPricePerUnit: 25000,
+      cementName: "White Cement",
+      cementQuantity: 1,
+      cementUnit: "bag",
+      cementPricePerUnit: 8000,
+      roundingRule: "ceil",
+    } as unknown as ScreedingSystemConfig;
+
+    // The NG "concrete-mix" role is filled with ordinary grey Portland cement.
+    resolveCityAwarePriceByRole.mockImplementation((role: unknown) =>
+      role === "concrete-mix"
+        ? {
+            price: { price: 15500 },
+            material: { name: "Cement", slug: "cement" },
+          }
+        : role === "interior-paint"
+          ? {
+              price: { price: 17000 },
+              material: {
+                name: "Interior Emulsion (20 L)",
+                slug: "ng-interior-emulsion-20l",
+              },
+            }
+          : null,
+    );
+
+    const out = await resolveScreedPrices(mix, "NG", "NG");
+    expect(out.cementPricePerUnit).toBe(8000);
+    expect(out.paintPricePerUnit).toBe(17000);
+  });
+
+  it("uses a white cement book price when the book really holds white cement", async () => {
+    resolveCityAwarePriceByRole.mockResolvedValue({
+      price: { price: 13500 },
+      material: { name: "White Cement (25 kg)", slug: "ng-white-cement-25kg" },
+    });
+    const out = await resolveScreedPrices(
+      {
+        systemType: "white_cement_paint",
+        cementPricePerUnit: 8000,
+        paintPricePerUnit: null,
+        puttyPricePerUnit: null,
+      } as unknown as ScreedingSystemConfig,
+      "NG",
+      "NG",
+    );
+    expect(out.cementPricePerUnit).toBe(13500);
+  });
+
   it("reports unpriced when neither the book nor the config has a price", async () => {
     resolveCityAwarePriceByRole.mockResolvedValue(null);
     const out = await resolveScreedPrices(

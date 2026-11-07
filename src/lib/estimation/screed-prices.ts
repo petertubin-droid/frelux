@@ -7,7 +7,14 @@
  * for the market, never ahead of it.
  *
  * Roles: putty/joint filler -> "joint-filler", screeding paint ->
- * "interior-paint", cement -> "concrete-mix". A role with no verified price
+ * "interior-paint", white cement -> "concrete-mix".
+ *
+ * A role is a slot in the price book, not a promise about what sits in it. The
+ * NG book fills "concrete-mix" with ordinary grey Portland cement, which is a
+ * different product from the white cement a screeding mix calls for, so the
+ * resolved material is checked against the line's own material before its
+ * price is used. When it is the wrong product the configured price stands and
+ * the line stays as the config describes it. A role with no verified price
  * resolves to the config fallback, or null, and the estimate flags the line as
  * unpriced rather than guessing.
  *
@@ -30,6 +37,7 @@ export async function resolveScreedPrices<T extends ScreedingSystemConfig>(
     const resolve = async (
       role: MaterialRole,
       fallback: number | null,
+      accepts?: (materialName: string, materialSlug: string) => boolean,
     ): Promise<number | null> => {
       // City figure where the evidence supports one, otherwise the market
       // price. The resolver never substitutes across cities or currencies.
@@ -40,7 +48,13 @@ export async function resolveScreedPrices<T extends ScreedingSystemConfig>(
           userMarket,
           citySlug,
         );
-        bookPrice = res?.price?.price ?? null;
+        const name = res?.material?.name ?? "";
+        const slug = res?.material?.slug ?? "";
+        // An empty name means the caller supplied a bare price (tests, or a
+        // future source without material identity); nothing to contradict.
+        const compatible =
+          !name && !slug ? true : (accepts?.(name, slug) ?? true);
+        bookPrice = compatible ? (res?.price?.price ?? null) : null;
       } catch {
         // A price-book read failure must never break the estimate: fall back
         // to the configured value below.
@@ -55,8 +69,17 @@ export async function resolveScreedPrices<T extends ScreedingSystemConfig>(
     // trips into one wait.
     const [putty, paint, cement] = await Promise.all([
       resolve("joint-filler", cfg.puttyPricePerUnit),
-      resolve("interior-paint", cfg.paintPricePerUnit),
-      resolve("concrete-mix", cfg.cementPricePerUnit),
+      // Screeding paint is a paint: any paint product in the book is the right
+      // kind of thing, even when it is a general interior emulsion.
+      resolve("interior-paint", cfg.paintPricePerUnit, (name) =>
+        /paint|emulsion|screed|matt|gloss/i.test(name),
+      ),
+      // White cement is NOT grey Portland cement, however the role is mapped.
+      resolve(
+        "concrete-mix",
+        cfg.cementPricePerUnit,
+        (name, slug) => /white/i.test(name) || /white/i.test(slug),
+      ),
     ]);
     return {
       ...cfg,

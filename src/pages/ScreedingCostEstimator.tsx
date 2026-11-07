@@ -380,9 +380,9 @@ export default function ScreedingCostEstimator({
         )}
 
         {availableSystems.length > 0 && (
-          <div className="grid gap-6 lg:grid-cols-5">
+          <div className="grid min-w-0 gap-6 lg:grid-cols-5">
             {/* Input panel */}
-            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3 space-y-6">
+            <div className="calc-card card min-w-0 p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3 space-y-6">
               {/* Material System Selector */}
               <Section title={`Select ${finishTerm} Material`}>
                 {screedingMixTerm && (
@@ -528,19 +528,19 @@ export default function ScreedingCostEstimator({
                           {activeConfig.paintPricePerUnit != null && (
                             <ConfigItem
                               label="Paint price"
-                              value={formatCurrency(
+                              value={`${formatCurrency(
                                 activeConfig.paintPricePerUnit,
                                 currencySymbol,
-                              )}
+                              )} / ${activeConfig.paintUnit ?? "bucket"}`}
                             />
                           )}
                           {activeConfig.cementPricePerUnit != null && (
                             <ConfigItem
                               label="Cement price"
-                              value={formatCurrency(
+                              value={`${formatCurrency(
                                 activeConfig.cementPricePerUnit,
                                 currencySymbol,
-                              )}
+                              )} / ${activeConfig.cementUnit ?? "bag"}`}
                             />
                           )}
                         </>
@@ -562,7 +562,7 @@ export default function ScreedingCostEstimator({
             </div>
 
             {/* Results panel */}
-            <div className="lg:col-span-2">
+            <div className="min-w-0 lg:col-span-2">
               <div className="card lg:sticky lg:top-20">
                 <div className="relative rounded-t-[inherit] bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
                   <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
