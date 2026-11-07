@@ -740,14 +740,14 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       <Button
         variant="ghost"
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between p-4 text-left"
+        className="flex w-full items-start justify-between gap-3 whitespace-normal p-4 text-left"
       >
-        <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+        <span className="min-w-0 break-words text-sm font-semibold text-foreground dark:text-primary-foreground">
           {q}
         </span>
         <span
           className={classNames(
-            "text-muted-foreground transition-transform",
+            "shrink-0 text-muted-foreground transition-transform",
             open && "rotate-180",
           )}
         >

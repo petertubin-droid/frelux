@@ -176,7 +176,7 @@ export default function BimIfcImport() {
             <input
               type="file"
               accept=".ifc,.ifczip"
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal"
+              className="w-full max-w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal"
               onChange={(e) => onFile(e.target.files?.[0] ?? null)}
             />
           </label>

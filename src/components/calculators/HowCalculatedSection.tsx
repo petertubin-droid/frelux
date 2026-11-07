@@ -27,15 +27,15 @@ export default function HowCalculatedSection({
         variant="ghost"
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"
+        className="flex w-full items-center justify-between gap-2 whitespace-normal px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"
         aria-expanded={expanded}
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
-          <Info className="h-4 w-4 text-brand-purple" />
+        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+          <Info className="h-4 w-4 shrink-0 text-brand-purple" />
           {t("How this estimate is calculated")}
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
         />
       </Button>
 

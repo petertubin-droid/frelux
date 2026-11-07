@@ -203,7 +203,7 @@ export default function QuoteCheck() {
         subtitle="Compare a contractor or supplier quote against the FRELUX price book. Every line is judged on the market rate for its own unit, and lines with no reference price are marked instead of guessed."
       />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section aria-labelledby="quote-lines" className="space-y-4">
           <div className="flex items-baseline justify-between gap-3">
             <h2
@@ -389,7 +389,7 @@ export default function QuoteCheck() {
           )}
         </section>
 
-        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+        <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-sm font-semibold text-foreground">Verdict</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

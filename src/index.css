@@ -1077,6 +1077,20 @@
   }
 }
 
+/* A native select sizes itself to its longest option, and an input keeps its
+   intrinsic width; either can push a phone layout a few pixels past the
+   viewport, which the shell then clips instead of scrolling. Both are capped
+   to their container, and selects may shrink below their option width. */
+select,
+textarea,
+input:not([type="checkbox"]):not([type="radio"]) {
+  max-width: 100%;
+}
+
+select {
+  min-width: 0;
+}
+
 .frelux-ad-unit {
   max-width: 100%;
   overflow: hidden;

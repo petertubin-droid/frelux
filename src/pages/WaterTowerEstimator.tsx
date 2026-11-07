@@ -178,7 +178,7 @@ export default function WaterTowerEstimator() {
       <Container className="py-8 space-y-8">
         <div className="grid gap-8 lg:grid-cols-12">
           {/* Input Controls */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="min-w-0 lg:col-span-5 space-y-6">
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -298,7 +298,7 @@ export default function WaterTowerEstimator() {
           </div>
 
           {/* Visual Anchor & Structural Physics Output */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="min-w-0 lg:col-span-7 space-y-6">
             {/* Animated installation sequence */}
             <Card className="border-border overflow-hidden bg-card shadow-sm">
               <CardHeader className="border-b border-border/50 bg-muted/20 pb-3">
