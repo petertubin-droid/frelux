@@ -42,6 +42,7 @@ import {
   type SoilTypeKey,
 } from "@/lib/engineering/mathematical-elevation-engine";
 import { MathematicalElevationDiagram } from "./MathematicalElevationDiagram";
+import PlanImportPanel from "./PlanImportPanel";
 import {
   ElevationQuickStart,
   type ElevationPreset,
@@ -49,6 +50,11 @@ import {
 import { ElevationGlance } from "./ElevationGlance";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 import { downloadCsv } from "@/lib/export-utils";
+import {
+  planExits,
+  planQuantitiesFromResult,
+  storePlanHandoff,
+} from "@/lib/plan-vision/elevation-bridge";
 import { NumericInput } from "@/components/ui/NumericInput";
 import {
   ELEVATION_CSV_COLUMNS,
@@ -67,11 +73,15 @@ import {
 
 interface MathematicalElevationPanelProps {
   onApplyDerivedInput?: (patch: Partial<BuildToRoofInput>) => void;
+  /** Router-driven navigation for the "carry these figures across" row. */
+  onOpenTool?: (path: string, state: Record<string, unknown>) => void;
+  onApplyDerivedInputState?: never;
   className?: string;
 }
 
 export function MathematicalElevationPanel({
   onApplyDerivedInput,
+  onOpenTool,
   className = "",
 }: MathematicalElevationPanelProps) {
   // Input parameters state
@@ -83,25 +93,46 @@ export function MathematicalElevationPanel({
   const [appliedSuccess, setAppliedSuccess] = useState<boolean>(false);
   const [currencyCode, setCurrencyCode] = useState("");
   const [unitRates, setUnitRates] = useState<Record<string, number>>({});
-  const [planFile, setPlanFile] = useState<File | null>(null);
+  const [planOrigin, setPlanOrigin] = useState<"plan" | "derived" | null>(null);
   const [unitSystem, setUnitSystem] = useState<ElevationUnitSystem>("metric");
   const [summaryCopied, setSummaryCopied] = useState<boolean>(false);
   const [activePreset, setActivePreset] = useState<string | null>("bungalow-3");
-  const planPreviewUrl = useMemo(
-    () => (planFile ? URL.createObjectURL(planFile) : null),
-    [planFile],
-  );
-  useEffect(
-    () => () => {
-      if (planPreviewUrl) URL.revokeObjectURL(planPreviewUrl);
-    },
-    [planPreviewUrl],
-  );
 
   // Re-calculate deterministically whenever params change
   const elevationResult = useMemo<MathematicalElevationResult>(() => {
     return calculateMathematicalElevation(params);
   }, [params]);
+
+  const quantities = useMemo(
+    () => planQuantitiesFromResult(elevationResult),
+    [elevationResult],
+  );
+
+  /**
+   * A plan read lands here. Values replace the matching manual fields; the
+   * engine recomputes from them on the next render, so there is a single
+   * calculation path whether the numbers were typed or read.
+   */
+  const handlePlanApply = (
+    patch: Partial<PlanElevationInput>,
+    origin: "plan" | "derived",
+  ) => {
+    setParams((prev) => ({ ...prev, ...patch }));
+    setActivePreset(null);
+    setPlanOrigin(origin);
+    setAppliedSuccess(false);
+    storePlanHandoff({
+      quantities,
+      elevationPatch: { ...params, ...patch },
+      source: origin === "plan" ? "plan_import" : "plan_import",
+      createdAt: new Date().toISOString(),
+    });
+  };
+
+  const handoffExits = useMemo(
+    () => planExits(quantities, params),
+    [quantities, params],
+  );
 
   // Display helpers. The engine is always fed metres; only the fields the user
   // sees change with the unit toggle.
@@ -240,49 +271,26 @@ export function MathematicalElevationPanel({
         role="note"
         className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-800 dark:text-amber-200"
       >
-        <strong>Planning illustration only.</strong> This tool uses manually
-        entered dimensions; it does not read uploaded drawings, verify site
-        conditions, establish code compliance, or produce structural design.
-        Load, wind, soil, material, and duration values are simplified
-        assumptions and must not be used for construction decisions. Obtain
-        site-specific review from appropriately licensed local professionals.
+        <strong>Planning illustration only.</strong> Dimensions come from your
+        own fields or from a plan you confirmed; nothing else is inferred. This
+        tool does not verify site conditions, establish code compliance, or
+        produce structural design. Load, wind, soil, material, and duration
+        values are simplified assumptions and must not be used for construction
+        decisions. Obtain site-specific review from appropriately licensed local
+        professionals.
       </div>
 
-      <section
-        className="rounded-2xl border border-border bg-card p-5 space-y-3"
-        aria-label="Optional plan reference"
-      >
-        <div>
-          <h3 className="text-sm font-semibold text-foreground">
-            Optional plan reference image
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Choose a local image to view beside the manual calculation. It stays
-            in this browser session and is not analyzed or used as a measurement
-            source.
-          </p>
-        </div>
-        <Input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          aria-label="Choose building plan image"
-          onChange={(event) => setPlanFile(event.target.files?.[0] ?? null)}
-          className="max-w-md"
-        />
-        {planPreviewUrl && planFile && (
-          <figure className="space-y-2">
-            <img
-              src={planPreviewUrl}
-              alt={`User-supplied plan reference: ${planFile.name}`}
-              className="max-h-96 w-full rounded-lg border border-border bg-muted object-contain"
-            />
-            <figcaption className="text-xs text-muted-foreground">
-              Reference only: enter and verify dimensions in the fields below;
-              no plan reading or automatic calibration is performed.
-            </figcaption>
-          </figure>
-        )}
-      </section>
+      {/* Plan import: reads the dimensions a drawing states, then hands the
+          confirmed values to the same maths engine the manual fields use. */}
+      <PlanImportPanel onApply={handlePlanApply} />
+
+      {planOrigin && (
+        <p className="px-1 text-[11px] text-muted-foreground">
+          {planOrigin === "derived"
+            ? "Dimensions derived from the room schedule. Adjust any field; every figure recalculates from the engine's own maths."
+            : "Dimensions read from the uploaded drawing. Adjust any field; every figure recalculates from the engine's own maths."}
+        </p>
+      )}
 
       {/* ── Main Interactive 3D / 5D Diagram ── */}
       <MathematicalElevationDiagram
@@ -291,6 +299,48 @@ export function MathematicalElevationPanel({
         currencyCode={currencyCode.trim().toUpperCase()}
         onApplyToEstimate={handleApply}
       />
+      <section
+        className="rounded-2xl border border-border bg-card p-5 space-y-3"
+        aria-label="Carry these figures into another estimator"
+      >
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">
+            Carry these figures into another estimator
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            These areas come from the calculation above. Send them across
+            instead of retyping: {quantities.floorAreaM2} m² floor,{" "}
+            {quantities.paintAreaM2} m² paintable, {quantities.roofAreaM2} m²
+            roof over {quantities.storeys}{" "}
+            {quantities.storeys === 1 ? "storey" : "storeys"}.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {handoffExits.map((exit) => (
+            <Button
+              key={exit.id}
+              type="button"
+              variant="outline"
+              onClick={() => {
+                storePlanHandoff({
+                  quantities,
+                  elevationPatch: params,
+                  source: planOrigin ? "plan_import" : "manual_dimensions",
+                  createdAt: new Date().toISOString(),
+                });
+                onOpenTool?.(exit.path, exit.state);
+              }}
+              className="h-auto flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-xs"
+            >
+              <span className="font-semibold">{exit.label}</span>
+              <span className="text-[10px] font-normal text-muted-foreground">
+                {exit.carries}
+              </span>
+            </Button>
+          ))}
+        </div>
+      </section>
+
       <p className="text-[11px] text-muted-foreground px-1">
         The schematic and its dimension callouts are drawn in metres regardless
         of the unit choice. Fields, the schedule cards, the summary and the CSV

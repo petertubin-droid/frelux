@@ -4181,7 +4181,7 @@
       },
       {
         "q": "Does it read an uploaded floor plan?",
-        "a": "No, and the page says so in its own notice. An image can be attached as a reference beside the numbers, and it is never analysed, scaled or measured, because a dimension inferred from a photograph is an estimate presented as a measurement. Every number in the schedule comes from a field you typed. That is the property that makes the output repeatable: the same inputs produce the same quantities on any device and in any session, without a model between your dimensions and the result, and without a silent substitution of one building type for another."
+        "a": "It can, once you sign in. The reader lifts the sizes the sheet states, such as overall length and width, storeys, wall thickness and roof pitch, each with a confidence figure, and nothing enters the calculation until you tick it. Values the sheet omits are reported as missing so you can supply them. The engine then works from those confirmed numbers alone, so the same inputs still produce the same quantities on any device and in any session, with no model between your confirmed dimensions and the result."
       },
       {
         "q": "Can I enter dimensions in feet and inches?",
@@ -4202,7 +4202,7 @@
     ],
     "article": {
       "summary": "Turns typed dimensions into an elevation, a geometry check and a preliminary quantity schedule.",
-      "description": "An elevation is a set of consequences. Enter a length, a width, a storey height and a roof pitch, and the height of the ridge, the length of a rafter, the area of roof covering, the width of a strip footing and the number of blocks all follow from those four numbers by arithmetic that can be written out line by line.\n\nThe page is built to show that arithmetic rather than to hide it. Every level of the building is a numbered block on screen: foundation, ground slab, walls, ring beam and roof. Inside each block the entered figure and the result sit beside the step that connects them, so a reader who disagrees with a number can find the line where the disagreement starts.\n\nWhat the page cannot do is see. A plan image can be attached for reference and is never measured, scaled or interpreted, because a dimension read off a photograph is an estimate dressed as a measurement. The dimensions are typed in, which is what makes the output repeatable: the same inputs give the same quantities on any device, in any session, without a model in the loop.",
+      "description": "An elevation is a set of consequences. Enter a length, a width, a storey height and a roof pitch, and the height of the ridge, the length of a rafter, the area of roof covering, the width of a strip footing and the number of blocks all follow from those four numbers by arithmetic that can be written out line by line.\n\nThe page is built to show that arithmetic rather than to hide it. Every level of the building is a numbered block on screen: foundation, ground slab, walls, ring beam and roof. Inside each block the entered figure and the result sit beside the step that connects them, so a reader who disagrees with a number can find the line where the disagreement starts.\n\nReading the drawing is a separate, narrow step. Upload a plan and the reader lifts only the sizes the sheet actually states, each with a confidence figure; you tick what you accept, and the rejected values never reach the calculation. Anything the sheet leaves out is listed as missing so you can type it. The arithmetic itself never consults the model, which is what keeps the output repeatable: the same confirmed numbers produce the same quantities on any device, in any session.",
       "functions": [
         "Derives footing width from an assumed line load and the bearing value you select, then compares the resulting contact pressure with that value.",
         "Calculates excavation, blinding, footing and slab volumes from the plan dimensions and the thicknesses the page states.",
@@ -4221,7 +4221,7 @@
         "The export includes the assumption boundary and the screening flags, so a schedule sent to a colleague is not a bare list of numbers."
       ],
       "limits": [
-        "It does not read, scale or measure an uploaded plan or photograph.",
+        "It reads only the dimensions an uploaded plan states, and only after you confirm them; it never scales a drawing or infers a dimension the sheet leaves out.",
         "It does not design foundations, size reinforcement for a load case, or check masonry capacity.",
         "It does not determine code compliance, and its bearing and wind values are planning assumptions you supply or select.",
         "It does not price anything by itself: the unit rates are the ones you type, and no supplier price is fetched.",
@@ -4233,7 +4233,7 @@
       "description": "Turns typed dimensions into an elevation, a geometry check and a preliminary quantity schedule. An elevation is a set of consequences.",
       "keywords": "mathematical plan elevation, mathematical plan elevation, structural materials, construction calculator, quantity estimate, metric and imperial, Nigeria, Ghana, Kenya, South Africa, United Kingdom, United States"
     },
-    "word_count": 1401,
+    "word_count": 1423,
     "source": "longform"
   },
   {

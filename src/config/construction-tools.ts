@@ -226,13 +226,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "interiors",
     icon: Ruler,
     does: "Explore ten TV-console concepts, adjust dimensions and estimate a panel-by-panel preliminary material takeoff.",
-    enters: "A concept, cabinet and panel dimensions, optional shelves, dividers, back and doors, sheet size, allowance, and a locally quoted sheet price.",
+    enters:
+      "A concept, cabinet and panel dimensions, optional shelves, dividers, back and doors, sheet size, allowance, and a locally quoted sheet price.",
     gets: "A transparent rectangular-panel schedule and area-based sheet lower-bound, not a cut-optimized list or safety design.",
     to: "/tv-console-calculator",
-    benefit: "10 editable concepts · panel-by-panel schedule · Pro image parsing",
+    benefit:
+      "10 editable concepts · panel-by-panel schedule · Pro image parsing",
     navVisible: true,
     seoTitle: "TV Console Material Calculator: Panels, Sheets & Cost | FRELUX",
-    seoDescription: "Calculate TV console panel areas, optional cabinet parts, theoretical sheet lower-bound and an optional subtotal from your entered local sheet price.",
+    seoDescription:
+      "Calculate TV console panel areas, optional cabinet parts, theoretical sheet lower-bound and an optional subtotal from your entered local sheet price.",
   },
   {
     slug: "wallpaper",
@@ -240,13 +243,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "interiors",
     icon: Blinds,
     does: "Estimate wallpaper rolls, adhesive packs and an optional installation budget from measured wall drops.",
-    enters: "Wall dimensions, openings, roll size, pattern repeat and your local material and labour quotes.",
+    enters:
+      "Wall dimensions, openings, roll size, pattern repeat and your local material and labour quotes.",
     gets: "Net wall area, a full-drop roll estimate, a wall-strip diagram and a clearly itemized planning budget.",
     to: "/wallpaper-calculator",
     benefit: "Rolls · Pattern · Budget",
     navVisible: true,
-    seoTitle: "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
-    seoDescription: "Estimate wallpaper from measured walls, openings, roll dimensions and pattern repeat. See a wall-strip diagram, material estimate and optional fitting budget.",
+    seoTitle:
+      "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
+    seoDescription:
+      "Estimate wallpaper from measured walls, openings, roll dimensions and pattern repeat. See a wall-strip diagram, material estimate and optional fitting budget.",
   },
   {
     slug: "paint",
@@ -533,11 +539,15 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     title: "Mathematical Plan Elevation",
     category: "structure",
     icon: Ruler,
-    does: "Explore a building elevation from entered dimensions, roof geometry, and an illustrative quantity schedule.",
-    enters: "Building dimensions, roof pitch, and optional assumed site inputs.",
+    does: "Explore a building elevation from entered dimensions or from a plan it reads and you confirm, with roof geometry and a quantity schedule.",
+    enters:
+      "Building dimensions, roof pitch, or an uploaded plan to read, plus optional assumed site inputs.",
     gets: "A parametric elevation, preliminary quantities, and costs only for supplier rates you enter.",
     to: "/mathematical-plan-elevation",
-    benefit: "Manual dimensions, no AI drawing interpretation",
+    benefit: "Reads your plan, then calculates it with its own maths",
+    seoTitle: "Plan Elevation and Material Takeoff Calculator | FRELUX",
+    seoDescription:
+      "Upload a floor plan or type four measurements to get building height, roof area, blockwork, concrete volumes and a phased material schedule. You confirm every extracted value; the engine does the arithmetic and hands the areas to the painting, screeding, tiling, POP and build-to-roof estimators.",
     navVisible: true,
   },
   {

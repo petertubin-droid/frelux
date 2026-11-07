@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render as rtlRender, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { AuthProvider } from "@/lib/auth";
 import { MathematicalElevationPanel } from "./MathematicalElevationPanel";
 
 vi.mock("@/integrations/supabase/client", () => ({
@@ -15,6 +17,16 @@ vi.mock("@/integrations/supabase/client", () => ({
     },
   },
 }));
+
+// The plan-import card reads the session, so the panel needs the provider
+// that wraps it in the app.
+function render(ui: React.ReactElement) {
+  return rtlRender(
+    <MemoryRouter>
+      <AuthProvider>{ui}</AuthProvider>
+    </MemoryRouter>,
+  );
+}
 
 describe("MathematicalElevationPanel", () => {
   it("opens on the quick start rather than a wall of engineering fields", () => {

@@ -2907,7 +2907,7 @@ export const faqSchemaByPath = {
     },
     {
       "q": "Does it read an uploaded floor plan?",
-      "a": "No, and the page says so in its own notice. An image can be attached as a reference beside the numbers, and it is never analysed, scaled or measured, because a dimension inferred from a photograph is an estimate presented as a measurement. Every number in the schedule comes from a field you typed. That is the property that makes the output repeatable: the same inputs produce the same quantities on any device and in any session, without a model between your dimensions and the result, and without a silent substitution of one building type for another."
+      "a": "It can, once you sign in. The reader lifts the sizes the sheet states, such as overall length and width, storeys, wall thickness and roof pitch, each with a confidence figure, and nothing enters the calculation until you tick it. Values the sheet omits are reported as missing so you can supply them. The engine then works from those confirmed numbers alone, so the same inputs still produce the same quantities on any device and in any session, with no model between your confirmed dimensions and the result."
     },
     {
       "q": "Can I enter dimensions in feet and inches?",
@@ -2933,7 +2933,7 @@ export const faqSchemaByPath = {
     },
     {
       "q": "Does it read an uploaded floor plan?",
-      "a": "No, and the page says so in its own notice. An image can be attached as a reference beside the numbers, and it is never analysed, scaled or measured, because a dimension inferred from a photograph is an estimate presented as a measurement. Every number in the schedule comes from a field you typed. That is the property that makes the output repeatable: the same inputs produce the same quantities on any device and in any session, without a model between your dimensions and the result, and without a silent substitution of one building type for another."
+      "a": "It can, once you sign in. The reader lifts the sizes the sheet states, such as overall length and width, storeys, wall thickness and roof pitch, each with a confidence figure, and nothing enters the calculation until you tick it. Values the sheet omits are reported as missing so you can supply them. The engine then works from those confirmed numbers alone, so the same inputs still produce the same quantities on any device and in any session, with no model between your confirmed dimensions and the result."
     },
     {
       "q": "Can I enter dimensions in feet and inches?",

@@ -625,7 +625,7 @@ const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
       },
       {
         q: "Does it read an uploaded floor plan?",
-        a: "No. A plan image can be attached for reference only and is never analysed, scaled or measured. Dimensions come from the fields you type, so the output stays repeatable. Reading a drawing correctly is a takeoff job, not an elevation screen.",
+        a: "It can, once you sign in. Upload a floor plan, elevation or section and the reader lifts the sizes the drawing actually states, such as overall length and width, storeys, wall thickness and roof pitch, each with a confidence figure. Nothing is used until you tick the values you accept. Anything the drawing leaves out is listed as missing, so you can type it yourself.",
       },
       {
         q: "Can I enter dimensions in feet and inches?",

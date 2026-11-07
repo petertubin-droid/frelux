@@ -20,28 +20,84 @@ export default function MathematicalPlanElevation() {
   const navigate = useNavigate();
 
   useSeo({
-    title: "Parametric Building Elevation Calculator | FRELUX",
+    title: "Plan Elevation and Material Takeoff Calculator | FRELUX",
     description:
-      "Explore a dimension-based building elevation with trigonometric roof geometry, an illustrative quantity schedule and CSV export. Metric or imperial display; manual inputs only, no AI drawing interpretation or code-compliance determination.",
+      "Upload a floor plan or type four measurements to get building height, roof area, blockwork, concrete volumes and a phased material schedule. You confirm every extracted value; the engine does the arithmetic and hands the areas to the painting, screeding, tiling, POP and build-to-roof estimators.",
     canonicalPath: "/mathematical-plan-elevation",
     keywords:
-      "manual building elevation calculator, imperial and metric building dimensions, roof pitch geometry, elevation takeoff CSV, construction planning tool",
+      "building plan elevation calculator, floor plan dimension reader, roof pitch geometry, blockwork and concrete takeoff, construction material schedule, plan to quantities, Nigerian building estimator",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      name: "FRELUX Mathematical Plan Elevation",
+      name: "FRELUX Mathematical Plan Elevation Engine",
       applicationCategory: "CalculatorApplication",
       operatingSystem: "Web",
       description:
-        "Create an indicative elevation and quantity schedule from manually entered dimensions. It does not interpret uploaded plans or verify structural design or code compliance.",
+        "Reads the dimensions a floor plan states, asks you to confirm them, then calculates elevation height, roof area, blockwork, concrete volumes and a phased material schedule deterministically.",
       featureList: [
+        "Plan reading with per-value confidence and confirmation",
         "Dimension-based roof pitch geometry",
         "Animated staged elevation illustration",
-        "Preliminary quantity schedule with CSV export",
+        "Blockwork, concrete, reinforcement and roof quantity schedule",
+        "One-tap handoff of floor, ceiling, paint and roof areas to other estimators",
         "Metric and imperial display of the same SI calculation",
-        "Optional cost calculations from user-entered supplier rates",
+        "CSV export with stated assumptions",
       ],
     },
+    structuredDataArray: [
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: "How to get a material schedule from a building plan",
+        totalTime: "PT2M",
+        step: [
+          {
+            "@type": "HowToStep",
+            name: "Upload the plan",
+            text: "Add a floor plan, elevation or section as a photo or PDF. The reader lifts only the dimensions the drawing states.",
+          },
+          {
+            "@type": "HowToStep",
+            name: "Confirm the values",
+            text: "Check each extracted value and its confidence, untick anything you disagree with, and derive a footprint from the room schedule if overall sizes are missing.",
+          },
+          {
+            "@type": "HowToStep",
+            name: "Read the quantities",
+            text: "The engine recalculates height, roof area, blockwork, concrete and reinforcement from the confirmed numbers, with the arithmetic shown.",
+          },
+          {
+            "@type": "HowToStep",
+            name: "Carry the areas across",
+            text: "Send floor, ceiling, paintable and roof areas into the painting, screeding, tiling, POP and build-to-roof estimators.",
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "FRELUX",
+            item: "https://freluxtools.com/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Calculators",
+            item: "https://freluxtools.com/calculators",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Mathematical Plan Elevation",
+            item: "https://freluxtools.com/mathematical-plan-elevation",
+          },
+        ],
+      },
+    ],
   });
 
   const handleApplyToBuildToRoof = (patch: Partial<BuildToRoofInput>) => {
@@ -56,13 +112,14 @@ export default function MathematicalPlanElevation() {
       {/* ── Page Header ── */}
       <PageHeader
         title="Mathematical Plan Elevation Engine"
-        subtitle="Pick the closest building type, adjust four measurements, and read the height, roof area and wall area straight away. Preliminary figures for planning, not a code-compliance check."
-        eyebrow="Deterministic calculation · no AI image interpretation"
+        subtitle="Upload the plan or type four measurements. You confirm what the drawing states, the engine does the arithmetic, and the height, roof area, blockwork and concrete follow immediately."
+        eyebrow="Plan reading with confirmed values · deterministic calculation"
       />
 
       {/* ── Core Mathematical Engine Component ── */}
       <MathematicalElevationPanel
         onApplyDerivedInput={handleApplyToBuildToRoof}
+        onOpenTool={(path, state) => navigate(path, { state })}
       />
 
       {/* ── Mid Content Ad Banner ── */}
