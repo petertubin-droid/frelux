@@ -114,9 +114,15 @@ DECLARE
   short_count INTEGER;
 BEGIN
   SELECT count(*) INTO row_count FROM public.tool_faq_articles;
-  SELECT count(*) INTO short_count FROM public.tool_faq_articles WHERE question_count <> 5;
+  -- The registry holds groups of five to eight questions, so the rule is a
+  -- floor plus agreement between the stored count and the stored array. An
+  -- assertion of exactly five failed the moment a six question tool was added.
+  SELECT count(*) INTO short_count
+    FROM public.tool_faq_articles
+    WHERE question_count < 5
+       OR question_count <> jsonb_array_length(questions);
   IF short_count > 0 THEN
-    RAISE EXCEPTION 'tool_faq_articles has % rows without five questions', short_count;
+    RAISE EXCEPTION 'tool_faq_articles has % rows whose question count disagrees with their questions', short_count;
   END IF;
   RAISE NOTICE 'tool_faq_articles: % rows, % long form', row_count,
     (SELECT count(*) FROM public.tool_faq_articles WHERE source = 'longform');

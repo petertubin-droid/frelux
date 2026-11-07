@@ -9,46 +9,12 @@ import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
-import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import { Button } from "@/components/ui/shadcn/button";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { MathematicalElevationPanel } from "@/components/engineering/MathematicalElevationPanel";
 import { BookOpen, ArrowRight, Landmark } from "lucide-react";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
-
-const ELEVATION_FAQS = [
-  {
-    question: "What does the plan elevation calculator actually calculate?",
-    answer:
-      "It turns entered dimensions into geometry and quantities: strip footing width from an assumed line load and your bearing value, slab and ring beam volumes, wall areas net of openings, roof rise and slope length from the pitch, reinforcing steel counted from bar lengths, and a phased programme. Every figure is printed with the arithmetic that produced it.",
-  },
-  {
-    question: "Does it read an uploaded floor plan?",
-    answer:
-      "No. A plan image can be attached for reference only and is never analysed, scaled or measured. Dimensions come from the fields you fill in, which is what makes the output deterministic and repeatable. Reading a drawing correctly needs a takeoff workflow, not an elevation screen.",
-  },
-  {
-    question:
-      "Why is the roof area the same for a hip roof and a gable at the same pitch?",
-    answer:
-      "Because every roof plane projects onto the plan at the cosine of the pitch, so true area is the plan projection divided by the cosine. The planes of a hipped roof together cover exactly the same footprint as a gabled one, so an extra percentage for hips is not geometry and is not applied.",
-  },
-  {
-    question: "How is the footing width chosen?",
-    answer:
-      "The line load from roof, walls, ring beam, slab edge and the reduced live load is divided by the bearing value you enter, then lifted by 15 percent for footing self weight. The adopted width is the larger of that result and three times the wall thickness, and the page shows the resulting contact pressure against your value.",
-  },
-  {
-    question: "Are the wind and soil results a design check?",
-    answer:
-      "No. Wind velocity pressure follows the ASCE 7-22 profile but the coefficients are a single height illustration, and the soil value is yours to supply. Both are screening figures that show whether the geometry deserves a closer look. Foundation design, uplift connection design and code compliance need a site investigation and a licensed engineer.",
-  },
-  {
-    question: "Which units does the page use?",
-    answer:
-      "Metric: metres, square metres, cubic metres, kilonewtons and kPa. Every calculation is performed in SI and the results are labelled with their unit, so a figure can be traced back to the arithmetic shown beside it.",
-  },
-];
 
 export default function MathematicalPlanElevation() {
   const navigate = useNavigate();
@@ -56,10 +22,10 @@ export default function MathematicalPlanElevation() {
   useSeo({
     title: "Parametric Building Elevation Calculator | FRELUX",
     description:
-      "Explore a dimension-based building elevation with trigonometric roof geometry and an illustrative quantity schedule. Manual inputs only; no AI drawing interpretation or code-compliance determination.",
+      "Explore a dimension-based building elevation with trigonometric roof geometry, an illustrative quantity schedule and CSV export. Metric or imperial display; manual inputs only, no AI drawing interpretation or code-compliance determination.",
     canonicalPath: "/mathematical-plan-elevation",
     keywords:
-      "manual building elevation calculator, roof pitch geometry, building quantity illustration, construction planning tool, deterministic geometry",
+      "manual building elevation calculator, imperial and metric building dimensions, roof pitch geometry, elevation takeoff CSV, construction planning tool",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -71,7 +37,8 @@ export default function MathematicalPlanElevation() {
       featureList: [
         "Dimension-based roof pitch geometry",
         "Animated staged elevation illustration",
-        "Preliminary quantity schedule",
+        "Preliminary quantity schedule with CSV export",
+        "Metric and imperial display of the same SI calculation",
         "Optional cost calculations from user-entered supplier rates",
       ],
     },
@@ -243,8 +210,11 @@ export default function MathematicalPlanElevation() {
       {/* ── Native Ad Slot ── */}
       <AdSlot slotKey="calculator_native" className="my-6" />
 
-      {/* ── Questions answered in the registry, rendered with matching FAQ markup ── */}
-      <FaqItemsWithSchema faqs={ELEVATION_FAQS} title="Elevation questions" />
+      {/* ── Questions from the registry, rendered with matching FAQ markup ── */}
+      <ToolFaqs
+        slug="mathematical-plan-elevation"
+        title="Elevation questions"
+      />
 
       {/* ── Related Tools Links ── */}
       <RelatedToolsLinks />

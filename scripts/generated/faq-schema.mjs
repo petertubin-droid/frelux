@@ -2900,6 +2900,58 @@ export const faqSchemaByPath = {
       "a": "It leaves out the things that need a person on site. The strata, the specific capacity and the water quality are modelled from what you enter, so a driller's log and a laboratory assay replace them. The stand is priced by quantity and checked against simple limits, not designed and signed: the ring beam reinforcement, the pad mesh and the column cage still need an engineer. Prices, tax and labour come from your price book, and where a market has no verified figure the tool does not invent one."
     }
   ],
+  "/faq/mathematical-plan-elevation": [
+    {
+      "q": "What does the plan elevation calculator actually calculate?",
+      "a": "It turns typed dimensions into geometry and quantities. Footing width follows from an assumed line load and the bearing value you select, and the page compares the resulting contact pressure with that value. Excavation, blinding, footing and slab volumes follow from the plan dimensions and the stated thicknesses. Wall area is the perimeter times the storey height, less the openings you list by wall side. The ring beam comes from its length and section, the roof rise and true area from the span and the pitch, and the programme from the phases the engine carries. Each figure is printed beside the arithmetic that produced it, so nothing arrives without a line a reader can check."
+    },
+    {
+      "q": "Does it read an uploaded floor plan?",
+      "a": "No, and the page says so in its own notice. An image can be attached as a reference beside the numbers, and it is never analysed, scaled or measured, because a dimension inferred from a photograph is an estimate presented as a measurement. Every number in the schedule comes from a field you typed. That is the property that makes the output repeatable: the same inputs produce the same quantities on any device and in any session, without a model between your dimensions and the result, and without a silent substitution of one building type for another."
+    },
+    {
+      "q": "Can I enter dimensions in feet and inches?",
+      "a": "Yes. The toggle changes what the length fields show and accept, so a footprint can be typed in feet, and it converts area, volume and reinforcement into square feet, cubic feet and pounds in the schedule cards, the summary and the CSV export. Bearing pressure, basic wind speed and line load stay in SI in both modes, because those are engineering inputs quoted in SI by the standards the page names, and a converted figure would look more precise than the screening assumption it actually is. The schematic drawing itself stays in metres, and a caption under it says so rather than leaving the reader to notice."
+    },
+    {
+      "q": "How is the footing width chosen?",
+      "a": "The line load is accumulated from roof, walls, ring beam, slab edge and a reduced live load, then divided by the bearing value you enter. The result is lifted by fifteen percent to carry the footing's own weight. The adopted width is the larger of that figure and three times the wall thickness, which keeps a narrow wall from producing a footing too thin to build. The page then divides the load by the adopted width and prints the contact pressure against your bearing value, with a badge that says whether the result sits within the assumption or exceeds it. Exceeding it is a prompt to look closer, not a failure."
+    },
+    {
+      "q": "Can I export the schedule and the assumptions?",
+      "a": "The export writes one row per scheduled item with its level, unit, quantity and any rate you typed, and adds a totals row when rates exist, naming how many items were costed so a partial pricing is not mistaken for a complete one. Quantities follow the unit system on screen, so the file matches what you read. The copy button produces a text summary listing each level, the totals, the programme, the assumption boundary and any screening flag that was raised. That text is meant to survive being pasted into an email, so it says plainly that it is not a design check."
+    },
+    {
+      "q": "Are the wind and soil results a design check?",
+      "a": "No. The wind figure uses the velocity pressure form from ASCE 7-22, but the coefficients illustrate a single height and a chosen exposure, and the bearing value is yours to select from a table of typical soils. Both are screening values: they show whether the geometry deserves a closer look, and they give a quantity schedule a stated basis. Foundation design, uplift connection design, masonry stability and code compliance all need information this page never asks for, including a site investigation and a licensed engineer. Treat a green result as arithmetic agreeing with itself, not as a building approved."
+    }
+  ],
+  "/mathematical-plan-elevation": [
+    {
+      "q": "What does the plan elevation calculator actually calculate?",
+      "a": "It turns typed dimensions into geometry and quantities. Footing width follows from an assumed line load and the bearing value you select, and the page compares the resulting contact pressure with that value. Excavation, blinding, footing and slab volumes follow from the plan dimensions and the stated thicknesses. Wall area is the perimeter times the storey height, less the openings you list by wall side. The ring beam comes from its length and section, the roof rise and true area from the span and the pitch, and the programme from the phases the engine carries. Each figure is printed beside the arithmetic that produced it, so nothing arrives without a line a reader can check."
+    },
+    {
+      "q": "Does it read an uploaded floor plan?",
+      "a": "No, and the page says so in its own notice. An image can be attached as a reference beside the numbers, and it is never analysed, scaled or measured, because a dimension inferred from a photograph is an estimate presented as a measurement. Every number in the schedule comes from a field you typed. That is the property that makes the output repeatable: the same inputs produce the same quantities on any device and in any session, without a model between your dimensions and the result, and without a silent substitution of one building type for another."
+    },
+    {
+      "q": "Can I enter dimensions in feet and inches?",
+      "a": "Yes. The toggle changes what the length fields show and accept, so a footprint can be typed in feet, and it converts area, volume and reinforcement into square feet, cubic feet and pounds in the schedule cards, the summary and the CSV export. Bearing pressure, basic wind speed and line load stay in SI in both modes, because those are engineering inputs quoted in SI by the standards the page names, and a converted figure would look more precise than the screening assumption it actually is. The schematic drawing itself stays in metres, and a caption under it says so rather than leaving the reader to notice."
+    },
+    {
+      "q": "How is the footing width chosen?",
+      "a": "The line load is accumulated from roof, walls, ring beam, slab edge and a reduced live load, then divided by the bearing value you enter. The result is lifted by fifteen percent to carry the footing's own weight. The adopted width is the larger of that figure and three times the wall thickness, which keeps a narrow wall from producing a footing too thin to build. The page then divides the load by the adopted width and prints the contact pressure against your bearing value, with a badge that says whether the result sits within the assumption or exceeds it. Exceeding it is a prompt to look closer, not a failure."
+    },
+    {
+      "q": "Can I export the schedule and the assumptions?",
+      "a": "The export writes one row per scheduled item with its level, unit, quantity and any rate you typed, and adds a totals row when rates exist, naming how many items were costed so a partial pricing is not mistaken for a complete one. Quantities follow the unit system on screen, so the file matches what you read. The copy button produces a text summary listing each level, the totals, the programme, the assumption boundary and any screening flag that was raised. That text is meant to survive being pasted into an email, so it says plainly that it is not a design check."
+    },
+    {
+      "q": "Are the wind and soil results a design check?",
+      "a": "No. The wind figure uses the velocity pressure form from ASCE 7-22, but the coefficients illustrate a single height and a chosen exposure, and the bearing value is yours to select from a table of typical soils. Both are screening values: they show whether the geometry deserves a closer look, and they give a quantity schedule a stated basis. Foundation design, uplift connection design, masonry stability and code compliance all need information this page never asks for, including a site investigation and a licensed engineer. Treat a green result as arithmetic agreeing with itself, not as a building approved."
+    }
+  ],
   "/faq/window-blinds": [
     {
       "q": "How is a window blind priced per window and per square metre?",

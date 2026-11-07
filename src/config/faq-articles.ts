@@ -452,6 +452,32 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
       "It cannot price a market with no verified price book without your own prices entered.",
     ],
   },
+  "mathematical-plan-elevation": {
+    summary:
+      "Turns typed dimensions into an elevation, a geometry check and a preliminary quantity schedule.",
+    description:
+      "An elevation is a set of consequences that follow from four inputs: length, width, storey height and roof pitch. The page works those consequences line by line across five numbered levels, from the strip footing to the roof covering, and prints each figure beside the arithmetic that produced it.",
+    functions: [
+      "Derives footing width from an assumed line load and the bearing value you select, and compares the contact pressure with it.",
+      "Calculates excavation, blinding, footing and slab volumes from the plan dimensions and the stated thicknesses.",
+      "Measures wall area from the perimeter and storey height, then deducts the openings you list by wall side.",
+      "Calculates ring beam concrete and main reinforcement from the beam length and its section.",
+      "Calculates ridge rise, rafter length and true roof area from the span and the pitch for gable and hip roofs.",
+      "Displays the same SI calculation in feet, square feet, cubic feet and pounds, and exports the schedule as CSV.",
+    ],
+    advantages: [
+      "Geometry and quantities come from one set of dimensions, so the roof and the walls cannot disagree.",
+      "Each result is shown with the step that produced it, so a reader can check the figure and see where it comes from.",
+      "The unit system is a display choice, so switching to feet cannot change a quantity.",
+      "The exported summary carries the assumption boundary and any screening flag with the numbers.",
+    ],
+    limits: [
+      "It does not read, scale or measure an uploaded plan image or photograph.",
+      "It does not design foundations, size reinforcement for a load case or check masonry capacity.",
+      "It does not determine code compliance; bearing and wind values are planning assumptions.",
+      "It does not price anything by itself, since unit rates are the ones you enter.",
+    ],
+  },
 };
 
 /** Base tool articles plus the wider engine family, in one lookup. */

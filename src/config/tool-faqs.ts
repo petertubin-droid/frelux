@@ -613,6 +613,38 @@ const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
       },
     ],
   },
+  {
+    slug: "mathematical-plan-elevation",
+    route: "/mathematical-plan-elevation",
+    name: "Mathematical Plan Elevation",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the plan elevation calculator actually calculate?",
+        a: "It turns entered dimensions into geometry and quantities: strip footing width from an assumed line load and bearing value, excavation and concrete volumes, blockwork net of openings, ring beam steel, roof rise and true roof area from the pitch, and a phased programme. Each figure appears with the arithmetic that produced it.",
+      },
+      {
+        q: "Does it read an uploaded floor plan?",
+        a: "No. A plan image can be attached for reference only and is never analysed, scaled or measured. Dimensions come from the fields you type, so the output stays repeatable. Reading a drawing correctly is a takeoff job, not an elevation screen.",
+      },
+      {
+        q: "Can I enter dimensions in feet and inches?",
+        a: "Yes. Imperial mode shows and accepts lengths in feet, and converts area, volume and reinforcement to square feet, cubic feet and pounds in the schedule cards, the summary and the CSV. Bearing pressure, wind speed and line load stay in SI, and the schematic itself is always drawn in metres.",
+      },
+      {
+        q: "How is the footing width chosen?",
+        a: "The line load from roof, walls, ring beam, slab edge and reduced live load is divided by the bearing value you enter, then lifted by 15 percent for footing self weight. The adopted width is the larger of that and three times the wall thickness, and the contact pressure is compared with your value.",
+      },
+      {
+        q: "Can I export the schedule and the assumptions?",
+        a: "Yes. The export writes one row per scheduled item with its level, unit, quantity and any rate you typed, plus a totals row when rates exist. The copy button produces a text summary that states the unit system, the assumption boundary and every screening flag, so it does not travel without the caveats.",
+      },
+      {
+        q: "Are the wind and soil results a design check?",
+        a: "No. Wind pressure follows the ASCE 7-22 velocity pressure form but the coefficients illustrate one height, and the bearing value is yours to supply. Both are screening figures that show whether the geometry deserves a closer look. Foundation and uplift design need a site investigation and a licensed engineer.",
+      },
+    ],
+  },
 ];
 
 /**
