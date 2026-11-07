@@ -751,52 +751,69 @@ export default function Navbar() {
               </Button>
             </div>
 
-            {/* Quick tools: the two surfaces people ask for by name. Kept
-              above the collapsible workspaces so they are not three taps
-              deep inside a dropdown section. */}
+            {/* Quick tools are the surfaces people ask for by name, so
+              they sit above the workspaces. Rendered as one disclosure
+              row rather than a tile grid, so the drawer reads as a single
+              vertical list from top to bottom. */}
             <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
-              <p className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() =>
+                  setMobileExpanded(
+                    mobileExpanded === "__quick_tools" ? null : "__quick_tools",
+                  )
+                }
+                aria-expanded={mobileExpanded === "__quick_tools"}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+              >
                 Quick tools
-              </p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {[
-                  {
-                    label: "Unit Converter",
-                    to: "/unit-converter",
-                    icon: Calculator,
-                  },
-                  {
-                    label: "Building types",
-                    to: "/building-types",
-                    icon: Building2,
-                  },
-                  { label: "Explore Map", to: "/map", icon: Map },
-                  { label: "Price book", to: "/prices", icon: BookOpen },
-                  {
-                    label: "All tools",
-                    to: "/construction-tools",
-                    icon: LayoutGrid,
-                  },
-                ].map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setMobileOpen(false)}
-                    className="group flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-2.5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:border-brand-purple/30 hover:bg-muted dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                      <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">
-                      {item.label}
-                    </span>
-                    <ChevronRight
-                      aria-hidden="true"
-                      className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5"
-                    />
-                  </Link>
-                ))}
-              </div>
+                <ChevronDown
+                  aria-hidden="true"
+                  className={classNames(
+                    "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                    mobileExpanded === "__quick_tools" && "rotate-180",
+                  )}
+                />
+              </Button>
+              {mobileExpanded === "__quick_tools" && (
+                <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
+                  {[
+                    {
+                      label: "Unit Converter",
+                      to: "/unit-converter",
+                      icon: Calculator,
+                    },
+                    {
+                      label: "Building types",
+                      to: "/building-types",
+                      icon: Building2,
+                    },
+                    { label: "Explore Map", to: "/map", icon: Map },
+                    { label: "Price book", to: "/prices", icon: BookOpen },
+                    {
+                      label: "All tools",
+                      to: "/construction-tools",
+                      icon: LayoutGrid,
+                    },
+                  ].map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                    >
+                      <item.icon
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-muted-foreground/70"
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {item.label}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Drawer nav, collapsible sections */}
