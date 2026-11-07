@@ -183,40 +183,43 @@ export default function DiasporaEscrow() {
           </div>
         </div>
 
-                {/* Navigation Tabs */}
-        <div className="flex border-b border-border mb-6 gap-2">
+        {/* Navigation Tabs */}
+        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => setActiveTab("milestones")}
-            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
               activeTab === "milestones"
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <ShieldCheck className="h-4 w-4 text-primary" /> {t("Execution Milestones")}
+            <ShieldCheck className="h-4 w-4 text-primary" />{" "}
+            {t("Execution Milestones")}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("financial_audit")}
-            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
               activeTab === "financial_audit"
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <DollarSign className="h-4 w-4 text-primary" /> {t("Financial Audit & Inflation")}
+            <DollarSign className="h-4 w-4 text-primary" />{" "}
+            {t("Financial Audit & Inflation")}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("forensic_photos")}
-            className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            className={`shrink-0 whitespace-nowrap pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
               activeTab === "forensic_photos"
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <Camera className="h-4 w-4 text-primary" /> {t("Forensic Site Imagery")}
+            <Camera className="h-4 w-4 text-primary" />{" "}
+            {t("Forensic Site Imagery")}
           </button>
         </div>
 
@@ -229,30 +232,44 @@ export default function DiasporaEscrow() {
                   Cross-Border Financial Audit & Inflation Protection
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Real-time FX spread tracking, inflation indexing, and material price deviation controls.
+                  Real-time FX spread tracking, inflation indexing, and material
+                  price deviation controls.
                 </p>
               </div>
               <Link
                 to="/diaspora-budget-tracker"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all shadow-xs"
               >
-                Open Full Budget & Inflation Engine <ArrowRight className="h-3.5 w-3.5" />
+                Open Full Budget & Inflation Engine{" "}
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 rounded-xl border border-border bg-muted/20">
-                <span className="text-xs text-muted-foreground block mb-1">Contract Total Funded</span>
-                <span className="text-xl font-bold font-mono text-foreground">
-                  {formatByCode(contract.totalFundedSource, contract.sourceCurrency)}
+                <span className="text-xs text-muted-foreground block mb-1">
+                  Contract Total Funded
                 </span>
-                <span className="text-[10px] text-muted-foreground block mt-1">Escrowed foreign currency</span>
+                <span className="text-xl font-bold font-mono text-foreground">
+                  {formatByCode(
+                    contract.totalFundedSource,
+                    contract.sourceCurrency,
+                  )}
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-1">
+                  Escrowed foreign currency
+                </span>
               </div>
 
               <div className="p-4 rounded-xl border border-border bg-muted/20">
-                <span className="text-xs text-muted-foreground block mb-1">Target Local Payout</span>
+                <span className="text-xs text-muted-foreground block mb-1">
+                  Target Local Payout
+                </span>
                 <span className="text-xl font-bold font-mono text-foreground">
-                  {formatByCode(contract.totalLocalPayout, contract.localCurrency)}
+                  {formatByCode(
+                    contract.totalLocalPayout,
+                    contract.localCurrency,
+                  )}
                 </span>
                 <span className="text-[10px] text-emerald-500 font-medium block mt-1">
                   Guaranteed local conversion
@@ -260,7 +277,9 @@ export default function DiasporaEscrow() {
               </div>
 
               <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
-                <span className="text-xs text-primary font-semibold block mb-1">Milestone Status</span>
+                <span className="text-xs text-primary font-semibold block mb-1">
+                  Milestone Status
+                </span>
                 <span className="text-xl font-bold font-mono text-foreground">
                   {summary.releasedCount} of {summary.milestoneCount} Released
                 </span>
@@ -272,7 +291,9 @@ export default function DiasporaEscrow() {
 
             <div className="p-4 rounded-xl border border-dashed border-border text-center space-y-2">
               <p className="text-xs text-muted-foreground">
-                To simulate compound annual inflation (e.g. 24%/yr) and parallel vs. official market spreads, launch the dedicated Diaspora Tracker.
+                To simulate compound annual inflation (e.g. 24%/yr) and parallel
+                vs. official market spreads, launch the dedicated Diaspora
+                Tracker.
               </p>
               <Link
                 to="/diaspora-budget-tracker"
@@ -313,219 +334,221 @@ export default function DiasporaEscrow() {
             </div>
           </div>
         ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Milestones Navigation List */}
-          <div className="space-y-4 lg:col-span-1">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                {t("Execution Milestones")}
-              </h3>
-              <span className="text-xs font-semibold text-primary">
-                {contract.milestones.length} Phases Total
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {contract.milestones.map((milestone, idx) => {
-                const isSelected = milestone.id === selectedMilestoneId;
-                const isReleased = milestone.status === "released";
-                const isPending =
-                  milestone.status === "pending_client_approval";
-
-                return (
-                  <button
-                    key={milestone.id}
-                    onClick={() => setSelectedMilestoneId(milestone.id)}
-                    className={`w-full text-left rounded-xl p-4 border transition-all ${
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border bg-card hover:border-border/80"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-bold text-muted-foreground">
-                        Phase {idx + 1}
-                      </span>
-                      {isReleased && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          <Check className="h-3 w-3" /> {t("Released")}
-                        </span>
-                      )}
-                      {isPending && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                          <Clock className="h-3 w-3" /> {t("Action Needed")}
-                        </span>
-                      )}
-                      {milestone.status === "funded_locked" && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                          <Lock className="h-3 w-3" /> {t("Locked")}
-                        </span>
-                      )}
-                    </div>
-
-                    <h4 className="text-sm font-bold text-foreground mt-1 line-clamp-1">
-                      {milestone.phaseName}
-                    </h4>
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-2 border-t border-border/40">
-                      <span>
-                        {formatByCode(
-                          milestone.fundedAmount,
-                          milestone.sourceCurrency,
-                        )}
-                      </span>
-                      <span>
-                        ≈{" "}
-                        {formatByCode(
-                          milestone.localPayoutAmount,
-                          milestone.localCurrency,
-                        )}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Active Milestone Forensic Detail */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-4">
-                <div>
-                  <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                    {t("Milestone Details & Verification")}
-                  </span>
-                  <h3 className="text-lg font-bold text-foreground mt-1">
-                    {selectedMilestone.phaseName}
-                  </h3>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-xs text-muted-foreground block">
-                    {t("Custody Allocation")}
-                  </span>
-                  <span className="text-base font-bold text-foreground">
-                    {formatByCode(
-                      selectedMilestone.fundedAmount,
-                      selectedMilestone.sourceCurrency,
-                    )}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {t("Deliverable Scope")}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Milestones Navigation List */}
+            <div className="space-y-4 lg:col-span-1">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                  {t("Execution Milestones")}
+                </h3>
+                <span className="text-xs font-semibold text-primary">
+                  {contract.milestones.length} Phases Total
                 </span>
-                <p className="text-sm text-foreground/90 leading-relaxed">
-                  {selectedMilestone.description}
-                </p>
               </div>
 
-              {selectedMilestone.foremanNotes && (
-                <div className="rounded-xl border border-border/70 bg-muted/40 p-4 space-y-1">
-                  <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                    <FileCheck2 className="h-4 w-4 text-primary" />{" "}
-                    {t("On-Site Lead Engineer Log")}
+              <div className="space-y-3">
+                {contract.milestones.map((milestone, idx) => {
+                  const isSelected = milestone.id === selectedMilestoneId;
+                  const isReleased = milestone.status === "released";
+                  const isPending =
+                    milestone.status === "pending_client_approval";
+
+                  return (
+                    <button
+                      key={milestone.id}
+                      onClick={() => setSelectedMilestoneId(milestone.id)}
+                      className={`w-full text-left rounded-xl p-4 border transition-all ${
+                        isSelected
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border bg-card hover:border-border/80"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-bold text-muted-foreground">
+                          Phase {idx + 1}
+                        </span>
+                        {isReleased && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                            <Check className="h-3 w-3" /> {t("Released")}
+                          </span>
+                        )}
+                        {isPending && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                            <Clock className="h-3 w-3" /> {t("Action Needed")}
+                          </span>
+                        )}
+                        {milestone.status === "funded_locked" && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            <Lock className="h-3 w-3" /> {t("Locked")}
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className="text-sm font-bold text-foreground mt-1 line-clamp-1">
+                        {milestone.phaseName}
+                      </h4>
+
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-2 border-t border-border/40">
+                        <span>
+                          {formatByCode(
+                            milestone.fundedAmount,
+                            milestone.sourceCurrency,
+                          )}
+                        </span>
+                        <span>
+                          ≈{" "}
+                          {formatByCode(
+                            milestone.localPayoutAmount,
+                            milestone.localCurrency,
+                          )}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Milestone Forensic Detail */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border/50 pb-4">
+                  <div>
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                      {t("Milestone Details & Verification")}
+                    </span>
+                    <h3 className="text-lg font-bold text-foreground mt-1">
+                      {selectedMilestone.phaseName}
+                    </h3>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedMilestone.foremanNotes}
+
+                  <div className="text-right">
+                    <span className="text-xs text-muted-foreground block">
+                      {t("Custody Allocation")}
+                    </span>
+                    <span className="text-base font-bold text-foreground">
+                      {formatByCode(
+                        selectedMilestone.fundedAmount,
+                        selectedMilestone.sourceCurrency,
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    {t("Deliverable Scope")}
+                  </span>
+                  <p className="text-sm text-foreground/90 leading-relaxed">
+                    {selectedMilestone.description}
                   </p>
                 </div>
-              )}
 
-              {/* Forensic Verification Photos */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Camera className="h-4 w-4 text-primary" /> Verified
-                    Forensic Site Imagery (
-                    {selectedMilestone.verificationPhotos.length})
-                  </span>
-                  <span className="text-xs text-emerald-500 font-medium">
-                    {t("Digital Watermark & GPS Checked")}
-                  </span>
-                </div>
-
-                {selectedMilestone.verificationPhotos.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {selectedMilestone.verificationPhotos.map((photo) => (
-                      <div
-                        key={photo.id}
-                        className="group relative rounded-xl border border-border overflow-hidden bg-muted"
-                      >
-                        <img
-                          src={photo.url}
-                          alt={photo.caption}
-                          className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="p-3 bg-card border-t border-border">
-                          <p className="text-xs font-medium text-foreground line-clamp-1">
-                            {photo.caption}
-                          </p>
-                          <span className="text-[10px] text-muted-foreground">
-                            Foreman verified · GPS cleared
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-2">
-                    <Camera className="h-8 w-8 text-muted-foreground mx-auto" />
-                    <p className="text-sm text-muted-foreground">
-                      Forensic imagery will be uploaded by the site supervisor
-                      once this phase progresses.
+                {selectedMilestone.foremanNotes && (
+                  <div className="rounded-xl border border-border/70 bg-muted/40 p-4 space-y-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                      <FileCheck2 className="h-4 w-4 text-primary" />{" "}
+                      {t("On-Site Lead Engineer Log")}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedMilestone.foremanNotes}
                     </p>
                   </div>
                 )}
-              </div>
 
-              {/* Action Banner */}
-              <div className="pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs text-muted-foreground block">
-                    {t("Conversion on release")}
-                  </span>
-                  <span className="text-sm font-semibold text-foreground">
-                    Contractor receives{" "}
-                    {formatByCode(
-                      selectedMilestone.localPayoutAmount,
-                      selectedMilestone.localCurrency,
-                    )}
-                  </span>
+                {/* Forensic Verification Photos */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Camera className="h-4 w-4 text-primary" /> Verified
+                      Forensic Site Imagery (
+                      {selectedMilestone.verificationPhotos.length})
+                    </span>
+                    <span className="text-xs text-emerald-500 font-medium">
+                      {t("Digital Watermark & GPS Checked")}
+                    </span>
+                  </div>
+
+                  {selectedMilestone.verificationPhotos.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {selectedMilestone.verificationPhotos.map((photo) => (
+                        <div
+                          key={photo.id}
+                          className="group relative rounded-xl border border-border overflow-hidden bg-muted"
+                        >
+                          <img
+                            src={photo.url}
+                            alt={photo.caption}
+                            className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="p-3 bg-card border-t border-border">
+                            <p className="text-xs font-medium text-foreground line-clamp-1">
+                              {photo.caption}
+                            </p>
+                            <span className="text-[10px] text-muted-foreground">
+                              Foreman verified · GPS cleared
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-border p-8 text-center space-y-2">
+                      <Camera className="h-8 w-8 text-muted-foreground mx-auto" />
+                      <p className="text-sm text-muted-foreground">
+                        Forensic imagery will be uploaded by the site supervisor
+                        once this phase progresses.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                <div>
-                  {selectedMilestone.status === "released" ? (
-                    <Button
-                      disabled
-                      variant="outline"
-                      className="border-emerald-500/30 text-emerald-500"
-                    >
-                      <Check className="h-4 w-4 mr-2" /> {t("Funds Released")}
-                    </Button>
-                  ) : selectedMilestone.status === "pending_client_approval" ? (
-                    <Button
-                      onClick={() =>
-                        handleReleaseMilestone(selectedMilestone.id)
-                      }
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-                    >
-                      <ShieldCheck className="h-4 w-4 mr-2" />{" "}
-                      {t("Clear Milestone & Release Payout")}
-                    </Button>
-                  ) : (
-                    <Button disabled variant="outline">
-                      <Lock className="h-4 w-4 mr-2" /> {t("Locked In Custody")}
-                    </Button>
-                  )}
+                {/* Action Banner */}
+                <div className="pt-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <span className="text-xs text-muted-foreground block">
+                      {t("Conversion on release")}
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">
+                      Contractor receives{" "}
+                      {formatByCode(
+                        selectedMilestone.localPayoutAmount,
+                        selectedMilestone.localCurrency,
+                      )}
+                    </span>
+                  </div>
+
+                  <div>
+                    {selectedMilestone.status === "released" ? (
+                      <Button
+                        disabled
+                        variant="outline"
+                        className="border-emerald-500/30 text-emerald-500"
+                      >
+                        <Check className="h-4 w-4 mr-2" /> {t("Funds Released")}
+                      </Button>
+                    ) : selectedMilestone.status ===
+                      "pending_client_approval" ? (
+                      <Button
+                        onClick={() =>
+                          handleReleaseMilestone(selectedMilestone.id)
+                        }
+                        className="w-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700 whitespace-normal text-left sm:w-auto sm:text-center"
+                      >
+                        <ShieldCheck className="h-4 w-4 mr-2" />{" "}
+                        {t("Clear Milestone & Release Payout")}
+                      </Button>
+                    ) : (
+                      <Button disabled variant="outline">
+                        <Lock className="h-4 w-4 mr-2" />{" "}
+                        {t("Locked In Custody")}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
         )}
       </Container>
     </div>

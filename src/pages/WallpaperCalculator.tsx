@@ -393,8 +393,11 @@ export default function WallpaperCalculator() {
       />
 
       <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(330px,0.9fr)]">
-          <section className="space-y-5" aria-label="Wallpaper measurements">
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(330px,0.9fr)]">
+          <section
+            className="min-w-0 space-y-5"
+            aria-label="Wallpaper measurements"
+          >
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <h2 className="text-lg font-bold text-foreground">
                 Start with a room
@@ -856,7 +859,7 @@ export default function WallpaperCalculator() {
           </section>
 
           <aside
-            className="space-y-5 lg:sticky lg:top-24 lg:self-start"
+            className="min-w-0 space-y-5 lg:sticky lg:top-24 lg:self-start"
             aria-label="Estimate results and wall diagram"
           >
             <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">

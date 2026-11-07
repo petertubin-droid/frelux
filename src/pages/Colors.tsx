@@ -212,7 +212,7 @@ export default function Colors() {
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Tab switcher */}
-        <div className="mb-6 inline-flex rounded-xl border border-border/60 bg-card p-1 shadow-card dark:border-white/5 dark:bg-card">
+        <div className="mb-6 flex w-full max-w-full flex-wrap rounded-xl border border-border/60 bg-card p-1 shadow-card sm:inline-flex sm:w-auto dark:border-white/5 dark:bg-card">
           {(["colors", "palettes"] as Tab[]).map((t) => (
             <Button
               variant="ghost"
@@ -224,7 +224,7 @@ export default function Colors() {
                 setStatus("loading");
               }}
               className={classNames(
-                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition-all duration-200",
+                "inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold capitalize transition-all duration-200 sm:flex-none",
                 tab === t
                   ? "bg-primary text-primary-foreground shadow-sm dark:bg-primary"
                   : "text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter",

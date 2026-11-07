@@ -430,7 +430,7 @@ export default function BoreholeWaterSystemEstimator() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">
               Units:
             </span>
@@ -482,7 +482,7 @@ export default function BoreholeWaterSystemEstimator() {
         {/* Main Grid: Parameters vs Engineering Outputs */}
         <div className="grid gap-8 lg:grid-cols-12">
           {/* Left Column: Configurable Engineering Parameters */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="min-w-0 lg:col-span-5 space-y-6">
             {/* 1. Geological & Drilling Card */}
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-3">
@@ -893,7 +893,7 @@ export default function BoreholeWaterSystemEstimator() {
           </div>
 
           {/* Right Column: Calculated Engineering Results */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="min-w-0 lg:col-span-7 space-y-6">
             {/* Top Stat Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <Card className="border-border shadow-sm bg-gradient-to-br from-card to-muted/30">

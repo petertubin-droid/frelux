@@ -163,7 +163,7 @@ export default function InteractiveEstimatePreview() {
         </div>
 
         {/* Preset selector */}
-        <div className="mt-8 flex justify-center gap-2">
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
           {presets.map((p, i) => (
             <Button
               variant="ghost"
@@ -261,8 +261,7 @@ export default function InteractiveEstimatePreview() {
                     {t("Coverage rate")}
                   </p>
                   <p className="mt-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    {sqFt(DEFAULT_COVERAGE_M2_PER_LITER)} ft² per litre per
-                    coat
+                    {sqFt(DEFAULT_COVERAGE_M2_PER_LITER)} ft² per litre per coat
                   </p>
                 </div>
               </div>
@@ -283,8 +282,8 @@ export default function InteractiveEstimatePreview() {
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Wall area: {sqFt(result.wallArea ?? 0)} ft² · Door:{" "}
-                    {sqFt(result.doorArea ?? 0)} ft² · Window: {sqFt(result.windowArea ?? 0)}{" "}
-                    ft²
+                    {sqFt(result.doorArea ?? 0)} ft² · Window:{" "}
+                    {sqFt(result.windowArea ?? 0)} ft²
                   </p>
                 </div>
 

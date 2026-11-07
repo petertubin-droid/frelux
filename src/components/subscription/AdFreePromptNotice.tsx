@@ -37,7 +37,9 @@ export default function AdFreePromptNotice({
   const location = useLocation();
 
   const [visible, setVisible] = useState(false);
-  const autoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoDismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const clearAutoDismiss = useCallback(() => {
     if (autoDismissTimerRef.current) {
@@ -171,7 +173,9 @@ export default function AdFreePromptNotice({
               <span className="inline-block rounded-full bg-accent-green/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-green">
                 {t("Ad-Free")}
               </span>
-              <span className="truncate">{t("Tired of advertisements?")}</span>
+              <span className="whitespace-nowrap">
+                {t("Tired of advertisements?")}
+              </span>
             </span>
             <span className="text-[11px] text-muted-foreground hidden md:inline truncate">
               {t(

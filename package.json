@@ -32,7 +32,8 @@
     "sequences:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-sequence-prerender.ts",
     "faqs:apply": "tsx --tsconfig tsconfig.app.json scripts/apply-tool-faq-sql.ts",
     "faqs:sync": "npm run faqs:sql && npm run faqs:prerender && npm run faqs:apply",
-    "buildings:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-building-type-prerender.ts"
+    "buildings:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-building-type-prerender.ts",
+    "audit:mobile": "node scripts/audit-mobile-overflow.mjs"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.11.1",

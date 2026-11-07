@@ -26,7 +26,7 @@ export default function MarketplaceLayout() {
         {/* Marketplace sub-nav */}
         <div className="sticky top-16 z-30 border-b border-border/50 bg-white/80 backdrop-blur dark:border-white/5 dark:bg-background/80">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <nav className="flex gap-1">
+            <nav className="flex min-w-0 flex-1 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -34,7 +34,7 @@ export default function MarketplaceLayout() {
                     key={item.label}
                     to={item.to}
                     className={classNames(
-                      "inline-flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors",
+                      "inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors",
                       isActive(item.to, item.exact)
                         ? "border-brand-purple text-brand-purple"
                         : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60",
@@ -46,7 +46,7 @@ export default function MarketplaceLayout() {
               })}
             </nav>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
               <Link
                 to="/marketplace/seller-dashboard/"
                 className={classNames(
@@ -60,7 +60,7 @@ export default function MarketplaceLayout() {
               </Link>
               <Link
                 to="/marketplace/post/"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> {t("Post")}
               </Link>

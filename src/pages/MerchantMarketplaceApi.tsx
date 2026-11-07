@@ -236,7 +236,7 @@ export default function MerchantMarketplaceApi() {
 
           <p className="text-xs text-muted-foreground">
             {t("Merchants configure outbound webhooks pointing to")}{" "}
-            <code className="rounded bg-muted px-1.5 py-0.5 text-foreground font-mono">
+            <code className="break-all rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
               https://api.frelux.com/v1/webhooks/merchant-inventory
             </code>
             . Every payload updates live unit pricing and regional supply stock

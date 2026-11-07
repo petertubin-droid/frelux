@@ -241,7 +241,7 @@ export function MathematicalElevationPanel({
             <Calculator className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap 2">
               <h2 className="text-base font-bold text-foreground">
                 Mathematical Elevation Engine (Pure Hand Mathematics)
               </h2>
@@ -258,7 +258,7 @@ export function MathematicalElevationPanel({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap 2 shrink-0">
           <Button
             size="sm"
             onClick={handleApply}
@@ -458,8 +458,8 @@ export function MathematicalElevationPanel({
 
         {/* ── Geometry and assumption screening ── */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap ify-between">
+            <div className="flex flex-wrap 2">
               <ShieldCheck className="h-5 w-5 text-brand-purple" />
               <h3 className="text-sm font-semibold text-foreground">
                 Checks we ran for you
@@ -494,7 +494,7 @@ export function MathematicalElevationPanel({
                 >
                   <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap ify-between gap-2">
                       <span className="font-semibold text-foreground">
                         {disc.title}
                       </span>
@@ -512,7 +512,7 @@ export function MathematicalElevationPanel({
                     <p className="text-muted-foreground text-xs leading-relaxed">
                       {disc.mathematical_proof}
                     </p>
-                    <div className="flex items-center gap-4 text-[11px] pt-1 font-mono">
+                    <div className="flex flex-wrap 4 text-[11px] pt-1 font-mono">
                       <span>
                         Observed: <strong>{disc.detected_value}</strong>
                       </span>
@@ -535,18 +535,18 @@ export function MathematicalElevationPanel({
           id="stage-details"
           className="rounded-2xl border border-border bg-card p-5 space-y-4 scroll-mt-24"
         >
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap ify-between border-b border-border pb-3">
+            <div className="flex flex-wrap 2">
               <Ruler className="h-4 w-4 text-brand-purple" />
               <h3 className="text-sm font-semibold text-foreground">
                 Fine-tune the dimensions
               </h3>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap 2">
               <div
                 role="group"
                 aria-label="Dimension unit system"
-                className="flex items-center rounded-lg border border-border p-0.5"
+                className="flex flex-wrap ded-lg border border-border p-0.5"
               >
                 {(["metric", "imperial"] as ElevationUnitSystem[]).map(
                   (system) => (
@@ -1089,7 +1089,7 @@ export function MathematicalElevationPanel({
                 screening flags and the assumption boundary.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap 2">
               <Button
                 size="sm"
                 variant="outline"
@@ -1185,7 +1185,7 @@ export function MathematicalElevationPanel({
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
           {/* L1 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap ify-between">
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L1: Foundation
               </span>
@@ -1208,7 +1208,7 @@ export function MathematicalElevationPanel({
 
           {/* L2 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap ify-between">
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L2: Ground Slab
               </span>
@@ -1235,7 +1235,7 @@ export function MathematicalElevationPanel({
 
           {/* L3 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap ify-between">
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L3: Walls
               </span>
@@ -1255,7 +1255,7 @@ export function MathematicalElevationPanel({
 
           {/* L4 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap ify-between">
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L4: Ring Beam
               </span>
@@ -1278,7 +1278,7 @@ export function MathematicalElevationPanel({
 
           {/* L5 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap ify-between">
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L5: Roof Pitch
               </span>

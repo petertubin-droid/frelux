@@ -26,9 +26,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Badge } from "@/components/ui/shadcn/badge";
-import type {
-  MathematicalElevationResult,
-} from "@/lib/engineering/mathematical-elevation-engine";
+import type { MathematicalElevationResult } from "@/lib/engineering/mathematical-elevation-engine";
 
 interface DiagramProps {
   result: MathematicalElevationResult;
@@ -38,7 +36,8 @@ interface DiagramProps {
   onApplyToEstimate?: () => void;
 }
 
-type ViewMode = "3d_isometric" | "2d_blueprint" | "elevation_cross_section" | "5d_bim";
+type ViewMode =
+  "3d_isometric" | "2d_blueprint" | "elevation_cross_section" | "5d_bim";
 
 export function MathematicalElevationDiagram({
   result,
@@ -58,8 +57,14 @@ export function MathematicalElevationDiagram({
   const [showErrorPins, setShowErrorPins] = useState<boolean>(true);
 
   const { input, levels, wind_analysis, discrepancies } = result;
-  const pricedMaterials = result.five_d_bim.materials.filter((material) => Number(unitRates[material.item]) > 0);
-  const pricedTotal = pricedMaterials.reduce((sum, material) => sum + material.quantity * Number(unitRates[material.item]), 0);
+  const pricedMaterials = result.five_d_bim.materials.filter(
+    (material) => Number(unitRates[material.item]) > 0,
+  );
+  const pricedTotal = pricedMaterials.reduce(
+    (sum, material) =>
+      sum + material.quantity * Number(unitRates[material.item]),
+    0,
+  );
   const L = input.building_length;
   const W = input.building_width;
   const H = input.floor_to_floor_height;
@@ -108,7 +113,11 @@ export function MathematicalElevationDiagram({
   const centerY = canvasHeight * 0.65;
 
   // Adaptive scale to fit the building in the viewport
-  const maxDim = Math.max(L, W, H * storeys + levels.level_5_roof.ridge_rise_m + 2.0);
+  const maxDim = Math.max(
+    L,
+    W,
+    H * storeys + levels.level_5_roof.ridge_rise_m + 2.0,
+  );
   const scale = (canvasWidth * 0.38) / Math.max(12, maxDim);
 
   const project3D = useMemo(() => {
@@ -193,30 +202,37 @@ export function MathematicalElevationDiagram({
       case 1:
         return {
           title: "Level 1: Substructure & Foundation Footings",
-          formula: "Illustrative footing width from assumed line load ÷ entered bearing value",
+          formula:
+            "Illustrative footing width from assumed line load ÷ entered bearing value",
           values: `Line load = ${levels.level_1_foundation.total_line_load_kn_m} kN/m | Bf = ${levels.level_1_foundation.footing_width_adopted_m}m | Depth = ${levels.level_1_foundation.excavation_depth_m}m`,
-          description: "Shows a strip-footing quantity illustration from assumed line load and entered bearing pressure; not foundation design.",
+          description:
+            "Shows a strip-footing quantity illustration from assumed line load and entered bearing pressure; not foundation design.",
         };
       case 2:
         return {
           title: "Level 2: Ground Floor Slab & DPC Damp Proofing",
           formula: "V_slab = (L - 2·tw) · (W - 2·tw) · h_s",
           values: `Slab thickness = ${levels.level_2_ground_slab.slab_thickness_m}m | Plinth datum = +${levels.level_2_ground_slab.plinth_height_above_ground_m}m | Volume = ${levels.level_2_ground_slab.slab_concrete_volume_m3} m³`,
-          description: "Shows a fixed illustrative plinth datum; this is not a flood or drainage recommendation.",
+          description:
+            "Shows a fixed illustrative plinth datum; this is not a flood or drainage recommendation.",
         };
       case 3:
         return {
           title: "Level 3: Superstructure Walls & Openings",
-          formula: "Indicative ratio = assumed effective height / entered wall thickness",
+          formula:
+            "Indicative ratio = assumed effective height / entered wall thickness",
           values: `Slenderness λ = ${levels.level_3_superstructure.slenderness_ratio} | Net Wall Area = ${levels.level_3_superstructure.net_masonry_area_m2} m² | Block Count = ${levels.level_3_superstructure.total_blocks_count} units`,
-          description: "Shows a wall proportion indicator, course count, and opening deductions; not a structural check.",
+          description:
+            "Shows a wall proportion indicator, course count, and opening deductions; not a structural check.",
         };
       case 4:
         return {
           title: "Level 4: Reinforced Concrete Ring Beam & Lintels",
-          formula: "Assumed ring-beam section and reinforcement quantity; not design",
+          formula:
+            "Assumed ring-beam section and reinforcement quantity; not design",
           values: `Ring Beam Section = ${(levels.level_4_ring_beam.ring_beam_width_m * 1000).toFixed(0)} × ${(levels.level_4_ring_beam.ring_beam_depth_m * 1000).toFixed(0)} mm | Concrete = ${levels.level_4_ring_beam.concrete_volume_m3} m³ | Rebar = ${levels.level_4_ring_beam.total_main_rebar_weight_kg} kg`,
-          description: "Shows assumed ring-beam quantities; no reinforcement design or capacity check is performed.",
+          description:
+            "Shows assumed ring-beam quantities; no reinforcement design or capacity check is performed.",
         };
       case 5:
       default:
@@ -224,7 +240,8 @@ export function MathematicalElevationDiagram({
           title: "Level 5: Roof pitch geometry & wind illustration",
           formula: "h_ridge = (S / 2) · tan(θ) | L_rafter = (S / 2) / cos(θ)",
           values: `Rise = ${levels.level_5_roof.ridge_rise_m}m | Rafter = ${levels.level_5_roof.rafter_slope_length_m}m | True Area = ${levels.level_5_roof.true_3d_roof_area_m2} m² | Wind qz = ${wind_analysis.velocity_pressure_qz_pa} Pa`,
-          description: "Shows roof-pitch geometry and simplified wind assumptions for illustration, not design or compliance.",
+          description:
+            "Shows roof-pitch geometry and simplified wind assumptions for illustration, not design or compliance.",
         };
     }
   }, [activeLevel, levels, wind_analysis]);
@@ -235,34 +252,41 @@ export function MathematicalElevationDiagram({
     >
       {/* ── Header Controls Bar ── */}
       <div className="border-b border-border p-4 bg-muted/30 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-brand-purple/10 dark:bg-brand-purple/20 flex items-center justify-center text-brand-purple">
             <Calculator className="h-4 w-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-semibold text-foreground">
                 Deterministic Mathematical Elevation Diagram
               </h3>
-              <Badge variant="outline" className="text-xs bg-brand-purple/5 text-brand-purple border-brand-purple/20">
+              <Badge
+                variant="outline"
+                className="text-xs bg-brand-purple/5 text-brand-purple border-brand-purple/20"
+              >
                 3D-style view • indicative schedule
               </Badge>
               {discrepancies.length > 0 ? (
                 <Badge variant="destructive" className="text-xs">
-                  {discrepancies.length} screening flag{discrepancies.length === 1 ? "" : "s"}
+                  {discrepancies.length} screening flag
+                  {discrepancies.length === 1 ? "" : "s"}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-xs">No configured flags</Badge>
+                <Badge variant="outline" className="text-xs">
+                  No configured flags
+                </Badge>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Dimension-based geometry and indicative quantities only. Not a structural design or code review.
+              Dimension-based geometry and indicative quantities only. Not a
+              structural design or code review.
             </p>
           </div>
         </div>
 
         {/* View Mode Switcher */}
-        <div className="flex items-center gap-1 bg-background/80 p-1 rounded-xl border border-border">
+        <div className="flex flex-wrap items-center gap-1 bg-background/80 p-1 rounded-xl border border-border">
           <Button
             size="sm"
             variant={viewMode === "3d_isometric" ? "default" : "ghost"}
@@ -283,7 +307,9 @@ export function MathematicalElevationDiagram({
           </Button>
           <Button
             size="sm"
-            variant={viewMode === "elevation_cross_section" ? "default" : "ghost"}
+            variant={
+              viewMode === "elevation_cross_section" ? "default" : "ghost"
+            }
             onClick={() => setViewMode("elevation_cross_section")}
             className="text-xs h-7 gap-1"
           >
@@ -390,7 +416,8 @@ export function MathematicalElevationDiagram({
                   fontFamily="monospace"
                   textAnchor="end"
                 >
-                  -0.90m [Footing Bf={levels.level_1_foundation.footing_width_adopted_m}m]
+                  -0.90m [Footing Bf=
+                  {levels.level_1_foundation.footing_width_adopted_m}m]
                 </text>
               </g>
             )}
@@ -514,7 +541,7 @@ export function MathematicalElevationDiagram({
                   fontFamily="monospace"
                   textAnchor="end"
                 >
-                  +{(zRingBeam).toFixed(2)}m [Ring Beam 4×Y12]
+                  +{zRingBeam.toFixed(2)}m [Ring Beam 4×Y12]
                 </text>
               </g>
             )}
@@ -607,7 +634,8 @@ export function MathematicalElevationDiagram({
                   fontWeight="bold"
                   fontFamily="monospace"
                 >
-                  +{zRoofApex.toFixed(2)}m Apex [θ={roofPitch}° | h={levels.level_5_roof.ridge_rise_m}m]
+                  +{zRoofApex.toFixed(2)}m Apex [θ={roofPitch}° | h=
+                  {levels.level_5_roof.ridge_rise_m}m]
                 </text>
               </g>
             )}
@@ -694,7 +722,8 @@ export function MathematicalElevationDiagram({
                   textAnchor="middle"
                   fontFamily="monospace"
                 >
-                  WIND SCREEN: {wind_analysis.basic_wind_speed_ms} m/s (simplified q = {wind_analysis.velocity_pressure_qz_pa} Pa)
+                  WIND SCREEN: {wind_analysis.basic_wind_speed_ms} m/s
+                  (simplified q = {wind_analysis.velocity_pressure_qz_pa} Pa)
                 </text>
                 <text
                   x={centerX - 170}
@@ -704,7 +733,8 @@ export function MathematicalElevationDiagram({
                   textAnchor="middle"
                   fontFamily="monospace"
                 >
-                  Simplified uplift screen: {wind_analysis.net_uplift_pressure_kpa} kPa
+                  Simplified uplift screen:{" "}
+                  {wind_analysis.net_uplift_pressure_kpa} kPa
                 </text>
               </g>
             )}
@@ -712,7 +742,8 @@ export function MathematicalElevationDiagram({
             {/* ── Diagnostic Error Pinpoints ── */}
             {showErrorPins &&
               discrepancies.map((disc, idx) => {
-                const pinX = centerX + (idx % 2 === 0 ? 110 + idx * 30 : -140 - idx * 25);
+                const pinX =
+                  centerX + (idx % 2 === 0 ? 110 + idx * 30 : -140 - idx * 25);
                 const pinY = centerY - 140 + idx * 45;
 
                 return (
@@ -721,7 +752,9 @@ export function MathematicalElevationDiagram({
                       cx={pinX}
                       cy={pinY}
                       r="12"
-                      fill={disc.severity === "critical" ? "#ef4444" : "#f59e0b"}
+                      fill={
+                        disc.severity === "critical" ? "#ef4444" : "#f59e0b"
+                      }
                       fillOpacity="0.9"
                       stroke="#ffffff"
                       strokeWidth="2"
@@ -745,7 +778,9 @@ export function MathematicalElevationDiagram({
                         height="48"
                         rx="6"
                         fill="#090d16"
-                        stroke={disc.severity === "critical" ? "#ef4444" : "#f59e0b"}
+                        stroke={
+                          disc.severity === "critical" ? "#ef4444" : "#f59e0b"
+                        }
                         strokeWidth="1.2"
                       />
                       <text
@@ -769,7 +804,9 @@ export function MathematicalElevationDiagram({
                       <text
                         x={pinX + 24}
                         y={pinY + 22}
-                        fill={disc.severity === "critical" ? "#f87171" : "#fcd34d"}
+                        fill={
+                          disc.severity === "critical" ? "#f87171" : "#fcd34d"
+                        }
                         fontSize="9"
                       >
                         {disc.detected_value}
@@ -784,11 +821,24 @@ export function MathematicalElevationDiagram({
         {/* ── 2D ARCHITECTURAL BLUEPRINT VIEW ── */}
         {viewMode === "2d_blueprint" && (
           <div className="w-full max-w-2xl p-6 flex flex-col items-center justify-center">
-            <svg viewBox="0 0 600 420" className="w-full h-auto bg-slate-950 rounded-xl border border-border">
+            <svg
+              viewBox="0 0 600 420"
+              className="w-full h-auto bg-slate-950 rounded-xl border border-border"
+            >
               {/* Grid */}
               <defs>
-                <pattern id="bpGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" strokeWidth="0.8" />
+                <pattern
+                  id="bpGrid"
+                  width="20"
+                  height="20"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 20 0 L 0 0 0 20"
+                    fill="none"
+                    stroke="#1e293b"
+                    strokeWidth="0.8"
+                  />
                 </pattern>
               </defs>
               <rect width="600" height="420" fill="url(#bpGrid)" />
@@ -816,21 +866,67 @@ export function MathematicalElevationDiagram({
               />
 
               {/* Internal Partition Walls Sample */}
-              <line x1="280" y1="72" x2="280" y2="348" stroke="#38bdf8" strokeWidth="3" />
-              <line x1="80" y1="210" x2="280" y2="210" stroke="#38bdf8" strokeWidth="3" />
+              <line
+                x1="280"
+                y1="72"
+                x2="280"
+                y2="348"
+                stroke="#38bdf8"
+                strokeWidth="3"
+              />
+              <line
+                x1="80"
+                y1="210"
+                x2="280"
+                y2="210"
+                stroke="#38bdf8"
+                strokeWidth="3"
+              />
 
               {/* Dimensions Labels */}
-              <text x="300" y="42" fill="#38bdf8" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                EXTERNAL LENGTH: {L.toFixed(2)} m (Clear span: {(L - 2 * input.wall_thickness).toFixed(2)} m)
+              <text
+                x="300"
+                y="42"
+                fill="#38bdf8"
+                fontSize="12"
+                fontWeight="bold"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                EXTERNAL LENGTH: {L.toFixed(2)} m (Clear span:{" "}
+                {(L - 2 * input.wall_thickness).toFixed(2)} m)
               </text>
-              <text x="545" y="215" fill="#38bdf8" fontSize="12" fontWeight="bold" fontFamily="monospace">
+              <text
+                x="545"
+                y="215"
+                fill="#38bdf8"
+                fontSize="12"
+                fontWeight="bold"
+                fontFamily="monospace"
+              >
                 WIDTH: {W.toFixed(2)} m
               </text>
-              <text x="300" y="280" fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="monospace">
-                Total Internal Partition Run: {input.internal_wall_length.toFixed(1)} m
+              <text
+                x="300"
+                y="280"
+                fill="#94a3b8"
+                fontSize="11"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                Total Internal Partition Run:{" "}
+                {input.internal_wall_length.toFixed(1)} m
               </text>
-              <text x="300" y="380" fill="#a855f7" fontSize="11" textAnchor="middle" fontFamily="monospace">
-                Wall Thickness tw = {(input.wall_thickness * 1000).toFixed(0)} mm (Sandcrete Blockwork)
+              <text
+                x="300"
+                y="380"
+                fill="#a855f7"
+                fontSize="11"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                Wall Thickness tw = {(input.wall_thickness * 1000).toFixed(0)}{" "}
+                mm (Sandcrete Blockwork)
               </text>
             </svg>
           </div>
@@ -839,38 +935,145 @@ export function MathematicalElevationDiagram({
         {/* ── ELEVATION CROSS SECTION VIEW ── */}
         {viewMode === "elevation_cross_section" && (
           <div className="w-full max-w-2xl p-6 flex flex-col items-center justify-center">
-            <svg viewBox="0 0 640 400" className="w-full h-auto bg-slate-950 rounded-xl border border-border">
+            <svg
+              viewBox="0 0 640 400"
+              className="w-full h-auto bg-slate-950 rounded-xl border border-border"
+            >
               {/* Ground line datum */}
-              <line x1="20" y1="280" x2="620" y2="280" stroke="#22c55e" strokeWidth="2" strokeDasharray="6,4" />
-              <text x="30" y="274" fill="#22c55e" fontSize="10" fontFamily="monospace">
+              <line
+                x1="20"
+                y1="280"
+                x2="620"
+                y2="280"
+                stroke="#22c55e"
+                strokeWidth="2"
+                strokeDasharray="6,4"
+              />
+              <text
+                x="30"
+                y="274"
+                fill="#22c55e"
+                fontSize="10"
+                fontFamily="monospace"
+              >
                 ±0.00m NATURAL GROUND LEVEL (NGL)
               </text>
 
               {/* Foundation strip footing */}
-              <rect x="120" y="320" width="100" height="40" fill="#475569" stroke="#94a3b8" strokeWidth="1.5" />
-              <rect x="420" y="320" width="100" height="40" fill="#475569" stroke="#94a3b8" strokeWidth="1.5" />
-              <line x1="170" y1="280" x2="170" y2="320" stroke="#64748b" strokeWidth="24" />
-              <line x1="470" y1="280" x2="470" y2="320" stroke="#64748b" strokeWidth="24" />
-              <text x="170" y="380" fill="#38bdf8" fontSize="10" textAnchor="middle" fontFamily="monospace">
+              <rect
+                x="120"
+                y="320"
+                width="100"
+                height="40"
+                fill="#475569"
+                stroke="#94a3b8"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="420"
+                y="320"
+                width="100"
+                height="40"
+                fill="#475569"
+                stroke="#94a3b8"
+                strokeWidth="1.5"
+              />
+              <line
+                x1="170"
+                y1="280"
+                x2="170"
+                y2="320"
+                stroke="#64748b"
+                strokeWidth="24"
+              />
+              <line
+                x1="470"
+                y1="280"
+                x2="470"
+                y2="320"
+                stroke="#64748b"
+                strokeWidth="24"
+              />
+              <text
+                x="170"
+                y="380"
+                fill="#38bdf8"
+                fontSize="10"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
                 -0.90m (Bf={levels.level_1_foundation.footing_width_adopted_m}m)
               </text>
 
               {/* Plinth & Slab */}
-              <rect x="150" y="250" width="340" height="30" fill="#64748b" stroke="#cbd5e1" strokeWidth="1.5" />
-              <text x="320" y="268" fill="#ffffff" fontSize="10" textAnchor="middle" fontFamily="monospace">
+              <rect
+                x="150"
+                y="250"
+                width="340"
+                height="30"
+                fill="#64748b"
+                stroke="#cbd5e1"
+                strokeWidth="1.5"
+              />
+              <text
+                x="320"
+                y="268"
+                fill="#ffffff"
+                fontSize="10"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
                 +0.45m DPC & 150mm Over-site Concrete Slab
               </text>
 
               {/* Superstructure Walls */}
-              <rect x="158" y="100" width="24" height="150" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.5" />
-              <rect x="458" y="100" width="24" height="150" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.5" />
-              <text x="90" y="180" fill="#f8fafc" fontSize="11" fontFamily="monospace">
+              <rect
+                x="158"
+                y="100"
+                width="24"
+                height="150"
+                fill="#cbd5e1"
+                stroke="#94a3b8"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="458"
+                y="100"
+                width="24"
+                height="150"
+                fill="#cbd5e1"
+                stroke="#94a3b8"
+                strokeWidth="1.5"
+              />
+              <text
+                x="90"
+                y="180"
+                fill="#f8fafc"
+                fontSize="11"
+                fontFamily="monospace"
+              >
                 H = {H.toFixed(2)}m (Storeys: {storeys})
               </text>
 
               {/* Ring Beam */}
-              <rect x="156" y="85" width="28" height="15" fill="#818cf8" stroke="#4f46e5" strokeWidth="1.5" />
-              <rect x="456" y="85" width="28" height="15" fill="#818cf8" stroke="#4f46e5" strokeWidth="1.5" />
+              <rect
+                x="156"
+                y="85"
+                width="28"
+                height="15"
+                fill="#818cf8"
+                stroke="#4f46e5"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="456"
+                y="85"
+                width="28"
+                height="15"
+                fill="#818cf8"
+                stroke="#4f46e5"
+                strokeWidth="1.5"
+              />
 
               {/* Pitched Roof Rafters Triangle */}
               <polygon
@@ -880,8 +1083,18 @@ export function MathematicalElevationDiagram({
                 stroke="#38bdf8"
                 strokeWidth="2.5"
               />
-              <text x="320" y={75 - levels.level_5_roof.ridge_rise_m * 35} fill="#38bdf8" fontSize="12" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                Ridge Apex +{levels.level_5_roof.total_building_height_m.toFixed(2)}m (Rise = {levels.level_5_roof.ridge_rise_m.toFixed(2)}m @ {roofPitch}°)
+              <text
+                x="320"
+                y={75 - levels.level_5_roof.ridge_rise_m * 35}
+                fill="#38bdf8"
+                fontSize="12"
+                fontWeight="bold"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                Ridge Apex +
+                {levels.level_5_roof.total_building_height_m.toFixed(2)}m (Rise
+                = {levels.level_5_roof.ridge_rise_m.toFixed(2)}m @ {roofPitch}°)
               </text>
             </svg>
           </div>
@@ -892,41 +1105,89 @@ export function MathematicalElevationDiagram({
           <div className="w-full max-w-4xl p-6 space-y-4 max-h-[500px] overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 rounded-xl bg-card border border-border">
-                <span className="text-xs text-muted-foreground uppercase font-mono">Illustrative concrete quantity</span>
+                <span className="text-xs text-muted-foreground uppercase font-mono">
+                  Illustrative concrete quantity
+                </span>
                 <p className="text-xl font-bold text-foreground mt-1">
                   {result.five_d_bim.total_concrete_volume_m3} m³
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">Footing + Slab + Ring Beam</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Footing + Slab + Ring Beam
+                </p>
               </div>
               <div className="p-3 rounded-xl bg-card border border-border">
-                <span className="text-xs text-muted-foreground uppercase font-mono">Indicative phase days</span>
+                <span className="text-xs text-muted-foreground uppercase font-mono">
+                  Indicative phase days
+                </span>
                 <p className="text-xl font-bold text-foreground mt-1">
                   {result.five_d_bim.total_project_days} calendar days
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">Includes 28-day curing hold</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Includes 28-day curing hold
+                </p>
               </div>
               <div className="p-3 rounded-xl bg-card border border-border">
-                <span className="text-xs text-muted-foreground uppercase font-mono">Priced items total</span>
+                <span className="text-xs text-muted-foreground uppercase font-mono">
+                  Priced items total
+                </span>
                 <p className="text-xl font-bold text-foreground mt-1">
-                  {pricedMaterials.length > 0 && currencyCode ? `${currencyCode} ${pricedTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "Rates not entered"}
+                  {pricedMaterials.length > 0 && currencyCode
+                    ? `${currencyCode} ${pricedTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                    : "Rates not entered"}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">{pricedMaterials.length} of {result.five_d_bim.materials.length} items priced by you</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {pricedMaterials.length} of{" "}
+                  {result.five_d_bim.materials.length} items priced by you
+                </p>
               </div>
             </div>
 
             <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
-              Quantities and timeline are simplified planning illustrations, not verified takeoffs. Cost totals use only the unit rates you entered; missing rates are not estimated.
-              {currencyCode ? ` Currency: ${currencyCode}.` : " Enter a currency code to label totals."}
+              Quantities and timeline are simplified planning illustrations, not
+              verified takeoffs. Cost totals use only the unit rates you
+              entered; missing rates are not estimated.
+              {currencyCode
+                ? ` Currency: ${currencyCode}.`
+                : " Enter a currency code to label totals."}
             </div>
             <div className="rounded-xl border border-border bg-card overflow-hidden">
-              <div className="px-3 py-2 border-b border-border text-xs font-semibold">Indicative quantity and manual-rate cost schedule</div>
+              <div className="px-3 py-2 border-b border-border text-xs font-semibold">
+                Indicative quantity and manual-rate cost schedule
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
-                  <thead className="bg-muted/50 border-b border-border"><tr><th className="p-2 text-left">Item</th><th className="p-2 text-right">Quantity</th><th className="p-2 text-right">Rate</th><th className="p-2 text-right">Extended</th></tr></thead>
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr>
+                      <th className="p-2 text-left">Item</th>
+                      <th className="p-2 text-right">Quantity</th>
+                      <th className="p-2 text-right">Rate</th>
+                      <th className="p-2 text-right">Extended</th>
+                    </tr>
+                  </thead>
                   <tbody className="divide-y divide-border/60">
                     {result.five_d_bim.materials.map((material) => {
                       const rate = Number(unitRates[material.item]);
-                      return <tr key={material.item}><td className="p-2">{material.item} <span className="text-muted-foreground">({material.unit})</span></td><td className="p-2 text-right font-mono">{material.quantity.toLocaleString()}</td><td className="p-2 text-right font-mono">{rate > 0 ? rate.toLocaleString() : "—"}</td><td className="p-2 text-right font-mono">{rate > 0 && currencyCode ? `${currencyCode} ${(rate * material.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : "—"}</td></tr>;
+                      return (
+                        <tr key={material.item}>
+                          <td className="p-2">
+                            {material.item}{" "}
+                            <span className="text-muted-foreground">
+                              ({material.unit})
+                            </span>
+                          </td>
+                          <td className="p-2 text-right font-mono">
+                            {material.quantity.toLocaleString()}
+                          </td>
+                          <td className="p-2 text-right font-mono">
+                            {rate > 0 ? rate.toLocaleString() : "—"}
+                          </td>
+                          <td className="p-2 text-right font-mono">
+                            {rate > 0 && currencyCode
+                              ? `${currencyCode} ${(rate * material.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                              : "—"}
+                          </td>
+                        </tr>
+                      );
                     })}
                   </tbody>
                 </table>
@@ -937,21 +1198,41 @@ export function MathematicalElevationDiagram({
               <table className="w-full text-xs">
                 <thead className="bg-muted/50 border-b border-border">
                   <tr>
-                    <th className="p-2.5 text-left font-semibold text-foreground">Phase</th>
-                    <th className="p-2.5 text-left font-semibold text-foreground">Level</th>
-                    <th className="p-2.5 text-right font-semibold text-foreground">Work Days</th>
-                    <th className="p-2.5 text-right font-semibold text-foreground">Curing Hold</th>
-                    <th className="p-2.5 text-left font-semibold text-foreground">Milestone Output</th>
+                    <th className="p-2.5 text-left font-semibold text-foreground">
+                      Phase
+                    </th>
+                    <th className="p-2.5 text-left font-semibold text-foreground">
+                      Level
+                    </th>
+                    <th className="p-2.5 text-right font-semibold text-foreground">
+                      Work Days
+                    </th>
+                    <th className="p-2.5 text-right font-semibold text-foreground">
+                      Curing Hold
+                    </th>
+                    <th className="p-2.5 text-left font-semibold text-foreground">
+                      Milestone Output
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   {result.five_d_bim.timeline_phases.map((ph) => (
                     <tr key={ph.phase_number} className="hover:bg-muted/20">
-                      <td className="p-2.5 font-medium text-foreground">{ph.phase_name}</td>
-                      <td className="p-2.5 text-muted-foreground font-mono">{ph.level}</td>
-                      <td className="p-2.5 text-right font-mono text-foreground">{ph.duration_days} d</td>
-                      <td className="p-2.5 text-right font-mono text-amber-500 font-semibold">{ph.curing_hold_days} d</td>
-                      <td className="p-2.5 text-muted-foreground">{ph.milestone}</td>
+                      <td className="p-2.5 font-medium text-foreground">
+                        {ph.phase_name}
+                      </td>
+                      <td className="p-2.5 text-muted-foreground font-mono">
+                        {ph.level}
+                      </td>
+                      <td className="p-2.5 text-right font-mono text-foreground">
+                        {ph.duration_days} d
+                      </td>
+                      <td className="p-2.5 text-right font-mono text-amber-500 font-semibold">
+                        {ph.curing_hold_days} d
+                      </td>
+                      <td className="p-2.5 text-muted-foreground">
+                        {ph.milestone}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -964,7 +1245,7 @@ export function MathematicalElevationDiagram({
       {/* ── Active Level Mathematical Callout HUD ── */}
       <div className="p-4 bg-muted/40 border-b border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-brand-purple font-mono">
               {levelHUDInfo.title}
             </span>
@@ -979,18 +1260,22 @@ export function MathematicalElevationDiagram({
         </div>
 
         {/* Level Elevation Stepper & Auto-Play */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-1.5 shrink-0">
           <Button
             size="sm"
             variant="outline"
             onClick={isAnimating ? handleStopAnimation : handleStartAnimation}
             className="text-xs h-8 gap-1.5 border-brand-purple/30 text-brand-purple hover:bg-brand-purple/10"
           >
-            {isAnimating ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+            {isAnimating ? (
+              <Pause className="h-3.5 w-3.5" />
+            ) : (
+              <Play className="h-3.5 w-3.5" />
+            )}
             {isAnimating ? "Pause" : "Auto-Elevate (L1→L5)"}
           </Button>
 
-          <div className="flex items-center gap-1 ml-2">
+          <div className="flex flex-wrap items-center gap-1 ml-2">
             {[1, 2, 3, 4, 5].map((lvl) => (
               <button
                 key={lvl}
@@ -1024,8 +1309,8 @@ export function MathematicalElevationDiagram({
       {/* ── Diagram Controls & Actions Footer ── */}
       <div className="p-3 bg-card flex flex-wrap items-center justify-between gap-2 text-xs">
         {/* Toggle options */}
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground">
+        <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
+          <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
             <input
               type="checkbox"
               checked={showDimensions}
@@ -1034,7 +1319,7 @@ export function MathematicalElevationDiagram({
             />
             Dimensions
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground">
+          <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
             <input
               type="checkbox"
               checked={showWindVector}
@@ -1043,7 +1328,7 @@ export function MathematicalElevationDiagram({
             />
             Wind Vector
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground">
+          <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
             <input
               type="checkbox"
               checked={showWireframe}
@@ -1052,7 +1337,7 @@ export function MathematicalElevationDiagram({
             />
             Wireframe
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground">
+          <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
             <input
               type="checkbox"
               checked={showErrorPins}
@@ -1065,9 +1350,11 @@ export function MathematicalElevationDiagram({
 
         {/* Illustration view controls */}
         {viewMode === "3d_isometric" && (
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground font-mono">View angle:</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-muted-foreground font-mono">
+                View angle:
+              </span>
               <input
                 type="range"
                 min="0"
@@ -1078,8 +1365,10 @@ export function MathematicalElevationDiagram({
               />
               <span className="font-mono text-[11px] w-7">{yawDeg}°</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground font-mono">View elevation:</span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-muted-foreground font-mono">
+                View elevation:
+              </span>
               <input
                 type="range"
                 min="10"
