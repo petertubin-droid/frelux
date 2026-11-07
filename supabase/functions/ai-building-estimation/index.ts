@@ -298,10 +298,10 @@ Return a JSON object with these exact fields:
     "scale_reference_visible": boolean,
     "multiple_facades_visible": boolean
   },
-  "analysis_notes": [array of detailed strings explaining your observations and reasoning],
-  "structural_observations": [array of strings about structural elements visible: columns, beams, lintels, cracks, etc.],
-  "warnings": [array of strings about limitations and risks of this estimate],
-  "verification_checklist": [array of strings — items the user should verify on-site or from drawings before proceeding]
+  "analysis_notes": [at most 3 short strings, each under 20 words, explaining the observations behind the numbers],
+  "structural_observations": [at most 4 short strings about structural elements you can actually see: columns, beams, lintels, cracks],
+  "warnings": [at most 6 short strings about limitations and risks],
+  "verification_checklist": [at most 5 short strings the user should verify on site or from drawings]
 }
 
 PRECISION GUIDELINES:
@@ -328,6 +328,11 @@ Always include in verification_checklist:
 - "Engage structural engineer for reinforcement design"
 - "Verify roof structure and pitch from architectural drawings"`;
 
+  // The declared type must match the bytes: a PNG or WebP sent as image/jpeg
+  // is rejected or misread by the model.
+  const declaredMime = /^data:([^;]+);base64,/.exec(imageDataUrl)?.[1];
+  const mimeType = declaredMime ?? "image/jpeg";
+
   const requestBody = JSON.stringify({
     contents: [
       {
@@ -335,7 +340,7 @@ Always include in verification_checklist:
           { text: prompt },
           {
             inline_data: {
-              mime_type: "image/jpeg",
+              mime_type: mimeType,
               data: imageDataUrl.split(",")[1] ?? imageDataUrl,
             },
           },
@@ -345,24 +350,47 @@ Always include in verification_checklist:
     generationConfig: {
       temperature: 0.4,
       responseMimeType: "application/json",
+      // Gemini 2.5 and later think before answering by default. Reading one
+      // photograph into a fixed JSON shape gains nothing from that pass, and it
+      // was adding many seconds to every request, so the budget is zero.
+      thinkingConfig: { thinkingBudget: 0 },
+      // Without a ceiling the model keeps writing prose inside the arrays.
+      maxOutputTokens: 2048,
     },
   });
 
-  // Gemini intermittently answers 429/500/503/504 under load. Those are
-  // transient: retry with backoff before giving up, and surface a distinct
-  // AI_BUSY error (not a generic 500) so the UI can say "try again".
-  const RETRYABLE = new Set([429, 500, 502, 503, 504]);
-  const BACKOFF_MS = [800, 2000, 4000];
+  // A 5xx is transient: retry with backoff, then report busy. A 429 is a quota
+  // answer, and waiting 6.8 seconds to receive it again only made the page feel
+  // broken, so it is surfaced immediately as busy. A connection that never
+  // answers is bounded per attempt instead of hanging the request.
+  const RETRYABLE = new Set([500, 502, 503, 504]);
+  const BACKOFF_MS = [600, 1500, 3000];
+  const ATTEMPT_TIMEOUT_MS = 28_000;
   let response: Response | null = null;
+  let timedOut = false;
   for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: requestBody,
-      },
-    );
+    try {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: requestBody,
+          signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+        },
+      );
+    } catch (networkError) {
+      response = null;
+      timedOut = true;
+      console.warn(
+        `[ai-building-estimation] Gemini request failed, attempt ${attempt + 1}:`,
+        networkError instanceof Error ? networkError.message : networkError,
+      );
+      if (attempt < BACKOFF_MS.length) {
+        await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
+      }
+      continue;
+    }
     if (response.ok || !RETRYABLE.has(response.status)) break;
     console.warn(
       `[ai-building-estimation] Gemini ${response.status}, attempt ${attempt + 1}`,
@@ -373,14 +401,16 @@ Always include in verification_checklist:
   }
 
   if (!response || !response.ok) {
-    const status = response?.status ?? 0;
+    const status = response?.status ?? (timedOut ? 504 : 0);
     const errText = response ? await response.text() : "no response";
     console.error(
       "[ai-building-estimation] Gemini API error:",
       status,
       errText,
     );
-    if (RETRYABLE.has(status)) throw new GeminiBusyError(status);
+    if (status === 429 || RETRYABLE.has(status)) {
+      throw new GeminiBusyError(status);
+    }
     throw new Error(`Gemini API error: ${status}`);
   }
 
@@ -566,8 +596,13 @@ serveWithCors(async (req: Request) => {
       supabaseUrl,
       supabaseAnonKey,
     );
-    const admin = userId ? await isUserAdmin(supabase, userId) : false;
-    const paid = userId ? await getUserPaidStatus(supabase, userId) : false;
+    // Independent lookups, so they share one round trip instead of two.
+    const [admin, paid] = userId
+      ? await Promise.all([
+          isUserAdmin(supabase, userId),
+          getUserPaidStatus(supabase, userId),
+        ])
+      : [false, false];
 
     const config = await getEstimationConfig(supabase);
     if (!config || !config.estimation_enabled) {

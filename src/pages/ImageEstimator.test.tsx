@@ -88,7 +88,7 @@ describe("ImageEstimator", () => {
     ).toBe(true);
   });
 
-  it("renders the compressed copy the model read, bounded, and links the original", () => {
+  it("shows the visitor's own photo, not the compressed copy the model read", () => {
     const { container } = render(
       <EstimateResultView
         estimate={photoEstimate}
@@ -108,16 +108,40 @@ describe("ImageEstimator", () => {
     const photo = container.querySelector(
       '[data-testid="estimate-source-photo"] img',
     );
-    // The card shows the 1024px copy, not the visitor's full-resolution
-    // upload, and the photo does not exceed the viewport before the totals.
-    expect(photo).toHaveAttribute("src", "data:image/jpeg;base64,preview");
+    // The card shows the full-resolution upload. A 1024px copy is not
+    // evidence of the building the estimate describes.
+    expect(photo).toHaveAttribute("src", "data:image/jpeg;base64,original");
     expect(photo?.className).toContain("max-h-[34vh]");
     expect(photo).toHaveAttribute("decoding", "async");
+    // Loading is not deferred: a verification photo that has not loaded reads
+    // as a missing photo.
+    expect(photo).not.toHaveAttribute("loading");
 
     const open = screen.getByTestId("estimate-photo-open");
     expect(open).toHaveAttribute("href", "data:image/jpeg;base64,original");
     expect(open).toHaveAttribute("rel", "noopener noreferrer");
     expect(open).toHaveAttribute("target", "_blank");
+  });
+
+  it("falls back to the compressed copy when the original is gone", () => {
+    const { container } = render(
+      <EstimateResultView
+        estimate={photoEstimate}
+        analysis={null}
+        buildingPhoto={null}
+        photoPreview="data:image/jpeg;base64,preview"
+        savedId={null}
+        onEdit={() => {}}
+        isPaid={false}
+        pdfGateOpen={false}
+        pdfUnlocked={false}
+        setPdfGateOpen={() => {}}
+        setPdfUnlocked={() => {}}
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="estimate-photo-image"]'),
+    ).toHaveAttribute("src", "data:image/jpeg;base64,preview");
   });
 
   it("expands the photo on request and says it is not stored with the estimate", () => {
@@ -141,10 +165,15 @@ describe("ImageEstimator", () => {
     expect(toggle).toHaveAttribute("aria-controls", "estimate-photo-frame");
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
+    // Expanded means the photo at natural height inside a scrolling frame,
+    // not another height cap.
     expect(
       container.querySelector('[data-testid="estimate-source-photo"] img')
         ?.className,
-    ).toContain("max-h-[80vh]");
+    ).toContain("max-h-none");
+    expect(
+      container.querySelector("#estimate-photo-frame")?.className,
+    ).toContain("overflow-auto");
 
     expect(
       screen.getByText(/not stored with the saved estimate/i),

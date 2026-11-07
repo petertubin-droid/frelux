@@ -53,6 +53,28 @@ describe("photo estimation", () => {
     expect(fn).toContain('statedMarket !== "NG"');
   });
 
+  it("reads the photo with Google Gemini and no other provider", () => {
+    const hosts = Array.from(fn.matchAll(/https:\/\/([a-zA-Z0-9.-]+)/g)).map(
+      (m) => m[1],
+    );
+    expect(new Set(hosts)).toEqual(
+      new Set(["generativelanguage.googleapis.com"]),
+    );
+    expect(fn).toContain('GEMINI_MODEL = "gemini-3.6-flash"');
+    expect(fn).toContain("GEMINI_API_KEY");
+    for (const other of ["openai", "anthropic", "groq", "cohere", "mistral"]) {
+      expect(fn.toLowerCase()).not.toContain(other);
+    }
+  });
+
+  it("does not make the visitor wait on unused reasoning or prose", () => {
+    // Gemini 2.5+ thinks by default; that pass added seconds to every photo.
+    expect(fn).toContain("thinkingConfig: { thinkingBudget: 0 }");
+    expect(fn).toContain("maxOutputTokens");
+    // A connection that never answers is bounded per attempt.
+    expect(fn).toContain("AbortSignal.timeout");
+  });
+
   it("labels its price source honestly", () => {
     expect(fn).toContain("Nigerian price book is configured here");
     expect(fn).not.toContain("auto-updated");

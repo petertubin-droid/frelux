@@ -145,6 +145,9 @@ export default function ImageEstimator() {
   const [accessDecision, setAccessDecision] =
     useState<EstimationAccessDecision | null>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  // The model call is the only slow step, so it is timed and shown rather than
+  // hidden behind a spinner that claims steps finished before they start.
+  const [analysisElapsed, setAnalysisElapsed] = useState(0);
   const [_imageFile, setImageFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState("");
   const [location, setLocation] = useState("Lagos");
@@ -187,6 +190,18 @@ export default function ImageEstimator() {
       mountedRef.current = false;
     };
   }, [user?.id, isAdmin, isPaid]);
+
+  useEffect(() => {
+    if (phase !== "analyzing") {
+      setAnalysisElapsed(0);
+      return;
+    }
+    const started = Date.now();
+    const id = window.setInterval(() => {
+      setAnalysisElapsed(Math.round((Date.now() - started) / 1000));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [phase]);
 
   // ── Handle image selection ──
   const handleImageSelect = useCallback((file: File) => {
@@ -259,21 +274,56 @@ export default function ImageEstimator() {
       const clientHash =
         localStorage.getItem("frelux_client_hash") || "unknown";
 
-      const { data, error: fnError } = await supabase.functions.invoke(
-        "ai-building-estimation",
-        {
-          body: {
-            imageDataUrl: resizedImage,
-            clientId,
-            clientHash,
-            projectName: projectName || "AI-Estimated Building",
-            location: location || "Nigeria",
-            // The function prices from the Nigerian book only. Without the
-            // market it could not tell, so every visitor was priced in naira.
-            market: market?.marketCode ?? "NG",
+      // A request that never returns is worse than a failure: the visitor waits
+      // with no way out. Gemini gets 28 s per attempt inside the function, so
+      // anything past 75 s here is a dead connection.
+      const controller = new AbortController();
+      const guard = window.setTimeout(() => controller.abort(), 75_000);
+      let invokeResult: {
+        data: {
+          analysis?: unknown;
+          estimateInput?: unknown;
+          savedId?: string | null;
+          error?: string;
+          code?: string;
+        } | null;
+        error: unknown;
+      };
+      try {
+        invokeResult = await supabase.functions.invoke(
+          "ai-building-estimation",
+          {
+            signal: controller.signal,
+            body: {
+              imageDataUrl: resizedImage,
+              clientId,
+              clientHash,
+              projectName: projectName || "AI-Estimated Building",
+              location: location || "Nigeria",
+              // The function prices from the Nigerian book only. Without the
+              // market it could not tell, so every visitor was priced in naira.
+              market: market?.marketCode ?? "NG",
+            },
           },
-        },
-      );
+        );
+      } catch (invokeError) {
+        const aborted =
+          invokeError instanceof Error && invokeError.name === "AbortError";
+        if (aborted) {
+          setError(
+            "The photo analysis timed out after 75 seconds. Try a smaller photo, or run the takeoff manually.",
+          );
+          setPhase("error");
+          return;
+        }
+        setError("Failed to analyze image. Please try again.");
+        setPhase("error");
+        return;
+      } finally {
+        window.clearTimeout(guard);
+      }
+
+      const { data, error: fnError } = invokeResult;
 
       if (fnError || !data) {
         // supabase-js puts non-2xx responses in fnError.context (a Response).
@@ -574,14 +624,21 @@ export default function ImageEstimator() {
               Analyzing your building photo…
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              AI is detecting building type, dimensions, roof structure, and
-              more.
+              Google Gemini is reading building type, dimensions and roof
+              structure from the photo.
             </p>
-            <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-              <p>✓ Uploading image</p>
-              <p>✓ AI vision analysis</p>
-              <p>→ Generating estimate parameters</p>
-            </div>
+            <p
+              className="mt-4 text-sm font-medium tabular-nums text-foreground"
+              data-testid="analysis-elapsed"
+              aria-live="polite"
+            >
+              {analysisElapsed}s elapsed
+            </p>
+            <p className="mt-2 max-w-sm text-center text-xs leading-relaxed text-muted-foreground">
+              A single read usually takes 5 to 20 seconds. If it passes a
+              minute, the vision service is busy and trying again is the fastest
+              route.
+            </p>
           </div>
         )}
         {/* Phase: Review AI analysis */}
@@ -1084,7 +1141,10 @@ export function EstimateResultView({
   estimate: BuildToRoofResult;
   analysis: BuildingAnalysisResult | null;
   buildingPhoto: string | null;
-  /** Compressed copy the model read; falls back to the original. */
+  /**
+   * Compressed copy the model read. Only used when the original is no longer in
+   * memory, because a downscaled photo is not evidence of the building.
+   */
   photoPreview?: string | null;
   savedId: string | null;
   onEdit: () => void;
@@ -1147,7 +1207,7 @@ export function EstimateResultView({
 
   return (
     <div className="space-y-6">
-      {buildingPhoto && (
+      {(buildingPhoto || photoPreview) && (
         <a
           href="#estimate-totals"
           className="sr-only rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
@@ -1157,7 +1217,7 @@ export function EstimateResultView({
       )}
       {/* The photo comes before the figures, but it must not push them off
           the screen. It is bounded, expandable, and linked full size. */}
-      {buildingPhoto && (
+      {(buildingPhoto || photoPreview) && (
         <section
           aria-labelledby="estimate-building-photo-title"
           data-testid="estimate-source-photo"
@@ -1172,9 +1232,9 @@ export function EstimateResultView({
                 Photo this estimate was read from
               </h2>
               <p className="mt-1 max-w-md text-xs text-muted-foreground">
-                Uploaded photo, uncropped. Dimensions are read from a compressed
-                copy of it, so treat every measurement and cost as preliminary
-                until they are checked on site.
+                Your uploaded photo, uncropped and at full resolution. Gemini
+                read a compressed copy of it, so treat every measurement and
+                cost as preliminary until they are checked on site.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1189,7 +1249,7 @@ export function EstimateResultView({
                 {photoExpanded ? "Fit to card" : "Show full photo"}
               </button>
               <a
-                href={buildingPhoto}
+                href={buildingPhoto || photoPreview || undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="estimate-photo-open"
@@ -1201,15 +1261,17 @@ export function EstimateResultView({
           </div>
           <div
             id="estimate-photo-frame"
-            className="flex items-center justify-center bg-muted/30 p-3 sm:p-5"
+            className={`flex justify-center bg-muted/30 p-3 sm:p-5 ${
+              photoExpanded ? "max-h-[85vh] overflow-auto" : "items-center"
+            }`}
           >
             <img
-              src={photoPreview || buildingPhoto}
+              src={buildingPhoto || photoPreview || undefined}
               alt={`Building photo supplied for the estimate of ${estimate.project_name || "this project"}`}
               decoding="async"
-              loading="lazy"
-              className={`block h-auto w-auto max-w-full rounded-lg object-contain transition-[max-height] ${
-                photoExpanded ? "max-h-[80vh]" : "max-h-[34vh] sm:max-h-[46vh]"
+              data-testid="estimate-photo-image"
+              className={`block h-auto w-auto max-w-full rounded-lg object-contain ${
+                photoExpanded ? "max-h-none" : "max-h-[34vh] sm:max-h-[46vh]"
               }`}
             />
           </div>
