@@ -23,21 +23,6 @@ const BRAND = {
   faint: "#8C80B4",
 };
 
-/** The architectural mark on its 512 grid, drawn at the origin so a group can scale it. */
-function markGroup(size) {
-  const k = (size / 512).toFixed(5);
-  const glyphScale = 1.08;
-  const tX = (256 - 258 * glyphScale).toFixed(3);
-  const tY = (256 - 273 * glyphScale).toFixed(3);
-  return `<g transform="scale(${k})">
-    <rect width="512" height="512" rx="112" fill="url(#tile)"/>
-    <g transform="translate(${tX} ${tY}) scale(${glyphScale})">
-      <path d="M 144 108 L 372 108 L 338 178 L 222 178 L 222 230 L 320 230 L 286 294 L 222 294 L 222 398 L 144 398 Z" fill="${BRAND.glyph}"/>
-      <rect x="144" y="412" width="228" height="26" rx="13" fill="${BRAND.accent}"/>
-    </g>
-  </g>`;
-}
-
 function cardSvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
@@ -57,7 +42,6 @@ function cardSvg() {
   </defs>
   <rect width="1200" height="630" fill="url(#field)"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
-  <g transform="translate(84 84)">${markGroup(96)}</g>
   <text x="204" y="150" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="44" font-weight="700" letter-spacing="0.5" fill="${BRAND.glyph}">FRELUX</text>
   <text x="206" y="176" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="5" fill="${BRAND.accent}">SMART CALC</text>
   <rect x="84" y="252" width="64" height="6" rx="3" fill="${BRAND.accent}"/>
@@ -66,18 +50,35 @@ function cardSvg() {
   <text x="84" y="446" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="22" fill="${BRAND.body}">Calculators, bill of quantities, market pricing and project planning</text>
   <text x="84" y="480" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="22" fill="${BRAND.body}">for builders, quantity surveyors and clients.</text>
   <text x="84" y="570" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="1" fill="${BRAND.faint}">freluxtools.com</text>
-  <g transform="translate(1020 470)">${markGroup(92)}</g>
 </svg>`;
 }
 
 const svg = cardSvg();
 
-await writeFile("public/social-cover.png", await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer());
-await writeFile("public/og-image.png", await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer());
+// The mark is the supplied artwork, not a second drawing: it is composited in
+// so the card, the tab icon and the header can never show different logos.
+const MARK_HEIGHT = 74;
+const mark = await sharp("public/brand/frelux-mark.png")
+  .resize({ height: MARK_HEIGHT, kernel: "lanczos3" })
+  .png()
+  .toBuffer();
+const markMeta = await sharp(mark).metadata();
+
+const card = await sharp(Buffer.from(svg))
+  .composite([{ input: mark, left: 84, top: 66 }])
+  .png({ compressionLevel: 9 })
+  .toBuffer();
+
+await writeFile("public/social-cover.png", card);
+await writeFile("public/og-image.png", card);
 await writeFile(
   "public/og-image-opt.jpg",
-  await sharp(Buffer.from(svg)).jpeg({ quality: 84, mozjpeg: true, progressive: true }).toBuffer(),
+  await sharp(Buffer.from(svg))
+    .composite([{ input: mark, left: 84, top: 66 }])
+    .jpeg({ quality: 84, mozjpeg: true, progressive: true })
+    .toBuffer(),
 );
+console.log("mark composited", markMeta.width, "x", markMeta.height);
 
 const meta = await sharp(Buffer.from(svg)).metadata();
 console.log(`social card written: ${meta.width}x${meta.height}, png and jpeg`);

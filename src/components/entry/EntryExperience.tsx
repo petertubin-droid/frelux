@@ -153,12 +153,12 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
               rounded square and muddied the gradient at small sizes. */}
           <div className="entry-rise" style={rise(120)}>
             <img
-              src="/brand/frelux-mark-light.svg"
+              src="/brand/frelux-mark.png"
               alt={t("FRELUX SMART CALC")}
-              width={64}
-              height={64}
+              width={512}
+              height={315}
               decoding="async"
-              className="h-16 w-16 object-contain sm:h-[72px] sm:w-[72px]"
+              className="h-16 w-auto object-contain sm:h-[72px]"
             />
           </div>
 

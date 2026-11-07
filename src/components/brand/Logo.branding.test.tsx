@@ -42,12 +42,12 @@ describe("branding logo formats", () => {
     expect(usableBrandLogo("")).toBeNull();
   });
 
-  it("falls back to the vector mark when branding is a JPEG", () => {
+  it("falls back to the bundled mark when branding is a JPEG", () => {
     branding.light_logo_url =
       "https://nfgaaohweygwydoelxnf.supabase.co/storage/v1/object/public/media/user-uploads/1-hrdunl.jpg";
     const { container } = render(<Logo />);
     const img = container.querySelector("img");
-    expect(img?.getAttribute("src")).toBe("/brand/frelux-mark.svg");
+    expect(img?.getAttribute("src")).toBe("/brand/frelux-mark.png");
   });
 
   it("uses a transparent upload when one is available", () => {

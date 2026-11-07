@@ -149,12 +149,12 @@ export default function QuoteShare() {
         <div className={CARD}>
           <div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-4">
             <img
-              src="/brand/frelux-mark.svg"
+              src="/brand/frelux-mark.png"
               alt=""
               aria-hidden="true"
-              width={28}
-              height={28}
-              className="h-7 w-7"
+              width={512}
+              height={315}
+              className="h-7 w-auto object-contain"
             />
             <span className="text-sm font-extrabold tracking-tight text-brand-purple">
               FRELUX

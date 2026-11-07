@@ -1,55 +1,47 @@
-import { readFileSync } from "fs";
 import { describe, expect, it } from "vitest";
+import sharp from "sharp";
 
 /**
- * The header mark ships as two files: the light-surface version and the
- * knock-out for dark surfaces. Both are placed directly on the page, so any
- * background baked into the artwork shows as a box around the monogram, which
- * is exactly the defect this suite exists to prevent.
+ * The header mark is a transparent crop of the brand artwork. Placed straight
+ * on the page, an opaque plate inside the file would draw a white box around
+ * the mark, which is exactly the defect this suite exists to prevent.
  */
 const MARKS = [
-  "public/brand/frelux-mark.svg",
-  "public/brand/frelux-mark-light.svg",
+  "public/brand/frelux-mark.png",
+  "public/brand/frelux-icon.png",
+  "public/logo-mark.png",
+  "public/logo-mark-light.png",
 ];
 
-const read = (path: string) => readFileSync(path, "utf8");
-
 describe("brand mark transparency", () => {
-  it("paints no background of its own", () => {
+  it("paints no background of its own", async () => {
     for (const path of MARKS) {
-      const svg = read(path);
-      // A full-canvas rect is a tile: it fills the box and reads as a box.
-      expect(svg, path).not.toMatch(/<rect[^>]*width="512"/);
-      expect(svg, path).not.toMatch(/fill="url\(#tile\)"/);
-      expect(svg, path).not.toMatch(/background/i);
-      // Nothing may be drawn behind the monogram except its own shapes.
-      expect(svg.match(/<rect/g)?.length ?? 0, path).toBe(1);
+      const { data, info } = await sharp(path)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      // Every corner clear: no tile, no border, no white plate.
+      for (const [x, y] of [
+        [0, 0],
+        [info.width - 1, 0],
+        [0, info.height - 1],
+        [info.width - 1, info.height - 1],
+      ]) {
+        expect(data[(y * info.width + x) * 4 + 3], `${path} ${x},${y}`).toBe(0);
+      }
     }
   });
 
-  it("is cropped to the artwork rather than centred in a square canvas", () => {
+  it("carries the artwork rather than an empty canvas", async () => {
     for (const path of MARKS) {
-      const svg = read(path);
-      expect(svg, path).not.toContain('viewBox="0 0 512 512"');
-      expect(svg, path).toMatch(/viewBox="132\.88 77\.8 246\.24 356\.4"/);
-    }
-  });
-
-  it("keeps the monogram legible on the surface it targets", () => {
-    // Light surfaces: the gradient carries the brand colour.
-    const light = read("public/brand/frelux-mark.svg");
-    expect(light).toContain('fill="url(#monogram)"');
-    expect(light).toContain('stop-color="#6D28D9"');
-
-    // Dark surfaces: the monogram reverses to white.
-    const dark = read("public/brand/frelux-mark-light.svg");
-    expect(dark).toContain('fill="#FFFFFF"');
-    expect(dark).not.toContain("url(#monogram)");
-  });
-
-  it("keeps the accent rule in both versions", () => {
-    for (const path of MARKS) {
-      expect(read(path), path).toContain('fill="#F97316"');
+      const { data, info } = await sharp(path)
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      let opaque = 0;
+      for (let i = 0; i < data.length; i += 4)
+        if (data[i + 3] > 200) opaque += 1;
+      expect(opaque / (info.width * info.height), path).toBeGreaterThan(0.15);
     }
   });
 });

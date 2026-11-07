@@ -190,16 +190,20 @@ export function LogoMark({
   size?: number;
 }) {
   const { theme } = useTheme();
+  // One transparent master: the artwork carries its own colour, so it needs no
+  // knock-out variant and no tile behind it on either surface.
   const light = variant === "light" || (variant === "auto" && theme === "dark");
   return (
     <img
-      src={light ? "/brand/frelux-mark-light.svg" : "/brand/frelux-mark.svg"}
+      src="/brand/frelux-mark.png"
       alt=""
       aria-hidden="true"
-      width={size}
-      height={size}
+      width={512}
+      height={315}
       decoding="async"
-      className={classNames("aspect-square object-contain", className)}
+      data-variant={light ? "light" : "dark"}
+      className={classNames("object-contain", className)}
+      style={{ height: size, width: "auto" }}
     />
   );
 }

@@ -68,14 +68,15 @@ describe("brand assets behind link previews", () => {
     expect(jpeg.size).toBeLessThan(250_000);
   });
 
-  it("draws the icon and the social card from the same brand accent", () => {
-    const mark = read("public/brand/frelux-mark.svg");
-    const card = read("scripts/generate-social-card.mjs");
+  it("cuts every icon from the one transparent master", () => {
+    // Owner directive 2026-11-07: the supplied artwork is the brand mark. The
+    // generator may not invent a second drawing, so it must read the master and
+    // every icon must be a crop of it.
     const icons = read("scripts/generate-brand-icons.mjs");
-    for (const source of [mark, card, icons]) {
-      expect(source).toContain("#F97316");
-      expect(source).not.toContain("#F59E0B");
-    }
+    expect(icons).toContain("public/brand/frelux-icon.png");
+    expect(icons).not.toContain("#F59E0B");
+    const card = read("scripts/generate-social-card.mjs");
+    expect(card).not.toContain("#F59E0B");
   });
 
   it("brands every surface through the shared logo component", () => {
@@ -89,7 +90,7 @@ describe("brand assets behind link previews", () => {
       expect(read(page), page).toContain("brand/Logo");
     }
     const share = read("src/pages/QuoteShare.tsx");
-    expect(share).toContain("/brand/frelux-mark.svg");
+    expect(share).toContain("/brand/frelux-mark.png");
     expect(share).not.toContain("blue-600");
   });
 
@@ -182,31 +183,35 @@ describe("site icon set", () => {
       expect(existsSync(path), path).toBe(true);
       expect(pngSize(path), path).toEqual({ width: size, height: size });
     }
-    expect(existsSync("public/favicon.svg")).toBe(true);
+    expect(existsSync("public/brand/frelux-icon.png")).toBe(true);
   });
 
   it("packs three resolutions into the ico container", () => {
     expect(icoSizes().sort((a, b) => a - b)).toEqual([16, 32, 48]);
   });
 
-  it("keeps the tab icon legible: a solid tile, not a thin sliver of art", async () => {
+  it("keeps the tab icon legible on a transparent field", async () => {
     const sharp = (await import("sharp")).default;
     const { data, info } = await sharp("public/favicon-32.png")
       .ensureAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true });
     let opaque = 0;
-    let glyph = 0;
+    let white = 0;
     for (let i = 0; i < data.length; i += 4) {
-      if (data[i + 3] > 200) opaque += 1;
-      // White glyph pixels against the purple tile.
-      if (data[i] > 220 && data[i + 1] > 220 && data[i + 2] > 220) glyph += 1;
+      if (data[i + 3] > 200) {
+        opaque += 1;
+        // Pure white art would vanish on a white tab bar.
+        if (data[i] > 245 && data[i + 1] > 245 && data[i + 2] > 245) white += 1;
+      }
     }
     const total = info.width * info.height;
-    // A rounded tile fills most of the frame; the white monogram is a real mark.
-    expect(opaque / total).toBeGreaterThan(0.85);
-    expect(glyph / total).toBeGreaterThan(0.08);
-    expect(glyph / total).toBeLessThan(0.35);
+    // The artwork fills the frame, the corners stay clear, and the mark is
+    // drawn in colour rather than left as a white plate.
+    expect(opaque / total).toBeGreaterThan(0.2);
+    expect(white / opaque).toBeLessThan(0.4);
+    expect(data[3]).toBe(0);
+    expect(data[(info.width - 1) * 4 + 3]).toBe(0);
   });
 
   it("bleeds the maskable and apple icons edge to edge", async () => {
@@ -225,29 +230,38 @@ describe("site icon set", () => {
     }
   });
 
-  it("ships the in-app mark as vector with a transparent background", () => {
-    // Owner directive 2026-11-07: the mark carries no background of its own.
-    // The frame is the artwork crop, and the brand colour is painted by the
-    // monogram instead of a tile behind it. Icon files keep their tile because
-    // a launcher icon needs an opaque edge; the in-app mark does not.
+  it("ships the in-app mark transparent, with no plate behind it", async () => {
+    // Owner directive 2026-11-07: the supplied artwork is the brand mark and it
+    // sits on the page with no white plate, no border and no tile. The in-app
+    // mark is therefore a transparent crop, not a bordered square.
+    const sharp = (await import("sharp")).default;
+    const { data, info } = await sharp("public/brand/frelux-mark.png")
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    expect(data[3]).toBe(0);
+    expect(data[(info.width - 1) * 4 + 3]).toBe(0);
+    let opaque = 0;
+    for (let i = 0; i < data.length; i += 4) if (data[i + 3] > 200) opaque += 1;
+    // The crop is the artwork, so the mark covers a real share of the frame.
+    expect(opaque / (info.width * info.height)).toBeGreaterThan(0.2);
+  });
+
+  it("no longer ships the retired monogram vectors", () => {
     for (const path of [
       "public/brand/frelux-mark.svg",
       "public/brand/frelux-mark-light.svg",
+      "public/favicon.svg",
     ]) {
-      const svg = read(path);
-      expect(svg, path).not.toContain("0 0 512 512");
-      expect(svg, path).not.toMatch(/<rect[^>]*width="512"/);
-      expect(svg, path).toContain("viewBox=");
+      expect(existsSync(path), path).toBe(false);
     }
-    expect(read("public/brand/frelux-mark.svg")).toContain("#6D28D9");
-    expect(read("public/brand/frelux-mark-light.svg")).toContain("#FFFFFF");
   });
 
   it("declares one brand colour across the manifest and the browser chrome", () => {
     const manifest = JSON.parse(read("public/manifest.json"));
     expect(manifest.theme_color).toBe("#6D28D9");
     const icons = manifest.icons.map((icon: { src: string }) => icon.src);
-    expect(icons).toContain("/favicon.svg");
+    expect(icons).toContain("/icon-192.png");
     expect(icons).toContain("/icon-maskable-512.png");
     expect(
       manifest.icons.some(
@@ -258,9 +272,10 @@ describe("site icon set", () => {
     expect(index).toContain(
       'content="#6D28D9" media="(prefers-color-scheme: light)"',
     );
-    expect(index).toContain(
-      '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />',
-    );
+    // A vector tab icon would shadow the new mark, so the raster set is the
+    // only source declared in the head.
+    expect(index).not.toContain("image/svg+xml");
+    expect(index).toContain('<link rel="icon" href="/favicon.ico"');
     expect(index).not.toContain('content="#7C3AED"');
   });
 });

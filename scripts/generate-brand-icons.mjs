@@ -1,136 +1,146 @@
 /**
  * Brand icon generator.
  *
- * The site icon, favicon and PWA icons are generated from one deterministic
- * vector source so every size is sharp and every surface shows the same mark.
- * Run with `node scripts/generate-brand-icons.mjs`.
+ * Every icon, favicon, Apple touch icon and the in-nav mark is cut from one
+ * transparent master, public/brand/frelux-icon.png, so no surface can drift
+ * from the others. Run with `node scripts/generate-brand-icons.mjs`.
  *
  * Design rules the assets must satisfy:
- * - The mark is designed for a 16 px tab, not downscaled from a wide lockup.
- * - The glyph sits on a brand tile with real ink coverage, never a white plate.
- * - Maskable and Apple icons carry a full bleed and a safe margin so no
- *   platform mask or corner radius clips the glyph.
+ * - The artwork keeps a transparent background everywhere the surface can show
+ *   through a PNG: no white plate, no border, no rounded tile drawn in.
+ * - Maskable and Apple icons need an opaque edge, because a platform mask or the
+ *   iOS home screen paints its own colour behind a transparent corner. Those
+ *   two composited on the brand night surface instead of white.
+ * - Nothing is regenerated from a wider lockup: the mark is the artwork crop.
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 
-const BRAND = {
-  tileTop: "#6D28D9",
-  tileBottom: "#3B0B75",
-  tileTopDark: "#8B5CF6",
-  tileBottomDark: "#6D28D9",
-  accent: "#F97316",
-  glyph: "#FFFFFF",
-};
+const SOURCE = "public/brand/frelux-icon.png";
+const NIGHT = { r: 10, g: 10, b: 26, alpha: 1 };
 
-/**
- * Architectural Cantilever Monogram on a 512 grid.
- *
- * Precision structural engineering geometry:
- * - Vertical structural column: x 144 to 222 (width 78, y 108 to 398)
- * - Upper cantilever beam with 45° chamfered end: x 144 to 372 (height 70, y 108 to 178)
- * - Mid cantilever beam with matching 45° chamfer: x 144 to 320 (height 64, y 230 to 294)
- * - Foundation grade beam / datum plinth in #F97316: x 144 to 372 (height 26, rx 13)
- *   aligning the mark into a balanced structural silhouette.
- */
-function markSvg({
-  radius = 112,
-  glyphScale = 1.08,
-  plinth = true,
-  tileTop = BRAND.tileTop,
-  tileBottom = BRAND.tileBottom,
-  bleed = false,
-} = {}) {
-  // Center of glyph assembly: x = 258, y = 273
-  const tX = (256 - 258 * glyphScale).toFixed(3);
-  const tY = (256 - 273 * glyphScale).toFixed(3);
-  const glyph = `
-    <g transform="translate(${tX} ${tY}) scale(${glyphScale})">
-      <!-- Architectural Cantilever Monogram F -->
-      <path d="M 144 108 L 372 108 L 338 178 L 222 178 L 222 230 L 320 230 L 286 294 L 222 294 L 222 398 L 144 398 Z" fill="${BRAND.glyph}"/>
-      ${plinth ? `<rect x="144" y="412" width="228" height="26" rx="13" fill="${BRAND.accent}"/>` : ""}
-    </g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FRELUX">
-  <defs>
-    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${tileTop}"/>
-      <stop offset="1" stop-color="${tileBottom}"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="${bleed ? 0 : radius}" fill="url(#tile)"/>
-${glyph}
-</svg>`;
+const master = sharp(SOURCE).trim({ threshold: 1 });
+
+/** Artwork fitted inside a square, transparent outside the art. */
+async function transparentSquare(size, coverage) {
+  const art = await master
+    .clone()
+    .resize(Math.round(size * coverage), Math.round(size * coverage), {
+      fit: "inside",
+      withoutEnlargement: false,
+      kernel: "lanczos3",
+    })
+    .png()
+    .toBuffer();
+  const meta = await sharp(art).metadata();
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([
+      {
+        input: art,
+        left: Math.round((size - (meta.width ?? size)) / 2),
+        top: Math.round((size - (meta.height ?? size)) / 2),
+      },
+    ])
+    .png({ compressionLevel: 9 })
+    .toBuffer();
 }
 
-/** Build a multi-resolution ICO container from PNG buffers (PNG is valid inside ICO). */
-function buildIco(entries) {
+/** Opaque brand tile, artwork inside the platform safe zone. */
+async function opaqueSquare(size, coverage) {
+  const art = await master
+    .clone()
+    .resize(Math.round(size * coverage), Math.round(size * coverage), {
+      fit: "inside",
+      kernel: "lanczos3",
+    })
+    .png()
+    .toBuffer();
+  const meta = await sharp(art).metadata();
+  return sharp({
+    create: { width: size, height: size, channels: 4, background: NIGHT },
+  })
+    .composite([
+      {
+        input: art,
+        left: Math.round((size - (meta.width ?? size)) / 2),
+        top: Math.round((size - (meta.height ?? size)) / 2),
+      },
+    ])
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+}
+
+async function write(path, buffer) {
+  await mkdir(path.replace(/\/[^/]+$/, ""), { recursive: true });
+  await sharp(buffer).toFile(path);
+  return path;
+}
+
+// The in-nav mark keeps the artwork crop: a square canvas would pad a wide
+// composition and make the mark look small in the header.
+await sharp(SOURCE)
+  .trim({ threshold: 1 })
+  .resize({ width: 512, kernel: "lanczos3" })
+  .png({ compressionLevel: 9 })
+  .toFile("public/brand/frelux-mark.png");
+
+await write("public/icon-512.png", await transparentSquare(512, 0.94));
+await write("public/icon-192.png", await transparentSquare(192, 0.94));
+await write("public/favicon-48.png", await transparentSquare(48, 0.98));
+await write("public/favicon-32.png", await transparentSquare(32, 0.98));
+await write("public/favicon-16.png", await transparentSquare(16, 0.98));
+
+// Maskable and Apple icons bleed to the edge: their platform paints the mask.
+await write("public/icon-maskable-512.png", await opaqueSquare(512, 0.7));
+await write("public/apple-touch-icon.png", await opaqueSquare(180, 0.78));
+
+// Legacy raster marks still referenced by share cards.
+for (const path of ["public/logo-mark.png", "public/logo-mark-light.png"]) {
+  await write(path, await transparentSquare(256, 0.94));
+}
+
+/**
+ * Pack PNG buffers into one .ico container. sharp cannot encode ICO, and the
+ * format is a short header plus the PNG payloads Windows already understands.
+ */
+function packIco(images) {
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
   header.writeUInt16LE(1, 2);
-  header.writeUInt16LE(entries.length, 4);
-  const dir = Buffer.alloc(16 * entries.length);
-  let offset = 6 + dir.length;
-  entries.forEach((entry, i) => {
-    const base = i * 16;
-    dir.writeUInt8(entry.size >= 256 ? 0 : entry.size, base);
-    dir.writeUInt8(entry.size >= 256 ? 0 : entry.size, base + 1);
-    dir.writeUInt8(0, base + 2);
-    dir.writeUInt8(0, base + 3);
-    dir.writeUInt16LE(1, base + 4);
-    dir.writeUInt16LE(32, base + 6);
-    dir.writeUInt32LE(entry.png.length, base + 8);
-    dir.writeUInt32LE(offset, base + 12);
-    offset += entry.png.length;
+  header.writeUInt16LE(images.length, 4);
+  let offset = 6 + images.length * 16;
+  const entries = images.map(({ size, data }) => {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(size >= 256 ? 0 : size, 0);
+    entry.writeUInt8(size >= 256 ? 0 : size, 1);
+    entry.writeUInt8(0, 2);
+    entry.writeUInt8(0, 3);
+    entry.writeUInt16LE(1, 4);
+    entry.writeUInt16LE(32, 6);
+    entry.writeUInt32LE(data.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    offset += data.length;
+    return entry;
   });
-  return Buffer.concat([header, dir, ...entries.map((e) => e.png)]);
+  return Buffer.concat([header, ...entries, ...images.map((i) => i.data)]);
 }
 
-const png = (svg, size) =>
-  sharp(Buffer.from(svg), { density: 384 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+// The .ico container holds the three sizes Windows and old browsers ask for.
+const icoImages = await Promise.all(
+  [48, 32, 16].map(async (size) => ({
+    size,
+    data: await transparentSquare(size, 0.98),
+  })),
+);
+await mkdir("public", { recursive: true });
+await writeFile("public/favicon.ico", packIco(icoImages));
 
-async function main() {
-  await mkdir("public/brand", { recursive: true });
-
-  const appMark = markSvg({ glyphScale: 1.08 });
-  const headerMark = markSvg({ radius: 112, glyphScale: 1.08 });
-  const headerMarkDark = markSvg({
-    radius: 112,
-    glyphScale: 1.08,
-    tileTop: BRAND.tileTopDark,
-    tileBottom: BRAND.tileBottomDark,
-  });
-  // Tab icon: slightly flatter radius, crisp optical weight
-  const tabMark = markSvg({ radius: 88, glyphScale: 1.15, plinth: true });
-  // Maskable art must survive an aggressive circular crop: full bleed, small glyph inside safe zone.
-  const maskable = markSvg({ radius: 0, glyphScale: 0.72, plinth: true, bleed: true });
-  // Apple applies its own mask, so the source is a full bleed square.
-  const apple = markSvg({ radius: 0, glyphScale: 0.74, bleed: true });
-
-  await writeFile("public/brand/frelux-mark.svg", appMark);
-  await writeFile("public/brand/frelux-mark-light.svg", headerMarkDark);
-  await writeFile("public/favicon.svg", tabMark);
-
-  await writeFile("public/icon-192.png", await png(appMark, 192));
-  await writeFile("public/icon-512.png", await png(appMark, 512));
-  await writeFile("public/icon-maskable-512.png", await png(maskable, 512));
-  await writeFile("public/apple-touch-icon.png", await png(apple, 180));
-  await writeFile("public/logo-mark.png", await png(headerMark, 256));
-  await writeFile("public/logo-mark-light.png", await png(headerMarkDark, 256));
-
-  const sizes = [16, 32, 48];
-  const icoEntries = [];
-  for (const size of sizes) {
-    const buf = await png(tabMark, size);
-    await writeFile(`public/favicon-${size}.png`, buf);
-    icoEntries.push({ size, png: buf });
-  }
-  await writeFile("public/favicon.ico", buildIco(icoEntries));
-
-  console.log("brand icons written: favicon.svg, favicon.ico (16/32/48), icon-192, icon-512, maskable, apple-touch, logo-mark");
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+console.log("brand icons regenerated from", SOURCE);

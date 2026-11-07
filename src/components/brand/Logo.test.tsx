@@ -45,14 +45,21 @@ describe("Logo", () => {
     expect(screen.getByText("Smart Calc")).toBeTruthy();
   });
 
-  it("pairs the mark edge with the type scale of each size", () => {
-    // The edge measures the artwork, which no longer carries a tile around it.
-    const { container: sm } = render(<Logo size="sm" />);
-    expect(sm.querySelector("img")?.getAttribute("width")).toBe("20");
-    const { container: md } = render(<Logo size="md" />);
-    expect(md.querySelector("img")?.getAttribute("width")).toBe("22");
-    const { container: lg } = render(<Logo size="lg" />);
-    expect(lg.querySelector("img")?.getAttribute("width")).toBe("28");
+  it("pairs the mark height with the type scale of each size", () => {
+    // The artwork is wider than it is tall, so the type scale sets its height
+    // and the width follows the crop's own aspect ratio.
+    for (const [size, edge] of [
+      ["sm", "20px"],
+      ["md", "22px"],
+      ["lg", "28px"],
+    ] as const) {
+      const { container } = render(<Logo size={size} />);
+      const img = container.querySelector("img") as HTMLImageElement | null;
+      expect(img?.style.height, size).toBe(edge);
+      expect(img?.style.width, size).toBe("auto");
+      expect(img?.getAttribute("width")).toBe("512");
+      expect(img?.getAttribute("height")).toBe("315");
+    }
   });
 
   it("keeps the descriptor at or above eleven pixels", () => {
@@ -106,15 +113,13 @@ describe("LogoMark", () => {
     expect(container.querySelector("img")).toBeTruthy();
   });
 
-  it("swaps to the white knock-out for dark surfaces", () => {
-    const light = render(<LogoMark variant="light" />);
-    expect(light.container.querySelector("img")?.getAttribute("src")).toBe(
-      "/brand/frelux-mark-light.svg",
-    );
-    const dark = render(<LogoMark variant="dark" />);
-    expect(dark.container.querySelector("img")?.getAttribute("src")).toBe(
-      "/brand/frelux-mark.svg",
-    );
+  it("uses the one transparent master on both surfaces", () => {
+    for (const variant of ["light", "dark"] as const) {
+      const { container } = render(<LogoMark variant={variant} />);
+      expect(container.querySelector("img")?.getAttribute("src")).toBe(
+        "/brand/frelux-mark.png",
+      );
+    }
   });
 
   it("accepts className", () => {
