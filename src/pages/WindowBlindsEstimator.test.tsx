@@ -75,4 +75,21 @@ describe("WindowBlindsEstimator", () => {
     renderPage();
     expect(screen.getByText("How this was worked out")).toBeTruthy();
   });
+
+  it("fills a whole home from one preset instead of a blank schedule", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /3-bedroom flat/i }));
+    // Eight openings, so the last row must exist and the count must follow.
+    expect(rows().length).toBe(8);
+    expect(screen.getByText("Bathroom")).toBeTruthy();
+    expect(screen.getByText("Living room, main")).toBeTruthy();
+  });
+
+  it("states the job in one plain sentence above the line items", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /3-bedroom flat/i }));
+    expect(
+      screen.getByText(/You are covering 8 windows, about [\d.]+ m2 of blind/i),
+    ).toBeTruthy();
+  });
 });

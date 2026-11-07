@@ -116,4 +116,42 @@ describe("WallpaperCalculator page", () => {
     );
     expect(screen.getByLabelText("Door width (m)")).toBeTruthy();
   });
+
+  it("lays out a whole room from one preset", () => {
+    render(
+      <MemoryRouter>
+        <WallpaperCalculator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Bedroom, 4\.2 x 3\.6 m/i }),
+    );
+    // Four walls at the preset's own dimensions, still editable afterwards.
+    expect(screen.getAllByText("Wall 1 (door)").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Wall 2 (window)").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Wall 4").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("img", {
+        name: /Wall 1 \(door\), 4\.20 m wide by 2\.70 m high/,
+      }),
+    ).toBeTruthy();
+  });
+
+  it("answers in rolls, shop packages and wall covered", () => {
+    render(
+      <MemoryRouter>
+        <WallpaperCalculator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByText(
+        /You need \d+ rolls?, which is \d+ packages? from the shop/i,
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        /of wall, with pattern matching and trimming already counted in/i,
+      ),
+    ).toBeTruthy();
+  });
 });

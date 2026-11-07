@@ -111,4 +111,46 @@ describe("TV console page", () => {
     const reason = await screen.findByTestId("tv-console-reason");
     expect(reason.textContent).toMatch(/back thickness by at least 100 mm/i);
   });
+
+  it("asks for width, height and depth first and keeps joinery in build details", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.queryAllByText(/Board packing:/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+    expect(
+      screen.getByRole("heading", { name: /Size and layout/i }),
+    ).toBeTruthy();
+    expect(screen.getByText(/Build details/i)).toBeTruthy();
+    expect(screen.getByLabelText(/^Width$/i)).toBeTruthy();
+    expect(screen.getByLabelText(/^Depth$/i)).toBeTruthy();
+  });
+
+  it("says what the unit needs in plain words", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.queryAllByText(/Board packing:/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+    expect(screen.getByText(/needs \d+ boards? of 18 mm/i)).toBeTruthy();
+    expect(screen.getByText(/m of edge banding/i)).toBeTruthy();
+  });
+
+  it("reads the layout back in correct plural English", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.queryAllByText(/Board packing:/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+    // Two shelves, one bay: the sentence used to print "2 shelfves".
+    const summary = screen.getByText(/wide unit with .* needs \d+ board/);
+    expect(summary.textContent).toContain("2 shelves");
+    expect(summary.textContent).not.toMatch(/shelfves/);
+    expect(
+      screen.getByRole("heading", { name: /What you need to buy/i }),
+    ).toBeTruthy();
+  });
 });

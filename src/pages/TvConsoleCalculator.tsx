@@ -373,6 +373,20 @@ export default function TvConsoleCalculator() {
   const mainSizeFields = dimensionFields.slice(0, 3);
   const buildDetailFields = dimensionFields.slice(3);
 
+  // A reading of the layout in words, e.g. "2 bays, 3 shelves and 2 doors".
+  const layoutParts = [
+    `${dividers + 1} bay${dividers + 1 === 1 ? "" : "s"}`,
+    ...(shelves > 0
+      ? [`${shelves} ${shelves === 1 ? "shelf" : "shelves"}`]
+      : []),
+    ...(drawers > 0 ? [`${drawers} drawer${drawers === 1 ? "" : "s"}`] : []),
+    ...(doors > 0 ? [`${doors} door${doors === 1 ? "" : "s"}`] : []),
+  ];
+  const layoutPhrase =
+    layoutParts.length === 1
+      ? layoutParts[0]
+      : `${layoutParts.slice(0, -1).join(", ")} and ${layoutParts[layoutParts.length - 1]}`;
+
   const rateFields = [
     ["Carcass board per sheet", sheetPrice, setSheetPrice],
     ["Back board per sheet", backSheetPrice, setBackSheetPrice],
@@ -573,27 +587,22 @@ export default function TvConsoleCalculator() {
 
             <div className="mt-5 rounded-xl bg-muted/50 p-4">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-medium">
-                  What you need to buy
-                </span>
+                <h2 className="text-sm font-medium">What you need to buy</h2>
                 <Badge variant="outline">Preliminary</Badge>
               </div>
               {result ? (
                 <>
                   <p className="mt-3 text-sm text-foreground">
                     A {(width / 1000).toFixed(1)} m wide unit with{" "}
-                    {dividers + 1} bay{dividers + 1 === 1 ? "" : "s"}
-                    {shelves > 0 &&
-                      `, ${shelves} shelf${shelves === 1 ? "" : "ves"}`}
-                    {drawers > 0 &&
-                      `, ${drawers} drawer${drawers === 1 ? "" : "s"}`}
-                    {doors > 0 && `, ${doors} door${doors === 1 ? "" : "s"}`}{" "}
-                    takes {result.carcassSheets.sheetsWithAllowance} {thickness}{" "}
-                    mm board
-                    {result.carcassSheets.sheetsWithAllowance === 1 ? "" : "s"}
+                    {layoutPhrase} needs{" "}
+                    {result.carcassSheets.sheetsWithAllowance} board
+                    {result.carcassSheets.sheetsWithAllowance === 1
+                      ? ""
+                      : "s"}{" "}
+                    of {thickness} mm
                     {result.backSheets.sheetsWithAllowance > 0 &&
                       ` plus ${result.backSheets.sheetsWithAllowance} backing board${result.backSheets.sheetsWithAllowance === 1 ? "" : "s"}`}
-                    , with {result.edgeBandingMetres.toFixed(1)} m of edge
+                    , and about {result.edgeBandingMetres.toFixed(1)} m of edge
                     banding.
                   </p>
                   <figure className="mt-3 overflow-hidden rounded-xl border bg-background p-3">

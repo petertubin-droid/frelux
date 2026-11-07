@@ -479,8 +479,8 @@ export default function WindowBlindsEstimator() {
                 Start with a typical home
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Tap the closest match. It fills the whole schedule, then you
-                only change the windows that differ.
+                Tap the closest match. It replaces the openings below with a
+                full schedule, then you change only the windows that differ.
               </p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {HOME_PRESETS.map((preset) => (

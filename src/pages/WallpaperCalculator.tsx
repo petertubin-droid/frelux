@@ -400,9 +400,9 @@ export default function WallpaperCalculator() {
                 Start with a room
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Pick the room you are papering. It lays out the four walls at a
-                normal ceiling height, then you change only the walls that
-                differ.
+                Pick the room you are papering. It replaces the walls below with
+                that room at a normal ceiling height, then you change only the
+                walls that differ.
               </p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {ROOM_PRESETS.map((preset) => (
