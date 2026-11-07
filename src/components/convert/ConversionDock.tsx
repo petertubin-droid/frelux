@@ -73,7 +73,7 @@ export default function ConversionDock() {
   if (!isCalculatorPath(pathname)) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-24 right-4 z-40 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed bottom-[calc(6rem+var(--frelux-bottom-ad-h,0px))] right-4 z-40 sm:bottom-6 sm:right-6">
       <div className="pointer-events-auto">
         {open && (
           <div

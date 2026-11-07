@@ -25,7 +25,11 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="surface-float fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-30 rounded-[26px] md:hidden"
+      // The offset below the navigation lives in index.css
+      // (.mobile-bottom-nav): it is the bar's original 0.75rem plus the bottom
+      // ad's published height, which is 0px when nothing is showing, so the bar
+      // never moves on its own.
+      className="mobile-bottom-nav surface-float fixed inset-x-3 z-30 mx-auto max-w-[520px] rounded-[26px] md:hidden"
       aria-label="Bottom navigation"
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />

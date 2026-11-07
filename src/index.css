@@ -1060,6 +1060,23 @@
    ============================================================ */
 
 /* The wrapper around every rendered ad */
+/* The bottom navigation anchors itself above whatever the bottom ad slot
+   publishes. --frelux-bottom-ad-h is 0px while no ad is on screen, so the bar
+   keeps its original 12px inset; when a creative fills, the slot writes its
+   measured height and the bar lifts by exactly that much. */
+.mobile-bottom-nav {
+  bottom: calc(
+    0.75rem + env(safe-area-inset-bottom, 0px) + var(--frelux-bottom-ad-h, 0px)
+  );
+  transition: bottom 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-bottom-nav {
+    transition: none;
+  }
+}
+
 .frelux-ad-unit {
   max-width: 100%;
   overflow: hidden;

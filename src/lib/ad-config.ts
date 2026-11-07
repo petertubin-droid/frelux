@@ -163,6 +163,10 @@ export const ADSENSE_ONLY_PLACEMENT_KEYS = [
   "adsense_paint_calculator",
   "adsense_colors",
   "adsense_learn",
+  // Anchored under the bottom navigation. AdSense only: this position sits
+  // against the site's own chrome, where a low-quality creative is most likely
+  // to be mistaken for part of the page.
+  "adsense_bottom",
 ] as const;
 
 function adsenseOnlyPlacement(key: string): DbAdPlacement {

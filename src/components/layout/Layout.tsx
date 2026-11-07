@@ -38,6 +38,7 @@ const SupportChatWidget = lazy(
   () => import("@/components/layout/SupportChatWidget"),
 );
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
+const BottomAdSlot = lazy(() => import("@/components/ads/BottomAdSlot"));
 const NeonFrame = lazy(() => import("@/components/ui/NeonFrame"));
 const OfflineIndicator = lazy(() =>
   import("@/components/ui/OfflineIndicator").then((m) => ({
@@ -597,6 +598,14 @@ export default function Layout() {
           )}
         <Outlet />
         <LocalePrompt />
+        {/* Holds the space the bottom ad occupies, so the last line of a long
+            calculator can be scrolled above it instead of under it. Collapses
+            to zero while no ad is showing. */}
+        <div
+          aria-hidden="true"
+          data-bottom-ad-spacer="true"
+          className="h-[var(--frelux-bottom-ad-h,0px)] md:hidden"
+        />
       </main>
       {/* Owner directive 2026-10-29: the sticky bottom anchor was removed
           because it covered the mobile bottom navigation. No ad may be
@@ -625,6 +634,7 @@ export default function Layout() {
       <Suspense fallback={null}>
         <ConversionDock />
         <MobileBottomNav />
+        <BottomAdSlot />
       </Suspense>
       <Suspense fallback={null}>
         <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />

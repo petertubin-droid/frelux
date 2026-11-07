@@ -1419,7 +1419,7 @@ export default function AdSlot({
       <iframe
         title="ayeT-Studios Offerwall"
         src={offerwallUrl}
-        className="w-full border-0 rounded-lg"
+        className="w-full border-0 rounded-xl"
         style={{
           minHeight: "450px",
           height: "480px",
@@ -1459,7 +1459,9 @@ export default function AdSlot({
   if (hideLabel) {
     return (
       <div
-        className={className}
+        // Curvy edges match the site's own surfaces, and the clip keeps a
+        // network iframe inside that radius instead of squaring off the corners.
+        className={`overflow-hidden rounded-2xl ${className ?? ""}`}
         ref={wrapperRef}
         style={adsenseUnfilled ? { display: "none" } : undefined}
       >
@@ -1474,7 +1476,7 @@ export default function AdSlot({
     return (
       <div
         ref={wrapperRef}
-        className={`frelux-ad-unit ${className ?? ""}`}
+        className={`frelux-ad-unit overflow-hidden rounded-2xl ${className ?? ""}`}
         data-ad-slot-key={slotKey}
         data-ad-filled="false"
         style={adsenseUnfilled ? { display: "none" } : { margin: "0 auto" }}
@@ -1487,11 +1489,11 @@ export default function AdSlot({
   return (
     <div
       ref={wrapperRef}
-      className={`frelux-ad-unit ${className ?? ""}`}
+      className={`frelux-ad-unit overflow-hidden rounded-2xl ${className ?? ""}`}
       style={{
-        /* Clear visual separation from content, once a real ad is present */
-        borderTop: "1px solid rgba(0,0,0,0.04)",
-        borderBottom: "1px solid rgba(0,0,0,0.04)",
+        /* Curvy edges as the rest of the site: a hairline border instead of
+           edge-to-edge rules, so an ad reads as a card sitting on the page. */
+        border: "1px solid rgba(0,0,0,0.05)",
         padding: "8px 0",
         margin: "0 auto",
       }}

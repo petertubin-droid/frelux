@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { readFileSync } from "fs";
 import { MemoryRouter } from "react-router-dom";
 import MobileBottomNav from "@/components/ui/MobileBottomNav";
 
@@ -99,5 +100,40 @@ describe("MobileBottomNav", () => {
     renderNav();
     // No number badge should appear
     expect(screen.queryByText("0")).toBeNull();
+  });
+
+  it("sits exactly where it always has when no bottom ad is showing", () => {
+    render(
+      <MemoryRouter>
+        <MobileBottomNav />
+      </MemoryRouter>,
+    );
+    const nav = screen.getByRole("navigation", { name: "Bottom navigation" });
+    // The ad's published height is the only variable in the offset, and it
+    // resolves to 0px when nothing is filled.
+    // jsdom cannot parse env(), so the rule is checked where it lives.
+    const css = readFileSync("src/index.css", "utf8");
+    expect(nav.className).toContain("mobile-bottom-nav");
+    expect(css).toContain(".mobile-bottom-nav {");
+    expect(css).toContain("var(--frelux-bottom-ad-h, 0px)");
+    expect(nav.className).toContain("md:hidden");
+  });
+
+  it("lifts by the ad height without changing its own size or alignment", () => {
+    render(
+      <MemoryRouter>
+        <MobileBottomNav />
+      </MemoryRouter>,
+    );
+    const nav = screen.getByRole("navigation", { name: "Bottom navigation" });
+    // Responsive, but the same bar: one centred strip capped on wider phones,
+    // still inset by the same 12px on either side.
+    expect(nav.className).toContain("mx-auto");
+    expect(nav.className).toContain("max-w-[520px]");
+    expect(nav.className).toContain("inset-x-3");
+    expect(nav.className).toContain("rounded-[26px]");
+    expect(readFileSync("src/index.css", "utf8")).toContain(
+      "transition: bottom 200ms ease",
+    );
   });
 });

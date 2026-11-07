@@ -173,7 +173,7 @@ export function CampaignSlot({
     return (
       <div
         ref={frameRef}
-        className={`rounded-lg border border-dashed bg-card/60 px-4 py-2.5 text-sm ${className}`}
+        className={`overflow-hidden rounded-2xl border border-dashed bg-card/60 px-4 py-2.5 text-sm ${className}`}
       >
         <span className="mr-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           {badge}
@@ -193,7 +193,7 @@ export function CampaignSlot({
     return (
       <div
         ref={frameRef}
-        className={`overflow-hidden rounded-xl border bg-card ${className}`}
+        className={`overflow-hidden rounded-2xl border bg-card ${className}`}
       >
         <Destination
           {...destinationProps}
