@@ -17,6 +17,12 @@ vi.mock("@/lib/analytics", () => ({
   track: vi.fn(),
   logAnalyticsEvent: vi.fn(),
 }));
+vi.mock("@/lib/estimation/screed-prices", () => ({
+  // Price precedence is covered in screed-prices.test.ts; the page tests only
+  // need the configured prices to pass through.
+  resolveScreedPrices: vi.fn(async (cfg: unknown) => cfg),
+}));
+
 vi.mock("@/lib/queries", () => ({
   logAnalyticsEvent: vi.fn(),
   fetchScreedingSystemConfig: vi.fn(),

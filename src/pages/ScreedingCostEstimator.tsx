@@ -1,5 +1,4 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -23,6 +22,8 @@ import {
   resolveEffectiveCoats,
   dbToSystemConfig,
 } from "@/lib/calc";
+import { resolveScreedPrices } from "@/lib/estimation/screed-prices";
+
 import { calculateLabourCost } from "@/lib/labour";
 import {
   printQuote,
@@ -39,7 +40,6 @@ import { formatCurrency, formatNumber } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent, fetchScreedingSystemConfig } from "@/lib/queries";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
-import { type MaterialRole } from "@/lib/estimation/market-materials";
 import type {
   ScreedingSystemConfig,
   ScreedingSystemResult,
@@ -85,53 +85,6 @@ interface AvailableSystem {
   displayName: string;
   description: string | null;
   icon: typeof PaintBucket;
-}
-
-/**
- * Market-aware price resolution for screed system configs.
- *
- * Own-market config rows ship WITHOUT per-unit prices - those live in the
- * market's verified price book (Admin Scan provenance) and are resolved
- * here by material role: putty/joint filler -> "joint-filler", screeding
- * paint -> "interior-paint", cement -> "concrete-mix". A role with no
- * verified price resolves to null and the estimate flags the line as
- * unpriced - never guessed.
- *
- * When a foreign market falls back to the NG reference config, the NG
- * quantities describe the NG technique, so its NGN prices would be
- * meaningless in the visitor's currency: the prices are cleared and the
- * estimate honestly reports "price not configured" for that market.
- */
-async function resolveScreedPrices<T extends ScreedingSystemConfig>(
-  cfg: T,
-  rowMarket: string | undefined,
-  userMarket: string,
-  citySlug?: string | null,
-): Promise<T> {
-  if (!rowMarket || rowMarket === userMarket) {
-    const resolve = async (
-      role: MaterialRole,
-      current: number | null,
-    ): Promise<number | null> => {
-      if (current != null && current > 0) return current;
-      // City figure where the evidence supports one, otherwise the market
-      // price. The resolver never substitutes across cities or currencies.
-      const res = await resolveCityAwarePriceByRole(role, userMarket, citySlug);
-      return res?.price?.price ?? null;
-    };
-    return {
-      ...cfg,
-      puttyPricePerUnit: await resolve("joint-filler", cfg.puttyPricePerUnit),
-      paintPricePerUnit: await resolve("interior-paint", cfg.paintPricePerUnit),
-      cementPricePerUnit: await resolve("concrete-mix", cfg.cementPricePerUnit),
-    };
-  }
-  return {
-    ...cfg,
-    puttyPricePerUnit: null,
-    paintPricePerUnit: null,
-    cementPricePerUnit: null,
-  };
 }
 
 export default function ScreedingCostEstimator({
