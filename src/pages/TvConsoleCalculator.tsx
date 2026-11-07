@@ -25,6 +25,7 @@ import { useToast } from "@/components/ui/Toast";
 import { supabase } from "@/lib/supabase";
 import { useCurrencyCode } from "@/lib/international/market-context";
 import { TV_CONSOLE_TEMPLATES } from "@/lib/tv-console/templates";
+import ConsoleElevation from "@/components/tv-console/ConsoleElevation";
 import { calculateConsoleEstimate } from "@/lib/tv-console/calculator";
 
 const number = (v: string, fallback: number) =>
@@ -266,13 +267,14 @@ export default function TvConsoleCalculator() {
     setWidth(template.widthMm);
     setHeight(template.heightMm);
     setDepth(template.depthMm);
-    setThickness(18);
-    setBackThickness(6);
-    setShelves(2);
-    setDividers(0);
-    setDrawers(0);
-    setDoors(0);
-    setReveal(2);
+    setThickness(template.layout.thicknessMm);
+    setBackThickness(template.layout.backThicknessMm);
+    setShelves(template.layout.shelves);
+    setDividers(template.layout.dividers);
+    setDrawers(template.layout.drawers);
+    setDrawerFrontHeight(template.layout.drawerFrontHeightMm);
+    setDoors(template.layout.doors);
+    setReveal(template.layout.revealMm);
     setExtraction(null);
   };
 
@@ -388,14 +390,18 @@ export default function TvConsoleCalculator() {
         subtitle="Choose a concept, set the carcass details, and see the panel arithmetic, the packed sheet count, edge banding, hardware and a full cost roll-up from your own rates. Planning estimate, not a cut list."
       />
       <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
-        <section aria-labelledby="templates-title" className="space-y-4">
+        <section
+          aria-labelledby="templates-title"
+          className="min-w-0 space-y-4"
+        >
           <div className="flex items-end justify-between gap-3">
             <div>
               <h2 id="templates-title" className="text-xl font-semibold">
                 Choose a design direction
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Room photographs are visual references, not exact product plans.
+                Each preset is drawn to scale from its own dimensions, drawer,
+                door and shelf counts. No stock photography is used.
               </p>
             </div>
             <Badge variant="outline">10 editable presets</Badge>
@@ -409,15 +415,24 @@ export default function TvConsoleCalculator() {
                 aria-pressed={selectedId === item.id}
                 className={`group overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-lg ${selectedId === item.id ? "border-primary ring-2 ring-primary/20" : "border-border"}`}
               >
-                <div className="relative aspect-[16/10] bg-muted">
-                  <img
-                    src={item.imageUrl}
-                    alt={`${item.name} interior reference`}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                <div className="relative flex aspect-[2/1] items-center justify-center bg-muted/40 p-4">
+                  <ConsoleElevation
+                    layout={{
+                      widthMm: item.widthMm,
+                      heightMm: item.heightMm,
+                      thicknessMm: item.layout.thicknessMm,
+                      shelves: item.layout.shelves,
+                      dividers: item.layout.dividers,
+                      drawers: item.layout.drawers,
+                      drawerFrontHeightMm: item.layout.drawerFrontHeightMm,
+                      doors: item.layout.doors,
+                      revealMm: item.layout.revealMm,
+                    }}
+                    depthMm={item.depthMm}
+                    label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors`}
                   />
                   <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] backdrop-blur">
-                    Reference image
+                    Calculated elevation
                   </span>
                   {selectedId === item.id && (
                     <span className="absolute left-3 top-3 rounded-full bg-primary p-1.5 text-primary-foreground">
@@ -433,22 +448,13 @@ export default function TvConsoleCalculator() {
                   <p className="text-xs font-medium tabular-nums text-foreground">
                     {item.widthMm} × {item.heightMm} × {item.depthMm} mm
                   </p>
-                  <a
-                    className="text-[10px] text-muted-foreground underline underline-offset-2"
-                    href={item.imagePage}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Photo: {item.imageCredit}
-                  </a>
                 </div>
               </button>
             ))}
           </div>
         </section>
 
-        <section className="space-y-5">
+        <section className="min-w-0 space-y-5">
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
             <div className="mb-5 flex items-center gap-3">
               <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
@@ -465,7 +471,7 @@ export default function TvConsoleCalculator() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {dimensionFields.map(([label, value, setter, min, max, step]) => (
-                <div key={label} className="space-y-1.5">
+                <div key={label} className="min-w-0 space-y-1.5">
                   <Label htmlFor={`console-${label}`}>{label}</Label>
                   <Input
                     id={`console-${label}`}
@@ -478,7 +484,7 @@ export default function TvConsoleCalculator() {
                   />
                 </div>
               ))}
-              <div className="space-y-1.5">
+              <div className="min-w-0 space-y-1.5">
                 <Label htmlFor="console-currency">Currency code</Label>
                 <Input
                   id="console-currency"
@@ -510,7 +516,7 @@ export default function TvConsoleCalculator() {
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 {rateFields.map(([label, value, setter]) => (
-                  <div key={label} className="space-y-1">
+                  <div key={label} className="min-w-0 space-y-1">
                     <Label htmlFor={`rate-${label}`} className="text-xs">
                       {label}
                     </Label>
@@ -537,6 +543,31 @@ export default function TvConsoleCalculator() {
               </div>
               {result ? (
                 <>
+                  <figure className="mt-3 overflow-hidden rounded-xl border bg-background p-3">
+                    <div className="aspect-[2/1] w-full sm:aspect-[5/2]">
+                      <ConsoleElevation
+                        layout={{
+                          widthMm: width,
+                          heightMm: height,
+                          thicknessMm: thickness,
+                          shelves,
+                          dividers,
+                          drawers,
+                          drawerFrontHeightMm: drawerFrontHeight,
+                          doors,
+                          revealMm: reveal,
+                        }}
+                        depthMm={depth}
+                        annotate
+                        label={`Front elevation of the current configuration, ${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
+                      />
+                    </div>
+                    <figcaption className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                      Drawn to scale from the values above, using the same
+                      thicknesses as the panel schedule. Depth is captioned
+                      because an elevation cannot show it.
+                    </figcaption>
+                  </figure>
                   <div className="mt-3 grid grid-cols-2 gap-3">
                     <div>
                       <div className="text-2xl font-bold tabular-nums">
@@ -586,7 +617,7 @@ export default function TvConsoleCalculator() {
                   {result.carcassSheets.oversizedParts.length +
                     result.backSheets.oversizedParts.length >
                     0 && (
-                    <p className="mt-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground">
+                    <p className="mt-2 break-words rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground">
                       Oversized:{" "}
                       {[
                         ...result.carcassSheets.oversizedParts,
@@ -827,7 +858,7 @@ export default function TvConsoleCalculator() {
                     This is not verified measurement. Compare against a real
                     measurement and correct values above.
                   </p>
-                  <div className="grid grid-cols-3 gap-2 text-sm">
+                  <div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-3 sm:gap-2">
                     <span>
                       Width: {extraction.widthMm ?? "not estimated"} mm
                     </span>
@@ -915,11 +946,13 @@ export default function TvConsoleCalculator() {
         </div>
       </section>
       <section className="rounded-2xl border p-5">
-        <h2 className="font-semibold">Reference photo notes</h2>
+        <h2 className="font-semibold">About the preset drawings</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The photos are mood references, not exact product designs, shop
-          drawings or tested furniture. The ten dimensions and material
-          descriptions are configurable concept presets; confirm local material
+          Each preset drawing is generated from that preset's own width, height,
+          board thickness, bay, shelf, drawer and door counts, so it is a scaled
+          elevation of the unit the estimator prices rather than a photograph of
+          different furniture. It is not a shop drawing: it omits joinery,
+          fixings, wall support and grain direction. Confirm local material
           availability and all project specifications.
         </p>
       </section>

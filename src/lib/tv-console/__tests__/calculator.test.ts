@@ -3,10 +3,31 @@ import {
   calculateConsoleEstimate,
   dimensionsFromTemplate,
   hingesPerDoor,
+  type ConsoleDimensions,
 } from "../calculator";
 import { TV_CONSOLE_TEMPLATES } from "../templates";
 
-const base = () => dimensionsFromTemplate(TV_CONSOLE_TEMPLATES[0]);
+/**
+ * A fixed configuration, stated here rather than taken from a preset, so these
+ * assertions pin the engine's arithmetic and cannot drift when a preset's own
+ * layout changes.
+ */
+const base = (): ConsoleDimensions => ({
+  widthMm: 1800,
+  heightMm: 400,
+  depthMm: 350,
+  panelThicknessMm: 18,
+  backPanelThicknessMm: 6,
+  shelfCount: 2,
+  dividerCount: 0,
+  drawerCount: 0,
+  drawerFrontHeightMm: 200,
+  doorCount: 0,
+  doorRevealMm: 2,
+  sheetWidthMm: 1220,
+  sheetLengthMm: 2440,
+  wastePercent: 10,
+});
 const line = (
   result: ReturnType<typeof calculateConsoleEstimate>,
   part: string,
@@ -20,8 +41,28 @@ describe("TV console calculator", () => {
       expect(template.widthMm).toBeGreaterThan(0);
       expect(template.heightMm).toBeGreaterThan(0);
       expect(template.depthMm).toBeGreaterThan(0);
-      expect(template.imagePage).toMatch(/^https:\/\//);
+      // A preset carries a layout, not a photograph: its picture is drawn.
+      expect(template.layout.shelves).toBeGreaterThanOrEqual(0);
+      expect(template.layout.dividers).toBeGreaterThanOrEqual(0);
+      expect(template.layout.thicknessMm).toBeGreaterThan(0);
     }
+  });
+
+  it("carries a preset's own carcass and layout into the estimate", () => {
+    const preset = TV_CONSOLE_TEMPLATES.find(
+      (t) => t.id === "charcoal-floating",
+    )!;
+    const mapped = dimensionsFromTemplate(preset);
+    expect(mapped.panelThicknessMm).toBe(preset.layout.thicknessMm);
+    expect(mapped.backPanelThicknessMm).toBe(preset.layout.backThicknessMm);
+    expect(mapped.shelfCount).toBe(preset.layout.shelves);
+    expect(mapped.dividerCount).toBe(preset.layout.dividers);
+    expect(mapped.drawerCount).toBe(preset.layout.drawers);
+    expect(mapped.doorCount).toBe(preset.layout.doors);
+    expect(mapped.doorRevealMm).toBe(preset.layout.revealMm);
+    // The drawer bank the preset advertises must reach the hardware and slides.
+    const result = calculateConsoleEstimate(mapped);
+    expect(result.hardware.drawerSlidePairs).toBe(preset.layout.drawers);
   });
 
   it("deducts the back thickness so the finished unit matches the entered depth", () => {
