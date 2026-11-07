@@ -53,8 +53,8 @@ describe("StructuralCalculator", () => {
 
   it("re-runs the capacity check on the slab tab with a per-metre strip", async () => {
     await renderPage();
-    const slabButton = (await screen.findAllByRole("button")).find((b) =>
-      b.textContent?.includes("Slab Design"),
+    const slabButton = (await screen.findAllByRole("button")).find(
+      (b) => b.textContent?.trim() === "Slab",
     );
     expect(slabButton).toBeTruthy();
     fireEvent.click(slabButton!);
@@ -68,8 +68,8 @@ describe("StructuralCalculator", () => {
 
   it("runs the wind load tab: peak velocity pressure with indicative-market honesty", async () => {
     await renderPage();
-    const windButton = (await screen.findAllByRole("button")).find((b) =>
-      b.textContent?.includes("Wind Load"),
+    const windButton = (await screen.findAllByRole("button")).find(
+      (b) => b.textContent?.trim() === "Wind",
     );
     expect(windButton).toBeTruthy();
     fireEvent.click(windButton!);
@@ -84,7 +84,7 @@ describe("StructuralCalculator", () => {
   it("runs the BBS tab: BS 8666 cutting length, mass and BVBS export", async () => {
     await renderPage();
     const bbsButton = (await screen.findAllByRole("button")).find((b) =>
-      b.textContent?.includes("Bar Schedule"),
+      b.textContent?.toLowerCase().includes("bar schedule"),
     );
     expect(bbsButton).toBeTruthy();
     fireEvent.click(bbsButton!);
@@ -98,7 +98,7 @@ describe("StructuralCalculator", () => {
   it("runs the seismic detailing tab: SDC-derived detailing and notes", async () => {
     await renderPage();
     const seismicButton = (await screen.findAllByRole("button")).find((b) =>
-      b.textContent?.includes("Seismic Detailing"),
+      b.textContent?.toLowerCase().includes("earthquake"),
     );
     expect(seismicButton).toBeTruthy();
     fireEvent.click(seismicButton!);
@@ -121,7 +121,7 @@ describe("StructuralCalculator", () => {
 
     // The takeoff lives on its own tab; the page opens on the beam tab.
     const concreteTab = (await screen.findAllByRole("button")).find((b) =>
-      b.textContent?.includes("Concrete Takeoff"),
+      b.textContent?.toLowerCase().includes("concrete volume"),
     );
     expect(concreteTab).toBeTruthy();
     fireEvent.click(concreteTab!);
@@ -142,5 +142,37 @@ describe("StructuralCalculator", () => {
     expect(
       screen.queryByText(/Material quantity schedule/i),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("StructuralCalculator navigation", () => {
+  it("names each tab in words a client uses, with the question it answers", async () => {
+    await renderPage();
+    const buttons = await screen.findAllByRole("button");
+    const labels = [
+      "Beam",
+      "Column",
+      "Slab",
+      "Wind",
+      "Earthquake",
+      "Bar schedule",
+      "Concrete volume",
+    ];
+    for (const label of labels) {
+      expect(buttons.some((b) => b.textContent?.trim() === label)).toBe(true);
+    }
+    // The hint under the tabs changes with the tab, so the row of buttons reads
+    // as a menu of answers rather than a list of engineering disciplines.
+    expect(
+      screen.getByText(/How deep and how heavily reinforced/),
+    ).toBeInTheDocument();
+    fireEvent.click(
+      buttons.find((b) => b.textContent?.trim() === "Concrete volume")!,
+    );
+    expect(
+      await screen.findByText(
+        /How much concrete does this element actually use/,
+      ),
+    ).toBeInTheDocument();
   });
 });

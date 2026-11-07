@@ -113,6 +113,18 @@ import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
+/** One question per tab, so the row of buttons reads as a menu of answers. */
+const TAB_HINTS: Record<Tab, string> = {
+  beam: "How deep and how heavily reinforced does a beam need to be for this span?",
+  column:
+    "How big does a column need to be to carry this load over this height?",
+  slab: "How thick does a slab need to be, one-way or two-way?",
+  wind: "What wind pressure does this height and terrain produce?",
+  seismic: "What detailing does this structure need where the ground shakes?",
+  bbs: "What length and weight of bar does this shape need on site?",
+  concrete: "How much concrete does this element actually use?",
+};
+
 // Printable engineering design sheet: full results, checks,
 // formula transparency and warnings for a beam/column/slab run.
 function exportDesignSheet(args: {
@@ -178,7 +190,7 @@ export default function StructuralCalculator() {
         variant="tool"
         eyebrow="Engineering Tool"
         title={t("Structural Engineering Calculator")}
-        subtitle="Preliminary beam, column, and slab sizing estimates with formula transparency, plus a preliminary per-code capacity check on the recommended section. This tool does not certify jurisdictional code compliance. A locally licensed structural engineer must verify designs before use or construction."
+        subtitle="Size a beam, column or slab from its span and load, see the formula behind every number, and check the section you land on. Preliminary sizing only: a licensed structural engineer must verify anything that gets built."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -191,13 +203,13 @@ export default function StructuralCalculator() {
         <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
           {(
             [
-              { id: "beam", label: "Beam Design", icon: Ruler },
-              { id: "column", label: "Column Design", icon: Layers },
-              { id: "slab", label: "Slab Design", icon: TrendingUp },
-              { id: "wind", label: "Wind Load", icon: Wind },
-              { id: "seismic", label: "Seismic Detailing", icon: Activity },
-              { id: "bbs", label: "Bar Schedule (BBS)", icon: ListTree },
-              { id: "concrete", label: "Concrete Takeoff", icon: Calculator },
+              { id: "beam", label: "Beam", icon: Ruler },
+              { id: "column", label: "Column", icon: Layers },
+              { id: "slab", label: "Slab", icon: TrendingUp },
+              { id: "wind", label: "Wind", icon: Wind },
+              { id: "seismic", label: "Earthquake", icon: Activity },
+              { id: "bbs", label: "Bar schedule", icon: ListTree },
+              { id: "concrete", label: "Concrete volume", icon: Calculator },
             ] as const
           ).map((t) => (
             <Button
@@ -215,6 +227,10 @@ export default function StructuralCalculator() {
             </Button>
           ))}
         </div>
+
+        <p className="mb-6 -mt-2 text-sm text-muted-foreground">
+          {TAB_HINTS[tab]}
+        </p>
 
         {tab === "beam" && <BeamCalculator />}
         {tab === "column" && <ColumnCalculator />}
