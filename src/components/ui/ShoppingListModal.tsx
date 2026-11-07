@@ -86,7 +86,7 @@ export function ShoppingListModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="relative flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-border bg-card shadow-2xl dark:border-border dark:bg-card">
+      <div className="surface-float relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-[26px]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4 dark:border-border">
           <div className="flex items-center gap-3">

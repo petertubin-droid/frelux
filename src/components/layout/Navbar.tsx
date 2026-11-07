@@ -219,7 +219,7 @@ export default function Navbar() {
               variant="ghost"
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-card-foreground transition-all hover:bg-muted active:scale-95 lg:hidden dark:text-muted-foreground/60 dark:hover:bg-white/5"
+              className="glass-control inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-all active:scale-95 lg:hidden dark:text-card-foreground"
               aria-label="Open menu"
               aria-expanded={mobileOpen}
             >
@@ -272,14 +272,14 @@ export default function Navbar() {
                       <div className="absolute left-0 top-full z-50 pt-1">
                         {/* Premium mega-menu panel */}
                         <div
-                          className="origin-top-left rounded-3xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
+                          className="surface-float origin-top-left rounded-[26px]"
                           style={{
                             animation:
                               "navDropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both",
                           }}
                         >
                           {/* Dropdown header bar */}
-                          <div className="flex items-center justify-between rounded-t-2xl border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-primary/10">
+                          <div className="flex items-center justify-between rounded-t-[26px] border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-primary/10">
                             <NavLink
                               to={workspace.path}
                               className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
@@ -485,7 +485,7 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
+                  className="surface-float absolute right-0 top-full z-50 mt-2 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-[22px] animate-fade-in-up"
                   style={{
                     animationDuration: "0.18s",
                     transformOrigin: "top right",
@@ -721,12 +721,12 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "absolute left-0 top-0 h-full w-[318px] max-w-[88vw] overflow-y-auto overscroll-contain rounded-r-3xl border-r border-border/50 bg-card/95 shadow-[24px_0_60px_-40px_rgba(16,12,40,0.65)] backdrop-blur-2xl transition-transform duration-300 ease-out dark:border-white/10 dark:bg-background/95",
+            "surface-sheet absolute left-2 top-2 h-[calc(100%-1rem)] w-[318px] max-w-[88vw] overflow-y-auto overscroll-contain rounded-[26px] transition-transform duration-300 ease-out",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           {/* Drawer header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border/50 bg-gradient-to-b from-primary/[0.07] to-transparent px-4 py-3.5 backdrop-blur-xl dark:border-white/5">
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3.5 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
             <Link
               to="/"
               onClick={() => setMobileOpen(false)}

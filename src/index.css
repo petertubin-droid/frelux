@@ -444,6 +444,51 @@
       inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
       0 22px 56px -30px rgba(0, 0, 0, 0.8);
   }
+
+  /* Small glass triggers (hamburger, icon buttons): same language at
+     control scale, slightly clearer than a panel so the glyph stays sharp. */
+  .glass-control {
+    background-color: hsl(var(--card) / 0.7);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.55);
+    border-radius: 14px;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+      0 8px 20px -16px rgba(16, 12, 40, 0.5);
+  }
+  .glass-control:hover {
+    background-color: hsl(var(--card) / 0.86);
+  }
+  .dark .glass-control {
+    background-color: hsl(var(--card) / 0.62);
+    border-color: hsl(0 0% 100% / 0.12);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
+      0 10px 24px -18px rgba(0, 0, 0, 0.8);
+  }
+  .dark .glass-control:hover {
+    background-color: hsl(var(--card) / 0.8);
+  }
+
+  /* Long-scroll sheets need a touch more body than a menu, otherwise
+     item text sits on busy content. Still translucent, still blurred. */
+  .surface-sheet {
+    background-color: hsl(var(--card) / 0.92);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+    backdrop-filter: blur(28px) saturate(150%);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+      0 28px 70px -34px rgba(16, 12, 40, 0.6);
+  }
+  .dark .surface-sheet {
+    background-color: hsl(var(--card) / 0.88);
+    border-color: hsl(0 0% 100% / 0.1);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 30px 80px -36px rgba(0, 0, 0, 0.85);
+  }
   /* Opaque equivalents: no blur support, or a visitor who asked the OS for
      less transparency or more contrast. */
   @supports not (
@@ -455,6 +500,20 @@
   }
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
     .surface-float {
+      background-color: hsl(var(--card));
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass-control,
+    .surface-sheet {
+      background-color: hsl(var(--card));
+    }
+  }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .glass-control,
+    .surface-sheet {
       background-color: hsl(var(--card));
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
