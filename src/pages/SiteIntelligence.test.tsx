@@ -9,6 +9,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { describeScreening } from "./SiteIntelligence";
 
 const queries = vi.hoisted(() => ({
   fetchSoilClassifications: vi.fn(),
@@ -40,9 +41,15 @@ vi.mock("@/lib/international/market-context", () => ({
 vi.mock("@/lib/price-index/use-project-city", () => ({
   useProjectCity: () => ({ citySlug: "lagos" }),
 }));
-vi.mock("@/lib/map/geocode", () => ({ searchPlaces: vi.fn().mockResolvedValue([]) }));
+vi.mock("@/lib/map/geocode", () => ({
+  searchPlaces: vi.fn().mockResolvedValue([]),
+}));
 vi.mock("@/lib/supabase", () => ({
-  supabase: { auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }) } },
+  supabase: {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: "u1" } } }),
+    },
+  },
 }));
 vi.mock("@/components/ui/PageHeader", () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
@@ -87,13 +94,48 @@ describe("SiteIntelligence page", () => {
     screening.buildScreening.mockResolvedValue({
       latitude: 6.5,
       longitude: 3.3,
-      elevation_m: { value: 12.4, confidence: "screening", source: "Elevation model", limitation: "Not a survey." },
-      slope_degrees: { value: 1.2, confidence: "screening", source: "Elevation model", limitation: "Not a survey." },
-      coastal_distance_km: { value: 3.1, confidence: "screening", source: "Coastline reference", limitation: "Straight line." },
-      flood_exposure: { value: null, confidence: "unknown", source: null, limitation: "No sourced record for this location yet." },
-      drainage_note: { value: null, confidence: "unknown", source: null, limitation: "No sourced drainage record." },
-      groundwater_note: { value: null, confidence: "unknown", source: null, limitation: "No sourced groundwater record." },
-      erosion_note: { value: null, confidence: "unknown", source: null, limitation: "No sourced erosion record." },
+      elevation_m: {
+        value: 12.4,
+        confidence: "screening",
+        source: "Elevation model",
+        limitation: "Not a survey.",
+      },
+      slope_degrees: {
+        value: 1.2,
+        confidence: "screening",
+        source: "Elevation model",
+        limitation: "Not a survey.",
+      },
+      coastal_distance_km: {
+        value: 3.1,
+        confidence: "screening",
+        source: "Coastline reference",
+        limitation: "Straight line.",
+      },
+      flood_exposure: {
+        value: null,
+        confidence: "unknown",
+        source: null,
+        limitation: "No sourced record for this location yet.",
+      },
+      drainage_note: {
+        value: null,
+        confidence: "unknown",
+        source: null,
+        limitation: "No sourced drainage record.",
+      },
+      groundwater_note: {
+        value: null,
+        confidence: "unknown",
+        source: null,
+        limitation: "No sourced groundwater record.",
+      },
+      erosion_note: {
+        value: null,
+        confidence: "unknown",
+        source: null,
+        limitation: "No sourced erosion record.",
+      },
       regional_profile: null,
       generated_at: "2026-10-31T00:00:00Z",
     });
@@ -107,9 +149,7 @@ describe("SiteIntelligence page", () => {
 
   it("explains that a classification carries no strength value", () => {
     renderPage();
-    expect(
-      screen.getByText(/carries no strength value/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/carries no strength value/i)).toBeInTheDocument();
   });
 
   it("refuses to compare scenarios without a bearing capacity", async () => {
@@ -140,19 +180,35 @@ describe("SiteIntelligence page", () => {
         bearing_check_pass: true,
         applied_pressure_kpa: 120,
       },
-      warnings: ["Bearing capacity is an unverified assumption entered by the user."],
-      cost: { currency: "NGN", lines: [], subtotal: null, unpriced: ["Cement"], price_basis: {} },
+      warnings: [
+        "Bearing capacity is an unverified assumption entered by the user.",
+      ],
+      cost: {
+        currency: "NGN",
+        lines: [],
+        subtotal: null,
+        unpriced: ["Cement"],
+        price_basis: {},
+      },
     });
 
     renderPage();
-    const bearingInput = screen.getAllByLabelText(/Allowable bearing capacity/i)[0];
+    const bearingInput = screen.getAllByLabelText(
+      /Allowable bearing capacity/i,
+    )[0];
     fireEvent.change(bearingInput, { target: { value: "150" } });
     fireEvent.click(screen.getByRole("button", { name: /Compare scenarios/i }));
 
-    await waitFor(() => expect(foundation.runScenario).toHaveBeenCalledTimes(5));
+    await waitFor(() =>
+      expect(foundation.runScenario).toHaveBeenCalledTimes(5),
+    );
     expect(await screen.findByText(/Strip foundation/)).toBeInTheDocument();
-    expect(screen.getByText(/does not choose a foundation/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Incomplete: Cement/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/does not choose a foundation/i),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Incomplete: Cement/i).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("reports the cost basis it used", async () => {
@@ -185,7 +241,9 @@ describe("SiteIntelligence page", () => {
     });
 
     renderPage();
-    const bearingInput = screen.getAllByLabelText(/Allowable bearing capacity/i)[0];
+    const bearingInput = screen.getAllByLabelText(
+      /Allowable bearing capacity/i,
+    )[0];
     fireEvent.change(bearingInput, { target: { value: "150" } });
     fireEvent.click(screen.getByRole("button", { name: /Compare scenarios/i }));
 
@@ -193,5 +251,112 @@ describe("SiteIntelligence page", () => {
     expect(
       await screen.findByText(/Labour, plant and margin are excluded/i),
     ).toBeInTheDocument();
+  });
+});
+
+describe("plain-language site summary", () => {
+  const make = (over: Partial<Record<string, unknown>>) =>
+    ({
+      latitude: 6.6,
+      longitude: 3.35,
+      elevation_m: {
+        value: 45,
+        confidence: "screening",
+        source: "terrain",
+        limitation: "",
+      },
+      slope_degrees: {
+        value: 1.2,
+        confidence: "screening",
+        source: "terrain",
+        limitation: "",
+      },
+      coastal_distance_km: {
+        value: 40,
+        confidence: "screening",
+        source: "published",
+        limitation: "",
+      },
+      flood_exposure: {
+        value: "low",
+        confidence: "screening",
+        source: "published",
+        limitation: "",
+      },
+      drainage_note: {
+        value: "",
+        confidence: "screening",
+        source: null,
+        limitation: "",
+      },
+      groundwater_note: {
+        value: "",
+        confidence: "screening",
+        source: null,
+        limitation: "",
+      },
+      erosion_note: {
+        value: "",
+        confidence: "screening",
+        source: null,
+        limitation: "",
+      },
+      regional_profile: null,
+      generated_at: "2026-11-07T00:00:00Z",
+      ...over,
+    }) as never;
+
+  it("says what flat, low-lying ground means in ordinary words", () => {
+    const text = describeScreening(
+      make({
+        elevation_m: {
+          value: 3,
+          confidence: "screening",
+          source: "t",
+          limitation: "",
+        },
+      }),
+    );
+    expect(text).toMatch(/close to flat/);
+    expect(text).toMatch(/drainage/);
+  });
+
+  it("warns about cost where the ground falls steeply", () => {
+    const text = describeScreening(
+      make({
+        slope_degrees: {
+          value: 14,
+          confidence: "screening",
+          source: "t",
+          limitation: "",
+        },
+      }),
+    );
+    expect(text).toMatch(/retaining and terracing/);
+  });
+
+  it("flags high flood exposure and a nearby coast", () => {
+    const text = describeScreening(
+      make({
+        flood_exposure: {
+          value: "high",
+          confidence: "screening",
+          source: "t",
+          limitation: "",
+        },
+        coastal_distance_km: {
+          value: 4,
+          confidence: "screening",
+          source: "t",
+          limitation: "",
+        },
+      }),
+    );
+    expect(text).toMatch(/flood exposure high/);
+    expect(text).toMatch(/salt/);
+  });
+
+  it("always closes on the limit of a desk study", () => {
+    expect(describeScreening(make({}))).toMatch(/replaces a test pit/);
   });
 });

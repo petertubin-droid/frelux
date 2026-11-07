@@ -30,7 +30,10 @@ import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { searchPlaces, type PlaceResult } from "@/lib/map/geocode";
 import { supabase } from "@/lib/supabase";
 import { buildScreening, slopeBand } from "@/lib/site-intelligence/screening";
-import { runScenario, ScenarioInputError } from "@/lib/site-intelligence/foundation";
+import {
+  runScenario,
+  ScenarioInputError,
+} from "@/lib/site-intelligence/foundation";
 import {
   fetchMyProjects,
   fetchReports,
@@ -66,7 +69,8 @@ const naira = new Intl.NumberFormat("en-NG", {
 
 function ConfidenceChip({ level }: { level: string }) {
   const styles: Record<string, string> = {
-    screening: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    screening:
+      "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
     sourced: "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300",
     unknown: "border-border bg-muted text-muted-foreground",
   };
@@ -82,6 +86,64 @@ function ConfidenceChip({ level }: { level: string }) {
       {labels[level] ?? level}
     </span>
   );
+}
+
+/** Places most enquiries start from, so the first step is a tap not a guess. */
+const PLACE_SHORTCUTS = [
+  "Ikeja, Lagos",
+  "Lekki, Lagos",
+  "Abuja",
+  "Port Harcourt",
+];
+
+/**
+ * Turn the screening record into the sentence an owner would say out loud,
+ * before the row-by-row detail with its confidence and source columns.
+ */
+export function describeScreening(screening: SiteScreening): string {
+  const parts: string[] = [];
+  const elevation = screening.elevation_m.value;
+  const slope = screening.slope_degrees.value;
+  const flood = screening.flood_exposure.value;
+  const coast = screening.coastal_distance_km.value;
+
+  if (elevation != null) {
+    parts.push(
+      elevation < 5
+        ? `The ground sits low, about ${elevation} m above sea level, which is where drainage needs watching`
+        : `The ground sits about ${elevation} m above sea level`,
+    );
+  } else {
+    parts.push("The terrain model has no elevation for this exact point");
+  }
+
+  if (slope != null) {
+    parts.push(
+      slope < 2
+        ? "it is close to flat, so cut and fill should be small"
+        : slope < 8
+          ? `it falls at roughly ${slope}°, so expect some levelling`
+          : `it falls steeply at roughly ${slope}°, so retaining and terracing will drive cost`,
+    );
+  }
+
+  if (flood && flood !== "unknown") {
+    parts.push(
+      flood === "high"
+        ? "regional mapping puts flood exposure high here, so check the drainage path before siting the slab"
+        : flood === "moderate"
+          ? "regional mapping shows moderate flood exposure"
+          : "regional mapping shows low flood exposure",
+    );
+  }
+
+  if (coast != null && coast < 15) {
+    parts.push(
+      `the coast is about ${coast} km away, so salt and groundwater depth are worth asking about`,
+    );
+  }
+
+  return `${parts.join("; ")}. None of this replaces a test pit on the plot.`;
 }
 
 function ScreeningRow({
@@ -103,9 +165,15 @@ function ScreeningRow({
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <ConfidenceChip level={confidence} />
       </div>
-      <p className="mt-1 text-sm font-medium">{value ?? "No data for this location"}</p>
-      {source && <p className="mt-0.5 text-[11px] text-muted-foreground">{source}</p>}
-      {limitation && <p className="mt-1 text-[11px] text-muted-foreground">{limitation}</p>}
+      <p className="mt-1 text-sm font-medium">
+        {value ?? "No data for this location"}
+      </p>
+      {source && (
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{source}</p>
+      )}
+      {limitation && (
+        <p className="mt-1 text-[11px] text-muted-foreground">{limitation}</p>
+      )}
     </div>
   );
 }
@@ -140,7 +208,8 @@ export default function SiteIntelligence() {
 
   // Scenario assumptions, all user supplied.
   const [bearing, setBearing] = useState("");
-  const [bearingSource, setBearingSource] = useState<BearingSource>("user_assumption");
+  const [bearingSource, setBearingSource] =
+    useState<BearingSource>("user_assumption");
   const [depth, setDepth] = useState("1.0");
   const [wallLoad, setWallLoad] = useState("40");
   const [columnLoad, setColumnLoad] = useState("600");
@@ -159,7 +228,8 @@ export default function SiteIntelligence() {
 
   // Reports
   const [reports, setReports] = useState<GeotechReport[]>([]);
-  const [reportType, setReportType] = useState<GeotechReport["report_type"]>("soil_investigation");
+  const [reportType, setReportType] =
+    useState<GeotechReport["report_type"]>("soil_investigation");
   const [reportTitle, setReportTitle] = useState("");
   const [reportPreparedBy, setReportPreparedBy] = useState("");
   const [reportBearing, setReportBearing] = useState("");
@@ -210,20 +280,24 @@ export default function SiteIntelligence() {
     return verified[0]?.bearing_capacity_kpa ?? null;
   }, [reports]);
 
-  const handleSearch = useCallback(async () => {
-    if (query.trim().length < 3) return;
-    setSearching(true);
-    setError(null);
-    try {
-      const found = await searchPlaces(query.trim());
-      setResults(found.slice(0, 6));
-      if (!found.length) setError("No place matched that search.");
-    } catch {
-      setError("The place search is unavailable right now.");
-    } finally {
-      setSearching(false);
-    }
-  }, [query]);
+  const handleSearch = useCallback(
+    async (term?: string) => {
+      const text = (term ?? query).trim();
+      if (text.length < 3) return;
+      setSearching(true);
+      setError(null);
+      try {
+        const found = await searchPlaces(text);
+        setResults(found.slice(0, 6));
+        if (!found.length) setError("No place matched that search.");
+      } catch {
+        setError("The place search is unavailable right now.");
+      } finally {
+        setSearching(false);
+      }
+    },
+    [query],
+  );
 
   const choose = (coords: { lat: number; lon: number }, label?: string) => {
     setPoint(coords);
@@ -241,7 +315,8 @@ export default function SiteIntelligence() {
     setSaving(true);
     setError(null);
     const { site, error: saveError } = await saveSite({
-      label: address || `Site at ${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}`,
+      label:
+        address || `Site at ${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}`,
       latitude: point.lat,
       longitude: point.lon,
       address: address || null,
@@ -298,7 +373,11 @@ export default function SiteIntelligence() {
       );
       setScenarios(results);
     } catch (e) {
-      setError(e instanceof ScenarioInputError ? e.message : "The comparison could not run.");
+      setError(
+        e instanceof ScenarioInputError
+          ? e.message
+          : "The comparison could not run.",
+      );
     } finally {
       setRunning(false);
     }
@@ -330,7 +409,9 @@ export default function SiteIntelligence() {
       return;
     }
     setReports((prev) => [report, ...prev]);
-    setMessage("Report attached as unverified. A reviewer must confirm its findings.");
+    setMessage(
+      "Report attached as unverified. A reviewer must confirm its findings.",
+    );
     setReportFile(null);
     setReportTitle("");
     setReportBearing("");
@@ -357,19 +438,35 @@ export default function SiteIntelligence() {
       />
 
       <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6">
-        <div className="flex gap-3 rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
-          <ShieldAlert aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-          <p>
-            <strong>Screening, not a survey.</strong> Values marked as screening come from
-            terrain models and published regional sources. They cannot identify your soil,
-            prove a bearing capacity, or justify a foundation choice. Every foundation
-            decision needs a geotechnical investigation and structural engineer review.
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
+          <p className="flex gap-3">
+            <ShieldAlert
+              aria-hidden="true"
+              className="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
+            />
+            <span>
+              <strong>Screening, not a survey.</strong> These figures come from
+              terrain models, so treat them as a first look at the ground, never
+              as a soil test.
+            </span>
           </p>
+          <details className="mt-2 pl-7">
+            <summary className="cursor-pointer text-xs font-medium text-amber-700 dark:text-amber-400">
+              Read the full limits
+            </summary>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              Values marked as screening come from terrain models and published
+              regional sources. They cannot identify your soil, prove a bearing
+              capacity, or justify a foundation choice. Every foundation
+              decision needs a geotechnical investigation and structural
+              engineer review.
+            </p>
+          </details>
         </div>
 
         {/* 1. Location */}
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">1. Project location</h2>
+          <h2 className="text-lg font-semibold">1. Where is the site?</h2>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
               <Search
@@ -385,9 +482,35 @@ export default function SiteIntelligence() {
                 className="h-10 w-full rounded-md border border-border/70 bg-card pl-9 pr-3 text-sm"
               />
             </div>
-            <Button onClick={handleSearch} disabled={searching || query.trim().length < 3}>
-              {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
+            <Button
+              onClick={() => void handleSearch()}
+              disabled={searching || query.trim().length < 3}
+            >
+              {searching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Search"
+              )}
             </Button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              Common starting points:
+            </span>
+            {PLACE_SHORTCUTS.map((place) => (
+              <button
+                key={place}
+                type="button"
+                onClick={() => {
+                  setQuery(place);
+                  void handleSearch(place);
+                }}
+                className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-brand-purple/40 hover:text-foreground"
+              >
+                {place}
+              </button>
+            ))}
           </div>
 
           {results.length > 0 && (
@@ -424,7 +547,10 @@ export default function SiteIntelligence() {
               height={320}
               label="Project site location picker"
               onPickCoordinate={(coords) =>
-                choose(coords, `Map point (${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)})`)
+                choose(
+                  coords,
+                  `Map point (${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)})`,
+                )
               }
               emptyTitle="Tap the map to place your site"
               emptyHint="Or search an address above."
@@ -452,8 +578,16 @@ export default function SiteIntelligence() {
                   ))}
                 </select>
               )}
-              <Button variant="outline" onClick={handleSaveSite} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save this site"}
+              <Button
+                variant="outline"
+                onClick={handleSaveSite}
+                disabled={saving}
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Save this site"
+                )}
               </Button>
             </div>
           )}
@@ -461,10 +595,12 @@ export default function SiteIntelligence() {
 
         {/* 2. Soil */}
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold">2. Ground conditions as you understand them</h2>
+          <h2 className="text-lg font-semibold">
+            2. What do you know about the ground?
+          </h2>
           <p className="text-sm text-muted-foreground">
-            A classification describes material. It carries no strength value, and selecting
-            one does not establish what is under your site.
+            A classification describes material. It carries no strength value,
+            and selecting one does not establish what is under your site.
           </p>
           <select
             value={soilSlug}
@@ -483,9 +619,13 @@ export default function SiteIntelligence() {
           {selectedClass && (
             <div className="rounded-lg border border-border/70 bg-card p-4 text-sm">
               <p className="font-medium">{selectedClass.name}</p>
-              <p className="mt-1 text-muted-foreground">{selectedClass.summary}</p>
+              <p className="mt-1 text-muted-foreground">
+                {selectedClass.summary}
+              </p>
               <p className="mt-2">{selectedClass.engineering_notes}</p>
-              <p className="mt-2 text-muted-foreground">{selectedClass.implication}</p>
+              <p className="mt-2 text-muted-foreground">
+                {selectedClass.implication}
+              </p>
               <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
                 {selectedClass.dewatering_flag && (
                   <span className="rounded-full border border-border px-2 py-0.5">
@@ -507,16 +647,27 @@ export default function SiteIntelligence() {
 
         {/* 3. Screening */}
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold">3. What can be screened here</h2>
+          <h2 className="text-lg font-semibold">3. What maps can tell us</h2>
           {screeningBusy && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Screening this location…
+              <Loader2 className="h-4 w-4 animate-spin" /> Screening this
+              location…
             </p>
           )}
           {!point && (
             <p className="text-sm text-muted-foreground">
               Choose a location to see screening information.
             </p>
+          )}
+          {screening && (
+            <div className="rounded-lg border border-border bg-card p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                In plain terms
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground">
+                {describeScreening(screening)}
+              </p>
+            </div>
           )}
           {screening && (
             <div className="grid gap-3 sm:grid-cols-2">
@@ -598,18 +749,23 @@ export default function SiteIntelligence() {
 
         {/* 4. Scenarios */}
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">4. Preliminary scenario comparison</h2>
+          <h2 className="text-lg font-semibold">
+            4. Compare foundation options
+          </h2>
           <div className="flex gap-3 rounded-xl border border-border/70 bg-muted/40 p-3 text-sm">
             <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
-              This compares cost and quantity consequences of assumptions you enter. It does
-              not choose a foundation, and it does not replace design.
+              This compares cost and quantity consequences of assumptions you
+              enter. It does not choose a foundation, and it does not replace
+              design.
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className="text-xs">
-              <span className="text-muted-foreground">Allowable bearing capacity (kN/m²)</span>
+              <span className="text-muted-foreground">
+                Allowable bearing capacity (kN/m²)
+              </span>
               <input
                 value={bearing}
                 onChange={(e) => setBearing(e.target.value)}
@@ -619,10 +775,14 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Where the value came from</span>
+              <span className="text-muted-foreground">
+                Where the value came from
+              </span>
               <select
                 value={bearingSource}
-                onChange={(e) => setBearingSource(e.target.value as BearingSource)}
+                onChange={(e) =>
+                  setBearingSource(e.target.value as BearingSource)
+                }
                 className="mt-1 h-9 w-full rounded-md border border-border/70 bg-card px-2 text-sm"
               >
                 <option value="user_assumption">My own assumption</option>
@@ -675,7 +835,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Area to improve (m²)</span>
+              <span className="text-muted-foreground">
+                Area to improve (m²)
+              </span>
               <input
                 value={improveArea}
                 onChange={(e) => setImproveArea(e.target.value)}
@@ -702,7 +864,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Piling rate (currency per m)</span>
+              <span className="text-muted-foreground">
+                Piling rate (currency per m)
+              </span>
               <input
                 value={pileRate}
                 onChange={(e) => setPileRate(e.target.value)}
@@ -712,7 +876,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Ground improvement rate (per m²)</span>
+              <span className="text-muted-foreground">
+                Ground improvement rate (per m²)
+              </span>
               <input
                 value={improveRate}
                 onChange={(e) => setImproveRate(e.target.value)}
@@ -722,7 +888,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Dewatering allowance (amount)</span>
+              <span className="text-muted-foreground">
+                Dewatering allowance (amount)
+              </span>
               <input
                 value={dewatering}
                 onChange={(e) => setDewatering(e.target.value)}
@@ -735,14 +903,18 @@ export default function SiteIntelligence() {
 
           {verifiedBearing && (
             <p className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400">
-              <ShieldCheck aria-hidden="true" className="h-4 w-4" />
-              A reviewed report gives {verifiedBearing} kN/m². Use it here if it applies to
+              <ShieldCheck aria-hidden="true" className="h-4 w-4" />A reviewed
+              report gives {verifiedBearing} kN/m². Use it here if it applies to
               this site.
             </p>
           )}
 
           <Button onClick={handleCompare} disabled={running}>
-            {running ? <Loader2 className="h-4 w-4 animate-spin" /> : "Compare scenarios"}
+            {running ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Compare scenarios"
+            )}
           </Button>
 
           {scenarios.length > 0 && (
@@ -763,15 +935,23 @@ export default function SiteIntelligence() {
                       <td className="px-3 py-2 font-medium">
                         {FOUNDATION_TYPES.find((f) => f.key === type)?.label}
                       </td>
-                      <td className="px-3 py-2">{result.quantities.excavation_m3} m³</td>
-                      <td className="px-3 py-2">{result.quantities.concrete_m3} m³</td>
-                      <td className="px-3 py-2">{result.quantities.reinforcement_kg} kg</td>
+                      <td className="px-3 py-2">
+                        {result.quantities.excavation_m3} m³
+                      </td>
+                      <td className="px-3 py-2">
+                        {result.quantities.concrete_m3} m³
+                      </td>
+                      <td className="px-3 py-2">
+                        {result.quantities.reinforcement_kg} kg
+                      </td>
                       <td className="px-3 py-2">
                         {result.cost?.subtotal != null ? (
                           naira.format(result.cost.subtotal)
                         ) : (
                           <span className="text-muted-foreground">
-                            Incomplete: {result.cost?.unpriced.join(", ") || "no priced lines"}
+                            Incomplete:{" "}
+                            {result.cost?.unpriced.join(", ") ||
+                              "no priced lines"}
                           </span>
                         )}
                       </td>
@@ -785,17 +965,24 @@ export default function SiteIntelligence() {
           {scenarios.some((s) => s.result.warnings.length) && (
             <div className="space-y-2 rounded-xl border border-border/70 bg-card p-4 text-xs">
               <p className="flex items-center gap-2 font-medium">
-                <AlertTriangle aria-hidden="true" className="h-4 w-4 text-amber-600" />
+                <AlertTriangle
+                  aria-hidden="true"
+                  className="h-4 w-4 text-amber-600"
+                />
                 Assumptions behind these numbers
               </p>
               <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                {Array.from(new Set(scenarios.flatMap((s) => s.result.warnings))).map((w) => (
+                {Array.from(
+                  new Set(scenarios.flatMap((s) => s.result.warnings)),
+                ).map((w) => (
                   <li key={w}>{w}</li>
                 ))}
                 <li>
                   Material lines use the FRELUX Material Price Index
-                  {citySlug ? ` for ${citySlug.replace(/-/g, " ")}` : " at the national median"}.
-                  Labour, plant and margin are excluded.
+                  {citySlug
+                    ? ` for ${citySlug.replace(/-/g, " ")}`
+                    : " at the national median"}
+                  . Labour, plant and margin are excluded.
                 </li>
               </ul>
             </div>
@@ -804,11 +991,12 @@ export default function SiteIntelligence() {
 
         {/* 5. Reports */}
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">5. Geotechnical reports</h2>
+          <h2 className="text-lg font-semibold">5. Reports you already have</h2>
           <p className="text-sm text-muted-foreground">
-            Attach soil investigation reports, borehole logs, laboratory results, bearing
-            capacity or groundwater reports. Findings stay unverified until a reviewer
-            confirms them, and only then can they be used as a verified bearing capacity.
+            Attach soil investigation reports, borehole logs, laboratory
+            results, bearing capacity or groundwater reports. Findings stay
+            unverified until a reviewer confirms them, and only then can they be
+            used as a verified bearing capacity.
           </p>
 
           <div className="grid gap-3 rounded-xl border border-border/70 bg-card p-4 sm:grid-cols-2">
@@ -816,13 +1004,19 @@ export default function SiteIntelligence() {
               <span className="text-muted-foreground">Report type</span>
               <select
                 value={reportType}
-                onChange={(e) => setReportType(e.target.value as GeotechReport["report_type"])}
+                onChange={(e) =>
+                  setReportType(e.target.value as GeotechReport["report_type"])
+                }
                 className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
               >
-                <option value="soil_investigation">Soil investigation report</option>
+                <option value="soil_investigation">
+                  Soil investigation report
+                </option>
                 <option value="borehole_log">Borehole log</option>
                 <option value="laboratory">Laboratory results</option>
-                <option value="bearing_capacity">Bearing capacity report</option>
+                <option value="bearing_capacity">
+                  Bearing capacity report
+                </option>
                 <option value="groundwater">Groundwater report</option>
               </select>
             </label>
@@ -836,7 +1030,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Prepared by (firm or engineer)</span>
+              <span className="text-muted-foreground">
+                Prepared by (firm or engineer)
+              </span>
               <input
                 value={reportPreparedBy}
                 onChange={(e) => setReportPreparedBy(e.target.value)}
@@ -856,7 +1052,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs sm:col-span-2">
-              <span className="text-muted-foreground">Document (PDF, image or Word, max 25 MB)</span>
+              <span className="text-muted-foreground">
+                Document (PDF, image or Word, max 25 MB)
+              </span>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
@@ -870,7 +1068,8 @@ export default function SiteIntelligence() {
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    <FileUp aria-hidden="true" className="mr-2 h-4 w-4" /> Attach report
+                    <FileUp aria-hidden="true" className="mr-2 h-4 w-4" />{" "}
+                    Attach report
                   </>
                 )}
               </Button>
@@ -885,7 +1084,10 @@ export default function SiteIntelligence() {
           {reports.length > 0 && (
             <ul className="divide-y divide-border/60 overflow-hidden rounded-xl border border-border/70 bg-card">
               {reports.map((r) => (
-                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
+                <li
+                  key={r.id}
+                  className="flex flex-wrap items-center justify-between gap-2 p-3"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{r.title}</p>
                     <p className="text-xs text-muted-foreground">
@@ -910,7 +1112,11 @@ export default function SiteIntelligence() {
                       )}
                       {r.verification_status}
                     </span>
-                    <Button variant="ghost" size="sm" onClick={() => openReport(r.storage_path)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openReport(r.storage_path)}
+                    >
                       Open
                     </Button>
                   </div>
