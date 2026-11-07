@@ -14,11 +14,13 @@ import { useState } from "react";
  *  - "hero":   rich treatment behind the dark hero surface (image ~0.35)
  *  - "footer": visible texture behind footer content (light-safe scrim)
  *  - "page":   whisper-quiet texture behind ordinary page content
+ *  - "drawer": the same texture inside the translucent mobile menu sheet,
+ *              weighted so the panel stays glassy without washing out text
  */
 export default function BrandBackdrop({
   variant = "page",
 }: {
-  variant?: "hero" | "footer" | "page";
+  variant?: "hero" | "footer" | "page" | "drawer";
 }) {
   const [ready, setReady] = useState(false);
 
@@ -30,21 +32,44 @@ export default function BrandBackdrop({
     // background to keep text contrast.
     hero: {
       img: 0.35,
+      imgDark: 0.35,
       grid: 0.5,
       glows: true,
       scrim: false,
+      scrimClass: "",
+      darkScrimClass: "",
     },
     footer: {
       img: 0.22,
+      imgDark: 0.3,
       grid: 0.35,
       glows: true,
       scrim: true,
+      scrimClass: "bg-background/85",
+      darkScrimClass:
+        "hidden dark:block dark:bg-[linear-gradient(180deg,transparent_0%,transparent_60%,rgba(10,10,26,0.25)_100%)]",
     },
     page: {
       img: 0.12,
+      imgDark: 0.18,
       grid: 0.25,
       glows: false,
       scrim: true,
+      scrimClass: "bg-background/85",
+      darkScrimClass:
+        "hidden dark:block dark:bg-[linear-gradient(180deg,transparent_0%,transparent_60%,rgba(10,10,26,0.25)_100%)]",
+    },
+    // The sheet behind this is already card/0.92 (light) or card/0.88
+    // (dark), so the image needs less lifting back toward the surface
+    // than the footer does.
+    drawer: {
+      img: 0.16,
+      imgDark: 0.38,
+      grid: 0.3,
+      glows: true,
+      scrim: true,
+      scrimClass: "bg-background/45",
+      darkScrimClass: "hidden dark:block dark:bg-background/8",
     },
   }[variant];
 
@@ -62,9 +87,16 @@ export default function BrandBackdrop({
         onLoad={() => setReady(true)}
         onError={() => setReady(true)}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-out ${
-          ready ? "opacity-[var(--bd-img)]" : "opacity-0"
+          ready
+            ? "opacity-[var(--bd-img)] dark:opacity-[var(--bd-img-dark)]"
+            : "opacity-0"
         }`}
-        style={{ "--bd-img": config.img } as React.CSSProperties}
+        style={
+          {
+            "--bd-img": config.img,
+            "--bd-img-dark": config.imgDark,
+          } as React.CSSProperties
+        }
       />
 
       {/* Blueprint grid: the technical line detail from the entry screen */}
@@ -92,8 +124,8 @@ export default function BrandBackdrop({
           softens the grid toward the bottom edge. */}
       {config.scrim && (
         <>
-          <div className="absolute inset-0 bg-background/85 dark:bg-background/30" />
-          <div className="absolute inset-0 hidden dark:block dark:bg-[linear-gradient(180deg,transparent_0%,transparent_60%,rgba(10,10,26,0.25)_100%)]" />
+          <div className={`absolute inset-0 ${config.scrimClass}`} />
+          <div className={`absolute inset-0 ${config.darkScrimClass}`} />
         </>
       )}
     </div>

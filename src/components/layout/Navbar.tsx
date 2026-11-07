@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import Logo from "@/components/brand/Logo";
+import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { navWorkspaces, siteConfig, type NavChild } from "@/config/site";
 import { classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
@@ -721,314 +722,325 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "surface-sheet absolute left-2 top-2 h-[calc(100%-1rem)] w-[318px] max-w-[88vw] overflow-y-auto overscroll-contain rounded-[26px] transition-transform duration-300 ease-out",
+            "surface-sheet absolute left-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
-          {/* Drawer header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3.5 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
-            <Link
-              to="/"
-              onClick={() => setMobileOpen(false)}
-              aria-label="FRELUX home"
-              className="group min-w-0 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-            >
-              <Logo decorative />
-            </Link>
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={() => setMobileOpen(false)}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 dark:hover:bg-white/5"
-              aria-label="Close menu"
-            >
-              <X className="h-[18px] w-[18px]" />
-            </Button>
-          </div>
-
-          {/* Quick tools: the two surfaces people ask for by name. Kept
-              above the collapsible workspaces so they are not three taps
-              deep inside a dropdown section. */}
-          <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
-            <p className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Quick tools
-            </p>
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              {[
-                {
-                  label: "Unit Converter",
-                  to: "/unit-converter",
-                  icon: Calculator,
-                },
-                {
-                  label: "Building types",
-                  to: "/building-types",
-                  icon: Building2,
-                },
-                { label: "Explore Map", to: "/map", icon: Map },
-                { label: "Price book", to: "/prices", icon: BookOpen },
-                {
-                  label: "All tools",
-                  to: "/construction-tools",
-                  icon: LayoutGrid,
-                },
-              ].map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setMobileOpen(false)}
-                  className="group flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-2.5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:border-brand-purple/30 hover:bg-muted dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                    <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  <ChevronRight
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5"
-                  />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Drawer nav, collapsible sections */}
-          <div className="px-3 py-4">
-            {navWorkspaces.map((workspace) => (
-              <div key={t(workspace.label)} className="mb-1">
-                {workspace.children ? (
-                  <>
-                    <Button
-                      variant="ghost"
-                      onClick={() =>
-                        setMobileExpanded(
-                          mobileExpanded === workspace.label
-                            ? null
-                            : workspace.label,
-                        )
-                      }
-                      className={classNames(
-                        "relative flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
-                        location.pathname.startsWith(workspace.path)
-                          ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                          : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
-                      )}
-                    >
-                      {t(workspace.label)}
-                      <ChevronDown
-                        className={classNames(
-                          "h-4 w-4 transition-transform duration-200",
-                          mobileExpanded === workspace.label && "rotate-180",
-                        )}
-                      />
-                    </Button>
-                    {mobileExpanded === workspace.label && (
-                      <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                        {groupBySection(workspace.children).map((group, gi) => {
-                          const groupKey = `${t(workspace.label)}/${group.section ?? "general"}`;
-                          const renderLinks = (indent: string) =>
-                            group.items.map((child) => (
-                              <NavLink
-                                key={child.path}
-                                to={child.path}
-                                onClick={() => setMobileOpen(false)}
-                                className={({ isActive }) =>
-                                  classNames(
-                                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                                    indent,
-                                    isActive
-                                      ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                      : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
-                                  )
-                                }
-                              >
-                                <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                                {getMarketNavigationLabel(
-                                  child.path,
-                                  marketCode,
-                                  child.label,
-                                )}
-                              </NavLink>
-                            ));
-                          // No section name (e.g. Services): show the links
-                          // directly. No pointless "More" dropdown.
-                          if (!group.section) {
-                            return (
-                              <div key={gi} className="mb-1.5 space-y-0.5">
-                                {renderLinks("")}
-                              </div>
-                            );
-                          }
-                          // Named section (Materials & Finishes, Building
-                          // Structure, ...): collapsible dropdown.
-                          return (
-                            <div key={gi} className="mb-1.5">
-                              <button
-                                type="button"
-                                aria-expanded={mobileSubExpanded === groupKey}
-                                onClick={() =>
-                                  setMobileSubExpanded(
-                                    mobileSubExpanded === groupKey
-                                      ? null
-                                      : groupKey,
-                                  )
-                                }
-                                className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
-                              >
-                                {t(group.section)}
-                                <ChevronDown
-                                  className={classNames(
-                                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
-                                    mobileSubExpanded === groupKey &&
-                                      "rotate-180",
-                                  )}
-                                />
-                              </button>
-                              {mobileSubExpanded === groupKey && (
-                                <div className="mt-0.5 space-y-0.5 pl-2">
-                                  {renderLinks("")}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                ) : workspace.external ? (
-                  <a
-                    href={workspace.path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-                  >
-                    {t(workspace.label)}
-                  </a>
-                ) : (
-                  <NavLink
-                    to={workspace.path}
-                    className={({ isActive }) =>
-                      classNames(
-                        "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
-                        isActive
-                          ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                          : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
-                      )
-                    }
-                  >
-                    {t(workspace.label)}
-                  </NavLink>
-                )}
-              </div>
-            ))}
-
-            {/* Language, Accessibility & Theme, stacked for narrow drawer */}
-            <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
-              <AccessibilityToggle inline={true} />
-              <LanguageSwitcher inline={true} />
-              <CurrencySwitcher inline={true} />
-              <MarketSelector inline={true} />
+          {/* Same architectural backdrop as the hero and footer, held
+              still while the menu list scrolls over it. */}
+          <BrandBackdrop variant="drawer" />
+          <div className="relative flex-1 overflow-y-auto overscroll-contain">
+            {/* Drawer header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3.5 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
+              <Link
+                to="/"
+                onClick={() => setMobileOpen(false)}
+                aria-label="FRELUX home"
+                className="group min-w-0 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <Logo decorative />
+              </Link>
               <Button
                 variant="ghost"
                 type="button"
-                onClick={toggle}
-                aria-label="Toggle dark mode"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 dark:hover:bg-white/5"
+                aria-label="Close menu"
               >
-                {theme === "dark" ? (
-                  <Sun className="h-4 w-4" />
-                ) : (
-                  <Moon className="h-4 w-4" />
-                )}
-                <span>Dark mode</span>
-                <span
-                  className={classNames(
-                    "ml-auto text-xs",
-                    theme === "dark"
-                      ? "text-brand-purple dark:text-brand-purple-lighter"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {theme === "dark" ? "On" : "Off"}
-                </span>
+                <X className="h-[18px] w-[18px]" />
               </Button>
             </div>
 
-            {/* Email contact */}
-            <a
-              href={`mailto:${siteConfig.email}`}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-            >
-              <Mail className="h-4 w-4" />
-              <span>Email us</span>
-            </a>
-
-            {/* AI Credit info */}
-            {user && (
-              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-primary/5 to-transparent p-3 dark:from-primary/10">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground">
-                    <Bot className="h-3.5 w-3.5" />
-                  </span>
-                  <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
-                    AI Credits
-                  </p>
+            {/* Quick tools: the two surfaces people ask for by name. Kept
+              above the collapsible workspaces so they are not three taps
+              deep inside a dropdown section. */}
+            <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
+              <p className="px-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Quick tools
+              </p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {[
+                  {
+                    label: "Unit Converter",
+                    to: "/unit-converter",
+                    icon: Calculator,
+                  },
+                  {
+                    label: "Building types",
+                    to: "/building-types",
+                    icon: Building2,
+                  },
+                  { label: "Explore Map", to: "/map", icon: Map },
+                  { label: "Price book", to: "/prices", icon: BookOpen },
+                  {
+                    label: "All tools",
+                    to: "/construction-tools",
+                    icon: LayoutGrid,
+                  },
+                ].map((item) => (
                   <Link
-                    to="/rewards/"
+                    key={item.to}
+                    to={item.to}
                     onClick={() => setMobileOpen(false)}
-                    className="ml-auto text-[10px] font-medium text-brand-purple dark:text-brand-purple-lighter"
+                    className="group flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-2.5 py-2.5 text-xs font-semibold text-foreground transition-colors hover:border-brand-purple/30 hover:bg-muted dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
                   >
-                    Manage →
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                      <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {item.label}
+                    </span>
+                    <ChevronRight
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5"
+                    />
                   </Link>
-                </div>
-                <div className="mt-2.5 flex items-center justify-between gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                      Available
-                    </span>
-                    <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
-                      {wallet?.balance ?? 0}
-                    </span>
-                  </div>
-                  <div className="h-8 w-px bg-muted dark:bg-white/10" />
-                  <Link
-                    to="/rewards/"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex flex-col transition-opacity hover:opacity-70"
-                  >
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                      Total Owned
-                    </span>
-                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                      {wallet?.total_earned ?? 0}
-                    </span>
-                  </Link>
-                  <div className="h-8 w-px bg-muted dark:bg-white/10" />
-                  <Link
-                    to="/pricing/"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex flex-col transition-opacity hover:opacity-70"
-                  >
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                      Plan
-                    </span>
-                    <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
-                      {isPaid ? <PremiumBadge size="xs" minimal /> : "Free"}
-                    </span>
-                  </Link>
-                </div>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* Primary CTA */}
-            <Link
-              to="/paint-calculator/?mode=room-estimate"
-              onClick={() => setMobileOpen(false)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
-            >
-              <Calculator className="h-4 w-4" />
-              Start Calculating
-            </Link>
+            {/* Drawer nav, collapsible sections */}
+            <div className="px-3 py-4">
+              {navWorkspaces.map((workspace) => (
+                <div key={t(workspace.label)} className="mb-1">
+                  {workspace.children ? (
+                    <>
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          setMobileExpanded(
+                            mobileExpanded === workspace.label
+                              ? null
+                              : workspace.label,
+                          )
+                        }
+                        className={classNames(
+                          "relative flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                          location.pathname.startsWith(workspace.path)
+                            ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                        )}
+                      >
+                        {t(workspace.label)}
+                        <ChevronDown
+                          className={classNames(
+                            "h-4 w-4 transition-transform duration-200",
+                            mobileExpanded === workspace.label && "rotate-180",
+                          )}
+                        />
+                      </Button>
+                      {mobileExpanded === workspace.label && (
+                        <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
+                          {groupBySection(workspace.children).map(
+                            (group, gi) => {
+                              const groupKey = `${t(workspace.label)}/${group.section ?? "general"}`;
+                              const renderLinks = (indent: string) =>
+                                group.items.map((child) => (
+                                  <NavLink
+                                    key={child.path}
+                                    to={child.path}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={({ isActive }) =>
+                                      classNames(
+                                        "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                                        indent,
+                                        isActive
+                                          ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                          : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
+                                      )
+                                    }
+                                  >
+                                    <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                                    {getMarketNavigationLabel(
+                                      child.path,
+                                      marketCode,
+                                      child.label,
+                                    )}
+                                  </NavLink>
+                                ));
+                              // No section name (e.g. Services): show the links
+                              // directly. No pointless "More" dropdown.
+                              if (!group.section) {
+                                return (
+                                  <div key={gi} className="mb-1.5 space-y-0.5">
+                                    {renderLinks("")}
+                                  </div>
+                                );
+                              }
+                              // Named section (Materials & Finishes, Building
+                              // Structure, ...): collapsible dropdown.
+                              return (
+                                <div key={gi} className="mb-1.5">
+                                  <button
+                                    type="button"
+                                    aria-expanded={
+                                      mobileSubExpanded === groupKey
+                                    }
+                                    onClick={() =>
+                                      setMobileSubExpanded(
+                                        mobileSubExpanded === groupKey
+                                          ? null
+                                          : groupKey,
+                                      )
+                                    }
+                                    className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
+                                  >
+                                    {t(group.section)}
+                                    <ChevronDown
+                                      className={classNames(
+                                        "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                                        mobileSubExpanded === groupKey &&
+                                          "rotate-180",
+                                      )}
+                                    />
+                                  </button>
+                                  {mobileSubExpanded === groupKey && (
+                                    <div className="mt-0.5 space-y-0.5 pl-2">
+                                      {renderLinks("")}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            },
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : workspace.external ? (
+                    <a
+                      href={workspace.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                    >
+                      {t(workspace.label)}
+                    </a>
+                  ) : (
+                    <NavLink
+                      to={workspace.path}
+                      className={({ isActive }) =>
+                        classNames(
+                          "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                          isActive
+                            ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                        )
+                      }
+                    >
+                      {t(workspace.label)}
+                    </NavLink>
+                  )}
+                </div>
+              ))}
+
+              {/* Language, Accessibility & Theme, stacked for narrow drawer */}
+              <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
+                <AccessibilityToggle inline={true} />
+                <LanguageSwitcher inline={true} />
+                <CurrencySwitcher inline={true} />
+                <MarketSelector inline={true} />
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={toggle}
+                  aria-label="Toggle dark mode"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                  <span>Dark mode</span>
+                  <span
+                    className={classNames(
+                      "ml-auto text-xs",
+                      theme === "dark"
+                        ? "text-brand-purple dark:text-brand-purple-lighter"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {theme === "dark" ? "On" : "Off"}
+                  </span>
+                </Button>
+              </div>
+
+              {/* Email contact */}
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+              >
+                <Mail className="h-4 w-4" />
+                <span>Email us</span>
+              </a>
+
+              {/* AI Credit info */}
+              {user && (
+                <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-primary/5 to-transparent p-3 dark:from-primary/10">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground">
+                      <Bot className="h-3.5 w-3.5" />
+                    </span>
+                    <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
+                      AI Credits
+                    </p>
+                    <Link
+                      to="/rewards/"
+                      onClick={() => setMobileOpen(false)}
+                      className="ml-auto text-[10px] font-medium text-brand-purple dark:text-brand-purple-lighter"
+                    >
+                      Manage →
+                    </Link>
+                  </div>
+                  <div className="mt-2.5 flex items-center justify-between gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                        Available
+                      </span>
+                      <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
+                        {wallet?.balance ?? 0}
+                      </span>
+                    </div>
+                    <div className="h-8 w-px bg-muted dark:bg-white/10" />
+                    <Link
+                      to="/rewards/"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex flex-col transition-opacity hover:opacity-70"
+                    >
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                        Total Owned
+                      </span>
+                      <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                        {wallet?.total_earned ?? 0}
+                      </span>
+                    </Link>
+                    <div className="h-8 w-px bg-muted dark:bg-white/10" />
+                    <Link
+                      to="/pricing/"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex flex-col transition-opacity hover:opacity-70"
+                    >
+                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                        Plan
+                      </span>
+                      <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
+                        {isPaid ? <PremiumBadge size="xs" minimal /> : "Free"}
+                      </span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Primary CTA */}
+              <Link
+                to="/paint-calculator/?mode=room-estimate"
+                onClick={() => setMobileOpen(false)}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
+              >
+                <Calculator className="h-4 w-4" />
+                Start Calculating
+              </Link>
+            </div>
           </div>
         </div>
       </div>
