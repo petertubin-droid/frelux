@@ -89,6 +89,71 @@ const TALL_FAQS = [
   },
 ];
 
+/**
+ * Typical towers. A visitor who does not know a floor plate from a plan ratio
+ * still needs a sane starting point, so the page opens on a real building
+ * rather than on a wall of empty engineering fields.
+ */
+const TALL_PRESETS: {
+  id: string;
+  name: string;
+  blurb: string;
+  patch: Partial<TallBuildingInput>;
+}[] = [
+  {
+    id: "office-6",
+    name: "6-storey office",
+    blurb: "30 × 22 m floor plate",
+    patch: {
+      floors: 6,
+      floor_height: 3.6,
+      ground_floor_height: 4.2,
+      plan_length: 30,
+      plan_width: 22,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "apartments-12",
+    name: "12-storey apartments",
+    blurb: "26 × 20 m floor plate",
+    patch: {
+      floors: 12,
+      floor_height: 3.0,
+      ground_floor_height: 3.6,
+      plan_length: 26,
+      plan_width: 20,
+      occupancy: "residential",
+    },
+  },
+  {
+    id: "mixed-20",
+    name: "20-storey mixed use",
+    blurb: "34 × 26 m floor plate",
+    patch: {
+      floors: 20,
+      floor_height: 3.3,
+      ground_floor_height: 4.5,
+      plan_length: 34,
+      plan_width: 26,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "tower-40",
+    name: "40-storey tower",
+    blurb: "42 × 32 m floor plate",
+    patch: {
+      floors: 40,
+      floor_height: 3.6,
+      ground_floor_height: 5.0,
+      plan_length: 42,
+      plan_width: 32,
+      occupancy: "office",
+    },
+  },
+];
+
 export default function TallBuildingCalculator() {
   const [params, setParams] = useState<TallBuildingInput>(DEFAULT_TALL_INPUT);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -282,27 +347,6 @@ export default function TallBuildingCalculator() {
         eyebrow="Deterministic engineering · codes cited · no AI estimates"
       />
 
-      {/* Summary tiles */}
-      <section
-        aria-label="Key results"
-        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
-      >
-        {tiles.map((tile) => (
-          <div
-            key={tile.label}
-            className="rounded-xl border border-border bg-card p-4"
-          >
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              {tile.label}
-            </p>
-            <p className="mt-1 text-lg font-semibold text-foreground">
-              {tile.value}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{tile.sub}</p>
-          </div>
-        ))}
-      </section>
-
       <div className="flex flex-wrap gap-3">
         <Button
           onClick={downloadCsv}
@@ -319,6 +363,54 @@ export default function TallBuildingCalculator() {
           Reset to the worked example
         </Button>
       </div>
+
+      {/* Start here */}
+      <section
+        className="rounded-2xl border border-border bg-card p-5 space-y-4"
+        aria-label="Start here"
+      >
+        <div className="space-y-1">
+          <p className="section-label">Start here</p>
+          <h2 className="font-display text-lg font-bold tracking-tight text-foreground">
+            Pick the tower closest to yours
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Each option fills the height, floor plate and loading with a typical
+            building of that size. Change anything below and every figure
+            follows.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {TALL_PRESETS.map((preset) => {
+            const active =
+              params.floors === preset.patch.floors &&
+              params.plan_length === preset.patch.plan_length &&
+              params.plan_width === preset.patch.plan_width;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() =>
+                  setParams((current) => ({ ...current, ...preset.patch }))
+                }
+                aria-pressed={active}
+                className={
+                  active
+                    ? "rounded-xl border border-brand-purple/60 bg-brand-purple/10 p-3 text-left"
+                    : "rounded-xl border border-border bg-muted/20 p-3 text-left transition-colors hover:border-brand-purple/40 hover:bg-muted/40"
+                }
+              >
+                <span className="block text-sm font-semibold text-foreground">
+                  {preset.name}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {preset.blurb}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Inputs */}
       <section
@@ -349,7 +441,9 @@ export default function TallBuildingCalculator() {
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Storeys</Label>
+            <Label className="text-xs text-muted-foreground">
+              Floors above ground
+            </Label>
             <Input
               type="number"
               min={3}
@@ -670,6 +764,27 @@ export default function TallBuildingCalculator() {
         )}
       </section>
 
+      {/* Summary tiles */}
+      <section
+        aria-label="Key results"
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {tiles.map((tile) => (
+          <div
+            key={tile.label}
+            className="rounded-xl border border-border bg-card p-4"
+          >
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {tile.label}
+            </p>
+            <p className="mt-1 text-lg font-semibold text-foreground">
+              {tile.value}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{tile.sub}</p>
+          </div>
+        ))}
+      </section>
+
       {/* Checks */}
       <section
         className="space-y-3 rounded-2xl border border-border bg-card p-5"
@@ -679,7 +794,7 @@ export default function TallBuildingCalculator() {
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-brand-purple" />
             <h2 className="text-sm font-semibold text-foreground">
-              Screening checks
+              What we checked, and what it means
             </h2>
           </div>
           <span className="font-mono text-xs text-muted-foreground">
