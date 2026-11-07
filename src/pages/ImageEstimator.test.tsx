@@ -1,4 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render } from "@testing-library/react";
+import { EstimateResultView } from "@/pages/ImageEstimator";
+import type { BuildToRoofResult } from "@/types/build-to-roof";
+
+vi.mock("@/components/calculators/SaveToProjectButton", () => ({
+  default: () => null,
+}));
 
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
@@ -20,7 +27,54 @@ describe("ImageEstimator", () => {
     expect(mod).toBeDefined();
     expect(Object.keys(mod).length).toBeGreaterThan(0);
   });
+
+  it("shows the complete source photo before any estimate totals", () => {
+    const estimate = {
+      project_name: "Test building",
+      location: "Lagos",
+      building_type: "bungalow",
+      total_floor_area: 120,
+      confidence: "moderate",
+      stages: [],
+      materials_total: 100,
+      labour_total: 50,
+      contingency: 15,
+      grand_total: 165,
+      limitations: [],
+    } as unknown as BuildToRoofResult;
+    const { container } = render(
+      <EstimateResultView
+        estimate={estimate}
+        analysis={null}
+        buildingPhoto="data:image/jpeg;base64,full-image"
+        savedId={null}
+        onEdit={() => {}}
+        isPaid={false}
+        pdfGateOpen={false}
+        pdfUnlocked={false}
+        setPdfGateOpen={() => {}}
+        setPdfUnlocked={() => {}}
+      />,
+    );
+
+    const photoPanel = container.querySelector(
+      '[data-testid="estimate-source-photo"]',
+    );
+    const photo = photoPanel?.querySelector("img");
+    const total = container.querySelector('[data-testid="estimate-total"]');
+    expect(photo).toHaveAttribute("src", "data:image/jpeg;base64,full-image");
+    expect(photo).toHaveClass("object-contain");
+    expect(
+      Boolean(
+        photoPanel &&
+          total &&
+          (photoPanel.compareDocumentPosition(total) &
+            Node.DOCUMENT_POSITION_FOLLOWING),
+      ),
+    ).toBe(true);
+  });
 });
+
 
 describe("describeVisionFailure", () => {
   it("never claims the service is undeployed", async () => {

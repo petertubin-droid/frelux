@@ -854,6 +854,7 @@ export default function ImageEstimator() {
           <EstimateResultView
             estimate={estimate}
             analysis={analysis}
+            buildingPhoto={imageDataUrl}
             savedId={savedId}
             onEdit={() => setPhase("review")}
             isPaid={isPaid}
@@ -1056,9 +1057,10 @@ function LockedView({
 }
 
 // ── Estimate result view ──
-function EstimateResultView({
+export function EstimateResultView({
   estimate,
   analysis,
+  buildingPhoto,
   savedId,
   onEdit,
   isPaid,
@@ -1069,6 +1071,7 @@ function EstimateResultView({
 }: {
   estimate: BuildToRoofResult;
   analysis: BuildingAnalysisResult | null;
+  buildingPhoto: string | null;
   savedId: string | null;
   onEdit: () => void;
   isPaid: boolean;
@@ -1128,6 +1131,35 @@ function EstimateResultView({
 
   return (
     <div className="space-y-6">
+      {/* Keep the complete source photo visible before any cost figures. */}
+      {buildingPhoto && (
+        <section
+          aria-labelledby="estimate-building-photo-title"
+          data-testid="estimate-source-photo"
+          className="overflow-hidden rounded-2xl border border-border bg-card shadow-card"
+        >
+          <div className="border-b border-border/60 px-5 py-4 sm:px-6">
+            <h2
+              id="estimate-building-photo-title"
+              className="font-semibold text-foreground"
+            >
+              Building photo used for this estimate
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Full image shown for reference. The estimate is preliminary and
+              should be checked against site measurements and drawings.
+            </p>
+          </div>
+          <div className="flex min-h-48 items-center justify-center bg-muted/30 p-3 sm:p-5">
+            <img
+              src={buildingPhoto}
+              alt={`Full building photo used to prepare the estimate for ${estimate.project_name || "this project"}`}
+              className="block h-auto max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
+            />
+          </div>
+        </section>
+      )}
+
       {/* Summary */}
       <div className="rounded-2xl border border-border bg-card shadow-card p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
@@ -1174,7 +1206,7 @@ function EstimateResultView({
       {/* Grand total */}
       <div className="grid md:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-border bg-brand-navy p-6 text-primary-foreground">
-          <p className="text-xs text-primary-foreground/60 mb-1">
+          <p data-testid="estimate-total" className="text-xs text-primary-foreground/60 mb-1">
             Estimated Build-to-Roof Cost
           </p>
           <p className="text-2xl font-bold">
