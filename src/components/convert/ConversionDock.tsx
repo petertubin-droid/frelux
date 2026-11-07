@@ -73,7 +73,12 @@ export default function ConversionDock() {
   if (!isCalculatorPath(pathname)) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(6rem+var(--frelux-bottom-ad-h,0px))] right-4 z-40 sm:bottom-6 sm:right-6">
+    <div
+      // Sits clear of the support chat bubble, which owns the bottom-right
+      // corner on every breakpoint (5rem tall on mobile, 4rem on desktop).
+      // Anything lower than this was covered by it.
+      className="pointer-events-none fixed bottom-[calc(9.5rem+var(--frelux-bottom-ad-h,0px))] right-4 z-40 sm:bottom-24 sm:right-6"
+    >
       <div className="pointer-events-auto">
         {open && (
           <div
