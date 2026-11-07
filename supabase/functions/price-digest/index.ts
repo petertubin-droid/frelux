@@ -61,6 +61,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 const SITE = "https://freluxtools.com";
 const FUNCTIONS_URL = `${Deno.env.get("SUPABASE_URL") ?? ""}/functions/v1`;
 
@@ -203,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
   const ownerEmail =
     Deno.env.get("OWNER_NOTIFY_EMAIL") ??
     Deno.env.get("CONTACT_NOTIFY_EMAIL") ??
-    null;
+    "freluxtools@gmail.com";
   const activeSubscribers = subscribers ?? [];
   const priceList = (prices ?? []) as MaterialPrice[];
   const changeList = (changes ?? []) as PriceChange[];
@@ -219,6 +220,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: FROM,
+          reply_to: REPLY_TO,
           to: [ownerEmail],
           subject: "Frelux weekly price digest: 0 subscribers",
           html: "<p>Weekly price digest heartbeat: no newsletter subscribers yet, so no subscriber email was sent. The cron is alive and prices are tracked.</p>",
@@ -244,6 +246,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: FROM,
+          reply_to: REPLY_TO,
           to: [sub.email],
           subject: "Your weekly Frelux price check",
           html: digestHtml(priceList, changeList, unsubUrl),

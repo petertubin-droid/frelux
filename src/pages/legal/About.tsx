@@ -54,12 +54,13 @@ export default function About() {
       updated="2026-10-30"
       intro={
         <p>
-          FRELUX is a construction intelligence and estimation platform built for
-          homeowners, decorators, and contractors working across different
+          FRELUX is a construction intelligence and estimation platform built
+          for homeowners, decorators, and contractors working across different
           markets. Founded in 2025, the platform is designed for international
-          use, with localized settings and market data available where supported.
-          The same estimation workflows can serve projects in different regions,
-          while local pricing, standards, and service availability vary by market.
+          use, with localized settings and market data available where
+          supported. The same estimation workflows can serve projects in
+          different regions, while local pricing, standards, and service
+          availability vary by market.
         </p>
       }
       sections={[
@@ -145,9 +146,9 @@ export default function About() {
               are designed to be clear and practical. The calculation
               methodology works for any project, and market-sensitive data
               (prices, product sizes, standards) is configured and verified
-              market by market in locations where data is available. Each estimate discloses which
-              market configuration it uses and whether its data is verified or
-              user-supplied.
+              market by market in locations where data is available. Each
+              estimate discloses which market configuration it uses and whether
+              its data is verified or user-supplied.
             </p>
           ),
         },
@@ -293,9 +294,9 @@ export default function About() {
             <p>
               FRELUX SMART CALC is the business behind this platform. You can
               reach us on WhatsApp at +234 906 361 2439, by email at
-              frenzyanthony39@gmail.com, or through the contact page for
-              questions, feedback, partnership proposals, or advertising
-              enquiries. We read everything and respond as soon as practical.
+              freluxtools@gmail.com, or through the contact page for questions,
+              feedback, partnership proposals, or advertising enquiries. We read
+              everything and respond as soon as practical.
             </p>
           ),
         },

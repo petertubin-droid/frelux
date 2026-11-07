@@ -28,6 +28,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 const SITE = "https://freluxtools.com";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -280,6 +281,7 @@ const handler = async (req: Request): Promise<Response> => {
     },
     body: JSON.stringify({
       from: FROM,
+      reply_to: REPLY_TO,
       to: [profile.email],
       subject,
       html: notifyHtml(

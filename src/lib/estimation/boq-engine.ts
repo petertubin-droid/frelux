@@ -389,7 +389,7 @@ export function boqToHtml(
       <div class="biz">
         <b>FRELUX SMART CALC</b><br/>
         WhatsApp: +234 906 361 2439<br/>
-        Email: frenzyanthony39@gmail.com
+        Email: freluxtools@gmail.com
       </div>
     </div>
     <div class="meta">

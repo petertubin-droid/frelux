@@ -80,7 +80,7 @@ async function createVapidJWT(
   const payload = {
     aud: origin,
     exp: now + 12 * 3600,
-    sub: `mailto:admin@${getSiteHost()}`,
+    sub: "mailto:freluxtools@gmail.com",
   };
   const payloadB64 = base64UrlEncode(JSON.stringify(payload));
 

@@ -66,6 +66,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 
 interface ContactRow {
   id: string;
@@ -113,7 +114,11 @@ function adminNotification(row: ContactRow): string {
  * Admin inbox for contact notifications. CONTACT_NOTIFY_EMAIL is the
  * specific name; OWNER_NOTIFY_EMAIL is accepted as an alias so an
  * operator who set only the general owner address still gets mail.
+ * With neither configured the message still goes to the public Frelux
+ * inbox: an enquiry nobody can see is the same as one never sent.
  */
+export const DEFAULT_INBOX = "freluxtools@gmail.com";
+
 export function resolveNotifyEmail(
   getEnv: (name: string) => string | undefined,
 ): string | null {
@@ -121,7 +126,7 @@ export function resolveNotifyEmail(
     const value = (getEnv(name) ?? "").trim();
     if (value) return value;
   }
-  return null;
+  return DEFAULT_INBOX;
 }
 
 async function sendEmail(
@@ -136,7 +141,13 @@ async function sendEmail(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    body: JSON.stringify({
+      from: FROM,
+      reply_to: REPLY_TO,
+      to: [to],
+      subject,
+      html,
+    }),
   });
   if (response.ok) return { sent: true };
   const detail = await response.text();

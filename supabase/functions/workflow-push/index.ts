@@ -41,7 +41,7 @@ import {
 } from "../_shared/web-push.ts";
 
 const SITE = "https://freluxtools.com";
-const VAPID_SUBJECT = "mailto:noreply@freluxtools.com";
+const VAPID_SUBJECT = "mailto:freluxtools@gmail.com";
 
 const TYPE_LABELS: Record<string, string> = {
   rfi: "RFI",

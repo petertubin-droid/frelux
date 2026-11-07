@@ -8,10 +8,10 @@ export const siteConfig = {
   tagline: "Construction intelligence for projects across markets.",
   description:
     "FRELUX turns measurements into material quantities and estimates, with market-specific data where available. Save calculations as reusable templates, explore project information, and review the assumptions behind each estimate. Built for construction professionals working across different regions.",
-  email: "frenzyanthony39@gmail.com",
+  email: "freluxtools@gmail.com",
   // Verified support contact options and operating response standards
   supportContact: {
-    email: "frenzyanthony39@gmail.com",
+    email: "freluxtools@gmail.com",
     whatsappPhone: "+2349063612439",
     whatsappDisplay: "+234 906 361 2439",
     whatsappUrl: "https://wa.me/2349063612439",
@@ -87,13 +87,41 @@ export const navWorkspaces: NavWorkspace[] = [
     label: "Market Intelligence",
     path: "/market-intelligence",
     children: [
-      { label: "Market Overview", path: "/market-intelligence", description: "Construction markets, materials and listed companies" },
-      { label: "Stock Market", path: "/market-intelligence/stocks", description: "Listed construction and infrastructure companies" },
-      { label: "Materials Market", path: "/market-intelligence/materials", description: "Material prices and official price indices by market" },
-      { label: "Industry Trends", path: "/market-intelligence/trends", description: "Index movements, rankings and sector direction" },
-      { label: "Investment Insights", path: "/market-intelligence/investment", description: "Capital markets context for construction" },
-      { label: "Market News", path: "/market-intelligence/news", description: "Sourced industry headlines" },
-      { label: "Company Profiles", path: "/market-intelligence/companies", description: "Who the listed players are" },
+      {
+        label: "Market Overview",
+        path: "/market-intelligence",
+        description: "Construction markets, materials and listed companies",
+      },
+      {
+        label: "Stock Market",
+        path: "/market-intelligence/stocks",
+        description: "Listed construction and infrastructure companies",
+      },
+      {
+        label: "Materials Market",
+        path: "/market-intelligence/materials",
+        description: "Material prices and official price indices by market",
+      },
+      {
+        label: "Industry Trends",
+        path: "/market-intelligence/trends",
+        description: "Index movements, rankings and sector direction",
+      },
+      {
+        label: "Investment Insights",
+        path: "/market-intelligence/investment",
+        description: "Capital markets context for construction",
+      },
+      {
+        label: "Market News",
+        path: "/market-intelligence/news",
+        description: "Sourced industry headlines",
+      },
+      {
+        label: "Company Profiles",
+        path: "/market-intelligence/companies",
+        description: "Who the listed players are",
+      },
     ],
   },
   // Colors & Design workspace (restored 2026-10-04 - these pages were

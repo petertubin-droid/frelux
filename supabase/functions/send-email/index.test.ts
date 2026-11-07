@@ -23,12 +23,14 @@ describe("resolveNotifyEmail", () => {
     ).toBe("owner@freluxtools.com");
   });
 
-  it("ignores blank values and reports nothing when both are unset", () => {
+  it("falls back to the public inbox when neither is configured", () => {
+    // An enquiry that reaches no inbox is lost work, so the default is the
+    // address the contact page prints rather than silence.
     expect(
       resolveNotifyEmail(
         env({ CONTACT_NOTIFY_EMAIL: "   ", OWNER_NOTIFY_EMAIL: "" }),
       ),
-    ).toBeNull();
-    expect(resolveNotifyEmail(env({}))).toBeNull();
+    ).toBe("freluxtools@gmail.com");
+    expect(resolveNotifyEmail(env({}))).toBe("freluxtools@gmail.com");
   });
 });

@@ -57,6 +57,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 const SITE = "https://freluxtools.com";
 const FUNCTIONS_URL = `${Deno.env.get("SUPABASE_URL") ?? ""}/functions/v1`;
 
@@ -176,6 +177,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: FROM,
+          reply_to: REPLY_TO,
           to: [email],
           subject: "Welcome to Frelux price updates",
           html: welcomeHtml(email, unsubUrl),

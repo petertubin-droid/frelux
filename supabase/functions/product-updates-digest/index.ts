@@ -34,6 +34,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 const SITE = "https://freluxtools.com";
 const FUNCTIONS_URL = `${Deno.env.get("SUPABASE_URL") ?? ""}/functions/v1`;
 const LOOKBACK_DAYS = 60;
@@ -206,7 +207,7 @@ const handler = async (req: Request): Promise<Response> => {
   const ownerEmail =
     Deno.env.get("OWNER_NOTIFY_EMAIL") ??
     Deno.env.get("CONTACT_NOTIFY_EMAIL") ??
-    null;
+    "freluxtools@gmail.com";
 
   // Heartbeat when nobody has subscribed yet.
   if (subscribers.length === 0) {
@@ -219,6 +220,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: FROM,
+          reply_to: REPLY_TO,
           to: [ownerEmail],
           subject: "Frelux updates digest: 0 subscribers",
           html: `<p>The three day updates digest ran with no active subscribers, so no subscriber email was sent. ${updates.length} published update(s) are waiting to go out. The schedule is alive.</p>`,
@@ -303,6 +305,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         body: JSON.stringify({
           from: FROM,
+          reply_to: REPLY_TO,
           to: [sub.email],
           subject,
           html: digestHtml(fresh, evergreen, unsubUrl),

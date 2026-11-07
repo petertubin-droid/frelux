@@ -62,6 +62,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const TERMII_ENDPOINT = "https://api.ng.termii.com/api/sms/send";
 const FROM = "Frelux <noreply@freluxtools.com>";
+const REPLY_TO = "Frelux <freluxtools@gmail.com>";
 
 interface ProfileRow {
   id: string;
@@ -185,7 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
   const ownerEmail =
     Deno.env.get("OWNER_NOTIFY_EMAIL") ??
     Deno.env.get("CONTACT_NOTIFY_EMAIL") ??
-    "";
+    "freluxtools@gmail.com";
   const resendKey = await resolveResendKey();
   if (ownerEmail && resendKey) {
     const res = await fetch(RESEND_ENDPOINT, {
@@ -196,6 +197,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: FROM,
+        reply_to: REPLY_TO,
         to: [ownerEmail],
         subject:
           recent.length === 0
