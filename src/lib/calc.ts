@@ -817,6 +817,25 @@ export function calculateScreedingPutty(
  * @param coats - Number of coats (defaults to config.defaultCoats)
  * @returns ScreedingMixSystemResult with separate paint and cement breakdowns
  */
+/**
+ * Resolve the coat count actually used for a screeding system.
+ *
+ * The configured ratio already describes a complete job at the system's
+ * default coats, so an unset selection must follow that default. Passing a
+ * fixed 2 regardless of configuration doubled every quantity wherever a
+ * market defaulted to one coat.
+ */
+export function resolveEffectiveCoats(
+  selected: number | null | undefined,
+  defaultCoats: number,
+): number {
+  const fallback = Math.max(1, Math.floor(Number(defaultCoats)) || 1);
+  if (selected == null) return fallback;
+  const value = Math.floor(Number(selected));
+  if (!Number.isFinite(value) || value < 1) return fallback;
+  return Math.min(10, value);
+}
+
 export function calculateScreedingMixSystem(
   areaM2: number,
   config: ScreedingSystemConfig,

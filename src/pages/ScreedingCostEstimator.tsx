@@ -18,7 +18,11 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
-import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
+import {
+  calculateScreedingSystem,
+  resolveEffectiveCoats,
+  dbToSystemConfig,
+} from "@/lib/calc";
 import { calculateLabourCost } from "@/lib/labour";
 import {
   printQuote,
@@ -199,7 +203,10 @@ export default function ScreedingCostEstimator({
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [selectedSystem, setSelectedSystem] =
     useState<ScreedingMaterialSystem | null>(null);
-  const [coats, setCoats] = useState(2);
+  // null = follow the configured default for the active system. The stored
+  // ratio already includes the default coat count, so starting at a fixed 2
+  // doubled every quantity whenever a market defaulted to 1 coat.
+  const [coats, setCoats] = useState<number | null>(null);
   const [result, setResult] = useState<ScreedingSystemResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
@@ -276,6 +283,10 @@ export default function ScreedingCostEstimator({
   }, [marketCode, citySlug]);
 
   const activeConfig = selectedSystem === "putty" ? puttyConfig : mixConfig;
+  const effectiveCoats = resolveEffectiveCoats(
+    coats,
+    activeConfig?.defaultCoats ?? 1,
+  );
 
   // Auto-calculate when inputs change
   useEffect(() => {
@@ -284,20 +295,20 @@ export default function ScreedingCostEstimator({
       return;
     }
     const rawResult = monitoredCalc("Screeding Cost Estimator", () =>
-      calculateScreedingSystem(netArea, activeConfig, coats),
+      calculateScreedingSystem(netArea, activeConfig, effectiveCoats),
     );
     setResult(rawResult);
     track("screeding_system_estimate_generated", {
       area: netArea,
       system: selectedSystem,
-      coats,
+      coats: effectiveCoats,
     });
     logAnalyticsEvent("screeding_system_estimate_generated", {
       area: netArea,
       system: selectedSystem,
-      coats,
+      coats: effectiveCoats,
     });
-  }, [activeConfig, netArea, coats, selectedSystem]);
+  }, [activeConfig, netArea, effectiveCoats, selectedSystem]);
 
   function handleSystemChange(system: ScreedingMaterialSystem) {
     setSelectedSystem(system);
@@ -496,24 +507,28 @@ export default function ScreedingCostEstimator({
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => setCoats(Math.max(1, coats - 1))}
+                        onClick={() =>
+                          setCoats(Math.max(1, effectiveCoats - 1))
+                        }
                         className="grid h-9 w-9 place-items-center rounded-lg border border-border text-sm font-bold text-foreground hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
                         aria-label={t("Decrease coats")}
                       >
                         −
                       </button>
                       <span className="min-w-[3rem] text-center text-lg font-bold text-foreground dark:text-primary-foreground">
-                        {coats}
+                        {effectiveCoats}
                       </span>
                       <button
                         type="button"
-                        onClick={() => setCoats(Math.min(10, coats + 1))}
+                        onClick={() =>
+                          setCoats(Math.min(10, effectiveCoats + 1))
+                        }
                         className="grid h-9 w-9 place-items-center rounded-lg border border-border text-sm font-bold text-foreground hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
                         aria-label={t("Increase coats")}
                       >
                         +
                       </button>
-                      {coats !== activeConfig.defaultCoats && (
+                      {effectiveCoats !== activeConfig.defaultCoats && (
                         <Button
                           variant="ghost"
                           type="button"

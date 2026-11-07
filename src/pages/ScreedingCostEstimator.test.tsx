@@ -497,3 +497,56 @@ describe("ScreedingCostEstimator, Material System Isolation", () => {
     expect(screen.queryByText("WHITE CEMENT")).toBeNull();
   });
 });
+
+describe("ScreedingCostEstimator, configured coat default", () => {
+  const singleCoatMixConfig = {
+    ...mockMixDbConfig,
+    id: "mix-single-coat",
+    coverage_area_m2: 12,
+    default_coats: 1,
+    waste_percentage: 10,
+    paint_quantity: 2,
+    cement_quantity: 1,
+  };
+
+  it("uses the configured default coats instead of a fixed two", async () => {
+    const { fetchScreedingSystemConfig } = await import("@/lib/queries");
+    vi.mocked(fetchScreedingSystemConfig)
+      .mockResolvedValueOnce({
+        data: mockPuttyDbConfig,
+        error: null,
+        fellBackToNg: false,
+      })
+      .mockResolvedValueOnce({
+        data: singleCoatMixConfig,
+        error: null,
+        fellBackToNg: false,
+      });
+
+    const { container } = await renderEstimator();
+    await waitFor(() => {
+      expect(screen.getByText("White Cement + Screeding Paint")).toBeTruthy();
+    });
+
+    const mixButton = screen
+      .getByText("White Cement + Screeding Paint")
+      .closest("button");
+    fireEvent.click(mixButton!);
+
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "20" } });
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/1 coats/)).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
+
+    // The stored ratio already covers the single default coat, so 20 m² at
+    // 12 m² per bag is 1.67 bags plus 10% waste, never the doubled 4 bags.
+    expect(screen.queryByText(/4 bags/)).toBeNull();
+  });
+});
