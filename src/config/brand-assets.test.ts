@@ -225,15 +225,22 @@ describe("site icon set", () => {
     }
   });
 
-  it("ships the in-app mark as vector with a square frame", () => {
+  it("ships the in-app mark as vector with a transparent background", () => {
+    // Owner directive 2026-11-07: the mark carries no background of its own.
+    // The frame is the artwork crop, and the brand colour is painted by the
+    // monogram instead of a tile behind it. Icon files keep their tile because
+    // a launcher icon needs an opaque edge; the in-app mark does not.
     for (const path of [
       "public/brand/frelux-mark.svg",
       "public/brand/frelux-mark-light.svg",
     ]) {
       const svg = read(path);
-      expect(svg).toContain('viewBox="0 0 512 512"');
-      expect(svg).toContain("#6D28D9");
+      expect(svg, path).not.toContain("0 0 512 512");
+      expect(svg, path).not.toMatch(/<rect[^>]*width="512"/);
+      expect(svg, path).toContain("viewBox=");
     }
+    expect(read("public/brand/frelux-mark.svg")).toContain("#6D28D9");
+    expect(read("public/brand/frelux-mark-light.svg")).toContain("#FFFFFF");
   });
 
   it("declares one brand colour across the manifest and the browser chrome", () => {

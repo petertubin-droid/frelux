@@ -63,30 +63,32 @@ interface LogoProps {
 /**
  * Mark edge in pixels against the type that sits beside it.
  *
- * The wordmark cap height lands at roughly 0.72 of its font size, and a tile
- * reads correctly a little larger than that cap, so a 32px tile pairs with an
- * 18px wordmark and a 28px tile with 16px.
+ * The artwork is now the mark itself, with no tile or canvas padding around
+ * it, so this edge measures the monogram rather than a background square.
+ * The wordmark cap height lands at roughly 0.72 of its font size, and a
+ * transparent monogram sits slightly above that cap to hold its own weight,
+ * so 22px pairs with an 18px wordmark and 20px with 16px.
  */
 const SIZE_TOKENS: Record<
   LogoSize,
   { edge: number; gap: string; name: string; descriptor: string; rule: string }
 > = {
   sm: {
-    edge: 28,
+    edge: 20,
     gap: "gap-2",
     name: "text-[15px] leading-[15px]",
     descriptor: "text-[11px] leading-[11px] tracking-[0.1em]",
     rule: "mt-[3px]",
   },
   md: {
-    edge: 32,
+    edge: 22,
     gap: "gap-2.5",
     name: "text-[17px] leading-[17px] sm:text-[18px] sm:leading-[18px]",
     descriptor: "text-[11px] leading-[11px] tracking-[0.13em]",
     rule: "mt-[4px]",
   },
   lg: {
-    edge: 40,
+    edge: 28,
     gap: "gap-3",
     name: "text-[21px] leading-[21px]",
     descriptor: "text-[11px] leading-[11px] tracking-[0.14em]",

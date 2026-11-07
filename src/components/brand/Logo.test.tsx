@@ -46,12 +46,13 @@ describe("Logo", () => {
   });
 
   it("pairs the mark edge with the type scale of each size", () => {
+    // The edge measures the artwork, which no longer carries a tile around it.
     const { container: sm } = render(<Logo size="sm" />);
-    expect(sm.querySelector("img")?.getAttribute("width")).toBe("28");
+    expect(sm.querySelector("img")?.getAttribute("width")).toBe("20");
     const { container: md } = render(<Logo size="md" />);
-    expect(md.querySelector("img")?.getAttribute("width")).toBe("32");
+    expect(md.querySelector("img")?.getAttribute("width")).toBe("22");
     const { container: lg } = render(<Logo size="lg" />);
-    expect(lg.querySelector("img")?.getAttribute("width")).toBe("40");
+    expect(lg.querySelector("img")?.getAttribute("width")).toBe("28");
   });
 
   it("keeps the descriptor at or above eleven pixels", () => {
