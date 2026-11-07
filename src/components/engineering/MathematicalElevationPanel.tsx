@@ -42,6 +42,11 @@ import {
   type SoilTypeKey,
 } from "@/lib/engineering/mathematical-elevation-engine";
 import { MathematicalElevationDiagram } from "./MathematicalElevationDiagram";
+import {
+  ElevationQuickStart,
+  type ElevationPreset,
+} from "./ElevationQuickStart";
+import { ElevationGlance } from "./ElevationGlance";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 import { downloadCsv } from "@/lib/export-utils";
 import {
@@ -80,6 +85,7 @@ export function MathematicalElevationPanel({
   const [planFile, setPlanFile] = useState<File | null>(null);
   const [unitSystem, setUnitSystem] = useState<ElevationUnitSystem>("metric");
   const [summaryCopied, setSummaryCopied] = useState<boolean>(false);
+  const [activePreset, setActivePreset] = useState<string | null>("bungalow-3");
   const planPreviewUrl = useMemo(
     () => (planFile ? URL.createObjectURL(planFile) : null),
     [planFile],
@@ -291,13 +297,45 @@ export function MathematicalElevationPanel({
         before display.
       </p>
 
+      <ElevationQuickStart
+        displayLength={showLength(params.building_length)}
+        displayWidth={showLength(params.building_width)}
+        displayFloorHeight={showLength(params.floor_to_floor_height)}
+        storeys={params.storeys}
+        pitchDeg={params.roof_pitch_deg}
+        unitLabel={lengthLabel}
+        lengthStep={lengthStep(unitSystem, 0.1)}
+        activePreset={activePreset}
+        onPreset={(preset: ElevationPreset) => {
+          setActivePreset(preset.id);
+          setParams((current) => ({ ...current, ...preset.patch }));
+        }}
+        onLength={(key, displayed) => {
+          setActivePreset(null);
+          setParams((current) => ({
+            ...current,
+            [key]: readLength(displayed),
+          }));
+        }}
+        onStoreys={(storeys) => {
+          setActivePreset(null);
+          setParams((current) => ({ ...current, storeys }));
+        }}
+        onPitch={(deg) => {
+          setActivePreset(null);
+          setParams((current) => ({ ...current, roof_pitch_deg: deg }));
+        }}
+      />
+
+      <ElevationGlance result={elevationResult} unitSystem={unitSystem} />
+
       {/* ── Geometry and assumption screening ── */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-brand-purple" />
             <h3 className="text-sm font-semibold text-foreground">
-              Geometry & assumption screening
+              Checks we ran for you
             </h3>
           </div>
           <span className="text-xs text-muted-foreground font-mono">
@@ -371,7 +409,7 @@ export function MathematicalElevationPanel({
           <div className="flex items-center gap-2">
             <Ruler className="h-4 w-4 text-brand-purple" />
             <h3 className="text-sm font-semibold text-foreground">
-              Enter Building Dimensions & Geometric Parameters
+              Fine-tune the dimensions
             </h3>
           </div>
           <div className="flex items-center gap-2">
@@ -401,7 +439,9 @@ export function MathematicalElevationPanel({
               onClick={() => setShowAdvancedMath(!showAdvancedMath)}
               className="text-xs h-7 gap-1 text-muted-foreground"
             >
-              {showAdvancedMath ? "Simple View" : "Additional Planning Inputs"}
+              {showAdvancedMath
+                ? "Simple View"
+                : "Site, soil and wind (optional)"}
               {showAdvancedMath ? (
                 <ChevronUp className="h-3.5 w-3.5" />
               ) : (
@@ -882,7 +922,7 @@ export function MathematicalElevationPanel({
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
           <div>
             <h3 className="text-sm font-semibold text-foreground">
-              Schedule summary and export
+              Quantities you can take to site
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               {unitSystem === "imperial"

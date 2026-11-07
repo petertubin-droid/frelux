@@ -309,3 +309,33 @@ describe("Elevation engine corrections", () => {
     );
   });
 });
+
+describe("eaves and ridge heights", () => {
+  it("reports the wall-top height separately from the peak", () => {
+    const result = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
+    const roof = result.levels.level_5_roof;
+    // The peak is the eaves line plus the ridge rise, so the two never drift.
+    expect(roof.total_building_height_m).toBeCloseTo(
+      roof.eaves_height_m + roof.ridge_rise_m,
+      2,
+    );
+    // The bi-monthly question "how tall are the walls" must not be derived
+    // from the peak by anyone reading the page.
+    expect(roof.eaves_height_m).toBeLessThan(roof.total_building_height_m);
+  });
+
+  it("moves the eaves line with floor count and storey height", () => {
+    const single = calculateMathematicalElevation({
+      ...DEFAULT_PLAN_INPUT,
+      storeys: 1,
+    });
+    const double = calculateMathematicalElevation({
+      ...DEFAULT_PLAN_INPUT,
+      storeys: 2,
+    });
+    const rise =
+      double.levels.level_5_roof.eaves_height_m -
+      single.levels.level_5_roof.eaves_height_m;
+    expect(rise).toBeCloseTo(DEFAULT_PLAN_INPUT.floor_to_floor_height, 2);
+  });
+});

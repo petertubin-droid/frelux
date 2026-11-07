@@ -138,6 +138,9 @@ export interface Level5RoofMath {
   total_purlin_length_m: number;
   eaves_fascia_perimeter_m: number;
   eaves_gutter_run_m: number;
+  /** Height of the wall top above finished ground level. */
+  eaves_height_m: number;
+  /** Height of the ridge above finished ground level. */
   total_building_height_m: number;
   mathematical_proof: string[];
 }
@@ -814,11 +817,14 @@ export function calculateMathematicalElevation(
 
   // Height above finished ground level. The excavation depth is not part of the
   // building's height; it is reported on the substructure level instead.
+  const eaves_height_m =
+    plinth_height_above_ground_m + H * storeys + ring_beam_depth_m;
+  // Round the parts before summing so the figures a visitor adds up on the page
+  // add up: a displayed ridge that is a centimetre off reads like an error.
+  const eaves_display_m = Math.round(eaves_height_m * 100) / 100;
+  const rise_display_m = Math.round(ridge_rise_m * 100) / 100;
   const total_building_height_m =
-    plinth_height_above_ground_m +
-    H * storeys +
-    ring_beam_depth_m +
-    ridge_rise_m;
+    Math.round((eaves_display_m + rise_display_m) * 100) / 100;
 
   // Roof Pitch Discrepancy Checks
   if (pitchDeg < 12.0) {
@@ -880,7 +886,8 @@ export function calculateMathematicalElevation(
     total_purlin_length_m: Math.round(total_purlin_length_m * 10) / 10,
     eaves_fascia_perimeter_m: Math.round(eaves_fascia_perimeter_m * 100) / 100,
     eaves_gutter_run_m: Math.round(eaves_gutter_run_m * 100) / 100,
-    total_building_height_m: Math.round(total_building_height_m * 100) / 100,
+    eaves_height_m: eaves_display_m,
+    total_building_height_m,
     mathematical_proof: [
       `Roof span: S = W + 2·OH = ${W} + 2·${overhang} = ${roof_span_m.toFixed(2)} m (Half-span = ${half_span.toFixed(2)} m)`,
       `Ridge rise: h = (S/2) · tan(θ) = ${half_span.toFixed(2)} · tan(${pitchDeg}°) = ${ridge_rise_m.toFixed(2)} m`,

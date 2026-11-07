@@ -56,7 +56,7 @@ export default function MathematicalPlanElevation() {
       {/* ── Page Header ── */}
       <PageHeader
         title="Mathematical Plan Elevation Engine"
-        subtitle="Build an indicative elevation from dimensions you enter, with roof-pitch geometry and a preliminary quantity schedule. This tool does not interpret uploaded plans or verify building-code compliance."
+        subtitle="Pick the closest building type, adjust four measurements, and read the height, roof area and wall area straight away. Preliminary figures for planning, not a code-compliance check."
         eyebrow="Deterministic calculation · no AI image interpretation"
       />
 
