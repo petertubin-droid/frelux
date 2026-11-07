@@ -88,8 +88,20 @@ export function AdvancedCalculator({
     taxPercentage: 0, // never assume a jurisdiction rate; user enters theirs
   });
 
+  // A breakdown is a paid call and it is only meaningful when there is a real
+  // project to analyse. The Smart Calculator used to mount this panel with a
+  // placeholder summary, so the model was asked to analyse nothing.
+  const hasProjectToAnalyse = contextSummary.trim().length >= 12;
+
   // Fetch AI breakdown for non-screeding calculators on mount
   const fetchAiBreakdown = useCallback(async () => {
+    if (!hasProjectToAnalyse) {
+      setAiBreakdown(
+        "Describe the project first. There is nothing to analyse yet, and a breakdown written without a project would be guesswork.",
+      );
+      setAiBreakdownLoading(false);
+      return;
+    }
     setAiBreakdownLoading(true);
     try {
       const prompt = `You are an expert construction cost analyst AI. Analyze the following calculator results and provide a detailed advanced breakdown.
@@ -124,12 +136,13 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
       setAiBreakdown("Unable to reach the AI assistant. Please try again.");
     }
     setAiBreakdownLoading(false);
-  }, [contextSummary, currencySymbol, currencyCode]);
+  }, [contextSummary, currencySymbol, currencyCode, hasProjectToAnalyse]);
 
   useEffect(() => {
     const onTab = tab === "breakdown";
     if (
       onTab &&
+      hasProjectToAnalyse &&
       !wasBreakdownTabRef.current &&
       fetchedSignatureRef.current !== contextSummary &&
       !aiBreakdownLoading
@@ -138,7 +151,13 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
       fetchAiBreakdown();
     }
     wasBreakdownTabRef.current = onTab;
-  }, [tab, contextSummary, aiBreakdownLoading, fetchAiBreakdown]);
+  }, [
+    tab,
+    contextSummary,
+    aiBreakdownLoading,
+    fetchAiBreakdown,
+    hasProjectToAnalyse,
+  ]);
 
   useEffect(() => {
     fetchAdvancedEstimates(clientHash).then(({ data }) => {

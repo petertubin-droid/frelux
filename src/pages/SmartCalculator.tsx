@@ -1,12 +1,23 @@
+import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Brain } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Brain,
+  CheckCircle2,
+  Eraser,
+} from "lucide-react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 import { useLanguage } from "@/lib/i18n";
 import AdSlot from "@/components/ui/AdSlot";
+import {
+  buildProjectContext,
+  readProject,
+} from "@/lib/smart-calculator/project-intent";
 
 const ADVANCED_FEATURES = [
   "AI-powered estimation for any project type",
@@ -19,8 +30,32 @@ const ADVANCED_FEATURES = [
   "Tax/VAT calculator",
 ];
 
+const STORAGE_KEY = "frelux_smart_project_description";
+
+/** The shortest description that can name work and a size. Anything shorter
+ *  cannot be read, and asking a paid model about it would be guesswork. */
+const MIN_DESCRIPTION = 12;
+
+const EXAMPLES = [
+  "Paint a 4.5 m by 6 m bedroom, two coats, white emulsion",
+  "Screed a 20 m2 living room at 50 mm",
+  "POP ceiling for three rooms, 12 ft by 15 ft each",
+  "Build a 3 bedroom bungalow, 15 m by 10 m",
+];
+
+function readSavedDescription(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export default function SmartCalculator() {
   const { t } = useLanguage();
+  const [description, setDescription] = useState(readSavedDescription);
+
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
@@ -35,6 +70,29 @@ export default function SmartCalculator() {
     canonicalPath: "/smart-calculator",
   });
 
+  const trimmed = description.trim();
+  const usable = trimmed.length >= MIN_DESCRIPTION;
+
+  // The reading is local and instant: it decides which calculator the project
+  // belongs in before any paid call happens.
+  const reading = useMemo(
+    () => (usable ? readProject(trimmed) : null),
+    [trimmed, usable],
+  );
+  const aiContext = useMemo(
+    () => (usable ? buildProjectContext(trimmed) : ""),
+    [trimmed, usable],
+  );
+
+  useEffect(() => {
+    try {
+      if (trimmed) window.localStorage.setItem(STORAGE_KEY, trimmed);
+      else window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Storage can be unavailable in private modes; the page still works.
+    }
+  }, [trimmed]);
+
   return (
     <>
       {seo}
@@ -45,7 +103,7 @@ export default function SmartCalculator() {
         eyebrow={t("Describe a project")}
         title={t("Smart Calculator")}
         subtitle={t(
-          "Say what you are building in plain words. The assistant reads the project and fills the calculators, and every quantity still comes from the deterministic engine.",
+          "Say what you are building in plain words. The assistant reads the project, names the right calculator and carries your measurements across, and every quantity still comes from the deterministic engine.",
         )}
       />
 
@@ -67,19 +125,170 @@ export default function SmartCalculator() {
           </div>
         </div>
 
-        <RewardedFeatureGate
-          toolKey="advanced_calculator"
-          featureName="Smart Calculator"
-          features={ADVANCED_FEATURES}
+        {/* Step 1. The description is the first thing on the page, because it
+            is the only input this calculator has. */}
+        <section
+          aria-labelledby="smart-description-heading"
+          className="rounded-2xl border border-border bg-card p-6 shadow-card"
         >
-          {(access) => (
-            <AdvancedCalculator
-              toolKey="smart"
-              contextSummary="Smart Calculator: freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
-              clientHash={access.clientHash}
-            />
+          <h2
+            id="smart-description-heading"
+            className="text-lg font-bold text-foreground"
+          >
+            {t("Your project")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t(
+              "Include the work, the size and the number of coats, layers or rooms where you know them. Measurements in metres or feet are both read.",
+            )}
+          </p>
+          <label htmlFor="smart-description" className="sr-only">
+            {t("Describe your project")}
+          </label>
+          <textarea
+            id="smart-description"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={4}
+            placeholder={t(
+              "Example: paint a 4.5 m by 6 m bedroom, two coats of white emulsion",
+            )}
+            className="mt-3 w-full resize-y rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {EXAMPLES.map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => setDescription(example)}
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                {example}
+              </button>
+            ))}
+            {description && (
+              <button
+                type="button"
+                onClick={() => setDescription("")}
+                className="ml-auto inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <Eraser className="h-3 w-3" />
+                {t("Clear")}
+              </button>
+            )}
+          </div>
+          {!usable && trimmed.length > 0 && (
+            <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+              {t(
+                "Add a little more detail: what the work is and roughly how big it is.",
+              )}
+            </p>
           )}
-        </RewardedFeatureGate>
+        </section>
+
+        {/* Step 2. What the description was read as, before any AI call. */}
+        {reading && (
+          <section
+            aria-labelledby="smart-reading-heading"
+            className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card"
+          >
+            <h2
+              id="smart-reading-heading"
+              className="flex items-center gap-2 text-lg font-bold text-foreground"
+            >
+              <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+              {t("What that reads as")}
+            </h2>
+
+            {reading.intent ? (
+              <div className="mt-3 rounded-xl border border-border/60 bg-muted/40 p-4">
+                <p className="text-sm text-foreground">
+                  {t("This work belongs in the")}{" "}
+                  <strong>{reading.intent.label}</strong>.{" "}
+                  {t(
+                    "Open it with your measurements to get quantities: this page does not invent them.",
+                  )}
+                </p>
+                <Link
+                  to={reading.intent.path}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                >
+                  {t("Open")} {reading.intent.label}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                {t(
+                  "No calculator matched that description yet. Name the work, for example painting, tiling, screeding, POP ceiling, roofing, wiring or blockwork.",
+                )}
+              </p>
+            )}
+
+            {reading.summaryLines.length > 0 && (
+              <ul className="mt-4 space-y-1.5 text-sm text-foreground">
+                {reading.summaryLines.map((line) => (
+                  <li key={line} className="flex gap-2">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {reading.missing.length > 0 && (
+              <p className="mt-3 text-xs text-muted-foreground">
+                {t("Not stated yet")}: {reading.missing.join(", ")}.
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Step 3. The paid AI panel, kept below the reading and only mounted
+            once there is a real description to analyse. */}
+        {usable ? (
+          <div className="mt-6">
+            <RewardedFeatureGate
+              toolKey="advanced_calculator"
+              featureName="Smart Calculator"
+              features={ADVANCED_FEATURES}
+            >
+              {(access) => (
+                <AdvancedCalculator
+                  toolKey="smart"
+                  contextSummary={aiContext}
+                  clientHash={access.clientHash}
+                />
+              )}
+            </RewardedFeatureGate>
+          </div>
+        ) : (
+          <section className="mt-6 rounded-2xl border border-dashed border-border bg-card/60 p-6">
+            <h2 className="text-sm font-bold text-foreground">
+              {t("Cost breakdown unlocks with a description")}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t(
+                "Write what you are building above. Until then there is nothing to analyse, and a cost shown here would be guesswork.",
+              )}
+            </p>
+            <ul className="mt-3 grid gap-1.5 text-xs text-muted-foreground sm:grid-cols-2">
+              {ADVANCED_FEATURES.map((feature) => (
+                <li key={feature}>{feature}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <div className="mt-8">
+          <Link
+            to="/calculators"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {t("Browse every calculator")}
+          </Link>
+        </div>
 
         {/* Ad slot, placement "calculator_mid" */}
         <AdSlot slotKey="calculator_mid" className="mt-8" />

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // ─────────────────────────────────────────────────────────
@@ -58,6 +64,14 @@ vi.mock("@/components/rewarded/AdvancedCalculator", () => ({
 // Import after mocks
 import SmartCalculator from "./SmartCalculator";
 
+const DESCRIPTION = "Paint a 4.5 m by 6 m bedroom, two coats of white emulsion";
+
+function typeDescription(value: string) {
+  fireEvent.change(screen.getByLabelText("Describe your project"), {
+    target: { value },
+  });
+}
+
 function renderPage() {
   return render(
     <MemoryRouter>
@@ -73,6 +87,7 @@ function renderPage() {
 describe("SmartCalculator page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
   // ── Rendering basics ──
@@ -85,7 +100,7 @@ describe("SmartCalculator page", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        /the assistant reads the project and fills the calculators/i,
+        /the assistant reads the project, names the right calculator/i,
       ),
     ).toBeInTheDocument();
   });
@@ -110,6 +125,7 @@ describe("SmartCalculator page", () => {
 
   it("renders immediately without fetching legacy screeding mix config", async () => {
     renderPage();
+    typeDescription(DESCRIPTION);
 
     await waitFor(() => {
       expect(screen.getByTestId("advanced-calculator")).toBeInTheDocument();
@@ -117,15 +133,75 @@ describe("SmartCalculator page", () => {
     // No DB config fetch should be needed for the pure AI estimation tool.
   });
 
+  // ── The description is the input, and it drives the reading ──
+
+  it("asks for a description instead of mounting a paid panel with nothing to analyse", () => {
+    renderPage();
+
+    expect(
+      screen.getByRole("heading", { name: "Your project" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("advanced-calculator")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Cost breakdown unlocks with a description/i),
+    ).toBeInTheDocument();
+  });
+
+  it("reads the description locally and names the calculator for the work", () => {
+    renderPage();
+    typeDescription(DESCRIPTION);
+
+    expect(
+      screen.getByRole("heading", { name: "What that reads as" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Paint Calculator")).toBeInTheDocument();
+    expect(screen.getAllByText(/4\.5 m x 6 m/).length).toBeGreaterThan(0);
+
+    const link = screen.getByRole("link", { name: /Open Paint Calculator/i });
+    expect(link).toHaveAttribute("href", "/paint-calculator");
+  });
+
+  it("keeps the paid panel closed until the description is usable", () => {
+    renderPage();
+    typeDescription("paint");
+
+    expect(screen.queryByTestId("advanced-calculator")).not.toBeInTheDocument();
+    expect(screen.getByText(/Add a little more detail/i)).toBeInTheDocument();
+  });
+
+  it("states what the description did not say rather than assuming it", () => {
+    renderPage();
+    typeDescription("paint the sitting room");
+
+    expect(screen.getByText(/Not stated yet/i)).toBeInTheDocument();
+    expect(screen.queryByText(/4\.5 m x 6 m/)).not.toBeInTheDocument();
+  });
+
+  it("offers worked examples that fill the box", () => {
+    renderPage();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Screed a 20 m2 living room at 50 mm/i,
+      }),
+    );
+    expect(screen.getByLabelText("Describe your project")).toHaveValue(
+      "Screed a 20 m2 living room at 50 mm",
+    );
+    expect(screen.getByText("Screeding Cost Estimator")).toBeInTheDocument();
+  });
+
   // ── Feature list ──
 
   it("renders all features in the RewardedFeatureGate", async () => {
     renderPage();
+    typeDescription(DESCRIPTION);
 
     await waitFor(() => {
       expect(screen.getByTestId("features-list")).toBeInTheDocument();
     });
-    const featureItems = screen.getAllByRole("listitem");
+    const featureItems = within(
+      screen.getByTestId("features-list"),
+    ).getAllByRole("listitem");
     expect(featureItems).toHaveLength(8);
     expect(
       screen.getByText("AI-powered estimation for any project type"),
@@ -149,8 +225,9 @@ describe("SmartCalculator page", () => {
 
   // ── AdvancedCalculator rendering ──
 
-  it("passes the AI context and clientHash to AdvancedCalculator", async () => {
+  it("passes the described project and clientHash to AdvancedCalculator", async () => {
     renderPage();
+    typeDescription(DESCRIPTION);
 
     await waitFor(() => {
       expect(screen.getByTestId("advanced-calculator")).toBeInTheDocument();
@@ -159,8 +236,13 @@ describe("SmartCalculator page", () => {
       "data-hash",
       "mock-hash",
     );
+    // The AI panel now receives the visitor's own words and the reading, in
+    // place of the placeholder that used to say there was no form data.
     expect(screen.getByTestId("context-summary")).toHaveTextContent(
-      /freeform AI estimation/i,
+      /4\.5 m by 6 m bedroom/,
+    );
+    expect(screen.getByTestId("context-summary")).toHaveTextContent(
+      /Paint Calculator/,
     );
   });
 
