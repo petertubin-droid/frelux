@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Paintbrush } from "lucide-react";
 import type { LoaderConfig } from "@/types/database";
 import { LogoMark } from "@/components/brand/Logo";
@@ -24,8 +24,8 @@ export const LOADER_STYLE_OPTIONS: {
 }[] = [
   {
     value: "gradient_ring",
-    label: "Gradient Ring",
-    description: "Rotating gradient circle with the logo (default)",
+    label: "Aurora Ring",
+    description: "Hairline track with a brand sweep (default)",
   },
   {
     value: "dual_rings",
@@ -80,8 +80,8 @@ export const DEFAULT_LOADER_CONFIG: LoaderConfig = {
   size: "md",
   speed: "normal",
   primary_color: "#7c3aed",
-  secondary_color: "#2563eb",
-  show_logo: true,
+  secondary_color: "#f97316",
+  show_logo: false,
   logo_url: null,
   text: "",
 };
@@ -139,6 +139,22 @@ export function useLoaderConfig() {
 /** Force a re-fetch after admin saves (clears the module cache). */
 export function invalidateLoaderConfigCache() {
   cachedConfig = null;
+}
+
+/** Fade a CSS colour to transparent. Falls back to `transparent` for any
+ *  format that cannot be faded safely (named colours, colour functions). */
+function fade(color: string, alpha: number) {
+  const hex = color.trim().replace("#", "");
+  const full =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : hex;
+  if (!/^[0-9a-fA-F]{6}$/.test(full)) return "transparent";
+  const value = parseInt(full, 16);
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
 }
 
 const SIZES: Record<LoaderConfig["size"], number> = { sm: 64, md: 96, lg: 128 };
@@ -406,37 +422,46 @@ export function LoaderVisual({
     );
   }
 
-  // gradient_ring (default)
+  // gradient_ring (default): a hairline track with one brand sweep and a
+  // soft bloom underneath. Nothing sits in the middle, so the loader never
+  // reads as a letter in a disc.
+  const thickness = Math.max(2, Math.round(size * 0.045));
+  const sweep = `conic-gradient(from 0deg, ${fade(primary, 0)} 0deg, ${primary} 90deg, ${secondary} 250deg, ${fade(secondary, 0)} 350deg, ${fade(primary, 0)} 360deg)`;
+  const spin = `${Math.round(1.8 * mult * 100) / 100}s`;
+  const ringStyle: CSSProperties = {
+    background: sweep,
+    WebkitMaskImage: `radial-gradient(farthest-side, transparent calc(100% - ${thickness}px), #000 calc(100% - ${thickness}px))`,
+    maskImage: `radial-gradient(farthest-side, transparent calc(100% - ${thickness}px), #000 calc(100% - ${thickness}px))`,
+    animationDuration: spin,
+  };
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
-      <defs>
-        <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={primary} />
-          <stop offset="100%" stopColor={secondary} />
-        </linearGradient>
-      </defs>
-      <circle
-        cx="50"
-        cy="50"
-        r="41"
-        fill="none"
-        stroke="#a1a1aa"
-        strokeWidth="4"
-        opacity="0.25"
+    <div
+      className="relative"
+      style={{ width: size, height: size }}
+      role="progressbar"
+      aria-label="Loading"
+    >
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          boxShadow: `inset 0 0 0 ${thickness}px ${fade("#71717a", 0.16)}`,
+        }}
       />
-      <circle
-        cx="50"
-        cy="50"
-        r="41"
-        fill="none"
-        stroke={`url(#${gradId})`}
-        strokeWidth="6"
-        strokeLinecap="round"
-        strokeDasharray="200 110"
-        className="animate-spin"
-        style={{ animationDuration: `${dur}s`, transformOrigin: "50% 50%" }}
+      <div
+        className="absolute animate-spin rounded-full"
+        style={{
+          inset: -Math.round(thickness / 2),
+          background: sweep,
+          filter: `blur(${Math.max(3, Math.round(size * 0.05))}px)`,
+          opacity: 0.35,
+          animationDuration: spin,
+        }}
       />
-    </svg>
+      <div
+        className="absolute inset-0 animate-spin rounded-full"
+        style={ringStyle}
+      />
+    </div>
   );
 }
 
@@ -459,7 +484,10 @@ export default function BrandedLoader() {
   if (!config.enabled) {
     return (
       <div className="flex items-center justify-center py-32">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-brand-purple dark:border-t-brand-purple-lighter" />
+        <LoaderVisual
+          config={{ ...DEFAULT_LOADER_CONFIG, show_logo: false }}
+          sizePx={32}
+        />
       </div>
     );
   }
@@ -478,28 +506,23 @@ export default function BrandedLoader() {
           config.style !== "dots" &&
           config.style !== "progress" && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div
-                className="rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-md"
-                style={{ width: size * 0.46, height: size * 0.46 }}
-              >
-                {logoSrc ? (
-                  <img
-                    src={logoSrc}
-                    alt=""
-                    style={{
-                      width: size * 0.38,
-                      height: size * 0.38,
-                      objectFit: "contain",
-                    }}
-                  />
-                ) : (
-                  <LogoMark
-                    variant="auto"
-                    size={Math.round(size * 0.36)}
-                    className="object-contain"
-                  />
-                )}
-              </div>
+              {logoSrc ? (
+                <img
+                  src={logoSrc}
+                  alt=""
+                  style={{
+                    width: size * 0.34,
+                    height: size * 0.34,
+                    objectFit: "contain",
+                  }}
+                />
+              ) : (
+                <LogoMark
+                  variant="auto"
+                  size={Math.round(size * 0.3)}
+                  className="object-contain"
+                />
+              )}
             </div>
           )}
       </div>

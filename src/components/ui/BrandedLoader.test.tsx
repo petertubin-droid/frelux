@@ -12,23 +12,27 @@ vi.mock("@/lib/supabase-lazy", () => ({
 }));
 
 describe("BrandedLoader", () => {
-  it("renders the default gradient ring loader with a rotating message", () => {
+  it("renders the default aurora ring with a rotating message", () => {
     render(<BrandedLoader />);
     expect(screen.getByText("Loading…")).toBeTruthy();
-    // gradient ring renders an <svg>
-    expect(document.querySelector("svg")).toBeTruthy();
+    // The sweep is the brand arc on a hairline track, not a letter in a disc.
+    const ring = document.querySelector('[role="progressbar"]') as HTMLElement;
+    expect(ring).toBeTruthy();
+    const sweep = ring.querySelector(".animate-spin") as HTMLElement;
+    expect(sweep.style.background).toContain("conic-gradient");
+    expect(sweep.style.animationDuration).toBe("1.8s");
   });
 
-  it("falls back to a plain spinner when disabled", () => {
-    // enabled=false makes BrandedLoader render a minimal fallback spinner;
-    // here we verify the minimal spinner visual renders its circles.
-    const { container } = render(
-      <LoaderVisual
-        config={{ ...DEFAULT_LOADER_CONFIG, style: "spinner" }}
-        sizePx={64}
-      />,
-    );
-    expect(container.querySelector("svg circle")).toBeTruthy();
+  it("keeps the middle of the ring empty by default", () => {
+    // Owner directive 2026-11-07: no monogram in a white circle.
+    render(<BrandedLoader />);
+    expect(document.querySelector('[role="progressbar"] img')).toBeNull();
+    expect(document.querySelector('[role="progressbar"] svg')).toBeNull();
+  });
+
+  it("keeps the mark off unless an admin asks for it", () => {
+    // The mark is available, but the premium default is the bare ring.
+    expect(DEFAULT_LOADER_CONFIG.show_logo).toBe(false);
   });
 
   it("renders every selectable loader style without crashing", () => {
