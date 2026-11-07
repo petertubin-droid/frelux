@@ -119,7 +119,7 @@ export default function SoffitGutterEstimator() {
                 ? `${perimeter || "0"} m`
                 : `${(2 * (Number(length || 0) + Number(width || 0))).toFixed(1)} m (derived from footprint)`
             }
-            overhang={`${overhang || "0"} m`}
+            overhang={overhang ? `${overhang} m` : "not entered"}
             material={SOFFIT_MATERIAL_LABELS[material]}
             downpipes={
               result?.lines

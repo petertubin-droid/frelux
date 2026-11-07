@@ -128,8 +128,8 @@ export default function RetainingWallEstimator() {
           {preview && (
             <CalculatorSchematic
               kind="retaining-wall"
-              length={`${length || "0"} m`}
-              height={`${height || "0"} m`}
+              length={length ? `${length} m` : "not entered"}
+              height={height ? `${height} m` : "not entered"}
               footingWidth={`${preview.recommended_footing_width_m} m`}
               soil={SOIL_LABELS[soil]}
               stem={stem === "block" ? "hollow block" : "poured concrete"}

@@ -4,7 +4,10 @@ import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
-import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
+import {
+  CalculatorSchematic,
+  foundationExtentLabel,
+} from "@/components/engineering/CalculatorSchematic";
 import { useMarket } from "@/lib/international/market-context";
 import {
   designFoundation,
@@ -386,13 +389,14 @@ export default function FoundationCalculator() {
                 kind="foundation"
                 shape={result.shape}
                 width={`${result.recommended_width} mm`}
-                length={
-                  result.shape === "pad"
-                    ? `${result.recommended_length ?? result.recommended_width} mm`
-                    : result.shape === "strip"
-                      ? `${(buildingLength * 2 + buildingWidth * 2).toFixed(1)} m perimeter`
-                      : `${buildingLength} × ${buildingWidth} m footprint`
-                }
+                length={foundationExtentLabel({
+                  shape: result.shape,
+                  unit: measurementUnit,
+                  length: buildingLength,
+                  width: buildingWidth,
+                  padWidthMm: result.recommended_width,
+                  padLengthMm: result.recommended_length ?? undefined,
+                })}
                 depth={`${depth} ${measurementUnit}`}
                 bearing={`${result.bearing_capacity}`}
                 pressure={`${result.applied_pressure}`}
