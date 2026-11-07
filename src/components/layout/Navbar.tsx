@@ -206,7 +206,7 @@ export default function Navbar() {
         className={classNames(
           "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,backdrop-filter,border-radius] duration-500",
           scrolled
-            ? "border-border/40 bg-background/60 shadow-[0_18px_44px_-34px_rgba(16,12,40,0.8)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-background/55"
+            ? "nav-glass border-border/40 shadow-[0_18px_44px_-34px_rgba(16,12,40,0.8)] dark:border-white/10"
             : "border-transparent bg-transparent backdrop-blur-none",
         )}
       >
