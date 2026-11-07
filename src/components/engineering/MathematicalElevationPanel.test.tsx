@@ -1,0 +1,35 @@
+import { describe, expect, it, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MathematicalElevationPanel } from "./MathematicalElevationPanel";
+
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    auth: { getUser: vi.fn(async () => ({ data: { user: null } })) },
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+    })),
+    storage: {
+      from: vi.fn(() => ({ upload: vi.fn(), createSignedUrl: vi.fn() })),
+    },
+  },
+}));
+
+describe("MathematicalElevationPanel", () => {
+  it("opens on the quick start rather than a wall of engineering fields", () => {
+    render(<MathematicalElevationPanel onApplyDerivedInput={() => {}} />);
+    expect(screen.getByText(/Pick the closest building/)).toBeTruthy();
+    expect(screen.getByLabelText("Longest side")).toBeTruthy();
+  });
+
+  it("recomputes the headline heights when a preset is chosen", () => {
+    render(<MathematicalElevationPanel onApplyDerivedInput={() => {}} />);
+    const before = screen.getByText("Height to the roof peak")
+      .nextElementSibling?.textContent;
+    fireEvent.click(screen.getByText("4-bedroom duplex"));
+    const after = screen.getByText("Height to the roof peak").nextElementSibling
+      ?.textContent;
+    expect(after).not.toBe(before);
+  });
+});
