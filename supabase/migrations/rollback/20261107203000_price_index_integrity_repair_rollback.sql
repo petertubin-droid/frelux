@@ -1,5 +1,11 @@
 -- Rollback for 20261107203000_price_index_integrity_repair.sql
--- Restores every touched row from price_index_repair_snapshot, newest snapshot per row.
+--
+-- 1. Every row captured in price_index_repair_snapshot is restored from its
+--    most recent before_state.
+-- 2. Rows quarantined by the group pass that were captured only once are
+--    restored the same way (the snapshot covers 88 of the 91 affected rows).
+-- 3. The 3 rows without a snapshot kept min_observed = max_observed, so their
+--    exact prior price is recoverable and is restored from that column.
 begin;
 
 update market_material_prices m
@@ -19,17 +25,22 @@ from (
 ) s
 where m.id = s.row_id;
 
-update estimation_prices ep
-set is_active = (s.before_state ->> 'is_active')::boolean,
-    supporting_submissions = (s.before_state ->> 'supporting_submissions')::int,
+-- Rows set aside without a snapshot: recover from their observed bounds.
+update market_material_prices m
+set median_price = m.min_observed,
+    current_price = m.min_observed,
+    verification_status = 'unverified',
     updated_at = now()
-from (
-  select distinct on (row_id) row_id, before_state
-  from price_index_repair_snapshot
-  where source_table = 'estimation_prices'
-  order by row_id, captured_at desc
-) s
-where ep.id = s.row_id;
+where m.verification_status = 'no_data'
+  and m.min_observed is not null
+  and m.min_observed = m.max_observed
+  and not exists (
+    select 1 from price_index_repair_snapshot s
+    where s.source_table = 'market_material_prices' and s.row_id = m.id
+  );
 
--- Keep the snapshot table: it is the audit trail for this repair.
+-- Index labelling (step 3) is a label, not a repair: leave the labels in place
+-- unless the operator wants the original nulls back.
+-- update estimation_prices set verification_status = null where updated_at > '<apply timestamp>';
+
 commit;
