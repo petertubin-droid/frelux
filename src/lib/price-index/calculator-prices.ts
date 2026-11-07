@@ -20,6 +20,7 @@ import {
   type ResolvedMaterialPrice,
 } from "@/lib/estimation/market-materials";
 import { fetchListings } from "@/lib/price-index/queries";
+import { cachedRead, CACHE_TTL } from "@/lib/data-cache";
 import { resolveMaterialPrice } from "@/lib/price-index/resolver";
 
 export type PriceBasis = "city" | "market";
@@ -43,6 +44,20 @@ export interface CityAwarePrice extends ResolvedMaterialPrice {
  * selector must not quietly price work for a city the user cannot see.
  */
 export async function resolveCityAwarePriceByRole(
+  role: MaterialRole,
+  market: string,
+  citySlug?: string | null,
+): Promise<CityAwarePrice | null> {
+  // The city refinement costs an extra listings read; calculators ask for the
+  // same role repeatedly, so short-cache the composed answer.
+  return cachedRead(
+    `city-price:${market}:${citySlug ?? "-"}:${role}`,
+    CACHE_TTL.prices,
+    () => loadCityAwarePriceByRole(role, market, citySlug),
+  );
+}
+
+async function loadCityAwarePriceByRole(
   role: MaterialRole,
   market: string,
   citySlug?: string | null,

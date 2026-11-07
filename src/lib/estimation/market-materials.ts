@@ -10,6 +10,7 @@
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
+import { cachedRead, CACHE_TTL } from "@/lib/data-cache";
 import {
   classifyEvidence,
   type EvidenceClass,
@@ -108,6 +109,13 @@ export async function fetchMarketRoleMappings(
 
 /** Follows market_profiles.inherits_from from `market` toward the NG reference. */
 export async function fetchInheritanceChain(market: string): Promise<string[]> {
+  // Walked on every role lookup; the profile graph changes rarely.
+  return cachedRead(`inheritance:${market}`, CACHE_TTL.catalogue, () =>
+    loadInheritanceChain(market),
+  );
+}
+
+async function loadInheritanceChain(market: string): Promise<string[]> {
   const chain = [market];
   let current = market;
   for (let depth = 0; depth < 5; depth += 1) {
@@ -131,6 +139,17 @@ export async function fetchInheritanceChain(market: string): Promise<string[]> {
  * the caller reports "not priced in this market", never guesses.
  */
 export async function resolveMaterialPriceByRole(
+  role: MaterialRole,
+  market: string,
+): Promise<ResolvedMaterialPrice | null> {
+  // Every priced calculator asks the same handful of role questions. A short
+  // window turns repeat navigations into local reads.
+  return cachedRead(`role-price:${market}:${role}`, CACHE_TTL.prices, () =>
+    loadMaterialPriceByRole(role, market),
+  );
+}
+
+async function loadMaterialPriceByRole(
   role: MaterialRole,
   market: string,
 ): Promise<ResolvedMaterialPrice | null> {

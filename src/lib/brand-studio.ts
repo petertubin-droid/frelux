@@ -6,6 +6,7 @@
 // admin configuration systems.
 // =========================================================
 
+import { invalidateCache } from "@/lib/data-cache";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
@@ -165,6 +166,7 @@ export async function fetchPdfBrandingConfig(): Promise<PdfDefaultBrandingConfig
 }
 
 export function invalidateBrandingConfigCache(): void {
+  invalidateCache("settings");
   configCache = null;
   configCacheExpiry = 0;
 }

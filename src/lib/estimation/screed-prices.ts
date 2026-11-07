@@ -51,11 +51,18 @@ export async function resolveScreedPrices<T extends ScreedingSystemConfig>(
       // than reporting a configured material as unpriced.
       return fallback != null && fallback > 0 ? fallback : null;
     };
+    // Independent lookups: issuing them together turns three serial round
+    // trips into one wait.
+    const [putty, paint, cement] = await Promise.all([
+      resolve("joint-filler", cfg.puttyPricePerUnit),
+      resolve("interior-paint", cfg.paintPricePerUnit),
+      resolve("concrete-mix", cfg.cementPricePerUnit),
+    ]);
     return {
       ...cfg,
-      puttyPricePerUnit: await resolve("joint-filler", cfg.puttyPricePerUnit),
-      paintPricePerUnit: await resolve("interior-paint", cfg.paintPricePerUnit),
-      cementPricePerUnit: await resolve("concrete-mix", cfg.cementPricePerUnit),
+      puttyPricePerUnit: putty,
+      paintPricePerUnit: paint,
+      cementPricePerUnit: cement,
     };
   }
   return {

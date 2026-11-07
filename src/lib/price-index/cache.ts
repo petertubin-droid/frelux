@@ -1,3 +1,5 @@
+import { invalidateCache } from "@/lib/data-cache";
+
 /**
  * Price read cache.
  *
@@ -102,6 +104,12 @@ export function invalidatePriceCache(): number {
   store.clear();
   inFlight.clear();
   generation += 1;
+  // The shared read cache also holds derived price answers (role lookups, city
+  // refinements, the composed market price book). A price write must clear
+  // those too or an admin edit would linger for the rest of its lifetime.
+  invalidateCache("price-book");
+  invalidateCache("role-price");
+  invalidateCache("city-price");
   return dropped;
 }
 

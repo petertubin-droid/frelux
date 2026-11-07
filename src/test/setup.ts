@@ -1,11 +1,18 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach, beforeAll, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, vi } from "vitest";
 import { LANGUAGES, ensureLanguageLoaded } from "@/lib/i18n";
+import { __resetDataCache } from "@/lib/data-cache";
 
 // Auto-cleanup after each test
 afterEach(() => {
   cleanup();
+});
+
+// The shared read cache lives at module scope, so reset it between cases to
+// keep each test's mocked reads independent.
+beforeEach(() => {
+  __resetDataCache();
 });
 
 // The app fetches each machine dictionary on demand, but the suite reads the

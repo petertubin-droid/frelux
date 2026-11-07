@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { cachedRead, CACHE_TTL } from "@/lib/data-cache";
 import { ageInDays, STALE_AFTER_DAYS } from "@/lib/pricing/provenance";
 import { invalidatePriceCache } from "@/lib/price-index/cache";
 import {
@@ -443,6 +444,14 @@ export async function fetchMarketPriceBook(
   marketCode: string,
 ): Promise<MarketPriceBook> {
   const market = marketCode || "NG";
+  // Composed over several reads and megabytes of rows; calculators and the
+  // index page ask for it repeatedly, so hold it briefly per market.
+  return cachedRead(`price-book:${market}`, CACHE_TTL.prices, () =>
+    loadMarketPriceBook(market),
+  );
+}
+
+async function loadMarketPriceBook(market: string): Promise<MarketPriceBook> {
   const byRef = new Map<string, number>();
   const fromReference = new Set<string>();
   const asOf = new Map<string, string>();

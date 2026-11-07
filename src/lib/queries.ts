@@ -1,3 +1,4 @@
+import { cachedRead, CACHE_TTL } from "@/lib/data-cache";
 import {
   supabase,
   isSupabaseConfigured,
@@ -105,15 +106,22 @@ export async function fetchLegalPage(slug: string) {
 }
 
 export async function fetchSiteSettings() {
-  if (!isSupabaseConfigured) return { data: null, error: null };
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select("*")
-    .limit(1)
-    .maybeSingle();
-  return { data: data as DbSiteSettings | null, error };
+  return cachedRead(
+    "settings:site",
+    CACHE_TTL.settings,
+    async () => {
+      if (!isSupabaseConfigured) return { data: null, error: null };
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+      return { data: data as DbSiteSettings | null, error };
+    },
+    // Never cache an absent row: a settings row created later must appear.
+    { failed: (r) => Boolean(r.error) || !r.data },
+  );
 }
-
 export async function fetchPaintTypes() {
   const { data, error } = await supabase
     .from("paint_types")
@@ -122,7 +130,6 @@ export async function fetchPaintTypes() {
     .order("sort_order");
   return { data: (data ?? []) as DbPaintType[], error };
 }
-
 export async function fetchPaintProducts() {
   const { data, error } = await supabase
     .from("paint_products")
@@ -131,7 +138,6 @@ export async function fetchPaintProducts() {
     .order("sort_order");
   return { data: (data ?? []) as DbPaintProduct[], error };
 }
-
 export async function fetchMaterialPrices() {
   const { data, error } = await supabase
     .from("material_prices")
@@ -140,7 +146,6 @@ export async function fetchMaterialPrices() {
     .order("sort_order");
   return { data: (data ?? []) as DbMaterialPrice[], error };
 }
-
 export async function fetchLaborRates() {
   const { data, error } = await supabase
     .from("labor_rates")
@@ -149,7 +154,6 @@ export async function fetchLaborRates() {
     .order("sort_order");
   return { data: (data ?? []) as DbLaborRate[], error };
 }
-
 export async function fetchScreedingMaterials() {
   const { data, error } = await supabase
     .from("screeding_materials")
@@ -158,7 +162,6 @@ export async function fetchScreedingMaterials() {
     .order("sort_order");
   return { data: (data ?? []) as DbScreedingMaterial[], error };
 }
-
 // =========================================================
 // Finish Types (Painting, Tyrolene, Grafitex)
 // =========================================================
@@ -262,7 +265,6 @@ export async function fetchPopWorkflows() {
     .order("sort_order");
   return { data: (data ?? []) as DbPopWorkflow[], error };
 }
-
 // =========================================================
 // Tile Sizes & Materials
 // =========================================================
@@ -275,7 +277,6 @@ export async function fetchTileSizes() {
     .order("sort_order");
   return { data: (data ?? []) as DbTileSize[], error };
 }
-
 export async function fetchTileMaterials(category?: string, market?: string) {
   // Offline path: the bundled static book serves the same production
   // material rows when the project is not connected.
