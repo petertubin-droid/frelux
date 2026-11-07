@@ -3,23 +3,91 @@ import { classNames } from "@/lib/utils";
 import { useBranding } from "@/lib/branding";
 import { useTheme } from "@/lib/theme";
 
+/**
+ * Brand lockup.
+ *
+ * The artwork is fixed: the rounded tile, the gradient and the monogram are the
+ * logo files in /public/brand, and nothing here redraws them. What this file
+ * owns is the presentation, and the presentation follows the rules a large
+ * product lockup follows rather than a marketing badge:
+ *
+ * 1. The mark and the wordmark share one optical centre. The tile is a square,
+ *    an all-caps wordmark is not, so each size pairs an explicit mark edge with
+ *    an explicit cap height instead of leaving both at `text-xl` and hoping.
+ * 2. One accent. The tile already carries the orange rule inside the artwork,
+ *    so a second accent rule beside the wordmark was drawing the same signal
+ *    twice within ten pixels. It is gone.
+ * 3. The mark does not move. A logo that scales on hover reads as a button, so
+ *    the hover state belongs to the link around it, not to the artwork.
+ * 4. Type is legible at its actual size. The descriptor sat at 10px in a 70%
+ *    tint, which is below the size where small caps stay readable and below the
+ *    contrast a small label needs. It is 11px in the muted token now.
+ * 5. One accessible name. The image is decorative because the text beside it
+ *    already says the name, and the link that wraps the lockup supplies the
+ *    label, so `decorative` drops the role rather than repeating the name twice.
+ */
+
+type LogoSize = "sm" | "md" | "lg";
+
 interface LogoProps {
   className?: string;
   variant?: "full" | "mark";
-  light?: boolean; // for dark backgrounds
+  /** Set for dark surfaces; otherwise the theme decides. */
+  light?: boolean;
+  /** Pairing of mark edge and type scale. Defaults to the header size. */
+  size?: LogoSize;
+  /**
+   * Drop the accessible name entirely. Use where a wrapping link already
+   * carries the label, so the name is not announced twice.
+   */
+  decorative?: boolean;
 }
+
+/**
+ * Mark edge in pixels against the type that sits beside it.
+ *
+ * The wordmark cap height lands at roughly 0.72 of its font size, and a tile
+ * reads correctly a little larger than that cap, so a 32px tile pairs with an
+ * 18px wordmark and a 28px tile with 16px.
+ */
+const SIZE_TOKENS: Record<
+  LogoSize,
+  { edge: number; gap: string; name: string; descriptor: string; rule: string }
+> = {
+  sm: {
+    edge: 28,
+    gap: "gap-2",
+    name: "text-[15px] leading-[15px]",
+    descriptor: "text-[11px] leading-[11px] tracking-[0.1em]",
+    rule: "mt-[3px]",
+  },
+  md: {
+    edge: 32,
+    gap: "gap-2.5",
+    name: "text-[17px] leading-[17px] sm:text-[18px] sm:leading-[18px]",
+    descriptor: "text-[11px] leading-[11px] tracking-[0.13em]",
+    rule: "mt-[4px]",
+  },
+  lg: {
+    edge: 40,
+    gap: "gap-3",
+    name: "text-[21px] leading-[21px]",
+    descriptor: "text-[11px] leading-[11px] tracking-[0.14em]",
+    rule: "mt-[5px]",
+  },
+};
 
 export default function Logo({
   className,
   variant = "full",
   light = false,
+  size = "md",
+  decorative = false,
 }: LogoProps) {
   const { branding } = useBranding();
   const { theme } = useTheme();
   const onDark = light || theme === "dark";
-  const brandText = onDark ? "text-white" : "text-brand-purple";
-  const subText = onDark ? "text-white/70" : "text-brand-purple/70";
-  const accentBar = onDark ? "bg-brand-orange" : "bg-brand-orange";
+  const token = SIZE_TOKENS[size];
 
   const logoUrl =
     theme === "dark" ? branding?.dark_logo_url : branding?.light_logo_url;
@@ -36,54 +104,53 @@ export default function Logo({
 
   return (
     <span
-      role="img"
-      aria-label={displayName}
+      {...(decorative
+        ? { "aria-hidden": true as const }
+        : { role: "img", "aria-label": displayName })}
       className={classNames(
-        "inline-flex items-center gap-2.5 sm:gap-3 select-none",
+        "inline-flex select-none items-center",
+        token.gap,
         className,
       )}
     >
       {logoUrl ? (
         <img
           src={logoUrl}
-          alt={displayName}
+          alt=""
           aria-hidden="true"
-          width={36}
-          height={36}
-          className="h-9 w-auto shrink-0"
+          width={token.edge}
+          height={token.edge}
+          decoding="async"
+          className="shrink-0 object-contain"
+          style={{ height: token.edge, width: "auto" }}
         />
       ) : (
         <LogoMark
-          className="h-9 w-9 shrink-0 drop-shadow-sm transition-transform duration-200 group-hover:scale-[1.03]"
-          variant={light || theme === "dark" ? "light" : "dark"}
+          size={token.edge}
+          className="shrink-0"
+          variant={onDark ? "light" : "dark"}
         />
       )}
       {variant === "full" && (
-        <span className="flex flex-col justify-center leading-none">
+        <span className="flex min-w-0 flex-col justify-center">
           <span
             className={classNames(
-              "font-display text-[17px] font-extrabold tracking-[-0.01em]",
-              brandText,
+              "font-display font-bold tracking-[-0.02em]",
+              onDark ? "text-white" : "text-brand-purple",
+              token.name,
             )}
           >
             {shortName}
           </span>
-          <span className="mt-1 flex items-center gap-1.5">
-            <span
-              aria-hidden="true"
-              className={classNames(
-                "h-[2px] w-3 rounded-full shrink-0",
-                accentBar,
-              )}
-            />
-            <span
-              className={classNames(
-                "text-[10px] font-semibold uppercase tracking-[0.18em]",
-                subText,
-              )}
-            >
-              {tagline}
-            </span>
+          <span
+            className={classNames(
+              "font-medium uppercase",
+              onDark ? "text-white/65" : "text-muted-foreground",
+              token.descriptor,
+              token.rule,
+            )}
+          >
+            {tagline}
           </span>
         </span>
       )}
@@ -94,7 +161,7 @@ export default function Logo({
 export function LogoMark({
   className,
   variant = "auto",
-  size = 36,
+  size = 32,
 }: {
   className?: string;
   /** "light" is the white knock-out for dark surfaces. */
@@ -107,10 +174,11 @@ export function LogoMark({
   return (
     <img
       src={light ? "/brand/frelux-mark-light.svg" : "/brand/frelux-mark.svg"}
-      alt={`${siteConfig.name} logo`}
+      alt=""
       aria-hidden="true"
       width={size}
       height={size}
+      decoding="async"
       className={classNames("aspect-square object-contain", className)}
     />
   );

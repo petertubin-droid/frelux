@@ -300,7 +300,7 @@ export default function Login() {
             </Link>
           </div>
           <div className="mt-8 flex justify-center">
-            <Logo />
+            <Logo size="lg" />
           </div>
         </div>
       </div>
@@ -319,7 +319,7 @@ export default function Login() {
       />
       <div className="relative w-full max-w-[420px] animate-fade-in-up">
         <div className="mb-7 flex justify-center">
-          <Logo />
+          <Logo size="lg" />
         </div>
         <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-6 shadow-premium backdrop-blur-xl transition-all duration-300 sm:p-8 dark:border-white/10 dark:bg-card/70">
           <div

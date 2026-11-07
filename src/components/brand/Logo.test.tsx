@@ -10,6 +10,7 @@ vi.mock("@/lib/theme", () => ({
 }));
 
 import Logo, { LogoMark } from "@/components/brand/Logo";
+import { siteConfig } from "@/config/site";
 
 describe("Logo", () => {
   it("renders with default full variant", () => {
@@ -20,11 +21,13 @@ describe("Logo", () => {
   it("renders mark variant without text", () => {
     const { container } = render(<Logo variant="mark" />);
     expect(container.querySelector("img")).toBeTruthy();
+    expect(screen.queryByText("FRELUX")).toBeNull();
   });
 
   it("uses light text for dark backgrounds", () => {
     const { container } = render(<Logo light />);
     expect(container.querySelector("img")).toBeTruthy();
+    expect(container.querySelector(".text-white")).toBeTruthy();
   });
 
   it("accepts custom className", () => {
@@ -40,6 +43,59 @@ describe("Logo", () => {
   it("renders tagline text", () => {
     render(<Logo />);
     expect(screen.getByText("Smart Calc")).toBeTruthy();
+  });
+
+  it("pairs the mark edge with the type scale of each size", () => {
+    const { container: sm } = render(<Logo size="sm" />);
+    expect(sm.querySelector("img")?.getAttribute("width")).toBe("28");
+    const { container: md } = render(<Logo size="md" />);
+    expect(md.querySelector("img")?.getAttribute("width")).toBe("32");
+    const { container: lg } = render(<Logo size="lg" />);
+    expect(lg.querySelector("img")?.getAttribute("width")).toBe("40");
+  });
+
+  it("keeps the descriptor at or above eleven pixels", () => {
+    for (const size of ["sm", "md", "lg"] as const) {
+      const { container } = render(<Logo size={size} />);
+      const descriptor = container.querySelector(
+        ".uppercase",
+      ) as HTMLElement | null;
+      expect(descriptor, size).toBeTruthy();
+      const className = descriptor!.className;
+      // 10px small caps were below the size where the label stays readable.
+      expect(className, size).not.toMatch(/text-\[(?:[0-9]|10)px\]/);
+      expect(className, size).toMatch(/text-\[1[1-9]px\]/);
+    }
+  });
+
+  it("does not animate or shadow the mark", () => {
+    const { container } = render(<Logo />);
+    const html = container.innerHTML;
+    // A logo that scales on hover reads as a button; hover belongs to the link.
+    expect(html).not.toContain("scale-");
+    expect(html).not.toContain("drop-shadow");
+  });
+
+  it("names itself once, from one element", () => {
+    render(<Logo />);
+    const named = screen.queryAllByRole("img");
+    expect(named).toHaveLength(1);
+    // The mark image is decorative: the lockup names itself once, not twice.
+    expect(named[0].tagName).toBe("SPAN");
+    expect(named[0].getAttribute("aria-label")).toBe(siteConfig.name);
+  });
+
+  it("drops the name where a wrapping link already carries it", () => {
+    render(<Logo decorative />);
+    expect(screen.queryByRole("img")).toBeNull();
+    expect(document.querySelector('[aria-hidden="true"]')).toBeTruthy();
+  });
+
+  it("never renders the long SEO tagline in the lockup", () => {
+    render(<Logo />);
+    expect(
+      screen.queryByText(/Every Trade\. Every Cost\. One Platform\./),
+    ).toBeNull();
   });
 });
 

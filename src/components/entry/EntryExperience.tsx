@@ -147,20 +147,25 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
         }}
       >
         <div className="flex flex-col items-center">
-          {/* Logo mark: the existing FRELUX brand asset */}
+          {/* Logo mark. The artwork already carries its own tile, radius and
+              accent rule, so it is rendered bare: the padded white wash, ring
+              and glow this used to sit inside drew a second frame around a
+              rounded square and muddied the gradient at small sizes. */}
           <div className="entry-rise" style={rise(120)}>
             <img
-              src="/logo-mark-light.png"
+              src="/brand/frelux-mark-light.svg"
               alt={t("FRELUX SMART CALC")}
               width={64}
               height={64}
-              className="h-14 w-14 rounded-2xl bg-white/5 p-1.5 ring-1 ring-white/15 shadow-[0_10px_40px_-12px_rgba(109,40,217,0.55)] sm:h-16 sm:w-16"
+              decoding="async"
+              className="h-16 w-16 object-contain sm:h-[72px] sm:w-[72px]"
             />
           </div>
 
-          {/* Wordmark: engineering-grade letter spacing */}
+          {/* Wordmark. Tracking is open to keep the hero airy, but 0.32em broke
+              the word into six separate letters; 0.16em still reads as one. */}
           <p
-            className="entry-rise mt-5 font-display text-[26px] font-bold tracking-[0.32em] text-white sm:text-[32px]"
+            className="entry-rise mt-5 font-display text-[25px] font-bold tracking-[0.16em] text-white sm:text-[30px]"
             style={rise(260)}
           >
             {t("FRELUX")}

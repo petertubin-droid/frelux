@@ -225,8 +225,12 @@ export default function Navbar() {
             >
               <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
             </Button>
-            <Link to="/" aria-label="FRELUX home" className="group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
-              <Logo />
+            <Link
+              to="/"
+              aria-label="FRELUX home"
+              className="group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <Logo decorative />
             </Link>
           </div>
 
@@ -729,7 +733,7 @@ export default function Navbar() {
               aria-label="FRELUX home"
               className="group min-w-0 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             >
-              <Logo />
+              <Logo decorative />
             </Link>
             <Button
               variant="ghost"

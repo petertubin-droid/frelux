@@ -140,7 +140,7 @@ export default function Footer() {
       <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
         <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
           <div className="col-span-1 md:col-span-3 lg:col-span-2">
-            <Logo />
+            <Logo size="md" />
             <div className="mt-2 text-xs font-semibold tracking-wide text-foreground">
               FRELUX Technologies Ltd.
             </div>
