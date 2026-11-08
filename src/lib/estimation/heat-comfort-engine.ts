@@ -17,6 +17,7 @@
 
 import type { EstimationCalcRule } from "@/types/estimation";
 import { roundTo, ruleNumber } from "./shared/rule-value";
+import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -63,12 +64,8 @@ export interface HeatComfortResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-
-
-
-
 const MAX_DP = 4;
-const SQFT_TO_M2 = 0.092903;
+const SQFT_TO_M2 = AREA_TO_M2.ft2; // exact, not the 6-figure 0.092903
 
 // ─────────────────────────────────────────────
 // Engine
@@ -105,7 +102,11 @@ export function calculateHeatComfort(
   result.surface_type = st;
 
   let area = Number(input.area_sqm);
-  if ((!Number.isFinite(area) || area <= 0) && Number.isFinite(Number(input.area_sqft)) && Number(input.area_sqft) > 0) {
+  if (
+    (!Number.isFinite(area) || area <= 0) &&
+    Number.isFinite(Number(input.area_sqft)) &&
+    Number(input.area_sqft) > 0
+  ) {
     area = Number(input.area_sqft) * SQFT_TO_M2;
   }
 

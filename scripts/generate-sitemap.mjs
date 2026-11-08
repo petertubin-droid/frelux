@@ -71,8 +71,12 @@ function contentFingerprint(routePath) {
   } catch {
     return null;
   }
+  // Strip hashed asset names wherever they appear (src, href, preload, inline
+  // module imports, og:image): a new bundle hash rewrites every page's markup
+  // without changing a word of it, and lastmod must not claim that as a change.
   const normalized = html
     .replace(/(?:src|href)="[^"]*\/assets\/[^"]*"/g, 'src=""')
+    .replace(/-[A-Za-z0-9_]{8}\.(?:js|mjs|css|woff2?|ttf|otf|png|jpe?g|webp|avif|svg)/g, "-HASH")
     .replace(/\s+/g, " ")
     .trim();
   return createHash("sha1").update(normalized).digest("hex").slice(0, 16);

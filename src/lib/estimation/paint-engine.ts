@@ -34,6 +34,7 @@ import {
 } from "./paint-packaging";
 import type { Unit } from "@/types";
 import { feetToMeters, unitToMeters } from "@/lib/utils";
+import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 // =========================================================
 // Types
@@ -215,7 +216,7 @@ export interface PaintEngineProjectResult {
 // Coverage Unit Normalization
 // =========================================================
 
-const SQM_PER_SQFT = 0.09290304;
+const SQM_PER_SQFT = AREA_TO_M2.ft2;
 
 /**
  * Normalizes a coverage value from any unit to m² per liter per coat.

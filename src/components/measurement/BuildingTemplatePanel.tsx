@@ -9,12 +9,13 @@ import {
   type BuildingPreset,
   type RoomDraft,
 } from "@/lib/measurement/building-presets";
+import { LENGTH_TO_M } from "@/lib/convert/units";
 import {
   groupBuildingPresets,
   presetFloorAreaM2,
 } from "@/lib/measurement/building-type-catalogue";
 
-const M_TO_FT = 3.280839895;
+const M_TO_FT = 1 / LENGTH_TO_M.ft;
 
 function toMetres(value: number, unit: "feet" | "meters"): number {
   if (!Number.isFinite(value) || value <= 0) return 0;

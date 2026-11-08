@@ -26,10 +26,12 @@ export type LengthUnit =
   | "kilometers"
   | "miles";
 
-/** Exact SI factors. Defined once, used everywhere. */
-export const YARD_TO_M = 0.9144;
-export const MILE_TO_M = 1609.344;
-export const KM_TO_M = 1000;
+import { LENGTH_TO_M } from "@/lib/convert/units";
+
+/** Exact SI factors, taken from the one module that defines SI. */
+export const YARD_TO_M = LENGTH_TO_M.yd;
+export const MILE_TO_M = LENGTH_TO_M.mi;
+export const KM_TO_M = LENGTH_TO_M.km;
 
 /**
  * Area input units the user might choose directly.
@@ -58,18 +60,18 @@ export type CalculatorContext =
 // =========================================================
 
 /** 1 foot = 0.3048 metres (exact, international definition) */
-export const FT_TO_M = 0.3048;
+export const FT_TO_M = LENGTH_TO_M.ft;
 
 /** 1 inch = 0.0254 metres (exact, international definition) */
-export const INCH_TO_M = 0.0254;
+export const INCH_TO_M = LENGTH_TO_M.in;
 
-/** 1 metre = 3.28084 feet (derived) */
+/** 1 metre = 3.280839895 feet (derived, not the 5-figure approximation) */
 export const M_TO_FT = 1 / FT_TO_M;
 
-/** 1 square metre = 10.7639 square feet (derived) */
+/** 1 square metre = 10.7639104167 square feet (derived) */
 export const SQM_TO_SQFT = 1 / (FT_TO_M * FT_TO_M);
 
-/** 1 square foot = 0.092903 square metres (derived) */
+/** 1 square foot = 0.09290304 square metres (derived) */
 export const SQFT_TO_SQM = FT_TO_M * FT_TO_M;
 
 // =========================================================

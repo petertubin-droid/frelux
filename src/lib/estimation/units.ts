@@ -10,10 +10,16 @@
  * Length: 1 ft = 0.3048 m (exact); 1 in = 0.0254 m (exact)
  */
 
-export const M_PER_FT = 0.3048;
-export const M_PER_IN = 0.0254;
-export const M2_PER_FT2 = 0.09290304; // exact
-export const FT2_PER_M2 = 1 / 0.09290304; // exact
+// The factors themselves live in `@/lib/convert/units`, which is the one place
+// an SI definition is written down. Re-exporting from there keeps this
+// module's surface unchanged while removing a second copy of 0.09290304 that
+// could drift.
+import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
+
+export const M_PER_FT = LENGTH_TO_M.ft;
+export const M_PER_IN = LENGTH_TO_M.in;
+export const M2_PER_FT2 = AREA_TO_M2.ft2; // exact
+export const FT2_PER_M2 = 1 / AREA_TO_M2.ft2; // exact
 
 export type AreaUnit = "m2" | "ft2";
 export type LengthUnit = "m" | "ft" | "in" | "cm" | "mm";

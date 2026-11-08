@@ -22,6 +22,7 @@ import {
   blindBookFor,
   type BlindTypeKey,
 } from "@/config/window-blinds";
+import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 export type LengthUnit = "m" | "ft";
 
@@ -91,7 +92,7 @@ export interface BlindsResult {
   };
 }
 
-const METRES_PER_FOOT = 0.3048;
+const METRES_PER_FOOT = LENGTH_TO_M.ft;
 
 export function toMetres(value: number, unit: LengthUnit): number {
   return unit === "ft" ? value * METRES_PER_FOOT : value;

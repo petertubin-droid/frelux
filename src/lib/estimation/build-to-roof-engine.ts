@@ -40,6 +40,7 @@ import type {
   LabourConfig,
   WastageConfig,
 } from "@/types/build-to-roof";
+import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 // ── Constants ──
 
@@ -125,7 +126,7 @@ export const RAFTER_SPACING = 0.9;
 export const FOUNDATION_COURSES = 4;
 
 // Feet to meters conversion
-export const M_PER_FT = 0.3048;
+export const M_PER_FT = LENGTH_TO_M.ft;
 
 // 1 trip of sand/granite = ~3.5 m³ (standard 5-tonne tipper truck in Nigeria)
 export const M3_PER_TRIP = 3.5;

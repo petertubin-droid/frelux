@@ -13,6 +13,7 @@
  */
 
 import { cementBagKg, masonryUnitsForMarket } from "@/config/masonry-units";
+import { LENGTH_TO_M } from "@/lib/convert/units";
 
 export type UnitSystem = "metric" | "imperial";
 
@@ -149,7 +150,7 @@ export function vocabularyMarkets(): RegionalVocabulary[] {
   return Object.values(VOCABULARY);
 }
 
-const FEET_PER_METRE = 3.280839895;
+const FEET_PER_METRE = 1 / LENGTH_TO_M.ft;
 
 /** A height in the reader's own measure, with the metric figure kept alongside. */
 export function formatHeight(heightM: number, market: string): string {
