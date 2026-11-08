@@ -67,9 +67,28 @@ export function calculatePopCeiling(
           `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`,
         );
       }
+      /**
+       * Contract: `coverage_rate` is square metres of ceiling per one
+       * `coverage_unit`, so `area / coverage` is a count of those units (kg,
+       * litres, boards). `package_size` is how many of the same units one
+       * package holds, so packages = units / package_size.
+       *
+       * Some catalogue rows quote coverage directly per package instead
+       * ("sqm_per_bag", "sqm_per_bucket"). There the division already returns
+       * packages, and dividing again by package_size under-orders by the
+       * package size: a 25 kg bag would be bought as one bag for 25 ceilings'
+       * worth of material. Reading the unit prevents that without needing the
+       * data to be rewritten.
+       */
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
+      const coveragePerPackage =
+        /per[\s_-]*(bag|bucket|package|pkg|pack|tin|drum|roll|board)/i.test(
+          String(mat.coverage_unit ?? ""),
+        );
       const packagesNeeded =
-        pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
+        coveragePerPackage || !(pkgSize > 0)
+          ? Math.ceil(quantity)
+          : Math.ceil(quantity / pkgSize);
       const cost = packagesNeeded * unitPrice;
       materialCost += cost;
       materialResults.push({

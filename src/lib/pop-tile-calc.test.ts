@@ -183,6 +183,63 @@ const baseTileInput: TileCalcInput = {
 // calculatePopCeiling
 // =========================================================
 
+describe("POP package sizing", () => {
+  const materials = (over: Record<string, unknown>) =>
+    [
+      {
+        id: "m1",
+        market: "NG",
+        workflow: "screeding",
+        category: "gypsum",
+        name: "POP cement",
+        description: null,
+        unit: "kg",
+        coverage_rate: 8,
+        coverage_unit: "m2/kg",
+        package_size: 25,
+        package_unit: "kg",
+        unit_price: 18000,
+        labour_rate_per_sqm: 0,
+        is_optional: false,
+        currency: "NGN",
+        is_active: true,
+        sort_order: 1,
+        created_at: "",
+        updated_at: "",
+        ...over,
+      },
+    ] as never;
+  const input = {
+    roomLength: 5,
+    roomWidth: 4,
+    unit: "meters",
+    wasteMargin: 10,
+    workflow: "screeding",
+    includeDecorative: false,
+    includeOptional: false,
+  } as never;
+
+  it("divides coverage units by the package size on a kg basis", () => {
+    // 20 m2 + 10% waste = 22 m2 at 8 m2/kg = 2.75 kg, bought as one 25 kg bag.
+    const r = calculatePopCeiling(input, materials({}), "NGN", "\u20a6");
+    expect(r.materials[0].quantity).toBe(2.8);
+    expect(r.materials[0].packagesNeeded).toBe(1);
+    expect(r.materialCost).toBe(18000);
+  });
+
+  it("does not divide again when coverage is already quoted per package", () => {
+    // 22 m2 at 8 m2/bag is 2.75 bags; dividing by package_size 25 would buy one.
+    const r = calculatePopCeiling(
+      input,
+      materials({ coverage_unit: "sqm_per_bag", unit: "bags" }),
+      "NGN",
+      "\u20a6",
+    );
+    expect(r.materials[0].packagesNeeded).toBe(3);
+    expect(r.materialCost).toBe(54000);
+  });
+});
+
 describe("calculatePopCeiling", () => {
   it("calculates ceiling area as length * width (meters)", () => {
     const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
@@ -430,7 +487,8 @@ describe("calculateTile — identical surfaces (multi-unit)", () => {
     // 3 surfaces beats 3 × 5 = 15 per-surface rounding).
     expect(triple.adhesiveNeeded).toBe(
       Math.ceil(
-        (single.surfaceArea * 3 * wasteMult) / baseTileInput.adhesiveCoverageRate,
+        (single.surfaceArea * 3 * wasteMult) /
+          baseTileInput.adhesiveCoverageRate,
       ),
     );
     expect(triple.adhesiveNeeded).toBeLessThanOrEqual(
@@ -446,7 +504,8 @@ describe("calculateTile — identical surfaces (multi-unit)", () => {
   it("defaults to one surface and floors bad values safely", () => {
     const one = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
     expect(
-      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦").surfaceArea,
+      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦")
+        .surfaceArea,
     ).toBe(one.surfaceArea);
     expect(
       calculateTile(
