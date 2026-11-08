@@ -45,6 +45,12 @@ export interface ElectricalRules {
   socket_va_per_point: number;
   /** Connected load assumed per dedicated appliance point, VA (market rule). */
   dedicated_va_per_point: number;
+  /**
+   * Assumed power factor for the maximum-demand current. A planning figure, not
+   * a measured one: 0.9 is fine for mixed domestic load, lower for motor-heavy
+   * installations. Configurable because it moves the incomer size directly.
+   */
+  power_factor: number;
   cable_waste_pct: number;
   conduit_waste_pct: number;
   /** Planning allowance in m per lighting point; null → not configured */
@@ -61,6 +67,7 @@ export const DEFAULT_ELECTRICAL_RULES: ElectricalRules = {
   lighting_va_per_point: 100,
   socket_va_per_point: 250,
   dedicated_va_per_point: 2500,
+  power_factor: 0.9,
   cable_waste_pct: 0,
   conduit_waste_pct: 0,
   conduit_m_per_lighting_point: null,
@@ -93,6 +100,10 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : null;
   };
+  const pfUnit = (v: unknown): number | null => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 && n <= 1 ? n : null;
+  };
   const len = (v: unknown): number | null => {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : null;
@@ -114,6 +125,8 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
   if (sva !== null) rules.socket_va_per_point = sva;
   const dva = va(get("dedicated_va_per_point"));
   if (dva !== null) rules.dedicated_va_per_point = dva;
+  const pfRule = pfUnit(get("power_factor"));
+  if (pfRule !== null) rules.power_factor = pfRule;
   const cw = pct(get("cable_waste_pct"));
   if (cw !== null) rules.cable_waste_pct = cw;
   const pw = pct(get("conduit_waste_pct"));
@@ -719,7 +732,8 @@ export function calculateElectrical(
 
   const incomerCurrentA =
     systemVoltage > 0
-      ? diversifiedDemandVA / (supplyFactor * systemVoltage * 0.9)
+      ? diversifiedDemandVA /
+        (supplyFactor * systemVoltage * rules.power_factor)
       : 0;
   const standardBreakers = [16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
   const recBreaker =
@@ -751,7 +765,7 @@ export function calculateElectrical(
   if (totalConnectedVA > 0) {
     steps.push({
       label: "Connected load & maximum demand (BS 7671 / NEC 220)",
-      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V ${supplySystem === "three" ? "three-phase (per-line)" : "single-phase"}, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails. Basis: ${rules.lighting_va_per_point} VA per lighting point, ${rules.socket_va_per_point} VA per twin socket point, ${rules.dedicated_va_per_point} VA per appliance point — planning figures configured per market, not guaranteed connected load.`,
+      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V ${supplySystem === "three" ? "three-phase (per-line)" : "single-phase"}, ${rules.power_factor} pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails. Basis: ${rules.lighting_va_per_point} VA per lighting point, ${rules.socket_va_per_point} VA per twin socket point, ${rules.dedicated_va_per_point} VA per appliance point — planning figures configured per market, not guaranteed connected load.`,
     });
   }
 

@@ -116,6 +116,44 @@ describe("connected-load basis", () => {
     );
   });
 
+  it("carries the power factor as a rule, defaulting to 0.9", () => {
+    expect(parseElectricalRules([]).power_factor).toBe(0.9);
+    const droopier = parseElectricalRules([
+      { rule_key: "power_factor", rule_value: { value: 0.8 }, is_active: true },
+    ] as never);
+    expect(droopier.power_factor).toBe(0.8);
+    const standard = calculateElectrical(
+      { ...base } as never,
+      parseElectricalRules([]),
+      {} as never,
+    );
+    const droopy = calculateElectrical(
+      { ...base } as never,
+      droopier,
+      {} as never,
+    );
+    // A lower power factor means more current for the same kVA, so the
+    // recommended incomer cannot shrink.
+    expect(
+      droopy.circuit_summary?.main_incomer_current_a ?? 0,
+    ).toBeGreaterThanOrEqual(
+      standard.circuit_summary?.main_incomer_current_a ?? 0,
+    );
+  });
+
+  it("rejects a power factor outside (0, 1]", () => {
+    for (const bad of [0, 1.5, -0.8]) {
+      const r = parseElectricalRules([
+        {
+          rule_key: "power_factor",
+          rule_value: { value: bad },
+          is_active: true,
+        },
+      ] as never);
+      expect(r.power_factor).toBe(0.9);
+    }
+  });
+
   it("ignores a nonsensical value rather than zeroing the load", () => {
     const rules = parseElectricalRules([
       {

@@ -186,6 +186,7 @@ describe("Audit Findings & Fixes Verification Suite", () => {
         lighting_va_per_point: 100,
         socket_va_per_point: 250,
         dedicated_va_per_point: 2500,
+        power_factor: 0.9,
         cable_waste_pct: 10,
         conduit_waste_pct: 5,
         conduit_m_per_lighting_point: 10,
