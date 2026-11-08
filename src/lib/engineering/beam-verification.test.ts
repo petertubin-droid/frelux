@@ -2,24 +2,25 @@ import { describe, expect, it } from "vitest";
 import { designBeam } from "./structural-calculator";
 
 /**
- * Independent verification of the beam deflection and minimum-steel corrections.
+ * Independent verification of the beam span, deflection and section corrections.
  *
- * Hand arithmetic for the deflection check, 8 m simply supported beam,
- * Gk 3 kN/m² and Qk 2 kN/m² over a 2 m tributary, C25, Fe500, cover 25:
+ * Hand arithmetic for the 8 m case, Gk 3 kN/m² and Qk 2 kN/m² over a 2 m
+ * tributary, C25, Fe500, cover 25:
  *
- *   preliminary d    = 8000/12 ≈ 666 mm  -> effective span 8.666 m
  *   w                = 1.4(3×2) + 1.6(2×2) = 8.4 + 6.4 = 14.8 kN/m
- *   M                = 14.8 × 8.666²/8 = 138.9 kN·m
- *   L/d on a 500 mm section, d = 450: 8666/450 = 19.3
- *   basic ratio      20 for a simply supported beam (BS 8110-1 Table 3.9)
+ *   section          500 mm deep, d = 500 − 25 − 25 = 450 mm
+ *   effective span   = 8 + 0.450 = 8.45 m (BS 8110-1 cl. 3.4.1.1)
+ *   M                = 14.8 × 8.45²/8 = 132.1 kN·m
+ *   L/d              = 8450/450 = 18.8
+ *   basic ratio      20 simply supported (Table 3.9)
  *   f_s              = 2/3 × 500 × As,req/As,prov
- *   M/(bd²)          = 138.9e6/(225 × 450²) = 3.05 N/mm²
- *   mod factor       = 0.55 + (477 − f_s)/(120(0.9 + 3.05))
+ *   M/(bd²)          = 132.1e6/(225 × 450²) = 2.90 N/mm²
+ *   mod factor       = 0.55 + (477 − f_s)/(120(0.9 + 2.90))
  *
- * With f_s near 300 N/mm² the factor is about 0.86, so the allowable L/d is
- * 17.2 and a 500 mm section at 19.3 fails. The engine therefore deepens the
- * section until the check it reports against passes, which is the behaviour
- * asserted below.
+ * The span and the depth are mutually dependent, so the engine iterates: the
+ * first pass at a span/12 preliminary depth gives 8.67 m, which reports a
+ * shallower section than the one finally recommended. Sized at 8.45 m the beam is
+ * 500 mm deep and passes at L/d 18.8 against an allowance of about 20 × 0.87.
  */
 const BASE = {
   span: 6,
@@ -61,6 +62,10 @@ describe("beam deflection check", () => {
     });
     expect(r.deflection_check_pass).toBe(true);
     expect(r.recommended_depth).toBeGreaterThanOrEqual(450);
+    expect(r.effective_span).toBeCloseTo(
+      8 + (r.recommended_depth - 50) / 1000,
+      3,
+    );
   });
 
   it("deepens the section until the modification factor is satisfied", () => {
@@ -171,6 +176,32 @@ describe("beam steel is sized on the section being reported", () => {
   it("still warns when the supplied depth cannot carry the moment", () => {
     expect(supplied(450).warnings.join(" ")).toMatch(
       /compression steel|doubly reinforced|less than/i,
+    );
+  });
+});
+
+describe("beam effective span", () => {
+  it("agrees with the depth it recommends, across spans and loads", () => {
+    for (const span of [3, 4.5, 6, 7.5, 9]) {
+      for (const live of [2, 6, 12]) {
+        const r = designBeam({ ...BASE, span, live_load: live });
+        expect(r.effective_span).toBeCloseTo(
+          span + (r.recommended_depth - BASE.cover_mm - 25) / 1000,
+          2,
+        );
+      }
+    }
+  });
+
+  it("takes the moment on that span", () => {
+    const r = designBeam(BASE);
+    expect(r.max_moment).toBeCloseTo(
+      (r.factored_load * r.effective_span ** 2) / 8,
+      1,
+    );
+    expect(r.max_shear).toBeCloseTo(
+      (r.factored_load * r.effective_span) / 2,
+      1,
     );
   });
 });

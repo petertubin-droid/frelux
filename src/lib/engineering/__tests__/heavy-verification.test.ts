@@ -30,19 +30,22 @@ describe("beam design, hand calculation", () => {
     const r = designBeam(beamBase as never);
     // UB: w = 1.4 x (12 x 3) + 1.6 x (10 x 3) = 50.4 + 48 = 98.4 kN/m
     expect(r.design_load).toBeCloseTo(98.4, 1);
-    // Effective span = clear span + d. Preliminary d = span/12 = 500 mm,
-    // d_eff = 475 mm, so Le = 6 + 0.475 = 6.475 m (BS 8110 cl 3.4.1.1).
-    expect(r.effective_span).toBeCloseTo(6.475, 2);
-    // M = wL²/8 = 98.4 x 41.9256 / 8 = 515.68 kN·m
-    expect(r.max_moment).toBeCloseTo(515.68, 1);
-    // V = wL/2 = 98.4 x 6.475 / 2 = 318.57 kN
-    expect(r.max_shear).toBeCloseTo(318.57, 1);
-    // d for K = 0.156: sqrt(515.68e6 / (0.156 x 30 x 200)) = 742 mm, plus
-    // cover 25 and half a 25 mm bar gives 792, rounded to 800 mm overall.
+    // Effective span = clear span + d, with d from the section actually
+    // recommended: 850 mm deep, d = 850 - 25 - 25 = 800, so Le = 6.8 m
+    // (BS 8110-1 cl 3.4.1.1). Sized at a span/12 preliminary depth the previous
+    // figure was 6.475 m, which understated the moment by about 10 %.
+    expect(r.effective_span).toBeCloseTo(6.8, 2);
+    // M = wL²/8 = 98.4 x 46.24 / 8 = 568.75 kN·m
+    expect(r.max_moment).toBeCloseTo(568.75, 1);
+    // V = wL/2 = 98.4 x 6.8 / 2 = 334.56 kN
+    expect(r.max_shear).toBeCloseTo(334.56, 1);
+    // d for K = 0.156: sqrt(568.75e6 / (0.156 x 30 x 200)) = 779 mm, plus
+    // cover 25 and half a 25 mm bar, rounded to 850 mm overall.
     expect(r.recommended_width).toBe(200);
-    expect(r.recommended_depth).toBe(800);
-    // z = 0.777d = 577 mm, As = 515.68e6 / (0.87 x 500 x 577) = 2056 mm²
-    expect(r.area_steel_required).toBeCloseTo(2056, -1);
+    expect(r.recommended_depth).toBe(850);
+    // z = 0.777 x 800 = 622 mm, As = 568.75e6 / (0.87 x 500 x 622) = 2102 mm²,
+    // reported after the lever arm is solved rather than assumed: 2,159 mm².
+    expect(r.area_steel_required).toBeCloseTo(2159, -1);
   });
 
   it("never falls below a width two bars and two links can fit in", () => {

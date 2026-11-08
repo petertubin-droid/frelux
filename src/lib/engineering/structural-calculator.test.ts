@@ -24,11 +24,17 @@ describe("designBeam", () => {
     beam_type: "suspended_beam",
   };
 
-  it("takes the effective span as clear span + effective depth", () => {
+  it("takes the effective span as clear span + the depth it recommends", () => {
     const result = designBeam(baseInput);
-    // BS 8110 cl. 3.4.1.1. Without a supplied depth the preliminary depth is
-    // span/12 = 375 mm, so d = 375 - 25 cover = 350 mm.
-    expect(result.effective_span).toBeCloseTo(4.5 + 0.35, 3);
+    // BS 8110 cl. 3.4.1.1. The preliminary depth is span/12 = 375 mm, but the
+    // section recommended for this beam is 500 mm deep, so the span is 4.5 +
+    // (500 - 25 - 25)/1000 = 4.95 m. Measuring the span on a 375 mm guess while
+    // recommending 500 mm understated the moment by about 4 %.
+    expect(result.effective_span).toBeCloseTo(4.95, 3);
+    expect(result.effective_span).toBeCloseTo(
+      baseInput.span + (result.recommended_depth - 50) / 1000,
+      3,
+    );
   });
 
   it("applies correct factored load (1.4 dead + 1.6 live)", () => {

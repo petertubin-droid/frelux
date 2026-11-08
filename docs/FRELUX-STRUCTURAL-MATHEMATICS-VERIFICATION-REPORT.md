@@ -241,7 +241,25 @@ shallow basis to 1,602 mm² for the six-Y20 detail, and the minimum becomes 215 
 (0.13 % of 300 × 550) rather than 156 mm². Deeper sections now take less steel, as
 they should: 1,799 → 1,602 → 1,303 mm² at 450, 600 and 700 mm deep.
 
-### D-12 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-12 CONFIRMED DEFECT (corrected) — beam effective span taken from a depth guess
+
+BS 8110-1 cl. 3.4.1.1 makes the effective span clear span + d, and d is not known
+until the section is sized. The beam took d from a span/12 preliminary estimate
+and never revisited it, so the moment, the shear and the L/d verdict were all
+computed on a span that did not match the section being recommended. On the 6 m
+worked example the preliminary depth is 500 mm against a recommended 850 mm, so
+the beam was assessed at 6.475 m while the recommendation implied 6.8 m: moments
+and shears understated by roughly 10 %, in the unsafe direction.
+
+`designBeam` now iterates: size the section, form the span implied by that
+section, redesign, and stop when the two agree. Deepening a section only
+lengthens its span, which only deepens it further, so it settles in two or three
+passes, and the loop is capped at four regardless.
+
+The same worked example now reads Le 6.8 m, M 568.75 kN·m, V 334.56 kN, 850 mm
+deep, 2,159 mm² of steel.
+
+### D-13 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -355,6 +373,7 @@ continuous and 26 for any two-way panel, is gone.
 - `v_c` capped at `min(0.8√f_cu, 5)` MPa and `f_cu` capped at 40 MPa.
 - Steel, minimum steel and shear capacity are taken on the section being
   reported: the supplied depth when one is given, otherwise the strength depth.
+- The effective span and the recommended depth agree, by iteration.
 
 ### 4.6 Foundation input integrity
 
@@ -460,18 +479,17 @@ cover 25, benchmarked by hand:
 | Quantity | Hand value | Engine | Note |
 |---|---|---|---|
 | Factored load | 1.4 × 6 + 1.6 × 4 = 14.8 kN/m | 14.8 | 0 |
-| M | 14.8 × 8.67²/8 ≈ 138.9 kN·m | 138.2 | effective span from the preliminary depth |
-| L/d on 500 mm, d = 450 | 8,667/450 = 19.3 | 19.3 | 0 |
-| Modification factor | ≈ 0.86 at f_s ≈ 300 | ≤ 1.0 | applied, so a 500 mm section fails |
-| Final depth | must satisfy basic × factor | 550 mm, L/d 17.3 | deepened by 50 mm |
+| Effective span | 8 + 0.450 = 8.45 m | 8.45 | iterated with the recommended depth |
+| M | 14.8 × 8.45²/8 = 132.1 kN·m | 132.1 | 0 |
+| L/d on 500 mm, d = 450 | 8,450/450 = 18.8 | 18.8 | 0 |
+| Modification factor | 0.55 + (477 − f_s)/(120(0.9 + 2.90)) | applied | passes at 18.8 |
 
 Tolerance 2 % or the stated absolute value. 8 tests in
 `src/lib/engineering/beam-verification.test.ts`, 117 across the structural
 suites.
 
-Still open: the effective span uses the preliminary depth estimate rather than
-the final section, which overstates span slightly; shear enhancement near
-supports and a full doubly reinforced design are not implemented.
+Still open: shear enhancement near supports (Cl 3.4.5.8) and a full doubly
+reinforced design are not implemented.
 
 ### 5.5 Span/depth ratios
 

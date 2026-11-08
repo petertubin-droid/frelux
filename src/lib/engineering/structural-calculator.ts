@@ -627,7 +627,19 @@ function minSteelACI(fck: number, fy: number, b: number, d: number): number {
   return Math.max((0.25 * Math.sqrt(fck)) / fy, 1.4 / fy) * b * d;
 }
 
-export function designBeam(input: BeamDesignInput): BeamDesignResult {
+/**
+ * One pass of the beam design at a stated effective span.
+ *
+ * Effective span is clear span + d (BS 8110-1 cl. 3.4.1.1), and d is not known
+ * until the section is sized, so a single pass has to guess. `designBeam` runs
+ * this twice: once from the preliminary depth, once at the span implied by the
+ * section it ended up recommending.
+ */
+function designBeamAtSpan(
+  input: BeamDesignInput,
+
+  effectiveSpanOverride?: number,
+): BeamDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
@@ -649,10 +661,17 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   // member's depth and understated moments by roughly 10% on a 6 m beam.
   const preliminary_depth_mm = input.existing_depth ?? input.span * 83.33;
   const preliminary_d_mm = Math.max(150, preliminary_depth_mm - input.cover_mm);
-  const effective_span = input.span + preliminary_d_mm / 1000;
-  formulas.push(
-    `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
-  );
+  const effective_span =
+    effectiveSpanOverride ?? input.span + preliminary_d_mm / 1000;
+  if (effectiveSpanOverride !== undefined) {
+    formulas.push(
+      `Effective span = clear span + d = ${input.span} + ${(effective_span - input.span).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1, with d taken from the section finally recommended)`,
+    );
+  } else {
+    formulas.push(
+      `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
+    );
+  }
 
   // Loads
   const total_dead = input.dead_load * input.tributary_width;
@@ -1079,6 +1098,32 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     formula_transparency: formulas,
   };
 }
+/**
+ * Beam design with the effective span taken from the section actually
+ * recommended.
+ *
+ * BS 8110-1 cl. 3.4.1.1 makes the effective span depend on d, and d depends on
+ * the moment, which depends on the span. One pass has to guess d, and the guess
+ * was span/12: a 4 m beam judged as 400 mm deep before any steel is chosen, or
+ * a shallow lightweight beam whose real depth is half that, so the moment and
+ * the L/d verdict were computed on the wrong span. Two passes settle it, because
+ * deepening the section only lengthens the span, which only deepens it further,
+ * and the second pass starts from the depth already found.
+ */
+export function designBeam(input: BeamDesignInput): BeamDesignResult {
+  let result = designBeamAtSpan(input);
+  // Repeat until the span it was designed at is the span implied by the section
+  // it recommends. Deepening the section lengthens the span, which only deepens
+  // it further, so this settles in a pass or two and is capped regardless.
+  for (let pass = 0; pass < 4; pass++) {
+    const finalD = Math.max(150, result.recommended_depth - input.cover_mm - 25);
+    const impliedSpan = input.span + finalD / 1000;
+    if (Math.abs(impliedSpan - result.effective_span) < 0.001) break;
+    result = designBeamAtSpan(input, impliedSpan);
+  }
+  return result;
+}
+
 
 // ── Column moment-axial interaction ──
 
