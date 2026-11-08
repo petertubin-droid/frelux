@@ -136,7 +136,31 @@ interaction arm was hard-coded to 25 mm of cover regardless of exposure. A 40 mm
 cover, as an aggressive ground or marine exposure requires, overstated the
 moment capacity.
 
-### D-5 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-5 CONFIRMED DEFECT (corrected) — slab lever arm pinned, deflection check circular
+
+Three separate defects in `designSlab`.
+
+**Lever arm.** Steel was sized on `z = 0.87d` whatever the moment. That is
+conservative on a lightly loaded slab and unsafe on a heavily loaded one, where
+the real arm is well below it. On a 150 mm slab at K = 0.125 the true arm is
+0.83d, so steel was understated by 4 %; higher up the curve the gap widens. The
+beam path already solved the arm from BS 8110-1 Cl 3.4.4.4; the slab path did
+not.
+
+**Deflection.** The check compared span/depth against the same basic ratio the
+thickness had just been sized from, so it could not fail: the answer was built
+into the question. It also ignored the modification factor for tension
+reinforcement (BS 8110-1 Cl 3.4.6.5), which is the whole point of that check.
+
+**Minimum steel.** `0.13 % × 1000 × d` was used where BS 8110-1 Table 3.25 asks
+for 0.13 % of the gross section, so the minimum was understated by the cover and
+bar allowance (195 against 149.5 mm²/m on a 150 mm slab).
+
+**Bar selection.** Spacing was rounded to the nearest 25 mm, which could round
+up and detail less steel than the design asked for: a slab requiring 1,187 mm²/m
+was given Y12 at 100, which provides 1,131.
+
+### D-6 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -218,7 +242,25 @@ steel term keeps 0.67 rather than the code's 0.75 (BS 8110-1 Cl 3.8.3), which
 understates capacity by about 11 % on that term. Changing it is a separate
 decision, not part of this correction.
 
-### 4.3 Foundation input integrity
+### 4.3 Slab
+
+- Lever arm solved from the same BS 8110-1 Cl 3.4.4.4 expression the beam path
+  uses, with the `K > 0.156` singly reinforced limit reported as a warning that
+  the slab must be thickened.
+- Deflection is now a check: modification factor
+  `0.55 + (477 − f_s)/(120(0.9 + M/(bd²)))`, capped at 2.0 and floored at 0.55,
+  with `f_s = (2/3) f_y · A_s,req / A_s,prov`, applied to the basic ratio. It can
+  and does fail; a 150 mm slab on a 5 m span reports L/d 43.5 against an
+  allowable 18.7.
+- Minimum steel taken from the gross section: `0.0013 × 1000 × h`.
+- Bar spacing chosen from a standard ladder as the widest spacing that actually
+  provides the required area, for both directions, so a detail can no longer
+  under-provide.
+- Two-way panels using the Table 3.14 simply-supported coefficients now say so
+  when the support condition is continuous or fixed, and name Table 3.15 for the
+  support moments that are not being designed.
+
+### 4.4 Foundation input integrity
 
 `designFoundation` now returns an explicit `INSUFFICIENT_INPUT` assessment with
 `missing_inputs` named, and no footing size, when:
@@ -287,7 +329,34 @@ Regression: the 400 kN / 6.5 m case that previously reported PASS now reports
 `axial_check_pass: true`, `moment_check_pass: false`,
 `capacity_check_pass: false`, with M_Ed 70.4 kN·m against M_Rd 45.0 kN·m.
 
-### 5.3 Foundation
+### 5.3 Slab
+
+5 m one-way, 150 mm, 25 mm cover, C30, Fe500, Gk 2 + self weight, Qk 5:
+
+| Quantity | Hand value | Engine | Difference |
+|---|---|---|---|
+| Factored load | 1.4 × 5.6 + 1.6 × 5 = 15.84 kN/m² | 15.8 | rounding |
+| M | 15.84 × 25 / 8 = 49.5 kN·m/m | 49.5 | 0 |
+| d | 150 − 25 − 10 = 115 mm | 115 | 0 |
+| K | 0.1248 | 0.1248 | 0 |
+| z | 95.9 mm (0.834d) | 95.9 | 0 |
+| A_s | 1,187 mm²/m | 1,187 | 0 |
+| min A_s | 0.13 % × 1000 × 150 = 195 | 195 | 0 |
+| f_s | 262 N/mm² | 262 | 0 |
+| modification factor | 0.94 | 0.94 | 0 |
+| allowable L/d | 20 × 0.94 = 18.7 | 18.7 | 0 |
+| L/d | 43.5 → FAIL | 43.5 → FAIL | 0 |
+
+Tolerance 2 % or the stated absolute value. Result: PASS, 10 of 10 tests in
+`src/lib/engineering/slab-verification.test.ts`, including a sweep asserting that
+recommended bars never provide less than the required area.
+
+Two stale expectations were corrected rather than deleted:
+`heavy-verification.test.ts` asserted 245 mm²/m from the old fixed arm and the
+old minimum, and asserted long-span steel strictly below short-span steel, which
+stops being true once the corrected minimum governs both directions.
+
+### 5.4 Foundation
 
 | Check | Expected | Result |
 |---|---|---|
@@ -323,7 +392,8 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 |---|---|---|
 | `structural-calculator.ts` | Column biaxial bending; section is still generated from the axial load and then reported as failing on moment rather than re-sized automatically | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Beam reinforcement recommendations still not gated on all checks before reporting a pass | NOT IMPLEMENTED |
-| `structural-calculator.ts` | Slab one-way/two-way classification, support-condition coefficients, punching shear, deflection | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Slab punching shear at columns, support (hogging) moments for continuous panels, BS 8110 Table 3.15 coefficients | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Basic span/depth ratios used for sizing (7 / 20 / 26 / 32) are not yet reconciled against BS 8110-1 Table 3.9 | REQUIRES CODE REVIEW |
 | `structural-calculator.ts` | Beam development length, shear link spacing, deflection limits | NOT IMPLEMENTED |
 | `retaining-wall-engine.ts` | Rankine only; no groundwater, surcharge, seismic, stem or base steel check; result must be labelled preliminary | REQUIRES ENGINEERING REVIEW |
 | `tank-stand.ts` | Empty-case stability is present; member and footing checks are preliminary sizing | REQUIRES ENGINEERING REVIEW |
@@ -351,7 +421,8 @@ preliminary engineering, not a verified structural design.
 | D-3 | Column passed on axial capacity with the design moment ignored; link spacing on the wrong dimension | CORRECTED, INDEPENDENTLY VERIFIED, REGRESSION TESTED |
 | D-4 | Column effective length and cover declared as inputs and never used | CORRECTED, REGRESSION TESTED |
 | — | Column biaxial bending, automatic re-sizing | NOT IMPLEMENTED |
-| — | Slab design completeness | NOT IMPLEMENTED |
+| D-5 | Slab lever arm pinned at 0.87d; circular deflection check; minimum steel on d not h; bar spacing could under-provide | CORRECTED, INDEPENDENTLY VERIFIED, REGRESSION TESTED |
+| — | Slab punching shear and support moments | NOT IMPLEMENTED |
 | — | Beam detailing checks | NOT IMPLEMENTED |
 | — | Retaining wall load cases | REQUIRES ENGINEERING REVIEW |
 | — | BBS against BS 8666 | NOT IMPLEMENTED |
@@ -363,11 +434,12 @@ preliminary engineering, not a verified structural design.
 
 ## 9. Honest limitations
 
-- Three engines have been corrected and independently verified in this pass: the
-  water tower staging stability, the foundation input integrity, and the column
-  moment-axial interaction. The beam and slab paths were read but not corrected,
-  so their results remain Level 2. Columns are now checked for axial load and
-  uniaxial moment only; biaxial bending is not checked and is not claimed.
+- Four areas have been corrected and independently verified: water tower staging
+  stability, foundation input integrity, the column moment-axial interaction,
+  and the slab lever arm, deflection, minimum steel and bar selection. The beam
+  path was read but not corrected, so beam results remain Level 2. Columns are
+  checked for axial load and uniaxial moment only; biaxial bending and slab
+  punching shear are not checked and are not claimed.
 - The benchmarks compare the engine against hand calculations written from the
   same stated assumptions; they do not constitute a check by a chartered
   engineer. Where a result feeds construction, it needs one.

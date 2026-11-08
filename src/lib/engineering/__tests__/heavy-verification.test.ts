@@ -88,11 +88,16 @@ describe("two-way slab, BS 8110 Table 3.14", () => {
     // Msx = 0.0885 x 10.8 x 16 = 15.29, Msy = 0.057 x 10.8 x 16 = 9.85.
     expect(r.moment_short_span).toBeCloseTo(15.29, 1);
     expect(r.moment_long_span).toBeCloseTo(9.85, 1);
-    // d = 200 - 25 - 10 = 165, z = 0.87d = 143.6.
-    // Asx = 15.29e6 / (0.87 x 500 x 143.6) = 245 mm²/m.
-    expect(r.steel_area_required).toBeCloseTo(245, -1);
+    // d = 200 - 25 - 10 = 165. With a lever arm of 0.87d the bending steel
+    // would be 15.29e6 / (0.87 x 500 x 143.6) = 245 mm²/m, but two corrections
+    // move this number: the minimum is 0.13 % of the gross section rather than
+    // of d (BS 8110-1 Table 3.25), giving 0.0013 x 1000 x 200 = 260 mm²/m, and
+    // the lever arm is solved rather than assumed. The minimum governs here.
+    expect(r.steel_area_required).toBeCloseTo(260, -1);
     expect(r.steel_area_secondary).toBeGreaterThan(0);
-    expect(r.steel_area_secondary as number).toBeLessThan(
+    // The long-span moment needs less steel than the short span, but with the
+    // minimum at 260 mm²/m both directions sit on it, so this is <= not <.
+    expect(r.steel_area_secondary as number).toBeLessThanOrEqual(
       r.steel_area_required,
     );
     expect(r.deflection_check_pass).toBe(true);

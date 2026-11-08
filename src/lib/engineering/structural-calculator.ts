@@ -1471,6 +1471,11 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     formulas.push(
       `Two-way panel, ly/lx = ${panelRatio.toFixed(2)}: αsx = ${alphaShort.toFixed(3)}, αsy = ${alphaLong.toFixed(3)} (BS 8110-1 Table 3.14, simply supported panel, interpolated)`,
     );
+    if (input.support_condition === "fixed" || input.support_condition === "continuous") {
+      warnings.push(
+        `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14. Continuity at the supports is not credited, so the span steel is conservative and no support (hogging) steel is designed. Take the support moments from Table 3.15 before detailing.`,
+      );
+    }
   }
 
   const max_moment = alphaShort * total_load * shortSpan * shortSpan;
@@ -1490,10 +1495,26 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     `Max shear = ${total_load.toFixed(1)} × ${input.span_x} / 2 = ${max_shear.toFixed(2)} kN/m`,
   );
 
-  // Steel area
-  const z = 0.87 * eff_depth;
+  // Steel area.
+  // The lever arm was pinned at 0.87d whatever the moment. That is conservative
+  // on a lightly loaded slab and unsafe on a heavily loaded one, where the real
+  // arm falls well below it: at K = 0.15 on a 100 mm slab the true arm is
+  // 0.79d, so steel was understated by about 10 %. The beam path already used
+  // the BS 8110 Cl 3.4.4.4 lever arm; the slab path now uses the same one.
+  const slabLever = leverArmBS(max_moment, fcu, 1000, eff_depth);
+  const z = slabLever.z;
+  formulas.push(
+    `Lever arm: K = ${(max_moment * 1e6).toFixed(0)} / (${fcu} × 1000 × ${eff_depth}²) = ${slabLever.K.toFixed(4)} → z = ${z.toFixed(1)} mm = ${(z / eff_depth).toFixed(2)}d${slabLever.doubly_reinforced ? " (K > 0.156: compression steel required)" : ""}`,
+  );
+  if (slabLever.doubly_reinforced) {
+    warnings.push(
+      `K = ${slabLever.K.toFixed(3)} exceeds the 0.156 singly reinforced limit (BS 8110-1 Cl 3.4.4.4). Thicken the slab; a singly reinforced section cannot carry this moment.`,
+    );
+  }
   const As = (max_moment * 1e6) / (0.87 * fy * z);
-  let min_As = (0.13 * 1000 * eff_depth) / 100;
+  // BS 8110-1 Table 3.25: 0.13 % of the GROSS section for high-yield steel, not
+  // of the effective depth. Using d understated the minimum by about 15 %.
+  let min_As = (0.13 * 1000 * recommended_thickness) / 100;
   let slabJurisdiction: JurisdictionCode | undefined;
   if (input.jurisdiction_code) {
     slabJurisdiction = input.jurisdiction_code;
@@ -1509,8 +1530,11 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
       `Min steel (${JURISDICTION_CODES[slabJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × 1000 × ${eff_depth.toFixed(0)} = ${min_As.toFixed(0)} mm²/m`,
     );
   }
+  const longLever = is_two_way
+    ? leverArmBS(longSpanMoment, fcu, 1000, eff_depth)
+    : null;
   const longDirectionAs = is_two_way
-    ? Math.max((longSpanMoment * 1e6) / (0.87 * fy * z), min_As)
+    ? Math.max((longSpanMoment * 1e6) / (0.87 * fy * (longLever as { z: number }).z), min_As)
     : 0;
   const final_As = Math.max(As, min_As);
   formulas.push(
@@ -1518,41 +1542,72 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   );
   if (!slabJurisdiction) {
     formulas.push(
-      `Min steel = 0.13% × 1000 × ${eff_depth} = ${min_As.toFixed(0)} mm²/m`,
+      `Min steel = 0.13% × 1000 × ${recommended_thickness} (gross, BS 8110-1 Table 3.25) = ${min_As.toFixed(0)} mm²/m`,
     );
   }
 
-  // Bar selection
+  // Bar selection.
+  // The old loop rounded the spacing to the nearest 25 mm and could round it UP,
+  // which put in less steel than the design asked for: a slab needing 1,187
+  // mm²/m was detailed with Y12 at 100 (1,131 mm²/m). The ladder below takes the
+  // widest standard spacing that actually provides the required area.
+  const SPACING_LADDER = [300, 275, 250, 225, 200, 175, 150, 125, 100, 75];
   let bestDiameter = 10;
-  let bestSpacing = Math.round((1000 * barArea(10)) / final_As);
-  for (const d of [10, 12, 16]) {
-    const spacing = Math.round((1000 * barArea(d)) / final_As);
-    if (spacing >= 75 && spacing <= 300) {
+  let bestSpacing = 75;
+  let barSchemeFound = false;
+  for (const d of [10, 12, 16, 20]) {
+    const spacing = SPACING_LADDER.find(
+      (sp) => (1000 * barArea(d)) / sp >= final_As,
+    );
+    if (spacing !== undefined) {
       bestDiameter = d;
       bestSpacing = spacing;
+      barSchemeFound = true;
       break;
     }
   }
-  bestSpacing = Math.min(300, Math.max(75, roundUpTo25(bestSpacing)));
+  if (!barSchemeFound) {
+    bestDiameter = 20;
+    bestSpacing = 75;
+    warnings.push(
+      `Required steel ${final_As.toFixed(0)} mm²/m exceeds Y20 at 75 mm (4,189 mm²/m). Thicken the slab; a cage this dense cannot be placed.`,
+    );
+  }
 
   // Long-direction steel uses the same bar size at the spacing it needs.
   const secondarySpacing = is_two_way
-    ? Math.min(
-        300,
-        Math.max(
-          75,
-          roundUpTo25((1000 * barArea(bestDiameter)) / longDirectionAs),
-        ),
-      )
+    ? (SPACING_LADDER.find(
+        (sp) => (1000 * barArea(bestDiameter)) / sp >= longDirectionAs,
+      ) ?? 75)
     : 0;
 
-  // Deflection check
+  // Deflection check.
+  // The old check compared span/depth against the same ratio the thickness had
+  // just been sized from, so it could not fail: the answer was built into the
+  // question. BS 8110-1 Cl 3.4.6.5 allows the basic ratio to be multiplied by a
+  // modification factor for the steel actually provided, and that factor is
+  // applied here. The check can now fail.
   const span_to_depth = (shortSpan * 1000) / eff_depth;
   const basicRatio = basicRatioForSizing;
-  const deflection_check_pass = span_to_depth <= basicRatio;
+  const providedSteel = (1000 * barArea(bestDiameter)) / bestSpacing;
+  const fsService = (2 / 3) * fy * (final_As / Math.max(providedSteel, 1));
+  // M/(bd²) in N/mm²: the moment is kN·m per metre, so the 1e6 restores N·mm.
+  const stressRatio =
+    (max_moment * 1e6) / (1000 * eff_depth * eff_depth);
+  const mfRaw =
+    0.55 + (477 - fsService) / (120 * (0.9 + stressRatio));
+  const modificationFactor = Math.min(2.0, Math.max(0.55, mfRaw));
+  const allowableRatio = basicRatio * modificationFactor;
+  const deflection_check_pass = span_to_depth <= allowableRatio;
 
   formulas.push(
-    `Span/depth = ${input.span_x * 1000} / ${eff_depth} = ${span_to_depth.toFixed(1)} ≤ ${basicRatio} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
+    `Service stress f_s = 2/3 × ${fy} × (${final_As.toFixed(0)} / ${providedSteel.toFixed(0)} provided) = ${fsService.toFixed(0)} N/mm²`,
+  );
+  formulas.push(
+    `Modification factor (BS 8110-1 Cl 3.4.6.5) = 0.55 + (477 − ${fsService.toFixed(0)}) / (120(0.9 + ${stressRatio.toFixed(3)})) = ${modificationFactor.toFixed(2)} → allowable L/d = ${basicRatio} × ${modificationFactor.toFixed(2)} = ${allowableRatio.toFixed(1)}`,
+  );
+  formulas.push(
+    `Span/depth = ${shortSpan * 1000} / ${eff_depth} = ${span_to_depth.toFixed(1)} ≤ ${allowableRatio.toFixed(1)} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
   );
 
   // Shear check
@@ -1577,7 +1632,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
 
   if (!deflection_check_pass) {
     warnings.push(
-      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase slab thickness.`,
+      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > allowable ${allowableRatio.toFixed(1)} after the modification factor). Thicken the slab or reduce the span.`,
     );
   }
   if (recommended_thickness < 150 && input.span_x > 3) {
