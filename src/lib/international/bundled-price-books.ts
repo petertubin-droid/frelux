@@ -14,6 +14,8 @@
 
 export const BUNDLED_BOOK_VERSION = "production catalog 2026-10-13";
 
+import { DERIVED_ROLE_MAPPINGS } from "@/lib/international/role-mapping-derive";
+
 export interface BundledPrice {
   p: number;
   c: string;
@@ -12414,10 +12416,19 @@ export function getBundledCategoryMaterials(
   return out;
 }
 
-/** Bundled role mapping for a market, or null. */
+/**
+ * Bundled role mapping for a market, or null.
+ *
+ * The curated table answers first. Only when it has no mapping for the role
+ * does the derived table answer, and the derived table only ever points at a
+ * product this market already prices.
+ */
 export function getBundledRoleMapping(
   market: string,
   role: string,
 ): BundledRoleMapping | null {
-  return BUNDLED_ROLE_MAPPINGS[market]?.[role] ?? null;
+  const curated = BUNDLED_ROLE_MAPPINGS[market]?.[role];
+  if (curated) return curated;
+  const derived = DERIVED_ROLE_MAPPINGS[market]?.[role];
+  return derived ? { ...derived } : null;
 }

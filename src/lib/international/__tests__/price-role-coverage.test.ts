@@ -65,3 +65,29 @@ describe("static book keeps up with the live price book", () => {
     expect(summary.unmappedEverywhere).toContain("white-cement");
   });
 });
+
+describe("an unpriced slot says what kind of gap it is", () => {
+  it("names the markets that do price a product the market cannot price", () => {
+    const ca = roleCoverageForMarket("CA");
+    const paint = ca.entries.find((e) => e.role === "interior-paint");
+    expect(paint?.priced).toBe(false);
+    // The Canadian role points at a US paint, so the gap is a missing CAD
+    // price, not a wrong product.
+    expect(paint?.pricedIn).toEqual(["US"]);
+  });
+
+  it("reports nothing priced anywhere for a product no market holds", () => {
+    const ng = roleCoverageForMarket("NG");
+    const tape = ng.entries.find((e) => e.role === "joint-tape");
+    expect(tape?.priced).toBe(false);
+    expect(tape?.pricedIn).toEqual(["GB"]);
+  });
+
+  it("flags a market whose book is too thin to estimate with", () => {
+    const ca = roleCoverageForMarket("CA");
+    expect(ca.bookSize).toBeLessThan(3);
+    expect(ca.thinBook).toBe(true);
+    const ng = roleCoverageForMarket("NG");
+    expect(ng.thinBook).toBe(false);
+  });
+});

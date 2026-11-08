@@ -1262,6 +1262,12 @@ function PriceRoleCoverageTab() {
                   {row.lowConfidence} {t("low confidence")}
                 </span>
               ) : null}
+              {row.thinBook ? (
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  {t("book too thin to estimate")}
+                </span>
+              ) : null}
             </summary>
 
             <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
@@ -1286,6 +1292,11 @@ function PriceRoleCoverageTab() {
                         ? ` \u2192 ${entry.name}`
                         : ` ${t("unmapped")}`}
                     </span>
+                    {!entry.priced && entry.pricedIn.length > 0 ? (
+                      <span className="text-amber-600">
+                        {` (${t("priced in")} ${entry.pricedIn.join(", ")} ${t("only")})`}
+                      </span>
+                    ) : null}
                   </span>
                 </li>
               ))}

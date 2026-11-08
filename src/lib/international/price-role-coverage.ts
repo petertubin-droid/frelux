@@ -18,8 +18,8 @@ import {
 } from "@/lib/estimation/market-materials";
 import {
   BUNDLED_PRICE_BOOK,
-  BUNDLED_ROLE_MAPPINGS,
   BUNDLED_PRICED_MARKETS,
+  getBundledRoleMapping,
   type BundledPrice,
 } from "@/lib/international/bundled-price-books";
 
@@ -34,6 +34,12 @@ export interface RoleCoverageEntry {
   confidence: string | null;
   /** Where the figure came from, as the book records it. */
   source: string | null;
+  /**
+   * Markets that do hold a price for this product. When a role is mapped but
+   * unpriced, this says whether the product simply exists elsewhere (a price
+   * to acquire for this market) or appears in no market at all (a bad mapping).
+   */
+  pricedIn: string[];
 }
 
 export interface MarketRoleCoverage {
@@ -43,6 +49,10 @@ export interface MarketRoleCoverage {
   missing: MaterialRole[];
   unpriced: MaterialRole[];
   lowConfidence: number;
+  /** How many products the market holds any price for, at all. */
+  bookSize: number;
+  /** True when the market barely prices anything: its engines cannot run. */
+  thinBook: boolean;
   entries: RoleCoverageEntry[];
 }
 
@@ -52,18 +62,25 @@ function priceFor(slug: string, market: string): BundledPrice | null {
   return material.markets[market] ?? null;
 }
 
+function marketsPricing(slug: string): string[] {
+  const material = BUNDLED_PRICE_BOOK[slug];
+  if (!material) return [];
+  return Object.keys(material.markets).sort();
+}
+
+/** Fewer priced products than this and the market cannot estimate anything. */
+const THIN_BOOK_THRESHOLD = 3;
+
 export function roleCoverageForMarket(market: string): MarketRoleCoverage {
   const code = market.toUpperCase();
-  const mappings = BUNDLED_ROLE_MAPPINGS[code] ?? {};
   const entries: RoleCoverageEntry[] = [];
   const missing: MaterialRole[] = [];
   const unpriced: MaterialRole[] = [];
   let lowConfidence = 0;
 
   for (const role of MATERIAL_ROLES) {
-    const mapping = (
-      mappings as Record<string, { slug: string; name: string }>
-    )[role];
+    // Curated mapping first, then one derived from this market's own prices.
+    const mapping = getBundledRoleMapping(code, role);
     if (!mapping) {
       missing.push(role);
       entries.push({
@@ -73,6 +90,7 @@ export function roleCoverageForMarket(market: string): MarketRoleCoverage {
         priced: false,
         confidence: null,
         source: null,
+        pricedIn: [],
       });
       continue;
     }
@@ -86,16 +104,24 @@ export function roleCoverageForMarket(market: string): MarketRoleCoverage {
       priced: Boolean(price),
       confidence: price?.f ?? null,
       source: price?.s ?? null,
+      pricedIn: price ? [code] : marketsPricing(mapping.slug),
     });
   }
+
+  const priced = entries.filter((entry) => entry.priced).length;
+  const bookSize = Object.values(BUNDLED_PRICE_BOOK).filter((material) =>
+    Boolean(material.markets[code]),
+  ).length;
 
   return {
     market: code,
     mapped: MATERIAL_ROLES.length - missing.length,
-    priced: entries.filter((entry) => entry.priced).length,
+    priced,
     missing,
     unpriced,
     lowConfidence,
+    bookSize,
+    thinBook: bookSize < THIN_BOOK_THRESHOLD,
     entries,
   };
 }
