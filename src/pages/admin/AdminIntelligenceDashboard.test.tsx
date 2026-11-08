@@ -162,8 +162,10 @@ describe("AdminIntelligenceDashboard", () => {
 
   it("crawl history shows per-run honesty: failure reasons and error lists, never a cleaned-up fiction", async () => {
     render(<AdminIntelligenceDashboard />);
-    await screen.findByText("Crawl history");
-    expect(screen.getByText("robots.txt denied")).toBeTruthy();
+    // "Crawl history" is a static heading rendered on first paint; the run rows
+    // arrive from async state. Await the per-run data itself, otherwise a slow
+    // runner resolves the heading before the rows land and the sync getBy races.
+    expect(await screen.findByText("robots.txt denied")).toBeTruthy();
     expect(screen.getByText(/timeout on page 3/)).toBeTruthy();
     expect(screen.getAllByText(/rejected/).length).toBeGreaterThan(0);
   });
