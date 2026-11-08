@@ -18,6 +18,8 @@ import {
   FileText,
   Save,
   Layers,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
 import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
@@ -49,8 +51,12 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import {
+  consistencySummary,
+  marketConsistencyRows,
+} from "@/lib/international/market-consistency";
 
-type Tab = "profiles" | "rules" | "calculators" | "typologies";
+type Tab = "profiles" | "rules" | "calculators" | "typologies" | "consistency";
 
 export default function AdminMarkets() {
   const { t } = useLanguage();
@@ -80,6 +86,7 @@ export default function AdminMarkets() {
             ["rules", "Material Rules", FileText],
             ["calculators", "Calculator Availability", CalcIcon],
             ["typologies", "Engineering Typologies", Layers],
+            ["consistency", "Data Consistency", ShieldCheck],
           ] as const
         ).map(([key, label, Icon]) => (
           <Button
@@ -108,6 +115,7 @@ export default function AdminMarkets() {
       {tab === "typologies" && selectedMarket && (
         <TypologiesTab marketCode={selectedMarket} />
       )}
+      {tab === "consistency" && <ConsistencyTab />}
     </div>
   );
 }
@@ -1059,6 +1067,106 @@ function TypologiesTab({ marketCode }: { marketCode: string }) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// DATA CONSISTENCY
+// ============================================================
+
+/**
+ * Reads the market registries and shows where a fallback is firing. A market
+ * whose masonry, cement bag, timber, electrical or plumbing data came from
+ * somewhere else is listed first, with the reason spelled out, because those
+ * are the markets whose calculator answers cannot be trusted yet.
+ */
+function ConsistencyTab() {
+  const { t } = useLanguage();
+  const rows = marketConsistencyRows();
+  const summary = consistencySummary(rows);
+  const ordered = [...rows].sort(
+    (a, b) => b.gaps.length - a.gaps.length || a.market.localeCompare(b.market),
+  );
+
+  return (
+    <div>
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {(
+          [
+            ["Markets checked", summary.total, "text-card-foreground"],
+            ["Complete", summary.complete, "text-emerald-600"],
+            ["With gaps", summary.withGaps, "text-amber-600"],
+            ["Fallbacks firing", summary.fallbacks, "text-amber-600"],
+          ] as const
+        ).map(([label, value, tone]) => (
+          <div
+            key={label}
+            className="rounded-xl border border-border bg-card p-4"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t(label)}
+            </p>
+            <p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-3">
+        {ordered.map((row) => (
+          <div
+            key={row.market}
+            className="rounded-xl border border-border bg-card p-4"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-bold tracking-wide">
+                {row.market}
+              </span>
+              <p className="min-w-0 text-sm font-semibold">{row.name}</p>
+              {row.gaps.length === 0 ? (
+                <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                  <ShieldCheck className="h-3.5 w-3.5" /> {t("Complete")}
+                </span>
+              ) : (
+                <span className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  {row.gaps.length} {t("gaps")}
+                </span>
+              )}
+            </div>
+
+            <dl className="mt-3 grid min-w-0 grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-3">
+              {(
+                [
+                  ["Masonry", row.masonryUnit ?? "none"],
+                  ["Cement bag", `${row.bagKg} kg`],
+                  ["Timber", row.timberSection ?? "no table"],
+                  ["Supply", row.voltage],
+                  ["Frequency", `${row.frequencyHz} Hz`],
+                  ["Water pipe", row.supplyMaterial],
+                ] as const
+              ).map(([label, value]) => (
+                <div key={label} className="flex min-w-0 gap-1">
+                  <dt className="shrink-0 text-muted-foreground">
+                    {t(label)}:
+                  </dt>
+                  <dd className="min-w-0 break-words">{value}</dd>
+                </div>
+              ))}
+            </dl>
+
+            {row.gaps.length > 0 ? (
+              <ul className="mt-3 space-y-1 border-t border-border pt-3 text-xs text-amber-700 dark:text-amber-400">
+                {row.gaps.map((gap) => (
+                  <li key={gap} className="min-w-0 break-words">
+                    {gap}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ))}
       </div>
     </div>
   );
