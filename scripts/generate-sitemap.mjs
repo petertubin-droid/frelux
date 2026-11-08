@@ -9,7 +9,8 @@
  * env vars), the sitemap falls back to the static route list so the build
  * never breaks.
  */
-import { writeFileSync, mkdirSync, readFileSync } from "fs";
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from "fs";
+import { createHash } from "crypto";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
@@ -41,6 +42,58 @@ function faqArticleRoutes() {
 }
 
 const today = new Date().toISOString().split("T")[0];
+
+/**
+ * Per-URL lastmod, carried across builds.
+ *
+ * Every URL used to be stamped with the build date, so a five-file change
+ * restamped 1,641 URLs and told crawlers the whole site had moved. The stamp
+ * now follows the prerendered content: the manifest records a fingerprint of
+ * each page's HTML with hashed asset URLs stripped (a new bundle hash rewrites
+ * every page's markup without changing a word of it), and only pages whose
+ * fingerprint moved get the build date. Pages with no prerendered HTML at all
+ * keep their previous stamp rather than claiming a change nobody made.
+ */
+const LASTMOD_MANIFEST = "scripts/sitemap-lastmod.json";
+let previousLastmod = {};
+try {
+  previousLastmod = JSON.parse(readFileSync(LASTMOD_MANIFEST, "utf8"));
+} catch {
+  previousLastmod = {};
+}
+
+function contentFingerprint(routePath) {
+  const file =
+    routePath === "/" ? "dist/index.html" : `dist${routePath}/index.html`;
+  let html;
+  try {
+    html = readFileSync(file, "utf8");
+  } catch {
+    return null;
+  }
+  const normalized = html
+    .replace(/(?:src|href)="[^"]*\/assets\/[^"]*"/g, 'src=""')
+    .replace(/\s+/g, " ")
+    .trim();
+  return createHash("sha1").update(normalized).digest("hex").slice(0, 16);
+}
+
+const nextLastmod = {};
+
+function resolveLastmod(routePath, stated) {
+  const previous = previousLastmod[routePath];
+  const fingerprint = contentFingerprint(routePath);
+  let lastmod;
+  if (stated) lastmod = String(stated).slice(0, 10);
+  else if (!fingerprint) lastmod = previous?.lastmod ?? today;
+  else if (previous?.hash === fingerprint) lastmod = previous.lastmod;
+  else lastmod = today;
+  nextLastmod[routePath] = {
+    lastmod,
+    hash: fingerprint ?? previous?.hash ?? null,
+  };
+  return lastmod;
+}
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -665,7 +718,7 @@ const canonical = (p) => (p === "/" ? p : `${p}/`);
 // fully client-side (LocaleAwareRoutes) for human visitors.
 const urlEntry = (path, opts = {}) => `  <url>
     <loc>${SITE_URL}${canonical(path)}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${opts.lastmod ?? today}</lastmod>
     <changefreq>${opts.changefreq ?? "monthly"}</changefreq>
     <priority>${opts.priority ?? "0.6"}</priority>
   </url>`;
@@ -675,6 +728,7 @@ for (const r of allRoutes) {
     urlEntry(r.path, {
       priority: r.priority ?? (r.path === "/" ? "1.0" : "0.6"),
       changefreq: r.changefreq,
+      lastmod: resolveLastmod(r.path, r.lastmod),
     }),
   );
 }
@@ -695,6 +749,19 @@ try {
 }
 writeFileSync("public/sitemap.xml", xml);
 console.log("  ✅ public/sitemap.xml");
+
+// Persist the fingerprints for the next build. Sorted so the diff is readable
+// and a no-op build produces no diff at all.
+const manifestEntries = Object.entries(nextLastmod).sort(([a], [b]) =>
+  a < b ? -1 : a > b ? 1 : 0,
+);
+if (existsSync(LASTMOD_MANIFEST) || manifestEntries.length > 0) {
+  writeFileSync(
+    LASTMOD_MANIFEST,
+    `${JSON.stringify(Object.fromEntries(manifestEntries), null, 2)}\n`,
+  );
+  console.log(`  ✅ ${LASTMOD_MANIFEST}`);
+}
 console.log(
   `\n sitemap generated with ${localizedEntries.length} URLs (${allRoutes.length} unique English routes)`,
 );
