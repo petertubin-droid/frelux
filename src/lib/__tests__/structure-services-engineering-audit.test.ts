@@ -69,8 +69,42 @@ describe("Building Structure & Services Mathematical Audit Suite", () => {
       expect(stability.ka).toBeCloseTo(0.307, 2);
       expect(stability.active_thrust_kn_m).toBeGreaterThan(0);
       expect(stability.overturning_moment_knm_m).toBeGreaterThan(0);
-      expect(stability.factor_of_safety_overturning).toBeGreaterThanOrEqual(1.5);
+      expect(stability.factor_of_safety_overturning).toBeGreaterThanOrEqual(
+        1.5,
+      );
       expect(stability.overturning_pass).toBe(true);
+    });
+
+    it("passes its own stability gate on the width it recommends for granular soil", () => {
+      // A cast-in-situ footing on soil takes delta = phi (BS 8002), so the
+      // sliding check must be achievable at the recommended width. Before the
+      // friction fix every geometry failed sliding, including a 1 m wall.
+      for (const soil of ["stable", "loose_sand"] as const) {
+        const geo = retainingWallGeometry(
+          { length_m: 10, height_m: 1.8, soil_type: soil, stem_type: "block" },
+          DEFAULT_RETAINING_WALL_RULES,
+        );
+        expect(geo.stability.overturning_pass).toBe(true);
+        expect(geo.stability.sliding_pass).toBe(true);
+        expect(geo.stability.factor_of_safety_sliding).toBeGreaterThanOrEqual(
+          1.5,
+        );
+      }
+    });
+
+    it("still warns to add a shear key for wet clay", () => {
+      const geo = retainingWallGeometry(
+        {
+          length_m: 10,
+          height_m: 1.8,
+          soil_type: "wet_clay",
+          stem_type: "block",
+        },
+        DEFAULT_RETAINING_WALL_RULES,
+      );
+      expect(geo.stability.overturning_pass).toBe(true);
+      expect(geo.stability.sliding_pass).toBe(false);
+      expect(geo.stability.status_summary).toMatch(/shear key|widen/i);
     });
 
     it("flags dangerously narrow overridden footings with safety warnings", () => {
@@ -163,10 +197,16 @@ describe("Building Structure & Services Mathematical Audit Suite", () => {
       );
 
       expect(res.circuit_summary).toBeDefined();
-      expect(res.circuit_summary?.total_connected_load_va).toBeGreaterThan(5000);
+      expect(res.circuit_summary?.total_connected_load_va).toBeGreaterThan(
+        5000,
+      );
       expect(res.circuit_summary?.diversified_demand_va).toBeGreaterThan(2000);
-      expect(res.circuit_summary?.recommended_main_breaker_a).toBeGreaterThanOrEqual(25);
-      expect(res.circuit_summary?.recommended_service_cable_mm2).toBeGreaterThanOrEqual(10);
+      expect(
+        res.circuit_summary?.recommended_main_breaker_a,
+      ).toBeGreaterThanOrEqual(25);
+      expect(
+        res.circuit_summary?.recommended_service_cable_mm2,
+      ).toBeGreaterThanOrEqual(10);
 
       const loadStep = res.steps.some((s) =>
         s.label.includes("Connected load & maximum demand"),

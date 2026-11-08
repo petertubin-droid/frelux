@@ -289,12 +289,22 @@ describe("circuit counting", () => {
   it("groups points into circuits per the configured rules", () => {
     const result = calculateElectrical(makeInput(), rules, FULL_PRICES);
     // 20 lighting / 10 = 2; 16 sockets / 8 = 2; 2 dedicated / 1 = 2
+    // Demand: lighting 20 x 100 VA at 66% = 1,320; sockets 16 x 250 VA =
+    // 4,000 VA (1,000 + 40% of the rest = 2,200); dedicated 2 x 2,500 VA =
+    // 5,000 VA (2,500 + 50% of the rest = 3,750). Total 11,000 VA connected,
+    // 7,270 VA diversified -> 7,270 / (230 V x 0.9) = 35.1 A, next standard
+    // breaker 40 A, 10 mm² service tails for a 40 A incomer.
     expect(result.circuit_summary).toEqual({
       lighting_circuits: 2,
       socket_circuits: 2,
       dedicated_circuits: 2,
       total_circuits: 6,
       db_ways_guidance: 6,
+      total_connected_load_va: 11000,
+      diversified_demand_va: 7270,
+      main_incomer_current_a: 35.1,
+      recommended_main_breaker_a: 40,
+      recommended_service_cable_mm2: 10,
     });
     const breakers = result.lines.find((l) => l.key === "breakers");
     expect(breakers?.quantity).toBe(6);

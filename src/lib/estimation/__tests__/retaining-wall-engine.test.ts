@@ -24,22 +24,26 @@ const prices = {
 };
 
 describe("retaining wall geometry", () => {
-  it("uses the base footing width on stable soil", () => {
+  it("scales the recommended footing with wall height on stable soil", () => {
+    // Stable soil carries a 0.55 H ratio: ceil(1.8 x 0.55 x 20) / 20 = 1.0 m,
+    // which beats the 0.6 m base rule. The footing is 10 x 1.0 x 0.2 = 2.0 m³.
     const geo = retainingWallGeometry(base, DEFAULT_RETAINING_WALL_RULES);
-    expect(geo.footing_width_m).toBe(0.6);
-    expect(geo.recommended_footing_width_m).toBe(0.6);
+    expect(geo.footing_width_m).toBe(1);
+    expect(geo.recommended_footing_width_m).toBe(1);
     expect(geo.footing_overridden).toBe(false);
-    expect(geo.footing_concrete_m3).toBe(1.2);
+    expect(geo.footing_concrete_m3).toBe(2);
   });
 
-  it("widens the recommended footing by 30% on wet clay", () => {
+  it("widens the recommended footing on wet clay", () => {
+    // Wet clay carries a 0.75 H ratio: ceil(1.8 x 0.75 x 20) / 20 = 1.35 m,
+    // above the 0.6 x 1.3 = 0.78 m factored rule. Concrete 10 x 1.35 x 0.2.
     const geo = retainingWallGeometry(
       { ...base, soil_type: "wet_clay" },
       DEFAULT_RETAINING_WALL_RULES,
     );
     expect(geo.footing_factor).toBe(1.3);
-    expect(geo.recommended_footing_width_m).toBe(0.78);
-    expect(geo.footing_concrete_m3).toBe(1.56);
+    expect(geo.recommended_footing_width_m).toBe(1.35);
+    expect(geo.footing_concrete_m3).toBe(2.7);
   });
 
   it("keeps a contractor override and says it was overridden", () => {
@@ -48,7 +52,7 @@ describe("retaining wall geometry", () => {
       DEFAULT_RETAINING_WALL_RULES,
     );
     expect(geo.footing_width_m).toBe(0.5);
-    expect(geo.recommended_footing_width_m).toBe(0.78);
+    expect(geo.recommended_footing_width_m).toBe(1.35);
     expect(geo.footing_overridden).toBe(true);
   });
 
@@ -59,8 +63,9 @@ describe("retaining wall geometry", () => {
       DEFAULT_RETAINING_WALL_RULES,
     );
     expect(block.stem_concrete_m3).toBe(0);
+    // Stem 10 x 0.15 x 1.8 = 2.7 m³ on top of the 2.0 m³ footing.
     expect(concrete.stem_concrete_m3).toBe(2.7);
-    expect(concrete.concrete_m3).toBe(3.9);
+    expect(concrete.concrete_m3).toBe(4.7);
   });
 });
 
@@ -73,9 +78,9 @@ describe("retaining wall takeoff", () => {
     );
     const qty = Object.fromEntries(r.lines.map((l) => [l.key, l.quantity]));
     expect(r.ok).toBe(true);
-    expect(qty.cement).toBe(8); // 1.2 m3 x 6.34 bags
-    expect(qty.sand).toBe(0.53);
-    expect(qty.granite).toBe(1.06);
+    expect(qty.cement).toBe(13); // 2.0 m3 x 6.34 bags = 12.68 -> 13
+    expect(qty.sand).toBe(0.88); // 2.0 m3 x 0.44
+    expect(qty.granite).toBe(1.76); // 2.0 m3 x 0.88
     expect(qty.blocks).toBe(198); // 18 m2 x 10 x 1.1
     expect(qty.rebar).toBe(5); // 26 bars x 2.1 m = 54.6 m -> 5 lengths of 12 m
     expect(qty.weep_holes).toBe(7);
@@ -89,7 +94,7 @@ describe("retaining wall takeoff", () => {
     );
     const cement = r.lines.find((l) => l.key === "cement");
     expect(cement?.unit_price).toBe(12500);
-    expect(cement?.line_total).toBe(100000);
+    expect(cement?.line_total).toBe(162500); // 13 bags x 12,500
     expect(r.material_subtotal).not.toBeNull();
     expect(r.grand_total).toBe(r.material_subtotal);
   });
