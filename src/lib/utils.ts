@@ -57,14 +57,20 @@ export function feetToMeters(ft: number): number {
 // ─────────────────────────────────────────────────────────
 
 import type { Unit } from "@/types";
+import { LENGTH_TO_M } from "@/lib/convert/units";
 
-/** Exact metres-per-unit factors for every Unit. */
+/**
+ * Metres per unit for every Unit, taken from the one module that defines SI so
+ * a calculator can never drift from the engines. The `Unit` union is what keeps
+ * this total: there is no runtime path that can hand it an unknown spelling, so
+ * `unitToMeters` needs no guard and never returns NaN by accident.
+ */
 export const UNIT_TO_M: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
+  meters: LENGTH_TO_M.m,
+  feet: LENGTH_TO_M.ft,
+  inches: LENGTH_TO_M.in,
+  centimeters: LENGTH_TO_M.cm,
+  millimeters: LENGTH_TO_M.mm,
 };
 
 /** All selectable length units, in display order. */
