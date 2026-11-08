@@ -126,21 +126,89 @@ export default function RetainingWallEstimator() {
       notes={
         <>
           {preview && (
-            <CalculatorSchematic
-              kind="retaining-wall"
-              length={length ? `${length} m` : "not entered"}
-              height={height ? `${height} m` : "not entered"}
-              footingWidth={`${preview.recommended_footing_width_m} m`}
-              soil={SOIL_LABELS[soil]}
-              stem={stem === "block" ? "hollow block" : "poured concrete"}
-            />
+            <>
+              <CalculatorSchematic
+                kind="retaining-wall"
+                length={length ? `${length} m` : "not entered"}
+                height={height ? `${height} m` : "not entered"}
+                footingWidth={`${preview.footing_width_m} m`}
+                soil={SOIL_LABELS[soil]}
+                stem={stem === "block" ? "hollow block" : "poured concrete"}
+              />
+              <div className="mt-4 rounded-lg border border-border bg-card p-3.5 text-xs">
+                <div className="flex items-center justify-between font-semibold text-foreground">
+                  <span>Geotechnical Stability Check (BS 8002 / Eurocode 7)</span>
+                  <span
+                    className={`rounded px-2 py-0.5 text-[11px] font-medium ${
+                      preview.stability.overturning_pass &&
+                      preview.stability.sliding_pass
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    }`}
+                  >
+                    {preview.stability.overturning_pass &&
+                    preview.stability.sliding_pass
+                      ? "Stable Geometry"
+                      : "Review Sizing"}
+                  </span>
+                </div>
+                <div className="mt-2.5 grid grid-cols-2 gap-2 text-muted-foreground sm:grid-cols-4">
+                  <div>
+                    <span className="block font-medium text-foreground">
+                      Ka Earth Coeff
+                    </span>
+                    <span>{preview.stability.ka.toFixed(3)}</span>
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">
+                      Active Thrust
+                    </span>
+                    <span>{preview.stability.active_thrust_kn_m} kN/m</span>
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">
+                      FS Overturning
+                    </span>
+                    <span
+                      className={
+                        preview.stability.overturning_pass
+                          ? "font-medium text-emerald-600 dark:text-emerald-400"
+                          : "font-medium text-amber-600 dark:text-amber-400"
+                      }
+                    >
+                      {preview.stability.factor_of_safety_overturning.toFixed(2)}{" "}
+                      (≥1.5)
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block font-medium text-foreground">
+                      FS Sliding
+                    </span>
+                    <span
+                      className={
+                        preview.stability.sliding_pass
+                          ? "font-medium text-emerald-600 dark:text-emerald-400"
+                          : "font-medium text-amber-600 dark:text-amber-400"
+                      }
+                    >
+                      {preview.stability.factor_of_safety_sliding.toFixed(2)}{" "}
+                      (≥1.5)
+                    </span>
+                  </div>
+                </div>
+                <p className="mt-2 text-muted-foreground">
+                  {preview.stability.status_summary}. Max ground pressure:{" "}
+                  {preview.stability.max_bearing_pressure_kpa} kPa.
+                </p>
+              </div>
+            </>
           )}
           <p className="mt-3">
-            Rules in use: footing {rules.footing_width_m} m wide and{" "}
-            {rules.footing_thickness_m} m thick, {rules.blocks_per_m2} blocks
-            per m², {rules.waste_pct}% block waste, weep holes every{" "}
-            {rules.weep_spacing_m} m, bars at {rules.bar_spacing_m} m centres.
-            These are visible planning defaults, not a design.
+            Rules in use: footing base {rules.footing_width_m} m scaled by height
+            and soil, {rules.footing_thickness_m} m base thickness,{" "}
+            {rules.blocks_per_m2} blocks per m², {rules.waste_pct}% block waste,
+            weep holes every {rules.weep_spacing_m} m, bars at{" "}
+            {rules.bar_spacing_m} m centres.
           </p>
         </>
       }

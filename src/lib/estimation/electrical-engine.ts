@@ -507,6 +507,11 @@ export interface CircuitSummary {
   total_circuits: number;
   /** suggested distribution board ways - planning guidance only */
   db_ways_guidance: number;
+  total_connected_load_va?: number;
+  diversified_demand_va?: number;
+  main_incomer_current_a?: number;
+  recommended_main_breaker_a?: number;
+  recommended_service_cable_mm2?: number;
 }
 
 export interface ElectricalStep {
@@ -644,17 +649,65 @@ export function calculateElectrical(
       ? Math.ceil(input.dedicated_points / rules.dedicated_points_per_circuit)
       : 0;
   const totalCircuits = lightingCircuits + socketCircuits + dedicatedCircuits;
+
+  // ── Connected load & standard diversity (BS 7671 Appendix A / NEC 220) ──
+  const statedVoltage = input.feeder_check?.voltage;
+  const systemVoltage =
+    statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+  const connectedLightingVA = input.lighting_points * 100; // 100 VA per light point
+  const connectedSocketsVA = input.socket_points * 250; // 250 VA per twin socket point
+  const connectedDedicatedVA = input.dedicated_points * 2500; // 2.5 kVA per heavy appliance
+  const totalConnectedVA =
+    connectedLightingVA + connectedSocketsVA + connectedDedicatedVA;
+
+  // Diversity factors: Lighting 66%, Sockets 100% first 1000VA + 40% rest, Dedicated 100% 1st + 50% rest
+  const divLighting = connectedLightingVA * 0.66;
+  const divSockets =
+    connectedSocketsVA > 0
+      ? Math.min(connectedSocketsVA, 1000) +
+        Math.max(0, connectedSocketsVA - 1000) * 0.4
+      : 0;
+  const divDedicated =
+    connectedDedicatedVA > 0
+      ? 2500 + Math.max(0, connectedDedicatedVA - 2500) * 0.5
+      : 0;
+  const diversifiedDemandVA = divLighting + divSockets + divDedicated;
+
+  const incomerCurrentA =
+    systemVoltage > 0 ? diversifiedDemandVA / (systemVoltage * 0.9) : 0;
+  const standardBreakers = [25, 32, 40, 50, 63, 80, 100, 125];
+  const recBreaker =
+    standardBreakers.find((b) => b >= incomerCurrentA) ??
+    (incomerCurrentA > 125 ? 160 : 32);
+
+  // Cable tails: 10mm² (up to 63A), 16mm² (up to 85A), 25mm² (up to 112A), 35mm² (up to 138A)
+  let recCable = 10;
+  if (recBreaker > 112) recCable = 35;
+  else if (recBreaker > 85) recCable = 25;
+  else if (recBreaker > 63) recCable = 16;
+
   const circuitSummary: CircuitSummary = {
     lighting_circuits: lightingCircuits,
     socket_circuits: socketCircuits,
     dedicated_circuits: dedicatedCircuits,
     total_circuits: totalCircuits,
     db_ways_guidance: totalCircuits,
+    total_connected_load_va: Math.round(totalConnectedVA),
+    diversified_demand_va: Math.round(diversifiedDemandVA),
+    main_incomer_current_a: Math.round(incomerCurrentA * 10) / 10,
+    recommended_main_breaker_a: recBreaker,
+    recommended_service_cable_mm2: recCable,
   };
   steps.push({
     label: "Circuits (planning rule, not design)",
     detail: `Lighting: ceil(${input.lighting_points} ÷ ${rules.lighting_points_per_circuit}) = ${lightingCircuits}. Sockets: ceil(${input.socket_points} ÷ ${rules.socket_points_per_circuit}) = ${socketCircuits}. Dedicated: ceil(${input.dedicated_points} ÷ ${rules.dedicated_points_per_circuit}) = ${dedicatedCircuits}. Total ${totalCircuits} circuits.`,
   });
+  if (totalConnectedVA > 0) {
+    steps.push({
+      label: "Connected load & maximum demand (BS 7671 / NEC 220)",
+      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails.`,
+    });
+  }
 
   // ── 2. Cable categories - separate, never invented ──
   const wasteFactor = 1 + rules.cable_waste_pct / 100;

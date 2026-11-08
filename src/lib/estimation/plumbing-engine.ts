@@ -134,6 +134,82 @@ export interface PlumbingStep {
   detail: string;
 }
 
+export interface PlumbingEngineeringMetrics {
+  total_wsfu: number;
+  peak_flow_lpm: number;
+  peak_flow_lps: number;
+  recommended_header_bore_mm: number;
+  recommended_header_pipe_label: string;
+  water_storage_litres_24h: number;
+}
+
+/**
+ * Computes hydraulic design peak demand (Hunter's Curve) and supply sizing
+ * based on Water Supply Fixture Units (WSFU) per IPC / UPC / BS EN 806.
+ */
+export function calculatePlumbingEngineeringMetrics(
+  input: Pick<
+    PlumbingInput,
+    "taps" | "wcs" | "showers" | "sinks" | "floor_drains"
+  >,
+): PlumbingEngineeringMetrics {
+  // Standard WSFU ratings (IPC Table E103.3(2) / BS EN 806-3):
+  // Basin/tap: 1.0 WSFU, Sink: 1.5 WSFU, Shower: 2.0 WSFU, WC: 2.5 WSFU, Floor Drain: 0 WSFU
+  const wsfu =
+    (input.taps || 0) * 1.0 +
+    (input.sinks || 0) * 1.5 +
+    (input.showers || 0) * 2.0 +
+    (input.wcs || 0) * 2.5;
+
+  let peakLps = 0;
+  if (wsfu > 0) {
+    if (wsfu <= 10) {
+      peakLps = 0.25 * Math.pow(wsfu, 0.75);
+    } else {
+      peakLps = 0.4 * Math.pow(wsfu, 0.55);
+    }
+  }
+  const peakLpm = peakLps * 60;
+
+  // Header sizing based on max permissible velocity 1.8 m/s (BS EN 806-3 / CIBSE Guide G)
+  let boreMm = 13.2;
+  let pipeLabel = '20 mm PPR (1/2" nominal)';
+  if (peakLps > 0) {
+    const areaM2 = peakLps / 1000 / 1.8;
+    const reqBoreMm = Math.sqrt((4 * areaM2) / Math.PI) * 1000;
+    boreMm = Math.round(reqBoreMm * 10) / 10;
+    if (reqBoreMm <= 13.2) {
+      pipeLabel = '20 mm PPR (13.2 mm bore, 1/2" nominal)';
+    } else if (reqBoreMm <= 16.6) {
+      pipeLabel = '25 mm PPR (16.6 mm bore, 3/4" nominal)';
+    } else if (reqBoreMm <= 21.2) {
+      pipeLabel = '32 mm PPR (21.2 mm bore, 1" nominal)';
+    } else if (reqBoreMm <= 26.6) {
+      pipeLabel = '40 mm PPR (26.6 mm bore, 1-1/4" nominal)';
+    } else if (reqBoreMm <= 33.2) {
+      pipeLabel = '50 mm PPR (33.2 mm bore, 1-1/2" nominal)';
+    } else {
+      pipeLabel = '63 mm PPR (42.0 mm bore, 2" nominal)';
+    }
+  }
+
+  // Domestic daily storage capacity based on 150 L/person/day with 24h autonomy
+  const equivalentPersons = Math.max(
+    2,
+    Math.ceil(((input.wcs || 0) + (input.showers || 0)) * 2.5),
+  );
+  const storageLitres = equivalentPersons * 150;
+
+  return {
+    total_wsfu: Math.round(wsfu * 10) / 10,
+    peak_flow_lpm: Math.round(peakLpm * 10) / 10,
+    peak_flow_lps: Math.round(peakLps * 100) / 100,
+    recommended_header_bore_mm: boreMm,
+    recommended_header_pipe_label: pipeLabel,
+    water_storage_litres_24h: storageLitres,
+  };
+}
+
 export interface PlumbingResult {
   ok: boolean;
   errors: string[];
@@ -146,6 +222,7 @@ export interface PlumbingResult {
   grand_total: number | null;
   incomplete: boolean;
   missing: string[];
+  engineering_metrics?: PlumbingEngineeringMetrics;
 }
 
 export type PlumbingPriceMap = Record<string, number | null>;
@@ -503,6 +580,14 @@ export function calculatePlumbing(
     "This is material ESTIMATION, not professional plumbing design. Pipe diameters, slopes and drainage design need a qualified plumber or engineer.",
   );
 
+  const engineeringMetrics = calculatePlumbingEngineeringMetrics(input);
+  if (engineeringMetrics.total_wsfu > 0) {
+    steps.push({
+      label: "Hydraulic design demand (Hunter's Curve / BS EN 806)",
+      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Sized header bore: ${engineeringMetrics.recommended_header_bore_mm} mm (${engineeringMetrics.recommended_header_pipe_label}) at ≤1.8 m/s velocity. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
+    });
+  }
+
   const incomplete =
     lines.some((l) => l.quantity === null || l.line_total === null) ||
     missing.length > 0;
@@ -523,5 +608,6 @@ export function calculatePlumbing(
     grand_total: grandTotal,
     incomplete,
     missing,
+    engineering_metrics: engineeringMetrics,
   };
 }

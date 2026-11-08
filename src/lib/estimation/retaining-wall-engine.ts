@@ -97,6 +97,21 @@ export const CONCRETE_MIX = {
   granite_m3_per_m3: 0.88,
 };
 
+export interface RetainingWallStability {
+  ka: number;
+  active_thrust_kn_m: number;
+  overturning_moment_knm_m: number;
+  resisting_moment_knm_m: number;
+  factor_of_safety_overturning: number;
+  factor_of_safety_sliding: number;
+  overturning_pass: boolean;
+  sliding_pass: boolean;
+  max_bearing_pressure_kpa: number;
+  middle_third_pass: boolean;
+  eccentricity_m: number;
+  status_summary: string;
+}
+
 export interface RetainingWallInput {
   length_m: number;
   height_m: number;
@@ -111,10 +126,109 @@ export interface RetainingWallGeometry {
   footing_width_m: number;
   footing_factor: number;
   footing_overridden: boolean;
+  footing_thickness_m: number;
+  stability: RetainingWallStability;
   excavation_m3: number;
   footing_concrete_m3: number;
   stem_concrete_m3: number;
   concrete_m3: number;
+}
+
+/**
+ * Computes geotechnical stability against overturning and sliding using
+ * classical Rankine lateral earth pressure theory (BS 8002 / Eurocode 7).
+ */
+export function computeRetainingWallStability(
+  height_m: number,
+  footing_width_m: number,
+  footing_thickness_m: number,
+  soil_type: SoilType,
+  stem_type: StemType,
+  stem_thickness_m: number = 0.225,
+): RetainingWallStability {
+  const H = Math.max(0.1, height_m);
+  const B = Math.max(0.3, footing_width_m);
+  const tf = Math.max(0.15, footing_thickness_m);
+  const ts = stem_type === "concrete" ? Math.max(0.15, stem_thickness_m) : 0.225;
+
+  const soilProps: Record<
+    SoilType,
+    { phi_deg: number; gamma: number; mu: number }
+  > = {
+    stable: { phi_deg: 32, gamma: 18, mu: 0.38 },
+    loose_sand: { phi_deg: 28, gamma: 17, mu: 0.33 },
+    wet_clay: { phi_deg: 20, gamma: 19, mu: 0.25 },
+  };
+  const prop = soilProps[soil_type] ?? soilProps.stable;
+  const phi_rad = (prop.phi_deg * Math.PI) / 180;
+  // Rankine active earth pressure coefficient Ka = (1 - sin phi) / (1 + sin phi)
+  const ka = (1 - Math.sin(phi_rad)) / (1 + Math.sin(phi_rad));
+  // Total active thrust Pa = 0.5 * Ka * gamma * H^2 (kN/m)
+  const Pa = 0.5 * ka * prop.gamma * H * H;
+  // Overturning moment about toe Mot = Pa * (H / 3)
+  const Mot = Pa * (H / 3);
+
+  // Geometry: typical toe projection is ~0.33 of base width
+  const b_toe = Math.min(B * 0.33, Math.max(0.1, B - ts));
+  const b_heel = Math.max(0, B - b_toe - ts);
+  const stem_height = Math.max(0, H - tf);
+
+  const gamma_concrete = 24; // kN/m³
+  const gamma_masonry = 21; // kN/m³
+  const gamma_stem = stem_type === "concrete" ? gamma_concrete : gamma_masonry;
+
+  // Vertical components per linear metre:
+  const W_footing = B * tf * gamma_concrete;
+  const arm_footing = B / 2;
+
+  const W_stem = ts * stem_height * gamma_stem;
+  const arm_stem = b_toe + ts / 2;
+
+  const W_soil = b_heel * stem_height * prop.gamma;
+  const arm_soil = B - b_heel / 2;
+
+  const W_total = W_footing + W_stem + W_soil;
+  const MR = W_footing * arm_footing + W_stem * arm_stem + W_soil * arm_soil;
+
+  const fs_ot = Mot > 0 ? MR / Mot : 99;
+  const fs_sl = Pa > 0 ? (prop.mu * W_total) / Pa : 99;
+
+  const M_net = MR - Mot;
+  const x_bar = W_total > 0 ? M_net / W_total : B / 2;
+  const e = Math.abs(B / 2 - x_bar);
+  const middle_third_limit = B / 6;
+  const middle_third_pass = e <= middle_third_limit;
+
+  const max_q = W_total > 0 && B > 0 ? (W_total / B) * (1 + (6 * e) / B) : 0;
+
+  const ot_pass = fs_ot >= 1.5;
+  const sl_pass = fs_sl >= 1.5;
+
+  let summary = "Adequate geotechnical stability (BS 8002 / Eurocode 7)";
+  if (!ot_pass && !sl_pass) {
+    summary = "Unstable against both overturning and sliding — footing width must be increased";
+  } else if (!ot_pass) {
+    summary = "Overturning factor of safety is below 1.50 — widen the footing base";
+  } else if (!sl_pass) {
+    summary = "Sliding factor of safety is below 1.50 — add a shear key or widen base";
+  } else if (!middle_third_pass) {
+    summary = "Eccentricity outside middle third — risk of heel liftoff";
+  }
+
+  return {
+    ka: Math.round(ka * 1000) / 1000,
+    active_thrust_kn_m: Math.round(Pa * 10) / 10,
+    overturning_moment_knm_m: Math.round(Mot * 10) / 10,
+    resisting_moment_knm_m: Math.round(MR * 10) / 10,
+    factor_of_safety_overturning: Math.round(fs_ot * 100) / 100,
+    factor_of_safety_sliding: Math.round(fs_sl * 100) / 100,
+    overturning_pass: ot_pass,
+    sliding_pass: sl_pass,
+    max_bearing_pressure_kpa: Math.round(max_q * 10) / 10,
+    middle_third_pass,
+    eccentricity_m: Math.round(e * 100) / 100,
+    status_summary: summary,
+  };
 }
 
 export function retainingWallGeometry(
@@ -122,32 +236,56 @@ export function retainingWallGeometry(
   rules: RetainingWallRules,
 ): RetainingWallGeometry {
   const factor = SOIL_FOOTING_FACTOR[input.soil_type] ?? 1;
-  const recommended = money(rules.footing_width_m * factor);
+  // Geotechnical scaling: B >= (0.50 to 0.75) * H depending on soil thrust
+  const soilRatios: Record<SoilType, number> = {
+    stable: 0.55,
+    loose_sand: 0.65,
+    wet_clay: 0.75,
+  };
+  const heightRatio = soilRatios[input.soil_type] ?? 0.55;
+  const heightScaledWidth = Math.ceil(input.height_m * heightRatio * 20) / 20;
+  const baseRuleWidth = rules.footing_width_m * factor;
+  const recommended = money(Math.max(baseRuleWidth, heightScaledWidth));
+
   const override = input.footing_width_override_m;
   const width =
     override !== null && override !== undefined && override > 0
       ? override
       : recommended;
 
-  const footingConcrete = input.length_m * width * rules.footing_thickness_m;
+  const footingThickness = money(
+    Math.max(
+      rules.footing_thickness_m,
+      Math.ceil((input.height_m / 10) * 20) / 20,
+    ),
+  );
+
+  const footingConcrete = input.length_m * width * footingThickness;
   const stemConcrete =
     input.stem_type === "concrete"
       ? input.length_m * rules.stem_thickness_m * input.height_m
       : 0;
+
+  const stability = computeRetainingWallStability(
+    input.height_m,
+    width,
+    footingThickness,
+    input.soil_type,
+    input.stem_type,
+    rules.stem_thickness_m,
+  );
 
   return {
     recommended_footing_width_m: recommended,
     footing_width_m: money(width),
     footing_factor: factor,
     footing_overridden: width !== recommended,
-    // Excavation is not the concrete box: a trench is dug with working space
-    // on both faces and deep enough for the 100 mm blinding under the footing.
-    // Reporting the concrete volume as the excavation under-ordered the dig by
-    // roughly 40 percent.
+    footing_thickness_m: footingThickness,
+    stability,
     excavation_m3: money(
       input.length_m *
         (width + 2 * TRENCH_WORKING_SPACE_M) *
-        (rules.footing_thickness_m + BLINDING_DEPTH_M),
+        (footingThickness + BLINDING_DEPTH_M),
     ),
     footing_concrete_m3: money(footingConcrete),
     stem_concrete_m3: money(stemConcrete),
@@ -176,7 +314,7 @@ export function calculateRetainingWall(
   const steps: SpecialtyStep[] = [
     {
       label: "Recommended footing width",
-      detail: `${rules.footing_width_m} m × ${geo.footing_factor} (${input.soil_type.replace("_", " ")}) = ${geo.recommended_footing_width_m} m`,
+      detail: `${rules.footing_width_m} m base (rule) scaled for ${input.height_m} m wall height & ${input.soil_type.replace("_", " ")} = ${geo.recommended_footing_width_m} m`,
     },
     {
       label: "Footing width used",
@@ -185,8 +323,12 @@ export function calculateRetainingWall(
         : `${geo.footing_width_m} m, the recommended width`,
     },
     {
-      label: "Footing trench",
-      detail: `${input.length_m} m × ${geo.footing_width_m} m × ${rules.footing_thickness_m} m = ${geo.excavation_m3} m³`,
+      label: "Footing trench & thickness",
+      detail: `${input.length_m} m × ${geo.footing_width_m} m × ${geo.footing_thickness_m} m thick = ${geo.excavation_m3} m³ excavation (includes working space & blinding)`,
+    },
+    {
+      label: "Geotechnical stability (Rankine / BS 8002)",
+      detail: `Ka = ${geo.stability.ka.toFixed(3)}, Active thrust Pa = ${geo.stability.active_thrust_kn_m.toFixed(1)} kN/m. Overturning FS = ${geo.stability.factor_of_safety_overturning.toFixed(2)} (target ≥ 1.50, ${geo.stability.overturning_pass ? "PASS" : "FAIL"}), Sliding FS = ${geo.stability.factor_of_safety_sliding.toFixed(2)} (target ≥ 1.50, ${geo.stability.sliding_pass ? "PASS" : "FAIL"}). Max soil bearing pressure = ${geo.stability.max_bearing_pressure_kpa.toFixed(1)} kPa.`,
     },
     {
       label: "Concrete volume",
@@ -301,6 +443,21 @@ export function calculateRetainingWall(
   if (geo.footing_overridden) {
     warnings.push(
       `You are using a ${geo.footing_width_m} m footing instead of the recommended ${geo.recommended_footing_width_m} m. The recommendation is advisory, but a narrower footing carries less of the soil thrust.`,
+    );
+  }
+  if (!geo.stability.overturning_pass) {
+    warnings.push(
+      `Overturning factor of safety (${geo.stability.factor_of_safety_overturning.toFixed(2)}) is below the required 1.50 minimum. The footing is at risk of overturning under active soil thrust: widen the footing base.`,
+    );
+  }
+  if (!geo.stability.sliding_pass) {
+    warnings.push(
+      `Sliding factor of safety (${geo.stability.factor_of_safety_sliding.toFixed(2)}) is below the required 1.50 minimum. Provide a concrete shear key beneath the footing or widen the base.`,
+    );
+  }
+  if (!geo.stability.middle_third_pass) {
+    warnings.push(
+      `Base resultant eccentricity (${geo.stability.eccentricity_m.toFixed(2)} m) exceeds the middle-third limit (${(geo.footing_width_m / 6).toFixed(2)} m). Tensile stresses exist under the heel; widen the footing to avoid liftoff.`,
     );
   }
   warnings.push(
