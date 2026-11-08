@@ -45,4 +45,13 @@ describe("AdminMarkets", () => {
       screen.getAllByText("8 inch CMU block").length,
     ).toBeGreaterThanOrEqual(2);
   });
+
+  it("shows price role coverage for every market in the static book", async () => {
+    await renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /Price Roles/i }));
+    expect(screen.getByText("Markets in book")).toBeInTheDocument();
+    expect(screen.getByText(/Roles no market maps/)).toBeInTheDocument();
+    // Every market is listed with its own priced count out of 26 roles.
+    expect(screen.getAllByText(/roles priced/).length).toBeGreaterThan(30);
+  });
 });

@@ -3355,6 +3355,20 @@ export const BUNDLED_PRICE_BOOK: Readonly<Record<string, BundledMaterial>> = {
       },
     },
   },
+  "ng-screeding-paint-20l": {
+    name: "Nigerian Screeding Paint (20 L)",
+    category: "paint",
+    pack: 4500,
+    markets: {
+      NG: {
+        p: 4500,
+        c: "NGN",
+        v: "2026-11-08",
+        s: "admin price book (owner-set)",
+        f: "manual",
+      },
+    },
+  },
   "formwork-per-m2": {
     name: "Formwork (plywood + nails)",
     category: "formwork",
@@ -6078,6 +6092,13 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
       unit: "m2",
       notes: "Damp-proof membrane per square meter.",
     },
+    "screeding-paint": {
+      slug: "ng-screeding-paint-20l",
+      name: "Screeding Paint (20 L)",
+      unit: "20L",
+      notes:
+        "Carrier paint for white cement wall screeding; a 20 L bucket, not interior emulsion.",
+    },
     "exterior-paint": {
       slug: "ng-exterior-emulsion-20l",
       name: "Exterior Emulsion (20 L)",
@@ -6260,7 +6281,6 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
       notes: "Acrylic butyl seam/flashing tape. Verified $35.47 (MRosupreme).",
     },
   },
-
 };
 
 export const BUNDLED_POP_MATERIALS = [
@@ -12114,7 +12134,6 @@ export const BUNDLED_PRICED_MARKETS: readonly string[] = [
   "TZ",
   "US",
   "ZA",
-
 ];
 
 /**

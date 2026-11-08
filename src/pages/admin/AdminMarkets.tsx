@@ -20,6 +20,7 @@ import {
   Layers,
   ShieldCheck,
   AlertTriangle,
+  Package,
 } from "lucide-react";
 import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
 import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
@@ -55,8 +56,18 @@ import {
   consistencySummary,
   marketConsistencyRows,
 } from "@/lib/international/market-consistency";
+import {
+  roleCoverageByMarket,
+  roleCoverageSummary,
+} from "@/lib/international/price-role-coverage";
 
-type Tab = "profiles" | "rules" | "calculators" | "typologies" | "consistency";
+type Tab =
+  | "profiles"
+  | "rules"
+  | "calculators"
+  | "typologies"
+  | "consistency"
+  | "coverage";
 
 export default function AdminMarkets() {
   const { t } = useLanguage();
@@ -87,6 +98,7 @@ export default function AdminMarkets() {
             ["calculators", "Calculator Availability", CalcIcon],
             ["typologies", "Engineering Typologies", Layers],
             ["consistency", "Data Consistency", ShieldCheck],
+            ["coverage", "Price Roles", Package],
           ] as const
         ).map(([key, label, Icon]) => (
           <Button
@@ -116,6 +128,7 @@ export default function AdminMarkets() {
         <TypologiesTab marketCode={selectedMarket} />
       )}
       {tab === "consistency" && <ConsistencyTab />}
+      {tab === "coverage" && <PriceRoleCoverageTab />}
     </div>
   );
 }
@@ -1166,6 +1179,118 @@ function ConsistencyTab() {
               </ul>
             ) : null}
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// PRICE ROLE COVERAGE
+// ============================================================
+
+/**
+ * The engines ask for a role, not a product. A market with no mapping for a
+ * role cannot price that line, and a mapping whose product has no price in the
+ * market is the same dead end one step later. Both are listed against the
+ * market they belong to, fewest priced roles first.
+ */
+function PriceRoleCoverageTab() {
+  const { t } = useLanguage();
+  const rows = roleCoverageByMarket();
+  const summary = roleCoverageSummary(rows);
+  const ordered = [...rows].sort(
+    (a, b) => a.priced - b.priced || a.market.localeCompare(b.market),
+  );
+
+  return (
+    <div>
+      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {(
+          [
+            ["Markets in book", summary.markets, "text-card-foreground"],
+            ["Engine roles", summary.roles, "text-card-foreground"],
+            ["Unpriced mappings", summary.unpricedSlots, "text-amber-600"],
+            [
+              "Roles mapped nowhere",
+              summary.unmappedEverywhere.length,
+              "text-amber-600",
+            ],
+          ] as const
+        ).map(([label, value, tone]) => (
+          <div
+            key={label}
+            className="rounded-xl border border-border bg-card p-4"
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t(label)}
+            </p>
+            <p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {summary.unmappedEverywhere.length > 0 ? (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+          <p className="font-semibold">{t("Roles no market maps")}</p>
+          <p className="mt-1 break-words">
+            {summary.unmappedEverywhere.join(", ")}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="grid gap-3">
+        {ordered.map((row) => (
+          <details
+            key={row.market}
+            className="rounded-xl border border-border bg-card p-4"
+          >
+            <summary className="flex cursor-pointer flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-bold tracking-wide">
+                {row.market}
+              </span>
+              <span className="font-semibold">
+                {row.priced}/{summary.roles} {t("roles priced")}
+              </span>
+              {row.unpriced.length > 0 ? (
+                <span className="text-xs text-amber-600">
+                  {row.unpriced.length} {t("mapped but unpriced")}
+                </span>
+              ) : null}
+              {row.lowConfidence > 0 ? (
+                <span className="text-xs text-muted-foreground">
+                  {row.lowConfidence} {t("low confidence")}
+                </span>
+              ) : null}
+            </summary>
+
+            <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
+              {row.entries.map((entry) => (
+                <li key={entry.role} className="flex min-w-0 items-start gap-1">
+                  <span
+                    className={
+                      entry.priced
+                        ? "shrink-0 text-emerald-600"
+                        : entry.slug
+                          ? "shrink-0 text-amber-600"
+                          : "shrink-0 text-muted-foreground/60"
+                    }
+                    aria-hidden
+                  >
+                    {entry.priced ? "\u2713" : entry.slug ? "!" : "\u00b7"}
+                  </span>
+                  <span className="min-w-0 break-words">
+                    <span className="font-medium">{entry.role}</span>
+                    <span className="text-muted-foreground">
+                      {entry.name
+                        ? ` \u2192 ${entry.name}`
+                        : ` ${t("unmapped")}`}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
         ))}
       </div>
     </div>
