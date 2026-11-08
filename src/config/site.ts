@@ -21,11 +21,13 @@ export const siteConfig = {
   },
   // AdSense, leave empty until approved; ads component renders nothing when unset.
   adsense: {
-    // Primary account: the loader in index.html and the runtime slots use this.
-    publisherId: "ca-pub-3404100134534192",
+    // Primary account: the loader in index.html, the site-ownership meta tag and
+    // the runtime slots use this one. It is the account being verified, so it has
+    // to be the ID the AdSense crawler finds first on the page.
+    publisherId: "ca-pub-4906239537212380",
     // Additional authorised accounts. These do not replace the primary; they are
     // listed alongside it in ads.txt and app-ads.txt so both can bid.
-    additionalPublisherIds: ["ca-pub-4906239537212380"],
+    additionalPublisherIds: ["ca-pub-3404100134534192"],
     adSlots: {} as Record<string, string>,
   },
   // Meta Pixel, leave empty until real ID is provided.

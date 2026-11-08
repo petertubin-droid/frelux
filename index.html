@@ -38,11 +38,12 @@
          banner, so an unanswered visit downloads the loader and receives no
          ad. Deferring the download looked cheaper on paper but would have
          traded the whole verification for one request. -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3404100134534192" crossorigin="anonymous"></script>
-    <!-- Second authorised account. Both publisher IDs stay live: the first is the
-         approved seller that serves today, this one authorises the newer account
-         to bid on the same inventory. Remove neither without checking ads.txt. -->
+    <!-- Primary account: the one being verified and serving. The AdSense crawler
+         reads this loader and the meta tag below, so both must name it. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4906239537212380" crossorigin="anonymous"></script>
+    <!-- Authorised second account. Kept live so its inventory history and ads.txt
+         authorisation stay intact. Remove neither without checking ads.txt. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3404100134534192" crossorigin="anonymous"></script>
     <!-- Tab icon: cut from public/brand/frelux-icon.png by
          scripts/generate-brand-icons.mjs. Served from /brand so a browser
          holding an older tab icon fetches a URL it has never cached. -->
@@ -138,7 +139,7 @@
     <meta name="twitter:image:alt" content="FRELUXTOOLS logo over a construction skyline: build, calculate, plan, innovate" />
 
     <!-- Google AdSense account verification -->
-    <meta name="google-adsense-account" content="ca-pub-3404100134534192" />
+    <meta name="google-adsense-account" content="ca-pub-4906239537212380" />
 
     <!-- DNS Preconnect -->
 
