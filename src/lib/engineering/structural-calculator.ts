@@ -736,18 +736,18 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     `Required overall depth = ${required_depth_eff.toFixed(0)} + ${input.cover_mm} (cover) + 25 (bar/2) = ${required_depth.toFixed(0)} mm`,
   );
 
-  // Span/depth ratio check (deflection)
-  const span_to_depth = (effective_span * 1000) / required_depth_eff;
+  // Span/depth is checked further down, on the section that is actually
+  // recommended. It used to be checked here against required_depth_eff, which is
+  // the depth that just satisfies bending at K = 0.156: for a lightly loaded beam
+  // that is a very shallow number, so a perfectly sensible beam came out with a
+  // failing L/d, and a heavily loaded one passed on a depth nobody was going to
+  // build.
   const basicRatio =
     input.support_condition === "cantilever"
       ? 7
       : input.support_condition === "continuous"
         ? 26
         : 20;
-  const deflection_check_pass = span_to_depth <= basicRatio;
-  formulas.push(
-    `Span/depth = ${(effective_span * 1000).toFixed(0)} / ${required_depth_eff.toFixed(0)} = ${span_to_depth.toFixed(1)} ≤ ${basicRatio} (limit) → ${deflection_check_pass ? "PASS" : "FAIL"}`,
-  );
 
   // Steel area — audit fix F2: the lever arm is no longer hard-coded z = 0.87d.
   let As: number;
@@ -780,7 +780,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     min_As =
       concretePreset.standard === "is_456"
         ? (0.85 / fy) * assumed_width * required_depth_eff // IS 456 26.5.1.1
-        : (0.13 * assumed_width * required_depth_eff) / 100; // BS 8110 3.12.5.1 0.13% min
+        : ((fy <= 300 ? 0.0024 : 0.0013) * assumed_width * required_depth_eff); // BS 8110 Table 3.25: 0.24% mild, 0.13% high-yield
     formulas.push(
       `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${required_depth_eff.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
     );
@@ -791,7 +791,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
       `Steel area required = ${(max_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${la.z.toFixed(0)}) = ${As.toFixed(0)} mm²`,
     );
     formulas.push(
-      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456)" : "0.13% × b × d (BS 8110)"} = ${min_As.toFixed(0)} mm²`,
+      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456 26.5.1.1)" : `${fy <= 300 ? "0.24" : "0.13"}% × b × d (BS 8110-1 Table 3.25, fy = ${fy})`} = ${min_As.toFixed(0)} mm²`,
     );
     if (la.doubly_reinforced) {
       warnings.push(
@@ -849,11 +849,22 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     2,
   );
   const vcDepthCap = Math.min(required_depth_eff, 400);
-  const vc =
+  // Table 3.8 also caps fcu at 40 MPa and vc at min(0.8√fcu, 5) MPa.
+  const vcConcreteCap = Math.min(fcu, 40);
+  const vcRaw =
     (0.79 / 1.25) *
-    Math.pow(fcu / 25, 1 / 3) *
+    Math.pow(vcConcreteCap / 25, 1 / 3) *
     Math.pow(vcSteelPct, 1 / 3) *
     Math.pow(400 / vcDepthCap, 0.25);
+  const vcCeiling = Math.min(0.8 * Math.sqrt(vcConcreteCap), 5);
+  const vc = Math.min(vcRaw, vcCeiling);
+  if (vcRaw > vcCeiling) {
+    formulas.push(
+      `v_c = ${vcRaw.toFixed(2)} MPa capped to ${vcCeiling.toFixed(2)} MPa (BS 8110-1 Table 3.8: min(0.8√f_cu, 5))`,
+    );
+  }
+  // Capacity taken on the strength depth, which is never deeper than the section
+  // recommended below, so this is the conservative figure.
   const shear_capacity = (vc * assumed_width * required_depth_eff) / 1000; // kN
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
@@ -866,9 +877,80 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     );
   }
 
-  // Recommended dimensions
-  const recommended_depth = roundUpTo50(required_depth);
+  // Recommended dimensions. The depth has to satisfy deflection as well as
+  // bending: a depth that only satisfies K = 0.156 can still be far too shallow
+  // to control deflection, and that check used to be run on the strength depth
+  // rather than on the section being recommended.
+  const depthForDeflection =
+    (effective_span * 1000) / basicRatio + input.cover_mm + 25;
+  const requiredDepthGoverning = Math.max(required_depth, depthForDeflection);
+  // A supplied depth is the section being checked. It was ignored here, so a
+  // user entering a 300 mm beam was handed back a 1,000 mm recommendation and no
+  // verdict on the member they actually have.
+  let recommended_depth =
+    input.existing_depth ?? roundUpTo50(requiredDepthGoverning);
+  if (input.existing_depth) {
+    formulas.push(
+      `Section taken as supplied: ${input.existing_width ?? assumed_width} × ${input.existing_depth} mm. Bending steel and its minimum are sized on the required strength depth (${required_depth.toFixed(0)} mm), so a deeper supplied section is conservative.`,
+    );
+    if (input.existing_depth < required_depth - 1) {
+      warnings.push(
+        `The supplied depth (${input.existing_depth} mm) is less than the ${required_depth.toFixed(0)} mm needed for bending. Treat the steel figures as indicative and deepen the section.`,
+      );
+    }
+  }
   const recommended_width = assumed_width;
+
+  // The depth has to satisfy the modification factor, not the bare basic ratio,
+  // or the beam is pronounced a failure by its own recommendation. Deepen in
+  // 50 mm steps until the check it is reported against passes.
+  const providedFlowSteel = bestCount * barArea(bestDiameter);
+  const mfBasic = Math.max(As, min_As);
+  const beffFs =
+    (2 / 3) *
+    fy *
+    (Math.min(mfBasic, providedFlowSteel) / Math.max(providedFlowSteel, 1));
+  let providedDepthEff = recommended_depth - input.cover_mm - 25;
+  let span_to_depth = (effective_span * 1000) / providedDepthEff;
+  let beffStress =
+    (max_moment * 1e6) / (assumed_width * providedDepthEff * providedDepthEff);
+  let beamModFactor = Math.min(
+    2.0,
+    Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress))),
+  );
+  let beamAllowableRatio = basicRatio * beamModFactor;
+  let depthSteps = 0;
+  while (
+    span_to_depth > beamAllowableRatio &&
+    depthSteps < 24 &&
+    !input.existing_depth
+  ) {
+    recommended_depth += 50;
+    depthSteps += 1;
+    providedDepthEff = recommended_depth - input.cover_mm - 25;
+    span_to_depth = (effective_span * 1000) / providedDepthEff;
+    beffStress =
+      (max_moment * 1e6) / (assumed_width * providedDepthEff * providedDepthEff);
+    beamModFactor = Math.min(
+      2.0,
+      Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress))),
+    );
+    beamAllowableRatio = basicRatio * beamModFactor;
+  }
+  if (depthSteps > 0 && span_to_depth <= beamAllowableRatio) {
+    formulas.push(
+      `Depth increased by ${depthSteps} × 50 mm to ${recommended_depth} mm so the deflection check passes on the modification factor, not just the basic ratio.`,
+    );
+  }
+  const deflection_check_pass = span_to_depth <= beamAllowableRatio;
+  if (requiredDepthGoverning > required_depth + 1) {
+    formulas.push(
+      `Depth set by deflection, not bending: ${(depthForDeflection).toFixed(0)} mm required for L/d ≤ ${basicRatio}, against ${required_depth.toFixed(0)} mm for bending.`,
+    );
+  }
+  formulas.push(
+    `Span/depth on the recommended section = ${(effective_span * 1000).toFixed(0)} / ${providedDepthEff.toFixed(0)} = ${span_to_depth.toFixed(1)}; allowable = ${basicRatio} × ${beamModFactor.toFixed(2)} (BS 8110-1 Cl 3.4.6.5, f_s = ${beffFs.toFixed(0)} N/mm²) = ${beamAllowableRatio.toFixed(1)} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
+  );
 
   // Links
   // BS 8110-1 Cl 3.4.5.3: where the applied shear exceeds the concrete
@@ -916,9 +998,9 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   if (input.beam_type === "lintel" && recommended_depth > 450) {
     warnings.push(ms.lintelNote);
   }
-  if (span_to_depth > basicRatio) {
+  if (!deflection_check_pass) {
     warnings.push(
-      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase beam depth.`,
+      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > allowable ${beamAllowableRatio.toFixed(1)} after the modification factor). Increase beam depth.`,
     );
   }
 
@@ -1948,13 +2030,17 @@ export function minReinforcementRatio(params: {
       };
     }
     case "BS_8110": {
-      const ratio = fy <= 300 ? 0.0024 : 0.0013;
+      // BS 8110-1 Table 3.25: 0.24 % for fy 250 and 0.13 % for fy 460 and
+      // above. The weaker steel needs the larger area to develop the same
+      // minimum moment of resistance, so the percentage falls as fy rises.
+      const mildSteel = fy <= 300;
+      const ratio = mildSteel ? 0.0024 : 0.0013;
       return {
         code,
         ratio,
         percent: ratio * 100,
         clause: `BS 8110-1 ${profile.minSteelClause}`,
-        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy ≥ 460; fy = ${fy})`,
+        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy 460 and above; fy = ${fy})`,
       };
     }
     case "AS_3600": {

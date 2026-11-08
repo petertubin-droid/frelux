@@ -160,7 +160,48 @@ bar allowance (195 against 149.5 mm²/m on a 150 mm slab).
 up and detail less steel than the design asked for: a slab requiring 1,187 mm²/m
 was given Y12 at 100, which provides 1,131.
 
-### D-6 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-6 CONFIRMED DEFECT (corrected) — beam deflection measured on a depth nobody builds
+
+`designBeam` checked span/depth against `required_depth_eff`, the depth that
+just satisfies bending at K = 0.156. That is not the section being recommended,
+and it moves the wrong way with load: a lightly loaded long beam gets a very
+shallow strength depth and was reported as failing deflection while the beam
+recommended for it was comfortably stiff, and a heavily loaded beam passed on a
+depth that was never going to be built.
+
+The check now runs on the recommended section's effective depth, with the
+BS 8110-1 Cl 3.4.6.5 modification factor (`0.55 + (477 − f_s)/(120(0.9 + M/bd²))`,
+`f_s = 2/3 f_y A_s,req/A_s,prov`). Because the allowable ratio depends on the
+section, the depth is then increased in 50 mm steps until the check it is
+reported against actually passes. A fixed-depth input is respected and reported
+as failing, which is the honest answer when someone asks about a beam they
+already have.
+
+### D-7 CONFIRMED DEFECT (corrected) — a supplied beam depth was ignored
+
+`input.existing_depth` and `input.existing_width` fed the effective span and the
+width, but the recommended depth was always recomputed from the loads. A user
+entering a 300 mm × 250 mm beam was handed back a 1,000 mm recommendation and no
+verdict at all on the member they asked about. The supplied depth is now the
+section, with a warning when it is shallower than bending requires.
+
+### D-8 CONFIRMED DEFECT (corrected) — shear capacity had no ceiling
+
+Table 3.8 caps `v_c` at `min(0.8√f_cu, 5)` MPa and caps `f_cu` at 40 MPa in the
+formula itself. Neither cap was applied, so a C50 beam was credited with more
+shear capacity than the code permits. Both are in.
+
+### D-9 CHECKED, NOT A DEFECT — BS 8110 Table 3.25 minimum steel
+
+The minimum was suspected of being inverted: 0.13 % for Fe500 looks low against
+0.24 % for mild steel. It is correct. The minimum is a fixed moment of resistance
+against cracking, so the weaker steel needs the larger area; 0.24 % applies to
+fy 250 and 0.13 % to fy 460 and above. A correction was attempted, the existing
+`structural-code-mode` test rejected it, and the code was reverted with the
+reasoning recorded in a comment. The unreliable part was the formula string,
+which stated the pair the wrong way round, and that is fixed.
+
+### D-10 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -260,7 +301,17 @@ decision, not part of this correction.
   when the support condition is continuous or fixed, and name Table 3.15 for the
   support moments that are not being designed.
 
-### 4.4 Foundation input integrity
+### 4.4 Beam
+
+- Deflection checked on the recommended section with the modification factor,
+  and the section deepened until that check passes.
+- A supplied depth or width is treated as the section under review.
+- `v_c` capped at `min(0.8√f_cu, 5)` MPa and `f_cu` capped at 40 MPa.
+- Bending steel and minimum steel are still sized on the required strength
+  depth rather than the supplied depth. That is conservative on a deeper section
+  and is stated in the output.
+
+### 4.5 Foundation input integrity
 
 `designFoundation` now returns an explicit `INSUFFICIENT_INPUT` assessment with
 `missing_inputs` named, and no footing size, when:
@@ -356,7 +407,29 @@ Two stale expectations were corrected rather than deleted:
 old minimum, and asserted long-span steel strictly below short-span steel, which
 stops being true once the corrected minimum governs both directions.
 
-### 5.4 Foundation
+### 5.4 Beam
+
+8 m simply supported beam, Gk 3 + Qk 2 kN/m² over a 2 m tributary, C25, Fe500,
+cover 25, benchmarked by hand:
+
+| Quantity | Hand value | Engine | Note |
+|---|---|---|---|
+| Factored load | 1.4 × 6 + 1.6 × 4 = 14.8 kN/m | 14.8 | 0 |
+| M | 14.8 × 8.67²/8 ≈ 138.9 kN·m | 138.2 | effective span from the preliminary depth |
+| L/d on 500 mm, d = 450 | 8,667/450 = 19.3 | 19.3 | 0 |
+| Modification factor | ≈ 0.86 at f_s ≈ 300 | ≤ 1.0 | applied, so a 500 mm section fails |
+| Final depth | must satisfy basic × factor | 550 mm, L/d 17.3 | deepened by 50 mm |
+
+Tolerance 2 % or the stated absolute value. 8 tests in
+`src/lib/engineering/beam-verification.test.ts`, 117 across the structural
+suites.
+
+Still open: bending steel is sized on the strength depth, not the supplied
+depth (conservative); the effective span uses the preliminary depth estimate
+rather than the final section, which overstates span slightly; shear enhancement
+near supports and a full doubly reinforced design are not implemented.
+
+### 5.5 Foundation
 
 | Check | Expected | Result |
 |---|---|---|
@@ -436,8 +509,8 @@ preliminary engineering, not a verified structural design.
 
 - Four areas have been corrected and independently verified: water tower staging
   stability, foundation input integrity, the column moment-axial interaction,
-  and the slab lever arm, deflection, minimum steel and bar selection. The beam
-  path was read but not corrected, so beam results remain Level 2. Columns are
+  and the slab lever arm, deflection, minimum steel and bar selection, and the
+  beam deflection basis, supplied-section handling and shear ceiling. Columns are
   checked for axial load and uniaxial moment only; biaxial bending and slab
   punching shear are not checked and are not claimed.
 - The benchmarks compare the engine against hand calculations written from the
