@@ -8,6 +8,7 @@ import {
 import {
   calculatePlumbing,
   calculatePlumbingEngineeringMetrics,
+  demandGpmForWsfu,
   DEFAULT_PLUMBING_RULES,
 } from "@/lib/estimation/plumbing-engine";
 import {
@@ -140,10 +141,27 @@ describe("Building Structure & Services Mathematical Audit Suite", () => {
 
       // 6*1.0 + 2*1.5 + 2*2.0 + 3*2.5 = 6 + 3 + 4 + 7.5 = 20.5 WSFU
       expect(metrics.total_wsfu).toBe(20.5);
-      expect(metrics.peak_flow_lpm).toBeGreaterThan(50);
-      expect(metrics.peak_flow_lps).toBeGreaterThan(0.8);
+      // IPC E103.3(3) flush tanks: 20 WSFU = 19.6 gpm, 25 = 21.5 gpm, so
+      // 20.5 WSFU = 19.79 gpm = 74.9 L/min = 1.25 L/s.
+      expect(metrics.peak_flow_lpm).toBeCloseTo(74.9, 1);
+      expect(metrics.peak_flow_lps).toBeCloseTo(1.25, 2);
       expect(metrics.recommended_header_bore_mm).toBeGreaterThan(20);
-      expect(metrics.water_storage_litres_24h).toBeGreaterThanOrEqual(1500);
+      // 3 WCs at two people each = 6 people x 150 L for 24 hours.
+      expect(metrics.water_storage_litres_24h).toBe(900);
+    });
+
+    it("reads the printed demand table at its own anchor points", () => {
+      expect(demandGpmForWsfu(10)).toBe(14.6);
+      expect(demandGpmForWsfu(20)).toBe(19.6);
+      expect(demandGpmForWsfu(180)).toBe(61);
+      expect(demandGpmForWsfu(0)).toBe(0);
+      // Monotonic across the whole printed range, and past the last row.
+      let previous = 0;
+      for (let w = 0.5; w <= 400; w += 0.5) {
+        const gpm = demandGpmForWsfu(w);
+        expect(gpm).toBeGreaterThanOrEqual(previous);
+        previous = gpm;
+      }
     });
 
     it("attaches engineering metrics and hydraulic step to PlumbingResult", () => {

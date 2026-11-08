@@ -764,6 +764,59 @@ export default function PlumbingEstimator() {
             )}
           </div>
 
+          {/* Hydraulic demand */}
+          {result.engineering_metrics && (
+            <div className="mb-6 min-w-0 rounded-lg border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold">
+                  {t("Supply demand and header size")}
+                </h3>
+                <span className="rounded bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  {t("IPC table E103.3(3), flush tank")}
+                </span>
+              </div>
+              <div className="mt-3 grid min-w-0 grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Fixture units")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.engineering_metrics.total_wsfu} WSFU
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Peak demand")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.engineering_metrics.peak_flow_lpm} L/min
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Supply header")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.engineering_metrics.recommended_header_pipe_label}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("24-hour storage")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.engineering_metrics.water_storage_litres_24h} L
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t(
+                  "Peak demand is the code table reading for this fixture load, not every fixture running at once. The header is sized at 1.8 m/s; storage allows 150 L per person for one day.",
+                )}
+              </p>
+            </div>
+          )}
+
           {/* Materials table */}
           <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
             <table
