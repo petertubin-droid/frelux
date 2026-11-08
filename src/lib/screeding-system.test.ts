@@ -1017,3 +1017,35 @@ describe("screeding system warnings", () => {
     ).toHaveLength(2);
   });
 });
+
+// =========================================================
+// LIVE NG CONFIG REGRESSION (applied 2026-11-08)
+// =========================================================
+
+describe("live NG white cement + screeding paint config", () => {
+  // Mirrors public.screeding_system_config for market NG after migration
+  // 20261108010000: 20 m² per group, 2 coats, 20% waste, Bond dormant,
+  // owner prices (paint ₦4,500/bucket, white cement ₦8,000/bag).
+  const liveNg = makeMixConfig({
+    coverageAreaM2: 20,
+    defaultCoats: 2,
+    wastePercentage: 20,
+    paintPricePerUnit: 4500,
+    cementPricePerUnit: 8000,
+    extraEnabled: false,
+  });
+
+  it("quotes the documented ratio for a 40.5 m² room", () => {
+    const r = calculateScreedingMixSystem(40.5, liveNg);
+    expect(r.paint.purchaseQuantity).toBe(5);
+    expect(r.cement.purchaseQuantity).toBe(3);
+    expect(r.extra).toBeNull();
+    expect(r.materialCost).toBe(46500);
+  });
+
+  it("does not charge a Bond bucket while the config keeps it dormant", () => {
+    const r = calculateScreedingMixSystem(40.5, liveNg);
+    expect(r.paint.totalCost).toBe(22500);
+    expect(r.cement.totalCost).toBe(24000);
+  });
+});
