@@ -126,7 +126,16 @@ export interface ColumnDesignInput {
   existing_width?: number; // mm (if rectangular)
   existing_depth?: number; // mm (if rectangular)
   is_rectangular: boolean;
-  unbraced_height_ratio: number; // slenderness ratio (height/thickness)
+  /** Legacy field: height / thickness. Not used for slenderness (the engine
+   *  derives it from the section it sizes) and cross-checked against it. */
+  unbraced_height_ratio: number;
+  /**
+   * Effective-length factor applied to the height for slenderness, BS 8110-1
+   * Table 3.19 style: 0.75 braced and restrained, 1.0 braced, 1.5-2.2 unbraced
+   * or cantilever. Defaults to 1.0, which is the braced assumption the engine
+   * already made.
+   */
+  effective_length_factor?: number;
   market_code?: string; // market-scoped member sizing defaults (NG default)
 }
 
@@ -146,7 +155,22 @@ export interface ColumnDesignResult {
   slenderness_check: boolean;
   short_or_slender: "short" | "slender";
   load_capacity: number; // kN
+  /** Design moment the section was checked against, kN·m. */
+  design_moment_knm: number;
+  /** Moment the section can carry at that axial load, kN·m. */
+  moment_capacity_knm: number;
+  /** Axial squash check on its own. */
+  axial_check_pass: boolean;
+  /** Moment-axial interaction (BS 8110-1 Cl 3.4.4.4 stress block). */
+  moment_check_pass: boolean;
+  /**
+   * True only when the axial AND moment checks both pass. Retained so existing
+   * callers keep reading one verdict, but it can no longer be true on axial
+   * capacity alone.
+   */
   capacity_check_pass: boolean;
+  /** What the result is, so a preliminary sizing is not read as a design. */
+  assessment: "PRELIMINARY" | "INSUFFICIENT_INPUT";
   warnings: string[];
   formula_transparency: string[];
 }
@@ -937,6 +961,85 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   };
 }
 
+// ── Column moment-axial interaction ──
+
+/**
+ * Moment capacity of a symmetrically reinforced rectangular section at a given
+ * axial load, by strain compatibility on the BS 8110-1 Cl 3.4.4.4 rectangular
+ * stress block:
+ *
+ *   stress block   0.67 f_cu / 1.5 = 0.447 f_cu over 0.9x, capped at the face
+ *   concrete       0.0035 at the compression face
+ *   steel          E_s 200 GPa, stress capped at 0.87 f_y in both directions
+ *
+ * The section is sampled over neutral-axis depths and the two samples that
+ * straddle the design axial load are interpolated. This replaces the previous
+ * practice of sizing steel from the moment and then checking capacity on the
+ * axial term alone, which passed columns carrying large moments.
+ */
+export function columnMomentCapacityAtAxial(params: {
+  b: number;
+  h: number;
+  coverToBarCentre: number;
+  fcu: number;
+  fy: number;
+  totalSteelArea: number;
+  axialKn: number;
+}): { momentCapacityKnm: number; axialAtSample: number } {
+  const { b, h, fcu, fy, totalSteelArea, axialKn } = params;
+  const dPrime = Math.max(params.coverToBarCentre, 20);
+  const halfSteel = totalSteelArea / 2;
+  const dTension = Math.max(h - dPrime, dPrime + 1);
+  const fcd = (0.67 * fcu) / 1.5; // N/mm²
+  const epsCu = 0.0035;
+  const Es = 200000;
+  const fsMax = 0.87 * fy;
+
+  const sectionResponse = (x: number) => {
+    const a = Math.min(0.9 * x, h);
+    const cc = fcd * b * a; // N
+    const strainTop = (epsCu * (x - dPrime)) / x;
+    const strainBot = (epsCu * (x - dTension)) / x;
+    // positive is compression
+    const fsTop = Math.max(-fsMax, Math.min(fsMax, Es * strainTop));
+    const fsBot = Math.max(-fsMax, Math.min(fsMax, Es * strainBot));
+    const fTop = fsTop * halfSteel;
+    const fBot = fsBot * halfSteel;
+    const axialN = cc + fTop + fBot;
+    const centroid = h / 2;
+    const momentNmm =
+      cc * (centroid - a / 2) +
+      fTop * (centroid - dPrime) +
+      fBot * (centroid - dTension);
+    return { axialN, momentKnm: Math.abs(momentNmm) / 1e6 };
+  };
+
+  // Sample the interaction curve and interpolate at the design axial load. The
+  // curve rises then falls; the capacity is the larger of the two crossings, so
+  // every bracket is examined.
+  const samples: { n: number; m: number }[] = [];
+  for (let i = 1; i <= 200; i++) {
+    const x = (i / 200) * 4 * h;
+    const r = sectionResponse(x);
+    samples.push({ n: r.axialN / 1000, m: r.momentKnm }); // kN, kN·m
+  }
+  let capacity = 0;
+  let axialAtSample = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const a = samples[i - 1];
+    const c = samples[i];
+    const spans = (a.n - axialKn) * (c.n - axialKn) <= 0;
+    if (!spans || a.n === c.n) continue;
+    const f = (axialKn - a.n) / (c.n - a.n);
+    const m = a.m + f * (c.m - a.m);
+    if (m > capacity) {
+      capacity = m;
+      axialAtSample = axialKn;
+    }
+  }
+  return { momentCapacityKnm: capacity, axialAtSample };
+}
+
 // ── Column design ──
 
 export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
@@ -997,13 +1100,36 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     `Section: ${recommended_width} × ${recommended_depth} = ${gross_area} mm²`,
   );
 
-  // Slenderness check
+  // Slenderness check. The height was used as the effective length with no way
+  // to say otherwise, so a cantilever column and a braced one came out
+  // identical.
+  const leFactor =
+    Number.isFinite(input.effective_length_factor) &&
+    (input.effective_length_factor as number) > 0
+      ? (input.effective_length_factor as number)
+      : 1.0;
+  if (leFactor < 0.5 || leFactor > 3) {
+    warnings.push(
+      `Effective-length factor ${leFactor} is outside 0.5 to 3.0. Check the restraint conditions: BS 8110-1 Table 3.19 gives 0.75 for a braced, restrained column, 1.0 braced, 1.5 to 2.2 unbraced or cantilever.`,
+    );
+  }
+  const effectiveLengthMm = input.height * 1000 * leFactor;
   const slenderness_ratio =
-    (input.height * 1000) / Math.min(recommended_width, recommended_depth);
+    effectiveLengthMm / Math.min(recommended_width, recommended_depth);
   const is_short = slenderness_ratio <= 15;
   formulas.push(
-    `Slenderness ratio = ${input.height * 1000} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? "short column" : "slender column"}`,
+    `Effective length = ${input.height} m × ${leFactor} = ${(effectiveLengthMm / 1000).toFixed(2)} m; slenderness = ${effectiveLengthMm.toFixed(0)} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? "short column" : "slender column"}`,
   );
+  if (
+    Number.isFinite(input.unbraced_height_ratio) &&
+    input.unbraced_height_ratio > 0 &&
+    Math.abs(input.unbraced_height_ratio - slenderness_ratio) / slenderness_ratio >
+      0.25
+  ) {
+    warnings.push(
+      `The supplied height/thickness ratio (${input.unbraced_height_ratio}) differs from the slenderness of the section sized here (${slenderness_ratio.toFixed(1)}). The section drives this check; the supplied value is ignored rather than silently mixed in.`,
+    );
+  }
 
   // Audit fix F3: a column never sees pure axial load. BS 8110 §3.8.2.4
   // minimum design moment e_min = max(h/300, 20 mm), and for slender
@@ -1092,21 +1218,72 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
 
   // Links
   const link_diameter = bestDiameter >= 25 ? 10 : 8;
+  // BS 8110-1 Cl 3.12.7.1: the least of 12 bar diameters, 0.75 x the lesser
+  // section dimension, and 300 mm. The width alone was used before, which is
+  // the wrong dimension on a rectangular column.
+  const lesserDimension = h_min;
   const link_spacing = Math.min(
-    recommended_width * 0.75,
+    lesserDimension * 0.75,
     300,
     12 * bestDiameter,
   );
 
-  // Load capacity
+  // Load capacity: the axial squash term, BS 8110-1 Cl 3.8.3. The 0.67
+  // coefficient on the steel term is retained rather than the code's 0.75,
+  // which is conservative on steel and is stated as such in the result.
   const provided_steel = bestCount * barArea(bestDiameter);
   const load_capacity =
     (0.4 * fcu * gross_area + 0.67 * fy * provided_steel) / 1000; // kN
-  const capacity_check_pass = load_capacity >= factored_load;
-
+  const axial_check_pass = load_capacity >= factored_load;
   formulas.push(
-    `Capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${capacity_check_pass ? "PASS" : "FAIL"}`,
+    `Axial capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${axial_check_pass ? "PASS" : "FAIL"} (0.67 on the steel term is conservative: BS 8110-1 Cl 3.8.3 gives 0.75)`,
   );
+
+  // Moment-axial interaction. A column sized from the axial load and then given
+  // steel for the moment still has to carry both at once, so the capacity is
+  // checked on the interaction curve at the design axial load.
+  const nominalCoverMm =
+    Number.isFinite(input.cover_mm) && input.cover_mm >= 15
+      ? input.cover_mm
+      : 25;
+  if (nominalCoverMm !== input.cover_mm) {
+    warnings.push(
+      `Cover of ${input.cover_mm} mm is below 15 mm or missing; 25 mm was used. Confirm the exposure condition.`,
+    );
+  }
+  const coverToBarCentre =
+    nominalCoverMm + link_diameter + bestDiameter / 2;
+  const interaction = columnMomentCapacityAtAxial({
+    b: b_bend,
+    h: h_bend,
+    coverToBarCentre,
+    fcu,
+    fy,
+    totalSteelArea: provided_steel,
+    axialKn: factored_load,
+  });
+  const moment_capacity_knm = Math.round(interaction.momentCapacityKnm * 10) / 10;
+  const design_moment_knm = Math.round(total_design_moment * 10) / 10;
+  const moment_check_pass = moment_capacity_knm >= design_moment_knm;
+  formulas.push(
+    `Moment capacity at N = ${factored_load.toFixed(1)} kN: M_Rd = ${moment_capacity_knm.toFixed(1)} kN·m vs M_Ed = ${design_moment_knm.toFixed(1)} kN·m → ${moment_check_pass ? "PASS" : "FAIL"} (strain compatibility on the BS 8110-1 Cl 3.4.4.4 stress block)`,
+  );
+  if (!moment_check_pass) {
+    warnings.push(
+      `The section carries the axial load but not the moment: M_Rd ${moment_capacity_knm.toFixed(1)} kN·m against M_Ed ${design_moment_knm.toFixed(1)} kN·m. Add steel on the tension face, increase the section, or reduce the eccentricity; do not read the axial PASS as a column that works.`,
+    );
+  }
+  if (steel_ratio > 6) {
+    warnings.push(
+      `Steel ratio ${steel_ratio.toFixed(2)}% is above the 6% maximum (BS 8110-1 Cl 3.12.6.2). Congested cages cannot be concreted.`,
+    );
+  } else if (steel_ratio > 4) {
+    warnings.push(
+      `Steel ratio ${steel_ratio.toFixed(2)}% is above 4%: laps and compaction become difficult in a column this congested.`,
+    );
+  }
+
+  const capacity_check_pass = axial_check_pass && moment_check_pass;
 
   const cms: MemberSizingProfile = resolveMemberSizing(
     input.market_code ?? "NG",
@@ -1143,7 +1320,12 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     slenderness_check: is_short,
     short_or_slender: is_short ? "short" : "slender",
     load_capacity: Math.round(load_capacity * 10) / 10,
+    design_moment_knm,
+    moment_capacity_knm,
+    axial_check_pass,
+    moment_check_pass,
     capacity_check_pass,
+    assessment: "PRELIMINARY",
     warnings,
     formula_transparency: formulas,
   };

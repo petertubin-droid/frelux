@@ -103,7 +103,40 @@ Selecting a custom soil and entering no capacity produced a fully sized footing
 on 150 kN/m² that nobody measured, reported as a bearing check that passed. A
 missing geotechnical value became an apparently safe default.
 
-### D-3 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-3 CONFIRMED DEFECT (corrected) — column passed on axial capacity with the moment ignored
+
+`engineering/structural-calculator.ts`, former `designColumn` capacity step:
+
+```
+const load_capacity =
+  (0.4 * fcu * gross_area + 0.67 * fy * provided_steel) / 1000; // kN
+const capacity_check_pass = load_capacity >= factored_load;
+```
+
+The engine computed a design moment, including the additional moment for a
+slender column, used it to size the steel, and then checked capacity against the
+axial load alone. `capacity_check_pass` was therefore true for a column carrying
+a moment far beyond what its reinforcement could resist: the moment decided how
+much steel was proposed and then played no part in the verdict.
+
+Measured example before the correction: 400 kN on a 200 mm column 6.5 m tall,
+axial capacity sufficient, `capacity_check_pass: true`, design moment 70.4 kN·m
+against a section that carries 45.0 kN·m.
+
+A second, smaller defect in the same function: link spacing was taken as
+0.75 × width, when BS 8110-1 Cl 3.12.7.1 requires 0.75 × the lesser section
+dimension. On a 400 × 225 column that is 300 mm spacing where the limit is 169.
+
+### D-4 CONFIRMED DEFECT (corrected) — effective length and cover ignored
+
+`designColumn` declared `cover_mm` and `unbraced_height_ratio` as required
+inputs and then read neither. Slenderness was `height / h`, so a cantilever
+column and a braced one of the same height came out identical, and the
+interaction arm was hard-coded to 25 mm of cover regardless of exposure. A 40 mm
+cover, as an aggressive ground or marine exposure requires, overstated the
+moment capacity.
+
+### D-5 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -147,7 +180,45 @@ The widen-the-base advice now computes the required width on the empty weight.
 Advising a base width from the full-tank weight is the same defect in a
 sentence.
 
-### 4.2 Foundation input integrity
+### 4.2 Column: moment-axial interaction
+
+Capacity is now checked on the interaction curve rather than the axial term
+alone, by strain compatibility on the BS 8110-1 Cl 3.4.4.4 rectangular stress
+block:
+
+- block stress `0.67 f_cu / 1.5 = 0.447 f_cu` over `0.9x`, capped at the section
+  face;
+- concrete strain 0.0035 at the compression face, `E_s` 200 GPa, steel stress
+  capped at `0.87 f_y` in both directions;
+- the section is sampled over neutral-axis depths and the two samples straddling
+  the design axial load are interpolated to give `M_Rd(N_Ed)`.
+
+The result now carries `design_moment_knm`, `moment_capacity_knm`,
+`axial_check_pass`, `moment_check_pass` and an `assessment` of `PRELIMINARY`.
+`capacity_check_pass` is true only when both checks pass, so no existing caller
+can read an axial pass as a working column. Exceeding 6 % steel raises the
+BS 8110-1 Cl 3.12.6.2 maximum; above 4 % warns on congestion.
+
+Link spacing now uses the lesser section dimension.
+
+Effective length: a new optional `effective_length_factor` multiplies the height
+for slenderness and for the additional moment (BS 8110-1 Table 3.19 style: 0.75
+braced and restrained, 1.0 braced, 1.5 to 2.2 unbraced or cantilever). It
+defaults to 1.0, which is the assumption the engine already made, so existing
+results do not move. The legacy `unbraced_height_ratio` cannot be multiplied in
+without double counting, so it is cross-checked instead: if it differs from the
+computed slenderness by more than 25 %, the result says so rather than quietly
+using one or the other.
+
+Cover: `cover_mm` is now the cover used in the interaction arm, with a warning
+below 15 mm or when it is missing.
+
+One coefficient is deliberately left conservative and stated in the result: the
+steel term keeps 0.67 rather than the code's 0.75 (BS 8110-1 Cl 3.8.3), which
+understates capacity by about 11 % on that term. Changing it is a separate
+decision, not part of this correction.
+
+### 4.3 Foundation input integrity
 
 `designFoundation` now returns an explicit `INSUFFICIENT_INPUT` assessment with
 `missing_inputs` named, and no footing size, when:
@@ -194,7 +265,29 @@ its 1.5 m default base (FS 0.49 empty, 2.94 kN leg uplift, sliding 1.23), and fo
 a 5,000 L tank on 6 m of steel (FS 0.46 empty, 4.45 kN uplift). Both were
 previously reported with a factor taken on the full tank.
 
-### 5.2 Foundation
+### 5.2 Column moment capacity
+
+300 × 300, `f_cu` 25 MPa, `f_y` 460 MPa, 4-Y20 (1,257 mm²), 43 mm to bar centre,
+at 289 kN axial:
+
+| Quantity | Hand value | Engine | Difference |
+|---|---|---|---|
+| Concrete block force | 301.7 kN | — | — |
+| Top steel force (380 MPa) | 238.8 kN | — | — |
+| Bottom steel force (−400 MPa) | −251.4 kN | — | — |
+| N at x = 100 mm | 289.1 kN | 289 kN sample | 0 |
+| M about centroid | 84.1 kN·m | 84.4 kN·m | +0.4 % |
+| M at 300 kN / 900 kN | falling curve | 85.3 / 64.2 kN·m | direction correct |
+| M beyond squash load (2,000 kN) | 0 | 0 | 0 |
+
+Tolerance 2 % relative. Result: PASS, 8 of 8 tests in
+`src/lib/engineering/column-interaction.test.ts`.
+
+Regression: the 400 kN / 6.5 m case that previously reported PASS now reports
+`axial_check_pass: true`, `moment_check_pass: false`,
+`capacity_check_pass: false`, with M_Ed 70.4 kN·m against M_Rd 45.0 kN·m.
+
+### 5.3 Foundation
 
 | Check | Expected | Result |
 |---|---|---|
@@ -228,7 +321,8 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 
 | Engine | Item | Status |
 |---|---|---|
-| `structural-calculator.ts` | Column slenderness, second-order moments, biaxial interaction, tie spacing limits | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Column biaxial bending; section is still generated from the axial load and then reported as failing on moment rather than re-sized automatically | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Beam reinforcement recommendations still not gated on all checks before reporting a pass | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Slab one-way/two-way classification, support-condition coefficients, punching shear, deflection | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Beam development length, shear link spacing, deflection limits | NOT IMPLEMENTED |
 | `retaining-wall-engine.ts` | Rankine only; no groundwater, surcharge, seismic, stem or base steel check; result must be labelled preliminary | REQUIRES ENGINEERING REVIEW |
@@ -254,7 +348,9 @@ preliminary engineering, not a verified structural design.
 | D-2 | Custom soil silently defaulted to 150 kN/m² | CORRECTED, REGRESSION TESTED |
 | D-3 | Raft sized on an invented 10 x 8 m footprint | CORRECTED, REGRESSION TESTED |
 | — | Foundation double soil safety factor | CONFIRMED CORRECT IN PLACE, REGRESSION TESTED |
-| — | Column design completeness | NOT IMPLEMENTED |
+| D-3 | Column passed on axial capacity with the design moment ignored; link spacing on the wrong dimension | CORRECTED, INDEPENDENTLY VERIFIED, REGRESSION TESTED |
+| D-4 | Column effective length and cover declared as inputs and never used | CORRECTED, REGRESSION TESTED |
+| — | Column biaxial bending, automatic re-sizing | NOT IMPLEMENTED |
 | — | Slab design completeness | NOT IMPLEMENTED |
 | — | Beam detailing checks | NOT IMPLEMENTED |
 | — | Retaining wall load cases | REQUIRES ENGINEERING REVIEW |
@@ -267,9 +363,11 @@ preliminary engineering, not a verified structural design.
 
 ## 9. Honest limitations
 
-- Two engines were corrected and independently verified in this pass. The
-  structural calculator's beam, column and slab paths were read but not
-  corrected, so their results remain Level 2.
+- Three engines have been corrected and independently verified in this pass: the
+  water tower staging stability, the foundation input integrity, and the column
+  moment-axial interaction. The beam and slab paths were read but not corrected,
+  so their results remain Level 2. Columns are now checked for axial load and
+  uniaxial moment only; biaxial bending is not checked and is not claimed.
 - The benchmarks compare the engine against hand calculations written from the
   same stated assumptions; they do not constitute a check by a chartered
   engineer. Where a result feeds construction, it needs one.
