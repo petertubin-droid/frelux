@@ -169,7 +169,9 @@ describe("designFoundation, custom soil", () => {
     expect(result.bearing_capacity).toBe(200);
   });
 
-  it("falls back to 150 kN/m² when custom capacity not provided", () => {
+  it("refuses to size a footing with no custom capacity, instead of assuming 150", () => {
+    // A substituted bearing value used to produce a footing that looked
+    // designed on a number nobody measured.
     const input: FoundationDesignInput = {
       shape: "strip",
       soil_type: "custom",
@@ -178,7 +180,14 @@ describe("designFoundation, custom soil", () => {
       concrete_grade: "C20",
     };
     const result = designFoundation(input);
-    expect(result.bearing_capacity).toBe(150);
+    expect(result.assessment).toBe("INSUFFICIENT_INPUT");
+    expect(result.missing_inputs).toContain(
+      "custom_bearing_capacity (the measured allowable bearing pressure, kN/m²)",
+    );
+    expect(result.bearing_capacity).toBe(0);
+    expect(result.recommended_width).toBe(0);
+    expect(result.bearing_check_pass).toBe(false);
+    expect(result.warnings.join(" ")).toMatch(/Insufficient input/i);
   });
 });
 

@@ -32,6 +32,35 @@ export interface TowerSpecs {
   tankDiameterMeters?: number;
 }
 
+/**
+ * Stability is checked per load case, because the case that governs is not the
+ * one the tower normally runs in. A tower stabilised by its own stored water
+ * looks safe full and can be overturned by the same wind empty, so the empty
+ * case is evaluated with the tank, deck and frame weight alone.
+ */
+export type TowerLoadCaseId = "empty" | "full";
+
+export interface TowerLoadCase {
+  id: TowerLoadCaseId;
+  label: string;
+  /** Vertical service weight for this case, kN (no stored water when empty). */
+  weightKn: number;
+  resistingMomentKnm: number;
+  overturningSafetyFactor: number;
+  /** Largest leg load, kN compression, including the wind couple. */
+  maxLegLoadKn: number;
+  /** Smallest leg load, kN. Negative means that leg is in net uplift. */
+  minLegLoadKn: number;
+  /** Axial used for member design in this case, kN. */
+  legDesignAxialKn: number;
+  /** Bearing pressure under the worst pad, kPa. */
+  bearingPressureKpa: number;
+  slidingSafetyFactor: number;
+  pass: boolean;
+  governingCheck: string;
+  failures: string[];
+}
+
 export interface TowerInstallationStep {
   id: string;
   title: string;
@@ -53,6 +82,11 @@ export interface WaterTowerStagingResult {
   overturningMomentKnm: number;
   resistingMomentKnm: number;
   overturningSafetyFactor: number;
+  /** Every stability case that was evaluated, and how it fared. */
+  loadCases: TowerLoadCase[];
+  /** The case that produced the reported stability numbers. */
+  governingCaseId: TowerLoadCaseId;
+  governingCaseLabel: string;
   baseSizeMeters: number;
   tankDiameterMeters: number;
   material: "steel" | "concrete";
@@ -107,6 +141,13 @@ const GRAVITY = 9.81;
 const DEAD_LOAD_FACTOR = 1.4;
 const WIND_PRESSURE_COEFFICIENT = 0.613; // q = 0.613 v^2, N/m^2
 const MIN_OVERTURNING_FOS = 1.5;
+const MIN_SLIDING_FOS = 1.5;
+/**
+ * Base friction for a concrete pad bearing on soil, BS 8002 / BS 8110 practice.
+ * Passive resistance in front of the pads is ignored: it needs undisturbed
+ * ground that cannot be guaranteed on a site this small.
+ */
+const BASE_FRICTION_COEFFICIENT = 0.5;
 const DEFAULT_BEARING_KPA = 150;
 const DEFAULT_WIND_MS = 30;
 const PAD_CONCRETE_GRADE_MPA = 25; // 1:2:4
@@ -273,18 +314,142 @@ export function calculateWaterTowerStaging(
     (windPressurePa * dragFrame * frameAreaM2 * (towerHeightMeters / 2)) / 1000;
   const overturningMomentKnm = round(momentTank + momentFrame, 2);
 
-  const serviceWeightKn = round((deadLoadTotalKg * GRAVITY) / 1000, 2);
-  const resistingMomentKnm = round(serviceWeightKn * (baseSizeMeters / 2), 2);
-  const overturningSafetyFactor = round(
-    resistingMomentKnm / Math.max(0.01, overturningMomentKnm),
+  // ── 2b. Stability, per load case ──
+  //
+  // The tower must stand empty as well as full. Stored water is not a
+  // permanent stabilising weight: it drains, it is drawn down, and it may not
+  // be there on the day the wind arrives. Each case is therefore evaluated on
+  // its own weight, and the reported stability is the worst of them.
+  //
+  // Leg loads: four legs on a square base of side b. Wind acting along the
+  // diagonal is the worst orientation, giving the extreme legs an arm of
+  // b/sqrt(2), so the couple adds M / (b * sqrt(2)) to each extreme leg.
+  const legsForStability = 4;
+  // Frame self-weight: the legs and bracing are what actually hold the tower
+  // down when the tank is empty, so they belong in the empty case. A nominal
+  // section mass is used here because the legs are sized further down; the
+  // cases are rebuilt with the real section once it is chosen.
+  const bracingLengthM =
+    Math.sqrt(
+      Math.pow(towerHeightMeters / Math.max(1, Math.round(towerHeightMeters / 3)), 2) +
+        Math.pow(baseSizeMeters, 2),
+    ) *
+      2 *
+      4 *
+      Math.max(1, Math.round(towerHeightMeters / 3)) +
+    baseSizeMeters * 4 * (Math.max(1, Math.round(towerHeightMeters / 3)) + 1);
+  const frameMassKg =
+    constructionMaterial === "concrete"
+      ? round(4 * 0.23 * 0.23 * towerHeightMeters * 2400, 0)
+      : round(4 * towerHeightMeters * 21 + bracingLengthM * 3.4 + 4 * 12, 0);
+  const structureWeightKg = emptyTankWeightKg + deckWeightKg + frameMassKg;
+  const serviceWeightKn = round(
+    ((structureWeightKg + waterWeightKg) * GRAVITY) / 1000,
     2,
   );
 
-  if (overturningSafetyFactor < MIN_OVERTURNING_FOS) {
-    warnings.push(
-      `Wind overturning factor is ${overturningSafetyFactor} against the required ${MIN_OVERTURNING_FOS}. Widen the base to at least ${round(((MIN_OVERTURNING_FOS * overturningMomentKnm) / serviceWeightKn) * 2, 2)} m, or reduce the tower height.`,
+  const buildLoadCase = (
+    id: TowerLoadCaseId,
+    label: string,
+    weightKg: number,
+    padSideM: number,
+  ): TowerLoadCase => {
+    const weightKn = round((weightKg * GRAVITY) / 1000, 2);
+    const resisting = round(weightKn * (baseSizeMeters / 2), 2);
+    const fos = round(resisting / Math.max(0.01, overturningMomentKnm), 2);
+    const coupleKn = overturningMomentKnm / (baseSizeMeters * Math.SQRT2);
+    const maxLeg = round(weightKn / legsForStability + coupleKn, 2);
+    const minLeg = round(weightKn / legsForStability - coupleKn, 2);
+    const bearing = round(maxLeg / (padSideM * padSideM), 1);
+    const slidingFos = round(
+      (BASE_FRICTION_COEFFICIENT * weightKn) / Math.max(0.01, windForceKn),
+      2,
     );
-  }
+    const failures: string[] = [];
+    if (fos < MIN_OVERTURNING_FOS)
+      failures.push(
+        `overturning factor ${fos} below ${MIN_OVERTURNING_FOS}`,
+      );
+    if (minLeg < 0)
+      failures.push(
+        `leg uplift ${Math.abs(minLeg)} kN on the windward leg`,
+      );
+    if (bearing > bearingKpa)
+      failures.push(`bearing ${bearing} kPa above ${bearingKpa} kPa`);
+    if (slidingFos < MIN_SLIDING_FOS)
+      failures.push(
+        `sliding factor ${slidingFos} below ${MIN_SLIDING_FOS}`,
+      );
+    const governingCheck =
+      fos < MIN_OVERTURNING_FOS
+        ? "Overturning"
+        : minLeg < 0
+          ? "Leg uplift"
+          : bearing > bearingKpa
+            ? "Bearing"
+            : slidingFos < MIN_SLIDING_FOS
+              ? "Sliding"
+              : fos <= slidingFos
+                ? "Overturning (governing, satisfied)"
+                : "Sliding (governing, satisfied)";
+    return {
+      id,
+      label,
+      weightKn,
+      resistingMomentKnm: resisting,
+      overturningSafetyFactor: fos,
+      maxLegLoadKn: maxLeg,
+      minLegLoadKn: minLeg,
+      legDesignAxialKn: round(
+        (weightKg * DEAD_LOAD_FACTOR * GRAVITY) / 1000 / legsForStability,
+        2,
+      ),
+      bearingPressureKpa: bearing,
+      slidingSafetyFactor: slidingFos,
+      pass: failures.length === 0,
+      governingCheck,
+      failures,
+    };
+  };
+
+  // Pad size is needed by the case builder, so solve it on the full-tank leg
+  // load first (the heaviest verticalload), then re-evaluate every case with
+  // that one pad. A pad cannot be a different size per load case.
+  const fullServiceWeightKn = serviceWeightKn;
+  const coupleKnForPads =
+    overturningMomentKnm / (baseSizeMeters * Math.SQRT2);
+  const fullLegForPads = round(
+    fullServiceWeightKn / legsForStability + coupleKnForPads,
+    2,
+  );
+  const padAreaM2ForPads = fullLegForPads / bearingKpa;
+  const padSizeForCases = Math.max(0.6, roundUp(Math.sqrt(padAreaM2ForPads), 0.05));
+
+  let loadCases: TowerLoadCase[] = [
+    buildLoadCase(
+      "empty",
+      "Empty tank, wind on the tower",
+      structureWeightKg,
+      padSizeForCases,
+    ),
+    buildLoadCase(
+      "full",
+      "Full tank, wind on the tower",
+      structureWeightKg + waterWeightKg,
+      padSizeForCases,
+    ),
+  ];
+  // Empty under wind governs stability: it is the least weight resisting the
+  // same overturning moment. Take the lowest factor rather than trusting the case
+  // the tower normally runs in.
+  let governingCase = loadCases.reduce((worst, c) =>
+    c.overturningSafetyFactor < worst.overturningSafetyFactor ? c : worst,
+  );
+  // Reassigned when the leg section is known and the frame weight changes.
+  let resistingMomentKnm = governingCase.resistingMomentKnm;
+  let overturningSafetyFactor = governingCase.overturningSafetyFactor;
+
+
   if (windMs > 35) {
     warnings.push(
       `Basic wind speed ${windMs} m/s is above the 30 m/s design default. Wind effects are significant at this exposure.`,
@@ -292,19 +457,13 @@ export function calculateWaterTowerStaging(
   }
 
   // ── 3. Footings ──
-  // Worst leg takes vertical share plus the wind couple across the base.
+  // The worst leg in the full case (vertical share plus the wind couple) sizes
+  // the pad; every load case is then checked against that one pad size.
   const legs = 4;
-  const verticalPerLeg = serviceWeightKn / legs;
-  const windPerLeg = overturningMomentKnm / (baseSizeMeters * Math.SQRT2);
-  const serviceLoadPerLegKn = round(verticalPerLeg + windPerLeg, 2);
-  const padAreaM2 = serviceLoadPerLegKn / bearingKpa;
-  // A pad smaller than 600 mm cannot be built or fixed down in practice, so the
-  // bearing requirement is a floor, not the only rule.
   const MIN_PAD_METERS = 0.6;
-  const padSizeMeters = Math.max(
-    MIN_PAD_METERS,
-    roundUp(Math.sqrt(padAreaM2), 0.05),
-  );
+  const padSizeMeters = padSizeForCases;
+  const serviceLoadPerLegKn = fullLegForPads;
+  const padAreaM2 = padSizeMeters * padSizeMeters;
   const padThicknessMm = padSizeMeters <= 0.6 ? 200 : 250;
   const padsConcrete =
     legs * padSizeMeters * padSizeMeters * (padThicknessMm / 1000);
@@ -313,7 +472,7 @@ export function calculateWaterTowerStaging(
 
   if (padSizeMeters === MIN_PAD_METERS) {
     warnings.push(
-      `Pads are at the 600 mm minimum for constructability. The ${serviceLoadPerLegKn} kN per leg needs ${round(padAreaM2, 2)} m² on ${bearingKpa} kPa soil, so the pad is governed by buildability, not bearing.`,
+      `Pads are at the 600 mm minimum for constructability. The ${serviceLoadPerLegKn} kN per leg needs ${round(padAreaM2ForPads, 2)} m² on ${bearingKpa} kPa soil, so the pad is governed by buildability, not bearing.`,
     );
   }
   if (bearingKpa === DEFAULT_BEARING_KPA) {
@@ -324,6 +483,15 @@ export function calculateWaterTowerStaging(
 
   // ── 4. Legs ──
   const axialPerLegKn = round(designLoadKn / legs, 2);
+  const bearingKpaGoverning = round(
+    Math.max(...loadCases.map((c) => c.bearingPressureKpa)),
+    1,
+  );
+  if (bearingKpaGoverning > bearingKpa) {
+    warnings.push(
+      `Worst pad bearing is ${bearingKpaGoverning} kPa against ${bearingKpa} kPa allowable. Widen the pads or confirm a higher soil capacity with a test.`,
+    );
+  }
   let legDesign: WaterTowerStagingResult["legDesign"];
   let concreteVolumeM3 = 0;
   let cementBags50kg = 0;
@@ -437,6 +605,64 @@ export function calculateWaterTowerStaging(
     }
   }
 
+  // ── 4b. Re-run stability on the frame that was actually chosen ──
+  // The first pass used a nominal section mass. Now that the legs and bracing
+  // are sized, rebuild the cases with the real self-weight: a heavier frame
+  // holds the tower down better, a lighter one less.
+  const frameMassActualKg =
+    constructionMaterial === "concrete" ? frameMassKg : round(steelKg, 0);
+  if (Math.abs(frameMassActualKg - frameMassKg) > 5) {
+    const structureWeightActualKg =
+      emptyTankWeightKg + deckWeightKg + frameMassActualKg;
+    loadCases = [
+      buildLoadCase(
+        "empty",
+        "Empty tank, wind on the tower",
+        structureWeightActualKg,
+        padSizeForCases,
+      ),
+      buildLoadCase(
+        "full",
+        "Full tank, wind on the tower",
+        structureWeightActualKg + waterWeightKg,
+        padSizeForCases,
+      ),
+    ];
+    governingCase = loadCases.reduce((worst, c) =>
+      c.overturningSafetyFactor < worst.overturningSafetyFactor ? c : worst,
+    );
+    resistingMomentKnm = governingCase.resistingMomentKnm;
+    overturningSafetyFactor = governingCase.overturningSafetyFactor;
+  }
+
+  if (!governingCase.pass) {
+    warnings.push(
+      `Stability fails in the ${governingCase.id} case: ${governingCase.failures.join("; ")}.`,
+    );
+  }
+  const emptyCase = loadCases[0];
+  if (emptyCase.minLegLoadKn < 0) {
+    warnings.push(
+      `Empty, the windward legs lift ${Math.abs(emptyCase.minLegLoadKn)} kN. That tension has to be carried by holding-down bolts designed for it, or removed by ballast on the windward pads, or by a wider base.`,
+    );
+  }
+  if (governingCase.overturningSafetyFactor < MIN_OVERTURNING_FOS) {
+    // Base width needed on the empty case, which is what resists the wind once
+    // the tank has drained.
+    const neededBaseM = round(
+      ((MIN_OVERTURNING_FOS * overturningMomentKnm) / Math.max(0.01, emptyCase.weightKn)) * 2,
+      2,
+    );
+    warnings.push(
+      `Wind overturning factor is ${governingCase.overturningSafetyFactor} against the required ${MIN_OVERTURNING_FOS} in the ${governingCase.id} case. On the empty weight the base has to reach ${neededBaseM} m, or the tower has to come down in height. Widening on the full-tank weight alone is not enough.`,
+    );
+  }
+  if (!loadCases[1].pass && loadCases[1].failures.length) {
+    warnings.push(
+      `With the tank full: ${loadCases[1].failures.join("; ")}.`,
+    );
+  }
+
   const footing = {
     legs,
     serviceLoadPerLegKn,
@@ -522,6 +748,9 @@ export function calculateWaterTowerStaging(
     overturningMomentKnm,
     resistingMomentKnm,
     overturningSafetyFactor,
+    loadCases,
+    governingCaseId: governingCase.id,
+    governingCaseLabel: governingCase.label,
     baseSizeMeters,
     tankDiameterMeters: tankDiameter,
     material: constructionMaterial,
@@ -556,6 +785,6 @@ export function calculateWaterTowerStaging(
     },
     installationSteps,
     warnings,
-    summaryDescription: `Elevated staging ${towerHeightMeters} m high carrying a ${tankVolumeLiters.toLocaleString()} L tank: ${round(deadLoadTotalKg / 1000, 1)} t dead load, ${designLoadKn} kN design load, ${windForceKn} kN wind force with an overturning factor of ${overturningSafetyFactor}. ${materialPhrase}.`,
+    summaryDescription: `Elevated staging ${towerHeightMeters} m high carrying a ${tankVolumeLiters.toLocaleString()} L tank: ${round(deadLoadTotalKg / 1000, 1)} t dead load, ${designLoadKn} kN design load, ${windForceKn} kN wind force with an overturning factor of ${overturningSafetyFactor} in the governing ${governingCase.id} case. ${materialPhrase}.`,
   };
 }
