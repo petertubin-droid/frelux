@@ -471,6 +471,15 @@ export interface ElectricalInput {
     voltage: number;
     lighting_dominant?: boolean;
   } | null;
+  /**
+   * Supply arrangement of the installation. A balanced three-phase supply
+   * carries the same power at 1/sqrt(3) of the single-phase current, so an
+   * incomer sized as a two-wire circuit at 400 V overstated the design current
+   * by 73 percent and quoted one breaker size up.
+   */
+  supply_system?: SupplySystem;
+  /** line-to-line voltage for a three-phase supply, line-to-neutral otherwise */
+  supply_voltage?: number | null;
   labour: ElectricalLabourInput;
 }
 
@@ -651,9 +660,19 @@ export function calculateElectrical(
   const totalCircuits = lightingCircuits + socketCircuits + dedicatedCircuits;
 
   // ── Connected load & standard diversity (BS 7671 Appendix A / NEC 220) ──
-  const statedVoltage = input.feeder_check?.voltage;
-  const systemVoltage =
-    statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+  const supplySystem: SupplySystem =
+    input.supply_system === "three" ? "three" : "single";
+  const statedVoltage =
+    input.supply_voltage && input.supply_voltage > 0
+      ? input.supply_voltage
+      : input.feeder_check?.voltage && input.feeder_check.voltage > 0
+        ? input.feeder_check.voltage
+        : supplySystem === "three"
+          ? 400
+          : 230;
+  const systemVoltage = statedVoltage;
+  /** balanced three-phase carries the load at sqrt(3) x line voltage */
+  const supplyFactor = supplySystem === "three" ? Math.sqrt(3) : 1;
   const connectedLightingVA = input.lighting_points * 100; // 100 VA per light point
   const connectedSocketsVA = input.socket_points * 250; // 250 VA per twin socket point
   const connectedDedicatedVA = input.dedicated_points * 2500; // 2.5 kVA per heavy appliance
@@ -674,8 +693,10 @@ export function calculateElectrical(
   const diversifiedDemandVA = divLighting + divSockets + divDedicated;
 
   const incomerCurrentA =
-    systemVoltage > 0 ? diversifiedDemandVA / (systemVoltage * 0.9) : 0;
-  const standardBreakers = [25, 32, 40, 50, 63, 80, 100, 125];
+    systemVoltage > 0
+      ? diversifiedDemandVA / (supplyFactor * systemVoltage * 0.9)
+      : 0;
+  const standardBreakers = [16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
   const recBreaker =
     standardBreakers.find((b) => b >= incomerCurrentA) ??
     (incomerCurrentA > 125 ? 160 : 32);
@@ -705,7 +726,7 @@ export function calculateElectrical(
   if (totalConnectedVA > 0) {
     steps.push({
       label: "Connected load & maximum demand (BS 7671 / NEC 220)",
-      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails.`,
+      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V ${supplySystem === "three" ? "three-phase (per-line)" : "single-phase"}, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails.`,
     });
   }
 
@@ -813,10 +834,16 @@ export function calculateElectrical(
       const vDrop = (2 * spec.avgRun * currentA * COPPER_RESISTIVITY) / csa;
       // System voltage comes from the caller's feeder check when they stated
       // one; 230 V is the single-phase default only when nothing was supplied.
+      // Final circuits are single-phase, so a three-phase supply is checked at
+      // its line-to-neutral voltage (400 / sqrt(3) = 231 V), not at 400 V.
       const statedVoltage = input.feeder_check?.voltage;
-      const systemVoltage =
-        statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
-      const vDropPct = (vDrop / systemVoltage) * 100;
+      const circuitVoltage =
+        supplySystem === "three"
+          ? systemVoltage / Math.sqrt(3)
+          : statedVoltage && statedVoltage > 0
+            ? statedVoltage
+            : 230;
+      const vDropPct = (vDrop / circuitVoltage) * 100;
       const limitPct = spec.key === "cable_lighting" ? 3 : 5;
       if (vDropPct > limitPct) {
         warnings.push(

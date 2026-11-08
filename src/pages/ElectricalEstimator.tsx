@@ -110,6 +110,7 @@ function fmtN(v: number | null): string {
 
 interface ElectricalDraftState {
   buildingType: string;
+  supplyPhase?: "single" | "three";
   counts: Record<NumField, string>;
   runs: Record<RunField, string>;
   labourMode: "none" | "per_point" | "lump_sum";
@@ -151,6 +152,7 @@ export default function ElectricalEstimator() {
   );
   const isFeet = electricalProfile.runDistanceUnit === "ft";
   const [buildingType, setBuildingType] = useState(DEFAULT_BUILDING_TYPE);
+  const [supplyPhase, setSupplyPhase] = useState<"single" | "three">("single");
   const [counts, setCounts] =
     useState<Record<NumField, string>>(DEFAULT_COUNTS);
   const [runs, setRuns] = useState<Record<RunField, string>>(DEFAULT_RUNS);
@@ -160,8 +162,8 @@ export default function ElectricalEstimator() {
   const [labourRate, setLabourRate] = useState("");
 
   const draftState = useMemo<ElectricalDraftState>(
-    () => ({ buildingType, counts, runs, labourMode, labourRate }),
-    [buildingType, counts, runs, labourMode, labourRate],
+    () => ({ buildingType, supplyPhase, counts, runs, labourMode, labourRate }),
+    [buildingType, supplyPhase, counts, runs, labourMode, labourRate],
   );
 
   const { isRestored, clearDraft, dismissRestored } =
@@ -171,6 +173,8 @@ export default function ElectricalEstimator() {
       {
         onRestore: (saved) => {
           if (saved?.buildingType) setBuildingType(saved.buildingType);
+          if (saved?.supplyPhase === "three" || saved?.supplyPhase === "single")
+            setSupplyPhase(saved.supplyPhase);
           if (saved?.counts)
             setCounts((prev) => ({ ...prev, ...saved.counts }));
           if (saved?.runs) setRuns((prev) => ({ ...prev, ...saved.runs }));
@@ -266,6 +270,8 @@ export default function ElectricalEstimator() {
     };
     return {
       building_type: buildingType,
+      supply_system: supplyPhase,
+      supply_voltage: supplyPhase === "three" ? 400 : 230,
       lighting_points: num(counts.lighting_points),
       socket_points: num(counts.socket_points),
       dedicated_points: num(counts.dedicated_points),
@@ -303,7 +309,7 @@ export default function ElectricalEstimator() {
         lump_sum: labourMode === "lump_sum" ? Number(labourRate) || null : null,
       },
     };
-  }, [buildingType, counts, runs, labourMode, labourRate]);
+  }, [buildingType, supplyPhase, counts, runs, labourMode, labourRate]);
 
   const run = useCallback(() => {
     const res = calculateElectrical(input, calcRules, priceMap);
@@ -612,6 +618,37 @@ export default function ElectricalEstimator() {
             ))}
           </select>
         </label>
+
+        <fieldset className="mb-4 min-w-0">
+          <legend className="mb-1 block font-medium">{t("Supply")}</legend>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { key: "single", label: t("Single phase (230 V)") },
+                { key: "three", label: t("Three phase (400 V)") },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setSupplyPhase(opt.key)}
+                aria-pressed={supplyPhase === opt.key}
+                className={`min-w-0 rounded-md border px-3 py-2 text-sm ${
+                  supplyPhase === opt.key
+                    ? "border-primary bg-primary/10 font-medium text-foreground"
+                    : "border-input text-muted-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t(
+              "Sets the incomer current. On three phase the same load draws 1/√3 of the single-phase current, so the breaker and service tails come out smaller.",
+            )}
+          </p>
+        </fieldset>
 
         <h3 className="mb-2 font-semibold">{t("Points and units")}</h3>
         <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -1005,6 +1042,70 @@ export default function ElectricalEstimator() {
                 </p>
               </div>
             )}
+
+          {/* Maximum demand and incomer */}
+          {result.circuit_summary?.total_connected_load_va ? (
+            <div className="mb-6 min-w-0 rounded-lg border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold">
+                  {t("Maximum demand and incomer")}
+                </h3>
+                <span className="rounded bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  {supplyPhase === "three"
+                    ? t("Three phase, 400 V")
+                    : t("Single phase, 230 V")}
+                </span>
+              </div>
+              <div className="mt-3 grid min-w-0 grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Connected load")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {(
+                      (result.circuit_summary.total_connected_load_va ?? 0) /
+                      1000
+                    ).toFixed(1)}{" "}
+                    kVA
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Diversified demand")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {(
+                      (result.circuit_summary.diversified_demand_va ?? 0) / 1000
+                    ).toFixed(1)}{" "}
+                    kVA
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Design current")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.circuit_summary.main_incomer_current_a} A
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <span className="block font-medium text-foreground">
+                    {t("Main incomer")}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {result.circuit_summary.recommended_main_breaker_a} A ·{" "}
+                    {result.circuit_summary.recommended_service_cable_mm2} mm²
+                    tails
+                  </span>
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t(
+                  "Diversified demand applies lighting at 66%, the first 1 kVA of sockets and 2.5 kVA of heavy appliances at full load, and 40% of the rest. Breaker and tails are a starting point, not a design.",
+                )}
+              </p>
+            </div>
+          ) : null}
 
           {/* Breakdown */}
           <div className="mb-6 rounded-lg border bg-card p-4">
