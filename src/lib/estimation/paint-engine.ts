@@ -30,6 +30,8 @@ import type {
 } from "@/types/estimation";
 import {
   marketSellsPaintByGallon,
+  paintPackLabel,
+  paintPackNoun,
   resolvePaintPackLitres,
 } from "./paint-packaging";
 import type { Unit } from "@/types";
@@ -922,9 +924,12 @@ export function calculateRoom(
     config.marketCode,
   );
 
+  const packLabel =
+    paintPackLabel(packSizeLitres, config.marketCode) || `${packSizeLitres} L`;
+  const packNoun = paintPackNoun(packSizeLitres, config.marketCode);
   steps.push({
     label: "Bucket Size",
-    value: `${packSizeLitres} L per bucket`,
+    value: `${packLabel} ${packNoun}`,
     detail: config.product?.standard_pack_size
       ? "Product standard pack size."
       : "FRELUX configured purchase unit.",

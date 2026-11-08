@@ -752,6 +752,9 @@ export default function PaintingEstimator({
       surfaceConditions,
       productionRules,
       calcVersionId,
+      // Container sizes and wording follow the visitor's shelf: a US visitor
+      // buys gallon cans, not 20 litre buckets.
+      marketCode,
     };
 
     const calcResult = monitoredCalc("Painting Estimator", () =>
