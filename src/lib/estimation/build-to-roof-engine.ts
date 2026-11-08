@@ -333,8 +333,8 @@ export function mortarToMaterials(
  * direct course count exactly:
  *   blocks in a P×H wall = (P/(L+j)) × (H/(h+j)) = P·H × blocksPerM2
  *
- * For the standard 18″×9″ block with the 25 mm engine joint this gives
- * ≈ 8.18 blocks/m² (the joint-free face-area figure was 9.57/m², a ~15%
+ * For the standard 18″×9″ block with the 12 mm engine joint this gives
+ * ≈ 8.86 blocks/m² (the joint-free face-area figure was 9.57/m², a ~7%
  * over-estimate that did not account for mortar).
  *
  * mortarJointM defaults to the engine constant; pass 0 for the joint-free
@@ -2497,15 +2497,18 @@ export function calculateBuildToRoof(
 
   const shoppingList = consolidateMaterials(stages);
 
-  const materialsTotal = stages.reduce(
-    (s, stage) => s + stage.materials_total,
-    0,
+  // Audit fix (F7, 2026-11-08): the headline figures are now the rounded parts,
+  // and the grand total is their exact sum. Before this, each reported field
+  // was rounded only at display, so a client adding the printed materials and
+  // labour could land a kobo or two away from the printed total.
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const materialsTotal = round2(
+    stages.reduce((s, stage) => s + stage.materials_total, 0),
   );
 
   // Task-based labour total from stages
-  const taskLabourTotal = stages.reduce(
-    (s, stage) => s + stage.labour_total,
-    0,
+  const taskLabourTotal = round2(
+    stages.reduce((s, stage) => s + stage.labour_total, 0),
   );
 
   // Role-based labour total (daily/contract rates)
@@ -2520,7 +2523,7 @@ export function calculateBuildToRoof(
       ? normalized.labour.contractor_fee
       : normalized.labour.contractor_fee * normalized.labour.contractor_days);
 
-  const labourTotal = taskLabourTotal + roleLabourTotal;
+  const labourTotal = round2(taskLabourTotal + roleLabourTotal);
 
   // Wastage allowance = difference between final quantities and base quantities
   const wastageAllowance = stages.reduce((sum, stage) => {
@@ -2533,8 +2536,10 @@ export function calculateBuildToRoof(
     );
   }, 0);
 
-  const contingency =
-    (materialsTotal + labourTotal) * (normalized.contingency_percent / 100);
+  const contingency = round2(
+    (materialsTotal + labourTotal) * (normalized.contingency_percent / 100),
+  );
+  // Exact sum of the rounded parts: the printed stages always add up.
   const grandTotal = materialsTotal + labourTotal + contingency;
 
   const confidence = assessConfidence(input);

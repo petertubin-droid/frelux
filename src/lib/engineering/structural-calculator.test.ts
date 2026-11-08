@@ -147,10 +147,16 @@ describe("designSlab", () => {
 
   it("calculates required and recommended thickness", () => {
     const result = designSlab(baseInput);
+    // required_thickness keeps its own meaning: what the bare Table 3.9
+    // span/depth rule demands. recommended_thickness is the thinnest section
+    // that passes every check, which Cl 3.4.6.5 legitimately allows to be
+    // thinner than the bare rule (audit fix F4, 2026-11-08).
     expect(result.required_thickness).toBeGreaterThan(0);
-    expect(result.recommended_thickness).toBeGreaterThanOrEqual(
+    expect(result.recommended_thickness).toBeGreaterThan(0);
+    expect(result.recommended_thickness).toBeLessThanOrEqual(
       result.required_thickness,
     );
+    expect(result.deflection_check_pass).toBe(true);
   });
 
   it("calculates loads", () => {
@@ -363,7 +369,7 @@ describe("audit fixes — F1/F2/F3", () => {
     }
   });
 
-  it("F3: column adds the code minimum moment e_min = max(h/300, 20mm)", () => {
+  it("F3: column adds the code minimum moment e_min = max(0.05h, 20mm)", () => {
     const r = designColumn({
       axial_load: 600,
       height: 3.0,
@@ -376,6 +382,9 @@ describe("audit fixes — F1/F2/F3", () => {
     expect(
       r.formula_transparency.some((f) => f.includes("Minimum design moment")),
     ).toBe(true);
+    // BS 8110-1 Cl 3.8.2.4: e_min = 0.05h, not less than 20 mm. The old rule
+    // was h/300, which made the 20 mm floor the only term that ever applied.
+    expect(r.formula_transparency.some((f) => f.includes("0.05 ×"))).toBe(true);
     expect(r.formula_transparency.some((f) => f.includes("e_min = max("))).toBe(
       true,
     );
@@ -421,5 +430,58 @@ describe("audit fixes — F1/F2/F3", () => {
     expect(
       slabUS.formula_transparency.some((f) => f.includes("ACI 318-19 LRFD")),
     ).toBe(true);
+  });
+});
+
+describe("audit fix F4 — thinnest compliant slab", () => {
+  const base = {
+    span_x: 4,
+    span_y: 5,
+    slab_type: "two_way" as const,
+    support_condition: "simply_supported" as const,
+    live_load: 2,
+    dead_load: 1.5,
+    concrete_grade: "C25/30" as const,
+    steel_grade: "Fe410" as const,
+    cover_mm: 20,
+  };
+
+  it("does not over-size a 4 x 5 m two-way panel", () => {
+    const r = designSlab(base);
+    // The bare ratio asks for 250 mm; the modification factor legitimately
+    // allows 175 mm, which still passes the check it is measured against.
+    expect(r.recommended_thickness).toBe(175);
+    // required_thickness is the ceil'd bare-ratio depth (230), recommended is
+    // that depth rounded up to the 25 mm build step (250) before F4 thinned it.
+    expect(r.required_thickness).toBe(230);
+    expect(r.deflection_check_pass).toBe(true);
+    expect(r.recommended_thickness).toBeGreaterThanOrEqual(125);
+  });
+
+  it("keeps the cantilever span/7 minimum", () => {
+    const r = designSlab({
+      ...base,
+      span_x: 1.5,
+      span_y: 1.5,
+      slab_type: "cantilever_slab",
+      support_condition: "cantilever",
+      cover_mm: 25,
+    });
+    expect(r.recommended_thickness).toBeGreaterThanOrEqual(1500 / 7);
+  });
+
+  it("never thins a section the user supplied", () => {
+    const r = designSlab({ ...base, existing_thickness: 250 });
+    expect(r.recommended_thickness).toBe(250);
+  });
+
+  it("still sizes a heavily loaded panel thicker than a light one", () => {
+    const light = designSlab(base);
+    const heavy = designSlab({ ...base, live_load: 20, dead_load: 8 });
+    expect(heavy.recommended_thickness).toBeGreaterThan(
+      light.recommended_thickness,
+    );
+    expect(heavy.deflection_check_pass).toBe(true);
+    expect(heavy.link_check.length).toBeGreaterThan(0);
   });
 });

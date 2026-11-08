@@ -41,13 +41,13 @@ describe("slab lever arm", () => {
 
   it("sizes steel on the real lever arm, matching the hand value", () => {
     // z = 95.9 mm is 0.834d, not the 0.87d the engine used to assume.
-    const K = (49.5e6) / (30 * 1000 * 115 * 115);
+    const K = 49.5e6 / (30 * 1000 * 115 * 115);
     const z = 115 * (0.5 + Math.sqrt(0.25 - K / 0.9));
     const expected = 49.5e6 / (0.87 * 500 * z);
     expect(result.steel_area_required).toBeCloseTo(expected, -1);
-    expect(Math.abs(result.steel_area_required - expected) / expected).toBeLessThan(
-      0.02,
-    );
+    expect(
+      Math.abs(result.steel_area_required - expected) / expected,
+    ).toBeLessThan(0.02);
   });
 
   it("regression: does not understate steel by pinning z at 0.87d", () => {
@@ -108,9 +108,11 @@ describe("slab deflection", () => {
   it("passes the slab it sized itself", () => {
     const result = designSlab({ ...THIN, existing_thickness: undefined });
     expect(result.deflection_check_pass).toBe(true);
-    expect(result.recommended_thickness).toBeGreaterThanOrEqual(
-      result.required_thickness,
-    );
+    // The section it recommends must clear the panel's own minimum thickness
+    // rule even though the modification factor lets it be thinner than the
+    // bare span/depth requirement (audit fix F4).
+    const floor = Math.max(100, (THIN.span_x * 1000) / 20);
+    expect(result.recommended_thickness).toBeGreaterThanOrEqual(floor);
   });
 
   it("applies the modification factor, not the bare basic ratio", () => {
@@ -177,9 +179,15 @@ describe("basic span/depth ratios", () => {
       support_condition: "simply_supported",
       existing_thickness: undefined,
     });
-    // d must reach 4000/20 = 200 mm for the short span.
-    const d = r.recommended_thickness - 35;
-    expect(d).toBeGreaterThanOrEqual(200);
+    // The bare Table 3.9 ratio of 20 for a simply supported member is what
+    // required_thickness reports: d = 4000/20 = 200 mm, + 25 cover + 10 = 235,
+    // rounded to 250 mm. The recommended section may be thinner than that
+    // because the Cl 3.4.6.5 modification factor for the steel provided is
+    // applied, and that is the check that must pass (audit fix F4).
+    const dRequired = r.required_thickness - 35;
+    expect(dRequired).toBeGreaterThanOrEqual(200);
+    expect(r.deflection_check_pass).toBe(true);
+    expect(r.recommended_thickness).toBeLessThan(r.required_thickness);
   });
 
   it("sizes a continuous panel to 26, not 32", () => {
@@ -192,6 +200,6 @@ describe("basic span/depth ratios", () => {
       existing_thickness: undefined,
     });
     const d = r.recommended_thickness - 35;
-    expect(d).toBeGreaterThanOrEqual(Math.floor((6000 / 26) - 1));
+    expect(d).toBeGreaterThanOrEqual(Math.floor(6000 / 26 - 1));
   });
 });

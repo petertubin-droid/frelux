@@ -85,7 +85,9 @@ describe("designColumn verdict", () => {
     expect(result.design_moment_knm).toBeGreaterThan(
       result.moment_capacity_knm,
     );
-    expect(result.warnings.join(" ")).toMatch(/carries the axial load but not the moment/i);
+    expect(result.warnings.join(" ")).toMatch(
+      /carries the axial load but not the moment/i,
+    );
   });
 
   it("passes a stocky column on both checks", () => {
@@ -118,9 +120,10 @@ describe("designColumn verdict", () => {
     });
     expect(result.design_moment_knm).toBeGreaterThan(0);
     expect(result.moment_capacity_knm).toBeGreaterThan(0);
-    // e_min governs a stocky column, so M_Ed = N x max(h/300, 20 mm)
+    // e_min governs a stocky column, so M_Ed = N x max(0.05h, 20 mm)
+    // (BS 8110-1 Cl 3.8.2.4)
     const eMin = Math.max(
-      Math.min(result.recommended_width, result.recommended_depth) / 300,
+      0.05 * Math.min(result.recommended_width, result.recommended_depth),
       20,
     );
     expect(result.design_moment_knm).toBeCloseTo(
@@ -143,7 +146,9 @@ describe("designColumn verdict", () => {
       market_code: "NG",
     });
     expect(result.link_spacing).toBeLessThanOrEqual(0.75 * 225);
-    expect(result.link_spacing).toBeLessThanOrEqual(12 * result.recommended_bar_diameter);
+    expect(result.link_spacing).toBeLessThanOrEqual(
+      12 * result.recommended_bar_diameter,
+    );
   });
 
   it("an unbraced column is checked against a longer effective length", () => {

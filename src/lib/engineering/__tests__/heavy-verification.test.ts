@@ -81,11 +81,10 @@ describe("two-way slab, BS 8110 Table 3.14", () => {
       concrete_grade: "C25/30",
       steel_grade: "Fe500",
       cover_mm: 25,
+      // The subject of this test is the Table 3.14 coefficients, so the section
+      // is fixed to keep the arithmetic below stable across sizing changes.
+      existing_thickness: 250,
     } as never);
-    // Thickness is sized so L/d <= 20, the Table 3.9 basic ratio for a simply
-    // supported member: d = 4000/20 = 200, + 25 cover + 10 = 235, rounded up in
-    // 25 mm steps = 250 mm. The old expectation of 200 came from a private copy
-    // of the ratios that used 26 for a two-way panel regardless of support.
     // Self weight 0.25 x 24 = 6.0 kN/m².
     expect(r.recommended_thickness).toBe(250);
     // w = 1.4 x (6.0 + 1.2) + 1.6 x 1.5 = 10.08 + 2.4 = 12.48 kN/m²
