@@ -2695,6 +2695,12 @@ function SlabCalculator() {
               label="Max moment"
               value={`${result.max_moment} kN·m/m`}
             />
+            {result.support_steel_area ? (
+              <DetailItem
+                label="Support steel (top)"
+                value={`${result.support_steel_area} mm²/m`}
+              />
+            ) : null}
             <DetailItem label="Max shear" value={`${result.max_shear} kN/m`} />
             <DetailItem
               label="Steel area (short span)"

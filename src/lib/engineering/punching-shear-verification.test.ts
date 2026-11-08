@@ -152,3 +152,31 @@ describe("doubly reinforced compression zone", () => {
     expect(r.compression_steel_yields).toBe(true);
   });
 });
+
+describe("support steel for continuous panels", () => {
+  const PANEL_SS = { ...PANEL, support_condition: "simply_supported" as const };
+
+  it("designs top steel for a continuous panel", () => {
+    const r = designSlab(PANEL);
+    expect(r.support_steel_area).toBeGreaterThan(0);
+    // The support is given the span moment: an envelope, disclosed as one.
+    expect(r.support_moment).toBeCloseTo(r.max_moment, 2);
+    expect(r.warnings.join(" ")).toMatch(/conservative envelope/);
+  });
+
+  it("designs top steel for a fixed panel too", () => {
+    const r = designSlab({ ...PANEL, support_condition: "fixed" });
+    expect(r.support_steel_area).toBeGreaterThan(0);
+  });
+
+  it("reports none where there is no continuity", () => {
+    const r = designSlab(PANEL_SS);
+    expect(r.support_steel_area).toBeUndefined();
+    expect(r.support_moment).toBeUndefined();
+  });
+
+  it("never falls below the minimum steel", () => {
+    const r = designSlab({ ...PANEL, live_load: 0.5, dead_load: 0.5 });
+    expect(r.support_steel_area).toBeGreaterThanOrEqual(r.steel_area_required);
+  });
+});

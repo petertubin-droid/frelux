@@ -248,6 +248,10 @@ export interface SlabDesignResult {
   moment_long_span?: number;
   /** Steel required in the long direction of a two-way panel, mm²/m. */
   steel_area_secondary?: number;
+  /** Hogging moment designed for at a continuous or fixed support, kN·m/m. */
+  support_moment?: number;
+  /** Top (hogging) steel over the support, mm²/m. */
+  support_steel_area?: number;
   recommended_bar_diameter: number; // mm
   recommended_bar_spacing: number; // mm
   /** Long-direction bar spacing for two-way panels, mm. */
@@ -1763,7 +1767,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     );
     if (input.support_condition === "fixed" || input.support_condition === "continuous") {
       warnings.push(
-        `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14. Continuity at the supports is not credited, so the span steel is conservative and no support (hogging) steel is designed. Take the support moments from Table 3.15 before detailing.`,
+        `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14, so continuity is not credited and the span steel is conservative. Support steel is given on the same conservative basis (see below), not from Table 3.15.`,
       );
     }
   }
@@ -1999,6 +2003,35 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     for (const n of notes) formulas.push(n);
   }
 
+  // Support (hogging) moments for continuous and fixed panels.
+  //
+  // A panel continuous over its supports carries hogging over the support that
+  // the simply supported analysis never sees, and until now no support steel was
+  // designed at all: the slab was detailed top-steel-free at exactly the location
+  // where a real continuous slab cracks first.
+  //
+  // The coefficient sets that give the reduced span and support moments (BS
+  // 8110-1 Tables 3.12 and 3.15) differ by panel type, edge continuity and ly/lx,
+  // and this calculator does not ask for edge continuity. Rather than invent
+  // coefficients, the support is designed for the same moment as the span: the
+  // simply supported moment applied at both locations. That is an envelope, it
+  // over-designs rather than under-designs, and it is stated as such.
+  const is_restrained =
+    input.support_condition === "continuous" || input.support_condition === "fixed";
+  const support_moment = is_restrained ? max_moment : 0;
+  const support_steel_area = is_restrained ? Math.ceil(Math.max(final_As, min_As)) : 0;
+  if (is_restrained) {
+    formulas.push(
+      `Support (hogging) design moment = ${support_moment.toFixed(2)} kN·m/m: the span moment applied at the support. A conservative envelope, not a Table 3.15 coefficient.`,
+    );
+    formulas.push(
+      `Support steel (top) = ${support_steel_area} mm²/m, at least the minimum; extend over the support region on both sides.`,
+    );
+    warnings.push(
+      `Support (hogging) steel of ${support_steel_area} mm²/m is designed on a conservative envelope: the support is given the same moment as the span. A continuous panel analysed with Table 3.15 continuity coefficients would need less. Do not reduce this steel without a proper continuous analysis.`,
+    );
+  }
+
   if (recommended_thickness < 150 && input.span_x > 3) {
     warnings.push(
       `Slab thickness ${recommended_thickness}mm may be thin for ${input.span_x}m span. Consider 150mm minimum.`,
@@ -2016,6 +2049,12 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     max_moment: Math.round(max_moment * 100) / 100,
     max_shear: Math.round(max_shear * 100) / 100,
     steel_area_required: Math.ceil(final_As),
+    ...(is_restrained
+      ? {
+          support_moment: Math.round(support_moment * 100) / 100,
+          support_steel_area,
+        }
+      : {}),
     moment_short_span: Math.round(max_moment * 100) / 100,
     ...(is_two_way
       ? {

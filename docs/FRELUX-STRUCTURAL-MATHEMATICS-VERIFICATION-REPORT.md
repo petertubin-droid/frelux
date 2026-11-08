@@ -339,7 +339,43 @@ mix proportions do not establish a strength class and are not a designed mix.
   freedom period, the absence of frame and P-delta analysis, and the absence of
   member design or detailing.
 
-### D-19 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-19 CONFIRMED DEFECT (corrected) — a continuous slab had no top steel at all
+
+The slab warned that continuity was not credited and that support moments should
+be taken from Table 3.15, and then designed no support steel whatsoever. The
+member was detailed with nothing over the support, which is the first place a real
+continuous slab cracks. A warning is not steel.
+
+Support steel is now designed for continuous and fixed panels. The basis is stated
+rather than guessed: the support is given the same moment as the span (the simply
+supported Table 3.14 moment), so the top steel can only be heavier than a proper
+continuous analysis would require, never lighter. `support_moment` and
+`support_steel_area` are reported and shown in the calculator.
+
+The Table 3.12/3.15 coefficient sets are deliberately still not used. They vary by
+panel type, edge continuity and ly/lx, and edge continuity is not an input here, so
+transcribing a remembered table would trade a disclosed over-design for an
+undisclosed error.
+
+### D-20 VERIFIED (no defect) — roof plane geometry
+
+Rafter, hip and plane geometry were the one area flagged as "not verified in this
+pass". They now are, against closed-form values rather than previous output:
+
+- Every roof type, pitch and overhang tiles the eave rectangle exactly:
+  Σ projected = (L + 2o)(W + 2o) to 9 decimal places, across 5 types × 6 pitches ×
+  3 overhangs × 3 plan shapes.
+- Every sloped area is projected/cos θ, so the pitch is applied consistently.
+- A hip is two trapezoids plus two triangles; the square case degenerates to a
+  pyramid with a zero ridge.
+- A hip rafter is measured over two runs and a rise, `run·√(2 + tan²θ)`, which is
+  20 % longer than the common-rafter shortcut at 30°; the test asserts that
+  difference so the shortcut cannot creep back in.
+- A 90° pitch is refused as a roof rather than sheeted as one.
+
+No defect was found in this area.
+
+### D-21 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -652,7 +688,7 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 | `structural-calculator.ts` | Column biaxial bending; section is still generated from the axial load and then reported as failing on moment rather than re-sized automatically | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Beam reinforcement recommendations still not gated on all checks before reporting a pass | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Punching shear at columns implemented, gated on a supplied column reaction | CORRECTED |
-| `structural-calculator.ts` | Support (hogging) moments for continuous panels and the Table 3.12/3.15 coefficient sets | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Support steel designed on a conservative envelope; the Table 3.12/3.15 coefficients themselves | PARTIAL |
 | `structural-calculator.ts` | Compression-zone yield check for doubly reinforced sections | CORRECTED |
 | `structural-calculator.ts` | Beam shear enhancement near supports (Cl 3.4.5.8) | CORRECTED |
 | `structural-calculator.ts` | Basic span/depth ratios reconciled to BS 8110-1 Table 3.9 through one shared helper | CORRECTED |
@@ -661,7 +697,7 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 | `tank-stand.ts` | Empty-case stability is present; member and footing checks are preliminary sizing | REQUIRES ENGINEERING REVIEW |
 | `tall-building-engine.ts` | SDOF period and drift screening presented near design language | REQUIRES ENGINEERING REVIEW |
 | `reinforcement-engine.ts` | Theoretical vs procurement weight, BS 8666 shape codes and bend allowances | NOT IMPLEMENTED |
-| `build-to-roof-engine.ts` | Rafter/purlin geometry verified? Not in this pass | NOT IMPLEMENTED |
+| `build-to-roof-engine.ts` | Roof plane, ridge and hip geometry | VERIFIED, NO DEFECT |
 | `advanced-takeoff-engine.ts` | 1.54 dry-volume multiplier origin and cement bag convention | NOT IMPLEMENTED |
 | Code paths | BS 8110 / EC2 / ACI 318 / IS 456 / AS 3600 routing exists in `design-code-concrete.ts`; per-code completeness not re-audited | NOT IMPLEMENTED |
 | Presentation | Universal PASS not yet replaced by per-check PASS / FAIL / NOT CHECKED / PRELIMINARY ONLY across all calculators | NOT IMPLEMENTED |
@@ -684,11 +720,11 @@ preliminary engineering, not a verified structural design.
 | D-4 | Column effective length and cover declared as inputs and never used | CORRECTED, REGRESSION TESTED |
 | — | Column biaxial bending, automatic re-sizing | NOT IMPLEMENTED |
 | D-5 | Slab lever arm pinned at 0.87d; circular deflection check; minimum steel on d not h; bar spacing could under-provide | CORRECTED, INDEPENDENTLY VERIFIED, REGRESSION TESTED |
-| — | Slab support (hogging) moments for continuous panels | NOT IMPLEMENTED |
+| — | Slab support moments from the Table 3.12/3.15 coefficient sets (currently a disclosed conservative envelope) | NOT IMPLEMENTED |
 | — | Beam detailing checks | NOT IMPLEMENTED |
 | — | Retaining wall load cases (groundwater, surcharge, seismic, member steel) | REQUIRES ENGINEERING REVIEW, now labelled PRELIMINARY ONLY |
 | — | BBS against BS 8666 | NOT IMPLEMENTED |
-| — | Roof geometry verification | NOT IMPLEMENTED |
+| — | Roof geometry verification | VERIFIED, NO DEFECT |
 | — | Concrete takeoff assumptions (constants now derived and disclosed) | CORRECTED |
 | — | Per-check result statuses across every calculator | NOT IMPLEMENTED (punching shear added to the slab view) |
 
