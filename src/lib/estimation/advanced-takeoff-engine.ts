@@ -53,8 +53,22 @@ export interface ConcreteTakeoffResult {
   assumptions: string[];
 }
 
-/** 1.54 dry-volume multiplier and 0.0347 m³/50 kg bag are the same
- * explicitly disclosed estimating conventions used by the existing estimator.
+/**
+ * The two estimating constants, with their derivations rather than just a name.
+ *
+ * 1.54 — dry volume per unit wet volume. A nominally 1 m³ of compacted concrete
+ * is batched from about 1.54 m³ of dry sand, stone and cement, because bulking
+ * and the voids between dry aggregate particles disappear when the mix is
+ * compacted and hydrated. 1.54 corresponds to roughly 35 % voids, i.e.
+ * 1/(1 − 0.35) = 1.538. Published values sit between 1.52 and 1.57; 1.54 is a
+ * convention, not a measurement, which is why it is disclosed in the output.
+ *
+ * 0.0347 m³ per 50 kg bag — from an unpacked cement bulk density of about
+ * 1,440 kg/m³: 50/1440 = 0.0347 m³. Scaled linearly for other bag masses and
+ * rounded up to whole bags for procurement.
+ *
+ * Neither constant is a substitute for a designed mix, which is why the result
+ * carries that limitation in its assumptions.
  */
 export function calculateConcreteTakeoff(
   input: ConcreteTakeoffInput,
@@ -158,9 +172,10 @@ export function calculateConcreteTakeoff(
       : null,
     assumptions: [
       `Rectangular ${input.elementType} volume = measured length × width × depth; openings, haunches, and irregular geometry are not deducted or added.`,
-      `Concrete dry-volume allowance: 1.54 × wet volume; user-entered additional allowance: ${input.wastePercent}%.`,
-      `Cement bag-volume convention: 0.0347 m³ per 50 kg bag, scaled to the entered ${input.cementBagMassKg} kg bag size; procurement count rounds up to whole bags.`,
+      `Concrete dry-volume allowance: 1.54 × wet volume (≈ 1/(1 − 0.35 voids), a batching convention, not a measured value); user-entered additional allowance: ${input.wastePercent}%.`,
+      `Cement bag-volume convention: 0.0347 m³ per 50 kg bag (50 kg / 1,440 kg/m³ bulk density), scaled to the entered ${input.cementBagMassKg} kg bag size; procurement count rounds up to whole bags.`,
       "Rebar weight uses the entered bar schedule and d²/162 kg/m; it is not a reinforcement design or cutting schedule.",
+      "Nominal mix proportions are an estimating convention. They do not establish a concrete strength class: a designed mix to the governing standard is required for structural work.",
     ],
   });
 }

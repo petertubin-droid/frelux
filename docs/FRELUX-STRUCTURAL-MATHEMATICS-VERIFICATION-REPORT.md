@@ -284,7 +284,62 @@ ceiling for placing, lapping and compacting bars. At that point the numbers are
 not a design, they are a message that the section is too small, and the output
 now says so instead of printing an unbuildable bar schedule.
 
-### D-14 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-14 CONFIRMED DEFECT (corrected) — a slab could not fail in punching shear because it was never asked to
+
+The slab design returned deflection and one-way shear verdicts and nothing about
+the column. A solid slab punches through at a column long before its span steel is
+inadequate, so the calculator could report an all-clear on a panel that would fail
+at the support. There was no input for a column reaction at all, which means the
+check had never been possible, not merely never run.
+
+`designSlab` now accepts `column_load_kN`, `column_width_mm` and
+`column_depth_mm` and runs BS 8110-1 Cl 3.7.7:
+
+- face perimeter `u_0 = 2(c_x + c_y)`, `v_face = N/(u_0 d) ≤ min(0.8√f_cu, 5)`
+- critical perimeter at 1.5d, `u = 2(c_x + c_y) + 3πd`, `v = N/(u d) ≤ v_c`
+- `v_c` from Table 3.8, the same resistance already used for one-way shear
+
+Without a column reaction the result is `NOT CHECKED` with a stated reason, and
+the calculator renders "Not checked: no column load given" rather than a green
+tick. A negative reaction is rejected, not treated as zero.
+
+### D-15 CONFIRMED DEFECT (corrected) — beam shear ignored Cl 3.4.5.8 entirely
+
+`designBeam` had no way to express a concentrated load near a support, so a beam
+carrying a point load 300 mm from the face was given the same concrete shear
+resistance as one carrying the same total as a uniformly distributed load. The
+enhancement in Cl 3.4.5.8 (multiply `v_c` by `2d/a_v`, capped at 2, for `a_v <
+2d`) is now applied when `load_av_mm` is supplied. Omitting it is correct for a
+UDL, so the field is optional rather than required.
+
+### D-16 CONFIRMED DEFECT (corrected) — compression steel credited with a stress it may not reach
+
+The D-13 doubly reinforced design assumes `A′_s` yields at `0.87 f_y`. That holds
+only while `0.0035(1 − d′/x) ≥ 0.87 f_y/E_s`. The engine now solves the concrete
+part for `x` and checks `d′/x` against the grade-specific limit: 0.43 for Fe460
+(where the familiar figure comes from) but 0.38 for Fe500. A single remembered
+0.43 would have credited 500 MPa steel with stress it cannot reach. The section
+reports `compression_steel_yields: false` and warns that the area is not
+sufficient when the limit is crossed.
+
+### D-17 CONFIRMED DEFECT (corrected) — estimating constants named but not derived
+
+The takeoff carried "1.54" and "0.0347 m³ per 50 kg bag" as conventions. Both are
+arithmetically accountable and now say so in the output: 1.54 ≈ 1/(1 − 0.35) for
+the voids in a dry batched mix, and 0.0347 = 50 kg / 1,440 kg/m³ cement bulk
+density. Both are labelled as conventions, and the result now states that nominal
+mix proportions do not establish a strength class and are not a designed mix.
+
+### D-18 CORRECTED (presentation) — screening and preliminary results now say so
+
+- Retaining wall: every result carries an explicit PRELIMINARY ONLY warning
+  naming what is not checked (groundwater, surcharge, seismic, stem and base
+  steel, toe and heel shear, global stability).
+- Tall building: results carry a `screening_notice` naming the single-degree-of-
+  freedom period, the absence of frame and P-delta analysis, and the absence of
+  member design or detailing.
+
+### D-19 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -543,7 +598,24 @@ thicknesses.
 The extreme case (300 × 400 mm, same loads) is asserted to report steel above the
 4 % ceiling and to say that no bar arrangement will fit.
 
-### 5.7 Foundation
+### 5.7 Punching shear
+
+6 × 7 m continuous panel, C25/30, Fe500, 2.5 + 1.5 kN/m², 300 × 300 mm column:
+
+| Quantity | Hand value | Engine |
+|---|---|---|
+| d | thickness − 25 − 10 | from the reported thickness |
+| u at 1.5d | 1,200 + 3πd | matches |
+| v at 400 kN | 400e3/(u d) | matches to 2 dp |
+| v at the face | 400e3/(1,200 d) | matches to 2 dp |
+| v_max | min(0.8√30, 5) = 4.38 N/mm² | 4.38 |
+| v_c | Table 3.8 at the designed percentage | agrees, status derived from it |
+
+The test recomputes `u`, `v`, `v_face`, `v_max` and `v_c` from the published
+formulae in its own code, so the engine has to agree with an independent
+implementation rather than with itself.
+
+### 5.8 Foundation
 
 | Check | Expected | Result |
 |---|---|---|
@@ -579,7 +651,10 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 |---|---|---|
 | `structural-calculator.ts` | Column biaxial bending; section is still generated from the axial load and then reported as failing on moment rather than re-sized automatically | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Beam reinforcement recommendations still not gated on all checks before reporting a pass | NOT IMPLEMENTED |
-| `structural-calculator.ts` | Slab punching shear at columns, support (hogging) moments for continuous panels, BS 8110 Table 3.15 coefficients | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Punching shear at columns implemented, gated on a supplied column reaction | CORRECTED |
+| `structural-calculator.ts` | Support (hogging) moments for continuous panels and the Table 3.12/3.15 coefficient sets | NOT IMPLEMENTED |
+| `structural-calculator.ts` | Compression-zone yield check for doubly reinforced sections | CORRECTED |
+| `structural-calculator.ts` | Beam shear enhancement near supports (Cl 3.4.5.8) | CORRECTED |
 | `structural-calculator.ts` | Basic span/depth ratios reconciled to BS 8110-1 Table 3.9 through one shared helper | CORRECTED |
 | `structural-calculator.ts` | Beam development length, shear link spacing, deflection limits | NOT IMPLEMENTED |
 | `retaining-wall-engine.ts` | Rankine only; no groundwater, surcharge, seismic, stem or base steel check; result must be labelled preliminary | REQUIRES ENGINEERING REVIEW |
@@ -609,13 +684,13 @@ preliminary engineering, not a verified structural design.
 | D-4 | Column effective length and cover declared as inputs and never used | CORRECTED, REGRESSION TESTED |
 | — | Column biaxial bending, automatic re-sizing | NOT IMPLEMENTED |
 | D-5 | Slab lever arm pinned at 0.87d; circular deflection check; minimum steel on d not h; bar spacing could under-provide | CORRECTED, INDEPENDENTLY VERIFIED, REGRESSION TESTED |
-| — | Slab punching shear and support moments | NOT IMPLEMENTED |
+| — | Slab support (hogging) moments for continuous panels | NOT IMPLEMENTED |
 | — | Beam detailing checks | NOT IMPLEMENTED |
-| — | Retaining wall load cases | REQUIRES ENGINEERING REVIEW |
+| — | Retaining wall load cases (groundwater, surcharge, seismic, member steel) | REQUIRES ENGINEERING REVIEW, now labelled PRELIMINARY ONLY |
 | — | BBS against BS 8666 | NOT IMPLEMENTED |
 | — | Roof geometry verification | NOT IMPLEMENTED |
-| — | Concrete takeoff assumptions | NOT IMPLEMENTED |
-| — | Per-check result statuses in the UI | NOT IMPLEMENTED |
+| — | Concrete takeoff assumptions (constants now derived and disclosed) | CORRECTED |
+| — | Per-check result statuses across every calculator | NOT IMPLEMENTED (punching shear added to the slab view) |
 
 ---
 

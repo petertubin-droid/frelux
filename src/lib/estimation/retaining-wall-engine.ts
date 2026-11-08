@@ -471,6 +471,13 @@ export function calculateRetainingWall(
   warnings.push(
     "Excavation labour, backfill, drainage aggregate behind the wall, mortar and plaster are not included.",
   );
+  // Rankine active thrust over a dry, level backfill, checked for overturning,
+  // sliding and bearing only. Saying so is part of the result: the numbers below
+  // are a footing-sizing estimate and no part of them is a stem or base steel
+  // design.
+  warnings.push(
+    "PRELIMINARY ONLY: earth pressure is Rankine active over a dry, level backfill. Groundwater, surcharge from vehicles or buildings, seismic action, wall stem and base flexural steel, one-way shear in the toe and heel, and global stability are NOT checked. A retaining wall this tool sizes still needs a structural engineer.",
+  );
 
   return {
     ok: true,

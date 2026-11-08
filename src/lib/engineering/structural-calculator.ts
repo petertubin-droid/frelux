@@ -80,6 +80,13 @@ export interface BeamDesignInput {
   cover_mm: number; // concrete cover
   existing_width?: number; // optional: if width is predetermined
   existing_depth?: number; // optional: if depth is predetermined
+  /**
+   * Distance from the support to the nearest concentrated load, mm. Supplying it
+   * enables the Cl 3.4.5.8 shear enhancement for loads close to a support. A
+   * uniformly distributed load gets no enhancement, so omitting it is correct
+   * rather than a gap.
+   */
+  load_av_mm?: number;
   market_code?: string; // market-scoped member sizing defaults (NG default)
   /** Jurisdictional code mode: one governing design code, nothing blended. */
   jurisdiction_code?: JurisdictionCode;
@@ -99,6 +106,8 @@ export interface BeamDesignResult {
   area_steel_required: number; // mm² (tension reinforcement)
   min_steel_area: number; // mm²
   compression_steel_area?: number; // mm², A′s for a doubly reinforced section
+  /** False when d′/x > 0.43, so the compression steel does not reach 0.87 f_y. */
+  compression_steel_yields?: boolean;
   max_steel_area: number; // mm²
   recommended_bar_diameter: number; // mm
   recommended_bar_count: number;
@@ -188,8 +197,38 @@ export interface SlabDesignInput {
   cover_mm: number;
   existing_thickness?: number; // mm
   market_code?: string; // market-scoped engineering defaults
+  /**
+   * Column reaction on this panel, kN. Supplying it enables the punching shear
+   * check at the column (BS 8110-1 Cl 3.7.7). Without it the check is reported
+   * as NOT CHECKED, never as passed.
+   */
+  column_load_kN?: number;
+  /** Column plan size in the x direction, mm. Default 300. */
+  column_width_mm?: number;
+  /** Column plan size in the y direction, mm. Defaults to column_width_mm. */
+  column_depth_mm?: number;
   /** Jurisdictional code mode: one governing design code, nothing blended. */
   jurisdiction_code?: JurisdictionCode;
+}
+
+/** Punching shear at a column, BS 8110-1 Cl 3.7.7. */
+export interface PunchShearResult {
+  status: "PASS" | "FAIL" | "NOT CHECKED";
+  column_load_kN?: number;
+  /** Perimeter at the column face, mm. */
+  face_perimeter_mm?: number;
+  /** Perimeter at 1.5d from the column face, mm. */
+  critical_perimeter_mm?: number;
+  /** Shear stress at the critical perimeter, N/mm². */
+  v_ed?: number;
+  /** Concrete shear resistance at the critical perimeter, N/mm². */
+  v_c?: number;
+  /** Shear stress at the column face, N/mm². */
+  v_face?: number;
+  /** Cl 3.7.7.4 limit at the column face, N/mm² (0.8√f_cu, capped at 5). */
+  v_max?: number;
+  missing_input?: string;
+  notes: string[];
 }
 
 export interface SlabDesignResult {
@@ -214,6 +253,7 @@ export interface SlabDesignResult {
   /** Long-direction bar spacing for two-way panels, mm. */
   recommended_bar_spacing_secondary?: number;
   link_check: string;
+  punch_shear?: PunchShearResult;
   span_to_depth_ratio: number;
   deflection_check_pass: boolean;
   jurisdiction_code?: JurisdictionCode;
@@ -757,6 +797,7 @@ function designBeamAtSpan(
   let required_depth_eff: number;
   let doubly_reinforced = false;
   let compression_As = 0;
+  let compression_steel_yields = true;
   if (concretePreset.standard === "aci_astm") {
     // ACI 318-19 (audit fix F1): Whitney stress block, tension-controlled,
     // practical steel ratio ρ = 0.18·f'c/fy, φ = 0.90.
@@ -883,6 +924,38 @@ function designBeamAtSpan(
       warnings.push(
         `K = ${la.K.toFixed(4)} > 0.156, so the section is doubly reinforced: ${Math.ceil(asPrime)} mm² of compression steel is required in addition to the tension steel. Check the compression steel is held by links and that d′ (${dPrime.toFixed(0)} mm) is achievable.`,
       );
+
+      // The A′_s formula assumes the compression steel has yielded at 0.87 f_y,
+      // which holds only while d′/x is small enough for the strain there to reach
+      // yield. Solve the concrete part for x: 0.6 f_cu b x (d − 0.45x) = M_single.
+      const a2 = 0.27 * fcu * assumed_width;
+      const b2 = -0.6 * fcu * assumed_width * steelDepth;
+      const c2 = momentSingle * 1e6;
+      const disc = b2 * b2 - 4 * a2 * c2;
+      if (disc >= 0) {
+        const xDepth = (-b2 - Math.sqrt(disc)) / (2 * a2);
+        const dPrimeOverX = dPrime / xDepth;
+        formulas.push(
+          `Compression-zone depth from the concrete part: x = ${xDepth.toFixed(0)} mm, d′/x = ${dPrimeOverX.toFixed(2)}`,
+        );
+        // The compression steel reaches its design strength only while
+        //   0.0035 (1 − d′/x) ≥ 0.87 f_y / E_s
+        // with ε_cu = 0.0035 and E_s = 200 kN/mm² (BS 8110-1 Cl 3.4.4.1 and
+        // 3.4.4.4). For f_y = 460 this is the familiar d′/x ≤ 0.43; for f_y = 500
+        // it is stricter, at 0.38. Using a single remembered 0.43 for every grade
+        // would credit 500 MPa steel with a stress it cannot reach.
+        const yieldStrain = (0.87 * fy) / 200000;
+        const dPrimeOverXLimit = 1 - yieldStrain / 0.0035;
+        formulas.push(
+          `Compression steel yields while d′/x ≤ ${dPrimeOverXLimit.toFixed(3)} (ε_cu = 0.0035, ε_yd = 0.87f_y/E_s = ${yieldStrain.toFixed(5)})`,
+        );
+        if (dPrimeOverX > dPrimeOverXLimit) {
+          compression_steel_yields = false;
+          warnings.push(
+            `d′/x = ${dPrimeOverX.toFixed(2)} exceeds the ${dPrimeOverXLimit.toFixed(2)} at which the compression steel reaches 0.87 f_y, so A′_s of ${Math.ceil(asPrime)} mm² is NOT sufficient: deepen the section or move the compression steel closer to the face.`,
+          );
+        }
+      }
     }
   }
   // Jurisdictional code mode: one code governs, nothing blended.
@@ -899,11 +972,6 @@ function designBeamAtSpan(
     min_As = minSteel.areaMm2;
     formulas.push(
       `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
-    );
-  }
-  if (doubly_reinforced) {
-    warnings.push(
-      "Section flagged as singly-reinforced-infeasible: increase depth or design compression reinforcement. Treat output as preliminary.",
     );
   }
 
@@ -943,7 +1011,20 @@ function designBeamAtSpan(
     Math.pow(vcSteelPct, 1 / 3) *
     Math.pow(400 / vcDepthCap, 0.25);
   const vcCeiling = Math.min(0.8 * Math.sqrt(vcConcreteCap), 5);
-  const vc = Math.min(vcRaw, vcCeiling);
+  const vcBase = Math.min(vcRaw, vcCeiling);
+  // BS 8110-1 Cl 3.4.5.8: where a concentrated load acts within 2d of the
+  // support, v_c may be multiplied by 2d/a_v, capped at 2. It applies to a load
+  // at a known distance, not to a uniformly distributed load, so it is used only
+  // when a_v is supplied.
+  let shearEnhancement = 1;
+  if (
+    input.load_av_mm !== undefined &&
+    input.load_av_mm > 0 &&
+    input.load_av_mm < 2 * steelDepth
+  ) {
+    shearEnhancement = Math.min(2, (2 * steelDepth) / input.load_av_mm);
+  }
+  const vc = Math.min(vcBase * shearEnhancement, vcCeiling * 2);
   if (vcRaw > vcCeiling) {
     formulas.push(
       `v_c = ${vcRaw.toFixed(2)} MPa capped to ${vcCeiling.toFixed(2)} MPa (BS 8110-1 Table 3.8: min(0.8√f_cu, 5))`,
@@ -952,6 +1033,11 @@ function designBeamAtSpan(
   // Capacity taken on the strength depth, which is never deeper than the section
   // recommended below, so this is the conservative figure.
   const shear_capacity = (vc * assumed_width * steelDepth) / 1000; // kN
+  if (shearEnhancement > 1) {
+    formulas.push(
+      `Shear enhancement (BS 8110-1 Cl 3.4.5.8): a_v = ${input.load_av_mm!.toFixed(0)} mm < 2d, so v_c is multiplied by 2d/a_v = ${shearEnhancement.toFixed(2)} → ${vc.toFixed(2)} N/mm²`,
+    );
+  }
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
     `Shear capacity v_c × b × d = ${vc.toFixed(2)} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN → ${shear_check_pass ? "PASS" : "FAIL"}`,
@@ -1111,6 +1197,7 @@ function designBeamAtSpan(
     recommended_width,
     area_steel_required: Math.ceil(As),
     compression_steel_area: Math.ceil(compression_As),
+    compression_steel_yields,
     min_steel_area: Math.ceil(min_As),
     max_steel_area: Math.ceil(max_As),
     recommended_bar_diameter: bestDiameter,
@@ -1838,6 +1925,80 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
       `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > allowable ${allowableRatio.toFixed(1)} after the modification factor). Thicken the slab or reduce the span.`,
     );
   }
+  // Punching shear at a column (BS 8110-1 Cl 3.7.7).
+  // A slab panel loaded by a column can fail by punching through it, and no
+  // amount of flexural steel in the span addresses that. The check runs only when
+  // the column reaction is supplied; without it the result says NOT CHECKED, which
+  // is the honest answer and the one that must never render as a pass.
+  let punch_shear: PunchShearResult | undefined;
+  {
+    const notes: string[] = [];
+    if (input.column_load_kN === undefined || input.column_load_kN === null) {
+      punch_shear = {
+        status: "NOT CHECKED",
+        missing_input: "column_load_kN",
+        notes: [
+          "Punching shear at the column is NOT CHECKED: no column reaction was supplied. A solid slab can still punch through at a column even when the span reinforcement is adequate.",
+        ],
+      };
+    } else if (!(input.column_load_kN > 0)) {
+      punch_shear = {
+        status: "NOT CHECKED",
+        missing_input: "column_load_kN (> 0)",
+        notes: [
+          "Punching shear is NOT CHECKED: the column reaction must be a positive load.",
+        ],
+      };
+    } else {
+      const cx = input.column_width_mm ?? 300;
+      const cy = input.column_depth_mm ?? cx;
+      const N = input.column_load_kN;
+      const facePerimeter = 2 * (cx + cy);
+      const criticalPerimeter = facePerimeter + 3 * Math.PI * eff_depth;
+      const vFace = (N * 1000) / (facePerimeter * eff_depth);
+      const vEd = (N * 1000) / (criticalPerimeter * eff_depth);
+      const vMax = Math.min(0.8 * Math.sqrt(fcu), 5);
+      const passCritical = vEd <= vc;
+      const passFace = vFace <= vMax;
+      notes.push(
+        `Critical perimeter at 1.5d: u = 2(${cx} + ${cy}) + 3π × ${eff_depth.toFixed(0)} = ${criticalPerimeter.toFixed(0)} mm`,
+      );
+      notes.push(
+        `v = ${N} kN × 1000 / (${criticalPerimeter.toFixed(0)} × ${eff_depth.toFixed(0)}) = ${vEd.toFixed(2)} N/mm² against v_c = ${vc.toFixed(2)} N/mm²`,
+      );
+      notes.push(
+        `At the column face v = ${vFace.toFixed(2)} N/mm² against the Cl 3.7.7.4 limit of ${vMax.toFixed(2)} N/mm² (0.8√f_cu, capped at 5)`,
+      );
+      if (!passFace) {
+        notes.push(
+          "The column face itself is overstressed: enlarge the column or thicken the slab locally. Perimeter enhancement cannot fix this.",
+        );
+      }
+      if (!passCritical) {
+        notes.push(
+          "Punching shear exceeds the concrete resistance. Punching reinforcement (links or studs) or a thicker slab is required; flexural steel does not help.",
+        );
+      }
+      punch_shear = {
+        status: passCritical && passFace ? "PASS" : "FAIL",
+        column_load_kN: N,
+        face_perimeter_mm: facePerimeter,
+        critical_perimeter_mm: Math.round(criticalPerimeter),
+        v_ed: Math.round(vEd * 100) / 100,
+        v_c: Math.round(vc * 100) / 100,
+        v_face: Math.round(vFace * 100) / 100,
+        v_max: Math.round(vMax * 100) / 100,
+        notes,
+      };
+      if (punch_shear.status === "FAIL") {
+        warnings.push(
+          `Punching shear FAILS at the column: ${vEd.toFixed(2)} N/mm² against v_c ${vc.toFixed(2)} N/mm² (v_face ${vFace.toFixed(2)} against ${vMax.toFixed(2)}).`,
+        );
+      }
+    }
+    for (const n of notes) formulas.push(n);
+  }
+
   if (recommended_thickness < 150 && input.span_x > 3) {
     warnings.push(
       `Slab thickness ${recommended_thickness}mm may be thin for ${input.span_x}m span. Consider 150mm minimum.`,
@@ -1875,6 +2036,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     recommended_bar_diameter: bestDiameter,
     recommended_bar_spacing: bestSpacing,
     link_check: shear_link_note,
+    punch_shear,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     deflection_check_pass,
     warnings,

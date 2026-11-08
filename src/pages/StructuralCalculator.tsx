@@ -2652,6 +2652,23 @@ function SlabCalculator() {
               pass={result.link_check.includes("No shear")}
               value={result.link_check}
             />
+            {result.punch_shear && result.punch_shear.status !== "NOT CHECKED" ? (
+              <CheckRow
+                label="Punching Shear"
+                pass={result.punch_shear.status === "PASS"}
+                value={
+                  result.punch_shear.status === "PASS"
+                    ? `v = ${result.punch_shear.v_ed} N/mm² ≤ v_c = ${result.punch_shear.v_c}`
+                    : `v = ${result.punch_shear.v_ed} N/mm² exceeds v_c = ${result.punch_shear.v_c}`
+                }
+              />
+            ) : (
+              <CheckRow
+                label="Punching Shear"
+                pass={false}
+                value="Not checked: no column load given"
+              />
+            )}
           </div>
 
           {capacity && !designAccess.limited && (
