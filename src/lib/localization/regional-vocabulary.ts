@@ -14,6 +14,7 @@
 
 import { cementBagKg, masonryUnitsForMarket } from "@/config/masonry-units";
 import { LENGTH_TO_M } from "@/lib/convert/units";
+import { canonicalMarketCode, marketCodeVariants } from "@/lib/international/market-codes";
 
 export type UnitSystem = "metric" | "imperial";
 
@@ -141,8 +142,12 @@ const FALLBACK: RegionalVocabulary = {
 export function regionalVocabulary(
   market: string | null | undefined,
 ): RegionalVocabulary {
-  const code = (market ?? "").toUpperCase();
-  return VOCABULARY[code] ?? FALLBACK;
+  const code = canonicalMarketCode(market, "");
+  for (const candidate of marketCodeVariants(code)) {
+    const match = VOCABULARY[candidate];
+    if (match) return match;
+  }
+  return FALLBACK;
 }
 
 /** Markets this vocabulary layer covers with real local wording. */
@@ -202,6 +207,7 @@ export function slabVocabulary(
         membraneWord: "Damp proof membrane (nylon)",
         aggregateWord: "Granite",
       };
+    case "GB":
     case "UK":
       return {
         title: "Ground bearing slab",
@@ -256,6 +262,7 @@ export function tankVocabulary(market: string): TankVocabulary {
         capacityUnit: "gallons",
       };
     case "GB":
+    case "UK":
       return {
         stand: "galvanised steel tank stand",
         tank: "cold water tank",

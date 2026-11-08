@@ -14,6 +14,8 @@
  * course short.
  */
 
+import { marketCodeVariants } from "@/lib/international/market-codes";
+
 export type MasonryUnitKey =
   "ng-block-9" | "ng-block-6" | "uk-brick" | "us-cmu" | "in-brick";
 
@@ -132,8 +134,10 @@ export const MASONRY_UNITS: Record<MasonryUnitKey, MasonryUnit> = {
 };
 
 export function masonryUnitsForMarket(market: string): MasonryUnit[] {
-  const code = (market || "NG").toUpperCase();
-  const units = Object.values(MASONRY_UNITS).filter((u) => u.market === code);
+  // "UK" and "GB" are the same market: these tables are keyed by the older
+  // spelling, while the canonical market list emits GB.
+  const codes = new Set(marketCodeVariants(market || "NG"));
+  const units = Object.values(MASONRY_UNITS).filter((u) => codes.has(u.market));
   return units.length > 0 ? units : [MASONRY_UNITS["ng-block-9"]];
 }
 
@@ -382,5 +386,9 @@ export const CEMENT_MARKETS = [
 export const CEMENT_DENSITY_KG_M3 = 1440;
 
 export function cementBagKg(market: string): number {
-  return CEMENT_BAG_KG[(market || "NG").toUpperCase()] ?? 50;
+  for (const code of marketCodeVariants(market || "NG")) {
+    const kg = CEMENT_BAG_KG[code];
+    if (typeof kg === "number") return kg;
+  }
+  return 50;
 }
