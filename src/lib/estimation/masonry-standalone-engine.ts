@@ -1,3 +1,4 @@
+import { MORTAR_DRY_WET_RATIO } from "./build-to-roof-engine";
 import { getPackagingEvidence } from "./market-packaging-verification";
 
 /**
@@ -1831,8 +1832,10 @@ export function calculateMasonryTakeoff(
     mortarVolumeM3Net = Math.max(0, totalWallVolume - unitsVolume);
   }
 
-  // Dry volume conversion factor: 1.33 for shrinkage/void filling + waste
-  const dryFactor = 1.33;
+  // Dry volume conversion factor for shrinkage/void filling. Sourced from the
+  // single shared constant rather than a local 1.33 (audit 2026-11-08): two
+  // copies of this figure is how the block and mortar paths drift apart.
+  const dryFactor = MORTAR_DRY_WET_RATIO;
   const mortarVolumeM3Gross =
     mortarVolumeM3Net * dryFactor * (1 + wastePercent / 100.0);
 

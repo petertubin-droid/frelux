@@ -119,7 +119,7 @@ export function bsShapeLength(
       break;
     case "33":
       L = 2 * A + 1.7 * B + 2 * C - 4 * d;
-      formula = `L = 2A + 1.7B + 2(C) - 4d = ${val(L)} mm (BS 8666:2020 Table 3, shape 33)`;
+      formula = `L = 2A + 1.7B + 2(C) - 4d = ${val(L)} mm (BS 8666:2020 Table 3, shape 33). The 1.7 factor is the published coefficient for B as Table 3 defines it; it is not a 45-degree crank chord (which would be 1.414B), so do not substitute a slope length for B.`;
       break;
     case "41":
       L = A + B + C + D + E - 2 * r - 4 * d;
@@ -138,7 +138,7 @@ export function bsShapeLength(
     }
     case "67":
       L = A;
-      formula = `L = A = ${val(A)} mm (BS 8666:2020 shape 67: scheduled to dimension A, bending per Clause 10; see also shape 77 for helices)`;
+      formula = `L = A = ${val(A)} mm (BS 8666:2020 shape 67: scheduled to dimension A, bending per Clause 10; see also shape 77 for helices). No bend allowance is deducted for this shape: the cut length is the scheduled dimension alone, so if the drawn shape carries bends, schedule them as their own codes.`;
       break;
     case "77": {
       const turns = C;
