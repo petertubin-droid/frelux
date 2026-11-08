@@ -259,7 +259,32 @@ passes, and the loop is capped at four regardless.
 The same worked example now reads Le 6.8 m, M 568.75 kN·m, V 334.56 kN, 850 mm
 deep, 2,159 mm² of steel.
 
-### D-13 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-13 CONFIRMED DEFECT (corrected) — "compression steel required" was the end of the answer
+
+Above K = 0.156 the beam output said the section needed compression steel or a
+deeper section, sized the tension steel as if the concrete carried the whole
+moment at the K = 0.156 lever arm, and stopped. That is not merely incomplete: the
+tension figure it returned is smaller than the correct one, because the concrete
+was credited with a lever arm it cannot reach at that moment. A user reading
+"6,062 mm² of compression steel required" and "7,219 mm² of tension steel" had no
+way to know the second number came from a different, unsound calculation.
+
+The section is now designed as a doubly reinforced section, BS 8110-1 Cl 3.4.4.4:
+
+- `M_single = K′ f_cu b d²` with `K′ = 0.156` and `z = 0.775d`
+- `M_excess = M − M_single`
+- `A′_s = M_excess / (0.87 f_y (d − d′))`, with `d′` = cover + link + half a bar
+- `A_s = M_single / (0.87 f_y z) + A′_s`
+
+`compression_steel_area` is reported as a result field and shown on the
+calculator when it is non-zero.
+
+Also added: a warning when the required steel exceeds 4 % of `b d`, the practical
+ceiling for placing, lapping and compacting bars. At that point the numbers are
+not a design, they are a message that the section is too small, and the output
+now says so instead of printing an unbuildable bar schedule.
+
+### D-14 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -374,6 +399,8 @@ continuous and 26 for any two-way panel, is gone.
 - Steel, minimum steel and shear capacity are taken on the section being
   reported: the supplied depth when one is given, otherwise the strength depth.
 - The effective span and the recommended depth agree, by iteration.
+- Sections above K = 0.156 are designed as doubly reinforced, with A′_s reported.
+- Steel above 4 % of b d is called out as unbuildable rather than scheduled.
 
 ### 4.6 Foundation input integrity
 
@@ -488,8 +515,9 @@ Tolerance 2 % or the stated absolute value. 8 tests in
 `src/lib/engineering/beam-verification.test.ts`, 117 across the structural
 suites.
 
-Still open: shear enhancement near supports (Cl 3.4.5.8) and a full doubly
-reinforced design are not implemented.
+Still open: shear enhancement near supports (Cl 3.4.5.8). The doubly reinforced
+design assumes compression steel reaches yield; the compression zone is not
+checked against Cl 3.4.4.4's limit on x/d for that assumption.
 
 ### 5.5 Span/depth ratios
 
@@ -500,7 +528,22 @@ d reaches 4000/20 = 200 mm, and a continuous 6 m panel so that d reaches
 result, and 21 tests in the slab and heavy suites were updated to the corrected
 thicknesses.
 
-### 5.6 Foundation
+### 5.6 Doubly reinforced beam
+
+300 × 700 mm beam, 15 + 10 kN/m² over 5 m, C25, Fe500, cover 25, d = 650:
+
+| Quantity | Hand value | Engine |
+|---|---|---|
+| M_single at K′ = 0.156 | 0.156 × 25 × 300 × 650² = 494.3 kN·m | same basis |
+| M_excess | M − 494.3 | derived from the reported M |
+| d′ | 25 + 25 = 50 mm | 50 |
+| A′_s | M_excess/(0.87 × 500 × 600) | matches to rounding |
+| A_s | 494.3e6/(0.87 × 500 × 503.8) + A′_s | matches to rounding |
+
+The extreme case (300 × 400 mm, same loads) is asserted to report steel above the
+4 % ceiling and to say that no bar arrangement will fit.
+
+### 5.7 Foundation
 
 | Check | Expected | Result |
 |---|---|---|

@@ -2074,6 +2074,12 @@ function BeamCalculator() {
               label="Steel area"
               value={`${result.area_steel_required} mm²`}
             />
+            {result.compression_steel_area ? (
+              <DetailItem
+                label="Compression steel"
+                value={`${result.compression_steel_area} mm²`}
+              />
+            ) : null}
             <DetailItem
               label="Min steel"
               value={`${result.min_steel_area} mm²`}

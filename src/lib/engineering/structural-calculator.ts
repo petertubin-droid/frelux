@@ -98,6 +98,7 @@ export interface BeamDesignResult {
   recommended_width: number; // mm
   area_steel_required: number; // mm² (tension reinforcement)
   min_steel_area: number; // mm²
+  compression_steel_area?: number; // mm², A′s for a doubly reinforced section
   max_steel_area: number; // mm²
   recommended_bar_diameter: number; // mm
   recommended_bar_count: number;
@@ -755,6 +756,7 @@ function designBeamAtSpan(
   }
   let required_depth_eff: number;
   let doubly_reinforced = false;
+  let compression_As = 0;
   if (concretePreset.standard === "aci_astm") {
     // ACI 318-19 (audit fix F1): Whitney stress block, tension-controlled,
     // practical steel ratio ρ = 0.18·f'c/fy, φ = 0.90.
@@ -850,8 +852,36 @@ function designBeamAtSpan(
       `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456 26.5.1.1)" : `${fy <= 300 ? "0.24" : "0.13"}% × b × d (BS 8110-1 Table 3.25, fy = ${fy})`} = ${min_As.toFixed(0)} mm²`,
     );
     if (la.doubly_reinforced) {
+      // BS 8110-1 Cl 3.4.4.4: above K' = 0.156 the concrete alone cannot carry
+      // the moment. The excess is carried by a compression/tension steel couple:
+      //   M_excess = M − K' f_cu b d²
+      //   A'_s = M_excess / (0.87 f_y (d − d'))
+      //   A_s  = K' f_cu b d² / (0.87 f_y z) + A'_s     (z = 0.775d at K')
+      // The previous output only warned that compression steel was "required"
+      // and sized the tension steel as though compression steel contributed
+      // nothing, which overstated the tension area needed and gave no A'_s at all.
+      const kPrime = 0.156;
+      const zPrime = 0.775 * steelDepth;
+      const momentSingle = (kPrime * fcu * assumed_width * steelDepth ** 2) / 1e6; // kN·m
+      const momentExcess = max_moment - momentSingle;
+      // d' to the compression steel: cover, link, half a bar.
+      const dPrime = Math.min(input.cover_mm + 25, 0.5 * steelDepth);
+      const leverCompression = Math.max(steelDepth - dPrime, 0.5 * steelDepth);
+      const asPrime = (momentExcess * 1e6) / (0.87 * fy * leverCompression);
+      const asSingle = (momentSingle * 1e6) / (0.87 * fy * zPrime);
+      compression_As = asPrime;
+      As = asSingle + asPrime;
+      formulas.push(
+        `Doubly reinforced (BS 8110-1 Cl 3.4.4.4): the section carries ${momentSingle.toFixed(1)} kN·m at K′ = 0.156, leaving ${momentExcess.toFixed(1)} kN·m for the steel couple`,
+      );
+      formulas.push(
+        `Compression steel A′_s = ${(momentExcess * 1e6).toFixed(0)} / (0.87 × ${fy} × (${steelDepth.toFixed(0)} − ${dPrime.toFixed(0)})) = ${asPrime.toFixed(0)} mm²`,
+      );
+      formulas.push(
+        `Tension steel = ${asSingle.toFixed(0)} mm² for the singly reinforced part + ${asPrime.toFixed(0)} mm² to balance the compression steel = ${As.toFixed(0)} mm²`,
+      );
       warnings.push(
-        `K = ${la.K.toFixed(4)} > 0.156: the section needs compression steel (doubly reinforced) or a deeper section. This preliminary pass sizes tension steel only — a full doubly-reinforced design is required.`,
+        `K = ${la.K.toFixed(4)} > 0.156, so the section is doubly reinforced: ${Math.ceil(asPrime)} mm² of compression steel is required in addition to the tension steel. Check the compression steel is held by links and that d′ (${dPrime.toFixed(0)} mm) is achievable.`,
       );
     }
   }
@@ -1054,6 +1084,14 @@ function designBeamAtSpan(
   if (input.beam_type === "lintel" && recommended_depth > 450) {
     warnings.push(ms.lintelNote);
   }
+  if (As > max_As) {
+    // 4 % of b d is the practical ceiling: above it the bars cannot be placed,
+    // lapped or compacted. The design is then not a design, it is a message that
+    // the section is too small.
+    warnings.push(
+      `Required steel ${Math.ceil(As)} mm² exceeds the 4 % practical maximum for this section (${Math.ceil(max_As)} mm²). No bar arrangement will fit: deepen the beam or widen it rather than adding steel.`,
+    );
+  }
   if (!deflection_check_pass) {
     warnings.push(
       `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > allowable ${beamAllowableRatio.toFixed(1)} after the modification factor). Increase beam depth.`,
@@ -1072,6 +1110,7 @@ function designBeamAtSpan(
     recommended_depth,
     recommended_width,
     area_steel_required: Math.ceil(As),
+    compression_steel_area: Math.ceil(compression_As),
     min_steel_area: Math.ceil(min_As),
     max_steel_area: Math.ceil(max_As),
     recommended_bar_diameter: bestDiameter,

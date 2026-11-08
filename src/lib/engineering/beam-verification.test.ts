@@ -205,3 +205,58 @@ describe("beam effective span", () => {
     );
   });
 });
+
+describe("doubly reinforced sections (BS 8110-1 Cl 3.4.4.4)", () => {
+  const overloaded = (depth: number) =>
+    designBeam({
+      ...BASE,
+      span: 5,
+      dead_load: 15,
+      live_load: 10,
+      tributary_width: 5,
+      existing_width: 300,
+      existing_depth: depth,
+    });
+
+  it("splits the moment into a concrete part and a steel couple", () => {
+    const r = overloaded(700);
+    const d = 700 - BASE.cover_mm - 25;
+    const kPrime = 0.156;
+    const momentSingle = (kPrime * 25 * 300 * d ** 2) / 1e6;
+    const excess = r.max_moment - momentSingle;
+    const dPrime = BASE.cover_mm + 25;
+    const expectedAsPrime =
+      (excess * 1e6) / (0.87 * 500 * (d - dPrime));
+    const expectedAsSingle =
+      (momentSingle * 1e6) / (0.87 * 500 * 0.775 * d);
+    expect(r.compression_steel_area).toBeCloseTo(expectedAsPrime, -1);
+    expect(r.area_steel_required).toBeCloseTo(
+      expectedAsSingle + expectedAsPrime,
+      -1,
+    );
+  });
+
+  it("asks for more tension steel than the formula that ignored the couple", () => {
+    const r = overloaded(700);
+    const d = 700 - BASE.cover_mm - 25;
+    // The old output sized tension steel as M/(0.87 fy z) with z frozen at the
+    // K = 0.156 lever arm, i.e. it let the concrete carry the whole moment at a
+    // lever arm the concrete cannot reach. That understates the steel, so the
+    // corrected figure has to be the larger of the two.
+    const momentSingle = (0.156 * 25 * 300 * d ** 2) / 1e6;
+    const oldStyle = (momentSingle * 1e6) / (0.87 * 500 * 0.775 * d);
+    expect(r.area_steel_required).toBeGreaterThan(oldStyle);
+    expect(r.compression_steel_area).toBeGreaterThan(0);
+  });
+
+  it("reports no compression steel when the section is singly reinforced", () => {
+    const r = designBeam({ ...BASE, existing_width: 300, existing_depth: 700 });
+    expect(r.compression_steel_area).toBe(0);
+  });
+
+  it("says so plainly when no bar arrangement will fit", () => {
+    const r = overloaded(400);
+    expect(r.area_steel_required).toBeGreaterThan(r.max_steel_area);
+    expect(r.warnings.join(" ")).toMatch(/4 % practical maximum/i);
+  });
+});
