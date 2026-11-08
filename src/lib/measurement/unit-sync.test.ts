@@ -103,6 +103,13 @@ describe("catalogue", () => {
     });
     expect(findUnit("mi")?.dimension).toBe("length");
     expect(findUnit("gal_imp")?.system).toBe("imperial");
+    expect(findUnit("in3")?.system).toBe("imperial");
+    expect(
+      unitsFor("volume", "metric").map(({ unit }) => unit),
+    ).not.toContain("in3");
+    expect(
+      unitsFor("volume", "imperial").map(({ unit }) => unit),
+    ).toContain("in3");
     expect(findUnit("tonne")?.system).toBe("metric");
   });
 

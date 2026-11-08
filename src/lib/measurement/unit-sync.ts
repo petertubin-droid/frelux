@@ -54,8 +54,14 @@ export interface UnitDescriptor {
 
 const METRIC_AREA: AreaUnit[] = ["mm2", "cm2", "m2", "km2", "hectare"];
 const IMPERIAL_AREA: AreaUnit[] = ["ft2", "yd2", "acre"];
-const METRIC_VOLUME: VolumeUnit[] = ["ml", "l", "m3", "cm3", "in3"];
-const IMPERIAL_VOLUME: VolumeUnit[] = ["ft3", "yd3", "gal_us", "gal_imp"];
+const METRIC_VOLUME: VolumeUnit[] = ["ml", "l", "m3", "cm3"];
+const IMPERIAL_VOLUME: VolumeUnit[] = [
+  "in3",
+  "ft3",
+  "yd3",
+  "gal_us",
+  "gal_imp",
+];
 const METRIC_MASS: MassUnit[] = ["mg", "g", "kg", "tonne", "quintal", "bag50"];
 const IMPERIAL_MASS: MassUnit[] = ["lb", "oz", "stone", "ton_us", "ton_imp"];
 

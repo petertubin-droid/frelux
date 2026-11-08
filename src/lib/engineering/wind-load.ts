@@ -106,7 +106,7 @@ export interface RoofUpliftInput {
 }
 
 export interface RoofUpliftResult {
-  /** Net design uplift pressure, N/m² (already includes +GCpi suction combination). */
+  /** Net design uplift pressure, N/m² (suction-critical +GCpi combination). */
   netPressure_Nm2: number;
   /** Total uplift force on the panel area, N. */
   force_N: number;
@@ -121,12 +121,12 @@ export function roofUplift(input: RoofUpliftInput): RoofUpliftResult {
   if (!(input.area_m2 > 0))
     throw new Error("Tributary area must be positive (m²).");
   const gcp = ROOF_UPLIFT_GCP[input.zone];
-  const p = input.qh_Nm2 * (gcp + GCPI_ENCLOSED);
+  const p = input.qh_Nm2 * (gcp - GCPI_ENCLOSED);
   return {
     netPressure_Nm2: p,
     force_N: p * input.area_m2,
     gcp,
-    formula: `p = qh·(GCp + GCpi) = ${input.qh_Nm2.toFixed(1)}×(${gcp} + ${GCPI_ENCLOSED}) = ${p.toFixed(1)} N/m²; uplift force = p×A = ${p.toFixed(1)}×${input.area_m2} = ${(p * input.area_m2).toFixed(0)} N (ASCE 7-22 Ch. 30, zone: ${input.zone})`,
+    formula: `p = qh·(GCp − GCpi) = ${input.qh_Nm2.toFixed(1)}×(${gcp} − ${GCPI_ENCLOSED}) = ${p.toFixed(1)} N/m²; uplift force = p×A = ${p.toFixed(1)}×${input.area_m2} = ${(p * input.area_m2).toFixed(0)} N (ASCE 7-22 Ch. 30, zone: ${input.zone})`,
   };
 }
 
