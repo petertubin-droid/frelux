@@ -79,24 +79,25 @@ describe("two-way slab, BS 8110 Table 3.14", () => {
       steel_grade: "Fe500",
       cover_mm: 25,
     } as never);
-    // Thickness is sized so L/d <= 26: d = 4000/26 = 154, +25 cover +10 = 189,
-    // rounded up in 25 mm steps = 200 mm. Self weight 0.2 x 24 = 4.8 kN/m².
-    expect(r.recommended_thickness).toBe(200);
-    // w = 1.4 x (4.8 + 1.2) + 1.6 x 1.5 = 8.4 + 2.4 = 10.8 kN/m²
-    expect(r.total_load).toBeCloseTo(10.8, 1);
+    // Thickness is sized so L/d <= 20, the Table 3.9 basic ratio for a simply
+    // supported member: d = 4000/20 = 200, + 25 cover + 10 = 235, rounded up in
+    // 25 mm steps = 250 mm. The old expectation of 200 came from a private copy
+    // of the ratios that used 26 for a two-way panel regardless of support.
+    // Self weight 0.25 x 24 = 6.0 kN/m².
+    expect(r.recommended_thickness).toBe(250);
+    // w = 1.4 x (6.0 + 1.2) + 1.6 x 1.5 = 10.08 + 2.4 = 12.48 kN/m²
+    expect(r.total_load).toBeCloseTo(12.5, 1);
     // ly/lx = 1.25, interpolating Table 3.14: asx = 0.0885, asy = 0.057.
-    // Msx = 0.0885 x 10.8 x 16 = 15.29, Msy = 0.057 x 10.8 x 16 = 9.85.
-    expect(r.moment_short_span).toBeCloseTo(15.29, 1);
-    expect(r.moment_long_span).toBeCloseTo(9.85, 1);
-    // d = 200 - 25 - 10 = 165. With a lever arm of 0.87d the bending steel
-    // would be 15.29e6 / (0.87 x 500 x 143.6) = 245 mm²/m, but two corrections
-    // move this number: the minimum is 0.13 % of the gross section rather than
-    // of d (BS 8110-1 Table 3.25), giving 0.0013 x 1000 x 200 = 260 mm²/m, and
-    // the lever arm is solved rather than assumed. The minimum governs here.
-    expect(r.steel_area_required).toBeCloseTo(260, -1);
+    // Msx = 0.0885 x 12.48 x 16 = 17.67, Msy = 0.057 x 12.48 x 16 = 11.38.
+    expect(r.moment_short_span).toBeCloseTo(17.67, 1);
+    expect(r.moment_long_span).toBeCloseTo(11.38, 1);
+    // d = 250 - 25 - 10 = 215. K = 17.67e6/(25 x 1000 x 215²) = 0.0153, so
+    // z = 0.95d = 204 and the bending steel is 17.67e6/(0.87 x 500 x 204) =
+    // 199 mm²/m. The minimum governs: 0.13 % of the gross section,
+    // 0.0013 x 1000 x 250 = 325 mm²/m (BS 8110-1 Table 3.25).
+    expect(r.steel_area_required).toBeCloseTo(325, -1);
     expect(r.steel_area_secondary).toBeGreaterThan(0);
-    // The long-span moment needs less steel than the short span, but with the
-    // minimum at 260 mm²/m both directions sit on it, so this is <= not <.
+    // Both directions sit on the minimum here, so <= not <.
     expect(r.steel_area_secondary as number).toBeLessThanOrEqual(
       r.steel_area_required,
     );

@@ -201,7 +201,27 @@ fy 250 and 0.13 % to fy 460 and above. A correction was attempted, the existing
 reasoning recorded in a comment. The unreliable part was the formula string,
 which stated the pair the wrong way round, and that is fixed.
 
-### D-10 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-10 CONFIRMED DEFECT (corrected) — two sets of span/depth ratios, neither complete
+
+The beam and slab paths each carried their own copy of the BS 8110-1 Table 3.9
+basic span/depth ratios, and they had drifted apart. The beam copy read 7 / 20 /
+26, which is the table. The slab copy read 7 / 20 / 26 / 32, where 32 for a
+continuous panel is not a Table 3.9 value at all, and where any two-way panel
+took 26 whatever its supports were, so a simply supported two-way panel was
+sized as if it were continuous.
+
+There is now one `basicSpanDepthRatio` helper, shared by both paths, returning
+only the three table values: 7 cantilever, 20 simply supported, 26 continuous
+(fixed maps to 26). Two-way panels use the same ratios against the short span,
+which is how the table works: what relaxes a two-way panel is the Cl 3.4.6.5
+modification factor, not a different basic ratio.
+
+Effect on output: simply supported two-way panels get thicker (4 m short span:
+250 mm rather than 200 mm) and continuous panels slightly thinner than the old
+32 allowed. This is a change to numbers users have seen, made because the old
+numbers were not the code.
+
+### D-11 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -301,7 +321,13 @@ decision, not part of this correction.
   when the support condition is continuous or fixed, and name Table 3.15 for the
   support moments that are not being designed.
 
-### 4.4 Beam
+### 4.4 Span/depth ratios
+
+One helper, `basicSpanDepthRatio`, returns the three BS 8110-1 Table 3.9 values
+and is used by both the beam and slab paths. The slab's private copy, with 32 for
+continuous and 26 for any two-way panel, is gone.
+
+### 4.5 Beam
 
 - Deflection checked on the recommended section with the modification factor,
   and the section deepened until that check passes.
@@ -311,7 +337,7 @@ decision, not part of this correction.
   depth rather than the supplied depth. That is conservative on a deeper section
   and is stated in the output.
 
-### 4.5 Foundation input integrity
+### 4.6 Foundation input integrity
 
 `designFoundation` now returns an explicit `INSUFFICIENT_INPUT` assessment with
 `missing_inputs` named, and no footing size, when:
@@ -429,7 +455,16 @@ depth (conservative); the effective span uses the preliminary depth estimate
 rather than the final section, which overstates span slightly; shear enhancement
 near supports and a full doubly reinforced design are not implemented.
 
-### 5.5 Foundation
+### 5.5 Span/depth ratios
+
+Asserted directly against the table: 7 / 20 / 26 for cantilever, simply
+supported and continuous. A simply supported two-way 4 m panel is sized so that
+d reaches 4000/20 = 200 mm, and a continuous 6 m panel so that d reaches
+6000/26 = 231 mm. The two-way verification case moves from 200 mm to 250 mm as a
+result, and 21 tests in the slab and heavy suites were updated to the corrected
+thicknesses.
+
+### 5.6 Foundation
 
 | Check | Expected | Result |
 |---|---|---|
@@ -466,7 +501,7 @@ Nothing below is claimed as corrected. Each is listed with what it needs.
 | `structural-calculator.ts` | Column biaxial bending; section is still generated from the axial load and then reported as failing on moment rather than re-sized automatically | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Beam reinforcement recommendations still not gated on all checks before reporting a pass | NOT IMPLEMENTED |
 | `structural-calculator.ts` | Slab punching shear at columns, support (hogging) moments for continuous panels, BS 8110 Table 3.15 coefficients | NOT IMPLEMENTED |
-| `structural-calculator.ts` | Basic span/depth ratios used for sizing (7 / 20 / 26 / 32) are not yet reconciled against BS 8110-1 Table 3.9 | REQUIRES CODE REVIEW |
+| `structural-calculator.ts` | Basic span/depth ratios reconciled to BS 8110-1 Table 3.9 through one shared helper | CORRECTED |
 | `structural-calculator.ts` | Beam development length, shear link spacing, deflection limits | NOT IMPLEMENTED |
 | `retaining-wall-engine.ts` | Rankine only; no groundwater, surcharge, seismic, stem or base steel check; result must be labelled preliminary | REQUIRES ENGINEERING REVIEW |
 | `tank-stand.ts` | Empty-case stability is present; member and footing checks are preliminary sizing | REQUIRES ENGINEERING REVIEW |

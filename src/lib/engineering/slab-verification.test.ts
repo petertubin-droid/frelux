@@ -158,3 +158,40 @@ describe("slab two-way behaviour", () => {
     expect(continuous.warnings.join(" ")).toMatch(/Table 3.15/);
   });
 });
+
+describe("basic span/depth ratios", () => {
+  it("uses Table 3.9 values and nothing else", async () => {
+    const { basicSpanDepthRatio } = await import("./structural-calculator");
+    expect(basicSpanDepthRatio("cantilever")).toBe(7);
+    expect(basicSpanDepthRatio("simply_supported")).toBe(20);
+    expect(basicSpanDepthRatio("continuous")).toBe(26);
+    expect(basicSpanDepthRatio("fixed")).toBe(26);
+  });
+
+  it("sizes a simply supported two-way panel to 20, not 26", () => {
+    const r = designSlab({
+      ...THIN,
+      span_x: 4,
+      span_y: 5,
+      slab_type: "two_way",
+      support_condition: "simply_supported",
+      existing_thickness: undefined,
+    });
+    // d must reach 4000/20 = 200 mm for the short span.
+    const d = r.recommended_thickness - 35;
+    expect(d).toBeGreaterThanOrEqual(200);
+  });
+
+  it("sizes a continuous panel to 26, not 32", () => {
+    const r = designSlab({
+      ...THIN,
+      span_x: 6,
+      span_y: 7,
+      slab_type: "one_way",
+      support_condition: "continuous",
+      existing_thickness: undefined,
+    });
+    const d = r.recommended_thickness - 35;
+    expect(d).toBeGreaterThanOrEqual(Math.floor((6000 / 26) - 1));
+  });
+});

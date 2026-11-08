@@ -570,6 +570,32 @@ function leverArmBS(
   return { z, K, doubly_reinforced: doubly };
 }
 
+/**
+ * Basic span / effective depth ratios, BS 8110-1 Table 3.9 for rectangular
+ * sections spanning up to 10 m: cantilever 7, simply supported 20, continuous
+ * 26. Two-way panels are not a separate row in that table; they use the same
+ * ratios against the short span, and the modification factor for tension
+ * reinforcement (Cl 3.4.6.5) is what relaxes them.
+ *
+ * The beam and slab paths each carried their own copy of these numbers and they
+ * had drifted: the slab used 32 for a continuous panel and 26 for any two-way
+ * panel regardless of how it was supported, neither of which is in Table 3.9.
+ */
+export function basicSpanDepthRatio(
+  supportCondition: SupportCondition,
+): number {
+  switch (supportCondition) {
+    case "cantilever":
+      return 7;
+    case "continuous":
+    case "fixed":
+      return 26;
+    case "simply_supported":
+    default:
+      return 20;
+  }
+}
+
 /** ACI 319-19 tension-controlled design: Whitney stress block, φ = 0.90. */
 function designSteelACI(
   moment_kNm: number,
@@ -742,12 +768,10 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   // that is a very shallow number, so a perfectly sensible beam came out with a
   // failing L/d, and a heavily loaded one passed on a depth nobody was going to
   // build.
-  const basicRatio =
-    input.support_condition === "cantilever"
-      ? 7
-      : input.support_condition === "continuous"
-        ? 26
-        : 20;
+  const basicRatio = basicSpanDepthRatio(input.support_condition);
+  formulas.push(
+    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} member = ${basicRatio}`,
+  );
 
   // Steel area — audit fix F2: the lever arm is no longer hard-coded z = 0.87d.
   let As: number;
@@ -1457,14 +1481,14 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   // thickness rule. Those two disagreed: a 4 m two-way panel was sized to
   // span/28 and then immediately failed the L/d check the same panel is
   // reported against. Size to whichever is deeper so the answer is consistent.
-  const basicRatioForSizing =
-    input.support_condition === "cantilever"
-      ? 7
-      : input.support_condition === "continuous"
-        ? 32
-        : is_two_way
-          ? 26
-          : 20;
+  // Sizing ratio from the same Table 3.9 helper the beam path uses. This was a
+  // private copy with 32 for continuous and 26 for any two-way panel; 32 is not
+  // a Table 3.9 value, and a simply supported two-way panel is a simply
+  // supported member, so it takes 20 like any other.
+  const basicRatioForSizing = basicSpanDepthRatio(input.support_condition);
+  formulas.push(
+    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} ${is_two_way ? "two-way" : "one-way"} panel = ${basicRatioForSizing}`,
+  );
   const shortSpanForSizing = Math.min(input.span_x, input.span_y);
   const deflectionDepth =
     (shortSpanForSizing * 1000) / basicRatioForSizing + input.cover_mm + 10;
