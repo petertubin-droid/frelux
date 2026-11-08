@@ -216,7 +216,7 @@ export default function DataResidencyCenter() {
               <Button
                 onClick={handleSaveRegion}
                 size="sm"
-                className="font-medium"
+                className="h-auto max-w-full whitespace-normal px-3 py-2 text-center font-medium leading-snug"
               >
                 {t("Save & Lock Data Boundary")}
               </Button>
@@ -291,7 +291,7 @@ export default function DataResidencyCenter() {
                 metadata between international offices.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">
                 Simulate target node:
               </span>
@@ -300,7 +300,7 @@ export default function DataResidencyCenter() {
                 onChange={(e) =>
                   setTargetAuditRegion(e.target.value as DataResidencyRegion)
                 }
-                className="text-xs rounded-md border border-input bg-card px-2.5 py-1.5"
+                className="min-w-0 max-w-full text-xs rounded-md border border-input bg-card px-2.5 py-1.5"
               >
                 {(Object.keys(REGIONAL_ENDPOINTS) as DataResidencyRegion[]).map(
                   (r) => (
@@ -433,20 +433,20 @@ export default function DataResidencyCenter() {
                   Enter your email to verify identity and initiate complete
                   cascade erasure across edge caches and regional databases.
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <input
                     type="email"
                     required
                     placeholder={t("Enter email to confirm...")}
                     value={erasureEmail}
                     onChange={(e) => setErasureEmail(e.target.value)}
-                    className="flex-1 text-xs rounded-md border border-input bg-card px-3 py-2"
+                    className="min-w-0 flex-1 text-xs rounded-md border border-input bg-card px-3 py-2"
                   />
                   <Button
                     type="submit"
                     variant="destructive"
                     size="sm"
-                    className="font-medium shrink-0"
+                    className="h-auto max-w-full shrink-0 whitespace-normal px-3 py-2 text-center font-medium leading-snug"
                   >
                     {t("Purge All Records")}
                   </Button>

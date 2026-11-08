@@ -13,7 +13,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:4173",
+    // Override to audit a running dev server: PLAYWRIGHT_BASE_URL=http://127.0.0.1:3010
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:4173",
     trace: "on-first-retry",
     launchOptions: {
       args: [

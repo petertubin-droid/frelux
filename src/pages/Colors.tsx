@@ -303,7 +303,7 @@ export default function Colors() {
                             setFamilyId(f.id);
                             setPage(1);
                           }}
-                          className="group relative h-full transition-all duration-300 hover:flex-grow-[1.5]"
+                          className="group relative h-full min-w-0 px-0 transition-all duration-300 hover:flex-grow-[1.5]"
                           style={{ background: swatch, width: segmentWidth }}
                           title={f.name}
                         >

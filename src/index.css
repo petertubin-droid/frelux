@@ -685,7 +685,7 @@
   }
   /* Section label - premium eyebrow */
   .section-label {
-    @apply inline-flex items-center gap-2 rounded-full bg-primary/[0.07] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary dark:bg-primary/[0.12];
+    @apply inline-flex max-w-full min-w-0 items-center gap-2 whitespace-normal rounded-full bg-primary/[0.07] px-3 py-1 text-left text-xs font-semibold uppercase leading-tight tracking-[0.14em] text-primary dark:bg-primary/[0.12];
   }
   .section-title {
     @apply font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-[1.15] tracking-tight dark:text-foreground;

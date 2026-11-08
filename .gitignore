@@ -46,3 +46,5 @@ check_*.cjs
 scan_colors.py
 mock_data_found.txt
 *.tsbuildinfo
+.env.audit
+design-shots/

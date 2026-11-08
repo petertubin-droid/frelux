@@ -906,7 +906,7 @@ export default function TyroleneEstimator({
             <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1">
               {t("Customer Location")}
             </label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { value: "owerri", label: "Owerri" },
                 { value: "outside_owerri", label: "Outside Owerri" },
@@ -921,7 +921,7 @@ export default function TyroleneEstimator({
                     )
                   }
                   className={classNames(
-                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors border",
+                    "flex min-w-0 max-w-full items-center gap-1.5 whitespace-normal rounded-lg px-3 py-2 text-left text-xs font-medium leading-snug transition-colors border",
                     customerLocation === opt.value
                       ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
                       : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground hover:border-border",
@@ -949,12 +949,12 @@ export default function TyroleneEstimator({
               <Layers className="h-4 w-4 text-brand-purple" />
               {t("Partition Input")}
             </h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="ghost"
                 onClick={() => setInputMode("standard")}
                 className={classNames(
-                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
+                  "h-auto max-w-full whitespace-normal rounded-lg px-3 py-1.5 text-left text-xs font-medium leading-snug transition-colors border",
                   inputMode === "standard"
                     ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
                     : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
@@ -966,7 +966,7 @@ export default function TyroleneEstimator({
                 variant="ghost"
                 onClick={() => setInputMode("actual")}
                 className={classNames(
-                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
+                  "h-auto max-w-full whitespace-normal rounded-lg px-3 py-1.5 text-left text-xs font-medium leading-snug transition-colors border",
                   inputMode === "actual"
                     ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
                     : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
