@@ -762,6 +762,19 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     `Required overall depth = ${required_depth_eff.toFixed(0)} + ${input.cover_mm} (cover) + 25 (bar/2) = ${required_depth.toFixed(0)} mm`,
   );
 
+  // The depth the steel is designed against. A supplied depth is the section the
+  // user is asking about, so steel, minimum steel and shear capacity are taken on
+  // its effective depth; otherwise the strength depth is used, which is never
+  // deeper than the section eventually recommended, so it errs the safe way.
+  const steelDepth = input.existing_depth
+    ? Math.max(120, input.existing_depth - input.cover_mm - 25)
+    : required_depth_eff;
+  if (input.existing_depth) {
+    formulas.push(
+      `Steel and shear capacity taken on the supplied section's effective depth of ${steelDepth.toFixed(0)} mm, not the ${required_depth_eff.toFixed(0)} mm bending minimum`,
+    );
+  }
+
   // Span/depth is checked further down, on the section that is actually
   // recommended. It used to be checked here against required_depth_eff, which is
   // the depth that just satisfies bending at K = 0.156: for a lightly loaded beam
@@ -776,21 +789,21 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   // Steel area — audit fix F2: the lever arm is no longer hard-coded z = 0.87d.
   let As: number;
   let min_As: number;
-  const max_As = (4 * assumed_width * required_depth_eff) / 100; // 4% max
+  const max_As = (4 * assumed_width * steelDepth) / 100; // 4% max
   if (concretePreset.standard === "aci_astm") {
     const aci = designSteelACI(
       max_moment,
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      required_depth_eff,
+      steelDepth,
     );
     As = aci.As;
     min_As = minSteelACI(
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      required_depth_eff,
+      steelDepth,
     );
     formulas.push(
       `Steel area required (ACI 318-19, Whitney block, φ=0.90) = ${As.toFixed(0)} mm² (stress block a = ${aci.a.toFixed(1)} mm)`,
@@ -798,15 +811,15 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     formulas.push(`Min steel (ACI 318-19 §9.6.1.2) = ${min_As.toFixed(0)} mm²`);
   } else {
     // Exact BS 8110 3.4.4.4 lever arm: z = d(0.5 + √(0.25 − K/0.9)) ≤ 0.95d
-    const la = leverArmBS(max_moment, fcu, assumed_width, required_depth_eff);
+    const la = leverArmBS(max_moment, fcu, assumed_width, steelDepth);
     doubly_reinforced = la.doubly_reinforced;
     As = (max_moment * 1e6) / (0.87 * fy * la.z);
     min_As =
       concretePreset.standard === "is_456"
-        ? (0.85 / fy) * assumed_width * required_depth_eff // IS 456 26.5.1.1
-        : ((fy <= 300 ? 0.0024 : 0.0013) * assumed_width * required_depth_eff); // BS 8110 Table 3.25: 0.24% mild, 0.13% high-yield
+        ? (0.85 / fy) * assumed_width * steelDepth // IS 456 26.5.1.1
+        : (fy <= 300 ? 0.0024 : 0.0013) * assumed_width * steelDepth; // BS 8110 Table 3.25: 0.24% mild, 0.13% high-yield
     formulas.push(
-      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${required_depth_eff.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
+      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${steelDepth.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
     );
     formulas.push(
       `z = d(0.5 + √(0.25 − K/0.9)) = ${la.z.toFixed(0)} mm (≤ 0.95d)`,
@@ -832,11 +845,11 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
       fck: concretePreset.fck ?? fcu,
       fy,
       b: assumed_width,
-      d: required_depth_eff,
+      d: steelDepth,
     });
     min_As = minSteel.areaMm2;
     formulas.push(
-      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${required_depth_eff.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
+      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
     );
   }
   if (doubly_reinforced) {
@@ -869,10 +882,10 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   // 400 mm. Leaving out the gamma_m divisor overstated capacity by 25 percent,
   // which is the unsafe direction: a beam that needs links reported PASS.
   const vcSteelPct = Math.min(
-    (100 * provided_As) / (assumed_width * required_depth_eff),
+    (100 * provided_As) / (assumed_width * steelDepth),
     2,
   );
-  const vcDepthCap = Math.min(required_depth_eff, 400);
+  const vcDepthCap = Math.min(steelDepth, 400);
   // Table 3.8 also caps fcu at 40 MPa and vc at min(0.8√fcu, 5) MPa.
   const vcConcreteCap = Math.min(fcu, 40);
   const vcRaw =
@@ -889,10 +902,10 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   }
   // Capacity taken on the strength depth, which is never deeper than the section
   // recommended below, so this is the conservative figure.
-  const shear_capacity = (vc * assumed_width * required_depth_eff) / 1000; // kN
+  const shear_capacity = (vc * assumed_width * steelDepth) / 1000; // kN
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
-    `Shear capacity v_c × b × d = ${vc.toFixed(2)} × ${assumed_width} × ${required_depth_eff.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN → ${shear_check_pass ? "PASS" : "FAIL"}`,
+    `Shear capacity v_c × b × d = ${vc.toFixed(2)} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN → ${shear_check_pass ? "PASS" : "FAIL"}`,
   );
 
   if (!shear_check_pass) {
@@ -915,7 +928,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     input.existing_depth ?? roundUpTo50(requiredDepthGoverning);
   if (input.existing_depth) {
     formulas.push(
-      `Section taken as supplied: ${input.existing_width ?? assumed_width} × ${input.existing_depth} mm. Bending steel and its minimum are sized on the required strength depth (${required_depth.toFixed(0)} mm), so a deeper supplied section is conservative.`,
+      `Section taken as supplied: ${input.existing_width ?? assumed_width} × ${input.existing_depth} mm, with steel, its minimum and shear capacity designed on that section.`,
     );
     if (input.existing_depth < required_depth - 1) {
       warnings.push(

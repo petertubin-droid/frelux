@@ -221,7 +221,27 @@ Effect on output: simply supported two-way panels get thicker (4 m short span:
 32 allowed. This is a change to numbers users have seen, made because the old
 numbers were not the code.
 
-### D-11 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-11 CONFIRMED DEFECT (corrected) — beam steel ignored the supplied section
+
+Even after D-7 made a supplied depth the section under review, the bending steel,
+its minimum and the shear capacity were all still computed on
+`required_depth_eff`, the strength minimum. For a beam deeper than that minimum
+the numbers described a member nobody was building: a 300 × 600 mm beam was given
+steel for a section roughly half a metre shallower. The error was conservative,
+not unsafe, but it was wrong, and it made the reported area uncheckable against
+the section on the drawing.
+
+Steel, its minimum and `v_c` now all use the effective depth of the section being
+reported: the supplied depth when there is one, otherwise the strength depth,
+which is never deeper than the section eventually recommended and so errs the
+safe way.
+
+Effect on the 300 × 600 mm case at 8 + 5 kN/m² over 3 m: steel falls from the
+shallow basis to 1,602 mm² for the six-Y20 detail, and the minimum becomes 215 mm²
+(0.13 % of 300 × 550) rather than 156 mm². Deeper sections now take less steel, as
+they should: 1,799 → 1,602 → 1,303 mm² at 450, 600 and 700 mm deep.
+
+### D-12 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized
@@ -333,9 +353,8 @@ continuous and 26 for any two-way panel, is gone.
   and the section deepened until that check passes.
 - A supplied depth or width is treated as the section under review.
 - `v_c` capped at `min(0.8√f_cu, 5)` MPa and `f_cu` capped at 40 MPa.
-- Bending steel and minimum steel are still sized on the required strength
-  depth rather than the supplied depth. That is conservative on a deeper section
-  and is stated in the output.
+- Steel, minimum steel and shear capacity are taken on the section being
+  reported: the supplied depth when one is given, otherwise the strength depth.
 
 ### 4.6 Foundation input integrity
 
@@ -450,10 +469,9 @@ Tolerance 2 % or the stated absolute value. 8 tests in
 `src/lib/engineering/beam-verification.test.ts`, 117 across the structural
 suites.
 
-Still open: bending steel is sized on the strength depth, not the supplied
-depth (conservative); the effective span uses the preliminary depth estimate
-rather than the final section, which overstates span slightly; shear enhancement
-near supports and a full doubly reinforced design are not implemented.
+Still open: the effective span uses the preliminary depth estimate rather than
+the final section, which overstates span slightly; shear enhancement near
+supports and a full doubly reinforced design are not implemented.
 
 ### 5.5 Span/depth ratios
 

@@ -136,3 +136,41 @@ describe("beam section warnings", () => {
     expect(vcFromCapacity).toBeLessThanOrEqual(5.01);
   });
 });
+
+describe("beam steel is sized on the section being reported", () => {
+  const supplied = (depth: number) =>
+    designBeam({
+      ...BASE,
+      span: 6,
+      dead_load: 8,
+      live_load: 5,
+      tributary_width: 3,
+      existing_width: 300,
+      existing_depth: depth,
+    });
+
+  it("needs less steel as the supplied section gets deeper", () => {
+    const shallow = supplied(450).area_steel_required;
+    const middle = supplied(600).area_steel_required;
+    const deep = supplied(700).area_steel_required;
+    expect(middle).toBeLessThan(shallow);
+    expect(deep).toBeLessThan(middle);
+  });
+
+  it("takes the minimum from the supplied depth, not the bending minimum", () => {
+    // 0.13% of 300 x (600 - 25 - 25) = 214.5 mm² for Fe500.
+    // The engine reports the area rounded up to a whole mm².
+    expect(supplied(600).min_steel_area).toBe(
+      Math.ceil(0.0013 * 300 * (600 - 50)),
+    );
+    expect(supplied(700).min_steel_area).toBe(
+      Math.ceil(0.0013 * 300 * (700 - 50)),
+    );
+  });
+
+  it("still warns when the supplied depth cannot carry the moment", () => {
+    expect(supplied(450).warnings.join(" ")).toMatch(
+      /compression steel|doubly reinforced|less than/i,
+    );
+  });
+});
