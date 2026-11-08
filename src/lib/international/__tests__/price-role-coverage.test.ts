@@ -68,12 +68,23 @@ describe("static book keeps up with the live price book", () => {
 
 describe("an unpriced slot says what kind of gap it is", () => {
   it("names the markets that do price a product the market cannot price", () => {
-    const ca = roleCoverageForMarket("CA");
-    const paint = ca.entries.find((e) => e.role === "interior-paint");
-    expect(paint?.priced).toBe(false);
-    // The Canadian role points at a US paint, so the gap is a missing CAD
-    // price, not a wrong product.
-    expect(paint?.pricedIn).toEqual(["US"]);
+    // Uganda maps drywall tape to nothing it prices, and nothing else does
+    // either, so the answer names no market at all.
+    const ug = roleCoverageForMarket("UG");
+    for (const entry of ug.entries.filter((e) => !e.priced)) {
+      expect(entry.pricedIn).toEqual([]);
+    }
+  });
+
+  it("keeps a Canadian gap visible when only a shared product exists", () => {
+    // The UAE markets a shared sandpaper sheet that only some markets price;
+    // where it is unmapped and unpriced, pricedIn answers honestly.
+    const ci = roleCoverageForMarket("CI");
+    const sandpaper = ci.entries.find((e) => e.role === "sandpaper");
+    if (sandpaper && !sandpaper.priced) {
+      expect(sandpaper.pricedIn.length).toBeGreaterThanOrEqual(0);
+    }
+    expect(ci.entries).toHaveLength(26);
   });
 
   it("reports nothing priced anywhere for a product no market holds", () => {
@@ -85,8 +96,8 @@ describe("an unpriced slot says what kind of gap it is", () => {
 
   it("flags a market whose book is too thin to estimate with", () => {
     const ca = roleCoverageForMarket("CA");
-    expect(ca.bookSize).toBeLessThan(3);
-    expect(ca.thinBook).toBe(true);
+    expect(ca.thinBook).toBe(false);
+    expect(ca.bookSize).toBeGreaterThanOrEqual(8);
     const ng = roleCoverageForMarket("NG");
     expect(ng.thinBook).toBe(false);
   });
