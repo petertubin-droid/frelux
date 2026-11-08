@@ -10,6 +10,8 @@ import {
 } from "@/components/admin/AdminUi";
 import { supabase } from "@/lib/supabase";
 import { clearAdConfigCache } from "@/lib/ad-config";
+import { adsTxtRecords, parsePublisherList } from "@/lib/ad-sellers";
+import { siteConfig } from "@/config/site";
 import { classNames } from "@/lib/utils";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 import type { ExternalPromo } from "@/lib/house-promo";
@@ -71,6 +73,8 @@ interface HubState {
   adsense: {
     active: boolean;
     publisherId: string;
+    /** Further authorised accounts, comma or newline separated. */
+    additionalPublisherIds: string;
     autoAds: boolean;
     anchorAds: boolean;
     vignetteAds: boolean;
@@ -133,6 +137,8 @@ export function emptyHubState(): HubState {
     adsense: {
       active: true,
       publisherId: "",
+      additionalPublisherIds:
+        siteConfig.adsense.additionalPublisherIds.join(", "),
       autoAds: false,
       anchorAds: false,
       vignetteAds: false,
@@ -222,6 +228,9 @@ export function hubStateFromDb(
 
   state.adsense.active = adsense ? adsense.is_active : true;
   state.adsense.publisherId = str(cred(adsense).publisher_id);
+  state.adsense.additionalPublisherIds =
+    str(setg(adsense).additional_publisher_ids) ||
+    siteConfig.adsense.additionalPublisherIds.join(", ");
   state.adsense.autoAds = bool(setg(adsense).auto_ads);
   state.adsense.anchorAds = bool(setg(adsense).anchor_ads);
   state.adsense.vignetteAds = bool(setg(adsense).vignette_ads);
@@ -449,6 +458,9 @@ export default function NetworkHub() {
             vignette_ads: state.adsense.vignetteAds,
             interstitial_ads: state.adsense.interstitialAds,
             rewarded_ads: state.adsense.rewardedAds,
+            additional_publisher_ids: parsePublisherList(
+              state.adsense.additionalPublisherIds,
+            ).join(", "),
           },
           is_system: rows.adsense?.is_system ?? true,
         },
@@ -562,6 +574,9 @@ export default function NetworkHub() {
       const settingsUpdate: Record<string, unknown> = {
         ads_enabled: true,
         adsense_publisher_id: state.adsense.publisherId.trim(),
+        adsense_additional_publisher_ids: parsePublisherList(
+          state.adsense.additionalPublisherIds,
+        ).join(", "),
       };
       const { error: setErr } = await supabase
         .from("site_settings")
@@ -686,6 +701,38 @@ export default function NetworkHub() {
               />
             </AdminField>
           </div>
+          <div className="mt-4">
+            <AdminField
+              label="Additional authorised publisher IDs"
+              hint="Other AdSense accounts allowed to bid on this inventory. They are listed alongside the primary in ads.txt and app-ads.txt and never replace it. Comma or newline separated."
+            >
+              <TextInput
+                value={state.adsense.additionalPublisherIds}
+                onChange={(v) =>
+                  patch((d) => {
+                    d.adsense.additionalPublisherIds = v;
+                  })
+                }
+                placeholder="ca-pub-…, ca-pub-…"
+              />
+            </AdminField>
+            <div className="mt-3">
+              <p className="text-xs font-semibold text-muted-foreground">
+                ads.txt and app-ads.txt records
+              </p>
+              <pre className="mt-1 overflow-x-auto rounded-md border border-border bg-muted/40 p-3 text-[11px] leading-relaxed text-foreground">
+                {adsTxtRecords(
+                  state.adsense.publisherId,
+                  parsePublisherList(state.adsense.additionalPublisherIds),
+                ).join("\n") || "# Add a publisher ID above to see the records"}
+              </pre>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                These are the lines published in public/ads.txt. Both accounts
+                stay authorised: adding one never withdraws the other.
+              </p>
+            </div>
+          </div>
+
           <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-2">
             {(
               [
