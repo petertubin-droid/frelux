@@ -111,6 +111,7 @@ import { useLanguage } from "@/lib/i18n";
 import AdSlot from "@/components/ui/AdSlot";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -1018,7 +1019,7 @@ function WindLoadCalculator() {
                   warnings: zone ? [zone.label] : [],
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -1330,7 +1331,7 @@ function SeismicDetailingCalculator() {
                   warnings: result.notes,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -1670,11 +1671,7 @@ function BarScheduleCalculator() {
             ]}
           />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={downloadBvbs}
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
-            >
+            <button type="button" onClick={downloadBvbs} className={ACTION_BTN}>
               {t("Export BVBS / .bfx (CNC machines)")}
             </button>
             <button
@@ -1697,7 +1694,7 @@ function BarScheduleCalculator() {
                   ],
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export schedule sheet (PDF)")}
             </button>
@@ -2128,7 +2125,7 @@ function BeamCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -2383,7 +2380,7 @@ function ColumnCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -2738,7 +2735,7 @@ function SlabCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>

@@ -37,6 +37,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "N/A";
@@ -216,7 +217,7 @@ export default function WarrantyCertificate() {
               type="button"
               onClick={issue}
               disabled={!selected || busy}
-              className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className={`mt-3 ${ACTION_BTN_PRIMARY}`}
             >
               {busy ? "Issuing…" : "Issue warranty certificate"}
             </button>

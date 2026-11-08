@@ -31,6 +31,7 @@ import type { CashFlowTemplate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 // Market-currency aware via the site-wide FX layer.
 const money = (v: number) => formatCurrency(v);
@@ -182,7 +183,7 @@ export default function CashFlowTimeline() {
                 <button
                   type="button"
                   onClick={() => handleCalculate(run)}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  className={ACTION_BTN_PRIMARY}
                 >
                   {t("Generate Schedule")}
                 </button>

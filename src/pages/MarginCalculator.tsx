@@ -26,6 +26,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 // Worldwide-currency money formatting via the site-wide layer.
 const money = (v: number) => formatCurrency(v);
@@ -320,7 +321,7 @@ export default function MarginCalculator() {
                       !selected ||
                       (costMode === "single" ? !cost : !componentInputsValid)
                     }
-                    className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                    className={ACTION_BTN_PRIMARY}
                   >
                     {t("Calculate Quote")}
                   </button>

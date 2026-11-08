@@ -36,6 +36,7 @@ import type { MaintenanceProfile } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function MaintenancePlanner({
   embedded = false,
@@ -297,7 +298,7 @@ export default function MaintenancePlanner({
             type="button"
             onClick={run}
             disabled={loading || !category}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            className={ACTION_BTN_PRIMARY}
           >
             {t("Plan Maintenance")}
           </button>

@@ -36,6 +36,7 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function CircularReuse() {
   const { t } = useLanguage();
@@ -187,7 +188,7 @@ export default function CircularReuse() {
           <button
             type="button"
             onClick={() => handleCalculate(run)}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            className={`mt-4 ${ACTION_BTN_PRIMARY}`}
           >
             {t("Plan recovery")}
           </button>

@@ -34,6 +34,7 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -169,7 +170,7 @@ export default function DefectDiagnosis() {
                 <button
                   type="button"
                   onClick={() => handleCalculate(run)}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  className={ACTION_BTN_PRIMARY}
                 >
                   {t("Diagnose")}
                 </button>

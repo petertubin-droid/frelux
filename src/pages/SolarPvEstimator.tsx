@@ -46,6 +46,7 @@ import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function SolarPvEstimator() {
   const { t } = useLanguage();
@@ -619,7 +620,7 @@ export default function SolarPvEstimator() {
                 type="button"
                 onClick={handleSave}
                 disabled={saveState === "saving" || saveState === "saved"}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className={ACTION_BTN_PRIMARY}
               >
                 {saveState === "saving"
                   ? "Saving…"

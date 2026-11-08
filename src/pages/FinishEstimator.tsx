@@ -74,6 +74,7 @@ import {
 } from "@/lib/location-intelligence";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -749,7 +750,7 @@ export default function FinishEstimator({
                       currencySymbol,
                     })
                   }
-                  className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                  className={ACTION_BTN}
                 >
                   {t("Export quote (PDF)")}
                 </button>

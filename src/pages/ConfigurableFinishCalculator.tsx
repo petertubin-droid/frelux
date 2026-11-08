@@ -1,3 +1,4 @@
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 /**
  * FRELUX Configurable Finish Calculator (Phases 3-4)
  *
@@ -638,7 +639,7 @@ export default function ConfigurableFinishCalculator({
                     calculateWithScroll(handleCalculate);
                   }}
                   disabled={calculating}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  className={ACTION_BTN_PRIMARY}
                 >
                   {t("Calculate")}
                 </button>

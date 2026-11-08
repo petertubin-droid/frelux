@@ -31,13 +31,7 @@ import {
 import { track } from "@/lib/analytics";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
-import {
-  Plus,
-  Trash2,
-  Download,
-  Route,
-  Layers,
-} from "lucide-react";
+import { Plus, Trash2, Download, Route, Layers } from "lucide-react";
 
 type DeviceType = MEPPoint["type"];
 
@@ -71,7 +65,13 @@ export default function ConduitWiringEstimator() {
   const [deviceTypeToAdd, setDeviceTypeToAdd] = useState<DeviceType>("socket");
 
   const [routerPoints, setRouterPoints] = useState<MEPPoint[]>([
-    { id: "p-db", type: "distribution_board", x: 0.5, y: 0.5, label: "Main DB" },
+    {
+      id: "p-db",
+      type: "distribution_board",
+      x: 0.5,
+      y: 0.5,
+      label: "Main DB",
+    },
     { id: "p-sw1", type: "switch", x: 0.5, y: 3.5, label: "Door Switch" },
     { id: "p-l1", type: "light", x: 3.0, y: 4.0, label: "Center Light" },
     { id: "p-sk1", type: "socket", x: 5.5, y: 2.0, label: "Ring Socket 1" },
@@ -142,16 +142,40 @@ export default function ConduitWiringEstimator() {
   const exportRouterCsv = () => {
     const rows: string[][] = [
       ["FRELUX Manhattan Conduit & Wiring Route Schedule", ""],
-      ["Room Dimensions", `${roomWidth}m × ${roomLength}m (${roomWidth * roomLength} m²)`],
+      [
+        "Room Dimensions",
+        `${roomWidth}m × ${roomLength}m (${roomWidth * roomLength} m²)`,
+      ],
       ["Ceiling Height", `${ceilingHeight}m`],
-      ["Total Horizontal Manhattan Run", `${routingResult.totalHorizontalLengthM} m`],
+      [
+        "Total Horizontal Manhattan Run",
+        `${routingResult.totalHorizontalLengthM} m`,
+      ],
       ["Total Vertical Wall Drops", `${routingResult.totalVerticalLengthM} m`],
-      ["Total Conduit Route (incl. 10% Waste)", `${routingResult.totalConduitLengthM} m`],
-      ["20mm PVC Conduit Pipes (2.9m lengths)", String(routingResult.conduitPvcPipes20mmPieces)],
-      ["1.5mm Lighting Wire Coils (100m)", String(routingResult.lightingWireCoils1_5mm)],
-      ["2.5mm Socket Wire Coils (100m)", String(routingResult.socketWireCoils2_5mm)],
+      [
+        "Total Conduit Route (incl. 10% Waste)",
+        `${routingResult.totalConduitLengthM} m`,
+      ],
+      [
+        "20mm PVC Conduit Pipes (2.9m lengths)",
+        String(routingResult.conduitPvcPipes20mmPieces),
+      ],
+      [
+        "1.5mm Lighting Wire Coils (100m)",
+        String(routingResult.lightingWireCoils1_5mm),
+      ],
+      [
+        "2.5mm Socket Wire Coils (100m)",
+        String(routingResult.socketWireCoils2_5mm),
+      ],
       ["--- ROUTED SEGMENTS ---", ""],
-      ["From", "To", "Horizontal (m)", "Vertical Drops (m)", "Segment Total (m)"],
+      [
+        "From",
+        "To",
+        "Horizontal (m)",
+        "Vertical Drops (m)",
+        "Segment Total (m)",
+      ],
       ...routingResult.segments.map((s) => [
         s.fromId,
         s.toId,
@@ -161,12 +185,17 @@ export default function ConduitWiringEstimator() {
       ]),
     ];
 
-    const csv = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rows
+      .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
+      .join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `mep-conduit-route-${roomWidth}x${roomLength}m.csv`);
+    link.setAttribute(
+      "download",
+      `mep-conduit-route-${roomWidth}x${roomLength}m.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -244,7 +273,8 @@ export default function ConduitWiringEstimator() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Layers className="h-3.5 w-3.5 text-primary" /> Quick Takeoff (Area & Points)
+              <Layers className="h-3.5 w-3.5 text-primary" /> Quick Takeoff
+              (Area & Points)
             </button>
             <button
               type="button"
@@ -255,7 +285,8 @@ export default function ConduitWiringEstimator() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Route className="h-3.5 w-3.5 text-primary" /> Interactive Manhattan Router
+              <Route className="h-3.5 w-3.5 text-primary" /> Interactive
+              Manhattan Router
             </button>
           </div>
 
@@ -316,7 +347,9 @@ export default function ConduitWiringEstimator() {
                       max={30}
                       step={0.5}
                       value={roomWidth}
-                      onChange={(e) => setRoomWidth(Math.max(2, Number(e.target.value)))}
+                      onChange={(e) =>
+                        setRoomWidth(Math.max(2, Number(e.target.value)))
+                      }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
                   </div>
@@ -330,7 +363,9 @@ export default function ConduitWiringEstimator() {
                       max={30}
                       step={0.5}
                       value={roomLength}
-                      onChange={(e) => setRoomLength(Math.max(2, Number(e.target.value)))}
+                      onChange={(e) =>
+                        setRoomLength(Math.max(2, Number(e.target.value)))
+                      }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
                   </div>
@@ -344,7 +379,9 @@ export default function ConduitWiringEstimator() {
                       max={6.0}
                       step={0.1}
                       value={ceilingHeight}
-                      onChange={(e) => setCeilingHeight(Math.max(2.4, Number(e.target.value)))}
+                      onChange={(e) =>
+                        setCeilingHeight(Math.max(2.4, Number(e.target.value)))
+                      }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
                   </div>
@@ -355,7 +392,8 @@ export default function ConduitWiringEstimator() {
               <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <Route className="h-4 w-4 text-primary" /> Visual Floorplan & Glowing Wall Runs
+                    <Route className="h-4 w-4 text-primary" /> Visual Floorplan
+                    & Glowing Wall Runs
                   </span>
                   <Badge variant="outline" className="text-[10px] font-mono">
                     {routerPoints.length} Points · {roomWidth}m × {roomLength}m
@@ -369,7 +407,13 @@ export default function ConduitWiringEstimator() {
                     className="w-full h-full select-none"
                   >
                     <defs>
-                      <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <filter
+                        id="neonGlow"
+                        x="-20%"
+                        y="-20%"
+                        width="140%"
+                        height="140%"
+                      >
                         <feGaussianBlur stdDeviation="3" result="blur" />
                         <feMerge>
                           <feMergeNode in="blur" />
@@ -419,11 +463,21 @@ export default function ConduitWiringEstimator() {
                     {routerPoints.map((pt) => {
                       const cx = 20 + pt.x * 50;
                       const cy = 20 + pt.y * 50;
-                      const meta = DEVICE_LABELS[pt.type] || { color: "#38bdf8", label: pt.type };
+                      const meta = DEVICE_LABELS[pt.type] || {
+                        color: "#38bdf8",
+                        label: pt.type,
+                      };
 
                       return (
                         <g key={pt.id}>
-                          <circle cx={cx} cy={cy} r="8" fill={meta.color} stroke="#ffffff" strokeWidth="1.5" />
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r="8"
+                            fill={meta.color}
+                            stroke="#ffffff"
+                            strokeWidth="1.5"
+                          />
                           <text
                             x={cx}
                             y={cy - 12}
@@ -446,10 +500,12 @@ export default function ConduitWiringEstimator() {
                     <span className="h-2 w-2 rounded-full bg-red-500" /> Main DB
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-amber-500" /> Switch
+                    <span className="h-2 w-2 rounded-full bg-amber-500" />{" "}
+                    Switch
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-yellow-400" /> Light
+                    <span className="h-2 w-2 rounded-full bg-yellow-400" />{" "}
+                    Light
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-blue-500" /> Socket
@@ -465,15 +521,23 @@ export default function ConduitWiringEstimator() {
                 <div className="flex gap-2">
                   <select
                     value={deviceTypeToAdd}
-                    onChange={(e) => setDeviceTypeToAdd(e.target.value as DeviceType)}
+                    onChange={(e) =>
+                      setDeviceTypeToAdd(e.target.value as DeviceType)
+                    }
                     className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs"
                   >
                     <option value="socket">🔌 Wall Socket (0.3m)</option>
                     <option value="switch">🎛️ Light Switch (1.2m)</option>
                     <option value="light">💡 Ceiling Light (Ceiling)</option>
-                    <option value="distribution_board">⚡ Distribution Board (1.5m)</option>
+                    <option value="distribution_board">
+                      ⚡ Distribution Board (1.5m)
+                    </option>
                   </select>
-                  <Button size="sm" onClick={addPointAtCenter} className="gap-1 text-xs">
+                  <Button
+                    size="sm"
+                    onClick={addPointAtCenter}
+                    className="gap-1 text-xs"
+                  >
                     <Plus className="h-3.5 w-3.5" /> Add
                   </Button>
                 </div>
@@ -486,8 +550,12 @@ export default function ConduitWiringEstimator() {
                       className="flex items-center justify-between p-2 rounded-lg bg-muted/40 text-xs border border-border/40"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] text-muted-foreground">#{i + 1}</span>
-                        <span className="font-medium text-foreground">{p.label}</span>
+                        <span className="font-mono text-[10px] text-muted-foreground">
+                          #{i + 1}
+                        </span>
+                        <span className="font-medium text-foreground">
+                          {p.label}
+                        </span>
                         <span className="text-[10px] text-muted-foreground">
                           ({p.x}m, {p.y}m)
                         </span>
@@ -510,14 +578,19 @@ export default function ConduitWiringEstimator() {
                   <span className="text-xs font-bold text-primary uppercase tracking-wider">
                     Manhattan Route Output
                   </span>
-                  <Badge variant="outline" className="text-xs font-mono border-primary/30">
+                  <Badge
+                    variant="outline"
+                    className="text-xs font-mono border-primary/30"
+                  >
                     +10% Wastage Added
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">Conduit PVC Pipes</span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      Conduit PVC Pipes
+                    </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.conduitPvcPipes20mmPieces} Lengths
                     </span>
@@ -527,27 +600,40 @@ export default function ConduitWiringEstimator() {
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">Horizontal + Vertical</span>
-                    <span className="text-base font-bold text-foreground font-mono">
-                      {routingResult.totalHorizontalLengthM}m + {routingResult.totalVerticalLengthM}m
+                    <span className="text-[11px] text-muted-foreground block">
+                      Horizontal + Vertical
                     </span>
-                    <span className="text-[10px] text-muted-foreground">Wall perimeter & drops</span>
+                    <span className="text-base font-bold text-foreground font-mono">
+                      {routingResult.totalHorizontalLengthM}m +{" "}
+                      {routingResult.totalVerticalLengthM}m
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      Wall perimeter & drops
+                    </span>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">1.5mm Lighting Wire</span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      1.5mm Lighting Wire
+                    </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.lightingWireCoils1_5mm} Coil(s)
                     </span>
-                    <span className="text-[10px] text-muted-foreground">100m bundles</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      100m bundles
+                    </span>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">2.5mm Socket Wire</span>
+                    <span className="text-[11px] text-muted-foreground block">
+                      2.5mm Socket Wire
+                    </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.socketWireCoils2_5mm} Coil(s)
                     </span>
-                    <span className="text-[10px] text-muted-foreground">100m ring/radial</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      100m ring/radial
+                    </span>
                   </div>
                 </div>
 

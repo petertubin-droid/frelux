@@ -19,6 +19,7 @@
  */
 import { useState } from "react";
 import { FileText, Copy, Check, MessageCircle, Loader2 } from "lucide-react";
+import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -71,15 +72,16 @@ export function ShareEstimateButton({
 
   if (compact) {
     return (
-      <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      <div
+        className={`flex min-w-0 flex-wrap items-center gap-1.5 ${className}`}
+      >
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => shareEstimateOnWhatsApp(estimate)}
-          className="gap-1.5 text-accent-green"
+          className={`${ACTION_BTN} text-accent-green`}
         >
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle className="h-3.5 w-3.5" />
           {t("WhatsApp")}
         </Button>
         <Button
@@ -88,12 +90,12 @@ export function ShareEstimateButton({
           size="sm"
           onClick={handlePdf}
           disabled={pdfBusy}
-          className="gap-1.5"
+          className={ACTION_BTN}
         >
           {pdfBusy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <FileText className="h-4 w-4" />
+            <FileText className="h-3.5 w-3.5" />
           )}
           Save PDF
         </Button>
@@ -102,12 +104,12 @@ export function ShareEstimateButton({
           variant="outline"
           size="sm"
           onClick={handleCopy}
-          className="gap-1.5"
+          className={ACTION_BTN}
         >
           {copied ? (
-            <Check className="h-4 w-4 text-accent-green" />
+            <Check className="h-3.5 w-3.5 text-accent-green" />
           ) : (
-            <Copy className="h-4 w-4" />
+            <Copy className="h-3.5 w-3.5" />
           )}
           {copied ? "Copied" : "Copy"}
         </Button>
@@ -120,15 +122,15 @@ export function ShareEstimateButton({
 
   return (
     <div className={className}>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5">
         <Button
           type="button"
           variant="ghost"
           onClick={() => shareEstimateOnWhatsApp(estimate)}
-          className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
+          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-accent-green/10 px-2 py-1.5 text-center transition-all hover:bg-accent-green/20"
         >
-          <MessageCircle className="h-5 w-5 text-accent-green" />
-          <span className="text-xs font-semibold text-accent-green">
+          <MessageCircle className="h-4 w-4 text-accent-green" />
+          <span className="text-[11px] font-semibold text-accent-green">
             {t("WhatsApp")}
           </span>
         </Button>
@@ -137,14 +139,14 @@ export function ShareEstimateButton({
           variant="ghost"
           onClick={handlePdf}
           disabled={pdfBusy}
-          className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
+          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-primary/10 px-2 py-1.5 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
         >
           {pdfBusy ? (
-            <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+            <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
           ) : (
-            <FileText className="h-5 w-5 text-brand-purple" />
+            <FileText className="h-4 w-4 text-brand-purple" />
           )}
-          <span className="text-xs font-semibold text-brand-purple">
+          <span className="text-[11px] font-semibold text-brand-purple">
             {t("Save PDF")}
           </span>
         </Button>
@@ -152,14 +154,14 @@ export function ShareEstimateButton({
           type="button"
           variant="ghost"
           onClick={handleCopy}
-          className="flex flex-col items-center gap-1.5 rounded-lg bg-muted p-3 text-center transition-all hover:bg-accent"
+          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-muted px-2 py-1.5 text-center transition-all hover:bg-accent"
         >
           {copied ? (
-            <Check className="h-5 w-5 text-accent-green" />
+            <Check className="h-4 w-4 text-accent-green" />
           ) : (
-            <Copy className="h-5 w-5 text-muted-foreground" />
+            <Copy className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="text-xs font-semibold text-muted-foreground">
+          <span className="text-[11px] font-semibold text-muted-foreground">
             {copied ? "Copied!" : "Copy text"}
           </span>
         </Button>

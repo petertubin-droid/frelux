@@ -43,6 +43,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 // Market-currency aware: converts from the naira base through the
 // site-wide FX layer so international visitors see their currency.
@@ -258,7 +259,7 @@ export default function EstimateRefresh() {
               type="button"
               onClick={() => handleCalculate(run)}
               disabled={refreshing}
-              className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className={`mt-3 ${ACTION_BTN_PRIMARY}`}
             >
               {refreshing ? "Refreshing…" : "Refresh to today's prices"}
             </button>

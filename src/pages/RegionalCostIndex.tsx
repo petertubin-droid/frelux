@@ -32,6 +32,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 const money = (v: number) => formatCurrency(v);
 
@@ -178,7 +179,7 @@ export default function RegionalCostIndex() {
                 type="button"
                 onClick={adjust}
                 disabled={!baseCost || !state}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className={ACTION_BTN_PRIMARY}
               >
                 {t("Apply Regional Factor")}
               </button>

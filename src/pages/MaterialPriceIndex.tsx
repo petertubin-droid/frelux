@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowDownRight, ArrowUpRight, MapPin, Search, Send } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  MapPin,
+  Search,
+  Send,
+} from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
@@ -24,8 +30,15 @@ import {
   type Sample,
 } from "@/lib/price-index/stats";
 import { groupByMaterial, toSamples } from "@/lib/price-index/resolver";
-import { PRICE_KIND_LABELS, VERIFICATION_LABELS } from "@/lib/price-index/types";
-import type { IndexListing, MarketCity, PriceKind } from "@/lib/price-index/types";
+import {
+  PRICE_KIND_LABELS,
+  VERIFICATION_LABELS,
+} from "@/lib/price-index/types";
+import type {
+  IndexListing,
+  MarketCity,
+  PriceKind,
+} from "@/lib/price-index/types";
 
 const NATIONAL = "__national__";
 
@@ -48,7 +61,9 @@ export default function MaterialPriceIndex() {
   const [category, setCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
-  const [history, setHistory] = useState<{ observed_at: string; price: number }[]>([]);
+  const [history, setHistory] = useState<
+    { observed_at: string; price: number }[]
+  >([]);
   const [historyNote, setHistoryNote] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -64,7 +79,9 @@ export default function MaterialPriceIndex() {
     setState({
       kind: "ready",
       listings: listingResult.listings,
-      cities: cityResult.cities.length ? cityResult.cities : (LAUNCH_CITIES as MarketCity[]),
+      cities: cityResult.cities.length
+        ? cityResult.cities
+        : (LAUNCH_CITIES as MarketCity[]),
     });
   }, []);
 
@@ -101,13 +118,16 @@ export default function MaterialPriceIndex() {
     for (const [materialId, materialListings] of grouped) {
       const sample = materialListings[0];
       if (category !== "all" && sample.category !== category) continue;
-      if (search && !sample.name.toLowerCase().includes(search.toLowerCase())) continue;
+      if (search && !sample.name.toLowerCase().includes(search.toLowerCase()))
+        continue;
 
       const cityScoped =
         city === NATIONAL
           ? materialListings
           : materialListings.filter((listing) => listing.city_slug === city);
-      const useCity = city !== NATIONAL && computeStats(toSamples(cityScoped)).status === "ok";
+      const useCity =
+        city !== NATIONAL &&
+        computeStats(toSamples(cityScoped)).status === "ok";
       const pool = useCity ? cityScoped : materialListings;
 
       const stats = computeStats(toSamples(pool));
@@ -150,9 +170,7 @@ export default function MaterialPriceIndex() {
         ? listings
         : listings.filter((listing) => listing.city_slug === city);
     if (pool.length === 0) {
-      return computeIndexLevel([
-        { slug: "none", samples: [] as Sample[] },
-      ]);
+      return computeIndexLevel([{ slug: "none", samples: [] as Sample[] }]);
     }
     const byMaterial = groupByMaterial(pool);
     return computeIndexLevel(
@@ -185,16 +203,29 @@ export default function MaterialPriceIndex() {
 
   /** Week-on-week movers, only where both ends clear the gate. */
   const movers = useMemo(() => {
-    const out: { materialId: string; name: string; change: number; to: number }[] = [];
+    const out: {
+      materialId: string;
+      name: string;
+      change: number;
+      to: number;
+    }[] = [];
     for (const [materialId, group] of grouped) {
-      const pool = city === NATIONAL ? group : group.filter((l) => l.city_slug === city);
+      const pool =
+        city === NATIONAL ? group : group.filter((l) => l.city_slug === city);
       const samples = toSamples(pool.length >= 3 ? pool : group);
       const recent = computeMovement(withinDays(samples, 7), samples);
       if (recent.status === "ok") {
-        out.push({ materialId, name: group[0].name, change: recent.change, to: recent.to });
+        out.push({
+          materialId,
+          name: group[0].name,
+          change: recent.change,
+          to: recent.to,
+        });
       }
     }
-    return out.sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 4);
+    return out
+      .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
+      .slice(0, 4);
   }, [grouped, city]);
 
   const comparison = useMemo(() => {
@@ -203,7 +234,9 @@ export default function MaterialPriceIndex() {
     const byCity = cities.map((entry) => ({
       city_slug: entry.slug,
       city_name: entry.name,
-      samples: toSamples(group.filter((listing) => listing.city_slug === entry.slug)),
+      samples: toSamples(
+        group.filter((listing) => listing.city_slug === entry.slug),
+      ),
     }));
     return computeCityVariation(byCity);
   }, [selectedMaterial, grouped, cities]);
@@ -245,16 +278,22 @@ export default function MaterialPriceIndex() {
       <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         <div className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
           <p className="text-sm text-muted-foreground">
-            A market figure is published only when at least three independent prices
-            agree on it. Below that, the material is listed as unpriced rather than
-            estimated. Prices marked reported have a stated source but have not been
-            independently verified.
+            A market figure is published only when at least three independent
+            prices agree on it. Below that, the material is listed as unpriced
+            rather than estimated. Prices marked reported have a stated source
+            but have not been independently verified.
           </p>
           <div className="mt-3 flex flex-wrap gap-3 text-sm">
-            <Link className="text-primary hover:underline" to="/material-prices">
+            <Link
+              className="text-primary hover:underline"
+              to="/material-prices"
+            >
               Submit or review a price
             </Link>
-            <Link className="text-primary hover:underline" to="/construction-tools">
+            <Link
+              className="text-primary hover:underline"
+              to="/construction-tools"
+            >
               Tools that use these prices
             </Link>
           </div>
@@ -265,7 +304,9 @@ export default function MaterialPriceIndex() {
             <p className="text-sm font-medium text-foreground">
               The price index could not be loaded
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">{state.message}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {state.message}
+            </p>
             <button
               onClick={load}
               className="mt-3 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
@@ -343,13 +384,13 @@ export default function MaterialPriceIndex() {
                   className="h-11 w-full rounded-lg border border-border/70 bg-card px-3 text-sm"
                 >
                   <option value="all">All categories</option>
-                  {CATEGORY_ORDER.filter((entry) => pricedCategories.includes(entry)).map(
-                    (entry) => (
-                      <option key={entry} value={entry}>
-                        {categoryLabel(entry)}
-                      </option>
-                    ),
-                  )}
+                  {CATEGORY_ORDER.filter((entry) =>
+                    pricedCategories.includes(entry),
+                  ).map((entry) => (
+                    <option key={entry} value={entry}>
+                      {categoryLabel(entry)}
+                    </option>
+                  ))}
                   {pricedCategories
                     .filter((entry) => !CATEGORY_ORDER.includes(entry))
                     .map((entry) => (
@@ -380,7 +421,10 @@ export default function MaterialPriceIndex() {
 
             {rows.length === 0 ? (
               <div className="mt-8 rounded-xl border border-border/70 bg-card p-6 text-center">
-                <MapPin aria-hidden="true" className="mx-auto h-6 w-6 text-muted-foreground" />
+                <MapPin
+                  aria-hidden="true"
+                  className="mx-auto h-6 w-6 text-muted-foreground"
+                />
                 <p className="mt-3 font-medium text-foreground">
                   No qualifying price for this selection
                 </p>
@@ -424,7 +468,10 @@ export default function MaterialPriceIndex() {
                           </span>
                         </span>
                         <span className="text-sm font-semibold text-foreground">
-                          {formatCurrency(row.stats.status === "ok" ? row.stats.median : 0, "NGN")}
+                          {formatCurrency(
+                            row.stats.status === "ok" ? row.stats.median : 0,
+                            "NGN",
+                          )}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           {row.stats.status === "ok"
@@ -440,7 +487,8 @@ export default function MaterialPriceIndex() {
                             }
                           >
                             {row.basis === "city"
-                              ? cities.find((entry) => entry.slug === city)?.name ?? "City"
+                              ? (cities.find((entry) => entry.slug === city)
+                                  ?.name ?? "City")
                               : "National median"}
                           </span>
                           {row.kind ? (
@@ -449,7 +497,10 @@ export default function MaterialPriceIndex() {
                             </span>
                           ) : null}
                         </span>
-                        <span className="truncate text-xs text-muted-foreground" title={row.source ?? ""}>
+                        <span
+                          className="truncate text-xs text-muted-foreground"
+                          title={row.source ?? ""}
+                        >
                           {row.source ?? "Source not recorded"}
                         </span>
                         <span className="text-xs text-muted-foreground">
@@ -482,14 +533,18 @@ export default function MaterialPriceIndex() {
                     Select a material above to see its recorded price history.
                   </p>
                 ) : historyNote ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{historyNote}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {historyNote}
+                  </p>
                 ) : (
                   <PriceHistoryChart points={history} />
                 )}
               </section>
 
               <section className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-                <h2 className="text-sm font-bold text-foreground">City comparison</h2>
+                <h2 className="text-sm font-bold text-foreground">
+                  City comparison
+                </h2>
                 {!selectedMaterial ? (
                   <p className="mt-2 text-sm text-muted-foreground">
                     Select a material to compare its price across cities.
@@ -497,25 +552,30 @@ export default function MaterialPriceIndex() {
                 ) : comparison && comparison.priced.length === 0 ? (
                   <div className="mt-2 text-sm text-muted-foreground">
                     <p>
-                      No city yet has three independent prices for this material, so
-                      there is nothing to compare. Cities tracked:{" "}
+                      No city yet has three independent prices for this
+                      material, so there is nothing to compare. Cities tracked:{" "}
                       {comparison.unpriced.slice(0, 6).join(", ")}
                       {comparison.unpriced.length > 6 ? " and others" : ""}.
                     </p>
                   </div>
                 ) : comparison ? (
-                  <CityComparison rows={comparison.priced} unpriced={comparison.unpriced} />
+                  <CityComparison
+                    rows={comparison.priced}
+                    unpriced={comparison.unpriced}
+                  />
                 ) : null}
               </section>
             </div>
 
             <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-foreground">Market insights</h2>
+              <h2 className="text-sm font-bold text-foreground">
+                Market insights
+              </h2>
               {movers.length === 0 ? (
                 <p className="mt-2 text-sm text-muted-foreground">
-                  No seven-day movement can be published yet: that needs at least three
-                  prices at both ends of the week. Nothing is inferred from a single
-                  observation.
+                  No seven-day movement can be published yet: that needs at
+                  least three prices at both ends of the week. Nothing is
+                  inferred from a single observation.
                 </p>
               ) : (
                 <ul className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -524,7 +584,9 @@ export default function MaterialPriceIndex() {
                       key={mover.materialId}
                       className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
                     >
-                      <span className="text-sm text-foreground">{mover.name}</span>
+                      <span className="text-sm text-foreground">
+                        {mover.name}
+                      </span>
                       <span
                         className={
                           mover.change >= 0
@@ -533,9 +595,15 @@ export default function MaterialPriceIndex() {
                         }
                       >
                         {mover.change >= 0 ? (
-                          <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                          <ArrowUpRight
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
                         ) : (
-                          <ArrowDownRight aria-hidden="true" className="h-3.5 w-3.5" />
+                          <ArrowDownRight
+                            aria-hidden="true"
+                            className="h-3.5 w-3.5"
+                          />
                         )}
                         {formatPercent(mover.change)}
                       </span>
@@ -546,18 +614,21 @@ export default function MaterialPriceIndex() {
             </section>
 
             <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-foreground">Send in a price</h2>
+              <h2 className="text-sm font-bold text-foreground">
+                Send in a price
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                A receipt, invoice, distributor list or live supplier listing is what
-                turns a quote into evidence. Every submission is reviewed by an
-                administrator before it can change a calculator price.
+                A receipt, invoice, distributor list or live supplier listing is
+                what turns a quote into evidence. Every submission is reviewed
+                by an administrator before it can change a calculator price.
               </p>
               <SubmissionForm
                 cities={cities}
                 onSubmitted={() => {
                   toast({
                     title: "Price submitted",
-                    message: "An administrator will review it before it is used.",
+                    message:
+                      "An administrator will review it before it is used.",
                   });
                   load();
                 }}
@@ -570,7 +641,15 @@ export default function MaterialPriceIndex() {
   );
 }
 
-function Stat({ label, value, note }: { label: string; value: string; note: string }) {
+function Stat({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string;
+  note: string;
+}) {
   return (
     <div className="rounded-xl border border-border/70 bg-card p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -582,12 +661,16 @@ function Stat({ label, value, note }: { label: string; value: string; note: stri
   );
 }
 
-function PriceHistoryChart({ points }: { points: { observed_at: string; price: number }[] }) {
+function PriceHistoryChart({
+  points,
+}: {
+  points: { observed_at: string; price: number }[];
+}) {
   if (points.length < 2) {
     return (
       <p className="mt-2 text-sm text-muted-foreground">
-        One recorded price is a point, not a trend. A line appears once there are two
-        or more observations.
+        One recorded price is a point, not a trend. A line appears once there
+        are two or more observations.
       </p>
     );
   }
@@ -635,7 +718,13 @@ function CityComparison({
   rows,
   unpriced,
 }: {
-  rows: { city_slug: string; city_name: string; median: number; count: number; versus_national: number | null }[];
+  rows: {
+    city_slug: string;
+    city_name: string;
+    median: number;
+    count: number;
+    versus_national: number | null;
+  }[];
   unpriced: string[];
 }) {
   const max = Math.max(...rows.map((row) => row.median));
@@ -696,18 +785,21 @@ function SubmissionForm({
       return;
     }
     setSending(true);
-    const { data, error } = await supabase.functions.invoke("price-index-submit", {
-      body: {
-        market: "NG",
-        city_slug: city,
-        item_name: item.trim(),
-        price: numeric,
-        unit: unit.trim() || null,
-        price_kind: kind,
-        vendor: vendor.trim() || null,
-        source_url: sourceUrl.trim() || null,
+    const { data, error } = await supabase.functions.invoke(
+      "price-index-submit",
+      {
+        body: {
+          market: "NG",
+          city_slug: city,
+          item_name: item.trim(),
+          price: numeric,
+          unit: unit.trim() || null,
+          price_kind: kind,
+          vendor: vendor.trim() || null,
+          source_url: sourceUrl.trim() || null,
+        },
       },
-    });
+    );
     setSending(false);
 
     if (error || (data as { ok?: boolean } | null)?.ok === false) {
@@ -723,7 +815,9 @@ function SubmissionForm({
     setUnit("");
     setVendor("");
     setSourceUrl("");
-    setMessage("Submitted. An administrator will review it before it changes any price.");
+    setMessage(
+      "Submitted. An administrator will review it before it changes any price.",
+    );
     onSubmitted();
   };
 
@@ -744,7 +838,9 @@ function SubmissionForm({
         </select>
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-xs text-muted-foreground">Material</span>
+        <span className="mb-1 block text-xs text-muted-foreground">
+          Material
+        </span>
         <input
           value={item}
           onChange={(event) => setItem(event.target.value)}
@@ -753,7 +849,9 @@ function SubmissionForm({
         />
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-xs text-muted-foreground">Price (NGN)</span>
+        <span className="mb-1 block text-xs text-muted-foreground">
+          Price (NGN)
+        </span>
         <input
           value={price}
           onChange={(event) => setPrice(event.target.value)}
@@ -763,7 +861,9 @@ function SubmissionForm({
         />
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-xs text-muted-foreground">Sale unit</span>
+        <span className="mb-1 block text-xs text-muted-foreground">
+          Sale unit
+        </span>
         <input
           value={unit}
           onChange={(event) => setUnit(event.target.value)}
@@ -772,7 +872,9 @@ function SubmissionForm({
         />
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-xs text-muted-foreground">Price basis</span>
+        <span className="mb-1 block text-xs text-muted-foreground">
+          Price basis
+        </span>
         <select
           value={kind}
           onChange={(event) => setKind(event.target.value as PriceKind)}
@@ -786,7 +888,9 @@ function SubmissionForm({
         </select>
       </label>
       <label className="block text-sm">
-        <span className="mb-1 block text-xs text-muted-foreground">Supplier or depot</span>
+        <span className="mb-1 block text-xs text-muted-foreground">
+          Supplier or depot
+        </span>
         <input
           value={vendor}
           onChange={(event) => setVendor(event.target.value)}

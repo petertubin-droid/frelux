@@ -29,6 +29,7 @@ import {
 import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function LabourEstimator() {
   const { t } = useLanguage();
@@ -192,7 +193,7 @@ export default function LabourEstimator() {
                     }
                     handleCalculate(run);
                   }}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  className={ACTION_BTN_PRIMARY}
                 >
                   {t("Estimate Labour")}
                 </button>

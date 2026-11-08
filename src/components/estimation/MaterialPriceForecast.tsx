@@ -156,7 +156,7 @@ export default function MaterialPriceForecast() {
                 type="button"
                 onClick={run}
                 disabled={!materialKey || !horizon}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold leading-none text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
                 {t("Forecast Price")}
               </button>

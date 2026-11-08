@@ -323,17 +323,11 @@ export default function SaveToProjectButton({
         onClick={() => setShowModal(true)}
         className={
           compact
-            ? "group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
-            : "group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+            ? "group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
+            : "group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
         }
       >
-        <FolderPlus
-          className={
-            compact
-              ? "h-3.5 w-3.5"
-              : "h-4 w-4 group-hover:rotate-12 transition-transform"
-          }
-        />
+        <FolderPlus className="h-3.5 w-3.5 shrink-0" />
         {label}
       </Button>
 

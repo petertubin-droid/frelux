@@ -72,6 +72,11 @@ import { getSafeError } from "@/lib/safeError";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import {
+  ACTION_BTN,
+  ACTION_BTN_PRIMARY,
+  CalculatorActionBar,
+} from "@/components/calculators/CalculatorActions";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -807,102 +812,97 @@ export default function ScreedingCostEstimator({
                         )}
                       />
 
-                      <div className="mt-3 flex justify-center">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              exportScreedingQuote({
-                                result,
-                                labourCost,
-                                currencySymbol,
-                                finishTerm,
-                              })
-                            }
-                            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                          >
-                            {t("Print Quote")}
-                          </button>
-                          <ShareEstimateButton
-                            estimate={quoteToShareable(
-                              screedingQuoteOptions({
-                                result,
-                                labourCost,
-                                currencySymbol,
-                                finishTerm,
-                              }),
-                              "/screeding-cost-estimator",
-                            )}
-                            compact
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const breakdowns =
-                                result.systemType === "putty"
-                                  ? [result.putty]
-                                  : [
-                                      result.paint,
-                                      result.cement,
-                                      ...(result.extra ? [result.extra] : []),
-                                    ];
-                              const materials = breakdowns
-                                .filter((b): b is ScreedingMaterialBreakdown =>
-                                  Boolean(b),
-                                )
-                                .map((b) => ({
-                                  label: b.name,
-                                  quantity:
-                                    b.purchaseQuantity || b.finalQuantity,
-                                  unit: b.unit,
-                                  unitPrice: b.pricePerUnit || 0,
-                                }));
-                              materials.push({
-                                label: "Labour Cost",
-                                quantity: 1,
-                                unit: "lot",
-                                unitPrice: labourCost,
-                              });
-                              exportQuoteToDocumentStudio(
-                                {
-                                  title: `${finishTerm} Cost Estimate`,
-                                  subtitle: `Net Area: ${formatNumber(result.netScreedingArea, 2)} m² · System: ${result.systemType}`,
-                                  metaRows: [
-                                    [
-                                      "Net Area",
-                                      `${formatNumber(result.netScreedingArea, 2)} m²`,
-                                    ],
-                                    ["System", result.systemType],
+                      <CalculatorActionBar className="mt-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            exportScreedingQuote({
+                              result,
+                              labourCost,
+                              currencySymbol,
+                              finishTerm,
+                            })
+                          }
+                          className={ACTION_BTN}
+                        >
+                          {t("Print Quote")}
+                        </button>
+                        <ShareEstimateButton
+                          estimate={quoteToShareable(
+                            screedingQuoteOptions({
+                              result,
+                              labourCost,
+                              currencySymbol,
+                              finishTerm,
+                            }),
+                            "/screeding-cost-estimator",
+                          )}
+                          compact
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const breakdowns =
+                              result.systemType === "putty"
+                                ? [result.putty]
+                                : [
+                                    result.paint,
+                                    result.cement,
+                                    ...(result.extra ? [result.extra] : []),
+                                  ];
+                            const materials = breakdowns
+                              .filter((b): b is ScreedingMaterialBreakdown =>
+                                Boolean(b),
+                              )
+                              .map((b) => ({
+                                label: b.name,
+                                quantity: b.purchaseQuantity || b.finalQuantity,
+                                unit: b.unit,
+                                unitPrice: b.pricePerUnit || 0,
+                              }));
+                            materials.push({
+                              label: "Labour Cost",
+                              quantity: 1,
+                              unit: "lot",
+                              unitPrice: labourCost,
+                            });
+                            exportQuoteToDocumentStudio(
+                              {
+                                title: `${finishTerm} Cost Estimate`,
+                                subtitle: `Net Area: ${formatNumber(result.netScreedingArea, 2)} m² · System: ${result.systemType}`,
+                                metaRows: [
+                                  [
+                                    "Net Area",
+                                    `${formatNumber(result.netScreedingArea, 2)} m²`,
                                   ],
-                                  lines: materials.map((m) => ({
-                                    label: m.label,
-                                    quantity: String(m.quantity),
-                                    unit: m.unit,
-                                    unit_price: String(m.unitPrice),
-                                    line_total: String(
-                                      m.quantity * m.unitPrice,
+                                  ["System", result.systemType],
+                                ],
+                                lines: materials.map((m) => ({
+                                  label: m.label,
+                                  quantity: String(m.quantity),
+                                  unit: m.unit,
+                                  unit_price: String(m.unitPrice),
+                                  line_total: String(m.quantity * m.unitPrice),
+                                })),
+                                totals: [
+                                  {
+                                    label: "Grand Total",
+                                    value: formatCurrency(
+                                      (result.materialCost || 0) + labourCost,
+                                      currencySymbol,
                                     ),
-                                  })),
-                                  totals: [
-                                    {
-                                      label: "Grand Total",
-                                      value: formatCurrency(
-                                        (result.materialCost || 0) + labourCost,
-                                        currencySymbol,
-                                      ),
-                                      strong: true,
-                                    },
-                                  ],
-                                },
-                                currencySymbol === "₦" ? "NGN" : "USD",
-                              );
-                              navigate("/document-studio?calculatorImport=1");
-                            }}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-                          >
-                            {t("Open in Document Studio")}
-                          </button>
-                        </div>
+                                    strong: true,
+                                  },
+                                ],
+                              },
+                              currencySymbol === "₦" ? "NGN" : "USD",
+                            );
+                            navigate("/document-studio?calculatorImport=1");
+                          }}
+                          className={ACTION_BTN_PRIMARY}
+                        >
+                          {t("Open in Document Studio")}
+                        </button>
                         <SaveToProjectButton
                           calculatorType="screeding"
                           calculatorSlug="screeding-cost-estimator"
@@ -960,7 +960,7 @@ export default function ScreedingCostEstimator({
                           label="Save to Project Workspace"
                         />
                         <NearbySuppliersLink material="screeding cement" />
-                      </div>
+                      </CalculatorActionBar>
                     </>
                   ) : (
                     <p className="text-xs text-muted-foreground">
@@ -1006,7 +1006,7 @@ export default function ScreedingCostEstimator({
             </div>
             <Link
               to="/paint-calculator/"
-              className="btn-primary"
+              className={`${ACTION_BTN_PRIMARY} shrink-0`}
               onClick={() => {
                 track("screeding_navigate_to_paint_calculator", {});
                 logAnalyticsEvent("screeding_navigate_to_paint_calculator", {});

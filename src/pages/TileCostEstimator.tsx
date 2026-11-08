@@ -62,6 +62,10 @@ import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import {
+  ACTION_BTN,
+  ACTION_BTN_PRIMARY,
+} from "@/components/calculators/CalculatorActions";
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -844,7 +848,7 @@ export default function TileCostEstimator({
                             onClick={() =>
                               exportTileQuote(result, result.method)
                             }
-                            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
+                            className={ACTION_BTN}
                           >
                             {t("Print Quote")}
                           </button>
@@ -921,7 +925,7 @@ export default function TileCostEstimator({
                               );
                               navigate("/document-studio?calculatorImport=1");
                             }}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                            className={ACTION_BTN_PRIMARY}
                           >
                             {t("Open in Document Studio")}
                           </button>

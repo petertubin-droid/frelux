@@ -33,6 +33,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function HeatComfort() {
   const { t } = useLanguage();
@@ -207,7 +208,7 @@ export default function HeatComfort() {
           <button
             type="button"
             onClick={() => handleCalculate(run)}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            className={`mt-4 ${ACTION_BTN_PRIMARY}`}
           >
             {t("Compare finishes")}
           </button>
