@@ -375,7 +375,31 @@ pass". They now are, against closed-form values rather than previous output:
 
 No defect was found in this area.
 
-### D-21 CONFIRMED DEFECT (corrected) — invented raft footprint
+### D-21 CONFIRMED DEFECT (corrected) — every link was scheduled about 9 % too long
+
+The BBS was already there, and its 90° bend geometry was right: legs measured to
+the outside corner points minus `2(r + d) − (π/2)(r + d/2)` per bend, which comes
+to 2.073d at the BS 8666 mandrel of 4d. That is the familiar "2d per bend", and the
+arithmetic checks out.
+
+Shape 51 was not. The two 135° hook bends were added as bare tails with no bend
+deduction at all, as though a 135° turn removed the same material as nothing. A
+135° bend removes `2(r + d)tan 67.5° − (3π/4)(r + d/2)`, which for an 8 mm bar is
+68.76 mm — 8.59d, more than four times the 90° figure, because tan 67.5° is 2.414
+against tan 45° = 1.
+
+On a 250 × 450 link in 8 mm the cut length was 1,493.7 mm; it is 1,356.1 mm. Every
+link on every schedule was 137.5 mm long, close to 9 % of the bar, which is scrap
+at best and a hook that will not close at worst.
+
+`bendDeductionMm(d, θ)` now derives the deduction from the angle and the BS 8666
+mandrel (4d up to 16 mm, 7d above), and shape 51 applies it to both hooks.
+`hookBendDeductionMm` is reported so the schedule shows what the hooks cost. The
+rollup in the existing suite was updated with it: 80 links fall from 119.5 m and
+47.15 kg to 108.49 m and 42.81 kg, and the schedule total from 137.17 kg to
+132.83 kg.
+
+### D-22 CONFIRMED DEFECT (corrected) — invented raft footprint
 
 The raft branch defaulted the building to 10 m x 8 m when the dimensions were
 absent, then reported excavation, concrete and hardcore volumes for a slab sized

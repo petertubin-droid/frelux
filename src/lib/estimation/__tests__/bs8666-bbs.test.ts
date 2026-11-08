@@ -73,9 +73,12 @@ describe("BS 8666 shape codes", () => {
       dims: { a: 250, b: 450 },
     });
     expect(cut.ok).toBe(true);
-    // 1400 - 8(24) + 4(pi/2)(20) + 2(80) = 1493.7 mm
-    expect(cut.cutLengthMm).toBe(1493.7);
+    // 1400 - 8(24) + 4(pi/2)(20) + 2(80) - 2 x ded(135 deg) = 1356.1 mm
+    // The two 135 degree hook bends used to be added as bare tails with no bend
+    // deduction, which overstated every link by 137.5 mm at 8 mm.
+    expect(cut.cutLengthMm).toBe(1356.1);
     expect(cut.hookAllowanceMm).toBe(160);
+    expect(cut.hookBendDeductionMm).toBe(137.52);
   });
 
   it("refuses a shape whose dimensions are missing instead of assuming", () => {
@@ -149,9 +152,13 @@ describe("buildBarBendingSchedule", () => {
     // 50.4 m * 1.578 kg/m
     expect(b1.weightKg).toBe(79.54); // 50.4 m x 1.5782 kg/m
 
-    expect(schedule.rows[2].lengthEachMm).toBe(1493.7);
-    expect(schedule.totals.totalLengthM).toBeCloseTo(50.4 + 11.8 + 119.5, 1);
-    expect(schedule.totals.totalWeightKg).toBe(137.17); // 79.54 + 10.48 + 47.15
+    // 80 links at the corrected 1,356.1 mm cut (both 135 degree hook bends
+    // deducted): 108.49 m x 0.3946 kg/m = 42.81 kg.
+    expect(schedule.rows[2].lengthEachMm).toBe(1356.1);
+    expect(schedule.rows[2].totalLengthM).toBeCloseTo(108.49, 1);
+    expect(schedule.rows[2].weightKg).toBeCloseTo(42.81, 1);
+    expect(schedule.totals.totalLengthM).toBeCloseTo(50.4 + 11.8 + 108.49, 1);
+    expect(schedule.totals.totalWeightKg).toBeCloseTo(132.83, 1); // 79.54 + 10.48 + 42.81
   });
 
   it("rejects duplicate bar marks rather than merging them silently", () => {
