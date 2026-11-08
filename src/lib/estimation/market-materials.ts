@@ -41,6 +41,11 @@ export const MATERIAL_ROLES = [
   "interior-paint-premium",
   "exterior-paint",
   "primer",
+  // Wall screeding: paint used as the carrier for white cement. Its own role
+  // because a 20 L screeding bucket is a different product from interior
+  // emulsion, at a very different price.
+  "screeding-paint",
+  "white-cement",
   // wall-finishing roles
   "joint-tape",
   "bonding-plaster",

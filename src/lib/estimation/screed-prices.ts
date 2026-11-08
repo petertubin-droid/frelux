@@ -7,7 +7,8 @@
  * for the market, never ahead of it.
  *
  * Roles: putty/joint filler -> "joint-filler", screeding paint ->
- * "interior-paint", white cement -> "concrete-mix".
+ * "screeding-paint" (then "interior-paint"), white cement -> "white-cement"
+ * (then "concrete-mix").
  *
  * A role is a slot in the price book, not a promise about what sits in it. The
  * NG book fills "concrete-mix" with ordinary grey Portland cement, which is a
@@ -65,18 +66,34 @@ export async function resolveScreedPrices<T extends ScreedingSystemConfig>(
       // than reporting a configured material as unpriced.
       return fallback != null && fallback > 0 ? fallback : null;
     };
+    /** First role in the list that yields a compatible book price wins. */
+    const resolveWithFallback = async (
+      roles: MaterialRole[],
+      fallback: number | null,
+      accepts?: (materialName: string, materialSlug: string) => boolean,
+    ): Promise<number | null> => {
+      for (const role of roles) {
+        const price = await resolve(role, null, accepts);
+        if (price != null && price > 0) return price;
+      }
+      return fallback != null && fallback > 0 ? fallback : null;
+    };
     // Independent lookups: issuing them together turns three serial round
     // trips into one wait.
     const [putty, paint, cement] = await Promise.all([
       resolve("joint-filler", cfg.puttyPricePerUnit),
-      // Screeding paint is a paint: any paint product in the book is the right
-      // kind of thing, even when it is a general interior emulsion.
-      resolve("interior-paint", cfg.paintPricePerUnit, (name) =>
-        /paint|emulsion|screed|matt|gloss/i.test(name),
+      // The book's dedicated screeding paint first; interior emulsion is only
+      // a stand-in when the market has no screeding product of its own.
+      resolveWithFallback(
+        ["screeding-paint", "interior-paint"],
+        cfg.paintPricePerUnit,
+        (name) => /paint|emulsion|screed|matt|gloss/i.test(name),
       ),
       // White cement is NOT grey Portland cement, however the role is mapped.
-      resolve(
-        "concrete-mix",
+      // A dedicated role is used once a market maps one; until then the
+      // concrete-mix slot is only trusted when it really holds white cement.
+      resolveWithFallback(
+        ["white-cement", "concrete-mix"],
         cfg.cementPricePerUnit,
         (name, slug) => /white/i.test(name) || /white/i.test(slug),
       ),

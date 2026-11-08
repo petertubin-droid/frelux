@@ -89,6 +89,46 @@ describe("resolveScreedPrices", () => {
     const out = await resolveScreedPrices(mix, "NG", "NG");
     expect(out.cementPricePerUnit).toBe(8000);
     expect(out.paintPricePerUnit).toBe(17000);
+    // The dedicated screeding role is asked first, then interior emulsion.
+    expect(resolveCityAwarePriceByRole).toHaveBeenCalledWith(
+      "screeding-paint",
+      "NG",
+      undefined,
+    );
+  });
+
+  it("prefers the market's own screeding paint over interior emulsion", async () => {
+    resolveCityAwarePriceByRole.mockImplementation((role: unknown) => {
+      if (role === "screeding-paint")
+        return {
+          price: { price: 4500 },
+          material: {
+            name: "Nigerian Screeding Paint (20 L bucket)",
+            slug: "ng-screeding-paint-20l",
+          },
+        };
+      if (role === "interior-paint")
+        return {
+          price: { price: 17000 },
+          material: {
+            name: "Interior Emulsion (20 L)",
+            slug: "ng-interior-emulsion-20l",
+          },
+        };
+      return null;
+    });
+
+    const out = await resolveScreedPrices(
+      {
+        systemType: "white_cement_paint",
+        paintPricePerUnit: 25000,
+        cementPricePerUnit: 8000,
+        puttyPricePerUnit: null,
+      } as unknown as ScreedingSystemConfig,
+      "NG",
+      "NG",
+    );
+    expect(out.paintPricePerUnit).toBe(4500);
   });
 
   it("uses a white cement book price when the book really holds white cement", async () => {
