@@ -17,7 +17,14 @@
 import { marketCodeVariants } from "@/lib/international/market-codes";
 
 export type MasonryUnitKey =
-  "ng-block-9" | "ng-block-6" | "uk-brick" | "us-cmu" | "in-brick";
+  | "ng-block-9"
+  | "ng-block-6"
+  | "uk-brick"
+  | "us-cmu"
+  | "ca-cmu"
+  | "au-block-190"
+  | "ae-block-200"
+  | "in-brick";
 
 export interface MasonryUnit {
   key: MasonryUnitKey;
@@ -33,6 +40,12 @@ export interface MasonryUnit {
   /** Wall thickness the unit produces in metres. */
   thicknessM: number;
   sourceId: string;
+  /**
+   * Set when this market has no table of its own and the Nigerian default was
+   * substituted. A caller showing quantities can say so instead of implying a
+   * Canadian wall is built of 9 inch sandcrete blocks.
+   */
+  substitutedFromMarket?: string;
 }
 
 export interface MasonrySource {
@@ -59,6 +72,24 @@ export const MASONRY_SOURCES: MasonrySource[] = [
     claim:
       "A standard US concrete masonry unit is 8 inch high, 8 inch thick and 16 inch long nominal.",
     url: "https://www.nrmca.org/wp-content/uploads/2020/04/CMU-Manual.pdf",
+  },
+  {
+    id: "ca-cmu-sizes",
+    claim:
+      "The Canadian concrete masonry unit is the North American 8x8x16 nominal block: 400 mm long, 200 mm high, 200 mm thick.",
+    url: "https://www.csa.ca/",
+  },
+  {
+    id: "au-block-sizes",
+    claim:
+      "The Australian standard hollow concrete block is 390 mm long, 190 mm high and 190 mm thick.",
+    url: "https://www.thinkbrick.com.au/",
+  },
+  {
+    id: "ae-block-sizes",
+    claim:
+      "The Gulf hollow concrete block is commonly 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.municipality.gov.ae/",
   },
   {
     id: "in-brick-sizes",
@@ -121,6 +152,36 @@ export const MASONRY_UNITS: Record<MasonryUnitKey, MasonryUnit> = {
     thicknessM: 0.2032,
     sourceId: "us-cmu-sizes",
   },
+  "ca-cmu": {
+    key: "ca-cmu",
+    market: "CA",
+    label: "8 inch CMU block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "ca-cmu-sizes",
+  },
+  "au-block-190": {
+    key: "au-block-190",
+    market: "AU",
+    label: "190 mm hollow block",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.19,
+    sourceId: "au-block-sizes",
+  },
+  "ae-block-200": {
+    key: "ae-block-200",
+    market: "AE",
+    label: "200 mm hollow block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "ae-block-sizes",
+  },
   "in-brick": {
     key: "in-brick",
     market: "IN",
@@ -138,7 +199,13 @@ export function masonryUnitsForMarket(market: string): MasonryUnit[] {
   // spelling, while the canonical market list emits GB.
   const codes = new Set(marketCodeVariants(market || "NG"));
   const units = Object.values(MASONRY_UNITS).filter((u) => codes.has(u.market));
-  return units.length > 0 ? units : [MASONRY_UNITS["ng-block-9"]];
+  if (units.length > 0) return units;
+  // No table for this market. Returning nothing would empty the calculator, so
+  // the Nigerian default stands in, marked as a substitution rather than
+  // passing itself off as local practice.
+  return [
+    { ...MASONRY_UNITS["ng-block-9"], substitutedFromMarket: "NG" as const },
+  ];
 }
 
 /** Face area of one unit once laid, joint included. */
