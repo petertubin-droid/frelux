@@ -7705,26 +7705,26 @@ var init_socketAdapter = __esm({
 
 // node_modules/@supabase/realtime-js/dist/module/RealtimeClient.js
 function createMemorySessionStorage() {
-  const store = /* @__PURE__ */ new Map();
+  const store2 = /* @__PURE__ */ new Map();
   return {
     get length() {
-      return store.size;
+      return store2.size;
     },
     clear() {
-      store.clear();
+      store2.clear();
     },
     getItem(key) {
-      return store.has(key) ? store.get(key) : null;
+      return store2.has(key) ? store2.get(key) : null;
     },
     key(index) {
       var _a;
-      return (_a = Array.from(store.keys())[index]) !== null && _a !== void 0 ? _a : null;
+      return (_a = Array.from(store2.keys())[index]) !== null && _a !== void 0 ? _a : null;
     },
     removeItem(key) {
-      store.delete(key);
+      store2.delete(key);
     },
     setItem(key, value) {
-      store.set(key, String(value));
+      store2.set(key, String(value));
     }
   };
 }
@@ -13625,16 +13625,16 @@ var init_GoTrueAdminApi = __esm({
 });
 
 // node_modules/@supabase/auth-js/dist/module/lib/local-storage.js
-function memoryLocalStorageAdapter(store = {}) {
+function memoryLocalStorageAdapter(store2 = {}) {
   return {
     getItem: (key) => {
-      return store[key] || null;
+      return store2[key] || null;
     },
     setItem: (key, value) => {
-      store[key] = value;
+      store2[key] = value;
     },
     removeItem: (key) => {
-      delete store[key];
+      delete store2[key];
     }
   };
 }
@@ -20615,6 +20615,1540 @@ var init_supabase = __esm({
   }
 });
 
+// src/lib/data-cache.ts
+async function cachedRead(key, ttlMs, loader, options = {}) {
+  const now = Date.now();
+  const hit = entries.get(key);
+  if (hit && hit.expiresAt > now) return hit.value;
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+  const run = (async () => {
+    try {
+      const value = await loader();
+      const failed = options.failed ? options.failed(value) : false;
+      if (!failed) entries.set(key, { value, expiresAt: Date.now() + ttlMs });
+      return value;
+    } finally {
+      inFlight.delete(key);
+    }
+  })();
+  inFlight.set(key, run);
+  return run;
+}
+function invalidateCache(prefix) {
+  if (!prefix) {
+    entries.clear();
+    inFlight.clear();
+    return;
+  }
+  for (const key of Array.from(entries.keys())) {
+    if (key === prefix || key.startsWith(`${prefix}:`)) entries.delete(key);
+  }
+}
+var entries, inFlight, CACHE_TTL;
+var init_data_cache = __esm({
+  "src/lib/data-cache.ts"() {
+    init_define_import_meta_env();
+    entries = /* @__PURE__ */ new Map();
+    inFlight = /* @__PURE__ */ new Map();
+    CACHE_TTL = {
+      /**
+       * Site settings and branding: edited by hand, read several times per page.
+       * Kept deliberately short (one minute) so an admin edit still reaches
+       * visitors quickly even if nothing explicitly invalidates the entry.
+       */
+      settings: 60 * 1e3,
+      /** Calculator catalogue rows (paint types, tile sizes, finish types). */
+      catalogue: 5 * 60 * 1e3,
+      /** Market price lookups: short, so admin price edits land quickly. */
+      prices: 60 * 1e3
+    };
+  }
+});
+
+// src/lib/price-index/stats.ts
+function median(values) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+}
+function quantile(values, q) {
+  const sorted = [...values].sort((a, b) => a - b);
+  if (sorted.length === 1) return sorted[0];
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  return sorted[base + 1] === void 0 ? sorted[base] : sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+}
+function scaledMad(values) {
+  const centre = median(values);
+  const deviations = values.map((value) => Math.abs(value - centre));
+  return { mad: 1.4826 * median(deviations), centre };
+}
+function removeOutliers(values) {
+  if (values.length < MIN_SAMPLES_FOR_OUTLIER_RULE) {
+    return { kept: values, removed: [] };
+  }
+  const { mad, centre } = scaledMad(values);
+  const q1 = quantile(values, 0.25);
+  const q3 = quantile(values, 0.75);
+  const iqr = q3 - q1;
+  const kept = values.filter((value) => {
+    const withinMad = 3.5 * mad === 0 ? true : Math.abs(value - centre) <= 3.5 * mad;
+    const withinIqr = iqr === 0 ? true : value >= q1 - 1.5 * iqr && value <= q3 + 1.5 * iqr;
+    return withinMad || withinIqr;
+  });
+  return {
+    kept,
+    removed: values.filter((value) => !kept.includes(value))
+  };
+}
+function computeStats(samples) {
+  const usable = samples.filter(
+    (sample) => Number.isFinite(sample.value) && sample.value > 0 && sample.verification_status !== "flagged"
+  );
+  if (usable.length < MIN_SAMPLES) {
+    return {
+      status: "insufficient",
+      count: usable.length,
+      required: MIN_SAMPLES,
+      reason: usable.length === 0 ? "No collected price for this material in this market." : `${usable.length} of the ${MIN_SAMPLES} prices needed before a market figure is published.`
+    };
+  }
+  const { kept, removed } = removeOutliers(usable.map((s) => s.value));
+  const values = kept;
+  const md = median(values);
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const verified = values.length ? usable.filter((s) => s.verification_status === "verified").length : 0;
+  const confidence = verified === 0 ? "reported" : verified >= values.length / 2 ? "verified" : "mixed";
+  return {
+    status: "ok",
+    count: usable.length,
+    counted: values.length,
+    excluded_outliers: removed.length,
+    median: round(md),
+    mean: round(mean),
+    min: round(min),
+    max: round(max),
+    spread: md > 0 ? round((max - min) / md, 4) : 0,
+    confidence
+  };
+}
+function round(value, dp = 2) {
+  const factor = 10 ** dp;
+  return Math.round(value * factor) / factor;
+}
+var MIN_SAMPLES, MIN_SAMPLES_FOR_OUTLIER_RULE;
+var init_stats = __esm({
+  "src/lib/price-index/stats.ts"() {
+    init_define_import_meta_env();
+    MIN_SAMPLES = 3;
+    MIN_SAMPLES_FOR_OUTLIER_RULE = 5;
+  }
+});
+
+// src/lib/price-index/resolver.ts
+function toSamples(listings) {
+  return listings.filter((listing) => Number.isFinite(listing.price) && listing.price > 0).map((listing) => ({
+    value: listing.price,
+    observed_at: (listing.verified_at ?? listing.effective_date ?? "").slice(0, 10) || (/* @__PURE__ */ new Date(0)).toISOString().slice(0, 10),
+    verification_status: listing.verification_status
+  }));
+}
+function describeSource(listing) {
+  if (!listing) return null;
+  if (listing.supplier_name && listing.price_source) {
+    return `${listing.supplier_name}, ${listing.price_source}`;
+  }
+  return listing.supplier_name ?? listing.price_source ?? null;
+}
+function mostRecent(listings) {
+  return [...listings].filter((listing) => listing.effective_date).sort((a, b) => a.effective_date < b.effective_date ? 1 : -1)[0];
+}
+function classifyEvidence(listing) {
+  const text = `${listing.price_source ?? ""} ${listing.supplier_name ?? ""}`.toLowerCase();
+  if (/seeded reference|no retailer link|baseline reference/.test(text)) {
+    return "baseline";
+  }
+  if (/fx reference|macro|indicative\s+[a-z0-9\s.-]*band|index[- ]adjusted/.test(
+    text
+  )) {
+    return "macro_reference";
+  }
+  if (listing.verification_status === "verified") return "supplier_verified";
+  return "supplier_reported";
+}
+function distinctValues(listings, pick) {
+  const seen = /* @__PURE__ */ new Set();
+  for (const listing of listings) {
+    const value = pick(listing);
+    if (value) seen.add(value);
+  }
+  return [...seen];
+}
+function tierFor(basis, listings) {
+  const classes = listings.map(classifyEvidence);
+  const references = classes.filter(
+    (c) => c === "macro_reference" || c === "baseline"
+  );
+  if (references.length === classes.length && classes.length > 0) {
+    return classes.includes("macro_reference") ? "macro_adjusted_reference" : "baseline_reference";
+  }
+  const allVerified = classes.every((c) => c === "supplier_verified");
+  if (allVerified) {
+    return basis === "city" ? "approved_city_index" : "approved_national_index";
+  }
+  if (basis === "city" && classes.includes("supplier_verified")) {
+    return "qualified_supplier_offer";
+  }
+  return "crowdsourced_benchmark";
+}
+function buildOk(params) {
+  const { listings } = params;
+  const latest = mostRecent(listings);
+  const tier = tierFor(params.basis, listings);
+  const warnings = [];
+  const tierWarning = TIER_WARNINGS[tier];
+  if (tierWarning) warnings.push(tierWarning);
+  const brands = distinctValues(listings, (l) => l.brand ?? null);
+  const units = distinctValues(listings, (l) => l.sale_unit ?? null);
+  if (brands.length === 0) {
+    warnings.push("Brand not recorded on this evidence.");
+  }
+  if (units.length === 0) {
+    warnings.push("Sale unit not recorded on this evidence.");
+  }
+  if (params.fallbackReason) warnings.push(params.fallbackReason);
+  const indicative = params.confidence !== "verified" || tier === "macro_adjusted_reference" || tier === "baseline_reference";
+  return {
+    status: "ok",
+    price: params.price,
+    basis: params.basis,
+    sample_size: params.sampleSize,
+    confidence: params.confidence,
+    last_observed_at: latest?.effective_date ?? null,
+    price_kind: latest?.price_kind ?? null,
+    sale_unit: units[0] ?? null,
+    city_slug: params.basis === "city" ? params.citySlug : null,
+    supplier_note: describeSource(latest),
+    indicative,
+    note: params.note,
+    tier,
+    market: latest?.market ?? null,
+    currency: latest?.currency ?? null,
+    brand: brands[0] ?? null,
+    package_size: latest?.package_size ?? null,
+    source_url: latest?.source_url ?? null,
+    delivery_included: latest?.delivery_included ?? null,
+    fallback_reason: params.fallbackReason,
+    warnings
+  };
+}
+function resolveMaterialPrice(params) {
+  const { materialId, citySlug, listings, priceKind, market, brand, saleUnit } = params;
+  const matching = listings.filter(
+    (listing) => listing.material_id === materialId && (!priceKind || listing.price_kind === priceKind) && listing.verification_status !== "flagged"
+  );
+  if (matching.length === 0) {
+    return {
+      status: "unavailable",
+      reason: "No collected price for this material yet.",
+      code: "no_evidence"
+    };
+  }
+  const forMaterial = market ? matching.filter((listing) => listing.market === market) : matching;
+  if (forMaterial.length === 0) {
+    const others = distinctValues(matching, (l) => l.market ?? null);
+    return {
+      status: "unavailable",
+      reason: `No price evidence for ${market}. Prices exist for ${others.join(
+        ", "
+      )} and will not be borrowed across markets.`,
+      code: "market_mismatch"
+    };
+  }
+  const scoped = forMaterial.filter((listing) => brand ? listing.brand === brand : true).filter((listing) => saleUnit ? listing.sale_unit === saleUnit : true);
+  if (scoped.length === 0) {
+    return {
+      status: "unavailable",
+      reason: brand ? `No price evidence for ${brand} in this market.` : `No price evidence for the sale unit "${saleUnit}" in this market.`,
+      code: "no_evidence"
+    };
+  }
+  const brands = distinctValues(scoped, (l) => l.brand ?? null);
+  if (!brand && brands.length > 1) {
+    return {
+      status: "unavailable",
+      reason: `This material is priced under ${brands.length} different brands (${brands.join(
+        ", "
+      )}). Choose a brand instead of blending them.`,
+      code: "mixed_brand"
+    };
+  }
+  const units = distinctValues(scoped, (l) => l.sale_unit ?? null);
+  if (!saleUnit && units.length > 1) {
+    return {
+      status: "unavailable",
+      reason: `This material is priced in ${units.length} different sale units (${units.join(
+        ", "
+      )}). Choose a unit instead of blending them.`,
+      code: "mixed_sale_unit"
+    };
+  }
+  const cityListings = citySlug ? scoped.filter((listing) => listing.city_slug === citySlug) : [];
+  const cityStats = computeStats(toSamples(cityListings));
+  if (cityStats.status === "ok") {
+    return buildOk({
+      price: cityStats.median,
+      basis: "city",
+      sampleSize: cityStats.counted,
+      confidence: cityStats.confidence,
+      listings: cityListings,
+      citySlug,
+      note: cityStats.confidence === "verified" ? "Verified prices from this city." : "Reported prices for this city, not independently verified.",
+      fallbackReason: null
+    });
+  }
+  const nationalStats = computeStats(toSamples(scoped));
+  if (nationalStats.status === "ok") {
+    const fallbackReason = citySlug ? "Not enough prices in this city yet, so this is the national median and is indicative." : null;
+    return buildOk({
+      price: nationalStats.median,
+      basis: "national",
+      sampleSize: nationalStats.counted,
+      confidence: nationalStats.confidence,
+      listings: scoped,
+      citySlug: null,
+      note: citySlug ? "Not enough prices in this city yet, so this is the national median and is indicative." : "National median. Choose a city for a local figure.",
+      fallbackReason
+    });
+  }
+  return {
+    status: "unavailable",
+    reason: cityListings.length > 0 ? `Only ${cityListings.length} price${cityListings.length === 1 ? "" : "s"} collected here, below the ${cityStats.required} needed to publish a figure, and the national sample is also short.` : `No sufficient sample: ${nationalStats.status === "insufficient" ? nationalStats.reason : "no evidence."}`,
+    code: "insufficient_sample"
+  };
+}
+var TIER_WARNINGS;
+var init_resolver = __esm({
+  "src/lib/price-index/resolver.ts"() {
+    init_define_import_meta_env();
+    init_stats();
+    TIER_WARNINGS = {
+      approved_city_index: null,
+      approved_national_index: null,
+      qualified_supplier_offer: "Mix of verified and reported prices, so treat this as indicative.",
+      crowdsourced_benchmark: "Reported prices only. No supplier has verified this figure.",
+      macro_adjusted_reference: "Reference figure derived from a macro or FX adjustment, not a supplier quotation.",
+      baseline_reference: "Seeded baseline with no live source behind it. Not a market price."
+    };
+  }
+});
+
+// src/lib/international/role-mapping-derive.ts
+var DERIVED_ROLE_MAPPINGS;
+var init_role_mapping_derive = __esm({
+  "src/lib/international/role-mapping-derive.ts"() {
+    init_define_import_meta_env();
+    DERIVED_ROLE_MAPPINGS = {
+      AE: {
+        "concrete-mix": {
+          slug: "ae-cement-50kg",
+          name: "Emirates Cement 50 kg (AE)",
+          unit: "50 kg",
+          notes: "This market's own priced product (AED 22); Binja.ae web survey 2026-10-11 (AED 22 regular, 19 promo)."
+        },
+        sand: {
+          slug: "ae-sand-25kg",
+          name: "Sand 25 kg (AE)",
+          unit: "25 kg",
+          notes: "This market's own priced product (AED 10); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "ae-emulsion-4l",
+          name: "National Paints water-based wall emulsion 18L (AE)",
+          unit: "18l",
+          notes: "This market's own priced product (AED 76); Misar.ae web survey 2026-10-11 (AED 76-90, base 76/18L)."
+        },
+        "exterior-paint": {
+          slug: "ae-exterior-4l",
+          name: "Exterior paint 4L (AE)",
+          unit: "4l",
+          notes: "This market's own priced product (AED 110); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "ae-primer-4l",
+          name: "Jotun PVA Primer white 4L (AE)",
+          unit: "4l",
+          notes: "This market's own priced product (AED 61); Amazon.ae web survey 2026-10-11 (AED 61/4L)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (AED 1); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ae-putty-20kg",
+          name: "Wall putty 20 kg (AE)",
+          unit: "20 kg",
+          notes: "This market's own priced product (AED 35); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "ae-waterproof-20l",
+          name: "Waterproofing 20L (AE)",
+          unit: "20l",
+          notes: "This market's own priced product (AED 130); Indicative 2026 retail band; adjustable."
+        }
+      },
+      AT: {
+        "concrete-mix": {
+          slug: "at-cement-25kg",
+          name: "CEM II 25 kg (AT)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 5.5); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "at-bausand-25kg",
+          name: "Bausand 25 kg (AT)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 4); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "at-alpina-weiss-10l",
+          name: "Alpinaweiss Wandfarbe Original 10L (AT)",
+          unit: "10l",
+          notes: "This market's own priced product (EUR 49.95); Hornbach AT web survey 2026-10-11 (49.95 EUR/10L)."
+        },
+        "exterior-paint": {
+          slug: "at-fassadenfarbe-10l",
+          name: "Alpina Fassadenfarbe 10L (AT)",
+          unit: "10l",
+          notes: "This market's own priced product (EUR 55); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "at-tiefgrund-10l",
+          name: "Tiefgrund 10L (AT)",
+          unit: "10l",
+          notes: "This market's own priced product (EUR 35); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.6); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "at-spachtel-5kg",
+          name: "Spachtelmasse 5 kg (AT)",
+          unit: "5 kg",
+          notes: "This market's own priced product (EUR 9); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "at-abdicht-5l",
+          name: "Abdichtung 5L (AT)",
+          unit: "5l",
+          notes: "This market's own priced product (EUR 25); Indicative 2026 retail band; adjustable."
+        }
+      },
+      BE: {
+        "concrete-mix": {
+          slug: "be-cement-25kg",
+          name: "CEM II 25 kg (BE)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 6.5); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "be-grondverf-10l",
+          name: "Histor Monodek primer wit 10L (BE)",
+          unit: "10l",
+          notes: "This market's own priced product (EUR 59.99); Gamma BE web survey 2026-10-11 (Monodek primer 10L 59.99 EUR, regular 99.99)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.6); Indicative 2026 retail band; adjustable."
+        }
+      },
+      BR: {
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (BRL 2); Indicative 2026 retail band; adjustable."
+        }
+      },
+      CA: {
+        "fine-filler": {
+          slug: "ca-cgc-allpurpose-12l",
+          name: "CGC Sheetrock All-Purpose Compound (12 L pail)",
+          unit: "12 l",
+          notes: "This market's own priced product (CAD 37.78); Home Depot Canada."
+        }
+      },
+      CH: {
+        "concrete-mix": {
+          slug: "ch-zement-25kg",
+          name: "Zement CEM II 25 kg (CH)",
+          unit: "25 kg",
+          notes: "This market's own priced product (CHF 8); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "ch-bausand-25kg",
+          name: "Bausand 25 kg (CH)",
+          unit: "25 kg",
+          notes: "This market's own priced product (CHF 6); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "ch-wandfarbe-10l",
+          name: "HORNBACH Naturweiss Wandfarbe 10L (CH)",
+          unit: "10l",
+          notes: "This market's own priced product (CHF 39.9); Hornbach CH web survey 2026-10-11 (39.90 CHF/10L)."
+        },
+        "exterior-paint": {
+          slug: "ch-fassadenfarbe-10l",
+          name: "Fassadenfarbe 10L (CH)",
+          unit: "10l",
+          notes: "This market's own priced product (CHF 45); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (CHF 1); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ch-fuellspachtel-5kg",
+          name: "F\xFCllspachtel 5 kg (CH)",
+          unit: "5 kg",
+          notes: "This market's own priced product (CHF 12); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "ch-abdicht-5l",
+          name: "Abdichtung 5L (CH)",
+          unit: "5l",
+          notes: "This market's own priced product (CHF 30); Indicative 2026 retail band; adjustable."
+        }
+      },
+      DK: {
+        "concrete-mix": {
+          slug: "dk-cement-25kg",
+          name: "Probau cement 25 kg (DK)",
+          unit: "25 kg",
+          notes: "This market's own priced product (DKK 69.95); BAUHAUS DK web survey 2026-10-11 (69.95 DKK/25kg)."
+        },
+        sand: {
+          slug: "dk-balsand-25kg",
+          name: "Balsand 25 kg (DK)",
+          unit: "25 kg",
+          notes: "This market's own priced product (DKK 20); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (DKK 8); Indicative 2026 retail band; adjustable."
+        }
+      },
+      EG: {
+        "concrete-mix": {
+          slug: "eg-cement-50kg",
+          name: "Cement 50 kg (EG)",
+          unit: "50 kg",
+          notes: "This market's own priced product (EGP 192.5); Egypt cement price tracker (Elwatan News) 2026-10-11 (Suez ton 3850 EGP = 192.50/50kg)."
+        },
+        sand: {
+          slug: "eg-sand-25kg",
+          name: "Sand 25 kg (EG)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EGP 60); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "eg-emulsion-4l",
+          name: "Interior emulsion 4L (EG)",
+          unit: "4l",
+          notes: "This market's own priced product (EGP 450); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "eg-exterior-4l",
+          name: "Exterior paint 4L (EG)",
+          unit: "4l",
+          notes: "This market's own priced product (EGP 550); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "eg-primer-4l",
+          name: "Primer 4L (EG)",
+          unit: "4l",
+          notes: "This market's own priced product (EGP 300); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EGP 5); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "eg-putty-20kg",
+          name: "Wall putty 20 kg (EG)",
+          unit: "20 kg",
+          notes: "This market's own priced product (EGP 180); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "eg-waterproof-20l",
+          name: "Waterproofing 20L (EG)",
+          unit: "20l",
+          notes: "This market's own priced product (EGP 350); Indicative 2026 retail band; adjustable."
+        }
+      },
+      ES: {
+        "concrete-mix": {
+          slug: "es-cemento-25kg",
+          name: "Cemento gris CEM 32,5N 25 kg (ES)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 5.7); Ferreteria La Llave web survey 2026-10-11 (5.70 EUR/25kg)."
+        },
+        "interior-paint": {
+          slug: "es-plastica-15l",
+          name: "Pintura de interior Lisomat BEISSIER blanco mate 15L (ES)",
+          unit: "15l",
+          notes: "This market's own priced product (EUR 98.99); Leroy Merlin ES web survey 2026-10-11 (98.99 EUR/15L)."
+        },
+        "exterior-paint": {
+          slug: "es-fachada-15l",
+          name: "Pintura exterior DEKKO mate 15L (ES)",
+          unit: "15l",
+          notes: "This market's own priced product (EUR 65.99); Leroy Merlin ES web survey 2026-10-11 (65.99 EUR/15L)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.5); Indicative 2026 retail band; adjustable."
+        }
+      },
+      FI: {
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 1); Indicative 2026 retail band; adjustable."
+        }
+      },
+      GB: {
+        "fine-filler": {
+          slug: "gb-gyproc-easifill-10kg",
+          name: "Gyproc Easi-Fill Joint Compound (10kg)",
+          unit: "10kg",
+          notes: "This market's own priced product (GBP 34.66); Selco GBP34.66 inc VAT (web survey 2026-10-10)."
+        }
+      },
+      GH: {
+        "concrete-mix": {
+          slug: "gh-cement-50kg",
+          name: "Cement 50 kg (GH)",
+          unit: "50 kg",
+          notes: "This market's own priced product (GHS 80); Ghana news reports 2026 (50kg bag above GHS 80 after manufacturer increase)."
+        },
+        sand: {
+          slug: "gh-sand-50kg",
+          name: "Sand 50 kg (GH)",
+          unit: "50 kg",
+          notes: "This market's own priced product (GHS 15); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "gh-emulsion-4l",
+          name: "Homecharm emulsion paint 20L (GH)",
+          unit: "20l",
+          notes: "This market's own priced product (GHS 295); CETech Ghana web survey 2026-10-11 (GHS 295/20L)."
+        },
+        "exterior-paint": {
+          slug: "gh-exterior-4l",
+          name: "Exterior paint 4L (GH)",
+          unit: "4l",
+          notes: "This market's own priced product (GHS 220); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "gh-primer-4l",
+          name: "Primer 4L (GH)",
+          unit: "4l",
+          notes: "This market's own priced product (GHS 120); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (GHS 3); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "gh-putty-20kg",
+          name: "Wall putty 20 kg (GH)",
+          unit: "20 kg",
+          notes: "This market's own priced product (GHS 90); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "gh-waterproof-20l",
+          name: "Waterproofing 20L (GH)",
+          unit: "20l",
+          notes: "This market's own priced product (GHS 150); Indicative 2026 retail band; adjustable."
+        }
+      },
+      ID: {
+        "interior-paint": {
+          slug: "id-cat-25kg",
+          name: "Avitex Gold cat tembok interior 25 kg (ID)",
+          unit: "25 kg",
+          notes: "This market's own priced product (IDR 864900); Tokopedia web survey 2026-10-11 (Rp864,900/25kg)."
+        },
+        "exterior-paint": {
+          slug: "id-cat-ext-25kg",
+          name: "Avitex exterior cat tembok 25 kg (ID)",
+          unit: "25 kg",
+          notes: "This market's own priced product (IDR 999900); Monotaro web survey 2026-10-11 (Rp999,900/25kg)."
+        },
+        primer: {
+          slug: "id-primer-25kg",
+          name: "Avitex Alkali Resistance primer cat dasar 5 kg (ID)",
+          unit: "5 kg",
+          notes: "This market's own priced product (IDR 195648); Tokopedia web survey 2026-10-11 (Rp195,648/5kg)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (IDR 3000); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "id-filler-25kg",
+          name: "Wall filler 25 kg (ID)",
+          unit: "25 kg",
+          notes: "This market's own priced product (IDR 150000); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "id-waterproof-20kg",
+          name: "Waterproofing 20kg (ID)",
+          unit: "20kg",
+          notes: "This market's own priced product (IDR 300000); Indicative 2026 retail band; adjustable."
+        }
+      },
+      IE: {
+        "concrete-mix": {
+          slug: "ie-cement-25kg",
+          name: "Irish Cement 25 kg bag (IE)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 10.49); Woodies IE web survey 2026-10-11 (Irish Cement 25kg 10.49 EUR)."
+        },
+        sand: {
+          slug: "ie-sand-25kg",
+          name: "Bryko building sand 25 kg (IE)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 4.99); Woodies IE web survey 2026-10-11 (Bryko 25kg sand 4.99 EUR)."
+        },
+        "interior-paint": {
+          slug: "ie-easycare-5l",
+          name: "Dulux EasyCare Matt 5L (IE)",
+          unit: "5l",
+          notes: "This market's own priced product (EUR 45); Woodies IE web survey 2026-10-11 (Dulux EasyCare 5L at 45 EUR promo listing)."
+        },
+        "exterior-paint": {
+          slug: "ie-weathershield-5l",
+          name: "Woodie's Exterior Masonry 5L (IE)",
+          unit: "5l",
+          notes: "This market's own priced product (EUR 41); Woodies IE web survey 2026-10-11 (exterior masonry 5L 41.00 EUR)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.8); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ie-filler-5kg",
+          name: "Lightweight filler 5 kg (IE)",
+          unit: "5 kg",
+          notes: "This market's own priced product (EUR 10); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "ie-waterproof-5l",
+          name: "Waterproof coating 5L (IE)",
+          unit: "5l",
+          notes: "This market's own priced product (EUR 30); Indicative 2026 retail band; adjustable."
+        }
+      },
+      IN: {
+        "fine-filler": {
+          slug: "in-birla-white-putty-40kg",
+          name: "Birla White WallCare Putty (40kg)",
+          unit: "40kg",
+          notes: "This market's own priced product (INR 700); India trade INR700 per 40kg bag (web survey 2026-10-10)."
+        }
+      },
+      IT: {
+        "concrete-mix": {
+          slug: "it-cemento-25kg",
+          name: "Cemento II/B-LL 25 kg (IT)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 5.45); TrovaPrezzi IT web survey 2026-10-11 (sacco cemento 25kg from 5.45 EUR)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.6); Indicative 2026 retail band; adjustable."
+        }
+      },
+      JP: {
+        "concrete-mix": {
+          slug: "jp-cement-25kg",
+          name: "Tokuyama futsu portland cement 25kg (JP)",
+          unit: "25kg",
+          notes: "This market's own priced product (JPY 934); Monotaro web survey 2026-10-11 (849 yen + tax = 934/25kg)."
+        },
+        "interior-paint": {
+          slug: "jp-emulsion-16kg",
+          name: "\u30A8\u30DE\u30EB\u30B8\u30E7\u30F3\u30DA\u30A4\u30F3\u30C8 16kg (JP)",
+          unit: "16kg",
+          notes: "This market's own priced product (JPY 9000); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "jp-exterior-16kg",
+          name: "\u5916\u90E8\u7528\u5857\u6599 16kg (JP)",
+          unit: "16kg",
+          notes: "This market's own priced product (JPY 12000); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "jp-primer-16kg",
+          name: "\u4E0B\u5857\u308A 16kg (JP)",
+          unit: "16kg",
+          notes: "This market's own priced product (JPY 6000); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (JPY 60); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "jp-waterproof-16kg",
+          name: "\u9632\u6C34\u5857\u6599 16kg (JP)",
+          unit: "16kg",
+          notes: "This market's own priced product (JPY 8000); Indicative 2026 retail band; adjustable."
+        }
+      },
+      KE: {
+        "concrete-mix": {
+          slug: "ke-cement-50kg",
+          name: "Cement 50 kg (KE)",
+          unit: "50 kg",
+          notes: "This market's own priced product (KES 850); Kenya retail price reports 2026-10 (50kg bag ~KES 850, up from 600)."
+        },
+        sand: {
+          slug: "ke-sand-50kg",
+          name: "Sand 50 kg (KE)",
+          unit: "50 kg",
+          notes: "This market's own priced product (KES 100); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "ke-emulsion-4l",
+          name: "Crown Vinyl Matt Luxury Emulsion 20L (KE)",
+          unit: "20l",
+          notes: "This market's own priced product (KES 13150); aliglaziers.co.ke web survey 2026-10-11 (KES 13150/20L)."
+        },
+        "exterior-paint": {
+          slug: "ke-exterior-4l",
+          name: "Exterior paint 4L (KE)",
+          unit: "4l",
+          notes: "This market's own priced product (KES 3000); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "ke-primer-4l",
+          name: "Primer 4L (KE)",
+          unit: "4l",
+          notes: "This market's own priced product (KES 1800); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (KES 20); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ke-putty-20kg",
+          name: "Wall putty 20 kg (KE)",
+          unit: "20 kg",
+          notes: "This market's own priced product (KES 1200); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "ke-waterproof-20l",
+          name: "Waterproofing 20L (KE)",
+          unit: "20l",
+          notes: "This market's own priced product (KES 2000); Indicative 2026 retail band; adjustable."
+        }
+      },
+      KR: {
+        "concrete-mix": {
+          slug: "kr-cement-25kg",
+          name: "\uC2DC\uBA58\uD2B8 25kg (KR)",
+          unit: "25kg",
+          notes: "This market's own priced product (KRW 6000); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "kr-sand-25kg",
+          name: "\uBAA8\uB798 25kg (KR)",
+          unit: "25kg",
+          notes: "This market's own priced product (KRW 3000); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "kr-interior-18l",
+          name: "Noru SooneSu100 Plus 18L naebu-aqueous (KR)",
+          unit: "18l",
+          notes: "This market's own priced product (KRW 117530); Coupang web survey 2026-10-11 (KRW 117,530/18L)."
+        },
+        "exterior-paint": {
+          slug: "kr-exterior-18l",
+          name: "KCC Sup-euro balsu oebu-aqueous 18L (KR)",
+          unit: "18l",
+          notes: "This market's own priced product (KRW 123500); Paintmarket.co.kr web survey 2026-10-11 (KRW 123,500/18L)."
+        },
+        primer: {
+          slug: "kr-primer-18l",
+          name: "\uD504\uB77C\uC774\uBA38 18L (KR)",
+          unit: "18l",
+          notes: "This market's own priced product (KRW 30000); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (KRW 500); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "kr-putty-18kg",
+          name: "\uD37C\uD2F0 18kg (KR)",
+          unit: "18kg",
+          notes: "This market's own priced product (KRW 25000); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "kr-waterproof-18l",
+          name: "\uBC29\uC218\uC81C 18L (KR)",
+          unit: "18l",
+          notes: "This market's own priced product (KRW 60000); Indicative 2026 retail band; adjustable."
+        }
+      },
+      MX: {
+        "concrete-mix": {
+          slug: "mx-cemento-50kg",
+          name: "CEMEX Cemento Extra Gris 25 kg (MX)",
+          unit: "25 kg",
+          notes: "This market's own priced product (MXN 142); Home Depot MX web survey 2026-10-11 ($142/25kg)."
+        },
+        "interior-paint": {
+          slug: "mx-vinilica-19l",
+          name: "Pintura vin\xEDlica interior 19L (MX)",
+          unit: "19l",
+          notes: "This market's own priced product (MXN 1199); Mercado Libre MX / Amazon MX web survey 2026-10-11 (Comex 19L MX$1,199; band $899-1,400)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (MXN 10); Indicative 2026 retail band; adjustable."
+        }
+      },
+      MY: {
+        "concrete-mix": {
+          slug: "my-cement-50kg",
+          name: "YTL Castle Portland cement 50 kg (MY)",
+          unit: "50 kg",
+          notes: "This market's own priced product (MYR 38.79); Lazada MY web survey 2026-10-11 (RM38.79/50kg)."
+        },
+        sand: {
+          slug: "my-sand-50kg",
+          name: "Sand 50 kg (MY)",
+          unit: "50 kg",
+          notes: "This market's own priced product (MYR 15); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "my-emulsion-5l",
+          name: "Interior emulsion 5L (MY)",
+          unit: "5l",
+          notes: "This market's own priced product (MYR 80); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "my-exterior-5l",
+          name: "Exterior paint 5L (MY)",
+          unit: "5l",
+          notes: "This market's own priced product (MYR 100); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "my-primer-5l",
+          name: "Primer 5L (MY)",
+          unit: "5l",
+          notes: "This market's own priced product (MYR 50); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (MYR 2); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "my-putty-20kg",
+          name: "Wall putty 20 kg (MY)",
+          unit: "20 kg",
+          notes: "This market's own priced product (MYR 30); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "my-waterproof-5l",
+          name: "Waterproofing 5L (MY)",
+          unit: "5l",
+          notes: "This market's own priced product (MYR 60); Indicative 2026 retail band; adjustable."
+        }
+      },
+      NL: {
+        "concrete-mix": {
+          slug: "nl-cement-25kg",
+          name: "CEM II 25 kg (NL)",
+          unit: "25 kg",
+          notes: "This market's own priced product (EUR 6); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "nl-grondverf-10l",
+          name: "SPS Primer Unitex 10L (NL)",
+          unit: "10l",
+          notes: "This market's own priced product (EUR 66.72); Bouwmaat NL web survey 2026-10-11 (55.15 EUR excl BTW = 66.72 incl)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.6); Indicative 2026 retail band; adjustable."
+        }
+      },
+      NO: {
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (NOK 13); Indicative 2026 retail band; adjustable."
+        }
+      },
+      NZ: {
+        "concrete-mix": {
+          slug: "nz-cement-40kg",
+          name: "Golden Bay EcoSure GP cement 20kg (NZ)",
+          unit: "20kg",
+          notes: "This market's own priced product (NZD 12.5); Kawakawa Farm & Build web survey 2026-10-11 (NZD 12.50/20kg)."
+        },
+        sand: {
+          slug: "nz-sand-25kg",
+          name: "Sand 25 kg (NZ)",
+          unit: "25 kg",
+          notes: "This market's own priced product (NZD 10); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "nz-interior-10l",
+          name: "Resene interior paint 10L white (NZ)",
+          unit: "10l",
+          notes: "This market's own priced product (NZD 245); Mitre 10 NZ web survey 2026-10-11 (NZD 245/10L white)."
+        },
+        "exterior-paint": {
+          slug: "nz-exterior-10l",
+          name: "Exterior paint 10L (NZ)",
+          unit: "10l",
+          notes: "This market's own priced product (NZD 110); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "nz-primer-10l",
+          name: "Primer 10L (NZ)",
+          unit: "10l",
+          notes: "This market's own priced product (NZD 60); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (NZD 2); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "nz-filler-5kg",
+          name: "Wall filler 5 kg (NZ)",
+          unit: "5 kg",
+          notes: "This market's own priced product (NZD 20); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "nz-waterproof-10l",
+          name: "Waterproofing 10L (NZ)",
+          unit: "10l",
+          notes: "This market's own priced product (NZD 80); Indicative 2026 retail band; adjustable."
+        }
+      },
+      PH: {
+        "concrete-mix": {
+          slug: "ph-cement-40kg",
+          name: "Cement 40 kg (PH)",
+          unit: "40 kg",
+          notes: "This market's own priced product (PHP 260); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "ph-sand-40kg",
+          name: "Sand 40 kg (PH)",
+          unit: "40 kg",
+          notes: "This market's own priced product (PHP 50); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "ph-interior-4l",
+          name: "Boysen Permacoat Latex white 4L (PH)",
+          unit: "4l",
+          notes: "This market's own priced product (PHP 920); Lazada PH web survey 2026-10-11 (920 PHP/4L)."
+        },
+        "exterior-paint": {
+          slug: "ph-exterior-4l",
+          name: "Boysen Permacoat Semi-Gloss Acrylic Latex 4L (PH)",
+          unit: "4l",
+          notes: "This market's own priced product (PHP 920); Lazada PH web survey 2026-10-11 (920 PHP/4L concrete & stone)."
+        },
+        primer: {
+          slug: "ph-primer-4l",
+          name: "Primer 4L (PH)",
+          unit: "4l",
+          notes: "This market's own priced product (PHP 800); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (PHP 15); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ph-putty-25kg",
+          name: "Wall putty 25 kg (PH)",
+          unit: "25 kg",
+          notes: "This market's own priced product (PHP 500); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "ph-waterproof-1gal",
+          name: "Waterproofing 1 gal (PH)",
+          unit: "1 gal",
+          notes: "This market's own priced product (PHP 800); Indicative 2026 retail band; adjustable."
+        }
+      },
+      PK: {
+        "concrete-mix": {
+          slug: "pk-cement-50kg",
+          name: "Maple Leaf OPC 53 Grade 50 kg (PK)",
+          unit: "50 kg",
+          notes: "This market's own priced product (PKR 1600); Homepoint.pk web survey 2026-10-11 (PKR 1600/50kg)."
+        },
+        sand: {
+          slug: "pk-sand-50kg",
+          name: "Sand 50 kg (PK)",
+          unit: "50 kg",
+          notes: "This market's own priced product (PKR 300); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "pk-emulsion-4l",
+          name: "Interior plastic emulsion 4L (PK)",
+          unit: "4l",
+          notes: "This market's own priced product (PKR 3400); icons.com.pk paint tracker 2026-10-09 (~PKR 850/L basic interior, 4L pack)."
+        },
+        "exterior-paint": {
+          slug: "pk-exterior-4l",
+          name: "Exterior paint 4L (PK)",
+          unit: "4l",
+          notes: "This market's own priced product (PKR 2800); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "pk-primer-4l",
+          name: "Primer 4L (PK)",
+          unit: "4l",
+          notes: "This market's own priced product (PKR 1500); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (PKR 25); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "pk-putty-25kg",
+          name: "Wall putty 25 kg (PK)",
+          unit: "25 kg",
+          notes: "This market's own priced product (PKR 900); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "pk-waterproof-20l",
+          name: "Waterproofing 20L (PK)",
+          unit: "20l",
+          notes: "This market's own priced product (PKR 2500); Indicative 2026 retail band; adjustable."
+        }
+      },
+      PL: {
+        "concrete-mix": {
+          slug: "pl-cement-25kg",
+          name: "Cement 25 kg (PL)",
+          unit: "25 kg",
+          notes: "This market's own priced product (PLN 8); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (PLN 2); Indicative 2026 retail band; adjustable."
+        }
+      },
+      PT: {
+        "exterior-paint": {
+          slug: "pt-fachada-15l",
+          name: "Tinta exterior fachada mate 15L (PT)",
+          unit: "15l",
+          notes: "This market's own priced product (EUR 42.9); Leroy Merlin PT web survey 2026-10-11 (42.90 EUR/15L NOSSO PRECO)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (EUR 0.5); Indicative 2026 retail band; adjustable."
+        }
+      },
+      SA: {
+        "concrete-mix": {
+          slug: "sa-cement-50kg",
+          name: "Cement 50 kg (SA)",
+          unit: "50 kg",
+          notes: "This market's own priced product (SAR 15); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "sa-sand-25kg",
+          name: "Sand 25 kg (SA)",
+          unit: "25 kg",
+          notes: "This market's own priced product (SAR 10); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "sa-emulsion-4l",
+          name: "Interior emulsion 4L (SA)",
+          unit: "4l",
+          notes: "This market's own priced product (SAR 90); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "sa-exterior-4l",
+          name: "Exterior weather paint 4L (SA)",
+          unit: "4l",
+          notes: "This market's own priced product (SAR 110); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "sa-primer-4l",
+          name: "National PVA primer white for masonry 3.6L (SA)",
+          unit: "3.6l",
+          notes: "This market's own priced product (SAR 40); Noon KSA web survey 2026-10-11 (SAR 40 incl VAT)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (SAR 1); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "sa-putty-20kg",
+          name: "Wall putty 20 kg (SA)",
+          unit: "20 kg",
+          notes: "This market's own priced product (SAR 35); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "sa-waterproof-20l",
+          name: "Waterproofing 20L (SA)",
+          unit: "20l",
+          notes: "This market's own priced product (SAR 120); Indicative 2026 retail band; adjustable."
+        }
+      },
+      SE: {
+        "concrete-mix": {
+          slug: "se-cement-25kg",
+          name: "Finja betong/cement 25 kg (SE)",
+          unit: "25 kg",
+          notes: "This market's own priced product (SEK 63); Pricerunner SE web survey 2026-10-11 (Finja 25kg 63 kr)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (SEK 10); Indicative 2026 retail band; adjustable."
+        }
+      },
+      SG: {
+        "concrete-mix": {
+          slug: "sg-cement-50kg",
+          name: "Cement 50 kg (SG)",
+          unit: "50 kg",
+          notes: "This market's own priced product (SGD 8); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "sg-sand-25kg",
+          name: "Sand 25 kg (SG)",
+          unit: "25 kg",
+          notes: "This market's own priced product (SGD 5); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "sg-emulsion-5l",
+          name: "Nippon Odour-less Easy Wash Low Sheen 5L (SG)",
+          unit: "5l",
+          notes: "This market's own priced product (SGD 57.5); Singapore Painting Service price list 2026-10-11 (SGD 50-65 band, mid applied)."
+        },
+        "exterior-paint": {
+          slug: "sg-exterior-5l",
+          name: "Exterior paint 5L (SG)",
+          unit: "5l",
+          notes: "This market's own priced product (SGD 55); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "sg-primer-5l",
+          name: "Primer 5L (SG)",
+          unit: "5l",
+          notes: "This market's own priced product (SGD 25); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (SGD 1); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "sg-putty-20kg",
+          name: "Wall putty 20 kg (SG)",
+          unit: "20 kg",
+          notes: "This market's own priced product (SGD 20); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "sg-waterproof-5l",
+          name: "Waterproofing 5L (SG)",
+          unit: "5l",
+          notes: "This market's own priced product (SGD 30); Indicative 2026 retail band; adjustable."
+        }
+      },
+      TH: {
+        "concrete-mix": {
+          slug: "th-cement-50kg",
+          name: "Cement 50 kg (TH)",
+          unit: "50 kg",
+          notes: "This market's own priced product (THB 150); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "th-sand-25kg",
+          name: "Thraiyao coarse sand ONGROUND 25 kg (TH)",
+          unit: "25 kg",
+          notes: "This market's own priced product (THB 46.73); OneStockHome TH web survey 2026-10-11 (46.73 THB/25kg)."
+        },
+        "interior-paint": {
+          slug: "th-emulsion-4l",
+          name: "JBP Airclean Plus interior water-based paint 8L (TH)",
+          unit: "8l",
+          notes: "This market's own priced product (THB 2650); HomePro TH web survey 2026-10-11 (1859 THB promo, regular 2650 THB/8L)."
+        },
+        "exterior-paint": {
+          slug: "th-exterior-4l",
+          name: "Exterior paint 4L (TH)",
+          unit: "4l",
+          notes: "This market's own priced product (THB 650); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "th-primer-4l",
+          name: "Primer 4L (TH)",
+          unit: "4l",
+          notes: "This market's own priced product (THB 350); Indicative 2026 retail band; adjustable."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (THB 8); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "th-putty-20kg",
+          name: "Wall putty 20 kg (TH)",
+          unit: "20 kg",
+          notes: "This market's own priced product (THB 250); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "th-waterproof-4l",
+          name: "Waterproofing 4L (TH)",
+          unit: "4l",
+          notes: "This market's own priced product (THB 450); Indicative 2026 retail band; adjustable."
+        }
+      },
+      TR: {
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (TRY 10); Indicative 2026 retail band; adjustable."
+        }
+      },
+      US: {
+        "fine-filler": {
+          slug: "us-joint-compound-45gal",
+          name: "USG Sheetrock All-Purpose Joint Compound",
+          unit: "pack",
+          notes: "This market's own priced product (USD 24.09); Home Depot."
+        }
+      },
+      ZA: {
+        "concrete-mix": {
+          slug: "za-cement-50kg",
+          name: "PPC Surebuild 42.5N cement 50 kg (ZA)",
+          unit: "50 kg",
+          notes: "This market's own priced product (ZAR 147.85); Cashbuild web survey 2026-10-11 (PPC Surebuild 42.5N 50kg R147.85)."
+        },
+        sand: {
+          slug: "za-sand-25kg",
+          name: "Builders river sand 40 kg (ZA)",
+          unit: "40 kg",
+          notes: "This market's own priced product (ZAR 30); Builders Warehouse web survey 2026-10-11 (river sand 40kg R30)."
+        },
+        "exterior-paint": {
+          slug: "za-dulux-weatherguard-20l",
+          name: "Dulux Weatherguard 20L (ZA)",
+          unit: "20l",
+          notes: "This market's own priced product (ZAR 1299); Builders Warehouse web survey 2026-10-11 (Weatherguard Fine Textured 20L R1,299)."
+        },
+        primer: {
+          slug: "za-plascon-primer-5l",
+          name: "Plascon Gypsum & Plaster Primer 5L (ZA)",
+          unit: "5l",
+          notes: "This market's own priced product (ZAR 671); Plascon Paint Expert web survey 2026-10-11 (R671)."
+        },
+        sandpaper: {
+          slug: "gen-sandpaper-sheet",
+          name: "Sandpaper Sheets (Fine, pack)",
+          unit: "pack",
+          notes: "This market's own priced product (ZAR 8); Indicative 2026 retail band; adjustable."
+        },
+        waterproofer: {
+          slug: "za-dampproof-5l",
+          name: "Plascon Dampseal Waterproof Sealer 5L (ZA)",
+          unit: "5l",
+          notes: "This market's own priced product (ZAR 959); Builders Warehouse web survey 2026-10-11 (R959)."
+        }
+      },
+      ci: {
+        "concrete-mix": {
+          slug: "ci-cement-50kg",
+          name: "Cement 50 kg (ci)",
+          unit: "50 kg",
+          notes: "This market's own priced product (XOF 5800); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "ci-sand-50kg",
+          name: "Sand 50 kg (ci)",
+          unit: "50 kg",
+          notes: "This market's own priced product (XOF 2500); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "ci-emulsion-20l",
+          name: "Interior emulsion 20L (ci)",
+          unit: "20l",
+          notes: "This market's own priced product (XOF 28000); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "ci-exterior-20l",
+          name: "Exterior paint 20L (ci)",
+          unit: "20l",
+          notes: "This market's own priced product (XOF 32000); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "ci-primer-20l",
+          name: "Primer 20L (ci)",
+          unit: "20l",
+          notes: "This market's own priced product (XOF 19000); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "ci-putty-25kg",
+          name: "Wall putty 25 kg (ci)",
+          unit: "25 kg",
+          notes: "This market's own priced product (XOF 9500); Indicative 2026 retail band; adjustable."
+        }
+      },
+      et: {
+        "concrete-mix": {
+          slug: "et-cement-50kg",
+          name: "Cement 50 kg (et)",
+          unit: "50 kg",
+          notes: "This market's own priced product (ETB 1050); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "et-sand-50kg",
+          name: "Sand 50 kg (et)",
+          unit: "50 kg",
+          notes: "This market's own priced product (ETB 250); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "et-emulsion-20l",
+          name: "Interior emulsion 20L (et)",
+          unit: "20l",
+          notes: "This market's own priced product (ETB 7500); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "et-exterior-20l",
+          name: "Exterior paint 20L (et)",
+          unit: "20l",
+          notes: "This market's own priced product (ETB 8500); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "et-primer-20l",
+          name: "Primer 20L (et)",
+          unit: "20l",
+          notes: "This market's own priced product (ETB 5500); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "et-putty-25kg",
+          name: "Wall putty 25 kg (et)",
+          unit: "25 kg",
+          notes: "This market's own priced product (ETB 2800); Indicative 2026 retail band; adjustable."
+        }
+      },
+      tz: {
+        "concrete-mix": {
+          slug: "tz-cement-50kg",
+          name: "Cement 50 kg (tz)",
+          unit: "50 kg",
+          notes: "This market's own priced product (TZS 25000); Indicative 2026 retail band; adjustable."
+        },
+        sand: {
+          slug: "tz-sand-50kg",
+          name: "Sand 50 kg (tz)",
+          unit: "50 kg",
+          notes: "This market's own priced product (TZS 6000); Indicative 2026 retail band; adjustable."
+        },
+        "interior-paint": {
+          slug: "tz-emulsion-20l",
+          name: "Interior emulsion 20L (tz)",
+          unit: "20l",
+          notes: "This market's own priced product (TZS 95000); Indicative 2026 retail band; adjustable."
+        },
+        "exterior-paint": {
+          slug: "tz-exterior-20l",
+          name: "Exterior paint 20L (tz)",
+          unit: "20l",
+          notes: "This market's own priced product (TZS 105000); Indicative 2026 retail band; adjustable."
+        },
+        primer: {
+          slug: "tz-primer-20l",
+          name: "Primer 20L (tz)",
+          unit: "20l",
+          notes: "This market's own priced product (TZS 65000); Indicative 2026 retail band; adjustable."
+        },
+        "fine-filler": {
+          slug: "tz-putty-25kg",
+          name: "Wall putty 25 kg (tz)",
+          unit: "25 kg",
+          notes: "This market's own priced product (TZS 38000); Indicative 2026 retail band; adjustable."
+        }
+      }
+    };
+  }
+});
+
 // src/lib/international/bundled-price-books.ts
 var bundled_price_books_exports = {};
 __export(bundled_price_books_exports, {
@@ -20629,27 +22163,31 @@ __export(bundled_price_books_exports, {
   getBundledPrice: () => getBundledPrice,
   getBundledRoleMapping: () => getBundledRoleMapping
 });
-function getBundledPrice(slug, market) {
-  const entry = BUNDLED_PRICE_BOOK[slug];
+function getBundledPrice(slug2, market) {
+  const entry = BUNDLED_PRICE_BOOK[slug2];
   const price = entry?.markets[market];
-  return price ? { ...price, slug } : null;
+  return price ? { ...price, slug: slug2 } : null;
 }
 function getBundledCategoryMaterials(category, market) {
   const out = [];
-  for (const [slug, entry] of Object.entries(BUNDLED_PRICE_BOOK)) {
+  for (const [slug2, entry] of Object.entries(BUNDLED_PRICE_BOOK)) {
     if (entry.category !== category) continue;
     const price = entry.markets[market];
-    if (price) out.push({ slug, name: entry.name, pack: entry.pack, price });
+    if (price) out.push({ slug: slug2, name: entry.name, pack: entry.pack, price });
   }
   return out;
 }
 function getBundledRoleMapping(market, role) {
-  return BUNDLED_ROLE_MAPPINGS[market]?.[role] ?? null;
+  const curated = BUNDLED_ROLE_MAPPINGS[market]?.[role];
+  if (curated) return curated;
+  const derived = DERIVED_ROLE_MAPPINGS[market]?.[role];
+  return derived ? { ...derived } : null;
 }
 var BUNDLED_BOOK_VERSION, BUNDLED_PRICE_BOOK, BUNDLED_ROLE_MAPPINGS, BUNDLED_POP_MATERIALS, BUNDLED_TILE_MATERIALS, BUNDLED_PRICED_MARKETS, BUNDLED_MARKET_PRESENTATION;
 var init_bundled_price_books = __esm({
   "src/lib/international/bundled-price-books.ts"() {
     init_define_import_meta_env();
+    init_role_mapping_derive();
     BUNDLED_BOOK_VERSION = "production catalog 2026-10-13";
     BUNDLED_PRICE_BOOK = {
       "gen-sandpaper-sheet": {
@@ -23970,6 +25508,104 @@ var init_bundled_price_books = __esm({
           }
         }
       },
+      "ca-quikrete-portland-40kg": {
+        name: "Quikrete Portland Cement (40 kg)",
+        category: "cement",
+        pack: null,
+        markets: {
+          CA: {
+            p: 24.3,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, Quikrete Portland Cement 40 kg $24.30 (web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ca-sakrete-multipurpose-sand-25kg": {
+        name: "SAKRETE Multi-Purpose Sand (25 kg)",
+        category: "aggregate",
+        pack: null,
+        markets: {
+          CA: {
+            p: 13.86,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, SAKRETE Multi-Purpose Sand 25 kg $13.86 (web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ca-behr-interior-eggshell-3-79l": {
+        name: "BEHR Premium Plus Interior Eggshell (3.79 L)",
+        category: "paint",
+        pack: null,
+        markets: {
+          CA: {
+            p: 48.47,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, BEHR Premium Plus Interior Eggshell 3.79 L $48.47 (tinted base; web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ca-behr-exterior-flat-946ml": {
+        name: "BEHR Premium Plus Exterior Flat (946 mL)",
+        category: "paint",
+        pack: null,
+        markets: {
+          CA: {
+            p: 28.47,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, BEHR Premium Plus Exterior Flat 946 mL $28.47 (web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ca-behr-drywall-primer-3-79l": {
+        name: "BEHR Drywall Plus Interior Primer & Sealer 73 (3.79 L)",
+        category: "primer",
+        pack: null,
+        markets: {
+          CA: {
+            p: 35.47,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, BEHR Drywall Plus Primer & Sealer 73, 3.79 L $35.47 (web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ca-norton-prosand-120-20pk": {
+        name: "Norton ProSand 120-Grit Sheets (20 pack)",
+        category: "prep",
+        pack: null,
+        markets: {
+          CA: {
+            p: 18.07,
+            c: "CAD",
+            v: "2026-11-08",
+            s: "Home Depot Canada, Norton ProSand 9x11 120-Grit 20-pack $18.07 (web survey 2026-11-08)",
+            f: "manual"
+          }
+        }
+      },
+      "ng-screeding-paint-20l": {
+        name: "Nigerian Screeding Paint (20 L)",
+        category: "paint",
+        pack: 4500,
+        markets: {
+          NG: {
+            p: 4500,
+            c: "NGN",
+            v: "2026-11-08",
+            s: "admin price book (owner-set)",
+            f: "manual"
+          }
+        }
+      },
       "formwork-per-m2": {
         name: "Formwork (plywood + nails)",
         category: "formwork",
@@ -26346,22 +27982,40 @@ var init_bundled_price_books = __esm({
       },
       CA: {
         "concrete-mix": {
-          slug: "de-cem-42-5n-25kg",
-          name: "Portland Cement (25 kg)",
-          unit: "sack",
-          notes: "Placeholder until a Canadian cement row is scanned."
+          slug: "ca-quikrete-portland-40kg",
+          name: "Quikrete Portland Cement (40 kg)",
+          unit: "40kg",
+          notes: "Canadian retail row, Home Depot Canada."
+        },
+        sand: {
+          slug: "ca-sakrete-multipurpose-sand-25kg",
+          name: "SAKRETE Multi-Purpose Sand (25 kg)",
+          unit: "25kg",
+          notes: "Bagged masonry sand, Home Depot Canada."
+        },
+        primer: {
+          slug: "ca-behr-drywall-primer-3-79l",
+          name: "BEHR Drywall Plus Primer & Sealer 73 (3.79 L)",
+          unit: "3.79L",
+          notes: "Drywall primer for new plaster and skimmed walls."
+        },
+        sandpaper: {
+          slug: "ca-norton-prosand-120-20pk",
+          name: "Norton ProSand 120-Grit Sheets (20 pack)",
+          unit: "20pk",
+          notes: "Finishing abrasive, Home Depot Canada."
         },
         "exterior-paint": {
-          slug: "us-behr-premium-plus-exterior",
-          name: "Behr Premium Plus Exterior",
-          unit: "gallon",
-          notes: "US product, priced CAD on scan. Inherits US mapping meanwhile."
+          slug: "ca-behr-exterior-flat-946ml",
+          name: "BEHR Premium Plus Exterior Flat (946 mL)",
+          unit: "946ml",
+          notes: "Canadian retail row. A 3.79 L bucket is available and unpriced here."
         },
         "interior-paint": {
-          slug: "us-behr-premium-plus-interior",
-          name: "Behr Premium Plus Interior",
-          unit: "gallon",
-          notes: "US product, priced CAD on scan. Inherits US mapping meanwhile."
+          slug: "ca-behr-interior-eggshell-3-79l",
+          name: "BEHR Premium Plus Interior Eggshell (3.79 L)",
+          unit: "3.79L",
+          notes: "Canadian retail row, Home Depot Canada."
         },
         "joint-filler": {
           slug: "ca-cgc-allpurpose-12l",
@@ -26374,24 +28028,6 @@ var init_bundled_price_books = __esm({
           name: "CGC Synko Paper Tape (500 ft)",
           unit: "roll",
           notes: "Canadian drywall tape. Scan pending."
-        },
-        primer: {
-          slug: "us-zinsser-bulls-eye-123",
-          name: "Zinsser Bulls Eye 1-2-3",
-          unit: "quart",
-          notes: "US product; CAD price via scan."
-        },
-        sand: {
-          slug: "de-bausand-25kg",
-          name: "Construction Sand (25 kg)",
-          unit: "sack",
-          notes: "Placeholder until a Canadian sand row is scanned."
-        },
-        sandpaper: {
-          slug: "gen-sandpaper-sheet",
-          name: "Sandpaper Sheets",
-          unit: "sheets",
-          notes: "Enter your local price."
         }
       },
       DE: {
@@ -26678,6 +28314,12 @@ var init_bundled_price_books = __esm({
           name: "DPM Sheet",
           unit: "m2",
           notes: "Damp-proof membrane per square meter."
+        },
+        "screeding-paint": {
+          slug: "ng-screeding-paint-20l",
+          name: "Screeding Paint (20 L)",
+          unit: "20L",
+          notes: "Carrier paint for white cement wall screeding; a 20 L bucket, not interior emulsion."
         },
         "exterior-paint": {
           slug: "ng-exterior-emulsion-20l",
@@ -32946,10 +34588,10 @@ async function loadBook() {
   bookPromise ??= Promise.resolve().then(() => (init_bundled_price_books(), bundled_price_books_exports));
   return bookPromise;
 }
-async function bundledMaterialForSlug(slug, market) {
+async function bundledMaterialForSlug(slug2, market) {
   const book = await loadBook();
   const candidate = market;
-  const hit = book.getBundledPrice(slug, candidate);
+  const hit = book.getBundledPrice(slug2, candidate);
   if (hit) {
     const entry = book.getBundledPrice(hit.slug, candidate);
     const price = entry ? entry : null;
@@ -33050,12 +34692,31 @@ var init_bundled_book = __esm({
 });
 
 // src/lib/estimation/market-materials.ts
+function evidenceSentence(evidence) {
+  switch (evidence) {
+    case "supplier_verified":
+      return "Verified supplier price.";
+    case "supplier_reported":
+      return "Reported price, not independently verified.";
+    case "macro_reference":
+      return "FX reference band, not a supplier quotation.";
+    case "baseline":
+      return "Seeded baseline with no live source, not a market price.";
+  }
+}
 async function fetchMarketRoleMappings(market) {
   const { data, error } = await supabase.from("market_material_roles").select("market, role, material_slug, display_name, unit_label, notes").eq("market", market).eq("is_active", true).order("sort_order");
   if (error) return [];
   return data ?? [];
 }
 async function fetchInheritanceChain(market) {
+  return cachedRead(
+    `inheritance:${market}`,
+    CACHE_TTL.catalogue,
+    () => loadInheritanceChain(market)
+  );
+}
+async function loadInheritanceChain(market) {
   const chain = [market];
   let current = market;
   for (let depth = 0; depth < 5; depth += 1) {
@@ -33068,6 +34729,13 @@ async function fetchInheritanceChain(market) {
   return chain;
 }
 async function resolveMaterialPriceByRole(role, market) {
+  return cachedRead(
+    `role-price:${market}:${role}`,
+    CACHE_TTL.prices,
+    () => loadMaterialPriceByRole(role, market)
+  );
+}
+async function loadMaterialPriceByRole(role, market) {
   if (shouldUseBundledBook()) {
     const chain2 = [market];
     for (const candidate of chain2) {
@@ -33110,7 +34778,12 @@ async function resolveMaterialPriceByRole(role, market) {
           is_active: true,
           created_at: resolved.price.effective_date,
           updated_at: resolved.price.effective_date
-        }
+        },
+        evidence: classifyEvidence({
+          price_source: resolved.price.price_source ?? null,
+          supplier_name: null,
+          verification_status: null
+        })
       };
     }
     return null;
@@ -33127,7 +34800,10 @@ async function resolveMaterialPriceByRole(role, market) {
       role,
       resolved_market: candidate,
       material,
-      price
+      price,
+      evidence: classifyEvidence(
+        price
+      )
     };
   }
   return null;
@@ -33136,1949 +34812,93 @@ var init_market_materials = __esm({
   "src/lib/estimation/market-materials.ts"() {
     init_define_import_meta_env();
     init_supabase();
+    init_data_cache();
+    init_resolver();
     init_bundled_book();
   }
 });
 
-// node_modules/clsx/dist/clsx.mjs
-var init_clsx = __esm({
-  "node_modules/clsx/dist/clsx.mjs"() {
+// src/lib/pricing/provenance.ts
+function ageInDays(stamp, now = /* @__PURE__ */ new Date()) {
+  if (!stamp) return null;
+  const then = new Date(stamp).getTime();
+  if (!Number.isFinite(then)) return null;
+  return Math.max(0, Math.floor((now.getTime() - then) / DAY_MS));
+}
+var DAY_MS, STALE_AFTER_DAYS;
+var init_provenance = __esm({
+  "src/lib/pricing/provenance.ts"() {
     init_define_import_meta_env();
+    DAY_MS = 864e5;
+    STALE_AFTER_DAYS = 90;
   }
 });
 
-// src/lib/cn.ts
-var init_cn = __esm({
-  "src/lib/cn.ts"() {
-    init_define_import_meta_env();
-    init_clsx();
-  }
-});
-
-// src/lib/international/fx-display.ts
-function readStoredCurrency() {
-  try {
-    const stored = localStorage.getItem(CURRENCY_STORAGE_KEY);
-    if (stored && DISPLAY_CURRENCIES.some((c) => c.code === stored)) {
-      return stored;
+// src/lib/price-index/cache.ts
+function priceCacheKey(parts) {
+  const normalize = (value) => {
+    if (Array.isArray(value)) {
+      return value.map(normalize).sort((a, b) => JSON.stringify(a) < JSON.stringify(b) ? -1 : 1);
     }
-  } catch {
-  }
-  return "NGN";
-}
-function isConverting() {
-  return activeCode !== "NGN" && config.enabled && hasFxRate(activeCode);
-}
-function hasFxRate(code) {
-  const rate = config.rates?.[code];
-  return typeof rate === "number" && rate > 0 && Number.isFinite(rate);
-}
-function activeCurrencySymbol() {
-  const meta = DISPLAY_CURRENCIES.find((c) => c.code === activeCode);
-  return meta ? meta.symbol : "\u20A6";
-}
-function convertFromNGN(amountNGN) {
-  if (!isConverting()) return amountNGN;
-  const safe = typeof amountNGN === "number" && !isNaN(amountNGN) ? amountNGN : 0;
-  return safe * config.rates[activeCode];
-}
-function formatNGNForDisplay(amountNGN, options) {
-  if (!isConverting()) {
-    const safe = typeof amountNGN === "number" && !isNaN(amountNGN) ? amountNGN : 0;
-    const max = options?.decimals === 2 ? 2 : options?.decimals === "auto" ? 2 : 0;
-    const min = options?.decimals === 2 ? 2 : 0;
-    return `\u20A6${safe.toLocaleString("en-US", {
-      minimumFractionDigits: min,
-      maximumFractionDigits: max
-    })}`;
-  }
-  const converted = convertFromNGN(amountNGN);
-  return `${activeCurrencySymbol()}${converted.toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  })}`;
-}
-var CURRENCY_STORAGE_KEY, DISPLAY_CURRENCIES, activeCode, config;
-var init_fx_display = __esm({
-  "src/lib/international/fx-display.ts"() {
-    init_define_import_meta_env();
-    CURRENCY_STORAGE_KEY = "frelux_currency";
-    DISPLAY_CURRENCIES = [
-      { code: "NGN", name: "Nigerian Naira", symbol: "\u20A6", hint: "Nigeria" },
-      { code: "USD", name: "US Dollar", symbol: "$", hint: "United States" },
-      { code: "EUR", name: "Euro", symbol: "\u20AC", hint: "Europe" },
-      { code: "GBP", name: "British Pound", symbol: "\xA3", hint: "United Kingdom" },
-      { code: "GHS", name: "Ghanaian Cedi", symbol: "GH\u20B5", hint: "Ghana" },
-      { code: "KES", name: "Kenyan Shilling", symbol: "KSh", hint: "Kenya" },
-      {
-        code: "ZAR",
-        name: "South African Rand",
-        symbol: "R",
-        hint: "South Africa"
-      },
-      { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
-      { code: "XOF", name: "West African CFA", symbol: "CFA", hint: "West Africa" },
-      // Worldwide majors - every registered locale gets its currency.
-      { code: "JPY", name: "Japanese Yen", symbol: "\xA5", hint: "Japan" },
-      { code: "CNY", name: "Chinese Yuan", symbol: "CN\xA5", hint: "China" },
-      { code: "INR", name: "Indian Rupee", symbol: "\u20B9", hint: "India" },
-      { code: "BRL", name: "Brazilian Real", symbol: "R$", hint: "Brazil" },
-      { code: "AUD", name: "Australian Dollar", symbol: "A$", hint: "Australia" },
-      { code: "RUB", name: "Russian Ruble", symbol: "\u20BD", hint: "Russia" },
-      { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp", hint: "Indonesia" },
-      { code: "MXN", name: "Mexican Peso", symbol: "MX$", hint: "Mexico" },
-      { code: "TRY", name: "Turkish Lira", symbol: "\u20BA", hint: "T\xFCrkiye" },
-      { code: "SAR", name: "Saudi Riyal", symbol: "\uFDFC", hint: "Saudi Arabia" },
-      {
-        code: "AED",
-        name: "UAE Dirham",
-        symbol: "\u062F.\u0625",
-        hint: "United Arab Emirates"
-      },
-      { code: "EGP", name: "Egyptian Pound", symbol: "E\xA3", hint: "Egypt" },
-      { code: "KRW", name: "South Korean Won", symbol: "\u20A9", hint: "South Korea" },
-      // The remaining builtin-market currencies: every registered market
-      // formats with its own verified symbol, never bare ISO fallback.
-      { code: "CHF", name: "Swiss Franc", symbol: "CHF", hint: "Switzerland" },
-      {
-        code: "NZD",
-        name: "New Zealand Dollar",
-        symbol: "NZ$",
-        hint: "New Zealand"
-      },
-      { code: "SGD", name: "Singapore Dollar", symbol: "S$", hint: "Singapore" },
-      { code: "SEK", name: "Swedish Krona", symbol: "kr", hint: "Sweden" },
-      { code: "PLN", name: "Polish Z\u0142oty", symbol: "z\u0142", hint: "Poland" },
-      { code: "ETB", name: "Ethiopian Birr", symbol: "Br", hint: "Ethiopia" },
-      { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh", hint: "Tanzania" }
-    ];
-    activeCode = readStoredCurrency();
-    config = { enabled: false, rates: {} };
-    if (typeof localStorage !== "undefined") {
-      window.addEventListener("storage", (e) => {
-        if (e.key === CURRENCY_STORAGE_KEY && e.newValue) {
-          activeCode = DISPLAY_CURRENCIES.some((c) => c.code === e.newValue) ? e.newValue : "NGN";
-        }
-      });
-    }
-  }
-});
-
-// src/lib/international/currency-units.ts
-function currencyMinorUnits(code) {
-  return MINOR_UNITS[String(code ?? "").toUpperCase()] ?? 2;
-}
-var MINOR_UNITS;
-var init_currency_units = __esm({
-  "src/lib/international/currency-units.ts"() {
-    init_define_import_meta_env();
-    MINOR_UNITS = {
-      JPY: 0,
-      KRW: 0
-    };
-  }
-});
-
-// src/lib/international/currency-format.ts
-function displayLocale(explicit) {
-  return explicit ?? activeLocale ?? "en-US";
-}
-function joinSymbol(symbol, formatted) {
-  return symbol.length === 1 ? `${symbol}${formatted}` : `${symbol} ${formatted}`;
-}
-function decimalDigits(decimals, code) {
-  switch (decimals) {
-    case 0:
-      return { min: 0, max: 0 };
-    case 2:
-      return { min: 2, max: 2 };
-    case "auto":
-      return { min: 0, max: 2 };
-    case "native":
-      return currencyMinorUnits(code) === 0 ? { min: 0, max: 0 } : { min: 2, max: 2 };
-  }
-}
-function safeAmount(amount) {
-  return typeof amount === "number" && !isNaN(amount) ? amount : 0;
-}
-function formatByCode(amount, code = "XXX", options = {}) {
-  const upper = String(code || "XXX").toUpperCase();
-  const symbol = CURRENCY_SYMBOLS[upper] || upper;
-  const { min, max } = decimalDigits(options.decimals ?? 0, upper);
-  const formatted = safeAmount(amount).toLocaleString(
-    displayLocale(options.locale),
-    {
-      minimumFractionDigits: min,
-      maximumFractionDigits: max
-    }
-  );
-  return joinSymbol(symbol, formatted);
-}
-var CURRENCY_SYMBOLS, activeLocale;
-var init_currency_format = __esm({
-  "src/lib/international/currency-format.ts"() {
-    init_define_import_meta_env();
-    init_fx_display();
-    init_currency_units();
-    CURRENCY_SYMBOLS = Object.fromEntries(
-      DISPLAY_CURRENCIES.map((c) => [c.code, c.symbol])
-    );
-    activeLocale = null;
-  }
-});
-
-// src/lib/utils.ts
-function feetToMeters(ft) {
-  return ft * 0.3048;
-}
-function unitToMeters(value, unit) {
-  return value * UNIT_TO_M[unit];
-}
-var UNIT_TO_M, DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M;
-var init_utils = __esm({
-  "src/lib/utils.ts"() {
-    init_define_import_meta_env();
-    init_cn();
-    init_fx_display();
-    init_currency_format();
-    UNIT_TO_M = {
-      meters: 1,
-      feet: 0.3048,
-      inches: 0.0254,
-      centimeters: 0.01,
-      millimeters: 1e-3
-    };
-    DEFAULT_DOOR_WIDTH_M = 0.8;
-    DEFAULT_DOOR_HEIGHT_M = 2.4;
-    DEFAULT_WINDOW_WIDTH_M = 1.2;
-    DEFAULT_WINDOW_HEIGHT_M = 1.2;
-  }
-});
-
-// src/lib/calc.ts
-var calc_exports = {};
-__export(calc_exports, {
-  COLOR_CONDITION_INFO: () => COLOR_CONDITION_INFO,
-  DEFAULT_CONTAINER_SIZES_LITERS: () => DEFAULT_CONTAINER_SIZES_LITERS,
-  DEFAULT_COVERAGE_M2_PER_LITER: () => DEFAULT_COVERAGE_M2_PER_LITER,
-  DEFAULT_DOOR_DIMS: () => DEFAULT_DOOR_DIMS,
-  DEFAULT_WINDOW_DIMS: () => DEFAULT_WINDOW_DIMS,
-  SURFACE_CONDITION_FACTORS: () => SURFACE_CONDITION_FACTORS,
-  calculateAdjustedPaintRequired: () => calculateAdjustedPaintRequired,
-  calculateCeilingArea: () => calculateCeilingArea,
-  calculateCost: () => calculateCost,
-  calculateDoorArea: () => calculateDoorArea,
-  calculateEstimatedTotal: () => calculateEstimatedTotal,
-  calculateLaborCost: () => calculateLaborCost,
-  calculateMaterialCost: () => calculateMaterialCost,
-  calculatePaint: () => calculatePaint,
-  calculatePaintCost: () => calculatePaintCost,
-  calculatePaintRequired: () => calculatePaintRequired,
-  calculatePaintableArea: () => calculatePaintableArea,
-  calculateScreedingMixSystem: () => calculateScreedingMixSystem,
-  calculateScreedingPutty: () => calculateScreedingPutty,
-  calculateScreedingSystem: () => calculateScreedingSystem,
-  calculateWallArea: () => calculateWallArea,
-  calculateWindowArea: () => calculateWindowArea,
-  dbToSystemConfig: () => dbToSystemConfig,
-  evaluateHeightWarning: () => evaluateHeightWarning,
-  getColorConditionInfo: () => getColorConditionInfo,
-  getScreedingSystemWarnings: () => getScreedingSystemWarnings,
-  getSurfaceConditionFactor: () => getSurfaceConditionFactor,
-  recommendContainerCombination: () => recommendContainerCombination,
-  recommendPracticalContainers: () => recommendPracticalContainers,
-  resolveMinCoats: () => resolveMinCoats,
-  resolveSurfaceFactor: () => resolveSurfaceFactor,
-  validateCalculatorInput: () => validateCalculatorInput
-});
-function getSurfaceConditionFactor(condition) {
-  if (!condition) return SURFACE_CONDITION_FACTORS.smooth;
-  return SURFACE_CONDITION_FACTORS[condition] ?? SURFACE_CONDITION_FACTORS.smooth;
-}
-function getColorConditionInfo(condition) {
-  if (!condition) return COLOR_CONDITION_INFO.same_or_light;
-  return COLOR_CONDITION_INFO[condition] ?? COLOR_CONDITION_INFO.same_or_light;
-}
-function resolveSurfaceFactor(condition, config2) {
-  const documented = getSurfaceConditionFactor(condition).factor;
-  const perCondition = condition ? config2?.surfaceFactorOverrides?.[condition] : void 0;
-  if (perCondition !== void 0) {
-    if (perCondition > 0 && perCondition <= MAX_SURFACE_FACTOR)
-      return perCondition;
-  }
-  const scalar = config2?.surfaceFactorOverride;
-  if (scalar !== void 0) {
-    if (scalar > 0 && scalar <= MAX_SURFACE_FACTOR) return scalar;
-  }
-  return documented;
-}
-function resolveMinCoats(condition, config2) {
-  const documented = getColorConditionInfo(condition).minCoats;
-  const perCondition = condition ? config2?.minCoatsOverrides?.[condition] : void 0;
-  if (perCondition !== void 0) {
-    if (Number.isInteger(perCondition) && perCondition >= 1)
-      return perCondition;
-  }
-  const scalar = config2?.minCoatsOverride;
-  if (scalar !== void 0) {
-    if (Number.isInteger(scalar) && scalar >= 1) return scalar;
-  }
-  return documented;
-}
-function evaluateHeightWarning(heightM, unit) {
-  const standardM = STANDARD_HEIGHT_M;
-  const standardFt = STANDARD_HEIGHT_FT;
-  if (heightM > standardM) {
-    const _heightFt = unit === "feet" ? heightM / 0.3048 : heightM * 3.28084;
-    return `Wall height exceeds the FRELUX standard (${standardFt} ft / ${standardM.toFixed(2)} m). Professional assessment recommended for non-standard heights.`;
-  }
-  return null;
-}
-function toMeters(value, unit) {
-  return unitToMeters(value, unit);
-}
-function calculateWallArea(lengthM, widthM, heightM, projectType) {
-  if (projectType === "fence") {
-    return lengthM * heightM;
-  }
-  if (widthM <= 0) {
-    return 2 * lengthM * heightM;
-  }
-  const perimeter = 2 * (lengthM + widthM);
-  return perimeter * heightM;
-}
-function calculateCeilingArea(lengthM, widthM, projectType) {
-  if (projectType === "exterior" || projectType === "fence") return 0;
-  if (widthM <= 0) return 0;
-  return lengthM * widthM;
-}
-function calculateDoorArea(doorCount, dims = DEFAULT_DOOR_DIMS) {
-  const areaPerDoor = Math.max(0, dims.width) * Math.max(0, dims.height);
-  return Math.max(0, doorCount) * areaPerDoor;
-}
-function calculateWindowArea(windowCount, dims = DEFAULT_WINDOW_DIMS) {
-  const areaPerWindow = Math.max(0, dims.width) * Math.max(0, dims.height);
-  return Math.max(0, windowCount) * areaPerWindow;
-}
-function calculatePaintableArea(wallAreaM2, ceilingAreaM2, doorAreaM2, windowAreaM2, includeCeiling) {
-  const surface = wallAreaM2 + (includeCeiling ? ceilingAreaM2 : 0);
-  const openings = doorAreaM2 + windowAreaM2;
-  return Math.max(0, surface - openings);
-}
-function calculatePaintRequired(paintableAreaM2, coats, coverageRate) {
-  if (coverageRate <= 0) return 0;
-  return paintableAreaM2 * Math.max(1, coats) / coverageRate;
-}
-function calculateAdjustedPaintRequired(paintRequiredLiters, wasteMarginPercent) {
-  const margin = Math.max(0, Math.min(100, wasteMarginPercent)) / 100;
-  return paintRequiredLiters * (1 + margin);
-}
-function mergeSameSizeRecommendations(recommendations) {
-  const merged = /* @__PURE__ */ new Map();
-  for (const r of recommendations) {
-    merged.set(r.size, (merged.get(r.size) ?? 0) + r.count);
-  }
-  return [...merged.entries()].map(([size, count]) => ({ size, count }));
-}
-function recommendContainerCombination(liters, containerSizes) {
-  const sizes = containerSizes.length > 0 ? [...containerSizes].sort((a, b) => b - a) : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
-  let remaining = Math.max(0, liters);
-  const recommendations = [];
-  for (const size of sizes) {
-    if (remaining <= 0) break;
-    const count = Math.floor(remaining / size);
-    if (count > 0) {
-      recommendations.push({ size, count });
-      remaining -= count * size;
-    }
-  }
-  if (remaining > 0) {
-    const smallest = sizes[sizes.length - 1];
-    recommendations.push({ size: smallest, count: 1 });
-  }
-  return mergeSameSizeRecommendations(recommendations);
-}
-function recommendPracticalContainers(liters, containerSizes) {
-  const sizes = containerSizes.length > 0 ? [...containerSizes].sort((a, b) => b - a) : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
-  const need = Math.max(0, liters);
-  if (need === 0) return [];
-  for (let i = sizes.length - 1; i >= 0; i--) {
-    if (sizes[i] >= need) {
-      return [{ size: sizes[i], count: 1 }];
-    }
-  }
-  let remaining = need;
-  const recommendations = [];
-  for (const size of sizes) {
-    if (remaining <= 0) break;
-    const count = Math.floor(remaining / size);
-    if (count > 0) {
-      recommendations.push({ size, count });
-      remaining -= count * size;
-    }
-  }
-  if (remaining > 0) {
-    const _largest = sizes[0];
-    const smallest = sizes[sizes.length - 1];
-    if (remaining > smallest * 0.5 && recommendations.length > 0) {
-      const lastRec = recommendations[recommendations.length - 1];
-      const nextSize = sizes.find((s) => s > lastRec.size);
-      if (nextSize && remaining <= nextSize) {
-        recommendations[recommendations.length - 1] = {
-          size: nextSize,
-          count: 1
-        };
-        remaining = 0;
-      } else {
-        recommendations.push({ size: smallest, count: 1 });
-      }
-    } else {
-      recommendations.push({ size: smallest, count: 1 });
-    }
-  }
-  return mergeSameSizeRecommendations(recommendations);
-}
-function calculatePaint(input, config2) {
-  const baseCoverageRate = config2?.coverageRate ?? DEFAULT_COVERAGE_M2_PER_LITER;
-  const containerSizes = config2?.containerSizes ?? DEFAULT_CONTAINER_SIZES_LITERS;
-  const lengthM = toMeters(input.length, input.unit);
-  const widthM = toMeters(input.width, input.unit);
-  const heightM = toMeters(input.wallHeight, input.unit);
-  const wall = calculateWallArea(lengthM, widthM, heightM, input.projectType);
-  const ceiling = calculateCeilingArea(lengthM, widthM, input.projectType);
-  const door = calculateDoorArea(input.doors, input.doorDims);
-  const window2 = calculateWindowArea(input.windows, input.windowDims);
-  const area = calculatePaintableArea(
-    wall,
-    ceiling,
-    door,
-    window2,
-    input.includeCeiling
-  );
-  const surfaceCondition = input.surfaceCondition ?? "smooth";
-  const surfaceFactor = resolveSurfaceFactor(surfaceCondition, config2);
-  const adjustedCoverageRate = round(baseCoverageRate * surfaceFactor);
-  const colorCondition = input.colorCondition ?? "same_or_light";
-  const colorInfo = getColorConditionInfo(colorCondition);
-  const minCoats = resolveMinCoats(colorCondition, config2);
-  const effectiveCoats = Math.max(input.coats, minCoats);
-  const heightWarning = evaluateHeightWarning(heightM, input.unit);
-  const baseLiters = calculatePaintRequired(
-    area,
-    effectiveCoats,
-    adjustedCoverageRate
-  );
-  const adjustedLiters = calculateAdjustedPaintRequired(
-    baseLiters,
-    input.wasteMargin
-  );
-  const containers = recommendPracticalContainers(
-    adjustedLiters,
-    containerSizes
-  );
-  const totalRecommended = containers.reduce(
-    (sum, c) => sum + c.count * c.size,
-    0
-  );
-  const leftoverLiters = Math.max(0, round(totalRecommended - adjustedLiters));
-  const primerRecommended = surfaceCondition === "new_plaster" || surfaceCondition === "rough" || colorCondition === "new_unpainted" || colorCondition === "light_over_dark";
-  const includePrimer = input.includePrimer ?? primerRecommended;
-  const primerCoverageRate = adjustedCoverageRate * (config2?.primerCoverageMultiplier ?? 1.3);
-  const primerLiters = includePrimer ? calculateAdjustedPaintRequired(
-    calculatePaintRequired(area, 1, primerCoverageRate),
-    input.wasteMargin
-  ) : 0;
-  const primerContainers = primerLiters > 0 ? recommendPracticalContainers(primerLiters, containerSizes) : [];
-  const primerTotalLiters = primerContainers.reduce(
-    (sum, c) => sum + c.count * c.size,
-    0
-  );
-  return {
-    projectType: input.projectType,
-    unit: input.unit,
-    wallArea: round(wall),
-    ceilingArea: round(ceiling),
-    doorArea: round(door),
-    windowArea: round(window2),
-    paintableArea: round(area),
-    coats: effectiveCoats,
-    paintType: input.paintType,
-    coverageRate: adjustedCoverageRate,
-    baseCoverageRate,
-    surfaceCondition,
-    surfaceConditionFactor: surfaceFactor,
-    paintRequiredLiters: round(baseLiters),
-    wasteMargin: input.wasteMargin,
-    adjustedLiters: round(adjustedLiters),
-    recommendedContainers: containers,
-    totalRecommendedLiters: round(totalRecommended),
-    leftoverLiters,
-    primerLiters: round(primerLiters),
-    primerContainers,
-    primerTotalLiters: round(primerTotalLiters),
-    heightWarning,
-    colorWarning: colorInfo.warning,
-    primerRecommended
-  };
-}
-function calculatePaintCost(input) {
-  if (input.paintUseContainerPricing && input.paintContainerSize > 0 && input.paintContainerPrice > 0) {
-    const containersNeeded = Math.ceil(
-      Math.max(0, input.paintLiters) / input.paintContainerSize
-    );
-    return {
-      cost: containersNeeded * input.paintContainerPrice,
-      containerCount: containersNeeded
-    };
-  }
-  return {
-    cost: Math.max(0, input.paintLiters) * Math.max(0, input.paintPricePerLiter),
-    containerCount: 0
-  };
-}
-function calculateMaterialCost(input) {
-  let sum = 0;
-  if (input.includeFiller) sum += Math.max(0, input.fillerCost);
-  if (input.includePutty) sum += Math.max(0, input.puttyCost);
-  if (input.includeSandpaper) sum += Math.max(0, input.sandpaperCost);
-  if (input.includeBrushes) sum += Math.max(0, input.brushesCost);
-  if (input.includeRollers) sum += Math.max(0, input.rollersCost);
-  if (input.includeOther) sum += Math.max(0, input.otherMaterialsCost);
-  return sum;
-}
-function calculateLaborCost(input) {
-  if (input.laborMode === "perSqm") {
-    return Math.max(0, input.paintableArea) * Math.max(0, input.laborRatePerSqm);
-  }
-  return Math.max(0, input.laborTotal);
-}
-function calculateEstimatedTotal(input) {
-  const { cost: paintCost, containerCount } = calculatePaintCost(input);
-  const primerCost = input.includePrimer ? Math.max(0, input.primerLiters) * Math.max(0, input.primerPricePerLiter) : 0;
-  const fillerCost = input.includeFiller ? Math.max(0, input.fillerCost) : 0;
-  const puttyCost = input.includePutty ? Math.max(0, input.puttyCost) : 0;
-  const sandpaperCost = input.includeSandpaper ? Math.max(0, input.sandpaperCost) : 0;
-  const brushesCost = input.includeBrushes ? Math.max(0, input.brushesCost) : 0;
-  const rollersCost = input.includeRollers ? Math.max(0, input.rollersCost) : 0;
-  const otherMaterialsCost = input.includeOther ? Math.max(0, input.otherMaterialsCost) : 0;
-  const materialsCost = calculateMaterialCost(input);
-  const laborCost = calculateLaborCost(input);
-  const total = paintCost + primerCost + materialsCost + laborCost;
-  return {
-    paintCost: round(paintCost),
-    paintContainerCount: containerCount,
-    primerCost: round(primerCost),
-    fillerCost: round(fillerCost),
-    puttyCost: round(puttyCost),
-    sandpaperCost: round(sandpaperCost),
-    brushesCost: round(brushesCost),
-    rollersCost: round(rollersCost),
-    otherMaterialsCost: round(otherMaterialsCost),
-    materialsCost: round(materialsCost),
-    laborCost: round(laborCost),
-    total: round(total),
-    currency: input.currency,
-    currencySymbol: input.currencySymbol
-  };
-}
-function getScreedingSystemWarnings(config2) {
-  const warnings = [];
-  const coverageOk = Number.isFinite(config2.coverageAreaM2) && config2.coverageAreaM2 > 0;
-  if (!coverageOk) {
-    warnings.push(
-      "Coverage area is not configured. Material quantities will be 0 until it is set in the FRELUX screeding materials page."
-    );
-  }
-  const qtyWarning = (name, label) => warnings.push(
-    `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in the FRELUX screeding materials page.`
-  );
-  const priceWarning = (name, label) => warnings.push(
-    `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in the FRELUX screeding materials page.`
-  );
-  if (config2.systemType === "putty") {
-    if (config2.puttyQuantity == null || config2.puttyQuantity <= 0) {
-      qtyWarning(config2.puttyName ?? "Putty", "Putty");
-    }
-    if (config2.puttyPricePerUnit == null || config2.puttyPricePerUnit <= 0) {
-      priceWarning(config2.puttyName ?? "Putty", "Putty");
-    }
-  } else {
-    if (config2.paintQuantity == null || config2.paintQuantity <= 0) {
-      qtyWarning(config2.paintName ?? "Screeding Paint", "Screeding paint");
-    }
-    if (config2.paintPricePerUnit == null || config2.paintPricePerUnit <= 0) {
-      priceWarning(config2.paintName ?? "Screeding Paint", "Screeding paint");
-    }
-    if (config2.cementQuantity == null || config2.cementQuantity <= 0) {
-      qtyWarning(config2.cementName ?? "White Cement", "White cement");
-    }
-    if (config2.cementPricePerUnit == null || config2.cementPricePerUnit <= 0) {
-      priceWarning(config2.cementName ?? "White Cement", "White cement");
-    }
-    if (config2.extraEnabled === true) {
-      if (config2.extraQuantity == null || config2.extraQuantity <= 0) {
-        qtyWarning(config2.extraName ?? "Extra material", "Extra material");
-      }
-      if (config2.extraPricePerUnit == null || config2.extraPricePerUnit <= 0) {
-        priceWarning(config2.extraName ?? "Extra material", "Extra material");
-      }
-    }
-  }
-  return warnings;
-}
-function buildMaterialBreakdown(params) {
-  const wasteFraction = Math.max(0, Math.min(100, params.wastePercentage)) / 100;
-  const wasteQuantity = params.baseQuantity * wasteFraction;
-  const finalQuantity = params.baseQuantity + wasteQuantity;
-  const purchaseQuantity = params.roundingRule === "ceil" ? Math.max(0, Math.ceil(finalQuantity)) : Math.max(0, finalQuantity);
-  const totalCost = params.pricePerUnit != null && params.pricePerUnit > 0 ? purchaseQuantity * params.pricePerUnit : null;
-  return {
-    name: params.name,
-    unit: params.unit,
-    baseQuantity: round(params.baseQuantity),
-    wastePercentage: params.wastePercentage,
-    wasteQuantity: round(wasteQuantity),
-    finalQuantity: round(finalQuantity),
-    purchaseQuantity,
-    pricePerUnit: params.pricePerUnit ?? null,
-    totalCost: totalCost != null ? round(totalCost) : null
-  };
-}
-function calculateScreedingPutty(areaM2, config2, coats) {
-  const area = Math.max(0, areaM2);
-  const defaultCoats = Math.max(1, config2.defaultCoats);
-  const effectiveCoats = Math.max(1, coats ?? defaultCoats);
-  const coverage = Math.max(0.01, config2.coverageAreaM2);
-  const puttyQty = config2.puttyQuantity ?? 0;
-  const wastePct = config2.wastePercentage;
-  const coatFactor = effectiveCoats / defaultCoats;
-  const baseUnits = area / coverage * puttyQty * coatFactor;
-  const putty = buildMaterialBreakdown({
-    name: config2.puttyName ?? "Putty",
-    unit: config2.puttyUnit ?? "bucket",
-    baseQuantity: baseUnits,
-    wastePercentage: wastePct,
-    pricePerUnit: config2.puttyPricePerUnit,
-    roundingRule: config2.roundingRule
-  });
-  const materialCost = putty.totalCost ?? null;
-  return {
-    systemType: "putty",
-    netScreedingArea: round(area),
-    coats: effectiveCoats,
-    coverageAreaM2: coverage,
-    putty,
-    materialCost,
-    currency: config2.currency,
-    currencySymbol: config2.currencySymbol,
-    warnings: getScreedingSystemWarnings(config2)
-  };
-}
-function calculateScreedingMixSystem(areaM2, config2, coats) {
-  const area = Math.max(0, areaM2);
-  const defaultCoats = Math.max(1, config2.defaultCoats);
-  const effectiveCoats = Math.max(1, coats ?? defaultCoats);
-  const coverage = Math.max(0.01, config2.coverageAreaM2);
-  const paintQty = config2.paintQuantity ?? 0;
-  const cementQty = config2.cementQuantity ?? 0;
-  const extraActive = config2.extraEnabled === true && config2.extraName != null && (config2.extraQuantity ?? 0) > 0;
-  const extraQty = extraActive ? config2.extraQuantity ?? 0 : 0;
-  const wastePct = config2.wastePercentage;
-  const coatFactor = effectiveCoats / defaultCoats;
-  const baseUnits = area / coverage;
-  const basePaint = baseUnits * paintQty * coatFactor;
-  const baseCement = baseUnits * cementQty * coatFactor;
-  const baseExtra = baseUnits * extraQty * coatFactor;
-  const paint = buildMaterialBreakdown({
-    name: config2.paintName ?? "Screeding Paint",
-    unit: config2.paintUnit ?? "bucket",
-    baseQuantity: basePaint,
-    wastePercentage: wastePct,
-    pricePerUnit: config2.paintPricePerUnit,
-    roundingRule: config2.roundingRule
-  });
-  const cement = buildMaterialBreakdown({
-    name: config2.cementName ?? "White Cement",
-    unit: config2.cementUnit ?? "bag",
-    baseQuantity: baseCement,
-    wastePercentage: wastePct,
-    pricePerUnit: config2.cementPricePerUnit,
-    roundingRule: config2.roundingRule
-  });
-  const extra = extraActive ? buildMaterialBreakdown({
-    name: config2.extraName,
-    unit: config2.extraUnit ?? "bucket",
-    baseQuantity: baseExtra,
-    wastePercentage: wastePct,
-    pricePerUnit: config2.extraPricePerUnit ?? null,
-    roundingRule: config2.roundingRule
-  }) : null;
-  const paintCost = paint.totalCost ?? 0;
-  const cementCost = cement.totalCost ?? 0;
-  const extraCost = extra?.totalCost ?? 0;
-  const pricedParts = [paint.totalCost, cement.totalCost, extra?.totalCost];
-  const hasAnyPrice = pricedParts.some((c) => c != null);
-  const materialCost = hasAnyPrice ? round(paintCost + cementCost + extraCost) : null;
-  return {
-    systemType: "white_cement_paint",
-    netScreedingArea: round(area),
-    coats: effectiveCoats,
-    coverageAreaM2: coverage,
-    wastePercentage: wastePct,
-    paint,
-    cement,
-    extra,
-    materialCost,
-    currency: config2.currency,
-    currencySymbol: config2.currencySymbol,
-    warnings: getScreedingSystemWarnings(config2)
-  };
-}
-function calculateScreedingSystem(areaM2, config2, coats) {
-  if (config2.systemType === "putty") {
-    return calculateScreedingPutty(areaM2, config2, coats);
-  }
-  return calculateScreedingMixSystem(areaM2, config2, coats);
-}
-function dbToSystemConfig(db) {
-  return {
-    systemType: db.system_type,
-    displayName: db.display_name,
-    description: db.description,
-    coverageAreaM2: Number(db.coverage_area_m2),
-    coverageUnit: db.coverage_unit,
-    defaultCoats: Number(db.default_coats),
-    wastePercentage: Number(db.waste_percentage),
-    currency: db.currency,
-    currencySymbol: db.currency_symbol,
-    puttyName: db.putty_name,
-    puttyQuantity: db.putty_quantity != null ? Number(db.putty_quantity) : null,
-    puttyUnit: db.putty_unit,
-    puttyPricePerUnit: db.putty_price_per_unit != null ? Number(db.putty_price_per_unit) : null,
-    paintName: db.paint_name,
-    paintQuantity: db.paint_quantity != null ? Number(db.paint_quantity) : null,
-    paintUnit: db.paint_unit,
-    paintPricePerUnit: db.paint_price_per_unit != null ? Number(db.paint_price_per_unit) : null,
-    cementName: db.cement_name,
-    cementQuantity: db.cement_quantity != null ? Number(db.cement_quantity) : null,
-    cementUnit: db.cement_unit,
-    cementPricePerUnit: db.cement_price_per_unit != null ? Number(db.cement_price_per_unit) : null,
-    extraEnabled: db.extra_enabled === true,
-    extraName: db.extra_name,
-    extraQuantity: db.extra_quantity != null ? Number(db.extra_quantity) : null,
-    extraUnit: db.extra_unit,
-    extraPricePerUnit: db.extra_price_per_unit != null ? Number(db.extra_price_per_unit) : null,
-    roundingRule: db.rounding_rule
-  };
-}
-function validateCalculatorInput(input) {
-  const errors = {};
-  if (!input.projectType) errors.projectType = "Select a project type";
-  if (input.length <= 0 || !isFinite(input.length))
-    errors.length = "Enter a valid length greater than 0";
-  if (input.wallHeight <= 0 || !isFinite(input.wallHeight))
-    errors.wallHeight = "Enter a valid wall height greater than 0";
-  if (input.doors < 0 || !isFinite(input.doors))
-    errors.doors = "Doors cannot be negative";
-  if (input.windows < 0 || !isFinite(input.windows))
-    errors.windows = "Windows cannot be negative";
-  if (input.coats < 1 || !isFinite(input.coats))
-    errors.coats = "Enter at least 1 coat";
-  if (input.wasteMargin < 0 || input.wasteMargin > 100 || !isFinite(input.wasteMargin))
-    errors.wasteMargin = "Waste margin must be between 0 and 100";
-  return errors;
-}
-function round(n) {
-  return Math.round(n * 100) / 100;
-}
-var DEFAULT_COVERAGE_M2_PER_LITER, DEFAULT_CONTAINER_SIZES_LITERS, DEFAULT_DOOR_DIMS, DEFAULT_WINDOW_DIMS, SURFACE_CONDITION_FACTORS, COLOR_CONDITION_INFO, STANDARD_HEIGHT_FT, STANDARD_HEIGHT_M, MAX_SURFACE_FACTOR, calculateCost;
-var init_calc = __esm({
-  "src/lib/calc.ts"() {
-    init_define_import_meta_env();
-    init_utils();
-    DEFAULT_COVERAGE_M2_PER_LITER = 10;
-    DEFAULT_CONTAINER_SIZES_LITERS = [1, 4, 20];
-    DEFAULT_DOOR_DIMS = {
-      width: DEFAULT_DOOR_WIDTH_M,
-      height: DEFAULT_DOOR_HEIGHT_M
-    };
-    DEFAULT_WINDOW_DIMS = {
-      width: DEFAULT_WINDOW_WIDTH_M,
-      height: DEFAULT_WINDOW_HEIGHT_M
-    };
-    SURFACE_CONDITION_FACTORS = {
-      smooth: {
-        factor: 1,
-        label: "Smooth / Previously Painted",
-        description: "Sound, smooth surface, standard coverage applies."
-      },
-      textured: {
-        factor: 0.85,
-        label: "Textured",
-        description: "Textured surface, ~15% more paint absorbed due to surface profile."
-      },
-      rough: {
-        factor: 0.75,
-        label: "Rough",
-        description: "Rough surface, ~25% more paint absorbed. Consider surface preparation."
-      },
-      new_plaster: {
-        factor: 0.8,
-        label: "New / Bare Plaster",
-        description: "New plaster is porous, ~20% more paint absorbed on first coat. Primer strongly recommended."
-      }
-    };
-    COLOR_CONDITION_INFO = {
-      same_or_light: { label: "Same / Light Colour", warning: null, minCoats: 2 },
-      dark_over_light: {
-        label: "Dark over Light",
-        warning: "Dark colour over light surface typically requires 3+ coats or a tinted primer for full opacity.",
-        minCoats: 3
-      },
-      light_over_dark: {
-        label: "Light over Dark",
-        warning: "Light colour over dark surface requires primer + 2-3 coats for complete coverage.",
-        minCoats: 3
-      },
-      new_unpainted: {
-        label: "New / Unpainted",
-        warning: "New/unpainted surfaces are porous. Primer/sealer is strongly recommended before painting.",
-        minCoats: 2
-      }
-    };
-    STANDARD_HEIGHT_FT = 8;
-    STANDARD_HEIGHT_M = 2.4384;
-    MAX_SURFACE_FACTOR = 1;
-    calculateCost = calculateEstimatedTotal;
-  }
-});
-
-// src/lib/local-projects.ts
-function getStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY2);
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-function setStorage(projects) {
-  try {
-    localStorage.setItem(STORAGE_KEY2, JSON.stringify(projects));
-  } catch {
-  }
-}
-function saveLocalProject(name, type, data) {
-  const projects = getStorage();
-  const project = {
-    id: `local_${Date.now()}`,
-    name,
-    type,
-    data,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString()
-  };
-  projects.unshift(project);
-  if (projects.length > MAX_PROJECTS) {
-    projects.splice(MAX_PROJECTS);
-  }
-  setStorage(projects);
-  return project;
-}
-var STORAGE_KEY2, MAX_PROJECTS;
-var init_local_projects = __esm({
-  "src/lib/local-projects.ts"() {
-    init_define_import_meta_env();
-    STORAGE_KEY2 = "frelux_saved_projects";
-    MAX_PROJECTS = 20;
-  }
-});
-
-// src/lib/supabase-lazy.ts
-function getSupabase() {
-  if (_client) return Promise.resolve(_client);
-  if (_promise) return _promise;
-  _promise = Promise.resolve().then(() => (init_dist4(), dist_exports)).then(({ createClient: createClient2 }) => {
-    _client = createClient2(url2, anonKey2, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    });
-    return _client;
-  });
-  return _promise;
-}
-var url2, anonKey2, isSupabaseConfigured2, _client, _promise;
-var init_supabase_lazy = __esm({
-  "src/lib/supabase-lazy.ts"() {
-    init_define_import_meta_env();
-    url2 = "https://nfgaaohweygwydoelxnf.supabase.co";
-    anonKey2 = "$VITE_ANON_KEY";
-    isSupabaseConfigured2 = Boolean(url2 && anonKey2);
-    _client = null;
-    _promise = null;
-  }
-});
-
-// src/lib/credits.ts
-async function awardCredits(sessionToken, eventDef, referenceId, metadata) {
-  if (!isSupabaseConfigured2 || !EDGE_FUNCTION_URL) {
-    return { success: false, error: "Supabase not configured" };
-  }
-  try {
-    const res = await fetch(`${EDGE_FUNCTION_URL}/award-credits`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionToken}`
-      },
-      body: JSON.stringify({
-        eventType: eventDef.eventType,
-        referenceId,
-        amount: eventDef.amount,
-        reason: eventDef.reason,
-        metadata: metadata ?? {}
-      })
-    });
-    const data = await res.json();
-    if (!res.ok)
-      return { success: false, error: data.error ?? "Unknown error" };
-    return data;
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-}
-async function recordActivity(sessionToken, activityType, missionTaskType, activityData) {
-  if (!isSupabaseConfigured2 || !EDGE_FUNCTION_URL) {
-    return { success: false, error: "Supabase not configured" };
-  }
-  try {
-    const res = await fetch(`${EDGE_FUNCTION_URL}/record-activity`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionToken}`
-      },
-      body: JSON.stringify({
-        activityType,
-        missionTaskType,
-        activityData: activityData ?? {}
-      })
-    });
-    const data = await res.json();
-    if (!res.ok)
-      return { success: false, error: data.error ?? "Unknown error" };
-    return data;
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-}
-var REWARD_EVENTS, EDGE_FUNCTION_URL, FEATURE_COST_TTL_MS;
-var init_credits = __esm({
-  "src/lib/credits.ts"() {
-    init_define_import_meta_env();
-    init_supabase_lazy();
-    REWARD_EVENTS = {
-      first_calc: {
-        eventType: "first_calc",
-        amount: 2,
-        reason: "Completed first calculator"
-      },
-      three_different_calcs: {
-        eventType: "three_different_calcs",
-        amount: 5,
-        reason: "Completed 3 different calculators"
-      },
-      save_estimate: {
-        eventType: "save_estimate",
-        amount: 3,
-        reason: "Saved an estimate"
-      },
-      return_3_days: {
-        eventType: "return_3_days",
-        amount: 5,
-        reason: "Returned on 3 different days"
-      },
-      streak_7_day: {
-        eventType: "streak_7_day",
-        amount: 15,
-        reason: "7-day activity streak"
-      },
-      build_to_roof: {
-        eventType: "build_to_roof",
-        amount: 10,
-        reason: "Completed a Build-to-Roof estimate"
-      },
-      ai_photo_estimator: {
-        eventType: "ai_photo_estimator",
-        amount: 5,
-        reason: "Successfully used AI Photo Estimator"
-      },
-      five_estimates: {
-        eventType: "five_estimates",
-        amount: 15,
-        reason: "Completed 5 estimates"
-      },
-      referral: {
-        eventType: "referral",
-        amount: 25,
-        reason: "Referred a new user to FRELUX"
-      },
-      // Achievement-linked credit rewards
-      ach_builder_10: {
-        eventType: "ach_builder_10",
-        amount: 25,
-        reason: "Achievement: FRELUX Builder (10 estimates)"
-      },
-      ach_estimator_25: {
-        eventType: "ach_estimator_25",
-        amount: 50,
-        reason: "Achievement: Estimator Pro (25 estimates)"
-      },
-      ach_master_5: {
-        eventType: "ach_master_5",
-        amount: 100,
-        reason: "Achievement: FRELUX Master (5 categories)"
-      }
-    };
-    EDGE_FUNCTION_URL = "https://nfgaaohweygwydoelxnf.supabase.co" ? `${"https://nfgaaohweygwydoelxnf.supabase.co"}/functions/v1` : "";
-    FEATURE_COST_TTL_MS = 5 * 60 * 1e3;
-  }
-});
-
-// src/lib/rewards-integration.ts
-async function getSessionToken() {
-  const supabase2 = await getSupabase();
-  const { data } = await supabase2.auth.getSession();
-  return data.session?.access_token ?? null;
-}
-async function trackProjectSaveWithRewards() {
-  const token = await getSessionToken();
-  if (!token) return;
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  await awardCredits(
-    token,
-    REWARD_EVENTS.save_estimate,
-    `save_estimate_${today}`,
-    {}
-  );
-  await recordActivity(token, "project_save", "project_save", {});
-}
-var init_rewards_integration = __esm({
-  "src/lib/rewards-integration.ts"() {
-    init_define_import_meta_env();
-    init_supabase_lazy();
-    init_credits();
-  }
-});
-
-// src/lib/queries.ts
-var queries_exports = {};
-__export(queries_exports, {
-  addColorToCollection: () => addColorToCollection,
-  checkRewardedUnlock: () => checkRewardedUnlock,
-  clearRecentlyViewed: () => clearRecentlyViewed,
-  createShareableLink: () => createShareableLink,
-  createUserCollection: () => createUserCollection,
-  deleteAdvancedEstimate: () => deleteAdvancedEstimate,
-  deleteMediaItem: () => deleteMediaItem,
-  deleteRelationshipOverride: () => deleteRelationshipOverride,
-  deleteShareableLink: () => deleteShareableLink,
-  deleteUserCollection: () => deleteUserCollection,
-  deleteUserProject: () => deleteUserProject,
-  deleteUserTemplate: () => deleteUserTemplate,
-  duplicateUserProject: () => duplicateUserProject,
-  duplicateUserTemplate: () => duplicateUserTemplate,
-  fetchAdvancedEstimates: () => fetchAdvancedEstimates,
-  fetchAllFinishTypes: () => fetchAllFinishTypes,
-  fetchAllPaintColorsLight: () => fetchAllPaintColorsLight,
-  fetchAllRewardedToolConfigs: () => fetchAllRewardedToolConfigs,
-  fetchAllScreedingSystemConfigs: () => fetchAllScreedingSystemConfigs,
-  fetchArticleVersions: () => fetchArticleVersions,
-  fetchBuiltinTemplates: () => fetchBuiltinTemplates,
-  fetchCollectionColors: () => fetchCollectionColors,
-  fetchColorBySlug: () => fetchColorBySlug,
-  fetchColorCategories: () => fetchColorCategories,
-  fetchColorCombinations: () => fetchColorCombinations,
-  fetchColorFamilies: () => fetchColorFamilies,
-  fetchFavoriteColorIds: () => fetchFavoriteColorIds,
-  fetchFavoriteColors: () => fetchFavoriteColors,
-  fetchFavoritePaletteIds: () => fetchFavoritePaletteIds,
-  fetchFavoritePalettes: () => fetchFavoritePalettes,
-  fetchFeaturedColors: () => fetchFeaturedColors,
-  fetchFeaturedCombinations: () => fetchFeaturedCombinations,
-  fetchFinishTypes: () => fetchFinishTypes,
-  fetchLaborRates: () => fetchLaborRates,
-  fetchLegalPage: () => fetchLegalPage,
-  fetchMaterialPrices: () => fetchMaterialPrices,
-  fetchMediaFolders: () => fetchMediaFolders,
-  fetchMediaItems: () => fetchMediaItems,
-  fetchPaintColorBySlug: () => fetchPaintColorBySlug,
-  fetchPaintColors: () => fetchPaintColors,
-  fetchPaintProducts: () => fetchPaintProducts,
-  fetchPaintTypes: () => fetchPaintTypes,
-  fetchPopMaterials: () => fetchPopMaterials,
-  fetchPopWorkflows: () => fetchPopWorkflows,
-  fetchRecentlyAddedColors: () => fetchRecentlyAddedColors,
-  fetchRecentlyViewedColors: () => fetchRecentlyViewedColors,
-  fetchRelatedColors: () => fetchRelatedColors,
-  fetchRelatedPaintColors: () => fetchRelatedPaintColors,
-  fetchRelationshipOverrides: () => fetchRelationshipOverrides,
-  fetchRewardedAdEventStats: () => fetchRewardedAdEventStats,
-  fetchRewardedToolConfig: () => fetchRewardedToolConfig,
-  fetchRewardedUnlockStats: () => fetchRewardedUnlockStats,
-  fetchScreedingMaterials: () => fetchScreedingMaterials,
-  fetchScreedingSystemConfig: () => fetchScreedingSystemConfig,
-  fetchShareableLinks: () => fetchShareableLinks,
-  fetchSharedProject: () => fetchSharedProject,
-  fetchSharedResource: () => fetchSharedResource,
-  fetchSiteSettings: () => fetchSiteSettings,
-  fetchTileMaterials: () => fetchTileMaterials,
-  fetchTileSizes: () => fetchTileSizes,
-  fetchTrendingColors: () => fetchTrendingColors,
-  fetchTrendingCombinations: () => fetchTrendingCombinations,
-  fetchUserCollections: () => fetchUserCollections,
-  fetchUserProjects: () => fetchUserProjects,
-  fetchUserTemplates: () => fetchUserTemplates,
-  logAnalyticsEvent: () => logAnalyticsEvent,
-  logRewardedAdEvent: () => logRewardedAdEvent,
-  moveColorToCollection: () => moveColorToCollection,
-  recordRewardedUnlock: () => recordRewardedUnlock,
-  removeColorFromCollection: () => removeColorFromCollection,
-  renameUserCollection: () => renameUserCollection,
-  saveAdvancedEstimate: () => saveAdvancedEstimate,
-  saveArticleVersion: () => saveArticleVersion,
-  saveRelationshipOverride: () => saveRelationshipOverride,
-  saveUserProject: () => saveUserProject,
-  saveUserTemplate: () => saveUserTemplate,
-  toggleFavoriteColor: () => toggleFavoriteColor,
-  toggleFavoritePalette: () => toggleFavoritePalette,
-  togglePinRecentlyViewed: () => togglePinRecentlyViewed,
-  toggleShareableLink: () => toggleShareableLink,
-  trackColorView: () => trackColorView,
-  updateMediaItemAlt: () => updateMediaItemAlt,
-  updateScreedingSystemConfig: () => updateScreedingSystemConfig,
-  updateUserProject: () => updateUserProject,
-  updateUserTemplate: () => updateUserTemplate,
-  uploadMediaImage: () => uploadMediaImage
-});
-async function fetchColorCategories() {
-  const { data, error } = await supabase.from("color_categories").select("id, name, slug, is_active, sort_order").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchColorCombinations() {
-  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchColorBySlug(slug) {
-  const { data, error } = await supabase.from("color_combinations").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
-  return { data, error };
-}
-async function fetchRelatedColors(categoryIds, excludeId) {
-  if (!categoryIds || categoryIds.length === 0)
-    return { data: [], error: null };
-  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).neq("id", excludeId).overlaps("category_ids", categoryIds).order("sort_order").limit(3);
-  return { data: data ?? [], error };
-}
-async function fetchLegalPage(slug) {
-  const { data, error } = await supabase.from("legal_pages").select("*").eq("slug", slug).eq("is_published", true).maybeSingle();
-  return { data, error };
-}
-async function fetchSiteSettings() {
-  if (!isSupabaseConfigured) return { data: null, error: null };
-  const { data, error } = await supabase.from("site_settings").select("*").limit(1).maybeSingle();
-  return { data, error };
-}
-async function fetchPaintTypes() {
-  const { data, error } = await supabase.from("paint_types").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchPaintProducts() {
-  const { data, error } = await supabase.from("paint_products").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchMaterialPrices() {
-  const { data, error } = await supabase.from("material_prices").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchLaborRates() {
-  const { data, error } = await supabase.from("labor_rates").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchScreedingMaterials() {
-  const { data, error } = await supabase.from("screeding_materials").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchFinishTypes() {
-  try {
-    const { data, error } = await supabase.from("finish_types").select("*").eq("is_active", true).order("sort_order", { ascending: true });
-    if (error) throw error;
-    return { data: data ?? [], error: null };
-  } catch (e) {
-    return {
-      data: [],
-      error: e instanceof Error ? e.message : "Failed to load finish types"
-    };
-  }
-}
-async function fetchAllFinishTypes() {
-  try {
-    const { data, error } = await supabase.from("finish_types").select("*").order("sort_order", { ascending: true });
-    if (error) throw error;
-    return { data: data ?? [], error: null };
-  } catch (e) {
-    return {
-      data: [],
-      error: e instanceof Error ? e.message : "Failed to load finish types"
-    };
-  }
-}
-async function fetchPopMaterials(workflow, market) {
-  if (shouldUseBundledBook()) {
-    return bundledPopMaterials(workflow, market);
-  }
-  async function run(mkt) {
-    let query = supabase.from("pop_materials").select("*").eq("is_active", true).eq("market", mkt);
-    if (workflow) query = query.eq("workflow", workflow);
-    const { data } = await query.order("sort_order");
-    return data ?? [];
-  }
-  if (market && market !== "NG") {
-    const local = await run(market);
-    if (local.length > 0)
-      return {
-        data: local,
-        error: null,
-        fellBackToNg: false,
-        marketConfigured: true
-      };
-    return {
-      data: [],
-      error: null,
-      fellBackToNg: false,
-      marketConfigured: false
-    };
-  }
-  const reference = await run("NG");
-  return {
-    data: reference,
-    error: null,
-    fellBackToNg: market != null && market !== "NG",
-    marketConfigured: true
-  };
-}
-async function fetchPopWorkflows() {
-  const { data, error } = await supabase.from("pop_workflows").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchTileSizes() {
-  const { data, error } = await supabase.from("tile_sizes").select("*").eq("is_active", true).order("sort_order");
-  return { data: data ?? [], error };
-}
-async function fetchTileMaterials(category, market) {
-  if (shouldUseBundledBook()) {
-    return bundledTileMaterials(category, market);
-  }
-  async function run(mkt) {
-    let query = supabase.from("tile_materials").select("*").eq("is_active", true).eq("market", mkt);
-    if (category) query = query.eq("category", category);
-    const { data } = await query.order("sort_order");
-    return data ?? [];
-  }
-  if (market && market !== "NG") {
-    const local = await run(market);
-    if (local.length > 0)
-      return {
-        data: local,
-        error: null,
-        fellBackToNg: false,
-        marketConfigured: true
-      };
-    return {
-      data: [],
-      error: null,
-      fellBackToNg: false,
-      marketConfigured: false
-    };
-  }
-  const reference = await run("NG");
-  return {
-    data: reference,
-    error: null,
-    fellBackToNg: market != null && market !== "NG",
-    marketConfigured: true
-  };
-}
-async function fetchArticleVersions(articleId) {
-  const { data, error } = await supabase.from("learn_article_versions").select("*").eq("article_id", articleId).order("version_number", { ascending: false });
-  return { data: data ?? [], error };
-}
-async function saveArticleVersion(articleId, versionNumber, title, content, excerpt, changeSummary) {
-  const { error } = await supabase.from("learn_article_versions").insert({
-    article_id: articleId,
-    version_number: versionNumber,
-    title,
-    content,
-    excerpt,
-    change_summary: changeSummary
-  });
-  return { error: error ? error.message : null };
-}
-async function logAnalyticsEvent(event, params, pagePath) {
-  if (!isSupabaseConfigured) return;
-  await supabase.from("analytics_events").insert({
-    event,
-    params: params ?? null,
-    page_path: pagePath ?? null
-  });
-}
-async function fetchPaintColors(filter = {}) {
-  const { page = 1, pageSize = 24 } = filter;
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  let query = supabase.from("paint_colors").select("*", { count: "exact" }).eq("is_active", true);
-  if (filter.query) {
-    query = query.ilike("name", `%${filter.query}%`);
-  }
-  if (filter.familyId) {
-    query = query.eq("color_family_id", filter.familyId);
-  }
-  if (filter.categoryId) {
-    query = query.eq("category_id", filter.categoryId);
-  }
-  if (filter.isInterior !== null && filter.isInterior !== void 0) {
-    query = query.eq("is_interior", filter.isInterior);
-  }
-  if (filter.isExterior !== null && filter.isExterior !== void 0) {
-    query = query.eq("is_exterior", filter.isExterior);
-  }
-  if (filter.isFeatured) {
-    query = query.eq("is_featured", true);
-  }
-  if (filter.isTrending) {
-    query = query.eq("is_trending", true);
-  }
-  const sort = filter.sort ?? "display_order";
-  if (sort === "popularity") {
-    query = query.order("popularity_score", { ascending: false }).order("display_order");
-  } else if (sort === "name") {
-    query = query.order("name", { ascending: true });
-  } else if (sort === "newest") {
-    query = query.order("created_at", { ascending: false });
-  } else {
-    query = query.order("display_order").order("popularity_score", { ascending: false });
-  }
-  query = query.range(from, to);
-  const { data, count, error } = await query;
-  if (error) return { data: [], total: 0, error: error.message };
-  return {
-    data: data ?? [],
-    total: count ?? 0,
-    error: null
-  };
-}
-async function fetchPaintColorBySlug(slug) {
-  const { data, error } = await supabase.from("paint_colors").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function fetchRelatedPaintColors(color, limit = 6) {
-  let query = supabase.from("paint_colors").select("*").eq("is_active", true).neq("id", color.id).limit(limit);
-  if (color.color_family_id) {
-    query = query.eq("color_family_id", color.color_family_id);
-  } else {
-    query = query.order("popularity_score", { ascending: false });
-  }
-  const { data, error } = await query;
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function fetchColorFamilies() {
-  const { data, error } = await supabase.from("color_families").select("*").eq("is_active", true).order("sort_order");
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchTrendingColors(limit = 8) {
-  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).eq("is_trending", true).order("popularity_score", { ascending: false }).limit(limit);
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchFeaturedColors(limit = 8) {
-  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).eq("is_featured", true).order("display_order").limit(limit);
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchRecentlyAddedColors(limit = 8) {
-  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).order("created_at", { ascending: false }).limit(limit);
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchFeaturedCombinations(limit = 6) {
-  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).eq("is_featured", true).order("sort_order").limit(limit);
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchTrendingCombinations(limit = 6) {
-  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).eq("is_trending", true).order("popularity_score", { ascending: false }).limit(limit);
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function toggleFavoriteColor(colorId) {
-  const { data: existing } = await supabase.from("user_favorites").select("id").eq("item_type", "color").eq("color_id", colorId).maybeSingle();
-  if (existing) {
-    const { error: error2 } = await supabase.from("user_favorites").delete().eq("id", existing.id);
-    return { favorited: false, error: error2 ? error2.message : null };
-  }
-  const { error } = await supabase.from("user_favorites").insert({ item_type: "color", color_id: colorId });
-  return { favorited: !error, error: error ? error.message : null };
-}
-async function toggleFavoritePalette(paletteId) {
-  const { data: existing } = await supabase.from("user_favorites").select("id").eq("item_type", "palette").eq("palette_id", paletteId).maybeSingle();
-  if (existing) {
-    const { error: error2 } = await supabase.from("user_favorites").delete().eq("id", existing.id);
-    return { favorited: false, error: error2 ? error2.message : null };
-  }
-  const { error } = await supabase.from("user_favorites").insert({ item_type: "palette", palette_id: paletteId });
-  return { favorited: !error, error: error ? error.message : null };
-}
-async function fetchFavoriteColorIds() {
-  const { data, error } = await supabase.from("user_favorites").select("color_id").eq("item_type", "color");
-  if (error) return { ids: [], error: error.message };
-  return {
-    ids: (data ?? []).map((r) => r.color_id).filter(Boolean),
-    error: null
-  };
-}
-async function fetchFavoritePaletteIds() {
-  const { data, error } = await supabase.from("user_favorites").select("palette_id").eq("item_type", "palette");
-  if (error) return { ids: [], error: error.message };
-  return {
-    ids: (data ?? []).map((r) => r.palette_id).filter(Boolean),
-    error: null
-  };
-}
-async function fetchFavoriteColors() {
-  const { data, error } = await supabase.from("user_favorites").select("paint_colors(*)").eq("item_type", "color").order("created_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return {
-    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
-    error: null
-  };
-}
-async function fetchFavoritePalettes() {
-  const { data, error } = await supabase.from("user_favorites").select("color_combinations(*)").eq("item_type", "palette").order("created_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return {
-    data: (data ?? []).map((r) => r.color_combinations).filter(Boolean),
-    error: null
-  };
-}
-async function fetchUserProjects() {
-  const { data, error } = await supabase.from("user_projects").select("*").order("updated_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function saveUserProject(name, projectType, projectData, description) {
-  const TYPE_MAP = {
-    screeding: "screeding",
-    screeding_calc: "screeding",
-    paint_calc: "paint_calc",
-    paint: "paint_calc",
-    painting: "paint_calc",
-    cost_estimate: "cost_estimate",
-    cost: "cost_estimate",
-    ai_recommendation: "ai_recommendation",
-    pop_ceiling: "pop_ceiling",
-    pop_estimate: "pop_ceiling",
-    pop_calc: "pop_ceiling",
-    tile: "tile",
-    tile_estimate: "tile",
-    tile_calc: "tile",
-    custom: "custom",
-    tyrolene: "custom",
-    finish: "custom",
-    wall_finishing: "custom"
-  };
-  const safeType = TYPE_MAP[projectType] || "custom";
-  try {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId = authData?.user?.id;
-    if (!userId) {
-      const localTypeMap = {
-        paint_calc: "paint_calc",
-        cost_estimate: "cost_estimate",
-        screeding: "screeding_calc",
-        pop_ceiling: "pop_calc",
-        tile: "tile_calc",
-        custom: "wall_finishing",
-        ai_recommendation: "wall_finishing"
-      };
-      saveLocalProject(
-        name,
-        localTypeMap[safeType] || "cost_estimate",
-        projectData
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.keys(value).sort().map((key) => [
+          key,
+          normalize(value[key])
+        ])
       );
-      return { error: null };
     }
-    const { data, error } = await supabase.from("user_projects").insert({
-      name,
-      project_type: safeType,
-      project_data: projectData,
-      description,
-      user_id: userId
-    }).select().maybeSingle();
-    if (!error) {
-      trackProjectSaveWithRewards();
-      return { error: null, data };
-    }
-    saveLocalProject(name, "cost_estimate", projectData);
-    return { error: error.message };
-  } catch (err) {
-    saveLocalProject(name, "cost_estimate", projectData);
-    return { error: err.message };
-  }
-}
-async function updateUserProject(id, name, projectData, description) {
-  const { error } = await supabase.from("user_projects").update({ name, project_data: projectData, description }).eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function deleteUserProject(id) {
-  const { error } = await supabase.from("user_projects").delete().eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function duplicateUserProject(id) {
-  const { data, error } = await supabase.from("user_projects").select("*").eq("id", id).maybeSingle();
-  if (error || !data)
-    return { error: error ? error.message : "Project not found" };
-  const { name, project_type, project_data, description } = data;
-  const { error: insertError } = await supabase.from("user_projects").insert({
-    name: `${name} (Copy)`,
-    project_type,
-    project_data,
-    description
-  });
-  return { error: insertError ? insertError.message : null };
-}
-async function fetchUserCollections() {
-  const { data, error } = await supabase.from("user_collections").select("*").order("updated_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function createUserCollection(name, description) {
-  const { data, error } = await supabase.from("user_collections").insert({ name, description }).select("*").maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
+    return value;
   };
+  return JSON.stringify(normalize(parts));
 }
-async function deleteUserCollection(id) {
-  const { error } = await supabase.from("user_collections").delete().eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function addColorToCollection(collectionId, colorId) {
-  const { error } = await supabase.from("user_collection_items").insert({ collection_id: collectionId, color_id: colorId });
-  return { error: error ? error.message : null };
-}
-async function removeColorFromCollection(collectionId, colorId) {
-  const { error } = await supabase.from("user_collection_items").delete().eq("collection_id", collectionId).eq("color_id", colorId);
-  return { error: error ? error.message : null };
-}
-async function fetchCollectionColors(collectionId) {
-  const { data, error } = await supabase.from("user_collection_items").select("paint_colors(*)").eq("collection_id", collectionId).order("created_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return {
-    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
-    error: null
-  };
-}
-async function trackColorView(colorId) {
-  await supabase.from("recently_viewed_colors").upsert(
-    { color_id: colorId, viewed_at: (/* @__PURE__ */ new Date()).toISOString() },
-    { onConflict: "user_id,color_id" }
-  );
-}
-async function fetchRecentlyViewedColors(limit = 8) {
-  const { data, error } = await supabase.from("recently_viewed_colors").select("paint_colors!inner(*)").order("viewed_at", { ascending: false }).limit(limit);
-  if (error) return { data: [], error: error.message };
-  return {
-    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
-    error: null
-  };
-}
-async function clearRecentlyViewed() {
-  const { error } = await supabase.from("recently_viewed_colors").delete().neq("is_pinned", true);
-  return { error: error ? error.message : null };
-}
-async function togglePinRecentlyViewed(colorId) {
-  const { data } = await supabase.from("recently_viewed_colors").select("is_pinned").eq("color_id", colorId).maybeSingle();
-  const newPinned = !(data?.is_pinned ?? false);
-  const { error } = await supabase.from("recently_viewed_colors").update({ is_pinned: newPinned }).eq("color_id", colorId);
-  return { error: error ? error.message : null };
-}
-async function fetchRelationshipOverrides(colorId) {
-  const { data, error } = await supabase.from("color_relationship_overrides").select("*").eq("color_id", colorId);
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function saveRelationshipOverride(colorId, type, overrideColorIds) {
-  const { error } = await supabase.from("color_relationship_overrides").upsert(
-    {
-      color_id: colorId,
-      relationship_type: type,
-      override_color_ids: overrideColorIds
-    },
-    { onConflict: "color_id,relationship_type" }
-  );
-  return { error: error ? error.message : null };
-}
-async function deleteRelationshipOverride(colorId, type) {
-  const { error } = await supabase.from("color_relationship_overrides").delete().eq("color_id", colorId).eq("relationship_type", type);
-  return { error: error ? error.message : null };
-}
-async function createShareableLink(resourceType, resourceId) {
-  const { data, error } = await supabase.from("shareable_links").insert({ resource_type: resourceType, resource_id: resourceId }).select("*").maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function fetchShareableLinks(resourceType, resourceId) {
-  const { data, error } = await supabase.from("shareable_links").select("*").eq("resource_type", resourceType).eq("resource_id", resourceId).order("created_at", { ascending: false });
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function toggleShareableLink(linkId, isActive) {
-  const { error } = await supabase.from("shareable_links").update({ is_active: isActive }).eq("id", linkId);
-  return { error: error ? error.message : null };
-}
-async function deleteShareableLink(linkId) {
-  const { error } = await supabase.from("shareable_links").delete().eq("id", linkId);
-  return { error: error ? error.message : null };
-}
-async function fetchSharedResource(linkId) {
-  const now = (/* @__PURE__ */ new Date()).toISOString();
-  const { data, error } = await supabase.from("shareable_links").select("*").eq("id", linkId).eq("is_active", true).or(`expires_at.is.null,expires_at.gte.${now}`).maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function fetchSharedProject(linkId, resourceId) {
-  try {
-    const { data: rpcData, error: rpcError } = await supabase.rpc(
-      "get_public_shared_project",
-      { p_link_id: linkId }
-    );
-    if (!rpcError && rpcData) {
-      return { data: rpcData, error: null };
-    }
-  } catch {
-  }
-  const { data, error } = await supabase.from("user_projects").select("*").eq("id", resourceId).maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function fetchMediaFolders() {
-  const { data, error } = await supabase.from("media_folders").select("*").order("sort_order");
-  if (error) return { data: [], error: error.message };
-  return { data: data ?? [], error: null };
-}
-async function fetchMediaItems(folderId, search, page) {
-  let query = supabase.from("media_items").select("*").order("created_at", { ascending: false });
-  let countQuery = supabase.from("media_items").select("*", { count: "exact", head: true });
-  if (folderId) {
-    query = query.eq("folder_id", folderId);
-    countQuery = countQuery.eq("folder_id", folderId);
-  }
-  if (search) {
-    query = query.ilike("file_name", `%${search}%`);
-    countQuery = countQuery.ilike("file_name", `%${search}%`);
-  }
-  if (page) {
-    query = query.range(
-      page.index * page.size,
-      page.index * page.size + page.size - 1
-    );
-  }
-  const { data, error } = await query;
-  if (error) return { data: [], error: error.message };
-  let count;
-  if (page) {
-    const { count: c, error: countError } = await countQuery;
-    if (countError) return { data: [], error: countError.message };
-    count = c ?? 0;
-  }
-  return { data: data ?? [], error: null, count };
-}
-async function uploadMediaImage(file, folderSlug) {
-  const { data: folders } = await supabase.from("media_folders").select("id").eq("slug", folderSlug).maybeSingle();
-  const folderId = folders?.id ?? null;
-  const ext = file.name.split(".").pop() ?? "png";
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const folderPath = folderSlug === "user-uploads" ? "user-uploads" : folderSlug;
-  const storagePath = `${folderPath}/${fileName}`;
-  const { error: uploadError } = await supabase.storage.from("media").upload(storagePath, file, { contentType: file.type });
-  if (uploadError) return { data: null, error: uploadError.message };
-  const { data: urlData } = supabase.storage.from("media").getPublicUrl(storagePath);
-  const publicUrl = urlData.publicUrl;
-  const { data, error } = await supabase.from("media_items").insert({
-    folder_id: folderId,
-    file_name: file.name,
-    storage_path: storagePath,
-    public_url: publicUrl,
-    mime_type: file.type,
-    size_bytes: file.size
-  }).select("*").maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function deleteMediaItem(item) {
-  const { error: storageError } = await supabase.storage.from("media").remove([item.storage_path]);
-  if (storageError) return { error: storageError.message };
-  const { error } = await supabase.from("media_items").delete().eq("id", item.id);
-  return { error: error ? error.message : null };
-}
-async function updateMediaItemAlt(id, altText) {
-  const { error } = await supabase.from("media_items").update({ alt_text: altText }).eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function renameUserCollection(id, name) {
-  const { error } = await supabase.from("user_collections").update({ name }).eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function moveColorToCollection(fromCollectionId, toCollectionId, colorId) {
-  const { error: delError } = await supabase.from("user_collection_items").delete().eq("collection_id", fromCollectionId).eq("color_id", colorId);
-  if (delError) return { error: delError.message };
-  const { error: insError } = await supabase.from("user_collection_items").insert({ collection_id: toCollectionId, color_id: colorId });
-  return { error: insError ? insError.message : null };
-}
-async function fetchAllPaintColorsLight() {
-  const { data, error } = await supabase.from("paint_colors").select("id, name, hex_code, slug").eq("is_active", true).order("name");
-  if (error) return { data: [], error: error.message };
-  return {
-    data: data ?? [],
-    error: null
-  };
-}
-async function fetchScreedingSystemConfig(systemType, market) {
-  if (market && market !== "NG") {
-    const local = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("market", market).eq("is_active", true).maybeSingle();
-    if (local.data) {
-      return {
-        data: local.data,
-        error: null,
-        fellBackToNg: false,
-        marketConfigured: true
-      };
-    }
+async function withPriceCache(key, loader, options) {
+  const now = options?.now ?? (() => Date.now());
+  const ttlMs = options?.ttlMs ?? PRICE_CACHE_TTL_MS;
+  const startedAt = now();
+  const startedGeneration = generation;
+  const hit = store.get(key);
+  if (hit && hit.expiresAt > startedAt) {
     return {
-      data: null,
-      error: null,
-      fellBackToNg: false,
-      marketConfigured: false
+      value: hit.value,
+      source: "cache",
+      ageMs: Math.max(0, startedAt - hit.fetchedAt),
+      fetchedAt: hit.fetchedAt
     };
   }
-  const { data, error } = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("market", "NG").eq("is_active", true).maybeSingle();
-  if (!data) {
-    const legacy = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("is_active", true).maybeSingle();
-    return {
-      data: legacy.data,
-      error: legacy.error ? legacy.error.message : null,
-      fellBackToNg: true
-    };
+  if (hit) store.delete(key);
+  const pending = inFlight2.get(key);
+  const load = pending ? pending : loader().finally(() => inFlight2.delete(key));
+  if (!pending) inFlight2.set(key, load);
+  const value = await load;
+  if (generation === startedGeneration) {
+    store.set(key, {
+      value,
+      fetchedAt: startedAt,
+      expiresAt: startedAt + ttlMs
+    });
   }
-  return {
-    data,
-    error: error ? error.message : null,
-    fellBackToNg: true
-  };
+  return { value, source: "network", ageMs: 0, fetchedAt: startedAt };
 }
-async function fetchAllScreedingSystemConfigs() {
-  const { data, error } = await supabase.from("screeding_system_config").select("*").eq("is_active", true).order("sort_order", { ascending: true });
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
+function invalidatePriceCache() {
+  const dropped = store.size;
+  store.clear();
+  inFlight2.clear();
+  generation += 1;
+  invalidateCache("price-book");
+  invalidateCache("role-price");
+  invalidateCache("city-price");
+  return dropped;
 }
-async function updateScreedingSystemConfig(id, updates) {
-  const { error } = await supabase.from("screeding_system_config").update({ ...updates, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function fetchRewardedToolConfig(toolKey) {
-  const { data, error } = await supabase.from("rewarded_tool_config").select("*").eq("tool_key", toolKey).maybeSingle();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function fetchAllRewardedToolConfigs() {
-  const { data, error } = await supabase.from("rewarded_tool_config").select("*").order("created_at");
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function logRewardedAdEvent(params) {
-  const { error } = await supabase.from("rewarded_ad_events").insert({
-    tool_key: params.toolKey,
-    event_type: params.eventType,
-    client_hash: params.clientHash,
-    ad_provider: params.adProvider ?? "adsense",
-    revenue_estimated: params.revenueEstimated ?? 0,
-    metadata: params.metadata ?? {}
-  });
-  return { error: error ? error.message : null };
-}
-async function recordRewardedUnlock(params) {
-  const { error } = await supabase.from("rewarded_unlock_log").insert({
-    tool_key: params.toolKey,
-    client_hash: params.clientHash,
-    expires_at: params.expiresAt,
-    ad_provider: params.adProvider ?? "adsense"
-  });
-  return { error: error ? error.message : null };
-}
-async function checkRewardedUnlock(toolKey, clientHash) {
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const { data, error } = await supabase.from("rewarded_unlock_log").select("id, expires_at").eq("tool_key", toolKey).eq("client_hash", clientHash).gte("unlock_date", today).order("unlocked_at", { ascending: false }).limit(1).maybeSingle();
-  if (error) return { unlocked: false, expiresAt: null, error: error.message };
-  if (!data) return { unlocked: false, expiresAt: null, error: null };
-  const now = /* @__PURE__ */ new Date();
-  const expires = new Date(data.expires_at);
-  if (now > expires) return { unlocked: false, expiresAt: null, error: null };
-  return { unlocked: true, expiresAt: data.expires_at, error: null };
-}
-async function saveAdvancedEstimate(params) {
-  const client = supabaseWithClientHash(params.clientHash);
-  const { data, error } = await client.from("advanced_estimates").insert({
-    client_hash: params.clientHash,
-    tool_key: params.toolKey,
-    title: params.title,
-    project_type: params.projectType,
-    estimate_data: params.estimateData,
-    total_cost: params.totalCost,
-    currency: params.currency,
-    is_saved: true
-  }).select("id").maybeSingle();
-  return { id: data?.id ?? null, error: error ? error.message : null };
-}
-async function fetchAdvancedEstimates(clientHash) {
-  const { data, error } = await supabaseWithClientHash(clientHash).from("advanced_estimates").select("*").eq("client_hash", clientHash).eq("is_saved", true).order("created_at", { ascending: false });
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function deleteAdvancedEstimate(id, clientHash) {
-  const { error } = await supabaseWithClientHash(clientHash).from("advanced_estimates").delete().eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function fetchRewardedUnlockStats(days = 30) {
-  const { data, error } = await supabase.from("rewarded_unlock_log").select("tool_key, unlock_date, ad_provider, ad_revenue_estimated").gte(
-    "unlock_date",
-    new Date(Date.now() - days * 864e5).toISOString().split("T")[0]
-  ).order("unlock_date", { ascending: false });
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchRewardedAdEventStats(days = 30) {
-  const { data, error } = await supabase.from("rewarded_ad_events").select("tool_key, event_type, revenue_estimated, created_at").gte("created_at", new Date(Date.now() - days * 864e5).toISOString()).order("created_at", { ascending: false });
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchBuiltinTemplates(type) {
-  let query = supabase.from("calculator_templates").select("*").eq("is_builtin", true).eq("is_active", true);
-  if (type) query = query.eq("template_type", type);
-  query = query.order("sort_order").order("name");
-  const { data, error } = await query;
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function fetchUserTemplates(type) {
-  let query = supabase.from("calculator_templates").select("*").eq("is_builtin", false);
-  if (type) query = query.eq("template_type", type);
-  query = query.order("updated_at", { ascending: false });
-  const { data, error } = await query;
-  return {
-    data: data ?? [],
-    error: error ? error.message : null
-  };
-}
-async function saveUserTemplate(templateType, name, calculatorData, description) {
-  const { data, error } = await supabase.from("calculator_templates").insert({
-    template_type: templateType,
-    name,
-    description: description ?? null,
-    calculator_data: calculatorData,
-    is_builtin: false,
-    is_active: true
-  }).select().single();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-async function updateUserTemplate(id, updates) {
-  const { error } = await supabase.from("calculator_templates").update(updates).eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function deleteUserTemplate(id) {
-  const { error } = await supabase.from("calculator_templates").delete().eq("id", id);
-  return { error: error ? error.message : null };
-}
-async function duplicateUserTemplate(id, newName) {
-  const { data: source, error: fetchError } = await supabase.from("calculator_templates").select("*").eq("id", id).maybeSingle();
-  if (fetchError || !source)
-    return {
-      data: null,
-      error: fetchError ? fetchError.message : "Template not found"
-    };
-  const { data, error } = await supabase.from("calculator_templates").insert({
-    template_type: source.template_type,
-    name: newName ?? `${source.name} (Copy)`,
-    description: source.description,
-    calculator_data: source.calculator_data,
-    is_builtin: false,
-    is_active: true
-  }).select().single();
-  return {
-    data,
-    error: error ? error.message : null
-  };
-}
-var init_queries = __esm({
-  "src/lib/queries.ts"() {
+var PRICE_CACHE_TTL_MS, store, inFlight2, generation;
+var init_cache = __esm({
+  "src/lib/price-index/cache.ts"() {
     init_define_import_meta_env();
-    init_supabase();
-    init_bundled_book();
-    init_local_projects();
-    init_rewards_integration();
+    init_data_cache();
+    PRICE_CACHE_TTL_MS = 5 * 6e4;
+    store = /* @__PURE__ */ new Map();
+    inFlight2 = /* @__PURE__ */ new Map();
+    generation = 0;
   }
 });
 
@@ -37073,6 +36893,41 @@ var init_market_suggest = __esm({
   }
 });
 
+// src/lib/supabase-lazy.ts
+function getSupabase() {
+  if (_client) return Promise.resolve(_client);
+  if (_promise) return _promise;
+  _promise = Promise.resolve().then(() => (init_dist4(), dist_exports)).then(({ createClient: createClient2 }) => {
+    _client = createClient2(url2, anonKey2, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+    return _client;
+  });
+  return _promise;
+}
+var url2, anonKey2, isSupabaseConfigured2, _client, _promise;
+var init_supabase_lazy = __esm({
+  "src/lib/supabase-lazy.ts"() {
+    init_define_import_meta_env();
+    url2 = "https://nfgaaohweygwydoelxnf.supabase.co";
+    anonKey2 = "$VITE_ANON_KEY";
+    isSupabaseConfigured2 = Boolean(url2 && anonKey2);
+    _client = null;
+    _promise = null;
+  }
+});
+
+// src/lib/entitlement-store.ts
+var init_entitlement_store = __esm({
+  "src/lib/entitlement-store.ts"() {
+    init_define_import_meta_env();
+  }
+});
+
 // src/lib/auth.tsx
 var import_react, AuthContext;
 var init_auth = __esm({
@@ -37080,6 +36935,7 @@ var init_auth = __esm({
     init_define_import_meta_env();
     import_react = __toESM(require_react(), 1);
     init_supabase_lazy();
+    init_entitlement_store();
     AuthContext = (0, import_react.createContext)(void 0);
   }
 });
@@ -38261,9 +38117,31 @@ var init_offline_cache = __esm({
   }
 });
 
+// src/lib/international/trade-forms.ts
+function isNgOnlyTradeForm(slug2) {
+  if (!slug2) return false;
+  return Object.prototype.hasOwnProperty.call(NG_ONLY_TRADE_FORMS, slug2.trim());
+}
+function isTradeFormValidInMarket(slug2, market) {
+  if (!isNgOnlyTradeForm(slug2)) return true;
+  const code = (market ?? "").trim().toUpperCase();
+  if (!code) return true;
+  return code === "NG";
+}
+var NG_ONLY_TRADE_FORMS;
+var init_trade_forms = __esm({
+  "src/lib/international/trade-forms.ts"() {
+    init_define_import_meta_env();
+    NG_ONLY_TRADE_FORMS = {
+      "sand-per-trip": "A tipper load of sand. Sold by volume (m3) or by the tonne elsewhere, so the unit has no meaning outside Nigeria.",
+      "granite-per-trip": "A tipper load of granite. US and UK buyers order aggregate by the tonne, yard or bulk bag, never by the trip."
+    };
+  }
+});
+
 // src/lib/estimation/queries.ts
-var queries_exports2 = {};
-__export(queries_exports2, {
+var queries_exports = {};
+__export(queries_exports, {
   countPhoto: () => countPhoto,
   createAdjustment: () => createAdjustment,
   createAuditLog: () => createAuditLog,
@@ -38354,6 +38232,7 @@ __export(queries_exports2, {
   fetchPackSizeById: () => fetchPackSizeById,
   fetchPackSizes: () => fetchPackSizes,
   fetchPriceHistory: () => fetchPriceHistory,
+  fetchPricedMaterialIds: () => fetchPricedMaterialIds,
   fetchProductQualityLevels: () => fetchProductQualityLevels,
   fetchRegionalCostIndices: () => fetchRegionalCostIndices,
   fetchSolarComponentPrices: () => fetchSolarComponentPrices,
@@ -38469,6 +38348,14 @@ async function fetchEstimationMaterials(activeOnly = false) {
     }
   );
 }
+async function fetchPricedMaterialIds(market, materialIds) {
+  if (materialIds.length === 0) return /* @__PURE__ */ new Set();
+  const { data, error } = await supabase.from("estimation_prices").select("ref_id").eq("market", market.toUpperCase()).eq("is_active", true).eq("price_type", "material").in("ref_id", materialIds);
+  if (error) return /* @__PURE__ */ new Set();
+  return new Set(
+    (data ?? []).map((row) => row.ref_id).filter((id) => Boolean(id))
+  );
+}
 async function createEstimationMaterial(data) {
   const { data: record, error } = await supabase.from("estimation_materials").insert(data).select().single();
   return { data: record, error };
@@ -38523,23 +38410,69 @@ async function fetchActivePriceForMarket(priceType, refId, market) {
   }
   return { data: null, error: null, resolved_market: market };
 }
+async function refusedTradeFormRefs(market) {
+  const refused = /* @__PURE__ */ new Set();
+  if (!market || market.trim().toUpperCase() === "NG") return refused;
+  const { data: materials } = await fetchEstimationMaterials(false);
+  for (const material of materials ?? []) {
+    if (!isTradeFormValidInMarket(material.slug, market)) {
+      refused.add(material.id);
+    }
+  }
+  return refused;
+}
 async function fetchMarketPriceBook(marketCode) {
   const market = marketCode || "NG";
+  return cachedRead(
+    `price-book:${market}`,
+    CACHE_TTL.prices,
+    () => loadMarketPriceBook(market)
+  );
+}
+async function loadMarketPriceBook(market) {
   const byRef = /* @__PURE__ */ new Map();
   const fromReference = /* @__PURE__ */ new Set();
+  const asOf = /* @__PURE__ */ new Map();
+  const stale = /* @__PURE__ */ new Set();
+  const verified = /* @__PURE__ */ new Set();
+  const evidence = /* @__PURE__ */ new Map();
+  const refused = await refusedTradeFormRefs(market);
+  const { data: groupRows } = await supabase.from("market_material_prices").select(
+    "material_id, brand, specification, unit, verification_status, last_verified_at, last_scanned_at"
+  ).eq("market", market).limit(5e3);
+  for (const row of groupRows ?? []) {
+    if (!row.material_id) continue;
+    if ((row.brand ?? "") !== "" || (row.specification ?? "") !== "" || (row.unit ?? "") !== "") {
+      continue;
+    }
+    const stamp = row.last_verified_at ?? row.last_scanned_at;
+    if (stamp) asOf.set(row.material_id, stamp);
+    const age = ageInDays(stamp);
+    const tooOld = age === null || age > STALE_AFTER_DAYS;
+    if (row.verification_status === "verified") {
+      if (tooOld) stale.add(row.material_id);
+      else verified.add(row.material_id);
+    } else if (row.verification_status === "stale" || row.verification_status === "unverified") {
+      stale.add(row.material_id);
+    }
+  }
   if (market !== "NG") {
     const own = await fetchAllPrices(true, market);
     for (const pr of own.data ?? []) {
+      if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
       }
     }
   }
   if (market !== "NG") {
     const reference = await fetchAllPrices(true, "NG");
     for (const pr of reference.data ?? []) {
+      if (refused.has(pr.ref_id)) continue;
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
         fromReference.add(pr.ref_id);
       }
     }
@@ -38548,10 +38481,11 @@ async function fetchMarketPriceBook(marketCode) {
     for (const pr of reference.data ?? []) {
       if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
         byRef.set(pr.ref_id, pr.price);
+        evidence.set(pr.ref_id, classifyEvidence(pr));
       }
     }
   }
-  return { byRef, fromReference };
+  return { byRef, fromReference, asOf, stale, verified, evidence };
 }
 async function fetchPriceHistory(priceType, refId) {
   const { data, error } = await supabase.from("estimation_price_history").select("*").eq("price_type", priceType).eq("ref_id", refId).order("created_at", { ascending: false });
@@ -38562,6 +38496,7 @@ async function createOrUpdatePrice(data) {
     await supabase.from("estimation_prices").update({ is_active: false }).eq("price_type", data.price_type).eq("ref_id", data.ref_id).eq("market", data.market ?? "NG").eq("is_active", true);
   }
   const { data: record, error } = await supabase.from("estimation_prices").insert({ ...data, is_active: true }).select().single();
+  if (!error) invalidatePriceCache();
   return { data: record, error };
 }
 async function fetchAllPrices(activeOnly = false, market) {
@@ -38574,7 +38509,12 @@ async function fetchAllPrices(activeOnly = false, market) {
   }
   query = query.order("effective_date", { ascending: false });
   const { data, error } = await query;
-  return { data: data ?? [], error };
+  let rows = data ?? [];
+  if (market && market.trim().toUpperCase() !== "NG") {
+    const refused = await refusedTradeFormRefs(market);
+    rows = rows.filter((row) => !refused.has(row.ref_id));
+  }
+  return { data: rows, error };
 }
 async function fetchCalcRules(calculatorType) {
   return cachedConfigFetch(
@@ -39211,16 +39151,2554 @@ async function countPhoto(imageDataUrl, itemHint) {
   }
   return data.result;
 }
-async function fetchCountVisionLog(limit = 50) {
-  const { data, error } = await supabase.from("count_vision_log").select("*").order("requested_at", { ascending: false }).limit(limit);
-  return { data: data ?? [], error };
+async function fetchCountVisionLog(page = 0, pageSize = 50) {
+  const safePage = Math.max(0, Math.floor(page));
+  const safeSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
+  const { data, count, error } = await supabase.from("count_vision_log").select("*", { count: "exact" }).order("requested_at", { ascending: false }).range(safePage * safeSize, safePage * safeSize + safeSize - 1);
+  return {
+    data: data ?? [],
+    count: count ?? 0,
+    error
+  };
 }
-var init_queries2 = __esm({
+var init_queries = __esm({
   "src/lib/estimation/queries.ts"() {
     init_define_import_meta_env();
     init_supabase();
+    init_data_cache();
+    init_provenance();
+    init_cache();
+    init_resolver();
     init_calculation_audit();
     init_offline_cache();
+    init_trade_forms();
+  }
+});
+
+// src/lib/price-index/queries.ts
+async function db() {
+  if (!isSupabaseConfigured2) return null;
+  try {
+    return await getSupabase();
+  } catch {
+    return null;
+  }
+}
+async function loadListings(options) {
+  const supabase2 = await db();
+  if (!supabase2) return { listings: [], error: OFFLINE_ERROR };
+  let query = supabase2.from("estimation_prices").select(
+    "id,ref_id,price,currency,price_type,market,city_slug,price_kind,sale_unit,supplier_name,source_url,price_source,effective_date,verified_at,verification_status,supporting_submissions,is_active"
+  ).eq("price_type", "material").eq("market", INDEX_COUNTRY).eq("is_active", true).order("effective_date", { ascending: false }).limit(options?.limit ?? 500);
+  if (options?.citySlug !== void 0 && options.citySlug !== null) {
+    query = query.eq("city_slug", options.citySlug);
+  }
+  if (options?.materialIds?.length) {
+    query = query.in("ref_id", options.materialIds);
+  }
+  if (options?.sinceDays) {
+    const cutoff = new Date(Date.now() - options.sinceDays * 864e5).toISOString().slice(0, 10);
+    query = query.gte("effective_date", cutoff);
+  }
+  const { data, error } = await query;
+  if (error) return { listings: [], error: error.message };
+  const rows = data ?? [];
+  const ids = Array.from(
+    new Set(rows.map((row) => row.ref_id).filter(Boolean))
+  );
+  let materials = {};
+  if (ids.length) {
+    const { data: materialRows } = await supabase2.from("estimation_materials").select("id,name,slug,category").in("id", ids);
+    materials = Object.fromEntries(
+      (materialRows ?? []).map((row) => [
+        row.id,
+        {
+          name: row.name,
+          slug: row.slug,
+          category: row.category
+        }
+      ])
+    );
+  }
+  const listings = rows.filter((row) => materials[row.ref_id]).map((row) => {
+    const material = materials[row.ref_id];
+    return {
+      price_id: row.id,
+      material_id: row.ref_id,
+      name: material.name,
+      slug: material.slug,
+      category: material.category,
+      sale_unit: row.sale_unit ?? null,
+      price: Number(row.price),
+      currency: row.currency ?? "NGN",
+      price_kind: row.price_kind ?? null,
+      market: row.market,
+      city_slug: row.city_slug ?? null,
+      supplier_name: row.supplier_name ?? null,
+      source_url: row.source_url ?? null,
+      price_source: row.price_source ?? null,
+      effective_date: row.effective_date ?? null,
+      verified_at: row.verified_at ?? null,
+      verification_status: row.verification_status ?? null,
+      supporting_submissions: Number(row.supporting_submissions ?? 0)
+    };
+  });
+  return { listings, error: null };
+}
+async function fetchListings(options) {
+  const key = priceCacheKey({
+    r: "listings",
+    m: INDEX_COUNTRY,
+    city: options?.citySlug ?? null,
+    ids: options?.materialIds ?? [],
+    since: options?.sinceDays ?? null,
+    limit: options?.limit ?? 500
+  });
+  const read = await withPriceCache(key, () => loadListings(options));
+  return {
+    listings: read.value.listings,
+    error: read.value.error,
+    cached: read.source === "cache",
+    cache_age_ms: read.ageMs
+  };
+}
+var INDEX_COUNTRY, OFFLINE_ERROR;
+var init_queries2 = __esm({
+  "src/lib/price-index/queries.ts"() {
+    init_define_import_meta_env();
+    init_supabase_lazy();
+    init_cache();
+    INDEX_COUNTRY = "NG";
+    OFFLINE_ERROR = "The price index needs a database connection.";
+  }
+});
+
+// src/lib/price-index/calculator-prices.ts
+async function resolveCityAwarePriceByRole(role, market, citySlug) {
+  return cachedRead(
+    `city-price:${market}:${citySlug ?? "-"}:${role}`,
+    CACHE_TTL.prices,
+    () => loadCityAwarePriceByRole(role, market, citySlug)
+  );
+}
+async function loadCityAwarePriceByRole(role, market, citySlug) {
+  const base = await resolveMaterialPriceByRole(role, market);
+  if (!base) return null;
+  const asMarket = () => ({
+    ...base,
+    basis: "market",
+    city_slug: null,
+    city_samples: null,
+    price_note: null,
+    indicative: true
+  });
+  if (market !== "NG" || !citySlug) return asMarket();
+  try {
+    const { listings } = await fetchListings({
+      citySlug,
+      materialIds: [base.material.id],
+      limit: 100
+    });
+    const resolved = resolveMaterialPrice({
+      materialId: base.material.id,
+      citySlug,
+      listings,
+      market: "NG"
+    });
+    if (resolved.status !== "ok" || resolved.basis !== "city")
+      return asMarket();
+    return {
+      ...base,
+      price: { ...base.price, price: resolved.price },
+      basis: "city",
+      city_slug: citySlug,
+      city_samples: resolved.sample_size,
+      price_note: [
+        `${resolved.sample_size} independent price${resolved.sample_size === 1 ? "" : "s"} in ${citySlug.replace(/-/g, " ")}`,
+        resolved.last_observed_at ? `last ${resolved.last_observed_at}` : null,
+        resolved.indicative ? "reported, not independently verified" : "verified"
+      ].filter(Boolean).join(", "),
+      indicative: resolved.indicative
+    };
+  } catch {
+    return asMarket();
+  }
+}
+var init_calculator_prices = __esm({
+  "src/lib/price-index/calculator-prices.ts"() {
+    init_define_import_meta_env();
+    init_market_materials();
+    init_queries2();
+    init_data_cache();
+    init_resolver();
+  }
+});
+
+// node_modules/clsx/dist/clsx.mjs
+var init_clsx = __esm({
+  "node_modules/clsx/dist/clsx.mjs"() {
+    init_define_import_meta_env();
+  }
+});
+
+// src/lib/cn.ts
+var init_cn = __esm({
+  "src/lib/cn.ts"() {
+    init_define_import_meta_env();
+    init_clsx();
+  }
+});
+
+// src/lib/international/fx-display.ts
+function readStoredCurrency() {
+  try {
+    const stored = localStorage.getItem(CURRENCY_STORAGE_KEY);
+    if (stored && DISPLAY_CURRENCIES.some((c) => c.code === stored)) {
+      return stored;
+    }
+  } catch {
+  }
+  return "NGN";
+}
+function isConverting() {
+  return activeCode !== "NGN" && config.enabled && hasFxRate(activeCode);
+}
+function hasFxRate(code) {
+  const rate = config.rates?.[code];
+  return typeof rate === "number" && rate > 0 && Number.isFinite(rate);
+}
+function activeCurrencySymbol() {
+  const meta = DISPLAY_CURRENCIES.find((c) => c.code === activeCode);
+  return meta ? meta.symbol : "\u20A6";
+}
+function convertFromNGN(amountNGN) {
+  if (!isConverting()) return amountNGN;
+  const safe = typeof amountNGN === "number" && !isNaN(amountNGN) ? amountNGN : 0;
+  return safe * config.rates[activeCode];
+}
+function formatNGNForDisplay(amountNGN, options) {
+  if (!isConverting()) {
+    const safe = typeof amountNGN === "number" && !isNaN(amountNGN) ? amountNGN : 0;
+    const max = options?.decimals === 2 ? 2 : options?.decimals === "auto" ? 2 : 0;
+    const min = options?.decimals === 2 ? 2 : 0;
+    return `\u20A6${safe.toLocaleString("en-US", {
+      minimumFractionDigits: min,
+      maximumFractionDigits: max
+    })}`;
+  }
+  const converted = convertFromNGN(amountNGN);
+  return `${activeCurrencySymbol()}${converted.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  })}`;
+}
+var CURRENCY_STORAGE_KEY, DISPLAY_CURRENCIES, activeCode, config;
+var init_fx_display = __esm({
+  "src/lib/international/fx-display.ts"() {
+    init_define_import_meta_env();
+    CURRENCY_STORAGE_KEY = "frelux_currency";
+    DISPLAY_CURRENCIES = [
+      { code: "NGN", name: "Nigerian Naira", symbol: "\u20A6", hint: "Nigeria" },
+      { code: "USD", name: "US Dollar", symbol: "$", hint: "United States" },
+      { code: "EUR", name: "Euro", symbol: "\u20AC", hint: "Europe" },
+      { code: "GBP", name: "British Pound", symbol: "\xA3", hint: "United Kingdom" },
+      { code: "GHS", name: "Ghanaian Cedi", symbol: "GH\u20B5", hint: "Ghana" },
+      { code: "KES", name: "Kenyan Shilling", symbol: "KSh", hint: "Kenya" },
+      {
+        code: "ZAR",
+        name: "South African Rand",
+        symbol: "R",
+        hint: "South Africa"
+      },
+      { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
+      { code: "XOF", name: "West African CFA", symbol: "CFA", hint: "West Africa" },
+      // Worldwide majors - every registered locale gets its currency.
+      { code: "JPY", name: "Japanese Yen", symbol: "\xA5", hint: "Japan" },
+      { code: "CNY", name: "Chinese Yuan", symbol: "CN\xA5", hint: "China" },
+      { code: "INR", name: "Indian Rupee", symbol: "\u20B9", hint: "India" },
+      { code: "BRL", name: "Brazilian Real", symbol: "R$", hint: "Brazil" },
+      { code: "AUD", name: "Australian Dollar", symbol: "A$", hint: "Australia" },
+      { code: "RUB", name: "Russian Ruble", symbol: "\u20BD", hint: "Russia" },
+      { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp", hint: "Indonesia" },
+      { code: "MXN", name: "Mexican Peso", symbol: "MX$", hint: "Mexico" },
+      { code: "TRY", name: "Turkish Lira", symbol: "\u20BA", hint: "T\xFCrkiye" },
+      { code: "SAR", name: "Saudi Riyal", symbol: "\uFDFC", hint: "Saudi Arabia" },
+      {
+        code: "AED",
+        name: "UAE Dirham",
+        symbol: "\u062F.\u0625",
+        hint: "United Arab Emirates"
+      },
+      { code: "EGP", name: "Egyptian Pound", symbol: "E\xA3", hint: "Egypt" },
+      { code: "KRW", name: "South Korean Won", symbol: "\u20A9", hint: "South Korea" },
+      // The remaining builtin-market currencies: every registered market
+      // formats with its own verified symbol, never bare ISO fallback.
+      { code: "CHF", name: "Swiss Franc", symbol: "CHF", hint: "Switzerland" },
+      {
+        code: "NZD",
+        name: "New Zealand Dollar",
+        symbol: "NZ$",
+        hint: "New Zealand"
+      },
+      { code: "SGD", name: "Singapore Dollar", symbol: "S$", hint: "Singapore" },
+      { code: "SEK", name: "Swedish Krona", symbol: "kr", hint: "Sweden" },
+      { code: "PLN", name: "Polish Z\u0142oty", symbol: "z\u0142", hint: "Poland" },
+      { code: "ETB", name: "Ethiopian Birr", symbol: "Br", hint: "Ethiopia" },
+      { code: "TZS", name: "Tanzanian Shilling", symbol: "TSh", hint: "Tanzania" }
+    ];
+    activeCode = readStoredCurrency();
+    config = { enabled: false, rates: {} };
+    if (typeof localStorage !== "undefined") {
+      window.addEventListener("storage", (e) => {
+        if (e.key === CURRENCY_STORAGE_KEY && e.newValue) {
+          activeCode = DISPLAY_CURRENCIES.some((c) => c.code === e.newValue) ? e.newValue : "NGN";
+        }
+      });
+    }
+  }
+});
+
+// src/lib/international/currency-units.ts
+function currencyMinorUnits(code) {
+  return MINOR_UNITS[String(code ?? "").toUpperCase()] ?? 2;
+}
+var MINOR_UNITS;
+var init_currency_units = __esm({
+  "src/lib/international/currency-units.ts"() {
+    init_define_import_meta_env();
+    MINOR_UNITS = {
+      JPY: 0,
+      KRW: 0
+    };
+  }
+});
+
+// src/lib/international/currency-format.ts
+function displayLocale(explicit) {
+  return explicit ?? activeLocale ?? "en-US";
+}
+function joinSymbol(symbol, formatted) {
+  return symbol.length === 1 ? `${symbol}${formatted}` : `${symbol} ${formatted}`;
+}
+function decimalDigits(decimals, code) {
+  switch (decimals) {
+    case 0:
+      return { min: 0, max: 0 };
+    case 2:
+      return { min: 2, max: 2 };
+    case "auto":
+      return { min: 0, max: 2 };
+    case "native":
+      return currencyMinorUnits(code) === 0 ? { min: 0, max: 0 } : { min: 2, max: 2 };
+  }
+}
+function safeAmount(amount) {
+  return typeof amount === "number" && !isNaN(amount) ? amount : 0;
+}
+function formatByCode(amount, code = "XXX", options = {}) {
+  const upper = String(code || "XXX").toUpperCase();
+  const symbol = CURRENCY_SYMBOLS[upper] || upper;
+  const { min, max } = decimalDigits(options.decimals ?? 0, upper);
+  const formatted = safeAmount(amount).toLocaleString(
+    displayLocale(options.locale),
+    {
+      minimumFractionDigits: min,
+      maximumFractionDigits: max
+    }
+  );
+  return joinSymbol(symbol, formatted);
+}
+var CURRENCY_SYMBOLS, activeLocale;
+var init_currency_format = __esm({
+  "src/lib/international/currency-format.ts"() {
+    init_define_import_meta_env();
+    init_fx_display();
+    init_currency_units();
+    CURRENCY_SYMBOLS = Object.fromEntries(
+      DISPLAY_CURRENCIES.map((c) => [c.code, c.symbol])
+    );
+    activeLocale = null;
+  }
+});
+
+// src/lib/convert/units.ts
+var LENGTH_TO_M, AREA_TO_M2, VOLUME_TO_L, MASS_TO_KG, LENGTH_LABELS, AREA_LABELS, VOLUME_LABELS, MASS_LABELS, UNIVERSAL_UNITS;
+var init_units = __esm({
+  "src/lib/convert/units.ts"() {
+    init_define_import_meta_env();
+    LENGTH_TO_M = {
+      mm: 1e-3,
+      cm: 0.01,
+      m: 1,
+      km: 1e3,
+      in: 0.0254,
+      ft: 0.3048,
+      yd: 0.9144,
+      mi: 1609.344,
+      // A mil is a thousandth of an inch, the way coating and sheet thickness is
+      // specified. Exact: 0.001 x 0.0254.
+      mil: 254e-7,
+      // Surveying chain and link, Gunter's measure: 66 ft and 1/100 of a chain.
+      link: 0.201168,
+      chain: 20.1168,
+      // Rod (perch, pole): 16.5 ft.
+      rod: 5.0292,
+      fathom: 1.8288
+    };
+    AREA_TO_M2 = {
+      mm2: 1e-6,
+      cm2: 1e-4,
+      m2: 1,
+      km2: 1e6,
+      in2: 64516e-8,
+      ft2: 0.09290304,
+      yd2: 0.83612736,
+      acre: 4046.8564224,
+      hectare: 1e4,
+      mi2: 2589988110336e-6,
+      // Land units still used in South Asia and West Africa, defined against the
+      // acre so they never drift: a cent is 1/100 acre, a guntha 1/40, a marla
+      // 1/160.
+      cent: 40.468564224,
+      guntha: 101.17141056,
+      marla: 25.29285264
+    };
+    VOLUME_TO_L = {
+      ml: 1e-3,
+      l: 1,
+      m3: 1e3,
+      cm3: 1e-3,
+      ft3: 28.316846592,
+      // Ready-mix concrete is ordered by the cubic yard in the US, so this unit
+      // has to exist rather than be reached by converting to cubic feet by hand.
+      yd3: 764.554857984,
+      gal_us: 3.785411784,
+      gal_imp: 4.54609,
+      // Cubic inch, exact: 0.0254^3 in litres.
+      in3: 0.016387064,
+      // Oil barrel: 42 US gallons, the only barrel with a single definition.
+      barrel_oil: 158.987294928
+    };
+    MASS_TO_KG = {
+      mg: 1e-6,
+      g: 1e-3,
+      kg: 1,
+      tonne: 1e3,
+      // Quintal is 100 kg in both the metric and Indian usage.
+      quintal: 100,
+      // A cement bag is a 50 kg product, not a unit in general use. It is offered
+      // because site quantities are asked for in bags, and it is labelled as such.
+      bag50: 50,
+      lb: 0.45359237,
+      oz: 0.028349523125,
+      stone: 6.35029318,
+      ton_us: 907.18474,
+      ton_imp: 1016.0469088
+    };
+    LENGTH_LABELS = {
+      mm: "Millimetres (mm)",
+      cm: "Centimetres (cm)",
+      m: "Metres (m)",
+      km: "Kilometres (km)",
+      in: "Inches (in)",
+      ft: "Feet (ft)",
+      yd: "Yards (yd)",
+      mi: "Miles (mi)",
+      mil: "Mils (0.001 in)",
+      link: "Links (survey)",
+      chain: "Chains (66 ft)",
+      rod: "Rods (16.5 ft)",
+      fathom: "Fathoms"
+    };
+    AREA_LABELS = {
+      mm2: "Square millimetres (mm\xB2)",
+      cm2: "Square centimetres (cm\xB2)",
+      m2: "Square metres (m\xB2)",
+      ft2: "Square feet (ft\xB2)",
+      yd2: "Square yards (yd\xB2)",
+      acre: "Acres",
+      hectare: "Hectares",
+      km2: "Square kilometres (km\xB2)",
+      in2: "Square inches (in\xB2)",
+      mi2: "Square miles (mi\xB2)",
+      cent: "Cents (1/100 acre)",
+      guntha: "Gunthas (1/40 acre)",
+      marla: "Marlas (1/160 acre)"
+    };
+    VOLUME_LABELS = {
+      ml: "Millilitres (ml)",
+      l: "Litres (L)",
+      m3: "Cubic metres (m\xB3)",
+      cm3: "Cubic centimetres (cm\xB3)",
+      ft3: "Cubic feet (ft\xB3)",
+      yd3: "Cubic yards (yd\xB3)",
+      gal_us: "US gallons",
+      gal_imp: "Imperial gallons",
+      in3: "Cubic inches (in\xB3)",
+      barrel_oil: "Oil barrels (42 US gal)"
+    };
+    MASS_LABELS = {
+      g: "Grams (g)",
+      kg: "Kilograms (kg)",
+      tonne: "Metric tonnes (t)",
+      lb: "Pounds (lb)",
+      ton_us: "US short tons",
+      ton_imp: "Imperial long tons",
+      mg: "Milligrams (mg)",
+      oz: "Ounces (oz)",
+      stone: "Stones (14 lb)",
+      quintal: "Quintals (100 kg)",
+      bag50: "Cement bags (50 kg)"
+    };
+    UNIVERSAL_UNITS = [
+      {
+        id: "len-mm",
+        label: "Millimetres (mm)",
+        dimension: "length",
+        factor: LENGTH_TO_M.mm
+      },
+      {
+        id: "len-cm",
+        label: "Centimetres (cm)",
+        dimension: "length",
+        factor: LENGTH_TO_M.cm
+      },
+      {
+        id: "len-m",
+        label: "Metres (m)",
+        dimension: "length",
+        factor: LENGTH_TO_M.m
+      },
+      {
+        id: "len-km",
+        label: "Kilometres (km)",
+        dimension: "length",
+        factor: LENGTH_TO_M.km
+      },
+      {
+        id: "len-in",
+        label: "Inches (in)",
+        dimension: "length",
+        factor: LENGTH_TO_M.in
+      },
+      {
+        id: "len-ft",
+        label: "Feet (ft)",
+        dimension: "length",
+        factor: LENGTH_TO_M.ft
+      },
+      {
+        id: "len-yd",
+        label: "Yards (yd)",
+        dimension: "length",
+        factor: LENGTH_TO_M.yd
+      },
+      {
+        id: "len-mi",
+        label: "Miles (mi)",
+        dimension: "length",
+        factor: LENGTH_TO_M.mi
+      },
+      {
+        id: "area-mm2",
+        label: "Square millimetres (mm\xB2)",
+        dimension: "area",
+        factor: AREA_TO_M2.mm2
+      },
+      {
+        id: "area-cm2",
+        label: "Square centimetres (cm\xB2)",
+        dimension: "area",
+        factor: AREA_TO_M2.cm2
+      },
+      {
+        id: "area-m2",
+        label: "Square metres (m\xB2)",
+        dimension: "area",
+        factor: AREA_TO_M2.m2
+      },
+      {
+        id: "area-ft2",
+        label: "Square feet (ft\xB2)",
+        dimension: "area",
+        factor: AREA_TO_M2.ft2
+      },
+      {
+        id: "area-yd2",
+        label: "Square yards (yd\xB2)",
+        dimension: "area",
+        factor: AREA_TO_M2.yd2
+      },
+      {
+        id: "area-acre",
+        label: "Acres",
+        dimension: "area",
+        factor: AREA_TO_M2.acre
+      },
+      {
+        id: "area-hectare",
+        label: "Hectares",
+        dimension: "area",
+        factor: AREA_TO_M2.hectare
+      },
+      {
+        id: "area-plot-50x100",
+        label: "Plot, 50 x 100 ft",
+        dimension: "area",
+        factor: 464.5152
+      },
+      {
+        id: "area-plot-60x120",
+        label: "Plot, 60 x 120 ft",
+        dimension: "area",
+        factor: 668.901888
+      },
+      {
+        id: "area-plot-100x100",
+        label: "Plot, 100 x 100 ft",
+        dimension: "area",
+        factor: 929.0304
+      },
+      {
+        id: "vol-ml",
+        label: "Millilitres (ml)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.ml
+      },
+      {
+        id: "vol-l",
+        label: "Litres (L)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.l
+      },
+      {
+        id: "vol-m3",
+        label: "Cubic metres (m\xB3)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.m3
+      },
+      {
+        id: "vol-cm3",
+        label: "Cubic centimetres (cm\xB3)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.cm3
+      },
+      {
+        id: "vol-ft3",
+        label: "Cubic feet (ft\xB3)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.ft3
+      },
+      {
+        id: "vol-yd3",
+        label: "Cubic yards (yd\xB3)",
+        dimension: "volume",
+        factor: VOLUME_TO_L.yd3
+      },
+      {
+        id: "vol-gal-us",
+        label: "US gallons",
+        dimension: "volume",
+        factor: VOLUME_TO_L.gal_us
+      },
+      {
+        id: "vol-gal-imp",
+        label: "Imperial gallons",
+        dimension: "volume",
+        factor: VOLUME_TO_L.gal_imp
+      },
+      { id: "mass-g", label: "Grams (g)", dimension: "mass", factor: MASS_TO_KG.g },
+      {
+        id: "mass-kg",
+        label: "Kilograms (kg)",
+        dimension: "mass",
+        factor: MASS_TO_KG.kg
+      },
+      {
+        id: "mass-tonne",
+        label: "Metric tonnes (t)",
+        dimension: "mass",
+        factor: MASS_TO_KG.tonne
+      },
+      {
+        id: "mass-lb",
+        label: "Pounds (lb)",
+        dimension: "mass",
+        factor: MASS_TO_KG.lb
+      },
+      {
+        id: "mass-ton-us",
+        label: "US short tons",
+        dimension: "mass",
+        factor: MASS_TO_KG.ton_us
+      },
+      {
+        id: "mass-ton-imp",
+        label: "Imperial long tons",
+        dimension: "mass",
+        factor: MASS_TO_KG.ton_imp
+      },
+      // ---- additional length: sheet, coating and survey measures
+      {
+        id: "len-mil",
+        label: LENGTH_LABELS.mil,
+        dimension: "length",
+        factor: LENGTH_TO_M.mil
+      },
+      {
+        id: "len-link",
+        label: LENGTH_LABELS.link,
+        dimension: "length",
+        factor: LENGTH_TO_M.link
+      },
+      {
+        id: "len-chain",
+        label: LENGTH_LABELS.chain,
+        dimension: "length",
+        factor: LENGTH_TO_M.chain
+      },
+      {
+        id: "len-rod",
+        label: LENGTH_LABELS.rod,
+        dimension: "length",
+        factor: LENGTH_TO_M.rod
+      },
+      {
+        id: "len-fathom",
+        label: LENGTH_LABELS.fathom,
+        dimension: "length",
+        factor: LENGTH_TO_M.fathom
+      },
+      // ---- additional area: large survey and regional land units
+      {
+        id: "area-in2",
+        label: AREA_LABELS.in2,
+        dimension: "area",
+        factor: AREA_TO_M2.in2
+      },
+      {
+        id: "area-km2",
+        label: AREA_LABELS.km2,
+        dimension: "area",
+        factor: AREA_TO_M2.km2
+      },
+      {
+        id: "area-mi2",
+        label: AREA_LABELS.mi2,
+        dimension: "area",
+        factor: AREA_TO_M2.mi2
+      },
+      {
+        id: "area-cent",
+        label: AREA_LABELS.cent,
+        dimension: "area",
+        factor: AREA_TO_M2.cent
+      },
+      {
+        id: "area-guntha",
+        label: AREA_LABELS.guntha,
+        dimension: "area",
+        factor: AREA_TO_M2.guntha
+      },
+      {
+        id: "area-marla",
+        label: AREA_LABELS.marla,
+        dimension: "area",
+        factor: AREA_TO_M2.marla
+      },
+      // ---- additional volume
+      {
+        id: "vol-in3",
+        label: VOLUME_LABELS.in3,
+        dimension: "volume",
+        factor: VOLUME_TO_L.in3
+      },
+      {
+        id: "vol-barrel-oil",
+        label: VOLUME_LABELS.barrel_oil,
+        dimension: "volume",
+        factor: VOLUME_TO_L.barrel_oil
+      },
+      // ---- additional mass
+      {
+        id: "mass-mg",
+        label: MASS_LABELS.mg,
+        dimension: "mass",
+        factor: MASS_TO_KG.mg
+      },
+      {
+        id: "mass-oz",
+        label: MASS_LABELS.oz,
+        dimension: "mass",
+        factor: MASS_TO_KG.oz
+      },
+      {
+        id: "mass-stone",
+        label: MASS_LABELS.stone,
+        dimension: "mass",
+        factor: MASS_TO_KG.stone
+      },
+      {
+        id: "mass-quintal",
+        label: MASS_LABELS.quintal,
+        dimension: "mass",
+        factor: MASS_TO_KG.quintal
+      },
+      {
+        id: "mass-bag50",
+        label: MASS_LABELS.bag50,
+        dimension: "mass",
+        factor: MASS_TO_KG.bag50
+      }
+    ];
+  }
+});
+
+// src/lib/utils.ts
+function feetToMeters(ft) {
+  return ft * 0.3048;
+}
+function unitToMeters(value, unit) {
+  const factor = UNIT_TO_M[unit];
+  if (typeof factor !== "number" || !isFinite(factor)) return 0;
+  if (!isFinite(value)) return 0;
+  return value * factor;
+}
+var UNIT_TO_M, DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M;
+var init_utils = __esm({
+  "src/lib/utils.ts"() {
+    init_define_import_meta_env();
+    init_cn();
+    init_fx_display();
+    init_currency_format();
+    init_units();
+    UNIT_TO_M = {
+      meters: LENGTH_TO_M.m,
+      feet: LENGTH_TO_M.ft,
+      inches: LENGTH_TO_M.in,
+      centimeters: LENGTH_TO_M.cm,
+      millimeters: LENGTH_TO_M.mm
+    };
+    DEFAULT_DOOR_WIDTH_M = 0.8;
+    DEFAULT_DOOR_HEIGHT_M = 2.4;
+    DEFAULT_WINDOW_WIDTH_M = 1.2;
+    DEFAULT_WINDOW_HEIGHT_M = 1.2;
+  }
+});
+
+// src/lib/calc.ts
+var calc_exports = {};
+__export(calc_exports, {
+  COLOR_CONDITION_INFO: () => COLOR_CONDITION_INFO,
+  DEFAULT_CONTAINER_SIZES_LITERS: () => DEFAULT_CONTAINER_SIZES_LITERS,
+  DEFAULT_COVERAGE_M2_PER_LITER: () => DEFAULT_COVERAGE_M2_PER_LITER,
+  DEFAULT_DOOR_DIMS: () => DEFAULT_DOOR_DIMS,
+  DEFAULT_WINDOW_DIMS: () => DEFAULT_WINDOW_DIMS,
+  SURFACE_CONDITION_FACTORS: () => SURFACE_CONDITION_FACTORS,
+  calculateAdjustedPaintRequired: () => calculateAdjustedPaintRequired,
+  calculateCeilingArea: () => calculateCeilingArea,
+  calculateCost: () => calculateCost,
+  calculateDoorArea: () => calculateDoorArea,
+  calculateEstimatedTotal: () => calculateEstimatedTotal,
+  calculateLaborCost: () => calculateLaborCost,
+  calculateMaterialCost: () => calculateMaterialCost,
+  calculatePaint: () => calculatePaint,
+  calculatePaintCost: () => calculatePaintCost,
+  calculatePaintRequired: () => calculatePaintRequired,
+  calculatePaintableArea: () => calculatePaintableArea,
+  calculateScreedingMixSystem: () => calculateScreedingMixSystem,
+  calculateScreedingPutty: () => calculateScreedingPutty,
+  calculateScreedingSystem: () => calculateScreedingSystem,
+  calculateWallArea: () => calculateWallArea,
+  calculateWindowArea: () => calculateWindowArea,
+  dbToSystemConfig: () => dbToSystemConfig,
+  evaluateHeightWarning: () => evaluateHeightWarning,
+  getColorConditionInfo: () => getColorConditionInfo,
+  getScreedingSystemWarnings: () => getScreedingSystemWarnings,
+  getSurfaceConditionFactor: () => getSurfaceConditionFactor,
+  recommendContainerCombination: () => recommendContainerCombination,
+  recommendPracticalContainers: () => recommendPracticalContainers,
+  resolveEffectiveCoats: () => resolveEffectiveCoats,
+  resolveMinCoats: () => resolveMinCoats,
+  resolveSurfaceFactor: () => resolveSurfaceFactor,
+  validateCalculatorInput: () => validateCalculatorInput
+});
+function getSurfaceConditionFactor(condition) {
+  if (!condition) return SURFACE_CONDITION_FACTORS.smooth;
+  return SURFACE_CONDITION_FACTORS[condition] ?? SURFACE_CONDITION_FACTORS.smooth;
+}
+function getColorConditionInfo(condition) {
+  if (!condition) return COLOR_CONDITION_INFO.same_or_light;
+  return COLOR_CONDITION_INFO[condition] ?? COLOR_CONDITION_INFO.same_or_light;
+}
+function resolveSurfaceFactor(condition, config2) {
+  const documented = getSurfaceConditionFactor(condition).factor;
+  const perCondition = condition ? config2?.surfaceFactorOverrides?.[condition] : void 0;
+  if (perCondition !== void 0) {
+    if (perCondition > 0 && perCondition <= MAX_SURFACE_FACTOR)
+      return perCondition;
+  }
+  const scalar = config2?.surfaceFactorOverride;
+  if (scalar !== void 0) {
+    if (scalar > 0 && scalar <= MAX_SURFACE_FACTOR) return scalar;
+  }
+  return documented;
+}
+function resolveMinCoats(condition, config2) {
+  const documented = getColorConditionInfo(condition).minCoats;
+  const perCondition = condition ? config2?.minCoatsOverrides?.[condition] : void 0;
+  if (perCondition !== void 0) {
+    if (Number.isInteger(perCondition) && perCondition >= 1)
+      return perCondition;
+  }
+  const scalar = config2?.minCoatsOverride;
+  if (scalar !== void 0) {
+    if (Number.isInteger(scalar) && scalar >= 1) return scalar;
+  }
+  return documented;
+}
+function evaluateHeightWarning(heightM, unit) {
+  const standardM = STANDARD_HEIGHT_M;
+  const standardFt = STANDARD_HEIGHT_FT;
+  if (heightM > standardM) {
+    const _heightFt = unit === "feet" ? heightM / 0.3048 : heightM * 3.28084;
+    return `Wall height exceeds the FRELUX standard (${standardFt} ft / ${standardM.toFixed(2)} m). Professional assessment recommended for non-standard heights.`;
+  }
+  return null;
+}
+function toMeters(value, unit) {
+  return unitToMeters(value, unit);
+}
+function calculateWallArea(lengthM, widthM, heightM, projectType) {
+  if (projectType === "fence") {
+    return lengthM * heightM;
+  }
+  if (widthM <= 0) {
+    return 2 * lengthM * heightM;
+  }
+  const perimeter = 2 * (lengthM + widthM);
+  return perimeter * heightM;
+}
+function calculateCeilingArea(lengthM, widthM, projectType) {
+  if (projectType === "exterior" || projectType === "fence") return 0;
+  if (widthM <= 0) return 0;
+  return lengthM * widthM;
+}
+function calculateDoorArea(doorCount, dims = DEFAULT_DOOR_DIMS) {
+  const areaPerDoor = Math.max(0, dims.width) * Math.max(0, dims.height);
+  return Math.max(0, doorCount) * areaPerDoor;
+}
+function calculateWindowArea(windowCount, dims = DEFAULT_WINDOW_DIMS) {
+  const areaPerWindow = Math.max(0, dims.width) * Math.max(0, dims.height);
+  return Math.max(0, windowCount) * areaPerWindow;
+}
+function calculatePaintableArea(wallAreaM2, ceilingAreaM2, doorAreaM2, windowAreaM2, includeCeiling) {
+  const surface = wallAreaM2 + (includeCeiling ? ceilingAreaM2 : 0);
+  const openings = doorAreaM2 + windowAreaM2;
+  return Math.max(0, surface - openings);
+}
+function calculatePaintRequired(paintableAreaM2, coats, coverageRate) {
+  if (coverageRate <= 0) return 0;
+  return paintableAreaM2 * Math.max(1, coats) / coverageRate;
+}
+function calculateAdjustedPaintRequired(paintRequiredLiters, wasteMarginPercent) {
+  const margin = Math.max(0, Math.min(100, wasteMarginPercent)) / 100;
+  return paintRequiredLiters * (1 + margin);
+}
+function mergeSameSizeRecommendations(recommendations) {
+  const merged = /* @__PURE__ */ new Map();
+  for (const r of recommendations) {
+    merged.set(r.size, (merged.get(r.size) ?? 0) + r.count);
+  }
+  return [...merged.entries()].map(([size, count]) => ({ size, count }));
+}
+function recommendContainerCombination(liters, containerSizes) {
+  const sizes = containerSizes.length > 0 ? [...containerSizes].sort((a, b) => b - a) : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
+  let remaining = Math.max(0, liters);
+  const recommendations = [];
+  for (const size of sizes) {
+    if (remaining <= 0) break;
+    const count = Math.floor(remaining / size);
+    if (count > 0) {
+      recommendations.push({ size, count });
+      remaining -= count * size;
+    }
+  }
+  if (remaining > 0) {
+    const smallest = sizes[sizes.length - 1];
+    recommendations.push({ size: smallest, count: 1 });
+  }
+  return mergeSameSizeRecommendations(recommendations);
+}
+function recommendPracticalContainers(liters, containerSizes) {
+  const sizes = containerSizes.length > 0 ? [...containerSizes].sort((a, b) => b - a) : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
+  const need = Math.max(0, liters);
+  if (need === 0) return [];
+  for (let i = sizes.length - 1; i >= 0; i--) {
+    if (sizes[i] >= need) {
+      return [{ size: sizes[i], count: 1 }];
+    }
+  }
+  let remaining = need;
+  const recommendations = [];
+  for (const size of sizes) {
+    if (remaining <= 0) break;
+    const count = Math.floor(remaining / size);
+    if (count > 0) {
+      recommendations.push({ size, count });
+      remaining -= count * size;
+    }
+  }
+  if (remaining > 0) {
+    const _largest = sizes[0];
+    const smallest = sizes[sizes.length - 1];
+    if (remaining > smallest * 0.5 && recommendations.length > 0) {
+      const lastRec = recommendations[recommendations.length - 1];
+      const nextSize = sizes.find((s) => s > lastRec.size);
+      if (nextSize && remaining <= nextSize) {
+        recommendations[recommendations.length - 1] = {
+          size: nextSize,
+          count: 1
+        };
+        remaining = 0;
+      } else {
+        recommendations.push({ size: smallest, count: 1 });
+      }
+    } else {
+      recommendations.push({ size: smallest, count: 1 });
+    }
+  }
+  return mergeSameSizeRecommendations(recommendations);
+}
+function calculatePaint(input, config2) {
+  const baseCoverageRate = config2?.coverageRate ?? DEFAULT_COVERAGE_M2_PER_LITER;
+  const containerSizes = config2?.containerSizes ?? DEFAULT_CONTAINER_SIZES_LITERS;
+  const lengthM = toMeters(input.length, input.unit);
+  const widthM = toMeters(input.width, input.unit);
+  const heightM = toMeters(input.wallHeight, input.unit);
+  const wall = calculateWallArea(lengthM, widthM, heightM, input.projectType);
+  const ceiling = calculateCeilingArea(lengthM, widthM, input.projectType);
+  const door = calculateDoorArea(input.doors, input.doorDims);
+  const window2 = calculateWindowArea(input.windows, input.windowDims);
+  const area = calculatePaintableArea(
+    wall,
+    ceiling,
+    door,
+    window2,
+    input.includeCeiling
+  );
+  const surfaceCondition = input.surfaceCondition ?? "smooth";
+  const surfaceFactor = resolveSurfaceFactor(surfaceCondition, config2);
+  const adjustedCoverageRate = round3(baseCoverageRate * surfaceFactor);
+  const colorCondition = input.colorCondition ?? "same_or_light";
+  const colorInfo = getColorConditionInfo(colorCondition);
+  const minCoats = resolveMinCoats(colorCondition, config2);
+  const effectiveCoats = Math.max(input.coats, minCoats);
+  const heightWarning = evaluateHeightWarning(heightM, input.unit);
+  const baseLiters = calculatePaintRequired(
+    area,
+    effectiveCoats,
+    adjustedCoverageRate
+  );
+  const adjustedLiters = calculateAdjustedPaintRequired(
+    baseLiters,
+    input.wasteMargin
+  );
+  const containers = recommendPracticalContainers(
+    adjustedLiters,
+    containerSizes
+  );
+  const totalRecommended = containers.reduce(
+    (sum, c) => sum + c.count * c.size,
+    0
+  );
+  const leftoverLiters = Math.max(0, round3(totalRecommended - adjustedLiters));
+  const primerRecommended = surfaceCondition === "new_plaster" || surfaceCondition === "rough" || colorCondition === "new_unpainted" || colorCondition === "light_over_dark";
+  const includePrimer = input.includePrimer ?? primerRecommended;
+  const primerCoverageRate = adjustedCoverageRate * (config2?.primerCoverageMultiplier ?? 1.3);
+  const primerLiters = includePrimer ? calculateAdjustedPaintRequired(
+    calculatePaintRequired(area, 1, primerCoverageRate),
+    input.wasteMargin
+  ) : 0;
+  const primerContainers = primerLiters > 0 ? recommendPracticalContainers(primerLiters, containerSizes) : [];
+  const primerTotalLiters = primerContainers.reduce(
+    (sum, c) => sum + c.count * c.size,
+    0
+  );
+  return {
+    projectType: input.projectType,
+    unit: input.unit,
+    wallArea: round3(wall),
+    ceilingArea: round3(ceiling),
+    doorArea: round3(door),
+    windowArea: round3(window2),
+    paintableArea: round3(area),
+    coats: effectiveCoats,
+    paintType: input.paintType,
+    coverageRate: adjustedCoverageRate,
+    baseCoverageRate,
+    surfaceCondition,
+    surfaceConditionFactor: surfaceFactor,
+    paintRequiredLiters: round3(baseLiters),
+    wasteMargin: input.wasteMargin,
+    adjustedLiters: round3(adjustedLiters),
+    recommendedContainers: containers,
+    totalRecommendedLiters: round3(totalRecommended),
+    leftoverLiters,
+    primerLiters: round3(primerLiters),
+    primerContainers,
+    primerTotalLiters: round3(primerTotalLiters),
+    heightWarning,
+    colorWarning: colorInfo.warning,
+    primerRecommended
+  };
+}
+function calculatePaintCost(input) {
+  if (input.paintUseContainerPricing && input.paintContainerSize > 0 && input.paintContainerPrice > 0) {
+    const containersNeeded = Math.ceil(
+      Math.max(0, input.paintLiters) / input.paintContainerSize
+    );
+    return {
+      cost: containersNeeded * input.paintContainerPrice,
+      containerCount: containersNeeded
+    };
+  }
+  return {
+    cost: Math.max(0, input.paintLiters) * Math.max(0, input.paintPricePerLiter),
+    containerCount: 0
+  };
+}
+function calculateMaterialCost(input) {
+  let sum = 0;
+  if (input.includeFiller) sum += Math.max(0, input.fillerCost);
+  if (input.includePutty) sum += Math.max(0, input.puttyCost);
+  if (input.includeSandpaper) sum += Math.max(0, input.sandpaperCost);
+  if (input.includeBrushes) sum += Math.max(0, input.brushesCost);
+  if (input.includeRollers) sum += Math.max(0, input.rollersCost);
+  if (input.includeOther) sum += Math.max(0, input.otherMaterialsCost);
+  return sum;
+}
+function calculateLaborCost(input) {
+  if (input.laborMode === "perSqm") {
+    return Math.max(0, input.paintableArea) * Math.max(0, input.laborRatePerSqm);
+  }
+  return Math.max(0, input.laborTotal);
+}
+function calculateEstimatedTotal(input) {
+  const { cost: paintCost, containerCount } = calculatePaintCost(input);
+  const primerCost = input.includePrimer ? Math.max(0, input.primerLiters) * Math.max(0, input.primerPricePerLiter) : 0;
+  const fillerCost = input.includeFiller ? Math.max(0, input.fillerCost) : 0;
+  const puttyCost = input.includePutty ? Math.max(0, input.puttyCost) : 0;
+  const sandpaperCost = input.includeSandpaper ? Math.max(0, input.sandpaperCost) : 0;
+  const brushesCost = input.includeBrushes ? Math.max(0, input.brushesCost) : 0;
+  const rollersCost = input.includeRollers ? Math.max(0, input.rollersCost) : 0;
+  const otherMaterialsCost = input.includeOther ? Math.max(0, input.otherMaterialsCost) : 0;
+  const materialsCost = calculateMaterialCost(input);
+  const laborCost = calculateLaborCost(input);
+  const total = paintCost + primerCost + materialsCost + laborCost;
+  return {
+    paintCost: round3(paintCost),
+    paintContainerCount: containerCount,
+    primerCost: round3(primerCost),
+    fillerCost: round3(fillerCost),
+    puttyCost: round3(puttyCost),
+    sandpaperCost: round3(sandpaperCost),
+    brushesCost: round3(brushesCost),
+    rollersCost: round3(rollersCost),
+    otherMaterialsCost: round3(otherMaterialsCost),
+    materialsCost: round3(materialsCost),
+    laborCost: round3(laborCost),
+    total: round3(total),
+    currency: input.currency,
+    currencySymbol: input.currencySymbol
+  };
+}
+function getScreedingSystemWarnings(config2) {
+  const warnings = [];
+  const coverageOk = Number.isFinite(config2.coverageAreaM2) && config2.coverageAreaM2 > 0;
+  if (!coverageOk) {
+    warnings.push(
+      "Coverage area is not configured. Material quantities will be 0 until it is set in the FRELUX screeding materials page."
+    );
+  }
+  const qtyWarning = (name, label) => warnings.push(
+    `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in the FRELUX screeding materials page.`
+  );
+  const priceWarning = (name, label) => warnings.push(
+    `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in the FRELUX screeding materials page.`
+  );
+  if (config2.systemType === "putty") {
+    if (config2.puttyQuantity == null || config2.puttyQuantity <= 0) {
+      qtyWarning(config2.puttyName ?? "Putty", "Putty");
+    }
+    if (config2.puttyPricePerUnit == null || config2.puttyPricePerUnit <= 0) {
+      priceWarning(config2.puttyName ?? "Putty", "Putty");
+    }
+  } else {
+    if (config2.paintQuantity == null || config2.paintQuantity <= 0) {
+      qtyWarning(config2.paintName ?? "Screeding Paint", "Screeding paint");
+    }
+    if (config2.paintPricePerUnit == null || config2.paintPricePerUnit <= 0) {
+      priceWarning(config2.paintName ?? "Screeding Paint", "Screeding paint");
+    }
+    if (config2.cementQuantity == null || config2.cementQuantity <= 0) {
+      qtyWarning(config2.cementName ?? "White Cement", "White cement");
+    }
+    if (config2.cementPricePerUnit == null || config2.cementPricePerUnit <= 0) {
+      priceWarning(config2.cementName ?? "White Cement", "White cement");
+    }
+    if (config2.extraEnabled === true) {
+      if (config2.extraQuantity == null || config2.extraQuantity <= 0) {
+        qtyWarning(config2.extraName ?? "Extra material", "Extra material");
+      }
+      if (config2.extraPricePerUnit == null || config2.extraPricePerUnit <= 0) {
+        priceWarning(config2.extraName ?? "Extra material", "Extra material");
+      }
+    }
+  }
+  return warnings;
+}
+function buildMaterialBreakdown(params) {
+  const wasteFraction = Math.max(0, Math.min(100, params.wastePercentage)) / 100;
+  const wasteQuantity = params.baseQuantity * wasteFraction;
+  const finalQuantity = params.baseQuantity + wasteQuantity;
+  const purchaseQuantity = params.roundingRule === "ceil" ? Math.max(0, Math.ceil(finalQuantity)) : Math.max(0, finalQuantity);
+  const totalCost = params.pricePerUnit != null && params.pricePerUnit > 0 ? purchaseQuantity * params.pricePerUnit : null;
+  return {
+    name: params.name,
+    unit: params.unit,
+    baseQuantity: round3(params.baseQuantity),
+    wastePercentage: params.wastePercentage,
+    wasteQuantity: round3(wasteQuantity),
+    finalQuantity: round3(finalQuantity),
+    purchaseQuantity,
+    pricePerUnit: params.pricePerUnit ?? null,
+    totalCost: totalCost != null ? round3(totalCost) : null
+  };
+}
+function calculateScreedingPutty(areaM22, config2, coats) {
+  const area = Math.max(0, areaM22);
+  const defaultCoats = Math.max(1, config2.defaultCoats);
+  const effectiveCoats = Math.max(1, coats ?? defaultCoats);
+  const coverage = Math.max(0.01, config2.coverageAreaM2);
+  const puttyQty = config2.puttyQuantity ?? 0;
+  const wastePct = config2.wastePercentage;
+  const coatFactor = effectiveCoats / defaultCoats;
+  const baseUnits = area / coverage * puttyQty * coatFactor;
+  const putty = buildMaterialBreakdown({
+    name: config2.puttyName ?? "Putty",
+    unit: config2.puttyUnit ?? "bucket",
+    baseQuantity: baseUnits,
+    wastePercentage: wastePct,
+    pricePerUnit: config2.puttyPricePerUnit,
+    roundingRule: config2.roundingRule
+  });
+  const materialCost = putty.totalCost ?? null;
+  return {
+    systemType: "putty",
+    netScreedingArea: round3(area),
+    coats: effectiveCoats,
+    coverageAreaM2: coverage,
+    putty,
+    materialCost,
+    currency: config2.currency,
+    currencySymbol: config2.currencySymbol,
+    warnings: getScreedingSystemWarnings(config2)
+  };
+}
+function resolveEffectiveCoats(selected, defaultCoats) {
+  const fallback = Math.max(1, Math.floor(Number(defaultCoats)) || 1);
+  if (selected == null) return fallback;
+  const value = Math.floor(Number(selected));
+  if (!Number.isFinite(value) || value < 1) return fallback;
+  return Math.min(10, value);
+}
+function calculateScreedingMixSystem(areaM22, config2, coats) {
+  const area = Math.max(0, areaM22);
+  const defaultCoats = Math.max(1, config2.defaultCoats);
+  const effectiveCoats = Math.max(1, coats ?? defaultCoats);
+  const coverage = Math.max(0.01, config2.coverageAreaM2);
+  const paintQty = config2.paintQuantity ?? 0;
+  const cementQty = config2.cementQuantity ?? 0;
+  const extraActive = config2.extraEnabled === true && config2.extraName != null && (config2.extraQuantity ?? 0) > 0;
+  const extraQty = extraActive ? config2.extraQuantity ?? 0 : 0;
+  const wastePct = config2.wastePercentage;
+  const coatFactor = effectiveCoats / defaultCoats;
+  const baseUnits = area / coverage;
+  const basePaint = baseUnits * paintQty * coatFactor;
+  const baseCement = baseUnits * cementQty * coatFactor;
+  const baseExtra = baseUnits * extraQty * coatFactor;
+  const paint = buildMaterialBreakdown({
+    name: config2.paintName ?? "Screeding Paint",
+    unit: config2.paintUnit ?? "bucket",
+    baseQuantity: basePaint,
+    wastePercentage: wastePct,
+    pricePerUnit: config2.paintPricePerUnit,
+    roundingRule: config2.roundingRule
+  });
+  const cement = buildMaterialBreakdown({
+    name: config2.cementName ?? "White Cement",
+    unit: config2.cementUnit ?? "bag",
+    baseQuantity: baseCement,
+    wastePercentage: wastePct,
+    pricePerUnit: config2.cementPricePerUnit,
+    roundingRule: config2.roundingRule
+  });
+  const extra = extraActive ? buildMaterialBreakdown({
+    name: config2.extraName,
+    unit: config2.extraUnit ?? "bucket",
+    baseQuantity: baseExtra,
+    wastePercentage: wastePct,
+    pricePerUnit: config2.extraPricePerUnit ?? null,
+    roundingRule: config2.roundingRule
+  }) : null;
+  const paintCost = paint.totalCost ?? 0;
+  const cementCost = cement.totalCost ?? 0;
+  const extraCost = extra?.totalCost ?? 0;
+  const pricedParts = [paint.totalCost, cement.totalCost, extra?.totalCost];
+  const hasAnyPrice = pricedParts.some((c) => c != null);
+  const materialCost = hasAnyPrice ? round3(paintCost + cementCost + extraCost) : null;
+  return {
+    systemType: "white_cement_paint",
+    netScreedingArea: round3(area),
+    coats: effectiveCoats,
+    coverageAreaM2: coverage,
+    wastePercentage: wastePct,
+    paint,
+    cement,
+    extra,
+    materialCost,
+    currency: config2.currency,
+    currencySymbol: config2.currencySymbol,
+    warnings: getScreedingSystemWarnings(config2)
+  };
+}
+function calculateScreedingSystem(areaM22, config2, coats) {
+  if (config2.systemType === "putty") {
+    return calculateScreedingPutty(areaM22, config2, coats);
+  }
+  return calculateScreedingMixSystem(areaM22, config2, coats);
+}
+function dbToSystemConfig(db2) {
+  return {
+    systemType: db2.system_type,
+    displayName: db2.display_name,
+    description: db2.description,
+    coverageAreaM2: Number(db2.coverage_area_m2),
+    coverageUnit: db2.coverage_unit,
+    defaultCoats: Number(db2.default_coats),
+    wastePercentage: Number(db2.waste_percentage),
+    currency: db2.currency,
+    currencySymbol: db2.currency_symbol,
+    puttyName: db2.putty_name,
+    puttyQuantity: db2.putty_quantity != null ? Number(db2.putty_quantity) : null,
+    puttyUnit: db2.putty_unit,
+    puttyPricePerUnit: db2.putty_price_per_unit != null ? Number(db2.putty_price_per_unit) : null,
+    paintName: db2.paint_name,
+    paintQuantity: db2.paint_quantity != null ? Number(db2.paint_quantity) : null,
+    paintUnit: db2.paint_unit,
+    paintPricePerUnit: db2.paint_price_per_unit != null ? Number(db2.paint_price_per_unit) : null,
+    cementName: db2.cement_name,
+    cementQuantity: db2.cement_quantity != null ? Number(db2.cement_quantity) : null,
+    cementUnit: db2.cement_unit,
+    cementPricePerUnit: db2.cement_price_per_unit != null ? Number(db2.cement_price_per_unit) : null,
+    extraEnabled: db2.extra_enabled === true,
+    extraName: db2.extra_name,
+    extraQuantity: db2.extra_quantity != null ? Number(db2.extra_quantity) : null,
+    extraUnit: db2.extra_unit,
+    extraPricePerUnit: db2.extra_price_per_unit != null ? Number(db2.extra_price_per_unit) : null,
+    roundingRule: db2.rounding_rule
+  };
+}
+function validateCalculatorInput(input) {
+  const errors = {};
+  if (!input.projectType) errors.projectType = "Select a project type";
+  if (input.length <= 0 || !isFinite(input.length))
+    errors.length = "Enter a valid length greater than 0";
+  if (input.wallHeight <= 0 || !isFinite(input.wallHeight))
+    errors.wallHeight = "Enter a valid wall height greater than 0";
+  if (input.doors < 0 || !isFinite(input.doors))
+    errors.doors = "Doors cannot be negative";
+  if (input.windows < 0 || !isFinite(input.windows))
+    errors.windows = "Windows cannot be negative";
+  if (input.coats < 1 || !isFinite(input.coats))
+    errors.coats = "Enter at least 1 coat";
+  if (input.wasteMargin < 0 || input.wasteMargin > 100 || !isFinite(input.wasteMargin))
+    errors.wasteMargin = "Waste margin must be between 0 and 100";
+  return errors;
+}
+function round3(n) {
+  return Math.round(n * 100) / 100;
+}
+var DEFAULT_COVERAGE_M2_PER_LITER, DEFAULT_CONTAINER_SIZES_LITERS, DEFAULT_DOOR_DIMS, DEFAULT_WINDOW_DIMS, SURFACE_CONDITION_FACTORS, COLOR_CONDITION_INFO, STANDARD_HEIGHT_FT, STANDARD_HEIGHT_M, MAX_SURFACE_FACTOR, calculateCost;
+var init_calc = __esm({
+  "src/lib/calc.ts"() {
+    init_define_import_meta_env();
+    init_utils();
+    DEFAULT_COVERAGE_M2_PER_LITER = 10;
+    DEFAULT_CONTAINER_SIZES_LITERS = [1, 4, 20];
+    DEFAULT_DOOR_DIMS = {
+      width: DEFAULT_DOOR_WIDTH_M,
+      height: DEFAULT_DOOR_HEIGHT_M
+    };
+    DEFAULT_WINDOW_DIMS = {
+      width: DEFAULT_WINDOW_WIDTH_M,
+      height: DEFAULT_WINDOW_HEIGHT_M
+    };
+    SURFACE_CONDITION_FACTORS = {
+      smooth: {
+        factor: 1,
+        label: "Smooth / Previously Painted",
+        description: "Sound, smooth surface, standard coverage applies."
+      },
+      textured: {
+        factor: 0.85,
+        label: "Textured",
+        description: "Textured surface, ~15% more paint absorbed due to surface profile."
+      },
+      rough: {
+        factor: 0.75,
+        label: "Rough",
+        description: "Rough surface, ~25% more paint absorbed. Consider surface preparation."
+      },
+      new_plaster: {
+        factor: 0.8,
+        label: "New / Bare Plaster",
+        description: "New plaster is porous, ~20% more paint absorbed on first coat. Primer strongly recommended."
+      }
+    };
+    COLOR_CONDITION_INFO = {
+      same_or_light: { label: "Same / Light Colour", warning: null, minCoats: 2 },
+      dark_over_light: {
+        label: "Dark over Light",
+        warning: "Dark colour over light surface typically requires 3+ coats or a tinted primer for full opacity.",
+        minCoats: 3
+      },
+      light_over_dark: {
+        label: "Light over Dark",
+        warning: "Light colour over dark surface requires primer + 2-3 coats for complete coverage.",
+        minCoats: 3
+      },
+      new_unpainted: {
+        label: "New / Unpainted",
+        warning: "New/unpainted surfaces are porous. Primer/sealer is strongly recommended before painting.",
+        minCoats: 2
+      }
+    };
+    STANDARD_HEIGHT_FT = 8;
+    STANDARD_HEIGHT_M = 2.4384;
+    MAX_SURFACE_FACTOR = 1;
+    calculateCost = calculateEstimatedTotal;
+  }
+});
+
+// src/lib/local-projects.ts
+function getStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY2);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+function setStorage(projects) {
+  try {
+    localStorage.setItem(STORAGE_KEY2, JSON.stringify(projects));
+  } catch {
+  }
+}
+function saveLocalProject(name, type, data) {
+  const projects = getStorage();
+  const project = {
+    id: `local_${Date.now()}`,
+    name,
+    type,
+    data,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  projects.unshift(project);
+  if (projects.length > MAX_PROJECTS) {
+    projects.splice(MAX_PROJECTS);
+  }
+  setStorage(projects);
+  return project;
+}
+var STORAGE_KEY2, MAX_PROJECTS;
+var init_local_projects = __esm({
+  "src/lib/local-projects.ts"() {
+    init_define_import_meta_env();
+    STORAGE_KEY2 = "frelux_saved_projects";
+    MAX_PROJECTS = 20;
+  }
+});
+
+// src/lib/credits.ts
+async function awardCredits(sessionToken, eventDef, referenceId, metadata) {
+  if (!isSupabaseConfigured2 || !EDGE_FUNCTION_URL) {
+    return { success: false, error: "Supabase not configured" };
+  }
+  try {
+    const res = await fetch(`${EDGE_FUNCTION_URL}/award-credits`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({
+        eventType: eventDef.eventType,
+        referenceId,
+        amount: eventDef.amount,
+        reason: eventDef.reason,
+        metadata: metadata ?? {}
+      })
+    });
+    const data = await res.json();
+    if (!res.ok)
+      return { success: false, error: data.error ?? "Unknown error" };
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+async function recordActivity(sessionToken, activityType, missionTaskType, activityData) {
+  if (!isSupabaseConfigured2 || !EDGE_FUNCTION_URL) {
+    return { success: false, error: "Supabase not configured" };
+  }
+  try {
+    const res = await fetch(`${EDGE_FUNCTION_URL}/record-activity`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({
+        activityType,
+        missionTaskType,
+        activityData: activityData ?? {}
+      })
+    });
+    const data = await res.json();
+    if (!res.ok)
+      return { success: false, error: data.error ?? "Unknown error" };
+    return data;
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+var REWARD_EVENTS, EDGE_FUNCTION_URL, FEATURE_COST_TTL_MS;
+var init_credits = __esm({
+  "src/lib/credits.ts"() {
+    init_define_import_meta_env();
+    init_supabase_lazy();
+    REWARD_EVENTS = {
+      first_calc: {
+        eventType: "first_calc",
+        amount: 2,
+        reason: "Completed first calculator"
+      },
+      three_different_calcs: {
+        eventType: "three_different_calcs",
+        amount: 5,
+        reason: "Completed 3 different calculators"
+      },
+      save_estimate: {
+        eventType: "save_estimate",
+        amount: 3,
+        reason: "Saved an estimate"
+      },
+      return_3_days: {
+        eventType: "return_3_days",
+        amount: 5,
+        reason: "Returned on 3 different days"
+      },
+      streak_7_day: {
+        eventType: "streak_7_day",
+        amount: 15,
+        reason: "7-day activity streak"
+      },
+      build_to_roof: {
+        eventType: "build_to_roof",
+        amount: 10,
+        reason: "Completed a Build-to-Roof estimate"
+      },
+      ai_photo_estimator: {
+        eventType: "ai_photo_estimator",
+        amount: 5,
+        reason: "Successfully used AI Photo Estimator"
+      },
+      five_estimates: {
+        eventType: "five_estimates",
+        amount: 15,
+        reason: "Completed 5 estimates"
+      },
+      referral: {
+        eventType: "referral",
+        amount: 25,
+        reason: "Referred a new user to FRELUX"
+      },
+      // Achievement-linked credit rewards
+      ach_builder_10: {
+        eventType: "ach_builder_10",
+        amount: 25,
+        reason: "Achievement: FRELUX Builder (10 estimates)"
+      },
+      ach_estimator_25: {
+        eventType: "ach_estimator_25",
+        amount: 50,
+        reason: "Achievement: Estimator Pro (25 estimates)"
+      },
+      ach_master_5: {
+        eventType: "ach_master_5",
+        amount: 100,
+        reason: "Achievement: FRELUX Master (5 categories)"
+      }
+    };
+    EDGE_FUNCTION_URL = "https://nfgaaohweygwydoelxnf.supabase.co" ? `${"https://nfgaaohweygwydoelxnf.supabase.co"}/functions/v1` : "";
+    FEATURE_COST_TTL_MS = 5 * 60 * 1e3;
+  }
+});
+
+// src/lib/rewards-integration.ts
+async function getSessionToken() {
+  const supabase2 = await getSupabase();
+  const { data } = await supabase2.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+async function trackProjectSaveWithRewards() {
+  const token = await getSessionToken();
+  if (!token) return;
+  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  await awardCredits(
+    token,
+    REWARD_EVENTS.save_estimate,
+    `save_estimate_${today}`,
+    {}
+  );
+  await recordActivity(token, "project_save", "project_save", {});
+}
+var init_rewards_integration = __esm({
+  "src/lib/rewards-integration.ts"() {
+    init_define_import_meta_env();
+    init_supabase_lazy();
+    init_credits();
+  }
+});
+
+// src/lib/queries.ts
+var queries_exports2 = {};
+__export(queries_exports2, {
+  addColorToCollection: () => addColorToCollection,
+  checkRewardedUnlock: () => checkRewardedUnlock,
+  clearRecentlyViewed: () => clearRecentlyViewed,
+  createShareableLink: () => createShareableLink,
+  createUserCollection: () => createUserCollection,
+  deleteAdvancedEstimate: () => deleteAdvancedEstimate,
+  deleteMediaItem: () => deleteMediaItem,
+  deleteRelationshipOverride: () => deleteRelationshipOverride,
+  deleteShareableLink: () => deleteShareableLink,
+  deleteUserCollection: () => deleteUserCollection,
+  deleteUserProject: () => deleteUserProject,
+  deleteUserTemplate: () => deleteUserTemplate,
+  duplicateUserProject: () => duplicateUserProject,
+  duplicateUserTemplate: () => duplicateUserTemplate,
+  fetchAdvancedEstimates: () => fetchAdvancedEstimates,
+  fetchAllFinishTypes: () => fetchAllFinishTypes,
+  fetchAllPaintColorsLight: () => fetchAllPaintColorsLight,
+  fetchAllRewardedToolConfigs: () => fetchAllRewardedToolConfigs,
+  fetchAllScreedingSystemConfigs: () => fetchAllScreedingSystemConfigs,
+  fetchArticleVersions: () => fetchArticleVersions,
+  fetchBuiltinTemplates: () => fetchBuiltinTemplates,
+  fetchCollectionColors: () => fetchCollectionColors,
+  fetchColorBySlug: () => fetchColorBySlug,
+  fetchColorCategories: () => fetchColorCategories,
+  fetchColorCombinations: () => fetchColorCombinations,
+  fetchColorFamilies: () => fetchColorFamilies,
+  fetchFavoriteColorIds: () => fetchFavoriteColorIds,
+  fetchFavoriteColors: () => fetchFavoriteColors,
+  fetchFavoritePaletteIds: () => fetchFavoritePaletteIds,
+  fetchFavoritePalettes: () => fetchFavoritePalettes,
+  fetchFeaturedColors: () => fetchFeaturedColors,
+  fetchFeaturedCombinations: () => fetchFeaturedCombinations,
+  fetchFinishTypes: () => fetchFinishTypes,
+  fetchLaborRates: () => fetchLaborRates,
+  fetchLegalPage: () => fetchLegalPage,
+  fetchMaterialPrices: () => fetchMaterialPrices,
+  fetchMediaFolders: () => fetchMediaFolders,
+  fetchMediaItems: () => fetchMediaItems,
+  fetchPaintColorBySlug: () => fetchPaintColorBySlug,
+  fetchPaintColors: () => fetchPaintColors,
+  fetchPaintProducts: () => fetchPaintProducts,
+  fetchPaintTypes: () => fetchPaintTypes,
+  fetchPopMaterials: () => fetchPopMaterials,
+  fetchPopWorkflows: () => fetchPopWorkflows,
+  fetchRecentlyAddedColors: () => fetchRecentlyAddedColors,
+  fetchRecentlyViewedColors: () => fetchRecentlyViewedColors,
+  fetchRelatedColors: () => fetchRelatedColors,
+  fetchRelatedPaintColors: () => fetchRelatedPaintColors,
+  fetchRelationshipOverrides: () => fetchRelationshipOverrides,
+  fetchRewardedAdEventStats: () => fetchRewardedAdEventStats,
+  fetchRewardedToolConfig: () => fetchRewardedToolConfig,
+  fetchRewardedUnlockStats: () => fetchRewardedUnlockStats,
+  fetchScreedingMaterials: () => fetchScreedingMaterials,
+  fetchScreedingSystemConfig: () => fetchScreedingSystemConfig,
+  fetchShareableLinks: () => fetchShareableLinks,
+  fetchSharedProject: () => fetchSharedProject,
+  fetchSharedResource: () => fetchSharedResource,
+  fetchSiteSettings: () => fetchSiteSettings,
+  fetchTileMaterials: () => fetchTileMaterials,
+  fetchTileSizes: () => fetchTileSizes,
+  fetchTrendingColors: () => fetchTrendingColors,
+  fetchTrendingCombinations: () => fetchTrendingCombinations,
+  fetchUserCollections: () => fetchUserCollections,
+  fetchUserProjects: () => fetchUserProjects,
+  fetchUserTemplates: () => fetchUserTemplates,
+  logAnalyticsEvent: () => logAnalyticsEvent,
+  logRewardedAdEvent: () => logRewardedAdEvent,
+  moveColorToCollection: () => moveColorToCollection,
+  recordRewardedUnlock: () => recordRewardedUnlock,
+  removeColorFromCollection: () => removeColorFromCollection,
+  renameUserCollection: () => renameUserCollection,
+  saveAdvancedEstimate: () => saveAdvancedEstimate,
+  saveArticleVersion: () => saveArticleVersion,
+  saveRelationshipOverride: () => saveRelationshipOverride,
+  saveUserProject: () => saveUserProject,
+  saveUserTemplate: () => saveUserTemplate,
+  toggleFavoriteColor: () => toggleFavoriteColor,
+  toggleFavoritePalette: () => toggleFavoritePalette,
+  togglePinRecentlyViewed: () => togglePinRecentlyViewed,
+  toggleShareableLink: () => toggleShareableLink,
+  trackColorView: () => trackColorView,
+  updateMediaItemAlt: () => updateMediaItemAlt,
+  updateScreedingSystemConfig: () => updateScreedingSystemConfig,
+  updateUserProject: () => updateUserProject,
+  updateUserTemplate: () => updateUserTemplate,
+  uploadMediaImage: () => uploadMediaImage
+});
+async function fetchColorCategories() {
+  const { data, error } = await supabase.from("color_categories").select("id, name, slug, is_active, sort_order").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchColorCombinations() {
+  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchColorBySlug(slug2) {
+  const { data, error } = await supabase.from("color_combinations").select("*").eq("slug", slug2).eq("is_published", true).maybeSingle();
+  return { data, error };
+}
+async function fetchRelatedColors(categoryIds, excludeId) {
+  if (!categoryIds || categoryIds.length === 0)
+    return { data: [], error: null };
+  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).neq("id", excludeId).overlaps("category_ids", categoryIds).order("sort_order").limit(3);
+  return { data: data ?? [], error };
+}
+async function fetchLegalPage(slug2) {
+  const { data, error } = await supabase.from("legal_pages").select("*").eq("slug", slug2).eq("is_published", true).maybeSingle();
+  return { data, error };
+}
+async function fetchSiteSettings() {
+  return cachedRead(
+    "settings:site",
+    CACHE_TTL.settings,
+    async () => {
+      if (!isSupabaseConfigured) return { data: null, error: null };
+      const { data, error } = await supabase.from("site_settings").select("*").limit(1).maybeSingle();
+      return { data, error };
+    },
+    // Never cache an absent row: a settings row created later must appear.
+    { failed: (r) => Boolean(r.error) || !r.data }
+  );
+}
+async function fetchPaintTypes() {
+  const { data, error } = await supabase.from("paint_types").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchPaintProducts() {
+  const { data, error } = await supabase.from("paint_products").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchMaterialPrices() {
+  const { data, error } = await supabase.from("material_prices").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchLaborRates() {
+  const { data, error } = await supabase.from("labor_rates").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchScreedingMaterials() {
+  const { data, error } = await supabase.from("screeding_materials").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchFinishTypes() {
+  try {
+    const { data, error } = await supabase.from("finish_types").select("*").eq("is_active", true).order("sort_order", { ascending: true });
+    if (error) throw error;
+    return { data: data ?? [], error: null };
+  } catch (e) {
+    return {
+      data: [],
+      error: e instanceof Error ? e.message : "Failed to load finish types"
+    };
+  }
+}
+async function fetchAllFinishTypes() {
+  try {
+    const { data, error } = await supabase.from("finish_types").select("*").order("sort_order", { ascending: true });
+    if (error) throw error;
+    return { data: data ?? [], error: null };
+  } catch (e) {
+    return {
+      data: [],
+      error: e instanceof Error ? e.message : "Failed to load finish types"
+    };
+  }
+}
+async function fetchPopMaterials(workflow, market) {
+  if (shouldUseBundledBook()) {
+    return bundledPopMaterials(workflow, market);
+  }
+  async function run(mkt) {
+    let query = supabase.from("pop_materials").select("*").eq("is_active", true).eq("market", mkt);
+    if (workflow) query = query.eq("workflow", workflow);
+    const { data } = await query.order("sort_order");
+    return data ?? [];
+  }
+  if (market && market !== "NG") {
+    const local = await run(market);
+    if (local.length > 0)
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true
+      };
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false
+    };
+  }
+  const reference = await run("NG");
+  return {
+    data: reference,
+    error: null,
+    fellBackToNg: market != null && market !== "NG",
+    marketConfigured: true
+  };
+}
+async function fetchPopWorkflows() {
+  const { data, error } = await supabase.from("pop_workflows").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchTileSizes() {
+  const { data, error } = await supabase.from("tile_sizes").select("*").eq("is_active", true).order("sort_order");
+  return { data: data ?? [], error };
+}
+async function fetchTileMaterials(category, market) {
+  if (shouldUseBundledBook()) {
+    return bundledTileMaterials(category, market);
+  }
+  async function run(mkt) {
+    let query = supabase.from("tile_materials").select("*").eq("is_active", true).eq("market", mkt);
+    if (category) query = query.eq("category", category);
+    const { data } = await query.order("sort_order");
+    return data ?? [];
+  }
+  if (market && market !== "NG") {
+    const local = await run(market);
+    if (local.length > 0)
+      return {
+        data: local,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true
+      };
+    return {
+      data: [],
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false
+    };
+  }
+  const reference = await run("NG");
+  return {
+    data: reference,
+    error: null,
+    fellBackToNg: market != null && market !== "NG",
+    marketConfigured: true
+  };
+}
+async function fetchArticleVersions(articleId) {
+  const { data, error } = await supabase.from("learn_article_versions").select("*").eq("article_id", articleId).order("version_number", { ascending: false });
+  return { data: data ?? [], error };
+}
+async function saveArticleVersion(articleId, versionNumber, title, content, excerpt, changeSummary) {
+  const { error } = await supabase.from("learn_article_versions").insert({
+    article_id: articleId,
+    version_number: versionNumber,
+    title,
+    content,
+    excerpt,
+    change_summary: changeSummary
+  });
+  return { error: error ? error.message : null };
+}
+async function logAnalyticsEvent(event, params, pagePath) {
+  if (!isSupabaseConfigured) return;
+  await supabase.from("analytics_events").insert({
+    event,
+    params: params ?? null,
+    page_path: pagePath ?? null
+  });
+}
+async function fetchPaintColors(filter = {}) {
+  const { page = 1, pageSize = 24 } = filter;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  let query = supabase.from("paint_colors").select("*", { count: "exact" }).eq("is_active", true);
+  if (filter.query) {
+    query = query.ilike("name", `%${filter.query}%`);
+  }
+  if (filter.familyId) {
+    query = query.eq("color_family_id", filter.familyId);
+  }
+  if (filter.categoryId) {
+    query = query.eq("category_id", filter.categoryId);
+  }
+  if (filter.isInterior !== null && filter.isInterior !== void 0) {
+    query = query.eq("is_interior", filter.isInterior);
+  }
+  if (filter.isExterior !== null && filter.isExterior !== void 0) {
+    query = query.eq("is_exterior", filter.isExterior);
+  }
+  if (filter.isFeatured) {
+    query = query.eq("is_featured", true);
+  }
+  if (filter.isTrending) {
+    query = query.eq("is_trending", true);
+  }
+  const sort = filter.sort ?? "display_order";
+  if (sort === "popularity") {
+    query = query.order("popularity_score", { ascending: false }).order("display_order");
+  } else if (sort === "name") {
+    query = query.order("name", { ascending: true });
+  } else if (sort === "newest") {
+    query = query.order("created_at", { ascending: false });
+  } else {
+    query = query.order("display_order").order("popularity_score", { ascending: false });
+  }
+  query = query.range(from, to);
+  const { data, count, error } = await query;
+  if (error) return { data: [], total: 0, error: error.message };
+  return {
+    data: data ?? [],
+    total: count ?? 0,
+    error: null
+  };
+}
+async function fetchPaintColorBySlug(slug2) {
+  const { data, error } = await supabase.from("paint_colors").select("*").eq("slug", slug2).eq("is_active", true).maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function fetchRelatedPaintColors(color, limit = 6) {
+  let query = supabase.from("paint_colors").select("*").eq("is_active", true).neq("id", color.id).limit(limit);
+  if (color.color_family_id) {
+    query = query.eq("color_family_id", color.color_family_id);
+  } else {
+    query = query.order("popularity_score", { ascending: false });
+  }
+  const { data, error } = await query;
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function fetchColorFamilies() {
+  const { data, error } = await supabase.from("color_families").select("*").eq("is_active", true).order("sort_order");
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchTrendingColors(limit = 8) {
+  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).eq("is_trending", true).order("popularity_score", { ascending: false }).limit(limit);
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchFeaturedColors(limit = 8) {
+  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).eq("is_featured", true).order("display_order").limit(limit);
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchRecentlyAddedColors(limit = 8) {
+  const { data, error } = await supabase.from("paint_colors").select("*").eq("is_active", true).order("created_at", { ascending: false }).limit(limit);
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchFeaturedCombinations(limit = 6) {
+  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).eq("is_featured", true).order("sort_order").limit(limit);
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchTrendingCombinations(limit = 6) {
+  const { data, error } = await supabase.from("color_combinations").select("*").eq("is_published", true).eq("is_trending", true).order("popularity_score", { ascending: false }).limit(limit);
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function toggleFavoriteColor(colorId) {
+  const { data: existing } = await supabase.from("user_favorites").select("id").eq("item_type", "color").eq("color_id", colorId).maybeSingle();
+  if (existing) {
+    const { error: error2 } = await supabase.from("user_favorites").delete().eq("id", existing.id);
+    return { favorited: false, error: error2 ? error2.message : null };
+  }
+  const { error } = await supabase.from("user_favorites").insert({ item_type: "color", color_id: colorId });
+  return { favorited: !error, error: error ? error.message : null };
+}
+async function toggleFavoritePalette(paletteId) {
+  const { data: existing } = await supabase.from("user_favorites").select("id").eq("item_type", "palette").eq("palette_id", paletteId).maybeSingle();
+  if (existing) {
+    const { error: error2 } = await supabase.from("user_favorites").delete().eq("id", existing.id);
+    return { favorited: false, error: error2 ? error2.message : null };
+  }
+  const { error } = await supabase.from("user_favorites").insert({ item_type: "palette", palette_id: paletteId });
+  return { favorited: !error, error: error ? error.message : null };
+}
+async function fetchFavoriteColorIds() {
+  const { data, error } = await supabase.from("user_favorites").select("color_id").eq("item_type", "color");
+  if (error) return { ids: [], error: error.message };
+  return {
+    ids: (data ?? []).map((r) => r.color_id).filter(Boolean),
+    error: null
+  };
+}
+async function fetchFavoritePaletteIds() {
+  const { data, error } = await supabase.from("user_favorites").select("palette_id").eq("item_type", "palette");
+  if (error) return { ids: [], error: error.message };
+  return {
+    ids: (data ?? []).map((r) => r.palette_id).filter(Boolean),
+    error: null
+  };
+}
+async function fetchFavoriteColors() {
+  const { data, error } = await supabase.from("user_favorites").select("paint_colors(*)").eq("item_type", "color").order("created_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return {
+    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
+    error: null
+  };
+}
+async function fetchFavoritePalettes() {
+  const { data, error } = await supabase.from("user_favorites").select("color_combinations(*)").eq("item_type", "palette").order("created_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return {
+    data: (data ?? []).map((r) => r.color_combinations).filter(Boolean),
+    error: null
+  };
+}
+async function fetchUserProjects() {
+  const { data, error } = await supabase.from("user_projects").select("*").order("updated_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function saveUserProject(name, projectType, projectData, description) {
+  const TYPE_MAP = {
+    screeding: "screeding",
+    screeding_calc: "screeding",
+    paint_calc: "paint_calc",
+    paint: "paint_calc",
+    painting: "paint_calc",
+    cost_estimate: "cost_estimate",
+    cost: "cost_estimate",
+    ai_recommendation: "ai_recommendation",
+    pop_ceiling: "pop_ceiling",
+    pop_estimate: "pop_ceiling",
+    pop_calc: "pop_ceiling",
+    tile: "tile",
+    tile_estimate: "tile",
+    tile_calc: "tile",
+    custom: "custom",
+    tyrolene: "custom",
+    finish: "custom",
+    wall_finishing: "custom"
+  };
+  const safeType = TYPE_MAP[projectType] || "custom";
+  try {
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData?.user?.id;
+    if (!userId) {
+      const localTypeMap = {
+        paint_calc: "paint_calc",
+        cost_estimate: "cost_estimate",
+        screeding: "screeding_calc",
+        pop_ceiling: "pop_calc",
+        tile: "tile_calc",
+        custom: "wall_finishing",
+        ai_recommendation: "wall_finishing"
+      };
+      saveLocalProject(
+        name,
+        localTypeMap[safeType] || "cost_estimate",
+        projectData
+      );
+      return { error: null };
+    }
+    const { data, error } = await supabase.from("user_projects").insert({
+      name,
+      project_type: safeType,
+      project_data: projectData,
+      description,
+      user_id: userId
+    }).select().maybeSingle();
+    if (!error) {
+      trackProjectSaveWithRewards();
+      return { error: null, data };
+    }
+    saveLocalProject(name, "cost_estimate", projectData);
+    return { error: error.message };
+  } catch (err) {
+    saveLocalProject(name, "cost_estimate", projectData);
+    return { error: err.message };
+  }
+}
+async function updateUserProject(id, name, projectData, description) {
+  const { error } = await supabase.from("user_projects").update({ name, project_data: projectData, description }).eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function deleteUserProject(id) {
+  const { error } = await supabase.from("user_projects").delete().eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function duplicateUserProject(id) {
+  const { data, error } = await supabase.from("user_projects").select("*").eq("id", id).maybeSingle();
+  if (error || !data)
+    return { error: error ? error.message : "Project not found" };
+  const { name, project_type, project_data, description } = data;
+  const { error: insertError } = await supabase.from("user_projects").insert({
+    name: `${name} (Copy)`,
+    project_type,
+    project_data,
+    description
+  });
+  return { error: insertError ? insertError.message : null };
+}
+async function fetchUserCollections() {
+  const { data, error } = await supabase.from("user_collections").select("*").order("updated_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function createUserCollection(name, description) {
+  const { data, error } = await supabase.from("user_collections").insert({ name, description }).select("*").maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function deleteUserCollection(id) {
+  const { error } = await supabase.from("user_collections").delete().eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function addColorToCollection(collectionId, colorId) {
+  const { error } = await supabase.from("user_collection_items").insert({ collection_id: collectionId, color_id: colorId });
+  return { error: error ? error.message : null };
+}
+async function removeColorFromCollection(collectionId, colorId) {
+  const { error } = await supabase.from("user_collection_items").delete().eq("collection_id", collectionId).eq("color_id", colorId);
+  return { error: error ? error.message : null };
+}
+async function fetchCollectionColors(collectionId) {
+  const { data, error } = await supabase.from("user_collection_items").select("paint_colors(*)").eq("collection_id", collectionId).order("created_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return {
+    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
+    error: null
+  };
+}
+async function trackColorView(colorId) {
+  await supabase.from("recently_viewed_colors").upsert(
+    { color_id: colorId, viewed_at: (/* @__PURE__ */ new Date()).toISOString() },
+    { onConflict: "user_id,color_id" }
+  );
+}
+async function fetchRecentlyViewedColors(limit = 8) {
+  const { data, error } = await supabase.from("recently_viewed_colors").select("paint_colors!inner(*)").order("viewed_at", { ascending: false }).limit(limit);
+  if (error) return { data: [], error: error.message };
+  return {
+    data: (data ?? []).map((r) => r.paint_colors).filter(Boolean),
+    error: null
+  };
+}
+async function clearRecentlyViewed() {
+  const { error } = await supabase.from("recently_viewed_colors").delete().neq("is_pinned", true);
+  return { error: error ? error.message : null };
+}
+async function togglePinRecentlyViewed(colorId) {
+  const { data } = await supabase.from("recently_viewed_colors").select("is_pinned").eq("color_id", colorId).maybeSingle();
+  const newPinned = !(data?.is_pinned ?? false);
+  const { error } = await supabase.from("recently_viewed_colors").update({ is_pinned: newPinned }).eq("color_id", colorId);
+  return { error: error ? error.message : null };
+}
+async function fetchRelationshipOverrides(colorId) {
+  const { data, error } = await supabase.from("color_relationship_overrides").select("*").eq("color_id", colorId);
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function saveRelationshipOverride(colorId, type, overrideColorIds) {
+  const { error } = await supabase.from("color_relationship_overrides").upsert(
+    {
+      color_id: colorId,
+      relationship_type: type,
+      override_color_ids: overrideColorIds
+    },
+    { onConflict: "color_id,relationship_type" }
+  );
+  return { error: error ? error.message : null };
+}
+async function deleteRelationshipOverride(colorId, type) {
+  const { error } = await supabase.from("color_relationship_overrides").delete().eq("color_id", colorId).eq("relationship_type", type);
+  return { error: error ? error.message : null };
+}
+async function createShareableLink(resourceType, resourceId) {
+  const { data, error } = await supabase.from("shareable_links").insert({ resource_type: resourceType, resource_id: resourceId }).select("*").maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function fetchShareableLinks(resourceType, resourceId) {
+  const { data, error } = await supabase.from("shareable_links").select("*").eq("resource_type", resourceType).eq("resource_id", resourceId).order("created_at", { ascending: false });
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function toggleShareableLink(linkId, isActive) {
+  const { error } = await supabase.from("shareable_links").update({ is_active: isActive }).eq("id", linkId);
+  return { error: error ? error.message : null };
+}
+async function deleteShareableLink(linkId) {
+  const { error } = await supabase.from("shareable_links").delete().eq("id", linkId);
+  return { error: error ? error.message : null };
+}
+async function fetchSharedResource(linkId) {
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const { data, error } = await supabase.from("shareable_links").select("*").eq("id", linkId).eq("is_active", true).or(`expires_at.is.null,expires_at.gte.${now}`).maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function fetchSharedProject(linkId, resourceId) {
+  try {
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "get_public_shared_project",
+      { p_link_id: linkId }
+    );
+    if (!rpcError && rpcData) {
+      return { data: rpcData, error: null };
+    }
+  } catch {
+  }
+  const { data, error } = await supabase.from("user_projects").select("*").eq("id", resourceId).maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function fetchMediaFolders() {
+  const { data, error } = await supabase.from("media_folders").select("*").order("sort_order");
+  if (error) return { data: [], error: error.message };
+  return { data: data ?? [], error: null };
+}
+async function fetchMediaItems(folderId, search, page) {
+  let query = supabase.from("media_items").select("*").order("created_at", { ascending: false });
+  let countQuery = supabase.from("media_items").select("*", { count: "exact", head: true });
+  if (folderId) {
+    query = query.eq("folder_id", folderId);
+    countQuery = countQuery.eq("folder_id", folderId);
+  }
+  if (search) {
+    query = query.ilike("file_name", `%${search}%`);
+    countQuery = countQuery.ilike("file_name", `%${search}%`);
+  }
+  if (page) {
+    query = query.range(
+      page.index * page.size,
+      page.index * page.size + page.size - 1
+    );
+  }
+  const { data, error } = await query;
+  if (error) return { data: [], error: error.message };
+  let count;
+  if (page) {
+    const { count: c, error: countError } = await countQuery;
+    if (countError) return { data: [], error: countError.message };
+    count = c ?? 0;
+  }
+  return { data: data ?? [], error: null, count };
+}
+async function uploadMediaImage(file, folderSlug) {
+  const { data: folders } = await supabase.from("media_folders").select("id").eq("slug", folderSlug).maybeSingle();
+  const folderId = folders?.id ?? null;
+  const ext = file.name.split(".").pop() ?? "png";
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const folderPath = folderSlug === "user-uploads" ? "user-uploads" : folderSlug;
+  const storagePath = `${folderPath}/${fileName}`;
+  const { error: uploadError } = await supabase.storage.from("media").upload(storagePath, file, { contentType: file.type });
+  if (uploadError) return { data: null, error: uploadError.message };
+  const { data: urlData } = supabase.storage.from("media").getPublicUrl(storagePath);
+  const publicUrl = urlData.publicUrl;
+  const { data, error } = await supabase.from("media_items").insert({
+    folder_id: folderId,
+    file_name: file.name,
+    storage_path: storagePath,
+    public_url: publicUrl,
+    mime_type: file.type,
+    size_bytes: file.size
+  }).select("*").maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function deleteMediaItem(item) {
+  const { error: storageError } = await supabase.storage.from("media").remove([item.storage_path]);
+  if (storageError) return { error: storageError.message };
+  const { error } = await supabase.from("media_items").delete().eq("id", item.id);
+  return { error: error ? error.message : null };
+}
+async function updateMediaItemAlt(id, altText) {
+  const { error } = await supabase.from("media_items").update({ alt_text: altText }).eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function renameUserCollection(id, name) {
+  const { error } = await supabase.from("user_collections").update({ name }).eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function moveColorToCollection(fromCollectionId, toCollectionId, colorId) {
+  const { error: delError } = await supabase.from("user_collection_items").delete().eq("collection_id", fromCollectionId).eq("color_id", colorId);
+  if (delError) return { error: delError.message };
+  const { error: insError } = await supabase.from("user_collection_items").insert({ collection_id: toCollectionId, color_id: colorId });
+  return { error: insError ? insError.message : null };
+}
+async function fetchAllPaintColorsLight() {
+  const { data, error } = await supabase.from("paint_colors").select("id, name, hex_code, slug").eq("is_active", true).order("name");
+  if (error) return { data: [], error: error.message };
+  return {
+    data: data ?? [],
+    error: null
+  };
+}
+async function fetchScreedingSystemConfig(systemType, market) {
+  if (market && market !== "NG") {
+    const local = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("market", market).eq("is_active", true).maybeSingle();
+    if (local.data) {
+      return {
+        data: local.data,
+        error: null,
+        fellBackToNg: false,
+        marketConfigured: true
+      };
+    }
+    return {
+      data: null,
+      error: null,
+      fellBackToNg: false,
+      marketConfigured: false
+    };
+  }
+  const { data, error } = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("market", "NG").eq("is_active", true).maybeSingle();
+  if (!data) {
+    const legacy = await supabase.from("screeding_system_config").select("*").eq("system_type", systemType).eq("is_active", true).maybeSingle();
+    return {
+      data: legacy.data,
+      error: legacy.error ? legacy.error.message : null,
+      fellBackToNg: true
+    };
+  }
+  return {
+    data,
+    error: error ? error.message : null,
+    fellBackToNg: true
+  };
+}
+async function fetchAllScreedingSystemConfigs() {
+  const { data, error } = await supabase.from("screeding_system_config").select("*").eq("is_active", true).order("sort_order", { ascending: true });
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function updateScreedingSystemConfig(id, updates) {
+  const { error } = await supabase.from("screeding_system_config").update({ ...updates, updated_at: (/* @__PURE__ */ new Date()).toISOString() }).eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function fetchRewardedToolConfig(toolKey) {
+  const { data, error } = await supabase.from("rewarded_tool_config").select("*").eq("tool_key", toolKey).maybeSingle();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function fetchAllRewardedToolConfigs() {
+  const { data, error } = await supabase.from("rewarded_tool_config").select("*").order("created_at");
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function logRewardedAdEvent(params) {
+  const { error } = await supabase.from("rewarded_ad_events").insert({
+    tool_key: params.toolKey,
+    event_type: params.eventType,
+    client_hash: params.clientHash,
+    ad_provider: params.adProvider ?? "adsense",
+    revenue_estimated: params.revenueEstimated ?? 0,
+    metadata: params.metadata ?? {}
+  });
+  return { error: error ? error.message : null };
+}
+async function recordRewardedUnlock(params) {
+  const { error } = await supabase.from("rewarded_unlock_log").insert({
+    tool_key: params.toolKey,
+    client_hash: params.clientHash,
+    expires_at: params.expiresAt,
+    ad_provider: params.adProvider ?? "adsense"
+  });
+  return { error: error ? error.message : null };
+}
+async function checkRewardedUnlock(toolKey, clientHash) {
+  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  const { data, error } = await supabase.from("rewarded_unlock_log").select("id, expires_at").eq("tool_key", toolKey).eq("client_hash", clientHash).gte("unlock_date", today).order("unlocked_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) return { unlocked: false, expiresAt: null, error: error.message };
+  if (!data) return { unlocked: false, expiresAt: null, error: null };
+  const now = /* @__PURE__ */ new Date();
+  const expires = new Date(data.expires_at);
+  if (now > expires) return { unlocked: false, expiresAt: null, error: null };
+  return { unlocked: true, expiresAt: data.expires_at, error: null };
+}
+async function saveAdvancedEstimate(params) {
+  const client = supabaseWithClientHash(params.clientHash);
+  const { data, error } = await client.from("advanced_estimates").insert({
+    client_hash: params.clientHash,
+    tool_key: params.toolKey,
+    title: params.title,
+    project_type: params.projectType,
+    estimate_data: params.estimateData,
+    total_cost: params.totalCost,
+    currency: params.currency,
+    is_saved: true
+  }).select("id").maybeSingle();
+  return { id: data?.id ?? null, error: error ? error.message : null };
+}
+async function fetchAdvancedEstimates(clientHash) {
+  const { data, error } = await supabaseWithClientHash(clientHash).from("advanced_estimates").select("*").eq("client_hash", clientHash).eq("is_saved", true).order("created_at", { ascending: false });
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function deleteAdvancedEstimate(id, clientHash) {
+  const { error } = await supabaseWithClientHash(clientHash).from("advanced_estimates").delete().eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function fetchRewardedUnlockStats(days = 30) {
+  const { data, error } = await supabase.from("rewarded_unlock_log").select("tool_key, unlock_date, ad_provider, ad_revenue_estimated").gte(
+    "unlock_date",
+    new Date(Date.now() - days * 864e5).toISOString().split("T")[0]
+  ).order("unlock_date", { ascending: false });
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchRewardedAdEventStats(days = 30) {
+  const { data, error } = await supabase.from("rewarded_ad_events").select("tool_key, event_type, revenue_estimated, created_at").gte("created_at", new Date(Date.now() - days * 864e5).toISOString()).order("created_at", { ascending: false });
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchBuiltinTemplates(type) {
+  let query = supabase.from("calculator_templates").select("*").eq("is_builtin", true).eq("is_active", true);
+  if (type) query = query.eq("template_type", type);
+  query = query.order("sort_order").order("name");
+  const { data, error } = await query;
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function fetchUserTemplates(type) {
+  let query = supabase.from("calculator_templates").select("*").eq("is_builtin", false);
+  if (type) query = query.eq("template_type", type);
+  query = query.order("updated_at", { ascending: false });
+  const { data, error } = await query;
+  return {
+    data: data ?? [],
+    error: error ? error.message : null
+  };
+}
+async function saveUserTemplate(templateType, name, calculatorData, description) {
+  const { data, error } = await supabase.from("calculator_templates").insert({
+    template_type: templateType,
+    name,
+    description: description ?? null,
+    calculator_data: calculatorData,
+    is_builtin: false,
+    is_active: true
+  }).select().single();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+async function updateUserTemplate(id, updates) {
+  const { error } = await supabase.from("calculator_templates").update(updates).eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function deleteUserTemplate(id) {
+  const { error } = await supabase.from("calculator_templates").delete().eq("id", id);
+  return { error: error ? error.message : null };
+}
+async function duplicateUserTemplate(id, newName) {
+  const { data: source, error: fetchError } = await supabase.from("calculator_templates").select("*").eq("id", id).maybeSingle();
+  if (fetchError || !source)
+    return {
+      data: null,
+      error: fetchError ? fetchError.message : "Template not found"
+    };
+  const { data, error } = await supabase.from("calculator_templates").insert({
+    template_type: source.template_type,
+    name: newName ?? `${source.name} (Copy)`,
+    description: source.description,
+    calculator_data: source.calculator_data,
+    is_builtin: false,
+    is_active: true
+  }).select().single();
+  return {
+    data,
+    error: error ? error.message : null
+  };
+}
+var init_queries3 = __esm({
+  "src/lib/queries.ts"() {
+    init_define_import_meta_env();
+    init_data_cache();
+    init_supabase();
+    init_bundled_book();
+    init_local_projects();
+    init_rewards_integration();
   }
 });
 
@@ -39350,11 +41828,20 @@ function calculateTile(input, _materials, currency, currencySymbol) {
   }
   let sandNeeded = 0;
   let sandCost = 0;
+  let sandVolumeM3 = 0;
   if (input.method === "traditional") {
-    const sandQty = input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
-    const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
-    sandNeeded = Math.ceil(sandQty / sandPkgSize);
-    sandCost = sandNeeded * input.sandPricePerBag;
+    const unitM3 = input.sandUnitCubicMetres && input.sandUnitCubicMetres > 0 ? input.sandUnitCubicMetres : 0;
+    const bedMm = input.bedThicknessMm && input.bedThicknessMm > 0 ? input.bedThicknessMm : 0;
+    if (unitM3 > 0 && bedMm > 0) {
+      sandVolumeM3 = adjustedArea * (bedMm / 1e3) * (4 / 5);
+      sandNeeded = Math.ceil(sandVolumeM3 / unitM3);
+      sandCost = sandNeeded * input.sandPricePerBag;
+    } else {
+      const sandQty = input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
+      const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
+      sandNeeded = Math.ceil(sandQty / sandPkgSize);
+      sandCost = sandNeeded * input.sandPricePerBag;
+    }
   }
   const thickness = input.tileThicknessMm ?? 0;
   const joint = input.jointWidthMm ?? 0;
@@ -39363,8 +41850,8 @@ function calculateTile(input, _materials, currency, currencySymbol) {
   if (thickness > 0 && joint > 0 && tileAreaM2 > 0) {
     const Lm = input.tileWidthMm / 1e3;
     const Wm = input.tileHeightMm / 1e3;
-    const groutKgPerM2 = (Lm + Wm) / (Lm * Wm) * thickness * joint * sg * wasteMultiplier / 1e3;
-    groutNeeded = adjustedArea * groutKgPerM2;
+    const baseGroutKgPerM2 = (Lm + Wm) / (Lm * Wm) * thickness * joint * sg / 1e3;
+    groutNeeded = adjustedArea * baseGroutKgPerM2;
   } else if (input.groutCoverageRate > 0) {
     groutNeeded = adjustedArea / input.groutCoverageRate;
   }
@@ -39417,6 +41904,7 @@ function calculateTile(input, _materials, currency, currencySymbol) {
     cementCost,
     sandNeeded,
     sandCost,
+    sandVolumeM3,
     groutNeeded: Math.ceil(groutNeeded),
     groutCost,
     spacerNeeded,
@@ -39444,7 +41932,7 @@ __export(tyrolene_config_exports, {
   TYROLENE_ROLES: () => TYROLENE_ROLES,
   loadTyroleneCalcConfig: () => loadTyroleneCalcConfig
 });
-async function loadTyroleneCalcConfig(marketCode) {
+async function loadTyroleneCalcConfig(marketCode, citySlug) {
   const warnings = [];
   const roleResolutions = /* @__PURE__ */ new Map();
   const unpricedSlugs = [];
@@ -39484,7 +41972,11 @@ async function loadTyroleneCalcConfig(marketCode) {
       );
       continue;
     }
-    const resolved = await resolveMaterialPriceByRole(role, marketCode);
+    const resolved = await resolveCityAwarePriceByRole(
+      role,
+      marketCode,
+      citySlug
+    );
     if (resolved) {
       prices.set(mat.slug, resolved.price);
       roleResolutions.set(mat.slug, resolved);
@@ -39533,8 +42025,8 @@ var init_tyrolene_config = __esm({
   "src/lib/estimation/tyrolene-config.ts"() {
     init_define_import_meta_env();
     init_supabase();
-    init_queries2();
-    init_market_materials();
+    init_queries();
+    init_calculator_prices();
     TYROLENE_MATERIAL_SLUGS = [
       "cement",
       "sand",
@@ -39583,12 +42075,12 @@ function validateDimensions(input) {
     errors.push("Dimension input must be a valid number or object.");
     return createValidationResult(false, errors, warnings);
   }
-  const entries = Object.entries(input);
-  if (entries.length === 0) {
+  const entries2 = Object.entries(input);
+  if (entries2.length === 0) {
     errors.push("Dimension input cannot be empty.");
     return createValidationResult(false, errors, warnings);
   }
-  for (const [key, val] of entries) {
+  for (const [key, val] of entries2) {
     if (val === null || val === void 0) {
       errors.push(`Dimension '${key}' is missing or required.`);
       continue;
@@ -40200,12 +42692,16 @@ var init_purchase_rounding = __esm({
 // src/lib/estimation/electrical-engine.ts
 var electrical_engine_exports = {};
 __export(electrical_engine_exports, {
+  COPPER_AMPACITY_A: () => COPPER_AMPACITY_A,
   COPPER_RESISTIVITY: () => COPPER_RESISTIVITY,
   DEFAULT_ELECTRICAL_RULES: () => DEFAULT_ELECTRICAL_RULES,
   ELECTRICAL_MATERIAL_SLUGS: () => ELECTRICAL_MATERIAL_SLUGS,
+  STANDARD_MCB_RATINGS_A: () => STANDARD_MCB_RATINGS_A,
   VOLTAGE_DROP_LIMITS: () => VOLTAGE_DROP_LIMITS,
   calculateElectrical: () => calculateElectrical,
+  minimumCableSize: () => minimumCableSize,
   parseElectricalRules: () => parseElectricalRules,
+  selectBreaker: () => selectBreaker,
   voltageDropPercent: () => voltageDropPercent
 });
 function parseElectricalRules(rows) {
@@ -40246,6 +42742,10 @@ function parseElectricalRules(rows) {
   if (jb !== null) rules.junction_boxes_per_lighting_point = jb;
   return rules;
 }
+function normPowerFactor(value) {
+  if (value === void 0 || !Number.isFinite(value) || value <= 0) return 1;
+  return Math.min(1, Math.max(0.1, value));
+}
 function voltageDropPercent(check) {
   const { run_m, load_watts, voltage, cross_section_mm2 } = check;
   const limit = check.lighting_dominant === true ? VOLTAGE_DROP_LIMITS.lighting : VOLTAGE_DROP_LIMITS.power;
@@ -40257,15 +42757,114 @@ function voltageDropPercent(check) {
       detail: "Voltage drop not checked: run length, load, voltage and cable cross-section must all be provided."
     };
   }
-  const current = load_watts / voltage;
-  const dropV = 2 * run_m * current * COPPER_RESISTIVITY / cross_section_mm2;
+  const system = check.system === "three" ? "three" : "single";
+  const pf = normPowerFactor(check.power_factor);
+  const current = system === "three" ? load_watts / (Math.sqrt(3) * voltage * pf) : load_watts / (voltage * pf);
+  const loopFactor = system === "three" ? Math.sqrt(3) : 2;
+  const dropV = loopFactor * run_m * current * COPPER_RESISTIVITY / cross_section_mm2;
   const drop_percent = dropV / voltage * 100;
   const passes = drop_percent <= limit;
+  const phaseLabel = system === "three" ? "three-phase" : "single-phase";
   return {
     drop_percent: Math.round(drop_percent * 100) / 100,
     limit_percent: limit,
     passes,
-    detail: `Feeder voltage drop = 2 \xD7 ${run_m} m \xD7 ${Math.round(current * 100) / 100} A \xD7 0.0172 / ${cross_section_mm2} mm2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%).`
+    detail: `Feeder voltage drop (${phaseLabel}) = ${loopFactor === 2 ? "2" : "\u221A3"} \xD7 ${run_m} m \xD7 ${Math.round(current * 100) / 100} A \xD7 ${COPPER_RESISTIVITY} / ${cross_section_mm2} mm\xB2 = ${Math.round(dropV * 100) / 100} V (${Math.round(drop_percent * 100) / 100}% of ${voltage} V; limit ${limit}%, power factor ${pf}).`
+  };
+}
+function minimumCableSize(request) {
+  const limit = request.lighting_dominant === true ? VOLTAGE_DROP_LIMITS.lighting : VOLTAGE_DROP_LIMITS.power;
+  const system = request.system === "three" ? "three" : "single";
+  const pf = normPowerFactor(request.power_factor);
+  const stated = request.design_current_a;
+  const design = stated !== void 0 && Number.isFinite(stated) && stated > 0 ? stated : request.voltage > 0 ? system === "three" ? request.load_watts / (Math.sqrt(3) * request.voltage * pf) : request.load_watts / (request.voltage * pf) : 0;
+  const attempt = COPPER_AMPACITY_A.map(([csa, ampacity]) => {
+    const drop = voltageDropPercent({
+      run_m: request.run_m,
+      load_watts: request.load_watts,
+      voltage: request.voltage,
+      cross_section_mm2: csa,
+      lighting_dominant: request.lighting_dominant,
+      system,
+      power_factor: pf
+    });
+    return {
+      cross_section_mm2: csa,
+      ampacity_a: ampacity,
+      drop_percent: drop.drop_percent,
+      passes_ampacity: design > 0 && ampacity >= design,
+      passes_drop: drop.passes
+    };
+  });
+  if (!(design > 0) || !(request.run_m > 0) || !(request.voltage > 0)) {
+    return {
+      feasible: false,
+      cross_section_mm2: null,
+      design_current_a: Math.round(design * 100) / 100,
+      ampacity_a: null,
+      drop_percent: null,
+      limit_percent: limit,
+      reason: "Cable size not determined: load, run length and system voltage must all be provided.",
+      attempt
+    };
+  }
+  const chosen = attempt.find((a) => a.passes_ampacity && a.passes_drop);
+  if (!chosen) {
+    const largest = attempt[attempt.length - 1];
+    return {
+      feasible: false,
+      cross_section_mm2: null,
+      design_current_a: Math.round(design * 100) / 100,
+      ampacity_a: largest.ampacity_a,
+      drop_percent: largest.drop_percent,
+      limit_percent: limit,
+      reason: `No tabulated size up to ${largest.cross_section_mm2} mm\xB2 satisfies both ampacity and the ${limit}% drop limit for ${Math.round(design * 100) / 100} A over ${request.run_m} m. Move the distribution point closer, split the load, or have the run designed.`,
+      attempt
+    };
+  }
+  const forced = chosen.passes_ampacity ? `voltage drop over ${request.run_m} m` : "current-carrying capacity";
+  return {
+    feasible: true,
+    cross_section_mm2: chosen.cross_section_mm2,
+    design_current_a: Math.round(design * 100) / 100,
+    ampacity_a: chosen.ampacity_a,
+    drop_percent: chosen.drop_percent,
+    limit_percent: limit,
+    reason: `${chosen.cross_section_mm2} mm\xB2 carries ${chosen.ampacity_a} A (design ${Math.round(design * 100) / 100} A) and drops ${chosen.drop_percent}% against a ${limit}% limit; ${forced} set the size.`,
+    attempt
+  };
+}
+function selectBreaker(request) {
+  const ratings = request.ratings ?? STANDARD_MCB_RATINGS_A;
+  const ib = Number(request.design_current_a);
+  const iz = request.cable_ampacity_a === void 0 || request.cable_ampacity_a === null ? null : Number(request.cable_ampacity_a);
+  if (!(ib > 0)) {
+    return {
+      rating_a: null,
+      design_current_a: 0,
+      cable_ampacity_a: iz,
+      complies: false,
+      reason: "Breaker not selected: a design current above zero is required."
+    };
+  }
+  const candidates = ratings.filter((r) => r >= ib && (iz === null || r <= iz));
+  if (candidates.length === 0) {
+    const overIz = ratings.some((r) => r >= ib);
+    return {
+      rating_a: null,
+      design_current_a: Math.round(ib * 100) / 100,
+      cable_ampacity_a: iz,
+      complies: false,
+      reason: overIz ? `No standard rating up to ${iz} A cable capacity covers a ${Math.round(ib * 100) / 100} A design current: the cable has to be larger before any breaker protects it properly.` : `The design current of ${Math.round(ib * 100) / 100} A exceeds every standard rating listed; this circuit needs a different distribution design.`
+    };
+  }
+  const rating = candidates[0];
+  return {
+    rating_a: rating,
+    design_current_a: Math.round(ib * 100) / 100,
+    cable_ampacity_a: iz,
+    complies: true,
+    reason: iz === null ? `${rating} A covers the ${Math.round(ib * 100) / 100} A design current. Cable capacity was not supplied, so the upper half of the rule was not checked.` : `${rating} A sits above the ${Math.round(ib * 100) / 100} A design current and at or below the ${iz} A cable capacity.`
   };
 }
 function isCount(v) {
@@ -40330,6 +42929,23 @@ function calculateElectrical(input, rules, prices) {
   const socketCircuits = input.socket_points > 0 ? Math.ceil(input.socket_points / rules.socket_points_per_circuit) : 0;
   const dedicatedCircuits = input.dedicated_points > 0 ? Math.ceil(input.dedicated_points / rules.dedicated_points_per_circuit) : 0;
   const totalCircuits = lightingCircuits + socketCircuits + dedicatedCircuits;
+  const statedVoltage = input.feeder_check?.voltage;
+  const systemVoltage = statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+  const connectedLightingVA = input.lighting_points * 100;
+  const connectedSocketsVA = input.socket_points * 250;
+  const connectedDedicatedVA = input.dedicated_points * 2500;
+  const totalConnectedVA = connectedLightingVA + connectedSocketsVA + connectedDedicatedVA;
+  const divLighting = connectedLightingVA * 0.66;
+  const divSockets = connectedSocketsVA > 0 ? Math.min(connectedSocketsVA, 1e3) + Math.max(0, connectedSocketsVA - 1e3) * 0.4 : 0;
+  const divDedicated = connectedDedicatedVA > 0 ? 2500 + Math.max(0, connectedDedicatedVA - 2500) * 0.5 : 0;
+  const diversifiedDemandVA = divLighting + divSockets + divDedicated;
+  const incomerCurrentA = systemVoltage > 0 ? diversifiedDemandVA / (systemVoltage * 0.9) : 0;
+  const standardBreakers = [25, 32, 40, 50, 63, 80, 100, 125];
+  const recBreaker = standardBreakers.find((b) => b >= incomerCurrentA) ?? (incomerCurrentA > 125 ? 160 : 32);
+  let recCable = 10;
+  if (recBreaker > 112) recCable = 35;
+  else if (recBreaker > 85) recCable = 25;
+  else if (recBreaker > 63) recCable = 16;
   const circuitSummary = {
     lighting_circuits: lightingCircuits,
     socket_circuits: socketCircuits,
@@ -40337,10 +42953,23 @@ function calculateElectrical(input, rules, prices) {
     total_circuits: totalCircuits,
     db_ways_guidance: totalCircuits
   };
+  const loadAnalysis = {
+    total_connected_load_va: Math.round(totalConnectedVA),
+    diversified_demand_va: Math.round(diversifiedDemandVA),
+    main_incomer_current_a: Math.round(incomerCurrentA * 10) / 10,
+    recommended_main_breaker_a: recBreaker,
+    recommended_service_cable_mm2: recCable
+  };
   steps.push({
     label: "Circuits (planning rule, not design)",
     detail: `Lighting: ceil(${input.lighting_points} \xF7 ${rules.lighting_points_per_circuit}) = ${lightingCircuits}. Sockets: ceil(${input.socket_points} \xF7 ${rules.socket_points_per_circuit}) = ${socketCircuits}. Dedicated: ceil(${input.dedicated_points} \xF7 ${rules.dedicated_points_per_circuit}) = ${dedicatedCircuits}. Total ${totalCircuits} circuits.`
   });
+  if (totalConnectedVA > 0) {
+    steps.push({
+      label: "Connected load & maximum demand (BS 7671 / NEC 220)",
+      detail: `Total connected load: ${(totalConnectedVA / 1e3).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1e3).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with \u2265${recCable} mm\xB2 copper service tails.`
+    });
+  }
   const wasteFactor = 1 + rules.cable_waste_pct / 100;
   const lines = [];
   const cableSpecs = [
@@ -40411,16 +43040,20 @@ function calculateElectrical(input, rules, prices) {
     const wasteQty = qty - base;
     steps.push({
       label: spec.label,
-      detail: `${spec.runs} ${spec.runLabel} \xD7 ${spec.avgRun} m = ${roundTo(base, 2)} m; waste ${rules.cable_waste_pct}% (+${roundTo(wasteQty, 2)} m) \u2192 ${qty} m (rounded up to whole metres).`
+      detail: `${spec.runs} ${spec.runLabel} \xD7 ${spec.avgRun} m = ${roundTo2(base, 2)} m; waste ${rules.cable_waste_pct}% (+${roundTo2(wasteQty, 2)} m) \u2192 ${qty} m (rounded up to whole metres).`
     });
     if (spec.avgRun && spec.avgRun > 0) {
       const csa = spec.key === "cable_lighting" ? 1.5 : spec.key === "cable_socket" ? 2.5 : 4;
       const currentA = spec.key === "cable_lighting" ? 6 : spec.key === "cable_socket" ? 13 : 20;
-      const vDrop = 2 * spec.avgRun * currentA * 0.0175 / csa;
-      const vDropPct = vDrop / 230 * 100;
+      const vDrop = 2 * spec.avgRun * currentA * COPPER_RESISTIVITY / csa;
+      const statedVoltage2 = input.feeder_check?.voltage;
+      const systemVoltage2 = statedVoltage2 && statedVoltage2 > 0 ? statedVoltage2 : 230;
+      const vDropPct = vDrop / systemVoltage2 * 100;
       const limitPct = spec.key === "cable_lighting" ? 3 : 5;
       if (vDropPct > limitPct) {
-        warnings.push(`Voltage drop check: ${spec.label} (${spec.avgRun}m average run) has an estimated voltage drop of ${vDropPct.toFixed(1)}% (exceeds ${limitPct}% standard limit). Consider upsizing cable.`);
+        warnings.push(
+          `Voltage drop check: ${spec.label} (${spec.avgRun}m average run) has an estimated voltage drop of ${vDropPct.toFixed(1)}% (exceeds ${limitPct}% standard limit). Consider upsizing cable.`
+        );
       }
     }
     lines.push({
@@ -40430,7 +43063,7 @@ function calculateElectrical(input, rules, prices) {
       quantity: qty,
       quantity_source: "user_derived",
       unit: "m",
-      detail: `${spec.runs} \xD7 ${spec.avgRun} m \xD7 ${wasteFactor.toFixed(2)} = ${qty} m (waste +${roundTo(wasteQty, 2)} m shown separately)`,
+      detail: `${spec.runs} \xD7 ${spec.avgRun} m \xD7 ${wasteFactor.toFixed(2)} = ${qty} m (waste +${roundTo2(wasteQty, 2)} m shown separately)`,
       unit_price: price,
       line_total: price !== null && qty !== null ? money(qty * price) : null
     });
@@ -40445,7 +43078,7 @@ function calculateElectrical(input, rules, prices) {
       const price = prices["elec-conduit"] ?? null;
       steps.push({
         label: "Conduit (planning allowance)",
-        detail: `${input.lighting_points} lighting \xD7 ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets \xD7 ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo(base, 2)} m; waste ${rules.conduit_waste_pct}% \u2192 ${qty} m. This is the planning allowance, not a site measurement.`
+        detail: `${input.lighting_points} lighting \xD7 ${rules.conduit_m_per_lighting_point ?? 0} m + ${input.socket_points} sockets \xD7 ${rules.conduit_m_per_socket_point ?? 0} m = ${roundTo2(base, 2)} m; waste ${rules.conduit_waste_pct}% \u2192 ${qty} m. This is the planning allowance, not a site measurement.`
       });
       lines.push({
         key: "conduit",
@@ -40454,7 +43087,7 @@ function calculateElectrical(input, rules, prices) {
         quantity: qty,
         quantity_source: "rule_derived",
         unit: "m",
-        detail: `Planning allowance from configured rules (${roundTo(base, 2)} m base + waste)`,
+        detail: `Planning allowance from configured rules (${roundTo2(base, 2)} m base + waste)`,
         unit_price: price,
         line_total: price !== null ? money(qty * price) : null
       });
@@ -40623,6 +43256,7 @@ function calculateElectrical(input, rules, prices) {
     steps,
     lines,
     circuit_summary: circuitSummary,
+    load_analysis: loadAnalysis,
     priced_subtotal: pricedSubtotal,
     material_subtotal: materialSubtotal,
     labour_total: labourTotal,
@@ -40631,11 +43265,11 @@ function calculateElectrical(input, rules, prices) {
     missing
   };
 }
-function roundTo(v, dp) {
+function roundTo2(v, dp) {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
 }
-var DEFAULT_ELECTRICAL_RULES, VOLTAGE_DROP_LIMITS, COPPER_RESISTIVITY, ELECTRICAL_MATERIAL_SLUGS;
+var DEFAULT_ELECTRICAL_RULES, VOLTAGE_DROP_LIMITS, COPPER_RESISTIVITY, COPPER_AMPACITY_A, STANDARD_MCB_RATINGS_A, ELECTRICAL_MATERIAL_SLUGS;
 var init_electrical_engine = __esm({
   "src/lib/estimation/electrical-engine.ts"() {
     init_define_import_meta_env();
@@ -40651,7 +43285,33 @@ var init_electrical_engine = __esm({
       junction_boxes_per_lighting_point: null
     };
     VOLTAGE_DROP_LIMITS = { lighting: 3, power: 5 };
-    COPPER_RESISTIVITY = 0.0172;
+    COPPER_RESISTIVITY = 0.0225;
+    COPPER_AMPACITY_A = [
+      [1.5, 19.5],
+      [2.5, 27],
+      [4, 36],
+      [6, 46],
+      [10, 63],
+      [16, 85],
+      [25, 112],
+      [35, 138],
+      [50, 168],
+      [70, 213],
+      [95, 258]
+    ];
+    STANDARD_MCB_RATINGS_A = [
+      6,
+      10,
+      16,
+      20,
+      25,
+      32,
+      40,
+      50,
+      63,
+      80,
+      100
+    ];
     ELECTRICAL_MATERIAL_SLUGS = [
       "elec-cable-lighting",
       "elec-cable-socket",
@@ -40673,6 +43333,7 @@ var plumbing_engine_exports = {};
 __export(plumbing_engine_exports, {
   DEFAULT_PLUMBING_RULES: () => DEFAULT_PLUMBING_RULES,
   calculatePlumbing: () => calculatePlumbing,
+  calculatePlumbingEngineeringMetrics: () => calculatePlumbingEngineeringMetrics,
   parsePlumbingRules: () => parsePlumbingRules
 });
 function parsePlumbingRules(rows) {
@@ -40705,13 +43366,58 @@ function parsePlumbingRules(rows) {
   if (v !== null) rules.valve_per_tap = v;
   return rules;
 }
+function calculatePlumbingEngineeringMetrics(input) {
+  const wsfu = (input.taps || 0) * 1 + (input.sinks || 0) * 1.5 + (input.showers || 0) * 2 + (input.wcs || 0) * 2.5;
+  let peakLps = 0;
+  if (wsfu > 0) {
+    if (wsfu <= 10) {
+      peakLps = 0.25 * Math.pow(wsfu, 0.75);
+    } else {
+      peakLps = 0.4 * Math.pow(wsfu, 0.55);
+    }
+  }
+  const peakLpm = peakLps * 60;
+  let boreMm = 13.2;
+  let pipeLabel = '20 mm PPR (1/2" nominal)';
+  if (peakLps > 0) {
+    const areaM22 = peakLps / 1e3 / 1.8;
+    const reqBoreMm = Math.sqrt(4 * areaM22 / Math.PI) * 1e3;
+    boreMm = Math.round(reqBoreMm * 10) / 10;
+    if (reqBoreMm <= 13.2) {
+      pipeLabel = '20 mm PPR (13.2 mm bore, 1/2" nominal)';
+    } else if (reqBoreMm <= 16.6) {
+      pipeLabel = '25 mm PPR (16.6 mm bore, 3/4" nominal)';
+    } else if (reqBoreMm <= 21.2) {
+      pipeLabel = '32 mm PPR (21.2 mm bore, 1" nominal)';
+    } else if (reqBoreMm <= 26.6) {
+      pipeLabel = '40 mm PPR (26.6 mm bore, 1-1/4" nominal)';
+    } else if (reqBoreMm <= 33.2) {
+      pipeLabel = '50 mm PPR (33.2 mm bore, 1-1/2" nominal)';
+    } else {
+      pipeLabel = '63 mm PPR (42.0 mm bore, 2" nominal)';
+    }
+  }
+  const equivalentPersons = Math.max(
+    2,
+    Math.ceil(((input.wcs || 0) + (input.showers || 0)) * 2.5)
+  );
+  const storageLitres = equivalentPersons * 150;
+  return {
+    total_wsfu: Math.round(wsfu * 10) / 10,
+    peak_flow_lpm: Math.round(peakLpm * 10) / 10,
+    peak_flow_lps: Math.round(peakLps * 100) / 100,
+    recommended_header_bore_mm: boreMm,
+    recommended_header_pipe_label: pipeLabel,
+    water_storage_litres_24h: storageLitres
+  };
+}
 function isCount2(v) {
   return Number.isInteger(v) && v >= 0;
 }
 function money2(v) {
   return Math.round(v * 100) / 100;
 }
-function roundTo2(v, dp) {
+function roundTo3(v, dp) {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
 }
@@ -40820,7 +43526,7 @@ function calculatePlumbing(input, rules, prices) {
     const qty = ceilM(withWaste);
     steps.push({
       label: spec.label,
-      detail: `${spec.run} m \xD7 ${wasteFactor.toFixed(2)} (waste ${rules.pipe_waste_pct}%) = ${roundTo2(withWaste, 2)} m \u2192 ${qty} m (whole metres, up).`
+      detail: `${spec.run} m \xD7 ${wasteFactor.toFixed(2)} (waste ${rules.pipe_waste_pct}%) = ${roundTo3(withWaste, 2)} m \u2192 ${qty} m (whole metres, up).`
     });
     lines.push({
       key: spec.key,
@@ -40829,7 +43535,7 @@ function calculatePlumbing(input, rules, prices) {
       quantity: qty,
       quantity_source: "user_derived",
       unit: "m",
-      detail: `${spec.run} m \xD7 ${wasteFactor.toFixed(2)} = ${qty} m (waste +${roundTo2(qty - spec.run, 2)} m shown separately)`,
+      detail: `${spec.run} m \xD7 ${wasteFactor.toFixed(2)} = ${qty} m (waste +${roundTo3(qty - spec.run, 2)} m shown separately)`,
       unit_price: price,
       line_total: price !== null ? money2(qty * price) : null
     });
@@ -41004,6 +43710,13 @@ function calculatePlumbing(input, rules, prices) {
   warnings.push(
     "This is material ESTIMATION, not professional plumbing design. Pipe diameters, slopes and drainage design need a qualified plumber or engineer."
   );
+  const engineeringMetrics = calculatePlumbingEngineeringMetrics(input);
+  if (engineeringMetrics.total_wsfu > 0) {
+    steps.push({
+      label: "Hydraulic design demand (Hunter's Curve / BS EN 806)",
+      detail: `Total ${engineeringMetrics.total_wsfu} WSFU \u2192 Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Sized header bore: ${engineeringMetrics.recommended_header_bore_mm} mm (${engineeringMetrics.recommended_header_pipe_label}) at \u22641.8 m/s velocity. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`
+    });
+  }
   const incomplete = lines.some((l) => l.quantity === null || l.line_total === null) || missing.length > 0;
   const grandTotal = materialSubtotal !== null && errors.length === 0 ? money2(materialSubtotal + labourTotal) : null;
   return {
@@ -41017,7 +43730,8 @@ function calculatePlumbing(input, rules, prices) {
     labour_total: labourTotal,
     grand_total: grandTotal,
     incomplete,
-    missing
+    missing,
+    engineering_metrics: engineeringMetrics
   };
 }
 var DEFAULT_PLUMBING_RULES;
@@ -41206,7 +43920,7 @@ var init_regional_cost_engine = __esm({
 });
 
 // src/lib/estimation/shared/rule-value.ts
-function roundTo3(v, decimals) {
+function roundTo4(v, decimals) {
   const f = Math.pow(10, decimals);
   return Math.round(v * f) / f;
 }
@@ -41273,29 +43987,30 @@ function calculateMargin(input) {
     );
     return result;
   }
+  const rules = Array.isArray(input.rules) ? input.rules : [];
   const decimals = Math.max(
     0,
-    Math.min(6, ruleNumber(input.rules, "rounding_decimals") ?? 2)
+    Math.min(6, ruleNumber(rules, "rounding_decimals") ?? 2)
   );
   let profit;
   let subtotal;
   if (basis === "markup_on_cost") {
-    profit = roundTo3(cost * marginPercent / 100, decimals);
-    subtotal = roundTo3(cost + profit, decimals);
+    profit = roundTo4(cost * marginPercent / 100, decimals);
+    subtotal = roundTo4(cost + profit, decimals);
     result.steps.push({
       label: "Markup on cost",
       detail: `${fmtAuto(cost)} \xD7 ${marginPercent}% = ${fmtAuto(profit)} profit (markup on cost: the percent applies to the COST).`
     });
   } else {
-    subtotal = roundTo3(cost / (1 - marginPercent / 100), decimals);
-    profit = roundTo3(subtotal - cost, decimals);
+    subtotal = roundTo4(cost / (1 - marginPercent / 100), decimals);
+    profit = roundTo4(subtotal - cost, decimals);
     result.steps.push({
       label: "Margin on price",
       detail: `${fmtAuto(cost)} \xF7 (1 \u2212 ${marginPercent}%) = ${fmtAuto(subtotal)} price (margin on price: the percent applies to the PRICE), profit ${fmtAuto(profit)}.`
     });
   }
-  const equivalent = basis === "markup_on_cost" ? roundTo3(profit / subtotal * 100, decimals) : roundTo3(profit / cost * 100, decimals);
-  let vatRate = ruleNumber(input.rules, "vat_rate");
+  const equivalent = basis === "markup_on_cost" ? roundTo4(profit / subtotal * 100, decimals) : roundTo4(profit / cost * 100, decimals);
+  let vatRate = ruleNumber(rules, "vat_rate");
   let vatAmount = null;
   let quoteTotal = subtotal;
   if (vatRate !== null && (vatRate < 0 || vatRate >= 100)) {
@@ -41309,8 +44024,8 @@ function calculateMargin(input) {
       "No VAT rate is configured (FRELUX \u2192 Estimation Config & Rules \u2192 vat_rate for margin). The quote is produced without a VAT line rather than guessing one."
     );
   } else {
-    vatAmount = roundTo3(subtotal * vatRate / 100, decimals);
-    quoteTotal = roundTo3(subtotal + vatAmount, decimals);
+    vatAmount = roundTo4(subtotal * vatRate / 100, decimals);
+    quoteTotal = roundTo4(subtotal + vatAmount, decimals);
     result.steps.push({
       label: "VAT",
       detail: vatAmount > 0 ? `${fmtAuto(subtotal)} \xD7 ${vatRate}% = ${fmtAuto(vatAmount)} VAT (configured rate, never guessed).` : `Configured VAT rate is 0%: no VAT line.`
@@ -41322,7 +44037,7 @@ function calculateMargin(input) {
   });
   result.ok = true;
   result.basis = basis;
-  result.base_cost = roundTo3(cost, decimals);
+  result.base_cost = roundTo4(cost, decimals);
   result.margin_percent = marginPercent;
   result.profit = profit;
   result.priced_subtotal = subtotal;
@@ -41438,7 +44153,7 @@ function parseFoundationRules(rows) {
 function money4(v) {
   return Math.round(v * 100) / 100;
 }
-function roundTo4(v, dp) {
+function roundTo5(v, dp) {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
 }
@@ -41496,11 +44211,11 @@ function calculateFoundation(input, rules, prices, options) {
       const graniteM3 = ceilU(granite / parts * dry);
       steps.push({
         label: "Concrete mix math",
-        detail: `${wet} m\xB3 wet \xD7 ${wasteFactor.toFixed(2)} (waste ${rules.concrete_waste_pct}%) \xD7 ${DRY_VOLUME_FACTOR} dry factor = ${roundTo4(dry, 3)} m\xB3 dry. Split ${cement}:${sand}:${granite} \u2192 cement ${roundTo4(cement / parts * dry, 3)} m\xB3, sand ${roundTo4(sand / parts * dry, 3)} m\xB3, granite ${roundTo4(granite / parts * dry, 3)} m\xB3.`
+        detail: `${wet} m\xB3 wet \xD7 ${wasteFactor.toFixed(2)} (waste ${rules.concrete_waste_pct}%) \xD7 ${DRY_VOLUME_FACTOR} dry factor = ${roundTo5(dry, 3)} m\xB3 dry. Split ${cement}:${sand}:${granite} \u2192 cement ${roundTo5(cement / parts * dry, 3)} m\xB3, sand ${roundTo5(sand / parts * dry, 3)} m\xB3, granite ${roundTo5(granite / parts * dry, 3)} m\xB3.`
       });
       steps.push({
         label: "Cement bags",
-        detail: `${roundTo4(cement / parts * dry, 3)} m\xB3 \xF7 ${roundTo4(bagVolumeM3, 4)} m\xB3/bag (${bagWeightKg} kg) = ${roundTo4(cement / parts * dry / bagVolumeM3, 2)} \u2192 ${cementBags} bags (whole, up).`
+        detail: `${roundTo5(cement / parts * dry, 3)} m\xB3 \xF7 ${roundTo5(bagVolumeM3, 4)} m\xB3/bag (${bagWeightKg} kg) = ${roundTo5(cement / parts * dry / bagVolumeM3, 2)} \u2192 ${cementBags} bags (whole, up).`
       });
       const bagPrice = prices["cement-per-bag"] ?? null;
       lines.push({
@@ -41569,7 +44284,7 @@ function calculateFoundation(input, rules, prices, options) {
       const price = prices["block-per-piece"] ?? null;
       steps.push({
         label: "Blocks to DPC",
-        detail: `${input.block_wall_area_m2} m\xB2 \xD7 ${rules.blocks_per_m2} blocks/m\xB2 = ${roundTo4(input.block_wall_area_m2 * rules.blocks_per_m2, 2)} \u2192 ${blocks} blocks (whole, up). Rule must match the priced block size.`
+        detail: `${input.block_wall_area_m2} m\xB2 \xD7 ${rules.blocks_per_m2} blocks/m\xB2 = ${roundTo5(input.block_wall_area_m2 * rules.blocks_per_m2, 2)} \u2192 ${blocks} blocks (whole, up). Rule must match the priced block size.`
       });
       lines.push({
         key: "blocks",
@@ -41619,7 +44334,7 @@ function calculateFoundation(input, rules, prices, options) {
       labourTotal = money4(concreteM3 * rate);
       steps.push({
         label: "Labour",
-        detail: `${roundTo4(concreteM3, 2)} m\xB3 concrete \xD7 ${rate} per m\xB3 = ${labourTotal} (user-provided rate).`
+        detail: `${roundTo5(concreteM3, 2)} m\xB3 concrete \xD7 ${rate} per m\xB3 = ${labourTotal} (user-provided rate).`
       });
     }
   } else if (input.labour.mode === "lump_sum") {
@@ -41959,18 +44674,65 @@ var init_doors_windows_engine = __esm({
   }
 });
 
+// src/lib/globalization/universal-construction-math.ts
+function calculateGlobalRebarWeight(sizeInput, length, unitSystem = "metric") {
+  if (!Number.isFinite(length) || length <= 0) {
+    throw new RangeError(`Length must be a positive finite number (received ${length}).`);
+  }
+  if (unitSystem === "metric") {
+    const diameter = typeof sizeInput === "string" ? parseFloat(sizeInput) : sizeInput;
+    if (!Number.isFinite(diameter) || diameter <= 0) {
+      throw new RangeError(`Metric rebar diameter must be positive (received ${sizeInput}).`);
+    }
+    const weightPerMeter = diameter ** 2 / 162;
+    const totalWeight = Math.round(weightPerMeter * length * 100) / 100;
+    return {
+      weight: totalWeight,
+      unit: "kg",
+      unitSystem: "metric",
+      unitWeightPerUnitLength: Math.round(weightPerMeter * 1e3) / 1e3,
+      length,
+      sizeInput
+    };
+  } else if (unitSystem === "imperial") {
+    const barNumber = typeof sizeInput === "string" ? parseInt(sizeInput.replace(/^#/, ""), 10) : Math.round(sizeInput);
+    if (!Number.isFinite(barNumber) || barNumber <= 0) {
+      throw new RangeError(`Imperial bar number must be a positive integer (received ${sizeInput}).`);
+    }
+    const weightPerFoot = barNumber ** 2 * 0.04167;
+    const totalWeight = Math.round(weightPerFoot * length * 100) / 100;
+    return {
+      weight: totalWeight,
+      unit: "lbs",
+      unitSystem: "imperial",
+      unitWeightPerUnitLength: Math.round(weightPerFoot * 1e3) / 1e3,
+      length,
+      sizeInput
+    };
+  } else {
+    throw new RangeError(`Unsupported unit system: ${unitSystem}`);
+  }
+}
+var init_universal_construction_math = __esm({
+  "src/lib/globalization/universal-construction-math.ts"() {
+    init_define_import_meta_env();
+  }
+});
+
 // src/lib/estimation/reinforcement-engine.ts
 var reinforcement_engine_exports = {};
 __export(reinforcement_engine_exports, {
   BS8666_SHAPES: () => BS8666_SHAPES,
   DEFAULT_REINFORCEMENT_RULES: () => DEFAULT_REINFORCEMENT_RULES,
   bbsToCsv: () => bbsToCsv,
+  bendDeductionMm: () => bendDeductionMm,
   bs8666CutLength: () => bs8666CutLength,
   bs8666LinkHookMm: () => bs8666LinkHookMm,
   bs8666MandrelDiameterMm: () => bs8666MandrelDiameterMm,
   buildBarBendingSchedule: () => buildBarBendingSchedule,
   calculateBarCutLength: () => calculateBarCutLength,
   calculateDevelopmentLength: () => calculateDevelopmentLength,
+  calculateGlobalRebarWeight: () => calculateGlobalRebarWeight,
   calculateReinforcement: () => calculateReinforcement,
   generateBVBSString: () => generateBVBSString,
   generateBarBendingSchedule: () => generateBarBendingSchedule,
@@ -42002,7 +44764,7 @@ function parseReinforcementRules(rows) {
 function money6(v) {
   return Math.round(v * 100) / 100;
 }
-function roundTo5(v, dp) {
+function roundTo6(v, dp) {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
 }
@@ -42069,7 +44831,7 @@ function calculateReinforcement(input, rules, prices) {
     const price = prices[spec.slug] ?? null;
     steps.push({
       label: spec.label,
-      detail: `${len} m cutting \xD7 ${lapFactor.toFixed(2)} (lap/waste ${rules.rebar_lap_waste_pct}%) = ${roundTo5(withAllowance, 2)} m \xF7 ${stockLengthM} m = ${roundTo5(withAllowance / stockLengthM, 2)} \u2192 ${pieces} lengths (whole, up). Mass \u2248 ${len} \xD7 ${spec.kg_per_m} = ${roundTo5(massKg, 1)} kg.`
+      detail: `${len} m cutting \xD7 ${lapFactor.toFixed(2)} (lap/waste ${rules.rebar_lap_waste_pct}%) = ${roundTo6(withAllowance, 2)} m \xF7 ${stockLengthM} m = ${roundTo6(withAllowance / stockLengthM, 2)} \u2192 ${pieces} lengths (whole, up). Mass \u2248 ${len} \xD7 ${spec.kg_per_m} = ${roundTo6(massKg, 1)} kg.`
     });
     lines.push({
       key: spec.key,
@@ -42078,7 +44840,7 @@ function calculateReinforcement(input, rules, prices) {
       quantity: pieces,
       quantity_source: "user_derived",
       unit: "lengths",
-      detail: `${len} m schedule \xD7 ${lapFactor.toFixed(2)} \xF7 ${stockLengthM} m \u2192 ${pieces} \xD7 ${stockLengthM} m lengths (lap/waste +${roundTo5(withAllowance - len, 2)} m shown separately; ${spec.kg_per_m} kg/m)`,
+      detail: `${len} m schedule \xD7 ${lapFactor.toFixed(2)} \xF7 ${stockLengthM} m \u2192 ${pieces} \xD7 ${stockLengthM} m lengths (lap/waste +${roundTo6(withAllowance - len, 2)} m shown separately; ${spec.kg_per_m} kg/m)`,
       unit_price: price,
       line_total: price !== null ? money6(pieces * price) : null
     });
@@ -42090,7 +44852,7 @@ function calculateReinforcement(input, rules, prices) {
   } else {
     steps.push({
       label: "Total steel mass",
-      detail: `\u2248 ${roundTo5(totalMassKg, 1)} kg (${roundTo5(totalMassKg / 1e3, 3)} tonnes) computed from true cutting lengths using standard nominal mass per metre. For delivery planning.`
+      detail: `\u2248 ${roundTo6(totalMassKg, 1)} kg (${roundTo6(totalMassKg / 1e3, 3)} tonnes) computed from true cutting lengths using standard nominal mass per metre. For delivery planning.`
     });
   }
   if (totalMassKg > 0) {
@@ -42103,7 +44865,7 @@ function calculateReinforcement(input, rules, prices) {
       const price = prices["binding-wire-per-kg"] ?? null;
       steps.push({
         label: "Binding wire",
-        detail: `${roundTo5(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t = ${roundTo5(totalMassKg / 1e3 * rules.binding_wire_kg_per_tonne, 2)} \u2192 ${kg} kg (whole kg, up).`
+        detail: `${roundTo6(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t = ${roundTo6(totalMassKg / 1e3 * rules.binding_wire_kg_per_tonne, 2)} \u2192 ${kg} kg (whole kg, up).`
       });
       lines.push({
         key: "binding_wire",
@@ -42112,7 +44874,7 @@ function calculateReinforcement(input, rules, prices) {
         quantity: kg,
         quantity_source: "rule_derived",
         unit: "kg",
-        detail: `${roundTo5(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t \u2192 ${kg} kg (visible planning allowance)`,
+        detail: `${roundTo6(totalMassKg / 1e3, 3)} t \xD7 ${rules.binding_wire_kg_per_tonne} kg/t \u2192 ${kg} kg (visible planning allowance)`,
         unit_price: price,
         line_total: price !== null ? money6(kg * price) : null
       });
@@ -42129,7 +44891,7 @@ function calculateReinforcement(input, rules, prices) {
       labourTotal = money6(totalMassKg / 1e3 * rate);
       steps.push({
         label: "Labour",
-        detail: `${roundTo5(totalMassKg / 1e3, 3)} t \xD7 ${rate} per tonne = ${labourTotal} (user-provided rate).`
+        detail: `${roundTo6(totalMassKg / 1e3, 3)} t \xD7 ${rate} per tonne = ${labourTotal} (user-provided rate).`
       });
     }
   } else if (input.labour.mode === "lump_sum") {
@@ -42177,7 +44939,7 @@ function calculateReinforcement(input, rules, prices) {
     warnings,
     steps,
     lines,
-    total_tonnage_kg: anyLength ? roundTo5(totalMassKg, 1) : null,
+    total_tonnage_kg: anyLength ? roundTo6(totalMassKg, 1) : null,
     priced_subtotal: pricedSubtotal,
     material_subtotal: materialSubtotal,
     labour_total: labourTotal,
@@ -42240,13 +45002,21 @@ function generateBarBendingSchedule(inputs, stockLengthM = 12) {
   const summaryByDiameter = {};
   for (const item of inputs) {
     const totalBars = item.numberOfMembers * item.barsPerMember;
-    const cutLengthM = calculateBarCutLength(item.shapeCode, item.dimensions, item.diameterMm);
+    const cutLengthM = calculateBarCutLength(
+      item.shapeCode,
+      item.dimensions,
+      item.diameterMm
+    );
     const totalLengthM = Math.round(totalBars * cutLengthM * 100) / 100;
     const unitWeight = NOMINAL_MASS_MAP[item.diameterMm] ?? item.diameterMm * item.diameterMm / 162;
     const totalMassKg = Math.round(totalLengthM * unitWeight * 10) / 10;
     totalTonnageKg += totalMassKg;
     if (!summaryByDiameter[item.diameterMm]) {
-      summaryByDiameter[item.diameterMm] = { totalLengthM: 0, totalPiecesStock: 0, totalMassKg: 0 };
+      summaryByDiameter[item.diameterMm] = {
+        totalLengthM: 0,
+        totalPiecesStock: 0,
+        totalMassKg: 0
+      };
     }
     summaryByDiameter[item.diameterMm].totalLengthM += totalLengthM;
     summaryByDiameter[item.diameterMm].totalMassKg += totalMassKg;
@@ -42286,6 +45056,10 @@ function generateBVBSString(items) {
 function bs8666MandrelDiameterMm(diameterMm) {
   return diameterMm <= 16 ? 4 * diameterMm : 7 * diameterMm;
 }
+function bendDeductionMm(diameterMm, angleDegrees, radiusMm = bs8666MandrelDiameterMm(diameterMm) / 2) {
+  const theta = angleDegrees * Math.PI / 180;
+  return 2 * (radiusMm + diameterMm) * Math.tan(theta / 2) - theta * (radiusMm + diameterMm / 2);
+}
 function bs8666LinkHookMm(diameterMm) {
   return Math.max(10 * diameterMm, 75);
 }
@@ -42306,6 +45080,7 @@ function bs8666CutLength(params) {
     bendRadiusMm: r,
     bendAllowanceMm: 0,
     hookAllowanceMm: 0,
+    hookBendDeductionMm: 0,
     formula: ""
   };
   if (!Number.isFinite(diameterMm) || diameterMm <= 0) {
@@ -42330,31 +45105,33 @@ function bs8666CutLength(params) {
   let cut = 0;
   let formula = "";
   let bends = 0;
+  let hookBendDeduction = 0;
   switch (shapeCode) {
     case "00": {
       cut = dims.a;
-      formula = `L = A = ${roundTo5(dims.a, 1)} mm`;
+      formula = `L = A = ${roundTo6(dims.a, 1)} mm`;
       break;
     }
     case "11": {
       const legs = dims.a + (dims.b ?? 0);
       cut = legs - 2 * (r + d) + quarterArc;
       bends = 1;
-      formula = `L = ${roundTo5(dims.a, 1)} + ${roundTo5(dims.b ?? 0, 1)} \u2212 2(${roundTo5(r, 1)} + ${d}) + (\u03C0/2)(${roundTo5(r, 1)} + ${d / 2}) = ${roundTo5(cut, 1)} mm`;
+      formula = `L = ${roundTo6(dims.a, 1)} + ${roundTo6(dims.b ?? 0, 1)} \u2212 2(${roundTo6(r, 1)} + ${d}) + (\u03C0/2)(${roundTo6(r, 1)} + ${d / 2}) = ${roundTo6(cut, 1)} mm`;
       break;
     }
     case "21": {
       const legs = dims.a + (dims.b ?? 0) + (dims.c ?? 0);
       cut = legs - 4 * (r + d) + 2 * quarterArc;
       bends = 2;
-      formula = `L = ${roundTo5(dims.a, 1)} + ${roundTo5(dims.b ?? 0, 1)} + ${roundTo5(dims.c ?? 0, 1)} \u2212 4(${roundTo5(r, 1)} + ${d}) + 2(\u03C0/2)(${roundTo5(r, 1)} + ${d / 2}) = ${roundTo5(cut, 1)} mm`;
+      formula = `L = ${roundTo6(dims.a, 1)} + ${roundTo6(dims.b ?? 0, 1)} + ${roundTo6(dims.c ?? 0, 1)} \u2212 4(${roundTo6(r, 1)} + ${d}) + 2(\u03C0/2)(${roundTo6(r, 1)} + ${d / 2}) = ${roundTo6(cut, 1)} mm`;
       break;
     }
     case "51": {
       const perimeter = 2 * (dims.a + (dims.b ?? 0));
-      cut = perimeter - 8 * (r + d) + 4 * quarterArc + 2 * hook;
+      hookBendDeduction = 2 * bendDeductionMm(d, 135, r);
+      cut = perimeter - 8 * (r + d) + 4 * quarterArc + 2 * hook - hookBendDeduction;
       bends = 4;
-      formula = `L = 2(${roundTo5(dims.a, 1)} + ${roundTo5(dims.b ?? 0, 1)}) \u2212 8(${roundTo5(r, 1)} + ${d}) + 4(\u03C0/2)(${roundTo5(r, 1)} + ${d / 2}) + 2 \xD7 ${roundTo5(hook, 1)} = ${roundTo5(cut, 1)} mm`;
+      formula = `L = 2(${roundTo6(dims.a, 1)} + ${roundTo6(dims.b ?? 0, 1)}) \u2212 8(${roundTo6(r, 1)} + ${d}) + 4(\u03C0/2)(${roundTo6(r, 1)} + ${d / 2}) + 2 \xD7 ${roundTo6(hook, 1)} \u2212 2 \xD7 ded(135\xB0) ${roundTo6(hookBendDeduction / 2, 1)} = ${roundTo6(cut, 1)} mm`;
       break;
     }
   }
@@ -42363,7 +45140,7 @@ function bs8666CutLength(params) {
     const v = dims[key];
     if (key !== "b" && v < minLeg) {
       warnings.push(
-        `Dimension ${key.toUpperCase()} (${roundTo5(v, 1)} mm) is below the minimum formable leg ${roundTo5(minLeg, 1)} mm for a ${d} mm bar.`
+        `Dimension ${key.toUpperCase()} (${roundTo6(v, 1)} mm) is below the minimum formable leg ${roundTo6(minLeg, 1)} mm for a ${d} mm bar.`
       );
     }
   }
@@ -42371,8 +45148,9 @@ function bs8666CutLength(params) {
     errors.push("Computed cut length is not positive; check the dimensions.");
     return {
       ...base,
-      bendAllowanceMm: roundTo5(bends * quarterArc, 2),
-      hookAllowanceMm: roundTo5(2 * hook, 2),
+      bendAllowanceMm: roundTo6(bends * quarterArc, 2),
+      hookAllowanceMm: roundTo6(2 * hook, 2),
+      hookBendDeductionMm: roundTo6(hookBendDeduction, 2),
       formula
     };
   }
@@ -42380,16 +45158,17 @@ function bs8666CutLength(params) {
     ok: true,
     errors,
     warnings,
-    cutLengthMm: roundTo5(cut, 1),
+    cutLengthMm: roundTo6(cut, 1),
     mandrelDiameterMm: mandrel,
     bendRadiusMm: r,
-    bendAllowanceMm: roundTo5(bends * quarterArc, 2),
-    hookAllowanceMm: roundTo5(2 * hook, 2),
+    bendAllowanceMm: roundTo6(bends * quarterArc, 2),
+    hookAllowanceMm: roundTo6(2 * hook, 2),
+    hookBendDeductionMm: roundTo6(hookBendDeduction, 2),
     formula
   };
 }
 function rebarKgPerMetre(diameterMm) {
-  return roundTo5(6165e-6 * diameterMm * diameterMm, 4);
+  return roundTo6(6165e-6 * diameterMm * diameterMm, 4);
 }
 function buildBarBendingSchedule(bars) {
   const rows = [];
@@ -42420,8 +45199,8 @@ function buildBarBendingSchedule(bars) {
       dims: bar.dims
     });
     const totalBars2 = members * perMember;
-    const totalLengthM2 = cut.ok && cut.cutLengthMm !== null ? roundTo5(cut.cutLengthMm * totalBars2 / 1e3, 3) : null;
-    const weightKg = totalLengthM2 !== null ? roundTo5(totalLengthM2 * rebarKgPerMetre(bar.diameterMm), 2) : null;
+    const totalLengthM2 = cut.ok && cut.cutLengthMm !== null ? roundTo6(cut.cutLengthMm * totalBars2 / 1e3, 3) : null;
+    const weightKg = totalLengthM2 !== null ? roundTo6(totalLengthM2 * rebarKgPerMetre(bar.diameterMm), 2) : null;
     for (const w of cut.warnings) warnings.push(`Bar ${mark}: ${w}`);
     for (const e of cut.errors) errors.push(`Bar ${mark}: ${e}`);
     rows.push({
@@ -42443,11 +45222,11 @@ function buildBarBendingSchedule(bars) {
     });
   }
   const totalBars = rows.reduce((s, r) => s + r.totalBars, 0);
-  const totalLengthM = roundTo5(
+  const totalLengthM = roundTo6(
     rows.reduce((s, r) => s + (r.totalLengthM ?? 0), 0),
     3
   );
-  const totalWeightKg = roundTo5(
+  const totalWeightKg = roundTo6(
     rows.reduce((s, r) => s + (r.weightKg ?? 0), 0),
     2
   );
@@ -42516,6 +45295,7 @@ var init_reinforcement_engine = __esm({
   "src/lib/estimation/reinforcement-engine.ts"() {
     init_define_import_meta_env();
     init_purchase_rounding();
+    init_universal_construction_math();
     DEFAULT_REINFORCEMENT_RULES = {
       rebar_lap_waste_pct: 0,
       binding_wire_kg_per_tonne: null
@@ -42603,7 +45383,7 @@ var init_reinforcement_engine = __esm({
         code: "51",
         name: "Closed link / stirrup (four 90\xB0 bends + 135\xB0 hooks)",
         requiredDims: ["a", "b"],
-        rule: "2(A + B) \u2212 8(r + d) + 4(\u03C0/2)(r + d/2) + 2\xB7hook, hook = max(10d, 75 mm)",
+        rule: "2(A + B) \u2212 4\xB7ded(90\xB0) + 2\xB7ded(135\xB0) + 2\xB7hook, hook = max(10d, 75 mm)",
         bends: 4,
         hasHooks: true
       }
@@ -42809,6 +45589,8 @@ __export(structural_calculator_exports, {
   CONCRETE_STANDARDS: () => CONCRETE_STANDARDS,
   JURISDICTION_CODES: () => JURISDICTION_CODES,
   STEEL_PROPS: () => STEEL_PROPS,
+  basicSpanDepthRatio: () => basicSpanDepthRatio,
+  columnMomentCapacityAtAxial: () => columnMomentCapacityAtAxial,
   computeDesignShearCapacity: () => computeDesignShearCapacity,
   defaultJurisdictionForMarket: () => defaultJurisdictionForMarket,
   designBeam: () => designBeam,
@@ -42823,6 +45605,19 @@ __export(structural_calculator_exports, {
   minReinforcementRatio: () => minReinforcementRatio,
   resolveConcreteGrade: () => resolveConcreteGrade
 });
+function concreteModulusGPa(grade) {
+  const round1 = (n) => Math.round(n * 10) / 10;
+  switch (grade.standard) {
+    case "eurocode_bs":
+      return round1(22 * Math.pow((grade.fck + 8) / 10, 0.3));
+    case "aci_astm":
+      return round1(4.7 * Math.sqrt(grade.fck));
+    case "is_456":
+      return round1(5 * Math.sqrt(grade.fck));
+    default:
+      return round1(20 + 0.2 * grade.fcu);
+  }
+}
 function getConcreteStandardForMarket(marketCode = "NG") {
   const code = (marketCode || "NG").trim().toUpperCase();
   if (code === "IN") return CONCRETE_STANDARDS.is_456;
@@ -42899,6 +45694,18 @@ function leverArmBS(moment_kNm, fcu, b, d) {
   const z = radicand >= 0 ? Math.min(d * (0.5 + Math.sqrt(radicand)), 0.95 * d) : 0.95 * d;
   return { z, K, doubly_reinforced: doubly };
 }
+function basicSpanDepthRatio(supportCondition) {
+  switch (supportCondition) {
+    case "cantilever":
+      return 7;
+    case "continuous":
+    case "fixed":
+      return 26;
+    case "simply_supported":
+    default:
+      return 20;
+  }
+}
 function designSteelACI(moment_kNm, fc_psi_grade_fck, fy, b, d) {
   const phi = 0.9;
   const Mu = moment_kNm * 1e6;
@@ -42919,7 +45726,7 @@ function designSteelACI(moment_kNm, fc_psi_grade_fck, fy, b, d) {
 function minSteelACI(fck, fy, b, d) {
   return Math.max(0.25 * Math.sqrt(fck) / fy, 1.4 / fy) * b * d;
 }
-function designBeam(input) {
+function designBeamAtSpan(input, effectiveSpanOverride) {
   const warnings = [];
   const formulas = [];
   const concretePreset = resolveConcreteGrade(
@@ -42931,13 +45738,21 @@ function designBeam(input) {
   formulas.push(
     `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) \u2014 f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`
   );
-  const effective_span = input.span + 0.1;
-  formulas.push(
-    `Effective span = clear span + 0.1 = ${input.span} + 0.1 = ${effective_span.toFixed(2)} m`
-  );
+  const preliminary_depth_mm = input.existing_depth ?? input.span * 83.33;
+  const preliminary_d_mm = Math.max(150, preliminary_depth_mm - input.cover_mm);
+  const effective_span = effectiveSpanOverride ?? input.span + preliminary_d_mm / 1e3;
+  if (effectiveSpanOverride !== void 0) {
+    formulas.push(
+      `Effective span = clear span + d = ${input.span} + ${(effective_span - input.span).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1, with d taken from the section finally recommended)`
+    );
+  } else {
+    formulas.push(
+      `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1e3).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`
+    );
+  }
   const total_dead = input.dead_load * input.tributary_width;
   const total_live = input.live_load * input.tributary_width;
-  const design_load = total_dead + total_live;
+  const service_load = total_dead + total_live;
   const lf = loadFactors(
     input.jurisdiction_code ? jurisdictionStandard(input.jurisdiction_code) : concretePreset.standard
   );
@@ -42976,7 +45791,14 @@ function designBeam(input) {
   const ms = resolveMemberSizing(
     input.market_code ?? "NG"
   );
-  const assumed_width = input.existing_width ?? ms.beamWidthMm ?? 200;
+  const MIN_PRACTICAL_BEAM_WIDTH_MM = 200;
+  const marketBeamWidth = ms.beamWidthMm !== null && ms.beamWidthMm >= MIN_PRACTICAL_BEAM_WIDTH_MM ? ms.beamWidthMm : MIN_PRACTICAL_BEAM_WIDTH_MM;
+  if (!input.existing_width && ms.beamWidthMm !== null && ms.beamWidthMm < MIN_PRACTICAL_BEAM_WIDTH_MM) {
+    warnings.push(
+      `The ${ms.marketCode} wall width (${ms.beamWidthMm} mm) is a masonry dimension, not a beam width. A ${MIN_PRACTICAL_BEAM_WIDTH_MM} mm beam is assumed so two bars, links and cover fit. Enter your own width to override.`
+    );
+  }
+  const assumed_width = input.existing_width ?? marketBeamWidth;
   if (!input.existing_width && ms.beamWidthMm === null) {
     warnings.push(ms.beamWidthBasis);
     if (!ms.verified)
@@ -42986,6 +45808,8 @@ function designBeam(input) {
   }
   let required_depth_eff;
   let doubly_reinforced = false;
+  let compression_As = 0;
+  let compression_steel_yields = true;
   if (concretePreset.standard === "aci_astm") {
     const fck = concretePreset.fck ?? fcu;
     const rho = 0.18 * fck / fy;
@@ -43008,41 +45832,45 @@ function designBeam(input) {
   formulas.push(
     `Required overall depth = ${required_depth_eff.toFixed(0)} + ${input.cover_mm} (cover) + 25 (bar/2) = ${required_depth.toFixed(0)} mm`
   );
-  const span_to_depth = effective_span * 1e3 / required_depth_eff;
-  const basicRatio = input.support_condition === "cantilever" ? 7 : input.support_condition === "continuous" ? 26 : 20;
-  const deflection_check_pass = span_to_depth <= basicRatio;
+  const steelDepth = input.existing_depth ? Math.max(120, input.existing_depth - input.cover_mm - 25) : required_depth_eff;
+  if (input.existing_depth) {
+    formulas.push(
+      `Steel and shear capacity taken on the supplied section's effective depth of ${steelDepth.toFixed(0)} mm, not the ${required_depth_eff.toFixed(0)} mm bending minimum`
+    );
+  }
+  const basicRatio = basicSpanDepthRatio(input.support_condition);
   formulas.push(
-    `Span/depth = ${(effective_span * 1e3).toFixed(0)} / ${required_depth_eff.toFixed(0)} = ${span_to_depth.toFixed(1)} \u2264 ${basicRatio} (limit) \u2192 ${deflection_check_pass ? "PASS" : "FAIL"}`
+    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} member = ${basicRatio}`
   );
   let As;
   let min_As;
-  const max_As = 4 * assumed_width * required_depth_eff / 100;
+  const max_As = 4 * assumed_width * steelDepth / 100;
   if (concretePreset.standard === "aci_astm") {
     const aci = designSteelACI(
       max_moment,
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      required_depth_eff
+      steelDepth
     );
     As = aci.As;
     min_As = minSteelACI(
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      required_depth_eff
+      steelDepth
     );
     formulas.push(
       `Steel area required (ACI 318-19, Whitney block, \u03C6=0.90) = ${As.toFixed(0)} mm\xB2 (stress block a = ${aci.a.toFixed(1)} mm)`
     );
     formulas.push(`Min steel (ACI 318-19 \xA79.6.1.2) = ${min_As.toFixed(0)} mm\xB2`);
   } else {
-    const la = leverArmBS(max_moment, fcu, assumed_width, required_depth_eff);
+    const la = leverArmBS(max_moment, fcu, assumed_width, steelDepth);
     doubly_reinforced = la.doubly_reinforced;
     As = max_moment * 1e6 / (0.87 * fy * la.z);
-    min_As = concretePreset.standard === "is_456" ? 0.85 / fy * assumed_width * required_depth_eff : 0.13 * assumed_width * required_depth_eff / 100;
+    min_As = concretePreset.standard === "is_456" ? 0.85 / fy * assumed_width * steelDepth : (fy <= 300 ? 24e-4 : 13e-4) * assumed_width * steelDepth;
     formulas.push(
-      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} \xD7 ${assumed_width} \xD7 ${required_depth_eff.toFixed(0)}\xB2) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 \u2192 doubly reinforced required" : ""}`
+      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} \xD7 ${assumed_width} \xD7 ${steelDepth.toFixed(0)}\xB2) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 \u2192 doubly reinforced required" : ""}`
     );
     formulas.push(
       `z = d(0.5 + \u221A(0.25 \u2212 K/0.9)) = ${la.z.toFixed(0)} mm (\u2264 0.95d)`
@@ -43051,12 +45879,53 @@ function designBeam(input) {
       `Steel area required = ${(max_moment * 1e6).toFixed(0)} / (0.87 \xD7 ${fy} \xD7 ${la.z.toFixed(0)}) = ${As.toFixed(0)} mm\xB2`
     );
     formulas.push(
-      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy \xD7 b \xD7 d (IS 456)" : "0.13% \xD7 b \xD7 d (BS 8110)"} = ${min_As.toFixed(0)} mm\xB2`
+      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy \xD7 b \xD7 d (IS 456 26.5.1.1)" : `${fy <= 300 ? "0.24" : "0.13"}% \xD7 b \xD7 d (BS 8110-1 Table 3.25, fy = ${fy})`} = ${min_As.toFixed(0)} mm\xB2`
     );
     if (la.doubly_reinforced) {
-      warnings.push(
-        `K = ${la.K.toFixed(4)} > 0.156: the section needs compression steel (doubly reinforced) or a deeper section. This preliminary pass sizes tension steel only \u2014 a full doubly-reinforced design is required.`
+      const kPrime = 0.156;
+      const zPrime = 0.775 * steelDepth;
+      const momentSingle = kPrime * fcu * assumed_width * steelDepth ** 2 / 1e6;
+      const momentExcess = max_moment - momentSingle;
+      const dPrime = Math.min(input.cover_mm + 25, 0.5 * steelDepth);
+      const leverCompression = Math.max(steelDepth - dPrime, 0.5 * steelDepth);
+      const asPrime = momentExcess * 1e6 / (0.87 * fy * leverCompression);
+      const asSingle = momentSingle * 1e6 / (0.87 * fy * zPrime);
+      compression_As = asPrime;
+      As = asSingle + asPrime;
+      formulas.push(
+        `Doubly reinforced (BS 8110-1 Cl 3.4.4.4): the section carries ${momentSingle.toFixed(1)} kN\xB7m at K\u2032 = 0.156, leaving ${momentExcess.toFixed(1)} kN\xB7m for the steel couple`
       );
+      formulas.push(
+        `Compression steel A\u2032_s = ${(momentExcess * 1e6).toFixed(0)} / (0.87 \xD7 ${fy} \xD7 (${steelDepth.toFixed(0)} \u2212 ${dPrime.toFixed(0)})) = ${asPrime.toFixed(0)} mm\xB2`
+      );
+      formulas.push(
+        `Tension steel = ${asSingle.toFixed(0)} mm\xB2 for the singly reinforced part + ${asPrime.toFixed(0)} mm\xB2 to balance the compression steel = ${As.toFixed(0)} mm\xB2`
+      );
+      warnings.push(
+        `K = ${la.K.toFixed(4)} > 0.156, so the section is doubly reinforced: ${Math.ceil(asPrime)} mm\xB2 of compression steel is required in addition to the tension steel. Check the compression steel is held by links and that d\u2032 (${dPrime.toFixed(0)} mm) is achievable.`
+      );
+      const a2 = 0.27 * fcu * assumed_width;
+      const b2 = -0.6 * fcu * assumed_width * steelDepth;
+      const c2 = momentSingle * 1e6;
+      const disc = b2 * b2 - 4 * a2 * c2;
+      if (disc >= 0) {
+        const xDepth = (-b2 - Math.sqrt(disc)) / (2 * a2);
+        const dPrimeOverX = dPrime / xDepth;
+        formulas.push(
+          `Compression-zone depth from the concrete part: x = ${xDepth.toFixed(0)} mm, d\u2032/x = ${dPrimeOverX.toFixed(2)}`
+        );
+        const yieldStrain = 0.87 * fy / 2e5;
+        const dPrimeOverXLimit = 1 - yieldStrain / 35e-4;
+        formulas.push(
+          `Compression steel yields while d\u2032/x \u2264 ${dPrimeOverXLimit.toFixed(3)} (\u03B5_cu = 0.0035, \u03B5_yd = 0.87f_y/E_s = ${yieldStrain.toFixed(5)})`
+        );
+        if (dPrimeOverX > dPrimeOverXLimit) {
+          compression_steel_yields = false;
+          warnings.push(
+            `d\u2032/x = ${dPrimeOverX.toFixed(2)} exceeds the ${dPrimeOverXLimit.toFixed(2)} at which the compression steel reaches 0.87 f_y, so A\u2032_s of ${Math.ceil(asPrime)} mm\xB2 is NOT sufficient: deepen the section or move the compression steel closer to the face.`
+          );
+        }
+      }
     }
   }
   let beamJurisdiction;
@@ -43067,16 +45936,11 @@ function designBeam(input) {
       fck: concretePreset.fck ?? fcu,
       fy,
       b: assumed_width,
-      d: required_depth_eff
+      d: steelDepth
     });
     min_As = minSteel.areaMm2;
     formulas.push(
-      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} \xD7 ${assumed_width} \xD7 ${required_depth_eff.toFixed(0)} = ${min_As.toFixed(0)} mm\xB2`
-    );
-  }
-  if (doubly_reinforced) {
-    warnings.push(
-      "Section flagged as singly-reinforced-infeasible: increase depth or design compression reinforcement. Treat output as preliminary."
+      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} \xD7 ${assumed_width} \xD7 ${steelDepth.toFixed(0)} = ${min_As.toFixed(0)} mm\xB2`
     );
   }
   let bestDiameter = 16;
@@ -43095,24 +45959,122 @@ function designBeam(input) {
       `Provided steel (${provided_As.toFixed(0)} mm\xB2) is below minimum (${min_As.toFixed(0)} mm\xB2). Increase bar count.`
     );
   }
-  const vc = 0.79 * Math.pow(fcu / 25, 1 / 3) * Math.pow(
-    100 * provided_As / (assumed_width * required_depth_eff),
-    1 / 3
-  ) * (400 / required_depth_eff) ** 0.25;
-  const shear_capacity = vc * assumed_width * required_depth_eff / 1e3;
+  const vcSteelPct = Math.min(
+    100 * provided_As / (assumed_width * steelDepth),
+    2
+  );
+  const vcDepthCap = Math.min(steelDepth, 400);
+  const vcConcreteCap = Math.min(fcu, 40);
+  const vcRaw = 0.79 / 1.25 * Math.pow(vcConcreteCap / 25, 1 / 3) * Math.pow(vcSteelPct, 1 / 3) * Math.pow(400 / vcDepthCap, 0.25);
+  const vcCeiling = Math.min(0.8 * Math.sqrt(vcConcreteCap), 5);
+  const vcBase = Math.min(vcRaw, vcCeiling);
+  let shearEnhancement = 1;
+  if (input.load_av_mm !== void 0 && input.load_av_mm > 0 && input.load_av_mm < 2 * steelDepth) {
+    shearEnhancement = Math.min(2, 2 * steelDepth / input.load_av_mm);
+  }
+  const vc = Math.min(vcBase * shearEnhancement, vcCeiling * 2);
+  if (vcRaw > vcCeiling) {
+    formulas.push(
+      `v_c = ${vcRaw.toFixed(2)} MPa capped to ${vcCeiling.toFixed(2)} MPa (BS 8110-1 Table 3.8: min(0.8\u221Af_cu, 5))`
+    );
+  }
+  const shear_capacity = vc * assumed_width * steelDepth / 1e3;
+  if (shearEnhancement > 1) {
+    formulas.push(
+      `Shear enhancement (BS 8110-1 Cl 3.4.5.8): a_v = ${input.load_av_mm.toFixed(0)} mm < 2d, so v_c is multiplied by 2d/a_v = ${shearEnhancement.toFixed(2)} \u2192 ${vc.toFixed(2)} N/mm\xB2`
+    );
+  }
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
-    `Shear capacity v_c \xD7 b \xD7 d = ${vc.toFixed(2)} \xD7 ${assumed_width} \xD7 ${required_depth_eff.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN \u2192 ${shear_check_pass ? "PASS" : "FAIL"}`
+    `Shear capacity v_c \xD7 b \xD7 d = ${vc.toFixed(2)} \xD7 ${assumed_width} \xD7 ${steelDepth.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN \u2192 ${shear_check_pass ? "PASS" : "FAIL"}`
   );
   if (!shear_check_pass) {
     warnings.push(
       `Shear capacity insufficient. Provide shear reinforcement (links) at closer spacing or increase section.`
     );
   }
-  const recommended_depth = roundUpTo50(required_depth);
+  const depthForDeflection = effective_span * 1e3 / basicRatio + input.cover_mm + 25;
+  const requiredDepthGoverning = Math.max(required_depth, depthForDeflection);
+  let recommended_depth = input.existing_depth ?? roundUpTo50(requiredDepthGoverning);
+  if (input.existing_depth) {
+    formulas.push(
+      `Section taken as supplied: ${input.existing_width ?? assumed_width} \xD7 ${input.existing_depth} mm, with steel, its minimum and shear capacity designed on that section.`
+    );
+    if (input.existing_depth < required_depth - 1) {
+      warnings.push(
+        `The supplied depth (${input.existing_depth} mm) is less than the ${required_depth.toFixed(0)} mm needed for bending. Treat the steel figures as indicative and deepen the section.`
+      );
+    }
+  }
   const recommended_width = assumed_width;
+  const providedFlowSteel = bestCount * barArea(bestDiameter);
+  const mfBasic = Math.max(As, min_As);
+  const beffFs = 2 / 3 * fy * (Math.min(mfBasic, providedFlowSteel) / Math.max(providedFlowSteel, 1));
+  let providedDepthEff = recommended_depth - input.cover_mm - 25;
+  let span_to_depth = effective_span * 1e3 / providedDepthEff;
+  let beffStress = max_moment * 1e6 / (assumed_width * providedDepthEff * providedDepthEff);
+  let beamModFactor = Math.min(
+    2,
+    Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress)))
+  );
+  let beamAllowableRatio = basicRatio * beamModFactor;
+  let depthSteps = 0;
+  while (span_to_depth > beamAllowableRatio && depthSteps < 24 && !input.existing_depth) {
+    recommended_depth += 50;
+    depthSteps += 1;
+    providedDepthEff = recommended_depth - input.cover_mm - 25;
+    span_to_depth = effective_span * 1e3 / providedDepthEff;
+    beffStress = max_moment * 1e6 / (assumed_width * providedDepthEff * providedDepthEff);
+    beamModFactor = Math.min(
+      2,
+      Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress)))
+    );
+    beamAllowableRatio = basicRatio * beamModFactor;
+  }
+  if (depthSteps > 0 && span_to_depth <= beamAllowableRatio) {
+    formulas.push(
+      `Depth increased by ${depthSteps} \xD7 50 mm to ${recommended_depth} mm so the deflection check passes on the modification factor, not just the basic ratio.`
+    );
+  }
+  const deflection_check_pass = span_to_depth <= beamAllowableRatio;
+  if (!input.existing_depth && recommended_depth > required_depth + 1) {
+    formulas.push(
+      `Tension steel is sized on the ${steelDepth.toFixed(0)} mm bending-minimum effective depth, not the ${Math.max(120, recommended_depth - input.cover_mm - 25).toFixed(0)} mm effective depth of the recommended ${recommended_depth} mm section: the steel is therefore conservative by design and is not reduced for the deeper section.`
+    );
+  }
+  if (requiredDepthGoverning > required_depth + 1) {
+    formulas.push(
+      `Depth set by deflection, not bending: ${depthForDeflection.toFixed(0)} mm required for L/d \u2264 ${basicRatio}, against ${required_depth.toFixed(0)} mm for bending.`
+    );
+  }
+  formulas.push(
+    `Span/depth on the recommended section = ${(effective_span * 1e3).toFixed(0)} / ${providedDepthEff.toFixed(0)} = ${span_to_depth.toFixed(1)}; allowable = ${basicRatio} \xD7 ${beamModFactor.toFixed(2)} (BS 8110-1 Cl 3.4.6.5, f_s = ${beffFs.toFixed(0)} N/mm\xB2) = ${beamAllowableRatio.toFixed(1)} \u2192 ${deflection_check_pass ? "PASS" : "FAIL"}`
+  );
   const link_diameter = bestDiameter >= 20 ? 10 : 8;
-  const link_spacing = Math.min(300, 0.75 * required_depth_eff);
+  const maxLinkSpacing = Math.min(300, 0.75 * required_depth_eff);
+  const shearExcessKN = max_shear - shear_capacity;
+  const shearLinksRequired = shearExcessKN > 0;
+  let designedLinkSpacing = maxLinkSpacing;
+  if (shearLinksRequired) {
+    const asv = 2 * barArea(link_diameter);
+    const requiredAsvPerSv = shearExcessKN * 1e3 / (0.95 * fy * required_depth_eff);
+    designedLinkSpacing = Math.min(maxLinkSpacing, asv / requiredAsvPerSv);
+    formulas.push(
+      `Shear links: Asv/sv = ${(shearExcessKN * 1e3).toFixed(0)} / (0.95 \xD7 ${fy} \xD7 ${required_depth_eff.toFixed(0)}) = ${requiredAsvPerSv.toFixed(3)} mm\xB2/mm; Y${link_diameter} two-leg links (Asv = ${asv.toFixed(0)} mm\xB2) at ${Math.floor(designedLinkSpacing / 25) * 25} mm c/c`
+    );
+  } else {
+    formulas.push(
+      `Shear links: concrete alone carries ${shear_capacity.toFixed(1)} kN \u2265 ${max_shear.toFixed(1)} kN, so nominal Y${link_diameter} links at ${Math.floor(maxLinkSpacing / 25) * 25} mm c/c (0.75d, BS 8110-1 Cl 3.4.5.1)`
+    );
+  }
+  const link_spacing = Math.max(75, Math.floor(designedLinkSpacing / 25) * 25);
+  const maxShearStress = Math.min(0.8 * Math.sqrt(fcu), 5);
+  const appliedShearStress = max_shear * 1e3 / (assumed_width * required_depth_eff);
+  if (appliedShearStress > maxShearStress) {
+    warnings.push(
+      `Applied shear stress ${appliedShearStress.toFixed(2)} N/mm\xB2 exceeds the ${maxShearStress.toFixed(2)} N/mm\xB2 section limit (BS 8110-1 Cl 3.4.5.2). Increase the section; links alone cannot fix this.`
+    );
+  }
   if (input.beam_type === "ground_beam") {
     if (ms.marketCode === "NG") {
       if (recommended_depth < 450) warnings.push(ms.groundBeamNote);
@@ -43123,15 +46085,20 @@ function designBeam(input) {
   if (input.beam_type === "lintel" && recommended_depth > 450) {
     warnings.push(ms.lintelNote);
   }
-  if (span_to_depth > basicRatio) {
+  if (As > max_As) {
     warnings.push(
-      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase beam depth.`
+      `Required steel ${Math.ceil(As)} mm\xB2 exceeds the 4 % practical maximum for this section (${Math.ceil(max_As)} mm\xB2). No bar arrangement will fit: deepen the beam or widen it rather than adding steel.`
+    );
+  }
+  if (!deflection_check_pass) {
+    warnings.push(
+      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > allowable ${beamAllowableRatio.toFixed(1)} after the modification factor). Increase beam depth.`
     );
   }
   return {
     span: input.span,
     effective_span,
-    design_load,
+    design_load: factored_load,
     factored_load,
     max_moment,
     max_shear,
@@ -43140,6 +46107,8 @@ function designBeam(input) {
     recommended_depth,
     recommended_width,
     area_steel_required: Math.ceil(As),
+    compression_steel_area: Math.ceil(compression_As),
+    compression_steel_yields,
     min_steel_area: Math.ceil(min_As),
     max_steel_area: Math.ceil(max_As),
     recommended_bar_diameter: bestDiameter,
@@ -43148,6 +46117,7 @@ function designBeam(input) {
     link_spacing: Math.round(link_spacing),
     shear_capacity: Math.round(shear_capacity * 10) / 10,
     shear_check_pass,
+    shear_links_required: shearLinksRequired,
     deflection_check_pass,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     ...beamJurisdiction ? {
@@ -43158,6 +46128,73 @@ function designBeam(input) {
     } : {},
     warnings,
     formula_transparency: formulas
+  };
+}
+function designBeam(input) {
+  let result = designBeamAtSpan(input);
+  for (let pass = 0; pass < 4; pass++) {
+    const finalD = Math.max(
+      150,
+      result.recommended_depth - input.cover_mm - 25
+    );
+    const impliedSpan = input.span + finalD / 1e3;
+    if (Math.abs(impliedSpan - result.effective_span) < 1e-3) break;
+    result = designBeamAtSpan(input, impliedSpan);
+  }
+  return result;
+}
+function columnMomentCapacityAtAxial(params) {
+  const { b, h, fcu, fy, totalSteelArea, axialKn } = params;
+  const dPrime = Math.max(params.coverToBarCentre, 20);
+  const halfSteel = totalSteelArea / 2;
+  const dTension = Math.max(h - dPrime, dPrime + 1);
+  const fcd = 0.67 * fcu / 1.5;
+  const epsCu = 35e-4;
+  const Es = 2e5;
+  const fsMax = 0.87 * fy;
+  const sectionResponse = (x) => {
+    const a = Math.min(0.9 * x, h);
+    const cc = fcd * b * a;
+    const strainTop = epsCu * (x - dPrime) / x;
+    const strainBot = epsCu * (x - dTension) / x;
+    const fsTop = Math.max(-fsMax, Math.min(fsMax, Es * strainTop));
+    const fsBot = Math.max(-fsMax, Math.min(fsMax, Es * strainBot));
+    const fTop = fsTop * halfSteel;
+    const fBot = fsBot * halfSteel;
+    const axialN = cc + fTop + fBot;
+    const centroid = h / 2;
+    const momentNmm = cc * (centroid - a / 2) + fTop * (centroid - dPrime) + fBot * (centroid - dTension);
+    return { axialN, momentKnm: Math.abs(momentNmm) / 1e6 };
+  };
+  const samples = [];
+  for (let i = 1; i <= 200; i++) {
+    const x = i / 200 * 4 * h;
+    const r = sectionResponse(x);
+    samples.push({ n: r.axialN / 1e3, m: r.momentKnm });
+  }
+  let capacity = 0;
+  let axialAtSample = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const a = samples[i - 1];
+    const c = samples[i];
+    const spans = (a.n - axialKn) * (c.n - axialKn) <= 0;
+    if (!spans || a.n === c.n) continue;
+    const f = (axialKn - a.n) / (c.n - a.n);
+    const m = a.m + f * (c.m - a.m);
+    if (m > capacity) {
+      capacity = m;
+      axialAtSample = axialKn;
+    }
+  }
+  return { momentCapacityKnm: capacity, axialAtSample };
+}
+function columnSteelFactor(standard) {
+  if (standard === "is_456") {
+    return { factor: 0.67, clause: "IS 456 Cl 39.3 (0.67 f_y)" };
+  }
+  return {
+    factor: 0.8,
+    clause: standard === "aci_astm" ? "BS 8110-1 Cl 3.8.4.3 eq. 38 (0.8 f_y), applied to the ACI grade because ACI 318 uses a full interaction diagram instead of a single axial expression" : "BS 8110-1 Cl 3.8.4.3 eq. 38 (0.8 f_y)"
   };
 }
 function designColumn(input) {
@@ -43172,15 +46209,16 @@ function designColumn(input) {
   formulas.push(
     `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) \u2014 f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`
   );
+  const steelFactor = columnSteelFactor(concretePreset.standard);
   const lfCol = loadFactors(concretePreset.standard);
   const factored_load = lfCol.dead * input.axial_load;
   formulas.push(
     `Factored load = ${lfCol.dead} \xD7 ${input.axial_load} (${lfCol.label}, axial-governed) = ${factored_load.toFixed(1)} kN`
   );
   const rho_initial = 0.02;
-  const required_area = factored_load * 1e3 / (0.4 * fcu + 0.67 * fy * rho_initial);
+  const required_area = factored_load * 1e3 / (0.4 * fcu + steelFactor.factor * fy * rho_initial);
   formulas.push(
-    `Required area = ${factored_load * 1e3} / (0.4 \xD7 ${fcu} + 0.67 \xD7 ${fy} \xD7 0.02) = ${required_area.toFixed(0)} mm\xB2`
+    `Required area = ${factored_load * 1e3} / (0.4 \xD7 ${fcu} + ${steelFactor.factor} \xD7 ${fy} \xD7 0.02) = ${required_area.toFixed(0)} mm\xB2 (${steelFactor.clause})`
   );
   let recommended_width;
   let recommended_depth;
@@ -43202,18 +46240,30 @@ function designColumn(input) {
   formulas.push(
     `Section: ${recommended_width} \xD7 ${recommended_depth} = ${gross_area} mm\xB2`
   );
-  const slenderness_ratio = input.height * 1e3 / Math.min(recommended_width, recommended_depth);
+  const leFactor = Number.isFinite(input.effective_length_factor) && input.effective_length_factor > 0 ? input.effective_length_factor : 1;
+  if (leFactor < 0.5 || leFactor > 3) {
+    warnings.push(
+      `Effective-length factor ${leFactor} is outside 0.5 to 3.0. Check the restraint conditions: BS 8110-1 Table 3.19 gives 0.75 for a braced, restrained column, 1.0 braced, 1.5 to 2.2 unbraced or cantilever.`
+    );
+  }
+  const effectiveLengthMm = input.height * 1e3 * leFactor;
+  const slenderness_ratio = effectiveLengthMm / Math.min(recommended_width, recommended_depth);
   const is_short = slenderness_ratio <= 15;
   formulas.push(
-    `Slenderness ratio = ${input.height * 1e3} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} \u2192 ${is_short ? "short column" : "slender column"}`
+    `Effective length = ${input.height} m \xD7 ${leFactor} = ${(effectiveLengthMm / 1e3).toFixed(2)} m; slenderness = ${effectiveLengthMm.toFixed(0)} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} \u2192 ${is_short ? "short column" : "slender column"}`
   );
+  if (Number.isFinite(input.unbraced_height_ratio) && input.unbraced_height_ratio > 0 && Math.abs(input.unbraced_height_ratio - slenderness_ratio) / slenderness_ratio > 0.25) {
+    warnings.push(
+      `The supplied height/thickness ratio (${input.unbraced_height_ratio}) differs from the slenderness of the section sized here (${slenderness_ratio.toFixed(1)}). The section drives this check; the supplied value is ignored rather than silently mixed in.`
+    );
+  }
   const h_min = Math.min(recommended_width, recommended_depth);
-  const e_min = Math.max(h_min / 300, 20);
+  const e_min = Math.max(0.05 * h_min, 20);
   const M_min = factored_load * e_min / 1e3;
   let total_design_moment = M_min;
   let M_add = 0;
   formulas.push(
-    `Minimum design moment: e_min = max(${h_min}/300, 20) = ${e_min.toFixed(1)} mm \u2192 M_min = ${factored_load.toFixed(1)} \xD7 ${e_min.toFixed(1)}/1000 = ${M_min.toFixed(1)} kN\xB7m`
+    `Minimum design moment: e_min = max(0.05 \xD7 ${h_min}, 20) = ${e_min.toFixed(1)} mm (BS 8110-1 Cl 3.8.2.4) \u2192 M_min = ${factored_load.toFixed(1)} \xD7 ${e_min.toFixed(1)}/1000 = ${M_min.toFixed(1)} kN\xB7m`
   );
   if (!is_short) {
     M_add = factored_load * (h_min / 2e3) * Math.pow(slenderness_ratio, 2) / 1e3;
@@ -43225,7 +46275,7 @@ function designColumn(input) {
   formulas.push(
     `Total design moment = M_min ${M_min.toFixed(1)} kN\xB7m${M_add ? ` + M_add ${M_add.toFixed(1)} kN\xB7m` : ""} = ${total_design_moment.toFixed(1)} kN\xB7m`
   );
-  const steel_area_axial = (factored_load * 1e3 - 0.4 * fcu * gross_area) / (0.67 * fy);
+  const steel_area_axial = (factored_load * 1e3 - 0.4 * fcu * gross_area) / (steelFactor.factor * fy);
   const h_bend = Math.max(recommended_width, recommended_depth);
   const b_bend = h_min;
   const d_col = Math.max(h_bend - 50, 50);
@@ -43233,7 +46283,7 @@ function designColumn(input) {
   const steel_area_bending = total_design_moment * 1e6 / (0.87 * fy * la_col.z);
   const steel_area = steel_area_axial + steel_area_bending;
   formulas.push(
-    `Axial steel = (${(factored_load * 1e3).toFixed(0)} \u2212 0.4 \xD7 ${fcu} \xD7 ${gross_area}) / (0.67 \xD7 ${fy}) = ${steel_area_axial.toFixed(0)} mm\xB2`
+    `Axial steel = (${(factored_load * 1e3).toFixed(0)} \u2212 0.4 \xD7 ${fcu} \xD7 ${gross_area}) / (${steelFactor.factor} \xD7 ${fy}) = ${steel_area_axial.toFixed(0)} mm\xB2`
   );
   formulas.push(
     `Bending steel (M=${total_design_moment.toFixed(1)} kN\xB7m, z=${la_col.z.toFixed(0)} mm) = ${(total_design_moment * 1e6).toFixed(0)} / (0.87 \xD7 ${fy} \xD7 ${la_col.z.toFixed(0)}) = ${steel_area_bending.toFixed(0)} mm\xB2`
@@ -43246,33 +46296,79 @@ function designColumn(input) {
   const final_steel = Math.max(steel_area, min_steel);
   const steel_ratio = final_steel / gross_area * 100;
   formulas.push(
-    `Steel area = (${(factored_load * 1e3).toFixed(0)} - 0.4 \xD7 ${fcu} \xD7 ${gross_area}) / (0.67 \xD7 ${fy}) = ${steel_area.toFixed(0)} mm\xB2`
+    `Steel area = (${(factored_load * 1e3).toFixed(0)} - 0.4 \xD7 ${fcu} \xD7 ${gross_area}) / (${steelFactor.factor} \xD7 ${fy}) = ${steel_area.toFixed(0)} mm\xB2`
   );
   formulas.push(
     `Steel ratio = ${final_steel.toFixed(0)} / ${gross_area} \xD7 100 = ${steel_ratio.toFixed(2)}%`
   );
-  let bestDiameter = 16;
-  let bestCount = Math.max(4, Math.ceil(final_steel / barArea(16)));
-  for (const d of BAR_DIAMETERS) {
-    const count = Math.max(4, Math.ceil(final_steel / barArea(d)));
-    if (count >= 4 && count <= 12) {
+  const COLUMN_BAR_DIAMETERS = [12, 16, 20, 25, 32];
+  const COLUMN_BAR_COUNTS = [4, 6, 8, 10, 12];
+  let bestDiameter = COLUMN_BAR_DIAMETERS[0];
+  let bestCount = 4;
+  let foundScheme = false;
+  for (const d of COLUMN_BAR_DIAMETERS) {
+    const needed = Math.ceil(final_steel / barArea(d));
+    const count = COLUMN_BAR_COUNTS.find((c) => c >= Math.max(4, needed));
+    if (count !== void 0) {
       bestDiameter = d;
       bestCount = count;
+      foundScheme = true;
       break;
     }
   }
+  if (!foundScheme) {
+    bestDiameter = COLUMN_BAR_DIAMETERS[COLUMN_BAR_DIAMETERS.length - 1];
+    bestCount = 12;
+    warnings.push(
+      `Required steel (${final_steel.toFixed(0)} mm\xB2) exceeds twelve 32 mm bars. Increase the column section rather than crowding the cage.`
+    );
+  }
   const link_diameter = bestDiameter >= 25 ? 10 : 8;
-  const link_spacing = Math.min(
-    recommended_width * 0.75,
-    300,
-    12 * bestDiameter
-  );
+  const lesserDimension = h_min;
+  const link_spacing = Math.min(lesserDimension * 0.75, 300, 12 * bestDiameter);
   const provided_steel = bestCount * barArea(bestDiameter);
-  const load_capacity = (0.4 * fcu * gross_area + 0.67 * fy * provided_steel) / 1e3;
-  const capacity_check_pass = load_capacity >= factored_load;
+  const load_capacity = (0.4 * fcu * gross_area + steelFactor.factor * fy * provided_steel) / 1e3;
+  const axial_check_pass = load_capacity >= factored_load;
   formulas.push(
-    `Capacity = (0.4 \xD7 ${fcu} \xD7 ${gross_area} + 0.67 \xD7 ${fy} \xD7 ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN \u2265 ${factored_load.toFixed(1)} kN \u2192 ${capacity_check_pass ? "PASS" : "FAIL"}`
+    `Axial capacity = (0.4 \xD7 ${fcu} \xD7 ${gross_area} + 0.67 \xD7 ${fy} \xD7 ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN \u2265 ${factored_load.toFixed(1)} kN \u2192 ${axial_check_pass ? "PASS" : "FAIL"} (0.67 on the steel term is conservative: BS 8110-1 Cl 3.8.3 gives 0.75)`
   );
+  const nominalCoverMm = Number.isFinite(input.cover_mm) && input.cover_mm >= 15 ? input.cover_mm : 25;
+  if (nominalCoverMm !== input.cover_mm) {
+    warnings.push(
+      `Cover of ${input.cover_mm} mm is below 15 mm or missing; 25 mm was used. Confirm the exposure condition.`
+    );
+  }
+  const coverToBarCentre = nominalCoverMm + link_diameter + bestDiameter / 2;
+  const interaction = columnMomentCapacityAtAxial({
+    b: b_bend,
+    h: h_bend,
+    coverToBarCentre,
+    fcu,
+    fy,
+    totalSteelArea: provided_steel,
+    axialKn: factored_load
+  });
+  const moment_capacity_knm = Math.round(interaction.momentCapacityKnm * 10) / 10;
+  const design_moment_knm = Math.round(total_design_moment * 10) / 10;
+  const moment_check_pass = moment_capacity_knm >= design_moment_knm;
+  formulas.push(
+    `Moment capacity at N = ${factored_load.toFixed(1)} kN: M_Rd = ${moment_capacity_knm.toFixed(1)} kN\xB7m vs M_Ed = ${design_moment_knm.toFixed(1)} kN\xB7m \u2192 ${moment_check_pass ? "PASS" : "FAIL"} (strain compatibility on the BS 8110-1 Cl 3.4.4.4 stress block)`
+  );
+  if (!moment_check_pass) {
+    warnings.push(
+      `The section carries the axial load but not the moment: M_Rd ${moment_capacity_knm.toFixed(1)} kN\xB7m against M_Ed ${design_moment_knm.toFixed(1)} kN\xB7m. Add steel on the tension face, increase the section, or reduce the eccentricity; do not read the axial PASS as a column that works.`
+    );
+  }
+  if (steel_ratio > 6) {
+    warnings.push(
+      `Steel ratio ${steel_ratio.toFixed(2)}% is above the 6% maximum (BS 8110-1 Cl 3.12.6.2). Congested cages cannot be concreted.`
+    );
+  } else if (steel_ratio > 4) {
+    warnings.push(
+      `Steel ratio ${steel_ratio.toFixed(2)}% is above 4%: laps and compaction become difficult in a column this congested.`
+    );
+  }
+  const capacity_check_pass = axial_check_pass && moment_check_pass;
   const cms = resolveMemberSizing(
     input.market_code ?? "NG"
   );
@@ -43304,12 +46400,17 @@ function designColumn(input) {
     slenderness_check: is_short,
     short_or_slender: is_short ? "short" : "slender",
     load_capacity: Math.round(load_capacity * 10) / 10,
+    design_moment_knm,
+    moment_capacity_knm,
+    axial_check_pass,
+    moment_check_pass,
     capacity_check_pass,
+    assessment: "PRELIMINARY",
     warnings,
     formula_transparency: formulas
   };
 }
-function designSlab(input) {
+function designSlabCore(input) {
   const warnings = [];
   const formulas = [];
   const concretePreset = resolveConcreteGrade(
@@ -43340,7 +46441,15 @@ function designSlab(input) {
       `One-way slab min thickness = span/20 = ${input.span_x * 1e3} / 20 = ${min_thickness.toFixed(0)} mm`
     );
   }
-  const required_thickness = Math.ceil(min_thickness);
+  const basicRatioForSizing = basicSpanDepthRatio(input.support_condition);
+  formulas.push(
+    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} ${is_two_way ? "two-way" : "one-way"} panel = ${basicRatioForSizing}`
+  );
+  const shortSpanForSizing = Math.min(input.span_x, input.span_y);
+  const deflectionDepth = shortSpanForSizing * 1e3 / basicRatioForSizing + input.cover_mm + 10;
+  const required_thickness = Math.ceil(
+    Math.max(min_thickness, deflectionDepth)
+  );
   const recommended_thickness = input.existing_thickness ?? roundUpTo25(required_thickness);
   const self_weight = recommended_thickness / 1e3 * 24;
   const total_dead = self_weight + input.dead_load;
@@ -43373,17 +46482,71 @@ function designSlab(input) {
       momentCoeff = 1 / 2;
       break;
   }
-  const max_moment = momentCoeff * total_load * input.span_x * input.span_x;
-  const max_shear = total_load * input.span_x / 2;
+  const twoWayCoefficients = [
+    [1, 0.062, 0.062],
+    [1.1, 0.074, 0.061],
+    [1.2, 0.084, 0.059],
+    [1.3, 0.093, 0.055],
+    [1.4, 0.099, 0.051],
+    [1.5, 0.104, 0.046],
+    [1.75, 0.113, 0.037],
+    [2, 0.118, 0.029]
+  ];
+  const shortSpan = Math.min(input.span_x, input.span_y);
+  const longSpan = Math.max(input.span_x, input.span_y);
+  const panelRatio = longSpan / shortSpan;
+  let alphaShort = momentCoeff;
+  let alphaLong = 0;
+  if (is_two_way) {
+    const clamped = Math.min(2, Math.max(1, panelRatio));
+    let lower = twoWayCoefficients[0];
+    let upper = twoWayCoefficients[twoWayCoefficients.length - 1];
+    for (let i = 0; i < twoWayCoefficients.length - 1; i += 1) {
+      if (clamped >= twoWayCoefficients[i][0] && clamped <= twoWayCoefficients[i + 1][0]) {
+        lower = twoWayCoefficients[i];
+        upper = twoWayCoefficients[i + 1];
+        break;
+      }
+    }
+    const span = upper[0] - lower[0];
+    const t = span === 0 ? 0 : (clamped - lower[0]) / span;
+    alphaShort = lower[1] + t * (upper[1] - lower[1]);
+    alphaLong = lower[2] + t * (upper[2] - lower[2]);
+    formulas.push(
+      `Two-way panel, ly/lx = ${panelRatio.toFixed(2)}: \u03B1sx = ${alphaShort.toFixed(3)}, \u03B1sy = ${alphaLong.toFixed(3)} (BS 8110-1 Table 3.14, simply supported panel, interpolated)`
+    );
+    if (input.support_condition === "fixed" || input.support_condition === "continuous") {
+      warnings.push(
+        `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14, so continuity is not credited and the span steel is conservative. Support steel is given on the same conservative basis (see below), not from Table 3.15.`
+      );
+    }
+  }
+  const max_moment = alphaShort * total_load * shortSpan * shortSpan;
+  const longSpanMoment = is_two_way ? alphaLong * total_load * shortSpan * shortSpan : 0;
+  const max_shear = total_load * shortSpan / 2;
   formulas.push(
-    `Max moment = ${momentCoeff.toFixed(4)} \xD7 ${total_load.toFixed(1)} \xD7 ${input.span_x}\xB2 = ${max_moment.toFixed(2)} kN\xB7m/m`
+    `Max moment = ${alphaShort.toFixed(4)} \xD7 ${total_load.toFixed(1)} \xD7 ${shortSpan}\xB2 = ${max_moment.toFixed(2)} kN\xB7m/m (short span)`
   );
+  if (is_two_way) {
+    formulas.push(
+      `Long-span moment = ${alphaLong.toFixed(4)} \xD7 ${total_load.toFixed(1)} \xD7 ${shortSpan}\xB2 = ${longSpanMoment.toFixed(2)} kN\xB7m/m`
+    );
+  }
   formulas.push(
     `Max shear = ${total_load.toFixed(1)} \xD7 ${input.span_x} / 2 = ${max_shear.toFixed(2)} kN/m`
   );
-  const z = 0.87 * eff_depth;
+  const slabLever = leverArmBS(max_moment, fcu, 1e3, eff_depth);
+  const z = slabLever.z;
+  formulas.push(
+    `Lever arm: K = ${(max_moment * 1e6).toFixed(0)} / (${fcu} \xD7 1000 \xD7 ${eff_depth}\xB2) = ${slabLever.K.toFixed(4)} \u2192 z = ${z.toFixed(1)} mm = ${(z / eff_depth).toFixed(2)}d${slabLever.doubly_reinforced ? " (K > 0.156: compression steel required)" : ""}`
+  );
+  if (slabLever.doubly_reinforced) {
+    warnings.push(
+      `K = ${slabLever.K.toFixed(3)} exceeds the 0.156 singly reinforced limit (BS 8110-1 Cl 3.4.4.4). Thicken the slab; a singly reinforced section cannot carry this moment.`
+    );
+  }
   const As = max_moment * 1e6 / (0.87 * fy * z);
-  let min_As = 0.13 * 1e3 * eff_depth / 100;
+  let min_As = 0.13 * 1e3 * recommended_thickness / 100;
   let slabJurisdiction;
   if (input.jurisdiction_code) {
     slabJurisdiction = input.jurisdiction_code;
@@ -43399,33 +46562,66 @@ function designSlab(input) {
       `Min steel (${JURISDICTION_CODES[slabJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} \xD7 1000 \xD7 ${eff_depth.toFixed(0)} = ${min_As.toFixed(0)} mm\xB2/m`
     );
   }
+  const longLever = is_two_way ? leverArmBS(longSpanMoment, fcu, 1e3, eff_depth) : null;
+  const longDirectionAs = is_two_way ? Math.max(
+    longSpanMoment * 1e6 / (0.87 * fy * longLever.z),
+    min_As
+  ) : 0;
   const final_As = Math.max(As, min_As);
   formulas.push(
     `Steel area = ${(max_moment * 1e6).toFixed(0)} / (0.87 \xD7 ${fy} \xD7 ${z}) = ${As.toFixed(0)} mm\xB2/m`
   );
   if (!slabJurisdiction) {
     formulas.push(
-      `Min steel = 0.13% \xD7 1000 \xD7 ${eff_depth} = ${min_As.toFixed(0)} mm\xB2/m`
+      `Min steel = 0.13% \xD7 1000 \xD7 ${recommended_thickness} (gross, BS 8110-1 Table 3.25) = ${min_As.toFixed(0)} mm\xB2/m`
     );
   }
+  const SPACING_LADDER = [300, 275, 250, 225, 200, 175, 150, 125, 100, 75];
   let bestDiameter = 10;
-  let bestSpacing = Math.round(1e3 * barArea(10) / final_As);
-  for (const d of [10, 12, 16]) {
-    const spacing = Math.round(1e3 * barArea(d) / final_As);
-    if (spacing >= 75 && spacing <= 300) {
+  let bestSpacing = 75;
+  let barSchemeFound = false;
+  for (const d of [10, 12, 16, 20]) {
+    const spacing = SPACING_LADDER.find(
+      (sp) => 1e3 * barArea(d) / sp >= final_As
+    );
+    if (spacing !== void 0) {
       bestDiameter = d;
       bestSpacing = spacing;
+      barSchemeFound = true;
       break;
     }
   }
-  bestSpacing = Math.min(300, Math.max(75, roundUpTo25(bestSpacing)));
-  const span_to_depth = input.span_x * 1e3 / eff_depth;
-  const basicRatio = input.support_condition === "cantilever" ? 7 : input.support_condition === "continuous" ? 32 : input.slab_type === "two_way" ? 36 : 20;
-  const deflection_check_pass = span_to_depth <= basicRatio;
+  if (!barSchemeFound) {
+    bestDiameter = 20;
+    bestSpacing = 75;
+    warnings.push(
+      `Required steel ${final_As.toFixed(0)} mm\xB2/m exceeds Y20 at 75 mm (4,189 mm\xB2/m). Thicken the slab; a cage this dense cannot be placed.`
+    );
+  }
+  const secondarySpacing = is_two_way ? SPACING_LADDER.find(
+    (sp) => 1e3 * barArea(bestDiameter) / sp >= longDirectionAs
+  ) ?? 75 : 0;
+  const span_to_depth = shortSpan * 1e3 / eff_depth;
+  const basicRatio = basicRatioForSizing;
+  const providedSteel = 1e3 * barArea(bestDiameter) / bestSpacing;
+  const fsService = 2 / 3 * fy * (final_As / Math.max(providedSteel, 1));
+  const stressRatio = max_moment * 1e6 / (1e3 * eff_depth * eff_depth);
+  const mfRaw = 0.55 + (477 - fsService) / (120 * (0.9 + stressRatio));
+  const modificationFactor = Math.min(2, Math.max(0.55, mfRaw));
+  const allowableRatio = basicRatio * modificationFactor;
+  const deflection_check_pass = span_to_depth <= allowableRatio;
   formulas.push(
-    `Span/depth = ${input.span_x * 1e3} / ${eff_depth} = ${span_to_depth.toFixed(1)} \u2264 ${basicRatio} \u2192 ${deflection_check_pass ? "PASS" : "FAIL"}`
+    `Service stress f_s = 2/3 \xD7 ${fy} \xD7 (${final_As.toFixed(0)} / ${providedSteel.toFixed(0)} provided) = ${fsService.toFixed(0)} N/mm\xB2`
   );
-  const vc = 0.79 * Math.pow(fcu / 25, 1 / 3) * Math.pow(100 * final_As / (1e3 * eff_depth), 1 / 3) * Math.pow(400 / eff_depth, 0.25);
+  formulas.push(
+    `Modification factor (BS 8110-1 Cl 3.4.6.5) = 0.55 + (477 \u2212 ${fsService.toFixed(0)}) / (120(0.9 + ${stressRatio.toFixed(3)})) = ${modificationFactor.toFixed(2)} \u2192 allowable L/d = ${basicRatio} \xD7 ${modificationFactor.toFixed(2)} = ${allowableRatio.toFixed(1)}`
+  );
+  formulas.push(
+    `Span/depth = ${shortSpan * 1e3} / ${eff_depth} = ${span_to_depth.toFixed(1)} \u2264 ${allowableRatio.toFixed(1)} \u2192 ${deflection_check_pass ? "PASS" : "FAIL"}`
+  );
+  const slabSteelPct = Math.min(100 * final_As / (1e3 * eff_depth), 2);
+  const slabDepthCap = Math.min(eff_depth, 400);
+  const vc = 0.79 / 1.25 * Math.pow(fcu / 25, 1 / 3) * Math.pow(slabSteelPct, 1 / 3) * Math.pow(400 / slabDepthCap, 0.25);
   const shear_capacity = vc * 1e3 * eff_depth / 1e3;
   const shear_link_note = shear_capacity >= max_shear ? "No shear reinforcement required (solid slab)" : "Shear reinforcement required, consider thickening slab or adding links";
   if (shear_capacity < max_shear) {
@@ -43433,7 +46629,89 @@ function designSlab(input) {
   }
   if (!deflection_check_pass) {
     warnings.push(
-      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase slab thickness.`
+      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > allowable ${allowableRatio.toFixed(1)} after the modification factor). Thicken the slab or reduce the span.`
+    );
+  }
+  let punch_shear;
+  {
+    const notes = [];
+    if (input.column_load_kN === void 0 || input.column_load_kN === null) {
+      punch_shear = {
+        status: "NOT CHECKED",
+        missing_input: "column_load_kN",
+        notes: [
+          "Punching shear at the column is NOT CHECKED: no column reaction was supplied. A solid slab can still punch through at a column even when the span reinforcement is adequate."
+        ]
+      };
+    } else if (!(input.column_load_kN > 0)) {
+      punch_shear = {
+        status: "NOT CHECKED",
+        missing_input: "column_load_kN (> 0)",
+        notes: [
+          "Punching shear is NOT CHECKED: the column reaction must be a positive load."
+        ]
+      };
+    } else {
+      const cx = input.column_width_mm ?? 300;
+      const cy = input.column_depth_mm ?? cx;
+      const N = input.column_load_kN;
+      const facePerimeter = 2 * (cx + cy);
+      const criticalPerimeter = facePerimeter + 3 * Math.PI * eff_depth;
+      const vFace = N * 1e3 / (facePerimeter * eff_depth);
+      const vEd = N * 1e3 / (criticalPerimeter * eff_depth);
+      const vMax = Math.min(0.8 * Math.sqrt(fcu), 5);
+      const passCritical = vEd <= vc;
+      const passFace = vFace <= vMax;
+      notes.push(
+        `Critical perimeter at 1.5d: u = 2(${cx} + ${cy}) + 3\u03C0 \xD7 ${eff_depth.toFixed(0)} = ${criticalPerimeter.toFixed(0)} mm`
+      );
+      notes.push(
+        `v = ${N} kN \xD7 1000 / (${criticalPerimeter.toFixed(0)} \xD7 ${eff_depth.toFixed(0)}) = ${vEd.toFixed(2)} N/mm\xB2 against v_c = ${vc.toFixed(2)} N/mm\xB2`
+      );
+      notes.push(
+        `At the column face v = ${vFace.toFixed(2)} N/mm\xB2 against the Cl 3.7.7.4 limit of ${vMax.toFixed(2)} N/mm\xB2 (0.8\u221Af_cu, capped at 5)`
+      );
+      if (!passFace) {
+        notes.push(
+          "The column face itself is overstressed: enlarge the column or thicken the slab locally. Perimeter enhancement cannot fix this."
+        );
+      }
+      if (!passCritical) {
+        notes.push(
+          "Punching shear exceeds the concrete resistance. Punching reinforcement (links or studs) or a thicker slab is required; flexural steel does not help."
+        );
+      }
+      punch_shear = {
+        status: passCritical && passFace ? "PASS" : "FAIL",
+        column_load_kN: N,
+        face_perimeter_mm: facePerimeter,
+        critical_perimeter_mm: Math.round(criticalPerimeter),
+        v_ed: Math.round(vEd * 100) / 100,
+        v_c: Math.round(vc * 100) / 100,
+        v_face: Math.round(vFace * 100) / 100,
+        v_max: Math.round(vMax * 100) / 100,
+        notes
+      };
+      if (punch_shear.status === "FAIL") {
+        warnings.push(
+          `Punching shear FAILS at the column: ${vEd.toFixed(2)} N/mm\xB2 against v_c ${vc.toFixed(2)} N/mm\xB2 (v_face ${vFace.toFixed(2)} against ${vMax.toFixed(2)}).`
+        );
+      }
+    }
+    for (const n of notes) formulas.push(n);
+  }
+  const is_restrained = input.support_condition === "continuous" || input.support_condition === "fixed";
+  const support_moment = is_restrained ? max_moment : 0;
+  const support_steel_area = is_restrained ? Math.ceil(Math.max(final_As, min_As)) : 0;
+  if (is_restrained) {
+    formulas.push(
+      `Support (hogging) design moment = ${support_moment.toFixed(2)} kN\xB7m/m: the span moment applied at the support. A conservative envelope, not a Table 3.15 coefficient.`
+    );
+    formulas.push(
+      `Support steel (top) = ${support_steel_area} mm\xB2/m, at least the minimum; extend over the support region on both sides.`
+    );
+    warnings.push(
+      `Support (hogging) steel of ${support_steel_area} mm\xB2/m is designed on a conservative envelope: the support is given the same moment as the span. A continuous panel analysed with Table 3.15 continuity coefficients would need less. Do not reduce this steel without a proper continuous analysis.`
     );
   }
   if (recommended_thickness < 150 && input.span_x > 3) {
@@ -43452,6 +46730,16 @@ function designSlab(input) {
     max_moment: Math.round(max_moment * 100) / 100,
     max_shear: Math.round(max_shear * 100) / 100,
     steel_area_required: Math.ceil(final_As),
+    ...is_restrained ? {
+      support_moment: Math.round(support_moment * 100) / 100,
+      support_steel_area
+    } : {},
+    moment_short_span: Math.round(max_moment * 100) / 100,
+    ...is_two_way ? {
+      moment_long_span: Math.round(longSpanMoment * 100) / 100,
+      steel_area_secondary: Math.ceil(longDirectionAs),
+      recommended_bar_spacing_secondary: secondarySpacing
+    } : {},
     ...slabJurisdiction ? {
       jurisdiction_code: slabJurisdiction,
       min_steel_ratio_percent: Math.round(
@@ -43461,11 +46749,41 @@ function designSlab(input) {
     recommended_bar_diameter: bestDiameter,
     recommended_bar_spacing: bestSpacing,
     link_check: shear_link_note,
+    punch_shear,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     deflection_check_pass,
     warnings,
     formula_transparency: formulas
   };
+}
+function designSlab(input) {
+  const first = designSlabCore(input);
+  if (input.existing_thickness !== void 0) return first;
+  if (!first.deflection_check_pass) return first;
+  const shortSpanMm = Math.min(input.span_x, input.span_y) * 1e3;
+  const minAllowed = input.slab_type === "cantilever_slab" ? Math.max(125, input.span_x * 1e3 / 7) : input.slab_type === "two_way" ? Math.max(125, shortSpanMm / 28) : Math.max(100, input.span_x * 1e3 / 20);
+  let best = first;
+  for (let step = 0; step < 24; step += 1) {
+    const candidate = best.recommended_thickness - 25;
+    if (candidate < minAllowed) break;
+    const next = designSlabCore({ ...input, existing_thickness: candidate });
+    if (!next.deflection_check_pass) break;
+    if (next.warnings.some((w) => w.includes("singly reinforced"))) break;
+    if (!next.link_check.startsWith("No shear reinforcement")) break;
+    if (next.punch_shear?.status === "FAIL") break;
+    best = next;
+  }
+  if (best !== first) {
+    best.required_thickness = first.required_thickness;
+    best.formula_transparency = [
+      ...best.formula_transparency,
+      `Thickness ${best.recommended_thickness} mm is the thinnest section that passes every check (deflection with the Cl 3.4.6.5 modification factor, singly reinforced at K <= 0.156, concrete shear${best.punch_shear ? ", punching shear" : ""}), found by stepping down in 25 mm increments from the ${first.recommended_thickness} mm span/depth answer.`,
+      ...first.formula_transparency.filter(
+        (f) => f.startsWith("Basic span/depth ratio")
+      )
+    ];
+  }
+  return best;
 }
 function computeDesignShearCapacity(input) {
   const { standard, bwMm, dMm, fckOrFcuMpa, asMm2 } = input;
@@ -43557,13 +46875,14 @@ function minReinforcementRatio(params) {
       };
     }
     case "BS_8110": {
-      const ratio = fy <= 300 ? 24e-4 : 13e-4;
+      const mildSteel = fy <= 300;
+      const ratio = mildSteel ? 24e-4 : 13e-4;
       return {
         code,
         ratio,
         percent: ratio * 100,
         clause: `BS 8110-1 ${profile.minSteelClause}`,
-        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy \u2265 460; fy = ${fy})`
+        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy 460 and above; fy = ${fy})`
       };
     }
     case "AS_3600": {
@@ -43786,6 +47105,9 @@ var init_structural_calculator = __esm({
         description: "BS 8110 C35 (fcu = 35 MPa cube strength)"
       }
     };
+    for (const profile of Object.values(CONCRETE_STANDARDS)) {
+      for (const grade of profile.grades) grade.Ec = concreteModulusGPa(grade);
+    }
     STEEL_PROPS = {
       Fe410: { fy: 410 },
       Fe500: { fy: 500 }
@@ -43885,12 +47207,13 @@ function designFoundation(input) {
   const formulas = [];
   const gross_capacity = input.soil_type === "custom" ? input.custom_bearing_capacity ?? 150 : SOIL_BEARING_CAPACITY[input.soil_type];
   const safety_factor = input.safety_factor ?? 2.5;
-  const allowable_capacity = gross_capacity / safety_factor;
+  const isUltimate = input.soil_type === "custom" && input.custom_capacity_is_ultimate === true;
+  const allowable_capacity = isUltimate ? gross_capacity / safety_factor : gross_capacity;
   formulas.push(
-    `Gross bearing capacity (${input.soil_type}) = ${gross_capacity} kN/m\xB2`
+    `${isUltimate ? "Ultimate" : "Allowable"} bearing capacity (${input.soil_type}) = ${gross_capacity} kN/m\xB2`
   );
   formulas.push(
-    `Allowable = ${gross_capacity} / ${safety_factor} (safety factor) = ${allowable_capacity.toFixed(0)} kN/m\xB2`
+    isUltimate ? `Allowable = ${gross_capacity} / ${safety_factor} (safety factor) = ${allowable_capacity.toFixed(0)} kN/m\xB2` : `Allowable = ${allowable_capacity.toFixed(0)} kN/m\xB2 (assumed allowable value already includes the safety factor)`
   );
   if (input.soil_type !== "custom" && input.soil_type !== "rock") {
     warnings.push(
@@ -43919,6 +47242,9 @@ function designFoundation(input) {
     const check_pressure = input.wall_load / (final_width / 1e3 * 1);
     const bearing_check_pass = check_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / check_pressure;
+    formulas.push(
+      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`
+    );
     if (final_width > 1500) {
       warnings.push(
         `Strip footing width ${final_width}mm exceeds 1500mm. Consider pad footings or raft foundation instead.`
@@ -43946,6 +47272,9 @@ function designFoundation(input) {
       formula_transparency: formulas
     };
   } else if (input.shape === "pad") {
+    let pad_depth_for_capacity = function(d) {
+      return d;
+    };
     const column_load = input.column_load ?? 200;
     const total_footing_load = 1.1 * column_load;
     const required_area = total_footing_load / allowable_capacity;
@@ -43964,35 +47293,56 @@ function designFoundation(input) {
     const check_pressure = total_footing_load / actual_area;
     const bearing_check_pass = check_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / check_pressure;
-    const pad_thickness_mm = 300;
-    const excavation_volume = actual_area * input.foundation_depth;
-    const concrete_volume = actual_area * (pad_thickness_mm / 1e3);
-    const blinding_volume = actual_area * 0.075;
-    const hardcore_volume = actual_area * 0.15;
+    formulas.push(
+      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`
+    );
+    const blinding_area = Math.pow(recommended_side / 1e3 + 0.2, 2);
+    const blinding_volume = blinding_area * 0.075;
     if (recommended_side > 2e3) {
       warnings.push(
         `Pad size ${recommended_side}\xD7${recommended_side}mm is very large. Consider raft foundation or soil improvement.`
       );
     }
     const col_face = input.column_width_mm ?? 225;
-    const pad_d = 300 - 40 - 10;
-    const u1 = 4 * (col_face + 3 * pad_d);
     const fcu = fcuFromGrade(input.concrete_grade);
     const ULS_N = 1.4 * column_load * 1e3;
-    const v_punch = ULS_N / (u1 * pad_d);
-    const v_c_punch = 0.79 * Math.pow(fcu / 25, 1 / 3) * Math.pow(0.15, 1 / 3) * Math.pow(400 / pad_d, 0.25);
-    const punching_ok = v_punch <= v_c_punch;
+    const punchingStress = (thicknessMm) => {
+      const d = thicknessMm - 40 - 10;
+      const perimeter = 4 * (col_face + 3 * d);
+      const applied = ULS_N / (perimeter * d);
+      const capacity = 0.79 * Math.pow(fcu / 25, 1 / 3) * Math.pow(0.15, 1 / 3) * (pad_depth_for_capacity(d) > 400 ? 1 : Math.pow(400 / d, 0.25)) / 1.25;
+      return { d, perimeter, applied, capacity, ok: applied <= capacity };
+    };
+    let pad_thickness_mm = 300;
+    let punching = punchingStress(pad_thickness_mm);
+    while (!punching.ok && pad_thickness_mm < 900) {
+      pad_thickness_mm += 50;
+      punching = punchingStress(pad_thickness_mm);
+    }
+    const {
+      d: pad_d,
+      perimeter: u1,
+      applied: v_punch,
+      capacity: v_c_punch
+    } = punching;
+    const punching_ok = punching.ok;
     formulas.push(
       `Punching shear: perimeter u1 = 4\xD7(${col_face} + 3\xD7${pad_d}) = ${u1} mm (1.5d from column face, d = ${pad_d} mm)`
     );
     formulas.push(
-      `Applied v = ${ULS_N.toFixed(0)} / (${u1} \xD7 ${pad_d}) = ${v_punch.toFixed(3)} N/mm\xB2 vs v_c \u2248 ${v_c_punch.toFixed(3)} N/mm\xB2 (min steel 0.15% assumed) \u2192 ${punching_ok ? "PASS" : "FAIL"}`
+      `Applied v = ${ULS_N.toFixed(0)} / (${u1} \xD7 ${pad_d}) = ${v_punch.toFixed(3)} N/mm\xB2 vs v_c \u2248 ${v_c_punch.toFixed(3)} N/mm\xB2 (min steel 0.15% assumed, gamma_m 1.25 applied) \u2192 ${punching_ok ? "PASS" : "FAIL"}`
+    );
+    formulas.push(
+      `Pad depth sized to ${pad_thickness_mm} mm (300 mm steps of 50 mm) so the punching check is satisfied.`
     );
     if (!punching_ok) {
       warnings.push(
-        `Punching shear exceeds concrete capacity (v = ${v_punch.toFixed(3)} > v_c \u2248 ${v_c_punch.toFixed(3)} N/mm\xB2). Increase the pad depth (currently 300mm) rather than relying on flexural steel alone.`
+        `Punching shear still exceeds concrete capacity at ${pad_thickness_mm} mm depth (v = ${v_punch.toFixed(3)} > v_c \u2248 ${v_c_punch.toFixed(3)} N/mm\xB2). Use a pile cap or a thicker, specifically designed footing.`
       );
     }
+    const excavation_volume = actual_area * input.foundation_depth;
+    const concrete_volume = actual_area * (pad_thickness_mm / 1e3);
+    const hardcore_volume = actual_area * 0.15;
     if (allowable_capacity < 100) {
       warnings.push(
         `Soil bearing capacity is critically low (${allowable_capacity.toFixed(0)} kN/m\xB2). Consult geotechnical specialist for raft or bored pile foundation.`
@@ -44008,6 +47358,7 @@ function designFoundation(input) {
       required_length: Math.ceil(side),
       recommended_length: recommended_side,
       area_per_pad: Math.round(actual_area * 1e3) / 1e3,
+      pad_thickness_mm,
       excavation_volume: Math.round(excavation_volume * 10) / 10,
       concrete_volume: Math.round(concrete_volume * 10) / 10,
       blinding_volume: Math.round(blinding_volume * 10) / 10,
@@ -44026,6 +47377,9 @@ function designFoundation(input) {
     const applied_pressure = total_load / building_area;
     const bearing_check_pass = applied_pressure <= allowable_capacity;
     const actual_fos = allowable_capacity / applied_pressure;
+    formulas.push(
+      `Applied pressure = ${total_load.toFixed(1)} kN / ${building_area.toFixed(1)} m\xB2 = ${applied_pressure.toFixed(1)} kN/m\xB2 vs allowable ${allowable_capacity.toFixed(0)} kN/m\xB2 \u2192 ${bearing_check_pass ? "PASS" : "FAIL"}`
+    );
     const excavation_volume = building_area * input.foundation_depth;
     const concrete_volume = building_area * 0.3;
     const blinding_volume = building_area * 0.075;
@@ -45454,11 +48808,13 @@ __export(build_to_roof_engine_exports, {
   DEFAULT_WASTAGE: () => DEFAULT_WASTAGE,
   DRY_WET_RATIO: () => DRY_WET_RATIO,
   FOUNDATION_COURSES: () => FOUNDATION_COURSES,
+  LONG_SPAN_COVER_WIDTH_M: () => LONG_SPAN_COVER_WIDTH_M,
   M3_PER_TRIP: () => M3_PER_TRIP,
   MORTAR_DRY_WET_RATIO: () => MORTAR_DRY_WET_RATIO,
   MORTAR_JOINT_THICKNESS: () => MORTAR_JOINT_THICKNESS,
   M_PER_FT: () => M_PER_FT,
   PURLIN_ROWS_PER_SLOPE: () => PURLIN_ROWS_PER_SLOPE,
+  PURLIN_SPACING_M: () => PURLIN_SPACING_M,
   RAFTER_SPACING: () => RAFTER_SPACING,
   SCREWS_PER_SHEET: () => SCREWS_PER_SHEET,
   SHEET_COVERAGE: () => SHEET_COVERAGE,
@@ -45477,10 +48833,21 @@ __export(build_to_roof_engine_exports, {
   getSheetCoverage: () => getSheetCoverage,
   m3ToTrips: () => m3ToTrips,
   mortarToMaterials: () => mortarToMaterials,
+  normalizeRoofingMaterial: () => normalizeRoofingMaterial,
   roofingSheetsCount: () => roofingSheetsCount,
   validateBuildToRoofInput: () => validateBuildToRoofInput
 });
-function round2(n, dp = 2) {
+function normalizeRoofingMaterial(value) {
+  const key = (value ?? "").trim().toLowerCase().replace(/[-\s]+/g, "_");
+  if (key === "long_span_aluminium" || key === "longspan" || key === "longspan_aluminium")
+    return "long_span_aluminium";
+  if (key === "stone_coated" || key === "stonecoated") return "stone_coated";
+  if (key === "gi_sheet" || key === "gi" || key === "corrugated")
+    return "gi_sheet";
+  if (key === "shingle" || key === "shingles") return "shingle";
+  return "custom";
+}
+function round4(n, dp = 2) {
   const f = Math.pow(10, dp);
   return Math.round(n * f) / f;
 }
@@ -45497,24 +48864,24 @@ function matLineTrips(label, volumeM3, wastagePercent, pricePerTrip, pricePerM3,
     return {
       label,
       unit: "m\xB3",
-      base_quantity: round2(volumeM3),
+      base_quantity: round4(volumeM3),
       wastage_percent: wastagePercent,
-      final_quantity: round2(finalM3),
+      final_quantity: round4(finalM3),
       unit_price: pricePerM3,
-      total_cost: round2(finalM3 * pricePerM3),
+      total_cost: round4(finalM3 * pricePerM3),
       price_source: priceSource
     };
   }
   return {
     label: label.replace(/ \(m³\)/, "").trim(),
     unit: "trips",
-    base_quantity: round2(volumeM3 / M3_PER_TRIP * 10) / 10,
+    base_quantity: round4(volumeM3 / M3_PER_TRIP * 10) / 10,
     // show base trips (decimal)
     wastage_percent: wastagePercent,
     final_quantity: trips,
     // ceil to full trips
     unit_price: pricePerTrip,
-    total_cost: round2(trips * pricePerTrip),
+    total_cost: round4(trips * pricePerTrip),
     price_source: priceSource
   };
 }
@@ -45526,10 +48893,10 @@ function qtyLine(label, formula, inputs, baseQty, unit, wastagePercent) {
     label,
     formula,
     inputs,
-    base_quantity: round2(baseQty),
+    base_quantity: round4(baseQty),
     unit,
     wastage_percent: wastagePercent,
-    final_quantity: round2(applyWastage(baseQty, wastagePercent))
+    final_quantity: round4(applyWastage(baseQty, wastagePercent))
   };
 }
 function matLine(label, unit, baseQty, wastagePercent, unitPrice, priceSource) {
@@ -45538,11 +48905,11 @@ function matLine(label, unit, baseQty, wastagePercent, unitPrice, priceSource) {
   return {
     label,
     unit,
-    base_quantity: round2(baseQty),
+    base_quantity: round4(baseQty),
     wastage_percent: wastagePercent,
-    final_quantity: round2(finalQty),
+    final_quantity: round4(finalQty),
     unit_price: unitPrice,
-    total_cost: round2(finalQty * unitPrice),
+    total_cost: round4(finalQty * unitPrice),
     price_source: priceSource
   };
 }
@@ -45550,9 +48917,9 @@ function labLine(label, unit, qty, rate) {
   return {
     label,
     unit,
-    quantity: round2(qty),
-    rate: round2(rate),
-    total_cost: round2(qty * rate)
+    quantity: round4(qty),
+    rate: round4(rate),
+    total_cost: round4(qty * rate)
   };
 }
 function concreteToMaterials(wetVolumeM3, mixCement, mixSand, mixGranite) {
@@ -45600,7 +48967,7 @@ function decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overha
         projected_area_m2: Le * We,
         pitch_degrees: 0,
         sloped_area_m2: Le * We,
-        boundary: `Eave rectangle ${round2(Le, 2)}m \xD7 ${round2(We, 2)}m`
+        boundary: `Eave rectangle ${round4(Le, 2)}m \xD7 ${round4(We, 2)}m`
       }
     ];
   }
@@ -45637,7 +49004,7 @@ function decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overha
         "mono-1",
         "Mono-pitch plane (full width)",
         Le * We,
-        `Eave rectangle ${round2(Le, 2)}m \xD7 ${round2(We, 2)}m, high edge along Le`
+        `Eave rectangle ${round4(Le, 2)}m \xD7 ${round4(We, 2)}m, high edge along Le`
       )
     ];
   }
@@ -45653,25 +49020,25 @@ function decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overha
         "hip-side-1",
         `Hip trapezoid plane 1${ridgeNote}`,
         trapProjected,
-        `Trapezoid: parallel sides ${round2(long, 2)}m (eave) and ${round2(R, 2)}m (ridge), height ${round2(short / 2, 2)}m`
+        `Trapezoid: parallel sides ${round4(long, 2)}m (eave) and ${round4(R, 2)}m (ridge), height ${round4(short / 2, 2)}m`
       ),
       plane(
         "hip-side-2",
         `Hip trapezoid plane 2${ridgeNote}`,
         trapProjected,
-        `Trapezoid: parallel sides ${round2(long, 2)}m (eave) and ${round2(R, 2)}m (ridge), height ${round2(short / 2, 2)}m`
+        `Trapezoid: parallel sides ${round4(long, 2)}m (eave) and ${round4(R, 2)}m (ridge), height ${round4(short / 2, 2)}m`
       ),
       plane(
         "hip-end-1",
         `Hip triangular end plane 1${ridgeNote}`,
         triProjected,
-        `Triangle: base ${round2(short, 2)}m, depth ${round2(short / 2, 2)}m`
+        `Triangle: base ${round4(short, 2)}m, depth ${round4(short / 2, 2)}m`
       ),
       plane(
         "hip-end-2",
         `Hip triangular end plane 2${ridgeNote}`,
         triProjected,
-        `Triangle: base ${round2(short, 2)}m, depth ${round2(short / 2, 2)}m`
+        `Triangle: base ${round4(short, 2)}m, depth ${round4(short / 2, 2)}m`
       )
     ];
   }
@@ -45682,13 +49049,13 @@ function decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overha
       `${roofType}-1`,
       `${typeLabel} plane 1 (half-span)`,
       Le * halfSpan,
-      `Rectangle ${round2(Le, 2)}m (ridge/eave) \xD7 ${round2(halfSpan, 2)}m (horizontal half-span)`
+      `Rectangle ${round4(Le, 2)}m (ridge/eave) \xD7 ${round4(halfSpan, 2)}m (horizontal half-span)`
     ),
     plane(
       `${roofType}-2`,
       `${typeLabel} plane 2 (half-span)`,
       Le * halfSpan,
-      `Rectangle ${round2(Le, 2)}m (ridge/eave) \xD7 ${round2(halfSpan, 2)}m (horizontal half-span)`
+      `Rectangle ${round4(Le, 2)}m (ridge/eave) \xD7 ${round4(halfSpan, 2)}m (horizontal half-span)`
     )
   ];
 }
@@ -45700,14 +49067,14 @@ function calculateRoofArea(buildingLength, buildingWidth, pitchDegrees, overhang
     overhang,
     roofType
   );
-  return round2(planes.reduce((sum, p2) => sum + p2.sloped_area_m2, 0));
+  return round4(planes.reduce((sum, p2) => sum + p2.sloped_area_m2, 0));
 }
 function roofingSheetsCount(roofAreaM2, sheetCoverageM2) {
   if (sheetCoverageM2 <= 0) return 0;
   return Math.ceil(roofAreaM2 / sheetCoverageM2);
 }
 function getSheetCoverage(material) {
-  return SHEET_COVERAGE[material] ?? SHEET_COVERAGE.custom;
+  return SHEET_COVERAGE[normalizeRoofingMaterial(material)] ?? SHEET_COVERAGE.custom;
 }
 function calculateRidgeLength(buildingLength, buildingWidth, roofType, overhang = 0) {
   switch (roofType) {
@@ -45745,8 +49112,12 @@ function estimateTimberMeters(roofAreaM2, buildingLength, buildingWidth, pitchDe
     const slopeLength2 = eaveWidth / Math.cos(pitchRad);
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     const rafterTotalM2 = rafterCount * slopeLength2;
-    const purlinTotalM2 = PURLIN_ROWS_PER_SLOPE * eaveLength;
-    return round2(rafterTotalM2 + purlinTotalM2);
+    const monoPurlinRows = Math.max(
+      2,
+      Math.ceil(slopeLength2 / PURLIN_SPACING_M)
+    );
+    const purlinTotalM2 = monoPurlinRows * eaveLength;
+    return round4(rafterTotalM2 + purlinTotalM2);
   }
   const slopeLength = eaveWidth / 2 / Math.cos(pitchRad);
   let rafterTotalM;
@@ -45763,9 +49134,10 @@ function estimateTimberMeters(roofAreaM2, buildingLength, buildingWidth, pitchDe
   } else {
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     rafterTotalM = rafterCount * 2 * slopeLength;
-    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength;
+    const purlinRows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
+    purlinTotalM = purlinRows * 2 * eaveLength;
   }
-  return round2(rafterTotalM + purlinTotalM);
+  return round4(rafterTotalM + purlinTotalM);
 }
 function getRebarPriceForDiameter(diameter_mm, prices) {
   switch (diameter_mm) {
@@ -45848,13 +49220,13 @@ function buildReinforcementBreakdown(members, wastagePercent, prices) {
     items.push({
       diameter_mm: agg.diameter_mm,
       label,
-      base_length_m: round2(agg.total_length_m),
-      total_length_m: round2(lengthWithWastage),
+      base_length_m: round4(agg.total_length_m),
+      total_length_m: round4(lengthWithWastage),
       standard_lengths: standardLengths,
-      weight_kg: round2(weightWithWastage),
-      weight_tonnes: round2(weightWithWastage / 1e3),
+      weight_kg: round4(weightWithWastage),
+      weight_tonnes: round4(weightWithWastage / 1e3),
       unit_price: unitPrice,
-      total_cost: round2(cost),
+      total_cost: round4(cost),
       source: agg.source
     });
     totalWeightKg += weightWithWastage;
@@ -45869,11 +49241,11 @@ function buildReinforcementBreakdown(members, wastagePercent, prices) {
   const bindingWireCost = bindingWireKg * prices.binding_wire_per_kg;
   return {
     items,
-    total_weight_tonnes: round2(totalWeightKg / 1e3),
-    total_length_m: round2(totalLengthM),
-    binding_wire_kg: round2(bindingWireKg),
-    binding_wire_cost: round2(bindingWireCost),
-    total_cost: round2(totalCost + bindingWireCost)
+    total_weight_tonnes: round4(totalWeightKg / 1e3),
+    total_length_m: round4(totalLengthM),
+    binding_wire_kg: round4(bindingWireKg),
+    binding_wire_cost: round4(bindingWireCost),
+    total_cost: round4(totalCost + bindingWireCost)
   };
 }
 function calcSiteAndFoundation(input) {
@@ -45923,13 +49295,17 @@ function calcSiteAndFoundation(input) {
       input.labour.excavation_per_m3
     )
   );
-  const blindingVol = footprintArea * input.blinding_thickness;
+  const BLINDING_PROJECTION_M = 0.1;
+  const blindingWidth = input.foundation_width + 2 * BLINDING_PROJECTION_M;
+  const blindingArea = perimeter * blindingWidth;
+  const blindingVol = blindingArea * input.blinding_thickness;
   quantities.push(
     qtyLine(
       "Blinding concrete volume",
-      "Footprint area \xD7 Blinding thickness",
+      "Perimeter \xD7 (Footing width + 2 \xD7 100 mm projection) \xD7 Blinding thickness",
       {
-        footprint_area: footprintArea,
+        perimeter,
+        blinding_width: round4(blindingWidth),
         blinding_thickness: input.blinding_thickness
       },
       blindingVol,
@@ -46110,15 +49486,19 @@ function calcSiteAndFoundation(input) {
       input.labour.sand_filling_per_m3
     )
   );
-  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol);
+  const backfillVol = Math.max(
+    0,
+    excavationVol - foundationConcreteVol - blindingVol
+  );
   if (backfillVol > 0) {
     quantities.push(
       qtyLine(
         "Backfilling volume",
-        "Excavation vol \u2212 Foundation concrete",
+        "Excavation vol \u2212 Foundation concrete \u2212 Blinding",
         {
           excavation: excavationVol,
-          foundation_concrete: foundationConcreteVol
+          foundation_concrete: foundationConcreteVol,
+          blinding: round4(blindingVol)
         },
         backfillVol,
         "m\xB3",
@@ -46157,15 +49537,104 @@ function calcSiteAndFoundation(input) {
       )
     );
   }
+  const includeInternalFooting = input.include_internal_footings !== false && input.internal_wall_length > 0;
+  const internalFootingWidth = Math.min(
+    input.foundation_width,
+    Math.max(0.45, input.internal_wall_thickness + 0.3)
+  );
+  const internalExcavationVol = includeInternalFooting ? input.internal_wall_length * internalFootingWidth * input.foundation_depth : 0;
+  const internalBlindingVol = includeInternalFooting ? input.internal_wall_length * (internalFootingWidth + 2 * BLINDING_PROJECTION_M) * input.blinding_thickness : 0;
+  const internalFoundationConcreteVol = includeInternalFooting ? input.internal_wall_length * internalFootingWidth * input.footing_thickness : 0;
+  if (includeInternalFooting) {
+    quantities.push(
+      qtyLine(
+        "Internal wall footing excavation",
+        "Internal wall length \xD7 Internal footing width \xD7 Trench depth",
+        {
+          internal_length: input.internal_wall_length,
+          footing_width: round4(internalFootingWidth),
+          trench_depth: input.foundation_depth
+        },
+        internalExcavationVol,
+        "m\xB3",
+        0
+      )
+    );
+    quantities.push(
+      qtyLine(
+        "Internal wall footing concrete",
+        "Internal wall length \xD7 Internal footing width \xD7 Footing thickness",
+        {
+          internal_length: input.internal_wall_length,
+          footing_width: round4(internalFootingWidth),
+          footing_thickness: input.footing_thickness
+        },
+        internalFoundationConcreteVol,
+        "m\xB3",
+        input.wastage.cement
+      )
+    );
+    const internalBlindingMats = concreteToMaterials(
+      internalBlindingVol,
+      input.concrete_mix_cement,
+      input.concrete_mix_sand,
+      input.concrete_mix_granite
+    );
+    const internalFoundMats = concreteToMaterials(
+      internalFoundationConcreteVol,
+      input.concrete_mix_cement,
+      input.concrete_mix_sand,
+      input.concrete_mix_granite
+    );
+    materials.push(
+      matLine(
+        "Cement (internal footing)",
+        "bags",
+        internalFoundMats.cement_bags + internalBlindingMats.cement_bags,
+        input.wastage.cement,
+        input.prices.cement_per_bag,
+        input.prices.price_source
+      )
+    );
+    materials.push(
+      matLineTrips(
+        "Sand (internal footing)",
+        internalFoundMats.sand_m3 + internalBlindingMats.sand_m3,
+        input.wastage.sand,
+        input.prices.sand_per_trip,
+        input.prices.sand_per_m3,
+        input.prices.price_source
+      )
+    );
+    materials.push(
+      matLineTrips(
+        "Granite (internal footing)",
+        internalFoundMats.granite_m3 + internalBlindingMats.granite_m3,
+        input.wastage.granite,
+        input.prices.granite_per_trip,
+        input.prices.granite_per_m3,
+        input.prices.price_source
+      )
+    );
+    labour.push(
+      labLine(
+        "Internal footing labour",
+        "m\xB3",
+        internalExcavationVol + internalFoundationConcreteVol,
+        input.labour.excavation_per_m3
+      )
+    );
+  }
   const courseHeight = input.block_height * 0.0254 + MORTAR_JOINT_THICKNESS;
   const foundationBlockHeight = courseHeight * FOUNDATION_COURSES;
-  const foundationWallArea = perimeter * foundationBlockHeight;
+  const foundationLength = perimeter + (includeInternalFooting ? input.internal_wall_length : 0);
+  const foundationWallArea = foundationLength * foundationBlockHeight;
   const blocksPerM2Val = blocksPerM2(input.block_length, input.block_height);
   const foundationBlocks = foundationWallArea * blocksPerM2Val;
   quantities.push(
     qtyLine(
       "Foundation blocks",
-      "Foundation wall area \xD7 Blocks per m\xB2",
+      "Foundation wall area (external + internal) \xD7 Blocks per m\xB2",
       {
         wall_area: foundationWallArea,
         blocks_per_m2: blocksPerM2Val,
@@ -46229,9 +49698,9 @@ function calcSiteAndFoundation(input) {
     quantities,
     materials,
     labour,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    stage_total: round2(materialsTotal + labourTotal)
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    stage_total: round4(materialsTotal + labourTotal)
   };
 }
 function calcGroundFloor(input) {
@@ -46315,9 +49784,9 @@ function calcGroundFloor(input) {
     quantities,
     materials,
     labour,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    stage_total: round2(materialsTotal + labourTotal)
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    stage_total: round4(materialsTotal + labourTotal)
   };
 }
 function calcWalls(input) {
@@ -46328,7 +49797,7 @@ function calcWalls(input) {
   const wallHeight = input.floor_to_floor_height * input.number_of_floors;
   const externalGrossArea = perimeter * wallHeight;
   const internalGrossArea = input.internal_wall_length * wallHeight;
-  const openingArea = input.openings.reduce(
+  const openingArea = (input.openings ?? []).reduce(
     (sum, o) => sum + o.width * o.height * o.count,
     0
   );
@@ -46445,16 +49914,16 @@ function calcWalls(input) {
     quantities,
     materials,
     labour,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    stage_total: round2(materialsTotal + labourTotal)
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    stage_total: round4(materialsTotal + labourTotal)
   };
 }
 function calcStructuralFrame(input) {
   const quantities = [];
   const materials = [];
   const labour = [];
-  if (input.structural_members.length === 0) {
+  if ((input.structural_members ?? []).length === 0) {
     return {
       stage: "structural_frame",
       stage_label: "Structural Frame",
@@ -46468,7 +49937,7 @@ function calcStructuralFrame(input) {
   }
   let totalConcreteVol = 0;
   let totalFormworkArea = 0;
-  for (const member of input.structural_members) {
+  for (const member of input.structural_members ?? []) {
     const vol = member.length * member.width * member.depth * member.quantity;
     totalConcreteVol += vol;
     let formwork;
@@ -46533,7 +50002,7 @@ function calcStructuralFrame(input) {
     )
   );
   const rebarBreakdown = buildReinforcementBreakdown(
-    input.structural_members,
+    input.structural_members ?? [],
     input.wastage.reinforcement,
     input.prices
   );
@@ -46544,7 +50013,7 @@ function calcStructuralFrame(input) {
       unit: "lengths",
       // Net (pre-wastage) length ÷ 12m standard lengths, wastage is added
       // by the purchase rounding, not baked into the base quantity.
-      base_quantity: round2(item.base_length_m / 12),
+      base_quantity: round4(item.base_length_m / 12),
       wastage_percent: input.wastage.reinforcement,
       final_quantity: item.standard_lengths,
       unit_price: item.unit_price,
@@ -46604,9 +50073,9 @@ function calcStructuralFrame(input) {
     quantities,
     materials,
     labour,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    stage_total: round2(materialsTotal + labourTotal),
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    stage_total: round4(materialsTotal + labourTotal),
     reinforcement_breakdown: rebarBreakdown
   };
 }
@@ -46636,12 +50105,44 @@ function calcRoofing(input) {
       0
     )
   );
-  const sheetCoverage = getSheetCoverage(input.roofing_material);
-  const sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
+  const pitchRad = input.roof_pitch_degrees * Math.PI / 180;
+  const eaveLength = input.building_length + 2 * input.roof_overhang;
+  const eaveWidth = input.building_width + 2 * input.roof_overhang;
+  const roofingMaterial = normalizeRoofingMaterial(input.roofing_material);
+  const isLongSpan = roofingMaterial === "long_span_aluminium";
+  let slopeLengthForSheets = 0;
+  let sheetCount;
+  let sheetCoverage;
+  if (isLongSpan && input.roof_type !== "flat") {
+    const acrossSlope = input.roof_type === "mono_pitch" ? eaveWidth : eaveWidth / 2;
+    slopeLengthForSheets = acrossSlope / Math.cos(pitchRad);
+    const sheetsPerSlope = Math.ceil(eaveLength / LONG_SPAN_COVER_WIDTH_M);
+    const hipEndSheets = input.roof_type === "hip" ? 2 * Math.ceil(eaveWidth / 2 / LONG_SPAN_COVER_WIDTH_M) : 0;
+    const slopeCount = input.roof_type === "mono_pitch" ? 1 : 2;
+    sheetCount = slopeCount * sheetsPerSlope + hipEndSheets;
+    sheetCoverage = LONG_SPAN_COVER_WIDTH_M * slopeLengthForSheets;
+    quantities.push(
+      qtyLine(
+        "Sheet linear metres",
+        "Sheets \xD7 Slope length (eave to ridge, includes overhang)",
+        {
+          sheets: sheetCount,
+          slope_length: round4(slopeLengthForSheets),
+          cover_width: LONG_SPAN_COVER_WIDTH_M
+        },
+        round4(sheetCount * slopeLengthForSheets),
+        "m",
+        0
+      )
+    );
+  } else {
+    sheetCoverage = getSheetCoverage(roofingMaterial);
+    sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
+  }
   quantities.push(
     qtyLine(
       "Roofing sheets",
-      `ceil(Roof area / ${sheetCoverage}m\xB2 per sheet), ${input.roofing_material}`,
+      isLongSpan ? `ceil(Slope width / ${LONG_SPAN_COVER_WIDTH_M}m cover) per slope, cut to ${round4(slopeLengthForSheets)} m, ${input.roofing_material}` : `ceil(Roof area / ${sheetCoverage}m\xB2 per sheet), ${input.roofing_material}`,
       {
         roof_area: roofArea,
         coverage: sheetCoverage,
@@ -46652,17 +50153,22 @@ function calcRoofing(input) {
       input.wastage.roofing_sheets
     )
   );
-  const purchaseSheets = Math.ceil(
+  const purchaseSheets = isLongSpan ? Math.ceil(sheetCount * (1 + input.wastage.roofing_sheets / 100)) : Math.ceil(
     applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage
   );
+  const referenceSheetArea = getSheetCoverage(roofingMaterial);
+  const pricePerM2 = input.prices.roofing_sheet_per_piece / referenceSheetArea;
+  const purchasedArea = purchaseSheets * sheetCoverage;
   materials.push({
     label: "Roofing sheets",
     unit: "pcs",
-    base_quantity: round2(sheetCount),
+    base_quantity: round4(sheetCount),
     wastage_percent: input.wastage.roofing_sheets,
     final_quantity: purchaseSheets,
-    unit_price: input.prices.roofing_sheet_per_piece,
-    total_cost: round2(purchaseSheets * input.prices.roofing_sheet_per_piece),
+    unit_price: round4(
+      purchasedArea / purchaseSheets > 0 ? purchasedArea * pricePerM2 / purchaseSheets : input.prices.roofing_sheet_per_piece
+    ),
+    total_cost: round4(purchasedArea * pricePerM2),
     price_source: input.prices.price_source
   });
   const ridgeLength = calculateRidgeLength(
@@ -46810,9 +50316,9 @@ function calcRoofing(input) {
     quantities,
     materials,
     labour,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    stage_total: round2(materialsTotal + labourTotal)
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    stage_total: round4(materialsTotal + labourTotal)
   };
 }
 function consolidateMaterials(stages) {
@@ -46831,9 +50337,9 @@ function consolidateMaterials(stages) {
         map.set(key, {
           label: mat.label,
           unit: mat.unit,
-          total_quantity: round2(mat.final_quantity),
+          total_quantity: round4(mat.final_quantity),
           unit_price: mat.unit_price,
-          total_cost: round2(mat.total_cost),
+          total_cost: round4(mat.total_cost),
           stages: [stage.stage_label]
         });
       }
@@ -46850,9 +50356,9 @@ function consolidateMaterials(stages) {
     consolidated.push({
       label: outLabel,
       unit,
-      total_quantity: round2(total),
+      total_quantity: round4(total),
       unit_price: 0,
-      total_cost: round2(cost),
+      total_cost: round4(cost),
       stages: [...stagesSet]
     });
   };
@@ -46874,7 +50380,7 @@ function consolidateMaterials(stages) {
 }
 function assessConfidence(input) {
   const hasDrawing = !!input.drawing_analysis?.confirmed.building_length;
-  const hasStructural = input.has_engineer_schedule && input.structural_members.length > 0;
+  const hasStructural = input.has_engineer_schedule && (input.structural_members ?? []).length > 0;
   const hasDimensions = input.building_length > 0 && input.building_width > 0;
   if (hasDrawing && hasStructural) {
     return {
@@ -46905,12 +50411,12 @@ function convertBuildToRoofUnits(input, factor) {
   for (const key of UNIT_SCALAR_FIELDS) {
     target[key] = input[key] * factor;
   }
-  converted.openings = input.openings.map((o) => ({
+  converted.openings = (input.openings ?? []).map((o) => ({
     ...o,
     width: o.width * factor,
     height: o.height * factor
   }));
-  converted.structural_members = input.structural_members.map((m) => ({
+  converted.structural_members = (input.structural_members ?? []).map((m) => ({
     ...m,
     length: m.length * factor,
     width: m.width * factor,
@@ -46932,13 +50438,44 @@ function validateBuildToRoofInput(rawInput) {
     }
     if (v < min || v > max)
       errors.push(
-        `${label} must be between ${min} and ${max} (got ${round2(v, 3)})`
+        `${label} must be between ${min} and ${max} (got ${round4(v, 3)})`
       );
   };
   const nonNeg = (label, v) => {
     if (!Number.isFinite(v) || v < 0)
       errors.push(`${label} cannot be negative (got ${v})`);
   };
+  const oneOf = (label, value, allowed) => {
+    if (!allowed.includes(String(value))) {
+      errors.push(
+        `${label} "${String(value)}" is not recognised. Use one of: ${allowed.join(", ")}`
+      );
+    }
+  };
+  oneOf("Building type", input.building_type, [
+    "bungalow",
+    "duplex",
+    "two_storey",
+    "apartment",
+    "office",
+    "shop",
+    "custom"
+  ]);
+  oneOf("Roof type", input.roof_type, [
+    "gable",
+    "hip",
+    "mono_pitch",
+    "flat",
+    "custom"
+  ]);
+  oneOf("Roofing material", input.roofing_material, [
+    "long_span_aluminium",
+    "stone_coated",
+    "gi_sheet",
+    "shingle",
+    "custom"
+  ]);
+  oneOf("Block size", input.block_size, ["9inch", "6inch", "5inch", "custom"]);
   num("Building length", input.building_length, 1, 300);
   num("Building width", input.building_width, 1, 300);
   num("Number of floors", input.number_of_floors, 1, 100, true);
@@ -46979,7 +50516,7 @@ function validateBuildToRoofInput(rawInput) {
     if (!Number.isFinite(v) || v < 0)
       errors.push(`Price (${k}) cannot be negative (got ${v})`);
   }
-  for (const o of input.openings) {
+  for (const o of input.openings ?? []) {
     if (o.count < 0 || !Number.isInteger(o.count))
       errors.push(
         `Opening "${o.label ?? o.type}" count must be a whole number \u2265 0`
@@ -46989,7 +50526,7 @@ function validateBuildToRoofInput(rawInput) {
       num(`Opening "${o.label ?? o.type}" height`, o.height, 0.1, 20);
     }
   }
-  for (const m of input.structural_members) {
+  for (const m of input.structural_members ?? []) {
     nonNeg(`Structural member "${m.label}" length`, m.length);
     nonNeg(`"${m.label}" width`, m.width);
     nonNeg(`"${m.label}" depth`, m.depth);
@@ -47002,33 +50539,48 @@ function validateBuildToRoofInput(rawInput) {
 }
 function calculateBuildToRoof(input) {
   const input_m = input.measurement_unit === "ft" ? convertBuildToRoofUnits(input, M_PER_FT) : input;
-  const validationErrors = validateBuildToRoofInput(input);
+  const appliedDefaults = [];
+  if (!input_m.wastage) appliedDefaults.push("wastage allowances");
+  if (!input_m.prices) appliedDefaults.push("material prices");
+  if (!input_m.labour) appliedDefaults.push("labour rates");
+  const withDefaults = {
+    ...input_m,
+    // input_m is metric by construction, and the validator converts ft input
+    // to metric itself. Leaving the flag as "ft" here converted the values a
+    // second time and rejected a perfectly good imperial estimate.
+    measurement_unit: "m",
+    wastage: { ...DEFAULT_WASTAGE, ...input_m.wastage ?? {} },
+    prices: { ...DEFAULT_PRICES, ...input_m.prices ?? {} },
+    labour: { ...DEFAULT_LABOUR, ...input_m.labour ?? {} }
+  };
+  const validationErrors = validateBuildToRoofInput(withDefaults);
   if (validationErrors.length > 0) {
     throw new Error(
       `Build-to-Roof input is invalid: ${validationErrors.join("; ")}`
     );
   }
   const stages = [];
-  const includeFoundation = input_m.included_stages?.foundation !== false;
-  const includeWalls = input_m.included_stages?.walls !== false;
-  const includeRoof = input_m.included_stages?.roof !== false;
+  const normalized = withDefaults;
+  const includeFoundation = normalized.included_stages?.foundation !== false;
+  const includeWalls = normalized.included_stages?.walls !== false;
+  const includeRoof = normalized.included_stages?.roof !== false;
   if (includeFoundation) {
-    stages.push(calcSiteAndFoundation(input_m));
-    stages.push(calcGroundFloor(input_m));
+    stages.push(calcSiteAndFoundation(normalized));
+    stages.push(calcGroundFloor(normalized));
   }
   if (includeWalls) {
-    stages.push(calcWalls(input_m));
-    stages.push(calcStructuralFrame(input_m));
+    stages.push(calcWalls(normalized));
+    stages.push(calcStructuralFrame(normalized));
   }
   if (includeRoof) {
-    stages.push(calcRoofing(input_m));
+    stages.push(calcRoofing(normalized));
   }
   if (stages.length === 0) {
-    stages.push(calcSiteAndFoundation(input_m));
-    stages.push(calcGroundFloor(input_m));
-    stages.push(calcWalls(input_m));
-    stages.push(calcStructuralFrame(input_m));
-    stages.push(calcRoofing(input_m));
+    stages.push(calcSiteAndFoundation(normalized));
+    stages.push(calcGroundFloor(normalized));
+    stages.push(calcWalls(normalized));
+    stages.push(calcStructuralFrame(normalized));
+    stages.push(calcRoofing(normalized));
   }
   const shoppingList = consolidateMaterials(stages);
   const materialsTotal = stages.reduce(
@@ -47039,7 +50591,7 @@ function calculateBuildToRoof(input) {
     (s, stage) => s + stage.labour_total,
     0
   );
-  const roleLabourTotal = input.labour.bricklayer_per_day * input.labour.bricklayer_days + input.labour.foreman_per_day * input.labour.foreman_days + input.labour.supervisor_per_day * input.labour.supervisor_days + input.labour.carpenter_per_day * input.labour.carpenter_days + input.labour.concrete_labourer_per_day * input.labour.concrete_labourer_days + (input.labour.contractor_fee_type === "contract" ? input.labour.contractor_fee : input.labour.contractor_fee * input.labour.contractor_days);
+  const roleLabourTotal = normalized.labour.bricklayer_per_day * normalized.labour.bricklayer_days + normalized.labour.foreman_per_day * normalized.labour.foreman_days + normalized.labour.supervisor_per_day * normalized.labour.supervisor_days + normalized.labour.carpenter_per_day * normalized.labour.carpenter_days + normalized.labour.concrete_labourer_per_day * normalized.labour.concrete_labourer_days + (normalized.labour.contractor_fee_type === "contract" ? normalized.labour.contractor_fee : normalized.labour.contractor_fee * normalized.labour.contractor_days);
   const labourTotal = taskLabourTotal + roleLabourTotal;
   const wastageAllowance = stages.reduce((sum, stage) => {
     return sum + stage.materials.reduce((s, m) => {
@@ -47047,7 +50599,7 @@ function calculateBuildToRoof(input) {
       return s + Math.max(0, m.total_cost - base);
     }, 0);
   }, 0);
-  const contingency = (materialsTotal + labourTotal) * (input.contingency_percent / 100);
+  const contingency = (materialsTotal + labourTotal) * (normalized.contingency_percent / 100);
   const grandTotal = materialsTotal + labourTotal + contingency;
   const confidence = assessConfidence(input);
   const assumptions = [
@@ -47063,7 +50615,7 @@ function calculateBuildToRoof(input) {
     `Foundation blockwork: ${FOUNDATION_COURSES} courses (including mortar joints)`,
     `Dry/wet concrete ratio: ${DRY_WET_RATIO}`,
     `Dry/wet mortar ratio: ${MORTAR_DRY_WET_RATIO}`,
-    `Prices as of: ${input.prices.price_date} (${input.prices.price_source})`
+    `Prices as of: ${normalized.prices.price_date} (${normalized.prices.price_source})`
   ];
   const limitations = [
     "This estimate stops at the Build-to-Roof stage. It does NOT include plastering, painting, screeding, tiling, POP/ceiling finishing, doors, windows, plumbing, electrical, or other finishing works.",
@@ -47090,7 +50642,7 @@ function calculateBuildToRoof(input) {
       "Architectural drawing, no drawing uploaded. Dimensions are user-entered and should be verified against actual plans."
     );
   }
-  if (input.openings.length === 0) {
+  if ((input.openings ?? []).length === 0) {
     missingInfo.push(
       "Door/window openings not specified, wall quantities include the full gross area with no deductions."
     );
@@ -47102,8 +50654,8 @@ function calculateBuildToRoof(input) {
     number_of_floors: input.number_of_floors,
     // Use the METRIC input, in ft mode the raw values are feet and must not
     // be reported as m².
-    total_floor_area: round2(
-      input_m.building_length * input_m.building_width * input_m.number_of_floors
+    total_floor_area: round4(
+      normalized.building_length * normalized.building_width * normalized.number_of_floors
     ),
     construction_stage: "SITE \u2192 FOUNDATION \u2192 GROUND FLOOR \u2192 WALLS \u2192 STRUCTURAL FRAME \u2192 ROOF \u2192 READY FOR FINISHING",
     confidence: confidence.level,
@@ -47111,32 +50663,32 @@ function calculateBuildToRoof(input) {
     stages,
     shopping_list: shoppingList,
     reinforcement_breakdown: stages.find((s) => s.reinforcement_breakdown)?.reinforcement_breakdown,
-    materials_total: round2(materialsTotal),
-    labour_total: round2(labourTotal),
-    wastage_allowance: round2(wastageAllowance),
-    contingency: round2(contingency),
-    grand_total: round2(grandTotal),
+    materials_total: round4(materialsTotal),
+    labour_total: round4(labourTotal),
+    wastage_allowance: round4(wastageAllowance),
+    contingency: round4(contingency),
+    grand_total: round4(grandTotal),
     assumptions,
     limitations,
     missing_info: missingInfo,
-    price_date: input.prices.price_date,
-    price_source: input.prices.price_source,
+    price_date: normalized.prices.price_date,
+    price_source: normalized.prices.price_source,
     price_age_days: Math.floor(
-      (Date.now() - new Date(input.prices.price_date).getTime()) / (1e3 * 60 * 60 * 24)
+      (Date.now() - new Date(normalized.prices.price_date).getTime()) / (1e3 * 60 * 60 * 24)
     ),
     price_stale: Math.floor(
-      (Date.now() - new Date(input.prices.price_date).getTime()) / (1e3 * 60 * 60 * 24)
+      (Date.now() - new Date(normalized.prices.price_date).getTime()) / (1e3 * 60 * 60 * 24)
     ) > 30
   };
 }
-var CEMENT_VOLUME_PER_BAG, DRY_WET_RATIO, MORTAR_DRY_WET_RATIO, MORTAR_JOINT_THICKNESS, STIRRUP_HOOK_MULTIPLIER, SHEET_COVERAGE, SCREWS_PER_SHEET, PURLIN_ROWS_PER_SLOPE, RAFTER_SPACING, FOUNDATION_COURSES, M_PER_FT, M3_PER_TRIP, REBAR_STANDARD_LENGTH, UNIT_SCALAR_FIELDS, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE, CALCULATOR_TYPE2;
+var CEMENT_VOLUME_PER_BAG, DRY_WET_RATIO, MORTAR_DRY_WET_RATIO, MORTAR_JOINT_THICKNESS, STIRRUP_HOOK_MULTIPLIER, SHEET_COVERAGE, LONG_SPAN_COVER_WIDTH_M, SCREWS_PER_SHEET, PURLIN_SPACING_M, PURLIN_ROWS_PER_SLOPE, RAFTER_SPACING, FOUNDATION_COURSES, M_PER_FT, M3_PER_TRIP, REBAR_STANDARD_LENGTH, UNIT_SCALAR_FIELDS, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE, CALCULATOR_TYPE2;
 var init_build_to_roof_engine = __esm({
   "src/lib/estimation/build-to-roof-engine.ts"() {
     init_define_import_meta_env();
     CEMENT_VOLUME_PER_BAG = 0.0347;
     DRY_WET_RATIO = 1.54;
     MORTAR_DRY_WET_RATIO = 1.33;
-    MORTAR_JOINT_THICKNESS = 0.025;
+    MORTAR_JOINT_THICKNESS = 0.012;
     STIRRUP_HOOK_MULTIPLIER = 10;
     SHEET_COVERAGE = {
       long_span_aluminium: 1.5,
@@ -47150,7 +50702,9 @@ var init_build_to_roof_engine = __esm({
       custom: 1.5
       // fallback
     };
+    LONG_SPAN_COVER_WIDTH_M = 0.9;
     SCREWS_PER_SHEET = 10;
+    PURLIN_SPACING_M = 1;
     PURLIN_ROWS_PER_SLOPE = 4;
     RAFTER_SPACING = 0.9;
     FOUNDATION_COURSES = 4;
@@ -47289,10 +50843,1334 @@ var init_build_to_roof_engine = __esm({
   }
 });
 
+// src/lib/takeoff/measure.ts
+function measureWall(wall, deductAbove = DEFAULT_OPENING_DEDUCT_ABOVE_M2) {
+  const length = toMetres(wall.length, wall.unit ?? "m");
+  const height = toMetres(wall.height, wall.unit ?? "m");
+  const grossArea = areaM2(length, height);
+  const measuredOpenings = [];
+  const deductedOpenings = [];
+  let deducted = 0;
+  let skirtingCut = 0;
+  for (const opening of wall.openings ?? []) {
+    const area = openingAreaM2(opening);
+    if (area <= 0) continue;
+    if (area >= (opening.deductAbove ?? deductAbove)) {
+      const width = toMetres(opening.width, opening.unit ?? "m");
+      const breaks = interruptsSkirting(opening);
+      deductedOpenings.push({
+        id: opening.id,
+        area,
+        width,
+        interruptsSkirting: breaks
+      });
+      deducted += area;
+      if (breaks) skirtingCut += width;
+    } else {
+      measuredOpenings.push({ id: opening.id, area });
+    }
+  }
+  const capped = Math.min(deducted, grossArea);
+  const netArea = round5(Math.max(0, grossArea - capped), 4);
+  return {
+    length,
+    height,
+    grossArea,
+    deductedArea: round5(capped, 4),
+    netArea,
+    skirtingLength: length,
+    // A wall cannot lose more skirting than it has, and a door wider than its
+    // wall is a schedule error rather than a negative length.
+    netSkirtingLength: round5(Math.max(0, length - skirtingCut), 4),
+    measuredOpenings,
+    deductedOpenings,
+    warning: deducted > grossArea + 1e-9 ? `Openings deduct more than the wall area (${round5(deducted, 2)} m2 against ${grossArea} m2); the deduction was capped.` : void 0
+  };
+}
+var METRES_PER_UNIT, DEFAULT_OPENING_DEDUCT_ABOVE_M2, round5, toMetres, areaM2, openingAreaM2, SKIRTING_INTERRUPT_HEIGHT_M, interruptsSkirting, applyWaste, roundUpToWhole, packsRequired;
+var init_measure = __esm({
+  "src/lib/takeoff/measure.ts"() {
+    init_define_import_meta_env();
+    METRES_PER_UNIT = {
+      m: 1,
+      mm: 1e-3,
+      ft: 0.3048,
+      in: 0.0254
+    };
+    DEFAULT_OPENING_DEDUCT_ABOVE_M2 = 0.5;
+    round5 = (value, places = 2) => {
+      const factor = 10 ** places;
+      return Math.round((value + Number.EPSILON) * factor) / factor;
+    };
+    toMetres = (value, unit = "m") => {
+      if (!Number.isFinite(value) || value <= 0) return 0;
+      return round5(value * METRES_PER_UNIT[unit], 4);
+    };
+    areaM2 = (length, width) => round5(Math.max(0, length) * Math.max(0, width), 4);
+    openingAreaM2 = (opening) => {
+      const width = toMetres(opening.width, opening.unit ?? "m");
+      const height = toMetres(opening.height, opening.unit ?? "m");
+      return areaM2(width, height);
+    };
+    SKIRTING_INTERRUPT_HEIGHT_M = 2;
+    interruptsSkirting = (opening) => {
+      if (opening.kind === "door" || opening.kind === "opening") return true;
+      if (opening.kind === "window") return false;
+      return toMetres(opening.height, opening.unit ?? "m") >= SKIRTING_INTERRUPT_HEIGHT_M;
+    };
+    applyWaste = (netQuantity, wastePct) => {
+      const safeWaste = Number.isFinite(wastePct) && wastePct > 0 ? wastePct : 0;
+      return round5(Math.max(0, netQuantity) * (1 + safeWaste / 100), 4);
+    };
+    roundUpToWhole = (quantity) => Math.max(0, Math.ceil(round5(quantity, 4) - 1e-9));
+    packsRequired = (quantity, coveragePerPack) => {
+      if (!Number.isFinite(coveragePerPack) || coveragePerPack <= 0) return 0;
+      return roundUpToWhole(quantity / coveragePerPack);
+    };
+  }
+});
+
+// src/lib/takeoff/assemblies.ts
+function blockworkAssembly(areaM22, spec = {}) {
+  const lengthMm = spec.blockLengthMm ?? 450;
+  const heightMm = spec.blockHeightMm ?? 225;
+  const mortarPerM2 = spec.mortarPerM2M3 ?? 0.03;
+  const cement = Math.max(1, spec.mix?.cement ?? 1);
+  const sand = Math.max(1, spec.mix?.sand ?? 6);
+  const wastePct = spec.wastePct ?? 5;
+  const mortarWastePct = spec.mortarWastePct ?? 10;
+  const faceM2 = lengthMm / 1e3 * (heightMm / 1e3);
+  const perM2 = faceM2 > 0 ? 1 / faceM2 : 0;
+  const netBlocks = round5(areaM22 * perM2, 4);
+  const blocks = applyWaste(netBlocks, wastePct);
+  const mortarNet = round5(areaM22 * mortarPerM2, 4);
+  const mortar = applyWaste(mortarNet, mortarWastePct);
+  const parts = cement + sand;
+  const cementM3 = mortar * (cement / parts);
+  const sandM3 = mortar * (sand / parts);
+  const cementBags = Math.ceil(cementM3 / CEMENT_BAG_M3);
+  return [
+    {
+      material: "Blocks",
+      unit: "nr",
+      netQuantity: netBlocks,
+      wastePct,
+      quantity: blocks,
+      purchaseQuantity: Math.ceil(blocks),
+      purchaseUnit: "blocks",
+      derivation: {
+        formula: "area x 1 / (block length x block height), then waste",
+        inputs: {
+          areaM2: round5(areaM22, 4),
+          blockLengthMm: lengthMm,
+          blockHeightMm: heightMm,
+          wastePct
+        },
+        steps: [
+          { label: "Face area per block", value: round5(faceM2, 4), unit: "m2" },
+          { label: "Blocks per m2", value: round5(perM2, 2), unit: "nr" },
+          { label: "Before waste", value: netBlocks, unit: "nr" }
+        ]
+      }
+    },
+    {
+      material: "Mortar",
+      unit: "m3",
+      netQuantity: mortarNet,
+      wastePct: mortarWastePct,
+      quantity: mortar,
+      derivation: {
+        formula: "area x mortar per m2, then waste",
+        inputs: {
+          areaM2: round5(areaM22, 4),
+          mortarPerM2M3: mortarPerM2,
+          mortarWastePct
+        }
+      }
+    },
+    {
+      material: "Cement",
+      unit: "kg",
+      netQuantity: round5(cementM3 / CEMENT_BAG_M3 * CEMENT_BAG_KG, 2),
+      wastePct: mortarWastePct,
+      quantity: round5(cementBags * CEMENT_BAG_KG, 2),
+      purchaseQuantity: cementBags,
+      purchaseUnit: "bags of 50 kg",
+      derivation: {
+        formula: "mortar x cement parts / total parts / bag volume, rounded up to whole bags",
+        inputs: { mortarM3: mortar, cement, sand, bagM3: CEMENT_BAG_M3 },
+        steps: [
+          { label: "Cement volume", value: round5(cementM3, 4), unit: "m3" },
+          { label: "Bags", value: cementBags, unit: "nr" }
+        ]
+      }
+    },
+    {
+      material: "Sand",
+      unit: "m3",
+      netQuantity: round5(sandM3, 4),
+      wastePct: mortarWastePct,
+      quantity: round5(sandM3, 4),
+      derivation: {
+        formula: "mortar x sand parts / total parts",
+        inputs: { mortarM3: mortar, cement, sand }
+      }
+    }
+  ];
+}
+function renderAssembly(areaM22, spec = {}) {
+  const thicknessMm = spec.thicknessMm ?? 15;
+  const cement = Math.max(1, spec.mix?.cement ?? 1);
+  const sand = Math.max(1, spec.mix?.sand ?? 4);
+  const wastePct = spec.wastePct ?? 10;
+  const netMortar = round5(areaM22 * (thicknessMm / 1e3), 4);
+  const mortar = applyWaste(netMortar, wastePct);
+  const parts = cement + sand;
+  const cementBags = Math.ceil(mortar * (cement / parts) / CEMENT_BAG_M3);
+  return [
+    {
+      material: "Render mortar",
+      unit: "m3",
+      netQuantity: netMortar,
+      wastePct,
+      quantity: mortar,
+      derivation: {
+        formula: "area x thickness, then waste",
+        inputs: { areaM2: round5(areaM22, 4), thicknessMm, wastePct }
+      }
+    },
+    {
+      material: "Cement",
+      unit: "kg",
+      netQuantity: round5(
+        mortar * (cement / parts) / CEMENT_BAG_M3 * CEMENT_BAG_KG,
+        2
+      ),
+      wastePct,
+      quantity: round5(cementBags * CEMENT_BAG_KG, 2),
+      purchaseQuantity: cementBags,
+      purchaseUnit: "bags of 50 kg",
+      derivation: {
+        formula: "mortar x cement parts / total parts / bag volume, rounded up to whole bags",
+        inputs: { mortarM3: mortar, cement, sand, bagM3: CEMENT_BAG_M3 }
+      }
+    }
+  ];
+}
+function paintAssembly(areaM22, spec = {}) {
+  const coats = Math.max(1, spec.coats ?? 2);
+  const coverage = spec.coverageM2PerLitre ?? 10;
+  const packLitres = spec.packLitres ?? 5;
+  const wastePct = spec.wastePct ?? 5;
+  const netLitres = coverage > 0 ? round5(areaM22 * coats / coverage, 3) : 0;
+  const litres = applyWaste(netLitres, wastePct);
+  const packs = packLitres > 0 ? packsRequired(litres, packLitres) : 0;
+  return [
+    {
+      material: "Paint",
+      unit: "L",
+      netQuantity: netLitres,
+      wastePct,
+      quantity: litres,
+      purchaseQuantity: packs,
+      purchaseUnit: `${packLitres} L packs`,
+      derivation: {
+        formula: "area x coats / coverage, then waste, rounded up to packs",
+        inputs: {
+          areaM2: round5(areaM22, 4),
+          coats,
+          coverage,
+          packLitres,
+          wastePct
+        },
+        steps: [
+          { label: "Litres before waste", value: netLitres, unit: "L" },
+          { label: "Packs", value: packs, unit: "nr" }
+        ]
+      }
+    }
+  ];
+}
+function floorTileAssembly(areaM22, spec = {}) {
+  const lengthMm = spec.tileLengthMm ?? 600;
+  const widthMm = spec.tileWidthMm ?? 600;
+  const adhesivePerM2 = spec.adhesiveKgPerM2 ?? 4;
+  const groutPerM2 = spec.groutKgPerM2 ?? 0.5;
+  const wastePct = spec.wastePct ?? 10;
+  const tileM2 = lengthMm / 1e3 * (widthMm / 1e3);
+  const perM2 = tileM2 > 0 ? 1 / tileM2 : 0;
+  const netTiles = round5(areaM22 * perM2, 4);
+  const tiles = applyWaste(netTiles, wastePct);
+  const netAdhesive = round5(areaM22 * adhesivePerM2, 2);
+  const netGrout = round5(areaM22 * groutPerM2, 2);
+  const packs = spec.packCoverageM2 ? packsRequired(applyWaste(areaM22, wastePct), spec.packCoverageM2) : void 0;
+  const lines = [
+    {
+      material: "Tiles",
+      unit: "nr",
+      netQuantity: netTiles,
+      wastePct,
+      quantity: tiles,
+      purchaseQuantity: roundUpTiles(tiles),
+      purchaseUnit: "tiles",
+      derivation: {
+        formula: "area x 1 / (tile length x tile width), then waste",
+        inputs: {
+          areaM2: round5(areaM22, 4),
+          tileLengthMm: lengthMm,
+          tileWidthMm: widthMm,
+          wastePct
+        },
+        steps: [
+          { label: "Tiles per m2", value: round5(perM2, 2), unit: "nr" },
+          { label: "Before waste", value: netTiles, unit: "nr" }
+        ]
+      }
+    },
+    {
+      material: "Tile adhesive",
+      unit: "kg",
+      netQuantity: netAdhesive,
+      wastePct,
+      quantity: applyWaste(netAdhesive, wastePct),
+      purchaseQuantity: Math.ceil(applyWaste(netAdhesive, wastePct) / 20),
+      purchaseUnit: "bags of 20 kg",
+      derivation: {
+        formula: "area x adhesive per m2, then waste",
+        inputs: { areaM2: round5(areaM22, 4), adhesivePerM2, wastePct }
+      }
+    },
+    {
+      material: "Grout",
+      unit: "kg",
+      netQuantity: netGrout,
+      wastePct,
+      quantity: applyWaste(netGrout, wastePct),
+      derivation: {
+        formula: "area x grout per m2, then waste",
+        inputs: { areaM2: round5(areaM22, 4), groutPerM2, wastePct }
+      }
+    }
+  ];
+  if (packs !== void 0) {
+    lines.push({
+      material: "Tile packs",
+      unit: "packs",
+      netQuantity: round5(areaM22, 4),
+      wastePct,
+      quantity: packs,
+      purchaseQuantity: packs,
+      purchaseUnit: "packs",
+      derivation: {
+        formula: "wasted area / coverage per pack, rounded up",
+        inputs: {
+          areaM2: round5(areaM22, 4),
+          wastePct,
+          packCoverageM2: spec.packCoverageM2 ?? 0
+        }
+      }
+    });
+  }
+  return lines;
+}
+function screedAssembly(areaM22, spec = {}) {
+  const thicknessMm = spec.thicknessMm ?? 50;
+  const cement = Math.max(1, spec.mix?.cement ?? 1);
+  const sand = Math.max(1, spec.mix?.sand ?? 4);
+  const wastePct = spec.wastePct ?? 10;
+  const netVolume = round5(areaM22 * (thicknessMm / 1e3), 4);
+  const volume = applyWaste(netVolume, wastePct);
+  const parts = cement + sand;
+  const cementBags = Math.ceil(volume * (cement / parts) / CEMENT_BAG_M3);
+  return [
+    {
+      material: "Screed concrete",
+      unit: "m3",
+      netQuantity: netVolume,
+      wastePct,
+      quantity: volume,
+      derivation: {
+        formula: "area x thickness, then waste",
+        inputs: { areaM2: round5(areaM22, 4), thicknessMm, wastePct }
+      }
+    },
+    {
+      material: "Cement",
+      unit: "kg",
+      netQuantity: round5(
+        volume * (cement / parts) / CEMENT_BAG_M3 * CEMENT_BAG_KG,
+        2
+      ),
+      wastePct,
+      quantity: round5(cementBags * CEMENT_BAG_KG, 2),
+      purchaseQuantity: cementBags,
+      purchaseUnit: "bags of 50 kg",
+      derivation: {
+        formula: "volume x cement parts / total parts, rounded up to bags",
+        inputs: { volumeM3: volume, cement, sand, bagM3: CEMENT_BAG_M3 }
+      }
+    },
+    {
+      material: "Sand",
+      unit: "m3",
+      netQuantity: round5(volume * (sand / parts), 4),
+      wastePct,
+      quantity: round5(volume * (sand / parts), 4),
+      derivation: {
+        formula: "volume x sand parts / total parts",
+        inputs: { volumeM3: volume, cement, sand }
+      }
+    }
+  ];
+}
+function skirtingAssembly(lengthM, spec = {}) {
+  const boardLengthM = spec.boardLengthM ?? 2.4;
+  const adhesivePerM = spec.adhesiveKgPerM ?? 0.05;
+  const netLength = round5(Math.max(0, lengthM), 3);
+  const totalLength = applyWaste(netLength, 6);
+  const boards = boardLengthM > 0 ? Math.ceil(round5(totalLength / boardLengthM, 4) - 1e-9) : 0;
+  const adhesive = round5(applyWaste(netLength * adhesivePerM, 5), 2);
+  return [
+    {
+      material: "Skirting boards",
+      unit: "m",
+      netQuantity: netLength,
+      wastePct: 6,
+      quantity: totalLength,
+      purchaseQuantity: boards,
+      purchaseUnit: `${boardLengthM} m boards`,
+      derivation: {
+        formula: "net run, then 6% waste, divided into stock lengths rounded up",
+        inputs: { lengthM: netLength, boardLengthM },
+        steps: [
+          { label: "Run before waste", value: netLength, unit: "m" },
+          { label: "Boards", value: boards, unit: "nr" }
+        ]
+      }
+    },
+    {
+      material: "Skirting adhesive",
+      unit: "kg",
+      netQuantity: round5(netLength * adhesivePerM, 3),
+      wastePct: 5,
+      quantity: adhesive,
+      derivation: {
+        formula: "run x adhesive per metre, then waste",
+        inputs: { lengthM: netLength, adhesivePerM }
+      }
+    }
+  ];
+}
+var CEMENT_BAG_M3, CEMENT_BAG_KG, roundUpTiles;
+var init_assemblies = __esm({
+  "src/lib/takeoff/assemblies.ts"() {
+    init_define_import_meta_env();
+    init_measure();
+    CEMENT_BAG_M3 = 0.035;
+    CEMENT_BAG_KG = 50;
+    roundUpTiles = (tiles) => Math.ceil(round5(tiles, 4) - 1e-9);
+  }
+});
+
+// src/lib/takeoff/engine.ts
+var engine_exports = {};
+__export(engine_exports, {
+  ALL_SCOPES: () => ALL_SCOPES,
+  SCOPE_LABELS: () => SCOPE_LABELS,
+  roomTakeoff: () => roomTakeoff,
+  runTakeoff: () => runTakeoff
+});
+function runTakeoff(schedule, options = {}) {
+  const scopes = options.scopes?.length ? options.scopes : ALL_SCOPES;
+  const deductAbove = options.deductAbove ?? schedule.defaultOpeningDeductAbove ?? DEFAULT_OPENING_DEDUCT_ABOVE_M2;
+  const warnings = [];
+  const wallAreas = [];
+  const floorAreas = [];
+  const notesByScope = /* @__PURE__ */ new Map();
+  const addNote = (scope, note) => {
+    const notes = notesByScope.get(scope) ?? [];
+    if (!notes.includes(note)) notes.push(note);
+    notesByScope.set(scope, notes);
+  };
+  if (!schedule.rooms?.length) {
+    warnings.push("The schedule has no rooms, so there is nothing to measure.");
+  }
+  for (const room of schedule.rooms ?? []) {
+    const roomId = room.id;
+    const roomLabel = room.label ?? roomId;
+    for (const [index, wall] of (room.walls ?? []).entries()) {
+      const measure = measureWall(wall, deductAbove);
+      const id = wallId(wall, index, roomId);
+      if (measure.netArea <= 0) {
+        warnings.push(`Wall ${id} in ${roomLabel} has no measurable area.`);
+        continue;
+      }
+      if (measure.warning)
+        warnings.push(`${id} in ${roomLabel}: ${measure.warning}`);
+      if (measure.measuredOpenings.length) {
+        addNote(
+          "paint",
+          `${measure.measuredOpenings.length} opening(s) below ${deductAbove} m2 were measured rather than deducted.`
+        );
+      }
+      wallAreas.push({
+        roomId,
+        elementId: id,
+        area: measure.netArea,
+        assumed: Boolean(wall.assumed),
+        skirtingLength: measure.netSkirtingLength
+      });
+    }
+    if (room.floor) {
+      const length = toMetres(room.floor.length, room.floor.unit ?? "m");
+      const width = toMetres(room.floor.width, room.floor.unit ?? "m");
+      const grossArea = areaM2(length, width);
+      const deducted = (room.floor.deductions ?? []).reduce((sum, item) => {
+        const factor = item.unit === "ft2" ? 0.092903 : 1;
+        return sum + Math.max(0, item.area * factor);
+      }, 0);
+      if (deducted > grossArea + 1e-9) {
+        warnings.push(
+          `${roomLabel}: floor deductions exceed the floor area and were capped.`
+        );
+      }
+      const netArea = round5(Math.max(0, grossArea - deducted), 4);
+      if (netArea <= 0) {
+        warnings.push(`${roomLabel}: floor has no measurable area.`);
+      } else {
+        floorAreas.push({
+          roomId,
+          elementId: `${roomId}-floor`,
+          area: netArea,
+          assumed: Boolean(room.floor.assumed)
+        });
+      }
+    }
+  }
+  const scopeInput = (scope) => {
+    const isFloor = scope === "floor_tiles" || scope === "screed" || scope === "ceiling";
+    const entries2 = isFloor ? floorAreas : wallAreas;
+    const area = round5(
+      entries2.reduce((sum, entry) => sum + entry.area, 0),
+      4
+    );
+    return {
+      scope,
+      label: SCOPE_LABELS[scope],
+      unit: "m2",
+      area,
+      entries: entries2,
+      assumed: entries2.some((entry) => entry.assumed),
+      notes: notesByScope.get(scope) ?? []
+    };
+  };
+  const lines = [];
+  if (scopes.includes("skirting")) {
+    const runs = wallAreas.filter((entry) => (entry.skirtingLength ?? 0) > 0);
+    const runLength = round5(
+      runs.reduce((sum, entry) => sum + (entry.skirtingLength ?? 0), 0),
+      4
+    );
+    if (runLength > 0) {
+      const sources = unique(runs.map((entry) => entry.elementId));
+      const assumed = runs.some((entry) => entry.assumed);
+      const steps = runs.map((entry) => ({
+        label: entry.elementId,
+        value: round5(entry.skirtingLength ?? 0, 3),
+        unit: "m"
+      }));
+      for (const material of skirtingAssembly(
+        runLength,
+        options.specs?.skirting
+      )) {
+        lines.push({
+          id: `skirting-${slug(material.material)}`,
+          scope: SCOPE_LABELS.skirting,
+          description: `${material.material} for skirting`,
+          quantity: material.quantity,
+          unit: material.unit,
+          netQuantity: material.netQuantity,
+          wastePct: material.wastePct,
+          purchaseQuantity: material.purchaseQuantity,
+          purchaseUnit: material.purchaseUnit,
+          sources,
+          derivation: {
+            formula: `wall runs less doors and full height openings, then ${material.derivation.formula}`,
+            inputs: { runLengthM: runLength, ...material.derivation.inputs },
+            steps
+          },
+          assumed
+        });
+      }
+      lines.push({
+        id: "skirting-measured-run",
+        scope: SCOPE_LABELS.skirting,
+        description: "Skirting measured run",
+        quantity: runLength,
+        unit: "m",
+        netQuantity: runLength,
+        wastePct: 0,
+        sources,
+        derivation: {
+          formula: "sum of wall lengths less every door and full height opening",
+          inputs: { runLengthM: runLength },
+          steps
+        },
+        assumed
+      });
+    } else {
+      warnings.push("Skirting: nothing measured, so no line was produced.");
+    }
+  }
+  for (const scope of scopes) {
+    if (scope === "skirting") continue;
+    const input = scopeInput(scope);
+    if (input.area <= 0) {
+      warnings.push(
+        `${input.label}: nothing measured, so no line was produced.`
+      );
+      continue;
+    }
+    const sources = unique(input.entries.map((entry) => entry.elementId));
+    const derivedFrom = input.entries.map((entry) => ({
+      label: entry.elementId,
+      value: entry.area,
+      unit: "m2"
+    }));
+    const push = (materials, suffix = "") => {
+      for (const material of materials) {
+        lines.push({
+          id: `${scope}-${slug(material.material)}${suffix}`,
+          scope: input.label,
+          description: `${material.material} for ${input.label.toLowerCase()}`,
+          quantity: material.quantity,
+          unit: material.unit,
+          netQuantity: material.netQuantity,
+          wastePct: material.wastePct,
+          purchaseQuantity: material.purchaseQuantity,
+          purchaseUnit: material.purchaseUnit,
+          sources,
+          derivation: {
+            formula: `measured area, then ${material.derivation.formula}`,
+            inputs: {
+              measuredAreaM2: input.area,
+              ...material.derivation.inputs
+            },
+            steps: [...derivedFrom, ...material.derivation.steps ?? []]
+          },
+          assumed: input.assumed,
+          notes: input.notes.length ? input.notes : void 0
+        });
+      }
+    };
+    switch (scope) {
+      case "blockwork":
+        push(blockworkAssembly(input.area, options.specs?.blockwork));
+        break;
+      case "render":
+        push(renderAssembly(input.area, options.specs?.render));
+        break;
+      case "paint":
+        push(paintAssembly(input.area, options.specs?.paint));
+        break;
+      case "floor_tiles":
+        push(floorTileAssembly(input.area, options.specs?.tiles));
+        break;
+      case "screed":
+        push(screedAssembly(input.area, options.specs?.screed));
+        break;
+      case "ceiling": {
+        const ceilingPaint = paintAssembly(
+          input.area,
+          options.specs?.ceilingPaint ?? options.specs?.paint
+        );
+        for (const material of ceilingPaint) {
+          lines.push({
+            id: `ceiling-${slug(material.material)}`,
+            scope: input.label,
+            description: `${material.material} for ceiling`,
+            quantity: material.quantity,
+            unit: material.unit,
+            netQuantity: material.netQuantity,
+            wastePct: material.wastePct,
+            purchaseQuantity: material.purchaseQuantity,
+            purchaseUnit: material.purchaseUnit,
+            sources,
+            derivation: {
+              formula: `measured ceiling area, then ${material.derivation.formula}`,
+              inputs: {
+                measuredAreaM2: input.area,
+                ...material.derivation.inputs
+              },
+              steps: [...derivedFrom, ...material.derivation.steps ?? []]
+            },
+            assumed: input.assumed,
+            notes: ["Ceilings are measured on the floor area they cover."]
+          });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    lines.push({
+      id: `${scope}-measured-area`,
+      scope: input.label,
+      description: `${input.label} measured area`,
+      quantity: input.area,
+      unit: "m2",
+      netQuantity: input.area,
+      wastePct: 0,
+      sources,
+      derivation: {
+        formula: scope === "floor_tiles" || scope === "screed" || scope === "ceiling" ? "floor length x width - floor deductions" : "wall length x height - deducted openings",
+        inputs: { measuredAreaM2: input.area },
+        steps: derivedFrom
+      },
+      assumed: input.assumed,
+      notes: input.notes.length ? input.notes : void 0
+    });
+  }
+  return {
+    lines,
+    totals: sumLinesByUnit(lines),
+    assumedLineCount: lines.filter((line) => line.assumed).length,
+    warnings: unique(warnings)
+  };
+}
+function sumLinesByUnit(lines) {
+  const totals = /* @__PURE__ */ new Map();
+  for (const line of lines) {
+    totals.set(
+      line.unit,
+      round5((totals.get(line.unit) ?? 0) + line.quantity, 4)
+    );
+  }
+  return Array.from(totals.entries()).map(([unit, quantity]) => ({ unit, quantity })).sort((a, b) => a.unit.localeCompare(b.unit));
+}
+var ALL_SCOPES, wallId, SCOPE_LABELS, slug, unique, roomTakeoff;
+var init_engine = __esm({
+  "src/lib/takeoff/engine.ts"() {
+    init_define_import_meta_env();
+    init_measure();
+    init_assemblies();
+    ALL_SCOPES = [
+      "blockwork",
+      "render",
+      "paint",
+      "ceiling",
+      "floor_tiles",
+      "screed",
+      "skirting"
+    ];
+    wallId = (wall, index, roomId) => wall.id || `${roomId}-wall-${index + 1}`;
+    SCOPE_LABELS = {
+      blockwork: "Blockwork",
+      render: "Render",
+      paint: "Paint",
+      ceiling: "Ceiling",
+      floor_tiles: "Floor tiling",
+      screed: "Screed",
+      skirting: "Skirting"
+    };
+    slug = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    unique = (values) => Array.from(new Set(values));
+    roomTakeoff = (room, options = {}) => runTakeoff({ id: room.id, label: room.label, rooms: [room] }, options);
+  }
+});
+
+// src/config/window-blinds.ts
+function blindBookFor(market) {
+  return BLIND_PRICE_BOOKS[(market ?? "").toUpperCase()] ?? null;
+}
+var BLIND_TYPES, BLIND_TYPE_BY_KEY, BLIND_PRICE_BOOKS, BLIND_GRADES, BLIND_GRADE_BY_KEY;
+var init_window_blinds = __esm({
+  "src/config/window-blinds.ts"() {
+    init_define_import_meta_env();
+    BLIND_TYPES = [
+      {
+        key: "roller",
+        label: "Roller",
+        family: "Fabric, plain",
+        observedBand: "8,500 to 12,500 per m2",
+        wastage: 0.1,
+        maxPanelWidthM: 3,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Sold per window as often as per metre. Wide drops and blackout fabric sit above this band."
+      },
+      {
+        key: "day-night",
+        label: "Day and night",
+        family: "Double fabric, alternating stripes",
+        observedBand: "8,000 to 13,500 per m2",
+        wastage: 0.1,
+        maxPanelWidthM: 2.8,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Premium prints quote 20,000 to 38,000 per window, so grade matters more than size here."
+      },
+      {
+        key: "zebra",
+        label: "Zebra",
+        family: "Striped sheer and opaque",
+        observedBand: "8,000 to 12,500 per m2",
+        wastage: 0.1,
+        maxPanelWidthM: 2.8,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Priced with day and night in most Nigerian shops."
+      },
+      {
+        key: "vertical",
+        label: "Vertical",
+        family: "Fabric louvres on a track",
+        observedBand: "15,000 to 18,000 per m2",
+        wastage: 0.12,
+        maxPanelWidthM: 4.5,
+        sample: { widthM: 1.83, heightM: 2.13 },
+        note: "Track and louvre count drive the price, so wide openings climb faster than tall ones."
+      },
+      {
+        key: "venetian-25",
+        label: "Venetian, 25 mm",
+        family: "Aluminium mini slat",
+        observedBand: "4,500 to 6,000 per m2",
+        wastage: 0.08,
+        maxPanelWidthM: 2.4,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "The cheapest type per metre, and the one most often quoted with a minimum charge."
+      },
+      {
+        key: "venetian-50",
+        label: "Venetian, 50 mm",
+        family: "Aluminium wide slat",
+        observedBand: "6,500 to 8,000 per m2",
+        wastage: 0.08,
+        maxPanelWidthM: 3,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Wide slats span further before sagging, so they suit large windows better."
+      },
+      {
+        key: "roman",
+        label: "Roman",
+        family: "Folded fabric on a batten",
+        observedBand: "12,000 to 15,000 per m2",
+        wastage: 0.15,
+        maxPanelWidthM: 2.2,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Fold allowance is the reason roman blinds waste more fabric than a roller."
+      },
+      {
+        key: "faux-wood",
+        label: "Faux wood",
+        family: "Composite slat",
+        observedBand: "15,000 to 20,000 per m2",
+        wastage: 0.08,
+        maxPanelWidthM: 2.4,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Handles humidity better than real timber, at roughly half the cost."
+      },
+      {
+        key: "wooden",
+        label: "Wooden",
+        family: "Real timber slat",
+        observedBand: "15,000 to 25,000 per m2",
+        wastage: 0.08,
+        maxPanelWidthM: 2.4,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "Least standardised category in the market. Sellers quote 33,000 to 75,000 per window instead."
+      },
+      {
+        key: "pleated",
+        label: "Pleated",
+        family: "Honeycomb or folded speciality",
+        observedBand: "40,000 per m2, single vendor",
+        wastage: 0.12,
+        maxPanelWidthM: 2.4,
+        sample: { widthM: 1.219, heightM: 1.219 },
+        note: "One seller only. Treat as indicative until a second source agrees."
+      },
+      {
+        key: "bamboo",
+        label: "Bamboo",
+        family: "Woven natural roll up",
+        observedBand: "Import resale only, 21,000 to 128,000 per piece",
+        wastage: 0.1,
+        maxPanelWidthM: 2.4,
+        sample: { widthM: 1.83, heightM: 2.13 },
+        note: "No reliable local per metre rate. The estimator asks for a manual price instead of guessing."
+      }
+    ];
+    BLIND_TYPE_BY_KEY = BLIND_TYPES.reduce(
+      (acc, type) => ({ ...acc, [type.key]: type }),
+      {}
+    );
+    BLIND_PRICE_BOOKS = {
+      NG: {
+        currency: "NGN",
+        currencySymbol: "\u20A6",
+        installPerWindow: 5e3,
+        source: "Nigerian vendor price lists and Jiji listings scanned November 2026, top of each observed band",
+        types: {
+          roller: { perM2: 12500, minimumPerWindow: 16e3 },
+          "day-night": { perM2: 13500, minimumPerWindow: 15500 },
+          zebra: { perM2: 12500, minimumPerWindow: 15500 },
+          vertical: { perM2: 18e3, minimumPerWindow: 25e3 },
+          "venetian-25": { perM2: 6e3, minimumPerWindow: 15e3 },
+          "venetian-50": { perM2: 8e3, minimumPerWindow: 32e3 },
+          roman: { perM2: 15e3, minimumPerWindow: 21e3 },
+          "faux-wood": { perM2: 2e4, minimumPerWindow: 33e3 },
+          wooden: { perM2: 25e3, minimumPerWindow: 75e3 },
+          pleated: { perM2: 4e4, minimumPerWindow: 4e4 }
+        }
+      }
+    };
+    BLIND_GRADES = [
+      {
+        key: "standard",
+        label: "Standard",
+        multiplier: 1,
+        note: "Ordinary shop stock, priced at the top of the verified local band."
+      },
+      {
+        key: "premium",
+        label: "Premium",
+        multiplier: 1.4,
+        note: "Premium prints and heavier fabric. Nigerian premium lists work out at about 17,000 to 18,000 per m2 against 8,000 to 13,500 standard."
+      }
+    ];
+    BLIND_GRADE_BY_KEY = BLIND_GRADES.reduce(
+      (acc, grade) => ({ ...acc, [grade.key]: grade }),
+      {}
+    );
+  }
+});
+
+// src/lib/estimation/window-blinds-engine.ts
+var window_blinds_engine_exports = {};
+__export(window_blinds_engine_exports, {
+  blindsBoqItems: () => blindsBoqItems,
+  calculateBlindProject: () => calculateBlindProject,
+  calculateWindowBlinds: () => calculateWindowBlinds,
+  computeBlindHardwareMetrics: () => computeBlindHardwareMetrics,
+  panelsForWidth: () => panelsForWidth,
+  roundUpToCentimetre: () => roundUpToCentimetre,
+  toMetres: () => toMetres2
+});
+function toMetres2(value, unit) {
+  return unit === "ft" ? value * METRES_PER_FOOT : value;
+}
+function roundUpToCentimetre(value) {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.ceil(value * 100) / 100;
+}
+function panelsForWidth(widthM, maxPanelWidthM) {
+  if (!Number.isFinite(widthM) || widthM <= 0) return 1;
+  if (!Number.isFinite(maxPanelWidthM) || maxPanelWidthM <= 0) return 1;
+  return Math.max(1, Math.ceil(round22(widthM / maxPanelWidthM)));
+}
+function computeBlindHardwareMetrics(typeKey, widthM, heightM) {
+  let bracketCount = 2;
+  if (widthM > 2) bracketCount = 4;
+  else if (widthM > 1.2) bracketCount = 3;
+  let slatOrVaneCount = null;
+  let recommendedTubeDiameterMm = null;
+  let tubeDeflectionRisk = "safe";
+  let mountingNote = "Standard top/face brackets";
+  if (typeKey === "venetian-25") {
+    slatOrVaneCount = Math.ceil(heightM * 1e3 / 20);
+    mountingNote = "Box bracket end-caps; center intermediate support required above 1.2 m span";
+  } else if (typeKey === "venetian-50" || typeKey === "wooden" || typeKey === "faux-wood" || typeKey === "bamboo") {
+    slatOrVaneCount = Math.ceil(heightM * 1e3 / 44);
+    mountingNote = "Heavy duty box brackets; ensure solid anchor into lintel or header";
+  } else if (typeKey === "vertical") {
+    slatOrVaneCount = Math.ceil(widthM * 1e3 / 79);
+    mountingNote = "Track top-fix/face-fix spring clips at 600-800 mm centers";
+  } else if (typeKey === "roller" || typeKey === "day-night" || typeKey === "zebra") {
+    if (widthM > 2.2) {
+      recommendedTubeDiameterMm = 45;
+      tubeDeflectionRisk = "deflection_risk";
+      mountingNote = "Wide opening (>2.2 m): 45 mm or 50 mm heavy-duty barrel required to prevent fabric smile/sagging";
+    } else if (widthM > 1.5) {
+      recommendedTubeDiameterMm = 38;
+      tubeDeflectionRisk = "advisory";
+      mountingNote = "Mid-width span (1.5-2.2 m): 38 mm aluminum barrel recommended";
+    } else {
+      recommendedTubeDiameterMm = 28;
+      tubeDeflectionRisk = "safe";
+      mountingNote = "Standard 28 mm aluminum roller barrel";
+    }
+  }
+  return {
+    bracketCount,
+    slatOrVaneCount,
+    recommendedTubeDiameterMm,
+    tubeDeflectionRisk,
+    mountingNote
+  };
+}
+function calculateWindowBlinds(input) {
+  const type = BLIND_TYPE_BY_KEY[input.typeKey];
+  const book = blindBookFor(input.market);
+  const wastage = input.wastage ?? type?.wastage ?? 0.1;
+  const widthM = toMetres2(Math.max(0, input.width), input.unit);
+  const heightM = toMetres2(Math.max(0, input.height), input.unit);
+  const quantity = Math.max(1, Math.round(input.quantity || 1));
+  const areaM22 = widthM * heightM;
+  const chargeableAreaM2 = areaM22 * (1 + wastage);
+  const missing = [];
+  const band = book?.types?.[input.typeKey];
+  let ratePerM2 = band?.perM2 ?? null;
+  let minimumPerWindow = band?.minimumPerWindow ?? null;
+  if (ratePerM2 === null && typeof input.manualPerM2 === "number" && input.manualPerM2 > 0) {
+    ratePerM2 = input.manualPerM2;
+  }
+  if (minimumPerWindow === null && typeof input.manualMinimumPerWindow === "number" && input.manualMinimumPerWindow > 0) {
+    minimumPerWindow = input.manualMinimumPerWindow;
+  }
+  if (ratePerM2 === null) missing.push("ratePerM2");
+  const assumptions = [];
+  if (!book) {
+    assumptions.push(
+      `No verified blind price book for ${input.market}. Enter the rate you were quoted and the estimator will do the arithmetic.`
+    );
+  } else if (!band) {
+    assumptions.push(
+      `${type?.label ?? input.typeKey} has no verified ${input.market} rate yet. Enter a rate to price it.`
+    );
+  }
+  const priced = missing.length === 0;
+  const areaCost = priced ? chargeableAreaM2 * ratePerM2 : null;
+  const minimumApplied = priced && minimumPerWindow !== null && areaCost !== null ? areaCost < minimumPerWindow : false;
+  const perWindow = priced ? round22(Math.max(areaCost, minimumPerWindow ?? 0)) : null;
+  const blindsTotal = priced && perWindow !== null ? round22(perWindow * quantity) : null;
+  const installPerWindow = book?.installPerWindow ?? null;
+  const wantsInstall = input.install !== false;
+  const installationTotal = wantsInstall && installPerWindow !== null ? round22(installPerWindow * quantity) : wantsInstall ? null : 0;
+  const total = blindsTotal !== null && installationTotal !== null ? round22(blindsTotal + installationTotal) : null;
+  assumptions.push(
+    `${Math.round(wastage * 100)} percent is added to the measured area for cutting and pattern lining (${type?.label ?? "type"} allowance).`
+  );
+  if (minimumApplied) {
+    assumptions.push(
+      `The ${book?.currencySymbol ?? ""}${minimumPerWindow?.toLocaleString()} minimum per window applied because the measured area priced below it.`
+    );
+  }
+  if (minimumPerWindow === null && priced) {
+    assumptions.push(
+      "No minimum charge was supplied, so the rate is the whole price."
+    );
+  }
+  if (quantity > 1) {
+    assumptions.push(
+      `All ${quantity} openings are assumed to be the same size.`
+    );
+  }
+  if (wantsInstall && installPerWindow === null) {
+    assumptions.push(
+      "Fitting is not priced for this market, so it is excluded from the total."
+    );
+  }
+  assumptions.push(
+    "Tax is not determined for blinds. Quote the total before tax."
+  );
+  const lines = [
+    {
+      label: `${type?.label ?? input.typeKey} blind`,
+      detail: `${round22(widthM)} m wide by ${round22(heightM)} m drop, ${Math.round(wastage * 100)} percent waste`,
+      quantity: round22(chargeableAreaM2),
+      unit: "m2",
+      unitPrice: ratePerM2,
+      amount: priced ? round22(perWindow) : null,
+      priced
+    }
+  ];
+  if (wantsInstall) {
+    lines.push({
+      label: "Fitting",
+      detail: "Brackets, alignment and final adjustment",
+      quantity,
+      unit: "window",
+      unitPrice: installPerWindow,
+      amount: installationTotal,
+      priced: installationTotal !== null
+    });
+  }
+  return {
+    status: priced ? "priced" : "manual_price_required",
+    market: (input.market ?? "").toUpperCase(),
+    currency: book?.currency ?? null,
+    currencySymbol: book?.currencySymbol ?? null,
+    missing,
+    geometry: {
+      unit: input.unit,
+      widthM: round22(widthM),
+      heightM: round22(heightM),
+      areaM2: round22(areaM22),
+      chargeableAreaM2: round22(chargeableAreaM2),
+      wastage,
+      quantity,
+      totalAreaM2: round22(areaM22 * quantity)
+    },
+    perWindow,
+    minimumApplied,
+    lines,
+    totals: {
+      blinds: blindsTotal,
+      installation: installationTotal,
+      total
+    },
+    taxStatus: "tax_not_determined",
+    assumptions,
+    provenance: {
+      ratePerM2,
+      minimumPerWindow,
+      source: book?.source ?? "No verified source for this market"
+    },
+    hardwareMetrics: computeBlindHardwareMetrics(input.typeKey, widthM, heightM)
+  };
+}
+function calculateBlindProject(input) {
+  const book = blindBookFor(input.market);
+  const grade = BLIND_GRADE_BY_KEY[input.grade] ?? BLIND_GRADE_BY_KEY.standard;
+  const missing = /* @__PURE__ */ new Set();
+  const assumptions = [];
+  const extrasIn = input.extras ?? {};
+  const rows = input.openings.map((opening) => {
+    const type = BLIND_TYPE_BY_KEY[opening.typeKey];
+    const wastage = input.wastage ?? type?.wastage ?? 0.1;
+    const widthM = roundUpToCentimetre(
+      toMetres2(Math.max(0, opening.width), input.unit)
+    );
+    const heightM = roundUpToCentimetre(
+      toMetres2(Math.max(0, opening.height), input.unit)
+    );
+    const quantity = Math.max(1, Math.round(opening.quantity || 1));
+    const areaM22 = widthM * heightM;
+    const chargeableAreaM2 = areaM22 * (1 + wastage);
+    const panels = panelsForWidth(widthM, type?.maxPanelWidthM ?? 0);
+    const panelWidthM = panels > 0 ? round22(widthM / panels) : widthM;
+    const band = book?.types?.[opening.typeKey];
+    let rate = band?.perM2 ?? null;
+    let minimum = band?.minimumPerWindow ?? null;
+    if (rate === null && typeof input.manualPerM2 === "number" && input.manualPerM2 > 0) {
+      rate = input.manualPerM2;
+    }
+    if (minimum === null && typeof input.manualMinimumPerWindow === "number" && input.manualMinimumPerWindow > 0) {
+      minimum = input.manualMinimumPerWindow;
+    }
+    if (rate === null) {
+      missing.add(band ? "ratePerM2" : "priceBook");
+    }
+    const gradedRate = rate === null ? null : round22(rate * grade.multiplier);
+    const areaCost = gradedRate === null ? null : chargeableAreaM2 * gradedRate;
+    const minimumApplied = areaCost !== null && minimum !== null ? areaCost < minimum : false;
+    const perWindow = areaCost === null ? null : round22(Math.max(areaCost, minimum ?? 0));
+    const blindsTotal = perWindow === null ? null : round22(perWindow * quantity);
+    const wantsMotor = Boolean(opening.motorised);
+    const wantsCassette = Boolean(opening.cassette);
+    const wantsRemoval = Boolean(opening.removeOld);
+    let extrasPerWindow = 0;
+    const addExtra = (key, needed) => {
+      if (!needed || extrasPerWindow === null) return;
+      const value = extrasIn[key];
+      if (typeof value === "number" && value > 0) extrasPerWindow += value;
+      else {
+        missing.add(key);
+        extrasPerWindow = null;
+      }
+    };
+    addExtra("motorPerWindow", wantsMotor);
+    addExtra("cassettePerWindow", wantsCassette);
+    addExtra("removeOldPerWindow", wantsRemoval);
+    const extrasTotal = extrasPerWindow === null ? null : round22(extrasPerWindow * quantity);
+    return {
+      id: opening.id,
+      label: opening.label || type?.label || opening.typeKey,
+      typeKey: opening.typeKey,
+      typeLabel: type?.label ?? opening.typeKey,
+      widthM: round22(widthM),
+      heightM: round22(heightM),
+      areaM2: round22(areaM22),
+      chargeableAreaM2: round22(chargeableAreaM2),
+      quantity,
+      ratePerM2: gradedRate,
+      minimumPerWindow: minimum,
+      minimumApplied,
+      perWindow,
+      blindsTotal,
+      extrasPerWindow: extrasPerWindow === null ? null : round22(extrasPerWindow),
+      extrasTotal,
+      motorised: wantsMotor,
+      cassette: wantsCassette,
+      removeOld: wantsRemoval,
+      panels,
+      panelWidthM,
+      priced: perWindow !== null && extrasTotal !== null
+    };
+  });
+  const sumOrNull = (values) => values.some((v) => v === null) ? null : round22(values.reduce((a, v) => a + v, 0));
+  const blinds = sumOrNull(rows.map((r) => r.blindsTotal));
+  const extras = sumOrNull(rows.map((r) => r.extrasTotal));
+  const windowCount = rows.reduce((a, r) => a + r.quantity, 0);
+  const installPerWindow = book?.installPerWindow ?? null;
+  const wantsInstall = input.install !== false;
+  const installation = !wantsInstall ? 0 : installPerWindow === null ? null : round22(installPerWindow * windowCount);
+  if (!wantsInstall) assumptions.push("Fitting is excluded from the total.");
+  else if (installPerWindow === null)
+    assumptions.push(
+      "Fitting is not priced for this market, so it is excluded."
+    );
+  else
+    assumptions.push(
+      `Fitting at ${book?.currencySymbol ?? ""}${installPerWindow.toLocaleString()} per window, ${windowCount} ${windowCount === 1 ? "window" : "windows"}.`
+    );
+  const beforeTax = blinds !== null && extras !== null && installation !== null ? round22(blinds + extras + installation) : null;
+  const taxRatePct = typeof input.taxRatePct === "number" && Number.isFinite(input.taxRatePct) && input.taxRatePct > 0 ? round22(input.taxRatePct) : null;
+  const tax = beforeTax !== null && taxRatePct !== null ? round22(beforeTax * taxRatePct / 100) : null;
+  const totalInclTax = beforeTax === null ? null : tax === null ? beforeTax : round22(beforeTax + tax);
+  const totalChargeableAreaM2 = round22(
+    rows.reduce((a, r) => a + r.chargeableAreaM2 * r.quantity, 0)
+  );
+  const blendedRatePerM2 = blinds !== null && totalChargeableAreaM2 > 0 ? round22(blinds / totalChargeableAreaM2) : null;
+  if (grade.key !== "standard") {
+    assumptions.push(`${grade.label} grade: ${grade.note}`);
+  }
+  const minimums = rows.filter((r) => r.minimumApplied);
+  if (minimums.length) {
+    assumptions.push(
+      `The minimum per window applied on ${minimums.length} of ${rows.length} rows, which is why the per metre rate alone understates the job.`
+    );
+  }
+  if (!book) {
+    assumptions.push(
+      `No verified blind price book for ${input.market}. Enter the rate you were quoted.`
+    );
+  }
+  if (input.unit === "ft") {
+    assumptions.push(
+      "Feet are converted to metres before pricing, so a 4 by 4 opening prices as 1.49 m2."
+    );
+  }
+  for (const row of rows.filter((r) => r.panels > 1)) {
+    const maxWidth = BLIND_TYPE_BY_KEY[row.typeKey]?.maxPanelWidthM;
+    const countWord = ["one", "two", "three", "four", "five", "six"][row.panels - 1] ?? String(row.panels);
+    assumptions.push(
+      `${row.label || row.typeLabel} is wider than one piece, so it is fabricated as ${countWord} panels of about ${row.panelWidthM} m each${maxWidth ? ` (${row.typeLabel} tops out at ${maxWidth} m)` : ""}. The price is unchanged because shops charge by area, but the fabricator has to make the join.`
+    );
+  }
+  assumptions.push(
+    "Measured width and drop are rounded up to the next centimetre before pricing, the way a shop cuts fabric to the opening."
+  );
+  assumptions.push(
+    taxRatePct === null ? "Tax is not applied: no rate was entered. Add your local VAT or sales tax rate to see the total a customer pays." : `Tax at ${taxRatePct} percent is added on top of ${book?.currencySymbol ?? ""}${beforeTax?.toLocaleString() ?? "the total"}. Confirm the rate before sending the quote.`
+  );
+  return {
+    status: missing.size === 0 && beforeTax !== null ? "priced" : "manual_price_required",
+    market: (input.market ?? "").toUpperCase(),
+    currency: book?.currency ?? null,
+    currencySymbol: book?.currencySymbol ?? null,
+    grade: grade.key,
+    gradeLabel: grade.label,
+    gradeMultiplier: grade.multiplier,
+    missing: [...missing],
+    rows,
+    totals: {
+      blinds,
+      extras,
+      installation,
+      total: beforeTax,
+      tax,
+      totalInclTax
+    },
+    taxRatePct,
+    geometry: {
+      unit: input.unit,
+      windowCount,
+      totalAreaM2: round22(rows.reduce((a, r) => a + r.areaM2 * r.quantity, 0)),
+      totalChargeableAreaM2,
+      blendedRatePerM2
+    },
+    taxStatus: taxRatePct === null ? "tax_not_determined" : "tax_applied",
+    assumptions,
+    provenance: {
+      gradeNote: grade.note,
+      source: book?.source ?? "No verified source for this market"
+    }
+  };
+}
+function blindsBoqItems(result) {
+  const grade = result.gradeLabel ? `${result.gradeLabel} grade` : "standard grade";
+  return result.rows.map((row) => ({
+    category: "Window Treatments",
+    item: `${row.typeLabel} blind`,
+    specification: `${row.widthM} x ${row.heightM} m, ${grade}${row.motorised ? ", motorised" : ""}`,
+    quantity: row.quantity,
+    unit: "no",
+    notes: `${row.chargeableAreaM2} m2 charged per window with waste`
+  }));
+}
+var METRES_PER_FOOT, round22;
+var init_window_blinds_engine = __esm({
+  "src/lib/estimation/window-blinds-engine.ts"() {
+    init_define_import_meta_env();
+    init_window_blinds();
+    init_window_blinds();
+    METRES_PER_FOOT = 0.3048;
+    round22 = (n) => Math.round(n * 100) / 100;
+  }
+});
+
+// src/lib/estimation/paint-packaging.ts
+function marketSellsPaintByGallon(marketCode) {
+  return Boolean(marketCode) && US_GALLON_MARKETS.has(String(marketCode).toUpperCase());
+}
+function resolvePaintPacks(marketCode) {
+  return marketSellsPaintByGallon(marketCode) ? US_PAINT_PACKS : METRIC_PAINT_PACKS;
+}
+function resolvePaintPackLitres(marketCode) {
+  if (marketSellsPaintByGallon(marketCode)) return LITRES_PER_US_GALLON;
+  return 20;
+}
+function paintPackLabel(litres, marketCode) {
+  if (!Number.isFinite(litres) || litres <= 0) return "";
+  const packs = resolvePaintPacks(marketCode);
+  for (const pack of packs) {
+    if (Math.abs(pack.litres - litres) / pack.litres <= 0.02) return pack.label;
+  }
+  const rounded = Math.round(litres * 100) / 100;
+  return `${rounded} L`;
+}
+function paintPackNoun(litres, marketCode) {
+  const packs = resolvePaintPacks(marketCode);
+  for (const pack of packs) {
+    if (Math.abs(pack.litres - litres) / pack.litres <= 0.02) return pack.noun;
+  }
+  return "container";
+}
+var LITRES_PER_US_GALLON, US_QUART_LITRES, US_FIVE_GALLON_LITRES, METRIC_PAINT_PACKS, US_PAINT_PACKS, US_GALLON_MARKETS;
+var init_paint_packaging = __esm({
+  "src/lib/estimation/paint-packaging.ts"() {
+    init_define_import_meta_env();
+    LITRES_PER_US_GALLON = 3.785411784;
+    US_QUART_LITRES = LITRES_PER_US_GALLON / 4;
+    US_FIVE_GALLON_LITRES = LITRES_PER_US_GALLON * 5;
+    METRIC_PAINT_PACKS = [
+      { litres: 1, label: "1 L", noun: "can" },
+      { litres: 4, label: "4 L", noun: "can" },
+      { litres: 20, label: "20 L", noun: "bucket" }
+    ];
+    US_PAINT_PACKS = [
+      { litres: US_QUART_LITRES, label: "1 qt", noun: "can" },
+      { litres: LITRES_PER_US_GALLON, label: "1 gal", noun: "can" },
+      { litres: US_FIVE_GALLON_LITRES, label: "5 gal", noun: "drum" }
+    ];
+    US_GALLON_MARKETS = /* @__PURE__ */ new Set(["US", "PR"]);
+  }
+});
+
 // src/lib/estimation/paint-engine.ts
-function calculateTheoreticalLitres(areaM2, coats, coverageM2PerLiter) {
+function calculateTheoreticalLitres(areaM22, coats, coverageM2PerLiter) {
   if (coverageM2PerLiter <= 0) return 0;
-  const safeArea = Math.max(0, areaM2);
+  const safeArea = Math.max(0, areaM22);
   const safeCoats = Math.max(1, coats);
   return Math.round(safeArea * safeCoats / coverageM2PerLiter * 100) / 100;
 }
@@ -47308,11 +52186,19 @@ function normalizeCoverage(coverageValue, coverageUnit, packSizeLitres) {
       return coverageValue * SQM_PER_SQFT;
     case "ft2_per_bucket":
       return coverageValue * SQM_PER_SQFT / bucket;
+    // The United States quotes wall paint as square feet per gallon (350 to
+    // 400 is typical for interior emulsion). Without this case the value fell
+    // through to the fallback and was read as m2 per litre, which overstates
+    // coverage by roughly forty times and leaves the user short of paint.
+    case "ft2_per_gallon":
+      return coverageValue * SQM_PER_SQFT / LITRES_PER_US_GALLON2;
+    case "m2_per_gallon":
+      return coverageValue / LITRES_PER_US_GALLON2;
     case "frelux_calibration":
       return coverageValue;
     // Will be handled by calibration logic
     default:
-      return coverageValue;
+      return 0;
   }
 }
 function getCoverageUnitLabel(unit) {
@@ -47325,6 +52211,10 @@ function getCoverageUnitLabel(unit) {
       return "ft\xB2 per litre";
     case "ft2_per_bucket":
       return "ft\xB2 per 20-L bucket";
+    case "ft2_per_gallon":
+      return "ft\xB2 per US gallon";
+    case "m2_per_gallon":
+      return "m\xB2 per US gallon";
     case "frelux_calibration":
       return "FRELUX Calibration";
     default:
@@ -47355,9 +52245,11 @@ function calculateOpeningArea(openings, unit = "feet") {
   }
   return Math.round(total * 100) / 100;
 }
-function getPackSizeLitres(product, packSizeRule) {
+function getPackSizeLitres(product, packSizeRule, marketCode) {
   if (product?.standard_pack_size && product.standard_pack_size > 0)
     return product.standard_pack_size;
+  if (marketSellsPaintByGallon(marketCode))
+    return resolvePaintPackLitres(marketCode);
   if (packSizeRule?.rule_value) {
     const litres = packSizeRule.rule_value.litres;
     if (typeof litres === "number" && litres > 0) return litres;
@@ -47432,12 +52324,14 @@ function getCeilingQuantityBuckets(ceilingRule) {
   if (typeof buckets === "number" && buckets >= 0) return buckets;
   return 0.5;
 }
-var SQM_PER_SQFT;
+var SQM_PER_SQFT, LITRES_PER_US_GALLON2;
 var init_paint_engine = __esm({
   "src/lib/estimation/paint-engine.ts"() {
     init_define_import_meta_env();
+    init_paint_packaging();
     init_utils();
     SQM_PER_SQFT = 0.09290304;
+    LITRES_PER_US_GALLON2 = 3.785411784;
   }
 });
 
@@ -47804,11 +52698,17 @@ function calculateRoom(room, config2) {
     value: `${coats} coat(s)`,
     detail: coats === 2 ? "FRELUX standard: 2 coats." : `${coats} coats selected.`
   });
-  const packSizeLitres = getPackSizeLitres(config2.product, config2.packSizeRule);
+  const packSizeLitres = getPackSizeLitres(
+    config2.product,
+    config2.packSizeRule,
+    config2.marketCode
+  );
+  const packLabel = paintPackLabel(packSizeLitres, config2.marketCode) || `${packSizeLitres} L`;
+  const packNoun = paintPackNoun(packSizeLitres, config2.marketCode);
   steps.push({
     label: "Bucket Size",
-    value: `${packSizeLitres} L per bucket`,
-    detail: "FRELUX standard: 20-L buckets."
+    value: `${packLabel} ${packNoun}`,
+    detail: "FRELUX configured purchase unit."
   });
   const normalizedCoverageM2PerL = coverage ? normalizeCoverage(coverage, coverageUnit, packSizeLitres) : null;
   if (coverage && normalizedCoverageM2PerL && normalizedCoverageM2PerL !== coverage) {
@@ -47928,7 +52828,7 @@ function calculateRoom(room, config2) {
     doors: countOpenings(room.doors, room.doors_unknown),
     windows: countOpenings(room.windows, room.windows_unknown),
     calculated_requirement: `${theoreticalTotalBuckets.toFixed(2)} buckets (${theoreticalTotalLitres.toFixed(2)} L)`,
-    practical_purchase: `${practicalTotalBuckets} \xD7 ${packSizeLitres}-L buckets`,
+    practical_purchase: `${practicalTotalBuckets} \xD7 ${packLabel} ${packNoun}${practicalTotalBuckets === 1 ? "" : "s"}`,
     material_cost: unitPrice > 0 ? Math.round(lineTotal * 100) / 100 : null,
     material_cost_formatted: unitPrice > 0 ? formatCurrency(lineTotal, config2.price?.currency ?? "NGN") : "Not configured",
     height_notice: heightAdjustment?.message ?? null
@@ -48052,7 +52952,8 @@ function calculatePaintingProject(input, config2) {
       standardHeightRule,
       heightAdjustmentRule,
       openingDeductionRule,
-      ceilingCoverageRule
+      ceilingCoverageRule,
+      marketCode: config2.marketCode
     });
     roomResults.push(roomResult);
     allWarnings.push(...roomResult.warnings);
@@ -48182,9 +53083,202 @@ var init_painting_engine = __esm({
     init_pack_sizing();
     init_pricing();
     init_utils();
+    init_paint_packaging();
     init_paint_engine();
     init_paint_engine();
     CALCULATOR_TYPE3 = "painting";
+  }
+});
+
+// src/lib/estimation/quote-check-engine.ts
+var quote_check_engine_exports = {};
+__export(quote_check_engine_exports, {
+  checkQuote: () => checkQuote
+});
+function checkQuote(lines, options = {}) {
+  const band = options.fairBandFraction !== void 0 && options.fairBandFraction >= 0 ? options.fairBandFraction : DEFAULT_FAIR_BAND;
+  const results = lines.map((line) => {
+    const quantity = Number(line.quantity);
+    const quotedRate = Number(line.quotedRate);
+    const reference = line.reference ?? null;
+    const base = {
+      key: line.key,
+      description: line.description,
+      quantity: isPositive(quantity) ? quantity : 0,
+      unit: line.unit,
+      quotedRate: isPositive(quotedRate) ? quotedRate : 0,
+      quotedAmount: 0,
+      reference
+    };
+    if (!isPositive(quantity) || !isPositive(quotedRate)) {
+      return {
+        ...base,
+        quotedAmount: 0,
+        referenceRate: null,
+        referenceAmount: null,
+        rateDelta: null,
+        rateDeltaFraction: null,
+        amountDelta: null,
+        status: "invalid",
+        note: "Enter a quantity and a rate above zero. This line is not counted."
+      };
+    }
+    const quotedAmount = round6(quantity * quotedRate);
+    if (!reference || !isPositive(reference.rate)) {
+      return {
+        ...base,
+        quotedAmount,
+        referenceRate: null,
+        referenceAmount: null,
+        rateDelta: null,
+        rateDeltaFraction: null,
+        amountDelta: null,
+        status: "no_reference",
+        note: "No price book rate for this item, so the quote cannot be judged. Confirm it directly with suppliers."
+      };
+    }
+    if (!unitsComparable(line.unit, reference.unit)) {
+      return {
+        ...base,
+        quotedAmount,
+        referenceRate: null,
+        referenceAmount: null,
+        rateDelta: null,
+        rateDeltaFraction: null,
+        amountDelta: null,
+        status: "unit_mismatch",
+        note: `The price book holds this at ${reference.unit} but the quote is per ${line.unit}. Convert one of them before comparing.`
+      };
+    }
+    const referenceRate = round6(reference.rate);
+    const referenceAmount = round6(quantity * referenceRate);
+    const rateDelta = round6(quotedRate - referenceRate);
+    const rateDeltaFraction = rateDelta / referenceRate;
+    const amountDelta = round6(quotedAmount - referenceAmount);
+    if (Math.abs(rateDeltaFraction) <= band) {
+      return {
+        ...base,
+        quotedAmount,
+        referenceRate,
+        referenceAmount,
+        rateDelta,
+        rateDeltaFraction,
+        amountDelta,
+        status: "fair",
+        note: "Within the fair band of the market rate."
+      };
+    }
+    const over = rateDeltaFraction > 0;
+    return {
+      ...base,
+      quotedAmount,
+      referenceRate,
+      referenceAmount,
+      rateDelta,
+      rateDeltaFraction,
+      amountDelta,
+      status: over ? "over" : "under",
+      note: over ? "Quoted above the market rate by more than the fair band." : "Quoted below the market rate by more than the fair band. Check the specification before accepting."
+    };
+  });
+  const counts = {
+    total: results.length,
+    fair: results.filter((line) => line.status === "fair").length,
+    over: results.filter((line) => line.status === "over").length,
+    under: results.filter((line) => line.status === "under").length,
+    noReference: results.filter((line) => line.status === "no_reference").length,
+    unitMismatch: results.filter((line) => line.status === "unit_mismatch").length,
+    invalid: results.filter((line) => line.status === "invalid").length
+  };
+  const comparable = results.filter(
+    (line) => line.status === "fair" || line.status === "over" || line.status === "under"
+  );
+  const quotedTotal = round6(
+    results.reduce((total, line) => total + line.quotedAmount, 0)
+  );
+  const comparableQuotedTotal = round6(
+    comparable.reduce((total, line) => total + line.quotedAmount, 0)
+  );
+  const comparableReferenceTotal = round6(
+    comparable.reduce((total, line) => total + (line.referenceAmount ?? 0), 0)
+  );
+  const comparableDelta = round6(
+    comparableQuotedTotal - comparableReferenceTotal
+  );
+  const overpricedAmount = round6(
+    comparable.filter((line) => line.status === "over").reduce((total, line) => total + (line.amountDelta ?? 0), 0)
+  );
+  return {
+    lines: results,
+    quotedTotal,
+    comparableQuotedTotal,
+    comparableReferenceTotal,
+    comparableDelta,
+    overpricedAmount,
+    counts,
+    verdict: buildVerdict({
+      counts,
+      overpricedAmount,
+      comparableDelta,
+      comparableReferenceTotal,
+      band
+    })
+  };
+}
+function buildVerdict(input) {
+  const {
+    counts,
+    overpricedAmount,
+    comparableDelta,
+    comparableReferenceTotal
+  } = input;
+  const bandPct = Math.round(input.band * 100);
+  if (counts.total === 0) {
+    return "Add the lines from the quote to compare them with the price book.";
+  }
+  const parts = [];
+  if (counts.over > 0 && overpricedAmount > 0) {
+    parts.push(
+      `${counts.over} line${counts.over === 1 ? "" : "s"} above the fair band, worth ${overpricedAmount.toFixed(2)} at the quoted quantities`
+    );
+  }
+  if (counts.under > 0) {
+    parts.push(
+      `${counts.under} line${counts.under === 1 ? "" : "s"} below the band`
+    );
+  }
+  if (counts.fair > 0) {
+    parts.push(`${counts.fair} within ${bandPct}% of the market rate`);
+  }
+  if (counts.noReference > 0) {
+    parts.push(`${counts.noReference} with no price book rate`);
+  }
+  if (counts.unitMismatch > 0) {
+    parts.push(
+      `${counts.unitMismatch} in a different unit from the price book`
+    );
+  }
+  if (counts.invalid > 0) {
+    parts.push(`${counts.invalid} incomplete`);
+  }
+  if (counts.fair + counts.over + counts.under === 0) {
+    const blocked = parts.length > 0 ? `${parts.join(", ")}.` : "";
+    return `There is no verdict yet. ${blocked}`.trim();
+  }
+  const direction = comparableDelta > 0 ? "above" : comparableDelta < 0 ? "below" : "level with";
+  const deltaPct = comparableReferenceTotal > 0 ? Math.round(Math.abs(comparableDelta) / comparableReferenceTotal * 100) : 0;
+  const lead = comparableDelta === 0 ? "The comparable lines are level with the market rate overall." : `The comparable lines come to ${Math.abs(comparableDelta).toFixed(2)}, ${deltaPct}% ${direction} the market rate overall.`;
+  return `${lead} ${parts.length > 0 ? `${parts.join(", ")}.` : ""}`.trim();
+}
+var DEFAULT_FAIR_BAND, isPositive, round6, normaliseUnit, unitsComparable;
+var init_quote_check_engine = __esm({
+  "src/lib/estimation/quote-check-engine.ts"() {
+    init_define_import_meta_env();
+    DEFAULT_FAIR_BAND = 0.1;
+    isPositive = (value) => Number.isFinite(value) && value > 0;
+    round6 = (value) => Math.round(value * 100) / 100;
+    normaliseUnit = (unit) => unit.trim().toLowerCase().replace(/\s+/g, " ");
+    unitsComparable = (a, b) => normaliseUnit(a) === normaliseUnit(b);
   }
 });
 
@@ -48194,6 +53288,60 @@ init_define_import_meta_env();
 // src/lib/ai-foundation/engines-registry.ts
 init_define_import_meta_env();
 
+// src/lib/ai-foundation/precision.ts
+init_define_import_meta_env();
+var MONEY_DECIMALS = 2;
+var QUANTITY_DECIMALS = 3;
+function roundTo(value, decimals) {
+  if (!Number.isFinite(value)) return value;
+  const factor = 10 ** decimals;
+  const scaled = value * factor;
+  const nudged = Math.abs(scaled) < 1e12 ? scaled + Math.sign(scaled) * Number.EPSILON * Math.abs(scaled) : scaled;
+  const rounded = Math.round(nudged) / factor;
+  return rounded === 0 ? 0 : rounded;
+}
+function roundMoney(value) {
+  return roundTo(value, MONEY_DECIMALS);
+}
+function roundQuantity(value) {
+  return roundTo(value, QUANTITY_DECIMALS);
+}
+function auditFinite(quantities, costs) {
+  const nonFinite = [];
+  quantities.forEach((line, index) => {
+    if (!Number.isFinite(line.quantity)) {
+      nonFinite.push(`quantities[${index}] (${line.label})`);
+    }
+  });
+  if (costs) {
+    if (!Number.isFinite(costs.total)) nonFinite.push("costs.total");
+    (costs.lines ?? []).forEach((line, index) => {
+      if (!Number.isFinite(line.amount)) {
+        nonFinite.push(`costs.lines[${index}] (${line.label})`);
+      }
+    });
+  }
+  return { nonFinite };
+}
+function normalizeQuantityLine(line) {
+  return { ...line, quantity: roundQuantity(line.quantity) };
+}
+function normalizeCostSummary(costs) {
+  const lines = costs.lines?.map((line) => ({
+    ...line,
+    amount: roundMoney(line.amount)
+  }));
+  const reported = roundMoney(costs.total);
+  let total = reported;
+  if (lines?.length) {
+    const lineSum = roundMoney(
+      lines.reduce((sum, line) => sum + line.amount, 0)
+    );
+    if (Math.abs(lineSum - reported) <= 0.01) total = lineSum;
+  }
+  return { ...costs, total, lines };
+}
+
 // src/lib/ai-foundation/engines-phase2.ts
 init_define_import_meta_env();
 
@@ -48201,10 +53349,459 @@ init_define_import_meta_env();
 init_define_import_meta_env();
 init_market_materials();
 
+// src/lib/pricing/price-gateway.ts
+init_define_import_meta_env();
+init_market_materials();
+init_resolver();
+init_queries();
+init_calculator_prices();
+
+// src/lib/pricing/price-honesty.ts
+init_define_import_meta_env();
+
+// src/lib/international/price-verification.ts
+init_define_import_meta_env();
+
+// src/lib/international/price-verification.json
+var price_verification_default = {
+  scanned_at: "2026-11-02T05:04:55.680Z",
+  max_age_days: 45,
+  markets: {
+    DE: {
+      total: 221,
+      local_verified: 126,
+      fx_reference: 95,
+      stale: 0,
+      verified: false
+    },
+    NG: {
+      total: 42,
+      local_verified: 37,
+      fx_reference: 0,
+      stale: 5,
+      verified: true
+    },
+    US: {
+      total: 70,
+      local_verified: 55,
+      fx_reference: 15,
+      stale: 0,
+      verified: true
+    },
+    GB: {
+      total: 60,
+      local_verified: 42,
+      fx_reference: 18,
+      stale: 0,
+      verified: false
+    },
+    IN: {
+      total: 38,
+      local_verified: 23,
+      fx_reference: 15,
+      stale: 0,
+      verified: false
+    },
+    DK: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    MX: {
+      total: 37,
+      local_verified: 17,
+      fx_reference: 20,
+      stale: 0,
+      verified: false
+    },
+    SA: {
+      total: 27,
+      local_verified: 11,
+      fx_reference: 16,
+      stale: 0,
+      verified: false
+    },
+    ZA: {
+      total: 43,
+      local_verified: 27,
+      fx_reference: 16,
+      stale: 0,
+      verified: false
+    },
+    PH: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    GH: {
+      total: 40,
+      local_verified: 22,
+      fx_reference: 18,
+      stale: 0,
+      verified: false
+    },
+    CA: {
+      total: 29,
+      local_verified: 13,
+      fx_reference: 16,
+      stale: 0,
+      verified: false
+    },
+    EG: {
+      total: 12,
+      local_verified: 12,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    BR: {
+      total: 43,
+      local_verified: 26,
+      fx_reference: 17,
+      stale: 0,
+      verified: false
+    },
+    KE: {
+      total: 43,
+      local_verified: 24,
+      fx_reference: 19,
+      stale: 0,
+      verified: false
+    },
+    NO: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    JP: {
+      total: 37,
+      local_verified: 17,
+      fx_reference: 20,
+      stale: 0,
+      verified: false
+    },
+    AU: {
+      total: 41,
+      local_verified: 23,
+      fx_reference: 18,
+      stale: 0,
+      verified: false
+    },
+    CN: {
+      total: 24,
+      local_verified: 4,
+      fx_reference: 20,
+      stale: 0,
+      verified: false
+    },
+    SE: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    ID: {
+      total: 30,
+      local_verified: 13,
+      fx_reference: 17,
+      stale: 0,
+      verified: false
+    },
+    KR: {
+      total: 39,
+      local_verified: 17,
+      fx_reference: 22,
+      stale: 0,
+      verified: false
+    },
+    CH: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    PL: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    TR: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    PK: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    MY: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    SG: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    TH: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    NZ: {
+      total: 8,
+      local_verified: 8,
+      fx_reference: 0,
+      stale: 0,
+      verified: true
+    },
+    AE: {
+      total: 28,
+      local_verified: 8,
+      fx_reference: 20,
+      stale: 0,
+      verified: false
+    }
+  }
+};
+
+// src/lib/international/price-verification.ts
+var MARKETS = price_verification_default.markets;
+var PRICE_VERIFICATION_SCANNED_AT = price_verification_default.scanned_at;
+function getMarketPriceVerification(marketCode) {
+  if (!marketCode) return null;
+  return MARKETS[marketCode] ?? null;
+}
+
+// src/lib/pricing/price-honesty.ts
+var SNAPSHOT_STALE_DAYS = 45;
+function snapshotAgeDays(now = Date.now()) {
+  const taken = Date.parse(PRICE_VERIFICATION_SCANNED_AT);
+  if (!Number.isFinite(taken)) return Number.POSITIVE_INFINITY;
+  return Math.max(0, Math.floor((now - taken) / 864e5));
+}
+function snapshotDate() {
+  return PRICE_VERIFICATION_SCANNED_AT.slice(0, 10);
+}
+function classify(entry) {
+  if (entry.verified) {
+    return { status: "local", statusLabel: "Local prices" };
+  }
+  if (entry.local_verified > 0) {
+    return { status: "partial", statusLabel: "Partly local" };
+  }
+  return { status: "reference_only", statusLabel: "Reference only" };
+}
+function sentenceFor(marketCode, entry, ageDays) {
+  if (!entry) {
+    return `No local price coverage is recorded for ${marketCode} yet, so estimates use the reference book until prices are reported for it.`;
+  }
+  const parts = [
+    `${entry.local_verified} of ${entry.total} prices for ${marketCode} are local`
+  ];
+  if (entry.fx_reference > 0) {
+    parts.push(`${entry.fx_reference} are converted at a dated exchange rate`);
+  }
+  if (entry.stale > 0) {
+    parts.push(`${entry.stale} are older than the freshness window`);
+  }
+  const core = parts.join(", ");
+  const closing = entry.verified ? `last checked ${snapshotDate()}.` : `so treat totals as indicative until a supplier confirms them.`;
+  const ageing = ageDays > SNAPSHOT_STALE_DAYS ? ` Coverage data is ${ageDays} days old.` : "";
+  return `${core}, ${closing}${ageing}`;
+}
+function coverageFor(marketCode, now = Date.now()) {
+  if (!marketCode) return null;
+  const code = marketCode.toUpperCase();
+  const ageDays = snapshotAgeDays(now);
+  const entry = getMarketPriceVerification(code);
+  if (!entry) {
+    return {
+      marketCode: code,
+      total: 0,
+      local_verified: 0,
+      fx_reference: 0,
+      stale: 0,
+      verified: false,
+      ageDays,
+      snapshotStale: ageDays > SNAPSHOT_STALE_DAYS,
+      sentence: sentenceFor(code, null, ageDays),
+      status: "unrecorded",
+      statusLabel: "No local prices"
+    };
+  }
+  return {
+    marketCode: code,
+    ...entry,
+    ageDays,
+    snapshotStale: ageDays > SNAPSHOT_STALE_DAYS,
+    sentence: sentenceFor(code, entry, ageDays),
+    ...classify(entry)
+  };
+}
+
+// src/lib/pricing/price-gateway.ts
+function round2(value) {
+  return Math.round(value * 100) / 100;
+}
+async function resolvePrice(request) {
+  const requestedMarket = (request.market || "").toUpperCase();
+  const coverage = coverageFor(requestedMarket);
+  const quantity = typeof request.quantity === "number" && Number.isFinite(request.quantity) ? request.quantity : null;
+  const base = {
+    role: request.role,
+    requestedMarket,
+    quantity,
+    taxStatus: "tax_not_determined",
+    coverage: coverage ? {
+      marketCode: coverage.marketCode,
+      status: coverage.status,
+      statusLabel: coverage.statusLabel,
+      sentence: coverage.sentence,
+      snapshotStale: coverage.snapshotStale
+    } : null
+  };
+  if (!requestedMarket) {
+    return {
+      ...base,
+      status: "not_priced",
+      sourcedMarket: null,
+      unitPrice: null,
+      currency: null,
+      total: null,
+      provenance: emptyProvenance(""),
+      warnings: ["No market supplied, so no price can be resolved."],
+      message: "Choose a market to price this item."
+    };
+  }
+  const resolved = await resolveCityAwarePriceByRole(
+    request.role,
+    requestedMarket,
+    request.citySlug ?? null
+  );
+  if (!resolved) {
+    return {
+      ...base,
+      status: "not_priced",
+      sourcedMarket: null,
+      unitPrice: null,
+      currency: null,
+      total: null,
+      provenance: emptyProvenance(requestedMarket),
+      warnings: coverage ? [coverage.sentence] : [],
+      message: `No price for ${request.role} in ${requestedMarket}. Enter a price to continue.`
+    };
+  }
+  const sourcedMarket = (resolved.resolved_market || "").toUpperCase();
+  const inherited = sourcedMarket !== "" && sourcedMarket !== requestedMarket;
+  const unitPrice = resolved.price.price;
+  const currency = resolved.price.currency ?? null;
+  const status = inherited ? "inherited" : coverage?.status === "local" ? "local" : "unverified";
+  const evidence = resolved.evidence ?? null;
+  const verified = evidence === "supplier_verified";
+  const warnings = [];
+  if (evidence) warnings.push(evidenceSentence(evidence));
+  if (evidence === "macro_reference") {
+    warnings.push(
+      `The ${requestedMarket} figure is an FX reference band, so treat it as an order of magnitude, not a quote.`
+    );
+  }
+  if (evidence === "baseline") {
+    warnings.push(
+      `The ${requestedMarket} figure is a seeded baseline. Ask a supplier for a real price before quoting work from it.`
+    );
+  }
+  if (inherited) {
+    warnings.push(
+      `Price for ${request.role} in ${requestedMarket} is inherited from ${sourcedMarket}.`
+    );
+  }
+  if (coverage) {
+    warnings.push(coverage.sentence);
+    if (coverage.snapshotStale) {
+      warnings.push("The price verification snapshot is older than 45 days.");
+    }
+  }
+  if (status === "unverified" && !inherited && !evidence) {
+    warnings.push(
+      `${requestedMarket} has no verified price book, so this is an unverified local price.`
+    );
+  }
+  return {
+    ...base,
+    status,
+    sourcedMarket: sourcedMarket || null,
+    unitPrice,
+    currency,
+    total: quantity === null ? null : round2(unitPrice * quantity),
+    provenance: {
+      basis: resolved.basis,
+      citySamples: resolved.city_samples ?? null,
+      citySlug: resolved.city_slug ?? null,
+      indicative: resolved.indicative,
+      priceId: resolved.price.id ?? null,
+      materialSlug: resolved.material.slug ?? null,
+      materialName: resolved.material.name ?? null,
+      sourcedMarket: sourcedMarket || null,
+      requestedMarket,
+      effectiveDate: resolved.price.effective_date ?? null,
+      priceSource: resolved.price.price_source ?? null,
+      scanSource: resolved.price.scan_source ?? null,
+      scanConfidence: resolved.price.scan_confidence ?? null,
+      packSizeId: resolved.price.pack_size_id ?? null,
+      evidence: resolved.evidence ?? null
+    },
+    warnings,
+    message: inherited ? `${request.role} priced from ${sourcedMarket} because ${requestedMarket} has no local price.${verified ? " Verified supplier price." : ""}` : status === "local" && verified ? `${request.role} priced from ${requestedMarket} verified supplier prices.` : status === "local" ? `${request.role} priced from ${requestedMarket}, but the figure itself is not a verified supplier price.` : `${request.role} priced from ${requestedMarket}, unverified.`
+  };
+}
+function emptyProvenance(requestedMarket) {
+  return {
+    basis: "market",
+    citySamples: null,
+    citySlug: null,
+    indicative: true,
+    priceId: null,
+    materialSlug: null,
+    materialName: null,
+    sourcedMarket: null,
+    requestedMarket,
+    effectiveDate: null,
+    priceSource: null,
+    scanSource: null,
+    scanConfidence: null,
+    packSizeId: null,
+    evidence: null
+  };
+}
+
 // src/lib/wallfinishing/prices.ts
 init_define_import_meta_env();
 init_supabase();
 init_market_materials();
+init_calculator_prices();
 function parsePackUnits(unitLabel) {
   if (!unitLabel) return null;
   const litres = unitLabel.match(/(\d+(?:\.\d+)?)\s*L\b/i);
@@ -48215,22 +53812,32 @@ function parsePackUnits(unitLabel) {
 }
 
 // src/lib/ai-foundation/engine-pricing.ts
-async function resolveEnginePrice(role, marketCode, fallbackCurrency) {
-  const resolved = await resolveMaterialPriceByRole(role, marketCode);
-  if (!resolved) return null;
-  const mappings = await fetchMarketRoleMappings(resolved.resolved_market);
+async function resolveEnginePrice(role, marketCode, fallbackCurrency, options = {}) {
+  const resolution = await resolvePrice({
+    role,
+    market: marketCode,
+    citySlug: options.citySlug ?? null
+  });
+  if (resolution.unitPrice === null) return null;
+  const sourcedMarket = resolution.provenance.sourcedMarket ?? resolution.sourcedMarket ?? marketCode;
+  const mappings = await fetchMarketRoleMappings(sourcedMarket);
   const label = mappings.find((m) => m.role === role)?.unit_label ?? null;
   return {
     role,
-    materialName: resolved.material.name,
-    unitPrice: Number(resolved.price.price),
+    materialName: resolution.provenance.materialName ?? role,
+    unitPrice: resolution.unitPrice,
     packUnits: parsePackUnits(label),
     purchaseLabel: label,
-    currency: resolved.price.currency ?? fallbackCurrency,
-    resolvedMarket: resolved.resolved_market,
-    priceSource: resolved.price.price_source ?? null,
-    scanSource: resolved.price.scan_source ?? null,
-    priceDate: resolved.price.effective_date ?? null
+    currency: resolution.currency ?? fallbackCurrency,
+    resolvedMarket: sourcedMarket,
+    priceSource: resolution.provenance.priceSource,
+    scanSource: resolution.provenance.scanSource,
+    priceDate: resolution.provenance.effectiveDate,
+    status: resolution.status,
+    coverageStatus: resolution.coverage?.status ?? null,
+    coverageSentence: resolution.coverage?.sentence ?? null,
+    message: resolution.message,
+    taxStatus: resolution.taxStatus
   };
 }
 function priceQuantity(quantity, price) {
@@ -48287,7 +53894,7 @@ function registerPhase2Engines() {
       let defaultCoats = 2;
       let defaultPaintTypeId = null;
       try {
-        const { fetchPaintTypes: fetchPaintTypes2 } = await Promise.resolve().then(() => (init_queries(), queries_exports));
+        const { fetchPaintTypes: fetchPaintTypes2 } = await Promise.resolve().then(() => (init_queries3(), queries_exports2));
         const { data: paintTypes } = await fetchPaintTypes2();
         const standard = paintTypes.find(
           (t) => t.id === "standard" || t.name?.toLowerCase() === "standard"
@@ -48303,7 +53910,7 @@ function registerPhase2Engines() {
       } catch {
       }
       try {
-        const { fetchCalcRule: fetchCalcRule2 } = await Promise.resolve().then(() => (init_queries2(), queries_exports2));
+        const { fetchCalcRule: fetchCalcRule2 } = await Promise.resolve().then(() => (init_queries(), queries_exports));
         const { data: coatRule } = await fetchCalcRule2("standard_coat_count");
         const v = coatRule?.rule_value?.value;
         if (typeof v === "number" && v >= 1) defaultCoats = Math.floor(v);
@@ -48542,7 +54149,7 @@ function registerPhase2Engines() {
       }
       let materials = input.materials ?? null;
       if (!materials) {
-        const { fetchPopMaterials: fetchPopMaterials2 } = await Promise.resolve().then(() => (init_queries(), queries_exports));
+        const { fetchPopMaterials: fetchPopMaterials2 } = await Promise.resolve().then(() => (init_queries3(), queries_exports2));
         const { data } = await fetchPopMaterials2(void 0, input.market);
         materials = data ?? [];
       }
@@ -48623,7 +54230,7 @@ function registerPhase2Engines() {
       }
       let config2 = input.config ?? void 0;
       if (!config2) {
-        const { fetchScreedingSystemConfig: fetchScreedingSystemConfig2 } = await Promise.resolve().then(() => (init_queries(), queries_exports));
+        const { fetchScreedingSystemConfig: fetchScreedingSystemConfig2 } = await Promise.resolve().then(() => (init_queries3(), queries_exports2));
         const { data, error: cfgError } = await fetchScreedingSystemConfig2(
           input.systemType ?? "white_cement_paint"
         );
@@ -48853,8 +54460,8 @@ function registerPhase2Engines() {
       const pricing = {
         market: marketCode,
         lines: [...bundle.roleResolutions.entries()].map(
-          ([slug, resolved]) => ({
-            material: slug,
+          ([slug2, resolved]) => ({
+            material: slug2,
             resolvedAs: resolved.material.name,
             role: resolved.role,
             resolvedMarket: resolved.resolved_market,
@@ -48961,7 +54568,7 @@ function getCountryCurrency(code) {
 }
 
 // src/lib/ai-foundation/engines-expanded.ts
-init_queries2();
+init_queries();
 
 // src/lib/ai-foundation/engine-result.ts
 init_define_import_meta_env();
@@ -49206,12 +54813,27 @@ function registerExpandedEngines() {
 
 // src/lib/ai-foundation/engines-structural.ts
 init_define_import_meta_env();
-init_queries2();
+init_queries();
 
 // src/lib/estimation/structural-market.ts
 init_define_import_meta_env();
 init_supabase();
+init_resolver();
 init_bundled_book();
+init_market_materials();
+function evidenceCaveat(row) {
+  const evidence = classifyEvidence(row);
+  if (evidence === "baseline") {
+    return "Seeded baseline with no live source: a placeholder, not a market price.";
+  }
+  if (evidence === "macro_reference") {
+    return "Reference band from a macro or FX adjustment, not a supplier quotation.";
+  }
+  if (evidence === "supplier_reported") {
+    return "Reported price, not independently verified.";
+  }
+  return null;
+}
 var NG_CEMENT_BAG_KG = 50;
 async function fetchPricedMaterialsInCategory(category, marketCode) {
   if (!marketCode || marketCode === "NG") return [];
@@ -49225,7 +54847,9 @@ async function fetchPricedMaterialsInCategory(category, marketCode) {
   const { data: materials } = await supabase.from("estimation_materials").select("id, name").eq("category", category).eq("is_active", true).order("sort_order", { ascending: true }).limit(20);
   const priced = [];
   for (const material of materials ?? []) {
-    const { data: price } = await supabase.from("estimation_prices").select("price, scan_confidence").eq("price_type", "material").eq("ref_id", material.id).eq("market", marketCode).eq("is_active", true).order("effective_date", { ascending: false }).limit(1).maybeSingle();
+    const { data: price } = await supabase.from("estimation_prices").select(
+      "price, scan_confidence, price_source, supplier_name, verification_status"
+    ).eq("price_type", "material").eq("ref_id", material.id).eq("market", marketCode).eq("is_active", true).order("effective_date", { ascending: false }).limit(1).maybeSingle();
     if (price) {
       priced.push({
         material,
@@ -49250,6 +54874,10 @@ function packIsBulkVolume(name) {
     name
   );
 }
+function withCaveat(explanation, row) {
+  const caveat = evidenceCaveat(row);
+  return caveat ? `${explanation} ${caveat}` : explanation;
+}
 function provenanceRow(engineKey, marketCode, resolution, explanation) {
   return {
     engineKey,
@@ -49257,7 +54885,8 @@ function provenanceRow(engineKey, marketCode, resolution, explanation) {
     bookMarket: marketCode,
     materialName: resolution.material.name,
     price: resolution.price.price,
-    explanation
+    explanation: withCaveat(explanation, resolution.price),
+    evidence: classifyEvidence(resolution.price)
   };
 }
 async function resolveStructuralMarketPricing(marketCode) {
@@ -49936,7 +55565,7 @@ function defaultBuildToRoofInput() {
     roof_type: "gable",
     roof_pitch_degrees: 25,
     roof_overhang: 0.6,
-    roofing_material: "long-span_aluminium",
+    roofing_material: "long_span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
     contingency_percent: 5
@@ -49953,7 +55582,34 @@ function quantityLine(label, quantity, unit) {
   return { label, quantity, unit };
 }
 var REGISTRY = /* @__PURE__ */ new Map();
+var DuplicateEngineIdError = class extends Error {
+  constructor(engineId, existingTitle, incomingTitle) {
+    super(
+      `Engine id '${engineId}' is already registered by "${existingTitle}", so "${incomingTitle}" cannot take it. One id, one authoritative engine: give the new engine its own id, or remove the one it replaces.`
+    );
+    this.engineId = engineId;
+    this.existingTitle = existingTitle;
+    this.incomingTitle = incomingTitle;
+    this.name = "DuplicateEngineIdError";
+  }
+  engineId;
+  existingTitle;
+  incomingTitle;
+};
 function registerEngine(descriptor) {
+  const existing = REGISTRY.get(descriptor.id);
+  if (existing) {
+    const sameEngine = existing.title === descriptor.title && existing.domain === descriptor.domain;
+    if (sameEngine) {
+      REGISTRY.set(descriptor.id, descriptor);
+      return;
+    }
+    throw new DuplicateEngineIdError(
+      descriptor.id,
+      existing.title,
+      descriptor.title
+    );
+  }
   REGISTRY.set(descriptor.id, descriptor);
 }
 registerEngine({
@@ -50002,6 +55658,149 @@ registerEngine({
     return {
       ok: true,
       engine: "build_to_roof",
+      calculatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      quantities,
+      costs,
+      raw: result
+    };
+  }
+});
+registerEngine({
+  id: "takeoff",
+  domain: "estimation",
+  title: "FRELUX Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX takeoff engine",
+  async run(rawInput) {
+    const { runTakeoff: runTakeoff2, ALL_SCOPES: ALL_SCOPES2 } = await Promise.resolve().then(() => (init_engine(), engine_exports));
+    const supplied = rawInput ?? {};
+    const refuse = (error) => ({
+      ok: false,
+      engine: "takeoff",
+      calculatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      quantities: [],
+      costs: null,
+      raw: { refusal: error },
+      error
+    });
+    if (!Array.isArray(supplied.rooms) || supplied.rooms.length === 0) {
+      return refuse(
+        "A takeoff needs at least one room. Send rooms: [{ walls: [{ length, height }], floor: { length, width } }]."
+      );
+    }
+    let scopes = ALL_SCOPES2;
+    if (supplied.scopes !== void 0) {
+      if (!Array.isArray(supplied.scopes) || supplied.scopes.length === 0) {
+        return refuse(
+          `scopes must be a non-empty array. Valid scopes: ${ALL_SCOPES2.join(", ")}.`
+        );
+      }
+      const unknown = supplied.scopes.filter(
+        (scope) => !ALL_SCOPES2.includes(scope)
+      );
+      if (unknown.length) {
+        return refuse(
+          `Unknown scope${unknown.length === 1 ? "" : "s"} ${unknown.join(", ")}. Valid scopes: ${ALL_SCOPES2.join(", ")}.`
+        );
+      }
+      scopes = supplied.scopes;
+    }
+    if (supplied.specs !== void 0 && (supplied.specs === null || typeof supplied.specs !== "object" || Array.isArray(supplied.specs))) {
+      return refuse("specs must be an object of material overrides.");
+    }
+    const result = runTakeoff2(
+      { id: "api", rooms: supplied.rooms },
+      { scopes, specs: supplied.specs ?? {} }
+    );
+    const quantities = result.lines.filter((line) => Number.isFinite(line.quantity) && line.quantity > 0).map(
+      (line) => quantityLine(
+        `${line.scope}: ${line.description}`,
+        line.quantity,
+        line.unit
+      )
+    );
+    if (!quantities.length) {
+      return refuse(
+        result.warnings.length ? `Nothing was measurable. ${result.warnings.join(" ")}` : "Nothing was measurable. Check that each room has a wall length and height, or a floor length and width."
+      );
+    }
+    return {
+      ok: true,
+      engine: "takeoff",
+      calculatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      quantities,
+      // Quantity-only. Pricing is a separate, priced source; inventing a cost
+      // here would be the exact failure this API exists to avoid.
+      costs: null,
+      raw: {
+        lines: result.lines,
+        totals: result.totals,
+        warnings: result.warnings,
+        assumedLineCount: result.assumedLineCount,
+        scopes,
+        market: typeof supplied.market === "string" ? supplied.market : null
+      }
+    };
+  }
+});
+registerEngine({
+  id: "window_blinds",
+  domain: "finishing",
+  title: "FRELUX Window Blind Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX window blind engine",
+  async run(rawInput) {
+    const { calculateBlindProject: calculateBlindProject2 } = await Promise.resolve().then(() => (init_window_blinds_engine(), window_blinds_engine_exports));
+    const supplied = rawInput ?? {};
+    const openings = supplied.openings?.length ? supplied.openings : [
+      {
+        id: "default",
+        label: "Window",
+        typeKey: "day-night",
+        width: 4,
+        height: 4,
+        quantity: 1
+      }
+    ];
+    const input = {
+      market: supplied.market ?? "NG",
+      unit: supplied.unit ?? "ft",
+      grade: supplied.grade ?? "standard",
+      openings,
+      install: supplied.install,
+      extras: supplied.extras,
+      manualPerM2: supplied.manualPerM2,
+      manualMinimumPerWindow: supplied.manualMinimumPerWindow
+    };
+    const result = calculateBlindProject2(input);
+    const quantities = result.rows.map(
+      (row) => normalizeQuantityLine({
+        label: `${row.typeLabel} blind, ${row.label}`,
+        quantity: row.quantity,
+        unit: "no"
+      })
+    );
+    quantities.push(
+      normalizeQuantityLine({
+        label: "Charged blind area",
+        quantity: result.geometry.totalChargeableAreaM2,
+        unit: "m2"
+      })
+    );
+    const priced = result.totals.total !== null;
+    const costs = priced ? normalizeCostSummary({
+      total: result.totals.total,
+      currency: result.currency ?? "NGN",
+      lines: [
+        { label: "Blinds", amount: result.totals.blinds ?? 0 },
+        { label: "Extras", amount: result.totals.extras ?? 0 },
+        { label: "Fitting", amount: result.totals.installation ?? 0 }
+      ],
+      regionalDataAvailable: result.status === "priced" && result.currency !== null
+    }) : null;
+    return {
+      ok: true,
+      engine: "window_blinds",
       calculatedAt: (/* @__PURE__ */ new Date()).toISOString(),
       quantities,
       costs,
@@ -50130,7 +55929,26 @@ async function executeEngine(engineId, input) {
   const descriptor = REGISTRY.get(engineId);
   if (!descriptor) throw new EngineNotRegisteredError(engineId);
   try {
-    return await descriptor.run(input);
+    const result = await descriptor.run(input);
+    if (result.ok) {
+      const { nonFinite } = auditFinite(result.quantities, result.costs);
+      if (nonFinite.length > 0) {
+        return {
+          ...result,
+          ok: false,
+          quantities: [],
+          costs: null,
+          raw: null,
+          error: `Engine "${engineId}" produced a non-finite value (${nonFinite.join(", ")}). Check the inputs: this usually means a zero or negative divisor, such as a tile size or package size that was never supplied.`
+        };
+      }
+      return {
+        ...result,
+        quantities: result.quantities.map(normalizeQuantityLine),
+        costs: result.costs ? normalizeCostSummary(result.costs) : null
+      };
+    }
+    return result;
   } catch (error) {
     return {
       ok: false,
@@ -50143,6 +55961,48 @@ async function executeEngine(engineId, input) {
     };
   }
 }
+registerEngine({
+  id: "quote_check",
+  domain: "cost",
+  title: "FRELUX Quote Check Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX Quote Check engine",
+  async run(rawInput) {
+    const { checkQuote: checkQuote2 } = await Promise.resolve().then(() => (init_quote_check_engine(), quote_check_engine_exports));
+    const input = rawInput ?? {};
+    const result = checkQuote2(input.lines ?? [], {
+      fairBandFraction: input.fairBandFraction
+    });
+    const quantities = result.lines.filter((line) => line.quantity > 0).map(
+      (line) => quantityLine(
+        `${line.description} (${line.status})`,
+        line.quantity,
+        line.unit || "unit"
+      )
+    );
+    const costLines = [
+      { label: "Quoted total", amount: result.quotedTotal },
+      {
+        label: "Comparable lines at market",
+        amount: result.comparableReferenceTotal
+      },
+      { label: "Above market", amount: result.overpricedAmount }
+    ];
+    return {
+      ok: true,
+      engine: "quote_check",
+      calculatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      quantities,
+      costs: normalizeCostSummary({
+        total: result.comparableQuotedTotal,
+        currency: "quote",
+        lines: costLines,
+        regionalDataAvailable: false
+      }),
+      raw: result
+    };
+  }
+});
 registerPhase2Engines();
 registerExpandedEngines();
 registerStructuralEngines();

@@ -46,9 +46,16 @@ export const UNRESOLVED_ENGINE_IDS = [
   "timeline_estimator",
   "quote_check",
   "window_blinds",
+  "takeoff",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
+  {
+    aiEngineId: "takeoff",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The takeoff engine measures one schedule across seven scopes (blockwork, render, paint, ceiling, floor tiles, screed, skirting), so no single international capability describes it. Mapping it to block, tile or painting would each be true of one scope and false of the rest, which is exactly the guess this manifest exists to avoid.",
+  },
   {
     aiEngineId: "window_blinds",
     canonicalId: null,

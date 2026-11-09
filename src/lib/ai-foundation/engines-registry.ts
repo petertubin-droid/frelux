@@ -290,6 +290,116 @@ registerEngine({
   },
 });
 
+// ── Takeoff: measured schedule to a bill of quantities ──
+//
+// The takeoff engine is the one that measures rooms, walls, openings and floors
+// and derives the materials from them. It is exposed here so the commercial API
+// reaches the same code the studio runs, rather than a second implementation.
+//
+// It is quantity-only: pricing lives in the price book, so costs are null rather
+// than a number this engine cannot justify. An input it cannot measure comes
+// back as a refusal with the reason, never as zeros.
+registerEngine({
+  id: "takeoff",
+  domain: "estimation",
+  title: "FRELUX Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX takeoff engine",
+  async run(rawInput) {
+    const { runTakeoff, ALL_SCOPES } = await import("@/lib/takeoff/engine");
+    const supplied = (rawInput ?? {}) as {
+      rooms?: unknown;
+      scopes?: unknown;
+      specs?: unknown;
+      market?: unknown;
+    };
+
+    const refuse = (error: string): EngineResult => ({
+      ok: false,
+      engine: "takeoff",
+      calculatedAt: new Date().toISOString(),
+      quantities: [],
+      costs: null,
+      raw: { refusal: error },
+      error,
+    });
+
+    if (!Array.isArray(supplied.rooms) || supplied.rooms.length === 0) {
+      return refuse(
+        "A takeoff needs at least one room. Send rooms: [{ walls: [{ length, height }], floor: { length, width } }].",
+      );
+    }
+
+    let scopes = ALL_SCOPES;
+    if (supplied.scopes !== undefined) {
+      if (!Array.isArray(supplied.scopes) || supplied.scopes.length === 0) {
+        return refuse(
+          `scopes must be a non-empty array. Valid scopes: ${ALL_SCOPES.join(", ")}.`,
+        );
+      }
+      const unknown = supplied.scopes.filter(
+        (scope) => !ALL_SCOPES.includes(scope as never),
+      );
+      if (unknown.length) {
+        return refuse(
+          `Unknown scope${unknown.length === 1 ? "" : "s"} ${unknown.join(", ")}. Valid scopes: ${ALL_SCOPES.join(", ")}.`,
+        );
+      }
+      scopes = supplied.scopes as never;
+    }
+
+    if (
+      supplied.specs !== undefined &&
+      (supplied.specs === null ||
+        typeof supplied.specs !== "object" ||
+        Array.isArray(supplied.specs))
+    ) {
+      return refuse("specs must be an object of material overrides.");
+    }
+
+    const result = runTakeoff({ id: "api", rooms: supplied.rooms } as never, {
+      scopes,
+      specs: (supplied.specs ?? {}) as never,
+    });
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => Number.isFinite(line.quantity) && line.quantity > 0)
+      .map((line) =>
+        quantityLine(
+          `${line.scope}: ${line.description}`,
+          line.quantity,
+          line.unit,
+        ),
+      );
+
+    if (!quantities.length) {
+      return refuse(
+        result.warnings.length
+          ? `Nothing was measurable. ${result.warnings.join(" ")}`
+          : "Nothing was measurable. Check that each room has a wall length and height, or a floor length and width.",
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "takeoff",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      // Quantity-only. Pricing is a separate, priced source; inventing a cost
+      // here would be the exact failure this API exists to avoid.
+      costs: null,
+      raw: {
+        lines: result.lines,
+        totals: result.totals,
+        warnings: result.warnings,
+        assumedLineCount: result.assumedLineCount,
+        scopes,
+        market: typeof supplied.market === "string" ? supplied.market : null,
+      },
+    };
+  },
+});
+
 // ── Window blinds: schedule priced from measured openings (existing engine) ──
 interface BlindProjectInputLike {
   market: string;

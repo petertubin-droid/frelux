@@ -16,6 +16,7 @@ import {
   Percent,
   Ruler,
   Zap,
+  LayoutList,
 } from "lucide-react";
 
 /**
@@ -205,6 +206,21 @@ export const ENGINE_SURFACES: EngineSurface[] = [
         "no page calls it; ScreedingCalculator uses the per-kilogram material model instead",
     },
     note: "The engine works in bags per system config. ScreedingCalculator works per kilogram from the material table, where coverage is m2 per kg. Both are correct in their own convention.",
+  },
+  {
+    engineId: "takeoff",
+    status: "live",
+    route: "/contractor/projects/:id",
+    label: "Takeoff studio (project tab)",
+    icon: LayoutList,
+    evidence: {
+      module: "@/lib/takeoff/engine",
+      fn: "runTakeoff",
+      page: "src/components/contractor/TakeoffTab.tsx",
+      calledBy:
+        "TakeoffTab inside ProjectDashboard, and the API engine 'takeoff'",
+    },
+    note: "Measures rooms, walls, openings and floors, then derives the bill. The same function answers the studio and the commercial API, so the two cannot disagree.",
   },
   {
     engineId: "tyrolene_partition_area",
