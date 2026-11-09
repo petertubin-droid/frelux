@@ -80,6 +80,7 @@ import {
   uploadExpenseReceipt,
 } from "@/lib/contractor";
 import { MoneyTab } from "@/components/contractor/MoneyTab";
+import { ProjectTabBar } from "@/components/contractor/ProjectTabBar";
 import { generateQuotationPDF, generateShoppingListPDF } from "@/lib/pdf";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
@@ -1112,31 +1113,13 @@ export default function ProjectDashboard() {
       {/* ── Tabs ── */}
       <div className="sticky top-16 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <Container className="max-w-7xl">
-          <nav
-            aria-label={tr("Project sections")}
-            className="flex gap-1 overflow-x-auto py-2"
-          >
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.key;
-              return (
-                <Button
-                  variant="ghost"
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Icon aria-hidden="true" className="h-4 w-4" />
-                  {tab.label}
-                </Button>
-              );
-            })}
-          </nav>
+          <ProjectTabBar
+            tabs={TABS}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            label={tr("Project sections")}
+            panelId="project-tab-panel"
+          />
         </Container>
       </div>
 
@@ -1158,7 +1141,13 @@ export default function ProjectDashboard() {
       )}
 
       {/* ── Tab content ── */}
-      <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div
+        id="project-tab-panel"
+        role="tabpanel"
+        aria-labelledby={`project-tab-${activeTab}`}
+        tabIndex={0}
+        className="mx-auto mt-6 max-w-7xl px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-6 lg:px-8"
+      >
         {activeTab === "overview" && (
           <OverviewTab
             totalMaterialCost={totalMaterialCost}
@@ -3601,14 +3590,17 @@ export function ExpensesTab(props: ExpensesTabProps) {
                     href={expense.receipt_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 hover:underline dark:bg-green-500/15 dark:text-green-300"
+                    className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-green-500/15 dark:text-green-300"
                     title={expense.receipt_name ?? "Payment proof"}
                   >
                     <Paperclip aria-hidden="true" className="h-3 w-3" />
                     {tr("Proof")}
+                    <span className="sr-only">
+                      {` ${tr("attached for")} ${expense.name}`}
+                    </span>
                   </a>
                 ) : props.onAttachReceipt ? (
-                  <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-input px-2 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-input px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-within:outline-none focus-within:ring-2 focus-within:ring-primary/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
                     <Paperclip aria-hidden="true" className="h-3 w-3" />
                     {tr("Attach proof")}
                     <input

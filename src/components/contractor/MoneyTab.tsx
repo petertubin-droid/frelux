@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
   X,
@@ -114,6 +114,9 @@ export function MoneyTab(props: MoneyTabProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const subtotalRef = useRef<HTMLInputElement | null>(null);
+  const amountRef = useRef<HTMLInputElement | null>(null);
+  const [copied, setCopied] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm);
@@ -194,6 +197,7 @@ export function MoneyTab(props: MoneyTabProps) {
   const handleInvoiceSubmit = async () => {
     if (subtotalValue <= 0) {
       setError("Enter the amount you are billing before saving.");
+      subtotalRef.current?.focus();
       return;
     }
     if (invoiceForm.due_at && invoiceForm.due_at < invoiceForm.issued_at) {
@@ -227,6 +231,7 @@ export function MoneyTab(props: MoneyTabProps) {
     const amount = Number(paymentForm.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
       setError("Enter the amount received before saving.");
+      amountRef.current?.focus();
       return;
     }
     setBusy(true);
@@ -389,6 +394,8 @@ export function MoneyTab(props: MoneyTabProps) {
   const handleCopyStatement = async () => {
     try {
       await navigator.clipboard.writeText(statement());
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 4000);
     } catch (err) {
       setError(getSafeError(err, "Could not copy the statement."));
     }
@@ -455,6 +462,8 @@ export function MoneyTab(props: MoneyTabProps) {
           </Button>
           <Button
             onClick={() => setShowInvoiceForm((open) => !open)}
+            aria-expanded={showInvoiceForm}
+            aria-controls="invoice-form"
             className="bg-violet-600 text-white hover:bg-violet-700"
           >
             {showInvoiceForm ? (
@@ -469,6 +478,7 @@ export function MoneyTab(props: MoneyTabProps) {
 
       {error && (
         <p
+          id="money-tab-error"
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
         >
@@ -485,23 +495,27 @@ export function MoneyTab(props: MoneyTabProps) {
         </p>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <dl
+        aria-live="polite"
+        aria-label={tr("Project money at a glance")}
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+      >
         {cards.map((card) => (
           <div
             key={card.label}
             className="rounded-xl border bg-card p-3 shadow-sm"
           >
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
               {tr(card.label)}
-            </p>
-            <p
-              className={`mt-1 text-lg font-semibold ${card.tone ?? "text-foreground"}`}
+            </dt>
+            <dd
+              className={`mt-1 text-lg font-semibold tabular-nums ${card.tone ?? "text-foreground"}`}
             >
               {card.value}
-            </p>
+            </dd>
           </div>
         ))}
-      </div>
+      </dl>
 
       {summary.credit > 0 && (
         <p className="rounded-lg border bg-card px-3 py-2 text-sm text-foreground">
@@ -515,6 +529,9 @@ export function MoneyTab(props: MoneyTabProps) {
           <Copy aria-hidden="true" className="h-4 w-4" />
           {tr("Copy statement")}
         </Button>
+        <span role="status" aria-live="polite" className="sr-only">
+          {copied ? tr("Statement copied") : ""}
+        </span>
         <Button variant="outline" size="sm" onClick={handleWhatsApp}>
           <Share2 aria-hidden="true" className="h-4 w-4" />
           {tr("Send on WhatsApp")}
@@ -522,7 +539,10 @@ export function MoneyTab(props: MoneyTabProps) {
       </div>
 
       {showInvoiceForm && (
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <div
+          id="invoice-form"
+          className="rounded-xl border bg-card p-4 shadow-sm"
+        >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2">
               <label
@@ -550,12 +570,15 @@ export function MoneyTab(props: MoneyTabProps) {
                 {tr("Amount before tax")}
               </label>
               <input
+                ref={subtotalRef}
                 id="invoice-subtotal"
                 type="number"
                 min="0"
                 step="0.01"
                 inputMode="decimal"
                 value={invoiceForm.subtotal}
+                aria-invalid={Boolean(error) && subtotalValue <= 0}
+                aria-describedby={error ? "money-tab-error" : undefined}
                 onChange={(event) =>
                   setInvoiceForm({
                     ...invoiceForm,
@@ -689,6 +712,8 @@ export function MoneyTab(props: MoneyTabProps) {
             variant="outline"
             size="sm"
             onClick={() => setShowPaymentForm((open) => !open)}
+            aria-expanded={showPaymentForm}
+            aria-controls="payment-form"
           >
             {showPaymentForm ? (
               <X aria-hidden="true" className="h-4 w-4" />
@@ -700,7 +725,10 @@ export function MoneyTab(props: MoneyTabProps) {
         </div>
 
         {showPaymentForm && (
-          <div className="mt-4 rounded-lg border bg-background p-3">
+          <div
+            id="payment-form"
+            className="mt-4 rounded-lg border bg-background p-3"
+          >
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <label
@@ -740,12 +768,17 @@ export function MoneyTab(props: MoneyTabProps) {
                   {tr("Amount received")}
                 </label>
                 <input
+                  ref={amountRef}
                   id="payment-amount"
                   type="number"
                   min="0"
                   step="0.01"
                   inputMode="decimal"
                   value={paymentForm.amount}
+                  aria-invalid={
+                    Boolean(error) && !(Number(paymentForm.amount) > 0)
+                  }
+                  aria-describedby={error ? "money-tab-error" : undefined}
                   onChange={(event) =>
                     setPaymentForm({
                       ...paymentForm,
@@ -863,24 +896,44 @@ export function MoneyTab(props: MoneyTabProps) {
             {tr("No invoice raised yet. Raise one to start the payment trail.")}
           </p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
+          <div
+            role="region"
+            aria-label={tr("Invoice list")}
+            tabIndex={0}
+            className="mt-4 overflow-x-auto rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
             <table className="w-full min-w-[640px] text-sm">
+              <caption className="sr-only">
+                {tr(
+                  "Invoices with amount billed, amount received, balance and status",
+                )}
+              </caption>
               <thead>
                 <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="pb-2 pr-3 font-medium">{tr("Invoice")}</th>
-                  <th className="pb-2 pr-3 font-medium">{tr("Issued")}</th>
-                  <th className="pb-2 pr-3 font-medium">{tr("Due")}</th>
-                  <th className="pb-2 pr-3 text-right font-medium">
+                  <th scope="col" className="pb-2 pr-3 font-medium">
+                    {tr("Invoice")}
+                  </th>
+                  <th scope="col" className="pb-2 pr-3 font-medium">
+                    {tr("Issued")}
+                  </th>
+                  <th scope="col" className="pb-2 pr-3 font-medium">
+                    {tr("Due")}
+                  </th>
+                  <th scope="col" className="pb-2 pr-3 text-right font-medium">
                     {tr("Total")}
                   </th>
-                  <th className="pb-2 pr-3 text-right font-medium">
+                  <th scope="col" className="pb-2 pr-3 text-right font-medium">
                     {tr("Paid")}
                   </th>
-                  <th className="pb-2 pr-3 text-right font-medium">
+                  <th scope="col" className="pb-2 pr-3 text-right font-medium">
                     {tr("Balance")}
                   </th>
-                  <th className="pb-2 pr-3 font-medium">{tr("Status")}</th>
-                  <th className="pb-2 font-medium">{tr("Actions")}</th>
+                  <th scope="col" className="pb-2 pr-3 font-medium">
+                    {tr("Status")}
+                  </th>
+                  <th scope="col" className="pb-2 font-medium">
+                    {tr("Actions")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -902,19 +955,20 @@ export function MoneyTab(props: MoneyTabProps) {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 pr-3 text-right text-foreground">
+                      <td className="whitespace-nowrap py-2 pr-3 text-right tabular-nums text-foreground">
                         {money(invoice.total)}
                       </td>
-                      <td className="py-2 pr-3 text-right text-muted-foreground">
+                      <td className="whitespace-nowrap py-2 pr-3 text-right tabular-nums text-muted-foreground">
                         {money(invoice.paid)}
                       </td>
-                      <td className="py-2 pr-3 text-right font-semibold text-foreground">
+                      <td className="whitespace-nowrap py-2 pr-3 text-right font-semibold tabular-nums text-foreground">
                         {money(invoice.balance)}
                       </td>
                       <td className="py-2 pr-3">
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[invoice.status]}`}
+                          className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[invoice.status]}`}
                         >
+                          <span className="sr-only">{`${invoice.number}: `}</span>
                           {tr(STATUS_LABELS[invoice.status])}
                         </span>
                       </td>

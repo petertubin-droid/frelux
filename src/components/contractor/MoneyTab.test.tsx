@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MoneyTab } from "@/components/contractor/MoneyTab";
 import type {
   DbProjectExpense,
@@ -243,6 +249,69 @@ describe("MoneyTab", () => {
     expect(text).toContain("Lekki duplex: account statement");
     expect(text).toContain("Outstanding:");
     vi.unstubAllGlobals();
+  });
+
+  it("gives the invoice table real headers and a keyboard-scrollable region", async () => {
+    invoices.push(invoice());
+    renderTab();
+
+    await screen.findByText("INV-0001");
+    const region = screen.getByRole("region", { name: "Invoice list" });
+    expect(region.getAttribute("tabindex")).toBe("0");
+    expect(document.querySelectorAll('th[scope="col"]').length).toBe(8);
+    expect(document.querySelector("caption")).toBeTruthy();
+  });
+
+  it("tells a screen reader the totals without relying on layout", async () => {
+    invoices.push(invoice());
+    payments.push(payment());
+    renderTab();
+
+    await screen.findByText("INV-0001");
+    const list = document.querySelector("dl[aria-live='polite']");
+    expect(list?.querySelectorAll("dt").length).toBe(6);
+    expect(list?.querySelectorAll("dd").length).toBe(6);
+  });
+
+  it("announces which invoice a status belongs to", async () => {
+    invoices.push(invoice({ due_at: "2020-01-31" }));
+    renderTab();
+
+    const region = await screen.findByRole("region", { name: "Invoice list" });
+    const chip = within(region).getByText("Overdue");
+    expect(chip.textContent).toContain("INV-0001");
+  });
+
+  it("exposes the open state of both forms", async () => {
+    renderTab();
+    const raise = await screen.findByRole("button", { name: /Raise invoice/ });
+    expect(raise.getAttribute("aria-expanded")).toBe("false");
+    expect(raise.getAttribute("aria-controls")).toBe("invoice-form");
+
+    fireEvent.click(raise);
+    expect(raise.getAttribute("aria-expanded")).toBe("true");
+    expect(document.getElementById("invoice-form")).toBeTruthy();
+
+    const record = screen.getByRole("button", { name: "Record payment" });
+    expect(record.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(record);
+    expect(record.getAttribute("aria-expanded")).toBe("true");
+    expect(document.getElementById("payment-form")).toBeTruthy();
+  });
+
+  it("marks the empty amount invalid and moves focus to it", async () => {
+    invoices.push(invoice());
+    renderTab();
+
+    await screen.findByText("INV-0001");
+    fireEvent.click(screen.getByRole("button", { name: "Record payment" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save payment" }));
+
+    const amount = screen.getByLabelText("Amount received") as HTMLInputElement;
+    expect(await screen.findByRole("alert")).toBeTruthy();
+    expect(document.activeElement).toBe(amount);
+    expect(amount.getAttribute("aria-invalid")).toBe("true");
+    expect(amount.getAttribute("aria-describedby")).toBe("money-tab-error");
   });
 
   it("opens a printable receipt for a recorded payment", async () => {
