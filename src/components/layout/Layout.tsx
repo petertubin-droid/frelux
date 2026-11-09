@@ -562,6 +562,7 @@ export default function Layout() {
       </Suspense>
       <main
         id="main-content"
+        data-calculator-page={String(isCalculatorPath(location.pathname))}
         className="w-full flex-1 pt-16 pb-36 md:pb-0"
         role="main"
       >

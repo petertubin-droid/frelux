@@ -5,6 +5,10 @@
     <script>
       (function(){var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}})();
     </script>
+    <!-- Apply saved FRELUX display preferences before paint to avoid scale flicker. -->
+    <script>
+      (function(){var apply=function(){try{var p=JSON.parse(localStorage.getItem('frelux_display_preferences_v1')||'null');var valid=[50,60,70,75,80,90,100,110,125];var scale=p&&valid.indexOf(p.scale)!==-1?p.scale:50;var compact=p&&typeof p.compact==='boolean'?p.compact:true;var wide=p&&typeof p.wideView==='boolean'?p.wideView:true;var r=document.documentElement;r.style.setProperty('--frelux-display-scale',String(scale/100));r.dataset.freluxScale=String(scale);r.dataset.freluxCompact=String(compact);r.dataset.freluxWideView=String(wide);}catch(e){document.documentElement.style.setProperty('--frelux-display-scale','.5');document.documentElement.dataset.freluxScale='50';document.documentElement.dataset.freluxCompact='true';document.documentElement.dataset.freluxWideView='true';}};apply();window.addEventListener('pageshow',apply);})();
+    </script>
     <meta charset="UTF-8" />
     <!-- Google AdSense (Auto ads). The tag sits in the served source so AdSense
          can verify the site and attach automatic ads. Requests start paused and

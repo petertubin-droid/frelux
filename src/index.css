@@ -2711,3 +2711,112 @@ h2 {
   animation: none !important;
   transition: none !important;
 }
+
+/* FRELUX Smart Display. CSS zoom participates in layout unlike transform,
+   so the enlarged layout width reflows content while visual scale fills the
+   viewport. Native browser zoom remains entirely user-controlled. */
+#root {
+  zoom: var(--frelux-display-scale, 0.5);
+  min-width: 0;
+}
+
+/* Wide view is scoped to registered calculator pages. Removing the shared
+   max-width caps lets calculators use the effective width provided by zoom. */
+html[data-frelux-wide-view="true"] #root main[data-calculator-page="true"] > .mx-auto[class*="max-w-"] {
+  max-width: none;
+}
+html[data-frelux-wide-view="true"] #root main[data-calculator-page="true"] > .mx-auto[class*="max-w-"] > .grid[class*="lg:grid-cols-"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Compact spacing is an independent preference and only trims calculator
+   card/section whitespace; text sizes and calculation controls are untouched. */
+html[data-frelux-compact="true"] #root main[data-calculator-page="true"] .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.875rem;
+}
+html[data-frelux-compact="true"] #root main[data-calculator-page="true"] .p-6 {
+  padding: 1rem;
+}
+html[data-frelux-compact="true"] #root main[data-calculator-page="true"] .sm\:p-8 {
+  padding: 1.25rem;
+}
+html[data-frelux-compact="true"] #root main[data-calculator-page="true"] .py-10 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* When the app-scale turns a phone viewport into desktop-like content width,
+   reflow common two-panel calculator cards side by side without changing the
+   underlying calculation fields or results. */
+@media (max-width: 767px) {
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .space-y-6:has(> .card):has(> .card-elevated) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+  }
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .space-y-6:has(> .card):has(> .card-elevated) > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0;
+  }
+}
+
+/* Preserve physical 44px touch targets at reduced app scale. */
+@media (pointer: coarse) {
+  #root button,
+  #root input:not([type="checkbox"]):not([type="radio"]),
+  #root select,
+  #root textarea {
+    min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 0.5)));
+  }
+  #root input[type="checkbox"],
+  #root input[type="radio"] {
+    min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 0.5)));
+    min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 0.5)));
+  }
+  #root .frelux-display-settings-trigger {
+    min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 0.5)));
+  }
+}
+
+/* CSS zoom doesn't alter media-query breakpoints. At the phone's 50% app-scale
+   wide view, opt eligible calculator grids into their compact multi-column
+   compositions instead of leaving desktop-oriented fields stacked. */
+@media (max-width: 767px) {
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] {
+    padding-top: calc(4rem / var(--frelux-display-scale, 0.5));
+  }
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root header nav {
+    min-height: calc(4rem / var(--frelux-display-scale, 0.5));
+  }
+}
+
+@media (max-width: 767px) {
+  html[data-frelux-wide-view="true"][data-frelux-scale="60"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="60"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="60"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="70"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="70"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="70"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="75"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="75"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="75"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="80"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="80"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="80"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="90"] #root main[data-calculator-page="true"] .grid[class~="sm:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="90"] #root main[data-calculator-page="true"] .grid[class~="md:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="90"] #root main[data-calculator-page="true"] .grid[class~="lg:grid-cols-2"],
+  html[data-frelux-wide-view="true"][data-frelux-scale="50"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["],
+  html[data-frelux-wide-view="true"][data-frelux-scale="60"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["],
+  html[data-frelux-wide-view="true"][data-frelux-scale="70"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["],
+  html[data-frelux-wide-view="true"][data-frelux-scale="75"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["],
+  html[data-frelux-wide-view="true"][data-frelux-scale="80"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["],
+  html[data-frelux-wide-view="true"][data-frelux-scale="90"] #root main[data-calculator-page="true"] .grid[class*="lg:grid-cols-["] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

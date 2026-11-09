@@ -51,6 +51,7 @@ import { useMarket } from "@/lib/international/market-context";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 import { Button } from "@/components/ui/shadcn/button";
 import AdFreePromptNotice from "@/components/subscription/AdFreePromptNotice";
+import DisplaySettings from "@/components/layout/DisplaySettings";
 
 export default function Navbar() {
   const { t } = useLanguage();
@@ -450,6 +451,8 @@ export default function Navbar() {
                 <Mail className="h-[18px] w-[18px]" />
               </a>
             </div>
+
+            <DisplaySettings />
 
             {/* Language switcher (11 supported languages) */}
             <div className="relative">
