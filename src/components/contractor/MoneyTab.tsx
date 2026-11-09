@@ -37,6 +37,7 @@ import type {
   DbProjectPayment,
   ProjectPaymentMethod,
 } from "@/types/database";
+import { InvoiceWizard } from "@/components/contractor/InvoiceWizard";
 
 export interface MoneyTabProps {
   projectId: string;
@@ -118,6 +119,7 @@ export function MoneyTab(props: MoneyTabProps) {
   const amountRef = useRef<HTMLInputElement | null>(null);
   const [copied, setCopied] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm);
   const [paymentForm, setPaymentForm] = useState(emptyPaymentForm);
@@ -461,7 +463,22 @@ export function MoneyTab(props: MoneyTabProps) {
             {tr("Export CSV")}
           </Button>
           <Button
-            onClick={() => setShowInvoiceForm((open) => !open)}
+            variant="outline"
+            onClick={() => {
+              setShowWizard((open) => !open);
+              setShowInvoiceForm(false);
+            }}
+            aria-expanded={showWizard}
+            aria-controls="invoice-wizard"
+          >
+            <FileText aria-hidden="true" className="h-4 w-4" />
+            {showWizard ? tr("Close guided") : tr("Guided invoice")}
+          </Button>
+          <Button
+            onClick={() => {
+              setShowInvoiceForm((open) => !open);
+              setShowWizard(false);
+            }}
             aria-expanded={showInvoiceForm}
             aria-controls="invoice-form"
             className="bg-violet-600 text-white hover:bg-violet-700"
@@ -537,6 +554,25 @@ export function MoneyTab(props: MoneyTabProps) {
           {tr("Send on WhatsApp")}
         </Button>
       </div>
+
+      {showWizard && (
+        <div id="invoice-wizard">
+          <InvoiceWizard
+            projectId={projectId}
+            currency={currency}
+            money={money}
+            alreadyBilled={summary.invoicedTotal}
+            onCreated={async () => {
+              await load();
+            }}
+            onSwitchToForm={() => {
+              setShowWizard(false);
+              setShowInvoiceForm(true);
+            }}
+            onCancel={() => setShowWizard(false)}
+          />
+        </div>
+      )}
 
       {showInvoiceForm && (
         <div

@@ -251,6 +251,39 @@ describe("MoneyTab", () => {
     vi.unstubAllGlobals();
   });
 
+  it("opens the guided invoice and hands over to the full form on request", async () => {
+    renderTab();
+
+    const guided = await screen.findByRole("button", {
+      name: /Guided invoice/,
+    });
+    expect(guided.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(guided);
+    expect(guided.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("progressbar")).toBeTruthy();
+    expect(
+      screen.getByRole("group", { name: "What is this invoice for?" }),
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Use the full form" }));
+    expect(document.getElementById("invoice-form")).toBeTruthy();
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("opens only one creation panel at a time", async () => {
+    renderTab();
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Raise invoice/ }),
+    );
+    expect(document.getElementById("invoice-form")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Guided invoice/ }));
+    expect(document.getElementById("invoice-form")).toBeNull();
+    expect(screen.getByRole("progressbar")).toBeTruthy();
+  });
+
   it("gives the invoice table real headers and a keyboard-scrollable region", async () => {
     invoices.push(invoice());
     renderTab();
