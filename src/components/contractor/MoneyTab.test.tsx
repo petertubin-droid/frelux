@@ -7,6 +7,7 @@ import {
   within,
 } from "@testing-library/react";
 import { MoneyTab } from "@/components/contractor/MoneyTab";
+import * as contractor from "@/lib/contractor";
 import type {
   DbProjectExpense,
   DbProjectInvoice,
@@ -287,6 +288,43 @@ describe("MoneyTab", () => {
 
     fireEvent.keyDown(more, { key: "Escape" });
     expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("returns focus to the menu button when the menu closes", async () => {
+    invoices.push(invoice());
+    renderTab();
+    await screen.findByText("INV-0001");
+
+    const more = screen.getByRole("button", { name: "More money actions" });
+    fireEvent.click(more);
+    expect(document.activeElement?.textContent).toContain("Records pack");
+
+    fireEvent.keyDown(more, { key: "Escape" });
+    expect(document.activeElement).toBe(more);
+  });
+
+  it("announces loading instead of hiding it from assistive tech", async () => {
+    vi.mocked(contractor.fetchProjectInvoices).mockReturnValueOnce(
+      new Promise(() => {}) as never,
+    );
+    renderTab();
+
+    const status = (await screen.findAllByRole("status")).find((node) =>
+      node.textContent?.includes("Loading invoices"),
+    );
+    expect(status).toBeTruthy();
+    expect(status?.closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it("puts the caret in the direct form when it opens", async () => {
+    invoices.push(invoice());
+    renderTab();
+    await screen.findByText("INV-0001");
+
+    fireEvent.click(screen.getByRole("button", { name: /Raise invoice/ }));
+    await waitFor(() =>
+      expect(document.activeElement?.id).toBe("invoice-title"),
+    );
   });
 
   it("leads an empty ledger to the guided invoice instead of a dead end", async () => {

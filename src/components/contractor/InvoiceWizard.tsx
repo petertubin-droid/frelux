@@ -260,9 +260,6 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
           <span className="rounded-full bg-violet-600/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
             {tr("Step")} {stepIndex + 1} {tr("of")} {STEPS.length}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {tr(step.label)}
-          </span>
         </div>
       </div>
 

@@ -124,6 +124,7 @@ export function MoneyTab(props: MoneyTabProps) {
   const [showMore, setShowMore] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement | null>(null);
+  const invoiceTitleRef = useRef<HTMLInputElement | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm);
   const [paymentForm, setPaymentForm] = useState(emptyPaymentForm);
@@ -417,6 +418,11 @@ export function MoneyTab(props: MoneyTabProps) {
   ).length;
 
   useEffect(() => {
+    if (!showInvoiceForm) return;
+    invoiceTitleRef.current?.focus();
+  }, [showInvoiceForm]);
+
+  useEffect(() => {
     if (!showMore) return;
     moreMenuRef.current
       ?.querySelector<HTMLButtonElement>('[role="menuitem"]')
@@ -484,7 +490,9 @@ export function MoneyTab(props: MoneyTabProps) {
           <div
             className="relative"
             onKeyDown={(event) => {
-              if (event.key === "Escape") setShowMore(false);
+              if (event.key !== "Escape") return;
+              setShowMore(false);
+              moreButtonRef.current?.focus();
             }}
           >
             <Button
@@ -510,12 +518,14 @@ export function MoneyTab(props: MoneyTabProps) {
                 <button
                   type="button"
                   role="menuitem"
+                  aria-disabled={loading || undefined}
                   onClick={() => {
+                    if (loading) return;
                     setShowMore(false);
+                    moreButtonRef.current?.focus();
                     handleRecordsPack();
                   }}
-                  disabled={loading}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted disabled:opacity-50"
+                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted ${loading ? "opacity-50" : ""}`}
                 >
                   <Printer aria-hidden="true" className="h-4 w-4" />
                   {tr("Records pack")}
@@ -523,12 +533,14 @@ export function MoneyTab(props: MoneyTabProps) {
                 <button
                   type="button"
                   role="menuitem"
+                  aria-disabled={loading || undefined}
                   onClick={() => {
+                    if (loading) return;
                     setShowMore(false);
+                    moreButtonRef.current?.focus();
                     handleCsv();
                   }}
-                  disabled={loading}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted disabled:opacity-50"
+                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted ${loading ? "opacity-50" : ""}`}
                 >
                   <Download aria-hidden="true" className="h-4 w-4" />
                   {tr("Export CSV")}
@@ -680,6 +692,7 @@ export function MoneyTab(props: MoneyTabProps) {
                 {tr("What is this invoice for")}
               </label>
               <input
+                ref={invoiceTitleRef}
                 id="invoice-title"
                 type="text"
                 value={invoiceForm.title}
@@ -1016,14 +1029,18 @@ export function MoneyTab(props: MoneyTabProps) {
         )}
 
         {loading ? (
-          <div className="mt-4 space-y-2" aria-hidden="true">
-            <span className="sr-only">{tr("Loading invoices")}</span>
-            {[0, 1, 2].map((row) => (
-              <div
-                key={row}
-                className="h-9 animate-pulse rounded-lg bg-muted"
-              />
-            ))}
+          <div className="mt-4 space-y-2">
+            <span role="status" aria-live="polite" className="sr-only">
+              {tr("Loading invoices")}
+            </span>
+            <div aria-hidden="true" className="space-y-2">
+              {[0, 1, 2].map((row) => (
+                <div
+                  key={row}
+                  className="h-9 animate-pulse rounded-lg bg-muted"
+                />
+              ))}
+            </div>
           </div>
         ) : summary.invoices.length === 0 ? (
           <div className="mt-4 rounded-2xl border border-dashed bg-card/60 px-4 py-8 text-center">
