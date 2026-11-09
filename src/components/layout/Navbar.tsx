@@ -11,7 +11,6 @@ import {
   ClipboardList,
   Crown,
   FileStack,
-  ArrowRight,
   BookOpen,
   Building2,
   FileText,
@@ -692,14 +691,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Primary CTA, Start Calculating */}
-            <Link
-              to="/paint-calculator/?mode=room-estimate"
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-primary dark:hover:bg-primary/90"
-            >
-              <Calculator className="h-4 w-4" />
-              Start Calculating
-            </Link>
           </div>
         </nav>
         <AdFreePromptNotice />
@@ -1065,16 +1056,6 @@ export default function Navbar() {
                   </div>
                 </div>
               )}
-
-              {/* Primary CTA */}
-              <Link
-                to="/paint-calculator/?mode=room-estimate"
-                onClick={() => setMobileOpen(false)}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
-              >
-                <Calculator className="h-4 w-4" />
-                Start Calculating
-              </Link>
             </div>
           </div>
         </div>
