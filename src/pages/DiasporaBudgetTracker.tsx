@@ -290,6 +290,7 @@ export default function DiasporaBudgetTracker() {
               </Badge>
             </div>
             <input
+              aria-label="Annual Construction Inflation"
               type="range"
               min="0"
               max="60"
@@ -312,6 +313,7 @@ export default function DiasporaBudgetTracker() {
               </Badge>
             </div>
             <input
+              aria-label="Project Build Duration"
               type="range"
               min="1"
               max="24"

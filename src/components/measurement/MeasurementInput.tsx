@@ -446,6 +446,7 @@ function TileConfigFields({
             {t("Unit")}
           </label>
           <select
+            aria-label={t("Unit")}
             value={tc.tileUnit}
             onChange={(e) =>
               onUpdate({

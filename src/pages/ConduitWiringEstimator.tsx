@@ -342,6 +342,7 @@ export default function ConduitWiringEstimator() {
                       Width (m)
                     </label>
                     <input
+                      aria-label="Width (m)"
                       type="number"
                       min={2}
                       max={30}
@@ -358,6 +359,7 @@ export default function ConduitWiringEstimator() {
                       Length (m)
                     </label>
                     <input
+                      aria-label="Length (m)"
                       type="number"
                       min={2}
                       max={30}
@@ -374,6 +376,7 @@ export default function ConduitWiringEstimator() {
                       Ceiling (m)
                     </label>
                     <input
+                      aria-label="Ceiling (m)"
                       type="number"
                       min={2.4}
                       max={6.0}

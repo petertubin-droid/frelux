@@ -224,7 +224,7 @@ export function ProviderKeyCards() {
                   <a
                     href={provider.docsUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="text-xs font-medium text-brand-purple hover:underline"
                   >
                     {t("Get a key")}

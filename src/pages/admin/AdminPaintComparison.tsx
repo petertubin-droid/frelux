@@ -121,6 +121,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>Paint Type Key *</label>
               <input
+                aria-label="Paint Type Key *"
                 className={inputCls}
                 value={form.paint_type || ""}
                 onChange={(e) =>
@@ -133,6 +134,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>Display Name *</label>
               <input
+                aria-label="Display Name *"
                 className={inputCls}
                 value={form.display_name || ""}
                 onChange={(e) =>
@@ -143,6 +145,7 @@ export default function AdminPaintComparison() {
             <div className="sm:col-span-2">
               <label className={labelCls}>{t("Description")}</label>
               <textarea
+                aria-label={t("Description")}
                 className={inputCls}
                 rows={2}
                 value={form.description || ""}
@@ -154,6 +157,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Finish")}</label>
               <input
+                aria-label={t("Finish")}
                 className={inputCls}
                 value={form.finish || ""}
                 onChange={(e) => setForm({ ...form, finish: e.target.value })}
@@ -162,6 +166,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Recommended Use")}</label>
               <input
+                aria-label={t("Recommended Use")}
                 className={inputCls}
                 value={form.recommended_use || ""}
                 onChange={(e) =>
@@ -172,6 +177,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Durability")}</label>
               <input
+                aria-label={t("Durability")}
                 className={inputCls}
                 value={form.durability || ""}
                 onChange={(e) =>
@@ -182,6 +188,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Washability")}</label>
               <input
+                aria-label={t("Washability")}
                 className={inputCls}
                 value={form.washability || ""}
                 onChange={(e) =>
@@ -192,6 +199,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Appearance")}</label>
               <input
+                aria-label={t("Appearance")}
                 className={inputCls}
                 value={form.appearance || ""}
                 onChange={(e) =>
@@ -202,6 +210,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Suitable Areas")}</label>
               <input
+                aria-label={t("Suitable Areas")}
                 className={inputCls}
                 value={form.suitable_areas || ""}
                 onChange={(e) =>
@@ -212,6 +221,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Price Range")}</label>
               <input
+                aria-label={t("Price Range")}
                 className={inputCls}
                 value={form.price_range || ""}
                 onChange={(e) =>
@@ -222,6 +232,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Product Characteristics")}</label>
               <input
+                aria-label={t("Product Characteristics")}
                 className={inputCls}
                 value={form.product_characteristics || ""}
                 onChange={(e) =>
@@ -232,6 +243,7 @@ export default function AdminPaintComparison() {
             <div>
               <label className={labelCls}>{t("Sort Order")}</label>
               <input
+                aria-label={t("Sort Order")}
                 type="number"
                 className={inputCls}
                 value={form.sort_order || 0}

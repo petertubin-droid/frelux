@@ -15,6 +15,7 @@ import {
   type BuildingCategory,
 } from "@/lib/measurement/building-type-catalogue";
 import AdSlot from "@/components/ui/AdSlot";
+import { jsonLdScript } from "@/lib/structured-data";
 
 const CATEGORY_ORDER: BuildingCategory[] = [
   "residential",
@@ -84,7 +85,7 @@ export default function BuildingTypes() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(itemList) }}
       />
       <PageHeader
         eyebrow="Building library"

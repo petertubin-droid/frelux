@@ -618,7 +618,7 @@ export default function GlobalSiteSafetyEstimator() {
               className="text-primary underline"
               href="https://www.osha.gov/laws-regs/regulations/standardnumber/1926/1926.501"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               OSHA 29 CFR 1926.501 · fall protection
             </a>
@@ -626,7 +626,7 @@ export default function GlobalSiteSafetyEstimator() {
               className="text-primary underline"
               href="https://www.osha.gov/laws-regs/regulations/standardnumber/1926/1926.50"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               OSHA 29 CFR 1926.50 · first aid
             </a>
@@ -634,7 +634,7 @@ export default function GlobalSiteSafetyEstimator() {
               className="text-primary underline"
               href="https://www.hse.gov.uk/Construction/faq-height.htm"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               UK HSE · work at height guidance
             </a>
@@ -642,7 +642,7 @@ export default function GlobalSiteSafetyEstimator() {
               className="text-primary underline"
               href="https://www.iso.org/standard/72424.html"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               ISO 7010 · registered safety signs
             </a>

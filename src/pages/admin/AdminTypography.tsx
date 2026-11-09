@@ -210,6 +210,14 @@ export default function AdminTypography() {
             return (
               <div key={area.key}>
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                   className={classNames(
                     "rounded-lg border p-4 transition-all cursor-pointer",
                     isPickerOpen

@@ -596,6 +596,13 @@ export default function WindowBlindsEstimator() {
                       <label className="space-y-1 text-xs">
                         <span className="text-muted-foreground">How many</span>
                         <input
+                          aria-label="Drop ()
+                        
+                        
+                            patch(row.id, )
+                          }
+                          className=
+                        />"
                           className={fieldClass}
                           inputMode="numeric"
                           value={row.quantity}

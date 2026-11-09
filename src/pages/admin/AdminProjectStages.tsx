@@ -112,6 +112,7 @@ export default function AdminProjectStages() {
             <div>
               <label className={labelCls}>Stage Key *</label>
               <input
+                aria-label="Stage Key *"
                 className={inputCls}
                 value={form.stage_key}
                 onChange={(e) =>
@@ -124,6 +125,7 @@ export default function AdminProjectStages() {
             <div>
               <label className={labelCls}>Stage Name *</label>
               <input
+                aria-label="Stage Name *"
                 className={inputCls}
                 value={form.stage_name}
                 onChange={(e) =>
@@ -134,6 +136,7 @@ export default function AdminProjectStages() {
             <div className="sm:col-span-2">
               <label className={labelCls}>{t("Description")}</label>
               <input
+                aria-label={t("Description")}
                 className={inputCls}
                 value={form.description}
                 onChange={(e) =>
@@ -144,6 +147,7 @@ export default function AdminProjectStages() {
             <div>
               <label className={labelCls}>{t("Sort Order")}</label>
               <input
+                aria-label={t("Sort Order")}
                 type="number"
                 className={inputCls}
                 value={form.sort_order}

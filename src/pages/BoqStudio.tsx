@@ -436,6 +436,7 @@ export default function BoqStudio() {
         <div>
           <label className={LABEL}>Template</label>
           <select
+            aria-label="Template"
             className={FIELD}
             value={templateSlug}
             onChange={(e) => setTemplateSlug(e.target.value)}
@@ -592,6 +593,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>BOQ reference</label>
                 <input
+                  aria-label="BOQ reference"
                   className={FIELD}
                   value={doc.reference}
                   onChange={(e) => patch({ reference: e.target.value })}
@@ -600,6 +602,7 @@ export default function BoqStudio() {
               <div className="md:col-span-2">
                 <label className={LABEL}>Project title</label>
                 <input
+                  aria-label="Project title"
                   className={FIELD}
                   value={doc.title}
                   onChange={(e) => patch({ title: e.target.value })}
@@ -608,6 +611,7 @@ export default function BoqStudio() {
               <div className="md:col-span-3">
                 <label className={LABEL}>Description</label>
                 <textarea
+                  aria-label="Description"
                   className={`${FIELD} min-h-[70px]`}
                   value={doc.description}
                   onChange={(e) => patch({ description: e.target.value })}
@@ -616,6 +620,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Currency</label>
                 <input
+                  aria-label="Currency"
                   className={FIELD}
                   value={doc.currency}
                   onChange={(e) =>
@@ -626,6 +631,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Measurement system</label>
                 <select
+                  aria-label="Measurement system"
                   className={FIELD}
                   value={doc.measurement_system}
                   onChange={(e) =>
@@ -642,6 +648,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Market</label>
                 <input
+                  aria-label="Market"
                   className={FIELD}
                   value={doc.market_code}
                   onChange={(e) =>
@@ -652,6 +659,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Client name</label>
                 <input
+                  aria-label="Client name"
                   className={FIELD}
                   value={doc.client.name}
                   onChange={(e) =>
@@ -662,6 +670,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Client address / site location</label>
                 <input
+                  aria-label="Client address / site location"
                   className={FIELD}
                   value={doc.client.address ?? ""}
                   onChange={(e) =>
@@ -674,6 +683,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Contractor</label>
                 <input
+                  aria-label="Contractor"
                   className={FIELD}
                   value={doc.contractor.name}
                   onChange={(e) =>
@@ -686,6 +696,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Prepared by</label>
                 <input
+                  aria-label="Prepared by"
                   className={FIELD}
                   value={doc.prepared_by}
                   onChange={(e) => patch({ prepared_by: e.target.value })}
@@ -694,6 +705,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Prepared date</label>
                 <input
+                  aria-label="Prepared date"
                   type="date"
                   className={FIELD}
                   value={doc.prepared_date}
@@ -703,6 +715,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Revision</label>
                 <NumericInput
+                  aria-label="Revision"
                   value={doc.revision}
                   min={0}
                   onValueChange={(n) => patch({ revision: n })}
@@ -1003,6 +1016,7 @@ export default function BoqStudio() {
                   <div>
                     <label className={LABEL}>Market or city</label>
                     <input
+                      aria-label="Market or city"
                       className={FIELD}
                       value={doc.survey.market_city}
                       onChange={(e) =>
@@ -1018,6 +1032,7 @@ export default function BoqStudio() {
                   <div>
                     <label className={LABEL}>Survey date</label>
                     <input
+                      aria-label="Survey date"
                       type="date"
                       className={FIELD}
                       value={doc.survey.survey_date}
@@ -1034,6 +1049,7 @@ export default function BoqStudio() {
                   <div>
                     <label className={LABEL}>Surveyed by</label>
                     <input
+                      aria-label="Surveyed by"
                       className={FIELD}
                       value={doc.survey.surveyed_by}
                       onChange={(e) =>
@@ -1109,6 +1125,7 @@ export default function BoqStudio() {
                     <div key={key}>
                       <label className={LABEL}>{label}</label>
                       <NumericInput
+                        aria-label={label}
                         value={doc.commercials[key]}
                         step={0.1}
                         onValueChange={(n) =>
@@ -1126,6 +1143,7 @@ export default function BoqStudio() {
                   <div>
                     <label className={LABEL}>Tax % (blank = none)</label>
                     <input
+                      aria-label="Tax % (blank = none)"
                       type="number"
                       step="0.1"
                       className={FIELD}
@@ -1207,6 +1225,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Assumptions (one per line)</label>
                 <textarea
+                  aria-label="Assumptions (one per line)"
                   className={`${FIELD} min-h-[90px]`}
                   value={doc.assumptions.join("\n")}
                   onChange={(e) =>
@@ -1221,6 +1240,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Exclusions (one per line)</label>
                 <textarea
+                  aria-label="Exclusions (one per line)"
                   className={`${FIELD} min-h-[90px]`}
                   value={doc.exclusions.join("\n")}
                   onChange={(e) =>
@@ -1235,6 +1255,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Reviewer name</label>
                 <input
+                  aria-label="Reviewer name"
                   className={FIELD}
                   value={doc.review.reviewer_name ?? ""}
                   onChange={(e) =>
@@ -1260,6 +1281,7 @@ export default function BoqStudio() {
               <div>
                 <label className={LABEL}>Reviewer qualification</label>
                 <input
+                  aria-label="Reviewer qualification"
                   className={FIELD}
                   value={doc.review.reviewer_qualification ?? ""}
                   onChange={(e) =>
@@ -1370,7 +1392,7 @@ export default function BoqStudio() {
                       ),
                     )}`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
                   >
                     WhatsApp

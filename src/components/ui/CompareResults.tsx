@@ -98,6 +98,14 @@ export function CompareResults({
   return (
     <div className="fixed inset-0 z-[90] flex items-start justify-center pt-[8vh] px-4">
       <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).click();
+          }
+        }}
         className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
@@ -113,7 +121,8 @@ export function CompareResults({
           </div>
           <div className="flex items-center gap-2">
             {entries.length > 0 && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => {
                   clearComparison();
                   setEntries([]);
@@ -124,7 +133,8 @@ export function CompareResults({
                 Clear all
               </Button>
             )}
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onClose}
               className="rounded-lg p-1.5 text-muted-foreground hover:text-muted-foreground dark:hover:bg-white/5"
               aria-label="Close"
@@ -154,7 +164,8 @@ export function CompareResults({
               </p>
               <div className="flex flex-wrap gap-2">
                 {entries.map((e) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={e.id}
                     onClick={() => toggle(e.id)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${

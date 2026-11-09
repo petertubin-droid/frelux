@@ -196,6 +196,14 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
     <div className="fixed inset-0 z-[90]" ref={overlayRef}>
       {/* Dark overlay */}
       <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).click();
+          }
+        }}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
         onClick={skip}
       />

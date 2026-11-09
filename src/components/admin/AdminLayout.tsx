@@ -600,6 +600,14 @@ function AdminLayoutInner() {
         {mobileOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  (e.currentTarget as HTMLElement).click();
+                }
+              }}
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />

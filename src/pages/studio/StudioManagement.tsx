@@ -667,6 +667,7 @@ function FeatureManagement() {
                   Rollout:
                 </label>
                 <input
+                  aria-label="Rollout:"
                   type="range"
                   min={0}
                   max={100}

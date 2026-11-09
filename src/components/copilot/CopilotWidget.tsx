@@ -651,12 +651,7 @@ function ResultPanel({
             <label className="block text-xs text-muted-foreground">
               Save this estimate to a project (your confirmation):
             </label>
-            <select
-              className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
-              defaultValue=""
-              onChange={(e) => e.target.value && onSave(e.target.value)}
-              aria-label="Choose project to save the estimate to"
-            >
+            <select aria-label="Choose project to save the estimate to">
               <option value="" disabled>
                 Choose a project…
               </option>

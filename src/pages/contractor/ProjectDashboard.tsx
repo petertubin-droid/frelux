@@ -1644,6 +1644,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Room Name")}
               </label>
               <input
+                aria-label={tr("Room Name")}
                 type="text"
                 value={roomForm.name}
                 onChange={(e) =>
@@ -1660,6 +1661,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Room Type")}
               </label>
               <select
+                aria-label={tr("Room Type")}
                 value={roomForm.room_type}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1683,6 +1685,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Calculation Type")}
               </label>
               <select
+                aria-label={tr("Calculation Type")}
                 value={roomForm.calculation_type}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1706,6 +1709,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Length")}
               </label>
               <input
+                aria-label={tr("Length")}
                 type="number"
                 step="0.1"
                 value={roomForm.length_m}
@@ -1721,6 +1725,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Width")}
               </label>
               <input
+                aria-label={tr("Width")}
                 type="number"
                 step="0.1"
                 value={roomForm.width_m}
@@ -1736,6 +1741,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Height")}
               </label>
               <input
+                aria-label={tr("Height")}
                 type="number"
                 step="0.1"
                 value={roomForm.height_m}
@@ -1753,6 +1759,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Unit")}
               </label>
               <select
+                aria-label={tr("Unit")}
                 value={roomForm.unit}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1773,6 +1780,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Surface Condition")}
               </label>
               <select
+                aria-label={tr("Surface Condition")}
                 value={roomForm.surface_condition}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1794,6 +1802,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Surface Type")}
               </label>
               <select
+                aria-label={tr("Surface Type")}
                 value={roomForm.surface_type}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1815,6 +1824,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Wall Smoothness")}
               </label>
               <select
+                aria-label={tr("Wall Smoothness")}
                 value={roomForm.wall_smoothness}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -1836,6 +1846,7 @@ function RoomsTab(props: RoomsTabProps) {
                 {tr("Porosity")}
               </label>
               <select
+                aria-label={tr("Porosity")}
                 value={roomForm.porosity}
                 onChange={(e) =>
                   setRoomForm((p) => ({
@@ -2067,6 +2078,7 @@ function LabourTab(props: LabourTabProps) {
                 {tr("Role")}
               </label>
               <select
+                aria-label={tr("Role")}
                 value={labourForm.role}
                 onChange={(e) =>
                   setLabourForm((p) => ({
@@ -2088,6 +2100,7 @@ function LabourTab(props: LabourTabProps) {
                 {tr("Worker Count")}
               </label>
               <input
+                aria-label={tr("Worker Count")}
                 type="number"
                 min="1"
                 value={labourForm.worker_count}
@@ -2102,6 +2115,7 @@ function LabourTab(props: LabourTabProps) {
                 {tr("Days Required")}
               </label>
               <input
+                aria-label={tr("Days Required")}
                 type="number"
                 min="1"
                 value={labourForm.days_required}
@@ -2119,6 +2133,7 @@ function LabourTab(props: LabourTabProps) {
                 Daily Wage ({currencySymbol})
               </label>
               <input
+                aria-label="Daily Wage ()"
                 type="number"
                 min="0"
                 step="100"
@@ -2136,6 +2151,7 @@ function LabourTab(props: LabourTabProps) {
               {tr("Notes")}
             </label>
             <input
+              aria-label={tr("Notes")}
               type="text"
               value={labourForm.notes}
               onChange={(e) =>
@@ -2652,6 +2668,7 @@ function QuotationTab(props: QuotationTabProps) {
               Markup %
             </label>
             <input
+              aria-label="Markup %"
               type="number"
               step="0.5"
               value={quotMarkup}
@@ -2664,6 +2681,7 @@ function QuotationTab(props: QuotationTabProps) {
               Profit %
             </label>
             <input
+              aria-label="Profit %"
               type="number"
               step="0.5"
               value={quotProfit}
@@ -2676,6 +2694,7 @@ function QuotationTab(props: QuotationTabProps) {
               Tax %
             </label>
             <input
+              aria-label="Tax %"
               type="number"
               step="0.5"
               min="0"
@@ -2694,6 +2713,7 @@ function QuotationTab(props: QuotationTabProps) {
               {tr("Transport Cost")}
             </label>
             <input
+              aria-label={tr("Transport Cost")}
               type="number"
               step="100"
               value={quotTransport}
@@ -2706,6 +2726,7 @@ function QuotationTab(props: QuotationTabProps) {
               {tr("Misc Cost")}
             </label>
             <input
+              aria-label={tr("Misc Cost")}
               type="number"
               step="100"
               value={quotMisc}
@@ -3295,6 +3316,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 {tr("Category")}
               </label>
               <select
+                aria-label={tr("Category")}
                 value={props.form.category}
                 onChange={(e) =>
                   props.onFormChange({
@@ -3316,6 +3338,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 {tr("Description")}
               </label>
               <input
+                aria-label={tr("Description")}
                 type="text"
                 value={props.form.name}
                 onChange={(e) =>
@@ -3330,6 +3353,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 {tr("Amount")}
               </label>
               <input
+                aria-label={tr("Amount")}
                 type="number"
                 min="0"
                 step="any"
@@ -3349,6 +3373,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 {tr("Date spent")}
               </label>
               <input
+                aria-label={tr("Date spent")}
                 type="date"
                 value={props.form.spent_at}
                 onChange={(e) =>
@@ -3366,6 +3391,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
               {tr("Notes (optional)")}
             </label>
             <textarea
+              aria-label={tr("Notes (optional)")}
               value={props.form.notes}
               onChange={(e) =>
                 props.onFormChange({ ...props.form, notes: e.target.value })

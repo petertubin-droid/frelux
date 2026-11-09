@@ -608,6 +608,7 @@ export default function ProConnectDashboard() {
                     Professional Name *
                   </label>
                   <input
+                    aria-label="Professional Name *"
                     type="text"
                     value={verifName}
                     onChange={(e) => setVerifName(e.target.value)}
@@ -620,6 +621,7 @@ export default function ProConnectDashboard() {
                     {t("Business Name")}
                   </label>
                   <input
+                    aria-label={t("Business Name")}
                     type="text"
                     value={verifBusiness}
                     onChange={(e) => setVerifBusiness(e.target.value)}
@@ -634,6 +636,7 @@ export default function ProConnectDashboard() {
                   {t("Years of Experience")}
                 </label>
                 <input
+                  aria-label={t("Years of Experience")}
                   type="number"
                   value={verifYears}
                   min="0"
@@ -652,6 +655,7 @@ export default function ProConnectDashboard() {
                       ID Document Type *
                     </label>
                     <select
+                      aria-label="ID Document Type *"
                       value={verifIdType}
                       onChange={(e) => setVerifIdType(e.target.value)}
                       className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
@@ -671,6 +675,7 @@ export default function ProConnectDashboard() {
                       ID Document Number *
                     </label>
                     <input
+                      aria-label="ID Document Number *"
                       type="text"
                       value={verifIdNumber}
                       onChange={(e) => setVerifIdNumber(e.target.value)}

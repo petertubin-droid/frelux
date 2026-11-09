@@ -771,7 +771,7 @@ export default function RoofFramingEstimator() {
                             className="mt-2 inline-block text-xs font-medium text-primary underline"
                             href={evidence.sourceUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                           >
                             {evidence.reference} · open source
                           </a>
@@ -965,7 +965,7 @@ export default function RoofFramingEstimator() {
                       className="mt-2 inline-block text-xs font-medium text-primary underline"
                       href={roofLoadReference.sourceUrl}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                     >
                       {roofLoadReference.sourceTable} · open source PDF
                     </a>

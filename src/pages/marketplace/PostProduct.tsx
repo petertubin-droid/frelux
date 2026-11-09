@@ -229,6 +229,7 @@ export default function PostProduct() {
               Product Title *
             </label>
             <input
+              aria-label="Product Title *"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Dulux Vinyl Matt Emulsion, 4 Litres (White)"
@@ -243,6 +244,7 @@ export default function PostProduct() {
                 {tr("Category")}
               </label>
               <select
+                aria-label={tr("Category")}
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -260,6 +262,7 @@ export default function PostProduct() {
                 {tr("Brand")}
               </label>
               <input
+                aria-label={tr("Brand")}
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 placeholder="e.g. Dulux"
@@ -274,6 +277,7 @@ export default function PostProduct() {
               {tr("Description")}
             </label>
             <textarea
+              aria-label={tr("Description")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={tr(
@@ -291,6 +295,7 @@ export default function PostProduct() {
                 Price ({priceSymbol}) *
               </label>
               <input
+                aria-label="Price () *"
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
@@ -303,6 +308,7 @@ export default function PostProduct() {
                 {tr("Compare-at Price")}
               </label>
               <input
+                aria-label={tr("Compare-at Price")}
                 type="number"
                 value={compareAtPrice}
                 onChange={(e) => setCompareAtPrice(e.target.value)}
@@ -315,6 +321,7 @@ export default function PostProduct() {
                 {tr("Condition")}
               </label>
               <select
+                aria-label={tr("Condition")}
                 value={condition}
                 onChange={(e) =>
                   setCondition(e.target.value as ProductCondition)
@@ -337,6 +344,7 @@ export default function PostProduct() {
                 {tr("Quantity")}
               </label>
               <input
+                aria-label={tr("Quantity")}
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
@@ -349,6 +357,7 @@ export default function PostProduct() {
                 {tr("Unit")}
               </label>
               <input
+                aria-label={tr("Unit")}
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 placeholder="e.g. bag, litre, piece"
@@ -464,6 +473,7 @@ export default function PostProduct() {
                 {tr("Country")}
               </label>
               <select
+                aria-label={tr("Country")}
                 value={country}
                 onChange={(e) => {
                   setCountry(e.target.value);
@@ -491,6 +501,7 @@ export default function PostProduct() {
               </label>
               {country === "NG" ? (
                 <select
+                  aria-label={tr("State / Region")}
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -530,6 +541,7 @@ export default function PostProduct() {
                 {tr("City")}
               </label>
               <input
+                aria-label={tr("City")}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Lekki"
@@ -541,6 +553,7 @@ export default function PostProduct() {
                 {tr("Area")}
               </label>
               <input
+                aria-label={tr("Area")}
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
                 placeholder="e.g. Phase 1"
@@ -590,10 +603,14 @@ export default function PostProduct() {
 
           {/* Tags */}
           <div>
-            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+            <div className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               {tr("Tags")}
-            </label>
-            <div className="mt-1 flex flex-wrap gap-1">
+            </div>
+            <div
+              role="group"
+              aria-label={tr("Tags")}
+              className="mt-1 flex flex-wrap gap-1"
+            >
               {tags.map((t) => (
                 <span
                   key={t}

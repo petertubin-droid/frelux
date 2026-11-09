@@ -340,6 +340,7 @@ export default function SellerDashboard() {
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                   <input
+                    aria-label={t("Business Address")}
                     type="checkbox"
                     checked={deliveryAvailable}
                     onChange={(e) => setDeliveryAvailable(e.target.checked)}

@@ -15,6 +15,7 @@ import {
   findBuildingTypeProgramme,
 } from "@/lib/measurement/building-type-catalogue";
 import AdSlot from "@/components/ui/AdSlot";
+import { jsonLdScript } from "@/lib/structured-data";
 
 const CALCULATORS = [
   { to: "/paint-calculator", label: "Paint" },
@@ -120,11 +121,11 @@ export default function BuildingTypeDetail() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(structuredData) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(faqSchema) }}
       />
       <PageHeader
         eyebrow={BUILDING_CATEGORY_LABELS[type.category]}

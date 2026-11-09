@@ -172,6 +172,7 @@ function SettingsTab() {
           Market:
         </label>
         <select
+          aria-label="Market:"
           value={marketFilter}
           onChange={(e) => setMarketFilter(e.target.value)}
           className="rounded-lg border border-input bg-background px-3 py-2 text-sm"

@@ -49,6 +49,7 @@ import {
   type SupplierSearchResult,
 } from "@/lib/suppliers/types";
 import AdSlot from "@/components/ui/AdSlot";
+import { jsonLdScript } from "@/lib/structured-data";
 
 const MARKETS = COUNTRY_OPTIONS.flatMap((group) => group.countries).slice(
   0,
@@ -604,7 +605,7 @@ export default function SupplierDirectory() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLdScript({
               "@context": "https://schema.org",
               "@type": "CollectionPage",
               name: "Construction material suppliers",

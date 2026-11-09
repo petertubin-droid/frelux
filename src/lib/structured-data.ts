@@ -154,3 +154,17 @@ export function webPageSchema(opts: {
   }
   return schema;
 }
+
+/**
+ * Serialise a schema object for embedding in a `<script type="application/ld+json">`.
+ *
+ * Audit UX-6 (2026-11-09): the pages called `JSON.stringify(obj)` inline, in a
+ * `dangerouslySetInnerHTML`. `JSON.stringify` does not escape `<`, so any
+ * data-derived string containing `</script>` (a supplier name, a building-type
+ * label) closes the tag early and everything after it becomes markup. Escaping
+ * `<` as `\u003c` is valid JSON, parses identically for search engines, and
+ * makes the tag impossible to close from inside the payload.
+ */
+export function jsonLdScript(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}

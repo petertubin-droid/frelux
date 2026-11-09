@@ -49,6 +49,7 @@ import {
   type IndexBenchmark,
 } from "@/lib/suppliers/index-bridge";
 import AdSlot from "@/components/ui/AdSlot";
+import { jsonLdScript } from "@/lib/structured-data";
 
 function ListingRow({
   listing,
@@ -521,7 +522,7 @@ export default function SupplierProfilePage() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLdScript({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               name: supplier.company_name,

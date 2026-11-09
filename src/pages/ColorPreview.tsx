@@ -138,6 +138,14 @@ export default function ColorPreview() {
               </div>
             ) : (
               <div
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    (e.currentTarget as HTMLElement).click();
+                  }
+                }}
                 onClick={() => fileRef.current?.click()}
                 className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8"
               >

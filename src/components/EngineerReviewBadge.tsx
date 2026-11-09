@@ -89,7 +89,7 @@ export default function EngineerReviewBadge({
                 className="inline-flex items-center gap-1 text-xs font-medium text-primary underline underline-offset-2"
                 href={scope.verifiedSource}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 {scope.sourceLabel} (reference only){" "}
                 <ExternalLink aria-hidden="true" className="h-3 w-3" />

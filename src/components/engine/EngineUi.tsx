@@ -154,10 +154,17 @@ export function EngineAlreadyHaveInput({
   const purchase = Math.max(0, required - alreadyHave);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
-      <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+    <div
+      role="group"
+      aria-labelledby="already-have-group-label"
+      className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background"
+    >
+      <div
+        id="already-have-group-label"
+        className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60"
+      >
         {t("Already Have / Purchase Quantity")}
-      </label>
+      </div>
       <div className="grid grid-cols-3 gap-3 text-sm">
         <div>
           <div className="text-xs text-muted-foreground">{t("Required")}</div>
@@ -170,6 +177,7 @@ export function EngineAlreadyHaveInput({
             {t("Already Have")}
           </div>
           <NumericInput
+            aria-label={t("Already Have")}
             value={alreadyHave || ""}
             min={0}
             max={required}

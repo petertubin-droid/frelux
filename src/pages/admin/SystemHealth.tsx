@@ -763,6 +763,13 @@ export default function SystemHealth() {
               <div className="space-y-2">
                 {errors.slice(0, 5).map((e) => (
                   <div
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        (e.currentTarget as HTMLElement).click();
+                      }
+                    }}
                     key={e.id}
                     className="flex items-center gap-3 rounded-lg border border-border/50 p-2 dark:border-white/5"
                     onClick={() => setSelectedError(e)}

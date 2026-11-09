@@ -501,6 +501,14 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                 className="rounded-xl border bg-card transition-all duration-150 overflow-hidden"
               >
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                   className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer hover:bg-accent/40"
                   onClick={() => setExpandedId(isExpanded ? null : log.id)}
                 >

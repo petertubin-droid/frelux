@@ -362,7 +362,18 @@ function ClientCard({
   return (
     <div className="rounded-lg border p-4 transition-colors hover:border-brand-purple/30">
       <div className="flex items-start justify-between">
-        <div className="cursor-pointer" onClick={onSelect}>
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              (e.currentTarget as HTMLElement).click();
+            }
+          }}
+          className="cursor-pointer"
+          onClick={onSelect}
+        >
           <h3 className="font-semibold text-foreground">{client.name}</h3>
           {client.company && (
             <p className="text-sm text-muted-foreground">{client.company}</p>

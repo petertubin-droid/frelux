@@ -735,6 +735,7 @@ function RuleEditModal({
               {t("Rule Value (JSON)")}
             </label>
             <textarea
+              aria-label={t("Rule Value (JSON)")}
               value={form.rule_value}
               onChange={(e) => setForm({ ...form, rule_value: e.target.value })}
               rows={4}
@@ -898,6 +899,7 @@ function Field({
         {label}
       </label>
       <input
+        aria-label={label}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -926,6 +928,7 @@ function SelectField({
         {label}
       </label>
       <select
+        aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground"

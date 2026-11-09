@@ -481,7 +481,7 @@ export default function AdminAnalytics() {
                       <a
                         href="https://analytics.google.com"
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-2"
                       >
                         {t("Open Google Analytics")}

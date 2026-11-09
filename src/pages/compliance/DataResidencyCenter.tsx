@@ -168,6 +168,14 @@ export default function DataResidencyCenter() {
                   const isSelected = selectedRegion === regKey;
                   return (
                     <div
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          (e.currentTarget as HTMLElement).click();
+                        }
+                      }}
                       key={regKey}
                       onClick={() => setSelectedRegion(regKey)}
                       className={`cursor-pointer rounded-xl p-4 border transition-all ${

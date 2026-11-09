@@ -446,7 +446,7 @@ export default function AdminWallFinishingLibrary() {
                                 <a
                                   href={s.url}
                                   target="_blank"
-                                  rel="noreferrer"
+                                  rel="noopener noreferrer"
                                   className="font-medium text-brand-purple"
                                 >
                                   {s.title}{" "}

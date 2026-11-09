@@ -108,6 +108,7 @@ export default function AdminBoqTemplates() {
                   <div className="md:col-span-2">
                     <label className={LABEL}>Name</label>
                     <input
+                      aria-label="Name"
                       className={FIELD}
                       value={t.name}
                       onChange={(e) =>
@@ -118,6 +119,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Standard</label>
                     <select
+                      aria-label="Standard"
                       className={FIELD}
                       value={t.standard}
                       onChange={(e) =>
@@ -140,6 +142,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Market</label>
                     <input
+                      aria-label="Market"
                       className={FIELD}
                       value={t.market_code ?? ""}
                       onChange={(e) =>
@@ -152,6 +155,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Currency</label>
                     <input
+                      aria-label="Currency"
                       className={FIELD}
                       value={t.currency ?? ""}
                       onChange={(e) =>
@@ -164,6 +168,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Rounding decimals</label>
                     <NumericInput
+                      aria-label="Rounding decimals"
                       value={t.rounding_decimals}
                       min={0}
                       max={4}
@@ -178,6 +183,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Default preliminaries %</label>
                     <NumericInput
+                      aria-label="Default preliminaries %"
                       value={t.default_preliminaries_pct}
                       step={0.1}
                       onValueChange={(n) =>
@@ -191,6 +197,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Default overhead %</label>
                     <NumericInput
+                      aria-label="Default overhead %"
                       value={t.default_overhead_profit_pct}
                       step={0.1}
                       onValueChange={(n) =>
@@ -204,6 +211,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Default contingency %</label>
                     <NumericInput
+                      aria-label="Default contingency %"
                       value={t.default_contingency_pct}
                       step={0.1}
                       onValueChange={(n) =>
@@ -217,6 +225,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Default retention %</label>
                     <NumericInput
+                      aria-label="Default retention %"
                       value={t.default_retention_pct}
                       step={0.1}
                       onValueChange={(n) =>
@@ -232,6 +241,7 @@ export default function AdminBoqTemplates() {
                       Default tax % (blank = none)
                     </label>
                     <input
+                      aria-label="Default tax % (blank = none)"
                       type="number"
                       step="0.1"
                       className={FIELD}
@@ -249,6 +259,7 @@ export default function AdminBoqTemplates() {
                   <div>
                     <label className={LABEL}>Page size</label>
                     <select
+                      aria-label="Page size"
                       className={FIELD}
                       value={t.page_size}
                       onChange={(e) =>
@@ -262,6 +273,7 @@ export default function AdminBoqTemplates() {
                   <div className="md:col-span-2">
                     <label className={LABEL}>Footer note</label>
                     <input
+                      aria-label="Footer note"
                       className={FIELD}
                       value={t.footer_note ?? ""}
                       onChange={(e) =>
@@ -329,6 +341,7 @@ export default function AdminBoqTemplates() {
               <div className="w-20">
                 <label className={LABEL}>Code</label>
                 <input
+                  aria-label="Code"
                   className={FIELD}
                   value={s.code}
                   onChange={(e) =>
@@ -339,6 +352,7 @@ export default function AdminBoqTemplates() {
               <div className="min-w-[200px] flex-1">
                 <label className={LABEL}>Title</label>
                 <input
+                  aria-label="Title"
                   className={FIELD}
                   value={s.title}
                   onChange={(e) =>
@@ -349,6 +363,7 @@ export default function AdminBoqTemplates() {
               <div className="w-24">
                 <label className={LABEL}>Order</label>
                 <NumericInput
+                  aria-label="Order"
                   value={s.sort_order}
                   onValueChange={(n) =>
                     updateSection(s.id, {
@@ -361,6 +376,7 @@ export default function AdminBoqTemplates() {
               <div className="w-28">
                 <label className={LABEL}>Standard</label>
                 <input
+                  aria-label="Standard"
                   className={FIELD}
                   value={s.standard}
                   onChange={(e) =>

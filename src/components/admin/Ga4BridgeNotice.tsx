@@ -75,7 +75,7 @@ export default function Ga4BridgeNotice({
                     <a
                       href={url}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 font-medium text-primary underline underline-offset-2"
                     >
                       {t("Open")}

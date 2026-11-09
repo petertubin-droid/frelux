@@ -178,6 +178,7 @@ export default function PostListing() {
               Job Title *
             </label>
             <input
+              aria-label="Job Title *"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -192,6 +193,7 @@ export default function PostListing() {
               {tr("Description")}
             </label>
             <textarea
+              aria-label={tr("Description")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the scope of work, number of rooms, condition of walls, any specific requirements..."
@@ -207,6 +209,7 @@ export default function PostListing() {
                 {tr("Project Type")}
               </label>
               <select
+                aria-label={tr("Project Type")}
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -223,6 +226,7 @@ export default function PostListing() {
                 {tr("Urgency")}
               </label>
               <select
+                aria-label={tr("Urgency")}
                 value={urgency}
                 onChange={(e) => setUrgency(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -241,6 +245,7 @@ export default function PostListing() {
                 Budget Min ({budgetSymbol})
               </label>
               <input
+                aria-label="Budget Min ()"
                 type="number"
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value)}
@@ -253,6 +258,7 @@ export default function PostListing() {
                 Budget Max ({budgetSymbol})
               </label>
               <input
+                aria-label="Budget Max ()"
                 type="number"
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value)}
@@ -278,6 +284,7 @@ export default function PostListing() {
                 {tr("Country")}
               </label>
               <select
+                aria-label={tr("Country")}
                 value={country}
                 onChange={(e) => {
                   setCountry(e.target.value);
@@ -305,6 +312,7 @@ export default function PostListing() {
               </label>
               {country === "NG" ? (
                 <select
+                  aria-label={tr("State / Region")}
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -347,6 +355,7 @@ export default function PostListing() {
                 {tr("City")}
               </label>
               <input
+                aria-label={tr("City")}
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
@@ -359,6 +368,7 @@ export default function PostListing() {
                 {tr("Area")}
               </label>
               <input
+                aria-label={tr("Area")}
                 type="text"
                 value={area}
                 onChange={(e) => setArea(e.target.value)}

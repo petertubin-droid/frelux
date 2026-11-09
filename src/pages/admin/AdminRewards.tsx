@@ -298,6 +298,7 @@ export default function AdminRewards() {
                   {tr("User ID")}
                 </label>
                 <input
+                  aria-label={tr("User ID")}
                   type="text"
                   value={adjustingUser}
                   onChange={(e) => setAdjustingUser(e.target.value)}
@@ -310,6 +311,7 @@ export default function AdminRewards() {
                   {tr("Amount")}
                 </label>
                 <NumericInput
+                  aria-label={tr("Amount")}
                   value={adjustAmount}
                   onValueChange={setAdjustAmount}
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -320,6 +322,7 @@ export default function AdminRewards() {
                   {tr("Reason")}
                 </label>
                 <input
+                  aria-label={tr("Reason")}
                   type="text"
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
@@ -482,6 +485,7 @@ export default function AdminRewards() {
                       {tr("Name")}
                     </label>
                     <input
+                      aria-label={tr("Name")}
                       type="text"
                       value={draft?.name ?? ""}
                       onChange={(e) =>
@@ -501,6 +505,7 @@ export default function AdminRewards() {
                       {tr("Credit Cost")}
                     </label>
                     <NumericInput
+                      aria-label={tr("Credit Cost")}
                       value={draft?.credit_cost ?? 0}
                       onValueChange={(n) =>
                         setEditingReward((prev) => ({
@@ -516,6 +521,7 @@ export default function AdminRewards() {
                       {tr("Description")}
                     </label>
                     <textarea
+                      aria-label={tr("Description")}
                       value={draft?.description ?? ""}
                       onChange={(e) =>
                         setEditingReward((p) => ({
@@ -605,6 +611,7 @@ export default function AdminRewards() {
                   {tr("Weekly Mission Reward (credits)")}
                 </label>
                 <NumericInput
+                  aria-label={tr("Weekly Mission Reward (credits)")}
                   value={settingsDraft.weekly_mission_credits}
                   onValueChange={(n) =>
                     setSettingsDraft((d) =>
@@ -619,6 +626,7 @@ export default function AdminRewards() {
                   7-Day Streak Reward (credits)
                 </label>
                 <NumericInput
+                  aria-label="7-Day Streak Reward (credits)"
                   value={settingsDraft.streak_7_day_credits}
                   onValueChange={(n) =>
                     setSettingsDraft((d) =>
@@ -633,6 +641,7 @@ export default function AdminRewards() {
                   {tr("Streak Grace Days")}
                 </label>
                 <NumericInput
+                  aria-label={tr("Streak Grace Days")}
                   value={settingsDraft.streak_grace_days}
                   onValueChange={(n) =>
                     setSettingsDraft((d) =>

@@ -209,6 +209,14 @@ export default function AdminEstimationAudit() {
             return (
               <div key={entry.id} className="card transition-all">
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                   className="flex cursor-pointer flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                   onClick={() => toggleExpand(entry.id)}
                 >

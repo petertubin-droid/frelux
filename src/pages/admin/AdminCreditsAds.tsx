@@ -468,6 +468,7 @@ export default function AdminCreditsAds() {
                       {t("Feature Name")}
                     </label>
                     <input
+                      aria-label={t("Feature Name")}
                       value={draft.feature_name ?? f.feature_name}
                       onChange={(e) =>
                         setEditingFeature((s) => ({
@@ -483,6 +484,7 @@ export default function AdminCreditsAds() {
                       {t("Credit Cost")}
                     </label>
                     <NumericInput
+                      aria-label="Price (₦)"
                       value={draft.credit_cost ?? f.credit_cost}
                       onValueChange={(n) =>
                         setEditingFeature((s) => ({
@@ -501,6 +503,7 @@ export default function AdminCreditsAds() {
                       Daily Usage Limit (0=unlimited)
                     </label>
                     <NumericInput
+                      aria-label="Daily Usage Limit (0=unlimited)"
                       value={draft.daily_usage_limit ?? f.daily_usage_limit}
                       onValueChange={(n) =>
                         setEditingFeature((s) => ({
@@ -519,6 +522,7 @@ export default function AdminCreditsAds() {
                       {t("Description")}
                     </label>
                     <input
+                      aria-label={t("Description")}
                       value={draft.description ?? f.description ?? ""}
                       onChange={(e) =>
                         setEditingFeature((s) => ({
@@ -615,6 +619,7 @@ export default function AdminCreditsAds() {
                 {t("Credits per Ad")}
               </label>
               <input
+                aria-label={t("Credits per Ad")}
                 type="number"
                 value={adConfigDraft.credits_per_ad}
                 onChange={(e) =>
@@ -631,6 +636,7 @@ export default function AdminCreditsAds() {
                 {t("Daily Earn Limit")}
               </label>
               <input
+                aria-label={t("Daily Earn Limit")}
                 type="number"
                 value={adConfigDraft.daily_earn_limit}
                 onChange={(e) =>
@@ -647,6 +653,7 @@ export default function AdminCreditsAds() {
                 {t("Cooldown (seconds)")}
               </label>
               <NumericInput
+                aria-label={t("Cooldown (seconds)")}
                 value={adConfigDraft.cooldown_seconds}
                 onValueChange={(n) =>
                   setAdConfigDraft({
@@ -662,6 +669,7 @@ export default function AdminCreditsAds() {
                 {t("Min Interval Between Ads (seconds)")}
               </label>
               <NumericInput
+                aria-label={t("Min Interval Between Ads (seconds)")}
                 value={adConfigDraft.min_interval_seconds}
                 onValueChange={(n) =>
                   setAdConfigDraft({
@@ -676,6 +684,7 @@ export default function AdminCreditsAds() {
           <div className="mt-3">
             <label className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
               <input
+                aria-label={t("Min Interval Between Ads (seconds)")}
                 type="checkbox"
                 checked={adConfigDraft.is_enabled}
                 onChange={(e) =>
@@ -726,6 +735,7 @@ export default function AdminCreditsAds() {
                   {t("Tokens per Pack")}
                 </label>
                 <NumericInput
+                  aria-label={t("Tokens per Pack")}
                   value={tokenConfigDraft.token_amount}
                   min={1}
                   onValueChange={(n) =>
@@ -742,6 +752,7 @@ export default function AdminCreditsAds() {
                   Price (₦)
                 </label>
                 <NumericInput
+                  aria-label="Price (₦)"
                   value={tokenConfigDraft.price_kobo / 100}
                   min={100}
                   onValueChange={(n) =>

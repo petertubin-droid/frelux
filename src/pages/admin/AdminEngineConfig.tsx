@@ -1334,6 +1334,7 @@ function Input({
         {label}
       </label>
       <input
+        aria-label={label}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -1360,6 +1361,7 @@ function Select({
         {label}
       </label>
       <select
+        aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"

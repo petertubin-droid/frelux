@@ -60,7 +60,12 @@ const table = (over: Partial<RateTable> = {}): RateTable => ({
 });
 
 describe("currency catalogue", () => {
-  it("ships the eleven requested currencies", () => {
+  it("catalogues every currency the 32-market registry uses", () => {
+    // Originally asserted eleven codes. The audit on 2026-11-09 (UX-4) found
+    // 17 markets whose currency had no entry, so the UI printed the ISO code as
+    // the symbol and gave zero-decimal money two decimals. The list is now the
+    // full set the registry needs, and the first eleven keep their order so
+    // currency pickers do not reorder for existing users.
     expect(CURRENCY_CODES).toEqual([
       "NGN",
       "USD",
@@ -73,6 +78,23 @@ describe("currency catalogue", () => {
       "MXN",
       "KES",
       "ZAR",
+      "INR",
+      "GHS",
+      "JPY",
+      "BRL",
+      "SAR",
+      "IDR",
+      "KRW",
+      "ETB",
+      "EGP",
+      "TZS",
+      "XOF",
+      "PLN",
+      "SEK",
+      "CHF",
+      "SGD",
+      "TRY",
+      "NZD",
     ]);
   });
 

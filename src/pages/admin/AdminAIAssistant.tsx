@@ -587,6 +587,7 @@ export default function AdminAIAssistant() {
             </label>
             <div className="flex gap-2">
               <input
+                aria-label={t("Superagent API Key")}
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}

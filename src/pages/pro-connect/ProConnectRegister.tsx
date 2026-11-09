@@ -417,6 +417,7 @@ export default function ProConnectRegister() {
               Display Name *
             </label>
             <input
+              aria-label="Display Name *"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -429,6 +430,7 @@ export default function ProConnectRegister() {
               {t("Business Name")}
             </label>
             <input
+              aria-label={t("Business Name")}
               type="text"
               value={businessName}
               onChange={(e) => setBusinessName(e.target.value)}
@@ -441,6 +443,7 @@ export default function ProConnectRegister() {
               Professional Category *
             </label>
             <select
+              aria-label="Professional Category *"
               value={categoryId}
               onChange={(e) => {
                 setCategoryId(e.target.value);
@@ -461,6 +464,7 @@ export default function ProConnectRegister() {
               {t("Bio")}
             </label>
             <textarea
+              aria-label={t("Bio")}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Describe your professional experience, specialties, and what makes you stand out..."
@@ -474,6 +478,7 @@ export default function ProConnectRegister() {
                 {t("Years of Experience")}
               </label>
               <input
+                aria-label={t("Years of Experience")}
                 type="number"
                 value={yearsExperience}
                 onChange={(e) => setYearsExperience(e.target.value)}
@@ -486,6 +491,7 @@ export default function ProConnectRegister() {
                 {t("Phone")}
               </label>
               <input
+                aria-label={t("Phone")}
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -499,6 +505,7 @@ export default function ProConnectRegister() {
               {t("Website")}
             </label>
             <input
+              aria-label={t("Website")}
               type="url"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
@@ -588,6 +595,7 @@ export default function ProConnectRegister() {
               {t("Country")}
             </label>
             <select
+              aria-label={t("Country")}
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"

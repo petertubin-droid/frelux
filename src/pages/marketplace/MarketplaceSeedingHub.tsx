@@ -221,6 +221,14 @@ export default function MarketplaceSeedingHub() {
               const isSelected = selectedTerritory.id === t.id;
               return (
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                   key={t.id}
                   onClick={() => setSelectedTerritory(t)}
                   className={`cursor-pointer rounded-2xl p-5 border transition-all ${

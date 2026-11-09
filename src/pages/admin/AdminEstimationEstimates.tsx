@@ -330,6 +330,14 @@ export default function AdminEstimationEstimates() {
             return (
               <AdminCard key={est.id} className="transition-all">
                 <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
                   className="flex cursor-pointer flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                   onClick={() => toggleExpand(est.id)}
                 >

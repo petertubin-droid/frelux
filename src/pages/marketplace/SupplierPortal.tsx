@@ -457,6 +457,7 @@ export default function SupplierPortal() {
                       {t("Product Name")}
                     </label>
                     <Input
+                      aria-label={t("Product Name")}
                       placeholder="e.g. Blue Triangle Cement"
                       value={newItemName}
                       onChange={(e) => setNewItemName(e.target.value)}
@@ -488,6 +489,7 @@ export default function SupplierPortal() {
                       {t("Unit")}
                     </label>
                     <Input
+                      aria-label={t("Unit")}
                       placeholder="50kg bag, 12m length, ton"
                       value={newItemUnit}
                       onChange={(e) => setNewItemUnit(e.target.value)}
@@ -500,6 +502,7 @@ export default function SupplierPortal() {
                       Price ({currency})
                     </label>
                     <Input
+                      aria-label="Price ()"
                       type="number"
                       placeholder="950"
                       min="0.01"
