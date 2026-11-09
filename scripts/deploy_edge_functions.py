@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import json
+from datetime import datetime, timezone
 import os
 import subprocess
 import sys
@@ -66,6 +67,18 @@ def local_functions():
     )
 
 
+def to_dt(value):
+    """Parse a remote timestamp (epoch ms) or a commit date (ISO) to UTC."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return datetime.fromtimestamp(value / 1000, tz=timezone.utc)
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 def last_commit(path: str) -> str:
     """ISO date of the newest commit touching this path, or empty."""
     try:
@@ -99,11 +112,15 @@ def main() -> int:
         if info is None:
             todo.append((slug, True, None, "missing remotely"))
             continue
-        newest = last_commit(os.path.join(FUNCTIONS_DIR, slug))
-        # Remote timestamps are UTC with a Z suffix; commits carry an offset.
-        # Comparing the date prefixes is enough to decide "changed since".
-        if newest and info["updated_at"] and newest[:19] > info["updated_at"][:19]:
-            todo.append((slug, False, info["verify_jwt"], f"source {newest}"))
+        newest = to_dt(last_commit(os.path.join(FUNCTIONS_DIR, slug)))
+        deployed = to_dt(info["updated_at"])
+        # The Management API reports updated_at as epoch milliseconds, while git
+        # gives an ISO date with an offset, so both are normalised to aware UTC
+        # datetimes before comparing.
+        if newest and deployed and newest > deployed:
+            todo.append(
+                (slug, False, info["verify_jwt"], f"source {newest.isoformat()}")
+            )
 
     print(f"Remote: {len(remote)} | local: {len(local)} | pending: {len(todo)}")
     for slug, missing, verify, why in todo:
@@ -133,6 +150,10 @@ def main() -> int:
             PROJECT,
             # Bundle server-side: no Docker dependency on the runner.
             "--use-api",
+            # CLI v3 refuses hosted mutations in non-interactive/agent runs
+            # without this. Calling this script IS the decision to deploy; the
+            # pending list is printed above before anything is touched.
+            "--yes",
         ]
         if verify is False:
             # Keep the anonymous-endpoint contract this function already has.
