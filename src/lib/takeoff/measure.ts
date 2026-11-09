@@ -59,10 +59,30 @@ export interface WallMeasure {
   grossArea: number;
   deductedArea: number;
   netArea: number;
+  /** Total wall length, before skirting is interrupted by doors. */
+  skirtingLength: number;
+  /** Wall length left after every door and full height opening is removed. */
+  netSkirtingLength: number;
   measuredOpenings: { id: string; area: number }[];
-  deductedOpenings: { id: string; area: number }[];
+  deductedOpenings: {
+    id: string;
+    area: number;
+    width: number;
+    interruptsSkirting: boolean;
+  }[];
   warning?: string;
 }
+
+/** A door is tall enough to break skirting; a window is not. */
+export const SKIRTING_INTERRUPT_HEIGHT_M = 2;
+
+export const interruptsSkirting = (opening: Opening): boolean => {
+  if (opening.kind === "door" || opening.kind === "opening") return true;
+  if (opening.kind === "window") return false;
+  return (
+    toMetres(opening.height, opening.unit ?? "m") >= SKIRTING_INTERRUPT_HEIGHT_M
+  );
+};
 
 export function measureWall(
   wall: {
@@ -78,15 +98,24 @@ export function measureWall(
   const grossArea = areaM2(length, height);
 
   const measuredOpenings: { id: string; area: number }[] = [];
-  const deductedOpenings: { id: string; area: number }[] = [];
+  const deductedOpenings: WallMeasure["deductedOpenings"] = [];
   let deducted = 0;
+  let skirtingCut = 0;
 
   for (const opening of wall.openings ?? []) {
     const area = openingAreaM2(opening);
     if (area <= 0) continue;
     if (area >= (opening.deductAbove ?? deductAbove)) {
-      deductedOpenings.push({ id: opening.id, area });
+      const width = toMetres(opening.width, opening.unit ?? "m");
+      const breaks = interruptsSkirting(opening);
+      deductedOpenings.push({
+        id: opening.id,
+        area,
+        width,
+        interruptsSkirting: breaks,
+      });
       deducted += area;
+      if (breaks) skirtingCut += width;
     } else {
       measuredOpenings.push({ id: opening.id, area });
     }
@@ -103,6 +132,10 @@ export function measureWall(
     grossArea,
     deductedArea: round(capped, 4),
     netArea,
+    skirtingLength: length,
+    // A wall cannot lose more skirting than it has, and a door wider than its
+    // wall is a schedule error rather than a negative length.
+    netSkirtingLength: round(Math.max(0, length - skirtingCut), 4),
     measuredOpenings,
     deductedOpenings,
     warning:

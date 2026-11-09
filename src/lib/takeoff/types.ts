@@ -13,6 +13,13 @@ export interface Opening {
   /** Stable id so a review screen can point at one opening. */
   id: string;
   label?: string;
+  /**
+   * What the opening is. A door or a full height opening interrupts skirting;
+   * a window sits above it and does not. When kind is absent the opening is
+   * treated as a door only if it reaches 2.0 m, which every standard door does
+   * and no window does.
+   */
+  kind?: "door" | "window" | "opening";
   width: number;
   height: number;
   unit?: LengthUnit;
@@ -62,7 +69,13 @@ export interface ScheduleInput {
 }
 
 export type TakeoffScope =
-  "blockwork" | "render" | "paint" | "floor_tiles" | "screed";
+  | "blockwork"
+  | "render"
+  | "paint"
+  | "ceiling"
+  | "floor_tiles"
+  | "screed"
+  | "skirting";
 
 export type QuantityUnit = "m2" | "m3" | "m" | "nr" | "kg" | "L" | "packs";
 

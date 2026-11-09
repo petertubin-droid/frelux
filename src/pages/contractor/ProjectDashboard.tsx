@@ -17,36 +17,37 @@ import {
   type VarianceStatus,
 } from "@/lib/estimation/budget-variance-engine";
 import {
-  Package,
-  Users,
-  DollarSign,
-  Clock,
-  TrendingUp,
-  MapPin,
-  Plus,
-  Trash2,
-  Edit,
-  Download,
-  Share2,
-  Printer,
-  FileText,
+  AlertCircle,
+  ArrowLeft,
+  Brain,
   Calendar,
   CheckCircle2,
   Circle,
-  Upload,
-  ClipboardList,
-  Hammer,
-  ArrowLeft,
-  Save,
-  X,
-  Loader2,
-  AlertCircle,
-  Brain,
-  Receipt,
   ClipboardCheck,
+  ClipboardList,
+  Clock,
+  DollarSign,
+  Download,
+  Edit,
+  FileText,
   Gauge,
+  Hammer,
+  Loader2,
+  MapPin,
+  Package,
   Paperclip,
+  Plus,
+  Printer,
+  Receipt,
+  Ruler,
+  Save,
+  Share2,
+  Trash2,
+  TrendingUp,
+  Upload,
+  Users,
   Wallet,
+  X,
 } from "lucide-react";
 import {
   fetchContractorProject,
@@ -81,6 +82,7 @@ import {
   createReceiptLink,
 } from "@/lib/contractor";
 import { MoneyTab } from "@/components/contractor/MoneyTab";
+import { TakeoffTab } from "@/components/contractor/TakeoffTab";
 import { ProjectTabBar } from "@/components/contractor/ProjectTabBar";
 import { generateQuotationPDF, generateShoppingListPDF } from "@/lib/pdf";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
@@ -135,6 +137,7 @@ type TabKey =
   | "shopping"
   | "expenses"
   | "money"
+  | "takeoff"
   | "workflows"
   | "quotation"
   | "timeline"
@@ -150,6 +153,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "expenses", label: "Expenses", icon: Receipt },
   { key: "money", label: "Invoices & Payments", icon: Wallet },
+  { key: "takeoff", label: "Takeoff", icon: Ruler },
   { key: "workflows", label: "Workflows", icon: ClipboardCheck },
   { key: "quotation", label: "Quotation", icon: FileText },
   { key: "timeline", label: "Timeline", icon: Calendar },
@@ -1319,6 +1323,10 @@ export default function ProjectDashboard() {
             currency={project.currency}
             expenses={expenses}
           />
+        )}
+
+        {activeTab === "takeoff" && (
+          <TakeoffTab projectId={project.id} projectName={project.name} />
         )}
 
         {activeTab === "workflows" && (

@@ -31,7 +31,15 @@ describe("schedule to bill", () => {
     const result = runTakeoff(bedroom);
     const scopes = new Set(result.lines.map((line) => line.scope));
     expect(scopes).toEqual(
-      new Set(["Blockwork", "Render", "Paint", "Floor tiling", "Screed"]),
+      new Set([
+        "Blockwork",
+        "Render",
+        "Paint",
+        "Ceiling",
+        "Floor tiling",
+        "Screed",
+        "Skirting",
+      ]),
     );
     expect(lineFor(result, "blockwork-measured-area")?.quantity).toBeCloseTo(
       19.17,
@@ -222,5 +230,137 @@ describe("schedule to bill", () => {
     // Cement is the only kilogram line, so the total must equal it exactly
     // rather than counting the bag-rounded figure twice.
     expect(kilograms?.quantity).toBeCloseTo(cement?.quantity ?? 0, 4);
+  });
+});
+
+describe("ceiling and skirting", () => {
+  const room: ScheduleInput = {
+    id: "sched-ceil",
+    rooms: [
+      {
+        id: "r1",
+        walls: [
+          {
+            id: "w1",
+            length: 4,
+            height: 2.7,
+            openings: [
+              { id: "d1", kind: "door", width: 0.9, height: 2.1 },
+              { id: "win", kind: "window", width: 1.5, height: 1.2 },
+            ],
+          },
+          { id: "w2", length: 3.5, height: 2.7 },
+        ],
+        floor: { id: "f1", length: 4, width: 3.5 },
+      },
+    ],
+  };
+
+  it("measures the ceiling on the floor area it covers", () => {
+    const result = runTakeoff(room, { scopes: ["ceiling"] });
+    expect(lineFor(result, "ceiling-measured-area")?.quantity).toBeCloseTo(
+      14,
+      2,
+    );
+    const paint = result.lines.find((line) => line.id === "ceiling-paint");
+    expect(paint?.unit).toBe("L");
+  });
+
+  it("uses a separate ceiling paint spec when one is given", () => {
+    const defaultSpec = runTakeoff(room, { scopes: ["ceiling"] });
+    const brightSpec = runTakeoff(room, {
+      scopes: ["ceiling"],
+      specs: { ceilingPaint: { coats: 3 } },
+    });
+    const a =
+      defaultSpec.lines.find((line) => line.id === "ceiling-paint")?.quantity ??
+      0;
+    const b =
+      brightSpec.lines.find((line) => line.id === "ceiling-paint")?.quantity ??
+      0;
+    expect(b).toBeGreaterThan(a);
+  });
+
+  it("stops skirting at doors but runs past windows", () => {
+    const result = runTakeoff(room, { scopes: ["skirting"] });
+    // 4 + 3.5 runs, less the 0.9 door only.
+    expect(lineFor(result, "skirting-measured-run")?.quantity).toBeCloseTo(
+      6.6,
+      3,
+    );
+  });
+
+  it("treats a 2.0 m or taller opening without a kind as a door", () => {
+    const result = runTakeoff(
+      {
+        id: "s",
+        rooms: [
+          {
+            id: "r",
+            walls: [
+              {
+                id: "w",
+                length: 5,
+                height: 2.7,
+                openings: [{ id: "o", width: 2, height: 2.1 }],
+              },
+            ],
+          },
+        ],
+      },
+      { scopes: ["skirting"] },
+    );
+    expect(lineFor(result, "skirting-measured-run")?.quantity).toBeCloseTo(
+      3,
+      3,
+    );
+  });
+
+  it("keeps a window out of the skirting deduction even when it is wide", () => {
+    const result = runTakeoff(
+      {
+        id: "s",
+        rooms: [
+          {
+            id: "r",
+            walls: [
+              {
+                id: "w",
+                length: 5,
+                height: 2.7,
+                openings: [
+                  { id: "win", kind: "window", width: 2.4, height: 1.6 },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      { scopes: ["skirting"] },
+    );
+    expect(lineFor(result, "skirting-measured-run")?.quantity).toBeCloseTo(
+      5,
+      3,
+    );
+  });
+
+  it("converts skirting run into whole stock boards", () => {
+    const result = runTakeoff(room, { scopes: ["skirting"] });
+    const boards = result.lines.find(
+      (line) => line.id === "skirting-skirting-boards",
+    );
+    // 6.6 m with waste is 6.996 m, which is three 2.4 m boards.
+    expect(boards?.purchaseQuantity).toBe(3);
+  });
+
+  it("warns when a schedule has walls but no floor for the ceiling", () => {
+    const result = runTakeoff(
+      {
+        id: "s",
+        rooms: [{ id: "r", walls: [{ id: "w", length: 3, height: 2.4 }] }],
+      },
+      { scopes: ["ceiling"] },
+    );
+    expect(result.warnings.join(" ")).toMatch(/Ceiling: nothing measured/);
   });
 });

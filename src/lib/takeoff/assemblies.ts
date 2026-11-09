@@ -409,3 +409,63 @@ export function screedAssembly(
     },
   ];
 }
+
+export interface SkirtingSpec {
+  /** Stock length of one skirting board, in metres. */
+  boardLengthM?: number;
+  /** Adhesive or fixing allowance per linear metre, in kilograms. */
+  adhesiveKgPerM?: number;
+  wastePct?: number;
+}
+
+/**
+ * Skirting is bought in stock lengths, so the count comes from the run divided
+ * by the board length and rounded up. A 2.4 m board cannot be joined invisibly
+ * mid run, but waste already covers the offcuts.
+ */
+export function skirtingAssembly(
+  lengthM: number,
+  spec: SkirtingSpec = {},
+): AssemblyMaterialLine[] {
+  const boardLengthM = spec.boardLengthM ?? 2.4;
+  const adhesivePerM = spec.adhesiveKgPerM ?? 0.05;
+  const netLength = round(Math.max(0, lengthM), 3);
+  const totalLength = applyWaste(netLength, 6);
+  const boards =
+    boardLengthM > 0
+      ? Math.ceil(round(totalLength / boardLengthM, 4) - 1e-9)
+      : 0;
+  const adhesive = round(applyWaste(netLength * adhesivePerM, 5), 2);
+
+  return [
+    {
+      material: "Skirting boards",
+      unit: "m",
+      netQuantity: netLength,
+      wastePct: 6,
+      quantity: totalLength,
+      purchaseQuantity: boards,
+      purchaseUnit: `${boardLengthM} m boards`,
+      derivation: {
+        formula:
+          "net run, then 6% waste, divided into stock lengths rounded up",
+        inputs: { lengthM: netLength, boardLengthM },
+        steps: [
+          { label: "Run before waste", value: netLength, unit: "m" },
+          { label: "Boards", value: boards, unit: "nr" },
+        ],
+      },
+    },
+    {
+      material: "Skirting adhesive",
+      unit: "kg",
+      netQuantity: round(netLength * adhesivePerM, 3),
+      wastePct: 5,
+      quantity: adhesive,
+      derivation: {
+        formula: "run x adhesive per metre, then waste",
+        inputs: { lengthM: netLength, adhesivePerM },
+      },
+    },
+  ];
+}

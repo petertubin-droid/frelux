@@ -1332,6 +1332,25 @@ export interface DbProjectExpense {
   updated_at: string;
 }
 
+/**
+ * A saved takeoff: the measured schedule and the bill it produced. jsonb columns
+ * are typed loosely here because their shape lives in src/lib/takeoff.
+ */
+export interface DbProjectTakeoff {
+  id: string;
+  project_id: string;
+  name: string;
+  schedule: Record<string, unknown>;
+  scopes: string[];
+  specs: Record<string, unknown>;
+  result: Record<string, unknown>;
+  totals: { unit: string; quantity: number }[] | null;
+  assumed_line_count: number;
+  warnings: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DbProjectLabourPlan {
   id: string;
   project_id: string;
