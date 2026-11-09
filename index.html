@@ -15,7 +15,8 @@ d.style.setProperty('--frelux-display-scale',String(scale/100));d.dataset.frelux
 var s=window.screen||{},sw=s.width||0,sh=s.height||0,short=Math.min(sw,sh)||window.innerWidth,o=(s.orientation&&s.orientation.type)||'';
 var w=(o.indexOf('landscape')===0?Math.max(sw,sh):short)||window.innerWidth;
 var c='width=device-width, initial-scale=1.0, viewport-fit=cover';
-if(w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
+var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);
+if(touch&&w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
 var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);window.addEventListener('orientationchange',apply);window.addEventListener('resize',apply);})();
     </script>
     <meta charset="UTF-8" />

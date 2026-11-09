@@ -2,6 +2,7 @@ import {
   applyViewport,
   deviceCssShortEdge,
   deviceCssWidth,
+  deviceTakesTouch,
   viewportContent,
 } from "@/lib/display-viewport";
 import {
@@ -123,6 +124,7 @@ export function DisplayPreferencesProvider({
       viewportContent({
         deviceWidth: deviceCssWidth(),
         deviceShortEdge: deviceCssShortEdge(),
+        touch: deviceTakesTouch(),
         scalePercent: preferences.scale,
       }).content;
     const recompute = () => {

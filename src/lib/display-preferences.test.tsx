@@ -145,6 +145,11 @@ describe("pre-paint script parity", () => {
       [1440, 900, 50],
     ] as const) {
       const landscape = screenW > screenH;
+      // A real phone takes touch input; the script requires it before scaling.
+      Object.defineProperty(window.navigator, "maxTouchPoints", {
+        configurable: true,
+        value: 5,
+      });
       localStorage.setItem(
         DISPLAY_PREFERENCE_KEY,
         JSON.stringify({ scale, compact: true, wideView: true }),
@@ -171,9 +176,16 @@ describe("pre-paint script parity", () => {
             ? Math.max(screenW, screenH)
             : Math.min(screenW, screenH),
           deviceShortEdge: Math.min(screenW, screenH),
+          touch: true,
           scalePercent: scale,
         }).content,
       );
+      // The parity check is worthless if both sides are neutral, so prove the
+      // script really did produce a scaled viewport for the scaling cases.
+      if (scale !== 100 && Math.min(screenW, screenH) <= 600) {
+        expect(inline).toContain("width=");
+        expect(inline).not.toContain("width=device-width");
+      }
     }
   });
 });

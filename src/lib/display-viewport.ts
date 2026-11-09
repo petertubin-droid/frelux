@@ -42,6 +42,11 @@ export interface ViewportInput {
   scalePercent: number;
   /** The device's short edge, used only to tell phones from tablets. */
   deviceShortEdge?: number;
+  /**
+   * Whether the device takes touch input (navigator.maxTouchPoints > 0 or a
+   * coarse pointer). Required for scaling: see the module note.
+   */
+  touch?: boolean;
 }
 
 export interface ViewportResult {
@@ -68,6 +73,7 @@ export function viewportContent({
   deviceWidth,
   scalePercent,
   deviceShortEdge = deviceWidth,
+  touch = false,
 }: ViewportInput): ViewportResult {
   const neutral: ViewportResult = {
     content: NEUTRAL_VIEWPORT,
@@ -84,6 +90,7 @@ export function viewportContent({
   ) {
     return neutral;
   }
+  if (!touch) return neutral;
   if (deviceShortEdge > PHONE_MAX_SHORT_EDGE) return neutral;
 
   const scale = scalePercent / 100;
@@ -108,6 +115,16 @@ export function viewportContent({
     initialScale,
     scaled: true,
   };
+}
+
+/**
+ * Whether the device takes touch input. False on a desktop, including headless
+ * Chrome, whose screen size would otherwise pass for a phone.
+ */
+export function deviceTakesTouch(win: Window = window): boolean {
+  const navigatorWithTouch = win.navigator as Navigator | undefined;
+  if ((navigatorWithTouch?.maxTouchPoints ?? 0) > 0) return true;
+  return win.matchMedia?.("(pointer: coarse)")?.matches ?? false;
 }
 
 /** The device's short edge: the phone's own width when held upright. */

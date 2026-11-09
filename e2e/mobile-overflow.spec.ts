@@ -32,8 +32,14 @@ const ROUTES = [
   "/marketplace",
 ];
 
-async function spill(page: Page, vw: number) {
-  return page.evaluate((width) => {
+async function spill(page: Page) {
+  return page.evaluate(() => {
+    // The display scale is applied at the viewport (src/lib/display-viewport.ts),
+    // so on a phone the layout is deliberately wider than the screen and scaled
+    // down to fit: 412 CSS px at 50% lays out at 824. Measure against the layout
+    // viewport the page actually has. Anything past that still spills off the
+    // physical screen, which is what this gate exists to catch.
+    const width = document.documentElement.clientWidth || window.innerWidth;
     const found: { tag: string; cls: string; over: number; text: string }[] =
       [];
     for (const el of document.querySelectorAll("body *")) {
@@ -89,9 +95,10 @@ async function spill(page: Page, vw: number) {
       overflow:
         document.documentElement.scrollWidth -
         document.documentElement.clientWidth,
+      layoutWidth: width,
       found: found.sort((a, b) => b.over - a.over).slice(0, 5),
     };
-  }, vw);
+  });
 }
 
 test.describe("no layout spills on a phone", () => {
@@ -129,10 +136,13 @@ test.describe("no layout spills on a phone", () => {
         await page.waitForTimeout(500);
       }
 
-      const result = await spill(page, 360);
+      const result = await spill(page);
+      // Guard the gate itself: if the layout viewport were narrow, a spill
+      // could hide behind the tolerance below.
+      expect(result.layoutWidth, "layout viewport measured").toBeGreaterThan(0);
       expect(
         result.overflow,
-        "document is wider than the phone",
+        "document is wider than the layout viewport",
       ).toBeLessThanOrEqual(1);
       expect(
         result.found,
@@ -152,7 +162,7 @@ test.describe("no layout spills on a phone", () => {
     ]) {
       await page.goto(route, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(700);
-      const result = await spill(page, 320);
+      const result = await spill(page);
       expect(
         result.overflow,
         `${route} is wider than 320px`,

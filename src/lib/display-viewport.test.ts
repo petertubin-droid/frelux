@@ -15,7 +15,11 @@ import {
 
 describe("viewportContent", () => {
   it("lays a 412px phone out at 824px for a 50% scale, as Chrome zoom does", () => {
-    const v = viewportContent({ deviceWidth: 412, scalePercent: 50 });
+    const v = viewportContent({
+      deviceWidth: 412,
+      scalePercent: 50,
+      touch: true,
+    });
     expect(v.scaled).toBe(true);
     expect(v.layoutWidth).toBe(824);
     expect(v.initialScale).toBe(0.5);
@@ -26,7 +30,11 @@ describe("viewportContent", () => {
   it("makes the layout width times the initial scale equal the device width", () => {
     for (const device of [360, 375, 390, 412, 430]) {
       for (const scalePercent of [50, 60, 70, 75, 80, 90]) {
-        const v = viewportContent({ deviceWidth: device, scalePercent });
+        const v = viewportContent({
+          deviceWidth: device,
+          scalePercent,
+          touch: true,
+        });
         // Edge to edge: no gutter and no horizontal overflow.
         expect(v.layoutWidth * v.initialScale).toBeCloseTo(device, 0);
       }
@@ -36,7 +44,8 @@ describe("viewportContent", () => {
   it("widens the layout as the scale shrinks", () => {
     const widths = [90, 75, 60, 50].map(
       (scalePercent) =>
-        viewportContent({ deviceWidth: 390, scalePercent }).layoutWidth,
+        viewportContent({ deviceWidth: 390, scalePercent, touch: true })
+          .layoutWidth,
     );
     expect([...widths].sort((a, b) => a - b)).toEqual(widths);
   });
@@ -44,34 +53,70 @@ describe("viewportContent", () => {
   it("reaches the desktop breakpoint territory at 50%", () => {
     // 390 / 0.5 = 780: past md (768), which is what flips the tablet layout.
     expect(
-      viewportContent({ deviceWidth: 390, scalePercent: 50 }).layoutWidth,
+      viewportContent({ deviceWidth: 390, scalePercent: 50, touch: true })
+        .layoutWidth,
     ).toBeGreaterThanOrEqual(768);
   });
 
   it("does not scale at 100% or on a desktop-width device", () => {
     expect(
-      viewportContent({ deviceWidth: 412, scalePercent: 100 }).scaled,
+      viewportContent({ deviceWidth: 412, scalePercent: 100, touch: true })
+        .scaled,
     ).toBe(false);
     // A tablet or desktop: short edge past the phone limit, so no scaling.
     expect(
       viewportContent({
         deviceWidth: PHONE_MAX_SHORT_EDGE + 40,
         scalePercent: 50,
+        touch: true,
       }).content,
     ).toBe(NEUTRAL_VIEWPORT);
     expect(
-      viewportContent({ deviceWidth: 1440, scalePercent: 50 }).scaled,
+      viewportContent({ deviceWidth: 1440, scalePercent: 50, touch: true })
+        .scaled,
     ).toBe(false);
   });
 
   it("clamps an extreme scale and still fills the screen", () => {
-    const tiny = viewportContent({ deviceWidth: 412, scalePercent: 10 });
+    const tiny = viewportContent({
+      deviceWidth: 412,
+      scalePercent: 10,
+      touch: true,
+    });
     expect(tiny.layoutWidth).toBeLessThanOrEqual(1280);
     expect(tiny.layoutWidth * tiny.initialScale).toBeCloseTo(412, 0);
 
-    const big = viewportContent({ deviceWidth: 412, scalePercent: 125 });
+    const big = viewportContent({
+      deviceWidth: 412,
+      scalePercent: 125,
+      touch: true,
+    });
     expect(big.layoutWidth).toBeGreaterThanOrEqual(320);
     expect(big.layoutWidth * big.initialScale).toBeCloseTo(412, 0);
+  });
+
+  it("never scales a non-touch browser, whatever its screen size claims", () => {
+    // This is the CI regression: headless Chrome reports an 800x600 screen, so
+    // the short edge alone looked like a phone and a fixed-width viewport broke
+    // Lighthouse's viewport audit on a desktop page.
+    const headless = viewportContent({
+      deviceWidth: 800,
+      deviceShortEdge: 600,
+      scalePercent: 50,
+      touch: false,
+    });
+    expect(headless.scaled).toBe(false);
+    expect(headless.content).toBe(NEUTRAL_VIEWPORT);
+
+    // Even a small non-touch window (a resized desktop window) stays neutral.
+    expect(
+      viewportContent({
+        deviceWidth: 390,
+        deviceShortEdge: 390,
+        scalePercent: 50,
+        touch: false,
+      }).content,
+    ).toBe(NEUTRAL_VIEWPORT);
   });
 
   it("falls back to the neutral viewport for unusable input", () => {
@@ -83,14 +128,18 @@ describe("viewportContent", () => {
       { deviceWidth: 412, scalePercent: Number.NaN },
       { deviceWidth: 412, scalePercent: 900 },
     ]) {
-      const v = viewportContent(input);
+      const v = viewportContent({ ...input, touch: true });
       expect(v.content, JSON.stringify(input)).toBe(NEUTRAL_VIEWPORT);
       expect(v.scaled).toBe(false);
     }
   });
 
   it("keeps viewport-fit=cover and never disables user zoom", () => {
-    const v = viewportContent({ deviceWidth: 412, scalePercent: 50 });
+    const v = viewportContent({
+      deviceWidth: 412,
+      scalePercent: 50,
+      touch: true,
+    });
     expect(v.content).toContain("viewport-fit=cover");
     expect(v.content).not.toContain("user-scalable=no");
     expect(v.content).not.toContain("maximum-scale");
@@ -115,6 +164,7 @@ describe("deviceCssWidth", () => {
     // handlers recompute the viewport instead of keeping the portrait width.
     const portrait = viewportContent({
       deviceWidth: deviceCssWidth(withScreen(412, 915, "portrait-primary")),
+      touch: true,
       scalePercent: 50,
     });
     const landscape = viewportContent({
@@ -122,6 +172,7 @@ describe("deviceCssWidth", () => {
       deviceShortEdge: deviceCssShortEdge(
         withScreen(412, 915, "landscape-primary"),
       ),
+      touch: true,
       scalePercent: 50,
     });
     expect(portrait.layoutWidth).toBe(824);
