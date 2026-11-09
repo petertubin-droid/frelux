@@ -137,6 +137,51 @@ describe("project ledger allocation", () => {
     expect(summary.overdueTotal).toBe(1000);
   });
 
+  it("holds money paid against a draft on account instead of re-pointing it", () => {
+    const draft = invoice({
+      id: "inv-draft",
+      number: "INV-0009",
+      status: "draft",
+      total: 500000,
+    });
+    const live = invoice({ id: "inv-live", total: 80000 });
+    const summary = summariseLedger({
+      invoices: [live, draft],
+      payments: [payment({ invoice_id: "inv-draft", amount: 50000 })],
+      expenses: [],
+      currency: "NGN",
+      today: "2026-11-09",
+    });
+
+    expect(summary.paidTotal).toBe(50000);
+    expect(summary.invoices[0].paid).toBe(0);
+    expect(summary.invoices[0].balance).toBe(80000);
+    expect(summary.credit).toBe(50000);
+    expect(
+      summary.invoices.find((row) => row.id === "inv-draft"),
+    ).toBeUndefined();
+  });
+
+  it("holds money paid against a void invoice on account too", () => {
+    const voided = invoice({
+      id: "inv-void",
+      number: "INV-0010",
+      status: "void",
+      total: 300000,
+    });
+    const live = invoice({ id: "inv-live", total: 90000 });
+    const summary = summariseLedger({
+      invoices: [live, voided],
+      payments: [payment({ invoice_id: "inv-void", amount: 90000 })],
+      expenses: [],
+      currency: "NGN",
+      today: "2026-11-09",
+    });
+
+    expect(summary.invoices[0].balance).toBe(90000);
+    expect(summary.credit).toBe(90000);
+  });
+
   it("never bills a draft or a void invoice", () => {
     const summary = summariseLedger({
       invoices: [

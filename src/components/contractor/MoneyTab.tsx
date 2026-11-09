@@ -9,12 +9,14 @@ import {
   Share2,
   Copy,
   FileText,
+  Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { downloadCsv } from "@/lib/export-utils";
 import { getSafeError } from "@/lib/safeError";
 import { useLanguage } from "@/lib/i18n";
+import { invoiceTotals } from "@/lib/project-money";
 import {
   createProjectInvoice,
   createProjectPayment,
@@ -122,6 +124,11 @@ export function MoneyTab(props: MoneyTabProps) {
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{
+    kind: "invoice" | "payment";
+    id: string;
+    label: string;
+  } | null>(null);
   const moreMenuRef = useRef<HTMLDivElement | null>(null);
   const moreButtonRef = useRef<HTMLButtonElement | null>(null);
   const invoiceTitleRef = useRef<HTMLInputElement | null>(null);
@@ -198,8 +205,10 @@ export function MoneyTab(props: MoneyTabProps) {
 
   const subtotalValue = Number(invoiceForm.subtotal) || 0;
   const taxRateValue = Number(invoiceForm.taxRate) || 0;
-  const taxAmount = round2((subtotalValue * taxRateValue) / 100);
-  const invoiceTotal = round2(subtotalValue + taxAmount);
+  const { taxAmount, total: invoiceTotal } = invoiceTotals(
+    subtotalValue,
+    taxRateValue,
+  );
 
   const handleInvoiceSubmit = async () => {
     if (subtotalValue <= 0) {
@@ -273,7 +282,30 @@ export function MoneyTab(props: MoneyTabProps) {
     }
   };
 
+  const handleSendInvoice = async (invoice: DbProjectInvoice) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await updateProjectInvoice(invoice.id, { status: "sent" });
+      await load();
+    } catch (err) {
+      setError(getSafeError(err, "Could not send the invoice."));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleDeleteInvoice = async (invoice: DbProjectInvoice) => {
+    const attached = payments.filter((row) => row.invoice_id === invoice.id);
+    if (attached.length > 0) {
+      setPendingDelete(null);
+      setError(
+        tr(
+          "This invoice has payments attached. Delete those payments first, so no money is re-pointed at another bill.",
+        ),
+      );
+      return;
+    }
     setBusy(true);
     try {
       await deleteProjectInvoice(invoice.id);
@@ -281,6 +313,7 @@ export function MoneyTab(props: MoneyTabProps) {
     } catch (err) {
       setError(getSafeError(err, "Could not delete the invoice."));
     } finally {
+      setPendingDelete(null);
       setBusy(false);
     }
   };
@@ -293,8 +326,20 @@ export function MoneyTab(props: MoneyTabProps) {
     } catch (err) {
       setError(getSafeError(err, "Could not delete the payment."));
     } finally {
+      setPendingDelete(null);
       setBusy(false);
     }
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    if (pendingDelete.kind === "invoice") {
+      const record = invoices.find((row) => row.id === pendingDelete.id);
+      if (record) void handleDeleteInvoice(record);
+      return;
+    }
+    const record = payments.find((row) => row.id === pendingDelete.id);
+    if (record) void handleDeletePayment(record);
   };
 
   const handleReceipt = (payment: DbProjectPayment) => {
@@ -412,6 +457,21 @@ export function MoneyTab(props: MoneyTabProps) {
     const url = `https://wa.me/?text=${encodeURIComponent(statement())}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
+
+  const unbilled = invoices
+    .filter((row) => row.status === "draft" || row.status === "void")
+    .slice()
+    .sort((a, b) => b.number.localeCompare(a.number));
+
+  const selectedOpen = paymentForm.invoiceId
+    ? (summary.invoices.find((row) => row.id === paymentForm.invoiceId)
+        ?.balance ?? 0)
+    : 0;
+  const paymentInput = Number(paymentForm.amount) || 0;
+  const paymentApplied = paymentForm.invoiceId
+    ? Math.min(selectedOpen, paymentInput)
+    : paymentInput;
+  const paymentCredit = Math.max(0, paymentInput - paymentApplied);
 
   const openInvoices = summary.invoices.filter(
     (invoice) => invoice.balance > 0,
@@ -587,6 +647,42 @@ export function MoneyTab(props: MoneyTabProps) {
         >
           {error}
         </p>
+      )}
+
+      {pendingDelete && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+        >
+          <p>
+            {tr("Delete")} {pendingDelete.label}?{" "}
+            {pendingDelete.kind === "invoice"
+              ? tr(
+                  "The invoice disappears from the ledger. This cannot be undone.",
+                )
+              : tr(
+                  "The payment disappears and every balance changes. This cannot be undone.",
+                )}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={busy}
+            >
+              {tr("Yes, delete")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPendingDelete(null)}
+              disabled={busy}
+            >
+              {tr("Keep it")}
+            </Button>
+          </div>
+        </div>
       )}
 
       {summary.currencyMismatch && (
@@ -928,6 +1024,14 @@ export function MoneyTab(props: MoneyTabProps) {
                   }
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
                 />
+                {paymentInput > 0 && paymentForm.invoiceId && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {tr("Applies to the bill")}: {money(paymentApplied)}
+                    {paymentCredit > 0
+                      ? ` · ${tr("Held as credit")}: ${money(paymentCredit)}`
+                      : ""}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -1176,7 +1280,14 @@ export function MoneyTab(props: MoneyTabProps) {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => void handleDeleteInvoice(record)}
+                                onClick={() => {
+                                  setError(null);
+                                  setPendingDelete({
+                                    kind: "invoice",
+                                    id: record.id,
+                                    label: invoice.number,
+                                  });
+                                }}
                                 disabled={busy}
                                 aria-label={`${tr("Delete")} ${invoice.number}`}
                               >
@@ -1197,6 +1308,71 @@ export function MoneyTab(props: MoneyTabProps) {
           </div>
         )}
       </div>
+
+      {unbilled.length > 0 && (
+        <div className="rounded-xl border border-dashed bg-card/60 p-4">
+          <h4 className="text-sm font-semibold text-foreground">
+            {tr("Not yet billed")}
+          </h4>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {tr(
+              "Drafts and void invoices stay out of every total until you send one.",
+            )}
+          </p>
+          <ul className="mt-2 divide-y divide-border">
+            {unbilled.map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-wrap items-center justify-between gap-2 py-2"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {row.number}
+                    {row.title ? ` · ${row.title}` : ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.status === "draft" ? tr("Draft") : tr("Void")} ·{" "}
+                    {money(Number(row.total) || 0)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  {row.status === "draft" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleSendInvoice(row)}
+                      disabled={busy}
+                      aria-label={`${tr("Send")} ${row.number}`}
+                    >
+                      <Send aria-hidden="true" className="h-4 w-4" />
+                      {tr("Send")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setError(null);
+                      setPendingDelete({
+                        kind: "invoice",
+                        id: row.id,
+                        label: row.number,
+                      });
+                    }}
+                    disabled={busy}
+                    aria-label={`${tr("Delete")} ${row.number}`}
+                  >
+                    <Trash2
+                      aria-hidden="true"
+                      className="h-4 w-4 text-red-500"
+                    />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <h4 className="text-sm font-semibold text-foreground">
@@ -1241,7 +1417,14 @@ export function MoneyTab(props: MoneyTabProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => void handleDeletePayment(payment)}
+                    onClick={() => {
+                      setError(null);
+                      setPendingDelete({
+                        kind: "payment",
+                        id: payment.id,
+                        label: payment.receipt_no,
+                      });
+                    }}
                     disabled={busy}
                     aria-label={`${tr("Delete payment")} ${payment.receipt_no}`}
                   >

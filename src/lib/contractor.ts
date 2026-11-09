@@ -2470,12 +2470,29 @@ export async function deleteProjectPayment(id: string): Promise<void> {
  * vendor invoice the contractor actually holds. Same bucket and fallback as
  * project attachments, so a missing bucket cannot lose the file.
  */
+const RECEIPT_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "application/pdf": "pdf",
+};
+export const RECEIPT_MAX_BYTES = 8 * 1024 * 1024;
+
 export async function uploadExpenseReceipt(
   projectId: string,
   expenseId: string,
   file: File,
 ): Promise<{ url: string; name: string }> {
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
+  const ext = RECEIPT_TYPES[file.type];
+  if (!ext) {
+    throw new Error("Attach a JPG, PNG, WebP, HEIC image or a PDF.");
+  }
+  if (file.size > RECEIPT_MAX_BYTES) {
+    throw new Error(
+      "That receipt is larger than 8 MB. Compress it and try again.",
+    );
+  }
   const storagePath = `receipts/${projectId}/${expenseId}-${Date.now()}.${ext}`;
 
   let uploadError = (

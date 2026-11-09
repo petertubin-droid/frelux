@@ -290,6 +290,88 @@ describe("MoneyTab", () => {
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
+  it("lists a saved draft so it is not lost, and sends it on request", async () => {
+    invoices.push(
+      invoice({
+        id: "inv-draft",
+        number: "INV-0007",
+        title: "Deposit for blockwork",
+        status: "draft",
+        total: 250000,
+      }),
+    );
+    renderTab();
+
+    const section = await screen.findByRole("heading", {
+      name: "Not yet billed",
+    });
+    expect(section).toBeTruthy();
+    expect(screen.getByText(/INV-0007/)).toBeTruthy();
+    expect(screen.getByText(/^Draft ·/)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Send INV-0007" }));
+    await waitFor(() =>
+      expect(contractor.updateProjectInvoice).toHaveBeenCalledWith(
+        "inv-draft",
+        { status: "sent" },
+      ),
+    );
+  });
+
+  it("keeps a draft out of every billed total", async () => {
+    invoices.push(
+      invoice({ id: "inv-sent", total: 100000 }),
+      invoice({
+        id: "inv-draft",
+        number: "INV-0008",
+        status: "draft",
+        total: 900000,
+      }),
+    );
+    renderTab();
+    await screen.findByText("INV-0001");
+
+    expect(screen.getByText(/Billed/)).toBeTruthy();
+    expect(screen.getAllByText(/100,000/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/1,000,000/)).toBeNull();
+  });
+
+  it("asks before deleting a payment", async () => {
+    invoices.push(invoice());
+    payments.push(payment());
+    renderTab();
+    await screen.findByText(/RCP-0001/);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Delete payment RCP-0001" }),
+    );
+    expect(contractor.deleteProjectPayment).not.toHaveBeenCalled();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("every balance changes");
+    fireEvent.click(within(alert).getByRole("button", { name: "Yes, delete" }));
+
+    await waitFor(() =>
+      expect(contractor.deleteProjectPayment).toHaveBeenCalledWith("pay-1"),
+    );
+  });
+
+  it("refuses to delete an invoice that still holds a payment", async () => {
+    invoices.push(invoice());
+    payments.push(payment());
+    renderTab();
+    await screen.findByText("INV-0001");
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete INV-0001" }));
+    const alert = await screen.findByRole("alert");
+    fireEvent.click(within(alert).getByRole("button", { name: "Yes, delete" }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/has payments attached/)).toBeTruthy(),
+    );
+    expect(contractor.deleteProjectInvoice).not.toHaveBeenCalled();
+  });
+
   it("returns focus to the menu button when the menu closes", async () => {
     invoices.push(invoice());
     renderTab();

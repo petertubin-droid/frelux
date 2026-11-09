@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { getSafeError } from "@/lib/safeError";
 import { useLanguage } from "@/lib/i18n";
+import { invoiceTotals } from "@/lib/project-money";
 import { createProjectInvoice } from "@/lib/contractor";
 import type { DbProjectInvoice } from "@/types/database";
 
@@ -118,9 +119,10 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
   }, [taxChoice, customRate]);
 
-  const subtotal = Number(amount) || 0;
-  const taxAmount = round2((subtotal * taxRate) / 100);
-  const total = round2(subtotal + taxAmount);
+  const { subtotal, taxAmount, total } = invoiceTotals(
+    Number(amount) || 0,
+    taxRate,
+  );
 
   const dueDate = useMemo(() => {
     if (dueChoice === "custom") return dueCustom;

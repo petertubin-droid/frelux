@@ -121,6 +121,13 @@ export function allocateWithCredit(
       ? billable.find((invoice) => invoice.id === payment.invoice_id)
       : undefined;
 
+    // Money paid against a draft or void invoice is held on account. It must
+    // never be re-pointed at another invoice, which would rewrite history.
+    if (payment.invoice_id && !named) {
+      leftover = round2(leftover + payment.amount);
+      continue;
+    }
+
     if (named) {
       const alreadyPaid = paidByInvoice.get(named.id) ?? 0;
       const open = Math.max(0, round2(named.total - alreadyPaid));
