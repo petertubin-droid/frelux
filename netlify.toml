@@ -10,6 +10,13 @@
   directory = "netlify/functions"
 
 [build.environment]
+  # The build runs `npm run typecheck` before vite, and tsc needs more heap than
+  # Netlify's default cap: measured here at >2 GB and <3 GB on this tree, while a
+  # 4 GB build container gives Node a ~2 GB default, which failed the build with
+  # "JavaScript heap out of memory" (line 80, tsc step). The flag lives inside the
+  # typecheck script instead of NODE_OPTIONS here on purpose: NODE_OPTIONS would
+  # also raise the cap for every vite/prerender child at once, which is what the
+  # 4 GB container cannot afford. vite alone builds fine at the default.
   # These VITE_-prefixed vars are intentionally bundled into the client-side
   # JS output (that's how Vite env vars work). VITE_SUPABASE_ANON_KEY is
   # Supabase's public anon key — safe to expose, access is enforced by RLS.

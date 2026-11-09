@@ -9,7 +9,7 @@
     "icons:brand": "node scripts/generate-brand-icons.mjs && node scripts/generate-social-card.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "typecheck": "node --max-old-space-size=3072 node_modules/typescript/bin/tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
