@@ -30,6 +30,10 @@ import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import {
+  buildSummaryRows,
+  humaniseResultKey,
+} from "@/lib/estimation/takeoff-rows";
 import { useLanguage } from "@/lib/i18n";
 import {
   calculateMasonryTakeoff,
@@ -504,27 +508,16 @@ export default function StandaloneTakeoffPage({
     navigate(`/${route}-calculator`);
   };
   const rows = result
-    ? Object.entries(result)
-        .filter(
-          ([key, value]) =>
-            key !== "marketCode" && value !== null && value !== undefined,
-        )
-        .map(([key, value]) => ({
-          label:
-            RESULT_LABELS[key] ??
-            key
-              .replace(/([A-Z])/g, " $1")
-              .replace(/^./, (s) => s.toUpperCase()),
-          value:
-            typeof value === "object" ? JSON.stringify(value) : String(value),
-        }))
+    ? buildSummaryRows(
+        result as unknown as Record<string, unknown>,
+        RESULT_LABELS,
+      )
     : [];
   const buildTakeoffQuote = (): QuoteOptions | null => {
     if (!result) return null;
     const record = result as unknown as Record<string, unknown>;
     const skip = /packagingEvidence|warnings|assumptions|safetyNotice|steps/i;
-    const prettify = (key: string) =>
-      key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase());
+    const prettify = humaniseResultKey;
     const lines = Object.entries(record)
       .filter(([key, value]) => {
         if (key === "marketCode" || skip.test(key)) return false;
@@ -608,10 +601,10 @@ export default function StandaloneTakeoffPage({
             <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
           </div>
         )}
-        <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
           <form
             onSubmit={runCalculation}
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
+            className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
@@ -800,7 +793,7 @@ export default function StandaloneTakeoffPage({
             )}
           </form>
           <section
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
+            className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
             aria-live="polite"
           >
             <div className="mb-5 flex items-start gap-3">
@@ -827,12 +820,12 @@ export default function StandaloneTakeoffPage({
                   ).map((row) => (
                     <div
                       key={row.label}
-                      className="flex items-start justify-between gap-4 py-3"
+                      className="flex min-w-0 items-start justify-between gap-4 py-3"
                     >
-                      <span className="text-sm text-muted-foreground">
+                      <span className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">
                         {row.label}
                       </span>
-                      <span className="max-w-[60%] break-words text-right text-sm font-semibold">
+                      <span className="min-w-0 max-w-[60%] text-right text-sm font-semibold [overflow-wrap:anywhere]">
                         {row.value}
                       </span>
                     </div>

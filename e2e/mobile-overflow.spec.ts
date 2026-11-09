@@ -30,6 +30,18 @@ const ROUTES = [
   "/tyrolene-estimator",
   "/material-price-index",
   "/marketplace",
+  // The standalone takeoff page renders ten engines from one template; each
+  // returns a different result shape, so each needs its own pass with the
+  // Calculate button actually pressed.
+  "/masonry-calculator",
+  "/plastering-calculator",
+  "/drywall-calculator",
+  "/paving-calculator",
+  "/drainage-calculator",
+  "/septic-sizing-calculator",
+  "/temporary-works-calculator",
+  "/insulation-calculator",
+  "/demolition-calculator",
 ];
 
 async function spill(page: Page) {
@@ -46,6 +58,24 @@ async function spill(page: Page) {
       const cs = getComputedStyle(el);
       if (cs.display === "none" || cs.visibility === "hidden") continue;
       if (cs.position === "absolute" || cs.position === "fixed") continue;
+      // Text kept for crawlers and screen readers ("sr-only") sits inside a
+      // 1px clipped box: it is not visible, so it cannot spill. Its children
+      // are position:static, so the checks above miss them and every
+      // build-sequence step reported as an overflow.
+      let clipped = false;
+      for (let p = el.parentElement; p; p = p.parentElement) {
+        const pcs = getComputedStyle(p);
+        const box = { w: p.clientWidth, h: p.clientHeight };
+        const hidden =
+          pcs.overflow === "hidden" ||
+          pcs.overflowX === "hidden" ||
+          (pcs.clipPath || "").startsWith("inset(50%");
+        if (hidden && (box.w <= 1 || box.h <= 1)) {
+          clipped = true;
+          break;
+        }
+      }
+      if (clipped) continue;
       const box = el.getBoundingClientRect();
       if (!box.width || !box.height) continue;
       let inScroller = false;
@@ -134,6 +164,27 @@ test.describe("no layout spills on a phone", () => {
             .catch(() => {});
         }
         await page.waitForTimeout(500);
+      }
+
+      // Results only exist after the calculate action, and the results block is
+      // where the widest content lives. Submit, then check the summary text for
+      // a stringified object, which is what broke the plastering card.
+      if (/calculator|estimator|takeoff|sizing|flooring/i.test(route)) {
+        await page
+          .getByRole("button", { name: /^(calculate|estimate|compute)/i })
+          .first()
+          .click({ timeout: 3000 })
+          .catch(() => {});
+        await page.waitForTimeout(900);
+        const text = await page
+          .locator("main")
+          .first()
+          .innerText()
+          .catch(() => "");
+        expect(
+          text,
+          "a result row is printing raw JSON instead of a readable value",
+        ).not.toMatch(/\{"?[A-Za-z_]+"?\s*:/);
       }
 
       const result = await spill(page);
