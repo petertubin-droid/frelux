@@ -65,6 +65,10 @@ import { unitToMeters } from "@/lib/utils";
 // duplicates any rule definition, so the two calculators can
 // never disagree on a shared rule again.
 import {
+  paintPackLabel,
+  paintPackNoun,
+} from "@/lib/estimation/paint-packaging";
+import {
   calculateTheoreticalLitres,
   normalizeCoverage,
   getCoverageUnitLabel,
@@ -169,7 +173,7 @@ export interface RoomCustomerSummary {
   doors: string; // "2" or "Not provided"
   windows: string; // "3" or "Not provided"
   calculated_requirement: string; // "X buckets"
-  practical_purchase: string; // "X × 20-L buckets"
+  practical_purchase: string; // "X × 20 L buckets" or "3 × 1 gal cans"
   material_cost: number | null; // numeric cost; null = not configured
   material_cost_formatted: string; // display-ready, currency included
   height_notice: string | null; // height warning if applicable
@@ -466,6 +470,7 @@ export function calculateRoom(
     heightAdjustmentRule?: EstimationCalcRule | null;
     openingDeductionRule?: EstimationCalcRule | null;
     ceilingCoverageRule?: EstimationCalcRule | null;
+    marketCode?: string | null;
   },
 ): PaintingRoomCalcResult {
   const steps: PaintingCalcStep[] = [];
@@ -786,11 +791,18 @@ export function calculateRoom(
   });
 
   // ── STEP 11: FRELUX ROOM-BASED CALIBRATION → THEORETICAL ──
-  const packSizeLitres = getPackSizeLitres(config.product, config.packSizeRule);
+  const packSizeLitres = getPackSizeLitres(
+    config.product,
+    config.packSizeRule,
+    config.marketCode,
+  );
+  const packLabel =
+    paintPackLabel(packSizeLitres, config.marketCode) || `${packSizeLitres} L`;
+  const packNoun = paintPackNoun(packSizeLitres, config.marketCode);
   steps.push({
     label: "Bucket Size",
-    value: `${packSizeLitres} L per bucket`,
-    detail: "FRELUX standard: 20-L buckets.",
+    value: `${packLabel} ${packNoun}`,
+    detail: "FRELUX configured purchase unit.",
   });
 
   // AUDIT FIX (unit bug): coverage must be normalized from its configured unit
@@ -966,7 +978,7 @@ export function calculateRoom(
     doors: countOpenings(room.doors, room.doors_unknown),
     windows: countOpenings(room.windows, room.windows_unknown),
     calculated_requirement: `${theoreticalTotalBuckets.toFixed(2)} buckets (${theoreticalTotalLitres.toFixed(2)} L)`,
-    practical_purchase: `${practicalTotalBuckets} × ${packSizeLitres}-L buckets`,
+    practical_purchase: `${practicalTotalBuckets} × ${packLabel} ${packNoun}${practicalTotalBuckets === 1 ? "" : "s"}`,
     material_cost: unitPrice > 0 ? Math.round(lineTotal * 100) / 100 : null,
     material_cost_formatted:
       unitPrice > 0
@@ -1121,6 +1133,8 @@ export function calculatePaintingProject(
     surfaceConditions: EstimationSurfaceCondition[];
     productionRules: ProductionRuleRow[];
     calcVersionId: string | null;
+    /** Visitor's market, so container sizes match the shelf that sells them. */
+    marketCode?: string | null;
   },
 ): PaintingEstimateResult {
   const allWarnings: string[] = [];
@@ -1165,6 +1179,7 @@ export function calculatePaintingProject(
       heightAdjustmentRule,
       openingDeductionRule,
       ceilingCoverageRule,
+      marketCode: config.marketCode,
     });
 
     roomResults.push(roomResult);

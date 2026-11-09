@@ -115,6 +115,176 @@ const BASE_CURRENCIES: readonly CurrencyMeta[] = [
     decimals: 2,
     countries: ["ZA"],
   },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "INR",
+    name: "Indian Rupee",
+    symbol: "₹",
+    decimals: 2,
+    countries: ["IN"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "GHS",
+    name: "Ghanaian Cedi",
+    symbol: "GH₵",
+    decimals: 2,
+    countries: ["GH"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "JPY",
+    name: "Japanese Yen",
+    symbol: "¥",
+    decimals: 0,
+    countries: ["JP"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "BRL",
+    name: "Brazilian Real",
+    symbol: "R$",
+    decimals: 2,
+    countries: ["BR"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "SAR",
+    name: "Saudi Riyal",
+    symbol: "﷼",
+    decimals: 2,
+    countries: ["SA"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "IDR",
+    name: "Indonesian Rupiah",
+    symbol: "Rp",
+    decimals: 0,
+    countries: ["ID"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "KRW",
+    name: "South Korean Won",
+    symbol: "₩",
+    decimals: 0,
+    countries: ["KR"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "ETB",
+    name: "Ethiopian Birr",
+    symbol: "Br",
+    decimals: 2,
+    countries: ["ET"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "EGP",
+    name: "Egyptian Pound",
+    symbol: "E£",
+    decimals: 2,
+    countries: ["EG"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "TZS",
+    name: "Tanzanian Shilling",
+    symbol: "TSh",
+    decimals: 2,
+    countries: ["TZ"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "XOF",
+    name: "West African CFA Franc",
+    symbol: "CFA",
+    decimals: 0,
+    countries: ["CI"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "PLN",
+    name: "Polish Złoty",
+    symbol: "zł",
+    decimals: 2,
+    countries: ["PL"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "SEK",
+    name: "Swedish Krona",
+    symbol: "kr",
+    decimals: 2,
+    countries: ["SE"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "CHF",
+    name: "Swiss Franc",
+    symbol: "CHF",
+    decimals: 2,
+    countries: ["CH"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "SGD",
+    name: "Singapore Dollar",
+    symbol: "S$",
+    decimals: 2,
+    countries: ["SG"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "TRY",
+    name: "Turkish Lira",
+    symbol: "₺",
+    decimals: 2,
+    countries: ["TR"],
+  },
+  {
+    // Added 2026-11-09 (audit UX-4): the 32-market registry uses this currency
+    // but the catalogue had no entry, so the UI printed the ISO code as the
+    // symbol and gave zero-decimal money two decimals.
+    code: "NZD",
+    name: "New Zealand Dollar",
+    symbol: "NZ$",
+    decimals: 2,
+    countries: ["NZ"],
+  },
 ];
 
 const registry = new Map<string, CurrencyMeta>(

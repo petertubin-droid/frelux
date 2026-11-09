@@ -976,6 +976,14 @@ function ImageDropzone({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement).click();
+        }
+      }}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);

@@ -819,7 +819,7 @@ export default function ScreedingCostEstimator({
                                 finishTerm,
                               })
                             }
-                            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
+                            className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
                           >
                             {t("Print Quote")}
                           </button>
@@ -898,7 +898,7 @@ export default function ScreedingCostEstimator({
                               );
                               navigate("/document-studio?calculatorImport=1");
                             }}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                           >
                             {t("Open in Document Studio")}
                           </button>

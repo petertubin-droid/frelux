@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "npm run faqs:prerender && npm run buildings:prerender && npm run sequences:prerender && vite build && node scripts/prerender.mjs && node scripts/generate-sw.mjs && node scripts/generate-sitemap.mjs",
+    "build": "npm run typecheck && npm run faqs:prerender && npm run buildings:prerender && npm run sequences:prerender && vite build && node scripts/prerender.mjs && node scripts/generate-sw.mjs && node scripts/generate-sitemap.mjs",
     "icons:brand": "node scripts/generate-brand-icons.mjs && node scripts/generate-social-card.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -33,7 +33,8 @@
     "faqs:apply": "tsx --tsconfig tsconfig.app.json scripts/apply-tool-faq-sql.ts",
     "faqs:sync": "npm run faqs:sql && npm run faqs:prerender && npm run faqs:apply",
     "buildings:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-building-type-prerender.ts",
-    "audit:mobile": "node scripts/audit-mobile-overflow.mjs"
+    "audit:mobile": "node scripts/audit-mobile-overflow.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.11.1",

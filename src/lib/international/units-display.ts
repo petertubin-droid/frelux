@@ -10,16 +10,23 @@
 // with the preferred system first - so numbers can never mislead.
 // =========================================================
 
+import {
+  AREA_TO_M2,
+  LENGTH_TO_M,
+  MASS_TO_KG,
+  VOLUME_TO_L,
+} from "@/lib/convert/units";
+
 export type UnitSystem = "metric" | "imperial";
 
 const STORAGE_KEY = "frelux_unit_system";
 
 export const CONVERSIONS = {
-  M2_TO_FT2: 10.7639104167097,
-  M_TO_FT: 3.28083989501312,
-  MM_TO_IN: 0.0393700787401575,
-  KG_TO_LB: 2.20462262185,
-  L_TO_GAL: 0.264172052358148,
+  M2_TO_FT2: 1 / AREA_TO_M2.ft2,
+  M_TO_FT: 1 / LENGTH_TO_M.ft,
+  MM_TO_IN: LENGTH_TO_M.mm / LENGTH_TO_M.in,
+  KG_TO_LB: 1 / MASS_TO_KG.lb,
+  L_TO_GAL: 1 / VOLUME_TO_L.gal_us,
 } as const;
 
 export function getStoredUnitSystem(): UnitSystem {

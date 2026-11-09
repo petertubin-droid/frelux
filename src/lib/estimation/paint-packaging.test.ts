@@ -33,7 +33,9 @@ describe("paint packaging by market", () => {
 
   it("buys US markets by the gallon", () => {
     expect(marketSellsPaintByGallon("US")).toBe(true);
-    expect(resolvePaintPackLitres("US")).toBeCloseTo(US_FIVE_GALLON_LITRES, 6);
+    // The default purchase container is the can on the shelf, not the
+    // contractor pail. The ladder below still knows about the pail.
+    expect(resolvePaintPackLitres("US")).toBeCloseTo(LITRES_PER_US_GALLON, 6);
     const packs = resolvePaintPacks("US");
     expect(packs.map((p) => p.label)).toEqual(["1 qt", "1 gal", "5 gal"]);
     // the ladder must be real volumes, not round numbers
@@ -67,8 +69,9 @@ describe("engine pack size resolution", () => {
 
   it("refuses to quote a 20 L bucket in a gallon market", () => {
     const litres = getPackSizeLitres(null, bucketRule, "US");
-    expect(litres).toBeCloseTo(US_FIVE_GALLON_LITRES, 6);
+    expect(litres).toBeCloseTo(LITRES_PER_US_GALLON, 6);
     expect(litres).not.toBe(20);
+    expect(litres).not.toBeCloseTo(US_FIVE_GALLON_LITRES, 3);
   });
 
   it("still lets a product row declare its own container", () => {

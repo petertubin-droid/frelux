@@ -647,7 +647,7 @@ export default function PopCeilingCostEstimator({
                         <button
                           type="button"
                           onClick={() => exportPopQuote(result)}
-                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                          className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
                         >
                           {t("Export quote (PDF)")}
                         </button>

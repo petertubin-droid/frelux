@@ -111,6 +111,7 @@ import { useLanguage } from "@/lib/i18n";
 import AdSlot from "@/components/ui/AdSlot";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -1018,7 +1019,7 @@ function WindLoadCalculator() {
                   warnings: zone ? [zone.label] : [],
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -1330,7 +1331,7 @@ function SeismicDetailingCalculator() {
                   warnings: result.notes,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -1670,11 +1671,7 @@ function BarScheduleCalculator() {
             ]}
           />
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={downloadBvbs}
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
-            >
+            <button type="button" onClick={downloadBvbs} className={ACTION_BTN}>
               {t("Export BVBS / .bfx (CNC machines)")}
             </button>
             <button
@@ -1697,7 +1694,7 @@ function BarScheduleCalculator() {
                   ],
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export schedule sheet (PDF)")}
             </button>
@@ -2077,6 +2074,12 @@ function BeamCalculator() {
               label="Steel area"
               value={`${result.area_steel_required} mm²`}
             />
+            {result.compression_steel_area ? (
+              <DetailItem
+                label="Compression steel"
+                value={`${result.compression_steel_area} mm²`}
+              />
+            ) : null}
             <DetailItem
               label="Min steel"
               value={`${result.min_steel_area} mm²`}
@@ -2128,7 +2131,7 @@ function BeamCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -2383,7 +2386,7 @@ function ColumnCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>
@@ -2649,6 +2652,24 @@ function SlabCalculator() {
               pass={result.link_check.includes("No shear")}
               value={result.link_check}
             />
+            {result.punch_shear &&
+            result.punch_shear.status !== "NOT CHECKED" ? (
+              <CheckRow
+                label="Punching Shear"
+                pass={result.punch_shear.status === "PASS"}
+                value={
+                  result.punch_shear.status === "PASS"
+                    ? `v = ${result.punch_shear.v_ed} N/mm² ≤ v_c = ${result.punch_shear.v_c}`
+                    : `v = ${result.punch_shear.v_ed} N/mm² exceeds v_c = ${result.punch_shear.v_c}`
+                }
+              />
+            ) : (
+              <CheckRow
+                label="Punching Shear"
+                pass={false}
+                value="Not checked: no column load given"
+              />
+            )}
           </div>
 
           {capacity && !designAccess.limited && (
@@ -2675,6 +2696,12 @@ function SlabCalculator() {
               label="Max moment"
               value={`${result.max_moment} kN·m/m`}
             />
+            {result.support_steel_area ? (
+              <DetailItem
+                label="Support steel (top)"
+                value={`${result.support_steel_area} mm²/m`}
+              />
+            ) : null}
             <DetailItem label="Max shear" value={`${result.max_shear} kN/m`} />
             <DetailItem
               label="Steel area (short span)"
@@ -2738,7 +2765,7 @@ function SlabCalculator() {
                   warnings: result.warnings,
                 })
               }
-              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+              className={ACTION_BTN}
             >
               {t("Export design sheet (PDF)")}
             </button>

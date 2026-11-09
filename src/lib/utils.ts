@@ -57,14 +57,20 @@ export function feetToMeters(ft: number): number {
 // ─────────────────────────────────────────────────────────
 
 import type { Unit } from "@/types";
+import { LENGTH_TO_M } from "@/lib/convert/units";
 
-/** Exact metres-per-unit factors for every Unit. */
+/**
+ * Metres per unit for every Unit, taken from the one module that defines SI so
+ * a calculator can never drift from the engines. The `Unit` union is what keeps
+ * this total: there is no runtime path that can hand it an unknown spelling, so
+ * `unitToMeters` needs no guard and never returns NaN by accident.
+ */
 export const UNIT_TO_M: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
+  meters: LENGTH_TO_M.m,
+  feet: LENGTH_TO_M.ft,
+  inches: LENGTH_TO_M.in,
+  centimeters: LENGTH_TO_M.cm,
+  millimeters: LENGTH_TO_M.mm,
 };
 
 /** All selectable length units, in display order. */
@@ -76,9 +82,25 @@ export const ALL_UNITS: Unit[] = [
   "millimeters",
 ];
 
-/** Convert a value in any Unit to metres (canonical). */
+/** Whether a stored unit string is one this converter actually knows. */
+export function isKnownLengthUnit(unit: unknown): unit is Unit {
+  return typeof unit === "string" && unit in UNIT_TO_M;
+}
+
+/**
+ * Convert a value in any Unit to metres (canonical).
+ *
+ * An unrecognised unit used to multiply by an undefined factor and return NaN,
+ * which then propagated through every downstream area and cost. A stored
+ * preference or an old record can carry such a string at runtime whatever the
+ * type says, so the converter answers zero and isKnownLengthUnit says why,
+ * matching how the paint engine treats an unknown coverage unit.
+ */
 export function unitToMeters(value: number, unit: Unit): number {
-  return value * UNIT_TO_M[unit];
+  const factor = UNIT_TO_M[unit];
+  if (typeof factor !== "number" || !isFinite(factor)) return 0;
+  if (!isFinite(value)) return 0;
+  return value * factor;
 }
 
 /** Short label (m / ft / in / cm / mm) for inputs and results. */

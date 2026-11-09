@@ -685,7 +685,7 @@
   }
   /* Section label - premium eyebrow */
   .section-label {
-    @apply inline-flex items-center gap-2 rounded-full bg-primary/[0.07] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary dark:bg-primary/[0.12];
+    @apply inline-flex max-w-full min-w-0 items-center gap-2 whitespace-normal rounded-full bg-primary/[0.07] px-3 py-1 text-left text-xs font-semibold uppercase leading-tight tracking-[0.14em] text-primary dark:bg-primary/[0.12];
   }
   .section-title {
     @apply font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-[1.15] tracking-tight dark:text-foreground;
@@ -2710,4 +2710,65 @@ h2 {
 .reduced-motion [data-testid^="calculator-schematic"] * {
   animation: none !important;
   transition: none !important;
+}
+
+/* FRELUX Smart Display.
+   The display scale is applied through the viewport meta tag (see
+   src/lib/display-viewport.ts), exactly as a browser's own page zoom changes the
+   layout width. Every media query and width reader therefore follows on every
+   page with no per-page rules, which is why the zoom property and the hand-made
+   calculator breakpoint overrides that used to live here are gone. */
+
+/* Compact spacing is an independent preference and only trims calculator
+   card/section whitespace; text sizes and calculation controls are untouched. */
+html[data-frelux-compact="true"]
+  #root
+  main[data-calculator-page="true"]
+  .space-y-6
+  > :not([hidden])
+  ~ :not([hidden]) {
+  margin-top: 0.875rem;
+}
+html[data-frelux-compact="true"] #root main[data-calculator-page="true"] .p-6 {
+  padding: 1rem;
+}
+html[data-frelux-compact="true"]
+  #root
+  main[data-calculator-page="true"]
+  .sm\:p-8 {
+  padding: 1.25rem;
+}
+html[data-frelux-compact="true"]
+  #root
+  main[data-calculator-page="true"]
+  .py-10 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+/* Calculators use the full width the wider layout provides. */
+html[data-frelux-wide-view="true"]
+  #root
+  main[data-calculator-page="true"]
+  > .mx-auto[class*="max-w-"] {
+  max-width: none;
+}
+
+/* Touch targets: the viewport is scaled, so a CSS pixel is smaller than a
+   physical one. Hold 44 physical pixels by dividing by the scale. */
+@media (pointer: coarse) {
+  #root button,
+  #root input:not([type="checkbox"]):not([type="radio"]),
+  #root select,
+  #root textarea {
+    min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+  }
+  #root input[type="checkbox"],
+  #root input[type="radio"] {
+    min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+    min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+  }
+  #root .frelux-display-settings-trigger {
+    min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+  }
 }

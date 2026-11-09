@@ -199,8 +199,6 @@ function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-
-
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
@@ -238,7 +236,9 @@ export function calculateReinforcement(
   ];
 
   for (const [key, label] of lengths) {
-    const v = (input as unknown as Record<string, number | null | undefined>)[key];
+    const v = (input as unknown as Record<string, number | null | undefined>)[
+      key
+    ];
     if (v !== undefined && v !== null && (!Number.isFinite(v) || v < 0)) {
       errors.push(
         `${label} must be a positive number (or 0 if unused), or left blank.`,
@@ -431,7 +431,6 @@ export function calculateReinforcement(
   };
 }
 
-
 // ============================================================
 // PHASE 1: AUTOMATED BAR BENDING SCHEDULE (BBS) & BVBS MACHINE EXPORT
 // BS 8666:2020 / ACI SP-66 / ISO 3766 Standard
@@ -542,7 +541,9 @@ export function calculateDevelopmentLength(
   if (code === "aci") {
     // ACI 318-19: Simplified tension development length ld = (fy / (20 * sqrt(fc_psi))) * d
     const fcPsi = fckOrFcPsi > 100 ? fckOrFcPsi : fckOrFcPsi * 145.038;
-    const factor = isTension ? (fyMpa * 145.038) / (20 * Math.sqrt(fcPsi)) : (fyMpa * 145.038) / (25 * Math.sqrt(fcPsi));
+    const factor = isTension
+      ? (fyMpa * 145.038) / (20 * Math.sqrt(fcPsi))
+      : (fyMpa * 145.038) / (25 * Math.sqrt(fcPsi));
     return Math.ceil(Math.max(300, factor * d));
   } else if (code === "bs8110") {
     // BS 8110: Tension lap = 40d (deformed type 2), compression = 32d
@@ -574,15 +575,25 @@ export function generateBarBendingSchedule(
 
   for (const item of inputs) {
     const totalBars = item.numberOfMembers * item.barsPerMember;
-    const cutLengthM = calculateBarCutLength(item.shapeCode, item.dimensions, item.diameterMm);
+    const cutLengthM = calculateBarCutLength(
+      item.shapeCode,
+      item.dimensions,
+      item.diameterMm,
+    );
     const totalLengthM = Math.round(totalBars * cutLengthM * 100) / 100;
-    const unitWeight = NOMINAL_MASS_MAP[item.diameterMm] ?? (item.diameterMm * item.diameterMm) / 162;
+    const unitWeight =
+      NOMINAL_MASS_MAP[item.diameterMm] ??
+      (item.diameterMm * item.diameterMm) / 162;
     const totalMassKg = Math.round(totalLengthM * unitWeight * 10) / 10;
 
     totalTonnageKg += totalMassKg;
 
     if (!summaryByDiameter[item.diameterMm]) {
-      summaryByDiameter[item.diameterMm] = { totalLengthM: 0, totalPiecesStock: 0, totalMassKg: 0 };
+      summaryByDiameter[item.diameterMm] = {
+        totalLengthM: 0,
+        totalPiecesStock: 0,
+        totalMassKg: 0,
+      };
     }
     summaryByDiameter[item.diameterMm].totalLengthM += totalLengthM;
     summaryByDiameter[item.diameterMm].totalMassKg += totalMassKg;
@@ -640,7 +651,6 @@ export function generateBVBSString(items: BarScheduleItemResult[]): string {
 // original draft-based API. Both surfaces ship: this block restores the
 // removed exports verbatim so the panel keeps working. Migrate the panel
 // to generateBarBendingSchedule in a follow-up and delete this layer.
-
 
 // ─────────────────────────────────────────────
 // BS 8666 bar bending schedule (BBS)
@@ -711,7 +721,7 @@ export const BS8666_SHAPES: Record<Bs8666ShapeCode, Bs8666ShapeSpec> = {
     code: "51",
     name: "Closed link / stirrup (four 90° bends + 135° hooks)",
     requiredDims: ["a", "b"],
-    rule: "2(A + B) − 8(r + d) + 4(π/2)(r + d/2) + 2·hook, hook = max(10d, 75 mm)",
+    rule: "2(A + B) − 4·ded(90°) + 2·ded(135°) + 2·hook, hook = max(10d, 75 mm)",
     bends: 4,
     hasHooks: true,
   },
@@ -720,6 +730,32 @@ export const BS8666_SHAPES: Record<Bs8666ShapeCode, Bs8666ShapeSpec> = {
 /** BS 8666:2019 minimum mandrel diameter for a bar diameter, mm. */
 export function bs8666MandrelDiameterMm(diameterMm: number): number {
   return diameterMm <= 16 ? 4 * diameterMm : 7 * diameterMm;
+}
+
+/**
+ * Length a bend removes from the sum of the legs measured to the outside corner
+ * points, mm.
+ *
+ * A bar measured as legs A and B to the intersection of their outer faces is
+ * longer than the bar itself: each leg runs (r + d) past the point where the bend
+ * begins, and the arc replaces the corner. For a turn through θ:
+ *
+ *     deduction = 2(r + d)·tan(θ/2) − θ·(r + d/2)
+ *
+ * At 90° with r = 2d this is 2.07d, the familiar "2d per bend" of BS 8666. At
+ * 135°, as on a link hook, tan(67.5°) = 2.414 makes it 8.6d, more than four times
+ * as large — which is why a hook bend cannot be treated as a 90° bend.
+ */
+export function bendDeductionMm(
+  diameterMm: number,
+  angleDegrees: number,
+  radiusMm = bs8666MandrelDiameterMm(diameterMm) / 2,
+): number {
+  const theta = (angleDegrees * Math.PI) / 180;
+  return (
+    2 * (radiusMm + diameterMm) * Math.tan(theta / 2) -
+    theta * (radiusMm + diameterMm / 2)
+  );
 }
 
 /** Link hook tail length: EC2 §8.5 / BS 8666 135° link hook, mm. */
@@ -738,6 +774,8 @@ export interface Bs8666CutLength {
   /** Total material consumed by bends and hooks, mm */
   bendAllowanceMm: number;
   hookAllowanceMm: number;
+  /** Material removed by the two 135° hook bends, mm (link shape only). */
+  hookBendDeductionMm: number;
   /** Substituted formula with the caller's values, for the schedule notes. */
   formula: string;
 }
@@ -769,6 +807,7 @@ export function bs8666CutLength(params: {
     bendRadiusMm: r,
     bendAllowanceMm: 0,
     hookAllowanceMm: 0,
+    hookBendDeductionMm: 0,
     formula: "",
   };
 
@@ -795,6 +834,7 @@ export function bs8666CutLength(params: {
   let cut = 0;
   let formula = "";
   let bends = 0;
+  let hookBendDeduction = 0;
 
   switch (shapeCode) {
     case "00": {
@@ -821,12 +861,17 @@ export function bs8666CutLength(params: {
       break;
     }
     case "51": {
+      // Four 90° corners plus two 135° hook bends. The hooks were previously
+      // added as bare tails with no bend deduction, which overstated every link
+      // by about 8.6d² — on an 8 mm link that is 137 mm, near 10 % of the bar.
       const perimeter = 2 * (dims.a + (dims.b ?? 0));
-      cut = perimeter - 8 * (r + d) + 4 * quarterArc + 2 * hook;
+      hookBendDeduction = 2 * bendDeductionMm(d, 135, r);
+      cut =
+        perimeter - 8 * (r + d) + 4 * quarterArc + 2 * hook - hookBendDeduction;
       bends = 4;
       formula =
         `L = 2(${roundTo(dims.a, 1)} + ${roundTo(dims.b ?? 0, 1)}) − 8(${roundTo(r, 1)} + ${d}) ` +
-        `+ 4(π/2)(${roundTo(r, 1)} + ${d / 2}) + 2 × ${roundTo(hook, 1)} = ${roundTo(cut, 1)} mm`;
+        `+ 4(π/2)(${roundTo(r, 1)} + ${d / 2}) + 2 × ${roundTo(hook, 1)} − 2 × ded(135°) ${roundTo(hookBendDeduction / 2, 1)} = ${roundTo(cut, 1)} mm`;
       break;
     }
   }
@@ -847,6 +892,7 @@ export function bs8666CutLength(params: {
       ...base,
       bendAllowanceMm: roundTo(bends * quarterArc, 2),
       hookAllowanceMm: roundTo(2 * hook, 2),
+      hookBendDeductionMm: roundTo(hookBendDeduction, 2),
       formula,
     };
   }
@@ -860,6 +906,7 @@ export function bs8666CutLength(params: {
     bendRadiusMm: r,
     bendAllowanceMm: roundTo(bends * quarterArc, 2),
     hookAllowanceMm: roundTo(2 * hook, 2),
+    hookBendDeductionMm: roundTo(hookBendDeduction, 2),
     formula,
   };
 }

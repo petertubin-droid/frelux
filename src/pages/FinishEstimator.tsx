@@ -409,7 +409,7 @@ export default function FinishEstimator({
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
                       className={
-                        "select-card flex h-auto flex-col items-start gap-3 rounded-xl border p-4 text-left " +
+                        "select-card flex whitespace-normal min-w-0 h-auto flex-col items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
                           ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                           : "border-border hover:border-border")
@@ -749,7 +749,7 @@ export default function FinishEstimator({
                       currencySymbol,
                     })
                   }
-                  className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                  className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
                 >
                   {t("Export quote (PDF)")}
                 </button>

@@ -182,7 +182,7 @@ export default function CashFlowTimeline() {
                 <button
                   type="button"
                   onClick={() => handleCalculate(run)}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
                 >
                   {t("Generate Schedule")}
                 </button>
