@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
+import { viewportContent } from "@/lib/display-viewport";
 import {
   DEFAULT_PREFERENCES,
   DISPLAY_PREFERENCE_KEY,
@@ -116,13 +117,52 @@ describe("pre-paint script parity", () => {
   });
 
   it("falls back to the same defaults the provider uses", () => {
-    expect(html).toContain(`?p.scale:${DEFAULT_PREFERENCES.scale};`);
-    expect(html).toContain(
-      `?p.compact:${String(DEFAULT_PREFERENCES.compact)};`,
+    expect(html).toContain(`scale=${DEFAULT_PREFERENCES.scale}`);
+    expect(html).toContain(`compact=${String(DEFAULT_PREFERENCES.compact)}`);
+    expect(html).toContain(`wide=${String(DEFAULT_PREFERENCES.wideView)}`);
+  });
+
+  it("computes the same viewport as the module, so first paint matches React", () => {
+    // Run the real inline script against several phones and scales and compare it
+    // to viewportContent(): they are two copies of one formula.
+    const block = html.match(
+      /<script>\s*\(function\(\)\{var apply=[\s\S]*?<\/script>/,
     );
-    expect(html).toContain(
-      `?p.wideView:${String(DEFAULT_PREFERENCES.wideView)};`,
-    );
+    expect(block, "pre-paint display script present").not.toBeNull();
+    const script = block![0]
+      .replace(/^<script>/, "")
+      .replace(/<\/script>$/, "");
+
+    for (const [device, scale] of [
+      [412, 50],
+      [390, 60],
+      [360, 75],
+      [430, 90],
+      [412, 100],
+      [1024, 50],
+    ] as const) {
+      localStorage.setItem(
+        DISPLAY_PREFERENCE_KEY,
+        JSON.stringify({ scale, compact: true, wideView: true }),
+      );
+      document.head.innerHTML =
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+      Object.defineProperty(window, "screen", {
+        configurable: true,
+        value: {
+          width: device,
+          height: 900,
+          orientation: { type: "portrait-primary" },
+        },
+      });
+      new Function(script)();
+      const inline = document.head.querySelector<HTMLMetaElement>(
+        'meta[name="viewport"]',
+      )!.content;
+      expect(inline, `${device}px @ ${scale}%`).toBe(
+        viewportContent({ deviceWidth: device, scalePercent: scale }).content,
+      );
+    }
   });
 });
 

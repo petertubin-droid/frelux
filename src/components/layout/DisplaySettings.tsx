@@ -21,7 +21,7 @@ export default function DisplaySettings() {
     panelGeometry({
       trigger: null,
       viewport: { width: 1024, height: 768 },
-      scalePercent: DEFAULT_PREFERENCES.scale,
+      scalePercent: 100,
     }),
   );
   const { scale, compact, wideView, setScale, setCompact, setWideView, reset } =
@@ -59,7 +59,9 @@ export default function DisplaySettings() {
         panelGeometry({
           trigger: { left: rect.left, bottom: rect.bottom },
           viewport: { width: window.innerWidth, height: window.innerHeight },
-          scalePercent: scale,
+          // The scale is applied at the viewport, so the body-level portal is
+          // already scaled with everything else: no extra zoom of its own.
+          scalePercent: 100,
         }),
       );
     };
@@ -101,7 +103,6 @@ export default function DisplaySettings() {
               left: geometry.left,
               width: geometry.width,
               maxHeight: geometry.maxHeight,
-              zoom: geometry.zoom,
               overflowY: "auto",
             }}
           >

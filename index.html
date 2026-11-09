@@ -5,9 +5,16 @@
     <script>
       (function(){var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark'){document.documentElement.classList.add('dark');}})();
     </script>
-    <!-- Apply saved FRELUX display preferences before paint to avoid scale flicker. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Apply saved FRELUX display preferences before paint. The scale is the viewport
+         width (what a browser's page zoom changes), so it must be set before layout. -->
     <script>
-      (function(){var apply=function(){try{var p=JSON.parse(localStorage.getItem('frelux_display_preferences_v1')||'null');var valid=[50,60,70,75,80,90,100,110,125];var scale=p&&valid.indexOf(p.scale)!==-1?p.scale:50;var compact=p&&typeof p.compact==='boolean'?p.compact:true;var wide=p&&typeof p.wideView==='boolean'?p.wideView:true;var r=document.documentElement;r.style.setProperty('--frelux-display-scale',String(scale/100));r.dataset.freluxScale=String(scale);r.dataset.freluxCompact=String(compact);r.dataset.freluxWideView=String(wide);}catch(e){document.documentElement.style.setProperty('--frelux-display-scale','.5');document.documentElement.dataset.freluxScale='50';document.documentElement.dataset.freluxCompact='true';document.documentElement.dataset.freluxWideView='true';}};apply();window.addEventListener('pageshow',apply);})();
+      (function(){var apply=function(){var d=document.documentElement,scale=50,compact=true,wide=true;try{var p=JSON.parse(localStorage.getItem('frelux_display_preferences_v1')||'null');var valid=[50,60,70,75,80,90,100,110,125];if(p&&valid.indexOf(p.scale)!==-1)scale=p.scale;if(p&&typeof p.compact==='boolean')compact=p.compact;if(p&&typeof p.wideView==='boolean')wide=p.wideView;}catch(e){}
+d.style.setProperty('--frelux-display-scale',String(scale/100));d.dataset.freluxScale=String(scale);d.dataset.freluxCompact=String(compact);d.dataset.freluxWideView=String(wide);
+var s=window.screen||{},w=Math.min(s.width||0,s.height||0)||window.innerWidth,o=(s.orientation&&s.orientation.type)||'';if(o.indexOf('landscape')===0)w=Math.max(s.width||0,s.height||0)||w;
+var c='width=device-width, initial-scale=1.0, viewport-fit=cover';
+if(w>0&&w<900&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
+var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);})();
     </script>
     <meta charset="UTF-8" />
     <!-- Google AdSense (Auto ads). The tag sits in the served source so AdSense
@@ -57,7 +64,6 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/brand/favicon-16.png?v=2" />
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png?v=2" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Google Site Verification -->
     <meta name="google-site-verification" content="yesR-ARWsEpfFe9lRv2e8EkkBt6BHTlbU4I3LzdfduU" />

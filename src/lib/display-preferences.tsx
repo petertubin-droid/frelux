@@ -1,4 +1,9 @@
 import {
+  applyViewport,
+  deviceCssWidth,
+  viewportContent,
+} from "@/lib/display-viewport";
+import {
   createContext,
   useCallback,
   useContext,
@@ -61,10 +66,20 @@ export function readDisplayPreferences(): DisplayPreferences {
 
 function applyDisplayPreferences(value: DisplayPreferences) {
   const root = document.documentElement;
+  // Kept as data attributes and a variable for the compact/wide-view CSS and
+  // for anything that wants the number; it no longer drives a CSS zoom.
   root.style.setProperty("--frelux-display-scale", String(value.scale / 100));
   root.dataset.freluxCompact = String(value.compact);
   root.dataset.freluxWideView = String(value.wideView);
   root.dataset.freluxScale = String(value.scale);
+  // The scale itself is the viewport: the same thing a browser's page zoom
+  // changes, so every breakpoint and every width reader follows on every page.
+  applyViewport(
+    viewportContent({
+      deviceWidth: deviceCssWidth(),
+      scalePercent: value.scale,
+    }).content,
+  );
 }
 
 interface DisplayPreferencesContextValue extends DisplayPreferences {
