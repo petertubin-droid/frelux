@@ -14,6 +14,7 @@ export default function DisplaySettings() {
   const panelRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [panelTop, setPanelTop] = useState(64);
+  const [panelLeft, setPanelLeft] = useState(8);
   const { scale, compact, wideView, setScale, setCompact, setWideView, reset } =
     useDisplayPreferences();
 
@@ -38,13 +39,23 @@ export default function DisplaySettings() {
 
   useEffect(() => {
     if (!open) return;
+    let frame = 0;
     const updatePosition = () => {
       const rect = triggerRef.current?.getBoundingClientRect();
-      if (rect) setPanelTop(Math.min(rect.bottom + 8, window.innerHeight - 16));
+      if (!rect) return;
+      const panelWidth = Math.min(320, window.innerWidth - 16);
+      const panelHeight = panelRef.current?.getBoundingClientRect().height ?? 420;
+      setPanelLeft(Math.max(8, Math.min(rect.left, window.innerWidth - panelWidth - 8)));
+      setPanelTop(Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - panelHeight - 8)));
     };
-    updatePosition();
+    frame = window.requestAnimationFrame(updatePosition);
     window.addEventListener("resize", updatePosition);
-    return () => window.removeEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
   }, [open, scale]);
 
   return (
@@ -69,7 +80,7 @@ export default function DisplaySettings() {
           id="frelux-display-settings"
           aria-label="Display settings"
           className="surface-float fixed z-[80] rounded-2xl border border-border/70 p-4 text-left shadow-2xl dark:border-white/10"
-          style={{ top: panelTop, right: 8, width: "min(20rem, calc(100vw - 1rem))", maxHeight: "calc(100vh - 5rem)", overflowY: "auto" }}
+          style={{ top: panelTop, left: panelLeft, width: "min(20rem, calc(100vw - 1rem))", maxHeight: "calc(100vh - 1rem)", overflowY: "auto" }}
         >
           <div className="flex items-start justify-between gap-3">
             <div>

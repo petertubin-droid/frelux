@@ -221,7 +221,7 @@ export default function Navbar() {
               variant="ghost"
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="glass-control inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-all active:scale-95 lg:hidden dark:text-card-foreground"
+              className="glass-control inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-all active:scale-95 dark:text-card-foreground"
               aria-label="Open menu"
               aria-expanded={mobileOpen}
             >
@@ -451,8 +451,6 @@ export default function Navbar() {
                 <Mail className="h-[18px] w-[18px]" />
               </a>
             </div>
-
-            <DisplaySettings />
 
             {/* Language switcher (11 supported languages) */}
             <div className="relative">
@@ -710,7 +708,7 @@ export default function Navbar() {
       {/* ===== Mobile drawer, premium collapsible sections ===== */}
       <div
         className={classNames(
-          "fixed inset-0 z-50 lg:hidden",
+          "fixed inset-0 z-50",
           mobileOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
       >
@@ -961,12 +959,20 @@ export default function Navbar() {
                 </div>
               ))}
 
-              {/* Language, Accessibility & Theme, stacked for narrow drawer */}
-              <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
-                <AccessibilityToggle inline={true} />
-                <LanguageSwitcher inline={true} />
-                <CurrencySwitcher inline={true} />
-                <MarketSelector inline={true} />
+              {/* Display and accessibility controls live in the hamburger menu */}
+              <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
+                <div className="flex items-center justify-between gap-3 px-3 py-2">
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">Display & layout</p>
+                    <p className="text-xs text-muted-foreground">Scale and calculator view</p>
+                  </div>
+                  <DisplaySettings />
+                </div>
+                <div className="mt-1 space-y-1">
+                  <AccessibilityToggle inline={true} />
+                  <LanguageSwitcher inline={true} />
+                  <CurrencySwitcher inline={true} />
+                  <MarketSelector inline={true} />
                 <Button
                   variant="ghost"
                   type="button"
@@ -990,7 +996,8 @@ export default function Navbar() {
                   >
                     {theme === "dark" ? "On" : "Off"}
                   </span>
-                </Button>
+                  </Button>
+                </div>
               </div>
 
               {/* Email contact */}
