@@ -4,6 +4,7 @@ import {
   X,
   Printer,
   Download,
+  MoreHorizontal,
   Trash2,
   Share2,
   Copy,
@@ -120,6 +121,9 @@ export function MoneyTab(props: MoneyTabProps) {
   const [copied, setCopied] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement | null>(null);
+  const moreButtonRef = useRef<HTMLButtonElement | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState(emptyInvoiceForm);
   const [paymentForm, setPaymentForm] = useState(emptyPaymentForm);
@@ -408,7 +412,35 @@ export function MoneyTab(props: MoneyTabProps) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const cards: { label: string; value: string; tone?: string }[] = [
+  const openInvoices = summary.invoices.filter(
+    (invoice) => invoice.balance > 0,
+  ).length;
+
+  useEffect(() => {
+    if (!showMore) return;
+    moreMenuRef.current
+      ?.querySelector<HTMLButtonElement>('[role="menuitem"]')
+      ?.focus();
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (
+        target &&
+        !moreMenuRef.current?.contains(target) &&
+        !moreButtonRef.current?.contains(target)
+      ) {
+        setShowMore(false);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [showMore]);
+
+  const cards: {
+    label: string;
+    value: string;
+    tone?: string;
+    hero?: boolean;
+  }[] = [
     { label: "Billed", value: money(summary.invoicedTotal) },
     { label: "Received", value: money(summary.paidTotal) },
     {
@@ -416,8 +448,9 @@ export function MoneyTab(props: MoneyTabProps) {
       value: money(summary.outstandingTotal),
       tone:
         summary.outstandingTotal > 0
-          ? "text-amber-600 dark:text-amber-400"
-          : undefined,
+          ? "text-amber-700 dark:text-amber-300"
+          : "text-foreground",
+      hero: true,
     },
     {
       label: "Overdue",
@@ -440,28 +473,69 @@ export function MoneyTab(props: MoneyTabProps) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">
+          <h3 className="text-xl font-semibold tracking-tight text-foreground">
             {tr("Invoices and payments")}
           </h3>
-          <p className="text-sm text-muted-foreground">
-            {tr(
-              "Bill the client, record what arrives, and keep a receipt for every payment.",
-            )}
+          <p className="mt-1 text-sm text-muted-foreground">
+            {tr("Bill the client, record what arrives, keep the receipts.")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRecordsPack}
-            disabled={loading}
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="relative"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setShowMore(false);
+            }}
           >
-            <Printer aria-hidden="true" className="h-4 w-4" />
-            {tr("Records pack")}
-          </Button>
-          <Button variant="outline" onClick={handleCsv} disabled={loading}>
-            <Download aria-hidden="true" className="h-4 w-4" />
-            {tr("Export CSV")}
-          </Button>
+            <Button
+              ref={moreButtonRef}
+              variant="outline"
+              size="icon"
+              aria-haspopup="menu"
+              aria-expanded={showMore}
+              aria-controls="money-more-menu"
+              aria-label={tr("More money actions")}
+              onClick={() => setShowMore((open) => !open)}
+            >
+              <MoreHorizontal aria-hidden="true" className="h-4 w-4" />
+            </Button>
+            {showMore && (
+              <div
+                ref={moreMenuRef}
+                id="money-more-menu"
+                role="menu"
+                aria-label={tr("More money actions")}
+                className="absolute right-0 z-30 mt-1 w-48 rounded-lg border bg-card p-1 shadow-lg"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowMore(false);
+                    handleRecordsPack();
+                  }}
+                  disabled={loading}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted disabled:opacity-50"
+                >
+                  <Printer aria-hidden="true" className="h-4 w-4" />
+                  {tr("Records pack")}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setShowMore(false);
+                    handleCsv();
+                  }}
+                  disabled={loading}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-muted disabled:opacity-50"
+                >
+                  <Download aria-hidden="true" className="h-4 w-4" />
+                  {tr("Export CSV")}
+                </button>
+              </div>
+            )}
+          </div>
           <Button
             variant="outline"
             onClick={() => {
@@ -515,23 +589,41 @@ export function MoneyTab(props: MoneyTabProps) {
       <dl
         aria-live="polite"
         aria-label={tr("Project money at a glance")}
-        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
+        className="grid gap-3 sm:grid-cols-3"
       >
-        {cards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-xl border bg-card p-3 shadow-sm"
-          >
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              {tr(card.label)}
-            </dt>
-            <dd
-              className={`mt-1 text-lg font-semibold tabular-nums ${card.tone ?? "text-foreground"}`}
+        {cards.map((card) =>
+          card.hero ? (
+            <div
+              key={card.label}
+              className="rounded-2xl border border-violet-200/70 bg-gradient-to-br from-violet-50 to-card p-4 shadow-sm sm:col-span-3 dark:border-violet-500/20 dark:from-violet-500/10"
             >
-              {card.value}
-            </dd>
-          </div>
-        ))}
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {tr(card.label)}
+              </dt>
+              <dd
+                className={`mt-1 text-3xl font-semibold tracking-tight tabular-nums ${card.tone ?? "text-foreground"}`}
+              >
+                {card.value}
+              </dd>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {openInvoices === 0
+                  ? tr("Nothing awaiting payment")
+                  : `${openInvoices} ${tr(openInvoices === 1 ? "invoice awaiting payment" : "invoices awaiting payment")}`}
+              </p>
+            </div>
+          ) : (
+            <div key={card.label} className="rounded-xl border bg-card p-3">
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {tr(card.label)}
+              </dt>
+              <dd
+                className={`mt-1 text-base font-semibold tabular-nums ${card.tone ?? "text-foreground"}`}
+              >
+                {card.value}
+              </dd>
+            </div>
+          ),
+        )}
       </dl>
 
       {summary.credit > 0 && (
@@ -924,13 +1016,36 @@ export function MoneyTab(props: MoneyTabProps) {
         )}
 
         {loading ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            {tr("Loading")}...
-          </p>
+          <div className="mt-4 space-y-2" aria-hidden="true">
+            <span className="sr-only">{tr("Loading invoices")}</span>
+            {[0, 1, 2].map((row) => (
+              <div
+                key={row}
+                className="h-9 animate-pulse rounded-lg bg-muted"
+              />
+            ))}
+          </div>
         ) : summary.invoices.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            {tr("No invoice raised yet. Raise one to start the payment trail.")}
-          </p>
+          <div className="mt-4 rounded-2xl border border-dashed bg-card/60 px-4 py-8 text-center">
+            <p className="text-sm font-medium text-foreground">
+              {tr("No invoice raised yet.")}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {tr(
+                "Raise the first one and every payment, balance and receipt follows from it.",
+              )}
+            </p>
+            <Button
+              onClick={() => {
+                setShowWizard(true);
+                setShowInvoiceForm(false);
+              }}
+              className="mt-4 min-h-11 bg-violet-600 text-white hover:bg-violet-700"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" />
+              {tr("Raise the first invoice")}
+            </Button>
+          </div>
         ) : (
           <div
             role="region"
@@ -946,7 +1061,10 @@ export function MoneyTab(props: MoneyTabProps) {
               </caption>
               <thead>
                 <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th scope="col" className="pb-2 pr-3 font-medium">
+                  <th
+                    scope="col"
+                    className="sticky left-0 z-10 bg-card pb-2 pr-3 font-medium"
+                  >
                     {tr("Invoice")}
                   </th>
                   <th scope="col" className="pb-2 pr-3 font-medium">
@@ -977,7 +1095,7 @@ export function MoneyTab(props: MoneyTabProps) {
                   const record = invoices.find((row) => row.id === invoice.id);
                   return (
                     <tr key={invoice.id} className="border-b last:border-0">
-                      <td className="py-2 pr-3 font-medium text-foreground">
+                      <td className="sticky left-0 z-10 bg-card py-2 pr-3 font-medium text-foreground">
                         {invoice.number}
                       </td>
                       <td className="py-2 pr-3 text-muted-foreground">

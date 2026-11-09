@@ -271,6 +271,36 @@ describe("MoneyTab", () => {
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
+  it("keeps the document exports behind one labelled menu", async () => {
+    invoices.push(invoice());
+    renderTab();
+    await screen.findByText("INV-0001");
+
+    const more = screen.getByRole("button", { name: "More money actions" });
+    expect(more.getAttribute("aria-haspopup")).toBe("menu");
+    expect(more.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(more);
+    expect(more.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByRole("menuitem", { name: /Records pack/ })).toBeTruthy();
+    expect(screen.getByRole("menuitem", { name: /Export CSV/ })).toBeTruthy();
+
+    fireEvent.keyDown(more, { key: "Escape" });
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("leads an empty ledger to the guided invoice instead of a dead end", async () => {
+    invoices.length = 0;
+    payments.length = 0;
+    renderTab();
+
+    expect(await screen.findByText(/No invoice raised yet/)).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Raise the first invoice" }),
+    );
+    expect(screen.getByRole("progressbar")).toBeTruthy();
+  });
+
   it("opens only one creation panel at a time", async () => {
     renderTab();
 

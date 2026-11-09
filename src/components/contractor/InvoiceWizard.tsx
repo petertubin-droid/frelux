@@ -218,7 +218,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
   const progressText = `${tr("Step")} ${stepIndex + 1} ${tr("of")} ${STEPS.length}: ${tr(step.label)}`;
 
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm sm:p-5">
+    <div className="rounded-2xl border border-violet-200/60 bg-card p-4 shadow-sm sm:p-6 dark:border-violet-500/20">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -256,7 +256,14 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
             style={{ width: `${((stepIndex + 1) / STEPS.length) * 100}%` }}
           />
         </div>
-        <p className="mt-1.5 text-xs text-muted-foreground">{progressText}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-violet-600/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
+            {tr("Step")} {stepIndex + 1} {tr("of")} {STEPS.length}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {tr(step.label)}
+          </span>
+        </div>
       </div>
 
       {error && (
@@ -584,7 +591,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
             <Button
               onClick={handleNext}
               disabled={busy}
-              className="min-h-11 bg-violet-600 text-white hover:bg-violet-700"
+              className="min-h-11 w-full bg-violet-600 text-white hover:bg-violet-700 sm:w-auto"
             >
               {tr("Next")}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -592,10 +599,10 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
           ) : (
             <>
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => void submit(true)}
                 disabled={busy}
-                className="min-h-11"
+                className="min-h-11 w-full text-muted-foreground hover:text-foreground sm:w-auto"
               >
                 <FileText aria-hidden="true" className="h-4 w-4" />
                 {tr("Save as draft")}
@@ -603,7 +610,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
               <Button
                 onClick={() => void submit(false)}
                 disabled={busy}
-                className="min-h-11 bg-violet-600 text-white hover:bg-violet-700"
+                className="min-h-11 w-full bg-violet-600 text-white hover:bg-violet-700 sm:w-auto"
               >
                 <Check aria-hidden="true" className="h-4 w-4" />
                 {busy ? tr("Raising") : tr("Raise invoice")}
