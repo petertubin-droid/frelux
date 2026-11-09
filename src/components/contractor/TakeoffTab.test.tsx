@@ -24,6 +24,23 @@ const saveProjectTakeoff = vi.fn(async (input: unknown) => ({
 }));
 const deleteProjectTakeoff = vi.fn(async (_id: string) => undefined);
 
+const extractScheduleFromPdf = vi.fn(async (_file: File) => ({
+  candidates: [] as unknown[],
+  openings: [] as unknown[],
+  scaleNotes: [] as string[],
+  pagesRead: 1,
+  scanned: false,
+}));
+
+vi.mock("@/lib/takeoff/pdf-schedule", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/takeoff/pdf-schedule")>();
+  return {
+    ...actual,
+    extractScheduleFromPdf: (file: File) => extractScheduleFromPdf(file),
+  };
+});
+
 vi.mock("@/lib/takeoff/persistence", () => ({
   fetchProjectTakeoffs: (projectId: string) => fetchProjectTakeoffs(projectId),
   saveProjectTakeoff: (input: never) => saveProjectTakeoff(input),
@@ -197,5 +214,94 @@ describe("Takeoff studio", () => {
     fireEvent.change(unitSelects[0], { target: { value: "mm" } });
     const bill = screen.getByRole("table", { name: /Bill of quantities/i });
     expect(within(bill).getAllByText("10.8").length).toBeGreaterThan(0);
+  });
+});
+
+describe("plan import", () => {
+  const candidate = {
+    id: "cand-1",
+    label: "BEDROOM 1",
+    length: 3.6,
+    width: 4.2,
+    unit: "m",
+    raw: "3600 x 4200",
+    page: 1,
+    evidence: "BEDROOM 1 3600 x 4200",
+    confidence: "high",
+    notes: [],
+  };
+
+  const upload = (container: HTMLElement) => {
+    const input = container.querySelector("#takeoff-pdf") as HTMLInputElement;
+    const file = new File(["%PDF-1.4"], "plan.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.change(input, { target: { files: [file] } });
+    return file;
+  };
+
+  it("shows the rooms it read, with the evidence behind each", async () => {
+    extractScheduleFromPdf.mockResolvedValueOnce({
+      candidates: [candidate],
+      openings: [{ raw: "900 x 2100", label: "DOOR D1", page: 1 }],
+      scaleNotes: ["1:100"],
+      pagesRead: 2,
+      scanned: false,
+    });
+    const { container } = renderTab();
+    const file = upload(container);
+
+    await screen.findByText("BEDROOM 1");
+    expect(extractScheduleFromPdf).toHaveBeenCalledWith(file);
+    expect(screen.getByText(/Read from: BEDROOM 1 3600 x 4200/)).toBeTruthy();
+    expect(screen.getByText(/1 opening dimension/)).toBeTruthy();
+    expect(screen.getByText(/1:100 was read but not applied/)).toBeTruthy();
+  });
+
+  it("adds the selected rooms to the schedule with their wall height", async () => {
+    extractScheduleFromPdf.mockResolvedValueOnce({
+      candidates: [candidate],
+      openings: [],
+      scaleNotes: [],
+      pagesRead: 1,
+      scanned: false,
+    });
+    const { container } = renderTab();
+    upload(container);
+    await screen.findByText("BEDROOM 1");
+
+    fireEvent.change(screen.getByLabelText(/^Wall height/), {
+      target: { value: "2.7" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Add selected rooms/i }),
+    );
+
+    const bill = await screen.findByRole("table", {
+      name: /Bill of quantities/i,
+    });
+    // Four walls: 3.6 + 3.6 + 4.2 + 4.2 at 2.7 is 42.12 m2.
+    expect(within(bill).getAllByText("42.12").length).toBeGreaterThan(0);
+  });
+
+  it("says plainly when the PDF is a scan with no text", async () => {
+    extractScheduleFromPdf.mockResolvedValueOnce({
+      candidates: [],
+      openings: [],
+      scaleNotes: [],
+      pagesRead: 3,
+      scanned: true,
+    });
+    const { container } = renderTab();
+    upload(container);
+    await screen.findByText(/no readable text, so it is a scan/i);
+  });
+
+  it("reports a read failure without adding rooms", async () => {
+    extractScheduleFromPdf.mockRejectedValueOnce(new Error("worker failed"));
+    const { container } = renderTab();
+    upload(container);
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent?.length).toBeGreaterThan(0);
   });
 });

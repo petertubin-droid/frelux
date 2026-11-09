@@ -25,12 +25,16 @@ import {
   SCOPE_LABELS,
   runTakeoff,
   takeoffToCsv,
+  roomsFromCandidates,
+  type ScheduleCandidate,
+  type ScheduleReaderResult,
   type ScheduleInput,
   type TakeoffLine,
   type TakeoffScope,
   type TakeoffSpecs,
   type LengthUnit,
 } from "@/lib/takeoff";
+import { extractScheduleFromPdf } from "@/lib/takeoff/pdf-schedule";
 import {
   deleteProjectTakeoff,
   fetchProjectTakeoffs,
@@ -209,6 +213,11 @@ export function TakeoffTab({ projectId, projectName }: TakeoffTabProps) {
   const [notice, setNotice] = useState<string | null>(null);
   const [showSpecs, setShowSpecs] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
+  const [imported, setImported] = useState<ScheduleReaderResult | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importHeight, setImportHeight] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
 
   const result = useMemo(
     () => runTakeoff(schedule, { scopes, specs }),
@@ -311,6 +320,73 @@ export function TakeoffTab({ projectId, projectName }: TakeoffTabProps) {
     setSpecs((row.specs as TakeoffSpecs) ?? {});
     setNotice(
       `Opened ${row.name}. The bill was re-measured from its schedule.`,
+    );
+  };
+
+  const handlePdf = async (file: File) => {
+    try {
+      setReading(true);
+      setImportError(null);
+      setImported(null);
+      setNotice(null);
+      const read = await extractScheduleFromPdf(file);
+      setImported(read);
+      setSelected(
+        read.candidates
+          .filter((candidate) => candidate.confidence !== "low")
+          .map((candidate) => candidate.id),
+      );
+      if (read.scanned) {
+        setNotice(
+          "This PDF has no readable text, so it is a scan. Nothing was read from it.",
+        );
+      } else if (!read.candidates.length) {
+        setNotice("No room dimensions were found in the readable text.");
+      }
+    } catch (err) {
+      setImportError(getSafeError(err, "Could not read that PDF."));
+    } finally {
+      setReading(false);
+    }
+  };
+
+  const applyImport = () => {
+    if (!imported) return;
+    const chosen = imported.candidates.filter((candidate) =>
+      selected.includes(candidate.id),
+    );
+    if (!chosen.length) {
+      setImportError("Select at least one room to add.");
+      return;
+    }
+    const height = optionalNumber(importHeight) ?? 0;
+    const rooms = roomsFromCandidates(chosen, height);
+    setSchedule((current) => {
+      const measured = current.rooms.filter(
+        (room) =>
+          (room.walls ?? []).some(
+            (wall) => wall.length > 0 && wall.height > 0,
+          ) || (room.floor?.length ?? 0) > 0,
+      );
+      return { ...current, rooms: [...measured, ...rooms] };
+    });
+    setImported(null);
+    setSelected([]);
+    setImportError(null);
+    setNotice(
+      `${chosen.length} room${chosen.length === 1 ? "" : "s"} added from the plan${
+        height > 0
+          ? "."
+          : ". Their walls have no height yet, so nothing is measurable until you enter one."
+      }`,
+    );
+  };
+
+  const toggleCandidate = (id: string) => {
+    setSelected((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
     );
   };
 
@@ -584,6 +660,127 @@ export function TakeoffTab({ projectId, projectName }: TakeoffTabProps) {
                 <p className="col-span-2 self-end text-xs text-muted-foreground sm:col-span-1">
                   Blank fields use the documented default for that material.
                 </p>
+              </div>
+            ) : null}
+          </fieldset>
+
+          <fieldset className="min-w-0 rounded-lg border border-border bg-card p-3">
+            <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Import from a plan PDF
+            </legend>
+            <p className="text-xs text-muted-foreground">
+              Reads the dimension text printed on the sheet. A scanned plan
+              carries no text and is refused rather than guessed at.
+            </p>
+            <div className="mt-2 flex flex-wrap items-end gap-2">
+              <div className="min-w-0">
+                <label
+                  htmlFor="takeoff-pdf"
+                  className="block text-xs font-medium text-muted-foreground"
+                >
+                  Plan PDF
+                </label>
+                <input
+                  id="takeoff-pdf"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void handlePdf(file);
+                  }}
+                  className="mt-1 block w-full min-w-0 text-xs text-muted-foreground file:mr-2 file:rounded file:border file:border-input file:bg-background file:px-2 file:py-1 file:text-xs file:text-foreground"
+                />
+              </div>
+              <div className="w-28">
+                <NumberField
+                  id="import-height"
+                  label="Wall height"
+                  suffix="m"
+                  step="0.05"
+                  value={optionalNumber(importHeight) ?? 0}
+                  onChange={setImportHeight}
+                />
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={applyImport}
+                disabled={!imported || !selected.length}
+              >
+                Add selected rooms
+              </Button>
+            </div>
+            {reading ? (
+              <p
+                aria-live="polite"
+                className="mt-2 text-xs text-muted-foreground"
+              >
+                Reading the sheet.
+              </p>
+            ) : null}
+            {importError ? (
+              <p role="alert" className="mt-2 text-xs text-destructive">
+                {importError}
+              </p>
+            ) : null}
+            {imported ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  {imported.pagesRead} page{imported.pagesRead === 1 ? "" : "s"}{" "}
+                  read, {imported.candidates.length} room dimension
+                  {imported.candidates.length === 1 ? "" : "s"} found,{" "}
+                  {imported.openings.length} opening dimension
+                  {imported.openings.length === 1 ? "" : "s"} set aside.
+                  {imported.scaleNotes.length
+                    ? ` Scale note ${imported.scaleNotes.join(", ")} was read but not applied.`
+                    : ""}
+                </p>
+                {imported.candidates.length ? (
+                  <ul className="space-y-2">
+                    {imported.candidates.map((candidate) => (
+                      <li
+                        key={candidate.id}
+                        className="rounded-md border border-border/70 p-2 text-sm"
+                      >
+                        <label className="flex items-start gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selected.includes(candidate.id)}
+                            onChange={() => toggleCandidate(candidate.id)}
+                            className="mt-1 h-4 w-4"
+                            aria-label={`Include ${candidate.label}`}
+                          />
+                          <span className="min-w-0">
+                            <span className="font-medium text-foreground">
+                              {candidate.label}
+                            </span>{" "}
+                            <span className="text-muted-foreground">
+                              {candidate.length} × {candidate.width} m
+                            </span>
+                            <span className="ml-2 rounded bg-muted px-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                              {candidate.confidence}
+                            </span>
+                            <span className="mt-1 block text-xs text-muted-foreground">
+                              Read from: {candidate.evidence}
+                            </span>
+                            {candidate.notes.length ? (
+                              <span className="mt-1 block text-xs text-amber-700 dark:text-amber-300">
+                                {candidate.notes.join(" ")}
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {imported.openings.length ? (
+                  <p className="text-xs text-muted-foreground">
+                    Set aside as openings:{" "}
+                    {imported.openings.map((opening) => opening.raw).join(", ")}
+                    . Add them to a wall once the room exists.
+                  </p>
+                ) : null}
               </div>
             ) : null}
           </fieldset>
