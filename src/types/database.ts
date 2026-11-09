@@ -1319,6 +1319,9 @@ export interface DbProjectExpense {
   shopping_item_id: string | null;
   room_id: string | null;
   notes: string | null;
+  /** Uploaded proof of spend: transfer screenshot, POS slip, vendor invoice. */
+  receipt_url: string | null;
+  receipt_name: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -2099,6 +2102,44 @@ export interface DbLearnArticleInsert {
   position_heading_id: string | null;
   sort_order: number;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A numbered bill raised against a contractor project. */
+export interface DbProjectInvoice {
+  id: string;
+  project_id: string;
+  number: string;
+  title: string | null;
+  issued_at: string;
+  due_at: string | null;
+  currency: string;
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  total: number;
+  status: "draft" | "sent" | "void";
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectPaymentMethod =
+  "transfer" | "cash" | "pos" | "cheque" | "card" | "other";
+
+/** Money received from a client, optionally against a named invoice. */
+export interface DbProjectPayment {
+  id: string;
+  project_id: string;
+  invoice_id: string | null;
+  receipt_no: string;
+  amount: number;
+  currency: string;
+  method: ProjectPaymentMethod;
+  reference: string | null;
+  paid_at: string;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }

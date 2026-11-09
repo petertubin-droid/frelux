@@ -45,6 +45,8 @@ import {
   Receipt,
   ClipboardCheck,
   Gauge,
+  Paperclip,
+  Wallet,
 } from "lucide-react";
 import {
   fetchContractorProject,
@@ -75,7 +77,9 @@ import {
   createProjectExpense,
   updateProjectExpense,
   deleteProjectExpense,
+  uploadExpenseReceipt,
 } from "@/lib/contractor";
+import { MoneyTab } from "@/components/contractor/MoneyTab";
 import { generateQuotationPDF, generateShoppingListPDF } from "@/lib/pdf";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
@@ -128,6 +132,7 @@ type TabKey =
   | "labour"
   | "shopping"
   | "expenses"
+  | "money"
   | "workflows"
   | "quotation"
   | "timeline"
@@ -142,6 +147,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "labour", label: "Labour", icon: Users },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "expenses", label: "Expenses", icon: Receipt },
+  { key: "money", label: "Invoices & Payments", icon: Wallet },
   { key: "workflows", label: "Workflows", icon: ClipboardCheck },
   { key: "quotation", label: "Quotation", icon: FileText },
   { key: "timeline", label: "Timeline", icon: Calendar },
@@ -707,6 +713,20 @@ export default function ProjectDashboard() {
     }
   };
 
+  const handleAttachReceipt = async (expenseId: string, file: File) => {
+    if (!id) return;
+    try {
+      setActionLoading(true);
+      await uploadExpenseReceipt(id, expenseId, file);
+      const refreshed = await fetchProjectExpenses(id);
+      setExpenses(refreshed);
+    } catch (err) {
+      setError(getSafeError(err, "Could not attach the receipt."));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleEditExpense = (expense: DbProjectExpense) => {
     setExpenseForm({
       category: expense.category,
@@ -1250,6 +1270,7 @@ export default function ProjectDashboard() {
             onSubmit={handleExpenseSubmit}
             onEdit={handleEditExpense}
             onDelete={handleDeleteExpense}
+            onAttachReceipt={handleAttachReceipt}
             marketCode={
               typeof (project as unknown as Record<string, unknown>)
                 .country_code === "string"
@@ -1266,6 +1287,16 @@ export default function ProjectDashboard() {
             }
             crowdsourceOptIn={crowdsourceOptIn}
             onToggleCrowdsourceOptIn={setCrowdsourceOptIn}
+          />
+        )}
+
+        {activeTab === "money" && (
+          <MoneyTab
+            projectId={id ?? ""}
+            projectName={project.name}
+            clientName={project.client_name}
+            currency={project.currency}
+            expenses={expenses}
           />
         )}
 
@@ -3270,6 +3301,7 @@ interface ExpensesTabProps {
   onSubmit: () => void;
   onEdit: (expense: DbProjectExpense) => void;
   onDelete: (expenseId: string) => void;
+  onAttachReceipt?: (expenseId: string, file: File) => Promise<void>;
   marketCode?: string;
   projectCity?: string;
   crowdsourceOptIn?: boolean;
@@ -3564,6 +3596,36 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 <span className="text-sm font-semibold text-foreground">
                   {formatCurrency(expense.amount, props.currency)}
                 </span>
+                {expense.receipt_url ? (
+                  <a
+                    href={expense.receipt_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 hover:underline dark:bg-green-500/15 dark:text-green-300"
+                    title={expense.receipt_name ?? "Payment proof"}
+                  >
+                    <Paperclip aria-hidden="true" className="h-3 w-3" />
+                    {tr("Proof")}
+                  </a>
+                ) : props.onAttachReceipt ? (
+                  <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-input px-2 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+                    <Paperclip aria-hidden="true" className="h-3 w-3" />
+                    {tr("Attach proof")}
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      className="sr-only"
+                      aria-label={`${tr("Attach proof for")} ${expense.name}`}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.target.value = "";
+                        if (file && props.onAttachReceipt) {
+                          void props.onAttachReceipt(expense.id, file);
+                        }
+                      }}
+                    />
+                  </label>
+                ) : null}
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"

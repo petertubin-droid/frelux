@@ -8,12 +8,10 @@
  * - Empty state renders without crash.
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ExpensesTab } from "@/pages/contractor/ProjectDashboard";
 import { computeBudgetVariance } from "@/lib/estimation/budget-variance-engine";
-import type {
-  BudgetVarianceResult,
-} from "@/lib/estimation/budget-variance-engine";
+import type { BudgetVarianceResult } from "@/lib/estimation/budget-variance-engine";
 import type { DbProjectExpense } from "@/types/database";
 
 const noop = () => {};
@@ -32,6 +30,8 @@ function makeExpense(
     shopping_item_id: null,
     room_id: null,
     notes: null,
+    receipt_url: null,
+    receipt_name: null,
     sort_order: 0,
     created_at: "2026-10-10T00:00:00Z",
     updated_at: "2026-10-10T00:00:00Z",
@@ -68,6 +68,51 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+describe("ExpensesTab proof of spend", () => {
+  it("offers to attach proof when the expense has none", () => {
+    const onAttachReceipt = vi.fn(async () => undefined);
+    render(
+      <ExpensesTab
+        {...baseProps({
+          expenses: [makeExpense()],
+          onAttachReceipt,
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Attach proof")).toBeDefined();
+    const input = screen.getByLabelText(
+      "Attach proof for Cement bags",
+    ) as HTMLInputElement;
+    const file = new File(["slip"], "pos-slip.jpg", { type: "image/jpeg" });
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(onAttachReceipt).toHaveBeenCalledWith("exp-1", file);
+  });
+
+  it("links the stored proof instead of asking for it again", () => {
+    render(
+      <ExpensesTab
+        {...baseProps({
+          expenses: [
+            makeExpense({
+              receipt_url: "https://cdn.example.com/pos-slip.jpg",
+              receipt_name: "pos-slip.jpg",
+            }),
+          ],
+        })}
+      />,
+    );
+
+    const link = screen.getByText("Proof").closest("a");
+    expect(link?.getAttribute("href")).toBe(
+      "https://cdn.example.com/pos-slip.jpg",
+    );
+    expect(link?.getAttribute("target")).toBe("_blank");
+    expect(screen.queryByText("Attach proof")).toBeNull();
+  });
+});
+
 describe("ExpensesTab internationalization", () => {
   it("renders amounts in the project's own currency (KES project, no ₦)", () => {
     const variance = computeBudgetVariance({
@@ -100,9 +145,7 @@ describe("ExpensesTab internationalization", () => {
         category: "labour",
       }),
     ];
-    const { container } = render(
-      <ExpensesTab {...baseProps({ expenses })} />,
-    );
+    const { container } = render(<ExpensesTab {...baseProps({ expenses })} />);
     const text = container.textContent ?? "";
 
     expect(screen.getByText("Cement")).toBeDefined();
@@ -142,9 +185,7 @@ describe("ExpensesTab internationalization", () => {
       estimated: { material: 5000 },
       expenses: [{ category: "material", amount: 7000 }],
     });
-    const { container } = render(
-      <ExpensesTab {...baseProps({ variance })} />,
-    );
+    const { container } = render(<ExpensesTab {...baseProps({ variance })} />);
     const text = container.textContent ?? "";
     expect(text).toContain("Over budget");
     expect(text).toMatch(/over estimate/i);
@@ -160,9 +201,7 @@ describe("ExpensesTab internationalization", () => {
       estimated: {},
       expenses: [{ category: "material", amount: 100 }],
     });
-    const { container } = render(
-      <ExpensesTab {...baseProps({ variance })} />,
-    );
+    const { container } = render(<ExpensesTab {...baseProps({ variance })} />);
     expect(container.textContent).not.toContain("Estimated vs Actual");
   });
 });

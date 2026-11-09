@@ -14,6 +14,9 @@ import type {
   DbProjectShoppingItem,
   DbProjectLabourPlan,
   DbProjectExpense,
+  DbProjectInvoice,
+  DbProjectPayment,
+  ProjectPaymentMethod,
   ExpenseCategory,
   DbProjectQuotation,
   DbProjectTimeline,
@@ -2300,4 +2303,218 @@ export async function uploadProjectAttachment(
     data: record as DbProjectAttachment | null,
     error: dbError ? dbError.message : null,
   };
+}
+
+// ============================================================
+// PROJECT MONEY TRAIL: invoices, client payments, proof of spend
+// Currency always comes from the project row; a payment or an
+// invoice can never introduce a second currency silently.
+// Numbering comes from the database sequence defaults so two
+// concurrent inserts cannot collide.
+// ============================================================
+
+export interface CreateInvoiceInput {
+  title?: string | null;
+  issued_at: string;
+  due_at?: string | null;
+  subtotal: number;
+  tax_rate?: number;
+  tax_amount?: number;
+  total: number;
+  status?: "draft" | "sent";
+  notes?: string | null;
+}
+
+export async function fetchProjectInvoices(
+  projectId: string,
+): Promise<DbProjectInvoice[]> {
+  const { data, error } = await supabase
+    .from("project_invoices")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("issued_at", { ascending: true });
+
+  if (error)
+    throw new Error(`Failed to fetch project invoices: ${error.message}`);
+  return (data ?? []) as DbProjectInvoice[];
+}
+
+export async function createProjectInvoice(
+  projectId: string,
+  currency: string,
+  input: CreateInvoiceInput,
+): Promise<DbProjectInvoice> {
+  if (!currency)
+    throw new Error("Project currency is required to raise an invoice");
+  if (!Number.isFinite(input.total) || input.total < 0) {
+    throw new Error("Invoice total must be zero or more");
+  }
+
+  const { data, error } = await supabase
+    .from("project_invoices")
+    .insert({
+      project_id: projectId,
+      currency,
+      title: input.title?.trim() || null,
+      issued_at: input.issued_at,
+      due_at: input.due_at || null,
+      subtotal: input.subtotal,
+      tax_rate: input.tax_rate ?? 0,
+      tax_amount: input.tax_amount ?? 0,
+      total: input.total,
+      status: input.status ?? "sent",
+      notes: input.notes?.trim() || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to raise invoice: ${error.message}`);
+  return data as DbProjectInvoice;
+}
+
+export async function updateProjectInvoice(
+  id: string,
+  updates: Partial<
+    Pick<
+      DbProjectInvoice,
+      | "title"
+      | "issued_at"
+      | "due_at"
+      | "status"
+      | "notes"
+      | "subtotal"
+      | "tax_rate"
+      | "tax_amount"
+      | "total"
+    >
+  >,
+): Promise<void> {
+  const { error } = await supabase
+    .from("project_invoices")
+    .update(updates)
+    .eq("id", id);
+  if (error) throw new Error(`Failed to update invoice: ${error.message}`);
+}
+
+export async function deleteProjectInvoice(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("project_invoices")
+    .delete()
+    .eq("id", id);
+  if (error) throw new Error(`Failed to delete invoice: ${error.message}`);
+}
+
+export interface CreatePaymentInput {
+  invoice_id?: string | null;
+  amount: number;
+  method: ProjectPaymentMethod;
+  reference?: string | null;
+  paid_at: string;
+  notes?: string | null;
+}
+
+export async function fetchProjectPayments(
+  projectId: string,
+): Promise<DbProjectPayment[]> {
+  const { data, error } = await supabase
+    .from("project_payments")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("paid_at", { ascending: false });
+
+  if (error)
+    throw new Error(`Failed to fetch project payments: ${error.message}`);
+  return (data ?? []) as DbProjectPayment[];
+}
+
+export async function createProjectPayment(
+  projectId: string,
+  currency: string,
+  input: CreatePaymentInput,
+): Promise<DbProjectPayment> {
+  if (!currency)
+    throw new Error("Project currency is required to record a payment");
+  if (!Number.isFinite(input.amount) || input.amount <= 0) {
+    throw new Error("Payment amount must be more than zero");
+  }
+
+  const { data, error } = await supabase
+    .from("project_payments")
+    .insert({
+      project_id: projectId,
+      invoice_id: input.invoice_id || null,
+      currency,
+      amount: input.amount,
+      method: input.method,
+      reference: input.reference?.trim() || null,
+      paid_at: input.paid_at,
+      notes: input.notes?.trim() || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to record payment: ${error.message}`);
+  return data as DbProjectPayment;
+}
+
+export async function deleteProjectPayment(id: string): Promise<void> {
+  const { error } = await supabase
+    .from("project_payments")
+    .delete()
+    .eq("id", id);
+  if (error) throw new Error(`Failed to delete payment: ${error.message}`);
+}
+
+/**
+ * Attaches the proof for an expense: the transfer screenshot, POS slip or
+ * vendor invoice the contractor actually holds. Same bucket and fallback as
+ * project attachments, so a missing bucket cannot lose the file.
+ */
+export async function uploadExpenseReceipt(
+  projectId: string,
+  expenseId: string,
+  file: File,
+): Promise<{ url: string; name: string }> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
+  const storagePath = `receipts/${projectId}/${expenseId}-${Date.now()}.${ext}`;
+
+  let uploadError = (
+    await supabase.storage
+      .from("project-attachments")
+      .upload(storagePath, file, { contentType: file.type })
+  ).error;
+
+  let url: string | null = null;
+
+  if (!uploadError) {
+    const { data } = supabase.storage
+      .from("project-attachments")
+      .getPublicUrl(storagePath);
+    url = data.publicUrl;
+  } else if (uploadError.message.includes("Bucket not found")) {
+    const fallbackPath = `project-attachments/${storagePath}`;
+    const fallback = await supabase.storage
+      .from("media")
+      .upload(fallbackPath, file, { contentType: file.type });
+    if (fallback.error)
+      throw new Error(`Failed to upload receipt: ${fallback.error.message}`);
+    const { data } = supabase.storage.from("media").getPublicUrl(fallbackPath);
+    url = data.publicUrl;
+    uploadError = null;
+  }
+
+  if (uploadError || !url) {
+    throw new Error(
+      `Failed to upload receipt: ${uploadError?.message ?? "unknown error"}`,
+    );
+  }
+
+  const { error: dbError } = await supabase
+    .from("project_expenses")
+    .update({ receipt_url: url, receipt_name: file.name })
+    .eq("id", expenseId);
+
+  if (dbError) throw new Error(`Failed to attach receipt: ${dbError.message}`);
+
+  return { url, name: file.name };
 }
