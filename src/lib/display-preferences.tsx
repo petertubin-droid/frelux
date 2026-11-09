@@ -9,7 +9,9 @@ import {
 } from "react";
 
 export const DISPLAY_PREFERENCE_KEY = "frelux_display_preferences_v1";
-export const DISPLAY_SCALE_OPTIONS = [50, 60, 70, 75, 80, 90, 100, 110, 125] as const;
+export const DISPLAY_SCALE_OPTIONS = [
+  50, 60, 70, 75, 80, 90, 100, 110, 125,
+] as const;
 export type DisplayScale = (typeof DISPLAY_SCALE_OPTIONS)[number];
 
 export interface DisplayPreferences {
@@ -18,7 +20,13 @@ export interface DisplayPreferences {
   wideView: boolean;
 }
 
-const DEFAULT_PREFERENCES: DisplayPreferences = {
+/**
+ * The starting point for a device with no saved preference, and the target of
+ * the Reset button. Exported because the settings copy, the pre-paint script in
+ * index.html and the tests all need to agree with it; three hardcoded copies of
+ * "50" is three places to forget.
+ */
+export const DEFAULT_PREFERENCES: DisplayPreferences = {
   scale: 50,
   compact: true,
   wideView: true,
@@ -66,9 +74,14 @@ interface DisplayPreferencesContextValue extends DisplayPreferences {
   reset: () => void;
 }
 
-const DisplayPreferencesContext = createContext<DisplayPreferencesContextValue | null>(null);
+const DisplayPreferencesContext =
+  createContext<DisplayPreferencesContextValue | null>(null);
 
-export function DisplayPreferencesProvider({ children }: { children: ReactNode }) {
+export function DisplayPreferencesProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [preferences, setPreferences] = useState<DisplayPreferences>(() =>
     readDisplayPreferences(),
   );
@@ -82,6 +95,18 @@ export function DisplayPreferencesProvider({ children }: { children: ReactNode }
       // current tab still honors the preference in React state and on <html>.
     }
   }, [preferences]);
+
+  // Another tab, or a back/forward restore, can change what is stored. Without
+  // this the panel keeps showing a value the document no longer uses.
+  useEffect(() => {
+    const sync = () => setPreferences(readDisplayPreferences());
+    window.addEventListener("storage", sync);
+    window.addEventListener("pageshow", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("pageshow", sync);
+    };
+  }, []);
 
   const setScale = useCallback((scale: DisplayScale) => {
     setPreferences((current) => ({ ...current, scale }));
@@ -105,10 +130,35 @@ export function DisplayPreferencesProvider({ children }: { children: ReactNode }
   );
 }
 
+/**
+ * Display preferences, or the defaults when no provider is mounted.
+ *
+ * Deliberately total rather than throwing (2026-11-09): the settings trigger
+ * lives in the shell, and a headless harness or an alternative layout tree that
+ * renders the header without the provider must still render. A cosmetic
+ * preference is not worth blanking the page for. The dev warning keeps a real
+ * wiring mistake visible instead of silently doing nothing.
+ */
+const FALLBACK_PREFERENCES: DisplayPreferencesContextValue = {
+  ...DEFAULT_PREFERENCES,
+  setScale: () => undefined,
+  setCompact: () => undefined,
+  setWideView: () => undefined,
+  reset: () => undefined,
+};
+
+let warnedMissingProvider = false;
+
 export function useDisplayPreferences() {
   const value = useContext(DisplayPreferencesContext);
   if (!value) {
-    throw new Error("useDisplayPreferences must be used within its provider");
+    if (import.meta.env.DEV && !warnedMissingProvider) {
+      warnedMissingProvider = true;
+      console.warn(
+        "useDisplayPreferences used without DisplayPreferencesProvider; falling back to defaults.",
+      );
+    }
+    return FALLBACK_PREFERENCES;
   }
   return value;
 }
