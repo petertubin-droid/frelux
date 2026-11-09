@@ -68,6 +68,31 @@ configure({ asyncUtilTimeout: 8000 });
 const mockedFetch = vi.mocked(fetchMaintenanceProfiles);
 const mockedSave = vi.mocked(saveMaintenancePlan);
 
+/**
+ * Pick an option only once the profiles have actually populated the select.
+ * fireEvent.change on a select whose option has not rendered yet silently
+ * leaves it empty, and the Plan button stays disabled, so the click below
+ * became a no-op: that is what made this file flake on slow CI runners.
+ */
+const choose = async (label: RegExp, value: string) => {
+  const select = await screen.findByLabelText(label);
+  await waitFor(() =>
+    expect(
+      Array.from((select as HTMLSelectElement).options).some(
+        (option) => option.value === value,
+      ),
+    ).toBe(true),
+  );
+  fireEvent.change(select, { target: { value } });
+};
+
+/** The Plan button is disabled while loading and until a category is set. */
+const clickPlan = async () => {
+  const button = screen.getByRole("button", { name: /Plan Maintenance/i });
+  await waitFor(() => expect(button).toBeEnabled());
+  fireEvent.click(button);
+};
+
 function renderPage() {
   return render(
     <MemoryRouter initialEntries={["/finishing-calculator?mode=maintenance"]}>
@@ -96,15 +121,12 @@ describe("MaintenancePlanner", () => {
     mockedFetch.mockResolvedValue({ data: mockProfiles, error: null });
     renderPage();
 
-    const categorySelect = await screen.findByLabelText(/Finish category/i);
-    fireEvent.change(categorySelect, { target: { value: "paint" } });
-    fireEvent.change(screen.getByLabelText(/Surface type/i), {
-      target: { value: "exterior" },
-    });
+    await choose(/Finish category/i, "paint");
+    await choose(/Surface type/i, "exterior");
     fireEvent.change(screen.getByLabelText(/Installed cost/i), {
       target: { value: "100000" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Plan Maintenance/i }));
+    await clickPlan();
 
     // Milestones: year 3 → ₦0, year 5 → ₦35,000, year 10 → ₦170,000
     await waitFor(() => {
@@ -122,12 +144,9 @@ describe("MaintenancePlanner", () => {
     mockedFetch.mockResolvedValue({ data: mockProfiles, error: null });
     renderPage();
 
-    const categorySelect = await screen.findByLabelText(/Finish category/i);
-    fireEvent.change(categorySelect, { target: { value: "paint" } });
-    fireEvent.change(screen.getByLabelText(/Surface type/i), {
-      target: { value: "exterior" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /Plan Maintenance/i }));
+    await choose(/Finish category/i, "paint");
+    await choose(/Surface type/i, "exterior");
+    await clickPlan();
 
     // Generous timeout: the default 1000ms is too tight on slow CI runners.
     await waitFor(
@@ -144,15 +163,12 @@ describe("MaintenancePlanner", () => {
     mockedFetch.mockResolvedValue({ data: mockProfiles, error: null });
     renderPage();
 
-    const categorySelect = await screen.findByLabelText(/Finish category/i);
-    fireEvent.change(categorySelect, { target: { value: "paint" } });
-    fireEvent.change(screen.getByLabelText(/Surface type/i), {
-      target: { value: "exterior" },
-    });
+    await choose(/Finish category/i, "paint");
+    await choose(/Surface type/i, "exterior");
     fireEvent.change(screen.getByLabelText(/Installed cost/i), {
       target: { value: "100000" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Plan Maintenance/i }));
+    await clickPlan();
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /Export PDF/i }),
