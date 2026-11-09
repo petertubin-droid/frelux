@@ -18,11 +18,17 @@
  * Nothing about the pages themselves needs to know.
  *
  * Desktop browsers ignore the viewport meta, and their own zoom already does
- * this, so the scale only applies on touch devices narrower than DESKTOP_MIN.
+ * this, so the scale only applies to phones. "Is this a phone" is judged on the
+ * device's SHORT edge, not its current width: a 412px phone is 915 CSS px wide
+ * in landscape, and classifying on width would silently drop the scale the
+ * moment the user rotated.
  */
 
-/** At or above this width a device is a desktop/tablet and gets no scaling. */
-export const DESKTOP_MIN_CSS_PX = 900;
+/**
+ * Short-edge limit for treating a device as a phone. Phones top out around 480
+ * CSS px on the short edge; tablets start at 768.
+ */
+export const PHONE_MAX_SHORT_EDGE = 600;
 
 /** Layout widths below this are unusable, whatever the user asked for. */
 const MIN_LAYOUT_WIDTH = 320;
@@ -30,10 +36,12 @@ const MIN_LAYOUT_WIDTH = 320;
 const MAX_LAYOUT_WIDTH = 1280;
 
 export interface ViewportInput {
-  /** The device's width in CSS pixels at 100% (screen.width, portrait). */
+  /** The width to lay out for: the device's width in the current orientation. */
   deviceWidth: number;
   /** Display scale as a percentage, as stored in preferences. */
   scalePercent: number;
+  /** The device's short edge, used only to tell phones from tablets. */
+  deviceShortEdge?: number;
 }
 
 export interface ViewportResult {
@@ -59,6 +67,7 @@ const round = (value: number, places: number) => {
 export function viewportContent({
   deviceWidth,
   scalePercent,
+  deviceShortEdge = deviceWidth,
 }: ViewportInput): ViewportResult {
   const neutral: ViewportResult = {
     content: NEUTRAL_VIEWPORT,
@@ -75,7 +84,7 @@ export function viewportContent({
   ) {
     return neutral;
   }
-  if (deviceWidth >= DESKTOP_MIN_CSS_PX) return neutral;
+  if (deviceShortEdge > PHONE_MAX_SHORT_EDGE) return neutral;
 
   const scale = scalePercent / 100;
   if (scale === 1) return neutral;
@@ -101,7 +110,15 @@ export function viewportContent({
   };
 }
 
-/** The phone's own width at 100%, independent of any current scaling. */
+/** The device's short edge: the phone's own width when held upright. */
+export function deviceCssShortEdge(win: Window = window): number {
+  const screenWidth = win.screen?.width ?? 0;
+  const screenHeight = win.screen?.height ?? 0;
+  const short = Math.min(screenWidth, screenHeight);
+  return short > 0 ? short : win.innerWidth;
+}
+
+/** The width to lay out for at 100%, in the current orientation. */
 export function deviceCssWidth(win: Window = window): number {
   const screenWidth = win.screen?.width ?? 0;
   const screenHeight = win.screen?.height ?? 0;

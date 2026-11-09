@@ -7,12 +7,16 @@
  * rendered at 50%: the control you use to fix the text size was itself the only
  * thing on screen at double the size, and on a phone it filled the viewport.
  *
- * The panel keeps its body-level portal (that avoids the app shell's stacking
- * and overflow contexts) and receives the same zoom itself. Because a length on
- * a zoomed element is multiplied by that zoom when painted, every value below is
- * returned in *element space*: divide by the zoom to land on the position the
- * user should see. The tests assert the round trip, so the arithmetic is checked
- * rather than eyeballed.
+ * The scale itself is now applied at the viewport (src/lib/display-viewport.ts),
+ * so the portal is scaled along with the rest of the page. That alone would draw
+ * the panel at 50% physical size: the one control for making text bigger, too
+ * small to read. The panel therefore carries a counter-zoom of 1 / scale so it
+ * always appears at 100% of the device's own pixels, whatever the display scale.
+ *
+ * Because a length on a zoomed element is multiplied by that zoom when painted,
+ * every value below is returned in *element space*: divide by the zoom to land on
+ * the position the user should see. The tests assert the round trip, so the
+ * arithmetic is checked rather than eyeballed.
  */
 
 export interface PanelViewport {
@@ -47,7 +51,10 @@ export interface PanelGeometry {
   maxHeight: number;
   left: number;
   top: number;
-  /** Zoom to apply to the panel so it matches the rest of the application. */
+  /**
+   * Counter-zoom to apply to the panel so it renders at full physical size
+   * (1 / viewport scale). Values above are divided by this.
+   */
   zoom: number;
 }
 
@@ -67,7 +74,7 @@ export function panelGeometry({
   // the panel can never be divided by zero or blown up.
   const zoom =
     Number.isFinite(scalePercent) && scalePercent > 0 && scalePercent <= 200
-      ? scalePercent / 100
+      ? 1 / (scalePercent / 100)
       : 1;
 
   const usableWidth = Math.max(viewport.width - margin * 2, 1);

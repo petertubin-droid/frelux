@@ -15,13 +15,14 @@ export default function DisplaySettings() {
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  // The panel is portalled to <body>, outside the zoomed #root, so it carries
-  // its own zoom and its offsets are expressed in that zoomed space.
+  // The display scale is applied at the viewport, so this body-level portal is
+  // scaled with the page. The panel counter-zooms (1 / scale) to stay readable,
+  // and its offsets are expressed in that counter-zoomed space.
   const [geometry, setGeometry] = useState(() =>
     panelGeometry({
       trigger: null,
       viewport: { width: 1024, height: 768 },
-      scalePercent: 100,
+      scalePercent: DEFAULT_PREFERENCES.scale,
     }),
   );
   const { scale, compact, wideView, setScale, setCompact, setWideView, reset } =
@@ -59,9 +60,7 @@ export default function DisplaySettings() {
         panelGeometry({
           trigger: { left: rect.left, bottom: rect.bottom },
           viewport: { width: window.innerWidth, height: window.innerHeight },
-          // The scale is applied at the viewport, so the body-level portal is
-          // already scaled with everything else: no extra zoom of its own.
-          scalePercent: 100,
+          scalePercent: scale,
         }),
       );
     };
@@ -99,6 +98,8 @@ export default function DisplaySettings() {
             aria-label="Display settings"
             className="surface-float fixed z-[80] rounded-2xl border border-border/70 p-4 text-left shadow-2xl dark:border-white/10"
             style={{
+              // Counter-zoom so the panel stays readable at a reduced scale.
+              zoom: geometry.zoom,
               top: geometry.top,
               left: geometry.left,
               width: geometry.width,

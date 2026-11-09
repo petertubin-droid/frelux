@@ -11,10 +11,12 @@
     <script>
       (function(){var apply=function(){var d=document.documentElement,scale=50,compact=true,wide=true;try{var p=JSON.parse(localStorage.getItem('frelux_display_preferences_v1')||'null');var valid=[50,60,70,75,80,90,100,110,125];if(p&&valid.indexOf(p.scale)!==-1)scale=p.scale;if(p&&typeof p.compact==='boolean')compact=p.compact;if(p&&typeof p.wideView==='boolean')wide=p.wideView;}catch(e){}
 d.style.setProperty('--frelux-display-scale',String(scale/100));d.dataset.freluxScale=String(scale);d.dataset.freluxCompact=String(compact);d.dataset.freluxWideView=String(wide);
-var s=window.screen||{},w=Math.min(s.width||0,s.height||0)||window.innerWidth,o=(s.orientation&&s.orientation.type)||'';if(o.indexOf('landscape')===0)w=Math.max(s.width||0,s.height||0)||w;
+// Phones are recognised by their SHORT edge, so rotating does not switch scaling off.
+var s=window.screen||{},sw=s.width||0,sh=s.height||0,short=Math.min(sw,sh)||window.innerWidth,o=(s.orientation&&s.orientation.type)||'';
+var w=(o.indexOf('landscape')===0?Math.max(sw,sh):short)||window.innerWidth;
 var c='width=device-width, initial-scale=1.0, viewport-fit=cover';
-if(w>0&&w<900&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
-var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);})();
+if(w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
+var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);window.addEventListener('orientationchange',apply);window.addEventListener('resize',apply);})();
     </script>
     <meta charset="UTF-8" />
     <!-- Google AdSense (Auto ads). The tag sits in the served source so AdSense

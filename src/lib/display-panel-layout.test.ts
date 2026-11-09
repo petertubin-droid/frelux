@@ -12,14 +12,14 @@ const desktop = { width: 1440, height: 900 };
 const phone = { width: 390, height: 844 };
 
 describe("panelGeometry", () => {
-  it("renders the panel at the width it asks for, after zoom", () => {
+  it("renders the panel at the width it asks for, after the counter-zoom", () => {
     const g = panelGeometry({
       trigger: { left: 100, bottom: 60 },
       viewport: desktop,
       scalePercent: 50,
     });
     // 320 visual pixels wide, expressed in the panel's own half-scale space.
-    expect(g.zoom).toBe(0.5);
+    expect(g.zoom).toBe(2);
     expect(g.width * g.zoom).toBeCloseTo(320, 5);
   });
 
@@ -30,7 +30,7 @@ describe("panelGeometry", () => {
         viewport: desktop,
         scalePercent,
       });
-      expect(g.zoom).toBeCloseTo(scalePercent / 100, 5);
+      expect(g.zoom).toBeCloseTo(100 / scalePercent, 5);
       expect(g.left * g.zoom).toBeCloseTo(240, 5);
       expect(g.top * g.zoom).toBeCloseTo(72, 5); // bottom + 8 gap
     }

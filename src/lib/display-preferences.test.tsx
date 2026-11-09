@@ -133,14 +133,18 @@ describe("pre-paint script parity", () => {
       .replace(/^<script>/, "")
       .replace(/<\/script>$/, "");
 
-    for (const [device, scale] of [
-      [412, 50],
-      [390, 60],
-      [360, 75],
-      [430, 90],
-      [412, 100],
-      [1024, 50],
+    // Triples are [screenWidth, screenHeight, scale]: portrait and landscape
+    // phones, a desktop, and 100%.
+    for (const [screenW, screenH, scale] of [
+      [412, 915, 50],
+      [390, 844, 60],
+      [360, 740, 75],
+      [430, 932, 90],
+      [412, 915, 100],
+      [915, 412, 50],
+      [1440, 900, 50],
     ] as const) {
+      const landscape = screenW > screenH;
       localStorage.setItem(
         DISPLAY_PREFERENCE_KEY,
         JSON.stringify({ scale, compact: true, wideView: true }),
@@ -150,17 +154,25 @@ describe("pre-paint script parity", () => {
       Object.defineProperty(window, "screen", {
         configurable: true,
         value: {
-          width: device,
-          height: 900,
-          orientation: { type: "portrait-primary" },
+          width: screenW,
+          height: screenH,
+          orientation: {
+            type: landscape ? "landscape-primary" : "portrait-primary",
+          },
         },
       });
       new Function(script)();
       const inline = document.head.querySelector<HTMLMetaElement>(
         'meta[name="viewport"]',
       )!.content;
-      expect(inline, `${device}px @ ${scale}%`).toBe(
-        viewportContent({ deviceWidth: device, scalePercent: scale }).content,
+      expect(inline, `${screenW}x${screenH} @ ${scale}%`).toBe(
+        viewportContent({
+          deviceWidth: landscape
+            ? Math.max(screenW, screenH)
+            : Math.min(screenW, screenH),
+          deviceShortEdge: Math.min(screenW, screenH),
+          scalePercent: scale,
+        }).content,
       );
     }
   });

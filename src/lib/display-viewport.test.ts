@@ -5,7 +5,9 @@
  */
 import { describe, expect, it } from "vitest";
 import {
-  DESKTOP_MIN_CSS_PX,
+  PHONE_MAX_SHORT_EDGE,
+  deviceCssShortEdge,
+  deviceCssWidth,
   NEUTRAL_VIEWPORT,
   applyViewport,
   viewportContent,
@@ -50,9 +52,12 @@ describe("viewportContent", () => {
     expect(
       viewportContent({ deviceWidth: 412, scalePercent: 100 }).scaled,
     ).toBe(false);
+    // A tablet or desktop: short edge past the phone limit, so no scaling.
     expect(
-      viewportContent({ deviceWidth: DESKTOP_MIN_CSS_PX, scalePercent: 50 })
-        .content,
+      viewportContent({
+        deviceWidth: PHONE_MAX_SHORT_EDGE + 40,
+        scalePercent: 50,
+      }).content,
     ).toBe(NEUTRAL_VIEWPORT);
     expect(
       viewportContent({ deviceWidth: 1440, scalePercent: 50 }).scaled,
@@ -89,6 +94,41 @@ describe("viewportContent", () => {
     expect(v.content).toContain("viewport-fit=cover");
     expect(v.content).not.toContain("user-scalable=no");
     expect(v.content).not.toContain("maximum-scale");
+  });
+});
+
+describe("deviceCssWidth", () => {
+  const withScreen = (width: number, height: number, type: string): Window => {
+    const win = {
+      screen: { width, height, orientation: { type } },
+      innerWidth: width,
+    };
+    return win as unknown as Window;
+  };
+
+  it("uses the phone's short edge when held upright", () => {
+    expect(deviceCssWidth(withScreen(412, 915, "portrait-primary"))).toBe(412);
+  });
+
+  it("swaps to the long edge when rotated, so the layout is recomputed", () => {
+    // Rotating changes the width, which is what makes the resize/orientation
+    // handlers recompute the viewport instead of keeping the portrait width.
+    const portrait = viewportContent({
+      deviceWidth: deviceCssWidth(withScreen(412, 915, "portrait-primary")),
+      scalePercent: 50,
+    });
+    const landscape = viewportContent({
+      deviceWidth: deviceCssWidth(withScreen(412, 915, "landscape-primary")),
+      deviceShortEdge: deviceCssShortEdge(
+        withScreen(412, 915, "landscape-primary"),
+      ),
+      scalePercent: 50,
+    });
+    expect(portrait.layoutWidth).toBe(824);
+    expect(landscape.layoutWidth).toBe(1280); // clamped, not 1830
+    expect(landscape.layoutWidth).not.toBe(portrait.layoutWidth);
+    // Still edge to edge after the clamp, at the wider screen width.
+    expect(landscape.layoutWidth * landscape.initialScale).toBeCloseTo(915, 0);
   });
 });
 

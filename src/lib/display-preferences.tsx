@@ -1,5 +1,6 @@
 import {
   applyViewport,
+  deviceCssShortEdge,
   deviceCssWidth,
   viewportContent,
 } from "@/lib/display-viewport";
@@ -110,6 +111,35 @@ export function DisplayPreferencesProvider({
       // current tab still honors the preference in React state and on <html>.
     }
   }, [preferences]);
+
+  // The layout width is derived from the device's width, so rotating the phone
+  // has to be recomputed: keeping the portrait width after a rotation draws the
+  // page edge to edge in portrait and as a narrow strip with a gutter in
+  // landscape. Only re-applied when the computed viewport actually changes, so a
+  // pinch-zoom (which does not alter the screen dimensions) is left alone.
+  useEffect(() => {
+    let frame = 0;
+    const current = () =>
+      viewportContent({
+        deviceWidth: deviceCssWidth(),
+        deviceShortEdge: deviceCssShortEdge(),
+        scalePercent: preferences.scale,
+      }).content;
+    const recompute = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        applyViewport(current());
+      });
+    };
+    window.addEventListener("resize", recompute);
+    window.addEventListener("orientationchange", recompute);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", recompute);
+      window.removeEventListener("orientationchange", recompute);
+    };
+  }, [preferences.scale]);
 
   // Another tab, or a back/forward restore, can change what is stored. Without
   // this the panel keeps showing a value the document no longer uses.
