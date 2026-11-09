@@ -1,0 +1,90 @@
+# This file is parked here on purpose, one directory up from .github/workflows/.
+# The GitHub token available to the agent is an OAuth app without the `workflow`
+# scope, so it cannot create files in .github/workflows/ (GitHub rejects the
+# push). To enable deployment, move this file to
+# .github/workflows/deploy.yml via the GitHub web UI (Add file -> Create new
+# file, path .github/workflows/deploy.yml, paste this content) and run it from
+# the Actions tab. Everything it calls is already merged: the migration script
+# and scripts/deploy_edge_functions.py.
+
+name: Deploy
+
+# Manual deployment. There was no deploy path in this repo at all: migrations
+# and edge functions were applied by hand from a laptop, so "what is deployed"
+# drifted from main with no record. Both steps below are idempotent, so this can
+# be re-run safely at any time.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report pending migrations and functions without applying"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: nfgaaohweygwydoelxnf
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # scripts/deploy_edge_functions.py dates each function by its newest
+          # commit, which needs history rather than a single-commit clone.
+          fetch-depth: 0
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Verify credentials are present
+        run: |
+          if [ -z "${SUPABASE_ACCESS_TOKEN}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN secret is not set"
+            exit 1
+          fi
+
+      - name: Apply pending migrations
+        run: |
+          if [ "${DRY_RUN}" = "true" ]; then
+            python3 scripts/apply_pending_migrations.py --dry-run
+          else
+            python3 scripts/apply_pending_migrations.py
+          fi
+
+      - name: Deploy pending edge functions
+        run: |
+          if [ "${DRY_RUN}" = "true" ]; then
+            python3 scripts/deploy_edge_functions.py --dry-run
+          else
+            python3 scripts/deploy_edge_functions.py
+          fi
+
+      - name: Smoke check the extract endpoint
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          # An unauthenticated POST must be refused. 503 is reported, not
+          # failed: it means the function is live but GEMINI_API_KEY is missing
+          # on the project, which is a configuration gap rather than a bad
+          # deployment. 404 or 200 here is a real failure.
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "https://${PROJECT_REF}.supabase.co/functions/v1/ai-tv-console-extract" \
+            -H "Content-Type: application/json" -d '{}')
+          echo "ai-tv-console-extract: ${code}"
+          case "${code}" in
+            401|403|400|405) ;;
+            503) echo "::warning::function is live but reports NOT_CONFIGURED (provider key missing)" ;;
+            404) echo "::error::function is not deployed"; exit 1 ;;
+            *) echo "::error::unexpected status ${code} without credentials"; exit 1 ;;
+          esac

@@ -8,6 +8,7 @@ Each file is idempotent or guarded, so a file that was applied
 without being recorded simply re-applies safely and gets recorded.
 Stops at the first failure."""
 
+import argparse
 import glob
 import json
 import os
@@ -61,12 +62,24 @@ def repo_files():
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="list pending migrations without applying them",
+    )
+    args = ap.parse_args()
     applied = applied_versions()
     files = repo_files()
     pending = [(v, f) for v, f in files if v not in applied]
     print(f"Repo: {len(files)} migrations, live-applied: {len(applied)}, pending: {len(pending)}")
     if not pending:
         print("ALL DONE — migration chain is fully in sync")
+        return
+    if args.dry_run:
+        for v, fname in pending:
+            print(f"PENDING {fname}")
+        print("DRY RUN — nothing applied")
         return
     for v, fname in pending:
         short = fname.replace(".sql", "")
