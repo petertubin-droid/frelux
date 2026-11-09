@@ -733,7 +733,7 @@ export default function TileCalculator({
                     type="button"
                     onClick={() => setTileMode(m.value)}
                     className={
-                      "select-card flex h-auto w-full min-w-0 items-start gap-3 whitespace-normal rounded-xl border p-4 text-left " +
+                      "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
                       (selected
                         ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                         : "border-border")
@@ -816,7 +816,7 @@ export default function TileCalculator({
                         type="button"
                         onClick={() => update("surfaceType", s.value)}
                         className={
-                          "select-card flex h-auto w-full min-w-0 items-start gap-3 whitespace-normal rounded-xl border p-4 text-left " +
+                          "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
                           (selected
                             ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                             : "border-border")
@@ -1088,7 +1088,7 @@ export default function TileCalculator({
                       type="button"
                       onClick={() => update("method", m.value)}
                       className={
-                        "select-card flex h-auto w-full min-w-0 items-start gap-3 whitespace-normal rounded-xl border p-4 text-left " +
+                        "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
                           ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                           : "border-border")

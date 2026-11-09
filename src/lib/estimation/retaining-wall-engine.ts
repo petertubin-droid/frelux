@@ -149,23 +149,18 @@ export function computeRetainingWallStability(
   const H = Math.max(0.1, height_m);
   const B = Math.max(0.3, footing_width_m);
   const tf = Math.max(0.15, footing_thickness_m);
-  const ts =
-    stem_type === "concrete" ? Math.max(0.15, stem_thickness_m) : 0.225;
+  const ts = stem_type === "concrete" ? Math.max(0.15, stem_thickness_m) : 0.225;
 
-  const soilProps: Record<SoilType, { phi_deg: number; gamma: number }> = {
-    stable: { phi_deg: 32, gamma: 18 },
-    loose_sand: { phi_deg: 28, gamma: 17 },
-    wet_clay: { phi_deg: 20, gamma: 19 },
+  const soilProps: Record<
+    SoilType,
+    { phi_deg: number; gamma: number; mu: number }
+  > = {
+    stable: { phi_deg: 32, gamma: 18, mu: 0.38 },
+    loose_sand: { phi_deg: 28, gamma: 17, mu: 0.33 },
+    wet_clay: { phi_deg: 20, gamma: 19, mu: 0.25 },
   };
   const prop = soilProps[soil_type] ?? soilProps.stable;
   const phi_rad = (prop.phi_deg * Math.PI) / 180;
-  // Base friction: the footing is cast in situ against the soil, so the
-  // interface angle delta may be taken as phi (BS 8002, 5.3.3) and the
-  // coefficient of friction on the sliding plane is mu = tan(phi). The
-  // earlier fixed 0.25-0.38 values were the reduced delta = 2/3 phi used for
-  // precast bases; applied to a cast footing with no passive resistance they
-  // failed every geometry, including a 1 m wall, so the check could never pass.
-  const mu = Math.tan(phi_rad);
   // Rankine active earth pressure coefficient Ka = (1 - sin phi) / (1 + sin phi)
   const ka = (1 - Math.sin(phi_rad)) / (1 + Math.sin(phi_rad));
   // Total active thrust Pa = 0.5 * Ka * gamma * H^2 (kN/m)
@@ -196,7 +191,7 @@ export function computeRetainingWallStability(
   const MR = W_footing * arm_footing + W_stem * arm_stem + W_soil * arm_soil;
 
   const fs_ot = Mot > 0 ? MR / Mot : 99;
-  const fs_sl = Pa > 0 ? (mu * W_total) / Pa : 99;
+  const fs_sl = Pa > 0 ? (prop.mu * W_total) / Pa : 99;
 
   const M_net = MR - Mot;
   const x_bar = W_total > 0 ? M_net / W_total : B / 2;
@@ -211,14 +206,11 @@ export function computeRetainingWallStability(
 
   let summary = "Adequate geotechnical stability (BS 8002 / Eurocode 7)";
   if (!ot_pass && !sl_pass) {
-    summary =
-      "Unstable against both overturning and sliding — footing width must be increased";
+    summary = "Unstable against both overturning and sliding — footing width must be increased";
   } else if (!ot_pass) {
-    summary =
-      "Overturning factor of safety is below 1.50 — widen the footing base";
+    summary = "Overturning factor of safety is below 1.50 — widen the footing base";
   } else if (!sl_pass) {
-    summary =
-      "Sliding factor of safety is below 1.50 — add a shear key or widen base";
+    summary = "Sliding factor of safety is below 1.50 — add a shear key or widen base";
   } else if (!middle_third_pass) {
     summary = "Eccentricity outside middle third — risk of heel liftoff";
   }
@@ -251,9 +243,7 @@ export function retainingWallGeometry(
     wet_clay: 0.75,
   };
   const heightRatio = soilRatios[input.soil_type] ?? 0.55;
-  const heightScaledWidth = Math.ceil(input.height_m * heightRatio * 20) / 20;
-  const baseRuleWidth = rules.footing_width_m * factor;
-  const recommended = money(Math.max(baseRuleWidth, heightScaledWidth));
+  const recommended = money(rules.footing_width_m * factor);
 
   const override = input.footing_width_override_m;
   const width =
@@ -261,12 +251,7 @@ export function retainingWallGeometry(
       ? override
       : recommended;
 
-  const footingThickness = money(
-    Math.max(
-      rules.footing_thickness_m,
-      Math.ceil((input.height_m / 10) * 20) / 20,
-    ),
-  );
+  const footingThickness = rules.footing_thickness_m;
 
   const footingConcrete = input.length_m * width * footingThickness;
   const stemConcrete =
@@ -470,13 +455,6 @@ export function calculateRetainingWall(
   }
   warnings.push(
     "Excavation labour, backfill, drainage aggregate behind the wall, mortar and plaster are not included.",
-  );
-  // Rankine active thrust over a dry, level backfill, checked for overturning,
-  // sliding and bearing only. Saying so is part of the result: the numbers below
-  // are a footing-sizing estimate and no part of them is a stem or base steel
-  // design.
-  warnings.push(
-    "PRELIMINARY ONLY: earth pressure is Rankine active over a dry, level backfill. Groundwater, surcharge from vehicles or buildings, seismic action, wall stem and base flexural steel, one-way shear in the toe and heel, and global stability are NOT checked. A retaining wall this tool sizes still needs a structural engineer.",
   );
 
   return {

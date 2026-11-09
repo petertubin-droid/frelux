@@ -56,7 +56,6 @@ import UnitToggle from "@/components/measurement/UnitToggle";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { useWasteBridge } from "@/lib/waste/use-waste-settings";
-import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -648,7 +647,7 @@ export default function PopCeilingCostEstimator({
                         <button
                           type="button"
                           onClick={() => exportPopQuote(result)}
-                          className={ACTION_BTN}
+                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
                         >
                           {t("Export quote (PDF)")}
                         </button>

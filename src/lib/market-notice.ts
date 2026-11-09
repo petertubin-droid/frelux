@@ -48,26 +48,6 @@ const STANDALONE_TOOL_ROUTES: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Calculators that live on their own top-level path and are not in a registry.
- *
- * Added 2026-11-09: the wide-calculator view and the compact spacing both key
- * off `main[data-calculator-page]`, which is decided here. Twenty calculator
- * routes were unregistered, so `/painting-estimator`, `/tile-cost-estimator`,
- * `/boq-studio` and their neighbours never received the wide view they exist
- * for. The suffix rule below is deliberately a rule rather than a list, so a
- * new "<trade>-estimator" page is covered without a second edit.
- *
- * Trackers, studios, quote pages and catalogues are intentionally excluded:
- * they are not a single calculation with a result to read at width.
- */
-const SELF_CALCULATING_ROUTES: ReadonlySet<string> = new Set([
-  "/boq-studio",
-  "/cost-estimator",
-]);
-
-const ESTIMATOR_PATH = /(?:^|\/)[a-z0-9-]*(?:estimator|cost-estimator)$/;
-
-/**
  * True when the path renders a calculator or estimator page.
  *
  * `/tools` and `/tools/<category>` are catalogues, so only a third segment
@@ -80,11 +60,6 @@ export function isCalculatorPath(pathname: string): boolean {
   if (path === "/") return false;
   if (CALCULATOR_ROUTES.has(path)) return true;
   if (STANDALONE_TOOL_ROUTES.has(path)) return true;
-
-  if (SELF_CALCULATING_ROUTES.has(path)) return true;
-  // "/painting-estimator", "/tile-cost-estimator", "/borehole-estimator": pages
-  // that carry their own estimate rather than a catalogue of one.
-  if (ESTIMATOR_PATH.test(path)) return true;
 
   const segments = path.split("/").filter(Boolean);
   if (segments[0] !== "tools" || segments.length < 3) return false;

@@ -96,7 +96,6 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
-import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 
 // Printable professional quote, market-currency formatted.
 function exportCostQuote(args: {
@@ -1187,7 +1186,7 @@ export default function CostEstimator({
                           currencySymbol,
                         })
                       }
-                      className={ACTION_BTN}
+                      className="rounded-lg border px-4 py-2 text-sm font-semibold"
                     >
                       {t("Export quote (PDF)")}
                     </button>

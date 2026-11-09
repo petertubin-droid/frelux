@@ -46,6 +46,8 @@ export interface PlasteringCalculationResult {
   cementBagsRequired: number;
   sandVolumeM3: number;
   sandWeightTonnes: number;
+  sandWheelbarrows?: number;
+  bondingAgentLiters?: number;
   waterLiters: number;
   estimatedLaborHours: {
     plastererHours: number;
@@ -187,6 +189,8 @@ export function calculatePlasteringTakeoff(
   const cementBagsRequired = Math.ceil(cementWeightKg / cementBagWeightKg);
 
   const sandWeightTonnes = Number((sandVolM3 * 1.6).toFixed(2));
+  const sandWheelbarrows = Math.ceil(sandVolM3 / 0.065); // standard 65L builder wheelbarrow
+  const bondingAgentLiters = Number((areaM2 * 0.15).toFixed(1)); // SBR slurry bonding coat @ 0.15 L/m2
   const waterLiters = Math.round(cementWeightKg * 0.55); // W/C ratio 0.55
 
   // Labor norms (hours per m² of finished plaster)
@@ -212,6 +216,8 @@ export function calculatePlasteringTakeoff(
     cementBagsRequired,
     sandVolumeM3: Number(sandVolM3.toFixed(2)),
     sandWeightTonnes,
+    sandWheelbarrows,
+    bondingAgentLiters,
     waterLiters,
     estimatedLaborHours: {
       plastererHours,

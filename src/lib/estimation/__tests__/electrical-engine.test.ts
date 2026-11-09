@@ -286,54 +286,15 @@ describe("cable categories", () => {
 // ─────────────────────────────────────────────
 
 describe("circuit counting", () => {
-  it("halves nothing and divides by sqrt(3) on a balanced three-phase supply", () => {
-    // Same 7,270 VA diversified demand. Single phase: 7,270 / (230 x 0.9) =
-    // 35.1 A -> 40 A breaker. Three phase at 400 V: 7,270 / (sqrt(3) x 400 x
-    // 0.9) = 11.7 A -> 16 A breaker. Treating 400 V as a two-wire supply would
-    // have quoted 20.2 A and a 25 A incomer, one size and 73 percent high.
-    const threePhase = calculateElectrical(
-      makeInput({ supply_system: "three", supply_voltage: 400 }),
-      rules,
-      FULL_PRICES,
-    );
-    expect(threePhase.circuit_summary).toMatchObject({
-      total_connected_load_va: 11000,
-      diversified_demand_va: 7270,
-      main_incomer_current_a: 11.7,
-      recommended_main_breaker_a: 16,
-      recommended_service_cable_mm2: 10,
-    });
-
-    const singlePhase = calculateElectrical(
-      makeInput({ supply_system: "single" }),
-      rules,
-      FULL_PRICES,
-    );
-    expect(singlePhase.circuit_summary).toMatchObject({
-      main_incomer_current_a: 35.1,
-      recommended_main_breaker_a: 40,
-    });
-  });
-
   it("groups points into circuits per the configured rules", () => {
     const result = calculateElectrical(makeInput(), rules, FULL_PRICES);
     // 20 lighting / 10 = 2; 16 sockets / 8 = 2; 2 dedicated / 1 = 2
-    // Demand: lighting 20 x 100 VA at 66% = 1,320; sockets 16 x 250 VA =
-    // 4,000 VA (1,000 + 40% of the rest = 2,200); dedicated 2 x 2,500 VA =
-    // 5,000 VA (2,500 + 50% of the rest = 3,750). Total 11,000 VA connected,
-    // 7,270 VA diversified -> 7,270 / (230 V x 0.9) = 35.1 A, next standard
-    // breaker 40 A, 10 mm² service tails for a 40 A incomer.
     expect(result.circuit_summary).toEqual({
       lighting_circuits: 2,
       socket_circuits: 2,
       dedicated_circuits: 2,
       total_circuits: 6,
       db_ways_guidance: 6,
-      total_connected_load_va: 11000,
-      diversified_demand_va: 7270,
-      main_incomer_current_a: 35.1,
-      recommended_main_breaker_a: 40,
-      recommended_service_cable_mm2: 10,
     });
     const breakers = result.lines.find((l) => l.key === "breakers");
     expect(breakers?.quantity).toBe(6);

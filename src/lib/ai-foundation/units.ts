@@ -15,21 +15,17 @@
 //   - calc.ts / pop-tile-calc.ts use FT_TO_M = 0.3048
 // =========================================================
 
-import { LENGTH_TO_M } from "@/lib/convert/units";
-
-export const FT_TO_M = LENGTH_TO_M.ft;
+export const FT_TO_M = 0.3048;
 
 /** Canonical unit tokens the Copilot understands. */
-export type CopilotLengthUnit = "m" | "ft";
+export type CopilotLengthUnit = 'm' | 'ft';
 
 /** Normalize common unit spellings to canonical tokens. null = unknown. */
-export function normalizeLengthUnit(
-  raw: string | null | undefined,
-): CopilotLengthUnit | null {
+export function normalizeLengthUnit(raw: string | null | undefined): CopilotLengthUnit | null {
   if (!raw) return null;
   const u = raw.trim().toLowerCase();
-  if (["m", "meter", "meters", "metre", "metres"].includes(u)) return "m";
-  if (["ft", "foot", "feet", "'"].includes(u)) return "ft";
+  if (['m', 'meter', 'meters', 'metre', 'metres'].includes(u)) return 'm';
+  if (['ft', 'foot', 'feet', "'"].includes(u)) return 'ft';
   return null;
 }
 
@@ -58,7 +54,7 @@ export function convertToEngineUnit(
   if (fromUnit === toUnit || fromUnit === null) {
     return { value, converted: false };
   }
-  if (fromUnit === "ft" && toUnit === "m") {
+  if (fromUnit === 'ft' && toUnit === 'm') {
     const metres = value * FT_TO_M;
     return {
       value: metres,

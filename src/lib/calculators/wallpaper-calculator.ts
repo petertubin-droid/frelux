@@ -48,6 +48,11 @@ export interface WallpaperWallTakeoff {
   fullHeightOpeningM2: number;
 }
 
+export interface WallpaperAdhesiveMetrics {
+  pasteWaterLiters: number;
+  wallSizingPacks: number;
+}
+
 export interface WallpaperEstimateResult {
   grossAreaM2: number;
   openingAreaM2: number;
@@ -60,6 +65,7 @@ export interface WallpaperEstimateResult {
   packages: number;
   adhesivePacks: number;
   adhesiveCost: number;
+  adhesiveMetrics?: WallpaperAdhesiveMetrics;
   materialCost: number;
   labourCost: number;
   totalCost: number;
@@ -277,6 +283,14 @@ export function calculateWallpaperEstimate(
   const installedCoverageM2 = stockUnits * unitCoverageM2;
   const purchasedCoverageM2 = rolls * unitCoverageM2;
 
+  const adhesiveMetrics: WallpaperAdhesiveMetrics = {
+    pasteWaterLiters: adhesivePacks * 5.0,
+    wallSizingPacks:
+      input.adhesiveRequired && netAreaM2 > 0
+        ? Math.ceil(netAreaM2 / 35)
+        : 0,
+  };
+
   return {
     grossAreaM2,
     openingAreaM2,
@@ -288,6 +302,7 @@ export function calculateWallpaperEstimate(
     packages,
     adhesivePacks,
     adhesiveCost,
+    adhesiveMetrics,
     materialCost,
     labourCost,
     totalCost: materialCost + labourCost,

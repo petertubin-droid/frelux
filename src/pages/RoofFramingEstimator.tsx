@@ -25,8 +25,6 @@ import {
 } from "@/lib/estimation/roof-member-design";
 import { lookupNigeriaRoofLiveLoad } from "@/lib/estimation/roof-load-reference";
 import { useLanguage } from "@/lib/i18n";
-import { useMarket } from "@/lib/international/market-context";
-import { timberSectionsForMarket } from "@/config/timber-sections";
 import {
   calculateRoofFraming,
   type RoofFramingInput,
@@ -260,27 +258,6 @@ export default function RoofFramingEstimator() {
       ...form.extra,
       { label: "", count: "", lengthM: "", widthIn: "", depthIn: "" },
     ]);
-  const { marketCode } = useMarket();
-  // Sections this market actually stocks, so a rafter can be sized on its
-  // dressed dimensions instead of the name printed on the ticket.
-  const stockedSections = timberSectionsForMarket(marketCode);
-  const applyStockedSection = (
-    key: keyof Form["sections"],
-    sectionKey: string,
-  ) => {
-    const stocked = stockedSections.find((s) => s.key === sectionKey);
-    if (!stocked) return;
-    const toInches = (mm: number) =>
-      String(Math.round((mm / 25.4) * 100) / 100);
-    update("sections", {
-      ...form.sections,
-      [key]: {
-        widthIn: toInches(stocked.widthMm),
-        depthIn: toInches(stocked.depthMm),
-      },
-    });
-  };
-
   const { fieldsRef, resultsRef, missing, handleCalculate } =
     useCalculatorFeedback<HTMLDivElement>();
 
@@ -370,9 +347,8 @@ export default function RoofFramingEstimator() {
                   {t("Timber sections")}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Enter actual section dimensions in inches, or pick a size
-                  stocked in your market and we fill in the dressed dimensions.
-                  Board feet are calculated only from these inputs.
+                  Enter actual section dimensions in inches. Board feet are
+                  calculated only from these inputs.
                 </p>
                 <div className="mt-3 grid gap-3">
                   {(
@@ -380,38 +356,17 @@ export default function RoofFramingEstimator() {
                   ).map((key) => (
                     <div
                       key={key}
-                      className="grid w-full min-w-0 grid-cols-1 items-end gap-2 rounded-xl bg-muted/35 p-3 sm:grid-cols-[1.2fr_1fr_1fr]"
+                      className="grid grid-cols-[1fr_1fr_1fr] items-end gap-2 rounded-xl bg-muted/35 p-3"
                     >
-                      <div className="grid min-w-0 gap-1">
-                        <p className="text-sm font-medium capitalize">
-                          {key === "common"
-                            ? "Common rafters"
-                            : key === "jack"
-                              ? "Jack rafters"
-                              : key === "hip"
-                                ? "Hip rafters"
-                                : "Ridge member"}
-                        </p>
-                        {stockedSections.length > 0 ? (
-                          <select
-                            aria-label={`${key} stocked size`}
-                            className="w-full min-w-0 rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            value=""
-                            onChange={(e) => {
-                              applyStockedSection(key, e.target.value);
-                              e.currentTarget.value = "";
-                            }}
-                          >
-                            <option value="">Pick a stocked size</option>
-                            {stockedSections.map((stocked) => (
-                              <option key={stocked.key} value={stocked.key}>
-                                {stocked.nominal} ({stocked.widthMm}×
-                                {stocked.depthMm} mm {stocked.grade})
-                              </option>
-                            ))}
-                          </select>
-                        ) : null}
-                      </div>
+                      <p className="pb-2 text-sm font-medium capitalize">
+                        {key === "common"
+                          ? "Common rafters"
+                          : key === "jack"
+                            ? "Jack rafters"
+                            : key === "hip"
+                              ? "Hip rafters"
+                              : "Ridge member"}
+                      </p>
                       {(["widthIn", "depthIn"] as const).map((dimension) => (
                         <label
                           key={dimension}
@@ -771,7 +726,7 @@ export default function RoofFramingEstimator() {
                             className="mt-2 inline-block text-xs font-medium text-primary underline"
                             href={evidence.sourceUrl}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noreferrer"
                           >
                             {evidence.reference} · open source
                           </a>
@@ -965,7 +920,7 @@ export default function RoofFramingEstimator() {
                       className="mt-2 inline-block text-xs font-medium text-primary underline"
                       href={roofLoadReference.sourceUrl}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noreferrer"
                     >
                       {roofLoadReference.sourceTable} · open source PDF
                     </a>

@@ -67,28 +67,9 @@ export function calculatePopCeiling(
           `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`,
         );
       }
-      /**
-       * Contract: `coverage_rate` is square metres of ceiling per one
-       * `coverage_unit`, so `area / coverage` is a count of those units (kg,
-       * litres, boards). `package_size` is how many of the same units one
-       * package holds, so packages = units / package_size.
-       *
-       * Some catalogue rows quote coverage directly per package instead
-       * ("sqm_per_bag", "sqm_per_bucket"). There the division already returns
-       * packages, and dividing again by package_size under-orders by the
-       * package size: a 25 kg bag would be bought as one bag for 25 ceilings'
-       * worth of material. Reading the unit prevents that without needing the
-       * data to be rewritten.
-       */
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
-      const coveragePerPackage =
-        /per[\s_-]*(bag|bucket|package|pkg|pack|tin|drum|roll|board)/i.test(
-          String(mat.coverage_unit ?? ""),
-        );
       const packagesNeeded =
-        coveragePerPackage || !(pkgSize > 0)
-          ? Math.ceil(quantity)
-          : Math.ceil(quantity / pkgSize);
+        pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
       const cost = packagesNeeded * unitPrice;
       materialCost += cost;
       materialResults.push({
@@ -235,12 +216,10 @@ export function calculateTile(
   }
 
   // --- Grout (always needed) ---
-  // Audit fix F6: rigorous joint-volume grout formula when tile geometry
-  // is known. grout kg/m2 = ((L+W)/(L*W)) * thickness * joint * SG *
-  // (1+waste) / 1000 with L,W in metres, thickness/joint in mm.
-  // Honesty contract: tile thickness/joint width are NEVER invented —
-  // without both, the engine falls back to the configured flat coverage
-  // rate (or reports zero with a warning) rather than guessing geometry.
+  // Audit fix: rigorous joint-volume grout formula (ISO 13007 / ANSI A118).
+  // Theoretical grout kg/m² = ((L+W)/(L*W)) * thickness * joint * SG / 1000
+  // with L,W in metres, thickness/joint in mm, SG ~ 1.8 kg/dm³.
+  // Total grout needed = adjustedArea * baseGroutKgPerM2 (single waste allowance).
   const thickness = input.tileThicknessMm ?? 0;
   const joint = input.jointWidthMm ?? 0;
   const sg =
@@ -251,10 +230,9 @@ export function calculateTile(
   if (thickness > 0 && joint > 0 && tileAreaM2 > 0) {
     const Lm = input.tileWidthMm / 1000;
     const Wm = input.tileHeightMm / 1000;
-    const groutKgPerM2 =
-      (((Lm + Wm) / (Lm * Wm)) * thickness * joint * sg * wasteMultiplier) /
-      1000;
-    groutNeeded = adjustedArea * groutKgPerM2;
+    const baseGroutKgPerM2 =
+      (((Lm + Wm) / (Lm * Wm)) * thickness * joint * sg) / 1000;
+    groutNeeded = adjustedArea * baseGroutKgPerM2;
   } else if (input.groutCoverageRate > 0) {
     groutNeeded = adjustedArea / input.groutCoverageRate;
   }

@@ -14,8 +14,6 @@
 
 export const BUNDLED_BOOK_VERSION = "production catalog 2026-10-13";
 
-import { DERIVED_ROLE_MAPPINGS } from "@/lib/international/role-mapping-derive";
-
 export interface BundledPrice {
   p: number;
   c: string;
@@ -3357,104 +3355,6 @@ export const BUNDLED_PRICE_BOOK: Readonly<Record<string, BundledMaterial>> = {
       },
     },
   },
-  "ca-quikrete-portland-40kg": {
-    name: "Quikrete Portland Cement (40 kg)",
-    category: "cement",
-    pack: null,
-    markets: {
-      CA: {
-        p: 24.3,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, Quikrete Portland Cement 40 kg $24.30 (web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ca-sakrete-multipurpose-sand-25kg": {
-    name: "SAKRETE Multi-Purpose Sand (25 kg)",
-    category: "aggregate",
-    pack: null,
-    markets: {
-      CA: {
-        p: 13.86,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, SAKRETE Multi-Purpose Sand 25 kg $13.86 (web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ca-behr-interior-eggshell-3-79l": {
-    name: "BEHR Premium Plus Interior Eggshell (3.79 L)",
-    category: "paint",
-    pack: null,
-    markets: {
-      CA: {
-        p: 48.47,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, BEHR Premium Plus Interior Eggshell 3.79 L $48.47 (tinted base; web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ca-behr-exterior-flat-946ml": {
-    name: "BEHR Premium Plus Exterior Flat (946 mL)",
-    category: "paint",
-    pack: null,
-    markets: {
-      CA: {
-        p: 28.47,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, BEHR Premium Plus Exterior Flat 946 mL $28.47 (web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ca-behr-drywall-primer-3-79l": {
-    name: "BEHR Drywall Plus Interior Primer & Sealer 73 (3.79 L)",
-    category: "primer",
-    pack: null,
-    markets: {
-      CA: {
-        p: 35.47,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, BEHR Drywall Plus Primer & Sealer 73, 3.79 L $35.47 (web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ca-norton-prosand-120-20pk": {
-    name: "Norton ProSand 120-Grit Sheets (20 pack)",
-    category: "prep",
-    pack: null,
-    markets: {
-      CA: {
-        p: 18.07,
-        c: "CAD",
-        v: "2026-11-08",
-        s: "Home Depot Canada, Norton ProSand 9x11 120-Grit 20-pack $18.07 (web survey 2026-11-08)",
-        f: "manual",
-      },
-    },
-  },
-  "ng-screeding-paint-20l": {
-    name: "Nigerian Screeding Paint (20 L)",
-    category: "paint",
-    pack: 4500,
-    markets: {
-      NG: {
-        p: 4500,
-        c: "NGN",
-        v: "2026-11-08",
-        s: "admin price book (owner-set)",
-        f: "manual",
-      },
-    },
-  },
   "formwork-per-m2": {
     name: "Formwork (plywood + nails)",
     category: "formwork",
@@ -5835,41 +5735,22 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
   },
   CA: {
     "concrete-mix": {
-      slug: "ca-quikrete-portland-40kg",
-      name: "Quikrete Portland Cement (40 kg)",
-      unit: "40kg",
-      notes: "Canadian retail row, Home Depot Canada.",
-    },
-    sand: {
-      slug: "ca-sakrete-multipurpose-sand-25kg",
-      name: "SAKRETE Multi-Purpose Sand (25 kg)",
-      unit: "25kg",
-      notes: "Bagged masonry sand, Home Depot Canada.",
-    },
-    primer: {
-      slug: "ca-behr-drywall-primer-3-79l",
-      name: "BEHR Drywall Plus Primer & Sealer 73 (3.79 L)",
-      unit: "3.79L",
-      notes: "Drywall primer for new plaster and skimmed walls.",
-    },
-    sandpaper: {
-      slug: "ca-norton-prosand-120-20pk",
-      name: "Norton ProSand 120-Grit Sheets (20 pack)",
-      unit: "20pk",
-      notes: "Finishing abrasive, Home Depot Canada.",
+      slug: "de-cem-42-5n-25kg",
+      name: "Portland Cement (25 kg)",
+      unit: "sack",
+      notes: "Placeholder until a Canadian cement row is scanned.",
     },
     "exterior-paint": {
-      slug: "ca-behr-exterior-flat-946ml",
-      name: "BEHR Premium Plus Exterior Flat (946 mL)",
-      unit: "946ml",
-      notes:
-        "Canadian retail row. A 3.79 L bucket is available and unpriced here.",
+      slug: "us-behr-premium-plus-exterior",
+      name: "Behr Premium Plus Exterior",
+      unit: "gallon",
+      notes: "US product, priced CAD on scan. Inherits US mapping meanwhile.",
     },
     "interior-paint": {
-      slug: "ca-behr-interior-eggshell-3-79l",
-      name: "BEHR Premium Plus Interior Eggshell (3.79 L)",
-      unit: "3.79L",
-      notes: "Canadian retail row, Home Depot Canada.",
+      slug: "us-behr-premium-plus-interior",
+      name: "Behr Premium Plus Interior",
+      unit: "gallon",
+      notes: "US product, priced CAD on scan. Inherits US mapping meanwhile.",
     },
     "joint-filler": {
       slug: "ca-cgc-allpurpose-12l",
@@ -5882,6 +5763,24 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
       name: "CGC Synko Paper Tape (500 ft)",
       unit: "roll",
       notes: "Canadian drywall tape. Scan pending.",
+    },
+    primer: {
+      slug: "us-zinsser-bulls-eye-123",
+      name: "Zinsser Bulls Eye 1-2-3",
+      unit: "quart",
+      notes: "US product; CAD price via scan.",
+    },
+    sand: {
+      slug: "de-bausand-25kg",
+      name: "Construction Sand (25 kg)",
+      unit: "sack",
+      notes: "Placeholder until a Canadian sand row is scanned.",
+    },
+    sandpaper: {
+      slug: "gen-sandpaper-sheet",
+      name: "Sandpaper Sheets",
+      unit: "sheets",
+      notes: "Enter your local price.",
     },
   },
   DE: {
@@ -6179,13 +6078,6 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
       unit: "m2",
       notes: "Damp-proof membrane per square meter.",
     },
-    "screeding-paint": {
-      slug: "ng-screeding-paint-20l",
-      name: "Screeding Paint (20 L)",
-      unit: "20L",
-      notes:
-        "Carrier paint for white cement wall screeding; a 20 L bucket, not interior emulsion.",
-    },
     "exterior-paint": {
       slug: "ng-exterior-emulsion-20l",
       name: "Exterior Emulsion (20 L)",
@@ -6368,6 +6260,7 @@ export const BUNDLED_ROLE_MAPPINGS: Readonly<
       notes: "Acrylic butyl seam/flashing tape. Verified $35.47 (MRosupreme).",
     },
   },
+
 };
 
 export const BUNDLED_POP_MATERIALS = [
@@ -12221,6 +12114,7 @@ export const BUNDLED_PRICED_MARKETS: readonly string[] = [
   "TZ",
   "US",
   "ZA",
+
 ];
 
 /**
@@ -12501,19 +12395,10 @@ export function getBundledCategoryMaterials(
   return out;
 }
 
-/**
- * Bundled role mapping for a market, or null.
- *
- * The curated table answers first. Only when it has no mapping for the role
- * does the derived table answer, and the derived table only ever points at a
- * product this market already prices.
- */
+/** Bundled role mapping for a market, or null. */
 export function getBundledRoleMapping(
   market: string,
   role: string,
 ): BundledRoleMapping | null {
-  const curated = BUNDLED_ROLE_MAPPINGS[market]?.[role];
-  if (curated) return curated;
-  const derived = DERIVED_ROLE_MAPPINGS[market]?.[role];
-  return derived ? { ...derived } : null;
+  return BUNDLED_ROLE_MAPPINGS[market]?.[role] ?? null;
 }

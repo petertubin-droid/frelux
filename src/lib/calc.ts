@@ -192,6 +192,7 @@ export function evaluateHeightWarning(
   const standardM = STANDARD_HEIGHT_M;
   const standardFt = STANDARD_HEIGHT_FT;
   if (heightM > standardM) {
+    const _heightFt = unit === "feet" ? heightM / 0.3048 : heightM * 3.28084;
     return `Wall height exceeds the FRELUX standard (${standardFt} ft / ${standardM.toFixed(2)} m). Professional assessment recommended for non-standard heights.`;
   }
   return null;

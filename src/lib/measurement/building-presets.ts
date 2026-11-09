@@ -24,7 +24,6 @@
  */
 
 import type { CalculatorContext } from "./units";
-import { LENGTH_TO_M } from "@/lib/convert/units";
 import type { MeasurementProject, SpaceType } from "./types";
 import { createMeasurementEntry, createMeasurementGroup } from "./factory";
 import {
@@ -110,7 +109,7 @@ export interface RoomDraft {
 // Room builders (keep the preset tables readable)
 // =========================================================
 
-const M_TO_FT = 1 / LENGTH_TO_M.ft;
+const M_TO_FT = 3.280839895;
 
 function room(
   spaceType: SpaceType,

@@ -56,7 +56,7 @@ export function marketSellsPaintByGallon(marketCode?: string | null): boolean {
   );
 }
 
-/** The container ladder for a market, largest last. Display and matching only. */
+/** The container ladder for a market, largest last. */
 export function resolvePaintPacks(marketCode?: string | null): PaintPack[] {
   return marketSellsPaintByGallon(marketCode)
     ? US_PAINT_PACKS
@@ -66,17 +66,10 @@ export function resolvePaintPacks(marketCode?: string | null): PaintPack[] {
 /**
  * The market's standard purchase container, in litres. This is what the
  * engine buys in when neither the product nor a rule names a pack size.
- *
- * It is the container the shelf actually sells, which is not the largest one.
- * A Nigerian decorator buys a 20 litre bucket, and a US one buys a gallon can:
- * the five gallon pail exists, but it is contractor and ceiling stock. Since
- * the price row is quoted per container, assuming the pail while the row says
- * "per gallon" charged one can's price for five cans of paint, which
- * understated every US estimate that fell through to this default.
  */
 export function resolvePaintPackLitres(marketCode?: string | null): number {
-  if (marketSellsPaintByGallon(marketCode)) return LITRES_PER_US_GALLON;
-  return 20;
+  const packs = resolvePaintPacks(marketCode);
+  return packs[packs.length - 1].litres;
 }
 
 /**

@@ -80,13 +80,6 @@ export interface BeamDesignInput {
   cover_mm: number; // concrete cover
   existing_width?: number; // optional: if width is predetermined
   existing_depth?: number; // optional: if depth is predetermined
-  /**
-   * Distance from the support to the nearest concentrated load, mm. Supplying it
-   * enables the Cl 3.4.5.8 shear enhancement for loads close to a support. A
-   * uniformly distributed load gets no enhancement, so omitting it is correct
-   * rather than a gap.
-   */
-  load_av_mm?: number;
   market_code?: string; // market-scoped member sizing defaults (NG default)
   /** Jurisdictional code mode: one governing design code, nothing blended. */
   jurisdiction_code?: JurisdictionCode;
@@ -105,9 +98,6 @@ export interface BeamDesignResult {
   recommended_width: number; // mm
   area_steel_required: number; // mm² (tension reinforcement)
   min_steel_area: number; // mm²
-  compression_steel_area?: number; // mm², A′s for a doubly reinforced section
-  /** False when d′/x > 0.43, so the compression steel does not reach 0.87 f_y. */
-  compression_steel_yields?: boolean;
   max_steel_area: number; // mm²
   recommended_bar_diameter: number; // mm
   recommended_bar_count: number;
@@ -136,16 +126,7 @@ export interface ColumnDesignInput {
   existing_width?: number; // mm (if rectangular)
   existing_depth?: number; // mm (if rectangular)
   is_rectangular: boolean;
-  /** Legacy field: height / thickness. Not used for slenderness (the engine
-   *  derives it from the section it sizes) and cross-checked against it. */
-  unbraced_height_ratio: number;
-  /**
-   * Effective-length factor applied to the height for slenderness, BS 8110-1
-   * Table 3.19 style: 0.75 braced and restrained, 1.0 braced, 1.5-2.2 unbraced
-   * or cantilever. Defaults to 1.0, which is the braced assumption the engine
-   * already made.
-   */
-  effective_length_factor?: number;
+  unbraced_height_ratio: number; // slenderness ratio (height/thickness)
   market_code?: string; // market-scoped member sizing defaults (NG default)
 }
 
@@ -165,22 +146,7 @@ export interface ColumnDesignResult {
   slenderness_check: boolean;
   short_or_slender: "short" | "slender";
   load_capacity: number; // kN
-  /** Design moment the section was checked against, kN·m. */
-  design_moment_knm: number;
-  /** Moment the section can carry at that axial load, kN·m. */
-  moment_capacity_knm: number;
-  /** Axial squash check on its own. */
-  axial_check_pass: boolean;
-  /** Moment-axial interaction (BS 8110-1 Cl 3.4.4.4 stress block). */
-  moment_check_pass: boolean;
-  /**
-   * True only when the axial AND moment checks both pass. Retained so existing
-   * callers keep reading one verdict, but it can no longer be true on axial
-   * capacity alone.
-   */
   capacity_check_pass: boolean;
-  /** What the result is, so a preliminary sizing is not read as a design. */
-  assessment: "PRELIMINARY" | "INSUFFICIENT_INPUT";
   warnings: string[];
   formula_transparency: string[];
 }
@@ -197,38 +163,8 @@ export interface SlabDesignInput {
   cover_mm: number;
   existing_thickness?: number; // mm
   market_code?: string; // market-scoped engineering defaults
-  /**
-   * Column reaction on this panel, kN. Supplying it enables the punching shear
-   * check at the column (BS 8110-1 Cl 3.7.7). Without it the check is reported
-   * as NOT CHECKED, never as passed.
-   */
-  column_load_kN?: number;
-  /** Column plan size in the x direction, mm. Default 300. */
-  column_width_mm?: number;
-  /** Column plan size in the y direction, mm. Defaults to column_width_mm. */
-  column_depth_mm?: number;
   /** Jurisdictional code mode: one governing design code, nothing blended. */
   jurisdiction_code?: JurisdictionCode;
-}
-
-/** Punching shear at a column, BS 8110-1 Cl 3.7.7. */
-export interface PunchShearResult {
-  status: "PASS" | "FAIL" | "NOT CHECKED";
-  column_load_kN?: number;
-  /** Perimeter at the column face, mm. */
-  face_perimeter_mm?: number;
-  /** Perimeter at 1.5d from the column face, mm. */
-  critical_perimeter_mm?: number;
-  /** Shear stress at the critical perimeter, N/mm². */
-  v_ed?: number;
-  /** Concrete shear resistance at the critical perimeter, N/mm². */
-  v_c?: number;
-  /** Shear stress at the column face, N/mm². */
-  v_face?: number;
-  /** Cl 3.7.7.4 limit at the column face, N/mm² (0.8√f_cu, capped at 5). */
-  v_max?: number;
-  missing_input?: string;
-  notes: string[];
 }
 
 export interface SlabDesignResult {
@@ -248,16 +184,11 @@ export interface SlabDesignResult {
   moment_long_span?: number;
   /** Steel required in the long direction of a two-way panel, mm²/m. */
   steel_area_secondary?: number;
-  /** Hogging moment designed for at a continuous or fixed support, kN·m/m. */
-  support_moment?: number;
-  /** Top (hogging) steel over the support, mm²/m. */
-  support_steel_area?: number;
   recommended_bar_diameter: number; // mm
   recommended_bar_spacing: number; // mm
   /** Long-direction bar spacing for two-way panels, mm. */
   recommended_bar_spacing_secondary?: number;
   link_check: string;
-  punch_shear?: PunchShearResult;
   span_to_depth_ratio: number;
   deflection_check_pass: boolean;
   jurisdiction_code?: JurisdictionCode;
@@ -471,31 +402,6 @@ const LEGACY_BS_GRADES: Record<string, ConcreteGradePreset> = {
   },
 };
 
-// Audit fix (F6, 2026-11-08): E_c was three hand-entered literals (28/30/32 GPa)
-// that matched neither standard they were attributed to — EC2 gives
-// 31.6/32.8/34.0 and BS 8110 gives 26.0/27.4/29.0 for the same grades. It is
-// derived from the grade and its governing standard so it cannot drift again.
-function concreteModulusGPa(grade: ConcreteGradePreset): number {
-  const round1 = (n: number) => Math.round(n * 10) / 10;
-  switch (grade.standard) {
-    case "eurocode_bs":
-      // BS EN 1992-1-1 Table 3.1: E_cm = 22 × ((f_ck + 8)/10)^0.3 GPa
-      return round1(22 * Math.pow((grade.fck + 8) / 10, 0.3));
-    case "aci_astm":
-      // ACI 318-19 19.2.2.1: E_c = 4,700 × √f′c MPa
-      return round1(4.7 * Math.sqrt(grade.fck));
-    case "is_456":
-      // IS 456 Cl 6.2.3.1: E_c = 5,000 × √f_ck MPa
-      return round1(5 * Math.sqrt(grade.fck));
-    default:
-      // BS 8110-1 Cl 2.4.2.3: E_c = 20 + 0.2 f_cu kN/mm²
-      return round1(20 + 0.2 * grade.fcu);
-  }
-}
-for (const profile of Object.values(CONCRETE_STANDARDS)) {
-  for (const grade of profile.grades) grade.Ec = concreteModulusGPa(grade);
-}
-
 export function getConcreteStandardForMarket(
   marketCode: string = "NG",
 ): ConcreteStandardProfile {
@@ -640,32 +546,6 @@ function leverArmBS(
   return { z, K, doubly_reinforced: doubly };
 }
 
-/**
- * Basic span / effective depth ratios, BS 8110-1 Table 3.9 for rectangular
- * sections spanning up to 10 m: cantilever 7, simply supported 20, continuous
- * 26. Two-way panels are not a separate row in that table; they use the same
- * ratios against the short span, and the modification factor for tension
- * reinforcement (Cl 3.4.6.5) is what relaxes them.
- *
- * The beam and slab paths each carried their own copy of these numbers and they
- * had drifted: the slab used 32 for a continuous panel and 26 for any two-way
- * panel regardless of how it was supported, neither of which is in Table 3.9.
- */
-export function basicSpanDepthRatio(
-  supportCondition: SupportCondition,
-): number {
-  switch (supportCondition) {
-    case "cantilever":
-      return 7;
-    case "continuous":
-    case "fixed":
-      return 26;
-    case "simply_supported":
-    default:
-      return 20;
-  }
-}
-
 /** ACI 319-19 tension-controlled design: Whitney stress block, φ = 0.90. */
 function designSteelACI(
   moment_kNm: number,
@@ -697,19 +577,7 @@ function minSteelACI(fck: number, fy: number, b: number, d: number): number {
   return Math.max((0.25 * Math.sqrt(fck)) / fy, 1.4 / fy) * b * d;
 }
 
-/**
- * One pass of the beam design at a stated effective span.
- *
- * Effective span is clear span + d (BS 8110-1 cl. 3.4.1.1), and d is not known
- * until the section is sized, so a single pass has to guess. `designBeam` runs
- * this twice: once from the preliminary depth, once at the span implied by the
- * section it ended up recommending.
- */
-function designBeamAtSpan(
-  input: BeamDesignInput,
-
-  effectiveSpanOverride?: number,
-): BeamDesignResult {
+export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
@@ -731,17 +599,10 @@ function designBeamAtSpan(
   // member's depth and understated moments by roughly 10% on a 6 m beam.
   const preliminary_depth_mm = input.existing_depth ?? input.span * 83.33;
   const preliminary_d_mm = Math.max(150, preliminary_depth_mm - input.cover_mm);
-  const effective_span =
-    effectiveSpanOverride ?? input.span + preliminary_d_mm / 1000;
-  if (effectiveSpanOverride !== undefined) {
-    formulas.push(
-      `Effective span = clear span + d = ${input.span} + ${(effective_span - input.span).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1, with d taken from the section finally recommended)`,
-    );
-  } else {
-    formulas.push(
-      `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
-    );
-  }
+  const effective_span = input.span + preliminary_d_mm / 1000;
+  formulas.push(
+    `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
+  );
 
   // Loads
   const total_dead = input.dead_load * input.tributary_width;
@@ -825,8 +686,6 @@ function designBeamAtSpan(
   }
   let required_depth_eff: number;
   let doubly_reinforced = false;
-  let compression_As = 0;
-  let compression_steel_yields = true;
   if (concretePreset.standard === "aci_astm") {
     // ACI 318-19 (audit fix F1): Whitney stress block, tension-controlled,
     // practical steel ratio ρ = 0.18·f'c/fy, φ = 0.90.
@@ -853,48 +712,37 @@ function designBeamAtSpan(
     `Required overall depth = ${required_depth_eff.toFixed(0)} + ${input.cover_mm} (cover) + 25 (bar/2) = ${required_depth.toFixed(0)} mm`,
   );
 
-  // The depth the steel is designed against. A supplied depth is the section the
-  // user is asking about, so steel, minimum steel and shear capacity are taken on
-  // its effective depth; otherwise the strength depth is used, which is never
-  // deeper than the section eventually recommended, so it errs the safe way.
-  const steelDepth = input.existing_depth
-    ? Math.max(120, input.existing_depth - input.cover_mm - 25)
-    : required_depth_eff;
-  if (input.existing_depth) {
-    formulas.push(
-      `Steel and shear capacity taken on the supplied section's effective depth of ${steelDepth.toFixed(0)} mm, not the ${required_depth_eff.toFixed(0)} mm bending minimum`,
-    );
-  }
-
-  // Span/depth is checked further down, on the section that is actually
-  // recommended. It used to be checked here against required_depth_eff, which is
-  // the depth that just satisfies bending at K = 0.156: for a lightly loaded beam
-  // that is a very shallow number, so a perfectly sensible beam came out with a
-  // failing L/d, and a heavily loaded one passed on a depth nobody was going to
-  // build.
-  const basicRatio = basicSpanDepthRatio(input.support_condition);
+  // Span/depth ratio check (deflection)
+  const span_to_depth = (effective_span * 1000) / required_depth_eff;
+  const basicRatio =
+    input.support_condition === "cantilever"
+      ? 7
+      : input.support_condition === "continuous"
+        ? 26
+        : 20;
+  const deflection_check_pass = span_to_depth <= basicRatio;
   formulas.push(
-    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} member = ${basicRatio}`,
+    `Span/depth = ${(effective_span * 1000).toFixed(0)} / ${required_depth_eff.toFixed(0)} = ${span_to_depth.toFixed(1)} ≤ ${basicRatio} (limit) → ${deflection_check_pass ? "PASS" : "FAIL"}`,
   );
 
   // Steel area — audit fix F2: the lever arm is no longer hard-coded z = 0.87d.
   let As: number;
   let min_As: number;
-  const max_As = (4 * assumed_width * steelDepth) / 100; // 4% max
+  const max_As = (4 * assumed_width * required_depth_eff) / 100; // 4% max
   if (concretePreset.standard === "aci_astm") {
     const aci = designSteelACI(
       max_moment,
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      steelDepth,
+      required_depth_eff,
     );
     As = aci.As;
     min_As = minSteelACI(
       concretePreset.fck ?? fcu,
       fy,
       assumed_width,
-      steelDepth,
+      required_depth_eff,
     );
     formulas.push(
       `Steel area required (ACI 318-19, Whitney block, φ=0.90) = ${As.toFixed(0)} mm² (stress block a = ${aci.a.toFixed(1)} mm)`,
@@ -902,15 +750,15 @@ function designBeamAtSpan(
     formulas.push(`Min steel (ACI 318-19 §9.6.1.2) = ${min_As.toFixed(0)} mm²`);
   } else {
     // Exact BS 8110 3.4.4.4 lever arm: z = d(0.5 + √(0.25 − K/0.9)) ≤ 0.95d
-    const la = leverArmBS(max_moment, fcu, assumed_width, steelDepth);
+    const la = leverArmBS(max_moment, fcu, assumed_width, required_depth_eff);
     doubly_reinforced = la.doubly_reinforced;
     As = (max_moment * 1e6) / (0.87 * fy * la.z);
     min_As =
       concretePreset.standard === "is_456"
-        ? (0.85 / fy) * assumed_width * steelDepth // IS 456 26.5.1.1
-        : (fy <= 300 ? 0.0024 : 0.0013) * assumed_width * steelDepth; // BS 8110 Table 3.25: 0.24% mild, 0.13% high-yield
+        ? (0.85 / fy) * assumed_width * required_depth_eff // IS 456 26.5.1.1
+        : (0.13 * assumed_width * required_depth_eff) / 100; // BS 8110 3.12.5.1 0.13% min
     formulas.push(
-      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${steelDepth.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
+      `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${required_depth_eff.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
     );
     formulas.push(
       `z = d(0.5 + √(0.25 − K/0.9)) = ${la.z.toFixed(0)} mm (≤ 0.95d)`,
@@ -919,73 +767,12 @@ function designBeamAtSpan(
       `Steel area required = ${(max_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${la.z.toFixed(0)}) = ${As.toFixed(0)} mm²`,
     );
     formulas.push(
-      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456 26.5.1.1)" : `${fy <= 300 ? "0.24" : "0.13"}% × b × d (BS 8110-1 Table 3.25, fy = ${fy})`} = ${min_As.toFixed(0)} mm²`,
+      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456)" : "0.13% × b × d (BS 8110)"} = ${min_As.toFixed(0)} mm²`,
     );
     if (la.doubly_reinforced) {
-      // BS 8110-1 Cl 3.4.4.4: above K' = 0.156 the concrete alone cannot carry
-      // the moment. The excess is carried by a compression/tension steel couple:
-      //   M_excess = M − K' f_cu b d²
-      //   A'_s = M_excess / (0.87 f_y (d − d'))
-      //   A_s  = K' f_cu b d² / (0.87 f_y z) + A'_s     (z = 0.775d at K')
-      // The previous output only warned that compression steel was "required"
-      // and sized the tension steel as though compression steel contributed
-      // nothing, which overstated the tension area needed and gave no A'_s at all.
-      const kPrime = 0.156;
-      const zPrime = 0.775 * steelDepth;
-      const momentSingle =
-        (kPrime * fcu * assumed_width * steelDepth ** 2) / 1e6; // kN·m
-      const momentExcess = max_moment - momentSingle;
-      // d' to the compression steel: cover, link, half a bar.
-      const dPrime = Math.min(input.cover_mm + 25, 0.5 * steelDepth);
-      const leverCompression = Math.max(steelDepth - dPrime, 0.5 * steelDepth);
-      const asPrime = (momentExcess * 1e6) / (0.87 * fy * leverCompression);
-      const asSingle = (momentSingle * 1e6) / (0.87 * fy * zPrime);
-      compression_As = asPrime;
-      As = asSingle + asPrime;
-      formulas.push(
-        `Doubly reinforced (BS 8110-1 Cl 3.4.4.4): the section carries ${momentSingle.toFixed(1)} kN·m at K′ = 0.156, leaving ${momentExcess.toFixed(1)} kN·m for the steel couple`,
-      );
-      formulas.push(
-        `Compression steel A′_s = ${(momentExcess * 1e6).toFixed(0)} / (0.87 × ${fy} × (${steelDepth.toFixed(0)} − ${dPrime.toFixed(0)})) = ${asPrime.toFixed(0)} mm²`,
-      );
-      formulas.push(
-        `Tension steel = ${asSingle.toFixed(0)} mm² for the singly reinforced part + ${asPrime.toFixed(0)} mm² to balance the compression steel = ${As.toFixed(0)} mm²`,
-      );
       warnings.push(
-        `K = ${la.K.toFixed(4)} > 0.156, so the section is doubly reinforced: ${Math.ceil(asPrime)} mm² of compression steel is required in addition to the tension steel. Check the compression steel is held by links and that d′ (${dPrime.toFixed(0)} mm) is achievable.`,
+        `K = ${la.K.toFixed(4)} > 0.156: the section needs compression steel (doubly reinforced) or a deeper section. This preliminary pass sizes tension steel only — a full doubly-reinforced design is required.`,
       );
-
-      // The A′_s formula assumes the compression steel has yielded at 0.87 f_y,
-      // which holds only while d′/x is small enough for the strain there to reach
-      // yield. Solve the concrete part for x: 0.6 f_cu b x (d − 0.45x) = M_single.
-      const a2 = 0.27 * fcu * assumed_width;
-      const b2 = -0.6 * fcu * assumed_width * steelDepth;
-      const c2 = momentSingle * 1e6;
-      const disc = b2 * b2 - 4 * a2 * c2;
-      if (disc >= 0) {
-        const xDepth = (-b2 - Math.sqrt(disc)) / (2 * a2);
-        const dPrimeOverX = dPrime / xDepth;
-        formulas.push(
-          `Compression-zone depth from the concrete part: x = ${xDepth.toFixed(0)} mm, d′/x = ${dPrimeOverX.toFixed(2)}`,
-        );
-        // The compression steel reaches its design strength only while
-        //   0.0035 (1 − d′/x) ≥ 0.87 f_y / E_s
-        // with ε_cu = 0.0035 and E_s = 200 kN/mm² (BS 8110-1 Cl 3.4.4.1 and
-        // 3.4.4.4). For f_y = 460 this is the familiar d′/x ≤ 0.43; for f_y = 500
-        // it is stricter, at 0.38. Using a single remembered 0.43 for every grade
-        // would credit 500 MPa steel with a stress it cannot reach.
-        const yieldStrain = (0.87 * fy) / 200000;
-        const dPrimeOverXLimit = 1 - yieldStrain / 0.0035;
-        formulas.push(
-          `Compression steel yields while d′/x ≤ ${dPrimeOverXLimit.toFixed(3)} (ε_cu = 0.0035, ε_yd = 0.87f_y/E_s = ${yieldStrain.toFixed(5)})`,
-        );
-        if (dPrimeOverX > dPrimeOverXLimit) {
-          compression_steel_yields = false;
-          warnings.push(
-            `d′/x = ${dPrimeOverX.toFixed(2)} exceeds the ${dPrimeOverXLimit.toFixed(2)} at which the compression steel reaches 0.87 f_y, so A′_s of ${Math.ceil(asPrime)} mm² is NOT sufficient: deepen the section or move the compression steel closer to the face.`,
-          );
-        }
-      }
     }
   }
   // Jurisdictional code mode: one code governs, nothing blended.
@@ -997,11 +784,16 @@ function designBeamAtSpan(
       fck: concretePreset.fck ?? fcu,
       fy,
       b: assumed_width,
-      d: steelDepth,
+      d: required_depth_eff,
     });
     min_As = minSteel.areaMm2;
     formulas.push(
-      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
+      `Min steel (${JURISDICTION_CODES[beamJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × ${assumed_width} × ${required_depth_eff.toFixed(0)} = ${min_As.toFixed(0)} mm²`,
+    );
+  }
+  if (doubly_reinforced) {
+    warnings.push(
+      "Section flagged as singly-reinforced-infeasible: increase depth or design compression reinforcement. Treat output as preliminary.",
     );
   }
 
@@ -1029,48 +821,19 @@ function designBeamAtSpan(
   // 400 mm. Leaving out the gamma_m divisor overstated capacity by 25 percent,
   // which is the unsafe direction: a beam that needs links reported PASS.
   const vcSteelPct = Math.min(
-    (100 * provided_As) / (assumed_width * steelDepth),
+    (100 * provided_As) / (assumed_width * required_depth_eff),
     2,
   );
-  const vcDepthCap = Math.min(steelDepth, 400);
-  // Table 3.8 also caps fcu at 40 MPa and vc at min(0.8√fcu, 5) MPa.
-  const vcConcreteCap = Math.min(fcu, 40);
-  const vcRaw =
+  const vcDepthCap = Math.min(required_depth_eff, 400);
+  const vc =
     (0.79 / 1.25) *
-    Math.pow(vcConcreteCap / 25, 1 / 3) *
+    Math.pow(fcu / 25, 1 / 3) *
     Math.pow(vcSteelPct, 1 / 3) *
     Math.pow(400 / vcDepthCap, 0.25);
-  const vcCeiling = Math.min(0.8 * Math.sqrt(vcConcreteCap), 5);
-  const vcBase = Math.min(vcRaw, vcCeiling);
-  // BS 8110-1 Cl 3.4.5.8: where a concentrated load acts within 2d of the
-  // support, v_c may be multiplied by 2d/a_v, capped at 2. It applies to a load
-  // at a known distance, not to a uniformly distributed load, so it is used only
-  // when a_v is supplied.
-  let shearEnhancement = 1;
-  if (
-    input.load_av_mm !== undefined &&
-    input.load_av_mm > 0 &&
-    input.load_av_mm < 2 * steelDepth
-  ) {
-    shearEnhancement = Math.min(2, (2 * steelDepth) / input.load_av_mm);
-  }
-  const vc = Math.min(vcBase * shearEnhancement, vcCeiling * 2);
-  if (vcRaw > vcCeiling) {
-    formulas.push(
-      `v_c = ${vcRaw.toFixed(2)} MPa capped to ${vcCeiling.toFixed(2)} MPa (BS 8110-1 Table 3.8: min(0.8√f_cu, 5))`,
-    );
-  }
-  // Capacity taken on the strength depth, which is never deeper than the section
-  // recommended below, so this is the conservative figure.
-  const shear_capacity = (vc * assumed_width * steelDepth) / 1000; // kN
-  if (shearEnhancement > 1) {
-    formulas.push(
-      `Shear enhancement (BS 8110-1 Cl 3.4.5.8): a_v = ${input.load_av_mm!.toFixed(0)} mm < 2d, so v_c is multiplied by 2d/a_v = ${shearEnhancement.toFixed(2)} → ${vc.toFixed(2)} N/mm²`,
-    );
-  }
+  const shear_capacity = (vc * assumed_width * required_depth_eff) / 1000; // kN
   const shear_check_pass = shear_capacity >= max_shear;
   formulas.push(
-    `Shear capacity v_c × b × d = ${vc.toFixed(2)} × ${assumed_width} × ${steelDepth.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN → ${shear_check_pass ? "PASS" : "FAIL"}`,
+    `Shear capacity v_c × b × d = ${vc.toFixed(2)} × ${assumed_width} × ${required_depth_eff.toFixed(0)} = ${shear_capacity.toFixed(1)} kN vs ${max_shear.toFixed(1)} kN → ${shear_check_pass ? "PASS" : "FAIL"}`,
   );
 
   if (!shear_check_pass) {
@@ -1079,91 +842,9 @@ function designBeamAtSpan(
     );
   }
 
-  // Recommended dimensions. The depth has to satisfy deflection as well as
-  // bending: a depth that only satisfies K = 0.156 can still be far too shallow
-  // to control deflection, and that check used to be run on the strength depth
-  // rather than on the section being recommended.
-  const depthForDeflection =
-    (effective_span * 1000) / basicRatio + input.cover_mm + 25;
-  const requiredDepthGoverning = Math.max(required_depth, depthForDeflection);
-  // A supplied depth is the section being checked. It was ignored here, so a
-  // user entering a 300 mm beam was handed back a 1,000 mm recommendation and no
-  // verdict on the member they actually have.
-  let recommended_depth =
-    input.existing_depth ?? roundUpTo50(requiredDepthGoverning);
-  if (input.existing_depth) {
-    formulas.push(
-      `Section taken as supplied: ${input.existing_width ?? assumed_width} × ${input.existing_depth} mm, with steel, its minimum and shear capacity designed on that section.`,
-    );
-    if (input.existing_depth < required_depth - 1) {
-      warnings.push(
-        `The supplied depth (${input.existing_depth} mm) is less than the ${required_depth.toFixed(0)} mm needed for bending. Treat the steel figures as indicative and deepen the section.`,
-      );
-    }
-  }
+  // Recommended dimensions
+  const recommended_depth = roundUpTo50(required_depth);
   const recommended_width = assumed_width;
-
-  // The depth has to satisfy the modification factor, not the bare basic ratio,
-  // or the beam is pronounced a failure by its own recommendation. Deepen in
-  // 50 mm steps until the check it is reported against passes.
-  const providedFlowSteel = bestCount * barArea(bestDiameter);
-  const mfBasic = Math.max(As, min_As);
-  const beffFs =
-    (2 / 3) *
-    fy *
-    (Math.min(mfBasic, providedFlowSteel) / Math.max(providedFlowSteel, 1));
-  let providedDepthEff = recommended_depth - input.cover_mm - 25;
-  let span_to_depth = (effective_span * 1000) / providedDepthEff;
-  let beffStress =
-    (max_moment * 1e6) / (assumed_width * providedDepthEff * providedDepthEff);
-  let beamModFactor = Math.min(
-    2.0,
-    Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress))),
-  );
-  let beamAllowableRatio = basicRatio * beamModFactor;
-  let depthSteps = 0;
-  while (
-    span_to_depth > beamAllowableRatio &&
-    depthSteps < 24 &&
-    !input.existing_depth
-  ) {
-    recommended_depth += 50;
-    depthSteps += 1;
-    providedDepthEff = recommended_depth - input.cover_mm - 25;
-    span_to_depth = (effective_span * 1000) / providedDepthEff;
-    beffStress =
-      (max_moment * 1e6) /
-      (assumed_width * providedDepthEff * providedDepthEff);
-    beamModFactor = Math.min(
-      2.0,
-      Math.max(0.55, 0.55 + (477 - beffFs) / (120 * (0.9 + beffStress))),
-    );
-    beamAllowableRatio = basicRatio * beamModFactor;
-  }
-  if (depthSteps > 0 && span_to_depth <= beamAllowableRatio) {
-    formulas.push(
-      `Depth increased by ${depthSteps} × 50 mm to ${recommended_depth} mm so the deflection check passes on the modification factor, not just the basic ratio.`,
-    );
-  }
-  const deflection_check_pass = span_to_depth <= beamAllowableRatio;
-  // Audit fix (F5, 2026-11-08): when no depth is supplied the tension steel is
-  // sized on the bending-minimum effective depth, which is shallower than the
-  // section eventually recommended. That is conservative, but it was invisible:
-  // a 4.5 m beam needing 568 mm2 on its 300 mm effective depth was detailed
-  // with 778 mm2. The output now states which depth the steel belongs to.
-  if (!input.existing_depth && recommended_depth > required_depth + 1) {
-    formulas.push(
-      `Tension steel is sized on the ${steelDepth.toFixed(0)} mm bending-minimum effective depth, not the ${Math.max(120, recommended_depth - input.cover_mm - 25).toFixed(0)} mm effective depth of the recommended ${recommended_depth} mm section: the steel is therefore conservative by design and is not reduced for the deeper section.`,
-    );
-  }
-  if (requiredDepthGoverning > required_depth + 1) {
-    formulas.push(
-      `Depth set by deflection, not bending: ${depthForDeflection.toFixed(0)} mm required for L/d ≤ ${basicRatio}, against ${required_depth.toFixed(0)} mm for bending.`,
-    );
-  }
-  formulas.push(
-    `Span/depth on the recommended section = ${(effective_span * 1000).toFixed(0)} / ${providedDepthEff.toFixed(0)} = ${span_to_depth.toFixed(1)}; allowable = ${basicRatio} × ${beamModFactor.toFixed(2)} (BS 8110-1 Cl 3.4.6.5, f_s = ${beffFs.toFixed(0)} N/mm²) = ${beamAllowableRatio.toFixed(1)} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
-  );
 
   // Links
   // BS 8110-1 Cl 3.4.5.3: where the applied shear exceeds the concrete
@@ -1211,17 +892,9 @@ function designBeamAtSpan(
   if (input.beam_type === "lintel" && recommended_depth > 450) {
     warnings.push(ms.lintelNote);
   }
-  if (As > max_As) {
-    // 4 % of b d is the practical ceiling: above it the bars cannot be placed,
-    // lapped or compacted. The design is then not a design, it is a message that
-    // the section is too small.
+  if (span_to_depth > basicRatio) {
     warnings.push(
-      `Required steel ${Math.ceil(As)} mm² exceeds the 4 % practical maximum for this section (${Math.ceil(max_As)} mm²). No bar arrangement will fit: deepen the beam or widen it rather than adding steel.`,
-    );
-  }
-  if (!deflection_check_pass) {
-    warnings.push(
-      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > allowable ${beamAllowableRatio.toFixed(1)} after the modification factor). Increase beam depth.`,
+      `Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase beam depth.`,
     );
   }
 
@@ -1237,8 +910,6 @@ function designBeamAtSpan(
     recommended_depth,
     recommended_width,
     area_steel_required: Math.ceil(As),
-    compression_steel_area: Math.ceil(compression_As),
-    compression_steel_yields,
     min_steel_area: Math.ceil(min_As),
     max_steel_area: Math.ceil(max_As),
     recommended_bar_diameter: bestDiameter,
@@ -1265,142 +936,8 @@ function designBeamAtSpan(
     formula_transparency: formulas,
   };
 }
-/**
- * Beam design with the effective span taken from the section actually
- * recommended.
- *
- * BS 8110-1 cl. 3.4.1.1 makes the effective span depend on d, and d depends on
- * the moment, which depends on the span. One pass has to guess d, and the guess
- * was span/12: a 4 m beam judged as 400 mm deep before any steel is chosen, or
- * a shallow lightweight beam whose real depth is half that, so the moment and
- * the L/d verdict were computed on the wrong span. Two passes settle it, because
- * deepening the section only lengthens the span, which only deepens it further,
- * and the second pass starts from the depth already found.
- */
-export function designBeam(input: BeamDesignInput): BeamDesignResult {
-  let result = designBeamAtSpan(input);
-  // Repeat until the span it was designed at is the span implied by the section
-  // it recommends. Deepening the section lengthens the span, which only deepens
-  // it further, so this settles in a pass or two and is capped regardless.
-  for (let pass = 0; pass < 4; pass++) {
-    const finalD = Math.max(
-      150,
-      result.recommended_depth - input.cover_mm - 25,
-    );
-    const impliedSpan = input.span + finalD / 1000;
-    if (Math.abs(impliedSpan - result.effective_span) < 0.001) break;
-    result = designBeamAtSpan(input, impliedSpan);
-  }
-  return result;
-}
-
-// ── Column moment-axial interaction ──
-
-/**
- * Moment capacity of a symmetrically reinforced rectangular section at a given
- * axial load, by strain compatibility on the BS 8110-1 Cl 3.4.4.4 rectangular
- * stress block:
- *
- *   stress block   0.67 f_cu / 1.5 = 0.447 f_cu over 0.9x, capped at the face
- *   concrete       0.0035 at the compression face
- *   steel          E_s 200 GPa, stress capped at 0.87 f_y in both directions
- *
- * The section is sampled over neutral-axis depths and the two samples that
- * straddle the design axial load are interpolated. This replaces the previous
- * practice of sizing steel from the moment and then checking capacity on the
- * axial term alone, which passed columns carrying large moments.
- */
-export function columnMomentCapacityAtAxial(params: {
-  b: number;
-  h: number;
-  coverToBarCentre: number;
-  fcu: number;
-  fy: number;
-  totalSteelArea: number;
-  axialKn: number;
-}): { momentCapacityKnm: number; axialAtSample: number } {
-  const { b, h, fcu, fy, totalSteelArea, axialKn } = params;
-  const dPrime = Math.max(params.coverToBarCentre, 20);
-  const halfSteel = totalSteelArea / 2;
-  const dTension = Math.max(h - dPrime, dPrime + 1);
-  const fcd = (0.67 * fcu) / 1.5; // N/mm²
-  const epsCu = 0.0035;
-  const Es = 200000;
-  const fsMax = 0.87 * fy;
-
-  const sectionResponse = (x: number) => {
-    const a = Math.min(0.9 * x, h);
-    const cc = fcd * b * a; // N
-    const strainTop = (epsCu * (x - dPrime)) / x;
-    const strainBot = (epsCu * (x - dTension)) / x;
-    // positive is compression
-    const fsTop = Math.max(-fsMax, Math.min(fsMax, Es * strainTop));
-    const fsBot = Math.max(-fsMax, Math.min(fsMax, Es * strainBot));
-    const fTop = fsTop * halfSteel;
-    const fBot = fsBot * halfSteel;
-    const axialN = cc + fTop + fBot;
-    const centroid = h / 2;
-    const momentNmm =
-      cc * (centroid - a / 2) +
-      fTop * (centroid - dPrime) +
-      fBot * (centroid - dTension);
-    return { axialN, momentKnm: Math.abs(momentNmm) / 1e6 };
-  };
-
-  // Sample the interaction curve and interpolate at the design axial load. The
-  // curve rises then falls; the capacity is the larger of the two crossings, so
-  // every bracket is examined.
-  const samples: { n: number; m: number }[] = [];
-  for (let i = 1; i <= 200; i++) {
-    const x = (i / 200) * 4 * h;
-    const r = sectionResponse(x);
-    samples.push({ n: r.axialN / 1000, m: r.momentKnm }); // kN, kN·m
-  }
-  let capacity = 0;
-  let axialAtSample = 0;
-  for (let i = 1; i < samples.length; i++) {
-    const a = samples[i - 1];
-    const c = samples[i];
-    const spans = (a.n - axialKn) * (c.n - axialKn) <= 0;
-    if (!spans || a.n === c.n) continue;
-    const f = (axialKn - a.n) / (c.n - a.n);
-    const m = a.m + f * (c.m - a.m);
-    if (m > capacity) {
-      capacity = m;
-      axialAtSample = axialKn;
-    }
-  }
-  return { momentCapacityKnm: capacity, axialAtSample };
-}
 
 // ── Column design ──
-
-/**
- * Axial steel stress factor for the column capacity equation.
- *
- * Audit fix (F2, 2026-11-08): the engine applied IS 456's 0.67 f_y on every
- * standard, including the BS 8110 path it names in its own output. The factor
- * belongs to the governing code: BS 8110-1 Cl 3.8.4.3 equation 38 uses
- * 0.8 f_y, IS 456 Cl 39.3 uses 0.67 f_y. ACI 318 has no equivalent single
- * expression (it uses a strain-compatibility interaction diagram), so the
- * BS 8110 form is applied to the ACI grades and the output says so rather
- * than presenting an ACI number that does not exist.
- */
-function columnSteelFactor(standard: ConcreteStandardCode): {
-  factor: number;
-  clause: string;
-} {
-  if (standard === "is_456") {
-    return { factor: 0.67, clause: "IS 456 Cl 39.3 (0.67 f_y)" };
-  }
-  return {
-    factor: 0.8,
-    clause:
-      standard === "aci_astm"
-        ? "BS 8110-1 Cl 3.8.4.3 eq. 38 (0.8 f_y), applied to the ACI grade because ACI 318 uses a full interaction diagram instead of a single axial expression"
-        : "BS 8110-1 Cl 3.8.4.3 eq. 38 (0.8 f_y)",
-  };
-}
 
 export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   const warnings: string[] = [];
@@ -1417,7 +954,6 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
   );
 
-  const steelFactor = columnSteelFactor(concretePreset.standard);
   // Audit fix F1: load factor follows the governing standard.
   const lfCol = loadFactors(concretePreset.standard);
   // For an axial service load the conservative single-load factor of the
@@ -1428,14 +964,13 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   );
 
   // Required gross area (short column, simplified)
-  // N = 0.4 × fcu × Ac + k × fy × As, with k from the governing standard
+  // N = 0.4 × fcu × Ac + 0.67 × fy × As
   // Assume steel ratio ρ = 2% initially
   const rho_initial = 0.02;
   const required_area =
-    (factored_load * 1000) /
-    (0.4 * fcu + steelFactor.factor * fy * rho_initial);
+    (factored_load * 1000) / (0.4 * fcu + 0.67 * fy * rho_initial);
   formulas.push(
-    `Required area = ${factored_load * 1000} / (0.4 × ${fcu} + ${steelFactor.factor} × ${fy} × 0.02) = ${required_area.toFixed(0)} mm² (${steelFactor.clause})`,
+    `Required area = ${factored_load * 1000} / (0.4 × ${fcu} + 0.67 × ${fy} × 0.02) = ${required_area.toFixed(0)} mm²`,
   );
 
   // Determine dimensions
@@ -1462,52 +997,24 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     `Section: ${recommended_width} × ${recommended_depth} = ${gross_area} mm²`,
   );
 
-  // Slenderness check. The height was used as the effective length with no way
-  // to say otherwise, so a cantilever column and a braced one came out
-  // identical.
-  const leFactor =
-    Number.isFinite(input.effective_length_factor) &&
-    (input.effective_length_factor as number) > 0
-      ? (input.effective_length_factor as number)
-      : 1.0;
-  if (leFactor < 0.5 || leFactor > 3) {
-    warnings.push(
-      `Effective-length factor ${leFactor} is outside 0.5 to 3.0. Check the restraint conditions: BS 8110-1 Table 3.19 gives 0.75 for a braced, restrained column, 1.0 braced, 1.5 to 2.2 unbraced or cantilever.`,
-    );
-  }
-  const effectiveLengthMm = input.height * 1000 * leFactor;
+  // Slenderness check
   const slenderness_ratio =
-    effectiveLengthMm / Math.min(recommended_width, recommended_depth);
+    (input.height * 1000) / Math.min(recommended_width, recommended_depth);
   const is_short = slenderness_ratio <= 15;
   formulas.push(
-    `Effective length = ${input.height} m × ${leFactor} = ${(effectiveLengthMm / 1000).toFixed(2)} m; slenderness = ${effectiveLengthMm.toFixed(0)} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? "short column" : "slender column"}`,
+    `Slenderness ratio = ${input.height * 1000} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? "short column" : "slender column"}`,
   );
-  if (
-    Number.isFinite(input.unbraced_height_ratio) &&
-    input.unbraced_height_ratio > 0 &&
-    Math.abs(input.unbraced_height_ratio - slenderness_ratio) /
-      slenderness_ratio >
-      0.25
-  ) {
-    warnings.push(
-      `The supplied height/thickness ratio (${input.unbraced_height_ratio}) differs from the slenderness of the section sized here (${slenderness_ratio.toFixed(1)}). The section drives this check; the supplied value is ignored rather than silently mixed in.`,
-    );
-  }
 
   // Audit fix F3: a column never sees pure axial load. BS 8110 §3.8.2.4
   // minimum design moment e_min = max(h/300, 20 mm), and for slender
   // columns the additional moment M_add = N·(h/2000)·(l_e/h)².
   const h_min = Math.min(recommended_width, recommended_depth);
-  // Audit fix (F1, 2026-11-08): BS 8110-1 Cl 3.8.2.4 requires
-  // e_min = 0.05h, not less than 20 mm. This was h/300 (0.003h), so the 20 mm
-  // floor was the only term that ever applied and the minimum moment was the
-  // same 20 x N for a 400, a 600 and an 800 mm column.
-  const e_min = Math.max(0.05 * h_min, 20); // mm
+  const e_min = Math.max(h_min / 300, 20); // mm
   const M_min = (factored_load * e_min) / 1000; // kN·m (N in kN, e in mm → /1000)
   let total_design_moment = M_min;
   let M_add = 0;
   formulas.push(
-    `Minimum design moment: e_min = max(0.05 × ${h_min}, 20) = ${e_min.toFixed(1)} mm (BS 8110-1 Cl 3.8.2.4) → M_min = ${factored_load.toFixed(1)} × ${e_min.toFixed(1)}/1000 = ${M_min.toFixed(1)} kN·m`,
+    `Minimum design moment: e_min = max(${h_min}/300, 20) = ${e_min.toFixed(1)} mm → M_min = ${factored_load.toFixed(1)} × ${e_min.toFixed(1)}/1000 = ${M_min.toFixed(1)} kN·m`,
   );
   if (!is_short) {
     M_add =
@@ -1523,7 +1030,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
 
   // Steel area — axial demand plus bending demand from the combined moment.
   const steel_area_axial =
-    (factored_load * 1000 - 0.4 * fcu * gross_area) / (steelFactor.factor * fy);
+    (factored_load * 1000 - 0.4 * fcu * gross_area) / (0.67 * fy);
   // Bending steel: approximate interaction — rectangular section bent about
   // the stronger axis, effective depth ≈ h − 50 (cover + link + bar/2).
   const h_bend = Math.max(recommended_width, recommended_depth);
@@ -1534,7 +1041,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     (total_design_moment * 1e6) / (0.87 * fy * la_col.z);
   const steel_area = steel_area_axial + steel_area_bending;
   formulas.push(
-    `Axial steel = (${(factored_load * 1000).toFixed(0)} − 0.4 × ${fcu} × ${gross_area}) / (${steelFactor.factor} × ${fy}) = ${steel_area_axial.toFixed(0)} mm²`,
+    `Axial steel = (${(factored_load * 1000).toFixed(0)} − 0.4 × ${fcu} × ${gross_area}) / (0.67 × ${fy}) = ${steel_area_axial.toFixed(0)} mm²`,
   );
   formulas.push(
     `Bending steel (M=${total_design_moment.toFixed(1)} kN·m, z=${la_col.z.toFixed(0)} mm) = ${(total_design_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${la_col.z.toFixed(0)}) = ${steel_area_bending.toFixed(0)} mm²`,
@@ -1548,7 +1055,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   const steel_ratio = (final_steel / gross_area) * 100;
 
   formulas.push(
-    `Steel area = (${(factored_load * 1000).toFixed(0)} - 0.4 × ${fcu} × ${gross_area}) / (${steelFactor.factor} × ${fy}) = ${steel_area.toFixed(0)} mm²`,
+    `Steel area = (${(factored_load * 1000).toFixed(0)} - 0.4 × ${fcu} × ${gross_area}) / (0.67 × ${fy}) = ${steel_area.toFixed(0)} mm²`,
   );
   formulas.push(
     `Steel ratio = ${final_steel.toFixed(0)} / ${gross_area} × 100 = ${steel_ratio.toFixed(2)}%`,
@@ -1585,68 +1092,21 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
 
   // Links
   const link_diameter = bestDiameter >= 25 ? 10 : 8;
-  // BS 8110-1 Cl 3.12.7.1: the least of 12 bar diameters, 0.75 x the lesser
-  // section dimension, and 300 mm. The width alone was used before, which is
-  // the wrong dimension on a rectangular column.
-  const lesserDimension = h_min;
-  const link_spacing = Math.min(lesserDimension * 0.75, 300, 12 * bestDiameter);
+  const link_spacing = Math.min(
+    recommended_width * 0.75,
+    300,
+    12 * bestDiameter,
+  );
 
-  // Load capacity: the axial squash term, BS 8110-1 Cl 3.8.3. The 0.67
-  // coefficient on the steel term is retained rather than the code's 0.75,
-  // which is conservative on steel and is stated as such in the result.
+  // Load capacity
   const provided_steel = bestCount * barArea(bestDiameter);
   const load_capacity =
-    (0.4 * fcu * gross_area + steelFactor.factor * fy * provided_steel) / 1000; // kN
-  const axial_check_pass = load_capacity >= factored_load;
-  formulas.push(
-    `Axial capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${axial_check_pass ? "PASS" : "FAIL"} (0.67 on the steel term is conservative: BS 8110-1 Cl 3.8.3 gives 0.75)`,
-  );
+    (0.4 * fcu * gross_area + 0.67 * fy * provided_steel) / 1000; // kN
+  const capacity_check_pass = load_capacity >= factored_load;
 
-  // Moment-axial interaction. A column sized from the axial load and then given
-  // steel for the moment still has to carry both at once, so the capacity is
-  // checked on the interaction curve at the design axial load.
-  const nominalCoverMm =
-    Number.isFinite(input.cover_mm) && input.cover_mm >= 15
-      ? input.cover_mm
-      : 25;
-  if (nominalCoverMm !== input.cover_mm) {
-    warnings.push(
-      `Cover of ${input.cover_mm} mm is below 15 mm or missing; 25 mm was used. Confirm the exposure condition.`,
-    );
-  }
-  const coverToBarCentre = nominalCoverMm + link_diameter + bestDiameter / 2;
-  const interaction = columnMomentCapacityAtAxial({
-    b: b_bend,
-    h: h_bend,
-    coverToBarCentre,
-    fcu,
-    fy,
-    totalSteelArea: provided_steel,
-    axialKn: factored_load,
-  });
-  const moment_capacity_knm =
-    Math.round(interaction.momentCapacityKnm * 10) / 10;
-  const design_moment_knm = Math.round(total_design_moment * 10) / 10;
-  const moment_check_pass = moment_capacity_knm >= design_moment_knm;
   formulas.push(
-    `Moment capacity at N = ${factored_load.toFixed(1)} kN: M_Rd = ${moment_capacity_knm.toFixed(1)} kN·m vs M_Ed = ${design_moment_knm.toFixed(1)} kN·m → ${moment_check_pass ? "PASS" : "FAIL"} (strain compatibility on the BS 8110-1 Cl 3.4.4.4 stress block)`,
+    `Capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${capacity_check_pass ? "PASS" : "FAIL"}`,
   );
-  if (!moment_check_pass) {
-    warnings.push(
-      `The section carries the axial load but not the moment: M_Rd ${moment_capacity_knm.toFixed(1)} kN·m against M_Ed ${design_moment_knm.toFixed(1)} kN·m. Add steel on the tension face, increase the section, or reduce the eccentricity; do not read the axial PASS as a column that works.`,
-    );
-  }
-  if (steel_ratio > 6) {
-    warnings.push(
-      `Steel ratio ${steel_ratio.toFixed(2)}% is above the 6% maximum (BS 8110-1 Cl 3.12.6.2). Congested cages cannot be concreted.`,
-    );
-  } else if (steel_ratio > 4) {
-    warnings.push(
-      `Steel ratio ${steel_ratio.toFixed(2)}% is above 4%: laps and compaction become difficult in a column this congested.`,
-    );
-  }
-
-  const capacity_check_pass = axial_check_pass && moment_check_pass;
 
   const cms: MemberSizingProfile = resolveMemberSizing(
     input.market_code ?? "NG",
@@ -1683,12 +1143,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
     slenderness_check: is_short,
     short_or_slender: is_short ? "short" : "slender",
     load_capacity: Math.round(load_capacity * 10) / 10,
-    design_moment_knm,
-    moment_capacity_knm,
-    axial_check_pass,
-    moment_check_pass,
     capacity_check_pass,
-    assessment: "PRELIMINARY",
     warnings,
     formula_transparency: formulas,
   };
@@ -1696,7 +1151,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
 
 // ── Slab design ──
 
-function designSlabCore(input: SlabDesignInput): SlabDesignResult {
+export function designSlab(input: SlabDesignInput): SlabDesignResult {
   const warnings: string[] = [];
   const formulas: string[] = [];
 
@@ -1738,14 +1193,14 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
   // thickness rule. Those two disagreed: a 4 m two-way panel was sized to
   // span/28 and then immediately failed the L/d check the same panel is
   // reported against. Size to whichever is deeper so the answer is consistent.
-  // Sizing ratio from the same Table 3.9 helper the beam path uses. This was a
-  // private copy with 32 for continuous and 26 for any two-way panel; 32 is not
-  // a Table 3.9 value, and a simply supported two-way panel is a simply
-  // supported member, so it takes 20 like any other.
-  const basicRatioForSizing = basicSpanDepthRatio(input.support_condition);
-  formulas.push(
-    `Basic span/depth ratio (BS 8110-1 Table 3.9) for a ${input.support_condition.replace("_", " ")} ${is_two_way ? "two-way" : "one-way"} panel = ${basicRatioForSizing}`,
-  );
+  const basicRatioForSizing =
+    input.support_condition === "cantilever"
+      ? 7
+      : input.support_condition === "continuous"
+        ? 32
+        : is_two_way
+          ? 26
+          : 20;
   const shortSpanForSizing = Math.min(input.span_x, input.span_y);
   const deflectionDepth =
     (shortSpanForSizing * 1000) / basicRatioForSizing + input.cover_mm + 10;
@@ -1834,14 +1289,6 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     formulas.push(
       `Two-way panel, ly/lx = ${panelRatio.toFixed(2)}: αsx = ${alphaShort.toFixed(3)}, αsy = ${alphaLong.toFixed(3)} (BS 8110-1 Table 3.14, simply supported panel, interpolated)`,
     );
-    if (
-      input.support_condition === "fixed" ||
-      input.support_condition === "continuous"
-    ) {
-      warnings.push(
-        `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14, so continuity is not credited and the span steel is conservative. Support steel is given on the same conservative basis (see below), not from Table 3.15.`,
-      );
-    }
   }
 
   const max_moment = alphaShort * total_load * shortSpan * shortSpan;
@@ -1861,26 +1308,10 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     `Max shear = ${total_load.toFixed(1)} × ${input.span_x} / 2 = ${max_shear.toFixed(2)} kN/m`,
   );
 
-  // Steel area.
-  // The lever arm was pinned at 0.87d whatever the moment. That is conservative
-  // on a lightly loaded slab and unsafe on a heavily loaded one, where the real
-  // arm falls well below it: at K = 0.15 on a 100 mm slab the true arm is
-  // 0.79d, so steel was understated by about 10 %. The beam path already used
-  // the BS 8110 Cl 3.4.4.4 lever arm; the slab path now uses the same one.
-  const slabLever = leverArmBS(max_moment, fcu, 1000, eff_depth);
-  const z = slabLever.z;
-  formulas.push(
-    `Lever arm: K = ${(max_moment * 1e6).toFixed(0)} / (${fcu} × 1000 × ${eff_depth}²) = ${slabLever.K.toFixed(4)} → z = ${z.toFixed(1)} mm = ${(z / eff_depth).toFixed(2)}d${slabLever.doubly_reinforced ? " (K > 0.156: compression steel required)" : ""}`,
-  );
-  if (slabLever.doubly_reinforced) {
-    warnings.push(
-      `K = ${slabLever.K.toFixed(3)} exceeds the 0.156 singly reinforced limit (BS 8110-1 Cl 3.4.4.4). Thicken the slab; a singly reinforced section cannot carry this moment.`,
-    );
-  }
+  // Steel area
+  const z = 0.87 * eff_depth;
   const As = (max_moment * 1e6) / (0.87 * fy * z);
-  // BS 8110-1 Table 3.25: 0.13 % of the GROSS section for high-yield steel, not
-  // of the effective depth. Using d understated the minimum by about 15 %.
-  let min_As = (0.13 * 1000 * recommended_thickness) / 100;
+  let min_As = (0.13 * 1000 * eff_depth) / 100;
   let slabJurisdiction: JurisdictionCode | undefined;
   if (input.jurisdiction_code) {
     slabJurisdiction = input.jurisdiction_code;
@@ -1896,14 +1327,8 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
       `Min steel (${JURISDICTION_CODES[slabJurisdiction].label}, ${minSteel.clause}) = ${minSteel.formula} × 1000 × ${eff_depth.toFixed(0)} = ${min_As.toFixed(0)} mm²/m`,
     );
   }
-  const longLever = is_two_way
-    ? leverArmBS(longSpanMoment, fcu, 1000, eff_depth)
-    : null;
   const longDirectionAs = is_two_way
-    ? Math.max(
-        (longSpanMoment * 1e6) / (0.87 * fy * (longLever as { z: number }).z),
-        min_As,
-      )
+    ? Math.max((longSpanMoment * 1e6) / (0.87 * fy * z), min_As)
     : 0;
   const final_As = Math.max(As, min_As);
   formulas.push(
@@ -1911,70 +1336,41 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
   );
   if (!slabJurisdiction) {
     formulas.push(
-      `Min steel = 0.13% × 1000 × ${recommended_thickness} (gross, BS 8110-1 Table 3.25) = ${min_As.toFixed(0)} mm²/m`,
+      `Min steel = 0.13% × 1000 × ${eff_depth} = ${min_As.toFixed(0)} mm²/m`,
     );
   }
 
-  // Bar selection.
-  // The old loop rounded the spacing to the nearest 25 mm and could round it UP,
-  // which put in less steel than the design asked for: a slab needing 1,187
-  // mm²/m was detailed with Y12 at 100 (1,131 mm²/m). The ladder below takes the
-  // widest standard spacing that actually provides the required area.
-  const SPACING_LADDER = [300, 275, 250, 225, 200, 175, 150, 125, 100, 75];
+  // Bar selection
   let bestDiameter = 10;
-  let bestSpacing = 75;
-  let barSchemeFound = false;
-  for (const d of [10, 12, 16, 20]) {
-    const spacing = SPACING_LADDER.find(
-      (sp) => (1000 * barArea(d)) / sp >= final_As,
-    );
-    if (spacing !== undefined) {
+  let bestSpacing = Math.round((1000 * barArea(10)) / final_As);
+  for (const d of [10, 12, 16]) {
+    const spacing = Math.round((1000 * barArea(d)) / final_As);
+    if (spacing >= 75 && spacing <= 300) {
       bestDiameter = d;
       bestSpacing = spacing;
-      barSchemeFound = true;
       break;
     }
   }
-  if (!barSchemeFound) {
-    bestDiameter = 20;
-    bestSpacing = 75;
-    warnings.push(
-      `Required steel ${final_As.toFixed(0)} mm²/m exceeds Y20 at 75 mm (4,189 mm²/m). Thicken the slab; a cage this dense cannot be placed.`,
-    );
-  }
+  bestSpacing = Math.min(300, Math.max(75, roundUpTo25(bestSpacing)));
 
   // Long-direction steel uses the same bar size at the spacing it needs.
   const secondarySpacing = is_two_way
-    ? (SPACING_LADDER.find(
-        (sp) => (1000 * barArea(bestDiameter)) / sp >= longDirectionAs,
-      ) ?? 75)
+    ? Math.min(
+        300,
+        Math.max(
+          75,
+          roundUpTo25((1000 * barArea(bestDiameter)) / longDirectionAs),
+        ),
+      )
     : 0;
 
-  // Deflection check.
-  // The old check compared span/depth against the same ratio the thickness had
-  // just been sized from, so it could not fail: the answer was built into the
-  // question. BS 8110-1 Cl 3.4.6.5 allows the basic ratio to be multiplied by a
-  // modification factor for the steel actually provided, and that factor is
-  // applied here. The check can now fail.
+  // Deflection check
   const span_to_depth = (shortSpan * 1000) / eff_depth;
   const basicRatio = basicRatioForSizing;
-  const providedSteel = (1000 * barArea(bestDiameter)) / bestSpacing;
-  const fsService = (2 / 3) * fy * (final_As / Math.max(providedSteel, 1));
-  // M/(bd²) in N/mm²: the moment is kN·m per metre, so the 1e6 restores N·mm.
-  const stressRatio = (max_moment * 1e6) / (1000 * eff_depth * eff_depth);
-  const mfRaw = 0.55 + (477 - fsService) / (120 * (0.9 + stressRatio));
-  const modificationFactor = Math.min(2.0, Math.max(0.55, mfRaw));
-  const allowableRatio = basicRatio * modificationFactor;
-  const deflection_check_pass = span_to_depth <= allowableRatio;
+  const deflection_check_pass = span_to_depth <= basicRatio;
 
   formulas.push(
-    `Service stress f_s = 2/3 × ${fy} × (${final_As.toFixed(0)} / ${providedSteel.toFixed(0)} provided) = ${fsService.toFixed(0)} N/mm²`,
-  );
-  formulas.push(
-    `Modification factor (BS 8110-1 Cl 3.4.6.5) = 0.55 + (477 − ${fsService.toFixed(0)}) / (120(0.9 + ${stressRatio.toFixed(3)})) = ${modificationFactor.toFixed(2)} → allowable L/d = ${basicRatio} × ${modificationFactor.toFixed(2)} = ${allowableRatio.toFixed(1)}`,
-  );
-  formulas.push(
-    `Span/depth = ${shortSpan * 1000} / ${eff_depth} = ${span_to_depth.toFixed(1)} ≤ ${allowableRatio.toFixed(1)} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
+    `Span/depth = ${input.span_x * 1000} / ${eff_depth} = ${span_to_depth.toFixed(1)} ≤ ${basicRatio} → ${deflection_check_pass ? "PASS" : "FAIL"}`,
   );
 
   // Shear check
@@ -1999,115 +1395,9 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
 
   if (!deflection_check_pass) {
     warnings.push(
-      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > allowable ${allowableRatio.toFixed(1)} after the modification factor). Thicken the slab or reduce the span.`,
+      `Deflection check failed (L/d = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase slab thickness.`,
     );
   }
-  // Punching shear at a column (BS 8110-1 Cl 3.7.7).
-  // A slab panel loaded by a column can fail by punching through it, and no
-  // amount of flexural steel in the span addresses that. The check runs only when
-  // the column reaction is supplied; without it the result says NOT CHECKED, which
-  // is the honest answer and the one that must never render as a pass.
-  let punch_shear: PunchShearResult | undefined;
-  {
-    const notes: string[] = [];
-    if (input.column_load_kN === undefined || input.column_load_kN === null) {
-      punch_shear = {
-        status: "NOT CHECKED",
-        missing_input: "column_load_kN",
-        notes: [
-          "Punching shear at the column is NOT CHECKED: no column reaction was supplied. A solid slab can still punch through at a column even when the span reinforcement is adequate.",
-        ],
-      };
-    } else if (!(input.column_load_kN > 0)) {
-      punch_shear = {
-        status: "NOT CHECKED",
-        missing_input: "column_load_kN (> 0)",
-        notes: [
-          "Punching shear is NOT CHECKED: the column reaction must be a positive load.",
-        ],
-      };
-    } else {
-      const cx = input.column_width_mm ?? 300;
-      const cy = input.column_depth_mm ?? cx;
-      const N = input.column_load_kN;
-      const facePerimeter = 2 * (cx + cy);
-      const criticalPerimeter = facePerimeter + 3 * Math.PI * eff_depth;
-      const vFace = (N * 1000) / (facePerimeter * eff_depth);
-      const vEd = (N * 1000) / (criticalPerimeter * eff_depth);
-      const vMax = Math.min(0.8 * Math.sqrt(fcu), 5);
-      const passCritical = vEd <= vc;
-      const passFace = vFace <= vMax;
-      notes.push(
-        `Critical perimeter at 1.5d: u = 2(${cx} + ${cy}) + 3π × ${eff_depth.toFixed(0)} = ${criticalPerimeter.toFixed(0)} mm`,
-      );
-      notes.push(
-        `v = ${N} kN × 1000 / (${criticalPerimeter.toFixed(0)} × ${eff_depth.toFixed(0)}) = ${vEd.toFixed(2)} N/mm² against v_c = ${vc.toFixed(2)} N/mm²`,
-      );
-      notes.push(
-        `At the column face v = ${vFace.toFixed(2)} N/mm² against the Cl 3.7.7.4 limit of ${vMax.toFixed(2)} N/mm² (0.8√f_cu, capped at 5)`,
-      );
-      if (!passFace) {
-        notes.push(
-          "The column face itself is overstressed: enlarge the column or thicken the slab locally. Perimeter enhancement cannot fix this.",
-        );
-      }
-      if (!passCritical) {
-        notes.push(
-          "Punching shear exceeds the concrete resistance. Punching reinforcement (links or studs) or a thicker slab is required; flexural steel does not help.",
-        );
-      }
-      punch_shear = {
-        status: passCritical && passFace ? "PASS" : "FAIL",
-        column_load_kN: N,
-        face_perimeter_mm: facePerimeter,
-        critical_perimeter_mm: Math.round(criticalPerimeter),
-        v_ed: Math.round(vEd * 100) / 100,
-        v_c: Math.round(vc * 100) / 100,
-        v_face: Math.round(vFace * 100) / 100,
-        v_max: Math.round(vMax * 100) / 100,
-        notes,
-      };
-      if (punch_shear.status === "FAIL") {
-        warnings.push(
-          `Punching shear FAILS at the column: ${vEd.toFixed(2)} N/mm² against v_c ${vc.toFixed(2)} N/mm² (v_face ${vFace.toFixed(2)} against ${vMax.toFixed(2)}).`,
-        );
-      }
-    }
-    for (const n of notes) formulas.push(n);
-  }
-
-  // Support (hogging) moments for continuous and fixed panels.
-  //
-  // A panel continuous over its supports carries hogging over the support that
-  // the simply supported analysis never sees, and until now no support steel was
-  // designed at all: the slab was detailed top-steel-free at exactly the location
-  // where a real continuous slab cracks first.
-  //
-  // The coefficient sets that give the reduced span and support moments (BS
-  // 8110-1 Tables 3.12 and 3.15) differ by panel type, edge continuity and ly/lx,
-  // and this calculator does not ask for edge continuity. Rather than invent
-  // coefficients, the support is designed for the same moment as the span: the
-  // simply supported moment applied at both locations. That is an envelope, it
-  // over-designs rather than under-designs, and it is stated as such.
-  const is_restrained =
-    input.support_condition === "continuous" ||
-    input.support_condition === "fixed";
-  const support_moment = is_restrained ? max_moment : 0;
-  const support_steel_area = is_restrained
-    ? Math.ceil(Math.max(final_As, min_As))
-    : 0;
-  if (is_restrained) {
-    formulas.push(
-      `Support (hogging) design moment = ${support_moment.toFixed(2)} kN·m/m: the span moment applied at the support. A conservative envelope, not a Table 3.15 coefficient.`,
-    );
-    formulas.push(
-      `Support steel (top) = ${support_steel_area} mm²/m, at least the minimum; extend over the support region on both sides.`,
-    );
-    warnings.push(
-      `Support (hogging) steel of ${support_steel_area} mm²/m is designed on a conservative envelope: the support is given the same moment as the span. A continuous panel analysed with Table 3.15 continuity coefficients would need less. Do not reduce this steel without a proper continuous analysis.`,
-    );
-  }
-
   if (recommended_thickness < 150 && input.span_x > 3) {
     warnings.push(
       `Slab thickness ${recommended_thickness}mm may be thin for ${input.span_x}m span. Consider 150mm minimum.`,
@@ -2125,12 +1415,6 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     max_moment: Math.round(max_moment * 100) / 100,
     max_shear: Math.round(max_shear * 100) / 100,
     steel_area_required: Math.ceil(final_As),
-    ...(is_restrained
-      ? {
-          support_moment: Math.round(support_moment * 100) / 100,
-          support_steel_area,
-        }
-      : {}),
     moment_short_span: Math.round(max_moment * 100) / 100,
     ...(is_two_way
       ? {
@@ -2151,75 +1435,11 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     recommended_bar_diameter: bestDiameter,
     recommended_bar_spacing: bestSpacing,
     link_check: shear_link_note,
-    punch_shear,
     span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     deflection_check_pass,
     warnings,
     formula_transparency: formulas,
   };
-}
-
-/**
- * Slab design with the thinnest compliant section.
- *
- * Audit fix (F4, 2026-11-08): the thickness was sized from the BARE Table 3.9
- * span/depth ratio, while the deflection check against the same panel applied
- * the Cl 3.4.6.5 modification factor. Because the check was always laxer than
- * the sizing rule, it could not fail and the panel was over-thick: a
- * 4.0 x 5.0 m simply supported two-way panel came out at 250 mm where
- * 150-175 mm is normal (6.0 kN/m2 of self-weight against 4.2).
- *
- * The section is now found by stepping DOWN from the geometric first answer in
- * 25 mm increments, re-running the whole design at each candidate, and keeping
- * the thinnest section that actually passes: deflection with its modification
- * factor, a singly reinforced section, concrete shear, and punching shear when
- * a column reaction was supplied. It stops at the first failure, so the result
- * is the minimum compliant thickness under the engine's own checks rather than
- * an assumption about how much continuity relaxes the span/depth ratio.
- *
- * A supplied existing_thickness is a question about that section and is never
- * optimised: it is designed and reported exactly as asked.
- */
-export function designSlab(input: SlabDesignInput): SlabDesignResult {
-  const first = designSlabCore(input);
-  if (input.existing_thickness !== undefined) return first;
-  if (!first.deflection_check_pass) return first;
-
-  // The floor is the same minimum-thickness rule the core applies, restated so
-  // stepping down can never undercut it: a cantilever keeps span/7 and a
-  // two-way panel span/28, both with the 100/125 mm practical minimums.
-  const shortSpanMm = Math.min(input.span_x, input.span_y) * 1000;
-  const minAllowed =
-    input.slab_type === "cantilever_slab"
-      ? Math.max(125, (input.span_x * 1000) / 7)
-      : input.slab_type === "two_way"
-        ? Math.max(125, shortSpanMm / 28)
-        : Math.max(100, (input.span_x * 1000) / 20);
-  let best = first;
-  for (let step = 0; step < 24; step += 1) {
-    const candidate = best.recommended_thickness - 25;
-    if (candidate < minAllowed) break;
-    const next = designSlabCore({ ...input, existing_thickness: candidate });
-    if (!next.deflection_check_pass) break;
-    if (next.warnings.some((w) => w.includes("singly reinforced"))) break;
-    if (!next.link_check.startsWith("No shear reinforcement")) break;
-    if (next.punch_shear?.status === "FAIL") break;
-    best = next;
-  }
-  if (best !== first) {
-    // required_thickness keeps its own meaning — what the bare span/depth rule
-    // demanded — so the two figures stay comparable and the reduction is
-    // visible rather than hidden inside a single number.
-    best.required_thickness = first.required_thickness;
-    best.formula_transparency = [
-      ...best.formula_transparency,
-      `Thickness ${best.recommended_thickness} mm is the thinnest section that passes every check (deflection with the Cl 3.4.6.5 modification factor, singly reinforced at K <= 0.156, concrete shear${best.punch_shear ? ", punching shear" : ""}), found by stepping down in 25 mm increments from the ${first.recommended_thickness} mm span/depth answer.`,
-      ...first.formula_transparency.filter((f) =>
-        f.startsWith("Basic span/depth ratio"),
-      ),
-    ];
-  }
-  return best;
 }
 
 // ============================================================
@@ -2491,17 +1711,13 @@ export function minReinforcementRatio(params: {
       };
     }
     case "BS_8110": {
-      // BS 8110-1 Table 3.25: 0.24 % for fy 250 and 0.13 % for fy 460 and
-      // above. The weaker steel needs the larger area to develop the same
-      // minimum moment of resistance, so the percentage falls as fy rises.
-      const mildSteel = fy <= 300;
-      const ratio = mildSteel ? 0.0024 : 0.0013;
+      const ratio = fy <= 300 ? 0.0024 : 0.0013;
       return {
         code,
         ratio,
         percent: ratio * 100,
         clause: `BS 8110-1 ${profile.minSteelClause}`,
-        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy 460 and above; fy = ${fy})`,
+        formula: `As,min/bd = ${(ratio * 100).toFixed(2)}% (BS 8110 Table 3.25: 0.24% for fy 250, 0.13% for fy ≥ 460; fy = ${fy})`,
       };
     }
     case "AS_3600": {

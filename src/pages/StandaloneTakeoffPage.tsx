@@ -861,7 +861,7 @@ export default function StandaloneTakeoffPage({
                             <a
                               href={source.url}
                               target="_blank"
-                              rel="noopener noreferrer"
+                              rel="noreferrer"
                               className="font-medium text-primary underline underline-offset-2"
                             >
                               {source.publisher} source ↗

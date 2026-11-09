@@ -13,7 +13,6 @@ import {
 } from "@/lib/i18n";
 import { CurrencyProvider } from "@/lib/international/currency-context";
 import { AccessibilityProvider } from "@/lib/accessibility";
-import { DisplayPreferencesProvider } from "@/lib/display-preferences";
 import { Toaster } from "@/components/ui/shadcn/toast";
 import { initErrorMonitor } from "@/lib/errorMonitor";
 import { shouldUnregisterWorker } from "@/lib/sw-cleanup";
@@ -28,14 +27,12 @@ function mount() {
       <ThemeProvider>
         <LanguageProvider>
           <CurrencyProvider>
-            <DisplayPreferencesProvider>
-              <AccessibilityProvider>
-                <BrandingProvider>
-                  <App />
-                  <Toaster />
-                </BrandingProvider>
-              </AccessibilityProvider>
-            </DisplayPreferencesProvider>
+            <AccessibilityProvider>
+              <BrandingProvider>
+                <App />
+                <Toaster />
+              </BrandingProvider>
+            </AccessibilityProvider>
           </CurrencyProvider>
         </LanguageProvider>
       </ThemeProvider>

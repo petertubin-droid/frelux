@@ -171,14 +171,6 @@ export default function GalleryUpload() {
                     {type === "before" ? "Before" : "After"} Image
                   </label>
                   <div
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        (e.currentTarget as HTMLElement).click();
-                      }
-                    }}
                     onClick={() => ref.current?.click()}
                     className="relative flex aspect-[4/3] cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-300 hover:border-primary hover:bg-primary/5"
                   >

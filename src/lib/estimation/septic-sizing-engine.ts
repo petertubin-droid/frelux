@@ -4,8 +4,6 @@
  * Supports both SI (litres, m³) and Imperial/US Customary (gallons, ft³) sizing.
  */
 
-import { AREA_TO_M2 } from "@/lib/convert/units";
-
 export interface SepticSizingInput {
   marketCode: string;
   occupants: number;
@@ -35,22 +33,16 @@ export interface SepticSizingResult {
 
 const LITRES_TO_US_GALLONS = 0.264172;
 const M3_TO_US_GALLONS = 264.172;
-const M2_TO_SQFT = 1 / AREA_TO_M2.ft2;
+const M2_TO_SQFT = 10.7639;
 
 export function calculateSepticSizing(
   input: SepticSizingInput,
 ): SepticSizingResult {
   const occupants = Math.max(0, Number(input.occupants) || 0);
-  const flowPerPerson = Math.max(
-    0,
-    Number(input.designFlowLitresPerPersonPerDay) || 0,
-  );
+  const flowPerPerson = Math.max(0, Number(input.designFlowLitresPerPersonPerDay) || 0);
   const dailyFlow = occupants * flowPerPerson;
   const retentionDays = Math.max(0, Number(input.retentionDays) || 0);
-  const storageAllowanceDays = Math.max(
-    0,
-    Number(input.storageAllowanceDays) || 0,
-  );
+  const storageAllowanceDays = Math.max(0, Number(input.storageAllowanceDays) || 0);
   const tankWorkingVolumeM3 =
     (dailyFlow * (retentionDays + storageAllowanceDays)) / 1000;
   const freeboardPercent = Math.max(0, Number(input.freeboardPercent) || 0);
@@ -68,26 +60,16 @@ export function calculateSepticSizing(
   //    D^2 + 4*h*D - 4*Area/pi = 0 => D = 2 * (sqrt(h^2 + Area/pi) - h)
   // 3. If sidewallOnly = false and depth == 0: Area = bottomArea = pi * (D/2)^2 => D = 2 * sqrt(Area / pi)
   let indicativeSoakawayDiameterM: number | null = null;
-  if (
-    soakawayRequiredAbsorptionAreaM2 !== null &&
-    soakawayRequiredAbsorptionAreaM2 > 0
-  ) {
+  if (soakawayRequiredAbsorptionAreaM2 !== null && soakawayRequiredAbsorptionAreaM2 > 0) {
     if (input.sidewallOnly) {
       if (depth > 0) {
-        indicativeSoakawayDiameterM =
-          soakawayRequiredAbsorptionAreaM2 / (Math.PI * depth);
+        indicativeSoakawayDiameterM = soakawayRequiredAbsorptionAreaM2 / (Math.PI * depth);
       }
     } else {
       if (depth > 0) {
-        indicativeSoakawayDiameterM =
-          2 *
-          (Math.sqrt(
-            depth * depth + soakawayRequiredAbsorptionAreaM2 / Math.PI,
-          ) -
-            depth);
+        indicativeSoakawayDiameterM = 2 * (Math.sqrt(depth * depth + soakawayRequiredAbsorptionAreaM2 / Math.PI) - depth);
       } else {
-        indicativeSoakawayDiameterM =
-          2 * Math.sqrt(soakawayRequiredAbsorptionAreaM2 / Math.PI);
+        indicativeSoakawayDiameterM = 2 * Math.sqrt(soakawayRequiredAbsorptionAreaM2 / Math.PI);
       }
     }
   }
@@ -95,17 +77,11 @@ export function calculateSepticSizing(
   return {
     marketCode: (input.marketCode || "UNSPECIFIED").toUpperCase(),
     dailyDesignFlowLitres: Number(dailyFlow.toFixed(0)),
-    dailyDesignFlowGallons: Number(
-      (dailyFlow * LITRES_TO_US_GALLONS).toFixed(1),
-    ),
+    dailyDesignFlowGallons: Number((dailyFlow * LITRES_TO_US_GALLONS).toFixed(1)),
     tankWorkingVolumeM3: Number(tankWorkingVolumeM3.toFixed(3)),
     tankTotalVolumeM3: Number(tankTotalVolumeM3.toFixed(3)),
-    tankWorkingVolumeGallons: Number(
-      (tankWorkingVolumeM3 * M3_TO_US_GALLONS).toFixed(1),
-    ),
-    tankTotalVolumeGallons: Number(
-      (tankTotalVolumeM3 * M3_TO_US_GALLONS).toFixed(1),
-    ),
+    tankWorkingVolumeGallons: Number((tankWorkingVolumeM3 * M3_TO_US_GALLONS).toFixed(1)),
+    tankTotalVolumeGallons: Number((tankTotalVolumeM3 * M3_TO_US_GALLONS).toFixed(1)),
     soakawayRequiredAbsorptionAreaM2:
       soakawayRequiredAbsorptionAreaM2 === null
         ? null

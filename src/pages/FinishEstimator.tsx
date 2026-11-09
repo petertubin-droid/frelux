@@ -74,7 +74,6 @@ import {
 } from "@/lib/location-intelligence";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
-import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -410,7 +409,7 @@ export default function FinishEstimator({
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
                       className={
-                        "select-card flex h-auto w-full min-w-0 flex-col items-start gap-3 whitespace-normal rounded-xl border p-4 text-left " +
+                        "select-card flex h-auto flex-col items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
                           ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                           : "border-border hover:border-border")
@@ -750,7 +749,7 @@ export default function FinishEstimator({
                       currencySymbol,
                     })
                   }
-                  className={ACTION_BTN}
+                  className="rounded-lg border px-4 py-2 text-sm font-semibold"
                 >
                   {t("Export quote (PDF)")}
                 </button>

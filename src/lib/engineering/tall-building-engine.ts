@@ -272,11 +272,6 @@ export interface TallBuildingResult {
   quantities: TallQuantities;
   schedule: TallSchedule;
   checks: TallCheck[];
-  /**
-   * What this result is and is not. Travels with the object so any surface that
-   * renders the numbers can render the boundary in the same breath.
-   */
-  screening_notice: string;
   timestamp: string;
 }
 
@@ -1835,7 +1830,6 @@ export function calculateTallBuilding(
     },
     schedule,
     checks,
-    screening_notice: SCREENING_NOTICE,
     timestamp: new Date().toISOString(),
   };
 }
@@ -1850,8 +1844,5 @@ function perimeterCoreConcrete(
   const perimeter = 2 * (coreLength + coreWidth);
   return perimeter * thickness * height * 0.85;
 }
-
-export const SCREENING_NOTICE =
-  "PRELIMINARY SCREENING ONLY: loads are a simplified take-down, the natural period is a single-degree-of-freedom estimate, and wind and seismic actions are screened rather than analysed. There is no frame analysis, no second-order (P-delta) analysis, no diaphragm or core-frame interaction check and no member design or detailing. A result here sizes a scheme; it does not certify a building.";
 
 export const TALL_ENGINE_VERSION = "1.0.0";

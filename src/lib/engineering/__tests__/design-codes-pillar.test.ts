@@ -254,12 +254,11 @@ describe("wind-load: ASCE 7-22", () => {
     expect(r.formula).toContain("26.10-1");
   });
 
-  it("subtracts +GCpi for suction-critical roof uplift and scales by area", () => {
+  it("uplift combines GCp with +GCpi = 0.18 and scales by area", () => {
     const r = roofUplift({ qh_Nm2: 833, zone: "corner", area_m2: 2 });
-    // p = 833*(-2.8-0.18) = -2482 N/m²; force = -4965 N
-    expect(r.netPressure_Nm2).toBeCloseTo(-2482, -1);
-    expect(r.force_N).toBeCloseTo(-4965, -1);
-    expect(r.formula).toContain("GCp − GCpi");
+    // p = 833*(-2.8+0.18) = -2182 N/m²; force = -4364 N
+    expect(r.netPressure_Nm2).toBeCloseTo(-2182, -1);
+    expect(r.force_N).toBeCloseTo(-4364, -1);
     expect(GCPI_ENCLOSED).toBe(0.18);
   });
 

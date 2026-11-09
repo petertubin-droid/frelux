@@ -18,12 +18,10 @@ import type { MathematicalElevationResult } from "@/lib/engineering/mathematical
 
 export type ElevationUnitSystem = "metric" | "imperial";
 
-import { LENGTH_TO_M, MASS_TO_KG } from "@/lib/convert/units";
-
-const FEET_PER_METRE = 1 / LENGTH_TO_M.ft;
+const FEET_PER_METRE = 1 / 0.3048;
 const SQFT_PER_SQM = FEET_PER_METRE * FEET_PER_METRE;
 const CUFT_PER_CUM = FEET_PER_METRE * FEET_PER_METRE * FEET_PER_METRE;
-const LB_PER_KG = 1 / MASS_TO_KG.lb;
+const LB_PER_KG = 2.2046226218487757;
 
 /** Length: metres in, feet out. */
 export function metresToFeet(m: number): number {

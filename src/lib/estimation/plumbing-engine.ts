@@ -144,82 +144,9 @@ export interface PlumbingEngineeringMetrics {
 }
 
 /**
- * IPC Table E103.3(3) demand for supply systems predominantly for flush tanks,
- * which is what Nigerian homes have. Kept as the printed table rather than a
- * curve fit: the previous power-law fit (0.25 WSFU^0.75 / 0.4 WSFU^0.55) ran
- * 1.5x to 2.1x above the table (22.3 gpm against 14.6 gpm at 10 WSFU, 130 gpm
- * against 61 gpm at 180 WSFU) and over-sized every header it recommended.
+ * Computes hydraulic design peak demand (Hunter's Curve) and supply sizing
+ * based on Water Supply Fixture Units (WSFU) per IPC / UPC / BS EN 806.
  */
-const DEMAND_TABLE: ReadonlyArray<readonly [number, number]> = [
-  [1, 3.0],
-  [2, 5.0],
-  [3, 6.5],
-  [4, 8.0],
-  [5, 9.4],
-  [6, 10.7],
-  [7, 11.8],
-  [8, 12.8],
-  [9, 13.7],
-  [10, 14.6],
-  [11, 15.4],
-  [12, 16.0],
-  [13, 16.5],
-  [14, 17.0],
-  [15, 17.5],
-  [16, 18.0],
-  [17, 18.4],
-  [18, 18.8],
-  [19, 19.2],
-  [20, 19.6],
-  [25, 21.5],
-  [30, 23.3],
-  [35, 24.9],
-  [40, 26.3],
-  [45, 27.7],
-  [50, 29.1],
-  [60, 32.0],
-  [70, 35.0],
-  [80, 38.0],
-  [90, 41.0],
-  [100, 43.5],
-  [120, 48.0],
-  [140, 52.5],
-  [160, 57.0],
-  [180, 61.0],
-  [200, 65.0],
-  [225, 70.0],
-  [250, 75.0],
-];
-
-/** Litres per second in one US gallon per minute. */
-const L_PER_S_PER_GPM = 0.06309;
-
-/**
- * Interpolates the printed flush-tank demand table. Below 1 WSFU the table
- * starts at 3 gpm, so the load is taken from zero; above 250 WSFU the last
- * tabulated segment slope continues (0.2 gpm per WSFU), which keeps large
- * installations monotonic instead of falling off a cliff.
- */
-export function demandGpmForWsfu(wsfu: number): number {
-  if (!Number.isFinite(wsfu) || wsfu <= 0) return 0;
-  const last = DEMAND_TABLE[DEMAND_TABLE.length - 1];
-  if (wsfu > last[0]) {
-    const prev = DEMAND_TABLE[DEMAND_TABLE.length - 2];
-    const slope = (last[1] - prev[1]) / (last[0] - prev[0]);
-    return last[1] + (wsfu - last[0]) * slope;
-  }
-  for (let i = 0; i < DEMAND_TABLE.length; i += 1) {
-    const [load, gpm] = DEMAND_TABLE[i];
-    if (wsfu === load) return gpm;
-    if (wsfu < load) {
-      const prev = DEMAND_TABLE[Math.max(0, i - 1)];
-      const span = load - prev[0];
-      if (span === 0) return gpm;
-      return prev[1] + ((wsfu - prev[0]) / span) * (gpm - prev[1]);
-    }
-  }
-  return last[1];
-}
 export function calculatePlumbingEngineeringMetrics(
   input: Pick<
     PlumbingInput,
@@ -234,7 +161,14 @@ export function calculatePlumbingEngineeringMetrics(
     (input.showers || 0) * 2.0 +
     (input.wcs || 0) * 2.5;
 
-  const peakLps = demandGpmForWsfu(wsfu) * L_PER_S_PER_GPM;
+  let peakLps = 0;
+  if (wsfu > 0) {
+    if (wsfu <= 10) {
+      peakLps = 0.25 * Math.pow(wsfu, 0.75);
+    } else {
+      peakLps = 0.4 * Math.pow(wsfu, 0.55);
+    }
+  }
   const peakLpm = peakLps * 60;
 
   // Header sizing based on max permissible velocity 1.8 m/s (BS EN 806-3 / CIBSE Guide G)
@@ -259,12 +193,12 @@ export function calculatePlumbingEngineeringMetrics(
     }
   }
 
-  // 24-hour storage at 150 L per person (BS 6700 domestic allowance). Occupancy
-  // is taken from the WC count at two people per WC, the usual occupancy proxy,
-  // with a two-person floor. The earlier ((WCs + showers) x 2.5) put an
-  // arbitrary 10 people in a two-WC flat and tripled the tank it recommended.
-  const occupiedPersons = Math.max(2, Math.round((input.wcs || 0) * 2));
-  const storageLitres = occupiedPersons * 150;
+  // Domestic daily storage capacity based on 150 L/person/day with 24h autonomy
+  const equivalentPersons = Math.max(
+    2,
+    Math.ceil(((input.wcs || 0) + (input.showers || 0)) * 2.5),
+  );
+  const storageLitres = equivalentPersons * 150;
 
   return {
     total_wsfu: Math.round(wsfu * 10) / 10,
@@ -304,6 +238,8 @@ function isCount(v: number): boolean {
 function money(v: number): number {
   return Math.round(v * 100) / 100;
 }
+
+
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
@@ -647,8 +583,8 @@ export function calculatePlumbing(
   const engineeringMetrics = calculatePlumbingEngineeringMetrics(input);
   if (engineeringMetrics.total_wsfu > 0) {
     steps.push({
-      label: "Hydraulic design demand (IPC E103.3(3) flush tank / BS EN 806)",
-      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s) from the printed IPC E103.3(3) flush-tank table. Header bore: ${engineeringMetrics.recommended_header_bore_mm} mm (${engineeringMetrics.recommended_header_pipe_label}) at ≤1.8 m/s velocity. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L at 150 L per person.`,
+      label: "Hydraulic design demand (Hunter's Curve / BS EN 806)",
+      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Sized header bore: ${engineeringMetrics.recommended_header_bore_mm} mm (${engineeringMetrics.recommended_header_pipe_label}) at ≤1.8 m/s velocity. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
     });
   }
 

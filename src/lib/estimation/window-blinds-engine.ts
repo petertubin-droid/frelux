@@ -22,7 +22,6 @@ import {
   blindBookFor,
   type BlindTypeKey,
 } from "@/config/window-blinds";
-import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 export type LengthUnit = "m" | "ft";
 
@@ -58,6 +57,14 @@ export interface BlindsLine {
   priced: boolean;
 }
 
+export interface BlindHardwareMetrics {
+  bracketCount: number;
+  slatOrVaneCount: number | null;
+  recommendedTubeDiameterMm: number | null;
+  tubeDeflectionRisk: "safe" | "advisory" | "deflection_risk";
+  mountingNote: string;
+}
+
 export interface BlindsResult {
   status: BlindsStatus;
   market: string;
@@ -90,9 +97,10 @@ export interface BlindsResult {
     minimumPerWindow: number | null;
     source: string;
   };
+  hardwareMetrics?: BlindHardwareMetrics;
 }
 
-const METRES_PER_FOOT = LENGTH_TO_M.ft;
+const METRES_PER_FOOT = 0.3048;
 
 export function toMetres(value: number, unit: LengthUnit): number {
   return unit === "ft" ? value * METRES_PER_FOOT : value;
@@ -116,6 +124,60 @@ export function panelsForWidth(widthM: number, maxPanelWidthM: number): number {
   if (!Number.isFinite(widthM) || widthM <= 0) return 1;
   if (!Number.isFinite(maxPanelWidthM) || maxPanelWidthM <= 0) return 1;
   return Math.max(1, Math.ceil(round2(widthM / maxPanelWidthM)));
+}
+
+export function computeBlindHardwareMetrics(
+  typeKey: BlindTypeKey,
+  widthM: number,
+  heightM: number,
+): BlindHardwareMetrics {
+  // Mounting brackets: 2 brackets min; >1.2m -> 3 brackets; >2.0m -> 4 brackets (spaced <=800mm)
+  let bracketCount = 2;
+  if (widthM > 2.0) bracketCount = 4;
+  else if (widthM > 1.2) bracketCount = 3;
+
+  let slatOrVaneCount: number | null = null;
+  let recommendedTubeDiameterMm: number | null = null;
+  let tubeDeflectionRisk: "safe" | "advisory" | "deflection_risk" = "safe";
+  let mountingNote = "Standard top/face brackets";
+
+  if (typeKey === "venetian-25") {
+    slatOrVaneCount = Math.ceil((heightM * 1000) / 20);
+    mountingNote = "Box bracket end-caps; center intermediate support required above 1.2 m span";
+  } else if (
+    typeKey === "venetian-50" ||
+    typeKey === "wooden" ||
+    typeKey === "faux-wood" ||
+    typeKey === "bamboo"
+  ) {
+    slatOrVaneCount = Math.ceil((heightM * 1000) / 44);
+    mountingNote = "Heavy duty box brackets; ensure solid anchor into lintel or header";
+  } else if (typeKey === "vertical") {
+    slatOrVaneCount = Math.ceil((widthM * 1000) / 79);
+    mountingNote = "Track top-fix/face-fix spring clips at 600-800 mm centers";
+  } else if (typeKey === "roller" || typeKey === "day-night" || typeKey === "zebra") {
+    if (widthM > 2.2) {
+      recommendedTubeDiameterMm = 45;
+      tubeDeflectionRisk = "deflection_risk";
+      mountingNote = "Wide opening (>2.2 m): 45 mm or 50 mm heavy-duty barrel required to prevent fabric smile/sagging";
+    } else if (widthM > 1.5) {
+      recommendedTubeDiameterMm = 38;
+      tubeDeflectionRisk = "advisory";
+      mountingNote = "Mid-width span (1.5-2.2 m): 38 mm aluminum barrel recommended";
+    } else {
+      recommendedTubeDiameterMm = 28;
+      tubeDeflectionRisk = "safe";
+      mountingNote = "Standard 28 mm aluminum roller barrel";
+    }
+  }
+
+  return {
+    bracketCount,
+    slatOrVaneCount,
+    recommendedTubeDiameterMm,
+    tubeDeflectionRisk,
+    mountingNote,
+  };
 }
 
 export function calculateWindowBlinds(input: BlindsInput): BlindsResult {
@@ -267,6 +329,7 @@ export function calculateWindowBlinds(input: BlindsInput): BlindsResult {
       minimumPerWindow,
       source: book?.source ?? "No verified source for this market",
     },
+    hardwareMetrics: computeBlindHardwareMetrics(input.typeKey, widthM, heightM),
   };
 }
 

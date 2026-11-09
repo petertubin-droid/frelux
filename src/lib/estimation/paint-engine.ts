@@ -30,13 +30,10 @@ import type {
 } from "@/types/estimation";
 import {
   marketSellsPaintByGallon,
-  paintPackLabel,
-  paintPackNoun,
   resolvePaintPackLitres,
 } from "./paint-packaging";
 import type { Unit } from "@/types";
 import { feetToMeters, unitToMeters } from "@/lib/utils";
-import { AREA_TO_M2, LENGTH_TO_M } from "@/lib/convert/units";
 
 // =========================================================
 // Types
@@ -218,7 +215,7 @@ export interface PaintEngineProjectResult {
 // Coverage Unit Normalization
 // =========================================================
 
-const SQM_PER_SQFT = AREA_TO_M2.ft2;
+const SQM_PER_SQFT = 0.09290304;
 
 /**
  * Normalizes a coverage value from any unit to m² per liter per coat.
@@ -924,12 +921,9 @@ export function calculateRoom(
     config.marketCode,
   );
 
-  const packLabel =
-    paintPackLabel(packSizeLitres, config.marketCode) || `${packSizeLitres} L`;
-  const packNoun = paintPackNoun(packSizeLitres, config.marketCode);
   steps.push({
     label: "Bucket Size",
-    value: `${packLabel} ${packNoun}`,
+    value: `${packSizeLitres} L per bucket`,
     detail: config.product?.standard_pack_size
       ? "Product standard pack size."
       : "FRELUX configured purchase unit.",

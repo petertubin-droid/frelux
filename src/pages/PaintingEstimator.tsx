@@ -752,9 +752,6 @@ export default function PaintingEstimator({
       surfaceConditions,
       productionRules,
       calcVersionId,
-      // Container sizes and wording follow the visitor's shelf: a US visitor
-      // buys gallon cans, not 20 litre buckets.
-      marketCode,
     };
 
     const calcResult = monitoredCalc("Painting Estimator", () =>
@@ -1308,14 +1305,6 @@ function RoomCard({
     <div className="card mb-4 overflow-hidden dark:border-white/5">
       {/* Header */}
       <div
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            (e.currentTarget as HTMLElement).click();
-          }
-        }}
         onClick={onToggle}
         className="flex cursor-pointer items-center justify-between px-5 py-4"
       >

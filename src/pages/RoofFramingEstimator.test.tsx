@@ -54,134 +54,101 @@ describe("RoofFramingEstimator page", () => {
   });
 });
 
-describe("RoofFramingEstimator member checks and stocked sizes", () => {
-  it("keeps preliminary member checks separate and requires explicit engineer inputs", () => {
-    render(
-      <MemoryRouter>
-        <RoofFramingEstimator />
-      </MemoryRouter>,
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Preliminary structural check/i }),
-    );
-    fireEvent.change(
-      screen.getByRole("combobox", { name: /Market research context/i }),
-      {
-        target: { value: "NG" },
-      },
-    );
-    expect(
-      screen.getByText(/reference\/research context only/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /National Building Code/i }),
-    ).toHaveAttribute(
-      "href",
-      "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Run preliminary member check/i }),
-    );
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      /Clear span must be greater than zero/,
-    );
-    expect(
-      screen.getByText(/Jurisdictional structural design is not yet available/),
-    ).toBeInTheDocument();
+it("keeps preliminary member checks separate and requires explicit engineer inputs", () => {
+  render(
+    <MemoryRouter>
+      <RoofFramingEstimator />
+    </MemoryRouter>,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Preliminary structural check/i }),
+  );
+  fireEvent.change(
+    screen.getByRole("combobox", { name: /Market research context/i }),
+    {
+      target: { value: "NG" },
+    },
+  );
+  expect(
+    screen.getByText(/reference\/research context only/i),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: /National Building Code/i }),
+  ).toHaveAttribute(
+    "href",
+    "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Run preliminary member check/i }),
+  );
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    /Clear span must be greater than zero/,
+  );
+  expect(
+    screen.getByText(/Jurisdictional structural design is not yet available/),
+  ).toBeInTheDocument();
 
-    const values: Record<string, string> = {
-      "Clear span (m)": "4",
-      "Tributary spacing, horizontal (m)": "0.6",
-      "Total downward load per plan area (kN/m²)": "2",
-      "Section modulus S (mm³)": "300000",
-      "Second moment I (mm⁴)": "30000000",
-      "Effective shear area (mm²)": "200",
-      "Elastic modulus E (GPa)": "10",
-      "Design bending resistance (MPa)": "10",
-      "Design shear resistance (MPa)": "15",
-      "Deflection limit span / ratio": "200",
-    };
-    for (const [label, value] of Object.entries(values))
-      fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
-        target: { value },
-      });
-    fireEvent.click(
-      screen.getByRole("button", { name: /Run preliminary member check/i }),
-    );
-    expect(
-      screen.getByText(
-        /Passes the entered bending, shear and deflection limits/,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/No jurisdictional code, load factors/),
-    ).toBeInTheDocument();
-  });
+  const values: Record<string, string> = {
+    "Clear span (m)": "4",
+    "Tributary spacing, horizontal (m)": "0.6",
+    "Total downward load per plan area (kN/m²)": "2",
+    "Section modulus S (mm³)": "300000",
+    "Second moment I (mm⁴)": "30000000",
+    "Effective shear area (mm²)": "200",
+    "Elastic modulus E (GPa)": "10",
+    "Design bending resistance (MPa)": "10",
+    "Design shear resistance (MPa)": "15",
+    "Deflection limit span / ratio": "200",
+  };
+  for (const [label, value] of Object.entries(values))
+    fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
+      target: { value },
+    });
+  fireEvent.click(
+    screen.getByRole("button", { name: /Run preliminary member check/i }),
+  );
+  expect(
+    screen.getByText(/Passes the entered bending, shear and deflection limits/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/No jurisdictional code, load factors/),
+  ).toBeInTheDocument();
+});
 
-  it("shows sourced Nigerian roof live-load references separately from total design load", () => {
-    render(
-      <MemoryRouter>
-        <RoofFramingEstimator />
-      </MemoryRouter>,
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Preliminary structural check/i }),
-    );
-    fireEvent.change(
-      screen.getByRole("spinbutton", {
-        name: /Roof rise \(mm per 1 m horizontal\)/i,
-      }),
-      { target: { value: "0" } },
-    );
-    fireEvent.change(
-      screen.getByRole("spinbutton", { name: /Member tributary loaded area/i }),
-      { target: { value: "500" } },
-    );
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Look up published live-load reference/i,
-      }),
-    );
-    expect(
-      screen.getByText(/2 kN\/m² ordinary-roof live load/i),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Table 8.10/i })).toHaveAttribute(
-      "href",
-      "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
-    );
-    expect(
-      screen.getByRole("spinbutton", {
-        name: /Total downward load per plan area/i,
-      }),
-    ).toHaveValue(null);
-  });
-
-  it("fills a rafter with the dressed size stocked in the market", () => {
-    render(
-      <MemoryRouter>
-        <RoofFramingEstimator />
-      </MemoryRouter>,
-    );
-    // The default market is NG, where a 2x4 is sold sawn at 50 x 100 mm.
-    fireEvent.change(
-      screen.getByRole("combobox", { name: "common stocked size" }),
-      {
-        target: { value: "ng-50x100" },
-      },
-    );
-    expect(
-      (
-        screen.getByRole("spinbutton", {
-          name: "common widthIn",
-        }) as HTMLInputElement
-      ).value,
-    ).toBe("1.97");
-    expect(
-      (
-        screen.getByRole("spinbutton", {
-          name: "common depthIn",
-        }) as HTMLInputElement
-      ).value,
-    ).toBe("3.94");
-  });
+it("shows sourced Nigerian roof live-load references separately from total design load", () => {
+  render(
+    <MemoryRouter>
+      <RoofFramingEstimator />
+    </MemoryRouter>,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Preliminary structural check/i }),
+  );
+  fireEvent.change(
+    screen.getByRole("spinbutton", {
+      name: /Roof rise \(mm per 1 m horizontal\)/i,
+    }),
+    { target: { value: "0" } },
+  );
+  fireEvent.change(
+    screen.getByRole("spinbutton", { name: /Member tributary loaded area/i }),
+    { target: { value: "500" } },
+  );
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: /Look up published live-load reference/i,
+    }),
+  );
+  expect(
+    screen.getByText(/2 kN\/m² ordinary-roof live load/i),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Table 8.10/i })).toHaveAttribute(
+    "href",
+    "https://bend.fmhud.gov.ng/upload/download/25080529456.pdf",
+  );
+  expect(
+    screen.getByRole("spinbutton", {
+      name: /Total downward load per plan area/i,
+    }),
+  ).toHaveValue(null);
 });

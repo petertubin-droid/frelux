@@ -39,18 +39,6 @@ export interface ElectricalRules {
   lighting_points_per_circuit: number;
   socket_points_per_circuit: number;
   dedicated_points_per_circuit: number;
-  /** Connected load assumed per lighting point, VA (market rule). */
-  lighting_va_per_point: number;
-  /** Connected load assumed per twin socket point, VA (market rule). */
-  socket_va_per_point: number;
-  /** Connected load assumed per dedicated appliance point, VA (market rule). */
-  dedicated_va_per_point: number;
-  /**
-   * Assumed power factor for the maximum-demand current. A planning figure, not
-   * a measured one: 0.9 is fine for mixed domestic load, lower for motor-heavy
-   * installations. Configurable because it moves the incomer size directly.
-   */
-  power_factor: number;
   cable_waste_pct: number;
   conduit_waste_pct: number;
   /** Planning allowance in m per lighting point; null → not configured */
@@ -64,10 +52,6 @@ export const DEFAULT_ELECTRICAL_RULES: ElectricalRules = {
   lighting_points_per_circuit: 10,
   socket_points_per_circuit: 8,
   dedicated_points_per_circuit: 1,
-  lighting_va_per_point: 100,
-  socket_va_per_point: 250,
-  dedicated_va_per_point: 2500,
-  power_factor: 0.9,
   cable_waste_pct: 0,
   conduit_waste_pct: 0,
   conduit_m_per_lighting_point: null,
@@ -96,14 +80,6 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
     const n = Number(v);
     return Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
   };
-  const va = (v: unknown): number | null => {
-    const n = Number(v);
-    return Number.isFinite(n) && n > 0 ? n : null;
-  };
-  const pfUnit = (v: unknown): number | null => {
-    const n = Number(v);
-    return Number.isFinite(n) && n > 0 && n <= 1 ? n : null;
-  };
   const len = (v: unknown): number | null => {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : null;
@@ -115,18 +91,6 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
   if (spc !== null) rules.socket_points_per_circuit = spc;
   const dpc = posInt(get("dedicated_points_per_circuit"));
   if (dpc !== null) rules.dedicated_points_per_circuit = dpc;
-  // Connected-load basis (audit 2026-11-08): these three were literals while
-  // every other rate in the engine came from a rule. 250 VA per twin socket is
-  // a planning figure, roughly a third of a 13 A outlet's 2.99 kVA, so a market
-  // that sizes socket-dominated supplies sets it here rather than editing code.
-  const lva = va(get("lighting_va_per_point"));
-  if (lva !== null) rules.lighting_va_per_point = lva;
-  const sva = va(get("socket_va_per_point"));
-  if (sva !== null) rules.socket_va_per_point = sva;
-  const dva = va(get("dedicated_va_per_point"));
-  if (dva !== null) rules.dedicated_va_per_point = dva;
-  const pfRule = pfUnit(get("power_factor"));
-  if (pfRule !== null) rules.power_factor = pfRule;
   const cw = pct(get("cable_waste_pct"));
   if (cw !== null) rules.cable_waste_pct = cw;
   const pw = pct(get("conduit_waste_pct"));
@@ -507,15 +471,6 @@ export interface ElectricalInput {
     voltage: number;
     lighting_dominant?: boolean;
   } | null;
-  /**
-   * Supply arrangement of the installation. A balanced three-phase supply
-   * carries the same power at 1/sqrt(3) of the single-phase current, so an
-   * incomer sized as a two-wire circuit at 400 V overstated the design current
-   * by 73 percent and quoted one breaker size up.
-   */
-  supply_system?: SupplySystem;
-  /** line-to-line voltage for a three-phase supply, line-to-neutral otherwise */
-  supply_voltage?: number | null;
   labour: ElectricalLabourInput;
 }
 
@@ -545,6 +500,14 @@ export interface ElectricalLine {
   line_total: number | null;
 }
 
+export interface ElectricalLoadAnalysis {
+  total_connected_load_va: number;
+  diversified_demand_va: number;
+  main_incomer_current_a: number;
+  recommended_main_breaker_a: number;
+  recommended_service_cable_mm2: number;
+}
+
 export interface CircuitSummary {
   lighting_circuits: number;
   socket_circuits: number;
@@ -552,11 +515,6 @@ export interface CircuitSummary {
   total_circuits: number;
   /** suggested distribution board ways - planning guidance only */
   db_ways_guidance: number;
-  total_connected_load_va?: number;
-  diversified_demand_va?: number;
-  main_incomer_current_a?: number;
-  recommended_main_breaker_a?: number;
-  recommended_service_cable_mm2?: number;
 }
 
 export interface ElectricalStep {
@@ -572,6 +530,7 @@ export interface ElectricalResult {
   steps: ElectricalStep[];
   lines: ElectricalLine[];
   circuit_summary: CircuitSummary | null;
+  load_analysis?: ElectricalLoadAnalysis | null;
   /** subtotal of the lines that ARE priced; never includes fabricated prices */
   priced_subtotal: number;
   /** full material subtotal; null when any line is unsized or unpriced */
@@ -696,24 +655,12 @@ export function calculateElectrical(
   const totalCircuits = lightingCircuits + socketCircuits + dedicatedCircuits;
 
   // ── Connected load & standard diversity (BS 7671 Appendix A / NEC 220) ──
-  const supplySystem: SupplySystem =
-    input.supply_system === "three" ? "three" : "single";
-  const statedVoltage =
-    input.supply_voltage && input.supply_voltage > 0
-      ? input.supply_voltage
-      : input.feeder_check?.voltage && input.feeder_check.voltage > 0
-        ? input.feeder_check.voltage
-        : supplySystem === "three"
-          ? 400
-          : 230;
-  const systemVoltage = statedVoltage;
-  /** balanced three-phase carries the load at sqrt(3) x line voltage */
-  const supplyFactor = supplySystem === "three" ? Math.sqrt(3) : 1;
-  const connectedLightingVA =
-    input.lighting_points * rules.lighting_va_per_point;
-  const connectedSocketsVA = input.socket_points * rules.socket_va_per_point;
-  const connectedDedicatedVA =
-    input.dedicated_points * rules.dedicated_va_per_point;
+  const statedVoltage = input.feeder_check?.voltage;
+  const systemVoltage =
+    statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+  const connectedLightingVA = input.lighting_points * 100; // 100 VA per light point
+  const connectedSocketsVA = input.socket_points * 250; // 250 VA per twin socket point
+  const connectedDedicatedVA = input.dedicated_points * 2500; // 2.5 kVA per heavy appliance
   const totalConnectedVA =
     connectedLightingVA + connectedSocketsVA + connectedDedicatedVA;
 
@@ -731,11 +678,8 @@ export function calculateElectrical(
   const diversifiedDemandVA = divLighting + divSockets + divDedicated;
 
   const incomerCurrentA =
-    systemVoltage > 0
-      ? diversifiedDemandVA /
-        (supplyFactor * systemVoltage * rules.power_factor)
-      : 0;
-  const standardBreakers = [16, 20, 25, 32, 40, 50, 63, 80, 100, 125];
+    systemVoltage > 0 ? diversifiedDemandVA / (systemVoltage * 0.9) : 0;
+  const standardBreakers = [25, 32, 40, 50, 63, 80, 100, 125];
   const recBreaker =
     standardBreakers.find((b) => b >= incomerCurrentA) ??
     (incomerCurrentA > 125 ? 160 : 32);
@@ -752,6 +696,9 @@ export function calculateElectrical(
     dedicated_circuits: dedicatedCircuits,
     total_circuits: totalCircuits,
     db_ways_guidance: totalCircuits,
+  };
+
+  const loadAnalysis: ElectricalLoadAnalysis = {
     total_connected_load_va: Math.round(totalConnectedVA),
     diversified_demand_va: Math.round(diversifiedDemandVA),
     main_incomer_current_a: Math.round(incomerCurrentA * 10) / 10,
@@ -765,7 +712,7 @@ export function calculateElectrical(
   if (totalConnectedVA > 0) {
     steps.push({
       label: "Connected load & maximum demand (BS 7671 / NEC 220)",
-      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V ${supplySystem === "three" ? "three-phase (per-line)" : "single-phase"}, ${rules.power_factor} pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails. Basis: ${rules.lighting_va_per_point} VA per lighting point, ${rules.socket_va_per_point} VA per twin socket point, ${rules.dedicated_va_per_point} VA per appliance point — planning figures configured per market, not guaranteed connected load.`,
+      detail: `Total connected load: ${(totalConnectedVA / 1000).toFixed(1)} kVA. Diversified maximum demand: ${(diversifiedDemandVA / 1000).toFixed(1)} kVA (design current ${incomerCurrentA.toFixed(1)} A at ${systemVoltage} V, 0.9 pf). Recommended Main Incomer Breaker: ${recBreaker} A with ≥${recCable} mm² copper service tails.`,
     });
   }
 
@@ -873,16 +820,10 @@ export function calculateElectrical(
       const vDrop = (2 * spec.avgRun * currentA * COPPER_RESISTIVITY) / csa;
       // System voltage comes from the caller's feeder check when they stated
       // one; 230 V is the single-phase default only when nothing was supplied.
-      // Final circuits are single-phase, so a three-phase supply is checked at
-      // its line-to-neutral voltage (400 / sqrt(3) = 231 V), not at 400 V.
       const statedVoltage = input.feeder_check?.voltage;
-      const circuitVoltage =
-        supplySystem === "three"
-          ? systemVoltage / Math.sqrt(3)
-          : statedVoltage && statedVoltage > 0
-            ? statedVoltage
-            : 230;
-      const vDropPct = (vDrop / circuitVoltage) * 100;
+      const systemVoltage =
+        statedVoltage && statedVoltage > 0 ? statedVoltage : 230;
+      const vDropPct = (vDrop / systemVoltage) * 100;
       const limitPct = spec.key === "cable_lighting" ? 3 : 5;
       if (vDropPct > limitPct) {
         warnings.push(
@@ -1126,6 +1067,7 @@ export function calculateElectrical(
     steps,
     lines,
     circuit_summary: circuitSummary,
+    load_analysis: loadAnalysis,
     priced_subtotal: pricedSubtotal,
     material_subtotal: materialSubtotal,
     labour_total: labourTotal,

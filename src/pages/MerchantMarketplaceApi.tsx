@@ -201,7 +201,7 @@ export default function MerchantMarketplaceApi() {
                   <a
                     href={item.directCheckoutUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noreferrer"
                     className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary py-2 text-xs font-semibold transition-colors"
                   >
                     <ShoppingCart className="h-3.5 w-3.5" />
