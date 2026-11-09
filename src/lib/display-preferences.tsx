@@ -3,6 +3,7 @@ import {
   deviceCssShortEdge,
   deviceCssWidth,
   deviceTakesTouch,
+  isPhoneDevice,
   viewportContent,
 } from "@/lib/display-viewport";
 import {
@@ -28,41 +29,75 @@ export interface DisplayPreferences {
 }
 
 /**
- * The starting point for a device with no saved preference, and the target of
- * the Reset button. Exported because the settings copy, the pre-paint script in
- * index.html and the tests all need to agree with it; three hardcoded copies of
- * "50" is three places to forget.
+ * Scale for a device with no saved preference.
+ *
+ * 50% is a desktop choice: it lays a full site out at once on a large screen.
+ * On a phone it is unreadable (body text lands near 8px and iOS auto-zooms any
+ * field under 16px), so phones start at 80% instead: still wide enough to get
+ * the tablet layout, still legible without pinch-zooming. Only the starting
+ * point changes; whatever the visitor picks is saved and wins afterwards.
+ */
+export const DEFAULT_MOBILE_SCALE: DisplayScale = 80;
+export const DEFAULT_DESKTOP_SCALE: DisplayScale = 50;
+
+/**
+ * The fallback and Reset target when the device is not known to be a phone.
+ * Exported because the settings copy, the pre-paint script in index.html and
+ * the tests all need to agree with it; three hardcoded copies of "50" is three
+ * places to forget.
  */
 export const DEFAULT_PREFERENCES: DisplayPreferences = {
-  scale: 50,
+  scale: DEFAULT_DESKTOP_SCALE,
   compact: true,
   wideView: true,
 };
 
-function parsePreferences(value: unknown): DisplayPreferences {
-  if (!value || typeof value !== "object") return DEFAULT_PREFERENCES;
+/** The default for this device, judged the same way the viewport scale is. */
+export function defaultScaleForDevice(win: Window = window): DisplayScale {
+  const isPhone = isPhoneDevice({
+    deviceShortEdge: deviceCssShortEdge(win),
+    touch: deviceTakesTouch(win),
+  });
+  return isPhone ? DEFAULT_MOBILE_SCALE : DEFAULT_DESKTOP_SCALE;
+}
+
+/** The defaults this device should start from and reset to. */
+export function defaultPreferencesForDevice(
+  win: Window = window,
+): DisplayPreferences {
+  return { ...DEFAULT_PREFERENCES, scale: defaultScaleForDevice(win) };
+}
+
+function parsePreferences(
+  value: unknown,
+  fallback: DisplayPreferences = defaultPreferencesForDevice(),
+): DisplayPreferences {
+  if (!value || typeof value !== "object") return fallback;
   const input = value as Partial<DisplayPreferences>;
   return {
     scale: DISPLAY_SCALE_OPTIONS.includes(input.scale as DisplayScale)
       ? (input.scale as DisplayScale)
-      : DEFAULT_PREFERENCES.scale,
+      : fallback.scale,
     compact:
       typeof input.compact === "boolean"
         ? input.compact
-        : DEFAULT_PREFERENCES.compact,
+        : fallback.compact,
     wideView:
       typeof input.wideView === "boolean"
         ? input.wideView
-        : DEFAULT_PREFERENCES.wideView,
+        : fallback.wideView,
   };
 }
 
-export function readDisplayPreferences(): DisplayPreferences {
+export function readDisplayPreferences(
+  win: Window = window,
+): DisplayPreferences {
+  const fallback = defaultPreferencesForDevice(win);
   try {
-    const raw = localStorage.getItem(DISPLAY_PREFERENCE_KEY);
-    return raw ? parsePreferences(JSON.parse(raw)) : DEFAULT_PREFERENCES;
+    const raw = win.localStorage?.getItem(DISPLAY_PREFERENCE_KEY);
+    return raw ? parsePreferences(JSON.parse(raw), fallback) : fallback;
   } catch {
-    return DEFAULT_PREFERENCES;
+    return fallback;
   }
 }
 
@@ -79,6 +114,8 @@ function applyDisplayPreferences(value: DisplayPreferences) {
   applyViewport(
     viewportContent({
       deviceWidth: deviceCssWidth(),
+      deviceShortEdge: deviceCssShortEdge(),
+      touch: deviceTakesTouch(),
       scalePercent: value.scale,
     }).content,
   );
@@ -164,7 +201,12 @@ export function DisplayPreferencesProvider({
   const setWideView = useCallback((wideView: boolean) => {
     setPreferences((current) => ({ ...current, wideView }));
   }, []);
-  const reset = useCallback(() => setPreferences(DEFAULT_PREFERENCES), []);
+  // Reset returns to this device's own starting point, not to a desktop number
+  // a phone could never read.
+  const reset = useCallback(
+    () => setPreferences(defaultPreferencesForDevice()),
+    [],
+  );
 
   const value = useMemo(
     () => ({ ...preferences, setScale, setCompact, setWideView, reset }),

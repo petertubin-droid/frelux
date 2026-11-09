@@ -3,10 +3,14 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { viewportContent } from "@/lib/display-viewport";
 import {
+  DEFAULT_DESKTOP_SCALE,
+  DEFAULT_MOBILE_SCALE,
   DEFAULT_PREFERENCES,
   DISPLAY_PREFERENCE_KEY,
+  defaultScaleForDevice,
   DISPLAY_SCALE_OPTIONS,
   DisplayPreferencesProvider,
+  readDisplayPreferences,
   useDisplayPreferences,
 } from "./display-preferences";
 
@@ -186,6 +190,106 @@ describe("pre-paint script parity", () => {
         expect(inline).toContain("width=");
         expect(inline).not.toContain("width=device-width");
       }
+    }
+  });
+});
+
+describe("phone vs desktop defaults", () => {
+  // 50% is a desktop layout width. On a phone it is unreadable, so phones start
+  // at 80%; whatever the visitor saves afterwards still wins.
+  const DESKTOP_SCREEN = { width: 1440, height: 900 };
+
+  function setDevice(width: number, height: number, touch = 5) {
+    Object.defineProperty(window, "screen", {
+      configurable: true,
+      value: {
+        width,
+        height,
+        orientation: {
+          type: width > height ? "landscape-primary" : "portrait-primary",
+        },
+      },
+    });
+    Object.defineProperty(window.navigator, "maxTouchPoints", {
+      configurable: true,
+      value: touch,
+    });
+  }
+
+  afterEach(() => {
+    cleanup();
+    localStorage.clear();
+    setDevice(DESKTOP_SCREEN.width, DESKTOP_SCREEN.height, 0);
+  });
+
+  it("judges the device the same way the viewport does", () => {
+    setDevice(412, 915);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
+    setDevice(390, 844);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
+    // A tablet is wide on its short edge: it keeps the desktop starting point.
+    setDevice(820, 1180);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_DESKTOP_SCALE);
+    // Touchless at phone width is a narrow desktop window, not a phone.
+    setDevice(412, 915, 0);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_DESKTOP_SCALE);
+  });
+
+  it("starts a phone at 80% and keeps a saved choice", () => {
+    setDevice(412, 915);
+    render(
+      <DisplayPreferencesProvider>
+        <Readout />
+      </DisplayPreferencesProvider>,
+    );
+    expect(screen.getByTestId("readout").textContent).toBe("80/true/true");
+
+    localStorage.setItem(
+      DISPLAY_PREFERENCE_KEY,
+      JSON.stringify({ scale: 60, compact: true, wideView: true }),
+    );
+    expect(readDisplayPreferences().scale).toBe(60);
+  });
+
+  it("resets a phone to 80%, not to a desktop 50%", () => {
+    setDevice(412, 915);
+    render(
+      <DisplayPreferencesProvider>
+        <Readout />
+      </DisplayPreferencesProvider>,
+    );
+    fireEvent.click(screen.getByText("Use 75"));
+    expect(screen.getByTestId("readout").textContent).toBe("75/true/true");
+    fireEvent.click(screen.getByText("Reset"));
+    expect(screen.getByTestId("readout").textContent).toBe("80/true/true");
+  });
+
+  it("gives a phone 80% before React mounts, and a desktop 50%", () => {
+    const html = readFileSync("index.html", "utf8");
+    const block = html.match(
+      /<script>\s*\(function\(\)\{var apply=[\s\S]*?<\/script>/,
+    );
+    expect(block, "pre-paint display script present").not.toBeNull();
+    const script = block![0]
+      .replace(/^<script>/, "")
+      .replace(/<\/script>$/, "");
+
+    for (const [w, h, touch, expected] of [
+      [412, 915, 5, DEFAULT_MOBILE_SCALE],
+      [390, 844, 5, DEFAULT_MOBILE_SCALE],
+      [1440, 900, 0, DEFAULT_DESKTOP_SCALE],
+    ] as const) {
+      setDevice(w, h, touch);
+      localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+      document.head.innerHTML =
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+      new Function(script)();
+      // The dataset value is what the panel and the CSS read, so this is the
+      // same number the provider would have chosen for this device.
+      expect(
+        document.documentElement.dataset.freluxScale,
+        `${w}x${h} touch=${touch}`,
+      ).toBe(String(expected));
     }
   });
 });

@@ -31,6 +31,7 @@ import {
   type QuoteOptions,
 } from "@/lib/estimation/quote-export";
 import { quoteToShareable } from "@/lib/estimate-sharing";
+import { ACTION_BTN, ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
 import LabourCostSection, {
@@ -808,7 +809,7 @@ export default function ScreedingCostEstimator({
                       />
 
                       <div className="mt-3 flex justify-center">
-                        <div className="flex gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
                           <button
                             type="button"
                             onClick={() =>
@@ -819,7 +820,7 @@ export default function ScreedingCostEstimator({
                                 finishTerm,
                               })
                             }
-                            className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                            className={ACTION_BTN}
                           >
                             {t("Print Quote")}
                           </button>
@@ -898,7 +899,7 @@ export default function ScreedingCostEstimator({
                               );
                               navigate("/document-studio?calculatorImport=1");
                             }}
-                            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                            className={ACTION_BTN_PRIMARY}
                           >
                             {t("Open in Document Studio")}
                           </button>

@@ -21,7 +21,7 @@ export function NearbySuppliersLink({
     <Link
       to={href}
       className={classNames(
-        "inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-border/70 bg-card/60 px-3 py-1.5 text-xs font-semibold leading-none text-foreground transition-colors hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
+        "inline-flex h-8 min-w-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-border/70 bg-card/60 px-3 py-1.5 text-xs font-semibold leading-none text-foreground transition-colors hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
         className,
       )}
     >

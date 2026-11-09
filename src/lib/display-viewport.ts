@@ -118,6 +118,19 @@ export function viewportContent({
 }
 
 /**
+ * Whether a device should be laid out as a phone: it takes touch input and its
+ * short edge is phone-sized. Shared with the preference defaults so "which
+ * device is this" is decided in one place instead of three approximations.
+ */
+export function isPhoneDevice(input: {
+  deviceShortEdge?: number;
+  touch?: boolean;
+}): boolean {
+  const { deviceShortEdge = 0, touch = false } = input;
+  return touch && deviceShortEdge > 0 && deviceShortEdge <= PHONE_MAX_SHORT_EDGE;
+}
+
+/**
  * Whether the device takes touch input. False on a desktop, including headless
  * Chrome, whose screen size would otherwise pass for a phone.
  */

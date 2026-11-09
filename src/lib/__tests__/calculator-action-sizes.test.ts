@@ -73,6 +73,44 @@ describe("calculator action buttons", () => {
     expect(nearby).not.toContain("px-4 py-2.5 text-sm");
   });
 
+it("pins one height, so a shadcn Button and a plain button match", () => {
+    // The token had no height: <Button> kept the shadcn default h-10 (40 px)
+    // while a plain <button> with the same token came out ~24 px, so Share and
+    // WhatsApp stood a head taller than Print in the same row. h-8 fixes both
+    // at 32 px.
+    const actions = readFileSync(
+      join(SRC, "components/calculators/CalculatorActions.tsx"),
+      "utf8",
+    );
+    expect(actions).toContain('"inline-flex h-8 items-center justify-center');
+    expect(actions).not.toContain("h-10");
+
+    const share = readFileSync(
+      join(SRC, "components/ShareEstimateButton.tsx"),
+      "utf8",
+    );
+    // Every compact action goes through the token, and none may reintroduce a
+    // tall tile or a shadcn default height.
+    // one import plus three actions: every compact button goes through the token
+    expect(share.match(/ACTION_BTN/g)?.length).toBe(4);
+    expect(share).not.toContain("h-auto");
+    expect(share).not.toContain("h-10");
+    // The full-width share tiles are 36 px, not the old ~47 px.
+    expect(share.match(/flex h-9 flex-col/g)?.length).toBe(3);
+
+    const save = readFileSync(
+      join(SRC, "components/calculators/SaveToProjectButton.tsx"),
+      "utf8",
+    );
+    expect(save.match(/group inline-flex h-8 items-center/g)?.length).toBe(2);
+
+    const nearby = readFileSync(
+      join(SRC, "components/map/NearbySuppliersLink.tsx"),
+      "utf8",
+    );
+    expect(nearby).toContain("inline-flex h-8 min-w-0 items-center");
+  });
+
   it("the action bar wraps instead of overflowing", () => {
     const bar = readFileSync(
       join(SRC, "components/calculators/CalculatorActions.tsx"),

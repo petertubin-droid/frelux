@@ -14,7 +14,7 @@
  */
 
 const BASE =
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none transition-colors disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5";
+  "inline-flex h-8 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold leading-none transition-colors disabled:opacity-50 [&_svg]:h-3.5 [&_svg]:w-3.5";
 
 /** Neutral secondary action: Print, Copy, Find supply. */
 export const ACTION_BTN = `${BASE} border border-border/70 bg-card/60 text-foreground hover:bg-muted dark:border-white/10 dark:bg-white/5`;

@@ -323,8 +323,8 @@ export default function SaveToProjectButton({
         onClick={() => setShowModal(true)}
         className={
           compact
-            ? "group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
-            : "group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
+            ? "group inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
+            : "group inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold leading-none text-primary transition-colors hover:bg-primary/20"
         }
       >
         <FolderPlus className="h-3.5 w-3.5 shrink-0" />

@@ -127,7 +127,7 @@ export function ShareEstimateButton({
           type="button"
           variant="ghost"
           onClick={() => shareEstimateOnWhatsApp(estimate)}
-          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-accent-green/10 px-2 py-1.5 text-center transition-all hover:bg-accent-green/20"
+          className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-accent-green/10 px-2 py-1 text-center transition-all hover:bg-accent-green/20"
         >
           <MessageCircle className="h-4 w-4 text-accent-green" />
           <span className="text-[11px] font-semibold text-accent-green">
@@ -139,7 +139,7 @@ export function ShareEstimateButton({
           variant="ghost"
           onClick={handlePdf}
           disabled={pdfBusy}
-          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-primary/10 px-2 py-1.5 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
+          className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary/10 px-2 py-1 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
         >
           {pdfBusy ? (
             <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
@@ -154,7 +154,7 @@ export function ShareEstimateButton({
           type="button"
           variant="ghost"
           onClick={handleCopy}
-          className="flex h-auto flex-col items-center gap-1 rounded-lg bg-muted px-2 py-1.5 text-center transition-all hover:bg-accent"
+          className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-muted px-2 py-1 text-center transition-all hover:bg-accent"
         >
           {copied ? (
             <Check className="h-4 w-4 text-accent-green" />

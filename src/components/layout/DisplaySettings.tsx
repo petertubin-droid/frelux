@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Columns3,
@@ -15,6 +15,7 @@ import { cn } from "@/lib/cn";
 import {
   DEFAULT_PREFERENCES,
   DISPLAY_SCALE_OPTIONS,
+  defaultPreferencesForDevice,
   useDisplayPreferences,
   type DisplayScale,
 } from "@/lib/display-preferences";
@@ -167,10 +168,16 @@ export default function DisplaySettings() {
   const { scale, compact, wideView, setScale, setCompact, setWideView, reset } =
     useDisplayPreferences();
 
+  // Reset is device-aware, so "nothing to reset" has to be judged against this
+  // device's own defaults (a phone starts at 80%, a desktop at 50%).
+  const deviceDefaults = useMemo(
+    () => defaultPreferencesForDevice(),
+    [scale],
+  );
   const isDefault =
-    scale === DEFAULT_PREFERENCES.scale &&
-    compact === DEFAULT_PREFERENCES.compact &&
-    wideView === DEFAULT_PREFERENCES.wideView;
+    scale === deviceDefaults.scale &&
+    compact === deviceDefaults.compact &&
+    wideView === deviceDefaults.wideView;
 
   useEffect(() => {
     if (!open) return;
