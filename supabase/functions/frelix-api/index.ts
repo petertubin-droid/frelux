@@ -178,74 +178,34 @@ async function meterAuthFailure(
 ): Promise<void> {
   const url = new URL(req.url);
 
-  // Billing happens here, where metering already is: one place decides what a
-  // request cost, so no endpoint can forget to charge and no endpoint can charge
-  // twice. Rejections are never billed; a retry with the same request id is
-  // refused by the database's unique index rather than charged again.
-  let cost = 0;
-  if (statusCode >= 200 && statusCode < 300) {
-    try {
-      const monthStartIso = new Date(
-        Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1),
-      ).toISOString();
-      const used = await usageCount(key.id, monthStartIso);
-      const { data: planRow } = await svc
-        .from("frelux_api_plans")
-        .select("config")
-        .eq("key", key.plan_key)
-        .maybeSingle();
-      const cfg = (planRow?.config ?? {}) as Record<string, unknown>;
-      const included = Number(cfg.monthlyQuota ?? key.monthly_quota ?? 0) || 0;
-      const gracePercent = Number(cfg.gracePercent ?? 5);
-      const graceAllowance = Math.floor((included * gracePercent) / 100);
-      const isAi = Boolean(opts?.provider);
-      const rate = isAi ? cfg.overagePerAiRequestUsd : cfg.overagePerRequestUsd;
-      if (used >= included && rate != null) {
-        const inGrace = used < included + graceAllowance;
-        const { data: wallet } = await svc
-          .from("frelux_api_wallets")
-          .select("balance_usd")
-          .eq("user_id", key.user_id)
-          .maybeSingle();
-        const balance = Number(wallet?.balance_usd ?? 0) || 0;
-        const chargeable = inGrace
-          ? balance >= Number(rate)
-          : balance >= Number(rate);
-        if (chargeable) {
-          const { data: charged } = await svc.rpc("charge_api_request", {
-            p_api_key_id: key.id,
-            p_user_id: key.user_id,
-            p_request_id: requestId,
-            p_cost_usd: Number(rate),
-            p_allow_wallet: true,
-          });
-          const result = charged as { charged_usd?: number } | null;
-          cost = Number(result?.charged_usd ?? 0);
-        }
-      }
-    } catch (_billingError) {
-      // Billing must never break the caller's request. An unbilled request is a
-      // smaller problem than a failed one, and the usage row still records it.
-      cost = 0;
-    }
+  // A rejected request is never billed: it carries no key attribution, no cost
+  // and no usage units, so it cannot consume a customer's allowance. It is
+  // recorded only so abuse stays visible.
+  //
+  // The write is best effort. Observability must never decide the caller's
+  // answer: a failed log insert here used to throw and surface as a 500 on what
+  // should have been a plain 401, which told an integrator their request was
+  // malformed when the real problem was our own logging.
+  try {
+    await svc.from("frelux_api_usage").insert({
+      api_key_id: null,
+      user_id: null,
+      request_id: requestId,
+      endpoint: url.pathname.replace(/^.*frelix-api\//, "/"),
+      capability,
+      method: req.method,
+      status_code: 401,
+      latency_ms: 0,
+      provider: null,
+      usage_units: 0,
+      billing_unit: "request",
+      cost: 0,
+      region: null,
+      error_code: errorCode,
+    });
+  } catch (_logError) {
+    // Nothing to do: the caller still gets the 401 it is owed.
   }
-
-  await svc.from("frelux_api_usage").insert({
-    api_key_id: null,
-    user_id: null,
-    request_id: requestId,
-    endpoint: url.pathname.replace(/^.*frelix-api\//, "/"),
-    capability,
-    method: req.method,
-    status_code: 401,
-    latency_ms: 0,
-    provider: null,
-    usage_units: 0,
-    billing_unit: "request",
-    cost: opts?.cost ?? 0,
-    region: null,
-    error_code: errorCode,
-  });
 }
 
 async function usageCount(keyId: string, sinceIso: string): Promise<number> {
@@ -496,27 +456,92 @@ async function meter(
   },
 ) {
   const url = new URL(req.url);
-  await svc.from("frelux_api_usage").insert({
-    api_key_id: key.id,
-    user_id: key.user_id,
-    request_id: requestId,
-    endpoint: url.pathname.replace(/^.*frelix-api\//, "/"),
-    capability,
-    method: req.method,
-    status_code: statusCode,
-    latency_ms: Math.round(latencyMs),
-    provider: opts?.provider ?? null,
-    usage_units: opts?.usageUnits ?? 1,
-    billing_unit: "request",
-    cost: 0,
-    region: opts?.region ?? null,
-    error_code: errorCode ?? null,
-  });
+
+  // Billing lives here, where metering already is: one place decides what a
+  // request cost, so no endpoint can forget to charge and no endpoint can charge
+  // twice. Rejections are never billed, and a retry carrying the same request id
+  // is refused by the database's unique index rather than charged again.
+  //
+  // Every step is best effort for one reason: the response is the product. A
+  // billing hiccup must never turn a computed answer into an internal error.
+  let cost = 0;
+  if (statusCode >= 200 && statusCode < 300) {
+    try {
+      const monthStartIso = new Date(
+        Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1),
+      ).toISOString();
+      const used = await usageCount(key.id, monthStartIso);
+      const { data: planRow } = await svc
+        .from("frelux_api_plans")
+        .select("config")
+        .eq("key", key.plan_key)
+        .maybeSingle();
+      const cfg = (planRow?.config ?? {}) as Record<string, unknown>;
+      const included = Number(cfg.monthlyQuota ?? key.monthly_quota ?? 0) || 0;
+      const isAi = Boolean(opts?.provider);
+      const rate = isAi ? cfg.overagePerAiRequestUsd : cfg.overagePerRequestUsd;
+
+      // Inside the included allowance nothing is charged. Past it, the request is
+      // served while the prepaid wallet covers the overage, which is what keeps a
+      // running integration alive instead of cutting it off mid-batch.
+      if (used >= included && rate != null) {
+        const { data: wallet } = await svc
+          .from("frelux_api_wallets")
+          .select("balance_usd")
+          .eq("user_id", key.user_id)
+          .maybeSingle();
+        const balance = Number(wallet?.balance_usd ?? 0) || 0;
+        // The grace band decides when a request is refused, in the quota check.
+        // Here the only question is whether the wallet can pay for this one.
+        if (balance >= Number(rate)) {
+          const { data: charged } = await svc.rpc("charge_api_request", {
+            p_api_key_id: key.id,
+            p_user_id: key.user_id,
+            p_request_id: requestId,
+            p_cost_usd: Number(rate),
+            p_allow_wallet: true,
+          });
+          const result = charged as { charged_usd?: number } | null;
+          cost = Number(result?.charged_usd ?? 0);
+        }
+      }
+    } catch (billingError) {
+      console.error("api billing failed", String(billingError));
+      cost = 0;
+    }
+  }
+
+  try {
+    const { error } = await svc.from("frelux_api_usage").insert({
+      api_key_id: key.id,
+      user_id: key.user_id,
+      request_id: requestId,
+      endpoint: url.pathname.replace(/^.*frelix-api\//, "/"),
+      capability,
+      method: req.method,
+      status_code: statusCode,
+      latency_ms: Math.round(latencyMs),
+      provider: opts?.provider ?? null,
+      usage_units: opts?.usageUnits ?? 1,
+      billing_unit: "request",
+      cost,
+      region: opts?.region ?? null,
+      error_code: errorCode ?? null,
+    });
+    if (error) console.error("frelux_api_usage insert failed", error.message);
+  } catch (meterError) {
+    console.error("frelux_api_usage insert threw", String(meterError));
+  }
+
   if (statusCode < 400) {
-    await svc
-      .from("frelux_api_keys")
-      .update({ last_used_at: new Date().toISOString() })
-      .eq("id", key.id);
+    try {
+      await svc
+        .from("frelux_api_keys")
+        .update({ last_used_at: new Date().toISOString() })
+        .eq("id", key.id);
+    } catch (_touchError) {
+      // Same reasoning: a timestamp is not worth failing a request over.
+    }
   }
 }
 
