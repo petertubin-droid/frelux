@@ -78,4 +78,59 @@ describe("ConsoleElevation", () => {
     expect(annotated.container.textContent).toContain("1800 mm");
     expect(annotated.container.textContent).toContain("350 mm deep");
   });
+
+  it("draws the screen and the panelled wall when the room is given", () => {
+    const bare = render(
+      <ConsoleElevation layout={layout} depthMm={350} label="Bare" />,
+    );
+    const bareRects = bare.container.querySelectorAll("svg rect").length;
+
+    const dressed = render(
+      <ConsoleElevation
+        layout={layout}
+        depthMm={350}
+        label="Media wall"
+        context={{
+          tvInches: 65,
+          wallTreatment: "fluted",
+          wallPanelHeightMm: 1600,
+          mounting: "floating",
+          ledProfileMetres: 1.8,
+        }}
+      />,
+    );
+    // Screen + wall band + flutes are additional rectangles.
+    const dressedRects = dressed.container.querySelectorAll("svg rect").length;
+    expect(dressedRects).toBeGreaterThan(bareRects + 10);
+    // The LED line is drawn, and nothing renders as NaN.
+    expect(
+      dressed.container.querySelectorAll("svg line").length,
+    ).toBeGreaterThan(0);
+    expect(dressed.container.innerHTML).not.toMatch(/NaN|Infinity/);
+  });
+
+  it("shows a plinth or legs where the unit meets the floor", () => {
+    const plinth = render(
+      <ConsoleElevation
+        layout={layout}
+        depthMm={350}
+        label="Plinth"
+        context={{ mounting: "plinth" }}
+      />,
+    );
+    const legs = render(
+      <ConsoleElevation
+        layout={layout}
+        depthMm={350}
+        label="Legs"
+        context={{ mounting: "legs" }}
+      />,
+    );
+    // A plinth is one recessed rectangle; an 1800 mm unit stands on two legs,
+    // so the leg version carries exactly one more rectangle than the plinth.
+    const plinthRects = plinth.container.querySelectorAll("svg rect").length;
+    const legsRects = legs.container.querySelectorAll("svg rect").length;
+    expect(legsRects).toBe(plinthRects + 1);
+    expect(legs.container.innerHTML).not.toMatch(/NaN|Infinity/);
+  });
 });

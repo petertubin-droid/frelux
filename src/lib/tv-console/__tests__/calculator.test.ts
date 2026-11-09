@@ -34,9 +34,9 @@ const line = (
 ) => result.panelSchedule.find((entry) => entry.part === part);
 
 describe("TV console calculator", () => {
-  it("provides ten editable presets with positive dimensions", () => {
-    expect(TV_CONSOLE_TEMPLATES).toHaveLength(10);
-    expect(new Set(TV_CONSOLE_TEMPLATES.map((t) => t.id)).size).toBe(10);
+  it("provides twenty editable presets with positive dimensions", () => {
+    expect(TV_CONSOLE_TEMPLATES).toHaveLength(20);
+    expect(new Set(TV_CONSOLE_TEMPLATES.map((t) => t.id)).size).toBe(20);
     for (const template of TV_CONSOLE_TEMPLATES) {
       expect(template.widthMm).toBeGreaterThan(0);
       expect(template.heightMm).toBeGreaterThan(0);
@@ -46,6 +46,83 @@ describe("TV console calculator", () => {
       expect(template.layout.dividers).toBeGreaterThanOrEqual(0);
       expect(template.layout.thicknessMm).toBeGreaterThan(0);
     }
+  });
+
+  it("describes media walls with the panelling and screen they need", () => {
+    const walls = TV_CONSOLE_TEMPLATES.filter(
+      (t) => t.wallTreatment && t.wallTreatment !== "none",
+    );
+    // The exclusive family: stone, marble, fluted and slatted panelling.
+    expect(walls.length).toBeGreaterThanOrEqual(7);
+    for (const template of walls) {
+      expect(template.wallPanelHeightMm).toBeGreaterThan(0);
+      expect(template.tvInches).toBeGreaterThan(0);
+    }
+    // Every preset draws a screen, because it is a TV console.
+    for (const template of TV_CONSOLE_TEMPLATES) {
+      expect(template.tvInches).toBeGreaterThanOrEqual(32);
+      expect(template.tvInches).toBeLessThanOrEqual(100);
+    }
+    // Distinct treatments, not twenty variations of one idea.
+    expect(
+      new Set(TV_CONSOLE_TEMPLATES.map((t) => t.wallTreatment ?? "none")).size,
+    ).toBeGreaterThanOrEqual(5);
+    expect(
+      new Set(TV_CONSOLE_TEMPLATES.map((t) => t.mounting ?? "floating")).size,
+    ).toBeGreaterThanOrEqual(3);
+  });
+
+  it("prices wall panelling by the square metre it actually clads", () => {
+    const priced = calculateConsoleEstimate(
+      {
+        ...base(),
+        wallPanelHeightMm: 1600,
+        wallPanelWidthMm: 2400,
+        wallPanelRatePerM2: 18000,
+      },
+      "NGN",
+    );
+    const panelling = priced.costLines.find((l) => l.key === "wall-panelling")!;
+    // 2.4 m x 1.6 m = 3.84 m2 at 18,000 per m2.
+    expect(panelling.quantity).toBeCloseTo(3.84, 3);
+    expect(panelling.amount).toBeCloseTo(69120, 2);
+  });
+
+  it("leaves panelling and LED unpriced rather than free when no rate is given", () => {
+    const result = calculateConsoleEstimate(
+      { ...base(), wallPanelHeightMm: 1600, ledProfileMetres: 2.6 },
+      "NGN",
+    );
+    const panelling = result.costLines.find((l) => l.key === "wall-panelling")!;
+    const led = result.costLines.find((l) => l.key === "led-profile")!;
+    expect(panelling.quantity).toBeCloseTo(2.88, 3);
+    expect(panelling.amount).toBeNull();
+    expect(led.quantity).toBeCloseTo(2.6, 3);
+    expect(led.amount).toBeNull();
+    // And they are named in the unpriced list, so the total cannot hide them.
+    expect(result.totals.unpricedLines).toContain(
+      "Wall panelling (fluted, slatted or stone face)",
+    );
+    expect(result.totals.unpricedLines).toContain("LED profile and driver");
+  });
+
+  it("raises no panelling line for a plain unit", () => {
+    const plain = calculateConsoleEstimate(base(), "NGN");
+    const panelling = plain.costLines.find((l) => l.key === "wall-panelling")!;
+    expect(panelling.quantity).toBe(0);
+    expect(plain.totals.unpricedLines).not.toContain(
+      "Wall panelling (fluted, slatted or stone face)",
+    );
+  });
+
+  it("carries a preset's panelling into the estimate", () => {
+    const preset = TV_CONSOLE_TEMPLATES.find(
+      (t) => t.id === "marble-gold-flanks",
+    )!;
+    const mapped = dimensionsFromTemplate(preset);
+    expect(mapped.wallPanelHeightMm).toBe(preset.wallPanelHeightMm);
+    expect(mapped.ledProfileMetres).toBe(preset.ledProfileMetres);
+    expect(mapped.wallPanelWidthMm).toBe(preset.widthMm);
   });
 
   it("carries a preset's own carcass and layout into the estimate", () => {

@@ -3,6 +3,14 @@ import {
   buildConsoleElevation,
   type ConsoleLayoutInput,
 } from "@/lib/tv-console/elevation";
+import {
+  buildMediaContext,
+  SCREEN_CLEARANCE_MM,
+  type MediaContextInput,
+} from "@/lib/tv-console/media-context";
+
+/** Everything about the room except the unit's own size, which comes from the layout. */
+export type ElevationContext = Omit<MediaContextInput, "widthMm" | "heightMm">;
 
 interface ConsoleElevationProps {
   layout: ConsoleLayoutInput;
@@ -12,6 +20,12 @@ interface ConsoleElevationProps {
   annotate?: boolean;
   /** What the drawing shows, for screen readers. */
   label: string;
+  /**
+   * The room around the unit: screen, panelled wall, how it meets the floor.
+   * Without it the drawing is the carcass alone, which is why presets that
+   * describe very different media walls used to render identically.
+   */
+  context?: ElevationContext;
   className?: string;
 }
 
@@ -27,29 +41,57 @@ const FILL: Record<string, string> = {
  * To-scale front elevation drawn from the same numbers as the takeoff.
  *
  * The artwork is the calculation: bays, shelves, drawer fronts and door leaves
- * are placed by buildConsoleElevation, so two presets cannot show the same
- * picture while describing different furniture. There is no photograph here
- * and nothing is fetched from a third party.
+ * are placed by buildConsoleElevation, and the screen, panelling and mounting
+ * by buildMediaContext, so two presets cannot show the same picture while
+ * describing different furniture. There is no photograph here and nothing is
+ * fetched from a third party.
  */
 export default function ConsoleElevation({
   layout,
   depthMm,
   annotate = false,
   label,
+  context,
   className,
 }: ConsoleElevationProps) {
   const plan = buildConsoleElevation(layout);
-  const extent = Math.max(plan.widthMm, plan.heightMm);
+  const room = buildMediaContext({
+    widthMm: plan.widthMm,
+    heightMm: plan.heightMm,
+    ...context,
+  });
+
+  // The drawing has to hold the panelled band and the screen as well as the
+  // unit, so the viewBox is the union of everything actually drawn.
+  const topMm = Math.min(
+    0,
+    room.wall?.yMm ?? 0,
+    room.screen?.yMm ?? 0,
+    -SCREEN_CLEARANCE_MM,
+  );
+  const bottomMm =
+    plan.heightMm +
+    room.plinthHeightMm +
+    room.legs.length * 0 +
+    room.shadowGapMm;
+  const leftMm = Math.min(0, room.wall?.xMm ?? 0, room.screen?.xMm ?? 0);
+  const rightMm = Math.max(
+    plan.widthMm,
+    (room.wall?.xMm ?? 0) + (room.wall?.widthMm ?? 0),
+    (room.screen?.xMm ?? 0) + (room.screen?.widthMm ?? 0),
+  );
+
+  const extent = Math.max(rightMm - leftMm, bottomMm - topMm);
   const pad = extent * 0.04;
   // Room for the dimension lines only when they are drawn.
   const gutter = annotate ? extent * 0.11 : pad;
   const stroke = Math.max(extent * 0.0035, 1);
   const fontSize = extent * 0.045;
   const viewBox = [
-    -gutter,
-    -pad,
-    plan.widthMm + gutter + pad,
-    plan.heightMm + gutter + pad,
+    leftMm - gutter,
+    topMm - pad,
+    rightMm - leftMm + gutter + pad,
+    bottomMm - topMm + gutter + pad,
   ].join(" ");
 
   const widthLabel = `${Math.round(plan.widthMm)} mm`;
@@ -65,6 +107,68 @@ export default function ConsoleElevation({
       className={classNames("h-full w-full", className)}
       style={{ display: "block" }}
     >
+      {/* Panelled wall behind the unit: flutes, battens or a stone face. */}
+      {room.wall && (
+        <g>
+          <rect
+            x={room.wall.xMm}
+            y={room.wall.yMm}
+            width={room.wall.widthMm}
+            height={room.wall.heightMm}
+            fill="hsl(var(--primary) / 0.045)"
+            stroke="hsl(var(--border))"
+            strokeWidth={stroke * 0.8}
+          />
+          {room.members.map((member, index) => (
+            <rect
+              key={`member-${index}`}
+              x={member.xMm}
+              y={room.wall!.yMm}
+              width={member.widthMm}
+              height={room.wall!.heightMm}
+              fill="hsl(var(--primary) / 0.09)"
+              stroke="hsl(var(--border))"
+              strokeWidth={stroke * 0.5}
+            />
+          ))}
+          {room.veins.map((vein, index) => (
+            <line
+              key={`vein-${index}`}
+              x1={vein[0]}
+              y1={vein[1]}
+              x2={vein[2]}
+              y2={vein[3]}
+              stroke="hsl(var(--border))"
+              strokeWidth={stroke * 0.6}
+            />
+          ))}
+        </g>
+      )}
+
+      {/* Screen: the reason the furniture exists, so it is always drawn. */}
+      {room.screen && (
+        <g>
+          <rect
+            x={room.screen.xMm}
+            y={room.screen.yMm}
+            width={room.screen.widthMm}
+            height={room.screen.heightMm}
+            rx={room.screen.heightMm * 0.012}
+            fill="hsl(var(--foreground) / 0.82)"
+            stroke="hsl(var(--border))"
+            strokeWidth={stroke}
+          />
+          <rect
+            x={room.screen.xMm + room.screen.widthMm * 0.004}
+            y={room.screen.yMm + room.screen.heightMm * 0.004}
+            width={room.screen.widthMm * 0.992}
+            height={room.screen.heightMm * 0.992}
+            fill="hsl(var(--background) / 0.16)"
+            stroke="none"
+          />
+        </g>
+      )}
+
       <g
         fill="none"
         stroke="hsl(var(--border))"
@@ -108,6 +212,53 @@ export default function ConsoleElevation({
             />
           );
         })}
+
+      {/* How the unit meets the floor: plinth, legs, or a shadow gap. */}
+      {room.plinthHeightMm > 0 && (
+        <rect
+          x={plan.thicknessMm}
+          y={plan.heightMm}
+          width={Math.max(plan.widthMm - plan.thicknessMm * 2, 1)}
+          height={room.plinthHeightMm}
+          fill="hsl(var(--foreground) / 0.22)"
+          stroke="hsl(var(--border))"
+          strokeWidth={stroke * 0.6}
+        />
+      )}
+      {room.legs.map((leg, index) => (
+        <rect
+          key={`leg-${index}`}
+          x={leg.xMm}
+          y={leg.yMm}
+          width={leg.widthMm}
+          height={leg.heightMm}
+          fill="hsl(var(--foreground) / 0.35)"
+        />
+      ))}
+      {room.shadowGapMm > 0 && (
+        <line
+          x1={plan.thicknessMm}
+          y1={plan.heightMm + room.shadowGapMm * 0.5}
+          x2={plan.widthMm - plan.thicknessMm}
+          y2={plan.heightMm + room.shadowGapMm * 0.5}
+          stroke="hsl(var(--border))"
+          strokeWidth={stroke * 0.5}
+          strokeDasharray={`${stroke * 2} ${stroke * 2}`}
+        />
+      )}
+
+      {/* LED profile specified by the design, drawn along the band's underside. */}
+      {room.led && (
+        <line
+          x1={plan.thicknessMm}
+          y1={room.led.yMm}
+          x2={plan.widthMm - plan.thicknessMm}
+          y2={room.led.yMm}
+          stroke="hsl(var(--primary) / 0.7)"
+          strokeWidth={stroke * 1.6}
+          strokeLinecap="round"
+        />
+      )}
 
       {annotate && (
         <g

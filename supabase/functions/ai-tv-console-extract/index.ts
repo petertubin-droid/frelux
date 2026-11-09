@@ -13,6 +13,30 @@ const json = (body: unknown, status = 200) =>
     headers: { ...headers, "Content-Type": "application/json" },
   });
 
+/** Read the model's JSON even when it arrives fenced or with prose around it. */
+function parseJsonLoose(text: string): Record<string, unknown> | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  const candidates = [trimmed];
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) candidates.push(fenced[1].trim());
+  const first = trimmed.indexOf("{");
+  const last = trimmed.lastIndexOf("}");
+  if (first !== -1 && last > first)
+    candidates.push(trimmed.slice(first, last + 1));
+  for (const candidate of candidates) {
+    try {
+      const value = JSON.parse(candidate);
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return value as Record<string, unknown>;
+      }
+    } catch {
+      // try the next shape
+    }
+  }
+  return null;
+}
+
 serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers });
   if (req.method !== "POST")
@@ -90,7 +114,7 @@ serveWithCors(async (req: Request) => {
   }
   const image = typeof body.imageDataUrl === "string" ? body.imageDataUrl : "";
   const match = image.match(
-    /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/,
+    /^data:(image\/(?:jpeg|jpg|png|webp));base64,([A-Za-z0-9+/=]+)$/,
   );
   if (!match || image.length > 8_000_000)
     return json(
@@ -155,7 +179,10 @@ serveWithCors(async (req: Request) => {
       payload?.candidates?.[0]?.content?.parts
         ?.map((p: { text?: string }) => p.text ?? "")
         .join("") ?? "";
-    const parsed = JSON.parse(text);
+    // Models wrap JSON in code fences or add a sentence before it often enough
+    // that a bare JSON.parse turned readable replies into "vision failed".
+    const parsed = parseJsonLoose(text);
+    if (!parsed) throw new Error("Vision provider returned unreadable JSON");
     const safe = (n: unknown) =>
       typeof n === "number" && Number.isFinite(n) && n >= 100 && n <= 10000
         ? Math.round(n)
@@ -194,6 +221,7 @@ serveWithCors(async (req: Request) => {
       status: "failed",
       errorMessage:
         error instanceof Error ? error.message : "Vision extraction failed",
+      // The log keeps the provider's own words; the user gets the mapped text.
       durationMs: Date.now() - started,
     });
     return json(

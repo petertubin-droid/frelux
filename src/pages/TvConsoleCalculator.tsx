@@ -5,6 +5,8 @@ import {
   BookOpen,
   Camera,
   Check,
+  ChevronLeft,
+  ChevronRight,
   ImagePlus,
   LockKeyhole,
   Ruler,
@@ -26,6 +28,16 @@ import { supabase } from "@/lib/supabase";
 import { useCurrencyCode } from "@/lib/international/market-context";
 import { TV_CONSOLE_TEMPLATES } from "@/lib/tv-console/templates";
 import ConsoleElevation from "@/components/tv-console/ConsoleElevation";
+import {
+  extractionErrorMessage,
+  isAcceptedPhoto,
+  MAX_DATA_URL_CHARS,
+  photoToDataUrl,
+} from "@/lib/tv-console/photo-extraction";
+import type {
+  ConsoleMounting,
+  WallTreatment,
+} from "@/lib/tv-console/media-context";
 import { calculateConsoleEstimate } from "@/lib/tv-console/calculator";
 
 const number = (v: string, fallback: number) =>
@@ -41,6 +53,9 @@ const money = (value: number, currency: string) => {
     return `${currency} ${value.toFixed(2)}`;
   }
 };
+
+/** Presets shown per page: three rows of two, which keeps the cards readable. */
+const PRESETS_PER_PAGE = 6;
 
 const CONSOLE_FAQS = [
   {
@@ -131,6 +146,17 @@ export default function TvConsoleCalculator() {
   const [installPrice, setInstallPrice] = useState("");
   const [transportPrice, setTransportPrice] = useState("");
   const [taxPercent, setTaxPercent] = useState("");
+  const [wallPanelRate, setWallPanelRate] = useState("");
+  const [ledRate, setLedRate] = useState("");
+
+  // Room context, seeded by the chosen preset and then editable like every
+  // other number: the drawing and the quote read the same values.
+  const [tvInches, setTvInches] = useState(65);
+  const [wallTreatment, setWallTreatment] = useState<WallTreatment>("none");
+  const [wallPanelHeight, setWallPanelHeight] = useState(0);
+  const [mounting, setMounting] = useState<ConsoleMounting>("floating");
+  const [ledMetres, setLedMetres] = useState(0);
+  const [page, setPage] = useState(0);
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -191,6 +217,11 @@ export default function TvConsoleCalculator() {
           installationPrice: optional(installPrice),
           transportPrice: optional(transportPrice),
           taxPercent: optional(taxPercent),
+          wallPanelHeightMm: wallPanelHeight,
+          wallPanelWidthMm: width,
+          ledProfileMetres: ledMetres,
+          wallPanelRatePerM2: optional(wallPanelRate),
+          ledProfileRatePerMetre: optional(ledRate),
         },
         currency,
       );
@@ -275,15 +306,21 @@ export default function TvConsoleCalculator() {
     setDrawerFrontHeight(template.layout.drawerFrontHeightMm);
     setDoors(template.layout.doors);
     setReveal(template.layout.revealMm);
+    setTvInches(template.tvInches ?? 0);
+    setWallTreatment(template.wallTreatment ?? "none");
+    setWallPanelHeight(template.wallPanelHeightMm ?? 0);
+    setMounting(template.mounting ?? "floating");
+    setLedMetres(template.ledProfileMetres ?? 0);
     setExtraction(null);
   };
 
   const chooseImage = (f?: File) => {
     if (!f) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size > 6 * 1024 * 1024) {
+    if (!isAcceptedPhoto(f)) {
       toast({
         title: "Choose a supported image",
-        message: "Upload JPEG, PNG or WebP up to 6 MB.",
+        message:
+          "Upload a JPEG, PNG or WebP photo up to 12 MB. It is resized before sending.",
         variant: "error",
       });
       return;
@@ -298,20 +335,31 @@ export default function TvConsoleCalculator() {
     if (!file) return;
     setExtracting(true);
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // Resize before sending: a 6 MB phone photo becomes roughly 300 KB, so
+      // it cannot trip the server's data-URL ceiling the way it used to.
+      const dataUrl = await photoToDataUrl(file);
+      if (!dataUrl || dataUrl.length > MAX_DATA_URL_CHARS) {
+        throw new Error("INVALID_IMAGE");
+      }
       const { data, error } = await supabase.functions.invoke(
         "ai-tv-console-extract",
         { body: { imageDataUrl: dataUrl } },
       );
-      if (error || !data?.extraction)
-        throw new Error(
-          data?.error || error?.message || "Could not analyze the image.",
-        );
+      if (error || !data?.extraction) {
+        // A non-2xx reply arrives as `error` with the body attached; read it so
+        // the user sees the real reason instead of a transport message.
+        let code = data?.code ?? data?.error ?? "";
+        const context = (error as { context?: Response } | null)?.context;
+        if (!code && context && typeof context.json === "function") {
+          try {
+            const body = await context.json();
+            code = body?.code || body?.error || "";
+          } catch {
+            code = "";
+          }
+        }
+        throw new Error(extractionErrorMessage(code || error?.message || ""));
+      }
       setExtraction(data.extraction);
       toast({
         title: "Visual estimate ready",
@@ -320,10 +368,9 @@ export default function TvConsoleCalculator() {
     } catch (err) {
       toast({
         title: "Image parsing unavailable",
-        message:
-          err instanceof Error
-            ? err.message
-            : "Try a template or enter dimensions manually.",
+        message: extractionErrorMessage(
+          err instanceof Error ? err.message : "",
+        ),
         variant: "error",
       });
     } finally {
@@ -399,6 +446,8 @@ export default function TvConsoleCalculator() {
     ["Finishing per m²", finishingRate, setFinishingRate],
     ["Installation per job", installPrice, setInstallPrice],
     ["Transport per job", transportPrice, setTransportPrice],
+    ["Wall panelling per m²", wallPanelRate, setWallPanelRate],
+    ["LED profile per metre", ledRate, setLedRate],
     ["Tax %", taxPercent, setTaxPercent],
   ] as const;
 
@@ -424,10 +473,15 @@ export default function TvConsoleCalculator() {
                 door and shelf counts. No stock photography is used.
               </p>
             </div>
-            <Badge variant="outline">10 editable presets</Badge>
+            <Badge variant="outline">
+              {TV_CONSOLE_TEMPLATES.length} editable presets
+            </Badge>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {TV_CONSOLE_TEMPLATES.map((item) => (
+            {TV_CONSOLE_TEMPLATES.slice(
+              page * PRESETS_PER_PAGE,
+              page * PRESETS_PER_PAGE + PRESETS_PER_PAGE,
+            ).map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -449,7 +503,14 @@ export default function TvConsoleCalculator() {
                       revealMm: item.layout.revealMm,
                     }}
                     depthMm={item.depthMm}
-                    label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors`}
+                    context={{
+                      tvInches: item.tvInches,
+                      wallTreatment: item.wallTreatment,
+                      wallPanelHeightMm: item.wallPanelHeightMm,
+                      mounting: item.mounting,
+                      ledProfileMetres: item.ledProfileMetres,
+                    }}
+                    label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
                   />
                   <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] backdrop-blur">
                     Calculated elevation
@@ -472,6 +533,61 @@ export default function TvConsoleCalculator() {
               </button>
             ))}
           </div>
+
+          {/*
+            Pagination: twenty presets in one column of cards is a long scroll
+            past everything else on the page. Six at a time keeps the drawings
+            large enough to read the bays and drawer fronts.
+          */}
+          <nav
+            className="mt-4 flex flex-wrap items-center justify-between gap-3"
+            aria-label="Console preset pages"
+          >
+            <p className="text-xs text-muted-foreground" aria-live="polite">
+              Page {page + 1} of{" "}
+              {Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE)} ·
+              showing {page * PRESETS_PER_PAGE + 1}–
+              {Math.min(
+                (page + 1) * PRESETS_PER_PAGE,
+                TV_CONSOLE_TEMPLATES.length,
+              )}{" "}
+              of {TV_CONSOLE_TEMPLATES.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                disabled={page === 0}
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                Previous
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setPage((p) =>
+                    Math.min(
+                      p + 1,
+                      Math.ceil(
+                        TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE,
+                      ) - 1,
+                    ),
+                  )
+                }
+                disabled={
+                  page >=
+                  Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE) - 1
+                }
+              >
+                Next
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </div>
+          </nav>
         </section>
 
         <section className="min-w-0 space-y-5">
@@ -621,7 +737,14 @@ export default function TvConsoleCalculator() {
                         }}
                         depthMm={depth}
                         annotate
-                        label={`Front elevation of the current configuration, ${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
+                        context={{
+                          tvInches,
+                          wallTreatment,
+                          wallPanelHeightMm: wallPanelHeight,
+                          mounting,
+                          ledProfileMetres: ledMetres,
+                        }}
+                        label={`Front elevation of the current configuration, ${tvInches ? `with a ${tvInches} inch screen, ` : ""}${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
                       />
                     </div>
                     <figcaption className="mt-2 text-[11px] leading-snug text-muted-foreground">

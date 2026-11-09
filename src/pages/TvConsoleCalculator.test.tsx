@@ -153,4 +153,72 @@ describe("TV console page", () => {
       screen.getByRole("heading", { name: /What you need to buy/i }),
     ).toBeTruthy();
   });
+
+  it("pages the twenty presets six at a time", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.queryAllByText(/Board packing:/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+
+    const nav = screen.getByRole("navigation", {
+      name: /console preset pages/i,
+    });
+    expect(nav.textContent).toMatch(/Page 1 of 4/);
+    expect(screen.getByText("Minimalist Japandi Slats")).toBeInTheDocument();
+    // Page one holds six cards; the twentieth preset is not among them.
+    expect(screen.queryByText("Slatted Room Divider")).not.toBeInTheDocument();
+
+    const next = screen.getByRole("button", { name: /next/i });
+    fireEvent.click(next);
+    await waitFor(() => {
+      expect(
+        screen.getByRole("navigation", { name: /console preset pages/i })
+          .textContent,
+      ).toMatch(/Page 2 of 4/);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    await waitFor(() => {
+      expect(screen.getByText("Slatted Room Divider")).toBeInTheDocument();
+    });
+    // The last page disables Next so the control cannot walk past the end.
+    expect(screen.getByRole("button", { name: /next/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /previous/i })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /previous/i }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("navigation", { name: /console preset pages/i })
+          .textContent,
+      ).toMatch(/Page 3 of 4/);
+    });
+  });
+
+  it("applies a media-wall preset's panelling to the estimate", async () => {
+    renderPage();
+    await waitFor(() => {
+      expect(screen.queryAllByText(/Board packing:/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+
+    // Marble & Gold is the eleventh preset, so it is on page two.
+    fireEvent.click(screen.getByRole("button", { name: /next/i }));
+    await waitFor(() => {
+      expect(
+        screen.getByText("Marble & Gold Feature Wall"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByText("Marble & Gold Feature Wall"));
+    await waitFor(() => {
+      // 2600 mm wide x 1600 mm panelling = 4.16 m2, raised as its own line.
+      expect(screen.queryAllByText(/Wall panelling/i).length).toBeGreaterThan(
+        0,
+      );
+    });
+    expect(screen.queryByTestId("tv-console-reason")).not.toBeInTheDocument();
+  });
 });

@@ -93,7 +93,11 @@ describe("AdminConversationalPacks", () => {
   it("shows the recent parse log with what was asked and whether it estimated", async () => {
     await renderPage();
     expect(await screen.findByText(/Recent parses/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Asked back/).length).toBeGreaterThan(0);
+    // "Recent parses" is a static heading; the rows arrive from async state.
+    // Await the row content itself, or a loaded runner asserts before it lands.
+    expect((await screen.findAllByText(/Asked back/)).length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getAllByText(/^en$/).length).toBeGreaterThan(0);
     // The log shows the thread itself (truncated), not just a status
     expect(

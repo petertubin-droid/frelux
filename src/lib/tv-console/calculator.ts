@@ -36,6 +36,16 @@ export interface ConsoleDimensions {
   sheetLengthMm: number;
   wastePercent: number;
 
+  /**
+   * Panelled wall quoted with the unit: height above the console, and optional
+   * width when the panelling runs wider than the unit. Omitted or 0 means the
+   * design has no panelling and no line is raised.
+   */
+  wallPanelHeightMm?: number;
+  wallPanelWidthMm?: number;
+  /** LED profile length in metres, when the design specifies one. */
+  ledProfileMetres?: number;
+
   // Optional rates. A blank rate means "not priced here", never zero.
   sheetPrice?: number | null;
   backSheetPrice?: number | null;
@@ -49,6 +59,8 @@ export interface ConsoleDimensions {
   installationPrice?: number | null;
   transportPrice?: number | null;
   taxPercent?: number | null;
+  wallPanelRatePerM2?: number | null;
+  ledProfileRatePerMetre?: number | null;
 }
 
 export interface ConsolePanelLine {
@@ -319,6 +331,20 @@ export function calculateConsoleEstimate(
   const installPrice = rate(d.installationPrice, "Installation price");
   const transportPrice = rate(d.transportPrice, "Transport price");
   const taxPercent = rate(d.taxPercent, "Tax rate");
+  const wallPanelRate = rate(d.wallPanelRatePerM2, "Wall panelling rate");
+  const ledRate = rate(d.ledProfileRatePerMetre, "LED profile rate");
+
+  // Panelling is measured as the face actually clad, in square metres.
+  const wallPanelHeightMm = Math.max(Number(d.wallPanelHeightMm) || 0, 0);
+  const wallPanelWidthMm = Math.max(
+    Number(d.wallPanelWidthMm) || Number(d.widthMm) || 0,
+    0,
+  );
+  const wallPanelAreaM2 =
+    wallPanelHeightMm > 0 && wallPanelWidthMm > 0
+      ? round((wallPanelWidthMm / 1000) * (wallPanelHeightMm / 1000), 3)
+      : 0;
+  const ledMetres = Math.max(Number(d.ledProfileMetres) || 0, 0);
 
   const {
     widthMm: w,
@@ -658,6 +684,31 @@ export function calculateConsoleEstimate(
       rate: transportPrice,
       amount: transportPrice === null ? null : round(transportPrice, 2),
     },
+    // Panelling and LED are part of an exclusive media wall, so they are quoted
+    // with it rather than described in prose. A blank rate leaves them listed
+    // as unpriced, which is the same contract as every other line here.
+    {
+      key: "wall-panelling",
+      label: "Wall panelling (fluted, slatted or stone face)",
+      quantity: wallPanelAreaM2,
+      unit: "m2",
+      rate: wallPanelRate,
+      amount:
+        wallPanelRate === null || wallPanelAreaM2 <= 0
+          ? null
+          : round(wallPanelAreaM2 * wallPanelRate, 2),
+    },
+    {
+      key: "led-profile",
+      label: "LED profile and driver",
+      quantity: ledMetres,
+      unit: "m",
+      rate: ledRate,
+      amount:
+        ledRate === null || ledMetres <= 0
+          ? null
+          : round(ledMetres * ledRate, 2),
+    },
   ];
 
   const priced = costLines.filter(
@@ -752,6 +803,11 @@ export function dimensionsFromTemplate(
     sheetWidthMm: 1220,
     sheetLengthMm: 2440,
     wastePercent: 10,
+    // The panelling and LED a preset specifies are quoted with it; rates stay
+    // null so they surface as unpriced lines until the user enters a rate.
+    wallPanelHeightMm: template.wallPanelHeightMm,
+    wallPanelWidthMm: template.widthMm,
+    ledProfileMetres: template.ledProfileMetres,
     sheetPrice: null,
     backSheetPrice: null,
     edgeBandingPricePerMetre: null,
