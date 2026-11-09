@@ -2467,9 +2467,14 @@ export async function deleteProjectPayment(id: string): Promise<void> {
 
 /**
  * Attaches the proof for an expense: the transfer screenshot, POS slip or
- * vendor invoice the contractor actually holds. Same bucket and fallback as
- * project attachments, so a missing bucket cannot lose the file.
+ * vendor invoice the contractor actually holds.
+ *
+ * Stored in the private project-receipts bucket, keyed by project. Nothing is
+ * public: a viewer must be signed in as the project owner for the storage
+ * policy to mint a link, and that link expires in ten minutes.
  */
+export const RECEIPT_BUCKET = "project-receipts";
+
 const RECEIPT_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -2483,7 +2488,7 @@ export async function uploadExpenseReceipt(
   projectId: string,
   expenseId: string,
   file: File,
-): Promise<{ url: string; name: string }> {
+): Promise<{ path: string; name: string }> {
   const ext = RECEIPT_TYPES[file.type];
   if (!ext) {
     throw new Error("Attach a JPG, PNG, WebP, HEIC image or a PDF.");
@@ -2493,45 +2498,49 @@ export async function uploadExpenseReceipt(
       "That receipt is larger than 8 MB. Compress it and try again.",
     );
   }
-  const storagePath = `receipts/${projectId}/${expenseId}-${Date.now()}.${ext}`;
 
-  let uploadError = (
-    await supabase.storage
-      .from("project-attachments")
-      .upload(storagePath, file, { contentType: file.type })
-  ).error;
+  // A receipt is a client's bank slip. The bucket is private and the caller's
+  // own session must pass the storage policy, so the object path is stored and
+  // a short lived signed link is minted only when somebody asks to look.
+  // The random segment keeps a path from being derivable from ids alone.
+  const storagePath = `${projectId}/${crypto.randomUUID()}.${ext}`;
 
-  let url: string | null = null;
+  const { error: uploadError } = await supabase.storage
+    .from(RECEIPT_BUCKET)
+    .upload(storagePath, file, { contentType: file.type, upsert: false });
 
-  if (!uploadError) {
-    const { data } = supabase.storage
-      .from("project-attachments")
-      .getPublicUrl(storagePath);
-    url = data.publicUrl;
-  } else if (uploadError.message.includes("Bucket not found")) {
-    const fallbackPath = `project-attachments/${storagePath}`;
-    const fallback = await supabase.storage
-      .from("media")
-      .upload(fallbackPath, file, { contentType: file.type });
-    if (fallback.error)
-      throw new Error(`Failed to upload receipt: ${fallback.error.message}`);
-    const { data } = supabase.storage.from("media").getPublicUrl(fallbackPath);
-    url = data.publicUrl;
-    uploadError = null;
-  }
-
-  if (uploadError || !url) {
-    throw new Error(
-      `Failed to upload receipt: ${uploadError?.message ?? "unknown error"}`,
-    );
+  if (uploadError) {
+    throw new Error(`Failed to upload receipt: ${uploadError.message}`);
   }
 
   const { error: dbError } = await supabase
     .from("project_expenses")
-    .update({ receipt_url: url, receipt_name: file.name })
+    .update({
+      receipt_path: storagePath,
+      receipt_name: file.name,
+      // Never a public URL: older rows may still carry one, new ones cannot.
+      receipt_url: null,
+    })
     .eq("id", expenseId);
 
-  if (dbError) throw new Error(`Failed to attach receipt: ${dbError.message}`);
+  if (dbError) {
+    await supabase.storage.from(RECEIPT_BUCKET).remove([storagePath]);
+    throw new Error(`Failed to attach receipt: ${dbError.message}`);
+  }
 
-  return { url, name: file.name };
+  return { path: storagePath, name: file.name };
+}
+
+export const RECEIPT_LINK_TTL_SECONDS = 600;
+
+export async function createReceiptLink(path: string): Promise<string> {
+  const { data, error } = await supabase.storage
+    .from(RECEIPT_BUCKET)
+    .createSignedUrl(path, RECEIPT_LINK_TTL_SECONDS);
+  if (error || !data?.signedUrl) {
+    throw new Error(
+      `Failed to open the receipt: ${error?.message ?? "no link returned"}`,
+    );
+  }
+  return data.signedUrl;
 }

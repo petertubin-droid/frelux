@@ -1319,7 +1319,12 @@ export interface DbProjectExpense {
   shopping_item_id: string | null;
   room_id: string | null;
   notes: string | null;
-  /** Uploaded proof of spend: transfer screenshot, POS slip, vendor invoice. */
+  /**
+   * Uploaded proof of spend: transfer screenshot, POS slip, vendor invoice.
+   * receipt_path is the private storage object; receipt_url is legacy and only
+   * ever holds a public link from before receipts moved to a private bucket.
+   */
+  receipt_path: string | null;
   receipt_url: string | null;
   receipt_name: string | null;
   sort_order: number;

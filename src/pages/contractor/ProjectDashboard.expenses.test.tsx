@@ -30,6 +30,7 @@ function makeExpense(
     shopping_item_id: null,
     room_id: null,
     notes: null,
+    receipt_path: null,
     receipt_url: null,
     receipt_name: null,
     sort_order: 0,
@@ -90,7 +91,26 @@ describe("ExpensesTab proof of spend", () => {
     expect(onAttachReceipt).toHaveBeenCalledWith("exp-1", file);
   });
 
-  it("links the stored proof instead of asking for it again", () => {
+  it("asks for a signed link rather than embedding one for a private receipt", () => {
+    const onOpenReceipt = vi.fn();
+    const expense = makeExpense({
+      receipt_path: "proj-1/4f1c-pos-slip.pdf",
+      receipt_name: "pos-slip.pdf",
+    });
+
+    render(
+      <ExpensesTab {...baseProps({ expenses: [expense], onOpenReceipt })} />,
+    );
+
+    const badge = screen.getByText("Proof").closest("button");
+    expect(badge).toBeTruthy();
+    expect(badge?.getAttribute("href")).toBeNull();
+    fireEvent.click(screen.getByText("Proof"));
+    expect(onOpenReceipt).toHaveBeenCalledWith(expense);
+    expect(screen.queryByText("Attach proof")).toBeNull();
+  });
+
+  it("still opens a legacy public proof link", () => {
     render(
       <ExpensesTab
         {...baseProps({
@@ -104,11 +124,7 @@ describe("ExpensesTab proof of spend", () => {
       />,
     );
 
-    const link = screen.getByText("Proof").closest("a");
-    expect(link?.getAttribute("href")).toBe(
-      "https://cdn.example.com/pos-slip.jpg",
-    );
-    expect(link?.getAttribute("target")).toBe("_blank");
+    expect(screen.getByText("Proof").closest("button")).toBeTruthy();
     expect(screen.queryByText("Attach proof")).toBeNull();
   });
 });

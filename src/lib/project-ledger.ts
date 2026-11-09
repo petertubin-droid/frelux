@@ -195,7 +195,12 @@ export function allocatePayments(
 export interface LedgerInput {
   invoices: LedgerInvoice[];
   payments: LedgerPayment[];
-  expenses: { amount: number; currency: string; receipt_url?: string | null }[];
+  expenses: {
+    amount: number;
+    currency: string;
+    receipt_path?: string | null;
+    receipt_url?: string | null;
+  }[];
   /** The project currency. Rows in another currency are reported, not added. */
   currency: string;
   /** ISO date used for overdue maths. Defaults to the real clock. */
@@ -250,8 +255,8 @@ export function summariseLedger(input: LedgerInput): LedgerSummary {
   const expenseTotal = round2(
     expenses.reduce((sum, expense) => sum + expense.amount, 0),
   );
-  const expensesWithReceipts = expenses.filter((expense) =>
-    Boolean(expense.receipt_url),
+  const expensesWithReceipts = expenses.filter(
+    (expense) => Boolean(expense.receipt_path) || Boolean(expense.receipt_url),
   ).length;
 
   const mismatchCurrencies = Array.from(currencies);

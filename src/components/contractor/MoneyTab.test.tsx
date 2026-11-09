@@ -69,6 +69,7 @@ const expense = (over: Partial<DbProjectExpense> = {}): DbProjectExpense => ({
   shopping_item_id: null,
   room_id: null,
   notes: null,
+  receipt_path: null,
   receipt_url: null,
   receipt_name: null,
   sort_order: 0,

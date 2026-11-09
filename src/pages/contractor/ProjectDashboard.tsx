@@ -78,6 +78,7 @@ import {
   updateProjectExpense,
   deleteProjectExpense,
   uploadExpenseReceipt,
+  createReceiptLink,
 } from "@/lib/contractor";
 import { MoneyTab } from "@/components/contractor/MoneyTab";
 import { ProjectTabBar } from "@/components/contractor/ProjectTabBar";
@@ -728,6 +729,36 @@ export default function ProjectDashboard() {
     }
   };
 
+  const handleOpenReceipt = async (expense: DbProjectExpense) => {
+    // A blank tab opened while the click is still synchronous survives popup
+    // blocking; the signed link is written into it a moment later.
+    const tab = expense.receipt_path
+      ? window.open("about:blank", "_blank")
+      : null;
+    if (tab) tab.opener = null;
+    try {
+      setActionLoading(true);
+      setError(null);
+      if (expense.receipt_path) {
+        const link = await createReceiptLink(expense.receipt_path);
+        if (tab) tab.location.href = link;
+        else window.location.href = link;
+        return;
+      }
+      if (expense.receipt_url) {
+        window.open(expense.receipt_url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      tab?.close();
+      setError("No proof is attached to that expense.");
+    } catch (err) {
+      tab?.close();
+      setError(getSafeError(err, "Could not open the receipt."));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleEditExpense = (expense: DbProjectExpense) => {
     setExpenseForm({
       category: expense.category,
@@ -1260,6 +1291,7 @@ export default function ProjectDashboard() {
             onEdit={handleEditExpense}
             onDelete={handleDeleteExpense}
             onAttachReceipt={handleAttachReceipt}
+            onOpenReceipt={handleOpenReceipt}
             marketCode={
               typeof (project as unknown as Record<string, unknown>)
                 .country_code === "string"
@@ -3295,6 +3327,7 @@ interface ExpensesTabProps {
   projectCity?: string;
   crowdsourceOptIn?: boolean;
   onToggleCrowdsourceOptIn?: (optIn: boolean) => void;
+  onOpenReceipt?: (expense: DbProjectExpense) => void;
 }
 
 export function ExpensesTab(props: ExpensesTabProps) {
@@ -3585,11 +3618,10 @@ export function ExpensesTab(props: ExpensesTabProps) {
                 <span className="text-sm font-semibold text-foreground">
                   {formatCurrency(expense.amount, props.currency)}
                 </span>
-                {expense.receipt_url ? (
-                  <a
-                    href={expense.receipt_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                {expense.receipt_path || expense.receipt_url ? (
+                  <button
+                    type="button"
+                    onClick={() => props.onOpenReceipt?.(expense)}
                     className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-green-500/15 dark:text-green-300"
                     title={expense.receipt_name ?? "Payment proof"}
                   >
@@ -3598,7 +3630,7 @@ export function ExpensesTab(props: ExpensesTabProps) {
                     <span className="sr-only">
                       {` ${tr("attached for")} ${expense.name}`}
                     </span>
-                  </a>
+                  </button>
                 ) : props.onAttachReceipt ? (
                   <label className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-input px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-within:outline-none focus-within:ring-2 focus-within:ring-primary/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
                     <Paperclip aria-hidden="true" className="h-3 w-3" />

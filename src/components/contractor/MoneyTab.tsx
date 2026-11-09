@@ -190,6 +190,7 @@ export function MoneyTab(props: MoneyTabProps) {
         expenses: expenses.map((expense) => ({
           amount: Number(expense.amount),
           currency: expense.currency,
+          receipt_path: expense.receipt_path,
           receipt_url: expense.receipt_url,
         })),
         currency,
