@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Loader2,
   AlertCircle,
@@ -256,6 +257,14 @@ export default function MaterialPrices() {
         title={t("Material Prices")}
         subtitle="The live FRELUX price book: what materials cost right now, where the numbers come from, and how they moved."
         breadcrumbs={[{ label: "Material Prices" }]}
+        actions={
+          <Link
+            to="/price-book"
+            className="inline-flex items-center rounded-md border border-border px-3 py-2 text-sm font-medium"
+          >
+            My price book
+          </Link>
+        }
       />
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

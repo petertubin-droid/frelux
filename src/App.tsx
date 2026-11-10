@@ -79,6 +79,7 @@ import { useTypography } from "@/lib/useTypography";
 const ColorDetail = lazy(() => import("@/pages/ColorDetail"));
 const Learn = lazy(() => import("@/pages/learn/Learn"));
 const MaterialPrices = lazy(() => import("@/pages/MaterialPrices"));
+const PriceBook = lazy(() => import("@/pages/PriceBook"));
 const Glossary = lazy(() => import("@/pages/Glossary"));
 const Printables = lazy(() => import("@/pages/Printables"));
 const UnitConverter = lazy(() => import("@/pages/UnitConverter"));
@@ -1879,6 +1880,14 @@ export default function App() {
                         <Route
                           path="/material-prices"
                           element={<MaterialPriceTracker />}
+                        />
+                        <Route
+                          path="/price-book"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <PriceBook />
+                            </Suspense>
+                          }
                         />
                         <Route
                           path="/maintenance-planner"
