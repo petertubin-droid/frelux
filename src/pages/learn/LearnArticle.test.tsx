@@ -326,25 +326,32 @@ describe("LearnArticle FAQ block", () => {
       document.querySelectorAll("[data-faq-insert] dl dt").length,
     ).toBeGreaterThanOrEqual(6);
 
-    const blocks = Array.from(
-      document.querySelectorAll('script[type="application/ld+json"]'),
-    )
-      .map((node) => {
-        try {
-          return JSON.parse(node.textContent ?? "{}");
-        } catch {
-          return null;
-        }
-      })
-      .flat()
-      .filter(Boolean) as Array<Record<string, unknown>>;
+    const readJsonLdBlocks = () =>
+      Array.from(
+        document.querySelectorAll('script[type="application/ld+json"]'),
+      )
+        .map((node) => {
+          try {
+            return JSON.parse(node.textContent ?? "{}");
+          } catch {
+            return null;
+          }
+        })
+        .flat()
+        .filter(Boolean) as Array<Record<string, unknown>>;
 
-    const faqPage = blocks.find((b) => b["@type"] === "FAQPage") as
-      { mainEntity?: Array<{ name: string }> } | undefined;
-    expect(faqPage).toBeTruthy();
-    expect(faqPage?.mainEntity).toHaveLength(6);
-    expect(faqPage?.mainEntity?.map((q) => q.name)).toEqual(
-      faqFixture.map((f) => f.question),
-    );
+    // The structured data is published in an effect after the rows render, so a
+    // slower runner can read the page between the two. Waiting for the settled
+    // block keeps the exact count assertion instead of weakening it.
+    await waitFor(() => {
+      const faqPage = readJsonLdBlocks().find(
+        (block) => block["@type"] === "FAQPage",
+      ) as { mainEntity?: Array<{ name: string }> } | undefined;
+      expect(faqPage).toBeTruthy();
+      expect(faqPage?.mainEntity).toHaveLength(6);
+      expect(faqPage?.mainEntity?.map((q) => q.name)).toEqual(
+        faqFixture.map((f) => f.question),
+      );
+    });
   });
 });
