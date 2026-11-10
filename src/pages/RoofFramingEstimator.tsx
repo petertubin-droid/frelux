@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useState } from "react";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
 import { buildingEnvelope } from "@/lib/measurement/building-schedule";
@@ -247,7 +248,9 @@ export default function RoofFramingEstimator() {
    */
   const applyMeasuredRoof = () => {
     if (!measuredRoof) {
-      setEnvelopeNote("No roof has been read from a plan yet. Read one in the building panel, or type the values.");
+      setEnvelopeNote(
+        "No roof has been read from a plan yet. Read one in the building panel, or type the values.",
+      );
       return;
     }
     if (measuredRoof.shape !== "gable" && measuredRoof.shape !== "hip") {
@@ -388,7 +391,9 @@ export default function RoofFramingEstimator() {
                     {t("Use the measured roof")}
                   </button>
                   <span className="text-xs text-muted-foreground">
-                    {t("Fills length and width. Pitch and overhang stay yours.")}
+                    {t(
+                      "Fills length and width. Pitch and overhang stay yours.",
+                    )}
                   </span>
                 </div>
                 {envelopeNote && (
@@ -627,6 +632,57 @@ export default function RoofFramingEstimator() {
                               ? undefined
                               : window.location.href,
                         }}
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <ShareEstimateButton
+                        estimate={{
+                          kind: "Roof Framing Schedule",
+                          summaryLines: [
+                            {
+                              label: "Total board feet",
+                              value: `${format(result.totalBoardFeet)} BF`,
+                            },
+                            {
+                              label: "Total linear timber",
+                              value: `${format(result.totalLinearM)} m`,
+                            },
+                            {
+                              label: "Ridge length",
+                              value: `${format(result.ridgeLengthM)} m`,
+                            },
+                            {
+                              label: "Roof rise",
+                              value: `${format(result.roofRiseM)} m`,
+                            },
+                          ],
+                          lineItems: [
+                            {
+                              description: "Total linear timber",
+                              quantity: `${format(result.totalLinearM)} m`,
+                            },
+                            {
+                              description: "Ridge length",
+                              quantity: `${format(result.ridgeLengthM)} m`,
+                            },
+                            {
+                              description: "Roof rise",
+                              quantity: `${format(result.roofRiseM)} m`,
+                            },
+                          ],
+                          totals: [
+                            {
+                              label: "Total board feet",
+                              value: `${format(result.totalBoardFeet)} BF`,
+                              emphasized: true,
+                            },
+                          ],
+                          notes: [
+                            "Timber quantities only. Prices and fixings are not included in this schedule.",
+                          ],
+                          link: "/roof-framing-calculator",
+                        }}
+                        compact
                       />
                     </div>
                     <div className="mt-5 grid grid-cols-2 gap-3">

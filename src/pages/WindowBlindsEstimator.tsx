@@ -12,6 +12,7 @@
 // supplies the figure, and tax is never assumed.
 // =========================================================
 
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Blinds, Info, Plus, Ruler, Trash2, Wrench } from "lucide-react";
@@ -817,6 +818,76 @@ export default function WindowBlindsEstimator() {
                   ? "Tax is not applied until you enter a rate"
                   : "Tax is the rate you entered, not a local assumption"}
               </p>
+              <div className="mt-4">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: "Window Blinds Estimate",
+                    summaryLines: [
+                      {
+                        label: "Windows",
+                        value: String(result.geometry.windowCount),
+                      },
+                      {
+                        label: "Blinds",
+                        value:
+                          result.totals.blinds === null
+                            ? "manual"
+                            : money(result.totals.blinds),
+                      },
+                      {
+                        label: "Extras",
+                        value:
+                          result.totals.extras === null
+                            ? "manual"
+                            : money(result.totals.extras),
+                      },
+                      {
+                        label: "Fitting",
+                        value:
+                          result.totals.installation === null
+                            ? "manual"
+                            : money(result.totals.installation),
+                      },
+                    ],
+                    lineItems: result.rows.map((row) => ({
+                      description: row.label,
+                      quantity: `${row.quantity} × ${row.cassette ?? row.typeLabel}`,
+                      amount:
+                        row.blindsTotal === null
+                          ? null
+                          : money(row.blindsTotal),
+                    })),
+                    totals: [
+                      {
+                        label: "Subtotal",
+                        value:
+                          result.totals.total === null
+                            ? "manual"
+                            : money(result.totals.total),
+                      },
+                      ...(result.totals.tax !== null
+                        ? [
+                            {
+                              label: "Tax",
+                              value: money(result.totals.tax),
+                            },
+                          ]
+                        : []),
+                      ...(jobTotal !== null
+                        ? [
+                            {
+                              label: "Total",
+                              value: money(jobTotal),
+                              emphasized: true,
+                            },
+                          ]
+                        : []),
+                    ],
+                    link: "/window-blind-calculator",
+                  }}
+                  compact
+                />
+              </div>
               <button
                 type="button"
                 onClick={downloadCsv}

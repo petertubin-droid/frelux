@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useState, useCallback } from "react";
@@ -410,6 +411,78 @@ export default function FoundationCalculator() {
               <EngineerReviewBadge discipline="foundation" />
             </div>
 
+            <div className="mb-6">
+              <ShareEstimateButton
+                estimate={{
+                  kind: "Foundation Design",
+                  title: `${result.shape} footing at ${result.bearing_capacity} kPa`,
+                  summaryLines: [
+                    {
+                      label: "Footing shape",
+                      value: result.shape,
+                    },
+                    {
+                      label: "Recommended width",
+                      value: `${result.recommended_width} mm`,
+                    },
+                    ...(result.recommended_length
+                      ? [
+                          {
+                            label: "Recommended length",
+                            value: `${result.recommended_length} mm`,
+                          },
+                        ]
+                      : []),
+                    {
+                      label: "Pad thickness",
+                      value: `${result.pad_thickness_mm} mm`,
+                    },
+                    {
+                      label: "Bearing capacity",
+                      value: `${result.bearing_capacity} kPa`,
+                    },
+                    {
+                      label: "Applied pressure",
+                      value: `${result.applied_pressure} kPa`,
+                    },
+                    {
+                      label: "Bearing check",
+                      value: result.bearing_check_pass
+                        ? "Passes"
+                        : "Needs review",
+                    },
+                  ],
+                  lineItems: [
+                    {
+                      description: "Concrete volume",
+                      quantity: `${result.concrete_volume} m³`,
+                    },
+                    {
+                      description: "Blinding volume",
+                      quantity: `${result.blinding_volume} m³`,
+                    },
+                    {
+                      description: "Hardcore volume",
+                      quantity: `${result.hardcore_volume} m³`,
+                    },
+                    {
+                      description: "Excavation volume",
+                      quantity: `${result.excavation_volume} m³`,
+                    },
+                  ],
+                  totals: [
+                    {
+                      label: "Factor of safety",
+                      value: String(result.factor_of_safety),
+                      emphasized: true,
+                    },
+                  ],
+                  notes: result.warnings,
+                  link: "/foundation-calculator",
+                }}
+                compact
+              />
+            </div>
             <div className="mb-6">
               <CalculatorSchematic
                 kind="foundation"
