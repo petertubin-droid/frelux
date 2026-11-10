@@ -581,7 +581,7 @@ export function MathematicalElevationPanel({
             <>
               <p className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground">
                 Calculator normalization limits (SI): length and width ≥ 3 m;
-                floor height ≥ 2.1 m; 1–5 storeys; wall thickness 0.12–0.40 m;
+                floor height ≥ 2.1 m; 1–60 storeys; wall thickness 0.12–0.40 m;
                 pitch 5–60°; overhang 0.20–1.50 m. Any entered value changed by
                 these limits is listed in the screening flags below.
               </p>
@@ -630,7 +630,7 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     min="1"
-                    max="5"
+                    max="60"
                     value={params.storeys}
                     onChange={(e) =>
                       handleNumberChange("storeys", Number(e.target.value))

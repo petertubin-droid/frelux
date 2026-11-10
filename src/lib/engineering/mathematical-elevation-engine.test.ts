@@ -73,10 +73,10 @@ describe("Deterministic Mathematical Plan Elevation Engine", () => {
   it("reports normalized user-entered values instead of silently clamping them", () => {
     const result = calculateMathematicalElevation({
       building_length: 2,
-      storeys: 6,
+      storeys: 61,
     });
     expect(result.input.building_length).toBe(3);
-    expect(result.input.storeys).toBe(5);
+    expect(result.input.storeys).toBe(60);
     expect(
       result.discrepancies.some(
         (item) => item.id === "input-normalized-building_length",
@@ -319,10 +319,10 @@ describe("Elevation engine corrections", () => {
   it("reports when entered numeric inputs are normalized", () => {
     const result = calculateMathematicalElevation({
       building_length: 2,
-      storeys: 9,
+      storeys: 200,
     });
     expect(result.input.building_length).toBe(3);
-    expect(result.input.storeys).toBe(5);
+    expect(result.input.storeys).toBe(60);
     expect(
       result.discrepancies.some(
         (d) => d.id === "input-normalized-building_length",
@@ -382,5 +382,39 @@ describe("eaves and ridge heights", () => {
       double.levels.level_5_roof.eaves_height_m -
       single.levels.level_5_roof.eaves_height_m;
     expect(rise).toBeCloseTo(DEFAULT_PLAN_INPUT.floor_to_floor_height, 2);
+  });
+
+  it("measures a tower rather than a five storey stand-in", () => {
+    // P_ext = 2(12 + 9) = 42 m, H = 3.0 m. Forty storeys of external wall is
+    // 42 x 3.0 x 40 = 5040 m2, not the 630 m2 a silent cap at five pays for.
+    const tower = calculateMathematicalElevation({
+      ...DEFAULT_PLAN_INPUT,
+      storeys: 40,
+    });
+    expect(tower.input.storeys).toBe(40);
+    expect(
+      tower.levels.level_3_superstructure.gross_external_wall_area_m2,
+    ).toBe(5040);
+    // Ring beams run at every floor level: L_centerline 42 + 22 = 64 m per
+    // level, 64 x 40 = 2560 m.
+    expect(tower.levels.level_4_ring_beam.total_beam_length_m).toBe(2560);
+  });
+
+  it("answers a glass house with the solid remainder and names the glazing", () => {
+    // A 12 x 9 x 3 ground floor gives 126 m2 of external wall. Glazing 110 m2
+    // leaves 16 m2 solid, which is 87.3 percent glazed.
+    const glassHouse = calculateMathematicalElevation({
+      ...DEFAULT_PLAN_INPUT,
+      storeys: 1,
+      internal_wall_length: 0,
+      openings: [{ id: "glaze", type: "window", width: 4.0, height: 2.75, count: 10, wall_side: "front" }],
+    } as never);
+    const l3 = glassHouse.levels.level_3_superstructure;
+    expect(l3.gross_external_wall_area_m2).toBe(126);
+    expect(l3.total_opening_deductions_m2).toBe(110);
+    expect(l3.net_masonry_area_m2).toBe(16);
+    expect(
+      glassHouse.discrepancies.some((d) => d.id === "advisory-glazed-envelope"),
+    ).toBe(true);
   });
 });

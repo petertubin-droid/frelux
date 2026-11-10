@@ -234,6 +234,14 @@ export interface MathematicalElevationResult {
 
 // ── Defaults are for geometry and quantity illustration only. ──
 
+/**
+ * Storey range this geometry model supports. It measures walls, beams, one
+ * ground slab and one roof, so it stays inside the range where that description
+ * is still true of the building. Taller buildings belong to the tall building
+ * engine, which performs the lateral design this model deliberately omits.
+ */
+export const MAX_SUPPORTED_STOREYS = 60;
+
 export const DEFAULT_PLAN_INPUT: PlanElevationInput = {
   project_name: "Architectural Plan Mathematical Elevation",
   building_type: "bungalow",
@@ -327,10 +335,10 @@ export function calculateMathematicalElevation(
     ),
     storeys: Math.max(
       1,
-      Math.min(
-        5,
-        Math.round(finiteInput(rawInput.storeys, DEFAULT_PLAN_INPUT.storeys)),
-      ),
+      Math.min(MAX_SUPPORTED_STOREYS, Math.round(finiteInput(
+        rawInput.storeys,
+        DEFAULT_PLAN_INPUT.storeys,
+      ))),
     ),
     wall_thickness: Math.max(
       0.12,
@@ -603,6 +611,31 @@ export function calculateMathematicalElevation(
     });
   }
 
+  // A glazed envelope is a legitimate building, not a data error. This model
+  // measures the solid wall that remains, so say plainly how much of the
+  // envelope is glazed and where the glass itself is priced.
+  const glazedSharePercent =
+    gross_masonry_area_m2 > 0
+      ? (total_opening_deductions_m2 / gross_masonry_area_m2) * 100
+      : 0;
+  if (
+    glazedSharePercent >= 60 &&
+    total_opening_deductions_m2 <= gross_masonry_area_m2
+  ) {
+    discrepancies.push({
+      id: "advisory-glazed-envelope",
+      severity: "advisory",
+      category: "geometry",
+      title: "Envelope is predominantly glazed",
+      detected_value: `${glazedSharePercent.toFixed(1)}% of the gross wall is opening`,
+      permissible_threshold: "Advisory only; a glazed envelope is a valid design",
+      regulation_code: "Scope note",
+      mathematical_proof: `Openings total ${total_opening_deductions_m2.toFixed(1)} m² of the ${gross_masonry_area_m2.toFixed(1)} m² gross wall, so only ${net_masonry_area_m2.toFixed(1)} m² is solid masonry. Glass, framing and fixings are not measured or priced here.`,
+      recommended_fix:
+        "Price the glazing from the opening schedule in the windows and doors estimator, and treat the masonry figure as the solid remainder only.",
+    });
+  }
+
   // Geometry ratio only; no effective-height factor or capacity check.
   const effective_wall_height_m = H;
   const slenderness_ratio = effective_wall_height_m / tw;
@@ -682,7 +715,12 @@ export function calculateMathematicalElevation(
   // =========================================================
   const ring_beam_width_m = tw;
   const ring_beam_depth_m = 0.225;
-  const total_beam_length_m = L_centerline;
+  // A ring beam runs at each floor level, roof level included, so a multi storey
+  // building has one beam set per storey. Counting the run once and printing it
+  // against a tower understated the beams by the storey count.
+  const beam_levels = storeys;
+  const beam_length_per_level_m = L_centerline;
+  const total_beam_length_m = beam_length_per_level_m * beam_levels;
   const ring_beam_concrete_volume =
     total_beam_length_m * ring_beam_width_m * ring_beam_depth_m;
   // No reinforcement quantity is produced without a project-specific design.
@@ -709,7 +747,7 @@ export function calculateMathematicalElevation(
     stirrups_spacing_mm: null,
     lintel_checks,
     mathematical_proof: [
-      `Continuous perimeter bond beam: Length = ${total_beam_length_m.toFixed(2)}m, Section = ${(ring_beam_width_m * 1000).toFixed(0)} × ${(ring_beam_depth_m * 1000).toFixed(0)} mm`,
+      `Continuous perimeter bond beam: ${beam_length_per_level_m.toFixed(2)}m per level × ${beam_levels} level(s) = ${total_beam_length_m.toFixed(2)}m, Section = ${(ring_beam_width_m * 1000).toFixed(0)} × ${(ring_beam_depth_m * 1000).toFixed(0)} mm`,
       `Concrete volume: V_beam = ${total_beam_length_m.toFixed(2)} · ${ring_beam_width_m} · ${ring_beam_depth_m} = ${ring_beam_concrete_volume.toFixed(2)} m³`,
       "Reinforcement, anchorage, laps and links are not specified or quantified; obtain a project-specific design.",
     ],
