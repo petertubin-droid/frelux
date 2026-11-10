@@ -28,10 +28,28 @@ export interface AssemblyMaterialLine {
   derivation: Derivation;
 }
 
-/** One 50 kg bag of cement is taken as 0.035 m3 of finished mortar. */
-export const CEMENT_BAG_M3 = 0.035;
+/**
+ * One 50 kg bag of cement, as a volume of finished material.
+ *
+ * 50 kg at a bulk density of 1440 kg/m3 is 0.03472 m3, so 0.0347 is used. The
+ * other Frelux material engines (build-to-roof, foundation, advanced takeoff,
+ * wall finishing) already use this figure; keeping 0.035 here made the same bag
+ * of cement 0.9 percent larger in this engine than in the rest of the product.
+ */
+export const CEMENT_BAG_M3 = 0.0347;
 export const CEMENT_DENSITY_KG_M3 = 1440;
 export const CEMENT_BAG_KG = 50;
+/**
+ * Dry-to-wet volume factor for mortar.
+ *
+ * Cement and sand are batched dry and the water is absorbed into the voids, so a
+ * cubic metre of wet mortar is not a cubic metre of dry material: 1.33 m3 of dry
+ * mix makes 1 m3 of laid mortar. The same 1.33 is used by
+ * src/lib/wallfinishing/quantity-engine.ts, and this engine previously applied
+ * no factor at all, which understated the cement in every mortar line by a
+ * quarter and disagreed with the plaster engine on the same wall.
+ */
+export const MORTAR_DRY_FACTOR = 1.33;
 
 export interface BlockworkSpec {
   /** Face dimensions of the unit, in millimetres. */
@@ -69,9 +87,10 @@ export function blockworkAssembly(
   const mortarNet = round(areaM2 * mortarPerM2, 4);
   const mortar = applyWaste(mortarNet, mortarWastePct);
   const parts = cement + sand;
-  const cementM3 = mortar * (cement / parts);
-  const sandM3 = mortar * (sand / parts);
-  const cementBags = Math.ceil(cementM3 / CEMENT_BAG_M3);
+  const mortarDryM3 = mortar * MORTAR_DRY_FACTOR;
+  const cementM3 = mortarDryM3 * (cement / parts);
+  const sandM3 = mortarDryM3 * (sand / parts);
+  const cementBags = cementM3 > 0 ? Math.ceil(cementM3 / CEMENT_BAG_M3) : 0;
 
   return [
     {
@@ -110,6 +129,10 @@ export function blockworkAssembly(
           mortarPerM2M3: mortarPerM2,
           mortarWastePct,
         },
+        steps: [
+          { label: "Mortar, wet", value: mortar, unit: "m3" },
+          { label: "Dry mix", value: round(mortarDryM3, 4), unit: "m3" },
+        ],
       },
     },
     {
@@ -122,9 +145,10 @@ export function blockworkAssembly(
       purchaseUnit: "bags of 50 kg",
       derivation: {
         formula:
-          "mortar x cement parts / total parts / bag volume, rounded up to whole bags",
-        inputs: { mortarM3: mortar, cement, sand, bagM3: CEMENT_BAG_M3 },
+          "wet mortar x dry factor x cement parts / total parts / bag volume, rounded up to whole bags",
+        inputs: { mortarM3: mortar, dryFactor: MORTAR_DRY_FACTOR, cement, sand, bagM3: CEMENT_BAG_M3 },
         steps: [
+          { label: "Dry mix", value: round(mortarDryM3, 4), unit: "m3" },
           { label: "Cement volume", value: round(cementM3, 4), unit: "m3" },
           { label: "Bags", value: cementBags, unit: "nr" },
         ],

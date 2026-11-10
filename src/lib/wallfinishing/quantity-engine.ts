@@ -38,7 +38,12 @@ import { resolveAssemblyLayers } from "./assembly-overrides";
 /** Dry-volume factor for wet mortar (standard shrinkage allowance). */
 export const MORTAR_DRY_FACTOR = 1.33;
 /** Volume of one 50 kg cement bag, m³ (standard). */
-export const CEMENT_BAG_VOLUME_M3 = 0.035;
+/**
+ * One 50 kg bag at 1440 kg/m3 is 0.03472 m3. The material engines use 0.0347;
+ * this module carried 0.035, which made its bag 0.9 percent larger and its
+ * cement count lower than the rest of the product for the same wet volume.
+ */
+export const CEMENT_BAG_VOLUME_M3 = 0.0347;
 
 export interface WallAreaResult {
   ok: boolean;

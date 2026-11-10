@@ -7,7 +7,10 @@
  * Deterministic math:
  *   absorbed fraction of incident solar energy = 1 − albedo
  *   daily absorbed-energy delta (kWh/day)
- *     = area × irradiance_rule × (albedo_old − albedo_new)
+ *     = area × irradiance_rule × (albedo_new − albedo_old)
+ *     because absorbed = 1 − albedo, so the energy no longer absorbed is the
+ *     rise in albedo. A whiter finish therefore reports a positive cooling
+ *     benefit, which is what this engine computes and what the fields say.
  *   reduction % = (albedo_new − albedo_old) / (1 − albedo_old) × 100
  *
  * Global Standards:
