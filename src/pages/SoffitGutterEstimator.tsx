@@ -28,6 +28,8 @@ import {
   FieldGroup,
 } from "@/components/calculators/SpecialtyFields";
 import { track } from "@/lib/analytics";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { buildingEnvelope } from "@/lib/measurement/building-schedule";
 
 export default function SoffitGutterEstimator() {
   const { priceMap, ruleRows, bookSummary } =
@@ -40,6 +42,8 @@ export default function SoffitGutterEstimator() {
   const [material, setMaterial] = useState<SoffitMaterial>("aluminium");
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [result, setResult] = useState<SpecialtyResult | null>(null);
+  const { building } = useBuildingSize();
+  const [envelopeNote, setEnvelopeNote] = useState<string | null>(null);
 
   const rules = useMemo(() => parseSoffitGutterRules(ruleRows), [ruleRows]);
   const prices = useMemo(
@@ -70,6 +74,26 @@ export default function SoffitGutterEstimator() {
     setMode("perimeter");
     setPerimeter(String(BUNGALOW_TEMPLATE.perimeter_m));
     setOverhang(String(BUNGALOW_TEMPLATE.overhang_m));
+  };
+
+  /**
+   * Fill the eaves from the measured building. The schedule measures wall lines,
+   * so the perimeter read here is the wall perimeter, not the roof edge: the
+   * eaves perimeter grows by four overhangs, which is why the overhang field is
+   * kept and the note says the roof line was not measured.
+   */
+  const applyMeasuredBuilding = () => {
+    const envelope = buildingEnvelope(building);
+    if ("reason" in envelope) {
+      setEnvelopeNote(envelope.reason);
+      return;
+    }
+    setMode("footprint");
+    setLength(envelope.lengthM.toFixed(2));
+    setWidth(envelope.widthM.toFixed(2));
+    setEnvelopeNote(
+      `Read from the measured building: ${envelope.lengthM.toFixed(2)} m x ${envelope.widthM.toFixed(2)} m, wall perimeter ${envelope.perimeterM.toFixed(2)} m. The roof edge adds the overhang on each side, so the eaves perimeter is longer than the wall line.`,
+    );
   };
 
   return (
@@ -145,6 +169,22 @@ export default function SoffitGutterEstimator() {
             {BUNGALOW_TEMPLATE.perimeter_m} m perimeter,{" "}
             {BUNGALOW_TEMPLATE.overhang_m} m overhang)
           </button>
+
+          <button
+            type="button"
+            onClick={applyMeasuredBuilding}
+            className="w-full rounded-lg border border-dashed px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-muted"
+          >
+            Use the measured building footprint
+          </button>
+          {envelopeNote && (
+            <p
+              role="status"
+              className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+            >
+              {envelopeNote}
+            </p>
+          )}
 
           <FieldGroup title="Eaves">
             <SelectField

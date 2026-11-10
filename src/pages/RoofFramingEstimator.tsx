@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { buildingEnvelope } from "@/lib/measurement/building-schedule";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
@@ -143,6 +145,8 @@ export default function RoofFramingEstimator() {
   });
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState<RoofFramingResult | null>(null);
+  const { building } = useBuildingSize();
+  const [envelopeNote, setEnvelopeNote] = useState<string | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [mode, setMode] = useState<"takeoff" | "design">("takeoff");
   const [designForm, setDesignForm] = useState(initialDesignForm);
@@ -212,6 +216,28 @@ export default function RoofFramingEstimator() {
       setDesignErrors([]);
     }
   };
+  /**
+   * Fill the plan dimensions from the measured building. Only a single-room
+   * schedule has an unambiguous overall length and width, so a multi-room
+   * building is refused with the reason rather than guessed. Pitch, overhang and
+   * spacing stay as entered.
+   */
+  const applyMeasuredBuilding = () => {
+    const envelope = buildingEnvelope(building);
+    if ("reason" in envelope) {
+      setEnvelopeNote(envelope.reason);
+      return;
+    }
+    setForm((current) => ({
+      ...current,
+      lengthM: envelope.lengthM.toFixed(2),
+      widthM: envelope.widthM.toFixed(2),
+    }));
+    setEnvelopeNote(
+      `Read from the measured building: ${envelope.lengthM.toFixed(2)} m x ${envelope.widthM.toFixed(2)} m. The span used by the members is the shorter side, ${Math.min(envelope.lengthM, envelope.widthM).toFixed(2)} m. Pitch and overhang are not read from the schedule.`,
+    );
+  };
+
   const lookupRoofLoad = () => {
     if (
       !designForm.roofRiseMMPerM.trim() ||
@@ -305,6 +331,26 @@ export default function RoofFramingEstimator() {
                   Use measured wall dimensions and choose a simple rectangular
                   roof type.
                 </p>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={applyMeasuredBuilding}
+                    className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
+                  >
+                    {t("Use the measured building")}
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    {t("Fills length and width. Pitch and overhang stay yours.")}
+                  </span>
+                </div>
+                {envelopeNote && (
+                  <p
+                    role="status"
+                    className="mt-2 rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+                  >
+                    {envelopeNote}
+                  </p>
+                )}
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <label className="grid gap-1 text-sm font-medium">
                     {t("Roof type")}

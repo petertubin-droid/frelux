@@ -7,6 +7,7 @@ import {
   singleRoomFootprint,
   roomSpans,
   slabSpanDirection,
+  buildingEnvelope,
 } from "./building-schedule";
 import type { RoomDraft } from "./building-presets";
 import { runTakeoff } from "@/lib/takeoff/engine";
@@ -277,7 +278,14 @@ describe("height grouping", () => {
       ...drafts,
       { id: "r2", spaceType: "bedroom", label: "Room 2", length: 3, width: 3, height: 2.7, quantity: 1, doors: 1, windows: 1 },
     ];
-    const two = { ...one, drafts: twoDrafts };
+    // The schedule has to travel with the drafts: the footprint is read from the
+    // rooms the schedule holds, not from the length of the editor list.
+    const two = {
+      ...one,
+      drafts: twoDrafts,
+      schedule: draftsToSchedule(twoDrafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(twoDrafts, "meters")),
+    };
     const refused = singleRoomFootprint(two);
     expect("reason" in refused).toBe(true);
     if (!("reason" in refused)) return;
@@ -341,5 +349,72 @@ describe("height grouping", () => {
     expect(slabSpanDirection(3.6, 3.6)).toBe("two_way");
     expect(slabSpanDirection(null, 4.0)).toBeNull();
     expect(slabSpanDirection(0, 4.0)).toBeNull();
+  });
+
+  it("reads the outside envelope a roof or elevation tool starts from", () => {
+    const drafts: RoomDraft[] = [
+      { id: "r1", spaceType: "living_room", label: "Room 1", length: 4.5, width: 3.2, height: 2.7, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const building = {
+      schedule: draftsToSchedule(drafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+      label: "One room",
+      unit: "meters" as const,
+      drafts,
+    };
+    const envelope = buildingEnvelope(building);
+    expect("reason" in envelope).toBe(false);
+    if ("reason" in envelope) return;
+    // Perimeter is twice length plus twice width, and the plan area is the floor
+    // the schedule already measured.
+    expect(envelope.perimeterM).toBeCloseTo(15.4, 3);
+    expect(envelope.planAreaM2).toBeCloseTo(14.4, 3);
+    expect(envelope.heightM).toBeCloseTo(2.7, 3);
+
+    // In feet the same room reads back in metres.
+    const feetDrafts: RoomDraft[] = [
+      { id: "f1", spaceType: "living_room", label: "Room 1", length: 15, width: 12, height: 9, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const feet = {
+      ...building,
+      unit: "feet" as const,
+      drafts: feetDrafts,
+      schedule: draftsToSchedule(feetDrafts, "feet"),
+      totals: scheduleTotals(draftsToSchedule(feetDrafts, "feet")),
+    };
+    const feetEnvelope = buildingEnvelope(feet);
+    if ("reason" in feetEnvelope) throw new Error(feetEnvelope.reason);
+    expect(feetEnvelope.lengthM).toBeCloseTo(4.572, 3);
+    expect(feetEnvelope.widthM).toBeCloseTo(3.6576, 3);
+    expect(feetEnvelope.perimeterM).toBeCloseTo(16.4592, 3);
+    expect(feetEnvelope.heightM).toBeCloseTo(2.7432, 3);
+  });
+
+  it("refuses an envelope from two rooms, or two different heights", () => {
+    const one: RoomDraft = { id: "r1", spaceType: "living_room", label: "Room 1", length: 4.5, width: 3.2, height: 2.7, quantity: 1, doors: 1, windows: 1 };
+    const two = { ...one, id: "r2", label: "Room 2", height: 3.1 };
+    const drafts = [one, two];
+    const building = {
+      schedule: draftsToSchedule(drafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+      label: "Two rooms",
+      unit: "meters" as const,
+      drafts,
+    };
+    const envelope = buildingEnvelope(building);
+    // Two rooms have no overall footprint, so the whole read is refused.
+    expect("reason" in envelope).toBe(true);
+    if ("reason" in envelope) {
+      expect(envelope.reason).toMatch(/2 rooms/i);
+    }
+
+    // One draft with an identical count of two is still two rooms on the plan.
+    const counted = {
+      ...building,
+      drafts: [{ ...one, quantity: 2 }],
+      schedule: draftsToSchedule([{ ...one, quantity: 2 }], "meters"),
+      totals: scheduleTotals(draftsToSchedule([{ ...one, quantity: 2 }], "meters")),
+    };
+    expect("reason" in buildingEnvelope(counted)).toBe(true);
   });
 });

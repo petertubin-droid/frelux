@@ -342,9 +342,13 @@ export function singleRoomFootprint(
         "No measured building saved yet. Size a building in the building panel first.",
     };
   }
-  if (building.drafts.length !== 1) {
+  // Rooms, not drafts: one draft with an identical count of two is still two
+  // rooms on the plan, and reading a single room's size as the whole footprint
+  // would report half the building.
+  const roomCount = building.schedule.rooms.length;
+  if (roomCount !== 1) {
     return {
-      reason: `The measured building has ${building.drafts.length} rooms. A multi-room schedule records no room positions, so an overall footprint cannot be read from it without guessing. Enter the overall length and width.`,
+      reason: `The measured building has ${roomCount} rooms. A multi-room schedule records no room positions, so an overall footprint cannot be read from it without guessing. Enter the overall length and width.`,
     };
   }
   const room = building.drafts[0];
@@ -358,6 +362,60 @@ export function singleRoomFootprint(
   return {
     lengthM: room.length * perUnit,
     widthM: room.width * perUnit,
+  };
+}
+
+/**
+ * The outside envelope a footprint calculator needs: overall length, width,
+ * perimeter, plan area and the storey height.
+ *
+ * Elevation, roof, gutter and roof framing tools all start from the same four
+ * numbers, and all four were being retyped from a paper plan. The schedule holds
+ * them, but only for a single-room footprint: a multi-room schedule records no
+ * room positions, so an overall length cannot be read from it without inventing
+ * one, and the footprint reader refuses in that case. Heights are returned only
+ * when every room agrees, because two different room heights do not average into
+ * a storey height. Storeys are never inferred: the schedule counts rooms, not
+ * floors.
+ */
+export interface BuildingEnvelope {
+  lengthM: number;
+  widthM: number;
+  perimeterM: number;
+  planAreaM2: number;
+  heightM: number | null;
+  heightReason?: string;
+}
+
+export function buildingEnvelope(
+  building: AppliedBuilding | null,
+): BuildingEnvelope | { reason: string } {
+  const footprint = singleRoomFootprint(building);
+  if ("reason" in footprint) return footprint;
+  const source = building as AppliedBuilding;
+  const perUnit = source.unit === "feet" ? 0.3048 : 1;
+  const heights = source.drafts
+    .map((draft) => draft.height * perUnit)
+    .filter((height) => Number.isFinite(height) && height > 0)
+    .map((height) => Math.round(height * 1000) / 1000);
+  const distinct = Array.from(new Set(heights));
+  let heightM: number | null = null;
+  let heightReason: string | undefined;
+  if (distinct.length === 1) {
+    heightM = distinct[0];
+  } else if (distinct.length === 0) {
+    heightReason =
+      "The measured rooms have no height, so no storey height can be read. Enter the floor height.";
+  } else {
+    heightReason = `The measured rooms have ${distinct.length} different heights (${distinct.join(", ")} m), so no single storey height can be read. Enter the floor height.`;
+  }
+  return {
+    lengthM: footprint.lengthM,
+    widthM: footprint.widthM,
+    perimeterM: 2 * (footprint.lengthM + footprint.widthM),
+    planAreaM2: source.totals.floorAreaM2,
+    heightM,
+    heightReason,
   };
 }
 

@@ -7,6 +7,14 @@ vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),
 }));
+import {
+  BuildingSizeProvider,
+  BUILDING_SIZE_STORAGE_KEY,
+} from "@/lib/measurement/building-size-context";
+import {
+  draftsToSchedule,
+  scheduleTotals,
+} from "@/lib/measurement/building-schedule";
 
 describe("RoofFramingEstimator page", () => {
   it("requires measured geometry and outputs member/board-foot schedule", () => {
@@ -151,4 +159,50 @@ it("shows sourced Nigerian roof live-load references separately from total desig
       name: /Total downward load per plan area/i,
     }),
   ).toHaveValue(null);
-});
+  });
+
+  it("fills plan dimensions from the measured building", () => {
+    const drafts = [
+      {
+        id: "r1",
+        spaceType: "living_room" as const,
+        label: "Room 1",
+        length: 10,
+        width: 8,
+        height: 3,
+        quantity: 1,
+        doors: 1,
+        windows: 1,
+      },
+    ];
+    window.localStorage.setItem(
+      BUILDING_SIZE_STORAGE_KEY,
+      JSON.stringify({
+        schedule: draftsToSchedule(drafts, "meters"),
+        totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+        label: "One room",
+        unit: "meters",
+        drafts,
+      }),
+    );
+    render(
+      <MemoryRouter>
+        <BuildingSizeProvider>
+          <RoofFramingEstimator />
+        </BuildingSizeProvider>
+      </MemoryRouter>,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Use the measured building/i }),
+    );
+    expect(
+      (screen.getByRole("spinbutton", { name: "Building length (m)" }) as HTMLInputElement)
+        .value,
+    ).toBe("10.00");
+    expect(
+      (screen.getByRole("spinbutton", { name: "Building width (m)" }) as HTMLInputElement)
+        .value,
+    ).toBe("8.00");
+    expect(screen.getByRole("status")).toHaveTextContent(/10.00 m x 8.00 m/);
+    window.localStorage.clear();
+  });

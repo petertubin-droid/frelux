@@ -23,6 +23,8 @@ import {
   Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { buildingEnvelope } from "@/lib/measurement/building-schedule";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
 import { Badge } from "@/components/ui/shadcn/badge";
@@ -91,6 +93,43 @@ export function MathematicalElevationPanel({
   const [currencyCode, setCurrencyCode] = useState("");
   const [unitRates, setUnitRates] = useState<Record<string, number>>({});
   const [planOrigin, setPlanOrigin] = useState<"plan" | "derived" | null>(null);
+  const { building } = useBuildingSize();
+  const [envelopeNote, setEnvelopeNote] = useState<string | null>(null);
+
+  // Read the outside envelope from the measured building. Length, width and the
+  // storey height are the schedule's own numbers for a single-room footprint, so
+  // filling them is a transfer, not an estimate. Storeys stay manual because the
+  // schedule counts rooms, not floors.
+  const applyMeasuredEnvelope = () => {
+    const envelope = buildingEnvelope(building);
+    if ("reason" in envelope) {
+      setEnvelopeNote(envelope.reason);
+      return;
+    }
+    setParams((prev) => ({
+      ...prev,
+      building_length: envelope.lengthM,
+      building_width: envelope.widthM,
+      ...(envelope.heightM !== null
+        ? { floor_to_floor_height: envelope.heightM }
+        : {}),
+    }));
+    setPlanOrigin("plan");
+    const parts = [
+      `${envelope.lengthM.toFixed(2)} m x ${envelope.widthM.toFixed(2)} m`,
+      `perimeter ${envelope.perimeterM.toFixed(2)} m`,
+      `plan area ${envelope.planAreaM2.toFixed(2)} m2`,
+    ];
+    if (envelope.heightM !== null) {
+      parts.push(`storey height ${envelope.heightM.toFixed(2)} m`);
+    }
+    const note = `Read from the measured building: ${parts.join(", ")}. Storeys are not read from the schedule, so confirm them.`;
+    setEnvelopeNote(
+      envelope.heightM === null && envelope.heightReason
+        ? `${note} ${envelope.heightReason}`
+        : note,
+    );
+  };
   const [unitSystem, setUnitSystem] = useState<ElevationUnitSystem>("metric");
   const [summaryCopied, setSummaryCopied] = useState<boolean>(false);
   const [activePreset, setActivePreset] = useState<string | null>("bungalow-3");
@@ -585,6 +624,31 @@ export function MathematicalElevationPanel({
                 pitch 5–60°; overhang 0.20–1.50 m. Any entered value changed by
                 these limits is listed in the screening flags below.
               </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={applyMeasuredEnvelope}
+                  className="h-8 text-xs"
+                >
+                  <Ruler className="mr-1.5 h-3.5 w-3.5" />
+                  Use measured building
+                </Button>
+                <p className="text-[11px] text-muted-foreground">
+                  Fills length, width and storey height from the building
+                  schedule. Storeys, pitch and openings stay as entered.
+                </p>
+              </div>
+              {envelopeNote && (
+                <p
+                  role="status"
+                  className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+                >
+                  {envelopeNote}
+                </p>
+              )}
+
               {/* Primary Input Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="space-y-1.5">
