@@ -482,33 +482,75 @@ export function computeJurisdictionTax(
   const parts: ResolvedTaxComponent[] = [];
 
   if (resolution.basisInclusive) {
-    // Total inclusive percentage of the gross.
-    const totalPct = resolution.components.reduce((s, c) => s + c.rate_pct, 0);
-    if (totalPct >= 100) {
+    // The gross already contains the tax, so the net has to be recovered from
+    // it. Every component is linear in that net: an additive one takes r, and a
+    // compounded one takes r x (1 + its parent's coefficient), because its base
+    // includes the parent's tax. Dividing by the sum of the coefficients
+    // recovers the net exactly, compounding included. Dividing by (100 + sum of
+    // rates), which is what this did, is only right when nothing compounds and
+    // it silently overstated the net for any chained levy.
+    const coefficients = new Map<string, number>();
+    for (const comp of resolution.components) {
+      const rate = comp.rate_pct / 100;
+      let coefficient = rate;
+      if (comp.compound_on !== null) {
+        const parent = coefficients.get(comp.compound_on);
+        if (parent === undefined) {
+          throw new Error(
+            `Component ${comp.name} compounds on unknown component ${comp.compound_on}`,
+          );
+        }
+        coefficient = rate * (1 + parent);
+      }
+      coefficients.set(comp.name, coefficient);
+    }
+    const divisor =
+      1 +
+      resolution.components.reduce(
+        (sum, comp) => sum + (coefficients.get(comp.name) ?? 0),
+        0,
+      );
+    if (!Number.isFinite(divisor) || divisor <= 0) {
       throw new Error(
-        `Inclusive components sum to ${totalPct}%; cannot exceed 100%`,
+        `Inclusive tax components cannot be recovered from a gross: the total factor is ${divisor}`,
       );
     }
     const gross = net;
-    const netOfTax = (gross * 100) / (100 + totalPct);
-    const runningBase = netOfTax;
+    const netOfTax = gross / divisor;
+
+    const byName = new Map<string, ResolvedTaxComponent>();
     for (const comp of resolution.components) {
-      const amount = roundBy(method, (runningBase * comp.rate_pct) / 100);
-      parts.push({
+      let base = netOfTax;
+      if (comp.compound_on !== null) {
+        const prior = byName.get(comp.compound_on);
+        if (!prior) {
+          throw new Error(
+            `Component ${comp.name} compounds on unknown component ${comp.compound_on}`,
+          );
+        }
+        base = netOfTax + prior.amount;
+      }
+      const amount = roundBy(method, (base * comp.rate_pct) / 100);
+      const part: ResolvedTaxComponent = {
         name: comp.name,
         ratePct: comp.rate_pct,
-        computedBase: Math.round(runningBase * 100) / 100,
+        computedBase: Math.round(base * 100) / 100,
         amount,
         compoundedOn: comp.compound_on,
-      });
+      };
+      byName.set(comp.name, part);
+      parts.push(part);
     }
     const totalTax = roundBy(
       method,
       parts.reduce((s, p) => s + p.amount, 0),
     );
+    // The lines are rounded individually, so the net is the gross less what the
+    // lines say was taken. That keeps gross = net + tax to the last kobo
+    // instead of leaving a rounding remainder that never appears anywhere.
     return {
       resolution,
-      net: Math.round(netOfTax * 100) / 100,
+      net: roundBy(method, gross - totalTax),
       components: parts,
       totalTax,
       gross,

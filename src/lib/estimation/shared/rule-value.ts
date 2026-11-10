@@ -13,6 +13,26 @@ export type NumericRuleLike = {
   is_active?: boolean | null;
 };
 
+/**
+ * Numeric value of a stored rule payload, or null when it is not a number.
+ *
+ * Number() alone was wrong here: it turns null, "" and false into a confident
+ * 0 and [] into 0 as well, so an admin rule saved with an empty value read as a
+ * real zero. A zero coverage rate or a zero labour cost then produced endless
+ * quantities and free work instead of the "rule is missing" refusal the engines
+ * are written to give. Only real numbers and non-blank numeric strings count.
+ */
+export function numericPayload(raw: unknown): number | null {
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed === "") return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
 /** Round to `decimals` decimal places (half-up). */
 export function roundTo(v: number, decimals: number): number {
   const f = Math.pow(10, decimals);
@@ -41,13 +61,14 @@ export function ruleNumber<T extends NumericRuleLike>(
   const r = rules.find(
     (x) => x.rule_key === key && (x as NumericRuleLike).is_active !== false,
   );
-  const v = Number(
-    ((r as NumericRuleLike | undefined)?.rule_value as
+  const raw = (
+    (r as NumericRuleLike | undefined)?.rule_value as
       | Record<string, unknown>
       | null
-      | undefined)?.value,
-  );
-  if (Number.isFinite(v)) return v;
+      | undefined
+  )?.value;
+  const v = numericPayload(raw);
+  if (v !== null) return v;
   return fallback !== undefined ? fallback : null;
 }
 

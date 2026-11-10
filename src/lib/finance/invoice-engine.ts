@@ -117,7 +117,8 @@ export function computeDueDate(
 /**
  * Derive the display status. Only recorded evidence counts:
  *  - cancelled/draft are owner states and pass through;
- *  - paid requires payments to cover the grand total;
+ *  - "paid" is not returned here: it needs the grand total, which this
+ *    function is not given, so callers decide it first (see invoice-service);
  *  - partially_paid means some (but not all) money is recorded;
  *  - overdue is past due and not fully paid (even if partially paid).
  */
@@ -129,8 +130,11 @@ export function deriveInvoiceStatus(
   if (invoice.status === "cancelled") return "cancelled";
   if (invoice.status === "draft") return "draft";
 
-  const grandTotal = Number(paidTotal);
-  if (!Number.isFinite(grandTotal) || paidTotal < 0) {
+  // This is the money received, not the invoice total. The caller compares it
+  // with the grand total before asking for a status: "paid" is decided there,
+  // because this function is never given the invoice amounts.
+  const received = Number(paidTotal);
+  if (!Number.isFinite(received) || paidTotal < 0) {
     throw new Error(`Invalid paid total: ${paidTotal}`);
   }
 

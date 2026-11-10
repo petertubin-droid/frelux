@@ -381,6 +381,43 @@ describe("computeJurisdictionTax", () => {
     expect(c.totalTax).toBeCloseTo(75, 1);
   });
 
+  it("inclusive with a compounded levy recovers the true net, not a simple sum", () => {
+    // 10% VAT then 2% of (net + VAT). On a 1122 gross the net is exactly 1000,
+    // VAT 100 and levy 22. Dividing by (100 + 10 + 2), which is what the old
+    // inclusive path did, would report a net of 961.54 and leave 160.46 of tax
+    // that never reconciles with the components.
+    const res = resolutionOf(
+      ok({
+        basis_inclusive: true,
+        components: [
+          { name: "VAT", rate_pct: 10, compound_on: null },
+          { name: "Levy", rate_pct: 2, compound_on: "VAT" },
+        ],
+      }),
+    );
+    const c = computeJurisdictionTax(1122, res)!;
+    expect(c.net).toBeCloseTo(1000, 2);
+    expect(c.components[0].amount).toBe(100);
+    expect(c.components[1].amount).toBe(22);
+    expect(c.net + c.totalTax).toBeCloseTo(c.gross, 6);
+  });
+
+  it("inclusive always reconciles gross to net plus tax, whatever the rounding", () => {
+    const res = resolutionOf(
+      ok({
+        basis_inclusive: true,
+        components: [
+          { name: "VAT", rate_pct: 7.5, compound_on: null },
+          { name: "Levy", rate_pct: 1.5, compound_on: "VAT" },
+        ],
+      }),
+    );
+    for (const gross of [0.01, 99.99, 1234.56, 7.77, 100000.01]) {
+      const c = computeJurisdictionTax(gross, res)!;
+      expect(Math.abs(c.net + c.totalTax - c.gross)).toBeLessThan(1e-9);
+    }
+  });
+
   it("compound_on computes on net plus the referenced component", () => {
     const res = resolutionOf(
       ok({
