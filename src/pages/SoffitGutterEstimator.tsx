@@ -30,6 +30,9 @@ import {
 import { track } from "@/lib/analytics";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
 import { buildingEnvelope } from "@/lib/measurement/building-schedule";
+import { usePriceBook } from "@/lib/pricing/price-book-context";
+import { applyPriceBook } from "@/lib/pricing/price-book";
+import { useMarket } from "@/lib/international/market-context";
 
 export default function SoffitGutterEstimator() {
   const { priceMap, ruleRows, bookSummary } =
@@ -46,9 +49,17 @@ export default function SoffitGutterEstimator() {
   const [envelopeNote, setEnvelopeNote] = useState<string | null>(null);
 
   const rules = useMemo(() => parseSoffitGutterRules(ruleRows), [ruleRows]);
+  // Precedence: market book, then the contractor's price book, then the rate
+  // typed on this page for this run.
+  const { resolve } = usePriceBook();
+  const { marketCode } = useMarket();
   const prices = useMemo(
-    () => mergePriceOverrides(priceMap, overrides),
-    [priceMap, overrides],
+    () =>
+      mergePriceOverrides(
+        applyPriceBook(priceMap, resolve(marketCode).rates),
+        overrides,
+      ),
+    [priceMap, overrides, resolve, marketCode],
   );
 
   const input: SoffitGutterInput = {

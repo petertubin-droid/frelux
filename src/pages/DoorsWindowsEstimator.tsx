@@ -21,6 +21,8 @@ import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
+import { usePriceBook } from "@/lib/pricing/price-book-context";
+import { applyPriceBook } from "@/lib/pricing/price-book";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { downloadCsv } from "@/lib/export-utils";
 import { useAuth } from "@/lib/auth";
@@ -171,12 +173,25 @@ export default function DoorsWindowsEstimator() {
     };
   }, [marketCode]);
 
+  // The contractor's own supplier rates sit under the market book, so a priced
+  // panel uses the rate that was actually quoted, in the currency it names.
+  const { resolve } = usePriceBook();
+  const effectivePrices = useMemo(
+    () =>
+      applyPriceBook(
+        priceMap,
+        resolve(market?.currencyCode ?? marketCode).rates,
+      ),
+    [priceMap, resolve, market, marketCode],
+  );
+
   const doorsWindowsCoverage = useMemo(
     () =>
       DOORS_WINDOWS_ENGINE_KEYS.filter(
-        (slug) => priceMap[slug] !== undefined && priceMap[slug] !== null,
+        (slug) =>
+          effectivePrices[slug] !== undefined && effectivePrices[slug] !== null,
       ).length,
-    [priceMap],
+    [effectivePrices],
   );
 
   const rules = useMemo(
@@ -210,7 +225,7 @@ export default function DoorsWindowsEstimator() {
   }, [counts, includeLocksets, labourMode, labourRate]);
 
   const run = useCallback(() => {
-    const res = calculateDoorsWindows(input, rules, priceMap);
+    const res = calculateDoorsWindows(input, rules, effectivePrices);
     setResult(res);
     track("calculator_completed", {
       calculator: "doors_windows",

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
+import { PriceBookProvider } from "@/lib/pricing/price-book-context";
 import { BuildingSizeBar } from "@/components/measurement/BuildingSizeBar";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
@@ -614,8 +615,10 @@ export default function Layout() {
             </div>
           )}
         <BuildingSizeProvider>
+          <PriceBookProvider>
           {isToolRoute(location.pathname) && <BuildingSizeBar />}
           <Outlet />
+          </PriceBookProvider>
         </BuildingSizeProvider>
         <LocalePrompt />
         {/* Holds the space the bottom ad occupies, so the last line of a long
