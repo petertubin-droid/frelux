@@ -197,3 +197,83 @@ export function applyPriceBook(
   }
   return merged;
 }
+
+export interface PriceBookMerge {
+  /** The converged book: one entry per slug, the later edit in each. */
+  book: PriceBook;
+  /** Entries this device has that the account does not, or that are newer. */
+  toPush: PriceBookEntry[];
+  /** How many slugs the account held that this device did not. */
+  pulled: number;
+  /** Slugs where both sides claimed the same instant but disagreed. */
+  ties: string[];
+}
+
+function timeOf(entry: PriceBookEntry): number {
+  const t = Date.parse(entry.updatedAt);
+  return Number.isFinite(t) ? t : 0;
+}
+
+/**
+ * Converge a local book with an account book.
+ *
+ * The rule is per slug and needs no clock agreement between devices: the later
+ * updatedAt wins. When both sides carry the same instant but different content,
+ * the account copy wins, so repeated syncs cannot oscillate between two devices
+ * and the server stays the tiebreaker. An entry present on one side only is
+ * never deleted by a merge; a deletion is a separate, explicit act.
+ */
+export function mergePriceBooks(local: PriceBook, remote: PriceBook): PriceBookMerge {
+  const byslug = new Map<string, PriceBookEntry>();
+  const toPush: PriceBookEntry[] = [];
+  const ties: string[] = [];
+
+  const localBySlug = new Map(local.entries.map((e) => [e.slug, e]));
+  const remoteBySlug = new Map(remote.entries.map((e) => [e.slug, e]));
+
+  for (const remoteEntry of remote.entries) {
+    const localEntry = localBySlug.get(remoteEntry.slug);
+    if (!localEntry) {
+      byslug.set(remoteEntry.slug, remoteEntry);
+      continue;
+    }
+    const localTime = timeOf(localEntry);
+    const remoteTime = timeOf(remoteEntry);
+    if (localTime > remoteTime) {
+      byslug.set(remoteEntry.slug, localEntry);
+      toPush.push(localEntry);
+    } else {
+      byslug.set(remoteEntry.slug, remoteEntry);
+      if (localTime === remoteTime && ratesDiffer(localEntry, remoteEntry)) {
+        ties.push(remoteEntry.slug);
+      }
+    }
+  }
+
+  for (const localEntry of local.entries) {
+    if (remoteBySlug.has(localEntry.slug)) continue;
+    byslug.set(localEntry.slug, localEntry);
+    toPush.push(localEntry);
+  }
+
+  const pulled = remote.entries.filter((e) => !localBySlug.has(e.slug)).length;
+
+  return {
+    book: {
+      version: 1,
+      entries: [...byslug.values()].sort((a, b) => a.slug.localeCompare(b.slug)),
+    },
+    toPush,
+    pulled,
+    ties,
+  };
+}
+
+function ratesDiffer(a: PriceBookEntry, b: PriceBookEntry): boolean {
+  return (
+    a.rate !== b.rate ||
+    a.currency !== b.currency ||
+    (a.unit ?? "") !== (b.unit ?? "") ||
+    (a.note ?? "") !== (b.note ?? "")
+  );
+}

@@ -21,7 +21,7 @@ export default function PriceBook() {
   });
 
   const { code } = useDisplayCurrency();
-  const { book, resolve, saveEntry, removeEntry } = usePriceBook();
+  const { book, sync, resolve, saveEntry, removeEntry } = usePriceBook();
 
   const [slug, setSlug] = useState("");
   const [rate, setRate] = useState("");
@@ -29,7 +29,18 @@ export default function PriceBook() {
   const [unit, setUnit] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
+  // What was saved, kept apart from where it is stored: the storage note is read
+  // live from the sync state, so a late account reply corrects the sentence
+  // instead of leaving a stale "in this browser".
+  const [savedSummary, setSavedSummary] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const syncNote =
+    sync === "synced"
+      ? "It is on your account and in this browser."
+      : sync === "unsynced"
+        ? "It is in this browser; your account copy did not update just now."
+        : "It is in this browser.";
 
   const resolved = useMemo(() => resolve(code), [resolve, code]);
   const appliedCount = Object.keys(resolved.rates).length;
@@ -39,12 +50,14 @@ export default function PriceBook() {
     const saved = saveEntry({ slug, rate, currency, unit, note });
     if (!saved.ok) {
       setError(saved.reason);
-      setStatus(null);
+      setSavedSummary(null);
+      setNotice(null);
       return;
     }
     setError(null);
-    setStatus(
-      `${saved.entry.slug} saved at ${saved.entry.rate} ${saved.entry.currency} per unit, in this browser.`,
+    setNotice(null);
+    setSavedSummary(
+      `${saved.entry.slug} saved at ${saved.entry.rate} ${saved.entry.currency} per unit.`,
     );
     setSlug("");
     setRate("");
@@ -71,8 +84,17 @@ export default function PriceBook() {
               Use the material slug the calculator names, for example
               <span className="font-mono"> fascia-per-meter</span>. Calculators
               apply the rate only in the currency it was quoted in, and your rate
-              takes precedence over the market price. Rates are stored in this
-              browser.
+              takes precedence over the market price.
+            </p>
+
+            <p className="text-sm" data-testid="price-book-storage">
+              {sync === "syncing"
+                ? "Reading the rates on your account."
+                : sync === "synced"
+                  ? "Your rates are saved to your account and to this browser."
+                  : sync === "unsynced"
+                    ? "Your rates are saved in this browser. The account copy did not update just now and is retried when you return to this tab."
+                    : "Your rates are saved in this browser. Sign in to keep them on your account."}
             </p>
 
             <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
@@ -161,8 +183,12 @@ export default function PriceBook() {
             <div role="status" aria-live="polite" className="text-sm">
               {error ? (
                 <p className="text-destructive">{error}</p>
-              ) : status ? (
-                <p className="text-muted-foreground">{status}</p>
+              ) : savedSummary ? (
+                <p className="text-muted-foreground">
+                  {savedSummary} {syncNote}
+                </p>
+              ) : notice ? (
+                <p className="text-muted-foreground">{notice}</p>
               ) : null}
             </div>
           </section>
@@ -209,7 +235,8 @@ export default function PriceBook() {
                           type="button"
                           onClick={() => {
                             removeEntry(entry.slug);
-                            setStatus(`${entry.slug} removed.`);
+                            setNotice(`${entry.slug} removed.`);
+                            setSavedSummary(null);
                             setError(null);
                           }}
                           className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium"
