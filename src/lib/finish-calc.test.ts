@@ -504,4 +504,117 @@ describe("AUDIT FIX: missing configuration warnings", () => {
     expect(result.materialCost).toBe(5000);
     expect(result.warnings ?? []).toHaveLength(0);
   });
+
+  describe("purchase quantities", () => {
+    const paint = (
+      area: number,
+      extra: Partial<FinishCalcInput> = {},
+      material: Partial<FinishMaterialConfig> = {},
+    ) =>
+      calculateFinish({
+        finishType: "painting",
+        area,
+        coats: 1,
+        materials: [
+          {
+            name: "Emulsion",
+            finishType: "painting",
+            isBase: true,
+            isFinishing: false,
+            coverageRate: 1, // 1 m2 per litre per coat
+            coverageUnit: "L",
+            packageSize: 10,
+            packageUnit: "L",
+            unitPrice: 1000,
+            ...material,
+          },
+        ],
+        ...extra,
+      } as FinishCalcInput);
+
+    it("buys the pack the requirement actually needs, not the rounded one", () => {
+      // 20.004 L needs three 10 L packs. Rounding to 20.00 first bought two.
+      const result = paint(20.004);
+      expect(result.materials[0].quantityWithWaste).toBe(20);
+      expect(result.materials[0].packagesNeeded).toBe(3);
+      expect(result.materials[0].cost).toBe(3000);
+    });
+
+    it("keeps an exact multiple at its own pack count", () => {
+      const result = paint(20);
+      expect(result.materials[0].packagesNeeded).toBe(2);
+      expect(result.materials[0].cost).toBe(2000);
+    });
+
+    it("counts coats before the pack split", () => {
+      // 5 m2 x 3 coats at 1 m2/L = 15 L, so two packs.
+      const result = paint(5, { coats: 3 });
+      expect(result.materials[0].quantityRequired).toBe(15);
+      expect(result.materials[0].packagesNeeded).toBe(2);
+    });
+
+    it("adds the waste margin to the quantity and the packs", () => {
+      // 20 m2, 10 percent waste = 22 L, three packs.
+      const result = paint(20, { wasteMargin: 10 });
+      expect(result.materials[0].quantityWithWaste).toBe(22);
+      expect(result.materials[0].packagesNeeded).toBe(3);
+    });
+
+    it("returns zeros instead of NaN for a non-numeric coat count", () => {
+      const result = paint(20, { coats: Number.NaN });
+      expect(result.coats).toBe(0);
+      expect(result.materials[0].quantityRequired).toBe(0);
+      expect(result.materials[0].packagesNeeded).toBe(0);
+      expect(result.totalCost).toBe(0);
+      expect(Number.isNaN(result.totalCost)).toBe(false);
+    });
+  });
+
+  describe("stated limits", () => {
+    it("says when the waste margin was clamped", () => {
+      const result = calculateFinish({
+        finishType: "painting",
+        area: 10,
+        coats: 1,
+        wasteMargin: 150,
+        materials: [
+          {
+            name: "Emulsion",
+            finishType: "painting",
+            isBase: true,
+            isFinishing: false,
+            coverageRate: 10,
+            coverageUnit: "L",
+            packageSize: 10,
+            packageUnit: "L",
+            unitPrice: 1000,
+          },
+        ],
+      } as FinishCalcInput);
+      expect(result.wasteMargin).toBe(100);
+      expect((result.warnings ?? []).join(" ")).toMatch(/limited to 100%/);
+    });
+
+    it("says Grafitex does not apply a waste margin", () => {
+      const result = calculateFinish({
+        finishType: "grafitex",
+        area: 18,
+        grafitexBucketPrice: 5000,
+        wasteMargin: 10,
+      } as FinishCalcInput);
+      expect((result.warnings ?? []).join(" ")).toMatch(/not applied/);
+      // 18 m2 / 9 m2 = 2 partitions, 2 partitions per bucket = 1 bucket.
+      expect(result.grafitexBucketsPractical).toBe(1);
+    });
+
+    it("keeps a whole bucket at one bucket when the area divides exactly", () => {
+      const result = calculateFinish({
+        finishType: "grafitex",
+        area: 36, // 4 partitions, 2 per bucket = 2 buckets exactly
+        grafitexBucketPrice: 5000,
+      } as FinishCalcInput);
+      expect(result.grafitexBucketsPractical).toBe(2);
+      expect(result.totalCost).toBe(10000);
+    });
+  });
 });

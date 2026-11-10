@@ -166,11 +166,25 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
   const area = Math.max(0, input.area || 0);
   const rawCoats =
     input.coats !== undefined ? input.coats : getDefaultCoats(input.finishType);
-  const coats = Math.max(0, rawCoats);
+  // A NaN coat count or waste margin passed through Math.max as NaN, which
+  // turned every quantity and cost in the result into NaN. Guard the numbers at
+  // the door so a bad field cannot poison the whole estimate.
+  const coats = Number.isFinite(rawCoats) ? Math.max(0, rawCoats) : 0;
   const rawWaste = input.wasteMargin !== undefined ? input.wasteMargin : 0;
-  const wasteMargin = Math.min(100, Math.max(0, rawWaste));
+  const wasteMargin = Number.isFinite(rawWaste)
+    ? Math.min(100, Math.max(0, rawWaste))
+    : 0;
   const currency = input.currency ?? "NGN";
   const currencySymbol = input.currencySymbol ?? "₦";
+
+  const configWarnings: string[] = [];
+  // A clamped safety margin changes the quantity, so it has to be said out loud
+  // rather than applied behind the user's back.
+  if (Number.isFinite(rawWaste) && (rawWaste < 0 || rawWaste > 100)) {
+    configWarnings.push(
+      `Waste margin of ${rawWaste}% is outside the 0 to 100% range and has been limited to ${wasteMargin}%.`,
+    );
+  }
 
   // ── Grafitex: partition-based bucket calculation ──
   if (input.finishType === "grafitex") {
@@ -195,12 +209,20 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
 
     const theoreticalBuckets =
       equivalentPartitions > 0 ? equivalentPartitions / partitionsPerBucket : 0;
-    const practicalBuckets = Math.ceil(theoreticalBuckets);
+    const practicalBuckets = Math.ceil(theoreticalBuckets - 1e-9);
     const materialCost = practicalBuckets * bucketPrice;
     const grafitexWarnings: string[] = [];
     if (bucketPrice <= 0) {
       grafitexWarnings.push(
         "Grafitex bucket price is not configured. Total cost cannot be calculated until FRELUX configures the price.",
+      );
+    }
+    // Whole buckets are bought by partition count, so this finish never applies
+    // a waste percentage. Saying nothing would let a 10 percent margin look as
+    // if it had been included when the quantity is identical either way.
+    if (wasteMargin > 0) {
+      grafitexWarnings.push(
+        `A waste margin of ${wasteMargin}% is set but not applied: Grafitex is bought as whole 20 L buckets by partition count, which already allows for the practical remainder.`,
       );
     }
 
@@ -233,7 +255,7 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
       currency,
       currencySymbol,
       labourNote: LABOUR_NOTE,
-      warnings: grafitexWarnings,
+      warnings: [...configWarnings, ...grafitexWarnings],
       grafitexBucketsTheoretical: round(theoreticalBuckets, 4),
       grafitexBucketsPractical: practicalBuckets,
       grafitexEquivalentPartitions: round(equivalentPartitions, 4),
@@ -244,7 +266,6 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
   const materialConfigs =
     input.materials && input.materials.length > 0 ? input.materials : [];
 
-  const configWarnings: string[] = [];
   if (area > 0 && coats > 0 && materialConfigs.length === 0) {
     configWarnings.push(
       "No materials are configured for this finish type. Configure materials in FRELUX before an accurate estimate is possible.",
@@ -294,8 +315,13 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
     const quantityRequired = round(rawRequired, 2);
     const rawWithWaste = rawRequired * (1 + wasteMargin / 100);
     const quantityWithWaste = round(rawWithWaste, 2);
+    // Packages are bought against the unrounded requirement. Rounding to two
+    // decimals first could sit exactly on a package multiple and drop a whole
+    // pack: 20.004 L of a 10 L pack needs three packs, but the rounded 20.00
+    // bought two. The tolerance keeps an exact multiple at its own count when
+    // floating point lands a hair above it.
     const packagesNeeded =
-      packageSize > 0 ? Math.ceil(quantityWithWaste / packageSize) : 0;
+      packageSize > 0 ? Math.ceil(rawWithWaste / packageSize - 1e-9) : 0;
     const cost = packagesNeeded * unitPrice;
 
     return {
