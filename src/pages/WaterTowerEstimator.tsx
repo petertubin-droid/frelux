@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
@@ -449,6 +450,68 @@ export default function WaterTowerEstimator() {
                 </Button>
               </CardHeader>
               <CardContent className="pt-4 space-y-3">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: "Overhead Tank Staging Takeoff",
+                    title: `${tankVolume} L tank at ${height} m`,
+                    summaryLines: [
+                      {
+                        label: "Tank volume",
+                        value: `${tankVolume} L`,
+                      },
+                      {
+                        label: "Tower height",
+                        value: `${height} m`,
+                      },
+                      {
+                        label: "Structural material",
+                        value:
+                          material === "steel"
+                            ? "Structural steel"
+                            : "Reinforced concrete",
+                      },
+                      {
+                        label: "Pad footing",
+                        value: `${result.footing.padSizeMeters} x ${result.footing.padSizeMeters} x ${result.footing.padThicknessMm} mm`,
+                      },
+                      {
+                        label: "Leg section",
+                        value: result.legDesign.sectionLabel,
+                      },
+                    ],
+                    lineItems: [
+                      {
+                        description: "Dead load",
+                        quantity: `${(result.deadLoadTotalKg / 1000).toFixed(2)} t`,
+                      },
+                      {
+                        description: "Wind force",
+                        quantity: `${result.windForceKn} kN`,
+                      },
+                      {
+                        description: "Service load per leg",
+                        quantity: `${result.footing.serviceLoadPerLegKn} kN`,
+                      },
+                      {
+                        description: "Design load",
+                        quantity: `${result.designLoadKn} kN`,
+                      },
+                    ],
+                    totals: [
+                      {
+                        label: "Wind overturning safety factor",
+                        value: String(result.overturningSafetyFactor),
+                      },
+                      {
+                        label: "Leg utilisation",
+                        value: `${(result.legDesign.utilisation * 100).toFixed(0)}%`,
+                        emphasized: true,
+                      },
+                    ],
+                    link: "/water-tower-staging-estimator",
+                  }}
+                  compact
+                />
                 {material === "steel" ? (
                   <>
                     <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/50">

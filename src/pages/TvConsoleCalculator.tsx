@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -912,6 +913,69 @@ export default function TvConsoleCalculator() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+
+                  <div className="mt-3">
+                    <ShareEstimateButton
+                      estimate={{
+                        kind: "TV Console Estimate",
+                        summaryLines: [
+                          {
+                            label: "Priced lines",
+                            value: String(
+                              result.costLines.length -
+                                result.totals.unpricedLines.length,
+                            ),
+                          },
+                          {
+                            label: "Unpriced lines",
+                            value: String(result.totals.unpricedLines.length),
+                          },
+                        ],
+                        lineItems: result.costLines.map((line) => ({
+                          description: line.label,
+                          quantity: `${line.quantity} ${line.unit}`,
+                          amount:
+                            line.amount === null
+                              ? null
+                              : money(line.amount, currency),
+                        })),
+                        totals: [
+                          {
+                            label: "Subtotal of priced lines",
+                            value:
+                              result.totals.subtotal === null
+                                ? "No rate entered"
+                                : money(result.totals.subtotal, currency),
+                          },
+                          ...(result.totals.tax !== null
+                            ? [
+                                {
+                                  label: "Tax",
+                                  value: money(result.totals.tax, currency),
+                                },
+                              ]
+                            : []),
+                          ...(result.totals.total !== null
+                            ? [
+                                {
+                                  label: "Total",
+                                  value: money(result.totals.total, currency),
+                                  emphasized: true,
+                                },
+                              ]
+                            : []),
+                        ],
+                        notes:
+                          result.totals.unpricedLines.length > 0
+                            ? [
+                                `Excluded, no rate: ${result.totals.unpricedLines.join(", ")}.`,
+                              ]
+                            : [],
+                        link: "/tv-console-calculator",
+                      }}
+                      compact
+                    />
                   </div>
 
                   <div className="mt-3 space-y-1 text-sm">

@@ -10,6 +10,7 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useMarket } from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -193,65 +194,68 @@ export default function WaterproofingEstimator() {
     });
   }, [input, rules, priceMap]);
 
-  // Printable professional quote, worldwide-currency formatted.
-  const exportQuote = () => {
-    if (!result?.ok) return;
-    printQuote(
-      {
-        title: "FRELUX Waterproofing Estimate",
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
-        metaRows: result.steps.map(
-          (st) => [st.label, st.detail] as [string, string],
-        ),
-        lines: result.lines.map((l) => ({
-          label: l.label,
-          quantity:
-            l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
-          unit: l.unit,
-          unit_price:
-            l.unit_price === null
-              ? "unpriced"
-              : formatCurrency(l.unit_price, currencySymbol),
-          line_total:
-            l.line_total === null
+  // One payload serves the printed quote and the share sheet.
+  const buildQuote = () => {
+    if (!result?.ok) return null;
+    return {
+      title: "FRELUX Waterproofing Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+      metaRows: result.steps.map(
+        (st) => [st.label, st.detail] as [string, string],
+      ),
+      lines: result.lines.map((l) => ({
+        label: l.label,
+        quantity:
+          l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+        unit: l.unit,
+        unit_price:
+          l.unit_price === null
+            ? "unpriced"
+            : formatCurrency(l.unit_price, currencySymbol),
+        line_total:
+          l.line_total === null
+            ? "N/A"
+            : formatCurrency(l.line_total, currencySymbol),
+        detail: l.detail,
+      })),
+      totals: [
+        {
+          label: "Material subtotal",
+          value:
+            result.material_subtotal === null
+              ? "(prices/inputs missing)"
+              : formatCurrency(result.material_subtotal, currencySymbol),
+        },
+        {
+          label: "Priced so far",
+          value: formatCurrency(result.priced_subtotal, currencySymbol),
+        },
+        {
+          label: "Labour",
+          value:
+            labourMode === "none"
+              ? "Not included"
+              : formatCurrency(result.labour_total, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value:
+            result.grand_total === null
               ? "N/A"
-              : formatCurrency(l.line_total, currencySymbol),
-          detail: l.detail,
-        })),
-        totals: [
-          {
-            label: "Material subtotal",
-            value:
-              result.material_subtotal === null
-                ? "(prices/inputs missing)"
-                : formatCurrency(result.material_subtotal, currencySymbol),
-          },
-          {
-            label: "Priced so far",
-            value: formatCurrency(result.priced_subtotal, currencySymbol),
-          },
-          {
-            label: "Labour",
-            value:
-              labourMode === "none"
-                ? "Not included"
-                : formatCurrency(result.labour_total, currencySymbol),
-          },
-          {
-            label: "Grand total",
-            value:
-              result.grand_total === null
-                ? "N/A"
-                : formatCurrency(result.grand_total, currencySymbol),
-            strong: true,
-          },
-        ],
-        warnings: result.warnings,
-        footer:
-          "Estimates are indicative and not a formal quote. Quantities are sized from your areas and coat rules; unpriced items are reported, never invented.",
-      },
-      "frelux-waterproofing-estimate.html",
-    );
+              : formatCurrency(result.grand_total, currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities are sized from your areas and coat rules; unpriced items are reported, never invented.",
+    };
+  };
+
+  const exportQuote = () => {
+    const quote = buildQuote();
+    if (!quote) return;
+    printQuote(quote, "frelux-waterproofing-estimate.html");
   };
 
   const save = useCallback(async () => {
@@ -432,6 +436,11 @@ export default function WaterproofingEstimator() {
               >
                 {saving ? "Saving…" : "Save estimate"}
               </button>
+              <QuoteShareButton
+                build={buildQuote}
+                kind="Waterproofing Estimate"
+                link="/waterproofing"
+              />
               <button
                 onClick={exportQuote}
                 className="rounded-md border px-4 py-2 text-sm font-medium"
