@@ -332,6 +332,19 @@ export function BuildingSchedulePanel({
             </dl>
           )}
 
+          {totals && totals.unplacedOpeningCount > 0 && (
+            <p
+              role="status"
+              className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-foreground"
+            >
+              {totals.unplacedOpeningCount} opening
+              {totals.unplacedOpeningCount === 1 ? "" : "s"} wider or larger than
+              any wall of its room, so {totals.unplacedOpeningCount === 1 ? "it is" : "they are"}{" "}
+              not deducted from the wall area. Widen the room or correct the
+              opening to have it measured.
+            </p>
+          )}
+
           {totals && totals.assumedOpeningCount > 0 && (
             <p className="text-xs text-muted-foreground">
               {totals.assumedOpeningCount} opening

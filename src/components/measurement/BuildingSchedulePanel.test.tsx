@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { BuildingSchedulePanel, type AppliedBuilding } from "./BuildingSchedulePanel";
-import { getBuildingPresets } from "@/lib/measurement/building-presets";
+import {
+  getBuildingPresets,
+  type RoomDraft,
+} from "@/lib/measurement/building-presets";
 
 const setup = (marketCode = "NG") => {
   const onChange = vi.fn<(value: AppliedBuilding | null) => void>();
@@ -98,5 +101,32 @@ describe("building schedule panel", () => {
       target: { value: preset.id },
     });
     expect(screen.getByText(/standard sizes, a door at 0.9/i)).toBeTruthy();
+  });
+
+  it("warns when an opening cannot fit any wall of its room", () => {
+    const tiny: RoomDraft[] = [
+      {
+        id: "r1",
+        spaceType: "store",
+        label: "Store",
+        length: 0.8,
+        width: 0.5,
+        height: 2.7,
+        quantity: 1,
+        doors: 0,
+        windows: 1,
+      },
+    ];
+    render(
+      <BuildingSchedulePanel
+        marketCode="NG"
+        initialDrafts={tiny}
+        onChange={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("status").textContent).toMatch(
+      /1 opening wider or larger than any wall/i,
+    );
   });
 });

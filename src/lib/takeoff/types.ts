@@ -63,6 +63,11 @@ export interface ScheduleInput {
   id: string;
   label?: string;
   rooms: RoomInput[];
+  /**
+   * Standard openings that were too wide or too large for any wall in their room.
+   * They are reported by the template totals and never silently deducted.
+   */
+  unplacedOpenings?: Opening[];
   /** Applies when an element does not state its own thickness. */
   defaultWallThicknessMm?: number;
   defaultOpeningDeductAbove?: number;

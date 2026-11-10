@@ -83,6 +83,71 @@ describe("a template room becomes a measured schedule", () => {
   });
 });
 
+describe("opening placement", () => {
+  const room = (overrides: Partial<RoomDraft> = {}): RoomDraft => ({
+    id: "r1",
+    spaceType: "bedroom",
+    label: "Bedroom",
+    length: 4,
+    width: 3.5,
+    height: 2.7,
+    quantity: 1,
+    doors: 0,
+    windows: 0,
+    ...overrides,
+  });
+
+  it("deducts every opening it places, even when one wall is crowded", () => {
+    const schedule = draftsToSchedule([room({ doors: 3, windows: 3 })], "meters");
+    const totals = scheduleTotals(schedule);
+    // 2 x (4 + 3.5) x 2.7 = 40.5 m2 of wall; 3 doors at 1.89 and 3 windows at
+    // 1.8 give 11.07 m2 of openings. Wall 1 holds only 10.8 m2, so a
+    // first-wall-only placement would quietly lose 0.27 m2 of deduction.
+    expect(totals.grossWallAreaM2).toBeCloseTo(40.5, 6);
+    expect(totals.openingsAreaM2).toBeCloseTo(11.07, 6);
+    expect(totals.netWallAreaM2).toBeCloseTo(29.43, 6);
+    expect(totals.unplacedOpeningCount).toBe(0);
+  });
+
+  it("never deducts more than a wall's own face", () => {
+    const schedule = draftsToSchedule([room({ doors: 3, windows: 3 })], "meters");
+    for (const placedRoom of schedule.rooms) {
+      for (const wall of placedRoom.walls ?? []) {
+        const face = Number(wall.length) * Number(wall.height);
+        const deducted = (wall.openings ?? []).reduce(
+          (total, opening) => total + opening.width * opening.height,
+          0,
+        );
+        expect(deducted).toBeLessThanOrEqual(face + 1e-9);
+      }
+    }
+  });
+
+  it("reports an opening too wide for any wall instead of dropping it", () => {
+    // A 0.8 by 0.5 m store cannot hold a 1.2 m window on any of its walls.
+    const schedule = draftsToSchedule(
+      [room({ length: 0.8, width: 0.5, doors: 0, windows: 1 })],
+      "meters",
+    );
+    const totals = scheduleTotals(schedule);
+    expect(totals.grossWallAreaM2).toBeCloseTo(2 * (0.8 + 0.5) * 2.7, 6);
+    expect(totals.unplacedOpeningCount).toBe(1);
+    expect(totals.openingsAreaM2).toBe(0);
+    expect(totals.netWallAreaM2).toBeCloseTo(totals.grossWallAreaM2, 6);
+  });
+
+  it("counts openings once per copy of an identical room", () => {
+    const schedule = draftsToSchedule(
+      [room({ doors: 1, windows: 1, quantity: 3 })],
+      "meters",
+    );
+    const totals = scheduleTotals(schedule);
+    expect(totals.roomCount).toBe(3);
+    expect(totals.openingsAreaM2).toBeCloseTo(3 * (1.89 + 1.8), 6);
+    expect(totals.assumedOpeningCount).toBe(6);
+  });
+});
+
 describe("totals the area calculators consume", () => {
   const schedule = draftsToSchedule(
     [

@@ -46,6 +46,11 @@ export interface ScheduleTotals {
   /** Distinct wall heights present, which decides whether one masonry run is exact. */
   wallHeights: number[];
   assumedOpeningCount: number;
+  /**
+   * Standard openings wider than any wall in their room, so they could not be
+   * placed. They are counted, never deducted, and must be surfaced to the user.
+   */
+  unplacedOpeningCount: number;
 }
 
 const toMetres = (value: number, unit: RoomUnitChoice): number => {
@@ -67,6 +72,7 @@ export function draftsToSchedule(
   options: { id?: string; label?: string } = {},
 ): ScheduleInput {
   const rooms: RoomInput[] = [];
+  const unplaced: Opening[] = [];
 
   drafts.forEach((draft, draftIndex) => {
     const length = toMetres(draft.length, unit);
@@ -102,6 +108,41 @@ export function draftsToSchedule(
         });
       }
 
+      // Openings go on the first wall that can actually hold them. Putting every
+      // door and window on wall 1 would let a wall's area cap swallow the rest,
+      // and the deduction would then be smaller than the openings the user
+      // entered.
+      const wallSides: Array<{ side: string; length: number }> = [
+        { side: "w1", length },
+        { side: "w2", length },
+        { side: "w3", length: width },
+        { side: "w4", length: width },
+      ];
+      const placed: Record<string, Opening[]> = {
+        w1: [],
+        w2: [],
+        w3: [],
+        w4: [],
+      };
+      // Each wall can only give up its own face area, so placement tracks what is
+      // left on a wall rather than dropping an opening a later wall could hold.
+      const spare = new Map(
+        wallSides.map((side) => [side.side, side.length * height]),
+      );
+      for (const opening of openings) {
+        const area = opening.width * opening.height;
+        const host = wallSides.find(
+          (side) =>
+            side.length + 1e-9 >= opening.width &&
+            (spare.get(side.side) ?? 0) + 1e-9 >= area,
+        );
+        if (!host) {
+          unplaced.push(opening);
+          continue;
+        }
+        placed[host.side].push(opening);
+        spare.set(host.side, (spare.get(host.side) ?? 0) - area);
+      }
       rooms.push({
         id,
         label: `${draft.label}${suffix}`,
@@ -113,7 +154,7 @@ export function draftsToSchedule(
             length,
             height,
             unit: "m" as LengthUnit,
-            openings,
+            openings: placed.w1,
           },
           {
             id: `${id}-w2`,
@@ -121,6 +162,7 @@ export function draftsToSchedule(
             length,
             height,
             unit: "m" as LengthUnit,
+            openings: placed.w2,
           },
           {
             id: `${id}-w3`,
@@ -128,6 +170,7 @@ export function draftsToSchedule(
             length: width,
             height,
             unit: "m" as LengthUnit,
+            openings: placed.w3,
           },
           {
             id: `${id}-w4`,
@@ -135,6 +178,7 @@ export function draftsToSchedule(
             length: width,
             height,
             unit: "m" as LengthUnit,
+            openings: placed.w4,
           },
         ],
         floor: {
@@ -151,6 +195,9 @@ export function draftsToSchedule(
     id: options.id ?? "building-template",
     label: options.label ?? "Building template",
     rooms,
+    // Kept on the schedule so the totals can count what could not be placed
+    // instead of the silence that used to follow a dropped opening.
+    unplacedOpenings: unplaced,
   };
 }
 
@@ -166,6 +213,7 @@ export function scheduleTotals(schedule: ScheduleInput): ScheduleTotals {
   let floorAreaM2 = 0;
   let perimeterM = 0;
   let assumedOpeningCount = 0;
+  const unplacedOpeningCount = schedule.unplacedOpenings?.length ?? 0;
   const heights = new Set<number>();
 
   for (const room of schedule.rooms) {
@@ -205,6 +253,7 @@ export function scheduleTotals(schedule: ScheduleInput): ScheduleTotals {
     roomCount: schedule.rooms.length,
     wallHeights: [...heights].sort((a, b) => a - b),
     assumedOpeningCount,
+    unplacedOpeningCount,
   };
 }
 
