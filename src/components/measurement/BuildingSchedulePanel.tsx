@@ -15,6 +15,7 @@ import {
 import { groupBuildingPresets } from "@/lib/measurement/building-type-catalogue";
 import type { ScheduleInput } from "@/lib/takeoff/types";
 import type { SpaceType } from "@/lib/measurement/types";
+import { PlanMeasurementImporter } from "./PlanMeasurementImporter";
 
 export type { AppliedBuilding }
 
@@ -145,6 +146,10 @@ export function BuildingSchedulePanel({
         >
           Clear building
         </button>
+      </div>
+
+      <div className="mb-4">
+        <PlanMeasurementImporter />
       </div>
 
       <label htmlFor="building-schedule-type" className="block text-xs font-medium text-muted-foreground">
