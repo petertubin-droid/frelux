@@ -48,6 +48,7 @@ import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import Container from "@/components/ui/Container";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -1706,6 +1707,76 @@ export default function TyroleneEstimator({
                         practicalCost: result.practical_purchase_cost,
                       }}
                     />
+
+                    <div className="pt-2">
+                      <ShareEstimateButton
+                        estimate={{
+                          kind: "Tyrolene Estimate",
+                          summaryLines: [
+                            {
+                              label: "Total area",
+                              value: `${formatNumber(
+                                result.partition_breakdown.reduce(
+                                  (sum, part) => sum + part.area,
+                                  0,
+                                ),
+                              )} m²`,
+                            },
+                            {
+                              label: "Surface types",
+                              value: String(result.partition_breakdown.length),
+                            },
+                          ],
+                          lineItems: result.materials.map((m) => ({
+                            description: m.material_name,
+                            quantity: `${m.practical_purchase_quantity} ${m.theoretical_unit}`,
+                            amount: formatCurrency(
+                              m.total_price,
+                              result.currency,
+                            ),
+                          })),
+                          totals: [
+                            {
+                              label: "Practical purchase cost",
+                              value: formatCurrency(
+                                result.practical_purchase_cost,
+                                result.currency,
+                              ),
+                            },
+                            {
+                              label: "Labour",
+                              value: formatCurrency(
+                                calculateLabourCost(
+                                  labourConfig,
+                                  result.partition_breakdown.reduce(
+                                    (sum, part) => sum + part.area,
+                                    0,
+                                  ),
+                                ),
+                                result.currency,
+                              ),
+                            },
+                            {
+                              label: "Grand total",
+                              value: formatCurrency(
+                                result.practical_purchase_cost +
+                                  calculateLabourCost(
+                                    labourConfig,
+                                    result.partition_breakdown.reduce(
+                                      (sum, part) => sum + part.area,
+                                      0,
+                                    ),
+                                  ),
+                                result.currency,
+                              ),
+                              emphasized: true,
+                            },
+                          ],
+                          link: "/tyrolene-estimator",
+                        }}
+                        compact
+                      />
+                    </div>
 
                     {/* Save Button */}
                     <div className="flex gap-3 pt-2">

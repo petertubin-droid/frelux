@@ -21,8 +21,9 @@ import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track, type TrackEvent } from "@/lib/analytics";
 import { trackCalculation } from "@/lib/achievements";
 import { trackRecentTool } from "@/lib/smart-defaults";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, formatArea, SQFT_PER_SQM } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -71,6 +72,14 @@ export interface ConfigurableFinishCalculatorProps {
 
 function fmt(n: number, digits = 2): string {
   return formatNumber(n, digits);
+}
+
+/**
+ * Areas leave this calculator in the unit the customer typed. The engine works
+ * in square metres and stays there; only the labelling changes.
+ */
+function areaUnitOf(areaUnit: string | null | undefined): "sqft" | "sqm" {
+  return areaUnit === "m2" ? "sqm" : "sqft";
 }
 
 function rangeLabel(
@@ -407,7 +416,7 @@ export default function ConfigurableFinishCalculator({
           ["Application profile", result.profile_name],
           [
             "Surface area",
-            `${fmt(result.area_input)} ${result.area_unit === "m2" ? "m²" : "ft²"} (${fmt(result.area_m2 ?? 0, 4)} m²)`,
+            `${fmt(result.area_input)} ${result.area_unit === "m2" ? "m²" : "ft²"}`,
           ],
           [
             "Coats/layers",
@@ -464,12 +473,10 @@ export default function ConfigurableFinishCalculator({
   // Both surfaces are offered because paint, screed and tiling all read a
   // different face of the same rooms, and each figure is the measured one.
   const sharedAreaChoices = sharedBuilding.building
-    ? (
-        [
-          { surface: "wall" as const, label: "walls after openings" },
-          { surface: "floor" as const, label: "floors" },
-        ]
-      ).map((choice) => ({
+    ? [
+        { surface: "wall" as const, label: "walls after openings" },
+        { surface: "floor" as const, label: "floors" },
+      ].map((choice) => ({
         ...choice,
         areaM2: buildingAreaM2(sharedBuilding.building, choice.surface),
         title: `Use ${sharedBuilding.building!.label}: ${choice.label}`,
@@ -504,7 +511,8 @@ export default function ConfigurableFinishCalculator({
               >
                 <span className="font-medium">{choice.title}</span>
                 <span className="block text-xs text-muted-foreground">
-                  {Math.round(choice.areaM2 * 100) / 100} m² measured from its rooms
+                  {Math.round(choice.areaM2 * 100) / 100} m² measured from its
+                  rooms
                 </span>
               </button>
             ))}
@@ -791,6 +799,66 @@ export default function ConfigurableFinishCalculator({
                         </p>
                       </div>
 
+                      <div className="md:col-span-2">
+                        <ShareEstimateButton
+                          estimate={{
+                            kind: "Finish Material Estimate",
+                            title: `${result.product_name}${result.brand ? ` (${result.brand})` : ""}`,
+                            summaryLines: [
+                              {
+                                label: "Surface area",
+                                value: `${fmt(result.area_input)} ${
+                                  result.area_unit === "m2" ? "m²" : "ft²"
+                                }`,
+                              },
+                              {
+                                label: "Application profile",
+                                value: result.profile_name,
+                              },
+                              {
+                                label: "Coats/layers",
+                                value:
+                                  result.coats === null
+                                    ? "not configured"
+                                    : String(result.coats),
+                              },
+                              {
+                                label: "Purchase quantity",
+                                value:
+                                  result.purchase_min === result.purchase_max
+                                    ? `${result.purchase_min} ${result.purchase_unit}`
+                                    : `${result.purchase_min}–${result.purchase_max} ${result.purchase_unit}`,
+                              },
+                            ],
+                            lineItems: [
+                              {
+                                description: "Materials",
+                                amount: formatCurrency(result.cost_min ?? 0),
+                              },
+                              {
+                                section: "Labour",
+                                description: "Application labour",
+                                amount: formatCurrency(labourCost),
+                              },
+                            ],
+                            totals: [
+                              {
+                                label: "Grand total (materials + labour)",
+                                value: formatCurrency(
+                                  (result.cost_min ?? 0) + labourCost,
+                                ),
+                                emphasized: true,
+                              },
+                            ],
+                            link:
+                              category === "stucco"
+                                ? "/stucco-calculator"
+                                : "/mineral-stone-calculator",
+                          }}
+                          compact
+                        />
+                      </div>
+
                       <div className="flex flex-wrap gap-3">
                         <button
                           type="button"
@@ -827,24 +895,46 @@ export default function ConfigurableFinishCalculator({
                     {result.calculation_model === "coverage_based" && (
                       <p>
                         Coverage:{" "}
-                        {rangeLabel(
-                          result.coverage_min,
-                          result.coverage_max,
-                          "m²/package",
-                          4,
-                        )}
+                        {areaUnitOf(result.area_unit) === "sqm"
+                          ? rangeLabel(
+                              result.coverage_min,
+                              result.coverage_max,
+                              "m²/package",
+                              4,
+                            )
+                          : rangeLabel(
+                              result.coverage_min === null
+                                ? null
+                                : result.coverage_min * SQFT_PER_SQM,
+                              result.coverage_max === null
+                                ? null
+                                : result.coverage_max * SQFT_PER_SQM,
+                              "sq ft/package",
+                              2,
+                            )}
                       </p>
                     )}
                     {(result.calculation_model === "mass_per_area" ||
                       result.calculation_model === "volume_per_area") && (
                       <p>
                         Consumption:{" "}
-                        {rangeLabel(
-                          result.consumption_min,
-                          result.consumption_max,
-                          `${result.consumption_unit ?? ""} per m² per coat`,
-                          4,
-                        )}
+                        {areaUnitOf(result.area_unit) === "sqm"
+                          ? rangeLabel(
+                              result.consumption_min,
+                              result.consumption_max,
+                              `${result.consumption_unit ?? ""} per m² per coat`,
+                              4,
+                            )
+                          : rangeLabel(
+                              result.consumption_min === null
+                                ? null
+                                : result.consumption_min / SQFT_PER_SQM,
+                              result.consumption_max === null
+                                ? null
+                                : result.consumption_max / SQFT_PER_SQM,
+                              `${result.consumption_unit ?? ""} per sq ft per coat`,
+                              4,
+                            )}
                       </p>
                     )}
                     <p>
