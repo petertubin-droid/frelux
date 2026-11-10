@@ -5,6 +5,8 @@ import {
   groupWallsByHeight,
   scheduleTotals,
   singleRoomFootprint,
+  roomSpans,
+  slabSpanDirection,
 } from "./building-schedule";
 import type { RoomDraft } from "./building-presets";
 import { runTakeoff } from "@/lib/takeoff/engine";
@@ -299,5 +301,45 @@ describe("height grouping", () => {
     // 15 ft = 4.572 m, 12 ft = 3.6576 m.
     expect(footprint.lengthM).toBeCloseTo(4.572, 3);
     expect(footprint.widthM).toBeCloseTo(3.6576, 3);
+  });
+
+  it("gives each room the clear spans its own walls define", () => {
+    const drafts: RoomDraft[] = [
+      { id: "r1", spaceType: "living_room", label: "Living", length: 6.5, width: 4.0, height: 2.7, quantity: 1, doors: 1, windows: 2 },
+      { id: "r2", spaceType: "bedroom", label: "Bed 1", length: 3.6, width: 3.6, height: 2.7, quantity: 1, doors: 1, windows: 1 },
+      { id: "r3", spaceType: "kitchen", label: "Kitchen", length: 0, width: 2.4, height: 2.7, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const building = {
+      schedule: draftsToSchedule(drafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+      label: "Three rooms",
+      unit: "meters" as const,
+      drafts,
+    };
+    const spans = roomSpans(building);
+    expect(spans).toHaveLength(3);
+    // 6.5 x 4.0 spans 6.5 long and 4.0 short, and measures 26 m2.
+    expect(spans[0].shortSpanM).toBeCloseTo(4.0, 3);
+    expect(spans[0].longSpanM).toBeCloseTo(6.5, 3);
+    expect(spans[0].areaM2).toBeCloseTo(26.0, 3);
+    // A square room has equal spans.
+    expect(spans[1].shortSpanM).toBeCloseTo(3.6, 3);
+    // A room with no length gives no span and says why.
+    expect(spans[2].shortSpanM).toBeNull();
+    expect(spans[2].areaM2).toBeNull();
+    expect(spans[2].reason).toContain("no length or width");
+    expect(roomSpans(null)).toEqual([]);
+  });
+
+  it("classifies slab spanning by the 2:1 aspect ratio", () => {
+    // 6.5 / 4.0 = 1.63, which carries two ways.
+    expect(slabSpanDirection(4.0, 6.5)).toBe("two_way");
+    expect(slabSpanDirection(6.5, 4.0)).toBe("two_way");
+    // Exactly 2:1 is one-way, the ratio is inclusive.
+    expect(slabSpanDirection(4.0, 8.0)).toBe("one_way");
+    expect(slabSpanDirection(4.0, 7.9)).toBe("two_way");
+    expect(slabSpanDirection(3.6, 3.6)).toBe("two_way");
+    expect(slabSpanDirection(null, 4.0)).toBeNull();
+    expect(slabSpanDirection(0, 4.0)).toBeNull();
   });
 });

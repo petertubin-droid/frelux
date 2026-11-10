@@ -2,6 +2,8 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { roomSpans, slabSpanDirection } from "@/lib/measurement/building-schedule";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
 import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
@@ -1794,6 +1796,79 @@ function BarScheduleCalculator() {
   );
 }
 
+/**
+ * Reads a clear span from the measured building.
+ *
+ * A room is built from four walls, so its sides are the clear distances between
+ * supports the schedule already defines. Nothing is derived for a room with a
+ * missing side: the picker says so instead of filling a span.
+ */
+function MeasuredSpanPicker({
+  onPick,
+  hint,
+}: {
+  onPick: (span: { label: string; shortSpanM: number; longSpanM: number }) => void;
+  hint: string;
+}) {
+  const { t } = useLanguage();
+  const { building } = useBuildingSize();
+  const spans = useMemo(() => roomSpans(building), [building]);
+  const usable = useMemo(
+    () => spans.filter((r) => r.shortSpanM !== null && r.longSpanM !== null),
+    [spans],
+  );
+  const [note, setNote] = useState<string | null>(null);
+
+  if (spans.length === 0) return null;
+
+  return (
+    <div className="sm:col-span-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="text-xs font-medium text-muted-foreground" htmlFor="measured-span-room">
+          {t("Room")}
+        </label>
+        <select
+          id="measured-span-room"
+          defaultValue=""
+          onChange={(event) => {
+            const room = usable.find((r) => r.id === event.target.value);
+            if (!room || room.shortSpanM === null || room.longSpanM === null) {
+              const missing = spans.find((r) => r.id === event.target.value);
+              setNote(
+                missing?.reason ??
+                  "That room has no usable span, so no span was filled.",
+              );
+              return;
+            }
+            onPick({
+              label: room.label,
+              shortSpanM: room.shortSpanM,
+              longSpanM: room.longSpanM,
+            });
+            setNote(
+              `${room.label}: ${room.shortSpanM.toFixed(2)} m clear by ${room.longSpanM.toFixed(2)} m, read from the measured building.`,
+            );
+          }}
+          className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+        >
+          <option value="">{t("Use measured room span")}</option>
+          {usable.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.label} ({r.shortSpanM?.toFixed(2)} x {r.longSpanM?.toFixed(2)} m)
+            </option>
+          ))}
+        </select>
+        <span className="text-[11px] text-muted-foreground">{t(hint)}</span>
+      </div>
+      {note && (
+        <p role="status" className="mt-1 text-[11px] leading-snug text-muted-foreground">
+          {note}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function BeamCalculator() {
   const { t } = useLanguage();
   const designAccess = useEngineAccess("/structural-calculator");
@@ -1911,6 +1986,16 @@ function BeamCalculator() {
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
+          <MeasuredSpanPicker
+            hint="The span filled is the clear distance between the room walls."
+            onPick={(picked) => {
+              // The beam tab works in the market's length unit, so convert.
+              const factor = lengthUnit === "ft" ? 1 / 0.3048 : 1;
+              setSpan(
+                parseFloat((picked.shortSpanM * factor).toFixed(2)),
+              );
+            }}
+          />
           <NumInput
             label={`Span (${lengthUnit})`}
             value={span}
@@ -2517,6 +2602,18 @@ function SlabCalculator() {
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
+          <MeasuredSpanPicker
+            hint="Both spans are filled, and one-way or two-way follows the 2:1 ratio."
+            onPick={(picked) => {
+              setSpanX(parseFloat(picked.shortSpanM.toFixed(2)));
+              setSpanY(parseFloat(picked.longSpanM.toFixed(2)));
+              const direction = slabSpanDirection(
+                picked.shortSpanM,
+                picked.longSpanM,
+              );
+              if (direction) setSlabType(direction);
+            }}
+          />
           <NumInput
             label="Short span (m)"
             value={spanX}

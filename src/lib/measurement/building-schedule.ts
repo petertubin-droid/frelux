@@ -360,3 +360,64 @@ export function singleRoomFootprint(
     widthM: room.width * perUnit,
   };
 }
+
+/**
+ * Per-room clear spans from the measured building.
+ *
+ * Each room in the schedule is built from four walls, so a room's length and
+ * width are the clear distances between its own walls. That makes them usable as
+ * a beam or slab span without inventing anything: the span reported here is the
+ * distance between supports the schedule itself defines. Rooms with a missing or
+ * zero dimension are returned with span null and a reason, never with a guess.
+ */
+export interface RoomSpan {
+  id: string;
+  label: string;
+  lengthM: number | null;
+  widthM: number | null;
+  shortSpanM: number | null;
+  longSpanM: number | null;
+  areaM2: number | null;
+  reason: string | null;
+}
+
+export function roomSpans(building: AppliedBuilding | null): RoomSpan[] {
+  if (!building) return [];
+  const perUnit = building.unit === "feet" ? 0.3048 : 1;
+  return building.drafts.map((draft) => {
+    const lengthM = draft.length > 0 ? draft.length * perUnit : null;
+    const widthM = draft.width > 0 ? draft.width * perUnit : null;
+    const usable = lengthM !== null && widthM !== null;
+    return {
+      id: draft.id,
+      label: draft.label || draft.spaceType,
+      lengthM,
+      widthM,
+      shortSpanM: usable ? Math.min(lengthM, widthM) : null,
+      longSpanM: usable ? Math.max(lengthM, widthM) : null,
+      areaM2: usable ? lengthM * widthM : null,
+      reason: usable
+        ? null
+        : "This room has no length or width, so it cannot give a span.",
+    };
+  });
+}
+
+/**
+ * One-way or two-way spanning for a rectangular slab panel.
+ *
+ * A panel whose long side is at least twice its short side carries its load in
+ * the short direction only, which is the usual definition of one-way spanning.
+ * Anything squarer than 2:1 spans two ways. Returns null when a span is missing
+ * rather than assuming a direction.
+ */
+export function slabSpanDirection(
+  spanXM: number | null,
+  spanYM: number | null,
+): "one_way" | "two_way" | null {
+  if (spanXM === null || spanYM === null || spanXM <= 0 || spanYM <= 0) {
+    return null;
+  }
+  const ratio = Math.max(spanXM, spanYM) / Math.min(spanXM, spanYM);
+  return ratio >= 2 ? "one_way" : "two_way";
+}

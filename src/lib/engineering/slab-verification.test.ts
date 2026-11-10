@@ -203,3 +203,44 @@ describe("basic span/depth ratios", () => {
     expect(d).toBeGreaterThanOrEqual(Math.floor(6000 / 26 - 1));
   });
 });
+
+describe("slab span entry order", () => {
+  const ordered = {
+    span_x: 4.0,
+    span_y: 6.5,
+    slab_type: "two_way" as const,
+    support_condition: "simply_supported" as const,
+    live_load: 2,
+    dead_load: 1.5,
+    concrete_grade: "C25" as const,
+    steel_grade: "Fe500" as const,
+    cover_mm: 25,
+    jurisdiction_code: "EUROCODE_2" as const,
+  };
+
+  it("designs the same panel whichever box holds the short side", () => {
+    // 4.0 x 6.5 against 6.5 x 4.0 is one panel, so the answer must not depend
+    // on the order of entry. Before the fix the swapped entry sized the panel at
+    // 6500 / 28 and interpolated the coefficients below a ratio of 1.
+    const straight = designSlab(ordered as never);
+    const swapped = designSlab({
+      ...ordered,
+      span_x: ordered.span_y,
+      span_y: ordered.span_x,
+    } as never);
+    expect(swapped.recommended_thickness).toBe(straight.recommended_thickness);
+    expect(swapped.steel_area_required).toBe(straight.steel_area_required);
+    expect(swapped.max_moment).toBeCloseTo(straight.max_moment, 6);
+    // Reported spans are the short and long sides, not the entry order.
+    expect(swapped.span_x).toBeCloseTo(4.0, 6);
+    expect(swapped.span_y).toBeCloseTo(6.5, 6);
+  });
+
+  it("classifies the panel and takes moments off the short side", () => {
+    const straight = designSlab(ordered as never);
+    // Two-way: M = 0.1085 x 12.0 x 4^2 = 20.87 kN.m/m, not off 6.5 m.
+    expect(straight.max_moment).toBeCloseTo(20.87, 1);
+    // Short span governs the shear: 12.0 x 4.0 / 2 = 24.04 kN/m.
+    expect(straight.max_shear).toBeCloseTo(24.04, 1);
+  });
+});

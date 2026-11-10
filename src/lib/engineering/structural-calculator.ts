@@ -1711,9 +1711,25 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     `Concrete standard: ${CONCRETE_STANDARDS[concretePreset.standard].name} (${concretePreset.label}) — f_cu = ${concretePreset.fcu} MPa, E_c = ${concretePreset.Ec} GPa`,
   );
 
-  // Determine if one-way or two-way
-  const ratio = input.span_y / input.span_x;
+  // Determine if one-way or two-way.
+  //
+  // The short and long sides are taken from the two entered spans rather than
+  // trusting which box they were typed into: a swap of the two fields used to
+  // size the panel off its long side (6500 / 28 instead of 4000 / 28) and then
+  // interpolate the moment coefficients at a ratio below 1, which silently
+  // designed a different panel. Cantilever keeps the single entered span.
+  const shortSpanM = Math.min(input.span_x, input.span_y);
+  const longSpanM = Math.max(input.span_x, input.span_y);
+  const ratio = longSpanM / shortSpanM;
   const is_two_way = ratio < 2 && input.slab_type === "two_way";
+
+  // A panel at 2:1 or flatter spanning two ways is not a two-way panel. Say so
+  // rather than quietly designing it as one-way under a two-way label.
+  if (input.slab_type === "two_way" && ratio >= 2) {
+    warnings.push(
+      `A two-way panel was selected, but the sides are ${ratio.toFixed(2)}:1. At 2:1 or flatter the panel carries its load in the short direction, so it has been designed as one-way. Change the spans or accept one-way spanning.`,
+    );
+  }
 
   // Minimum thickness (BS 8110)
   let min_thickness = 100; // general minimum
@@ -1723,14 +1739,14 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
       `Cantilever min thickness = span/7 = ${input.span_x * 1000} / 7 = ${min_thickness.toFixed(0)} mm`,
     );
   } else if (is_two_way) {
-    min_thickness = Math.max(125, (input.span_x * 1000) / 28);
+    min_thickness = Math.max(125, (shortSpanM * 1000) / 28);
     formulas.push(
-      `Two-way slab min thickness = span/28 = ${input.span_x * 1000} / 28 = ${min_thickness.toFixed(0)} mm`,
+      `Two-way slab min thickness = short span/28 = ${shortSpanM * 1000} / 28 = ${min_thickness.toFixed(0)} mm`,
     );
   } else {
-    min_thickness = Math.max(100, (input.span_x * 1000) / 20); // one-way simply supported
+    min_thickness = Math.max(100, (shortSpanM * 1000) / 20); // one-way simply supported
     formulas.push(
-      `One-way slab min thickness = span/20 = ${input.span_x * 1000} / 20 = ${min_thickness.toFixed(0)} mm`,
+      `One-way slab min thickness = short span/20 = ${shortSpanM * 1000} / 20 = ${min_thickness.toFixed(0)} mm`,
     );
   }
 
@@ -1808,8 +1824,8 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     [1.75, 0.113, 0.037],
     [2.0, 0.118, 0.029],
   ];
-  const shortSpan = Math.min(input.span_x, input.span_y);
-  const longSpan = Math.max(input.span_x, input.span_y);
+  const shortSpan = shortSpanM;
+  const longSpan = longSpanM;
   const panelRatio = longSpan / shortSpan;
   let alphaShort = momentCoeff;
   let alphaLong = 0;
@@ -1858,7 +1874,7 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     );
   }
   formulas.push(
-    `Max shear = ${total_load.toFixed(1)} × ${input.span_x} / 2 = ${max_shear.toFixed(2)} kN/m`,
+    `Max shear = ${total_load.toFixed(1)} × ${shortSpanM} / 2 = ${max_shear.toFixed(2)} kN/m`,
   );
 
   // Steel area.
@@ -2108,15 +2124,15 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
     );
   }
 
-  if (recommended_thickness < 150 && input.span_x > 3) {
+  if (recommended_thickness < 150 && shortSpanM > 3) {
     warnings.push(
-      `Slab thickness ${recommended_thickness}mm may be thin for ${input.span_x}m span. Consider 150mm minimum.`,
+      `Slab thickness ${recommended_thickness}mm may be thin for ${shortSpanM}m span. Consider 150mm minimum.`,
     );
   }
 
   return {
-    span_x: input.span_x,
-    span_y: input.span_y,
+    span_x: shortSpanM,
+    span_y: longSpanM,
     slab_type: input.slab_type,
     required_thickness,
     recommended_thickness,
@@ -2194,7 +2210,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
       ? Math.max(125, (input.span_x * 1000) / 7)
       : input.slab_type === "two_way"
         ? Math.max(125, shortSpanMm / 28)
-        : Math.max(100, (input.span_x * 1000) / 20);
+        : Math.max(100, shortSpanMm / 20);
   let best = first;
   for (let step = 0; step < 24; step += 1) {
     const candidate = best.recommended_thickness - 25;
