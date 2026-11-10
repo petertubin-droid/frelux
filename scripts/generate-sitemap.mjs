@@ -100,6 +100,13 @@ function resolveLastmod(routePath, stated) {
 }
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
+
+/**
+ * Locales whose translated pages are allowed in the index. Mirrors
+ * INDEXABLE_LOCALES in src/lib/translation-index.ts and prerender.mjs: a locale
+ * is listed here only once its content is genuinely translated.
+ */
+const INDEXABLE_LOCALE_CODES = ["es"];
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || "";
 
 const routes = [
@@ -642,6 +649,68 @@ const failBuildIfNetlify = (reason) => {
   );
 };
 
+/**
+ * Published Spanish article translations, keyed by article slug.
+ *
+ * Prerender already emits one /es/learn/<slug> page per published translation
+ * and marks it index, follow with reciprocal hreflang. The sitemap only learned
+ * about those pages second hand, from the prerender manifest, and listed them
+ * as bare URLs with no alternates. Google wants the pairing stated either in
+ * the HTML or in the sitemap; reading the translations here means both sides
+ * say it, and a localized URL is listed because its translation exists rather
+ * than because a file happened to be emitted.
+ */
+async function fetchPublishedArticleLocales() {
+  const byslug = new Map();
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return byslug;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/content_translations?select=content_key,locale&content_type=eq.article&status=eq.published&limit=1000`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      },
+    );
+    if (!res.ok) return byslug;
+    for (const row of await res.json()) {
+      if (!row?.content_key || !row?.locale || row.locale === "en") continue;
+      const set = byslug.get(row.content_key) ?? new Set();
+      set.add(row.locale);
+      byslug.set(row.content_key, set);
+    }
+  } catch {
+    // A sitemap without alternates is still correct, just less explicit.
+  }
+  return byslug;
+}
+
+const articleLocales = await fetchPublishedArticleLocales();
+
+/** Locales published for a Learn article slug, restricted to indexable ones. */
+const localesForSlug = (slug) =>
+  [...(articleLocales.get(slug) ?? [])].filter((l) =>
+    INDEXABLE_LOCALE_CODES.includes(l),
+  );
+
+/** Netlify serves the trailing-slash form; hrefs must match the final URL. */
+const withSlash = (p) => (p === "/" ? p : `${p}/`);
+
+/** hreflang set for one article: English, x-default, then each translation. */
+function articleAlternates(articlePath, slug) {
+  const locales = localesForSlug(slug);
+  if (locales.length === 0) return undefined;
+  return [
+    { hreflang: "x-default", href: `${SITE_URL}${withSlash(articlePath)}` },
+    { hreflang: "en", href: `${SITE_URL}${withSlash(articlePath)}` },
+    ...locales.map((l) => ({
+      hreflang: l,
+      href: `${SITE_URL}${withSlash(`/${l}${articlePath}`)}`,
+    })),
+  ];
+}
+
 const learnRoutes = await fetchLearnRoutes();
 
 // Market × template family: 32 market hubs + every curated template in every
@@ -724,6 +793,51 @@ if (droppedLocaleRoutes > 0) {
   );
 }
 
+// ── Learn article hreflang ───────────────────────────────────────────
+// Pair every English article with its published translations, and add the
+// localized URLs themselves, each carrying the same alternate set. Without this
+// the /es pages only reached the sitemap through the prerender manifest and
+// stated no relationship to the English original.
+const articleRouteBySlug = new Map();
+for (const r of allRoutes) {
+  // Two canonical shapes: a library article at /learn/<slug> and a
+  // market-tagged one at /learn/wall-finishing/<market>/<slug>. The translation
+  // key is the slug in both.
+  const m = /^\/learn\/(?:wall-finishing\/[a-z]{2}\/([^/]+)|([^/]+))$/.exec(
+    r.path,
+  );
+  if (m) articleRouteBySlug.set(m[1] || m[2], r);
+}
+
+for (const [slug, route] of articleRouteBySlug) {
+  const locales = localesForSlug(slug);
+  if (locales.length === 0) continue;
+  const alternates = articleAlternates(route.path, slug);
+  route.alternates = alternates;
+  for (const locale of locales) {
+    const localizedPath = `/${locale}${route.path}`;
+    if (allRoutes.some((r) => r.path === localizedPath)) {
+      const existing = allRoutes.find((r) => r.path === localizedPath);
+      existing.alternates = alternates;
+      existing.lang = locale;
+      continue;
+    }
+    allRoutes.push({
+      path: localizedPath,
+      priority: "0.5",
+      changefreq: "monthly",
+      lang: locale,
+      alternates,
+    });
+  }
+}
+const translatedArticleCount = [...articleRouteBySlug.keys()].filter(
+  (slug) => localesForSlug(slug).length > 0,
+).length;
+console.log(
+  `  ✅ Learn hreflang: ${translatedArticleCount} article(s) paired with published translations`,
+);
+
 // Netlify's "pretty URLs" force-redirect every path to its trailing-slash
 // form (301 /calculators -> /calculators/). The sitemap must list the final
 // URL only, otherwise Google Search Console flags every entry as a redirect.
@@ -743,7 +857,12 @@ const canonical = (p) => (p === "/" ? p : `${p}/`);
 // fully client-side (LocaleAwareRoutes) for human visitors.
 const urlEntry = (path, opts = {}) => `  <url>
     <loc>${SITE_URL}${canonical(path)}</loc>
-    <lastmod>${opts.lastmod ?? today}</lastmod>
+${(opts.alternates ?? [])
+  .map(
+    (a) =>
+      `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${a.href}"/>`,
+  )
+  .join("\n")}${(opts.alternates ?? []).length ? "\n" : ""}    <lastmod>${opts.lastmod ?? today}</lastmod>
     <changefreq>${opts.changefreq ?? "monthly"}</changefreq>
     <priority>${opts.priority ?? "0.6"}</priority>
   </url>`;
@@ -754,12 +873,14 @@ for (const r of allRoutes) {
       priority: r.priority ?? (r.path === "/" ? "1.0" : "0.6"),
       changefreq: r.changefreq,
       lastmod: resolveLastmod(r.path, r.lastmod),
+      alternates: r.alternates,
     }),
   );
 }
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${" "}
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"${" "}
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${localizedEntries.join("\n")}
 </urlset>

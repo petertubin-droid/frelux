@@ -78,9 +78,7 @@ describe("locale URL policy", () => {
 
   it("lets only translated articles carry their own robot decision", () => {
     // The exception must be the article tree, not the whole locale.
-    expect(headers).toContain(
-      "/es/learn/*\n  X-Robots-Tag: index, follow",
-    );
+    expect(headers).toContain("/es/learn/*\n  X-Robots-Tag: index, follow");
     for (const code of LOCALE_PREFIXES.filter((c) => c !== "es")) {
       expect(headers).not.toContain(
         `/${code}/learn/*\n  X-Robots-Tag: index, follow`,
@@ -101,15 +99,22 @@ describe("locale URL policy", () => {
 
     for (const path of localeUrls) {
       const url = `https://freluxtools.com${path}`;
-      // Only a translated article, never a locale shell or hub.
-      expect(path).toMatch(/^\/es\/learn\/[a-z0-9-]+\/$/);
+      // Only a translated article, never a locale shell or hub. A library
+      // article sits at /es/learn/<slug>, a market-tagged one on its market
+      // path (/es/learn/wall-finishing/us/<slug>), which is where its English
+      // canonical lives.
+      expect(path).toMatch(
+        /^\/es\/learn\/(?:[a-z0-9-]+|wall-finishing\/[a-z]{2}\/[a-z0-9-]+)\/$/,
+      );
       // And only where the built page itself says it may be indexed.
       const built = join(root, "dist", path, "index.html");
       if (!existsSync(built)) continue;
       const page = readFileSync(built, "utf8");
       expect(page).toContain('content="index, follow');
       expect(page).toContain('hreflang="es"');
-      expect(page).toContain(`rel="canonical" href="${url.replace(/\/$/, "/")}"`);
+      expect(page).toContain(
+        `rel="canonical" href="${url.replace(/\/$/, "/")}"`,
+      );
     }
   });
 });

@@ -3404,8 +3404,11 @@ async function fetchLearnPages() {
             },
           ],
         });
-        const altLocales = (a.wall_market_code ? [] : INDEXABLE_LOCALES).filter(
-          (l) => trByLocaleKey.has(`${l}:${a.slug}`),
+        // A published translation is what makes a locale page real, not the
+        // absence of a market tag: 50 US wall-finishing guides carry reviewed
+        // Spanish copy and were left with no way to reach it.
+        const altLocales = INDEXABLE_LOCALES.filter((l) =>
+          trByLocaleKey.has(`${l}:${a.slug}`),
         );
         if (altLocales.length) {
           learnRoutes[learnRoutes.length - 1].alternates = [
@@ -3418,15 +3421,22 @@ async function fetchLearnPages() {
           ];
         }
 
-        // Market-tagged articles are localised by definition: their body is
-        // already written for one market, so a /es/ or /fr/ copy would be a
-        // duplicate with the wrong language. Emit them once, at articlePath.
         // One localized page per launched locale. A published translation is
         // indexable in its own language; without one the page still works for
         // readers (same English body) but stays noindex and canonical to the
         // English URL, so it can never compete with it.
-        for (const locale of a.wall_market_code ? [] : INDEXABLE_LOCALES) {
+        //
+        // Market-tagged articles take their localized page on the market path
+        // (/es/learn/wall-finishing/us/<slug>), which is where their canonical
+        // English URL lives. Skipping them entirely used to strand 50 published
+        // Spanish translations: rows in the database that no reader or crawler
+        // could reach.
+        for (const locale of INDEXABLE_LOCALES) {
           const t = trByLocaleKey.get(`${locale}:${a.slug}`);
+          // A market article is written for one market, so an untranslated
+          // locale copy would be an English body under a /es/ URL: pure
+          // duplication with no reader. Only a real translation earns a page.
+          if (a.wall_market_code && !t) continue;
           const altSet = t
             ? [
                 { hreflang: "x-default", href: `${SITE_URL}${articlePath}/` },
@@ -3470,15 +3480,39 @@ async function fetchLearnPages() {
                     dateModified: (a.updated_at || a.published_at || "").split(
                       "T",
                     )[0],
-                    mainEntityOfPage: `${SITE_URL}/${locale}/learn/${a.slug}`,
+                    mainEntityOfPage: `${SITE_URL}/${locale}${articlePath}`,
                   },
                 ]
               : undefined,
           });
           const localizedBody = t && t.body_md ? t.body_md : a.content || "";
           const localizedBodySafe = demoteH1(localizedBody);
+          // A market library has no Spanish hub page, so a translated market
+          // article was reachable only through the sitemap: no link from any
+          // page in the site pointed at it. Siblings in the same market give
+          // each one a crawl path and a reader somewhere to go next.
+          const marketCode = String(a.wall_market_code || "").toLowerCase();
+          const spanishSiblings = marketCode
+            ? arts
+                .filter(
+                  (r) =>
+                    r.slug !== a.slug &&
+                    String(r.wall_market_code || "").toLowerCase() ===
+                      marketCode &&
+                    trByLocaleKey.has(`${locale}:${r.slug}`),
+                )
+                .slice(0, 6)
+            : [];
+          const siblingNav = spanishSiblings.length
+            ? `<nav aria-label="Guías relacionadas"><h2>Guías relacionadas</h2><ul>${spanishSiblings
+                .map((r) => {
+                  const rt = trByLocaleKey.get(`${locale}:${r.slug}`);
+                  return `<li><a href="/${locale}/learn/wall-finishing/${marketCode}/${r.slug}">${escapeHtml((rt && rt.title) || r.title)}</a></li>`;
+                })
+                .join("")}</ul></nav>`
+            : "";
           learnContent[`/${locale}${articlePath}`] =
-            `<div lang="${locale}"><h1>${escapeHtml((t && t.title) || a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml((t && t.title) || a.title)}</nav>${markdownToHtml(localizedBodySafe)}</div>`;
+            `<div lang="${locale}"><h1>${escapeHtml((t && t.title) || a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml((t && t.title) || a.title)}</nav>${markdownToHtml(localizedBodySafe)}${siblingNav}</div>`;
         }
 
         const bodySource = demoteH1(a.content);
