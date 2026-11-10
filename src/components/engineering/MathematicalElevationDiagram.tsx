@@ -53,10 +53,9 @@ export function MathematicalElevationDiagram({
   const [pitchDeg, setPitchDeg] = useState<number>(30); // vertical tilt
   const [showWireframe, setShowWireframe] = useState<boolean>(false);
   const [showDimensions, setShowDimensions] = useState<boolean>(true);
-  const [showWindVector, setShowWindVector] = useState<boolean>(true);
   const [showErrorPins, setShowErrorPins] = useState<boolean>(true);
 
-  const { input, levels, wind_analysis, discrepancies } = result;
+  const { input, levels, discrepancies } = result;
   const pricedMaterials = result.five_d_bim.materials.filter(
     (material) => Number(unitRates[material.item]) > 0,
   );
@@ -116,7 +115,7 @@ export function MathematicalElevationDiagram({
   const maxDim = Math.max(
     L,
     W,
-    H * storeys + levels.level_5_roof.ridge_rise_m + 2.0,
+    H * storeys + (levels.level_5_roof.ridge_rise_m ?? 0) + 2.0,
   );
   const scale = (canvasWidth * 0.38) / Math.max(12, maxDim);
 
@@ -146,12 +145,11 @@ export function MathematicalElevationDiagram({
 
   // Geometry Points Definition
   // Z datums (meters)
-  const zExcavation = -levels.level_1_foundation.excavation_depth_m;
   const zGround = 0.0;
   const zSlab = levels.level_2_ground_slab.plinth_height_above_ground_m;
   const zWallHead = zSlab + H * storeys;
   const zRingBeam = zWallHead + levels.level_4_ring_beam.ring_beam_depth_m;
-  const zRoofApex = zRingBeam + levels.level_5_roof.ridge_rise_m;
+  const zRoofApex = zRingBeam + (levels.level_5_roof.ridge_rise_m ?? 0);
 
   // 3D Corner Coordinates
   // Ground footprint
@@ -159,12 +157,6 @@ export function MathematicalElevationDiagram({
   const pG1 = project3D(L, 0, zGround);
   const pG2 = project3D(L, W, zGround);
   const _pG3 = project3D(0, W, zGround);
-
-  // Foundation Trench & Footing corners
-  const pF0 = project3D(-0.3, -0.3, zExcavation);
-  const pF1 = project3D(L + 0.3, -0.3, zExcavation);
-  const pF2 = project3D(L + 0.3, W + 0.3, zExcavation);
-  const pF3 = project3D(-0.3, W + 0.3, zExcavation);
 
   // Plinth / Slab Top
   const pS0 = project3D(0, 0, zSlab);
@@ -191,10 +183,17 @@ export function MathematicalElevationDiagram({
   const pE3 = project3D(-overhang, W + overhang, zRingBeam);
 
   // Roof Ridge Points (Gable/Hip ridge centerline)
-  const ridgeY = W / 2;
-  const hipIndent = input.roof_type === "hip" ? Math.min(W / 2, L * 0.25) : 0;
-  const pR0 = project3D(hipIndent, ridgeY, zRoofApex);
-  const pR1 = project3D(L - hipIndent, ridgeY, zRoofApex);
+  const ridgeAlongY = L < W;
+  const halfSpan = Math.min(L, W) / 2;
+  const roofGeometrySupported =
+    input.roof_type === "gable" || input.roof_type === "hip";
+  const hipIndent = input.roof_type === "hip" ? halfSpan : 0;
+  const pR0 = ridgeAlongY
+    ? project3D(L / 2, hipIndent, zRoofApex)
+    : project3D(hipIndent, W / 2, zRoofApex);
+  const pR1 = ridgeAlongY
+    ? project3D(L / 2, W - hipIndent, zRoofApex)
+    : project3D(L - hipIndent, W / 2, zRoofApex);
 
   // Active level descriptions & formulas for HUD
   const levelHUDInfo = useMemo(() => {
@@ -202,11 +201,10 @@ export function MathematicalElevationDiagram({
       case 1:
         return {
           title: "Level 1: Substructure & Foundation Footings",
-          formula:
-            "Illustrative footing width from assumed line load ÷ entered bearing value",
-          values: `Line load = ${levels.level_1_foundation.total_line_load_kn_m} kN/m | Bf = ${levels.level_1_foundation.footing_width_adopted_m}m | Depth = ${levels.level_1_foundation.excavation_depth_m}m`,
+          formula: "Foundation geometry is not designed by this tool",
+          values: "Foundation geometry and excavation are not assessed.",
           description:
-            "Shows a strip-footing quantity illustration from assumed line load and entered bearing pressure; not foundation design.",
+            "Foundation dimensions, soil capacity and bearing safety are not assessed. Do not use the schematic footing as a design recommendation.",
         };
       case 2:
         return {
@@ -220,7 +218,7 @@ export function MathematicalElevationDiagram({
         return {
           title: "Level 3: Superstructure Walls & Openings",
           formula:
-            "Indicative ratio = assumed effective height / entered wall thickness",
+            "Descriptive storey-height / wall-thickness ratio only; no structural check",
           values: `Slenderness λ = ${levels.level_3_superstructure.slenderness_ratio} | Net Wall Area = ${levels.level_3_superstructure.net_masonry_area_m2} m² | Block Count = ${levels.level_3_superstructure.total_blocks_count} units`,
           description:
             "Shows a wall proportion indicator, course count, and opening deductions; not a structural check.",
@@ -228,23 +226,23 @@ export function MathematicalElevationDiagram({
       case 4:
         return {
           title: "Level 4: Reinforced Concrete Ring Beam & Lintels",
-          formula:
-            "Assumed ring-beam section and reinforcement quantity; not design",
-          values: `Ring Beam Section = ${(levels.level_4_ring_beam.ring_beam_width_m * 1000).toFixed(0)} × ${(levels.level_4_ring_beam.ring_beam_depth_m * 1000).toFixed(0)} mm | Concrete = ${levels.level_4_ring_beam.concrete_volume_m3} m³ | Rebar = ${levels.level_4_ring_beam.total_main_rebar_weight_kg} kg`,
+          formula: "Illustrative fixed geometry only; no reinforcement design",
+          values: `Illustrative section = ${(levels.level_4_ring_beam.ring_beam_width_m * 1000).toFixed(0)} × ${(levels.level_4_ring_beam.ring_beam_depth_m * 1000).toFixed(0)} mm | Reinforcement not assessed`,
           description:
-            "Shows assumed ring-beam quantities; no reinforcement design or capacity check is performed.",
+            "Section dimensions are illustrative assumptions, not a recommendation. Concrete volume is a geometry product only; no capacity, reinforcement, anchorage or code check is performed.",
         };
       case 5:
       default:
         return {
-          title: "Level 5: Roof pitch geometry & wind illustration",
-          formula: "h_ridge = (S / 2) · tan(θ) | L_rafter = (S / 2) / cos(θ)",
-          values: `Rise = ${levels.level_5_roof.ridge_rise_m}m | Rafter = ${levels.level_5_roof.rafter_slope_length_m}m | True Area = ${levels.level_5_roof.true_3d_roof_area_m2} m² | Wind qz = ${wind_analysis.velocity_pressure_qz_pa} Pa`,
+          title: "Level 5: Illustrative roof geometry",
+          formula:
+            "h_ridge = (clear span / 2) · tan(θ); overhang extends eaves, not ridge",
+          values: `Rise = ${levels.level_5_roof.ridge_rise_m ?? "not assessed"} m | Rafter proxy = ${levels.level_5_roof.rafter_slope_length_m ?? "not assessed"} m | Area proxy = ${levels.level_5_roof.approximate_roof_covering_area_m2 ?? "not assessed"} m²`,
           description:
-            "Shows roof-pitch geometry and simplified wind assumptions for illustration, not design or compliance.",
+            "Illustrative roof geometry and quantity proxy only. No wind, member, connection or code design is performed.",
         };
     }
-  }, [activeLevel, levels, wind_analysis]);
+  }, [activeLevel, levels]);
 
   return (
     <div
@@ -382,44 +380,17 @@ export function MathematicalElevationDiagram({
               </linearGradient>
             </defs>
 
-            {/* LEVEL 1: Excavation & Footings */}
-            {activeLevel >= 1 && (
-              <g className="transition-opacity duration-500">
-                {/* Excavation Base Polygon */}
-                <polygon
-                  points={`${pF0[0]},${pF0[1]} ${pF1[0]},${pF1[1]} ${pF2[0]},${pF2[1]} ${pF3[0]},${pF3[1]}`}
-                  fill="url(#footingGrad)"
-                  stroke="#38bdf8"
-                  strokeWidth="1.2"
-                  strokeDasharray={showWireframe ? "4,4" : undefined}
-                />
-                {/* Footing vertical extruded walls */}
-                <polygon
-                  points={`${pF0[0]},${pF0[1]} ${pF1[0]},${pF1[1]} ${pG1[0]},${pG1[1]} ${pG0[0]},${pG0[1]}`}
-                  fill="#334155"
-                  fillOpacity="0.6"
-                  stroke="#64748b"
-                  strokeWidth="1"
-                />
-                <polygon
-                  points={`${pF1[0]},${pF1[1]} ${pF2[0]},${pF2[1]} ${pG2[0]},${pG2[1]} ${pG1[0]},${pG1[1]}`}
-                  fill="#1e293b"
-                  fillOpacity="0.8"
-                  stroke="#64748b"
-                  strokeWidth="1"
-                />
-                <text
-                  x={pF0[0] - 14}
-                  y={pF0[1] + 4}
-                  fill="#38bdf8"
-                  fontSize="10"
-                  fontFamily="monospace"
-                  textAnchor="end"
-                >
-                  -0.90m [Footing Bf=
-                  {levels.level_1_foundation.footing_width_adopted_m}m]
-                </text>
-              </g>
+            {/* LEVEL 1: Foundation geometry is intentionally not drawn because it is not assessed. */}
+            {activeLevel === 1 && (
+              <text
+                x="320"
+                y="330"
+                fill="#94a3b8"
+                fontSize="12"
+                textAnchor="middle"
+              >
+                Foundation geometry not assessed
+              </text>
             )}
 
             {/* LEVEL 2: Ground Slab & DPC */}
@@ -454,7 +425,7 @@ export function MathematicalElevationDiagram({
                   fontFamily="monospace"
                   textAnchor="end"
                 >
-                  +0.45m [DPC & 150mm Slab]
+                  Illustrative +0.45m datum / 150mm slab (assumed)
                 </text>
               </g>
             )}
@@ -477,42 +448,19 @@ export function MathematicalElevationDiagram({
                   strokeWidth="1.5"
                 />
 
-                {/* Openings Cutouts Visual (Front Face Windows/Doors) */}
-                {input.openings
-                  .filter((op) => op.wall_side === "front")
-                  .map((op, idx) => {
-                    const ratioStart = 0.18 + idx * 0.22;
-                    const _opW = (op.width / L) * 0.7;
-                    const opX1 = L * ratioStart;
-                    const opX2 = opX1 + op.width;
-                    const opZ1 = op.type === "door" ? zSlab : zSlab + 0.9;
-                    const opZ2 = opZ1 + op.height;
-
-                    const c1 = project3D(opX1, 0, opZ1);
-                    const c2 = project3D(opX2, 0, opZ1);
-                    const c3 = project3D(opX2, 0, opZ2);
-                    const c4 = project3D(opX1, 0, opZ2);
-
-                    return (
-                      <g key={op.id}>
-                        <polygon
-                          points={`${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${c3[0]},${c3[1]} ${c4[0]},${c4[1]}`}
-                          fill="#0f172a"
-                          stroke="#38bdf8"
-                          strokeWidth="1.2"
-                        />
-                        {/* Lintel bar over opening */}
-                        <line
-                          x1={c4[0] - 4}
-                          y1={c4[1]}
-                          x2={c3[0] + 4}
-                          y2={c3[1]}
-                          stroke="#f59e0b"
-                          strokeWidth="3"
-                        />
-                      </g>
-                    );
-                  })}
+                {/* Openings have no entered positions or storey assignment; do not invent drawing locations. */}
+                {input.openings.length > 0 && (
+                  <text
+                    x={centerX}
+                    y={centerY - 8}
+                    fill="#fcd34d"
+                    fontSize="10"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    Opening locations and storeys not modeled
+                  </text>
+                )}
               </g>
             )}
 
@@ -541,15 +489,27 @@ export function MathematicalElevationDiagram({
                   fontFamily="monospace"
                   textAnchor="end"
                 >
-                  +{zRingBeam.toFixed(2)}m [Ring Beam 4×Y12]
+                  +{zRingBeam.toFixed(2)}m [illustrative ring-beam geometry]
                 </text>
               </g>
             )}
 
-            {/* LEVEL 5: Roof Structure & Pitch Slopes */}
-            {activeLevel >= 5 && (
+            {/* Roof form is shown only where the calculation model supports it. */}
+            {activeLevel >= 5 && !roofGeometrySupported && (
+              <text
+                x={centerX}
+                y={centerY - 24}
+                fill="#fcd34d"
+                fontSize="12"
+                textAnchor="middle"
+              >
+                {input.roof_type} roof geometry not assessed
+              </text>
+            )}
+            {/* LEVEL 5: illustrative gable/hip roof geometry, not a framing design */}
+            {activeLevel >= 5 && roofGeometrySupported && (
               <g className="transition-opacity duration-500">
-                {/* Timber Truss Wireframe Rafters */}
+                {/* Illustrative roof lines only; no member or truss design is represented. */}
                 <line
                   x1={pE0[0]}
                   y1={pE0[1]}
@@ -685,60 +645,7 @@ export function MathematicalElevationDiagram({
               </g>
             )}
 
-            {/* ── Aerodynamic Wind Vector Arrow ── */}
-            {showWindVector && (
-              <g className="animate-pulse">
-                {/* Wind direction arrow */}
-                <line
-                  x1={centerX - 240}
-                  y1={centerY - 80}
-                  x2={centerX - 120}
-                  y2={centerY - 40}
-                  stroke="#38bdf8"
-                  strokeWidth="3.5"
-                  strokeDasharray="6,4"
-                />
-                <polygon
-                  points={`${centerX - 110},${centerY - 36} ${centerX - 130},${centerY - 48} ${centerX - 126},${centerY - 32}`}
-                  fill="#38bdf8"
-                />
-                <rect
-                  x={centerX - 260}
-                  y={centerY - 120}
-                  width="180"
-                  height="36"
-                  rx="6"
-                  fill="#0f172a"
-                  fillOpacity="0.85"
-                  stroke="#38bdf8"
-                  strokeWidth="1"
-                />
-                <text
-                  x={centerX - 170}
-                  y={centerY - 104}
-                  fill="#38bdf8"
-                  fontSize="10"
-                  fontWeight="bold"
-                  textAnchor="middle"
-                  fontFamily="monospace"
-                >
-                  WIND SCREEN: {wind_analysis.basic_wind_speed_ms} m/s
-                  (simplified q = {wind_analysis.velocity_pressure_qz_pa} Pa)
-                </text>
-                <text
-                  x={centerX - 170}
-                  y={centerY - 90}
-                  fill="#cbd5e1"
-                  fontSize="9"
-                  textAnchor="middle"
-                  fontFamily="monospace"
-                >
-                  Simplified uplift screen:{" "}
-                  {wind_analysis.net_uplift_pressure_kpa} kPa
-                </text>
-              </g>
-            )}
-
+            {/* Wind design is intentionally not represented: this schematic has no project-specific pressure or connection model. */}
             {/* ── Diagnostic Error Pinpoints ── */}
             {showErrorPins &&
               discrepancies.map((disc, idx) => {
@@ -843,6 +750,17 @@ export function MathematicalElevationDiagram({
               </defs>
               <rect width="600" height="420" fill="url(#bpGrid)" />
 
+              <text
+                x="300"
+                y="400"
+                fill="#fcd34d"
+                fontSize="10"
+                textAnchor="middle"
+                fontFamily="monospace"
+              >
+                SCHEMATIC ONLY · partition locations are illustrative, not
+                plan-derived
+              </text>
               {/* External Footprint Outline */}
               <rect
                 x="80"
@@ -865,7 +783,7 @@ export function MathematicalElevationDiagram({
                 strokeDasharray="4,4"
               />
 
-              {/* Internal Partition Walls Sample */}
+              {/* Schematic partition marks are not derived from entered wall locations. */}
               <line
                 x1="280"
                 y1="72"
@@ -925,8 +843,9 @@ export function MathematicalElevationDiagram({
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                Wall Thickness tw = {(input.wall_thickness * 1000).toFixed(0)}{" "}
-                mm (Sandcrete Blockwork)
+                Illustrative wall thickness tw ={" "}
+                {(input.wall_thickness * 1000).toFixed(0)} mm (material/design
+                not assessed)
               </text>
             </svg>
           </div>
@@ -959,50 +878,16 @@ export function MathematicalElevationDiagram({
                 ±0.00m NATURAL GROUND LEVEL (NGL)
               </text>
 
-              {/* Foundation strip footing */}
-              <rect
-                x="120"
-                y="320"
-                width="100"
-                height="40"
-                fill="#475569"
-                stroke="#94a3b8"
-                strokeWidth="1.5"
-              />
-              <rect
-                x="420"
-                y="320"
-                width="100"
-                height="40"
-                fill="#475569"
-                stroke="#94a3b8"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="170"
-                y1="280"
-                x2="170"
-                y2="320"
-                stroke="#64748b"
-                strokeWidth="24"
-              />
-              <line
-                x1="470"
-                y1="280"
-                x2="470"
-                y2="320"
-                stroke="#64748b"
-                strokeWidth="24"
-              />
+              {/* Foundation dimensions are not modeled and must not be implied by this schematic. */}
               <text
-                x="170"
-                y="380"
-                fill="#38bdf8"
+                x="320"
+                y="332"
+                fill="#fcd34d"
                 fontSize="10"
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                -0.90m (Bf={levels.level_1_foundation.footing_width_adopted_m}m)
+                Foundation geometry and bearing are not assessed
               </text>
 
               {/* Plinth & Slab */}
@@ -1023,7 +908,7 @@ export function MathematicalElevationDiagram({
                 textAnchor="middle"
                 fontFamily="monospace"
               >
-                +0.45m DPC & 150mm Over-site Concrete Slab
+                Illustrative +0.45m datum / 150mm slab (assumed)
               </text>
 
               {/* Superstructure Walls */}
@@ -1055,7 +940,7 @@ export function MathematicalElevationDiagram({
                 H = {H.toFixed(2)}m (Storeys: {storeys})
               </text>
 
-              {/* Ring Beam */}
+              {/* Illustrative ring-beam geometry only; no reinforcement design. */}
               <rect
                 x="156"
                 y="85"
@@ -1075,27 +960,43 @@ export function MathematicalElevationDiagram({
                 strokeWidth="1.5"
               />
 
-              {/* Pitched Roof Rafters Triangle */}
-              <polygon
-                points={`130,85 510,85 320,${85 - levels.level_5_roof.ridge_rise_m * 35}`}
-                fill="#0284c7"
-                fillOpacity="0.4"
-                stroke="#38bdf8"
-                strokeWidth="2.5"
-              />
-              <text
-                x="320"
-                y={75 - levels.level_5_roof.ridge_rise_m * 35}
-                fill="#38bdf8"
-                fontSize="12"
-                fontWeight="bold"
-                textAnchor="middle"
-                fontFamily="monospace"
-              >
-                Ridge Apex +
-                {levels.level_5_roof.total_building_height_m.toFixed(2)}m (Rise
-                = {levels.level_5_roof.ridge_rise_m.toFixed(2)}m @ {roofPitch}°)
-              </text>
+              {roofGeometrySupported ? (
+                <>
+                  {/* Illustrative pitched roof profile; not a framing design. */}
+                  <polygon
+                    points={`130,85 510,85 320,${85 - (levels.level_5_roof.ridge_rise_m ?? 0) * 35}`}
+                    fill="#0284c7"
+                    fillOpacity="0.4"
+                    stroke="#38bdf8"
+                    strokeWidth="2.5"
+                  />
+                  <text
+                    x="320"
+                    y={75 - (levels.level_5_roof.ridge_rise_m ?? 0) * 35}
+                    fill="#38bdf8"
+                    fontSize="12"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    Ridge Apex +
+                    {levels.level_5_roof.total_building_height_m.toFixed(2)}m
+                    (Rise = {(levels.level_5_roof.ridge_rise_m ?? 0).toFixed(2)}
+                    m @ {roofPitch}°)
+                  </text>
+                </>
+              ) : (
+                <text
+                  x="320"
+                  y="72"
+                  fill="#fcd34d"
+                  fontSize="12"
+                  textAnchor="middle"
+                  fontFamily="monospace"
+                >
+                  {input.roof_type} roof geometry not assessed
+                </text>
+              )}
             </svg>
           </div>
         )}
@@ -1106,13 +1007,13 @@ export function MathematicalElevationDiagram({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3 rounded-xl bg-card border border-border">
                 <span className="text-xs text-muted-foreground uppercase font-mono">
-                  Illustrative concrete quantity
+                  Indicative concrete quantity
                 </span>
                 <p className="text-xl font-bold text-foreground mt-1">
                   {result.five_d_bim.total_concrete_volume_m3} m³
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Footing + Slab + Ring Beam
+                  Slab + ring beam only; foundation excluded
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-card border border-border">
@@ -1120,10 +1021,10 @@ export function MathematicalElevationDiagram({
                   Indicative phase days
                 </span>
                 <p className="text-xl font-bold text-foreground mt-1">
-                  {result.five_d_bim.total_project_days} calendar days
+                  Not estimated
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Includes 28-day curing hold
+                  Set a project-specific programme
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-card border border-border">
@@ -1193,51 +1094,58 @@ export function MathematicalElevationDiagram({
                 </table>
               </div>
             </div>
-            {/* Phasing Table */}
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
-              <table className="w-full text-xs">
-                <thead className="bg-muted/50 border-b border-border">
-                  <tr>
-                    <th className="p-2.5 text-left font-semibold text-foreground">
-                      Phase
-                    </th>
-                    <th className="p-2.5 text-left font-semibold text-foreground">
-                      Level
-                    </th>
-                    <th className="p-2.5 text-right font-semibold text-foreground">
-                      Work Days
-                    </th>
-                    <th className="p-2.5 text-right font-semibold text-foreground">
-                      Curing Hold
-                    </th>
-                    <th className="p-2.5 text-left font-semibold text-foreground">
-                      Milestone Output
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {result.five_d_bim.timeline_phases.map((ph) => (
-                    <tr key={ph.phase_number} className="hover:bg-muted/20">
-                      <td className="p-2.5 font-medium text-foreground">
-                        {ph.phase_name}
-                      </td>
-                      <td className="p-2.5 text-muted-foreground font-mono">
-                        {ph.level}
-                      </td>
-                      <td className="p-2.5 text-right font-mono text-foreground">
-                        {ph.duration_days} d
-                      </td>
-                      <td className="p-2.5 text-right font-mono text-amber-500 font-semibold">
-                        {ph.curing_hold_days} d
-                      </td>
-                      <td className="p-2.5 text-muted-foreground">
-                        {ph.milestone}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* No assumed schedule: project sequencing and resources are not inputs. */}
+            <div className="rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
+              Programme is not estimated. Provide project sequencing, crew
+              sizes, production rates, procurement, access and curing
+              requirements to build a defensible schedule.
             </div>
+            {result.five_d_bim.timeline_phases.length > 0 && (
+              <div className="rounded-xl border border-border bg-card overflow-hidden">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr>
+                      <th className="p-2.5 text-left font-semibold text-foreground">
+                        Phase
+                      </th>
+                      <th className="p-2.5 text-left font-semibold text-foreground">
+                        Level
+                      </th>
+                      <th className="p-2.5 text-right font-semibold text-foreground">
+                        Work Days
+                      </th>
+                      <th className="p-2.5 text-right font-semibold text-foreground">
+                        Curing Hold
+                      </th>
+                      <th className="p-2.5 text-left font-semibold text-foreground">
+                        Milestone Output
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {result.five_d_bim.timeline_phases.map((ph) => (
+                      <tr key={ph.phase_number} className="hover:bg-muted/20">
+                        <td className="p-2.5 font-medium text-foreground">
+                          {ph.phase_name}
+                        </td>
+                        <td className="p-2.5 text-muted-foreground font-mono">
+                          {ph.level}
+                        </td>
+                        <td className="p-2.5 text-right font-mono text-foreground">
+                          {ph.duration_days} d
+                        </td>
+                        <td className="p-2.5 text-right font-mono text-amber-500 font-semibold">
+                          {ph.curing_hold_days} d
+                        </td>
+                        <td className="p-2.5 text-muted-foreground">
+                          {ph.milestone}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1318,15 +1226,6 @@ export function MathematicalElevationDiagram({
               className="rounded border-border text-brand-purple focus:ring-brand-purple"
             />
             Dimensions
-          </label>
-          <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
-            <input
-              type="checkbox"
-              checked={showWindVector}
-              onChange={(e) => setShowWindVector(e.target.checked)}
-              className="rounded border-border text-brand-purple focus:ring-brand-purple"
-            />
-            Wind Vector
           </label>
           <label className="flex flex-wrap items-center gap-1.5 cursor-pointer hover:text-foreground">
             <input

@@ -1,25 +1,17 @@
 // =========================================================
 // FRELUX DETERMINISTIC MATHEMATICAL PLAN ELEVATION ENGINE
-// Hand Mathematics, Structural Analysis, Wind Logic & 5D BIM
+// Deterministic architectural geometry and indicative quantity schedule
 //
-// Pure architectural mathematics and engineering mechanics:
+// Pure architectural geometry and illustrative quantities:
 // - NO AI or external LLM/vision inference
 // - Trigonometric pitch elevation & true slope 3D geometry
-// - Simplified indicative soil-bearing and footing-width arithmetic only
-// - Wall proportion and opening-width screening only
-// - Indicative opening and ring-beam quantities only
-// - Simplified wind-pressure illustration; not code-based uplift or connection design
-// - Hand mathematics error detector (angles, dimensions, regulations)
-// - 5D BIM schedule: 3D spatial + 4D timeline + 5D quantities & costs
+// - No soil, structural capacity, connection, lintel or code-compliance checks
+// - No block, reinforcement, foundation, product yield or roof framing takeoff without required specifications
+// - No generic wind-pressure or connection outputs
+// - Geometry and indicative quantities only; no assumed project programme
 // =========================================================
 
-import {
-  round1,
-  round2,
-  round3,
-  round4,
-  roundTo,
-} from "@/lib/engineering/rounding";
+import { round1, round2, round3 } from "@/lib/engineering/rounding";
 import type {
   BuildToRoofInput,
   BuildingType,
@@ -28,8 +20,7 @@ import type {
 
 // ── Types & Interfaces ──
 
-export type SoilTypeKey =
-  "laterite" | "sandy_clay" | "firm_clay" | "dense_sand" | "rock";
+export type SoilTypeKey = "unverified";
 
 export interface PlanOpening {
   id: string;
@@ -54,32 +45,34 @@ export interface PlanElevationInput {
   roof_overhang: number; // meters (e.g. 0.60m)
   roof_type: RoofType;
   soil_type: SoilTypeKey;
-  soil_bearing_capacity_kpa: number; // q_allow in kPa (kN/m²)
-  basic_wind_speed_ms: number; // V in m/s (default 34 m/s)
-  wind_exposure: "B" | "C" | "D"; // Simplified illustrative exposure selector
+  /** Site-specific allowable bearing value from a geotechnical report; null means unknown. */
+  soil_bearing_capacity_kpa: number | null;
+  basic_wind_speed_ms: number; // retained input only; not used to calculate design loads
+  wind_exposure: "B" | "C" | "D"; // retained input only; no wind design is performed
   openings: PlanOpening[];
   occupancy_type?: "residential" | "commercial" | "institutional";
 }
 
 export interface Level1FoundationMath {
   level_name: string;
-  excavation_depth_m: number;
-  footing_width_calculated_m: number;
-  footing_width_adopted_m: number;
-  footing_thickness_m: number;
-  total_working_dead_load_kn_m: number;
-  total_working_live_load_kn_m: number;
-  total_line_load_kn_m: number;
-  applied_soil_pressure_kpa: number;
-  allowable_bearing_capacity_kpa: number;
-  bearing_utilization_pct: number;
-  bearing_margin_on_allowable: number;
-  is_bearing_safe: boolean;
-  blinding_thickness_m: number;
-  hardcore_thickness_m: number;
-  dpc_elevation_m: number;
-  excavation_volume_m3: number;
-  concrete_footing_volume_m3: number;
+  excavation_depth_m: null;
+  footing_width_calculated_m: null;
+  footing_width_adopted_m: null;
+  footing_thickness_m: null;
+  total_working_dead_load_kn_m: null;
+  total_working_live_load_kn_m: null;
+  total_line_load_kn_m: null;
+  applied_soil_pressure_kpa: number | null;
+  allowable_bearing_capacity_kpa: number | null;
+  bearing_utilization_pct: number | null;
+  bearing_margin_on_allowable: number | null;
+  /** Null: this tool does not perform a foundation design/check. */
+  is_bearing_safe: null;
+  blinding_thickness_m: null;
+  hardcore_thickness_m: null;
+  dpc_elevation_m: null;
+  excavation_volume_m3: null;
+  concrete_footing_volume_m3: null;
   mathematical_proof: string[];
 }
 
@@ -102,10 +95,11 @@ export interface Level3SuperstructureMath {
   net_masonry_area_m2: number;
   effective_wall_height_m: number;
   slenderness_ratio: number;
-  slenderness_limit: number;
-  is_slenderness_compliant: boolean;
-  wall_courses_count: number;
-  total_blocks_count: number;
+  slenderness_limit: null;
+  /** Null: ratio is descriptive only; no masonry stability check is performed. */
+  is_slenderness_compliant: null;
+  wall_courses_count: null;
+  total_blocks_count: null;
   max_opening_ratio_percent: number;
   mathematical_proof: string[];
 }
@@ -117,32 +111,28 @@ export interface Level4RingBeamMath {
   ring_beam_depth_m: number;
   total_beam_length_m: number;
   concrete_volume_m3: number;
-  main_rebar_diameter_mm: number;
-  main_rebar_bars_count: number;
-  total_main_rebar_weight_kg: number;
-  stirrups_spacing_mm: number;
-  lintel_checks: Array<{
-    opening_label: string;
-    span_m: number;
-    required_depth_m: number;
-    required_bearing_m: number;
-    is_bearing_sufficient: boolean;
-  }>;
+  main_rebar_diameter_mm: null;
+  main_rebar_bars_count: null;
+  total_main_rebar_weight_kg: null;
+  stirrups_spacing_mm: null;
+  /** Empty until a span/load/material-specific lintel design is provided. */
+  lintel_checks: [];
   mathematical_proof: string[];
 }
 
 export interface Level5RoofMath {
   level_name: string;
-  roof_span_m: number;
+  roof_span_m: number | null;
   roof_pitch_deg: number;
-  ridge_rise_m: number;
-  rafter_slope_length_m: number;
-  true_3d_roof_area_m2: number;
+  ridge_rise_m: number | null;
+  rafter_slope_length_m: number | null;
+  /** Coarse plan/pitch proxy; not a roof-plan takeoff. */
+  approximate_roof_covering_area_m2: number | null;
   horizontal_roof_footprint_m2: number;
   pitch_area_multiplier: number;
-  trusses_count: number;
-  purlin_runs_per_slope: number;
-  total_purlin_length_m: number;
+  trusses_count: null;
+  purlin_runs_per_slope: null;
+  total_purlin_length_m: null;
   eaves_fascia_perimeter_m: number;
   eaves_gutter_run_m: number;
   /** Height of the wall top above finished ground level. */
@@ -154,24 +144,24 @@ export interface Level5RoofMath {
 
 export interface WindAerodynamicsMath {
   basic_wind_speed_ms: number;
-  velocity_pressure_qz_pa: number;
-  windward_wall_cpe: number;
-  leeward_wall_cpe: number;
-  roof_cpe_windward: number;
+  velocity_pressure_qz_pa: null;
+  windward_wall_cpe: null;
+  leeward_wall_cpe: null;
+  roof_cpe_windward: null;
   /** The roof coefficient actually used, after sign handling. */
-  governing_roof_suction_cp: number;
-  roof_cpe_leeward: number;
-  internal_pressure_cpi: number;
-  gross_uplift_pressure_kpa: number;
-  roof_dead_load_resistance_kpa: number;
-  net_uplift_pressure_kpa: number;
-  total_net_uplift_force_kn: number;
-  hurricane_ties_required: boolean;
+  governing_roof_suction_cp: null;
+  roof_cpe_leeward: null;
+  internal_pressure_cpi: null;
+  gross_uplift_pressure_kpa: null;
+  roof_dead_load_resistance_kpa: null;
+  net_uplift_pressure_kpa: null;
+  total_net_uplift_force_kn: null;
+  hurricane_ties_required: null;
   /** Per-tie demand in kN; total_net_uplift_force_kn holds the total force. */
-  required_tie_down_capacity_kn: number;
-  tie_down_points_count: number;
+  required_tie_down_capacity_kn: null;
+  tie_down_points_count: null;
   /** Indicative tension per truss tie, which is the connection demand. */
-  tension_per_tie_kn: number;
+  tension_per_tie_kn: null;
   mathematical_proof: string[];
 }
 
@@ -198,14 +188,14 @@ export interface FiveDBimSchedule {
     notes: string;
   }>;
   total_concrete_volume_m3: number;
-  total_cement_bags_50kg: number;
-  total_sand_m3: number;
-  total_granite_m3: number;
-  total_blocks_units: number;
-  total_rebar_tonnes: number;
-  total_rebar_kg: number;
-  total_mortar_volume_m3: number;
-  total_roof_sheets_approx: number;
+  total_cement_bags_50kg: null;
+  total_sand_m3: null;
+  total_granite_m3: null;
+  total_blocks_units: null;
+  total_rebar_tonnes: null;
+  total_rebar_kg: null;
+  total_mortar_volume_m3: null;
+  total_roof_sheets_approx: null;
   timeline_phases: Array<{
     phase_number: number;
     phase_name: number | string;
@@ -215,7 +205,7 @@ export interface FiveDBimSchedule {
     cumulative_days: number;
     milestone: string;
   }>;
-  total_project_days: number;
+  total_project_days: null;
 }
 
 export interface MathematicalElevationResult {
@@ -242,15 +232,7 @@ export interface MathematicalElevationResult {
   derived_patch: Partial<BuildToRoofInput>;
 }
 
-// ── Default Standard Constants & Soil Bearing Table ──
-
-export const SOIL_CAPACITIES_KPA: Record<SoilTypeKey, number> = {
-  laterite: 150, // typical compacted lateritic clay/sand (West Africa / tropics)
-  sandy_clay: 120, // firm sandy clay
-  firm_clay: 100, // stiff/firm cohesive clay
-  dense_sand: 250, // medium to dense coarse sand / gravel
-  rock: 500, // sound sedimentary or metamorphic bed rock
-};
+// ── Defaults are for geometry and quantity illustration only. ──
 
 export const DEFAULT_PLAN_INPUT: PlanElevationInput = {
   project_name: "Architectural Plan Mathematical Elevation",
@@ -264,8 +246,8 @@ export const DEFAULT_PLAN_INPUT: PlanElevationInput = {
   roof_pitch_deg: 25.0,
   roof_overhang: 0.6,
   roof_type: "hip",
-  soil_type: "laterite",
-  soil_bearing_capacity_kpa: 150,
+  soil_type: "unverified",
+  soil_bearing_capacity_kpa: null,
   basic_wind_speed_ms: 34.0, // standard inland design speed (122 km/h)
   wind_exposure: "B", // suburban / urban terrain
   openings: [
@@ -323,66 +305,88 @@ export const DEFAULT_PLAN_INPUT: PlanElevationInput = {
 export function calculateMathematicalElevation(
   rawInput: Partial<PlanElevationInput>,
 ): MathematicalElevationResult {
+  const finiteInput = (value: number | undefined, fallback: number) =>
+    value !== undefined && Number.isFinite(value) ? value : fallback;
   const input: PlanElevationInput = {
     ...DEFAULT_PLAN_INPUT,
     ...rawInput,
     building_length: Math.max(
       3.0,
-      Number(rawInput.building_length) || DEFAULT_PLAN_INPUT.building_length,
+      finiteInput(rawInput.building_length, DEFAULT_PLAN_INPUT.building_length),
     ),
     building_width: Math.max(
       3.0,
-      Number(rawInput.building_width) || DEFAULT_PLAN_INPUT.building_width,
+      finiteInput(rawInput.building_width, DEFAULT_PLAN_INPUT.building_width),
     ),
     floor_to_floor_height: Math.max(
       2.1,
-      Number(rawInput.floor_to_floor_height) ||
+      finiteInput(
+        rawInput.floor_to_floor_height,
         DEFAULT_PLAN_INPUT.floor_to_floor_height,
+      ),
     ),
     storeys: Math.max(
       1,
-      Math.min(5, Math.round(Number(rawInput.storeys) || 1)),
+      Math.min(
+        5,
+        Math.round(finiteInput(rawInput.storeys, DEFAULT_PLAN_INPUT.storeys)),
+      ),
     ),
     wall_thickness: Math.max(
       0.12,
       Math.min(
         0.4,
-        Number(rawInput.wall_thickness) || DEFAULT_PLAN_INPUT.wall_thickness,
+        finiteInput(rawInput.wall_thickness, DEFAULT_PLAN_INPUT.wall_thickness),
       ),
     ),
     internal_wall_length: Math.max(
       0,
-      Number(rawInput.internal_wall_length) || 0,
+      finiteInput(
+        rawInput.internal_wall_length,
+        DEFAULT_PLAN_INPUT.internal_wall_length,
+      ),
     ),
     roof_pitch_deg: Math.max(
       5.0,
       Math.min(
         60.0,
-        Number(rawInput.roof_pitch_deg) || DEFAULT_PLAN_INPUT.roof_pitch_deg,
+        finiteInput(rawInput.roof_pitch_deg, DEFAULT_PLAN_INPUT.roof_pitch_deg),
       ),
     ),
     roof_overhang: Math.max(
       0.2,
       Math.min(
         1.5,
-        Number(rawInput.roof_overhang) || DEFAULT_PLAN_INPUT.roof_overhang,
+        finiteInput(rawInput.roof_overhang, DEFAULT_PLAN_INPUT.roof_overhang),
       ),
     ),
-    soil_bearing_capacity_kpa: Math.max(
-      50,
-      Number(rawInput.soil_bearing_capacity_kpa) || 150,
-    ),
+    soil_bearing_capacity_kpa:
+      typeof rawInput.soil_bearing_capacity_kpa === "number" &&
+      Number.isFinite(rawInput.soil_bearing_capacity_kpa) &&
+      rawInput.soil_bearing_capacity_kpa > 0
+        ? rawInput.soil_bearing_capacity_kpa
+        : null,
     basic_wind_speed_ms: Math.max(
       20,
-      Math.min(70, Number(rawInput.basic_wind_speed_ms) || 34),
+      Math.min(
+        70,
+        finiteInput(
+          rawInput.basic_wind_speed_ms,
+          DEFAULT_PLAN_INPUT.basic_wind_speed_ms,
+        ),
+      ),
     ),
     openings: (rawInput.openings ?? DEFAULT_PLAN_INPUT.openings).map(
-      (opening) => ({
-        ...opening,
-        width: Math.max(0, Number(opening.width) || 0),
-        height: Math.max(0, Number(opening.height) || 0),
-        count: Math.max(0, Math.round(Number(opening.count) || 0)),
-      }),
+      (opening) => {
+        const finiteOrZero = (value: number) =>
+          Number.isFinite(value) ? value : 0;
+        return {
+          ...opening,
+          width: Math.max(0, finiteOrZero(opening.width)),
+          height: Math.max(0, finiteOrZero(opening.height)),
+          count: Math.max(0, Math.round(finiteOrZero(opening.count))),
+        };
+      },
     ),
   };
 
@@ -395,128 +399,129 @@ export function calculateMathematicalElevation(
   const pitchRad = (pitchDeg * Math.PI) / 180;
   const overhang = input.roof_overhang;
   const q_allow = input.soil_bearing_capacity_kpa;
-  const V_wind = input.basic_wind_speed_ms;
 
   const discrepancies: HandMathDiscrepancy[] = [];
+  const normalizedFields: Array<[keyof PlanElevationInput, string]> = [
+    ["building_length", "Building length"],
+    ["building_width", "Building width"],
+    ["floor_to_floor_height", "Floor-to-floor height"],
+    ["storeys", "Storey count"],
+    ["wall_thickness", "Wall thickness"],
+    ["internal_wall_length", "Internal wall length"],
+    ["roof_pitch_deg", "Roof pitch"],
+    ["roof_overhang", "Roof overhang"],
+    ["basic_wind_speed_ms", "Wind speed input"],
+  ];
+  for (const [field, label] of normalizedFields) {
+    const requested = rawInput[field] as unknown;
+    const used = input[field];
+    if (
+      requested !== undefined &&
+      (typeof requested !== "number" || !Number.isFinite(requested))
+    ) {
+      discrepancies.push({
+        id: `input-invalid-${field}`,
+        severity: "warning",
+        category: "geometry",
+        title: `${label} was not a valid number`,
+        detected_value: String(requested),
+        permissible_threshold: "Enter a finite numeric value",
+        regulation_code: "Input validation",
+        mathematical_proof: `The invalid ${label.toLowerCase()} value was replaced with the documented default ${String(used)} before calculation.`,
+        recommended_fix:
+          "Enter a valid number and review the resulting value shown by the calculator.",
+      });
+    } else if (
+      typeof requested === "number" &&
+      Number.isFinite(requested) &&
+      requested !== used
+    ) {
+      discrepancies.push({
+        id: `input-normalized-${field}`,
+        severity: "advisory",
+        category: "geometry",
+        title: `${label} adjusted to supported input range`,
+        detected_value: `Entered ${requested}; calculator uses ${used}`,
+        permissible_threshold: "See the displayed input limits",
+        regulation_code: "Input normalization",
+        mathematical_proof: `The value ${requested} was normalized to ${used} before calculations.`,
+        recommended_fix:
+          "Review the displayed value and limits; update the field if this is not intended.",
+      });
+    }
+  }
+  (rawInput.openings ?? []).forEach((requested, index) => {
+    const used = input.openings[index];
+    if (!used) return;
+    for (const field of ["width", "height", "count"] as const) {
+      const requestedValue = requested[field] as unknown;
+      if (
+        requestedValue !== undefined &&
+        (typeof requestedValue !== "number" || !Number.isFinite(requestedValue))
+      ) {
+        discrepancies.push({
+          id: `input-invalid-opening-${index}-${field}`,
+          severity: "warning",
+          category: "geometry",
+          title: `Opening ${field} was not a valid number`,
+          detected_value: String(requestedValue),
+          permissible_threshold: "Enter a finite, non-negative number",
+          regulation_code: "Input validation",
+          mathematical_proof: `Opening ${index + 1} ${field} was set to 0 because the supplied value is invalid.`,
+          recommended_fix:
+            "Enter a valid opening measurement or count and verify the updated deduction.",
+        });
+      } else if (
+        typeof requestedValue === "number" &&
+        Number.isFinite(requestedValue) &&
+        requestedValue !== used[field]
+      ) {
+        discrepancies.push({
+          id: `input-normalized-opening-${index}-${field}`,
+          severity: "advisory",
+          category: "geometry",
+          title: `Opening ${field} adjusted before calculation`,
+          detected_value: `Entered ${requested[field]}; calculator uses ${used[field]}`,
+          permissible_threshold: "Non-negative dimensions and count",
+          regulation_code: "Input normalization",
+          mathematical_proof: `Opening ${index + 1} ${field} was normalized from ${requestedValue} to ${used[field]}.`,
+          recommended_fix: "Review the opening value shown in the form.",
+        });
+      }
+    }
+  });
 
   // =========================================================
-  // LEVEL 1: FOUNDATION & SUBSTRUCTURE MATHEMATICS
-  // Simplified assumed-load calculation; not geotechnical design
+  // LEVEL 1: FOUNDATION & SUBSTRUCTURE
+  // No footing geometry, soil bearing, load path or excavation design is computed.
   // =========================================================
   const P_ext = 2 * (L + W);
   const L_centerline = P_ext + input.internal_wall_length;
-  // const A_footprint = L * W;
-
-  // Dead Load Breakdown per linear meter of load bearing wall:
-  // 1. Roof dead load: 0.35 kN/m² of roof surface, spread over the full length of
-  //    wall that carries the roof (external perimeter plus internal walls).
-  const A_roof_plan = (L + 2 * overhang) * (W + 2 * overhang);
-  const roof_surface_area_m2 = A_roof_plan / Math.cos(pitchRad);
-  const roof_dead_load_kn_m =
-    (0.35 * roof_surface_area_m2) / Math.max(1, L_centerline);
-
-  // 2. Ring beam dead load (24 kN/m³ concrete * 0.225m * 0.225m = 1.215 kN/m)
-  const ring_beam_dead_kn_m = 24.0 * tw * 0.225 * storeys;
-
-  // 3. Superstructure wall load (18 kN/m³ sandcrete masonry * tw * H * storeys)
-  // Deduct ~15% average for openings
-  const wall_dead_kn_m = 18.0 * tw * H * storeys * 0.85;
-
-  // 4. Ground floor slab transfer (if ground supported or suspended, ~1.5 kN/m perimeter edge load)
-  const slab_transfer_kn_m = 1.8 * storeys;
-
-  // 5. Substructure foundation wall below ground: 0.90m depth * tw * 19 kN/m³
-  const substructure_wall_kn_m = 19.0 * tw * 0.9;
-
-  const total_working_dead_load =
-    roof_dead_load_kn_m +
-    ring_beam_dead_kn_m +
-    wall_dead_kn_m +
-    slab_transfer_kn_m +
-    substructure_wall_kn_m;
-
-  // Working Live Load: residential floor 1.5 kN/m² + roof access 0.25 kN/m²
-  // Tributary width for a rectangular slab that spans to its walls: each wall
-  // line takes half the span to mid panel, so the length weighted average over
-  // the load bearing perimeter is L*W / (4*(L+W)). A fixed W/4 overstates the
-  // load whenever the plan is not square.
-  const live_tributary_width_m = (L * W) / (4 * (L + W));
-  const total_working_live_load =
-    1.5 * live_tributary_width_m * storeys + 0.25 * live_tributary_width_m;
-  const total_line_load_kn_m =
-    total_working_dead_load + total_working_live_load;
-
-  // Footing Width Calculation: Bf = (P / q_allow) * 1.15 (self-weight factor)
-  const footing_width_calc = (total_line_load_kn_m / q_allow) * 1.15;
-  // Illustrative minimum geometry only; not a code minimum
-  const footing_width_min = Math.max(0.45, 3 * tw);
-  const footing_width_adopted = Math.max(
-    round2(footing_width_calc),
-    round2(footing_width_min),
-  );
-
-  const excavation_depth_m = 0.9; // Fixed illustrative assumption, not a required depth
-  // Illustrative footing geometry; no structural capacity design
-  const footing_projection = (footing_width_adopted - tw) / 2;
-  const footing_thickness_m = Math.max(0.15, round2(footing_projection), 0.225);
-
-  const applied_soil_pressure_kpa =
-    (total_line_load_kn_m +
-      24.0 * footing_width_adopted * footing_thickness_m) /
-    footing_width_adopted;
-
-  // Utilization against the entered allowable pressure. No ultimate capacity is
-  // invented: q_ult is unknown here, so a "safety factor" against it cannot be
-  // computed honestly. The margin is expressed against the allowable value.
-  const bearing_utilization_pct = (applied_soil_pressure_kpa / q_allow) * 100;
-  const bearing_margin_on_allowable =
-    q_allow / Math.max(applied_soil_pressure_kpa, 0.001);
-  const is_bearing_safe = applied_soil_pressure_kpa <= q_allow;
-
-  if (!is_bearing_safe) {
-    discrepancies.push({
-      id: "err-foundation-bearing",
-      severity: "critical",
-      category: "structural",
-      title: "Foundation Soil Bearing Pressure Exceeded",
-      detected_value: `${applied_soil_pressure_kpa.toFixed(1)} kPa`,
-      permissible_threshold: `${q_allow.toFixed(1)} kPa allowable`,
-      regulation_code: "Professional review required",
-      mathematical_proof: `Simplified assumed line load and bearing value produce an indicative pressure of ${applied_soil_pressure_kpa.toFixed(1)} kPa against the entered ${q_allow.toFixed(1)} kPa screen; loads and ground conditions are unverified.`,
-      recommended_fix:
-        "Obtain a site-specific geotechnical and structural foundation design; this screen is not a footing recommendation.",
-    });
-  }
-
-  const excavation_volume_m3 =
-    L_centerline * footing_width_adopted * excavation_depth_m;
-  const concrete_footing_volume_m3 =
-    L_centerline * footing_width_adopted * footing_thickness_m;
-
   const level1Math: Level1FoundationMath = {
     level_name: "Level 1: Substructure & Foundation",
-    excavation_depth_m,
-    footing_width_calculated_m: round2(footing_width_calc),
-    footing_width_adopted_m: footing_width_adopted,
-    footing_thickness_m,
-    total_working_dead_load_kn_m: round2(total_working_dead_load),
-    total_working_live_load_kn_m: round2(total_working_live_load),
-    total_line_load_kn_m: round2(total_line_load_kn_m),
-    applied_soil_pressure_kpa: round1(applied_soil_pressure_kpa),
+    excavation_depth_m: null,
+    footing_width_calculated_m: null,
+    footing_width_adopted_m: null,
+    footing_thickness_m: null,
+    total_working_dead_load_kn_m: null,
+    total_working_live_load_kn_m: null,
+    total_line_load_kn_m: null,
+    applied_soil_pressure_kpa: null,
     allowable_bearing_capacity_kpa: q_allow,
-    bearing_utilization_pct: round1(bearing_utilization_pct),
-    bearing_margin_on_allowable: round2(bearing_margin_on_allowable),
-    is_bearing_safe,
-    blinding_thickness_m: 0.05,
-    hardcore_thickness_m: 0.2,
-    dpc_elevation_m: 0.45,
-    excavation_volume_m3: round2(excavation_volume_m3),
-    concrete_footing_volume_m3: round2(concrete_footing_volume_m3),
+    bearing_utilization_pct: null,
+    bearing_margin_on_allowable: null,
+    is_bearing_safe: null,
+    blinding_thickness_m: null,
+    hardcore_thickness_m: null,
+    dpc_elevation_m: null,
+    excavation_volume_m3: null,
+    concrete_footing_volume_m3: null,
     mathematical_proof: [
-      `Total line load: w = g_dead + q_live = ${total_working_dead_load.toFixed(2)} + ${total_working_live_load.toFixed(2)} = ${total_line_load_kn_m.toFixed(2)} kN/m`,
-      `Required footing width: B_req = (w / q_allow) · 1.15 = (${total_line_load_kn_m.toFixed(2)} / ${q_allow}) · 1.15 = ${footing_width_calc.toFixed(2)} m`,
-      `Adopted width B_f = max(B_req, 3·tw) = max(${footing_width_calc.toFixed(2)}, ${(3 * tw).toFixed(2)}) = ${footing_width_adopted.toFixed(2)} m`,
-      `Simplified contact pressure ${applied_soil_pressure_kpa.toFixed(1)} kPa is ${bearing_utilization_pct.toFixed(1)}% of the entered ${q_allow} kPa allowable, a margin of ${bearing_margin_on_allowable.toFixed(2)}. Ultimate capacity is unknown, so no safety factor against it is claimed.`,
+      "Not assessed: footing geometry, excavation depth and quantities require site-specific geotechnical and structural design inputs.",
+      q_allow === null
+        ? "No site-specific allowable bearing value supplied. Soil type is not used to infer one."
+        : `A site-specific allowable bearing value (${q_allow} kPa) was supplied, but no bearing check is performed.`,
+      "No foundation load combination, bearing pressure, footing reinforcement, bearing utilization or safety status is calculated.",
     ],
   };
 
@@ -598,49 +603,34 @@ export function calculateMathematicalElevation(
     });
   }
 
-  // Slenderness Ratio: lambda = beta * H / tw
-  // With horizontal ring beam and slab restraint, effective height beta = 0.75
-  const effective_wall_height_m = 0.75 * H;
+  // Geometry ratio only; no effective-height factor or capacity check.
+  const effective_wall_height_m = H;
   const slenderness_ratio = effective_wall_height_m / tw;
-  const slenderness_limit = 27.0; // Illustrative screening threshold, not a code limit
-  const is_slenderness_compliant = slenderness_ratio <= slenderness_limit;
+  const slenderness_limit = null;
+  const is_slenderness_compliant = null;
 
-  if (!is_slenderness_compliant) {
-    discrepancies.push({
-      id: "err-wall-slenderness",
-      severity: "critical",
-      category: "structural",
-      title: "Wall proportion exceeds illustrative screening threshold",
-      detected_value: `λ = ${slenderness_ratio.toFixed(1)}`,
-      permissible_threshold: `λ ≤ ${slenderness_limit.toFixed(0)}`,
-      regulation_code: "Planning screen only",
-      mathematical_proof: `Illustrative height-to-thickness ratio = 0.75 · ${H}m / ${tw}m = ${slenderness_ratio.toFixed(1)}; configured threshold 27.0 is not a code limit.`,
-      recommended_fix:
-        "Have a locally licensed structural engineer assess the wall using the project drawings, materials, support conditions, and applicable code.",
-    });
-  }
-
-  // Opening Ratio Check: openings on any wall side must not exceed 50%
+  // Geometry consistency check only; opening positions, piers, lintels and
+  // structural wall capacity are not represented by the aggregate schedule.
   let max_opening_ratio_percent = 0;
   Object.keys(sideWidths).forEach((side) => {
-    const sideLen = sideWidths[side];
+    const sideLen = sideWidths[side] * storeys;
     const openWidth = sideOpeningWidths[side] || 0;
     const ratioPct = (openWidth / sideLen) * 100;
     if (ratioPct > max_opening_ratio_percent) {
       max_opening_ratio_percent = ratioPct;
     }
-    if (ratioPct > 50) {
+    if (ratioPct > 100) {
       discrepancies.push({
         id: `err-opening-ratio-${side}`,
         severity: "critical",
         category: "geometry",
-        title: `Opening width exceeds illustrative screen on ${side.toUpperCase()} wall`,
+        title: `Aggregate opening widths exceed the ${side.toUpperCase()} wall length across entered storeys`,
         detected_value: `${ratioPct.toFixed(1)}% opening width`,
-        permissible_threshold: `≤ 50.0% unreinforced masonry limit`,
-        regulation_code: "Planning screen only",
-        mathematical_proof: `Openings on ${side} wall sum to ${openWidth.toFixed(2)}m over a wall span of ${sideLen.toFixed(2)}m (${ratioPct.toFixed(1)}%). Masonry pier action is compromised.`,
+        permissible_threshold: `≤ ${storeys} storey wall runs`,
+        regulation_code: "Geometry consistency only",
+        mathematical_proof: `Entered opening widths on ${side} total ${openWidth.toFixed(2)}m over ${storeys} storey run(s) totaling ${sideLen.toFixed(2)}m (${ratioPct.toFixed(1)}%). This is not a structural wall check.`,
         recommended_fix:
-          "Review opening layout and wall stability with a locally licensed structural engineer.",
+          "Check opening counts and wall-side assignments. Wall strength and stability are not checked here.",
       });
     }
   });
@@ -661,16 +651,10 @@ export function calculateMathematicalElevation(
     });
   }
 
-  // Assumed nominal block coverage and waste; verify product dimensions and site waste
-  // 450 x 225 face with 10 mm joints = 9.13 blocks/m² of wall face.
-  const BLOCKS_PER_M2 = 9.13;
-  const BLOCK_WASTAGE = 1.05;
-  const total_blocks_count = Math.ceil(
-    net_masonry_area_m2 * BLOCKS_PER_M2 * BLOCK_WASTAGE,
-  );
-  // A course is one block plus one bed joint, not the nominal block height.
-  const COURSE_HEIGHT_M = 0.235;
-  const wall_courses_count = Math.max(0, Math.round(H / COURSE_HEIGHT_M));
+  // Product dimensions and course heights are not input, so a block/course
+  // takeoff would require invented assumptions.
+  const total_blocks_count = null;
+  const wall_courses_count = null;
 
   const level3Math: Level3SuperstructureMath = {
     level_name: "Level 3: Superstructure Walls & Openings",
@@ -687,8 +671,8 @@ export function calculateMathematicalElevation(
     max_opening_ratio_percent: round1(max_opening_ratio_percent),
     mathematical_proof: [
       `Gross Area: A_ext (${gross_external_wall_area_m2.toFixed(1)} m²) + A_int (${gross_internal_wall_area_m2.toFixed(1)} m²) - Deductions (${total_opening_deductions_m2.toFixed(1)} m²) = ${net_masonry_area_m2.toFixed(1)} m²`,
-      `Indicative height-to-thickness ratio: ${effective_wall_height_m.toFixed(2)} / ${tw} = ${slenderness_ratio.toFixed(1)}. The configured threshold is not a verified code limit.`,
-      `Block Count: ${net_masonry_area_m2.toFixed(1)} m² · 9.13 blocks/m² · 1.05 waste = ${total_blocks_count} units`,
+      `Geometric storey-height / wall-thickness ratio: ${effective_wall_height_m.toFixed(2)} / ${tw} = ${slenderness_ratio.toFixed(1)}. No effective-height factor or structural limit is applied.`,
+      "Block and course counts not assessed: product dimensions, bond, openings and waste allowance are not specified.",
     ],
   };
 
@@ -701,71 +685,17 @@ export function calculateMathematicalElevation(
   const total_beam_length_m = L_centerline;
   const ring_beam_concrete_volume =
     total_beam_length_m * ring_beam_width_m * ring_beam_depth_m;
-  const main_rebar_bars_count = 4;
-  const main_rebar_diameter_mm = 12; // 4xY12
-  // Unit masses to BS 4449: Y12 = 0.888 kg/m, Y10 = 0.617 kg/m.
-  const KG_PER_M_Y12 = 0.888;
-  const KG_PER_M_Y10 = 0.617;
-  const LAP_ALLOWANCE = 1.08; // 8% for laps and anchorage
-  const total_main_rebar_weight_kg =
-    total_beam_length_m * main_rebar_bars_count * KG_PER_M_Y12 * LAP_ALLOWANCE;
+  // No reinforcement quantity is produced without a project-specific design.
+  const main_rebar_bars_count = null;
+  const main_rebar_diameter_mm = null;
+  const total_main_rebar_weight_kg = null;
 
-  // Strip-footing reinforcement, counted rather than guessed: four continuous
-  // Y12 bars along the centreline, plus Y10 distribution bars at 250 mm centres
-  // across the footing width, net of a 50 mm cover each side.
-  const footing_bar_cover_m = 0.05;
-  const footing_distribution_spacing_m = 0.25;
-  const footing_main_rebar_kg = L_centerline * 4 * KG_PER_M_Y12 * LAP_ALLOWANCE;
-  const footing_distribution_bars = Math.ceil(
-    L_centerline / footing_distribution_spacing_m,
-  );
-  const footing_distribution_bar_length_m = Math.max(
-    0,
-    footing_width_adopted - 2 * footing_bar_cover_m,
-  );
-  const footing_distribution_rebar_kg =
-    footing_distribution_bars *
-    footing_distribution_bar_length_m *
-    KG_PER_M_Y10;
-  const total_footing_rebar_kg =
-    footing_main_rebar_kg + footing_distribution_rebar_kg;
-
+  // Openings are counted for wall quantities only. No lintel span, depth,
+  // bearing or capacity checks are performed without loads and materials.
   const lintel_checks: Level4RingBeamMath["lintel_checks"] = [];
-  input.openings.forEach((op) => {
-    const span = op.width;
-    const required_depth = Math.max(0.15, span / 10);
-    // Bearing length must be >= 150mm or span/10 (BS 8110 §3.4)
-    const required_bearing = Math.max(0.15, span / 10);
-    // For standard openings, verify against assumed 0.20m default bearing
-    const assumed_bearing = 0.2;
-    const is_sufficient = assumed_bearing >= required_bearing;
-
-    lintel_checks.push({
-      opening_label: op.label || `${op.type} (${op.width}m)`,
-      span_m: span,
-      required_depth_m: round3(required_depth),
-      required_bearing_m: round3(required_bearing),
-      is_bearing_sufficient: is_sufficient,
-    });
-
-    if (span > 2.4) {
-      discrepancies.push({
-        id: `err-lintel-span-${op.id}`,
-        severity: "warning",
-        category: "structural",
-        title: `Wide Lintel Span on ${op.label || op.type}`,
-        detected_value: `Clear span = ${span.toFixed(2)}m`,
-        permissible_threshold: `Simple masonry lintels limited to ≤ 2.40m`,
-        regulation_code: "Professional review required",
-        mathematical_proof: `Entered opening span is ${span.toFixed(2)}m; this calculator does not size lintels or calculate structural moments.`,
-        recommended_fix:
-          "Have the opening and lintel designed for the project loads, supports, materials, and applicable code.",
-      });
-    }
-  });
 
   const level4Math: Level4RingBeamMath = {
-    level_name: "Level 4: Lintel & Reinforced Concrete Ring Beam",
+    level_name: "Level 4: Illustrative Ring Beam Geometry",
     elevation_at_beam_top_m: round2(
       plinth_height_above_ground_m + H * storeys + ring_beam_depth_m,
     ),
@@ -775,13 +705,13 @@ export function calculateMathematicalElevation(
     concrete_volume_m3: round2(ring_beam_concrete_volume),
     main_rebar_diameter_mm,
     main_rebar_bars_count,
-    total_main_rebar_weight_kg: round1(total_main_rebar_weight_kg),
-    stirrups_spacing_mm: 200,
+    total_main_rebar_weight_kg,
+    stirrups_spacing_mm: null,
     lintel_checks,
     mathematical_proof: [
       `Continuous perimeter bond beam: Length = ${total_beam_length_m.toFixed(2)}m, Section = ${(ring_beam_width_m * 1000).toFixed(0)} × ${(ring_beam_depth_m * 1000).toFixed(0)} mm`,
       `Concrete volume: V_beam = ${total_beam_length_m.toFixed(2)} · ${ring_beam_width_m} · ${ring_beam_depth_m} = ${ring_beam_concrete_volume.toFixed(2)} m³`,
-      `Steel tie: 4 × Y12 longitudinal reinforcement = ${total_main_rebar_weight_kg.toFixed(1)} kg steel anchored at all junctions`,
+      "Reinforcement, anchorage, laps and links are not specified or quantified; obtain a project-specific design.",
     ],
   };
 
@@ -789,10 +719,19 @@ export function calculateMathematicalElevation(
   // LEVEL 5: ROOF STRUCTURE & PITCH TRIGONOMETRY
   // Parametric roof geometry only; not structural member design
   // =========================================================
-  const roof_span_m = W + 2 * overhang;
+  const roofGeometrySupported =
+    input.roof_type === "gable" || input.roof_type === "hip";
+  const roof_span_m = Math.min(L, W);
   const half_span = roof_span_m / 2;
-  const ridge_rise_m = half_span * Math.tan(pitchRad);
-  const rafter_slope_length_m = half_span / Math.cos(pitchRad);
+  const ridge_rise_m = roofGeometrySupported
+    ? half_span * Math.tan(pitchRad)
+    : null;
+  // The single common-rafter slope is only meaningful for the modeled gable.
+  // Hip rafters and hip planes have different geometry and are not quantified.
+  const rafter_slope_length_m =
+    input.roof_type === "gable"
+      ? (half_span + overhang) / Math.cos(pitchRad)
+      : null;
   const horizontal_roof_footprint_m2 = (L + 2 * overhang) * (W + 2 * overhang);
   const pitch_area_multiplier = 1 / Math.cos(pitchRad);
   // A plane at pitch theta projects onto the plan at cos(theta) of its true
@@ -800,14 +739,20 @@ export function calculateMathematicalElevation(
   // planes of a gable or hip roof together project onto exactly the footprint,
   // which is why a hip roof needs no extra area factor. A premium was applied
   // here before, inflating hips by 6% that geometry does not support.
-  const true_3d_roof_area_m2 =
-    horizontal_roof_footprint_m2 * pitch_area_multiplier;
+  // A rectangular plan/pitch proxy is suitable only for the simple gable
+  // model. Hip planes have differing pitches and need roof-plan geometry.
+  const approximate_roof_covering_area_m2 =
+    input.roof_type === "gable"
+      ? horizontal_roof_footprint_m2 * pitch_area_multiplier
+      : null;
 
-  const trusses_count = Math.ceil((L + 2 * overhang) / 1.2) + 1;
-  const purlin_runs_per_slope = Math.ceil(rafter_slope_length_m / 0.9) + 1;
-  const total_purlin_length_m = purlin_runs_per_slope * 2 * (L + 2 * overhang);
-  const eaves_fascia_perimeter_m = 2 * (L + 2 * overhang + (W + 2 * overhang));
-  const eaves_gutter_run_m = 2 * (L + 2 * overhang);
+  // Framing spacing is design/product specific and is not estimated here.
+  const roof_eave_run_m =
+    input.roof_type === "hip"
+      ? 2 * (L + W + 4 * overhang)
+      : 2 * (Math.max(L, W) + 2 * overhang);
+  const eaves_fascia_perimeter_m = roof_eave_run_m;
+  const eaves_gutter_run_m = roof_eave_run_m;
 
   // Height above finished ground level. The excavation depth is not part of the
   // building's height; it is reported on the substructure level instead.
@@ -818,11 +763,10 @@ export function calculateMathematicalElevation(
   // Round once, from the unrounded geometry: adding two rounded figures moves
   // the apex by up to a centimetre against the ridge rise printed beside it.
   const eaves_display_m = round2(eaves_height_m);
-  const rise_display_m = round2(ridge_rise_m);
-  const total_building_height_m = round2(eaves_height_m + ridge_rise_m);
+  const total_building_height_m = round2(eaves_height_m + (ridge_rise_m ?? 0));
 
   // Roof Pitch Discrepancy Checks
-  if (pitchDeg < 12.0) {
+  if (roofGeometrySupported && pitchDeg < 12.0) {
     discrepancies.push({
       id: "err-roof-pitch-low",
       severity: "warning",
@@ -831,11 +775,11 @@ export function calculateMathematicalElevation(
       detected_value: `θ = ${pitchDeg.toFixed(1)}°`,
       permissible_threshold: `θ ≥ 12.0° (corrugated / trapezoidal sheets)`,
       regulation_code: "Product-specific review required",
-      mathematical_proof: `Pitch angle θ = ${pitchDeg.toFixed(1)}° creates low velocity runoff (rise h = ${ridge_rise_m.toFixed(2)}m over ${half_span.toFixed(2)}m run), causing capillary siphon and ponding risk during heavy tropical rainfall.`,
+      mathematical_proof: `Pitch angle θ = ${pitchDeg.toFixed(1)}° is geometry only; minimum pitch depends on the selected covering product and drainage design.`,
       recommended_fix:
         "Check the selected roof covering manufacturer's minimum pitch and project-specific drainage design.",
     });
-  } else if (pitchDeg > 45.0) {
+  } else if (roofGeometrySupported && pitchDeg > 45.0) {
     discrepancies.push({
       id: "err-roof-pitch-steep",
       severity: "advisory",
@@ -844,7 +788,7 @@ export function calculateMathematicalElevation(
       detected_value: `θ = ${pitchDeg.toFixed(1)}°`,
       permissible_threshold: `Recommended θ ≤ 35.0° - 40.0°`,
       regulation_code: "Project-specific wind review",
-      mathematical_proof: `Pitch angle θ = ${pitchDeg.toFixed(1)}° increases windward slope area and converts roof from suction to heavy positive wind drag, elevating lateral overturning moments.`,
+      mathematical_proof: `Pitch angle θ = ${pitchDeg.toFixed(1)}° is an input geometry only; no wind response or structural consequence is assessed.`,
       recommended_fix:
         "Request project-specific roof framing and wind design from a qualified local professional.",
     });
@@ -867,136 +811,65 @@ export function calculateMathematicalElevation(
   }
 
   const level5Math: Level5RoofMath = {
-    level_name: "Level 5: Roof Pitch Trigonometry & Structural Framing",
-    roof_span_m: round2(roof_span_m),
+    level_name: "Level 5: Roof Pitch Geometry (not structural framing)",
+    roof_span_m: roofGeometrySupported ? round2(roof_span_m) : null,
     roof_pitch_deg: pitchDeg,
-    ridge_rise_m: round2(ridge_rise_m),
-    rafter_slope_length_m: round2(rafter_slope_length_m),
-    true_3d_roof_area_m2: round2(true_3d_roof_area_m2),
+    ridge_rise_m: ridge_rise_m === null ? null : round2(ridge_rise_m),
+    rafter_slope_length_m:
+      rafter_slope_length_m === null ? null : round2(rafter_slope_length_m),
+    approximate_roof_covering_area_m2:
+      approximate_roof_covering_area_m2 === null
+        ? null
+        : round2(approximate_roof_covering_area_m2),
     horizontal_roof_footprint_m2: round2(horizontal_roof_footprint_m2),
     pitch_area_multiplier: round3(pitch_area_multiplier),
-    trusses_count,
-    purlin_runs_per_slope,
-    total_purlin_length_m: round1(total_purlin_length_m),
+    trusses_count: null,
+    purlin_runs_per_slope: null,
+    total_purlin_length_m: null,
     eaves_fascia_perimeter_m: round2(eaves_fascia_perimeter_m),
     eaves_gutter_run_m: round2(eaves_gutter_run_m),
     eaves_height_m: eaves_display_m,
     total_building_height_m,
     mathematical_proof: [
-      `Roof span: S = W + 2·OH = ${W} + 2·${overhang} = ${roof_span_m.toFixed(2)} m (Half-span = ${half_span.toFixed(2)} m)`,
-      `Ridge rise: h = (S/2) · tan(θ) = ${half_span.toFixed(2)} · tan(${pitchDeg}°) = ${ridge_rise_m.toFixed(2)} m`,
-      `Rafter slope length: L_r = (S/2) / cos(θ) = ${half_span.toFixed(2)} / cos(${pitchDeg}°) = ${rafter_slope_length_m.toFixed(2)} m`,
-      `True roof area: A_true = A_plan / cos(θ) = ${horizontal_roof_footprint_m2.toFixed(1)} / ${Math.cos(pitchRad).toFixed(3)} = ${true_3d_roof_area_m2.toFixed(1)} m² (${input.roof_type} roof; every roof plane projects onto the same footprint)`,
-      `Apex above finished ground level = plinth ${plinth_height_above_ground_m.toFixed(2)} + walls ${(H * storeys).toFixed(2)} + ring beam ${ring_beam_depth_m.toFixed(2)} + rise ${ridge_rise_m.toFixed(2)} = ${total_building_height_m.toFixed(2)} m (excavation depth ${excavation_depth_m.toFixed(2)} m is below ground)`,
+      roofGeometrySupported
+        ? `Clear roof span: S = min(L, W) = ${roof_span_m.toFixed(2)} m (overhang does not change ridge rise; half-span = ${half_span.toFixed(2)} m)`
+        : `Roof form ${input.roof_type} is not modeled by the gable/hip geometry in this calculator.`,
+      roofGeometrySupported
+        ? `Ridge rise: h = (S/2) · tan(θ) = ${half_span.toFixed(2)} · tan(${pitchDeg}°) = ${ridge_rise_m!.toFixed(2)} m`
+        : "Ridge rise is not assessed for this roof form.",
+      input.roof_type === "gable"
+        ? "Illustrative gable common-rafter slope length; this is not a member design or cutting schedule."
+        : "Rafter lengths are not assessed for this roof form; hip and jack-rafter geometry is not modeled.",
+      input.roof_type === "gable"
+        ? `Approximate gable roof surface proxy: expanded plan ${horizontal_roof_footprint_m2.toFixed(1)} m² / cos(${pitchDeg}°) = ${approximate_roof_covering_area_m2!.toFixed(1)} m². Verify roof plan, laps, cuts, penetrations and product coverage before ordering.`
+        : "Roof surface area is not assessed for this roof form; a hip roof plan is required.",
+      `Apex above finished ground level = plinth ${plinth_height_above_ground_m.toFixed(2)} + walls ${(H * storeys).toFixed(2)} + ring beam ${ring_beam_depth_m.toFixed(2)} + rise ${ridge_rise_m === null ? "not assessed" : ridge_rise_m.toFixed(2)} = ${total_building_height_m.toFixed(2)} m`,
     ],
   };
 
-  // =========================================================
-  // AERODYNAMIC WIND LOAD & UPLIFT LOGIC
-  // Simplified illustrative wind-pressure arithmetic only
-  // =========================================================
-  // qz = 0.613 * Kz * Kzt * Kd * V^2 (SI, N/m²)
-  // Kz taken from ASCE 7-22 Table 26.10-1 at 10 m height: exposure B 0.70,
-  // C 0.98, D 1.20. The earlier B and D values (0.85 and 1.03) did not match
-  // any row of that table, so sheltered sites were over-pressured and coastal
-  // sites under-pressured. Still a single-height illustration, not a profile.
-  const Kz =
-    input.wind_exposure === "D"
-      ? 1.2
-      : input.wind_exposure === "C"
-        ? 0.98
-        : 0.7;
-  const Kzt = 1.0;
-  const Kd = 0.85;
-  const qz_pa = 0.613 * Kz * Kzt * Kd * Math.pow(V_wind, 2);
-
-  // Pressure coefficients:
-  const windward_wall_cpe = 0.8;
-  const leeward_wall_cpe = -0.5;
-  const internal_pressure_cpi = 0.18; // Fixed illustration assumption, not verified for the project
-
-  // Roof aerodynamic suction coefficient based on pitch angle theta:
-  let roof_cpe_windward = -0.7;
-  if (pitchDeg < 10.0) {
-    roof_cpe_windward = -1.0; // severe aerofoil suction
-  } else if (pitchDeg <= 30.0) {
-    roof_cpe_windward = -0.7;
-  } else {
-    // Transition from suction to positive pressure: Cp = 0.02 * theta - 0.70
-    roof_cpe_windward = 0.02 * pitchDeg - 0.7;
-  }
-  const roof_cpe_leeward = -0.6;
-
-  // Uplift must come from the governing suction, which is the more negative of
-  // the two roof coefficients. Taking the absolute value of the windward
-  // coefficient alone turned a positive (downward) pressure on a steep roof into
-  // a fabricated suction, so steep roofs were credited with uplift they do not have.
-  const governing_roof_suction_cp = Math.max(
-    0,
-    -Math.min(roof_cpe_windward, roof_cpe_leeward),
-  );
-  const gross_uplift_pressure_pa =
-    qz_pa * (governing_roof_suction_cp + internal_pressure_cpi);
-  const gross_uplift_pressure_kpa = gross_uplift_pressure_pa / 1000;
-
-  // Resisting dead weight per m², unfactored: sheeting ~0.045 kPa, timber
-  // framing ~0.120 kPa, ceiling ~0.090 kPa = 0.255 kPa. A 0.9 dead load factor
-  // was applied here against an unfactored wind pressure, which mixed a strength
-  // state with a service one; the comparison is kept at service level.
-  const roof_dead_load_resistance_kpa = 0.255;
-
-  const net_uplift_pressure_kpa = Math.max(
-    0,
-    gross_uplift_pressure_kpa - roof_dead_load_resistance_kpa,
-  );
-  const total_net_uplift_force_kn =
-    net_uplift_pressure_kpa * horizontal_roof_footprint_m2;
-  const hurricane_ties_required = total_net_uplift_force_kn > 0;
-  const tie_down_points_count = 2 * trusses_count;
-  const tension_per_tie_kn = hurricane_ties_required
-    ? total_net_uplift_force_kn / tie_down_points_count
-    : 0;
-
-  if (hurricane_ties_required) {
-    discrepancies.push({
-      id: "warn-wind-uplift",
-      severity: tension_per_tie_kn > 4.0 ? "critical" : "warning",
-      category: "wind",
-      title:
-        "Simplified wind screen indicates uplift may exceed assumed roof weight",
-      detected_value: `Net uplift force = ${total_net_uplift_force_kn.toFixed(1)} kN`,
-      permissible_threshold: `Gravity resisting weight = ${(roof_dead_load_resistance_kpa * horizontal_roof_footprint_m2).toFixed(1)} kN`,
-      regulation_code: "Simplified wind screen",
-      mathematical_proof: `Velocity pressure qz = 0.613 · ${Kz} · ${Kd} · ${V_wind}² = ${qz_pa.toFixed(1)} Pa. Net suction uplift pressure = ${net_uplift_pressure_kpa.toFixed(3)} kPa. Tension per truss tie = ${tension_per_tie_kn.toFixed(2)} kN.`,
-      recommended_fix:
-        "Obtain a site-specific roof pressure and connection design; this simplified screen cannot specify tie capacity or spacing.",
-    });
-  }
-
+  // No wind pressure, uplift or tie demand is computed. A reliable result needs
+  // a jurisdictional wind basis, site exposure/topography, building enclosure,
+  // geometry, pressure zones and connection design that this form does not ask for.
   const windMath: WindAerodynamicsMath = {
-    basic_wind_speed_ms: V_wind,
-    velocity_pressure_qz_pa: round1(qz_pa),
-    windward_wall_cpe,
-    leeward_wall_cpe,
-    roof_cpe_windward: round2(roof_cpe_windward),
-    governing_roof_suction_cp: round2(governing_roof_suction_cp),
-    roof_cpe_leeward,
-    internal_pressure_cpi,
-    gross_uplift_pressure_kpa: round3(gross_uplift_pressure_kpa),
-    roof_dead_load_resistance_kpa: round3(roof_dead_load_resistance_kpa),
-    net_uplift_pressure_kpa: round3(net_uplift_pressure_kpa),
-    total_net_uplift_force_kn: round1(total_net_uplift_force_kn),
-    hurricane_ties_required,
-    required_tie_down_capacity_kn: round2(tension_per_tie_kn),
-    tie_down_points_count,
-    tension_per_tie_kn: round2(tension_per_tie_kn),
+    basic_wind_speed_ms: input.basic_wind_speed_ms,
+    velocity_pressure_qz_pa: null,
+    windward_wall_cpe: null,
+    leeward_wall_cpe: null,
+    roof_cpe_windward: null,
+    governing_roof_suction_cp: null,
+    roof_cpe_leeward: null,
+    internal_pressure_cpi: null,
+    gross_uplift_pressure_kpa: null,
+    roof_dead_load_resistance_kpa: null,
+    net_uplift_pressure_kpa: null,
+    total_net_uplift_force_kn: null,
+    hurricane_ties_required: null,
+    required_tie_down_capacity_kn: null,
+    tie_down_points_count: null,
+    tension_per_tie_kn: null,
     mathematical_proof: [
-      `Velocity pressure: q_z = 0.613 · K_z (${Kz}) · K_d (${Kd}) · V² (${V_wind} m/s)² = ${qz_pa.toFixed(1)} N/m²`,
-      `Governing roof suction: Cp = max(0, -min(Cp_windward ${roof_cpe_windward.toFixed(2)}, Cp_leeward ${roof_cpe_leeward.toFixed(2)})) = ${governing_roof_suction_cp.toFixed(2)}`,
-      `Gross uplift: p_gross = q_z · (Cp ${governing_roof_suction_cp.toFixed(2)} + Cp_i ${internal_pressure_cpi.toFixed(2)}) = ${gross_uplift_pressure_pa.toFixed(1)} N/m² (${gross_uplift_pressure_kpa.toFixed(3)} kPa)`,
-      `Dead weight resistance (unfactored): w_dead = ${roof_dead_load_resistance_kpa.toFixed(3)} kPa`,
-      `Net uplift: p_net = max(0, ${gross_uplift_pressure_kpa.toFixed(3)} - ${roof_dead_load_resistance_kpa.toFixed(3)}) = ${net_uplift_pressure_kpa.toFixed(3)} kPa (Total ${total_net_uplift_force_kn.toFixed(1)} kN)`,
-      `Simplified screen only: ${hurricane_ties_required ? `indicative tension = ${tension_per_tie_kn.toFixed(2)} kN across assumed ${tie_down_points_count} points` : "assumed gravity resistance exceeds modeled illustration"}. No anchor design is performed.`,
+      "Not assessed: the inputs do not define a jurisdictional wind standard, site-specific parameters, pressure zones, enclosure classification or connection design.",
+      "Do not use wind speed or exposure selections in this form to size roof members, anchors or ties.",
     ],
   };
 
@@ -1005,76 +878,26 @@ export function calculateMathematicalElevation(
   // 3D Geometry -> 4D Time -> 5D Cost & BOQ
   // =========================================================
   const total_concrete_volume_m3 =
-    concrete_footing_volume_m3 +
-    L_centerline * footing_width_adopted * 0.05 + // Blinding
-    slab_concrete_volume_m3 +
-    ring_beam_concrete_volume;
+    slab_concrete_volume_m3 + ring_beam_concrete_volume;
 
-  // Generic material-yield approximations from volumetric mix proportions, not a
-  // mix design. The previous sand line mixed a tenth of the concrete sand with a
-  // mortar term roughly three times too large, which cancelled out for one
-  // building shape and failed for every other. Each term is now computed on its
-  // own basis and summed.
-  const CEMENT_BAGS_PER_M3_CONCRETE = 6.4; // ~320 kg/m³ for a 1:2:4 mix
-  const SAND_PER_M3_CONCRETE = 0.45; // m³ of sand per m³ of concrete
-  const GRANITE_PER_M3_CONCRETE = 0.85; // m³ of granite per m³ of concrete
-  const MORTAR_VOLUME_PER_BLOCK_M3 = 0.003; // 10 mm joints on a 450x225x225 block
-  const CEMENT_BAGS_PER_M3_MORTAR = 5.0; // ~250 kg/m³ for a 1:5 bedding mix
-  const SAND_PER_M3_MORTAR = 0.83;
-
-  const mortar_volume_m3 = total_blocks_count * MORTAR_VOLUME_PER_BLOCK_M3;
-  const total_cement_bags_50kg = Math.ceil(
-    total_concrete_volume_m3 * CEMENT_BAGS_PER_M3_CONCRETE +
-      mortar_volume_m3 * CEMENT_BAGS_PER_M3_MORTAR,
-  );
-  const total_sand_m3 = round1(
-    total_concrete_volume_m3 * SAND_PER_M3_CONCRETE +
-      mortar_volume_m3 * SAND_PER_M3_MORTAR,
-  );
-  const total_granite_m3 = round1(
-    total_concrete_volume_m3 * GRANITE_PER_M3_CONCRETE,
-  );
-  // Steel is counted, not multiplied by a guessed factor: footing main and
-  // distribution bars plus the ring beam cage.
-  const total_rebar_kg = total_main_rebar_weight_kg + total_footing_rebar_kg;
-  const total_rebar_tonnes = round2(total_rebar_kg / 1000);
-  const total_roof_sheets_approx = Math.ceil(true_3d_roof_area_m2 / 2.5); // 3 x 0.9 m sheet with laps covers ~2.5 m²
+  // No mix design, aggregate bulk-density, product yield, or block-joint
+  // specification is collected. Do not derive marketable material totals.
+  const mortar_volume_m3 = null;
+  const total_cement_bags_50kg = null;
+  const total_sand_m3 = null;
+  const total_granite_m3 = null;
+  // Structural reinforcement is not specified or quantified.
+  const total_rebar_kg = null;
+  const total_rebar_tonnes = null;
+  const total_roof_sheets_approx = null; // Product coverage and laps not supplied; no order quantity
 
   const materialsSchedule = [
-    {
-      item: "Excavation to Foundation",
-      category: "Substructure",
-      quantity: Math.round(excavation_volume_m3),
-      unit: "m³",
-      notes: "Strip footing trenches @ 0.9m depth",
-    },
-    {
-      item: "Blinding Concrete (1:3:6)",
-      category: "Substructure",
-      quantity: round1(L_centerline * footing_width_adopted * 0.05),
-      unit: "m³",
-      notes: "50mm protective bed",
-    },
-    {
-      item: "Footing Concrete (illustrative mix)",
-      category: "Substructure",
-      quantity: round1(concrete_footing_volume_m3),
-      unit: "m³",
-      notes: `${(footing_thickness_m * 1000).toFixed(0)}mm assumed geometry; no structural design`,
-    },
     {
       item: "Ground Floor Slab Concrete",
       category: "Ground Floor",
       quantity: round1(slab_concrete_volume_m3),
       unit: "m³",
       notes: "Illustrative 150mm slab thickness assumption",
-    },
-    {
-      item: "Masonry Blocks",
-      category: "Superstructure",
-      quantity: total_blocks_count,
-      unit: "units",
-      notes: `${(tw * 1000).toFixed(0)}mm blocks including 5% wastage`,
     },
     {
       item: "Ring Beam Concrete",
@@ -1084,106 +907,16 @@ export function calculateMathematicalElevation(
       notes: "225x225mm perimeter tie beam",
     },
     {
-      item: "Footing reinforcement (4Y12 main + Y10@250)",
-      category: "Reinforcement",
-      quantity: Math.round(total_footing_rebar_kg),
-      unit: "kg",
-      notes:
-        "Counted from centreline length and footing width, with 8% laps; not a bar schedule",
-    },
-    {
-      item: "Ring beam reinforcement (4Y12 + Y8 stirrups)",
-      category: "Reinforcement",
-      quantity: Math.round(total_main_rebar_weight_kg),
-      unit: "kg",
-      notes:
-        "Continuous cage at 200 mm stirrup centres; tie laps not scheduled",
-    },
-    {
-      item: "Roof Covering Sheets",
+      item: "Illustrative Eaves Run",
       category: "Roofing",
-      quantity: total_roof_sheets_approx,
-      unit: "sheets",
-      notes: `True slope area ${true_3d_roof_area_m2.toFixed(1)}m² at ${pitchDeg}°`,
-    },
-    {
-      item: "Roof timber quantity illustration",
-      category: "Roofing",
-      quantity: roundTo(
-        total_purlin_length_m + trusses_count * half_span * 4,
-        0,
-      ),
+      quantity: round2(eaves_fascia_perimeter_m),
       unit: "m",
-      notes: `${trusses_count} assumed truss sets; spacing and member design unverified`,
-    },
-    {
-      item: "Fascia & Gutter Eaves Run",
-      category: "Roofing",
-      quantity: Math.round(eaves_fascia_perimeter_m),
-      unit: "m",
-      notes: "Perimeter eaves fascia",
+      notes: "Plan-based eave length only; verify roof form and detailing",
     },
   ];
 
-  const timeline_phases: FiveDBimSchedule["timeline_phases"] = [
-    {
-      phase_number: 1,
-      phase_name: "Excavation & Blinding",
-      level: "Level 1",
-      duration_days: 4,
-      curing_hold_days: 1,
-      cumulative_days: 5,
-      milestone: "Foundation trenches ready & blinded",
-    },
-    {
-      phase_number: 2,
-      phase_name: "Foundation Footing & Dwarf Wall",
-      level: "Level 1",
-      duration_days: 5,
-      curing_hold_days: 7,
-      cumulative_days: 17,
-      milestone: "Footing cast & substructure walling complete",
-    },
-    {
-      phase_number: 3,
-      phase_name: "Hardcore, DPC & Oversite Slab",
-      level: "Level 2",
-      duration_days: 4,
-      curing_hold_days: 7,
-      cumulative_days: 28,
-      milestone: "Ground slab cured to 7-day striking strength",
-    },
-    {
-      phase_number: 4,
-      phase_name: "Superstructure Block Walling",
-      level: "Level 3",
-      duration_days: 10 * storeys,
-      curing_hold_days: 2,
-      cumulative_days: 28 + 12 * storeys,
-      milestone: "Superstructure blocks laid to lintel head",
-    },
-    {
-      phase_number: 5,
-      phase_name: "Lintel & Ring Beam Casting",
-      level: "Level 4",
-      duration_days: 4,
-      curing_hold_days: 14,
-      cumulative_days: 46 + 12 * storeys,
-      milestone: "Ring beam cured to design compressive strength",
-    },
-    {
-      phase_number: 6,
-      phase_name: "Roof Framing, Trusses & Cladding",
-      level: "Level 5",
-      duration_days: 7,
-      curing_hold_days: 0,
-      cumulative_days: 53 + 12 * storeys,
-      milestone: "Roof covered, hurricane ties anchored, shell dry",
-    },
-  ];
-
-  const total_project_days =
-    timeline_phases[timeline_phases.length - 1].cumulative_days;
+  const timeline_phases: FiveDBimSchedule["timeline_phases"] = [];
+  const total_project_days = null;
 
   const five_d_bim: FiveDBimSchedule = {
     materials: materialsSchedule,
@@ -1193,8 +926,8 @@ export function calculateMathematicalElevation(
     total_granite_m3,
     total_blocks_units: total_blocks_count,
     total_rebar_tonnes,
-    total_rebar_kg: Math.round(total_rebar_kg),
-    total_mortar_volume_m3: round1(mortar_volume_m3),
+    total_rebar_kg,
+    total_mortar_volume_m3: mortar_volume_m3,
     total_roof_sheets_approx,
     timeline_phases,
     total_project_days,
@@ -1211,12 +944,6 @@ export function calculateMathematicalElevation(
     floor_to_floor_height: H,
     wall_thickness: tw,
     internal_wall_length: input.internal_wall_length,
-    foundation_type: "strip_footing",
-    foundation_depth: excavation_depth_m,
-    foundation_width: footing_width_adopted,
-    footing_thickness: footing_thickness_m,
-    blinding_thickness: 0.05,
-    hardcore_thickness: 0.2,
     roof_type: input.roof_type,
     roof_pitch_degrees: pitchDeg,
     roof_overhang: overhang,
@@ -1229,15 +956,12 @@ export function calculateMathematicalElevation(
     })),
   };
 
-  const _violations_count = discrepancies.filter(
-    (d) => d.severity === "critical",
-  ).length;
   const regulation_compliance = {
     passed_all: false as const,
     checks_count: 0 as const,
     passed_count: 0 as const,
     violations_count: 0 as const,
-    note: "No building-regulation compliance checks are performed.",
+    note: "No structural or building-regulation compliance checks are performed.",
   };
 
   return {

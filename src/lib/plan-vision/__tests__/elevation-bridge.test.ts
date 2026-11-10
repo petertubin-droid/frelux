@@ -218,14 +218,8 @@ describe("planQuantitiesFromResult + planExits", () => {
       2,
     );
     expect(quantities.ceilingAreaM2).toBe(quantities.floorAreaM2);
-    expect(quantities.roofAreaM2).toBeCloseTo(
-      result.levels.level_5_roof.true_3d_roof_area_m2,
-      2,
-    );
-    // Painting area must exceed the net masonry alone (external + internal).
-    expect(quantities.paintAreaM2).toBeGreaterThan(
-      result.levels.level_3_superstructure.net_masonry_area_m2,
-    );
+    expect(quantities.roofAreaM2).toBeNull();
+    expect(quantities.paintAreaM2).toBeNull();
     expect(quantities.perimeterM).toBe(50);
   });
 
@@ -241,9 +235,8 @@ describe("planQuantitiesFromResult + planExits", () => {
         number_of_floors: 2,
       }),
     });
-    expect(byId.paint.state).toMatchObject({
-      paintableArea: quantities.paintAreaM2,
-    });
+    expect(byId.paint.state).toEqual({ coats: 2 });
+    expect(byId.paint.carries).toContain("measure paintable surfaces");
     expect(byId.screeding.state).toMatchObject({
       netScreedingArea: quantities.floorAreaM2,
     });

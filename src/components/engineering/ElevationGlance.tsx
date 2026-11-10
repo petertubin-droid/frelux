@@ -15,22 +15,22 @@ export interface ElevationGlanceProps {
 export function ElevationGlance({ result, unitSystem }: ElevationGlanceProps) {
   const roof = result.levels.level_5_roof;
   const walls = result.levels.level_3_superstructure;
-  const m = (value: number, unit: string, decimals = 2) =>
+  const m = (value: number | null, unit: string, decimals = 2) =>
     formatMeasure(value, unit, unitSystem, decimals).text;
 
   const ridge = roof.total_building_height_m;
   const eaves = roof.eaves_height_m;
   const rise = roof.ridge_rise_m;
-  const run = roof.roof_span_m / 2;
+  const run = roof.roof_span_m === null ? null : roof.roof_span_m / 2;
   const footprint = roof.horizontal_roof_footprint_m2;
-  const roofArea = roof.true_3d_roof_area_m2;
-  const extra = roofArea - footprint;
+  const roofArea = roof.approximate_roof_covering_area_m2;
+  const extra = roofArea === null ? null : roofArea - footprint;
 
   const cards = [
     {
       icon: Home,
       label: "Height to the roof peak",
-      value: m(ridge, "m", 2),
+      value: roof.ridge_rise_m === null ? "Not assessed" : m(ridge, "m", 2),
       note: `Ground level to the highest point, over ${result.input.storeys} ${
         result.input.storeys === 1 ? "floor" : "floors"
       }`,
@@ -43,9 +43,12 @@ export function ElevationGlance({ result, unitSystem }: ElevationGlanceProps) {
     },
     {
       icon: Triangle,
-      label: "Roof surface to cover",
-      value: m(roofArea, "m2", 1),
-      note: `Sloping area, not the flat footprint (${m(footprint, "m2", 1)}). Steeper roofs add ${m(extra, "m2", 1)} more sheets.`,
+      label: "Roof surface area",
+      value: roofArea === null ? "Not assessed" : m(roofArea, "m2", 1),
+      note:
+        roofArea === null
+          ? `Roof form “${result.input.roof_type}” is not modeled by the current roof geometry.`
+          : `Illustrative area proxy, not an order takeoff. Flat footprint: ${m(footprint, "m2", 1)}; area difference: ${m(extra, "m2", 1)}. Verify product coverage and roof details.`,
     },
     {
       icon: BrickWall,
@@ -95,26 +98,37 @@ export function ElevationGlance({ result, unitSystem }: ElevationGlanceProps) {
         })}
       </dl>
 
-      <p className="flex items-start gap-2 rounded-xl border border-border bg-background p-3 text-xs leading-relaxed text-muted-foreground">
-        <Info
-          className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple"
-          aria-hidden="true"
-        />
-        <span>
-          At {result.input.roof_pitch_deg}° the roof rises{" "}
-          <strong className="font-semibold text-foreground">
-            {m(rise, "m", 2)}
-          </strong>{" "}
-          over{" "}
-          <strong className="font-semibold text-foreground">
-            {m(run, "m", 2)}
-          </strong>{" "}
-          of run: every metre you walk up the slope covers{" "}
-          {m(run / Math.max(rise, 0.01), "m", 1)} of horizontal distance. Wall
-          height, roof area and the quantity schedule below all follow from
-          these four numbers.
-        </span>
-      </p>
+      {roof.ridge_rise_m !== null && roof.roof_span_m !== null ? (
+        <p className="flex items-start gap-2 rounded-xl border border-border bg-background p-3 text-xs leading-relaxed text-muted-foreground">
+          <Info
+            className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple"
+            aria-hidden="true"
+          />
+          <span>
+            At {result.input.roof_pitch_deg}° the roof rises{" "}
+            <strong className="font-semibold text-foreground">
+              {m(rise, "m", 2)}
+            </strong>{" "}
+            over{" "}
+            <strong className="font-semibold text-foreground">
+              {m(run, "m", 2)}
+            </strong>{" "}
+            of run: every metre you walk up the slope covers{" "}
+            {m(
+              run === null || rise === null ? null : run / Math.max(rise, 0.01),
+              "m",
+              1,
+            )}{" "}
+            of horizontal distance. Wall height, roof area and the quantity
+            schedule below all follow from these four numbers.
+          </span>
+        </p>
+      ) : (
+        <p className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground">
+          This roof form is not modeled here. Roof rise and covering area are
+          not assessed.
+        </p>
+      )}
     </section>
   );
 }

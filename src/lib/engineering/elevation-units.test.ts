@@ -82,6 +82,7 @@ describe("formatMeasure", () => {
   });
 
   it("says not entered instead of printing a fabricated zero", () => {
+    expect(formatMeasure(null, "m", "metric").text).toBe("not assessed");
     expect(formatMeasure(Number.NaN, "m", "metric").text).toBe("not entered");
     expect(formatMeasure(Number.POSITIVE_INFINITY, "m3", "imperial").text).toBe(
       "not entered",
@@ -155,7 +156,9 @@ describe("buildElevationSummaryLines", () => {
     expect(imperial).toContain("Not a design check");
     expect(imperial).toContain("no structural design");
     // The page's own prohibitions must survive into the exported text.
-    expect(imperial.toLowerCase()).toContain("planning assumptions");
+    expect(imperial.toLowerCase()).toContain(
+      "quantities are simplified illustrations",
+    );
     expect(imperial).not.toContain("—");
   });
 
@@ -170,8 +173,12 @@ describe("buildElevationSummaryLines", () => {
     ]) {
       expect(lines.some((line) => line.startsWith(level))).toBe(true);
     }
-    expect(lines.some((line) => line.startsWith("Totals:"))).toBe(true);
-    expect(lines.some((line) => line.startsWith("Programme:"))).toBe(true);
+    expect(lines.some((line) => line.startsWith("Indicative totals:"))).toBe(
+      true,
+    );
+    expect(
+      lines.some((line) => line.includes("Programme: not estimated")),
+    ).toBe(true);
   });
 
   it("reports screening flags it actually raised, and none when clean", () => {

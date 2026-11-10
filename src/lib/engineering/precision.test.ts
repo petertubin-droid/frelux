@@ -61,16 +61,16 @@ describe("roundTo", () => {
 });
 
 describe("elevation precision", () => {
-  it("takes the roof span from the plan plus the eaves overhang", () => {
+  it("takes clear roof span from the shorter plan dimension", () => {
     const res = calc();
     const l5 = res.levels.level_5_roof;
-    expect(l5.roof_span_m).toBeCloseTo(9 + 2 * 0.6, 2);
+    expect(l5.roof_span_m).toBeCloseTo(9, 2);
   });
 
   it("derives the ridge rise from the half span at full precision", () => {
     const res = calc();
     const l5 = res.levels.level_5_roof;
-    const halfSpan = (l5.roof_span_m + 0) / 2;
+    const halfSpan = ((l5.roof_span_m ?? 0) + 0) / 2;
     const expected = halfSpan * Math.tan((15 * Math.PI) / 180);
     // Displayed to two decimals, computed from the span the page prints.
     expect(l5.ridge_rise_m).toBeCloseTo(round2(expected), 2);
@@ -80,53 +80,48 @@ describe("elevation precision", () => {
     const res = calc();
     const l1 = res.levels.level_1_foundation;
     const l5 = res.levels.level_5_roof;
-    const rebuilt = l5.eaves_height_m + l5.ridge_rise_m;
+    const rebuilt = l5.eaves_height_m + (l5.ridge_rise_m ?? 0);
     expect(Math.abs(l5.total_building_height_m - rebuilt)).toBeLessThanOrEqual(
       0.011,
     );
     // The apex sits above the eaves by exactly the ridge rise, and the eaves
     // sit above ground, so neither can be negative or inverted.
     expect(l5.total_building_height_m).toBeGreaterThan(l5.eaves_height_m);
-    expect(l1.excavation_depth_m).toBeGreaterThan(0);
+    expect(l1.excavation_depth_m).toBeNull();
   });
 
   it("grows the true roof area with the pitch, not with a rounded slope", () => {
     const shallow = calc({ roof_pitch_deg: 15 });
     const steep = calc({ roof_pitch_deg: 35 });
-    expect(steep.levels.level_5_roof.true_3d_roof_area_m2).toBeGreaterThan(
-      shallow.levels.level_5_roof.true_3d_roof_area_m2,
+    expect(
+      steep.levels.level_5_roof.approximate_roof_covering_area_m2 ?? 0,
+    ).toBeGreaterThan(
+      shallow.levels.level_5_roof.approximate_roof_covering_area_m2 ?? 0,
     );
     const l5 = shallow.levels.level_5_roof;
     const expected =
       l5.horizontal_roof_footprint_m2 / Math.cos((15 * Math.PI) / 180);
-    expect(l5.true_3d_roof_area_m2 / expected).toBeCloseTo(1, 2);
+    expect((l5.approximate_roof_covering_area_m2 ?? 0) / expected).toBeCloseTo(
+      1,
+      2,
+    );
     expect(l5.pitch_area_multiplier).toBeCloseTo(
       1 / Math.cos((15 * Math.PI) / 180),
       3,
     );
   });
 
-  it("adopts the larger footing width from the unrounded requirement", () => {
-    const res = calc();
-    const l1 = res.levels.level_1_foundation;
-    expect(l1.footing_width_adopted_m).toBeGreaterThanOrEqual(
-      l1.footing_width_calculated_m,
-    );
-    expect(l1.footing_width_adopted_m).toBeGreaterThanOrEqual(0.45);
-    // A safe screen means the pressure it prints sits under the bearing value.
-    if (l1.is_bearing_safe) {
-      expect(l1.applied_soil_pressure_kpa).toBeLessThanOrEqual(
-        l1.allowable_bearing_capacity_kpa,
-      );
-    }
+  it("does not imply foundation design from a footing placeholder", () => {
+    const l1 = calc().levels.level_1_foundation;
+    expect(l1.footing_width_calculated_m).toBeNull();
+    expect(l1.is_bearing_safe).toBeNull();
+    expect(l1.applied_soil_pressure_kpa).toBeNull();
   });
 
-  it("counts blockwork in whole blocks from the net wall area", () => {
-    const res = calc();
-    const l3 = res.levels.level_3_superstructure;
-    expect(Number.isInteger(l3.total_blocks_count)).toBe(true);
-    expect(Number.isInteger(l3.wall_courses_count)).toBe(true);
-    expect(l3.total_blocks_count).toBeGreaterThan(0);
+  it("does not estimate blockwork without a product specification", () => {
+    const l3 = calc().levels.level_3_superstructure;
+    expect(l3.total_blocks_count).toBeNull();
+    expect(l3.wall_courses_count).toBeNull();
   });
 
   it("keeps wall areas adding up to the masonry it reports", () => {

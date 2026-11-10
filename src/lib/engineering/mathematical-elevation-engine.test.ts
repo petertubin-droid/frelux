@@ -9,53 +9,36 @@ describe("Deterministic Mathematical Plan Elevation Engine", () => {
     const res = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
 
     expect(res).toBeDefined();
-    expect(
-      res.levels.level_1_foundation.footing_width_adopted_m,
-    ).toBeGreaterThanOrEqual(0.675);
-    expect(res.levels.level_1_foundation.is_bearing_safe).toBe(true);
+    expect(res.levels.level_1_foundation.footing_width_calculated_m).toBeNull();
+    expect(res.levels.level_1_foundation.is_bearing_safe).toBeNull();
 
-    // Verify trigonometric pitch geometry: half_span = (9 + 2*0.6)/2 = 5.1m
-    // ridge rise = 5.1 * tan(25 deg) = 2.378m
-    const expectedHalfSpan = (9.0 + 2 * 0.6) / 2;
+    // Clear ridge rise uses half the shorter plan span; overhang does not change it.
+    const expectedHalfSpan = 9.0 / 2;
     const expectedRidge = expectedHalfSpan * Math.tan((25 * Math.PI) / 180);
     expect(res.levels.level_5_roof.ridge_rise_m).toBeCloseTo(expectedRidge, 2);
 
-    // Rafter slope length = 5.1 / cos(25 deg) = 5.627m
-    const expectedRafter = expectedHalfSpan / Math.cos((25 * Math.PI) / 180);
-    expect(res.levels.level_5_roof.rafter_slope_length_m).toBeCloseTo(
-      expectedRafter,
-      2,
-    );
+    // Default is a hip roof, whose hip/jack-rafter geometry is not quantified.
+    expect(res.levels.level_5_roof.rafter_slope_length_m).toBeNull();
 
-    // Slenderness ratio: H_eff = 0.75 * 3.0 = 2.25m, lambda = 2.25 / 0.225 = 10.0 <= 27
-    expect(res.levels.level_3_superstructure.slenderness_ratio).toBe(10.0);
-    expect(res.levels.level_3_superstructure.is_slenderness_compliant).toBe(
-      true,
+    // Descriptive geometry ratio only; no structural limit is applied.
+    expect(res.levels.level_3_superstructure.slenderness_ratio).toBeCloseTo(
+      13.3,
+      1,
     );
+    expect(
+      res.levels.level_3_superstructure.is_slenderness_compliant,
+    ).toBeNull();
   });
 
-  it("detects slenderness ratio violation when wall is too slender for its height", () => {
-    // 4.5m tall wall with 0.12m thickness -> H_eff = 0.75 * 4.5 = 3.375m -> lambda = 3.375 / 0.12 = 28.125 > 27
-    const res = calculateMathematicalElevation({
-      building_length: 10,
-      building_width: 8,
+  it("reports wall proportions without claiming a stability check", () => {
+    const result = calculateMathematicalElevation({
       floor_to_floor_height: 4.5,
       wall_thickness: 0.12,
     });
-
-    expect(res.levels.level_3_superstructure.slenderness_ratio).toBeGreaterThan(
-      27.0,
-    );
-    expect(res.levels.level_3_superstructure.is_slenderness_compliant).toBe(
-      false,
-    );
-
-    const slendernessErr = res.discrepancies.find(
-      (d) => d.id === "err-wall-slenderness",
-    );
-    expect(slendernessErr).toBeDefined();
-    expect(slendernessErr?.severity).toBe("critical");
-    expect(slendernessErr?.regulation_code).toBe("Planning screen only");
+    expect(
+      result.levels.level_3_superstructure.is_slenderness_compliant,
+    ).toBeNull();
+    expect(result.levels.level_3_superstructure.slenderness_limit).toBeNull();
   });
 
   it("detects low roof pitch warning (< 12 deg) for corrugated sheet water tightness", () => {
@@ -71,44 +54,91 @@ describe("Deterministic Mathematical Plan Elevation Engine", () => {
     expect(pitchErr?.detected_value).toBe("θ = 8.0°");
   });
 
-  it("calculates aerodynamic wind uplift and flags hurricane ties when net uplift > 0", () => {
-    // Basic wind speed 45 m/s (severe tropical coastal wind)
-    const res = calculateMathematicalElevation({
-      basic_wind_speed_ms: 45.0,
-      roof_pitch_deg: 20.0,
+  it("does not report generic wind, tie or foundation design outputs", () => {
+    const result = calculateMathematicalElevation({
+      basic_wind_speed_ms: 45,
+      soil_bearing_capacity_kpa: 60,
     });
-
-    // qz = 0.613 x Kz 0.70 (ASCE exposure B at 10 m) x Kd 0.85 x 45^2 = 738 Pa
-    expect(res.wind_analysis.velocity_pressure_qz_pa).toBeGreaterThan(700);
-    expect(res.wind_analysis.hurricane_ties_required).toBe(true);
-    expect(res.wind_analysis.tension_per_tie_kn).toBeGreaterThan(0);
-
-    const windErr = res.discrepancies.find((d) => d.id === "warn-wind-uplift");
-    expect(windErr).toBeDefined();
-  });
-
-  it("detects soil bearing overload on weak soil with heavy building", () => {
-    const res = calculateMathematicalElevation({
-      storeys: 3,
-      soil_bearing_capacity_kpa: 60, // very soft clay
-    });
-
-    expect(res.levels.level_1_foundation.allowable_bearing_capacity_kpa).toBe(
-      60,
-    );
-    // The same three storey building on strong ground needs a narrower footing.
-    const strong = calculateMathematicalElevation({
-      storeys: 3,
-      soil_bearing_capacity_kpa: 250,
-    });
+    expect(result.wind_analysis.velocity_pressure_qz_pa).toBeNull();
+    expect(result.wind_analysis.hurricane_ties_required).toBeNull();
     expect(
-      res.levels.level_1_foundation.footing_width_calculated_m,
-    ).toBeGreaterThan(
-      strong.levels.level_1_foundation.footing_width_calculated_m,
-    );
+      result.levels.level_1_foundation.applied_soil_pressure_kpa,
+    ).toBeNull();
+    expect(result.levels.level_1_foundation.is_bearing_safe).toBeNull();
+    expect(
+      result.levels.level_1_foundation.footing_width_calculated_m,
+    ).toBeNull();
   });
 
-  it("detects excessive opening ratio on any wall face (> 50%)", () => {
+  it("reports normalized user-entered values instead of silently clamping them", () => {
+    const result = calculateMathematicalElevation({
+      building_length: 2,
+      storeys: 6,
+    });
+    expect(result.input.building_length).toBe(3);
+    expect(result.input.storeys).toBe(5);
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-normalized-building_length",
+      ),
+    ).toBe(true);
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-normalized-storeys",
+      ),
+    ).toBe(true);
+  });
+
+  it("flags non-finite dimensions rather than silently substituting defaults", () => {
+    const result = calculateMathematicalElevation({
+      building_length: Number.NaN,
+    });
+    expect(result.input.building_length).toBe(
+      DEFAULT_PLAN_INPUT.building_length,
+    );
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-invalid-building_length",
+      ),
+    ).toBe(true);
+  });
+
+  it("clamps an explicit zero to the documented minimum, not to a default dimension", () => {
+    const result = calculateMathematicalElevation({
+      building_length: 0,
+      roof_pitch_deg: 0,
+      roof_overhang: 0,
+    });
+    expect(result.input.building_length).toBe(3);
+    expect(result.input.roof_pitch_deg).toBe(5);
+    expect(result.input.roof_overhang).toBe(0.2);
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-normalized-building_length",
+      ),
+    ).toBe(true);
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-normalized-roof_pitch_deg",
+      ),
+    ).toBe(true);
+    expect(
+      result.discrepancies.some(
+        (item) => item.id === "input-normalized-roof_overhang",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not calculate gable geometry for unsupported roof forms", () => {
+    const result = calculateMathematicalElevation({ roof_type: "flat" });
+    expect(result.levels.level_5_roof.ridge_rise_m).toBeNull();
+    expect(result.levels.level_5_roof.rafter_slope_length_m).toBeNull();
+    expect(
+      result.levels.level_5_roof.approximate_roof_covering_area_m2,
+    ).toBeNull();
+  });
+
+  it("reports opening width as an input geometry indicator, not a design check", () => {
     const res = calculateMathematicalElevation({
       building_length: 8.0,
       building_width: 6.0,
@@ -125,11 +155,12 @@ describe("Deterministic Mathematical Plan Elevation Engine", () => {
     });
 
     // Front wall length is 8.0m, opening width is 5.0m -> ratio = 5/8 = 62.5% > 50%
-    const openErr = res.discrepancies.find((d) =>
-      d.id.includes("err-opening-ratio"),
-    );
-    expect(openErr).toBeDefined();
-    expect(openErr?.severity).toBe("critical");
+    expect(
+      res.levels.level_3_superstructure.max_opening_ratio_percent,
+    ).toBeCloseTo(62.5, 1);
+    expect(
+      res.discrepancies.some((d) => d.id.includes("err-opening-ratio")),
+    ).toBe(false);
   });
 
   it("respects an explicitly empty openings list instead of restoring defaults", () => {
@@ -165,40 +196,52 @@ describe("Deterministic Mathematical Plan Elevation Engine", () => {
   it("produces a 5D BIM schedule with materials, curing milestones, and patch for Build-to-Roof", () => {
     const res = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
 
-    expect(res.five_d_bim.materials.length).toBeGreaterThan(5);
+    expect(res.five_d_bim.materials.length).toBeGreaterThan(0);
     expect(res.five_d_bim.total_concrete_volume_m3).toBeGreaterThan(0);
-    expect(res.five_d_bim.total_blocks_units).toBeGreaterThan(1000);
-    expect(res.five_d_bim.timeline_phases.length).toBe(6);
+    expect(res.five_d_bim.total_blocks_units).toBeNull();
+    expect(res.five_d_bim.timeline_phases).toEqual([]);
+    expect(res.five_d_bim.total_project_days).toBeNull();
 
     // Patch output
     expect(res.derived_patch.building_length).toBe(12.0);
     expect(res.derived_patch.building_width).toBe(9.0);
-    expect(res.derived_patch.foundation_type).toBe("strip_footing");
+    expect(res.derived_patch.foundation_type).toBeUndefined();
     expect(res.derived_patch.roof_pitch_degrees).toBe(25.0);
     expect(res.derived_patch.openings?.length).toBe(5);
   });
 });
 
 describe("Elevation engine corrections", () => {
-  it("gives a hip roof the same true area as a gable at the same pitch", () => {
-    const gable = calculateMathematicalElevation({
-      ...DEFAULT_PLAN_INPUT,
-      roof_type: "gable",
-    });
+  it("does not estimate hip roof surface area or rafter lengths without hip-plane geometry", () => {
     const hip = calculateMathematicalElevation({
       ...DEFAULT_PLAN_INPUT,
       roof_type: "hip",
     });
-    // Every roof plane projects onto the same footprint, so true area = plan / cos(theta)
-    expect(hip.levels.level_5_roof.true_3d_roof_area_m2).toBeCloseTo(
-      gable.levels.level_5_roof.true_3d_roof_area_m2,
+    expect(hip.levels.level_5_roof.ridge_rise_m).not.toBeNull();
+    expect(hip.levels.level_5_roof.rafter_slope_length_m).toBeNull();
+    expect(
+      hip.levels.level_5_roof.approximate_roof_covering_area_m2,
+    ).toBeNull();
+  });
+
+  it("computes the gable roof proxy from expanded plan and pitch", () => {
+    const gable = calculateMathematicalElevation({
+      ...DEFAULT_PLAN_INPUT,
+      roof_type: "gable",
+    });
+    const roof = gable.levels.level_5_roof;
+    const expected =
+      roof.horizontal_roof_footprint_m2 / Math.cos((25 * Math.PI) / 180);
+    expect(roof.approximate_roof_covering_area_m2).toBeCloseTo(expected, 2);
+    expect(roof.rafter_slope_length_m).toBeCloseTo(
+      (Math.min(
+        DEFAULT_PLAN_INPUT.building_length,
+        DEFAULT_PLAN_INPUT.building_width,
+      ) /
+        2 +
+        DEFAULT_PLAN_INPUT.roof_overhang) /
+        Math.cos((25 * Math.PI) / 180),
       2,
-    );
-    const plan = hip.levels.level_5_roof.horizontal_roof_footprint_m2;
-    const cos = Math.cos((25 * Math.PI) / 180);
-    expect(hip.levels.level_5_roof.true_3d_roof_area_m2).toBeCloseTo(
-      plan / cos,
-      1,
     );
   });
 
@@ -208,14 +251,10 @@ describe("Elevation engine corrections", () => {
       res.levels.level_2_ground_slab.plinth_height_above_ground_m +
       3.0 +
       res.levels.level_4_ring_beam.ring_beam_depth_m +
-      res.levels.level_5_roof.ridge_rise_m;
-    expect(res.levels.level_5_roof.total_building_height_m).toBeCloseTo(
-      expected,
-      2,
-    );
-    expect(res.levels.level_5_roof.total_building_height_m).toBeLessThan(
-      expected + res.levels.level_1_foundation.excavation_depth_m,
-    );
+      (res.levels.level_5_roof.ridge_rise_m ?? 0);
+    expect(
+      Math.abs(res.levels.level_5_roof.total_building_height_m - expected),
+    ).toBeLessThan(0.01);
   });
 
   it("holds net masonry at zero and flags openings larger than the walls", () => {
@@ -235,78 +274,81 @@ describe("Elevation engine corrections", () => {
       ],
     });
     expect(res.levels.level_3_superstructure.net_masonry_area_m2).toBe(0);
-    expect(res.levels.level_3_superstructure.total_blocks_count).toBe(0);
+    expect(res.levels.level_3_superstructure.total_blocks_count).toBeNull();
     const flag = res.discrepancies.find(
       (d) => d.id === "err-openings-exceed-walls",
     );
     expect(flag?.severity).toBe("critical");
   });
 
-  it("computes sand from concrete volume and mortar volume separately", () => {
+  it("leaves material yields unavailable without mix and product specifications", () => {
     const res = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
-    const concrete = res.five_d_bim.total_concrete_volume_m3;
-    const blocks = res.five_d_bim.total_blocks_units;
-    const expected = concrete * 0.45 + blocks * 0.003 * 0.83;
-    expect(res.five_d_bim.total_sand_m3).toBeCloseTo(expected, 0);
+    expect(res.five_d_bim.total_cement_bags_50kg).toBeNull();
+    expect(res.five_d_bim.total_sand_m3).toBeNull();
+    expect(res.five_d_bim.total_granite_m3).toBeNull();
+    expect(res.five_d_bim.total_blocks_units).toBeNull();
+    expect(res.five_d_bim.total_mortar_volume_m3).toBeNull();
   });
 
-  it("counts footing and ring beam steel instead of applying a guessed factor", () => {
+  it("does not report an unsupported total reinforcement quantity", () => {
     const res = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
-    const ring = res.levels.level_4_ring_beam.total_main_rebar_weight_kg;
-    expect(res.five_d_bim.total_rebar_kg).toBeGreaterThan(ring);
-    // Footing steel grows with the building, so a wider plan must use more steel.
-    const bigger = calculateMathematicalElevation({
-      ...DEFAULT_PLAN_INPUT,
-      building_length: 24,
-    });
-    expect(bigger.five_d_bim.total_rebar_kg).toBeGreaterThan(
-      res.five_d_bim.total_rebar_kg,
-    );
+    expect(res.levels.level_4_ring_beam.total_main_rebar_weight_kg).toBeNull();
+    expect(res.five_d_bim.total_rebar_kg).toBeNull();
   });
 
-  it("uses the governing roof suction on a steep roof instead of a fabricated uplift", () => {
-    const steep = calculateMathematicalElevation({ roof_pitch_deg: 55 });
-    // Windward pressure turns positive above 35 degrees, so leeward suction governs.
-    expect(steep.wind_analysis.roof_cpe_windward).toBeGreaterThan(0);
-    expect(steep.wind_analysis.governing_roof_suction_cp).toBeCloseTo(0.6, 2);
+  it("leaves unsupported wind design outputs unavailable", () => {
+    const result = calculateMathematicalElevation({ roof_pitch_deg: 55 });
+    expect(result.wind_analysis.roof_cpe_windward).toBeNull();
+    expect(result.wind_analysis.required_tie_down_capacity_kn).toBeNull();
   });
 
-  it("reports tie demand per tie, not the total uplift force", () => {
-    const res = calculateMathematicalElevation({
-      basic_wind_speed_ms: 45,
-      roof_pitch_deg: 20,
-    });
-    expect(res.wind_analysis.required_tie_down_capacity_kn).toBeCloseTo(
-      res.wind_analysis.tension_per_tie_kn,
-      2,
-    );
-    expect(res.wind_analysis.required_tie_down_capacity_kn).toBeLessThan(
-      res.wind_analysis.total_net_uplift_force_kn,
-    );
-  });
-
-  it("uses a plan-shape tributary for floor live load", () => {
+  it("does not report unsupported foundation line loads", () => {
     const res = calculateMathematicalElevation({
       building_length: 20,
       building_width: 6,
     });
-    const tributary = (20 * 6) / (4 * (20 + 6));
+    expect(
+      res.levels.level_1_foundation.total_working_dead_load_kn_m,
+    ).toBeNull();
     expect(
       res.levels.level_1_foundation.total_working_live_load_kn_m,
-    ).toBeCloseTo(1.5 * tributary + 0.25 * tributary, 1);
+    ).toBeNull();
+    expect(res.levels.level_1_foundation.total_line_load_kn_m).toBeNull();
   });
 
-  it("reports bearing utilization and margin against the allowable pressure", () => {
-    const res = calculateMathematicalElevation(DEFAULT_PLAN_INPUT);
-    const l1 = res.levels.level_1_foundation;
-    expect(l1.bearing_utilization_pct).toBeCloseTo(
-      (l1.applied_soil_pressure_kpa / l1.allowable_bearing_capacity_kpa) * 100,
-      0,
-    );
-    expect(l1.bearing_margin_on_allowable).toBeCloseTo(
-      l1.allowable_bearing_capacity_kpa / l1.applied_soil_pressure_kpa,
-      1,
-    );
+  it("reports when entered numeric inputs are normalized", () => {
+    const result = calculateMathematicalElevation({
+      building_length: 2,
+      storeys: 9,
+    });
+    expect(result.input.building_length).toBe(3);
+    expect(result.input.storeys).toBe(5);
+    expect(
+      result.discrepancies.some(
+        (d) => d.id === "input-normalized-building_length",
+      ),
+    ).toBe(true);
+    expect(
+      result.discrepancies.some((d) => d.id === "input-normalized-storeys"),
+    ).toBe(true);
+  });
+
+  it("leaves unsupported roof forms without gable/hip area or rise outputs", () => {
+    const result = calculateMathematicalElevation({ roof_type: "flat" });
+    expect(result.levels.level_5_roof.ridge_rise_m).toBeNull();
+    expect(result.levels.level_5_roof.rafter_slope_length_m).toBeNull();
+    expect(
+      result.levels.level_5_roof.approximate_roof_covering_area_m2,
+    ).toBeNull();
+  });
+
+  it("does not claim bearing safety without foundation design", () => {
+    const l1 =
+      calculateMathematicalElevation(DEFAULT_PLAN_INPUT).levels
+        .level_1_foundation;
+    expect(l1.bearing_utilization_pct).toBeNull();
+    expect(l1.bearing_margin_on_allowable).toBeNull();
+    expect(l1.is_bearing_safe).toBeNull();
   });
 });
 
@@ -318,7 +360,7 @@ describe("eaves and ridge heights", () => {
     // once for display from unrounded geometry, so the printed total can sit
     // one rounding step (1 cm) from the sum of the printed parts; adding two
     // rounded figures first is what used to make the peak drift.
-    const printedParts = roof.eaves_height_m + roof.ridge_rise_m;
+    const printedParts = roof.eaves_height_m + (roof.ridge_rise_m ?? 0);
     expect(
       Math.abs(roof.total_building_height_m - printedParts),
     ).toBeLessThanOrEqual(0.011);

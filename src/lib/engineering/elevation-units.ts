@@ -87,7 +87,8 @@ function round(value: number, decimals: number): number {
 }
 
 /** Thousands separated number with a fixed decimal count. */
-export function formatNumber(value: number, decimals = 2): string {
+export function formatNumber(value: number | null, decimals = 2): string {
+  if (value === null) return "not assessed";
   if (!Number.isFinite(value)) return "not entered";
   return value.toLocaleString("en-US", {
     minimumFractionDigits: decimals,
@@ -109,14 +110,13 @@ export interface FormattedMeasure {
  * rather than inventing a conversion the page never explains.
  */
 export function formatMeasure(
-  value: number,
+  value: number | null,
   unit: string,
   system: ElevationUnitSystem,
   decimals = 2,
 ): FormattedMeasure {
-  if (!Number.isFinite(value)) {
-    return { value, unit, text: "not entered" };
-  }
+  if (value === null) return { value: 0, unit, text: "not assessed" };
+  if (!Number.isFinite(value)) return { value: 0, unit, text: "not entered" };
   switch (unit) {
     case "m": {
       const v = system === "imperial" ? metresToFeet(value) : value;
@@ -258,7 +258,7 @@ export function buildElevationSummaryLines(
       ? "Imperial display (dimensions and quantities converted from SI; pressure, wind speed and line load stay SI)"
       : "Metric (SI)";
 
-  const fmt = (value: number, unit: string, decimals = 2) =>
+  const fmt = (value: number | null, unit: string, decimals = 2) =>
     formatMeasure(value, unit, system, decimals).text;
 
   const roofType = input.roof_type === "hip" ? "hip" : "gable";
@@ -271,18 +271,18 @@ export function buildElevationSummaryLines(
     `Roof: ${roofType} at ${input.roof_pitch_deg} degrees, ${fmt(input.roof_overhang, "m")} overhang`,
     `Wall: ${fmt(input.wall_thickness, "m")} thick, ${fmt(input.internal_wall_length, "m")} internal run`,
     "",
-    `L1 Foundation: footing ${fmt(levels.level_1_foundation.footing_width_adopted_m, "m")} wide by ${fmt(levels.level_1_foundation.footing_thickness_m, "m")} thick, ${fmt(levels.level_1_foundation.excavation_depth_m, "m")} excavation depth, ${fmt(levels.level_1_foundation.excavation_volume_m3, "m3")} excavated`,
-    `L1 Bearing: ${formatNumber(levels.level_1_foundation.applied_soil_pressure_kpa, 1)} kPa applied against ${formatNumber(levels.level_1_foundation.allowable_bearing_capacity_kpa, 1)} kPa assumed (${formatNumber(levels.level_1_foundation.bearing_utilization_pct, 1)} percent of the assumption)`,
+    `L1 Foundation: not assessed; excavation and footing dimensions/quantities require site-specific design`,
+    `L1 Bearing: not assessed; no geotechnical bearing or footing check is performed`,
     `L2 Ground slab: ${fmt(levels.level_2_ground_slab.slab_area_m2, "m2")} at ${fmt(levels.level_2_ground_slab.slab_thickness_m, "m")} thick, ${fmt(levels.level_2_ground_slab.slab_concrete_volume_m3, "m3")} concrete`,
-    `L3 Walls: ${formatNumber(levels.level_3_superstructure.total_blocks_count, 0)} blocks over ${fmt(levels.level_3_superstructure.net_masonry_area_m2, "m2")} net area`,
-    `L4 Ring beam: ${fmt(levels.level_4_ring_beam.total_beam_length_m, "m")} run, ${fmt(levels.level_4_ring_beam.concrete_volume_m3, "m3")} concrete, ${fmt(levels.level_4_ring_beam.total_main_rebar_weight_kg, "kg")} main steel`,
-    `L5 Roof: ${fmt(levels.level_5_roof.ridge_rise_m, "m")} rise, ${fmt(levels.level_5_roof.rafter_slope_length_m, "m")} rafter, ${fmt(levels.level_5_roof.true_3d_roof_area_m2, "m2")} true area, ${formatNumber(five_d_bim.total_roof_sheets_approx, 0)} roof sheets approximately`,
+    `L3 Walls: ${fmt(levels.level_3_superstructure.net_masonry_area_m2, "m2")} net wall area; block/course count not assessed`,
+    `L4 Ring beam illustration: ${fmt(levels.level_4_ring_beam.total_beam_length_m, "m")} run, ${fmt(levels.level_4_ring_beam.concrete_volume_m3, "m3")} geometry-only concrete; reinforcement not assessed`,
+    `L5 Roof: ${fmt(levels.level_5_roof.ridge_rise_m, "m")} rise, ${fmt(levels.level_5_roof.rafter_slope_length_m, "m")} illustrative slope length, ${fmt(levels.level_5_roof.approximate_roof_covering_area_m2, "m2")} approximate area proxy; verify roof form and product coverage`,
     "",
-    `Totals: ${fmt(five_d_bim.total_concrete_volume_m3, "m3")} concrete, ${formatNumber(five_d_bim.total_cement_bags_50kg, 0)} cement bags, ${formatNumber(five_d_bim.total_blocks_units, 0)} blocks, ${fmt(five_d_bim.total_rebar_kg, "kg")} reinforcement`,
-    `Programme: ${formatNumber(five_d_bim.total_project_days, 0)} days including curing holds`,
+    `Indicative totals: ${fmt(five_d_bim.total_concrete_volume_m3, "m3")} slab/ring-beam geometry-only concrete; cement, aggregate, blocks and reinforcement not assessed`,
+    `Programme: not estimated; project sequencing and resource inputs are not provided`,
     "",
     `Screening flags: ${result.discrepancies.length === 0 ? "none triggered" : `${result.discrepancies.length} raised`}`,
-    "Assumptions: bearing value, wind speed and exposure are planning assumptions, not site data. Rates, where shown, are the ones entered by hand.",
+    "Assumptions: quantities are simplified illustrations; no foundation, structural, wind, connection or code-compliance design is performed. Rates, where shown, are entered by hand.",
     "Not a design check: no structural design, code compliance determination, site investigation or uplift connection design is performed. Obtain review from a licensed local professional.",
   ];
 

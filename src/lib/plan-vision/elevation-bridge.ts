@@ -369,8 +369,10 @@ export interface PlanQuantities {
   floorAreaM2: number;
   ceilingAreaM2: number;
   netWallAreaM2: number;
-  paintAreaM2: number;
-  roofAreaM2: number;
+  /** Null until room-face data can distinguish interior/exterior faces without double counting. */
+  paintAreaM2: null;
+  /** Null: a plan/pitch proxy is not an order-ready roof takeoff. */
+  roofAreaM2: null;
   storeys: number;
   lengthM: number;
   widthM: number;
@@ -391,21 +393,16 @@ export interface PlanExit {
 export function planQuantitiesFromResult(
   result: MathematicalElevationResult,
 ): PlanQuantities {
-  const { level_2_ground_slab, level_3_superstructure, level_5_roof } =
-    result.levels;
+  const { level_2_ground_slab, level_3_superstructure } = result.levels;
   const { building_length, building_width, storeys } = result.input;
   return {
     floorAreaM2: round(level_2_ground_slab.slab_area_m2, 2),
     ceilingAreaM2: round(level_2_ground_slab.slab_area_m2, 2),
     netWallAreaM2: round(level_3_superstructure.net_masonry_area_m2, 2),
-    // Paintable area: net masonry plus internal faces, the same figure
-    // the painting estimators expect as paintableArea.
-    paintAreaM2: round(
-      level_3_superstructure.net_masonry_area_m2 +
-        level_3_superstructure.gross_internal_wall_area_m2,
-      2,
-    ),
-    roofAreaM2: round(level_5_roof.true_3d_roof_area_m2, 2),
+    // No auto-fill: the aggregate wall figure mixes faces and cannot resolve
+    // storey/floor-specific finish schedules; roof area is only a geometry proxy.
+    paintAreaM2: null,
+    roofAreaM2: null,
     storeys,
     lengthM: building_length,
     widthM: building_width,
@@ -450,11 +447,8 @@ export function planExits(
       id: "paint",
       label: "Paint & Decor",
       path: "/cost-estimator",
-      state: {
-        paintableArea: quantities.paintAreaM2,
-        coats: 2,
-      },
-      carries: `${quantities.paintAreaM2} m² paintable`,
+      state: { coats: 2 },
+      carries: "Open estimator; measure paintable surfaces there",
     },
     {
       id: "screeding",

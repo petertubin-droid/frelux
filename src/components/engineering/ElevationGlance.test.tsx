@@ -13,19 +13,14 @@ describe("ElevationGlance", () => {
     render(<ElevationGlance result={result} unitSystem="metric" />);
     expect(screen.getByText("Height to the roof peak")).toBeTruthy();
     expect(screen.getByText("Height to the eaves")).toBeTruthy();
-    expect(screen.getByText("Roof surface to cover")).toBeTruthy();
+    expect(screen.getByText("Roof surface area")).toBeTruthy();
     expect(screen.getByText("Wall area to build")).toBeTruthy();
   });
 
-  it("separates the sloping roof area from the flat footprint", () => {
+  it("labels the default hip roof area as not assessed", () => {
     render(<ElevationGlance result={result} unitSystem="metric" />);
-    const roof = result.levels.level_5_roof;
-    expect(roof.true_3d_roof_area_m2).toBeGreaterThan(
-      roof.horizontal_roof_footprint_m2,
-    );
-    expect(
-      screen.getByText(/Sloping area, not the flat footprint/),
-    ).toBeTruthy();
+    expect(screen.getByText(/not assessed/i)).toBeTruthy();
+    expect(screen.getByText(/Roof form “hip” is not modeled/)).toBeTruthy();
   });
 
   it("shows feet when the page is in imperial", () => {

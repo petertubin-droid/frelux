@@ -8,7 +8,7 @@
 // 3. Indicative 3D geometry and 4D/5D schedule
 // =========================================================
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Calculator,
   Plus,
@@ -36,10 +36,8 @@ import {
 import {
   calculateMathematicalElevation,
   DEFAULT_PLAN_INPUT,
-  SOIL_CAPACITIES_KPA,
   type PlanElevationInput,
   type MathematicalElevationResult,
-  type SoilTypeKey,
 } from "@/lib/engineering/mathematical-elevation-engine";
 import { MathematicalElevationDiagram } from "./MathematicalElevationDiagram";
 import PlanImportPanel from "./PlanImportPanel";
@@ -63,7 +61,6 @@ import {
   buildElevationSummaryText,
   formatMeasure,
   formatNumber,
-  formatNumber as formatFigure,
   lengthForDisplay,
   lengthFromDisplay,
   lengthStep,
@@ -86,9 +83,6 @@ export function MathematicalElevationPanel({
 }: MathematicalElevationPanelProps) {
   // Input parameters state
   const [params, setParams] = useState<PlanElevationInput>(DEFAULT_PLAN_INPUT);
-  const [selectedSoilType, setSelectedSoilType] = useState<SoilTypeKey>(
-    DEFAULT_PLAN_INPUT.soil_type,
-  );
   const [showAdvancedMath, setShowAdvancedMath] = useState<boolean>(false);
   // Staged form: the page opens on the building itself and reveals the
   // assumptions only when a reader asks for them.
@@ -143,7 +137,7 @@ export function MathematicalElevationPanel({
     Number(lengthForDisplay(metres, unitSystem).toFixed(2));
   const readLength = (typed: number) => lengthFromDisplay(typed, unitSystem);
   const lengthLabel = lengthUnitLabel(unitSystem);
-  const measure = (value: number, unit: string, decimals = 2) =>
+  const measure = (value: number | null, unit: string, decimals = 2) =>
     formatMeasure(value, unit, unitSystem, decimals).text;
   const csvRows = useMemo(
     () =>
@@ -177,19 +171,9 @@ export function MathematicalElevationPanel({
   const handleNumberChange = (field: keyof PlanElevationInput, val: number) => {
     setParams((prev) => ({
       ...prev,
-      [field]: Math.max(0.1, val),
+      [field]: val,
     }));
     setAppliedSuccess(false);
-  };
-
-  const handleSoilSelect = (soilKey: SoilTypeKey) => {
-    setSelectedSoilType(soilKey);
-    const capacity = SOIL_CAPACITIES_KPA[soilKey];
-    setParams((prev) => ({
-      ...prev,
-      soil_type: soilKey,
-      soil_bearing_capacity_kpa: capacity,
-    }));
   };
 
   const updateOpening = (
@@ -251,9 +235,9 @@ export function MathematicalElevationPanel({
             </div>
             <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
               Builds an elevation from dimensions you type or confirm from a
-              plan, using deterministic geometry, simplified quantity
-              assumptions and an illustrative wind screen. It does not scale a
-              drawing, and it does not verify building-regulations compliance.
+              plan, using deterministic geometry, simplified quantity geometry
+              and clearly labeled illustrative quantities. Wind, structural
+              capacity and building-regulations compliance are not assessed.
             </p>
           </div>
         </div>
@@ -277,10 +261,10 @@ export function MathematicalElevationPanel({
         <strong>Planning illustration only.</strong> Dimensions come from your
         own fields or from a plan you confirmed; nothing else is inferred. This
         tool does not verify site conditions, establish code compliance, or
-        produce structural design. Load, wind, soil, material, and duration
-        values are simplified assumptions and must not be used for construction
-        decisions. Obtain site-specific review from appropriately licensed local
-        professionals.
+        produce structural design. Load, wind, soil, material quantities, rates
+        and duration are not fully assessed; do not use these illustrations for
+        construction decisions. Obtain site-specific review from appropriately
+        licensed local professionals.
       </div>
 
       {/* Plan import: reads the dimensions a drawing states, then hands the
@@ -312,9 +296,9 @@ export function MathematicalElevationPanel({
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
             These areas come from the calculation above. Send them across
-            instead of retyping: {quantities.floorAreaM2} m² floor,{" "}
-            {quantities.paintAreaM2} m² paintable, {quantities.roofAreaM2} m²
-            roof over {quantities.storeys}{" "}
+            instead of retyping: {quantities.floorAreaM2} m² floor, Paint and
+            roof takeoffs require surface-specific measurement; no automatic
+            area transfer over {quantities.storeys}{" "}
             {quantities.storeys === 1 ? "storey" : "storeys"}.
           </p>
         </div>
@@ -371,8 +355,8 @@ export function MathematicalElevationPanel({
             },
             {
               step: 3,
-              label: "Site, soil and wind",
-              detail: "Optional assumptions behind the screen",
+              label: "Design limitations",
+              detail: "Site-specific design is not assessed",
               open: showAdvancedMath,
             },
           ].map((item) => (
@@ -476,9 +460,9 @@ export function MathematicalElevationPanel({
             <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2.5">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>
-                No configured screening flags were triggered. This is not a
-                code-compliance determination, structural design, or substitute
-                for site-specific professional review.
+                No input-normalization or configured geometry flags were
+                triggered. Structural capacity, site conditions and code
+                compliance are not assessed.
               </span>
             </div>
           ) : (
@@ -571,7 +555,7 @@ export function MathematicalElevationPanel({
               >
                 {showAdvancedMath
                   ? "Simple View"
-                  : "Site, soil and wind (optional)"}
+                  : "Design limitations (not assessed)"}
                 {showAdvancedMath ? (
                   <ChevronUp className="h-3.5 w-3.5" />
                 ) : (
@@ -587,13 +571,20 @@ export function MathematicalElevationPanel({
               onClick={() => setDetailStageOpen(true)}
               className="w-full rounded-xl border border-dashed border-border px-3 py-2.5 text-left text-xs text-muted-foreground hover:border-brand-purple/40 hover:text-foreground"
             >
-              Step 2 of 3 · Set the roof pitch, wall thickness, bearing value
-              and openings. Skip it if the defaults suit you.
+              Step 2 of 3 · Set the roof pitch, wall thickness and openings.
+              Inputs outside supported ranges are flagged; site and structural
+              design are not assessed.
             </button>
           )}
 
           {detailStageOpen && (
             <>
+              <p className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground">
+                Calculator normalization limits (SI): length and width ≥ 3 m;
+                floor height ≥ 2.1 m; 1–5 storeys; wall thickness 0.12–0.40 m;
+                pitch 5–60°; overhang 0.20–1.50 m. Any entered value changed by
+                these limits is listed in the screening flags below.
+              </p>
               {/* Primary Input Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="space-y-1.5">
@@ -603,6 +594,7 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     step={lengthStep(unitSystem, 0.1)}
+                    min={showLength(3)}
                     value={showLength(params.building_length)}
                     onChange={(e) =>
                       handleNumberChange(
@@ -620,6 +612,7 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     step={lengthStep(unitSystem, 0.1)}
+                    min={showLength(3)}
                     value={showLength(params.building_width)}
                     onChange={(e) =>
                       handleNumberChange(
@@ -637,7 +630,7 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     min="1"
-                    max="6"
+                    max="5"
                     value={params.storeys}
                     onChange={(e) =>
                       handleNumberChange("storeys", Number(e.target.value))
@@ -652,6 +645,7 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     step={lengthStep(unitSystem, 0.05)}
+                    min={showLength(2.1)}
                     value={showLength(params.floor_to_floor_height)}
                     onChange={(e) =>
                       handleNumberChange(
@@ -692,6 +686,8 @@ export function MathematicalElevationPanel({
                   <Input
                     type="number"
                     step={lengthStep(unitSystem, 0.05)}
+                    min={showLength(0.2)}
+                    max={showLength(1.5)}
                     value={showLength(params.roof_overhang)}
                     onChange={(e) =>
                       handleNumberChange(
@@ -725,35 +721,13 @@ export function MathematicalElevationPanel({
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">
-                    Bearing value (assumption)
+                    Soil bearing capacity
                   </Label>
-                  <Select
-                    value={selectedSoilType}
-                    onValueChange={(value) =>
-                      handleSoilSelect(value as SoilTypeKey)
-                    }
-                  >
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="laterite">
-                        Laterite (assumed 150 kPa)
-                      </SelectItem>
-                      <SelectItem value="sandy_clay">
-                        Sandy clay (assumed 120 kPa)
-                      </SelectItem>
-                      <SelectItem value="firm_clay">
-                        Firm clay (assumed 100 kPa)
-                      </SelectItem>
-                      <SelectItem value="dense_sand">
-                        Dense sand (assumed 250 kPa)
-                      </SelectItem>
-                      <SelectItem value="rock">
-                        Rock (assumed 500 kPa)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <p className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[11px] leading-relaxed text-muted-foreground">
+                    Not estimated from soil type. This tool does not perform a
+                    bearing check. Obtain a site-specific value and footing
+                    geometry from the geotechnical and structural design.
+                  </p>
                 </div>
               </div>
 
@@ -767,8 +741,10 @@ export function MathematicalElevationPanel({
                       Door and window dimensions
                     </h4>
                     <p className="text-xs text-muted-foreground">
-                      Enter opening sizes manually. These are area/width
-                      indicators, not structural checks.
+                      Count is the total for the whole building across all
+                      floors. Locations/storeys are not assigned, so these are
+                      aggregate area/width indicators, not layout or structural
+                      checks.
                     </p>
                   </div>
                   <Button
@@ -813,12 +789,9 @@ export function MathematicalElevationPanel({
                         value={showLength(opening.width)}
                         onChange={(event) =>
                           updateOpening(opening.id, {
-                            width: Math.max(
-                              0.1,
-                              lengthFromDisplay(
-                                Number(event.target.value) || 0.1,
-                                unitSystem,
-                              ),
+                            width: lengthFromDisplay(
+                              Number(event.target.value),
+                              unitSystem,
                             ),
                           })
                         }
@@ -834,12 +807,9 @@ export function MathematicalElevationPanel({
                         value={showLength(opening.height)}
                         onChange={(event) =>
                           updateOpening(opening.id, {
-                            height: Math.max(
-                              0.1,
-                              lengthFromDisplay(
-                                Number(event.target.value) || 0.1,
-                                unitSystem,
-                              ),
+                            height: lengthFromDisplay(
+                              Number(event.target.value),
+                              unitSystem,
                             ),
                           })
                         }
@@ -855,10 +825,7 @@ export function MathematicalElevationPanel({
                         value={opening.count}
                         onChange={(event) =>
                           updateOpening(opening.id, {
-                            count: Math.max(
-                              1,
-                              Math.round(Number(event.target.value) || 1),
-                            ),
+                            count: Math.round(Number(event.target.value)),
                           })
                         }
                         className="h-8 text-xs"
@@ -929,6 +896,8 @@ export function MathematicalElevationPanel({
                     <Input
                       type="number"
                       step={lengthStep(unitSystem, 0.025)}
+                      min={showLength(0.12)}
+                      max={showLength(0.4)}
                       value={showLength(params.wall_thickness)}
                       onChange={(e) =>
                         handleNumberChange(
@@ -946,6 +915,7 @@ export function MathematicalElevationPanel({
                     <Input
                       type="number"
                       step={lengthStep(unitSystem, 1)}
+                      min={0}
                       value={showLength(params.internal_wall_length)}
                       onChange={(e) =>
                         handleNumberChange(
@@ -956,64 +926,11 @@ export function MathematicalElevationPanel({
                       className="h-8 text-xs font-mono"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">
-                      Basic Wind Speed (m/s)
-                    </Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={params.basic_wind_speed_ms}
-                      onChange={(e) =>
-                        handleNumberChange(
-                          "basic_wind_speed_ms",
-                          Number(e.target.value),
-                        )
-                      }
-                      className="h-8 text-xs font-mono"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">
-                      Terrain Wind Exposure
-                    </Label>
-                    <Select
-                      value={
-                        params.wind_exposure === "B"
-                          ? "suburban"
-                          : params.wind_exposure === "C"
-                            ? "open_country"
-                            : "coastal"
-                      }
-                      onValueChange={(
-                        val: "open_country" | "suburban" | "coastal",
-                      ) =>
-                        setParams((prev) => ({
-                          ...prev,
-                          wind_exposure:
-                            val === "suburban"
-                              ? "B"
-                              : val === "open_country"
-                                ? "C"
-                                : "D",
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="suburban">
-                          Suburban (Category B)
-                        </SelectItem>
-                        <SelectItem value="open_country">
-                          Open Plains (Category C)
-                        </SelectItem>
-                        <SelectItem value="coastal">
-                          Coastal / Ocean (Category D)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-muted-foreground sm:col-span-2">
+                    Wind pressure, uplift, member capacity and tie demand are
+                    not assessed here. Use the governing local wind standard,
+                    site parameters, pressure zones and a professional
+                    connection design.
                   </div>
                 </div>
               )}
@@ -1028,8 +945,8 @@ export function MathematicalElevationPanel({
             </h3>
             <p className="text-xs text-muted-foreground">
               Enter current supplier rates yourself. No market prices are
-              assumed or fetched. Soil and wind inputs are planning assumptions,
-              not site data.
+              assumed or fetched. No market prices or structural design checks
+              are supplied.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1079,11 +996,11 @@ export function MathematicalElevationPanel({
           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
             <div>
               <h3 className="text-sm font-semibold text-foreground">
-                Quantities you can take to site
+                Indicative quantity summary
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {unitSystem === "imperial"
-                  ? "Imperial display: dimensions and quantities are converted from the SI calculation. Pressure, wind speed and line load stay in SI."
+                  ? "Imperial display: dimensions and quantities are converted from the SI calculation. "
                   : "Metric display of the SI calculation."}{" "}
                 The export carries the figures shown here, including the
                 screening flags and the assumption boundary.
@@ -1126,26 +1043,25 @@ export function MathematicalElevationPanel({
                 Cement (50 kg bags)
               </dt>
               <dd className="font-mono font-semibold text-foreground">
-                {formatNumber(
-                  elevationResult.five_d_bim.total_cement_bags_50kg,
-                  0,
-                )}{" "}
-                bags
+                {elevationResult.five_d_bim.total_cement_bags_50kg === null
+                  ? "Not assessed"
+                  : `${formatNumber(elevationResult.five_d_bim.total_cement_bags_50kg, 0)} bags`}
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
               <dt className="text-[11px] text-muted-foreground">Blocks</dt>
               <dd className="font-mono font-semibold text-foreground">
-                {formatNumber(elevationResult.five_d_bim.total_blocks_units, 0)}{" "}
-                units
+                {elevationResult.five_d_bim.total_blocks_units === null
+                  ? "Not assessed"
+                  : `${formatNumber(elevationResult.five_d_bim.total_blocks_units, 0)} units`}
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
               <dt className="text-[11px] text-muted-foreground">
-                Reinforcement
+                Structural reinforcement total
               </dt>
               <dd className="font-mono font-semibold text-foreground">
-                {measure(elevationResult.five_d_bim.total_rebar_kg, "kg")}
+                Not assessed
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
@@ -1157,8 +1073,10 @@ export function MathematicalElevationPanel({
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
               <dt className="text-[11px] text-muted-foreground">Programme</dt>
               <dd className="font-mono font-semibold text-foreground">
-                {formatNumber(elevationResult.five_d_bim.total_project_days, 0)}{" "}
-                days
+                Not estimated
+              </dd>
+              <dd className="text-[10px] text-muted-foreground">
+                Requires project sequencing and resource inputs
               </dd>
             </div>
           </dl>
@@ -1168,11 +1086,10 @@ export function MathematicalElevationPanel({
               Assumptions behind these figures
             </p>
             <p className="mt-1">
-              Bearing value {formatNumber(params.soil_bearing_capacity_kpa, 0)}{" "}
-              kPa from the soil class you selected, basic wind speed{" "}
-              {formatNumber(params.basic_wind_speed_ms, 0)} m/s at exposure
-              category {params.wind_exposure}, roof span taken as the shorter
-              plan dimension plus overhangs, and wall thickness{" "}
+              Foundation geometry and quantities, bearing capacity, wind
+              pressures, uplift, connections and total reinforcement are not
+              assessed. Roof rise uses the shorter clear plan span, while its
+              overhang extends the covering area. Wall thickness{" "}
               {measure(params.wall_thickness, "m")}. Rates, where entered, are
               yours; nothing is fetched. This is a planning illustration, not a
               design check, a code-compliance determination or a substitute for
@@ -1190,19 +1107,14 @@ export function MathematicalElevationPanel({
                 L1: Foundation
               </span>
               <Badge variant="outline" className="text-[10px]">
-                {levels.level_1_foundation.is_bearing_safe
-                  ? "Within assumption"
-                  : "Exceeds assumption"}
+                Not designed
               </Badge>
             </div>
             <p className="text-xs font-semibold text-foreground">
-              Bf ={" "}
-              {measure(levels.level_1_foundation.footing_width_adopted_m, "m")}
+              Foundation geometry not assessed
             </p>
             <p className="text-[11px] text-muted-foreground">
-              Excavation:{" "}
-              {measure(levels.level_1_foundation.excavation_depth_m, "m")} depth
-              ({measure(levels.level_1_foundation.excavation_volume_m3, "m3")})
+              Footing and excavation quantities require project-specific design.
             </p>
           </div>
 
@@ -1240,11 +1152,14 @@ export function MathematicalElevationPanel({
                 L3: Walls
               </span>
               <Badge variant="outline" className="text-[10px]">
-                λ = {levels.level_3_superstructure.slenderness_ratio}
+                Geometry ratio:{" "}
+                {levels.level_3_superstructure.slenderness_ratio}
               </Badge>
             </div>
             <p className="text-xs font-semibold text-foreground">
-              {levels.level_3_superstructure.total_blocks_count.toLocaleString()}{" "}
+              {(
+                levels.level_3_superstructure.total_blocks_count ?? 0
+              ).toLocaleString()}{" "}
               blocks
             </p>
             <p className="text-[11px] text-muted-foreground">
@@ -1260,7 +1175,7 @@ export function MathematicalElevationPanel({
                 L4: Ring Beam
               </span>
               <Badge variant="outline" className="text-[10px]">
-                4 × Y12
+                Not designed
               </Badge>
             </div>
             <p className="text-xs font-semibold text-foreground">
@@ -1268,11 +1183,7 @@ export function MathematicalElevationPanel({
               perimeter
             </p>
             <p className="text-[11px] text-muted-foreground">
-              Rebar:{" "}
-              {measure(
-                levels.level_4_ring_beam.total_main_rebar_weight_kg,
-                "kg",
-              )}
+              Reinforcement: not assessed
             </p>
           </div>
 
@@ -1290,8 +1201,11 @@ export function MathematicalElevationPanel({
               Rise: {measure(levels.level_5_roof.ridge_rise_m, "m")}
             </p>
             <p className="text-[11px] text-muted-foreground">
-              True area:{" "}
-              {measure(levels.level_5_roof.true_3d_roof_area_m2, "m2")}
+              Approx. area proxy:{" "}
+              {measure(
+                levels.level_5_roof.approximate_roof_covering_area_m2,
+                "m2",
+              )}
             </p>
           </div>
         </div>
