@@ -206,3 +206,62 @@ it("shows sourced Nigerian roof live-load references separately from total desig
     expect(screen.getByRole("status")).toHaveTextContent(/10.00 m x 8.00 m/);
     window.localStorage.clear();
   });
+
+describe("RoofFramingEstimator reading a roof plan", () => {
+  const roofFixture = {
+    lengthM: 18,
+    widthM: 12,
+    pitchDegrees: 30,
+    risePer12: 6.93,
+    overhangM: 0.45,
+    ridgeLengthM: 18,
+    shape: "gable" as const,
+    valleys: 0,
+    hips: 0,
+    documentKind: "roof_plan" as const,
+    needsConfirmation: [],
+  };
+
+  const renderPage = () =>
+    render(
+      <MemoryRouter>
+        <RoofFramingEstimator />
+      </MemoryRouter>,
+    );
+
+  it("fills length, width, pitch, overhang and shape from the measured roof", () => {
+    window.localStorage.setItem("frelux.plan-roof.v1", JSON.stringify(roofFixture));
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
+
+    expect(screen.getByRole("spinbutton", { name: "Building length (m)" })).toHaveValue(18);
+    expect(screen.getByRole("spinbutton", { name: "Building width (m)" })).toHaveValue(12);
+    expect(screen.getByRole("spinbutton", { name: "Roof pitch (rise per 12 horizontal)" })).toHaveValue(6.93);
+    expect(screen.getByRole("spinbutton", { name: "Eave overhang (m)" })).toHaveValue(0.45);
+    expect(screen.getByRole("status")).toHaveTextContent(/pitch 30\.00 degrees \(6\.93 rise per 12\)/);
+    window.localStorage.clear();
+  });
+
+  it("refuses a shape this calculator does not frame and says so", () => {
+    window.localStorage.setItem(
+      "frelux.plan-roof.v1",
+      JSON.stringify({ ...roofFixture, shape: "flat", pitchDegrees: 0, risePer12: 0 }),
+    );
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(/frames gable and hip roofs/i);
+    // The geometry still reaches the form; the shape stays the user's choice.
+    expect(screen.getByRole("spinbutton", { name: "Building length (m)" })).toHaveValue(18);
+    window.localStorage.clear();
+  });
+
+  it("says plainly when no roof has been read", () => {
+    window.localStorage.clear();
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
+    expect(screen.getByRole("status")).toHaveTextContent(/No roof has been read from a plan yet/i);
+  });
+});

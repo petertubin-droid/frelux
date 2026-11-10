@@ -7,11 +7,14 @@ import {
 import {
   buildingFromMeasurements,
   measurementsFromExtraction,
+  roofFromExtraction,
   roomReconciliation,
   roomsFromExtraction,
   type PlanMeasurements,
+  type PlanRoof,
   type RoomReading,
 } from "@/lib/takeoff/plan-measurements";
+import { savePlanRoof } from "@/lib/measurement/plan-roof-store";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
 
 /**
@@ -76,11 +79,13 @@ export function PlanMeasurementImporter() {
   const [status, setStatus] = useState("");
   const [measurements, setMeasurements] = useState<PlanMeasurements | null>(null);
   const [roomReading, setRoomReading] = useState<RoomReading | null>(null);
+  const [roof, setRoof] = useState<PlanRoof | null>(null);
   const [confirmed, setConfirmed] = useState(false);
 
   const reset = useCallback(() => {
     setMeasurements(null);
     setRoomReading(null);
+    setRoof(null);
     setConfirmed(false);
     setStatus("");
   }, []);
@@ -116,6 +121,19 @@ export function PlanMeasurementImporter() {
     setBusy(true);
     try {
       const extraction = await requestConstructionExtraction({ documentKind: kind, documentDataUrl: dataUrl });
+
+      // A roof plan is read for the roof calculators, not for a wall schedule:
+      // it carries pitch, overhang and the roof's own overall dimensions.
+      if (kind === "roof_plan") {
+        const outcome = roofFromExtraction(extraction);
+        if (!outcome.ok) {
+          setError(outcome.reason);
+          return;
+        }
+        setRoof(outcome.roof);
+        return;
+      }
+
       const outcome = measurementsFromExtraction(extraction);
       if (!outcome.ok) {
         setError(outcome.reason);
@@ -133,6 +151,14 @@ export function PlanMeasurementImporter() {
       setBusy(false);
     }
   }, [dataUrl, kind, reset]);
+
+  const applyRoof = useCallback(() => {
+    if (!roof) return;
+    savePlanRoof(roof);
+    setStatus(
+      `Roof saved for the roof calculators: ${roof.lengthM.toFixed(2)} m by ${roof.widthM.toFixed(2)} m, pitch ${roof.pitchDegrees.toFixed(2)} degrees (${roof.risePer12.toFixed(2)} rise per 12), overhang ${roof.overhangM.toFixed(2)} m${roof.shape ? `, shape ${roof.shape}` : ""}.`,
+    );
+  }, [roof]);
 
   const apply = useCallback(() => {
     if (!measurements) return;
@@ -238,6 +264,60 @@ export function PlanMeasurementImporter() {
         <p role="alert" className="mt-3 text-sm text-destructive">
           {error}
         </p>
+      ) : null}
+
+      {roof ? (
+        <div className="mt-3 rounded-lg border border-border p-3">
+          <dl className="grid gap-2 text-sm">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <dt className="text-muted-foreground">Roof length and width</dt>
+              <dd className="font-medium text-foreground">
+                {roof.lengthM.toFixed(2)} m by {roof.widthM.toFixed(2)} m
+              </dd>
+            </div>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <dt className="text-muted-foreground">Pitch</dt>
+              <dd className="font-medium text-foreground">
+                {roof.pitchDegrees.toFixed(2)} degrees
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {roof.risePer12.toFixed(2)} rise per 12
+                </span>
+              </dd>
+            </div>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <dt className="text-muted-foreground">Eave overhang</dt>
+              <dd className="font-medium text-foreground">{roof.overhangM.toFixed(2)} m</dd>
+            </div>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <dt className="text-muted-foreground">Ridge</dt>
+              <dd className="font-medium text-foreground">
+                {roof.ridgeLengthM === null ? "not stated" : `${roof.ridgeLengthM.toFixed(2)} m`}
+              </dd>
+            </div>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <dt className="text-muted-foreground">Shape</dt>
+              <dd className="font-medium text-foreground">{roof.shape ?? "not stated"}</dd>
+            </div>
+          </dl>
+
+          {roof.needsConfirmation.length > 0 ? (
+            <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">
+              <ul className="list-disc pl-4">
+                {roof.needsConfirmation.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            className="mt-3 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+            onClick={applyRoof}
+          >
+            Use in the roof calculators
+          </button>
+        </div>
       ) : null}
 
       {measurements ? (

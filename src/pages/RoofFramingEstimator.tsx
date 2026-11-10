@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
 import { buildingEnvelope } from "@/lib/measurement/building-schedule";
+import { usePlanRoof } from "@/lib/measurement/plan-roof-store";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
@@ -147,6 +148,7 @@ export default function RoofFramingEstimator() {
   const [result, setResult] = useState<RoofFramingResult | null>(null);
   const { building } = useBuildingSize();
   const [envelopeNote, setEnvelopeNote] = useState<string | null>(null);
+  const measuredRoof = usePlanRoof();
   const [errors, setErrors] = useState<string[]>([]);
   const [mode, setMode] = useState<"takeoff" | "design">("takeoff");
   const [designForm, setDesignForm] = useState(initialDesignForm);
@@ -235,6 +237,45 @@ export default function RoofFramingEstimator() {
     }));
     setEnvelopeNote(
       `Read from the measured building: ${envelope.lengthM.toFixed(2)} m x ${envelope.widthM.toFixed(2)} m. The span used by the members is the shorter side, ${Math.min(envelope.lengthM, envelope.widthM).toFixed(2)} m. Pitch and overhang are not read from the schedule.`,
+    );
+  };
+
+  /**
+   * Fill the form from a roof read off a drawing. Only gable and hip roofs are
+   * framed here, so a mono-pitch or flat reading is refused by name rather than
+   * forced into a shape this calculator cannot detail.
+   */
+  const applyMeasuredRoof = () => {
+    if (!measuredRoof) {
+      setEnvelopeNote("No roof has been read from a plan yet. Read one in the building panel, or type the values.");
+      return;
+    }
+    if (measuredRoof.shape !== "gable" && measuredRoof.shape !== "hip") {
+      setEnvelopeNote(
+        `The drawing's roof is ${measuredRoof.shape ?? "of an unstated shape"}, and this calculator frames gable and hip roofs. Length, width and pitch are shown below but the shape is yours to choose.`,
+      );
+      setForm((current) => ({
+        ...current,
+        lengthM: measuredRoof.lengthM.toFixed(2),
+        widthM: measuredRoof.widthM.toFixed(2),
+        pitchRisePer12: measuredRoof.risePer12.toFixed(2),
+        overhangM: measuredRoof.overhangM.toFixed(2),
+      }));
+      return;
+    }
+    setForm((current) => ({
+      ...current,
+      lengthM: measuredRoof.lengthM.toFixed(2),
+      widthM: measuredRoof.widthM.toFixed(2),
+      pitchRisePer12: measuredRoof.risePer12.toFixed(2),
+      overhangM: measuredRoof.overhangM.toFixed(2),
+      roofType: measuredRoof.shape as "gable" | "hip",
+    }));
+    const caution = measuredRoof.needsConfirmation.length
+      ? ` ${measuredRoof.needsConfirmation.join(" ")}`
+      : "";
+    setEnvelopeNote(
+      `Read from the roof plan: ${measuredRoof.lengthM.toFixed(2)} m x ${measuredRoof.widthM.toFixed(2)} m, pitch ${measuredRoof.pitchDegrees.toFixed(2)} degrees (${measuredRoof.risePer12.toFixed(2)} rise per 12), overhang ${measuredRoof.overhangM.toFixed(2)} m, shape ${measuredRoof.shape}.${caution}`,
     );
   };
 
@@ -338,6 +379,13 @@ export default function RoofFramingEstimator() {
                     className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted"
                   >
                     {t("Use the measured building")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyMeasuredRoof}
+                    className="rounded-md border border-border px-3 py-1.5 text-xs font-medium"
+                  >
+                    {t("Use the measured roof")}
                   </button>
                   <span className="text-xs text-muted-foreground">
                     {t("Fills length and width. Pitch and overhang stay yours.")}

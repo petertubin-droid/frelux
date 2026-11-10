@@ -218,3 +218,83 @@ describe("rooms reaching the measured building", () => {
     expect(building.schedule.rooms).toHaveLength(1);
   });
 });
+
+describe("reading a roof plan in the panel", () => {
+  const roofFields = () => [
+    field("building_length", 18, "m"),
+    field("building_width", 12, "m"),
+    {
+      key: "roof_type",
+      label: "roof_type",
+      value: "gable",
+      unit: "",
+      confidence: 0.95,
+      verification: "ai_detected" as const,
+      source: "dimension_annotation" as const,
+    },
+    field("roof_pitch_degrees", 30, "deg"),
+    field("roof_overhang", 0.45, "m"),
+    field("ridge_length", 18, "m"),
+  ];
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    extraction.result = {
+      documentKind: "roof_plan",
+      fields: roofFields(),
+      notes: [],
+      warnings: [],
+      processedAt: "2026-11-10T06:30:00.000Z",
+    };
+    extraction.error = null;
+    setBuilding.mockClear();
+  });
+
+  const chooseRoofPlan = async () => {
+    fireEvent.change(screen.getByLabelText("Document"), { target: { value: "roof_plan" } });
+    await chooseFile("roof.png");
+    fireEvent.click(screen.getByRole("button", { name: "Read measurements" }));
+  };
+
+  it("shows the roof it read, with the pitch as an angle and a rise", async () => {
+    render(<PlanMeasurementImporter />);
+    await chooseRoofPlan();
+
+    expect(await screen.findByText(/30\.00 degrees/)).toBeDefined();
+    expect(screen.getByText(/6\.93 rise per 12/)).toBeDefined();
+    expect(screen.getByText(/18\.00 m by 12\.00 m/)).toBeDefined();
+    // Reading a roof never fills the wall schedule.
+    expect(setBuilding).not.toHaveBeenCalled();
+  });
+
+  it("keeps the roof for the roof calculators when asked", async () => {
+    render(<PlanMeasurementImporter />);
+    await chooseRoofPlan();
+    await screen.findByText(/30\.00 degrees/);
+
+    fireEvent.click(screen.getByRole("button", { name: "Use in the roof calculators" }));
+
+    const stored = JSON.parse(window.localStorage.getItem("frelux.plan-roof.v1") ?? "null");
+    expect(stored?.lengthM).toBe(18);
+    expect(stored?.pitchDegrees).toBe(30);
+    expect(stored?.shape).toBe("gable");
+    expect(screen.getByRole("status").textContent).toMatch(/Roof saved for the roof calculators/);
+    expect(setBuilding).not.toHaveBeenCalled();
+  });
+
+  it("refuses a pitch stated as a ratio", async () => {
+    extraction.result = {
+      ...(extraction.result as NonNullable<typeof extraction.result>),
+      fields: [
+        field("building_length", 18, "m"),
+        field("building_width", 12, "m"),
+        field("roof_pitch_degrees", 2, "rise per 12"),
+      ],
+    };
+    render(<PlanMeasurementImporter />);
+    await chooseRoofPlan();
+
+    expect((await screen.findByRole("alert")).textContent).toMatch(/not degrees/i);
+    expect(window.localStorage.getItem("frelux.plan-roof.v1")).toBeNull();
+  });
+});

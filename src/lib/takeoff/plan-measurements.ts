@@ -373,6 +373,152 @@ export function roomReconciliation(
   return { roomAreaM2, footprintM2, unlabelledM2, overMeasured, note };
 }
 
+
+// =========================================================
+// Roof readings
+// =========================================================
+
+export type RoofShape = "gable" | "hip" | "mono_pitch" | "flat";
+
+/** A roof as the drawing states it, ready for a roof calculator's form. */
+export interface PlanRoof {
+  lengthM: number;
+  widthM: number;
+  /** Pitch as the drawing states it, in degrees. */
+  pitchDegrees: number;
+  /** The same pitch in the rise per 12 that framing forms ask for. */
+  risePer12: number;
+  overhangM: number;
+  /** Ridge length when the drawing dimensions it; null when it does not. */
+  ridgeLengthM: number | null;
+  shape: RoofShape | null;
+  valleys: number;
+  hips: number;
+  documentKind: DocumentKind;
+  /** Values that were not on the document, named for the person to check. */
+  needsConfirmation: string[];
+}
+
+export type RoofOutcome = { ok: true; roof: PlanRoof } | { ok: false; reason: string };
+
+const ROOF_SHAPES: Record<string, RoofShape> = {
+  gable: "gable",
+  hip: "hip",
+  mono_pitch: "mono_pitch",
+  monopitch: "mono_pitch",
+  mono: "mono_pitch",
+  lean_to: "mono_pitch",
+  flat: "flat",
+};
+
+const MAX_PITCH_DEGREES = 75;
+
+/**
+ * Roof measurements from an extraction result, or the reason there are none.
+ *
+ * Pitch is taken in degrees only. A drawing that states a ratio is not read as an
+ * angle here, because a rise of 1:2 is 26.57 degrees and silently treating "2" as
+ * degrees understates every rafter. Overhang keeps its own range rather than the
+ * room-side minimum, since 300 mm eaves are normal and 0.5 m is not the floor.
+ */
+export function roofFromExtraction(result: ConstructionExtractionResult): RoofOutcome {
+  if (!result || !Array.isArray(result.fields) || result.fields.length === 0) {
+    return { ok: false, reason: "The document produced no roof measurements." };
+  }
+  if (result.documentKind === "building_photo") {
+    return {
+      ok: false,
+      reason: "A photograph cannot give roof dimensions. Read a roof plan or a section, or type them.",
+    };
+  }
+
+  const fields = fieldMap(result);
+  const length = readLength(fields, "building_length", "The roof length");
+  if ("reason" in length) return { ok: false, reason: length.reason };
+  const width = readLength(fields, "building_width", "The roof width");
+  if ("reason" in width) return { ok: false, reason: width.reason };
+
+  const needsConfirmation: string[] = [];
+
+  // ── pitch ──
+  const pitchField = fields.get("roof_pitch_degrees");
+  let pitchDegrees = 0;
+  if (!pitchField) {
+    needsConfirmation.push("The pitch was not stated, so a flat roof (0 degrees) is set. Change it before framing.");
+  } else {
+    const raw = typeof pitchField.value === "number" ? pitchField.value : Number(pitchField.value);
+    const unit = String(pitchField.unit ?? "").trim().toLowerCase();
+    const confidence = Number.isFinite(pitchField.confidence) ? pitchField.confidence : 0;
+    if (!Number.isFinite(raw) || raw < 0 || raw > MAX_PITCH_DEGREES) {
+      return { ok: false, reason: `The pitch reads as ${String(pitchField.value)}, which is not an angle a roof can have.` };
+    }
+    if (unit && !/^(deg|degree|degrees|°|º)$/.test(unit)) {
+      return {
+        ok: false,
+        reason: `The pitch is stated in ${unit}, not degrees. A ratio is not an angle; enter the pitch in degrees.`,
+      };
+    }
+    if (pitchField.source === "visual_estimate" || confidence < MIN_READING_CONFIDENCE) {
+      return { ok: false, reason: "The pitch was estimated by eye rather than read from the drawing." };
+    }
+    pitchDegrees = raw;
+  }
+
+  // ── overhang ──
+  const overhangField = fields.get("roof_overhang");
+  let overhangM = 0;
+  if (!overhangField) {
+    needsConfirmation.push("No eaves overhang was stated, so the roof is measured flush with the walls (0 m).");
+  } else {
+    const raw = typeof overhangField.value === "number" ? overhangField.value : Number(overhangField.value);
+    if (!Number.isFinite(raw) || raw < 0 || raw > 3) {
+      return { ok: false, reason: `The overhang reads as ${String(overhangField.value)} m, which is not a roof edge.` };
+    }
+    overhangM = raw;
+  }
+
+  // ── ridge, valleys, hips, shape ──
+  const ridgeField = fields.get("ridge_length");
+  let ridgeLengthM: number | null = null;
+  if (ridgeField) {
+    const raw = typeof ridgeField.value === "number" ? ridgeField.value : Number(ridgeField.value);
+    if (Number.isFinite(raw) && raw >= MIN_M && raw <= MAX_M) ridgeLengthM = raw;
+  }
+
+  const typeField = fields.get("roof_type");
+  const shapeKey = typeField ? String(typeField.value ?? "").trim().toLowerCase() : "";
+  const shape = ROOF_SHAPES[shapeKey] ?? null;
+  if (!shape) {
+    needsConfirmation.push("The roof shape was not stated, so the calculator's own default is left in place.");
+  }
+
+  const count = (key: string): number => {
+    const field = fields.get(key);
+    if (!field) return 0;
+    const raw = typeof field.value === "number" ? field.value : Number(field.value);
+    return Number.isFinite(raw) && raw >= 0 ? Math.min(50, Math.round(raw)) : 0;
+  };
+
+  return {
+    ok: true,
+    roof: {
+      lengthM: length.value.value,
+      widthM: width.value.value,
+      pitchDegrees,
+      // A 30 degree pitch is a rise of 6.93 per 12; the framing form asks for the
+      // rise, so the conversion is done once here rather than in every consumer.
+      risePer12: Math.round(Math.tan((pitchDegrees * Math.PI) / 180) * 12 * 100) / 100,
+      overhangM,
+      ridgeLengthM,
+      shape,
+      valleys: count("valleys_count"),
+      hips: count("hips_count"),
+      documentKind: result.documentKind,
+      needsConfirmation,
+    },
+  };
+}
+
 /**
  * The measured building the shared store holds, built from those measurements.
  *
