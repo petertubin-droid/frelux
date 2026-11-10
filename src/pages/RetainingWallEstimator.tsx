@@ -30,6 +30,9 @@ import {
   FieldGroup,
 } from "@/components/calculators/SpecialtyFields";
 import { track } from "@/lib/analytics";
+import { useMarket } from "@/lib/international/market-context";
+import { usePriceBook } from "@/lib/pricing/price-book-context";
+import { applyPriceBook } from "@/lib/pricing/price-book";
 
 export default function RetainingWallEstimator() {
   const { priceMap, ruleRows, bookSummary } =
@@ -43,9 +46,16 @@ export default function RetainingWallEstimator() {
   const [result, setResult] = useState<SpecialtyResult | null>(null);
 
   const rules = useMemo(() => parseRetainingWallRules(ruleRows), [ruleRows]);
+  // The contractor's own supplier rates sit under the market book, in the
+  // currency the market book is quoted in. A country code here would match
+  // nothing and silently drop the whole book.
+  const { resolve } = usePriceBook();
+  const { market } = useMarket();
+  const priceCurrency = market?.currencyCode ?? "NGN";
+  const bookRates = resolve(priceCurrency).rates;
   const prices = useMemo(
-    () => mergePriceOverrides(priceMap, overrides),
-    [priceMap, overrides],
+    () => mergePriceOverrides(applyPriceBook(priceMap, bookRates), overrides),
+    [priceMap, overrides, bookRates],
   );
 
   const input: RetainingWallInput = {
