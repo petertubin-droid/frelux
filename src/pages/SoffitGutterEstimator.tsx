@@ -52,14 +52,18 @@ export default function SoffitGutterEstimator() {
   // Precedence: market book, then the contractor's price book, then the rate
   // typed on this page for this run.
   const { resolve } = usePriceBook();
-  const { marketCode } = useMarket();
+  const { market } = useMarket();
+  // The market book this page reads is quoted in the market's currency, so the
+  // book is resolved in that currency. Passing the country code here would match
+  // nothing and silently drop every stored rate.
+  const priceCurrency = market?.currencyCode ?? "NGN";
   const prices = useMemo(
     () =>
       mergePriceOverrides(
-        applyPriceBook(priceMap, resolve(marketCode).rates),
+        applyPriceBook(priceMap, resolve(priceCurrency).rates),
         overrides,
       ),
-    [priceMap, overrides, resolve, marketCode],
+    [priceMap, overrides, resolve, priceCurrency],
   );
 
   const input: SoffitGutterInput = {

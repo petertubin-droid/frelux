@@ -123,6 +123,16 @@ describe("resolving the book in a calculator", () => {
     expect(usd.skipped).toHaveLength(1);
   });
 
+  it("applies nothing when it is handed a country code instead of a currency", () => {
+    // A country code is not a currency. Resolving with one must not match every
+    // entry by accident, which is how a calculator ends up silently ignoring the
+    // whole book.
+    const book = upsertPriceBookEntry(EMPTY_PRICE_BOOK, entry());
+    const result = resolvePriceBook(book, "NG");
+    expect(result.rates).toEqual({});
+    expect(result.skipped).toHaveLength(1);
+  });
+
   it("lays the book over the market prices and leaves the rest alone", () => {
     const market = { "fascia-per-meter": 3800, "gutter-per-meter": null };
     const merged = applyPriceBook(market, resolvePriceBook(

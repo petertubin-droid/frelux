@@ -180,7 +180,7 @@ export default function DoorsWindowsEstimator() {
     () =>
       applyPriceBook(
         priceMap,
-        resolve(market?.currencyCode ?? marketCode).rates,
+        resolve(market?.currencyCode ?? "NGN").rates,
       ),
     [priceMap, resolve, market, marketCode],
   );
