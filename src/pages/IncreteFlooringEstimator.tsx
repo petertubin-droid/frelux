@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -591,6 +592,45 @@ export default function IncreteFlooringEstimator() {
                 ))}
               </ol>
             </details>
+            <div className="mt-5">
+              <ShareEstimateButton
+                estimate={{
+                  kind: "Increte Flooring Estimate",
+                  summaryLines: [
+                    { label: "Market", value: selectedMarket },
+                    {
+                      label: "Area",
+                      value: `${result.areaM2.toFixed(2)} m²`,
+                    },
+                  ],
+                  lineItems: result.lines.map((line) => ({
+                    description: line.name,
+                    quantity:
+                      line.packages !== null
+                        ? `${line.packages} × ${line.packageUnit}`
+                        : line.quantity === null
+                          ? null
+                          : `${line.quantity.toFixed(2)} m² required`,
+                    amount:
+                      line.total === null
+                        ? null
+                        : formatCurrency(line.total, currencySymbol),
+                  })),
+                  totals: [
+                    {
+                      label: "Grand total",
+                      value:
+                        result.grandTotal === null
+                          ? "Not priced"
+                          : formatCurrency(result.grandTotal, currencySymbol),
+                      emphasized: true,
+                    },
+                  ],
+                  link: "/increte-flooring-calculator",
+                }}
+                compact
+              />
+            </div>
             <div className="mt-5 flex flex-wrap gap-3">
               <Button onClick={exportEstimate}>
                 {t("Export branded report")}

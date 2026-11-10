@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Layers, Package, Truck, Shield } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -297,6 +298,44 @@ export default function GermanFloorCalculator() {
               </ul>
             ) : result ? (
               <div className="mt-4 space-y-5">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: "German Floor Takeoff",
+                    title: `${display(result.areaM2)} m² floor at ${result.layers.slab.thicknessMm} mm`,
+                    summaryLines: [
+                      {
+                        label: t("Floor area"),
+                        value: `${display(result.areaM2)} m²`,
+                      },
+                      {
+                        label: t("Slab thickness"),
+                        value: `${result.layers.slab.thicknessMm} mm`,
+                      },
+                      { label: t("Mix"), value: result.mix.key },
+                    ],
+                    lineItems: [
+                      {
+                        description: `${result.cement.bagKg} kg ${t("bags of cement")}`,
+                        quantity: String(display(result.cement.bags)),
+                        section: t("Cement"),
+                      },
+                      {
+                        description: `${t("mix, dry volume")}`,
+                        quantity: `${display(result.mix.dryM3)} m³`,
+                        section: t("Mix"),
+                      },
+                    ],
+                    totals: [
+                      {
+                        label: `${t("bags of cement")}`,
+                        value: `${display(result.cement.bags)} × ${result.cement.bagKg} kg`,
+                        emphasized: true,
+                      },
+                    ],
+                    link: "/german-floor-calculator",
+                  }}
+                  compact
+                />
                 <p className="text-sm text-muted-foreground">
                   {display(result.areaM2)} m² {t("of floor at a")}{" "}
                   {result.layers.slab.thicknessMm} mm {t("slab")}.

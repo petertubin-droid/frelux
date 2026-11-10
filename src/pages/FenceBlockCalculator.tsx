@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Ruler, Layers, BrickWall, Truck } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -554,6 +555,59 @@ export default function FenceBlockCalculator() {
               </ul>
             ) : result ? (
               <div className="mt-4 space-y-5">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: "Fence Block Takeoff",
+                    title: `${display(result.wall.coaches)} ${t(vocab.coachWordPlural)} ${t("high")}`,
+                    summaryLines: [
+                      {
+                        label: t("Wall height"),
+                        value: formatHeight(result.wall.heightM, market),
+                      },
+                      {
+                        label: t(vocab.cementBagLabel),
+                        value: `${display(result.cement.bags)}`,
+                      },
+                      {
+                        label: t("Dry mortar"),
+                        value: `${display(result.mortar.dryM3)} m³ at 1:${result.mortar.ratio}`,
+                      },
+                    ],
+                    lineItems: [
+                      {
+                        description: t(result.unit.noun),
+                        quantity: String(display(result.blocks.total)),
+                        section: t("Blocks"),
+                      },
+                      {
+                        description: t("laid"),
+                        quantity: String(display(result.blocks.net)),
+                        section: t("Blocks"),
+                      },
+                      {
+                        description: t("for breakage"),
+                        quantity: String(display(result.blocks.breakage)),
+                        section: t("Blocks"),
+                      },
+                      {
+                        description: t("below ground"),
+                        quantity: String(
+                          display(result.foundation.blocksTotal),
+                        ),
+                        section: t("Blocks"),
+                      },
+                    ],
+                    totals: [
+                      {
+                        label: t("Blocks to buy"),
+                        value: `${display(result.blocks.total)} ${t(result.unit.noun)}`,
+                        emphasized: true,
+                      },
+                    ],
+                    link: "/fence-block-calculator",
+                  }}
+                  compact
+                />
                 <p className="text-sm text-muted-foreground">
                   {t("A wall")} {display(result.wall.coaches)}{" "}
                   {t(vocab.coachWordPlural)} {t("high")}, (
