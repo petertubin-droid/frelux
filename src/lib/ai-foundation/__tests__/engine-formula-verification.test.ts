@@ -164,7 +164,14 @@ describe("foundation design, first principles", () => {
       const r = designFoundation({ ...base, wall_load: load });
       expect(r.recommended_width).toBeGreaterThanOrEqual(r.required_width);
       expect(r.bearing_check_pass).toBe(true);
-      closeTo(r.applied_pressure, load / (r.recommended_width / 1000), 0.6);
+      // The footing carries its own weight and the overburden above it, which
+      // is the 1.10 the width was sized with. Reporting the bare wall load
+      // understated the pressure the soil actually sees by that same 10%.
+      closeTo(
+        r.applied_pressure,
+        (1.1 * load) / (r.recommended_width / 1000),
+        0.6,
+      );
     }
   });
 

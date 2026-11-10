@@ -155,7 +155,6 @@ export function designFoundation(
 
   if (input.shape === "strip") {
     // ── Strip footing ──
-    const _applied_pressure = input.wall_load / (input.foundation_depth * 1); // kN/m² (per meter run)
     // Audit fix F4: 1.10 multiplier covers footing self-weight + overburden.
     const required_width =
       ((1.1 * input.wall_load) / allowable_capacity) * 1000; // mm
@@ -181,7 +180,11 @@ export function designFoundation(
       `Excavation = ${final_width / 1000} × ${input.foundation_depth} × ${total_length} = ${excavation_volume.toFixed(1)} m³`,
     );
 
-    const check_pressure = input.wall_load / ((final_width / 1000) * 1);
+    // The check must weigh the same footing the width was sized for: the
+    // service load plus the 1.10 self-weight and overburden allowance. Dividing
+    // the bare wall load reported 10 percent less pressure than the footing
+    // actually applies, so a design that was only just adequate looked roomy.
+    const check_pressure = (1.1 * input.wall_load) / (final_width / 1000);
     const bearing_check_pass = check_pressure <= allowable_capacity;
     // Margin over the allowable pressure (>= 1.0 means the check passes).
     const actual_fos = allowable_capacity / check_pressure;

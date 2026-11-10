@@ -383,11 +383,9 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
 
   // ── Array, energy, inverter, strings ───────────────────
   const arrayKwp = panelCount * panelKwp;
+  const arrayTempFactor = pvTemperatureFactor(input, rules, null);
   const dailyEnergy =
-    arrayKwp *
-    rv.peak_sun_hours_day *
-    (1 - rv.system_loss_factor) *
-    pvTemperatureFactor(input, rules, null);
+    arrayKwp * rv.peak_sun_hours_day * (1 - rv.system_loss_factor) * arrayTempFactor;
   const inverterKw = arrayKwp / rv.inverter_dc_ac_ratio;
   const strings = Math.ceil(panelCount / rv.string_size_max);
 
