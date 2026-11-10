@@ -9,6 +9,8 @@ import {
 import { Link } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { formatArea } from "@/lib/utils";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
   RotateCcw,
@@ -634,6 +636,10 @@ function PopResultCard({
   alreadyHave: number;
   onAlreadyHaveChange: (n: number) => void;
 }) {
+  // Ceiling area follows the unit the room was measured in.
+  const areaUnit: "sqft" | "sqm" = input.unit === "meters" ? "sqm" : "sqft";
+  const area = (sqm: number, digits = 0) =>
+    formatArea(sqm, { unit: areaUnit, digits });
   const grouped = result.materials.reduce<
     Record<string, typeof result.materials>
   >((acc, m) => {
@@ -665,7 +671,7 @@ function PopResultCard({
           · {input.wasteMargin}% waste margin
         </p>
         <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">
-          {formatNumber(result.ceilingArea)} m²
+          {area(result.ceilingArea)}
         </p>
         <p className="mt-1 text-sm text-primary-foreground/60">ceiling area</p>
       </div>
@@ -709,10 +715,7 @@ function PopResultCard({
             label="Labour cost"
             value={formatCurrency(result.labourCost, currencySymbol)}
           />
-          <Row
-            label="Waste allowance"
-            value={`${formatNumber(result.wasteAmount)} m²`}
-          />
+          <Row label="Waste allowance" value={area(result.wasteAmount)} />
           <div className="border-t border-border pt-2">
             <Row
               label="Grand total"
@@ -720,6 +723,49 @@ function PopResultCard({
               strong
             />
           </div>
+        </div>
+
+        <div className="mt-4">
+          <ShareEstimateButton
+            estimate={{
+              kind: "POP Ceiling Estimate",
+              title: `POP ceiling, ${area(result.ceilingArea)}`,
+              summaryLines: [
+                { label: "Ceiling area", value: area(result.ceilingArea) },
+                {
+                  label: "Workflow",
+                  value:
+                    input.workflow === "nigeria" ? "Nigeria" : "International",
+                },
+                { label: "Waste margin", value: `${input.wasteMargin}%` },
+              ],
+              lineItems: [
+                ...result.materials.map((m) => ({
+                  description: m.name,
+                  quantity: `${formatNumber(m.quantity)} ${m.unit} · ${m.packagesNeeded} package(s)`,
+                  amount: formatCurrency(m.cost, currencySymbol),
+                })),
+                {
+                  section: "Labour",
+                  description: "Installation labour",
+                  amount: formatCurrency(result.labourCost, currencySymbol),
+                },
+              ],
+              totals: [
+                {
+                  label: "Material cost",
+                  value: formatCurrency(result.materialCost, currencySymbol),
+                },
+                {
+                  label: "Grand total",
+                  value: formatCurrency(result.grandTotal, currencySymbol),
+                  emphasized: true,
+                },
+              ],
+              link: "/pop-ceiling-calculator",
+            }}
+            compact
+          />
         </div>
 
         {saveMsg && <p className="mt-3 text-sm text-brand-purple">{saveMsg}</p>}

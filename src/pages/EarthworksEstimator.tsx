@@ -9,6 +9,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { useSeo } from "@/lib/seo";
 import { downloadCsv } from "@/lib/export-utils";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -408,6 +409,51 @@ export default function EarthworksEstimator() {
                     )}
                   </div>
                 )}
+                <div className="mt-5">
+                  <ShareEstimateButton
+                    estimate={{
+                      kind: "Earthworks Quantity Report",
+                      title: "Cut and fill volumes",
+                      summaryLines: [
+                        {
+                          label: "Sections measured",
+                          value: String(result.intervals.length),
+                        },
+                        {
+                          label: "Stations in schedule",
+                          value: String(result.intervals.length * 2),
+                        },
+                      ],
+                      lineItems: (engineAccess.limited
+                        ? earthworkRows.slice(0, engineAccess.visibleLines)
+                        : earthworkRows
+                      ).map(([label, value, unit]) => ({
+                        description: String(label),
+                        quantity: `${display(Number(value))} ${unit}`,
+                      })),
+                      totals:
+                        result.netBankSurplusM3 !== null
+                          ? [
+                              {
+                                label:
+                                  result.importBankM3 === 0
+                                    ? "Potential bank-volume surplus"
+                                    : "Indicative bank-volume import",
+                                value: `${display(
+                                  result.importBankM3 === 0
+                                    ? result.netBankSurplusM3
+                                    : result.importBankM3!,
+                                )} m³`,
+                                emphasized: true,
+                              },
+                            ]
+                          : [],
+                      notes: result.assumptions,
+                      link: "/earthworks-estimator",
+                    }}
+                    compact
+                  />
+                </div>
                 <div className="mt-5">
                   <div className="mt-5 flex items-center justify-between gap-3">
                     <h3 className="text-sm font-semibold">
