@@ -156,6 +156,13 @@ export interface BuildToRoofInput {
   // Sand filling (under ground floor slab)
   sand_filling_thickness?: number; // meters, default 0.05 (50mm)
   /**
+   * Ground floor slab thickness in metres. Optional; 0.10 is used when it is
+   * not supplied. Kept as an input because slab thickness is a design decision
+   * (100 mm ground-bearing, 150 mm suspended), not a constant the tool may
+   * assert.
+   */
+  slab_thickness_m?: number;
+  /**
    * Internal blockwork walls get their own excavation, blinding, footing
    * concrete and blockwork to DPC, as they do on site. Set false only when the
    * internal walls are known to sit on the ground slab.
@@ -175,6 +182,12 @@ export interface WastageConfig {
   timber: number; // %
   roofing_sheets: number; // %
   hardcore: number; // %
+  /**
+   * Placing and spillage allowance on measured concrete VOLUME. Separate from
+   * the cement allowance because a cubic metre of concrete and a bag of cement
+   * are wasted for different reasons.
+   */
+  concrete: number; // %
 }
 
 export interface PriceConfig {

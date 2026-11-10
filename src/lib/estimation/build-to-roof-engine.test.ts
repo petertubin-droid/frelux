@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
+  CEMENT_BAG_KG,
+  CEMENT_BULK_DENSITY_KG_M3,
   CEMENT_VOLUME_PER_BAG,
   DRY_WET_RATIO,
   MORTAR_DRY_WET_RATIO,
@@ -31,8 +33,11 @@ import {
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 
 describe("constants", () => {
-  it("CEMENT_VOLUME_PER_BAG = 0.0347", () =>
-    expect(CEMENT_VOLUME_PER_BAG).toBe(0.0347));
+  it("CEMENT_VOLUME_PER_BAG is 50 kg over the 1440 kg/m³ bulk density", () => {
+    // 0.03472 m³ per bag; the old literal 0.0347 was this value truncated.
+    expect(CEMENT_VOLUME_PER_BAG).toBeCloseTo(0.0347, 4);
+    expect(CEMENT_VOLUME_PER_BAG).toBeCloseTo(CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3, 12);
+  });
   it("DRY_WET_RATIO = 1.54", () => expect(DRY_WET_RATIO).toBe(1.54));
   it("MORTAR_DRY_WET_RATIO = 1.33", () =>
     expect(MORTAR_DRY_WET_RATIO).toBe(1.33));
@@ -66,14 +71,14 @@ describe("concreteToMaterials", () => {
   it("calculates 1:2:4 mix correctly", () => {
     const r = concreteToMaterials(1, 1, 2, 4);
     const dryVol = 1 * 1.54;
-    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / 0.0347, 4);
+    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG, 4);
     expect(r.sand_m3).toBeCloseTo(dryVol * (2 / 7), 4);
     expect(r.granite_m3).toBeCloseTo(dryVol * (4 / 7), 4);
   });
   it("mass balance holds", () => {
     const r = concreteToMaterials(5, 1, 3, 6);
     const dryVol = 5 * 1.54;
-    const cementVol = r.cement_bags * 0.0347;
+    const cementVol = r.cement_bags * CEMENT_VOLUME_PER_BAG;
     expect(cementVol + r.sand_m3 + r.granite_m3).toBeCloseTo(dryVol, 3);
   });
   it("returns zeros for invalid mix", () => {
@@ -92,13 +97,13 @@ describe("mortarToMaterials", () => {
   it("calculates 1:6 mix correctly", () => {
     const r = mortarToMaterials(1, 1, 6);
     const dryVol = 1 * 1.33;
-    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / 0.0347, 4);
+    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG, 4);
     expect(r.sand_m3).toBeCloseTo(dryVol * (6 / 7), 4);
   });
   it("mass balance holds", () => {
     const r = mortarToMaterials(3, 1, 4);
     const dryVol = 3 * 1.33;
-    const cementVol = r.cement_bags * 0.0347;
+    const cementVol = r.cement_bags * CEMENT_VOLUME_PER_BAG;
     expect(cementVol + r.sand_m3).toBeCloseTo(dryVol, 3);
   });
 });
@@ -284,7 +289,11 @@ describe("estimateTimberMeters", () => {
     const slopeLen = eaveW / 2 / Math.cos((30 * Math.PI) / 180);
     const commons = (Math.ceil((eaveL - eaveW) / 0.9) + 1) * 2 * slopeLen;
     const jacks = (Math.ceil(eaveW / 0.9) + 1) * 2 * (slopeLen / 2);
-    const purlins = 4 * 2 * eaveL + 4 * 2 * (eaveW / 2);
+    // Purlin rows follow the slope: 5.31 m of slope needs 6 rows at 1.0 m
+    // centres, not the nominal four that put rows 1.33 m apart.
+    const rows = Math.max(2, Math.ceil(slopeLen / 1.0));
+    expect(rows).toBe(6);
+    const purlins = rows * 2 * eaveL + rows * 2 * (eaveW / 2);
     expect(result).toBeCloseTo(commons + jacks + purlins, 0);
   });
 });

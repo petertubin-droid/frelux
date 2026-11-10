@@ -43,8 +43,12 @@ import type {
 
 // ── Constants ──
 
-// Cement: 1 bag = 50kg, density ~1440 kg/m³ → 0.0347 m³ per bag
-export const CEMENT_VOLUME_PER_BAG = 0.0347; // m³
+// Cement: 1 bag = 50 kg at a loose bulk density of 1440 kg/m³, so the bag is
+// 0.03472 m³. Derived rather than typed in, so a change to the bag mass or the
+// density cannot leave a stale literal behind.
+export const CEMENT_BAG_KG = 50;
+export const CEMENT_BULK_DENSITY_KG_M3 = 1440;
+export const CEMENT_VOLUME_PER_BAG = CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3;
 
 // Dry-to-wet concrete volume ratio (1.54, standard)
 export const DRY_WET_RATIO = 1.54;
@@ -120,6 +124,9 @@ export const PURLIN_ROWS_PER_SLOPE = 4;
 
 // Rafter spacing (m)
 export const RAFTER_SPACING = 0.9;
+
+// Ground floor slab thickness when the user does not enter one (m).
+export const DEFAULT_SLAB_THICKNESS_M = 0.1;
 
 // Foundation blockwork courses below DPC
 export const FOUNDATION_COURSES = 4;
@@ -660,6 +667,75 @@ export function calculateFasciaLength(
  *
  * FIX: slope_length now includes overhang in the rafter length.
  */
+export interface TimberFramingSummary {
+  totalM: number;
+  rafterSpacingM: number;
+  rafterRuns: number;
+  rafterLengthM: number;
+  purlinRowsPerPlane: number;
+  purlinPlanes: number;
+  purlinLengthM: number;
+}
+
+/**
+ * The same arithmetic as estimateTimberMeters, reported with its counts so the
+ * estimate can state the spacing and row count it actually used instead of a
+ * fixed sentence that goes stale.
+ */
+export function summariseTimberFraming(
+  roofAreaM2: number,
+  buildingLength: number,
+  buildingWidth: number,
+  pitchDegrees: number,
+  overhang: number,
+  roofType: string,
+): TimberFramingSummary {
+  const totalM = estimateTimberMeters(
+    roofAreaM2, buildingLength, buildingWidth, pitchDegrees, overhang, roofType,
+  );
+  const pitchRad = (pitchDegrees * Math.PI) / 180;
+  const eaveLength = buildingLength + 2 * overhang;
+  const eaveWidth = buildingWidth + 2 * overhang;
+  if (roofType === "flat") {
+    return {
+      totalM, rafterSpacingM: RAFTER_SPACING,
+      rafterRuns: 0, rafterLengthM: 0,
+      purlinRowsPerPlane: 0, purlinPlanes: 0, purlinLengthM: 0,
+    };
+  }
+  if (roofType === "mono_pitch") {
+    const slopeLength = eaveWidth / Math.cos(pitchRad);
+    const runs = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+    const rows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
+    return {
+      totalM, rafterSpacingM: RAFTER_SPACING,
+      rafterRuns: runs, rafterLengthM: round(runs * slopeLength),
+      purlinRowsPerPlane: rows, purlinPlanes: 1,
+      purlinLengthM: round(rows * eaveLength),
+    };
+  }
+  const slopeLength = eaveWidth / 2 / Math.cos(pitchRad);
+  const rowsGable = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
+  if (roofType === "hip") {
+    const commons = Math.max(1, Math.ceil((eaveLength - eaveWidth) / RAFTER_SPACING) + 1);
+    const jacks = Math.ceil(eaveWidth / RAFTER_SPACING) + 1;
+    return {
+      totalM, rafterSpacingM: RAFTER_SPACING,
+      rafterRuns: commons * 2 + jacks * 2,
+      rafterLengthM: round(commons * 2 * slopeLength + jacks * 2 * (slopeLength / 2)),
+      purlinRowsPerPlane: rowsGable, purlinPlanes: 4,
+      purlinLengthM: round(rowsGable * 2 * eaveLength + rowsGable * 2 * (eaveWidth / 2)),
+    };
+  }
+  const runs = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+  return {
+    totalM, rafterSpacingM: RAFTER_SPACING,
+    rafterRuns: runs * 2, rafterLengthM: round(runs * 2 * slopeLength),
+    purlinRowsPerPlane: rowsGable, purlinPlanes: 2,
+    purlinLengthM: round(rowsGable * 2 * eaveLength),
+  };
+}
+
 export function estimateTimberMeters(
   roofAreaM2: number,
   buildingLength: number,
@@ -712,9 +788,13 @@ export function estimateTimberMeters(
     rafterTotalM += jacksPerEnd * 2 * (slopeLength / 2);
     // Purlins on all 4 planes: side planes run eaveLength; end-plane rows
     // average half the eave width (triangular planes taper to the ridge).
+    // The row count follows the slope like the gable branch. A fixed four rows
+    // is what left a 6 m slope with rows 2.06 m apart, which the sheet support
+    // rule exists to prevent, so it cannot be right on a hip either.
+    const hipPurlinRows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
     purlinTotalM =
-      PURLIN_ROWS_PER_SLOPE * 2 * eaveLength +
-      PURLIN_ROWS_PER_SLOPE * 2 * (eaveWidth / 2);
+      hipPurlinRows * 2 * eaveLength +
+      hipPurlinRows * 2 * (eaveWidth / 2);
   } else {
     // Gable (and custom): 2 planes, rafters at spacing along the eave length
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
@@ -1403,16 +1483,18 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
   // Foundation stage (over hardcore, below DPC). The same physical layer
   // must not also be priced here, that was double-counting.
   // Oversite concrete (ground floor slab)
-  const slabThickness = 0.1; // 100mm, standard Nigerian construction
+  const slabThickness = input.slab_thickness_m ?? DEFAULT_SLAB_THICKNESS_M;
+  const slabThicknessSource =
+    input.slab_thickness_m === undefined ? "default" : "entered";
   const slabVol = footprintArea * slabThickness;
   quantities.push(
     qtyLine(
       "Ground floor concrete volume",
-      "Footprint area × Slab thickness (100mm)",
+      `Footprint area × Slab thickness (${Math.round(slabThickness * 1000)} mm, ${slabThicknessSource})`,
       { footprint_area: footprintArea, slab_thickness: slabThickness },
       slabVol,
       "m³",
-      input.wastage.cement,
+      input.wastage.concrete,
     ),
   );
 
@@ -2023,7 +2105,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   }
 
   // Timber, FIX: passes overhang to estimateTimberMeters
-  const timberM = estimateTimberMeters(
+  const timber = summariseTimberFraming(
     roofArea,
     input.building_length,
     input.building_width,
@@ -2031,11 +2113,14 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
     input.roof_overhang,
     input.roof_type,
   );
+  const timberM = timber.totalM;
   quantities.push(
     qtyLine(
       "Timber (rafters + purlins)",
-      "Rafters (spacing 0.9m) + purlins (4 rows/slope)",
-      { roof_area: roofArea },
+      timber.rafterRuns > 0
+        ? `Rafters at ${timber.rafterSpacingM} m centres (${timber.rafterRuns} rafter runs, ${timber.rafterLengthM} m) + purlins at ${PURLIN_SPACING_M} m along the slope (${timber.purlinRowsPerPlane} rows on ${timber.purlinPlanes} plane(s), ${timber.purlinLengthM} m)`
+        : "Minimal timber allowance for a flat roof",
+      { roof_area: roofArea, rafter_spacing_m: timber.rafterSpacingM, purlin_rows: timber.purlinRowsPerPlane },
       timberM,
       "m",
       input.wastage.timber,
@@ -2375,6 +2460,12 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
   nonNeg("Footing thickness", input.footing_thickness);
   nonNeg("Blinding thickness", input.blinding_thickness);
   nonNeg("Hardcore thickness", input.hardcore_thickness);
+  num(
+    "Ground floor slab thickness",
+    input.slab_thickness_m ?? DEFAULT_SLAB_THICKNESS_M,
+    0.05,
+    0.4,
+  );
   nonNeg("DPC length", input.dpc_length);
   nonNeg("Overhang", input.roof_overhang);
   if (input.roof_type !== "flat")
@@ -2549,6 +2640,7 @@ export function calculateBuildToRoof(
     `Wall height: ${input.floor_to_floor_height}m per floor, ${input.number_of_floors} floor(s)`,
     `Blinding thickness: ${input.blinding_thickness}m`,
     `Hardcore thickness: ${input.hardcore_thickness}m`,
+    `Ground floor slab thickness: ${Math.round((input.slab_thickness_m ?? DEFAULT_SLAB_THICKNESS_M) * 1000)} mm${input.slab_thickness_m === undefined ? " (default, not entered)" : ""}`,
     `Foundation blockwork: ${FOUNDATION_COURSES} courses (including mortar joints)`,
     `Dry/wet concrete ratio: ${DRY_WET_RATIO}`,
     `Dry/wet mortar ratio: ${MORTAR_DRY_WET_RATIO}`,
@@ -2701,6 +2793,7 @@ export const DEFAULT_LABOUR: LabourConfig = {
 export const DEFAULT_WASTAGE: WastageConfig = {
   blocks: 5,
   cement: 5,
+  concrete: 5,
   sand: 10,
   granite: 10,
   reinforcement: 3,

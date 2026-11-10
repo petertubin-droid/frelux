@@ -24,8 +24,25 @@ describe("CERTIFICATION: fresh scenario vs independent reference (12.5x7.3m, 27.
   it("fascia = eave perimeter 43.2 m", () => {
     expect(calculateFasciaLength(L, W, OH)).toBeCloseTo(43.2, 6);
   });
-  it("timber = commons+jacks+purlins = 255.56 m (±0.1)", () => {
-    expect(estimateTimberMeters(L*W, L, W, p, OH, "hip")).toBeCloseTo(255.56, 1);
+  it("timber = commons+jacks+purlins, with purlin rows from the slope", () => {
+    // eaveL = 13.4, eaveW = 8.2, so the common slope is 4.1 / cos 27.5 =
+    // 4.6222 m and a 1.0 m purlin spacing needs ceil(4.6222) = 5 rows per plane.
+    //   commons: (ceil((13.4-8.2)/0.9)+1)=7 positions x 2 planes x 4.6222 = 64.71
+    //   jacks:   (ceil(8.2/0.9)+1)=11 x 2 planes x 2.3111                = 50.84
+    //   purlins: 5 rows x 2 x 13.4 plus 5 rows x 2 x 4.1                 = 175.00
+    //   total                                                            = 290.55
+    // The earlier 255.56 baseline used the nominal four purlin rows, which put
+    // rows 1.54 m apart on a slope that needs support at about 1.0 m.
+    const slope = 4.1 / Math.cos((27.5 * Math.PI) / 180);
+    expect(Math.ceil(slope / 1.0)).toBe(5);
+    const commons = (Math.ceil((13.4 - 8.2) / 0.9) + 1) * 2 * slope;
+    const jacks = (Math.ceil(8.2 / 0.9) + 1) * 2 * (slope / 2);
+    const purlins = 5 * 2 * 13.4 + 5 * 2 * 4.1;
+    expect(estimateTimberMeters(L*W, L, W, p, OH, "hip")).toBeCloseTo(
+      commons + jacks + purlins,
+      1,
+    );
+    expect(estimateTimberMeters(L*W, L, W, p, OH, "hip")).toBeCloseTo(290.55, 1);
   });
   it("zero overhang reduces to footprint/cos = 102.8736 m² (total 2dp)", () => {
     // Independent: 91.25 / cos(27.5°) = 102.8736. The engine rounds only the

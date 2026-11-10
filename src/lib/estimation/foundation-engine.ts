@@ -36,7 +36,8 @@ import { ceilU } from "./shared/purchase-rounding";
 // ─────────────────────────────────────────────
 
 const DRY_VOLUME_FACTOR = 1.54;
-const CEMENT_BAG_VOLUME_M3 = 0.0347; // 50 kg bag, bulk density 1440 kg/m³
+/** Loose bulk density of Portland cement, kg/m³. */
+const CEMENT_BULK_DENSITY_KG_M3 = 1440;
 
 // ─────────────────────────────────────────────
 // Rules
@@ -259,7 +260,10 @@ export function calculateFoundation(
           ? CEMENT_BAG_WEIGHT_BY_MARKET[market]
           : 50);
       // Bulk density of loose Portland cement is standard 1440 kg/m³
-      const bagVolumeM3 = bagWeightKg === 50 ? CEMENT_BAG_VOLUME_M3 : bagWeightKg / 1440.0;
+      // One derivation for every market: a bag is its mass divided by the bulk
+      // density. The old 50 kg special case carried a second literal that could
+      // drift from the density it claimed to come from.
+      const bagVolumeM3 = bagWeightKg / CEMENT_BULK_DENSITY_KG_M3;
 
       const cementBags = ceilU(((cement / parts) * dry) / bagVolumeM3);
       const sandM3 = ceilU((sand / parts) * dry);
