@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import React, { useState, useRef, useId } from "react";
 import {
   Camera,
@@ -1422,6 +1423,50 @@ export function VisualFinishingEstimator({
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="border-t border-border bg-muted/20 px-4 py-3">
+              <ShareEstimateButton
+                estimate={{
+                  kind: "Visual Finishing Takeoff",
+                  summaryLines: [
+                    {
+                      label: "Calibration",
+                      value: result.provenance.calibrationMethod,
+                    },
+                    {
+                      label: "Source media",
+                      value: result.provenance.mediaSource,
+                    },
+                  ],
+                  lineItems: result.materials.map((m) => ({
+                    description: m.name,
+                    quantity:
+                      m.packageCount != null
+                        ? `${m.quantity} ${m.unit} (${m.packageCount} × ${m.packageUnit})`
+                        : `${m.quantity} ${m.unit}`,
+                    amount:
+                      m.totalCost != null
+                        ? `${result.currencySymbol}${m.totalCost.toLocaleString()}`
+                        : null,
+                  })),
+                  totals: [
+                    {
+                      label: "Subtotal material cost",
+                      value:
+                        result.subtotalMaterialCost != null
+                          ? `${result.currencySymbol}${result.subtotalMaterialCost.toLocaleString()}`
+                          : "Requires local unit prices",
+                      emphasized: true,
+                    },
+                  ],
+                  notes: [
+                    "Every price carries its verification state. Unverified lines are not quoted as firm prices.",
+                  ],
+                  link: "/tools/visual-finishing-estimator",
+                }}
+                compact
+              />
             </div>
 
             <div className="border-t border-border bg-muted/20 px-4 py-3 flex items-center justify-between">
