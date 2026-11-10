@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
+import { BuildingSizeBar } from "@/components/measurement/BuildingSizeBar";
+import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -60,6 +63,19 @@ const AchievementToast = lazy(() =>
     default: m.AchievementToast,
   })),
 );
+
+/**
+ * The building size control belongs on the tools, not on marketing pages: it is
+ * only useful where a calculator will read the building.
+ */
+function isToolRoute(pathname: string): boolean {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  return CONSTRUCTION_TOOLS.some((tool) => {
+    const to = tool.to ?? (tool.slug ? `/${tool.slug}` : "");
+    if (!to) return false;
+    return to.replace(/\/+$/, "") === path;
+  });
+}
 
 export default function Layout() {
   const { t } = useLanguage();
@@ -597,7 +613,10 @@ export default function Layout() {
               require review by a licensed local professional.
             </div>
           )}
-        <Outlet />
+        <BuildingSizeProvider>
+          {isToolRoute(location.pathname) && <BuildingSizeBar />}
+          <Outlet />
+        </BuildingSizeProvider>
         <LocalePrompt />
         {/* Holds the space the bottom ad occupies, so the last line of a long
             calculator can be scrolled above it instead of under it. Collapses

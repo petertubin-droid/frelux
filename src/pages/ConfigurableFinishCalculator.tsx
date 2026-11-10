@@ -36,6 +36,8 @@ import LabourCostSection, {
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketAreaUnit } from "@/lib/international/room-unit-defaults";
 import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { buildingAreaM2 } from "@/lib/measurement/building-schedule";
 import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
@@ -186,6 +188,7 @@ export default function ConfigurableFinishCalculator({
         if (!cancelled) setConfigLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
@@ -457,6 +460,22 @@ export default function ConfigurableFinishCalculator({
   // Render
   // ─────────────────────────────────────────────────────────
 
+  const sharedBuilding = useBuildingSize();
+  // Both surfaces are offered because paint, screed and tiling all read a
+  // different face of the same rooms, and each figure is the measured one.
+  const sharedAreaChoices = sharedBuilding.building
+    ? (
+        [
+          { surface: "wall" as const, label: "walls after openings" },
+          { surface: "floor" as const, label: "floors" },
+        ]
+      ).map((choice) => ({
+        ...choice,
+        areaM2: buildingAreaM2(sharedBuilding.building, choice.surface),
+        title: `Use ${sharedBuilding.building!.label}: ${choice.label}`,
+      }))
+    : [];
+
   return (
     <div
       className={embedded ? "pb-8" : "min-h-screen bg-background pt-8 pb-16"}
@@ -464,6 +483,33 @@ export default function ConfigurableFinishCalculator({
       <Container>
         {!embedded && <PageHeader title={title} subtitle={subtitle} />}
 
+        {sharedAreaChoices.length > 0 && (
+          <div className="mb-6 grid gap-2 rounded-xl border border-primary/30 bg-primary/5 p-4 sm:grid-cols-2">
+            <p className="text-sm font-medium sm:col-span-2">
+              {t("Measured from your building")}
+            </p>
+            {sharedAreaChoices.map((choice) => (
+              <button
+                key={choice.surface}
+                type="button"
+                className="rounded-lg border border-border bg-background px-3 py-2 text-left text-sm hover:bg-accent"
+                onClick={() => {
+                  setArea(
+                    choice.areaM2 > 0
+                      ? String(Math.round(choice.areaM2 * 100) / 100)
+                      : "",
+                  );
+                  setAreaUnit("m2");
+                }}
+              >
+                <span className="font-medium">{choice.title}</span>
+                <span className="block text-xs text-muted-foreground">
+                  {Math.round(choice.areaM2 * 100) / 100} m² measured from its rooms
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
         {configLoading ? (
           <p className="text-sm text-muted-foreground">
             Loading product configuration…

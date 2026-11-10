@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import PageHeader from "@/components/ui/PageHeader";
@@ -42,6 +42,15 @@ import {
   wallThicknessForLeaves,
   type MasonryCalculationResult,
 } from "@/lib/estimation/masonry-standalone-engine";
+import {
+  masonryTakeoffFromSchedule,
+  plasteringTakeoffFromSchedule,
+} from "@/lib/estimation/building-schedule-takeoff";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import {
+  BuildingSchedulePanel,
+  type AppliedBuilding,
+} from "@/components/measurement/BuildingSchedulePanel";
 import {
   calculatePlasteringTakeoff,
   type PlasteringCalculationResult,
@@ -161,6 +170,21 @@ export default function StandaloneTakeoffPage({
   const [marketCode, setMarketCode] = useState(market.marketCode);
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
+  // The building sized in the shared bar is the default here, so a user who has
+  // already described the house does not retype it for masonry or plastering.
+  const sharedBuilding = useBuildingSize();
+  const [building, setBuilding] = useState<AppliedBuilding | null>(
+    () => sharedBuilding.building,
+  );
+  const applyBuilding = useCallback(
+    (applied: AppliedBuilding | null) => {
+      setBuilding(applied);
+      sharedBuilding.setBuilding(applied);
+    },
+    [sharedBuilding],
+  );
+  const [plasterFaces, setPlasterFaces] = useState<1 | 2>(2);
+  const [buildingNotes, setBuildingNotes] = useState<string[]>([]);
   const [values, setValues] = useState<Record<string, string>>({
     length: "10",
     height: "3",
@@ -335,24 +359,64 @@ export default function StandaloneTakeoffPage({
     setError("");
     try {
       let next: Result;
-      if (engine === "masonry")
-        next = calculateMasonryTakeoff({
-          marketCode,
-          wallLengthM: number("length"),
-          wallHeightM: number("height"),
-          wallCount: number("count", 1),
-          selectedUnitId: unitId || undefined,
-          wastePercent: number("waste", 5),
-          leafCount: selectedLeaves,
-        });
-      else if (engine === "plastering")
-        next = calculatePlasteringTakeoff({
-          marketCode,
-          surfaceAreaM2: number("area"),
-          thicknessMm: number("thickness", 12),
-          wastePercent: number("waste", 5),
-          applicationType: "internal_plaster",
-        });
+      setBuildingNotes([]);
+      if (engine === "masonry") {
+        if (building) {
+          const measured = masonryTakeoffFromSchedule(building.schedule, {
+            marketCode,
+            selectedUnitId: unitId || undefined,
+            wastePercent: number("waste", 5),
+            leafCount: selectedLeaves,
+          });
+          next = measured.result;
+          // Trace the total back to the rooms, and quote the openings the engine
+          // actually deducted rather than the schedule's opening area, so the
+          // note cannot claim a deduction the arithmetic did not make.
+          setBuildingNotes([
+            `Measured from ${building.label}: ${building.schedule.rooms.length} room${
+              building.schedule.rooms.length === 1 ? "" : "s"
+            }, ${building.totals.wallRunM.toFixed(2)} m of wall run, ${measured.result.openingsAreaM2.toFixed(2)} m² of openings deducted.`,
+            ...measured.notes,
+          ]);
+        } else {
+          next = calculateMasonryTakeoff({
+            marketCode,
+            wallLengthM: number("length"),
+            wallHeightM: number("height"),
+            wallCount: number("count", 1),
+            selectedUnitId: unitId || undefined,
+            wastePercent: number("waste", 5),
+            leafCount: selectedLeaves,
+          });
+        }
+      } else if (engine === "plastering") {
+        if (building) {
+          const measured = plasteringTakeoffFromSchedule(
+            building.schedule,
+            {
+              marketCode,
+              thicknessMm: number("thickness", 12),
+              wastePercent: number("waste", 5),
+              applicationType: "internal_plaster",
+            },
+            plasterFaces,
+          );
+          next = measured.result;
+          setBuildingNotes([
+            `Measured from ${building.label}: ${building.schedule.rooms.length} room${
+              building.schedule.rooms.length === 1 ? "" : "s"
+            }, ${building.totals.wallRunM.toFixed(2)} m of wall run, ${measured.measuredAreaM2.toFixed(2)} m² after openings, across ${plasterFaces} face${plasterFaces === 1 ? "" : "s"}.`,
+          ]);
+        } else {
+          next = calculatePlasteringTakeoff({
+            marketCode,
+            surfaceAreaM2: number("area"),
+            thicknessMm: number("thickness", 12),
+            wastePercent: number("waste", 5),
+            applicationType: "internal_plaster",
+          });
+        }
+      }
       else if (engine === "drywall")
         next = calculateDrywallTakeoff({
           marketCode,
@@ -601,6 +665,41 @@ export default function StandaloneTakeoffPage({
             <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
           </div>
         )}
+        {(engine === "masonry" || engine === "plastering") && (
+          <div className="mb-6 space-y-3">
+            <BuildingSchedulePanel
+              marketCode={marketCode}
+              onChange={applyBuilding}
+              onClear={() => {
+                setBuilding(null);
+                setBuildingNotes([]);
+              }}
+            />
+            {engine === "plastering" && building && (
+              <label className="block max-w-xs text-sm font-medium text-foreground">
+                {t("Faces to plaster")}
+                <select
+                  className={INPUT_CLASS}
+                  value={String(plasterFaces)}
+                  onChange={(event) =>
+                    setPlasterFaces(event.target.value === "1" ? 1 : 2)
+                  }
+                >
+                  <option value="1">{t("One face, an external render")}</option>
+                  <option value="2">{t("Both faces, an internal wall")}</option>
+                </select>
+              </label>
+            )}
+            {building && (
+              <p role="status" className="text-xs text-muted-foreground">
+                {t("Measuring")} {building.label}: {building.totals.roomCount}{" "}
+                {t("rooms, run")} {building.totals.wallRunM.toFixed(1)} m,{" "}
+                {building.totals.netWallAreaM2.toFixed(2)} m²{" "}
+                {t("of wall after openings. Run the calculation to price these rooms.")}
+              </p>
+            )}
+          </div>
+        )}
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
           <form
             onSubmit={runCalculation}
@@ -790,6 +889,13 @@ export default function StandaloneTakeoffPage({
               <p role="alert" className="mt-4 text-sm text-destructive">
                 {error}
               </p>
+            )}
+            {buildingNotes.length > 0 && (
+              <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+                {buildingNotes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
             )}
           </form>
           <section
