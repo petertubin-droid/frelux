@@ -243,4 +243,38 @@ describe("slab span entry order", () => {
     // Short span governs the shear: 12.0 x 4.0 / 2 = 24.04 kN/m.
     expect(straight.max_shear).toBeCloseTo(24.04, 1);
   });
+
+  it("says when the two-way coefficients are not the selected code's method", () => {
+    const aciTwoWay = designSlab({
+      span_x: 4.0,
+      span_y: 6.5,
+      slab_type: "two_way",
+      support_condition: "simply_supported",
+      live_load: 2,
+      dead_load: 1.5,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      jurisdiction_code: "ACI_318",
+    } as never);
+    expect(
+      aciTwoWay.warnings.some((w) => w.includes("Table 3.14")),
+    ).toBe(true);
+
+    const euroTwoWay = designSlab({
+      span_x: 4.0,
+      span_y: 6.5,
+      slab_type: "two_way",
+      support_condition: "simply_supported",
+      live_load: 2,
+      dead_load: 1.5,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      jurisdiction_code: "EUROCODE_2",
+    } as never);
+    expect(
+      euroTwoWay.warnings.some((w) => w.includes("Table 3.14")),
+    ).toBe(false);
+  });
 });

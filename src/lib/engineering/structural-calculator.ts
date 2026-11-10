@@ -1858,6 +1858,18 @@ function designSlabCore(input: SlabDesignInput): SlabDesignResult {
         `Two-way moments use the simply supported coefficients from BS 8110-1 Table 3.14, so continuity is not credited and the span steel is conservative. Support steel is given on the same conservative basis (see below), not from Table 3.15.`,
       );
     }
+    // The coefficient method is BS 8110's. Other codes have their own two-way
+    // methods, so a user working to ACI or IS must not read these moments as
+    // that code's answer.
+    if (
+      input.jurisdiction_code &&
+      input.jurisdiction_code !== "BS_8110" &&
+      input.jurisdiction_code !== "EUROCODE_2"
+    ) {
+      warnings.push(
+        `Two-way moment coefficients come from BS 8110-1 Table 3.14, which is not the governing code selected for this design (${JURISDICTION_CODES[input.jurisdiction_code].governingCode}). That code has its own two-way method, for example the ACI direct design or coefficient method. Treat these moments as an indicative comparison and design the panel to the governing code.`,
+      );
+    }
   }
 
   const max_moment = alphaShort * total_load * shortSpan * shortSpan;
