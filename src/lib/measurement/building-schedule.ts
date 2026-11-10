@@ -126,8 +126,15 @@ export function draftsToSchedule(
       };
       // Each wall can only give up its own face area, so placement tracks what is
       // left on a wall rather than dropping an opening a later wall could hold.
+      // A room whose height has not been entered has no face area to compare
+      // against yet, so placement falls back to the wall width alone. Otherwise
+      // every opening would be reported as too large for its wall when the real
+      // gap is the missing height.
       const spare = new Map(
-        wallSides.map((side) => [side.side, side.length * height]),
+        wallSides.map((side) => [
+          side.side,
+          height > 0 ? side.length * height : Number.POSITIVE_INFINITY,
+        ]),
       );
       for (const opening of openings) {
         const area = opening.width * opening.height;

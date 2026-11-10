@@ -90,4 +90,22 @@ describe("building template inside the plastering calculator", () => {
     const plastered = screen.queryByText(/Net wall area|plastered area/i);
     expect(plastered).toBeTruthy();
   });
+
+  it("prices one face as an external render, not internal plaster", () => {
+    renderPage("plastering");
+    applyFirstTemplate();
+    fireEvent.change(screen.getByLabelText(/faces to plaster/i), {
+      target: { value: "1" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /calculate/i }));
+    const note = screen.getByText(/priced as an external render/i);
+    expect(note.textContent).toMatch(/1 face priced as an external render/i);
+  });
+
+  it("prices two faces as internal plaster", () => {
+    renderPage("plastering");
+    applyFirstTemplate();
+    fireEvent.click(screen.getByRole("button", { name: /calculate/i }));
+    expect(screen.getByText(/priced as internal plaster/i)).toBeTruthy();
+  });
 });

@@ -391,13 +391,18 @@ export default function StandaloneTakeoffPage({
         }
       } else if (engine === "plastering") {
         if (building) {
+          // One face of a wall in a building schedule is the outside of the
+          // building, which is rendered rather than plastered, and render takes a
+          // richer mix and a slower rate. Two faces is internal plaster.
+          const applicationType =
+            plasterFaces === 1 ? "external_render" : "internal_plaster";
           const measured = plasteringTakeoffFromSchedule(
             building.schedule,
             {
               marketCode,
               thicknessMm: number("thickness", 12),
               wastePercent: number("waste", 5),
-              applicationType: "internal_plaster",
+              applicationType,
             },
             plasterFaces,
           );
@@ -405,7 +410,7 @@ export default function StandaloneTakeoffPage({
           setBuildingNotes([
             `Measured from ${building.label}: ${building.schedule.rooms.length} room${
               building.schedule.rooms.length === 1 ? "" : "s"
-            }, ${building.totals.wallRunM.toFixed(2)} m of wall run, ${measured.measuredAreaM2.toFixed(2)} m² after openings, across ${plasterFaces} face${plasterFaces === 1 ? "" : "s"}.`,
+            }, ${building.totals.wallRunM.toFixed(2)} m of wall run, ${measured.measuredAreaM2.toFixed(2)} m² after openings, across ${plasterFaces} face${plasterFaces === 1 ? "" : "s"} priced as ${plasterFaces === 1 ? "an external render" : "internal plaster"}.`,
           ]);
         } else {
           next = calculatePlasteringTakeoff({

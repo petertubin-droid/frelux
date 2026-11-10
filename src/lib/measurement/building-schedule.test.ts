@@ -225,4 +225,31 @@ describe("height grouping", () => {
   it("returns nothing for a schedule with no walls", () => {
     expect(groupWallsByHeight({ id: "x", rooms: [{ id: "r" }] })).toEqual([]);
   });
+
+  it("places by width when the height is not yet entered", () => {
+    // A room saved before its height was typed has no face area, so the walls
+    // cannot be compared against the openings yet. That is not the same as an
+    // opening too large for its wall, and must not be reported as one.
+    const schedule = draftsToSchedule(
+      [
+        {
+          id: "r1",
+          spaceType: "bedroom",
+          label: "Bedroom",
+          length: 4,
+          width: 3.5,
+          height: 0,
+          quantity: 1,
+          doors: 1,
+          windows: 2,
+        },
+      ],
+      "meters",
+    );
+    const totals = scheduleTotals(schedule);
+    expect(totals.unplacedOpeningCount).toBe(0);
+    expect(totals.grossWallAreaM2).toBe(0);
+    expect(totals.netWallAreaM2).toBe(0);
+    expect(totals.assumedOpeningCount).toBe(3);
+  });
 });
