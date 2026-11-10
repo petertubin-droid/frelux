@@ -25,6 +25,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { ec2AnchorageLength, ec2LapLength } from "@/lib/engineering/bbs-schedule";
 import { ceilU } from "./shared/purchase-rounding";
 
 // ─────────────────────────────────────────────
@@ -528,7 +529,26 @@ export function calculateBarCutLength(
 }
 
 /**
- * Calculates structural development / lap length (in mm) per Eurocode 2 or ACI 318.
+ * Structural anchorage length in mm, per the code the caller names.
+ *
+ * The three codes do not agree on how a bar is anchored, so each branch uses
+ * its own clause rather than a shared rule of thumb:
+ *
+ * · EN 1992-1-1 §8.4.4: lb,rqd = (db / 4) · (σsd / fbd), with fctd from
+ *   fctk,0.05 / γc and fbd = 2.25 · fctd for ribbed bars. The result is floored
+ *   at the code minimum: max(0.3 lb,rqd, 10db, 100 mm) in tension and
+ *   max(0.6 lb,rqd, 10db, 100 mm) in compression.
+ * · ACI 318-19 Table 25.4.2.3 (simplified, normal-weight, uncoated, ψ = 1.0):
+ *   ld = fy · db / (25 λ √f'c) for No. 6 (19 mm) and smaller, and
+ *   fy · db / (20 λ √f'c) for No. 7 and larger, never below 300 mm. Using the
+ *   No. 7 divisor for every bar, which this function used to do, overstated the
+ *   anchorage of small bars by a quarter.
+ * · BS 8110-1 Table 3.27: 40db tension, 32db compression for grade 460 type 2
+ *   deformed bars in grade 30 concrete, which is what the schedule pages show.
+ *
+ * A lap is not an anchorage: EN 1992 multiplies lb,rqd by α6 (1.5 when at most
+ * half the bars are lapped in one section, 2.0 beyond that) and requires at least
+ * max(0.3 α6 lb,rqd, 15db, 200 mm). Use calculateLapLength for that.
  */
 export function calculateDevelopmentLength(
   barDiameterMm: number,
@@ -538,25 +558,78 @@ export function calculateDevelopmentLength(
   code: "eurocode" | "aci" | "bs8110" = "eurocode",
 ): number {
   const d = barDiameterMm;
+  if (!(d > 0) || !(fyMpa > 0)) return 0;
   if (code === "aci") {
-    // ACI 318-19: Simplified tension development length ld = (fy / (20 * sqrt(fc_psi))) * d
-    const fcPsi = fckOrFcPsi > 100 ? fckOrFcPsi : fckOrFcPsi * 145.038;
-    const factor = isTension
-      ? (fyMpa * 145.038) / (20 * Math.sqrt(fcPsi))
-      : (fyMpa * 145.038) / (25 * Math.sqrt(fcPsi));
-    return Math.ceil(Math.max(300, factor * d));
-  } else if (code === "bs8110") {
-    // BS 8110: Tension lap = 40d (deformed type 2), compression = 32d
-    return Math.ceil(isTension ? 40 * d : 32 * d);
-  } else {
-    // Eurocode 2 (EN 1992-1-1): fctd = 0.21 * fck^(2/3) / 1.5; fbd = 2.25 * fctd; lbrqd = (d/4) * (fy / 1.15 / fbd)
-    const fck = fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi;
-    const fctd = (0.21 * Math.pow(fck, 2 / 3)) / 1.5;
-    const fbd = 2.25 * fctd;
-    const lbrqd = (d / 4) * (fyMpa / 1.15 / fbd);
-    const alpha = isTension ? 1.0 : 0.7; // compression factor
-    return Math.ceil(Math.max(15 * d, alpha * lbrqd));
+    // ACI 318-19 accepts psi or MPa for f'c; anything above 100 is psi.
+    const fcPsi =
+      fckOrFcPsi > 100 ? fckOrFcPsi : fckOrFcPsi * 145.038;
+    const fcMpa = fcPsi / 145.038;
+    if (!(fcMpa > 0)) return 0;
+    const fyPsi = fyMpa * 145.038;
+    // No. 6 and smaller (up to 19 mm) take the 25 divisor, No. 7 and larger 20.
+    const divisor = isTension ? (d <= 19 ? 25 : 20) : d <= 19 ? 30 : 25;
+    const ld = (fyPsi * d) / (divisor * Math.sqrt(fcPsi));
+    return Math.ceil(Math.max(300, ld));
   }
+  if (code === "bs8110") {
+    return Math.ceil(isTension ? 40 * d : 32 * d);
+  }
+  const fck = fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi;
+  if (!(fck > 0)) return 0;
+  // The bond calculation itself lives in the engineering library, which already
+  // carries the clause by clause derivation (8.4.4) and the lap factor (8.7.3).
+  // Two implementations of one clause is how a tool ends up disagreeing with
+  // its own schedule, so this one defers to that.
+  return Math.ceil(
+    ec2AnchorageLength({
+      db: d,
+      fck,
+      fyk: fyMpa,
+      member: isTension ? "tension" : "compression",
+    }).lbd,
+  );
+}
+
+/**
+ * Lap length in mm. EN 1992-1-1 §8.7.3: l0 = α6 · lb,rqd, floored at
+ * max(0.3 α6 lb,rqd, 15db, 200 mm). α6 is 1.5 when no more than half the bars
+ * are lapped in one section and 2.0 above that; ACI and BS 8110 take the same
+ * factor over their own anchorage lengths (ACI 318-19 Table 25.5.2.1: 1.3 for
+ * Class A splices, and BS 8110 35% above the anchorage figures above).
+ */
+export function calculateLapLength(
+  barDiameterMm: number,
+  fckOrFcPsi: number,
+  fyMpa: number = 500,
+  isTension: boolean = true,
+  code: "eurocode" | "aci" | "bs8110" = "eurocode",
+  moreThanHalfLapped: boolean = false,
+): number {
+  const anchorage = calculateDevelopmentLength(
+    barDiameterMm,
+    fckOrFcPsi,
+    fyMpa,
+    isTension,
+    code,
+  );
+  if (anchorage <= 0) return 0;
+  if (code === "aci") {
+    // ACI 318-19 Table 25.5.2.1: Class B splice is 1.3 ld, Class A is 1.0 ld.
+    return Math.ceil(
+      Math.max(300, anchorage * (moreThanHalfLapped ? 1.3 : 1.0)),
+    );
+  }
+  if (code === "bs8110") {
+    // BS 8110-1 Table 3.30: 1.4 x anchorage where over half the bars lap in
+    // one section, 1.15 x otherwise, and never below 250 mm.
+    return Math.ceil(
+      Math.max(250, anchorage * (moreThanHalfLapped ? 1.4 : 1.15)),
+    );
+  }
+  // EN 1992-1-1 8.7.3 with alpha6 = sqrt(percent / 25) capped at 1.5.
+  const percentLapped = moreThanHalfLapped ? 100 : 50;
+  const fck = fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi;
+  return Math.ceil(ec2LapLength({ db: barDiameterMm, fck, fyk: fyMpa, percentLapped }).l0);
 }
 
 /**

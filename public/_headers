@@ -87,6 +87,14 @@
   X-Robots-Tag: noindex, nofollow
 /es/*
   X-Robots-Tag: noindex, nofollow
+# The reviewed Spanish articles are real translated pages, not clones, and they
+# are the one part of /es/ that carries its own robot decision: prerender writes
+# index, follow on a page with a published translation and noindex, follow on a
+# page without one. This rule is more specific than /es/*, so it wins for those
+# paths and the per-page meta tag decides the rest. Locale roots, shells and
+# every other locale path keep the noindex above.
+/es/learn/*
+  X-Robots-Tag: index, follow
 
 /fr
   X-Robots-Tag: noindex, nofollow

@@ -665,14 +665,33 @@ for (const m of marketLandingRoutes) {
   }
 }
 
-const manifest = (() => {
+const manifestData = (() => {
   try {
     const raw = readFileSync("dist/_prerender-manifest.json", "utf-8");
-    return JSON.parse(raw).paths ?? [];
+    const parsed = JSON.parse(raw);
+    return {
+      paths: parsed.paths ?? [],
+      noindex: new Set(parsed.noindex ?? []),
+    };
   } catch {
-    return [];
+    return { paths: [], noindex: new Set() };
   }
 })();
+const manifest = manifestData.paths;
+const manifestNoindex = manifestData.noindex;
+
+/**
+ * Reviewed translations, and only those.
+ *
+ * Prerender emits a locale page for every article: index, follow when a
+ * published translation exists, noindex when it does not. The edge noindex in
+ * public/_headers is scoped to let those pages carry their own decision, so the
+ * indexable ones are real pages with hreflang and a self-canonical, and they
+ * belong in the sitemap. A noindex page never does.
+ */
+const translatedLocalePaths = new Set(
+  manifest.filter((p) => isLocalePrefixed(p) && !manifestNoindex.has(p)),
+);
 
 // The manifest is written by prerender.mjs from the files it actually emitted,
 // so a page that exists but is missing from the curated lists above still gets
@@ -695,11 +714,13 @@ const candidateRoutes = [
 // otherwise put a locale-prefixed duplicate into the sitemap even though
 // public/_headers marks that URL noindex. Production carried 157 such /es/
 // URLs before this guard.
-const allRoutes = candidateRoutes.filter((r) => !isLocalePrefixed(r.path));
+const allRoutes = candidateRoutes.filter(
+  (r) => !isLocalePrefixed(r.path) || translatedLocalePaths.has(r.path),
+);
 const droppedLocaleRoutes = candidateRoutes.length - allRoutes.length;
 if (droppedLocaleRoutes > 0) {
   console.log(
-    `  ℹ️  sitemap dropped ${droppedLocaleRoutes} locale-prefixed URL(s) that the edge marks noindex`,
+    `  ℹ️  sitemap dropped ${droppedLocaleRoutes} locale-prefixed URL(s) with no reviewed translation`,
   );
 }
 
