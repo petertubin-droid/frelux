@@ -22,6 +22,7 @@ import {
   MORTAR_JOINT_M,
   CEMENT_DENSITY_KG_M3,
   cementBagKg,
+  resolveCementBag,
   courseHeightM,
   type MasonryUnitKey,
 } from "@/config/masonry-units";
@@ -691,6 +692,11 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     `Load is water plus ${(TANK_TARE_KG_PER_LITRE[tankMat] * 1000).toFixed(0)} kg per 1000 litres of tank tare plus stand and platform self weight plus a ${(PLATFORM_ALLOWANCE * 100).toFixed(0)} percent allowance.`,
     `Pads are ${(padDepthM * 1000).toFixed(0)} mm thick, sized so the bearing pressure stays within the allowable figure including the pad's own weight, and rounded up to 50 mm.`,
     `Footing reinforcement is a plain 60 kg per cubic metre and the ring beam is 4-Y12 with Y8 links at 200 mm: enough to price, not a designed cage.`,
+    structure === "blockwork"
+      ? resolveCementBag(input.market).isMarketSpecific
+        ? `Cement packages use the configured ${input.market.toUpperCase()} market mass of ${blockwork?.bagKg ?? cementBagKg(input.market)} kg per bag.`
+        : `No cement pack size is configured for ${input.market}; the blockwork quantity uses a generic 50 kg fallback. Verify local packaging before ordering.`
+      : "Cement bag packaging is not used for the selected stand structure.",
     `Wind is taken as ${windSpeed} m/s basic speed giving ${Math.round(qPa)} Pa, with the tank empty, which is the governing case for overturning.`,
     "Quantities only. Prices, tax and labour come from the price book and your own figures, never from this page.",
   ];

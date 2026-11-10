@@ -15,6 +15,7 @@
 import {
   PLOT_PRESETS,
   cementBagKg,
+  resolveCementBag,
   type PlotPresetKey,
 } from "@/config/masonry-units";
 import { CEMENT_DENSITY_KG_M3 } from "@/config/masonry-units";
@@ -237,7 +238,9 @@ export function calculateGermanFloor(
     `Hardcore is ordered loose at ${HARDCORE_LOOSE_BULKING} times its compacted volume, because fill only reaches ${hardcoreMm} mm dense after compaction.`,
     `The membrane is ordered at ${MEMBRANE_LAP_PERCENT} percent over the floor area for the laps between rolls.`,
     `Dry concrete is taken as ${CONCRETE_DRY_FACTOR} times the wet volume.`,
-    `Cement is counted in ${bagKg} kg bags for this market and blinding sand is added to the concrete sand.`,
+    resolveCementBag(input.market).isMarketSpecific
+      ? `Cement is counted in ${bagKg} kg bags using the configured ${input.market.toUpperCase()} market pack size; blinding sand is added to the concrete sand.`
+      : `No cement pack size is configured for ${input.market}. Quantity uses a generic 50 kg bag fallback; verify local packaging before ordering.`,
     "Quantities only. Prices, tax and labour come from the price book and your own figures, never from this page.",
   ];
 

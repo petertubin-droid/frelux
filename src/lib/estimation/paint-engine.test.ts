@@ -13,6 +13,7 @@ import {
   getCeilingQuantityBuckets,
   getCeilingCoverageRate,
   isPriceConfigured,
+  roundUpToBuckets,
 } from "@/lib/estimation/paint-engine";
 import type { EstimationCalcRule, EstimationProduct } from "@/types/estimation";
 import { calculateLineTotal } from "@/lib/estimation/pricing";
@@ -98,9 +99,9 @@ describe("paint-engine, getPackSizeLitres", () => {
 });
 
 describe("paint-engine, getRoundingRule", () => {
-  it("returns rule string when present", () => {
+  it("always rounds retail paint containers up, even if legacy config says round", () => {
     const rule = makeRule({ rule: "round" });
-    expect(getRoundingRule(rule)).toBe("round");
+    expect(getRoundingRule(rule)).toBe("ceil");
   });
 
   it("defaults to ceil", () => {
@@ -110,6 +111,15 @@ describe("paint-engine, getRoundingRule", () => {
   it("defaults to ceil when rule_value has no rule string", () => {
     const rule = makeRule({ rule: 123 });
     expect(getRoundingRule(rule)).toBe("ceil");
+  });
+});
+
+describe("paint-engine retail container rounding", () => {
+  it("rounds every positive paint requirement up despite legacy floor or round settings", () => {
+    expect(roundUpToBuckets(10.1, 10, "floor")).toBe(2);
+    expect(roundUpToBuckets(14.9, 10, "round")).toBe(2);
+    expect(roundUpToBuckets(20, 10, "floor")).toBe(2);
+    expect(roundUpToBuckets(-1, 10, "ceil")).toBe(0);
   });
 });
 

@@ -452,10 +452,26 @@ export const CEMENT_MARKETS = [
  */
 export const CEMENT_DENSITY_KG_M3 = 1440;
 
-export function cementBagKg(market: string): number {
+export interface CementBagResolution {
+  /** Resolved package mass used by the physical quantity calculation. */
+  bagKg: number;
+  /** Market code whose explicit configured row supplied the value, or null for fallback. */
+  configuredMarket: string | null;
+  /** False means the value is the generic 50 kg fallback, not a market-specific row. */
+  isMarketSpecific: boolean;
+}
+
+export function resolveCementBag(market: string): CementBagResolution {
   for (const code of marketCodeVariants(market || "NG")) {
     const kg = CEMENT_BAG_KG[code];
-    if (typeof kg === "number") return kg;
+    if (typeof kg === "number") {
+      return { bagKg: kg, configuredMarket: code, isMarketSpecific: true };
+    }
   }
-  return 50;
+  return { bagKg: 50, configuredMarket: null, isMarketSpecific: false };
+}
+
+/** Numeric compatibility API; use resolveCementBag when the fallback status matters. */
+export function cementBagKg(market: string): number {
+  return resolveCementBag(market).bagKg;
 }

@@ -468,12 +468,10 @@ export function getPackSizeLitres(
 }
 
 export function getRoundingRule(
-  roundingRule: EstimationCalcRule | null,
+  _roundingRule: EstimationCalcRule | null,
 ): string {
-  if (roundingRule?.rule_value) {
-    const rule = (roundingRule.rule_value as Record<string, unknown>).rule;
-    if (typeof rule === "string") return rule;
-  }
+  // Paint buckets/cans are retail containers. A legacy admin rule of floor or
+  // nearest can under-order the specified litres, so purchase quantities always ceil.
   return "ceil";
 }
 
@@ -619,20 +617,11 @@ export function getCeilingCoverageRate(
 export function roundUpToBuckets(
   litres: number,
   packSizeLitres: number,
-  roundingRule: string,
+  _roundingRule: string,
 ): number {
   if (packSizeLitres <= 0) return 0;
-  const buckets = litres / packSizeLitres;
-  switch (roundingRule) {
-    case "ceil":
-      return Math.ceil(buckets);
-    case "round":
-      return Math.round(buckets);
-    case "floor":
-      return Math.max(0, Math.floor(buckets));
-    default:
-      return Math.ceil(buckets);
-  }
+  // Retail cans/buckets must never round below the theoretical requirement.
+  return Math.ceil(Math.max(0, litres) / packSizeLitres);
 }
 
 // =========================================================

@@ -13,8 +13,10 @@ import { describe, expect, it } from "vitest";
 import {
   cementBagKg,
   masonryUnitsForMarket,
+  resolveCementBag,
   unitFaceAreaM2,
 } from "@/config/masonry-units";
+import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
 import { timberSectionsForMarket } from "@/config/timber-sections";
 import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
 import { getPlumbingProfile } from "@/lib/estimation/plumbing-profiles";
@@ -104,6 +106,25 @@ const VECTORS: GoldenVector[] = [
       "PPR-C Type 3 or multi-layer PEX-Al-PEX / Copper tubes (BS EN 1057)",
   },
 ];
+
+describe("cement package market coverage", () => {
+  it("has an explicit package-mass row for every registered market", () => {
+    for (const market of ALL_MARKET_CODES) {
+      const resolved = resolveCementBag(market);
+      expect(resolved.isMarketSpecific, market).toBe(true);
+      expect(resolved.configuredMarket, market).not.toBeNull();
+      expect(resolved.bagKg, market).toBeGreaterThan(0);
+    }
+  });
+
+  it("marks an unknown-market 50 kg result as a generic fallback", () => {
+    expect(resolveCementBag("ZZ")).toEqual({
+      bagKg: 50,
+      configuredMarket: null,
+      isMarketSpecific: false,
+    });
+  });
+});
 
 describe.each(VECTORS)("golden vector: $market", (vector) => {
   it("resolves its own masonry unit", () => {

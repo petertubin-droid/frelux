@@ -23,6 +23,7 @@ import {
   calculateStandardPartitionArea,
   calculateEquivalentPartitions,
   calculateTheoreticalMaterialQuantity,
+  getTyrolenePackRoundingRule,
   parseMaterialRatio,
   parseStandardPartition,
   checkTyroleneProductionEligibility,
@@ -228,6 +229,26 @@ function makeInput(overrides: Partial<TyroleneProjectInput> = {}): TyroleneProje
 // =========================================================
 // Tests
 // =========================================================
+
+describe("Tyrolene pack purchase rules", () => {
+  const pack = (purchase_rule: string, rounding_rule = "floor"): EstimationPackSize => ({
+    id: "pack-policy", ref_type: "material", ref_id: "cement", pack_size: 25,
+    pack_unit_id: null, purchase_rule, min_quantity: 20, rounding_rule,
+    is_active: true, sort_order: 1, created_at: "", updated_at: "",
+  });
+
+  it("always rounds full retail packs upward", () => {
+    expect(getTyrolenePackRoundingRule(pack("full_pack", "floor"), "round")).toBe("ceil");
+  });
+
+  it("preserves explicit partial-sale policy", () => {
+    expect(getTyrolenePackRoundingRule(pack("partial_allowed"), "ceil")).toBe("none");
+  });
+
+  it("rounds minimum-quantity retail packs upward", () => {
+    expect(getTyrolenePackRoundingRule(pack("minimum_quantity", "floor"), "round")).toBe("ceil");
+  });
+});
 
 describe('Tyrolene Engine, parseMaterialRatio', () => {
   it('parses verified FRELUX ratio correctly', () => {

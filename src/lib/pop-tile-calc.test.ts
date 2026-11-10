@@ -486,6 +486,48 @@ describe("calculateTile", () => {
     expect(result.surfaceArea).toBeCloseTo(12, 10);
   });
 
+  it("deducts aggregate wall openings from identical walls before applying waste", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      surfaceType: "wall",
+      length: 4,
+      height: 3,
+      quantity: 2,
+      openingArea: 3,
+      wasteMargin: 10,
+    };
+    const result = calculateTile(input, tileMaterials, "NGN", "₦");
+    expect(result.surfaceArea).toBeCloseTo(24, 10); // gross, backward-compatible
+    expect(result.openingArea).toBeCloseTo(3, 10);
+    expect(result.netSurfaceArea).toBeCloseTo(21, 10);
+    expect(result.wasteAmount).toBeCloseTo(2.1, 10);
+  });
+
+  it("does not apply wall opening deductions to floor calculations", () => {
+    const result = calculateTile(
+      { ...baseTileInput, surfaceType: "floor", openingArea: 4 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(result.surfaceArea).toBeCloseTo(20, 10);
+    expect(result.openingArea).toBe(0);
+    expect(result.netSurfaceArea).toBeCloseTo(20, 10);
+    expect((result.warnings ?? []).join(" ")).toMatch(/ignored.*not a wall/i);
+  });
+
+  it("caps invalid over-gross wall deductions and returns an explicit warning", () => {
+    const result = calculateTile(
+      { ...baseTileInput, surfaceType: "wall", length: 2, height: 2, openingArea: 5 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(result.openingArea).toBeCloseTo(result.surfaceArea, 10);
+    expect(result.netSurfaceArea).toBe(0);
+    expect((result.warnings ?? []).join(" ")).toMatch(/exceed.*gross wall area/i);
+  });
+
   it("applies waste margin to compute wasteAmount", () => {
     const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
     // surfaceArea = 20, waste 10% => wasteAmount = 2

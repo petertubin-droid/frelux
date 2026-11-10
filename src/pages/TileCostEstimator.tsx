@@ -78,6 +78,8 @@ interface PassedState {
 function tileQuoteOptions(
   result: {
     surfaceArea: number;
+    openingArea: number;
+    netSurfaceArea: number;
     tilesNeeded: number;
     boxesNeeded: number;
     tileCost: number;
@@ -105,7 +107,9 @@ function tileQuoteOptions(
     title: "FRELUX Tile Cost Estimate",
     subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
     metaRows: [
-      ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
+      ["Gross surface area", `${formatNumber(result.surfaceArea)} m²`],
+      ...(result.openingArea > 0 ? [["Opening deductions", `−${formatNumber(result.openingArea)} m²`] as [string, string]] : []),
+      ["Net tiled area", `${formatNumber(result.netSurfaceArea)} m²`],
       ["Tiles needed", String(result.tilesNeeded)],
       ["Boxes needed", String(result.boxesNeeded)],
       ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
@@ -230,6 +234,7 @@ export default function TileCostEstimator({
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
+  const [openingError, setOpeningError] = useState("");
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "tile_cost" });
   const [saving, setSaving] = useState(false);
@@ -342,7 +347,7 @@ export default function TileCostEstimator({
       );
       const labourCost = calculateLabourCost(
         labourConfig,
-        rawResult.surfaceArea,
+        rawResult.netSurfaceArea,
       );
       const r: TileCalcResult = {
         ...rawResult,
@@ -359,9 +364,17 @@ export default function TileCostEstimator({
     value: TileCalcInput[K],
   ) {
     setInput((prev) => ({ ...prev, [key]: value }));
+    if (key === "openingArea") setOpeningError("");
   }
 
   function compute() {
+    if (input.surfaceType === "wall") {
+      const grossArea = input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1));
+      if (!Number.isFinite(input.openingArea ?? 0) || (input.openingArea ?? 0) < 0 || (input.openingArea ?? 0) > grossArea) {
+        setOpeningError("Opening area must be between 0 and the total gross wall area.");
+        return;
+      }
+    }
     const rawResult = monitoredCalc("Tile Cost Estimator", () =>
       calculateTile(
         { ...input, labourRatePerSqm: 0 },
@@ -370,7 +383,7 @@ export default function TileCostEstimator({
         currencySymbol,
       ),
     );
-    const labourCost = calculateLabourCost(labourConfig, rawResult.surfaceArea);
+    const labourCost = calculateLabourCost(labourConfig, rawResult.netSurfaceArea);
     const r: TileCalcResult = {
       ...rawResult,
       labourCost,
@@ -576,6 +589,32 @@ export default function TileCostEstimator({
                     />
                   </Field>
                 )}
+                {input.surfaceType === "wall" && (
+                  <Field
+                    label="Total door and window opening area"
+                    suffix={`${unitShortLabel(input.unit)}²`}
+                    hint="Combined area across all identical walls; use 0 if there are no openings."
+                  >
+                    <input
+                      type="number"
+                      min={0}
+                      max={input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1))}
+                      step="0.01"
+                      value={input.openingArea ?? 0}
+                      aria-invalid={Boolean(openingError)}
+                      aria-describedby={openingError ? "tile-opening-error" : undefined}
+                      onChange={(e) => update(
+                        "openingArea",
+                        Math.min(
+                          input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1)),
+                          Math.max(0, Number(e.target.value) || 0),
+                        ),
+                      )}
+                      className="input-field dark:bg-card dark:border-white/10"
+                    />
+                    {openingError && <span id="tile-opening-error" role="alert" className="mt-1 block text-xs text-destructive">{openingError}</span>}
+                  </Field>
+                )}
               </div>
             </Section>
 
@@ -702,7 +741,7 @@ export default function TileCostEstimator({
               config={labourConfig}
               onChange={setLabourConfig}
               currencySymbol={currencySymbol}
-              area={result?.surfaceArea ?? 0}
+              area={result?.netSurfaceArea ?? 0}
               last
             />
 
@@ -756,10 +795,9 @@ export default function TileCostEstimator({
                 )}
                 {result ? (
                   <>
-                    <Row
-                      label="Surface area"
-                      value={`${formatNumber(result.surfaceArea)} m²`}
-                    />
+                    <Row label="Gross surface area" value={`${formatNumber(result.surfaceArea)} m²`} />
+                    {result.openingArea > 0 && <Row label="Opening deductions" value={`−${formatNumber(result.openingArea)} m²`} />}
+                    <Row label="Net tiled area" value={`${formatNumber(result.netSurfaceArea)} m²`} />
                     <Row label="Tiles needed" value={`${result.tilesNeeded}`} />
                     <Row label="Boxes needed" value={`${result.boxesNeeded}`} />
                     <Row
@@ -947,12 +985,14 @@ export default function TileCostEstimator({
                       <EngineExplanationPanel
                         result={engine.buildExplanation({
                           subject: "Tile Cost Estimate",
-                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.surfaceArea)} m²`,
+                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.netSurfaceArea)} m² net tiled area`,
                           steps: [
                             {
-                              description: "Surface area",
+                              description: "Gross surface area",
                               value: `${formatNumber(result.surfaceArea)} m²`,
                             },
+                            ...(result.openingArea > 0 ? [{ description: "Opening deductions", value: `${formatNumber(result.openingArea)} m²` }] : []),
+                            { description: "Net tiled area", value: `${formatNumber(result.netSurfaceArea)} m²` },
                             {
                               description: "Tiles needed",
                               value: String(result.tilesNeeded),
@@ -1004,6 +1044,7 @@ export default function TileCostEstimator({
                           notes: [
                             `Method: ${result.method}`,
                             `Waste margin: ${input.wasteMargin}%`,
+                            `Gross surface: ${formatNumber(result.surfaceArea)} m²; openings: ${formatNumber(result.openingArea)} m²; net tiled area: ${formatNumber(result.netSurfaceArea)} m²`,
                           ],
                         })}
                       />

@@ -413,12 +413,19 @@ export interface TileCalcInput {
   spacerPricePerPack: number;
   spacerPackageSize: number;
   wasteMargin: number;
+  /** Optional total area of wall openings across all identical surfaces, in the selected unit squared. */
+  openingArea?: number;
+  /** Advisory layout input; it never changes the user-selected waste percentage automatically. */
+  layoutPattern?: "straight" | "diagonal";
   labourRatePerSqm: number;
   unit: Unit;
 }
 
 export interface TileCalcResult {
+  /** Gross measured area, retained for backward compatibility. */
   surfaceArea: number;
+  openingArea: number;
+  netSurfaceArea: number;
   tileArea: number;
   tilesNeeded: number;
   boxesNeeded: number;

@@ -133,9 +133,15 @@ export function calculateTile(
     surfaceArea = lengthM * widthM * surfaceCount;
   }
 
+  const unitAreaM2 = toSqm(1, input.unit) ** 2;
+  const requestedOpeningArea = input.surfaceType === "wall" && Number.isFinite(input.openingArea)
+    ? Math.max(0, input.openingArea ?? 0) * unitAreaM2
+    : 0;
+  const openingArea = Math.min(surfaceArea, requestedOpeningArea);
+  const netSurfaceArea = Math.max(0, surfaceArea - openingArea);
   const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
   const wasteMultiplier = 1 + wastePct / 100;
-  const adjustedArea = surfaceArea * wasteMultiplier;
+  const adjustedArea = netSurfaceArea * wasteMultiplier;
 
   // --- Tiles (always calculated) ---
   const tileAreaM2 = (input.tileWidthMm / 1000) * (input.tileHeightMm / 1000);
@@ -252,6 +258,14 @@ export function calculateTile(
       "Tile dimensions are invalid (zero tile area). Tile count and cost cannot be calculated.",
     );
   }
+  if (input.surfaceType === "wall" && requestedOpeningArea > surfaceArea) {
+    tileWarnings.push(
+      "Opening deductions exceed the measured gross wall area; deductions were capped at the gross area. Correct the opening area before relying on this takeoff.",
+    );
+  }
+  if (input.surfaceType !== "wall" && (input.openingArea ?? 0) > 0) {
+    tileWarnings.push("Opening deductions were ignored because the selected surface is not a wall.");
+  }
   if (surfaceArea > 0) {
     if (input.method === "adhesive" && input.adhesiveCoverageRate <= 0) {
       tileWarnings.push(
@@ -285,6 +299,8 @@ export function calculateTile(
 
   return {
     surfaceArea,
+    openingArea,
+    netSurfaceArea,
     tileArea: tileAreaM2,
     tilesNeeded,
     boxesNeeded,
@@ -301,7 +317,7 @@ export function calculateTile(
     groutCost,
     spacerNeeded,
     spacerCost,
-    wasteAmount: adjustedArea - surfaceArea,
+    wasteAmount: adjustedArea - netSurfaceArea,
     materialCost,
     labourCost,
     grandTotal,

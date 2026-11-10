@@ -35,7 +35,7 @@ import {
   createValidationResult,
 } from './validation';
 
-import { roundPackQuantity } from './pack-sizing';
+import { roundPackQuantity, roundPackWithMin } from './pack-sizing';
 
 import {
   createPriceSnapshot,
@@ -259,6 +259,12 @@ export function getRoundingRule(
   const val = rule.rule_value as Record<string, unknown>;
   const ruleStr = typeof val.rule === 'string' ? val.rule : 'ceil';
   return ruleStr;
+}
+
+export function getTyrolenePackRoundingRule(packSize: EstimationPackSize, fallbackRule: string): string {
+  if (packSize.purchase_rule === "partial_allowed") return "none";
+  if (packSize.purchase_rule === "full_pack" || packSize.purchase_rule === "minimum_quantity") return "ceil";
+  return packSize.rounding_rule || fallbackRule;
 }
 
 // =========================================================
@@ -630,12 +636,10 @@ export function calculateTyroleneProject(
 
       if (packSize && packSize.pack_size > 0) {
         effectivePackSize = packSize.pack_size;
-        effectiveRoundingRule = packSize.rounding_rule || roundingRule;
-        const roundingResult = roundPackQuantity(
-          theoreticalQty,
-          effectivePackSize,
-          effectiveRoundingRule
-        );
+        effectiveRoundingRule = getTyrolenePackRoundingRule(packSize, roundingRule);
+        const roundingResult = packSize.purchase_rule === "minimum_quantity"
+          ? roundPackWithMin(theoreticalQty, effectivePackSize, packSize.min_quantity, effectiveRoundingRule)
+          : roundPackQuantity(theoreticalQty, effectivePackSize, effectiveRoundingRule);
         practicalQty = roundingResult.practical_purchase_quantity;
         packCount = roundingResult.pack_count;
         leftoverQty = roundingResult.leftover_quantity;

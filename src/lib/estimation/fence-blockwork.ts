@@ -19,6 +19,7 @@ import {
   MORTAR_JOINT_M,
   PLOT_PRESETS,
   cementBagKg,
+  resolveCementBag,
   cementBagKg as bagKgForMarket,
   coachesToMetres,
   courseHeightM,
@@ -296,7 +297,9 @@ export function calculateFenceBlockwork(
       ? `${foundationCourses} course(s) below ground are counted over the wall run, on a ${(unit.thicknessM * 1000).toFixed(0)} mm wide strip footing ${(FOOTING_DEPTH_M * 1000).toFixed(0)} mm deep in a 1:3:6 concrete.`
       : "No courses below ground and no strip footing are counted. Enter the foundation courses if the wall sits on a footing.",
     `Mortar is a 1:${ratio} cement to sand mix by volume, with a ${MORTAR_DRY_FACTOR} dry volume factor.`,
-    `Cement is counted in ${bagKg} kg bags for this market.`,
+    resolveCementBag(input.market).isMarketSpecific
+      ? `Cement is counted in ${bagKg} kg bags using the configured ${input.market.toUpperCase()} market pack size.`
+      : `No cement pack size is configured for ${input.market}. Quantity uses a generic 50 kg bag fallback; verify local packaging before ordering.`,
     "Quantities only. Prices, tax and labour come from the price book and your own figures, never from this page.",
   ];
 

@@ -268,6 +268,8 @@ export default function TileCalculator({
     spacerPricePerPack: 0,
     spacerPackageSize: 1,
     wasteMargin: sharedWastePercentFor("tiles"),
+    openingArea: 0,
+    layoutPattern: "straight",
     labourRatePerSqm: 2000,
     unit: resolveMarketRoomUnit(market, "meters"),
   });
@@ -581,6 +583,15 @@ export default function TileCalculator({
       e.width = "Enter a valid width";
     if (input.surfaceType === "wall" && input.height <= 0)
       e.height = "Enter a valid height";
+    if (input.surfaceType === "wall") {
+      const openingArea = input.openingArea ?? 0;
+      const grossArea = input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1));
+      if (!Number.isFinite(openingArea) || openingArea < 0) {
+        e.openingArea = "Enter a valid opening area, or 0 if there are none";
+      } else if (openingArea > grossArea) {
+        e.openingArea = "Opening area cannot exceed the total gross wall area";
+      }
+    }
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
@@ -923,6 +934,31 @@ export default function TileCalculator({
                         }
                         className="input-field"
                         placeholder="0.00"
+                      />
+                    </Field>
+                  )}
+                  {input.surfaceType === "wall" && (
+                    <Field
+                      label="Total door and window opening area"
+                      suffix={`${unitShortLabel(input.unit)}²`}
+                      error={errors.openingArea}
+                      hint="Enter the combined area across all identical walls. Use 0 if there are no openings."
+                    >
+                      <input
+                        type="number"
+                        min={0}
+                        max={input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1))}
+                        step="0.01"
+                        value={input.openingArea ?? 0}
+                        aria-invalid={Boolean(errors.openingArea)}
+                        onChange={(e) => update(
+                          "openingArea" as keyof typeof input,
+                          Math.min(
+                            input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1)),
+                            Math.max(0, Number(e.target.value) || 0),
+                          ),
+                        )}
+                        className="input-field"
                       />
                     </Field>
                   )}
@@ -1312,6 +1348,37 @@ export default function TileCalculator({
               </Field>
             </div>
 
+            {/* Layout drives a recommendation, never a silent calculation change. */}
+            <div className="mt-6 max-w-md">
+                <Field label="Tile layout pattern" hint="Pattern advice is indicative only; confirm the actual cut layout before ordering.">
+                  <select
+                    value={input.layoutPattern ?? "straight"}
+                    onChange={(e) => update("layoutPattern" as keyof typeof input, e.target.value as "straight" | "diagonal")}
+                    className="input-field"
+                  >
+                    <option value="straight">Straight / grid</option>
+                    <option value="diagonal">Diagonal</option>
+                  </select>
+                </Field>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {input.layoutPattern === "diagonal"
+                    ? "One published guide suggests 15% extra for intricate or diagonal layouts; actual cuts, tile size, and room geometry still matter."
+                    : "One published guide suggests 10% extra for straightforward layouts; actual cuts and room geometry still matter."}
+                  {" "}Choose an allowance below to apply it; this recommendation never changes your setting automatically. <a className="underline underline-offset-2" href="https://www.cletile.com/blogs/cle-education/how-much-extra-tile-to-buy" target="_blank" rel="noopener noreferrer">Read the guidance</a>.
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(input.layoutPattern === "diagonal" ? [15] : [10]).map((recommendedWaste) => (
+                    <Button key={recommendedWaste} type="button" variant="outline" size="sm"
+                      onClick={() => update("wasteMargin", recommendedWaste)}>
+                      Apply {recommendedWaste}%
+                    </Button>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Uneven or unsound substrate needs assessment and preparation; extra tiles do not correct it.
+                </p>
+              </div>
+
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-card-foreground">
@@ -1394,7 +1461,9 @@ export default function TileCalculator({
                 contextSummary={`Tile Calculator Results:
 - Surface type: ${input.surfaceType}
 - Method: ${input.method}
-- Surface area: ${formatNumber(result.surfaceArea)} m²
+- Gross surface area: ${formatNumber(result.surfaceArea)} m²
+- Opening deductions: ${formatNumber(result.openingArea)} m²
+- Net tiled area: ${formatNumber(result.netSurfaceArea)} m²
 - Tile size: ${tileSizeLabel}
 - Tiles needed: ${result.tilesNeeded}
 - Boxes needed: ${result.boxesNeeded}
@@ -1515,10 +1584,11 @@ function TileResultCard({
       </div>
 
       <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-card">
-        <Stat
-          label="Surface area"
-          value={`${formatNumber(result.surfaceArea)} m²`}
-        />
+        <Stat label="Gross area" value={`${formatNumber(result.surfaceArea)} m²`} />
+        {result.openingArea > 0 && (
+          <Stat label="Opening deductions" value={`−${formatNumber(result.openingArea)} m²`} />
+        )}
+        <Stat label="Net tiled area" value={`${formatNumber(result.netSurfaceArea)} m²`} />
         <Stat
           label="Tile area"
           value={`${formatNumber(result.tileArea, 3)} m²`}
@@ -1626,12 +1696,14 @@ function TileResultCard({
         <EngineExplanationPanel
           result={engine.buildExplanation({
             subject: "Tile Calculation",
-            resultSummary: `${result.boxesNeeded} boxes needed (${result.tilesNeeded} tiles) for ${formatNumber(result.surfaceArea)} m²`,
+            resultSummary: `${result.boxesNeeded} boxes needed (${result.tilesNeeded} tiles) for ${formatNumber(result.netSurfaceArea)} m² net tiled area`,
             steps: [
               {
-                description: "Surface area",
+                description: "Gross surface area",
                 value: `${formatNumber(result.surfaceArea)} m²`,
               },
+              ...(result.openingArea > 0 ? [{ description: "Opening deductions", value: `${formatNumber(result.openingArea)} m²` }] : []),
+              { description: "Net tiled area", value: `${formatNumber(result.netSurfaceArea)} m²` },
               {
                 description: "Tile area",
                 value: `${formatNumber(result.tileArea, 3)} m²`,
@@ -1737,6 +1809,7 @@ function TileResultCard({
         methodologyText={calcDefaults.howCalculatedText}
         assumptions={[
           { label: "Surface type", value: input.surfaceType },
+          { label: "Opening area", value: `${formatNumber(result.openingArea)} m²` },
           {
             label: "Tile size",
             value: tileSizeLabel,
@@ -1753,10 +1826,14 @@ function TileResultCard({
           tileWidthMm: input.tileWidthMm,
           tileHeightMm: input.tileHeightMm,
           wasteMargin: input.wasteMargin,
+          openingArea: input.openingArea,
+          layoutPattern: input.layoutPattern,
           method: input.method,
         }}
         actualResult={{
           surfaceArea: result.surfaceArea,
+          openingArea: result.openingArea,
+          netSurfaceArea: result.netSurfaceArea,
           tilesNeeded: result.tilesNeeded,
           boxesNeeded: result.boxesNeeded,
           grandTotal: result.grandTotal,
