@@ -138,6 +138,9 @@ export interface PlumbingEngineeringMetrics {
   total_wsfu: number;
   peak_flow_lpm: number;
   peak_flow_lps: number;
+  /** Minimum bore that holds the velocity limit, before a pipe is chosen. */
+  required_bore_mm: number;
+  /** Bore of the pipe actually recommended, so the label and the number agree. */
   recommended_header_bore_mm: number;
   recommended_header_pipe_label: string;
   water_storage_litres_24h: number;
@@ -172,25 +175,27 @@ export function calculatePlumbingEngineeringMetrics(
   const peakLpm = peakLps * 60;
 
   // Header sizing based on max permissible velocity 1.8 m/s (BS EN 806-3 / CIBSE Guide G)
+  // One table, so the bore reported and the pipe named can never disagree. The
+  // PN20 bore for each outside diameter is used because that is the pressure
+  // class sold for domestic supply lines.
+  const PPR_BORES: ReadonlyArray<readonly [number, string]> = [
+    [13.2, '20 mm PPR (13.2 mm bore, 1/2" nominal)'],
+    [16.6, '25 mm PPR (16.6 mm bore, 3/4" nominal)'],
+    [21.2, '32 mm PPR (21.2 mm bore, 1" nominal)'],
+    [26.6, '40 mm PPR (26.6 mm bore, 1-1/4" nominal)'],
+    [33.2, '50 mm PPR (33.2 mm bore, 1-1/2" nominal)'],
+    [42.0, '63 mm PPR (42.0 mm bore, 2" nominal)'],
+  ];
+  let requiredBoreMm = 0;
   let boreMm = 13.2;
-  let pipeLabel = '20 mm PPR (1/2" nominal)';
+  let pipeLabel = '20 mm PPR (13.2 mm bore, 1/2" nominal)';
   if (peakLps > 0) {
     const areaM2 = peakLps / 1000 / 1.8;
     const reqBoreMm = Math.sqrt((4 * areaM2) / Math.PI) * 1000;
-    boreMm = Math.round(reqBoreMm * 10) / 10;
-    if (reqBoreMm <= 13.2) {
-      pipeLabel = '20 mm PPR (13.2 mm bore, 1/2" nominal)';
-    } else if (reqBoreMm <= 16.6) {
-      pipeLabel = '25 mm PPR (16.6 mm bore, 3/4" nominal)';
-    } else if (reqBoreMm <= 21.2) {
-      pipeLabel = '32 mm PPR (21.2 mm bore, 1" nominal)';
-    } else if (reqBoreMm <= 26.6) {
-      pipeLabel = '40 mm PPR (26.6 mm bore, 1-1/4" nominal)';
-    } else if (reqBoreMm <= 33.2) {
-      pipeLabel = '50 mm PPR (33.2 mm bore, 1-1/2" nominal)';
-    } else {
-      pipeLabel = '63 mm PPR (42.0 mm bore, 2" nominal)';
-    }
+    requiredBoreMm = Math.round(reqBoreMm * 10) / 10;
+    const chosen = PPR_BORES.find(([bore]) => reqBoreMm <= bore) ?? PPR_BORES[PPR_BORES.length - 1];
+    boreMm = chosen[0];
+    pipeLabel = chosen[1];
   }
 
   // Domestic daily storage capacity based on 150 L/person/day with 24h autonomy
@@ -204,6 +209,7 @@ export function calculatePlumbingEngineeringMetrics(
     total_wsfu: Math.round(wsfu * 10) / 10,
     peak_flow_lpm: Math.round(peakLpm * 10) / 10,
     peak_flow_lps: Math.round(peakLps * 100) / 100,
+    required_bore_mm: requiredBoreMm,
     recommended_header_bore_mm: boreMm,
     recommended_header_pipe_label: pipeLabel,
     water_storage_litres_24h: storageLitres,
@@ -584,7 +590,7 @@ export function calculatePlumbing(
   if (engineeringMetrics.total_wsfu > 0) {
     steps.push({
       label: "Hydraulic design demand (Hunter's Curve / BS EN 806)",
-      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Sized header bore: ${engineeringMetrics.recommended_header_bore_mm} mm (${engineeringMetrics.recommended_header_pipe_label}) at ≤1.8 m/s velocity. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
+      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Header: ${engineeringMetrics.recommended_header_pipe_label}, ${engineeringMetrics.recommended_header_bore_mm} mm bore (the minimum that holds 1.8 m/s is ${engineeringMetrics.required_bore_mm} mm, so the next standard pipe is chosen). Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
     });
   }
 

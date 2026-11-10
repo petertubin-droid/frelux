@@ -39,11 +39,12 @@ import { resolveAssemblyLayers } from "./assembly-overrides";
 export const MORTAR_DRY_FACTOR = 1.33;
 /** Volume of one 50 kg cement bag, m³ (standard). */
 /**
- * One 50 kg bag at 1440 kg/m3 is 0.03472 m3. The material engines use 0.0347;
- * this module carried 0.035, which made its bag 0.9 percent larger and its
- * cement count lower than the rest of the product for the same wet volume.
+ * One 50 kg bag at 1440 kg/m3, derived rather than typed in, so this module and
+ * the takeoff assemblies cannot drift apart again. This module carried 0.035,
+ * which made its bag 0.9 percent larger and its cement count lower than the rest
+ * of the product for the same wet volume.
  */
-export const CEMENT_BAG_VOLUME_M3 = 0.0347;
+export const CEMENT_BAG_VOLUME_M3 = 50 / 1440;
 
 export interface WallAreaResult {
   ok: boolean;

@@ -36,9 +36,10 @@ export interface AssemblyMaterialLine {
  * wall finishing) already use this figure; keeping 0.035 here made the same bag
  * of cement 0.9 percent larger in this engine than in the rest of the product.
  */
-export const CEMENT_BAG_M3 = 0.0347;
 export const CEMENT_DENSITY_KG_M3 = 1440;
 export const CEMENT_BAG_KG = 50;
+/** Volume of the default 50 kg bag, derived from its mass, not typed in. */
+export const CEMENT_BAG_M3 = CEMENT_BAG_KG / CEMENT_DENSITY_KG_M3;
 /**
  * Dry-to-wet volume factor for mortar.
  *
@@ -59,6 +60,13 @@ export interface BlockworkSpec {
   mortarPerM2M3?: number;
   /** Cement to sand parts, e.g. 1:6. */
   mix?: { cement: number; sand: number };
+  /**
+   * Mass of one cement bag on the local market, in kilograms. Defaults to the
+   * 50 kg bag used across the engines. A market that sells 42.6 kg (94 lb) or
+   * 40 kg bags passes that mass and gets its own bag count, because a bag is a
+   * package, not a unit of cement.
+   */
+  cementBagKg?: number;
   wastePct?: number;
   mortarWastePct?: number;
 }
@@ -78,6 +86,11 @@ export function blockworkAssembly(
   const sand = Math.max(1, spec.mix?.sand ?? 6);
   const wastePct = spec.wastePct ?? 5;
   const mortarWastePct = spec.mortarWastePct ?? 10;
+  const bagKg =
+    spec.cementBagKg !== undefined && Number.isFinite(spec.cementBagKg) && spec.cementBagKg > 0
+      ? spec.cementBagKg
+      : CEMENT_BAG_KG;
+  const bagM3 = bagKg / CEMENT_DENSITY_KG_M3;
 
   const faceM2 = (lengthMm / 1000) * (heightMm / 1000);
   const perM2 = faceM2 > 0 ? 1 / faceM2 : 0;
@@ -90,7 +103,7 @@ export function blockworkAssembly(
   const mortarDryM3 = mortar * MORTAR_DRY_FACTOR;
   const cementM3 = mortarDryM3 * (cement / parts);
   const sandM3 = mortarDryM3 * (sand / parts);
-  const cementBags = cementM3 > 0 ? Math.ceil(cementM3 / CEMENT_BAG_M3) : 0;
+  const cementBags = cementM3 > 0 ? Math.ceil(cementM3 / bagM3) : 0;
 
   return [
     {
@@ -138,15 +151,15 @@ export function blockworkAssembly(
     {
       material: "Cement",
       unit: "kg",
-      netQuantity: round((cementM3 / CEMENT_BAG_M3) * CEMENT_BAG_KG, 2),
+      netQuantity: round((cementM3 / bagM3) * bagKg, 2),
       wastePct: mortarWastePct,
-      quantity: round(cementBags * CEMENT_BAG_KG, 2),
+      quantity: round(cementBags * bagKg, 2),
       purchaseQuantity: cementBags,
-      purchaseUnit: "bags of 50 kg",
+      purchaseUnit: `bags of ${bagKg} kg`,
       derivation: {
         formula:
           "wet mortar x dry factor x cement parts / total parts / bag volume, rounded up to whole bags",
-        inputs: { mortarM3: mortar, dryFactor: MORTAR_DRY_FACTOR, cement, sand, bagM3: CEMENT_BAG_M3 },
+        inputs: { mortarM3: mortar, dryFactor: MORTAR_DRY_FACTOR, cement, sand, bagKg, bagM3: round(bagM3, 4) },
         steps: [
           { label: "Dry mix", value: round(mortarDryM3, 4), unit: "m3" },
           { label: "Cement volume", value: round(cementM3, 4), unit: "m3" },
