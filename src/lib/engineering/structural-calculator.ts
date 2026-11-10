@@ -68,8 +68,23 @@ export type SlabType = "one_way" | "two_way" | "cantilever_slab";
 
 import { resolveMemberSizing, type MemberSizingProfile } from "./member-sizing";
 
+/**
+ * Depth allowance below the soffit for cover, link and half a main bar, mm.
+ * Used wherever a depth has to be turned into an effective depth before the bars
+ * are chosen, so the preliminary and final passes measure the same thing.
+ */
+const BEAM_D_ALLOWANCE_MM = 25;
+
 export interface BeamDesignInput {
   span: number; // meters (clear span)
+  /**
+   * Bearing width at each support, mm. BS 8110-1 cl. 3.4.1.1 takes the effective
+   * span as the lesser of clear span + d and the centre to centre distance,
+   * which for equal supports is clear span + bearing. Without this the first
+   * limit is all that can be applied, so the span is slightly long and the
+   * moment slightly high, never low.
+   */
+  support_width_mm?: number;
   beam_type: BeamType;
   support_condition: SupportCondition;
   live_load: number; // kN/m² (imposed load)
@@ -730,16 +745,34 @@ function designBeamAtSpan(
   // otherwise a span/12 preliminary estimate. The old fixed +0.1 m ignored the
   // member's depth and understated moments by roughly 10% on a 6 m beam.
   const preliminary_depth_mm = input.existing_depth ?? input.span * 83.33;
-  const preliminary_d_mm = Math.max(150, preliminary_depth_mm - input.cover_mm);
+  // d is a depth to the tension steel, so it is not h less cover alone: the link
+  // and half a main bar sit inside it too. This allowance is the same one the
+  // two-pass span iteration uses, so both passes measure the same d.
+  const preliminary_d_mm = Math.max(
+    150,
+    preliminary_depth_mm - input.cover_mm - BEAM_D_ALLOWANCE_MM,
+  );
+  const supportCapM =
+    input.support_width_mm && input.support_width_mm > 0
+      ? input.span + input.support_width_mm / 1000
+      : undefined;
+  const atDepthSpan = input.span + preliminary_d_mm / 1000;
   const effective_span =
-    effectiveSpanOverride ?? input.span + preliminary_d_mm / 1000;
+    effectiveSpanOverride ??
+    (supportCapM === undefined
+      ? atDepthSpan
+      : Math.min(atDepthSpan, supportCapM));
   if (effectiveSpanOverride !== undefined) {
     formulas.push(
-      `Effective span = clear span + d = ${input.span} + ${(effective_span - input.span).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1, with d taken from the section finally recommended)`,
+      `Effective span = clear span + d = ${input.span} + ${(effective_span - input.span).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1, with d taken from the section finally recommended${supportCapM === undefined ? "" : "; support width caps it at clear span + bearing"})`,
+    );
+  } else if (supportCapM !== undefined) {
+    formulas.push(
+      `Effective span = lesser of clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${atDepthSpan.toFixed(3)} m and clear span + bearing = ${supportCapM.toFixed(3)} m → ${effective_span.toFixed(3)} m (BS 8110-1 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"}, less ${BEAM_D_ALLOWANCE_MM} mm for link and half a main bar)`,
     );
   } else {
     formulas.push(
-      `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"})`,
+      `Effective span = clear span + d = ${input.span} + ${(preliminary_d_mm / 1000).toFixed(3)} = ${effective_span.toFixed(3)} m (BS 8110 cl. 3.4.1.1; d from ${input.existing_depth ? "the supplied depth" : "a span/12 preliminary depth"}, less ${BEAM_D_ALLOWANCE_MM} mm for link and half a main bar). The centre-to-centre limit needs a support width, which was not supplied, so the span is the longer limit and the moment errs high rather than low.`,
     );
   }
 
@@ -1285,9 +1318,13 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   for (let pass = 0; pass < 4; pass++) {
     const finalD = Math.max(
       150,
-      result.recommended_depth - input.cover_mm - 25,
+      result.recommended_depth - input.cover_mm - BEAM_D_ALLOWANCE_MM,
     );
-    const impliedSpan = input.span + finalD / 1000;
+    const atDepth = input.span + finalD / 1000;
+    const impliedSpan =
+      input.support_width_mm && input.support_width_mm > 0
+        ? Math.min(atDepth, input.span + input.support_width_mm / 1000)
+        : atDepth;
     if (Math.abs(impliedSpan - result.effective_span) < 0.001) break;
     result = designBeamAtSpan(input, impliedSpan);
   }

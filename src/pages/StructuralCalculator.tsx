@@ -1913,6 +1913,9 @@ function BeamCalculator() {
   );
   const [steelGrade, setSteelGrade] = useState<SteelGrade>("Fe500");
   const [cover, setCover] = useState(25);
+  // Bearing width at each support, mm. Zero means not stated, and the engine
+  // then applies only the clear span plus d limit and says so.
+  const [supportWidth, setSupportWidth] = useState(0);
   const [result, setResult] = useState<ReturnType<typeof designBeam> | null>(
     null,
   );
@@ -1934,6 +1937,7 @@ function BeamCalculator() {
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
+      support_width_mm: supportWidth > 0 ? supportWidth : undefined,
       market_code: market.marketCode,
       jurisdiction_code: jurisdiction,
     };
@@ -1973,6 +1977,7 @@ function BeamCalculator() {
     concreteGrade,
     steelGrade,
     cover,
+    supportWidth,
     market.marketCode,
     jurisdiction,
     lengthUnit,
@@ -1985,6 +1990,11 @@ function BeamCalculator() {
   return (
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+          {t(
+            "Support bearing width caps the effective span at clear span plus bearing (BS 8110-1 cl. 3.4.1.1). Leave it at 0 if unknown: the engine then applies only the clear span plus d limit and states that the moment errs high rather than low.",
+          )}
+        </p>
         <InputGrid>
           <MeasuredSpanPicker
             hint="The span filled is the clear distance between the room walls."
@@ -2001,6 +2011,12 @@ function BeamCalculator() {
             value={span}
             onChange={setSpan}
             step="0.1"
+          />
+          <NumInput
+            label="Support bearing width (mm, optional)"
+            value={supportWidth}
+            onChange={setSupportWidth}
+            step="25"
           />
           <SelectInput
             label="Design code"

@@ -259,4 +259,57 @@ describe("doubly reinforced sections (BS 8110-1 Cl 3.4.4.4)", () => {
     expect(r.area_steel_required).toBeGreaterThan(r.max_steel_area);
     expect(r.warnings.join(" ")).toMatch(/4 % practical maximum/i);
   });
+
+  it("takes the effective span as the lesser of clear span plus d and clear span plus bearing", () => {
+    // Cl 3.4.1.1: two limits, the shorter governs. With a 500 mm section and
+    // 25 mm cover the effective depth is 450 mm, so clear span + d is 6.45 m.
+    const noBearing = designBeam({
+      ...BASE,
+      existing_width: 225,
+      existing_depth: 500,
+    });
+    expect(noBearing.effective_span).toBeCloseTo(6.45, 3);
+
+    // A 225 mm bearing is shorter than 450 mm, so 6.225 m governs.
+    const narrow = designBeam({
+      ...BASE,
+      existing_width: 225,
+      existing_depth: 500,
+      support_width_mm: 225,
+    });
+    expect(narrow.effective_span).toBeCloseTo(6.225, 3);
+
+    // A 500 mm bearing is longer than 450 mm, so the depth limit governs again.
+    const wide = designBeam({
+      ...BASE,
+      existing_width: 225,
+      existing_depth: 500,
+      support_width_mm: 500,
+    });
+    expect(wide.effective_span).toBeCloseTo(6.45, 3);
+
+    // Shorter span means less moment, which is the direction the cap must move.
+    expect(narrow.max_moment).toBeLessThan(noBearing.max_moment);
+  });
+
+  it("states when the centre-to-centre limit could not be applied", () => {
+    const withoutBearing = designBeam({
+      ...BASE,
+      existing_width: 225,
+      existing_depth: 500,
+    });
+    expect(
+      withoutBearing.formula_transparency.join(" "),
+    ).toMatch(/centre-to-centre limit needs a support width/i);
+
+    const withBearing = designBeam({
+      ...BASE,
+      existing_width: 225,
+      existing_depth: 500,
+      support_width_mm: 225,
+    });
+    expect(withBearing.formula_transparency.join(" ")).toMatch(
+      /lesser of clear span \+ d .* and clear span \+ bearing/i,
+    );
+  });
 });
