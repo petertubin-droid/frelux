@@ -14,9 +14,13 @@
  *  - an unrecognised roof type reached the engine unchanged, where an unknown
  *    string fell through to a different quantity path with no warning.
  *
- * Every value this module derives rather than reads from the analysis is
- * returned in `notes`, so the screen that shows the estimate can say which
- * numbers came from a rule of thumb.
+ * Contract (owner directive, 10 Nov 2026): the model EXTRACTS measurements and
+ * the deterministic engine computes. Nothing here invents a dimension and then
+ * prices it. A missing measured side (length or width) refuses the estimate and
+ * hands the read measurements back so the form can be filled instead. A
+ * missing convention value (pitch, overhang, mix, block size) is filled from
+ * the engine's own default and labelled `default` in `fieldSources`, never
+ * described as measured.
  */
 import type { BuildToRoofInput } from "../../../src/types/build-to-roof";
 
@@ -37,6 +41,27 @@ export interface AiAnalysis extends Record<string, unknown> {
   detected_openings?: unknown;
 }
 
+export type FieldSource = "measured" | "derived" | "default";
+
+/** What the document actually said, independent of any engine default. */
+export interface AiMeasurements {
+  building_length_m: number | null;
+  building_width_m: number | null;
+  number_of_floors: number | null;
+  floor_to_floor_height_m: number | null;
+  building_type: string | null;
+  roof_type: string | null;
+  roof_pitch_degrees: number | null;
+  roofing_material: string | null;
+  internal_wall_length_m: number | null;
+  openings: Array<{
+    type: "door" | "window";
+    width: number;
+    height: number;
+    count: number;
+  }>;
+}
+
 export interface BuildEstimateInputResult {
   /** Null when the analysis carries nothing that can be priced. */
   input: BuildToRoofInput | null;
@@ -44,6 +69,12 @@ export interface BuildEstimateInputResult {
   notes: string[];
   /** Why no input could be built. */
   refusal: string | null;
+  /** Exactly what was read, so a form can be filled without the estimate. */
+  measurements: AiMeasurements;
+  /** Per field: read, derived from another reading, or an engine default. */
+  fieldSources: Record<string, FieldSource>;
+  /** Fields the visitor must confirm or supply before the numbers are real. */
+  needsConfirmation: string[];
 }
 
 const BUILDING_TYPES = [
@@ -72,26 +103,10 @@ const BLOCK_SIZES: EstimationBlockSize[] = [
 
 /** Length-to-width proportion used only when the photo shows one facade.
  *  The values follow the ratio the analysis prompt itself states. */
-const WIDTH_RATIO: Record<string, number> = {
-  bungalow: 1.5,
-  duplex: 1.3,
-  two_storey: 1.3,
-  apartment: 1.4,
-  office: 1.4,
-  shop: 1.4,
-  custom: 1.4,
-};
-
-/** Internal wall run as a share of the external perimeter, per the prompt. */
-const INTERNAL_WALL_SHARE: Record<string, number> = {
-  bungalow: 0.5,
-  duplex: 0.7,
-  two_storey: 0.7,
-  apartment: 0.75,
-  office: 0.75,
-  shop: 0.35,
-  custom: 0.5,
-};
+// WIDTH_RATIO and INTERNAL_WALL_SHARE were removed on 10 Nov 2026. Both
+// turned the absence of a reading into a number that looked measured: the
+// unseen facade became length divided by a building-type ratio, and internal
+// walls became a share of the perimeter.
 
 /** Roof pitch limits, in degrees, by detected roof type. */
 const PITCH_RANGE: Record<string, [number, number]> = {
@@ -292,49 +307,97 @@ export function buildEstimateInput(
 ): BuildEstimateInputResult {
   const analysis = rawAnalysis ?? {};
   const notes: string[] = [];
+  const needsConfirmation: string[] = [];
+  const fieldSources: Record<string, FieldSource> = {};
 
-  if (!hasUsableDimensions(analysis)) {
+  const readNumber = (value: unknown): number | null => {
+    const n = toNumber(value);
+    return n !== null && n > 0 ? n : null;
+  };
+
+  const length = readNumber(analysis.estimated_length);
+  const width = readNumber(analysis.estimated_width);
+  const detectedOpenings = normaliseOpenings(analysis.detected_openings, notes);
+  const buildingTypeReading = normaliseEnum(
+    analysis.detected_building_type,
+    BUILDING_TYPES,
+  );
+  const roofTypeReading = normaliseEnum(analysis.detected_roof_type, ROOF_TYPES);
+  const roofingReading = normaliseEnum(
+    analysis.detected_roofing_material,
+    ROOFING_MATERIALS,
+  );
+  const pitchReading = toNumber(analysis.estimated_roof_pitch);
+
+  const measurements: AiMeasurements = {
+    building_length_m: length,
+    building_width_m: width,
+    number_of_floors: readNumber(analysis.estimated_floors),
+    floor_to_floor_height_m: readNumber(analysis.estimated_height_per_floor),
+    building_type: buildingTypeReading,
+    roof_type: roofTypeReading,
+    roof_pitch_degrees: pitchReading,
+    roofing_material: roofingReading,
+    internal_wall_length_m: readNumber(analysis.estimated_internal_wall_length),
+    openings: detectedOpenings,
+  };
+
+  // ── Measured geometry is never invented ──
+  // A photo shows one or two facades. The side it did not show is not
+  // measured, and dividing the seen side by a building-type ratio would price
+  // a shape nobody saw. The measurements come back instead, so the estimator
+  // form can be filled and the engine run on real numbers.
+  const missingSides: string[] = [];
+  if (length === null) missingSides.push("length");
+  if (width === null) missingSides.push("width");
+  if (missingSides.length > 0) {
+    needsConfirmation.push(
+      ...missingSides.map((side) => `estimated_${side}`),
+    );
+    if (detectedOpenings.length === 0) needsConfirmation.push("detected_openings");
     return {
       input: null,
       notes,
       refusal:
-        "The photo did not give a usable building dimension. Retake it square-on with a door or window in frame, or enter the dimensions in the Build-to-Roof Estimator.",
+        `The photo did not show a measurable ${missingSides.join(" or ")}. ` +
+        `FRELUX extracted what it could read and will not invent the missing side: ` +
+        `enter the ${missingSides.join(" and ")} in the Build-to-Roof Estimator, or photograph the elevation that shows it.`,
+      measurements,
+      fieldSources,
+      needsConfirmation,
     };
   }
 
-  const buildingType =
-    normaliseEnum(analysis.detected_building_type, BUILDING_TYPES) ??
-    "bungalow";
-  if (normaliseEnum(analysis.detected_building_type, BUILDING_TYPES) === null) {
+  const buildingType = buildingTypeReading ?? "bungalow";
+  fieldSources.building_type = buildingTypeReading ? "measured" : "default";
+  if (buildingTypeReading === null) {
     notes.push(
-      `Building type "${String(analysis.detected_building_type ?? "")}" was not recognised, so a bungalow shape was assumed.`,
+      `Building type "${String(analysis.detected_building_type ?? "")}" was not recognised, so the engine's bungalow shape was used.`,
     );
   }
 
-  const roofType =
-    normaliseEnum(analysis.detected_roof_type, ROOF_TYPES) ?? "gable";
-  if (normaliseEnum(analysis.detected_roof_type, ROOF_TYPES) === null) {
+  const roofType = roofTypeReading ?? "gable";
+  fieldSources.roof_type = roofTypeReading ? "measured" : "default";
+  if (roofTypeReading === null) {
     notes.push(
-      `Roof type "${String(analysis.detected_roof_type ?? "")}" was not recognised, so a gable roof was assumed.`,
+      `Roof type "${String(analysis.detected_roof_type ?? "")}" was not recognised, so the engine's gable roof was used.`,
     );
   }
 
-  const roofingMaterial =
-    normaliseEnum(analysis.detected_roofing_material, ROOFING_MATERIALS) ??
-    "long_span_aluminium";
-  if (
-    normaliseEnum(analysis.detected_roofing_material, ROOFING_MATERIALS) ===
-    null
-  ) {
+  const roofingMaterial = roofingReading ?? "long_span_aluminium";
+  fieldSources.roofing_material = roofingReading ? "measured" : "default";
+  if (roofingReading === null) {
     notes.push(
-      `Roof covering "${String(analysis.detected_roofing_material ?? "")}" was not recognised, so long span aluminium was assumed.`,
+      `Roof covering "${String(analysis.detected_roofing_material ?? "")}" was not recognised, so long span aluminium was used.`,
     );
   }
 
-  const blockSize = normaliseBlockSize(analysis.detected_block_type) ?? "9inch";
-  if (normaliseBlockSize(analysis.detected_block_type) === null) {
+  const blockReading = normaliseBlockSize(analysis.detected_block_type);
+  const blockSize = blockReading ?? "9inch";
+  fieldSources.block_size = blockReading ? "measured" : "default";
+  if (blockReading === null) {
     notes.push(
-      "Block size was not identified, so 9-inch load-bearing blockwork was assumed.",
+      "Block size was not identified, so the engine's 9-inch load-bearing blockwork was used.",
     );
   }
   const blockSpec =
@@ -342,70 +405,83 @@ export function buildEstimateInput(
 
   const floors = Math.max(
     1,
-    Math.floor(toNumber(analysis.estimated_floors) ?? 1),
+    Math.floor(readNumber(analysis.estimated_floors) ?? 1),
   );
-  const ratio = WIDTH_RATIO[buildingType] ?? 1.4;
-
-  let length = toNumber(analysis.estimated_length);
-  let width = toNumber(analysis.estimated_width);
-  if (length !== null && length > 0 && (width === null || width <= 0)) {
-    width = round(length / ratio);
+  fieldSources.number_of_floors = measurements.number_of_floors
+    ? "measured"
+    : "default";
+  if (!measurements.number_of_floors) {
+    needsConfirmation.push("estimated_floors");
     notes.push(
-      `Only one facade was measurable, so the width was derived as length divided by ${ratio} for a ${buildingType.replace(/_/g, " ")}.`,
-    );
-  } else if (width !== null && width > 0 && (length === null || length <= 0)) {
-    length = round(width * ratio);
-    notes.push(
-      `Only one facade was measurable, so the length was derived as width times ${ratio} for a ${buildingType.replace(/_/g, " ")}.`,
+      "The number of floors was not readable, so one storey was used. Confirm it before ordering: every storey multiplies the wall, slab and roof quantities.",
     );
   }
-  if ((length ?? 0) > 60 || (width ?? 0) > 60) {
+
+  const floorHeight = Math.min(
+    Math.max(readNumber(analysis.estimated_height_per_floor) ?? 3, 2.4),
+    5,
+  );
+  fieldSources.floor_height = measurements.floor_to_floor_height_m
+    ? "measured"
+    : "default";
+
+  fieldSources.building_length = "measured";
+  fieldSources.building_width = "measured";
+  const safeLength = Math.min(length as number, 200);
+  const safeWidth = Math.min(width as number, 200);
+  if ((length as number) > 60 || (width as number) > 60) {
     notes.push(
       "A dimension above 60 m was reported, which is unusual for a single building. Check it before ordering.",
     );
   }
-  const safeLength = Math.min(Math.max(length ?? 0, 1), 200);
-  const safeWidth = Math.min(Math.max(width ?? 0, 1), 200);
 
-  const floorHeight = Math.min(
-    Math.max(toNumber(analysis.estimated_height_per_floor) ?? 3, 2.4),
-    5,
-  );
-
-  const perimeter = 2 * (safeLength + safeWidth);
-  let internalWallLength = toNumber(analysis.estimated_internal_wall_length);
-  if (internalWallLength === null || internalWallLength <= 0) {
-    const share = INTERNAL_WALL_SHARE[buildingType] ?? 0.5;
-    internalWallLength = round(perimeter * share * floors, 1);
+  // Internal walls are not visible in a photo and a perimeter share is a
+  // guess dressed as a measurement. Zero means "none claimed"; the engine
+  // prices no internal wall and the visitor supplies the run.
+  const internalWallReading = readNumber(analysis.estimated_internal_wall_length);
+  const internalWallLength = internalWallReading ?? 0;
+  fieldSources.internal_wall_length = internalWallReading ? "measured" : "default";
+  if (internalWallReading === null) {
+    needsConfirmation.push("estimated_internal_wall_length");
     notes.push(
-      `Internal walls are not visible in a photo, so ${internalWallLength} m was derived as ${Math.round(share * 100)}% of the external perimeter per floor.`,
+      "Internal wall length was not readable. It is entered as zero rather than guessed from the perimeter, so blockwork and plaster on internal walls are not yet in these figures. Add the run in the estimator.",
     );
   }
 
-  const openings = normaliseOpenings(analysis.detected_openings, notes);
-  const floorArea = safeLength * safeWidth * floors;
-  if (openings.length === 0) {
-    const doors = Math.max(1, Math.ceil(floorArea / 20));
-    const windows = Math.max(1, Math.ceil(floorArea / 15));
-    openings.push(
-      { type: "door", width: 0.9, height: 2.1, count: doors },
-      { type: "window", width: 1.2, height: 1.2, count: windows },
-    );
+  const openings =
+    detectedOpenings.length > 0
+      ? detectedOpenings
+      : [];
+  fieldSources.openings = detectedOpenings.length > 0 ? "measured" : "default";
+  if (detectedOpenings.length === 0) {
+    needsConfirmation.push("detected_openings");
     notes.push(
-      `No openings were identified, so ${doors} doors and ${windows} windows were allowed at one door per 20 m² and one window per 15 m².`,
+      "No openings were identified, so none are deducted. Doors and windows reduce wall and plaster quantities, so add them before relying on the wall figures.",
     );
   }
 
-  const rawPitch = toNumber(analysis.estimated_roof_pitch) ?? 25;
+  // Pitch is a convention per roof type, not a measurement of this building.
+  const rawPitch = pitchReading;
   const pitchRange = PITCH_RANGE[roofType];
-  let pitch = rawPitch;
-  if (pitchRange && (rawPitch < pitchRange[0] || rawPitch > pitchRange[1])) {
-    pitch = Math.min(Math.max(rawPitch, pitchRange[0]), pitchRange[1]);
+  const midPitch = pitchRange ? (pitchRange[0] + pitchRange[1]) / 2 : 20;
+  let pitch = rawPitch ?? midPitch;
+  if (rawPitch === null) {
+    fieldSources.roof_pitch_degrees = "default";
+    needsConfirmation.push("estimated_roof_pitch");
     notes.push(
-      `The reported roof pitch of ${rawPitch}° is outside the range for a ${roofType.replace(/_/g, " ")} roof, so ${pitch}° was used.`,
+      `Roof pitch was not readable, so ${round(pitch, 1)}° (the middle of the ${roofType.replace(/_/g, " ")} range) was used. Roof area scales with the pitch.`,
     );
+  } else if (pitchRange && (rawPitch < pitchRange[0] || rawPitch > pitchRange[1])) {
+    pitch = Math.min(Math.max(rawPitch, pitchRange[0]), pitchRange[1]);
+    fieldSources.roof_pitch_degrees = "default";
+    needsConfirmation.push("estimated_roof_pitch");
+    notes.push(
+      `The reported pitch of ${rawPitch}° is outside the range for a ${roofType.replace(/_/g, " ")} roof, so ${pitch}° was used. Confirm the pitch: roof area scales with it.`,
+    );
+  } else {
+    fieldSources.roof_pitch_degrees = "measured";
   }
-  if (roofType === "flat" && pitch > 0 && rawPitch > 5) {
+  if (roofType === "flat" && rawPitch !== null && rawPitch > 5) {
     notes.push(
       "A flat roof is priced without a pitch fall, so the pitch angle does not change roof quantities.",
     );
@@ -414,6 +490,13 @@ export function buildEstimateInput(
   return {
     notes,
     refusal: null,
+    measurements: {
+      ...measurements,
+      internal_wall_length_m: internalWallReading,
+      openings: detectedOpenings,
+    },
+    fieldSources,
+    needsConfirmation,
     input: {
       project_name: projectName || "AI-Estimated Building",
       location: location || "Nigeria",

@@ -44,7 +44,13 @@ const build = (patch: Partial<AiAnalysis> = {}) => {
     "2026-11-07",
   );
   if (!result.input) throw new Error("expected an input");
-  return { input: result.input, notes: result.notes };
+  return {
+    input: result.input,
+    notes: result.notes,
+    fieldSources: result.fieldSources,
+    needsConfirmation: result.needsConfirmation,
+    measurements: result.measurements,
+  };
 };
 
 describe("buildEstimateInput", () => {
@@ -71,18 +77,25 @@ describe("buildEstimateInput", () => {
     const unknown = build({ detected_roof_type: "attic truss" });
     expect(unknown.input.roof_type).toBe("gable");
     expect(unknown.notes.join(" ")).toMatch(
-      /not recognised, so a gable roof was assumed/i,
+      /not recognised, so the engine's gable roof was used/i,
     );
   });
 
-  it("derives a missing width from the stated proportion instead of a fixed 10 m", () => {
-    const result = build({ estimated_width: null });
-    expect(result.input.building_width).toBeCloseTo(10, 1);
-    expect(result.notes.join(" ")).toMatch(/width was derived/i);
-
-    const longer = build({ estimated_length: 21, estimated_width: null });
-    expect(longer.input.building_width).toBeCloseTo(14, 1);
-    expect(longer.notes.join(" ")).toMatch(/divided by 1.5/i);
+  it("refuses to invent the facade it could not see", () => {
+    const result = buildEstimateInput(
+      analysis({ estimated_width: null }),
+      "Test",
+      "Nigeria",
+      "2026-11-07",
+    );
+    // A width derived from a building-type ratio priced a shape nobody saw.
+    expect(result.input).toBeNull();
+    expect(result.refusal).toMatch(/measurable width/i);
+    expect(result.needsConfirmation).toContain("estimated_width");
+    // The reading it did get is handed back for the form.
+    // The fixture reports a 15 m frontage and no depth.
+    expect(result.measurements.building_length_m).toBe(15);
+    expect(result.measurements.building_width_m).toBeNull();
   });
 
   it("refuses to price a photo with no usable dimension", () => {
@@ -92,28 +105,44 @@ describe("buildEstimateInput", () => {
       "Nigeria",
     );
     expect(result.input).toBeNull();
-    expect(result.refusal).toMatch(/did not give a usable building dimension/i);
+    expect(result.refusal).toMatch(/did not show a measurable length or width/i);
   });
 
-  it("allows openings by floor area when none were detected, and says so", () => {
+  it("deducts no openings rather than inventing them by floor area", () => {
     const result = build({ detected_openings: [] });
-    const doors = result.input.openings.find((o) => o.type === "door");
-    const windows = result.input.openings.find((o) => o.type === "window");
-    // 150 m2: one door per 20 m2 and one window per 15 m2.
-    expect(doors?.count).toBe(8);
-    expect(windows?.count).toBe(10);
-    expect(result.notes.join(" ")).toMatch(
-      /one door per 20 m² and one window per 15 m²/i,
+    // One door per 20 m2 and one window per 15 m2 were inventions dressed as
+    // detections. Nothing is deducted now, and the field asks to be confirmed.
+    expect(result.input.openings).toEqual([]);
+    const flagged = buildEstimateInput(
+      analysis({ detected_openings: [] }),
+      "Test",
+      "Nigeria",
+      "2026-11-07",
     );
+    expect(flagged.needsConfirmation).toContain("detected_openings");
+    expect(flagged.fieldSources.openings).toBe("default");
+    expect(flagged.notes.join(" ")).toMatch(/no openings were identified/i);
   });
 
-  it("clamps a pitch that contradicts the detected roof type", () => {
+  it("labels a corrected pitch as a default, not a reading", () => {
     const flat = build({
       detected_roof_type: "flat",
       estimated_roof_pitch: 25,
     });
     expect(flat.input.roof_pitch_degrees).toBe(5);
     expect(flat.notes.join(" ")).toMatch(/outside the range for a flat roof/i);
+    expect(flat.fieldSources.roof_pitch_degrees).toBe("default");
+    expect(flat.needsConfirmation).toContain("estimated_roof_pitch");
+  });
+
+  it("marks every measurement as measured and every default as default", () => {
+    const result = build();
+    expect(result.fieldSources.building_length).toBe("measured");
+    expect(result.fieldSources.building_width).toBe("measured");
+    expect(result.fieldSources.openings).toBe("measured");
+    expect(result.fieldSources.roof_pitch_degrees).toBe("measured");
+    expect(result.fieldSources.internal_wall_length).toBe("measured");
+    expect(result.needsConfirmation).toEqual([]);
   });
 
   it("clamps openings to plausible sizes and drops entries with no count", () => {

@@ -102,9 +102,43 @@ function AiFeatureSlide() {
  * a user can act on. Previously every non-2xx was reported as "not deployed",
  * which hid real causes such as Gemini being busy.
  */
+/** Field keys the extractor can ask a visitor to confirm. */
+const FIELD_LABELS: Record<string, string> = {
+  estimated_length: "Building length: not visible in this photo",
+  estimated_width: "Building width: not visible in this photo",
+  estimated_floors: "Number of storeys",
+  estimated_floor_height: "Floor to floor height",
+  estimated_internal_wall_length: "Internal wall run (entered as zero)",
+  detected_openings: "Doors and windows (none deducted)",
+  estimated_roof_pitch: "Roof pitch",
+  building_type: "Building type",
+  roof_type: "Roof type",
+  roofing_material: "Roof covering",
+  block_size: "Block size",
+};
+
 export function describeVisionFailure(
-  body: { error?: string; code?: string } | null,
+  body: {
+    error?: string;
+    code?: string;
+    measurements?: Record<string, unknown> | null;
+  } | null,
 ): string {
+  if (body?.code === "MEASUREMENTS_INCOMPLETE") {
+    const read: string[] = [];
+    const m = body.measurements ?? {};
+    const length = Number(m.building_length_m);
+    const width = Number(m.building_width_m);
+    const floors = Number(m.number_of_floors);
+    if (Number.isFinite(length) && length > 0) read.push(`${length} m long`);
+    if (Number.isFinite(width) && width > 0) read.push(`${width} m wide`);
+    if (Number.isFinite(floors) && floors > 0) {
+      read.push(floors === 1 ? "one storey" : `${floors} storeys`);
+    }
+    const readText =
+      read.length > 0 ? ` It did read ${read.join(", ")}.` : "";
+    return `${body.error ?? "The photo did not show every dimension."}${readText} Carry those into the Build-to-Roof Estimator and enter the missing side there.`;
+  }
   switch (body?.code) {
     case "AI_BUSY":
       return "The AI vision service is busy right now. Please try again in a minute.";
@@ -146,6 +180,10 @@ export default function ImageEstimator() {
   const [accessDecision, setAccessDecision] =
     useState<EstimationAccessDecision | null>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
+  const [provenance, setProvenance] = useState<{
+    fieldSources: Record<string, string>;
+    needsConfirmation: string[];
+  } | null>(null);
   // The model call is the only slow step, so it is timed and shown rather than
   // hidden behind a spinner that claims steps finished before they start.
   const [analysisElapsed, setAnalysisElapsed] = useState(0);
@@ -287,6 +325,9 @@ export default function ImageEstimator() {
           savedId?: string | null;
           error?: string;
           code?: string;
+          measurements?: Record<string, unknown> | null;
+          fieldSources?: Record<string, string> | null;
+          needsConfirmation?: string[] | null;
         } | null;
         error: unknown;
       };
@@ -370,6 +411,12 @@ export default function ImageEstimator() {
       const aiInput = data.estimateInput as BuildToRoofInput;
       setAnalysis(aiAnalysis);
       setEstimateInput(aiInput);
+      // Which figures are readings and which are engine defaults. The review
+      // screen states this instead of presenting a default as a measurement.
+      setProvenance({
+        fieldSources: data.fieldSources ?? {},
+        needsConfirmation: data.needsConfirmation ?? [],
+      });
       // PHASE 6.5, keep the pristine AI extraction so user adjustments can
       // be recorded as Gemini learning events (AI value vs USER value).
       aiOriginalInput.current = aiInput;
@@ -653,7 +700,9 @@ export default function ImageEstimator() {
                     AI Analysis Complete
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Review the AI's estimates below and adjust if needed.
+                    These are the measurements read from the photo. FRELUX
+                    engines do the quantities and the pricing from them, so
+                    correct any figure before continuing.
                   </p>
                 </div>
                 <div
@@ -668,6 +717,28 @@ export default function ImageEstimator() {
                   AI Confidence: {analysis.ai_confidence}
                 </div>
               </div>
+
+              {provenance && provenance.needsConfirmation.length > 0 && (
+                <div
+                  role="status"
+                  className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+                >
+                  <p className="font-medium">
+                    Not measured, so an engine default is standing in
+                  </p>
+                  <ul className="mt-1 list-disc pl-5">
+                    {provenance.needsConfirmation.map((key) => (
+                      <li key={key}>
+                        {FIELD_LABELS[key] ?? key.replace(/_/g, " ")}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-xs">
+                    These change the quantities. Confirm each one against the
+                    drawing before ordering.
+                  </p>
+                </div>
+              )}
 
               {imageDataUrl && (
                 <img

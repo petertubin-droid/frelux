@@ -746,7 +746,13 @@ serveWithCors(async (req: Request) => {
       return jsonResponse(
         {
           error: built.refusal ?? "The photo did not give a usable estimate.",
-          code: "NO_USABLE_DIMENSIONS",
+          code: "MEASUREMENTS_INCOMPLETE",
+          // What was actually read comes back so the estimator form can be
+          // filled from it. No number here is derived to stand in for a
+          // measurement.
+          measurements: built.measurements,
+          fieldSources: built.fieldSources,
+          needsConfirmation: built.needsConfirmation,
           analysis,
         },
         422,
@@ -773,6 +779,9 @@ serveWithCors(async (req: Request) => {
             building_type: analysis.detected_building_type,
             floors: analysis.estimated_floors,
             ai_confidence: analysis.ai_confidence,
+            // So a saved row says which figures were defaults, not readings.
+            field_sources: built.fieldSources,
+            needs_confirmation: built.needsConfirmation,
           },
           full_estimate: estimateInput,
         })
@@ -785,6 +794,11 @@ serveWithCors(async (req: Request) => {
     return jsonResponse({
       analysis,
       estimateInput,
+      // Provenance travels with the numbers: the review screen marks every
+      // field that is an engine default rather than a reading.
+      measurements: built.measurements,
+      fieldSources: built.fieldSources,
+      needsConfirmation: built.needsConfirmation,
       savedId,
     });
   } catch (err) {
