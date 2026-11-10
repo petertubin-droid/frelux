@@ -1,3 +1,4 @@
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -135,8 +136,7 @@ export function describeVisionFailure(
     if (Number.isFinite(floors) && floors > 0) {
       read.push(floors === 1 ? "one storey" : `${floors} storeys`);
     }
-    const readText =
-      read.length > 0 ? ` It did read ${read.join(", ")}.` : "";
+    const readText = read.length > 0 ? ` It did read ${read.join(", ")}.` : "";
     return `${body.error ?? "The photo did not show every dimension."}${readText} Carry those into the Build-to-Roof Estimator and enter the missing side there.`;
   }
   switch (body?.code) {
@@ -1228,53 +1228,58 @@ export function EstimateResultView({
 }) {
   const [photoExpanded, setPhotoExpanded] = useState(false);
 
+  // One payload feeds the printed sheet and the share sheet, so the figures a
+  // customer forwards can never drift from the figures they approved.
+  const buildEstimateQuote = () => {
+    if (!estimate) return null;
+    return {
+      title: `FRELUX AI Photo Estimate: ${estimate.project_name || "Building Project"}`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${estimate.building_type || "Residential"} · ${estimate.total_floor_area} m² · ${estimate.confidence} confidence`,
+      metaRows: [
+        ["Project Name", estimate.project_name || "N/A"],
+        ["Building Type", estimate.building_type || "Residential"],
+        ["Total Floor Area", `${estimate.total_floor_area} m²`],
+        [
+          "Construction Stage",
+          estimate.construction_stage || "Foundation to Roof",
+        ],
+        ["Confidence Level", estimate.confidence || "Standard"],
+      ] as Array<[string, string]>,
+      lines: estimate.stages.map((stage) => ({
+        label: stage.stage_label,
+        quantity: "1",
+        unit: "stage",
+        unit_price: formatCurrency(stage.stage_total),
+        line_total: formatCurrency(stage.stage_total),
+        detail: `Materials: ${formatCurrency(stage.materials_total)} · Labour: ${formatCurrency(stage.labour_total)}`,
+      })),
+      totals: [
+        {
+          label: "Materials Subtotal",
+          value: formatCurrency(estimate.materials_total),
+        },
+        {
+          label: "Labour Subtotal",
+          value: formatCurrency(estimate.labour_total),
+        },
+        { label: "Contingency", value: formatCurrency(estimate.contingency) },
+        {
+          label: "Estimated Grand Total",
+          value: formatCurrency(estimate.grand_total),
+          strong: true,
+        },
+      ],
+      warnings: [
+        "These are preliminary estimates derived from photo analysis and structural heuristics, not a certified structural design.",
+        "Final quantities and safety requirements must be verified on site by a qualified structural engineer.",
+      ],
+    };
+  };
+
   const handlePrintEstimate = () => {
-    if (!estimate) return;
-    printQuote(
-      {
-        title: `FRELUX AI Photo Estimate: ${estimate.project_name || "Building Project"}`,
-        subtitle: `Generated ${new Date().toLocaleDateString()} · ${estimate.building_type || "Residential"} · ${estimate.total_floor_area} m² · ${estimate.confidence} confidence`,
-        metaRows: [
-          ["Project Name", estimate.project_name || "N/A"],
-          ["Building Type", estimate.building_type || "Residential"],
-          ["Total Floor Area", `${estimate.total_floor_area} m²`],
-          [
-            "Construction Stage",
-            estimate.construction_stage || "Foundation to Roof",
-          ],
-          ["Confidence Level", estimate.confidence || "Standard"],
-        ],
-        lines: estimate.stages.map((stage) => ({
-          label: stage.stage_label,
-          quantity: "1",
-          unit: "stage",
-          unit_price: formatCurrency(stage.stage_total),
-          line_total: formatCurrency(stage.stage_total),
-          detail: `Materials: ${formatCurrency(stage.materials_total)} · Labour: ${formatCurrency(stage.labour_total)}`,
-        })),
-        totals: [
-          {
-            label: "Materials Subtotal",
-            value: formatCurrency(estimate.materials_total),
-          },
-          {
-            label: "Labour Subtotal",
-            value: formatCurrency(estimate.labour_total),
-          },
-          { label: "Contingency", value: formatCurrency(estimate.contingency) },
-          {
-            label: "Estimated Grand Total",
-            value: formatCurrency(estimate.grand_total),
-            strong: true,
-          },
-        ],
-        warnings: [
-          "These are preliminary estimates derived from photo analysis and structural heuristics, not a certified structural design.",
-          "Final quantities and safety requirements must be verified on site by a qualified structural engineer.",
-        ],
-      },
-      `frelux-ai-estimate-${Date.now()}`,
-    );
+    const quote = buildEstimateQuote();
+    if (!quote) return;
+    printQuote(quote, `frelux-ai-estimate-${Date.now()}`);
   };
 
   return (
@@ -1543,6 +1548,11 @@ export function EstimateResultView({
               <CheckCircle2 className="w-3.5 h-3.5" /> Saved to your projects
             </span>
           )}
+          <QuoteShareButton
+            build={buildEstimateQuote}
+            kind="AI Photo Estimate"
+            link="/image-estimator"
+          />
           <Button
             variant="ghost"
             onClick={() => {

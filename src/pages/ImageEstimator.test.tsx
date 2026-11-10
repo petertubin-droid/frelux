@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { EstimateResultView } from "@/pages/ImageEstimator";
 import type { BuildToRoofResult } from "@/types/build-to-roof";
 
@@ -57,18 +58,20 @@ describe("ImageEstimator", () => {
       limitations: [],
     } as unknown as BuildToRoofResult;
     const { container } = render(
-      <EstimateResultView
-        estimate={estimate}
-        analysis={null}
-        buildingPhoto="data:image/jpeg;base64,full-image"
-        savedId={null}
-        onEdit={() => {}}
-        isPaid={false}
-        pdfGateOpen={false}
-        pdfUnlocked={false}
-        setPdfGateOpen={() => {}}
-        setPdfUnlocked={() => {}}
-      />,
+      <MemoryRouter>
+        <EstimateResultView
+          estimate={estimate}
+          analysis={null}
+          buildingPhoto="data:image/jpeg;base64,full-image"
+          savedId={null}
+          onEdit={() => {}}
+          isPaid={false}
+          pdfGateOpen={false}
+          pdfUnlocked={false}
+          setPdfGateOpen={() => {}}
+          setPdfUnlocked={() => {}}
+        />
+      </MemoryRouter>,
     );
 
     const photoPanel = container.querySelector(
@@ -90,19 +93,21 @@ describe("ImageEstimator", () => {
 
   it("shows the visitor's own photo, not the compressed copy the model read", () => {
     const { container } = render(
-      <EstimateResultView
-        estimate={photoEstimate}
-        analysis={null}
-        buildingPhoto="data:image/jpeg;base64,original"
-        photoPreview="data:image/jpeg;base64,preview"
-        savedId={null}
-        onEdit={() => {}}
-        isPaid={false}
-        pdfGateOpen={false}
-        pdfUnlocked={false}
-        setPdfGateOpen={() => {}}
-        setPdfUnlocked={() => {}}
-      />,
+      <MemoryRouter>
+        <EstimateResultView
+          estimate={photoEstimate}
+          analysis={null}
+          buildingPhoto="data:image/jpeg;base64,original"
+          photoPreview="data:image/jpeg;base64,preview"
+          savedId={null}
+          onEdit={() => {}}
+          isPaid={false}
+          pdfGateOpen={false}
+          pdfUnlocked={false}
+          setPdfGateOpen={() => {}}
+          setPdfUnlocked={() => {}}
+        />
+      </MemoryRouter>,
     );
 
     const photo = container.querySelector(
@@ -125,19 +130,21 @@ describe("ImageEstimator", () => {
 
   it("falls back to the compressed copy when the original is gone", () => {
     const { container } = render(
-      <EstimateResultView
-        estimate={photoEstimate}
-        analysis={null}
-        buildingPhoto={null}
-        photoPreview="data:image/jpeg;base64,preview"
-        savedId={null}
-        onEdit={() => {}}
-        isPaid={false}
-        pdfGateOpen={false}
-        pdfUnlocked={false}
-        setPdfGateOpen={() => {}}
-        setPdfUnlocked={() => {}}
-      />,
+      <MemoryRouter>
+        <EstimateResultView
+          estimate={photoEstimate}
+          analysis={null}
+          buildingPhoto={null}
+          photoPreview="data:image/jpeg;base64,preview"
+          savedId={null}
+          onEdit={() => {}}
+          isPaid={false}
+          pdfGateOpen={false}
+          pdfUnlocked={false}
+          setPdfGateOpen={() => {}}
+          setPdfUnlocked={() => {}}
+        />
+      </MemoryRouter>,
     );
     expect(
       container.querySelector('[data-testid="estimate-photo-image"]'),
@@ -146,18 +153,20 @@ describe("ImageEstimator", () => {
 
   it("expands the photo on request and says it is not stored with the estimate", () => {
     const { container } = render(
-      <EstimateResultView
-        estimate={photoEstimate}
-        analysis={null}
-        buildingPhoto="data:image/jpeg;base64,original"
-        savedId={null}
-        onEdit={() => {}}
-        isPaid={false}
-        pdfGateOpen={false}
-        pdfUnlocked={false}
-        setPdfGateOpen={() => {}}
-        setPdfUnlocked={() => {}}
-      />,
+      <MemoryRouter>
+        <EstimateResultView
+          estimate={photoEstimate}
+          analysis={null}
+          buildingPhoto="data:image/jpeg;base64,original"
+          savedId={null}
+          onEdit={() => {}}
+          isPaid={false}
+          pdfGateOpen={false}
+          pdfUnlocked={false}
+          setPdfGateOpen={() => {}}
+          setPdfUnlocked={() => {}}
+        />
+      </MemoryRouter>,
     );
 
     const toggle = screen.getByTestId("estimate-photo-toggle");
