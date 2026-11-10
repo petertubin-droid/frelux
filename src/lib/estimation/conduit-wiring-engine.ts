@@ -86,6 +86,24 @@ export function calculateConduitWiring(
       "Socket and outlet points must be a whole number, zero or more.",
     );
   }
+  // A rule row can carry 0 or a negative number. conduit_length_m is a
+  // divisor, so an unconfigured value used to produce Infinity lengths that
+  // then reached the priced lines. Refuse instead of emitting a number.
+  if (!(Number.isFinite(rules.conduit_length_m) && rules.conduit_length_m > 0)) {
+    errors.push(
+      "Conduit piece length (conduit_length_m) must be greater than zero: check the calculation rule.",
+    );
+  }
+  if (!(Number.isFinite(rules.conduit_per_m2) && rules.conduit_per_m2 > 0)) {
+    errors.push(
+      "Conduit allowance per m² (conduit_per_m2) must be greater than zero: check the calculation rule.",
+    );
+  }
+  if (rules.lighting_cable_per_point_m < 0 || rules.socket_cable_per_point_m < 0) {
+    errors.push(
+      "Cable allowance per point cannot be negative: check the calculation rules.",
+    );
+  }
   if (errors.length > 0) return emptyResult(errors);
 
   const conduitRun = money(input.floor_area_m2 * rules.conduit_per_m2);

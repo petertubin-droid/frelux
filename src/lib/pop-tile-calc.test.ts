@@ -274,7 +274,9 @@ describe("calculatePopCeiling", () => {
     const packagesNeeded = Math.ceil(quantity / 1);
     expect(cement!.packagesNeeded).toBe(packagesNeeded);
     expect(cement!.cost).toBe(packagesNeeded * 3500);
-    expect(cement!.quantity).toBeCloseTo(Math.ceil(quantity * 10) / 10, 10);
+    // The quantity is reported as measured (2.64), not ceilinged to 0.1
+    // (2.7) on top of a package count that already rounds up.
+    expect(cement!.quantity).toBeCloseTo(2.64, 10);
   });
 
   it("handles package_size > 1 correctly for non-labour materials", () => {
@@ -1026,7 +1028,14 @@ describe("audit fix F6 — tile grout joint-volume formula & adhesive notch tabl
       "NGN",
       "₦",
     );
-    expect(thin.adhesiveNeeded).toBe(Math.ceil(12 * 2.75));
-    expect(standard.adhesiveNeeded).toBe(Math.ceil(12 * 4.25));
+    // The notch table gives kilograms per m², so the answer is BAGS:
+    // 12 m² x 2.75 = 33 kg and 12 x 4.25 = 51 kg, over a 20 kg bag.
+    expect(thin.adhesiveMassKg).toBeCloseTo(33, 6);
+    expect(thin.adhesiveNeeded).toBe(2);
+    expect(standard.adhesiveMassKg).toBeCloseTo(51, 6);
+    expect(standard.adhesiveNeeded).toBe(3);
+    // And the cost follows the bags, not the kilograms: three bags, not 51.
+    expect(standard.adhesiveCost / standard.adhesiveNeeded).toBeGreaterThan(0);
+    expect(standard.adhesiveCost).toBeLessThan(51 * 1000);
   });
 });

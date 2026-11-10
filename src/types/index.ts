@@ -408,6 +408,12 @@ export interface TileCalcInput {
   jointWidthMm?: number;
   groutSpecificGravity?: number; // g/cm3 of cured grout (default 1.8)
   adhesiveNotchMm?: number; // 4 / 6 / 10 / 12 mm trowel notch
+  /**
+   * Mass of one bag of tile adhesive in kilograms. The notch table below gives
+   * kilograms per square metre, so a bag mass is required to turn that into
+   * bags. Defaults to 20 kg, the common Nigerian pack.
+   */
+  adhesiveBagKg?: number;
   // Tile spacers (always needed)
   spacerCoverageRate: number;
   spacerPricePerPack: number;
@@ -422,6 +428,10 @@ export interface TileCalcInput {
 }
 
 export interface TileCalcResult {
+  /** Adhesive required as a mass, when it was derived from the notch table. */
+  adhesiveMassKg?: number;
+  /** Mortar bed volume (wet) under the tiles when bed thickness was given. */
+  bedVolumeM3?: number;
   /** Gross measured area, retained for backward compatibility. */
   surfaceArea: number;
   openingArea: number;

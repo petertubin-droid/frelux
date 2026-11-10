@@ -69,13 +69,16 @@ export function calculatePopCeiling(
       }
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
       const packagesNeeded =
-        pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
+        pkgSize > 0 ? ceilUnits(quantity / pkgSize) : ceilUnits(quantity);
       const cost = packagesNeeded * unitPrice;
       materialCost += cost;
       materialResults.push({
         name: mat.name,
         category: mat.category,
-        quantity: Math.ceil(quantity * 10) / 10,
+        // Report what was measured. Ceiling the displayed quantity to 0.1
+        // inflated the figure (20.41 m² shown as 20.5 m²) even though the
+        // package count already carried the rounding up.
+        quantity: Math.round(quantity * 100) / 100,
         unit: mat.coverage_unit,
         packagesNeeded,
         cost,
@@ -107,6 +110,30 @@ export function calculatePopEstimate(
 ): PopEstimateResult {
   return calculatePopCeiling(input, materials, currency, currencySymbol);
 }
+
+// =========================================================
+// Pack arithmetic
+// =========================================================
+
+/**
+ * Whole purchase units, with a tolerance so an exact quotient is not rounded
+ * up. 4.2 m² at 1.4 m² per unit is 3.0000000000000004 in binary floating
+ * point, and a plain Math.ceil orders a fourth unit for nothing.
+ */
+const CEIL_EPSILON = 1e-9;
+function ceilUnits(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return Math.ceil(value - CEIL_EPSILON);
+}
+
+/** Mass of the default 50 kg cement bag, kg. */
+const CEMENT_BAG_KG = 50;
+const CEMENT_BULK_DENSITY_KG_M3 = 1440;
+const CEMENT_BAG_VOLUME_M3 = CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3;
+/** Dry-to-wet mortar ratio, the same 1.33 the masonry engines use. */
+const MORTAR_DRY_FACTOR = 1.33;
+/** Default tile adhesive bag, kg. */
+const DEFAULT_ADHESIVE_BAG_KG = 20;
 
 // =========================================================
 // Tile calculations
@@ -145,11 +172,9 @@ export function calculateTile(
 
   // --- Tiles (always calculated) ---
   const tileAreaM2 = (input.tileWidthMm / 1000) * (input.tileHeightMm / 1000);
-  const tilesNeeded = tileAreaM2 > 0 ? Math.ceil(adjustedArea / tileAreaM2) : 0;
+  const tilesNeeded = tileAreaM2 > 0 ? ceilUnits(adjustedArea / tileAreaM2) : 0;
   const boxesNeeded =
-    input.tilesPerBox > 0
-      ? Math.ceil(tilesNeeded / input.tilesPerBox)
-      : tilesNeeded;
+    input.tilesPerBox > 0 ? ceilUnits(tilesNeeded / input.tilesPerBox) : tilesNeeded;
   const tileCost = boxesNeeded * input.tilePricePerBox;
 
   // --- Adhesive (only when method === 'adhesive') ---
@@ -162,31 +187,72 @@ export function calculateTile(
     10: 6.75, // large-format floor (6.0-7.5 kg/m2)
     12: 7.25, // large-format floor (7.0-7.5 kg/m2)
   };
+  // Adhesive is priced per BAG. The coverage-rate branch already returns bags
+  // (m² divided by m² per bag); the notch table returns KILOGRAMS, so it must
+  // be divided by the bag mass before it can be priced. The old code ceiling'd
+  // kilograms and charged them as bags, so a 12 m² floor on a 6 mm notch was
+  // billed 51 bags for 51 kg.
   let adhesiveNeeded = 0;
+  let adhesiveMassKg: number | undefined;
   let adhesiveCost = 0;
   if (input.method === "adhesive") {
     if (input.adhesiveCoverageRate > 0) {
-      adhesiveNeeded = adjustedArea / input.adhesiveCoverageRate;
+      adhesiveNeeded = ceilUnits(adjustedArea / input.adhesiveCoverageRate);
     } else {
       const notch = input.adhesiveNotchMm ?? 0;
-      if (notch > 0 && NOTCH_KG_PER_M2[notch] !== undefined) {
-        adhesiveNeeded = adjustedArea * NOTCH_KG_PER_M2[notch];
+      const kgPerM2 = NOTCH_KG_PER_M2[notch];
+      if (kgPerM2 !== undefined) {
+        const bagKg =
+          input.adhesiveBagKg !== undefined && input.adhesiveBagKg > 0
+            ? input.adhesiveBagKg
+            : DEFAULT_ADHESIVE_BAG_KG;
+        adhesiveMassKg = adjustedArea * kgPerM2;
+        adhesiveNeeded = ceilUnits(adhesiveMassKg / bagKg);
       }
     }
-    adhesiveCost = Math.ceil(adhesiveNeeded) * input.adhesivePricePerBag;
+    adhesiveCost = adhesiveNeeded * input.adhesivePricePerBag;
+  }
+
+  // --- Mortar bed: one volume drives both cement and sand ---
+  // Sand was already costed from the bed volume, but cement came from a
+  // separate m²-per-bag rate, so a 50 mm bed used twice the sand and exactly
+  // the same cement as a 25 mm bed. When the bed thickness and the sand unit
+  // are both known, both materials now come from the same mix volume.
+  const bedMm =
+    input.bedThicknessMm && input.bedThicknessMm > 0 ? input.bedThicknessMm : 0;
+  const sandUnitM3 =
+    input.sandUnitCubicMetres && input.sandUnitCubicMetres > 0
+      ? input.sandUnitCubicMetres
+      : 0;
+  const bedVolumeMode =
+    input.method === "traditional" && bedMm > 0 && sandUnitM3 > 0;
+  let bedVolumeM3 = 0;
+  let bedDryM3 = 0;
+  let cementVolumeM3 = 0;
+  if (bedVolumeMode) {
+    bedVolumeM3 = adjustedArea * (bedMm / 1000);
+    // 1:4 cement:sand by volume, cement is one of five parts, and the dry
+    // volume is 1.33 times the laid volume.
+    bedDryM3 = bedVolumeM3 * MORTAR_DRY_FACTOR;
+    cementVolumeM3 = bedDryM3 / 5;
   }
 
   // --- Cement (only when method === 'traditional') ---
   let cementNeeded = 0;
   let cementCost = 0;
   if (input.method === "traditional") {
-    const cementQty =
-      input.cementCoverageRate > 0
-        ? adjustedArea / input.cementCoverageRate
+    const bagsRequired = bedVolumeMode
+      ? ceilUnits(cementVolumeM3 / CEMENT_BAG_VOLUME_M3)
+      : input.cementCoverageRate > 0
+        ? ceilUnits(adjustedArea / input.cementCoverageRate)
         : 0;
+    // cementCoverageRate is m² per BAG, so dividing its result by a package
+    // size again divided bags by bags. A package size now means bags per pack,
+    // and whole packs are bought.
     const cementPkgSize =
-      input.cementPackageSize > 0 ? input.cementPackageSize : 1;
-    cementNeeded = Math.ceil(cementQty / cementPkgSize);
+      input.cementPackageSize > 1 ? input.cementPackageSize : 1;
+    const packs = cementPkgSize > 1 ? ceilUnits(bagsRequired / cementPkgSize) : null;
+    cementNeeded = packs !== null ? packs * cementPkgSize : bagsRequired;
     cementCost = cementNeeded * input.cementPricePerBag;
   }
 
@@ -209,14 +275,17 @@ export function calculateTile(
         ? input.bedThicknessMm
         : 0;
     if (unitM3 > 0 && bedMm > 0) {
-      sandVolumeM3 = adjustedArea * (bedMm / 1000) * (4 / 5);
-      sandNeeded = Math.ceil(sandVolumeM3 / unitM3);
+      // Loose sand for a laid volume: four fifths of the dry mix. Without the
+      // 1.33 dry factor the order was about a quarter short of the masonry
+      // engines for the same mortar.
+      sandVolumeM3 = (bedDryM3 * 4) / 5;
+      sandNeeded = ceilUnits(sandVolumeM3 / unitM3);
       sandCost = sandNeeded * input.sandPricePerBag;
     } else {
       const sandQty =
         input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
       const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
-      sandNeeded = Math.ceil(sandQty / sandPkgSize);
+      sandNeeded = ceilUnits(sandQty / sandPkgSize);
       sandCost = sandNeeded * input.sandPricePerBag;
     }
   }
@@ -242,14 +311,14 @@ export function calculateTile(
   } else if (input.groutCoverageRate > 0) {
     groutNeeded = adjustedArea / input.groutCoverageRate;
   }
-  const groutCost = Math.ceil(groutNeeded) * input.groutPricePerKg;
+  const groutCost = ceilUnits(groutNeeded) * input.groutPricePerKg;
 
   // --- Tile spacers (always needed) ---
   const spacerQty =
     input.spacerCoverageRate > 0 ? adjustedArea / input.spacerCoverageRate : 0;
   const spacerPkgSize =
     input.spacerPackageSize > 0 ? input.spacerPackageSize : 1;
-  const spacerNeeded = Math.ceil(spacerQty / spacerPkgSize);
+  const spacerNeeded = ceilUnits(spacerQty / spacerPkgSize);
   const spacerCost = spacerNeeded * input.spacerPricePerPack;
 
   const tileWarnings: string[] = [];
@@ -267,14 +336,22 @@ export function calculateTile(
     tileWarnings.push("Opening deductions were ignored because the selected surface is not a wall.");
   }
   if (surfaceArea > 0) {
-    if (input.method === "adhesive" && input.adhesiveCoverageRate <= 0) {
+    if (
+      input.method === "adhesive" &&
+      input.adhesiveCoverageRate <= 0 &&
+      NOTCH_KG_PER_M2[input.adhesiveNotchMm ?? 0] === undefined
+    ) {
       tileWarnings.push(
         "Adhesive coverage rate is not configured. Adhesive cost is excluded from the total until it is configured.",
       );
     }
-    if (input.method === "traditional" && input.cementCoverageRate <= 0) {
+    if (
+      input.method === "traditional" &&
+      input.cementCoverageRate <= 0 &&
+      !bedVolumeMode
+    ) {
       tileWarnings.push(
-        "Cement coverage rate is not configured. Cement cost is excluded from the total until it is configured.",
+        "Cement coverage rate is not configured. Cement cost is excluded from the total until it is configured, or until a bed thickness and sand unit are supplied so the bed volume can size it.",
       );
     }
     if (input.method === "traditional" && input.sandCoverageRate <= 0) {
@@ -306,7 +383,9 @@ export function calculateTile(
     boxesNeeded,
     tileCost,
     method: input.method,
-    adhesiveNeeded: Math.ceil(adhesiveNeeded),
+    adhesiveNeeded,
+    adhesiveMassKg,
+    bedVolumeM3: bedVolumeMode ? bedVolumeM3 : undefined,
     adhesiveCost,
     cementNeeded,
     cementCost,
