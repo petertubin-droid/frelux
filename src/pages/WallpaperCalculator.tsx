@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Minus, Plus, RotateCcw, Layers } from "lucide-react";
@@ -911,6 +912,63 @@ export default function WallpaperCalculator() {
                     deductions are invalid.
                   </p>
                 )}
+              </div>
+              <div className="border-t border-border px-5 pb-5 sm:px-6">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: isPanelFormat
+                      ? "Wallpaper Mural Estimate"
+                      : "Wallpaper Estimate",
+                    summaryLines: [
+                      {
+                        label: "Net wall area",
+                        value: areaDisplay(
+                          estimate.netAreaM2,
+                          preferredAreaUnit,
+                        ),
+                      },
+                      {
+                        label: isPanelFormat ? "Panels" : "Rolls",
+                        value: `${estimate.rolls}`,
+                      },
+                      {
+                        label: "Priced packages",
+                        value: `${estimate.packages}`,
+                      },
+                      {
+                        label: "Adhesive packs",
+                        value: `${estimate.adhesivePacks}`,
+                      },
+                    ],
+                    lineItems: [
+                      {
+                        description: isPanelFormat
+                          ? "Mural panels"
+                          : "Wallpaper rolls",
+                        quantity: `${estimate.packages}`,
+                        amount: money(estimate.materialCost),
+                      },
+                      {
+                        description: "Adhesive",
+                        amount: money(estimate.adhesiveCost),
+                      },
+                      {
+                        section: "Labour",
+                        description: "Installation",
+                        amount: money(estimate.labourCost),
+                      },
+                    ],
+                    totals: [
+                      {
+                        label: "Total",
+                        value: money(estimate.totalCost),
+                        emphasized: true,
+                      },
+                    ],
+                    link: "/wallpaper-calculator",
+                  }}
+                  compact
+                />
               </div>
               <div className="grid grid-cols-2 gap-px bg-border sm:grid-cols-5">
                 <ResultMetric
