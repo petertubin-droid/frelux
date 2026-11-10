@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -519,6 +520,72 @@ export default function GlobalSiteSafetyEstimator() {
                       <Download className="h-4 w-4" />
                       CSV
                     </Button>
+                    <ShareEstimateButton
+                      estimate={{
+                        kind: "Site Safety Inventory",
+                        title: "Planned PPE and site safety allocation",
+                        summaryLines: [
+                          {
+                            label: "Fall protection users",
+                            value: String(result.fallProtectionUsers),
+                          },
+                          {
+                            label: "Excavation tape",
+                            value: `${result.excavationTapeMeters} m`,
+                          },
+                        ],
+                        lineItems: [
+                          {
+                            description: "Hard hats",
+                            quantity: String(result.hardHats),
+                          },
+                          {
+                            description: "High visibility vests",
+                            quantity: String(result.highVisibilityVests),
+                          },
+                          {
+                            description: "Safety boots",
+                            quantity: `${result.safetyBootPairs} pairs`,
+                          },
+                          {
+                            description: "First aid kits",
+                            quantity: String(result.firstAidKits),
+                          },
+                          {
+                            description: "Fire extinguishers",
+                            quantity: String(result.fireExtinguishers),
+                          },
+                          {
+                            description: "Perimeter signs",
+                            quantity: String(result.perimeterSigns),
+                          },
+                          {
+                            description: "Excavation signs",
+                            quantity: String(result.excavationSigns),
+                          },
+                        ],
+                        totals: [
+                          {
+                            label: "Items to procure",
+                            value: String(
+                              result.hardHats +
+                                result.highVisibilityVests +
+                                result.safetyBootPairs +
+                                result.firstAidKits +
+                                result.fireExtinguishers +
+                                result.perimeterSigns +
+                                result.excavationSigns,
+                            ),
+                            emphasized: true,
+                          },
+                        ],
+                        notes: [
+                          "Planning output for procurement, not a compliance verdict.",
+                        ],
+                        link: "/global-site-safety-estimator",
+                      }}
+                      compact
+                    />
                     <SaveToProjectButton
                       compact
                       calculatorType="safety"

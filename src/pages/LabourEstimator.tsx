@@ -9,6 +9,7 @@
  *   This page renders; it never computes durations itself.
  */
 
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useState } from "react";
 import { stageStudioImport } from "@/lib/document-studio";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -242,6 +243,54 @@ export default function LabourEstimator() {
                   {result.source_reference}), less{" "}
                   {result.efficiency_loss_percent}% site efficiency.
                 </p>
+              </div>
+              <div className="mt-3">
+                <ShareEstimateButton
+                  estimate={{
+                    kind: "Labour Duration",
+                    title: result.task_label,
+                    summaryLines: [
+                      {
+                        label: "Quantity",
+                        value: `${result.quantity} ${result.unit}`,
+                      },
+                      {
+                        label: "Crew size",
+                        value: String(result.crew_size),
+                      },
+                      {
+                        label: "Effective rate",
+                        value: `${result.effective_rate} ${result.unit}/worker-day`,
+                      },
+                      {
+                        label: "Rate source",
+                        value: result.source_reference ?? "not stated",
+                      },
+                    ],
+                    lineItems: [
+                      {
+                        description: "Worker-days",
+                        quantity: String(result.worker_days),
+                      },
+                      {
+                        description: "Site efficiency loss applied",
+                        quantity: `${result.efficiency_loss_percent}%`,
+                      },
+                    ],
+                    totals: [
+                      {
+                        label: "Calendar duration",
+                        value: `${result.calendar_days} day${result.calendar_days === 1 ? "" : "s"}`,
+                        emphasized: true,
+                      },
+                    ],
+                    notes: [
+                      "Labour cost is not supplied by this estimator; no cost is fabricated.",
+                    ],
+                    link: "/labour-estimator",
+                  }}
+                  compact
+                />
               </div>
               <button
                 type="button"

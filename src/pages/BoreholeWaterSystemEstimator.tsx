@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
@@ -474,6 +475,66 @@ export default function BoreholeWaterSystemEstimator() {
               <span>Export BOQ CSV</span>
             </Button>
           </div>
+        </div>
+
+        <div className="mt-4">
+          <ShareEstimateButton
+            estimate={
+              engineAccess.canExport
+                ? {
+                    kind: "Borehole Water System BOQ",
+                    summaryLines: [
+                      {
+                        label: "Well depth",
+                        value: `${result.well.totalDepthMeters} m`,
+                      },
+                      {
+                        label: "Recommended storage",
+                        value: `${result.storage.commercialTankSizeLiters} L (${result.storage.commercialTankSizeUsGal} US gal)`,
+                      },
+                      {
+                        label: "Daily demand",
+                        value: `${result.storage.dailyTotalDemandLiters} L`,
+                      },
+                      {
+                        label: "Motor",
+                        value: `${result.pumping.recommendedMotorHp} hp`,
+                      },
+                      {
+                        label: "Tower height",
+                        value: `${result.distribution.towerHeightMeters} m`,
+                      },
+                      {
+                        label: "Ground pressure",
+                        value: `${result.distribution.groundHydrostaticPressureBar} bar (${result.distribution.groundHydrostaticPressurePsi} psi)`,
+                      },
+                      {
+                        label: "Pressure adequacy",
+                        value:
+                          result.distribution.pressureAdequacy.toUpperCase(),
+                      },
+                      {
+                        label: "Trench depth",
+                        value: `${result.distribution.buriedTrenchDepthMeters} m`,
+                      },
+                    ],
+                    lineItems: visibleBoq.map((item) => ({
+                      description: `${item.item} (${item.category})`,
+                      quantity: `${item.quantity} ${item.unit}`,
+                    })),
+                    totals: [
+                      {
+                        label: "Line items",
+                        value: String(visibleBoq.length),
+                        emphasized: true,
+                      },
+                    ],
+                    link: "/borehole-water-system-estimator",
+                  }
+                : null
+            }
+            compact
+          />
         </div>
 
         {/* Interactive Animated Cutaway Diagram */}
