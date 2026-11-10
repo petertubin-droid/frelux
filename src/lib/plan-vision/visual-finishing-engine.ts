@@ -1058,6 +1058,26 @@ import type { MarketFinishingRates } from "./visual-finishing-types";
  * from Supabase tables (market_pricing, mi_approved_prices, or material_prices).
  * Strictly adheres to honesty: returns null prices when no verified row exists.
  */
+/**
+ * True when an approved price was recorded for a sample-sized package, so it
+ * cannot represent a bucket or a bag. Volume and mass units are compared in
+ * litres and kilograms; anything measured another way (a box of tiles, a roll)
+ * is left to its own rule.
+ */
+export function packageTooSmallForBulk(row: {
+  package_size?: number | string | null;
+  package_unit?: string | null;
+}): boolean {
+  const size = Number(row.package_size);
+  if (!Number.isFinite(size) || size <= 0) return false;
+  const unit = (row.package_unit || "").trim().toLowerCase();
+  const isVolume = /^(l|lt|ltr|litre|liter|litres|liters|ml)$/.test(unit);
+  const isMass = /^(kg|kgs|kilo|kilogram|kilograms|g|gm|gram|grams)$/.test(unit);
+  if (isVolume) return /^(ml|)$/.test(unit) ? true : size < 5;
+  if (isMass) return /^(g|gm|gram|grams)$/.test(unit) ? true : size < 5;
+  return false;
+}
+
 export async function resolveMarketFinishingRates(
   marketCode: string,
 ): Promise<MarketFinishingRates> {
@@ -1125,15 +1145,22 @@ export async function resolveMarketFinishingRates(
     ) {
       const { data: miRows } = await supabase
         .from("mi_approved_prices")
-        .select("price, product_name, category")
+        .select("price, product_name, category, package_size, package_unit, last_updated")
         .eq("market_code", marketCode)
         .eq("is_active", true)
-        .limit(20);
+        // Freshest first: without an order the rows come back arbitrarily and
+        // an old price could win simply by being first.
+        .order("last_updated", { ascending: false })
+        .limit(50);
 
       if (miRows && miRows.length > 0) {
         for (const row of miRows) {
           const name = (row.product_name || "").toLowerCase();
           const p = Number(row.price);
+          // A sample pot or a 1 kg tub cannot stand as the default price of a
+          // bucket or a bag: offering it would seed the estimate at a fraction
+          // of what the job actually costs. Skip any package too small to be one.
+          if (packageTooSmallForBulk(row)) continue;
           if (Number.isFinite(p) && p > 0) {
             if (
               result.paintBucketPrice === null &&

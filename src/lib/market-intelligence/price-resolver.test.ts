@@ -29,6 +29,7 @@ import {
   resolveCalculatorPriceByName,
   resolveCalculatorPricesBulk,
   clearApprovedPriceCache,
+  derivedFreshness,
 } from "./price-resolver";
 import { NO_PRICE_AVAILABLE } from "@/types/market-intelligence";
 import type { MiApprovedPrice } from "@/types/market-intelligence";
@@ -47,7 +48,9 @@ describe("price-resolver", () => {
         freshness: "recent",
         confidence: "high",
         source_count: 2,
-        last_updated: "2026-01-01T00:00:00Z",
+        // Both rows are aged from last_updated on read now, so this one has to
+        // be genuinely older than the other for the test to mean anything.
+        last_updated: new Date(Date.now() - 20 * 86_400_000).toISOString(),
       },
       {
         price: 5200,
@@ -55,7 +58,7 @@ describe("price-resolver", () => {
         freshness: "fresh",
         confidence: "high",
         source_count: 3,
-        last_updated: "2026-02-01T00:00:00Z",
+        last_updated: new Date(Date.now() - 2 * 86_400_000).toISOString(),
       },
     ];
 
@@ -245,5 +248,31 @@ describe("price-resolver", () => {
 
   it("clearApprovedPriceCache does not throw", () => {
     expect(() => clearApprovedPriceCache()).not.toThrow();
+  });
+});
+
+describe("approved price age is derived, not trusted", () => {
+  const row = (stored: string, daysAgo: number) => ({
+    freshness: stored,
+    last_updated: new Date(Date.now() - daysAgo * 86_400_000).toISOString(),
+    approved_at: null,
+  });
+
+  it("reports an old price as stale however it was labelled", () => {
+    // Nothing recomputes mi_approved_prices.freshness, so a price approved a
+    // year ago still carries 'fresh' from the approve path.
+    expect(derivedFreshness(row("fresh", 400) as never)).toBe("expired");
+    expect(derivedFreshness(row("fresh", 45) as never)).toBe("stale");
+    expect(derivedFreshness(row("fresh", 14) as never)).toBe("recent");
+    expect(derivedFreshness(row("fresh", 2) as never)).toBe("fresh");
+  });
+
+  it("never talks a stored worse label up to fresher", () => {
+    expect(derivedFreshness(row("expired", 1) as never)).toBe("expired");
+    expect(derivedFreshness(row("stale", 2) as never)).toBe("stale");
+  });
+
+  it("falls back to the stored label when there is no date at all", () => {
+    expect(derivedFreshness({ freshness: "recent", last_updated: null } as never)).toBe("recent");
   });
 });

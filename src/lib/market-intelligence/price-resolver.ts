@@ -10,13 +10,16 @@
  *
  * Calculators only call resolveCalculatorPrice() and get a validated price.
  *
- * Fallback hierarchy:
- *   1. Current approved local price (fresh)
- *   2. Recent approved local price (recent)
- *   3. Approved regional price (same country, different city)
- *   4. Clearly labeled previous price (stale)
- *   5. Manual administrator price
- *   6. No price available
+ * What it does, in order:
+ *   1. The approved price matching the requested package, at the freshest age.
+ *   2. Any approved price for the same product and market, labelled as an
+ *      estimate because the package differs.
+ *   3. No price available. It is never borrowed from another market: a quote
+ *      has to rest on this market's own retailer data.
+ *
+ * Age is derived from last_updated on every read, never taken from the stored
+ * freshness column, and a stored label can only make a price look older or
+ * worse, never fresher.
  *
  * The resolver NEVER invents a price.
  */
@@ -28,12 +31,31 @@ import type {
   Freshness,
 } from '@/types/market-intelligence';
 import { NO_PRICE_AVAILABLE } from '@/types/market-intelligence';
+import { calculateFreshness } from './price-validator';
 
-// ============================================================
-// CACHE, approved prices cached per market+product for the session
-// ============================================================
+/**
+ * Age of an approved price, computed from when it was last updated.
+ *
+ * mi_approved_prices.freshness is written as 'fresh' when a price is approved
+ * and no job ever recomputes it, so a price approved last year still carries
+ * the label and was served to calculators as "Current market price" with no
+ * staleness warning. The stored label is now used as a floor: take whichever
+ * of the two is worse, so a stale row cannot be talked up to fresh.
+ */
+export function derivedFreshness(price: MiApprovedPrice): Freshness {
+  const stored = price.freshness;
+  const anchor = price.last_updated ?? price.approved_at ?? null;
+  const computed: Freshness = anchor ? calculateFreshness(anchor) : stored;
+  const order: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
+  const rank = (f: Freshness) => order[f] ?? 3;
+  return rank(computed) >= rank(stored) ? computed : stored;
+}
 
-const approvedPriceCache = new Map<string, MiApprovedPrice | null>();
+/** A copy of the row with the freshness this read should report. */
+function withDerivedFreshness(price: MiApprovedPrice): MiApprovedPrice {
+  const freshness = derivedFreshness(price);
+  return freshness === price.freshness ? price : { ...price, freshness };
+}
 
 // ============================================================
 // RESOLVE PRICE
@@ -77,7 +99,7 @@ export async function resolveCalculatorPrice(
       return tryFallback(marketCode, productId, options);
     }
 
-    const prices = data as unknown as MiApprovedPrice[];
+    const prices = (data as unknown as MiApprovedPrice[]).map(withDerivedFreshness);
 
     // Filter by region if specified
     let filtered = prices;
@@ -133,7 +155,7 @@ export async function resolveCalculatorPriceByName(
 
     if (error || !data || data.length === 0) return NO_PRICE_AVAILABLE;
 
-    const prices = data as unknown as MiApprovedPrice[];
+    const prices = (data as unknown as MiApprovedPrice[]).map(withDerivedFreshness);
     const freshnessOrder: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
     prices.sort((a, b) => freshnessOrder[a.freshness] - freshnessOrder[b.freshness]);
 
@@ -163,7 +185,7 @@ async function tryFallback(
     .limit(1);
 
   if (data && data.length > 0) {
-    const price = data[0] as unknown as MiApprovedPrice;
+    const price = withDerivedFreshness(data[0] as unknown as MiApprovedPrice);
     const resolved = formatResolvedPrice(price);
     return {
       ...resolved,
@@ -235,9 +257,10 @@ export async function resolveCalculatorPricesBulk(
   const freshnessOrder: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
 
   for (const row of data as unknown as MiApprovedPrice[]) {
-    const existing = byProduct.get(row.canonical_product_id ?? '');
-    if (!existing || freshnessOrder[row.freshness] < freshnessOrder[existing.freshness]) {
-      byProduct.set(row.canonical_product_id ?? '', row);
+    const fresh = withDerivedFreshness(row);
+    const existing = byProduct.get(fresh.canonical_product_id ?? '');
+    if (!existing || freshnessOrder[fresh.freshness] < freshnessOrder[existing.freshness]) {
+      byProduct.set(fresh.canonical_product_id ?? '', fresh);
     }
   }
 
@@ -253,6 +276,11 @@ export async function resolveCalculatorPricesBulk(
 // CLEAR CACHE
 // ============================================================
 
+/**
+ * Kept for existing callers. The resolver holds no cache: an approved price can
+ * be re-approved, withdrawn or aged out between two calls, so every read goes
+ * to the table and derives its own freshness.
+ */
 export function clearApprovedPriceCache(): void {
-  approvedPriceCache.clear();
+  // Nothing cached to clear.
 }
