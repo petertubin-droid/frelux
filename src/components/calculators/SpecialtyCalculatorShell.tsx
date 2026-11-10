@@ -26,6 +26,7 @@ import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { PriceBookSummary } from "@/lib/prices/freshness";
 import type { SpecialtyResult } from "@/lib/estimation/specialty";
 
@@ -415,6 +416,49 @@ export function SpecialtyCalculatorShell({
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <ShareEstimateButton
+                      estimate={{
+                        kind: quoteTitle,
+                        summaryLines: result.steps.map((s) => ({
+                          label: s.label,
+                          value: s.detail,
+                        })),
+                        lineItems: visibleLines.map((l) => ({
+                          description: l.label,
+                          quantity:
+                            l.quantity === null
+                              ? null
+                              : `${l.quantity.toLocaleString()} ${l.unit ?? ""}`.trim(),
+                          amount:
+                            l.line_total === null
+                              ? null
+                              : formatCurrency(l.line_total, symbol),
+                        })),
+                        totals: [
+                          {
+                            label: "Material subtotal",
+                            value:
+                              result.material_subtotal === null
+                                ? "(some items unpriced)"
+                                : formatCurrency(
+                                    result.material_subtotal,
+                                    symbol,
+                                  ),
+                          },
+                          {
+                            label: "Estimated material cost",
+                            value:
+                              result.grand_total === null
+                                ? "Not priced"
+                                : formatCurrency(result.grand_total, symbol),
+                            emphasized: true,
+                          },
+                        ],
+                        notes: result.warnings,
+                        link: routePath,
+                      }}
+                      compact
+                    />
                     {access.canExport ? (
                       <button
                         type="button"
