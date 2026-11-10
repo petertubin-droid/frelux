@@ -5111,12 +5111,21 @@ function collectPrerenderedPaths(dir, prefix = "") {
   return out;
 }
 const manifestPaths = collectPrerenderedPaths(distDir).sort();
+// Pages the route table deliberately marked noindex (a locale page with no
+// reviewed translation, for example). The sitemap generator and the inventory
+// guards both need this list: a noindex page must never be advertised, and it
+// must not be counted as a page the sitemap forgot.
+const noindexPaths = routes
+  .filter((route) => String(route.robots ?? "").startsWith("noindex"))
+  .map((route) => route.path)
+  .sort();
 writeFileSync(
   join(distDir, "_prerender-manifest.json"),
   JSON.stringify(
     {
       generated_at: new Date().toISOString(),
       paths: manifestPaths,
+      noindex: noindexPaths,
       // What the build had data for. A build with no reachable database emits
       // only the static routes, so the guards can tell an empty data source
       // apart from a family that was advertised but never written.

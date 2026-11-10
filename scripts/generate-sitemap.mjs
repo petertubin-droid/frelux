@@ -699,7 +699,7 @@ const allRoutes = candidateRoutes.filter((r) => !isLocalePrefixed(r.path));
 const droppedLocaleRoutes = candidateRoutes.length - allRoutes.length;
 if (droppedLocaleRoutes > 0) {
   console.log(
-    `  ℹ️  sitemap dropped ${droppedLocaleRoutes} locale-prefixed URL(s) that are noindex by policy`,
+    `  ℹ️  sitemap dropped ${droppedLocaleRoutes} locale-prefixed URL(s) that the edge marks noindex`,
   );
 }
 

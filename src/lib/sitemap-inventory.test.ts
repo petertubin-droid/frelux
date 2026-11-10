@@ -14,6 +14,7 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { LOCALE_PREFIXES } from "../../scripts/lib/locale-paths.mjs";
 
 const root = process.cwd();
 const fnSrc = readFileSync(join(root, "netlify/functions/sitemap.js"), "utf8");
@@ -58,11 +59,14 @@ describe("build sitemap", () => {
   it("lists only URLs that were actually prerendered", () => {
     const sitemap = join(root, "dist/sitemap.xml");
     if (!existsSync(sitemap)) return; // dist exists only after a build
-    const locs = [...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    const locs = [
+      ...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g),
+    ].map((m) => m[1]);
     expect(locs.length).toBeGreaterThan(500);
     const missing = locs.filter((u) => {
       const path = u.replace("https://freluxtools.com", "");
-      const file = path === "/" ? "dist/index.html" : join("dist", path, "index.html");
+      const file =
+        path === "/" ? "dist/index.html" : join("dist", path, "index.html");
       return !existsSync(join(root, file));
     });
     expect(missing).toEqual([]);
@@ -74,12 +78,51 @@ describe("build sitemap", () => {
     if (!existsSync(sitemap) || !existsSync(manifestFile)) return;
     const locs = new Set(
       [...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(
-        (m) => m[1].replace("https://freluxtools.com", "").replace(/\/$/, "") || "/",
+        (m) =>
+          m[1].replace("https://freluxtools.com", "").replace(/\/$/, "") || "/",
       ),
     );
-    const { paths } = JSON.parse(readFileSync(manifestFile, "utf8"));
-    const unlisted = paths.filter((p: string) => !locs.has(p === "/" ? "/" : p.replace(/\/$/, "")));
+    const { paths, noindex } = JSON.parse(
+      readFileSync(manifestFile, "utf8"),
+    ) as { paths: string[]; noindex?: string[] };
+    // Two kinds of emitted page are deliberately not advertised: a page the
+    // build marked noindex, and any locale-prefixed path, because public/_headers
+    // sends X-Robots-Tag noindex for /<locale>/* at the edge. Neither is a page
+    // the sitemap forgot; a sitemap that listed them would be advertising URLs
+    // Google is told to ignore.
+    const excluded = new Set(noindex ?? []);
+    for (const p of paths) {
+      if (
+        LOCALE_PREFIXES.some(
+          (code) => p === `/${code}` || p.startsWith(`/${code}/`),
+        )
+      ) {
+        excluded.add(p);
+      }
+    }
+    const unlisted = paths
+      .filter((p: string) => !excluded.has(p))
+      .filter((p: string) => !locs.has(p === "/" ? "/" : p.replace(/\/$/, "")));
     expect(unlisted).toEqual([]);
+  });
+
+  it("never advertises a page the build marked noindex", () => {
+    const sitemap = join(root, "dist/sitemap.xml");
+    const manifestFile = join(root, "dist/_prerender-manifest.json");
+    if (!existsSync(sitemap) || !existsSync(manifestFile)) return;
+    const { noindex } = JSON.parse(readFileSync(manifestFile, "utf8")) as {
+      noindex?: string[];
+    };
+    const listed = new Set(
+      [...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+        (m) =>
+          m[1].replace("https://freluxtools.com", "").replace(/\/$/, "") || "/",
+      ),
+    );
+    const leaked = (noindex ?? []).filter((p) =>
+      listed.has(p.replace(/\/$/, "")),
+    );
+    expect(leaked).toEqual([]);
   });
 
   it("prerenders the colour, palette and template families it advertises", () => {
@@ -99,6 +142,8 @@ describe("build sitemap", () => {
       return;
     }
     expect(xml).toContain("/colors/paint/");
-    expect(existsSync(join(root, "dist/colors/paint/pure-white/index.html"))).toBe(true);
+    expect(
+      existsSync(join(root, "dist/colors/paint/pure-white/index.html")),
+    ).toBe(true);
   });
 });

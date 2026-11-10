@@ -2,14 +2,12 @@ import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
 import { PriceBookProvider } from "@/lib/pricing/price-book-context";
-import { BuildingSizeBar } from "@/components/measurement/BuildingSizeBar";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
-import { MonetagInPagePush } from "@/components/ads/MonetagInPagePush";
 import { AdPushWorkerGate } from "@/components/ads/AdPushWorkerGate";
 import {
   hasAdvertisingConsent,
@@ -18,23 +16,35 @@ import {
 } from "@/lib/ad-consent";
 import { firstBlockingGate, markAdGate } from "@/lib/ad-gate";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
+import { loadAdRuntime } from "@/lib/ad-runtime";
+
+// The in-page push unit reads the ad config and injects a tag after mount, so it
+// can arrive after the shell instead of holding two ad modules in the entry.
+// The size bar only appears on calculator routes, and it carries the building
+// schedule, the preset catalogue and the plan importer behind it. Deferred, none
+// of that is a request a first-time visitor pays for.
+const BuildingSizeBar = lazy(() =>
+  import("@/components/measurement/BuildingSizeBar").then((m) => ({
+    default: m.BuildingSizeBar,
+  })),
+);
+
+const MonetagInPagePush = lazy(() =>
+  import("@/components/ads/MonetagInPagePush").then((m) => ({
+    default: m.MonetagInPagePush,
+  })),
+);
 import ConversionDock from "@/components/convert/ConversionDock";
 import { isOnboardingComplete } from "@/lib/onboarding";
-import { MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import { trackVisit } from "@/lib/achievements";
 import { shouldLoadAdSdks, shouldAnimate } from "@/lib/network";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
-import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
 import { isCalculatorPath } from "@/lib/market-notice";
-import {
-  adsAllowedForViewer,
-  hideAdContainers,
-  purgeInjectedAdTags,
-} from "@/lib/ad-entitlement";
+import { hideAdContainers, purgeInjectedAdTags } from "@/lib/ad-entitlement";
 import { useLanguage } from "@/lib/i18n";
 
 // Lazy-loaded below-the-fold components, not visible on first paint
@@ -152,6 +162,11 @@ export default function Layout() {
 
     let cancelled = false;
     (async () => {
+      // The format helpers and the diagnostics helper arrive with the ad,
+      // rather than as two requests before the first screen.
+      const { formats, diagnostics } = await loadAdRuntime();
+      const { instrumentScript, adDebug } = diagnostics;
+      const { MONETAG_TAG_DOMAIN } = formats;
       let adsterraSiteWide: Array<{ format: string; src: string }> = [];
       let monetagAutoZones: Array<{
         format: string;
@@ -166,7 +181,6 @@ export default function Layout() {
         ]);
         const { providers } = await fetchAdConfig();
         // ── Additional format tags (additive; dormant until configured) ──
-        const formats = await import("@/lib/ad-network-formats");
         // NOTE: Monetag's site-wide SDK zone tag (credentials.sdk_url)
         // is the primary Monetag revenue path (popunder / on-click
         // formats). It is restored here, injected once per session and
@@ -393,20 +407,31 @@ export default function Layout() {
     if (authLoading || isPaid) return;
     if (!adsterraNative) return;
     const { key, src } = adsterraNative;
-    const container = document.getElementById(`container-${key}`);
-    if (!container) return;
-    if (document.querySelector('script[data-adsterra-native-sitewide="true"]'))
-      return;
-    const s = document.createElement("script");
-    s.src = src;
-    s.async = true;
-    s.setAttribute("data-cfasync", "false");
-    s.setAttribute("data-adsterra-native", "true");
-    s.setAttribute("data-adsterra-native-sitewide", "true");
-    s.setAttribute("data-ad-zone", key);
-    instrumentScript("adsterra", s, `native-sitewide:${key}`);
-    document.head.appendChild(s);
-    adDebug("adsterra", "native-sitewide:injected", { src });
+    let cancelled = false;
+    void (async () => {
+      const { diagnostics } = await loadAdRuntime();
+      if (cancelled) return;
+      const { instrumentScript, adDebug } = diagnostics;
+      const container = document.getElementById(`container-${key}`);
+      if (!container) return;
+      if (
+        document.querySelector('script[data-adsterra-native-sitewide="true"]')
+      )
+        return;
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.setAttribute("data-cfasync", "false");
+      s.setAttribute("data-adsterra-native", "true");
+      s.setAttribute("data-adsterra-native-sitewide", "true");
+      s.setAttribute("data-ad-zone", key);
+      instrumentScript("adsterra", s, `native-sitewide:${key}`);
+      document.head.appendChild(s);
+      adDebug("adsterra", "native-sitewide:injected", { src });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [adsterraNative, isPaid, authLoading]);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
@@ -616,8 +641,12 @@ export default function Layout() {
           )}
         <BuildingSizeProvider>
           <PriceBookProvider>
-          {isToolRoute(location.pathname) && <BuildingSizeBar />}
-          <Outlet />
+            {isToolRoute(location.pathname) && (
+              <Suspense fallback={null}>
+                <BuildingSizeBar />
+              </Suspense>
+            )}
+            <Outlet />
           </PriceBookProvider>
         </BuildingSizeProvider>
         <LocalePrompt />
@@ -637,7 +666,9 @@ export default function Layout() {
       <AdsterraDirectLink />
       {/* Monetag in-page push: global overlay, one per session, so every
           page keeps its two-unit budget while push still serves sitewide. */}
-      <MonetagInPagePush />
+      <Suspense fallback={null}>
+        <MonetagInPagePush />
+      </Suspense>
       <AdPushWorkerGate />
       {adsterraNative && !isPaid && hasAdvertisingConsent() && (
         <div
