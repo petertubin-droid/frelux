@@ -189,3 +189,101 @@ describe("measurement converter page", () => {
     expect(screen.getByText(/1 x 20 L \+ 1 x 4 L/)).toBeInTheDocument();
   });
 });
+
+describe("the wider unit catalogue", () => {
+  it("converts 20 °C into 68 °F and keeps a below-zero reading", () => {
+    renderPage();
+    openTab(/^Temperature$/i);
+    expect(screen.getAllByText(/^68$/).length).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText(/^Temperature$/i), {
+      target: { value: "-40" },
+    });
+    // minus forty is the one reading both scales agree on
+    expect(screen.getAllByText(/^-40$/).length).toBeGreaterThan(0);
+  });
+
+  it("converts a concrete strength from megapascals into psi", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/^Measurement$/i), {
+      target: { value: "30" },
+    });
+    fireEvent.change(screen.getByLabelText(/^From$/i), {
+      target: { value: "press-mpa" },
+    });
+    fireEvent.change(screen.getByLabelText(/^To$/i), {
+      target: { value: "press-psi" },
+    });
+    expect(screen.getAllByText(/^4,?351\.1/).length).toBeGreaterThan(0);
+  });
+
+  it("converts a pump rate from litres per minute into gallons per minute", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/^Measurement$/i), {
+      target: { value: "5" },
+    });
+    fireEvent.change(screen.getByLabelText(/^From$/i), {
+      target: { value: "flow-lmin" },
+    });
+    fireEvent.change(screen.getByLabelText(/^To$/i), {
+      target: { value: "flow-gpm" },
+    });
+    expect(screen.getAllByText(/^1\.32/).length).toBeGreaterThan(0);
+  });
+
+  it("names every family it covers, with a unit count for each", () => {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/^Measurement$/i), {
+      target: { value: "1" },
+    });
+    fireEvent.change(screen.getByLabelText(/^From$/i), {
+      target: { value: "press-bar" },
+    });
+    fireEvent.change(screen.getByLabelText(/^To$/i), {
+      target: { value: "press-kpa" },
+    });
+    // 1 bar is 100 kPa, and both ends belong to the pressure family.
+    expect(screen.getAllByText(/^100$/).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/Pressure and strength/i).length,
+    ).toBeGreaterThan(0);
+  });
+});
+
+describe("the wider unit catalogue", () => {
+  it("converts a curing temperature without treating it as a ratio", () => {
+    renderPage();
+    openTab(/^Temperature$/i);
+    expect(screen.getByLabelText(/^Result unit$/i)).toBeTruthy();
+    expect(screen.getAllByText(/68/).length).toBeGreaterThan(0);
+  });
+
+  it("keeps a below-zero reading and refuses one below absolute zero", () => {
+    renderPage();
+    openTab(/^Temperature$/i);
+    const input = screen.getByLabelText(/^Temperature$/i);
+    fireEvent.change(input, { target: { value: "-40" } });
+    expect(screen.getAllByText(/-40/).length).toBeGreaterThan(0);
+    fireEvent.change(input, { target: { value: "-500" } });
+    expect(screen.getByText(/absolute zero/i)).toBeTruthy();
+  });
+
+  it("offers pressure and flow on both sides of the all-units tab", () => {
+    renderPage();
+    const from = screen.getByLabelText(/^From$/i) as HTMLSelectElement;
+    const to = screen.getByLabelText(/^To$/i) as HTMLSelectElement;
+    fireEvent.change(from, { target: { value: "press-mpa" } });
+    fireEvent.change(to, { target: { value: "press-psi" } });
+    fireEvent.change(screen.getByLabelText(/^Measurement$/i), {
+      target: { value: "30" },
+    });
+    // 30 MPa is 4351.1 psi
+    expect(screen.getAllByText(/4351/).length).toBeGreaterThan(0);
+    fireEvent.change(from, { target: { value: "flow-lmin" } });
+    fireEvent.change(to, { target: { value: "flow-gpm" } });
+    fireEvent.change(screen.getByLabelText(/^Measurement$/i), {
+      target: { value: "10" },
+    });
+    // 10 L/min is 2.64 gpm
+    expect(screen.getAllByText(/2\.64/).length).toBeGreaterThan(0);
+  });
+});

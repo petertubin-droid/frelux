@@ -750,6 +750,24 @@ export function litresPerSqm(
 
 export type Dimension = "length" | "area" | "volume" | "mass";
 
+/**
+ * Everything the converter can read. The construction four come from a drawing;
+ * the rest arrive on a data sheet, a mix design or an equipment plate: concrete
+ * strength in MPa or psi, a curing temperature, a pump rate in litres per
+ * minute. They convert by exact ratio, so they belong in the same catalogue.
+ */
+export type UniversalDimension =
+  | Dimension
+  | "pressure"
+  | "force"
+  | "energy"
+  | "power"
+  | "speed"
+  | "density"
+  | "flow"
+  | "angle"
+  | "time";
+
 export const DIMENSION_LABELS: Record<Dimension, string> = {
   length: "Length",
   area: "Area",
@@ -757,10 +775,23 @@ export const DIMENSION_LABELS: Record<Dimension, string> = {
   mass: "Weight",
 };
 
+export const UNIVERSAL_DIMENSION_LABELS: Record<UniversalDimension, string> = {
+  ...DIMENSION_LABELS,
+  pressure: "Pressure and strength",
+  force: "Force and load",
+  energy: "Energy",
+  power: "Power",
+  speed: "Speed",
+  density: "Density",
+  flow: "Flow rate",
+  angle: "Angle",
+  time: "Time",
+};
+
 export interface UniversalUnit {
   id: string;
   label: string;
-  dimension: Dimension;
+  dimension: UniversalDimension;
   /** Factor into the dimension's base unit: m, m², L, kg. */
   factor: number;
 }
@@ -1073,6 +1104,176 @@ export const UNIVERSAL_UNITS: UniversalUnit[] = [
   },
 ];
 
+// Pressure and strength: the concrete and mortar grades that arrive as MPa,
+// psi or bar, plus kgf/cm² which older site documents still use.
+const PRESSURE_UNITS: UniversalUnit[] = [
+  { id: "press-pa", label: "Pascals (Pa)", dimension: "pressure", factor: 1 },
+  { id: "press-kpa", label: "Kilopascals (kPa)", dimension: "pressure", factor: 1000 },
+  { id: "press-mpa", label: "Megapascals (MPa)", dimension: "pressure", factor: 1_000_000 },
+  { id: "press-bar", label: "Bar", dimension: "pressure", factor: 100_000 },
+  {
+    id: "press-psi",
+    label: "Pounds per square inch (psi)",
+    dimension: "pressure",
+    factor: 6894.757293168,
+  },
+  {
+    id: "press-kgfcm2",
+    label: "Kilograms-force per cm² (kgf/cm²)",
+    dimension: "pressure",
+    factor: 98066.5,
+  },
+];
+
+const FORCE_UNITS: UniversalUnit[] = [
+  { id: "force-n", label: "Newtons (N)", dimension: "force", factor: 1 },
+  { id: "force-kn", label: "Kilonewtons (kN)", dimension: "force", factor: 1000 },
+  { id: "force-kgf", label: "Kilograms-force (kgf)", dimension: "force", factor: 9.80665 },
+  {
+    id: "force-lbf",
+    label: "Pounds-force (lbf)",
+    dimension: "force",
+    factor: 4.4482216152605,
+  },
+  {
+    id: "force-tonnef",
+    label: "Tonnes-force (tf)",
+    dimension: "force",
+    factor: 9806.65,
+  },
+];
+
+const ENERGY_UNITS: UniversalUnit[] = [
+  { id: "energy-j", label: "Joules (J)", dimension: "energy", factor: 1 },
+  { id: "energy-kj", label: "Kilojoules (kJ)", dimension: "energy", factor: 1000 },
+  { id: "energy-mj", label: "Megajoules (MJ)", dimension: "energy", factor: 1_000_000 },
+  { id: "energy-kwh", label: "Kilowatt hours (kWh)", dimension: "energy", factor: 3_600_000 },
+  { id: "energy-btu", label: "British thermal units (BTU)", dimension: "energy", factor: 1055.05585262 },
+  { id: "energy-kcal", label: "Kilocalories (kcal)", dimension: "energy", factor: 4184 },
+];
+
+const POWER_UNITS: UniversalUnit[] = [
+  { id: "power-w", label: "Watts (W)", dimension: "power", factor: 1 },
+  { id: "power-kw", label: "Kilowatts (kW)", dimension: "power", factor: 1000 },
+  { id: "power-mw", label: "Megawatts (MW)", dimension: "power", factor: 1_000_000 },
+  {
+    id: "power-hp",
+    label: "Horsepower (mechanical hp)",
+    dimension: "power",
+    factor: 745.6998715822702,
+  },
+  {
+    id: "power-ps",
+    label: "Metric horsepower (PS)",
+    dimension: "power",
+    factor: 735.49875,
+  },
+];
+
+const SPEED_UNITS: UniversalUnit[] = [
+  { id: "speed-mps", label: "Metres per second (m/s)", dimension: "speed", factor: 1 },
+  {
+    id: "speed-kmh",
+    label: "Kilometres per hour (km/h)",
+    dimension: "speed",
+    factor: 0.2777777777777778,
+  },
+  {
+    id: "speed-mph",
+    label: "Miles per hour (mph)",
+    dimension: "speed",
+    factor: 0.44704,
+  },
+  {
+    id: "speed-kn",
+    label: "Knots (kn)",
+    dimension: "speed",
+    factor: 0.5144444444444445,
+  },
+  {
+    id: "speed-fps",
+    label: "Feet per second (ft/s)",
+    dimension: "speed",
+    factor: 0.3048,
+  },
+];
+
+const DENSITY_UNITS: UniversalUnit[] = [
+  { id: "density-kgm3", label: "Kilograms per m³ (kg/m³)", dimension: "density", factor: 1 },
+  { id: "density-gcm3", label: "Grams per cm³ (g/cm³)", dimension: "density", factor: 1000 },
+  {
+    id: "density-lbft3",
+    label: "Pounds per cubic foot (lb/ft³)",
+    dimension: "density",
+    factor: 16.0184633739601,
+  },
+  {
+    id: "density-lbyd3",
+    label: "Pounds per cubic yard (lb/yd³)",
+    dimension: "density",
+    factor: 0.5932764212577829,
+  },
+];
+
+const FLOW_UNITS: UniversalUnit[] = [
+  { id: "flow-ls", label: "Litres per second (L/s)", dimension: "flow", factor: 1 },
+  {
+    id: "flow-lmin",
+    label: "Litres per minute (L/min)",
+    dimension: "flow",
+    factor: 0.016666666666666666,
+  },
+  {
+    id: "flow-m3h",
+    label: "Cubic metres per hour (m³/h)",
+    dimension: "flow",
+    factor: 0.2777777777777778,
+  },
+  {
+    id: "flow-gpm",
+    label: "US gallons per minute (gpm)",
+    dimension: "flow",
+    factor: 0.0630901964,
+  },
+  {
+    id: "flow-gph",
+    label: "US gallons per hour (gph)",
+    dimension: "flow",
+    factor: 0.0010515032733333333,
+  },
+];
+
+const ANGLE_UNITS: UniversalUnit[] = [
+  { id: "angle-deg", label: "Degrees (°)", dimension: "angle", factor: 1 },
+  {
+    id: "angle-rad",
+    label: "Radians (rad)",
+    dimension: "angle",
+    factor: 57.29577951308232,
+  },
+  { id: "angle-grad", label: "Gradians (grad)", dimension: "angle", factor: 0.9 },
+];
+
+const TIME_UNITS: UniversalUnit[] = [
+  { id: "time-s", label: "Seconds (s)", dimension: "time", factor: 1 },
+  { id: "time-min", label: "Minutes (min)", dimension: "time", factor: 60 },
+  { id: "time-h", label: "Hours (h)", dimension: "time", factor: 3600 },
+  { id: "time-day", label: "Days", dimension: "time", factor: 86400 },
+  { id: "time-week", label: "Weeks", dimension: "time", factor: 604800 },
+];
+
+UNIVERSAL_UNITS.push(
+  ...PRESSURE_UNITS,
+  ...FORCE_UNITS,
+  ...ENERGY_UNITS,
+  ...POWER_UNITS,
+  ...SPEED_UNITS,
+  ...DENSITY_UNITS,
+  ...FLOW_UNITS,
+  ...ANGLE_UNITS,
+  ...TIME_UNITS,
+);
+
 export function findUniversalUnit(id: string): UniversalUnit | null {
   return UNIVERSAL_UNITS.find((unit) => unit.id === id) ?? null;
 }
@@ -1252,7 +1453,79 @@ export function convertUniversal(
 
 /** Short symbol for a universal unit, used inside explanations. */
 export function unitShort(unit: UniversalUnit): string {
-  return unit.id.replace(/^(len|area|vol|mass)-/, "").replace(/-/g, " ");
+  return unit.id
+    .replace(
+      /^(len|area|vol|mass|press|force|energy|power|speed|density|flow|angle|time)-/,
+      "",
+    )
+    .replace(/-/g, " ");
 }
 
 export const EMPTY_CONVERSION_HINT = NO_VALUE;
+
+// ---------------------------------------------------------------- temperature
+
+/**
+ * Temperature is the one family that is not a ratio. 20 °C is not twice 10 °C,
+ * so a factor would be wrong; each scale is read into Celsius and written back
+ * out, and the offsets live here rather than in any page.
+ */
+export type TemperatureUnit = "c" | "f" | "k" | "r";
+
+export const TEMPERATURE_LABELS: Record<TemperatureUnit, string> = {
+  c: "Degrees Celsius (°C)",
+  f: "Degrees Fahrenheit (°F)",
+  k: "Kelvin (K)",
+  r: "Degrees Rankine (°R)",
+};
+
+export const TEMPERATURE_SHORT: Record<TemperatureUnit, string> = {
+  c: "°C",
+  f: "°F",
+  k: "K",
+  r: "°R",
+};
+
+export function toCelsius(value: number, unit: TemperatureUnit): number {
+  switch (unit) {
+    case "f":
+      return ((value - 32) * 5) / 9;
+    case "k":
+      return value - 273.15;
+    case "r":
+      return ((value - 491.67) * 5) / 9;
+    default:
+      return value;
+  }
+}
+
+export function fromCelsius(celsius: number, unit: TemperatureUnit): number {
+  switch (unit) {
+    case "f":
+      return (celsius * 9) / 5 + 32;
+    case "k":
+      return celsius + 273.15;
+    case "r":
+      return ((celsius + 273.15) * 9) / 5;
+    default:
+      return celsius;
+  }
+}
+
+/**
+ * Converts a temperature on the page two default decimals, which is what a
+ * thermometer and a mix specification are both read to.
+ */
+export function convertTemperature(
+  value: number,
+  from: TemperatureUnit,
+  to: TemperatureUnit,
+): number | null {
+  if (!Number.isFinite(value)) return null;
+  const celsius = toCelsius(value, from);
+  const out = fromCelsius(celsius, to);
+  if (!Number.isFinite(out)) return null;
+  // Absolute zero is the floor of any real reading on any scale.
+  if (out < -459.67 || celsius < -273.15) return null;
+  return out;
+}

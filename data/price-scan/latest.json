@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-02T05:04:55.680Z",
+  "generated_at": "2026-11-09T05:04:31.685Z",
   "material_prices_active": 1000,
-  "materials_active": 634,
+  "materials_active": 635,
   "max_age_days": 45,
   "by_market": {
-    "DE": {
-      "total": 221,
-      "local_verified": 126,
-      "fx_reference": 95,
-      "stale": 0
-    },
     "NG": {
-      "total": 42,
-      "local_verified": 37,
+      "total": 45,
+      "local_verified": 40,
       "fx_reference": 0,
       "stale": 5
+    },
+    "DE": {
+      "total": 220,
+      "local_verified": 128,
+      "fx_reference": 92,
+      "stale": 0
     },
     "US": {
       "total": 70,
@@ -23,9 +23,9 @@
       "stale": 0
     },
     "GB": {
-      "total": 60,
+      "total": 59,
       "local_verified": 42,
-      "fx_reference": 18,
+      "fx_reference": 17,
       "stale": 0
     },
     "IN": {
@@ -41,20 +41,20 @@
       "stale": 0
     },
     "MX": {
-      "total": 37,
-      "local_verified": 17,
-      "fx_reference": 20,
+      "total": 38,
+      "local_verified": 19,
+      "fx_reference": 19,
       "stale": 0
     },
     "SA": {
-      "total": 27,
-      "local_verified": 11,
+      "total": 28,
+      "local_verified": 12,
       "fx_reference": 16,
       "stale": 0
     },
     "ZA": {
-      "total": 43,
-      "local_verified": 27,
+      "total": 42,
+      "local_verified": 26,
       "fx_reference": 16,
       "stale": 0
     },
@@ -64,10 +64,16 @@
       "fx_reference": 0,
       "stale": 0
     },
+    "BR": {
+      "total": 41,
+      "local_verified": 25,
+      "fx_reference": 16,
+      "stale": 0
+    },
     "GH": {
-      "total": 40,
+      "total": 39,
       "local_verified": 22,
-      "fx_reference": 18,
+      "fx_reference": 17,
       "stale": 0
     },
     "CA": {
@@ -82,28 +88,28 @@
       "fx_reference": 0,
       "stale": 0
     },
-    "BR": {
-      "total": 43,
-      "local_verified": 26,
-      "fx_reference": 17,
-      "stale": 0
-    },
-    "KE": {
-      "total": 43,
-      "local_verified": 24,
-      "fx_reference": 19,
-      "stale": 0
-    },
     "NO": {
-      "total": 8,
-      "local_verified": 8,
+      "total": 9,
+      "local_verified": 9,
       "fx_reference": 0,
       "stale": 0
     },
     "JP": {
-      "total": 37,
+      "total": 36,
       "local_verified": 17,
-      "fx_reference": 20,
+      "fx_reference": 19,
+      "stale": 0
+    },
+    "CI": {
+      "total": 1,
+      "local_verified": 1,
+      "fx_reference": 0,
+      "stale": 0
+    },
+    "CH": {
+      "total": 10,
+      "local_verified": 10,
+      "fx_reference": 0,
       "stale": 0
     },
     "AU": {
@@ -112,10 +118,16 @@
       "fx_reference": 18,
       "stale": 0
     },
+    "KE": {
+      "total": 42,
+      "local_verified": 23,
+      "fx_reference": 19,
+      "stale": 0
+    },
     "CN": {
-      "total": 24,
+      "total": 23,
       "local_verified": 4,
-      "fx_reference": 20,
+      "fx_reference": 19,
       "stale": 0
     },
     "SE": {
@@ -134,12 +146,6 @@
       "total": 39,
       "local_verified": 17,
       "fx_reference": 22,
-      "stale": 0
-    },
-    "CH": {
-      "total": 8,
-      "local_verified": 8,
-      "fx_reference": 0,
       "stale": 0
     },
     "PL": {

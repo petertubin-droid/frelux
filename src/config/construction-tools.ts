@@ -158,15 +158,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     title: "Measurement Converter",
     category: "pro",
     icon: Ruler,
-    does: "Convert feet, inches, plots, tonnes, litres and bags into the metric units the calculators expect.",
+    does: "Convert any unit a drawing, data sheet or supplier hands you: feet and inches, plots and acres, tonnes and bags, MPa and psi, kN and tonnes-force, kWh and BTU, kW and horsepower, L/min and gpm, and Celsius and Fahrenheit.",
     enters:
-      "A measurement in whatever unit it arrived in, such as a tape reading in feet and inches.",
-    gets: "The same measurement in metres, square metres, cubic metres or buckets, with the assumptions stated.",
+      "A number and the unit it arrived in, such as a tape reading in feet and inches, a mix strength in MPa, a pump rate in L/min, or a curing temperature in Celsius.",
+    gets: "The same measurement in the unit you need, with the method, the exact ratio and any depth, density or bag weight the answer depends on stated above the result.",
     to: "/unit-converter",
-    benefit: "Plots · Tonnes · Buckets",
-    seoTitle: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
+    benefit: "Plots · MPa · Tonnes · °C",
+    seoTitle:
+      "Unit Converter: Feet, Plots, Tonnes, MPa, psi and Celsius | FRELUX",
     seoDescription:
-      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
+      "Convert feet to metres, plots to square metres, tonnes to cubic metres and bags, MPa to psi, kN to tonnes-force, kWh to BTU, kW to horsepower, L/min to gpm, and Celsius to Fahrenheit. Every answer shows its method.",
     navVisible: true,
   },
   // ---------------------------------------------------------------- finishes

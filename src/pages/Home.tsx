@@ -176,6 +176,11 @@ export default function Home() {
       {/* Real community size. Renders nothing until 100 verified accounts. */}
       <CommunityProof />
 
+      {/* Live, edge to edge: the globe and the measurement converter, both
+          working here rather than described. Two things visitors asked for and
+          then could not find, so they now sit one scroll below the hero. */}
+      <MapWeatherBand />
+
       {/* Try it: 6 calculator cards immediately below hero */}
       <section
         id="calculators"

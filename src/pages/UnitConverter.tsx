@@ -12,6 +12,7 @@ import {
   Boxes,
   PaintBucket,
   Home,
+  Thermometer,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -26,8 +27,12 @@ import {
   MATERIAL_DENSITIES,
   PLOT_PRESETS,
   VOLUME_LABELS,
-  DIMENSION_LABELS,
+  UNIVERSAL_DIMENSION_LABELS,
   UNIVERSAL_UNITS,
+  TEMPERATURE_LABELS,
+  TEMPERATURE_SHORT,
+  convertTemperature,
+  fromCelsius,
   bagsFromMass,
   convertArea,
   convertLength,
@@ -49,7 +54,8 @@ import {
   roofPitchDegrees,
   volumeToMassKg,
   type AreaUnit,
-  type Dimension,
+  type TemperatureUnit,
+  type UniversalDimension,
   type LengthUnit,
   type MassUnit,
   type VolumeUnit,
@@ -69,6 +75,7 @@ type TabId =
   | "area"
   | "volume"
   | "weight"
+  | "temperature"
   | "materials"
   | "paint"
   | "roofing";
@@ -79,6 +86,7 @@ const TABS: { id: TabId; label: string; icon: typeof Ruler }[] = [
   { id: "area", label: "Area & land", icon: LandPlot },
   { id: "volume", label: "Volume", icon: FlaskConical },
   { id: "weight", label: "Weight", icon: Weight },
+  { id: "temperature", label: "Temperature", icon: Thermometer },
   { id: "materials", label: "Materials", icon: Boxes },
   { id: "paint", label: "Paint", icon: PaintBucket },
   { id: "roofing", label: "Roofing", icon: Home },
@@ -237,6 +245,7 @@ export default function UnitConverter() {
           {tab === "area" && <AreaPanel />}
           {tab === "volume" && <VolumePanel />}
           {tab === "weight" && <WeightPanel />}
+          {tab === "temperature" && <TemperaturePanel />}
           {tab === "materials" && <MaterialsPanel />}
           {tab === "paint" && <PaintPanel />}
           {tab === "roofing" && <RoofingPanel />}
@@ -346,7 +355,21 @@ export default function UnitConverter() {
 
 // ---------------------------------------------------------------- universal
 
-const DIMENSION_ORDER: Dimension[] = ["length", "area", "volume", "mass"];
+const DIMENSION_ORDER: UniversalDimension[] = [
+  "length",
+  "area",
+  "volume",
+  "mass",
+  "pressure",
+  "force",
+  "energy",
+  "power",
+  "speed",
+  "density",
+  "flow",
+  "angle",
+  "time",
+];
 
 function UnitSelect({
   id,
@@ -371,7 +394,10 @@ function UnitSelect({
         className={FIELD}
       >
         {DIMENSION_ORDER.map((dimension) => (
-          <optgroup key={dimension} label={DIMENSION_LABELS[dimension]}>
+          <optgroup
+            key={dimension}
+            label={UNIVERSAL_DIMENSION_LABELS[dimension]}
+          >
             {UNIVERSAL_UNITS.filter((unit) => unit.dimension === dimension).map(
               (unit) => (
                 <option key={unit.id} value={unit.id}>
@@ -443,9 +469,11 @@ function UniversalPanel() {
           Any measurement into any other
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Every unit in the tool is available on both sides. Length, area,
-          volume and weight convert exactly within themselves, and cross over
-          where the arithmetic is honest.
+          Every unit in the tool is available on both sides: length, area,
+          volume and weight, plus the families that arrive on a spec sheet such
+          as pressure, force, energy, power, flow, density, speed, angle and
+          time. Units convert exactly within their family, and cross over where
+          the arithmetic is honest.
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {DIMENSION_ORDER.map((dimension) => (
@@ -453,7 +481,7 @@ function UniversalPanel() {
               key={dimension}
               className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:border-white/10"
             >
-              {DIMENSION_LABELS[dimension]} ·{" "}
+              {UNIVERSAL_DIMENSION_LABELS[dimension]} ·{" "}
               {
                 UNIVERSAL_UNITS.filter((unit) => unit.dimension === dimension)
                   .length
@@ -1313,6 +1341,219 @@ function WeightPanel() {
         always mean the metric tonne, but a US short ton is 9 per cent lighter,
         so confirm before paying per ton.
       </Assumption>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- temperature
+
+const TEMPERATURE_PRESETS: { label: string; value: string; from: TemperatureUnit }[] = [
+  { label: "Water freezes", value: "0", from: "c" },
+  { label: "Room temperature", value: "20", from: "c" },
+  { label: "Paint application", value: "10", from: "c" },
+  { label: "Body temperature", value: "37", from: "c" },
+  { label: "Oven, fan setting", value: "180", from: "c" },
+];
+
+const TEMPERATURE_REFERENCE: { label: string; celsius: number }[] = [
+  { label: "Concrete must not freeze", celsius: 5 },
+  { label: "Paint and adhesive minimum", celsius: 10 },
+  { label: "Comfortable working day", celsius: 22 },
+  { label: "Fresh mortar cure", celsius: 27 },
+  { label: "Bitumen tack coat", celsius: 60 },
+];
+
+/**
+ * Temperature, handled as offsets rather than ratios.
+ *
+ * A factor would answer the wrong question: 40 °F is not two of 20 °F. Each
+ * reading is taken back to Celsius and written out again, the method is printed,
+ * and a reading below absolute zero is refused rather than shown as a number.
+ */
+function TemperaturePanel() {
+  const [amount, setAmount] = useState("20");
+  const [from, setFrom] = useState<TemperatureUnit>("c");
+  const [to, setTo] = useState<TemperatureUnit>("f");
+  const { copied, copy } = useCopy();
+
+  const raw = amount.trim();
+  const parsed = raw === "" ? NaN : Number(raw.replace(/[\s,]/g, ""));
+  const value = Number.isFinite(parsed) ? parsed : null;
+  const converted =
+    value === null ? null : convertTemperature(value, from, to);
+
+  const swap = () => {
+    setFrom(to);
+    setTo(from);
+  };
+
+  const copyText =
+    converted === null
+      ? ""
+      : `${formatNumber(value as number)} ${TEMPERATURE_SHORT[from]} = ${formatNumber(converted)} ${TEMPERATURE_SHORT[to]}`;
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <div className={PANEL}>
+        <h2 className="text-base font-semibold text-foreground">
+          Celsius, Fahrenheit, Kelvin and Rankine
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Temperature is not a ratio, so this tab adds and subtracts instead of
+          multiplying. Use it for a curing spec, a paint minimum or an oven
+          setting that arrived in the other scale.
+        </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
+          <div>
+            <label className={LABEL} htmlFor="temp-amount">
+              Temperature
+            </label>
+            <input
+              id="temp-amount"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className={FIELD}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={swap}
+            aria-label="Swap units"
+            className="mb-1 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/70 text-foreground transition hover:border-primary/40 hover:bg-primary/10 dark:border-white/10 dark:bg-white/5"
+          >
+            <ArrowLeftRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <div>
+            <label className={LABEL} htmlFor="temp-result-unit">
+              Result unit
+            </label>
+            <select
+              id="temp-result-unit"
+              value={to}
+              onChange={(e) => setTo(e.target.value as TemperatureUnit)}
+              className={FIELD}
+            >
+              {(Object.keys(TEMPERATURE_LABELS) as TemperatureUnit[]).map(
+                (unit) => (
+                  <option key={unit} value={unit}>
+                    {TEMPERATURE_LABELS[unit]}
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <label className={LABEL} htmlFor="temp-from-unit">
+            Reading in
+          </label>
+          <select
+            id="temp-from-unit"
+            value={from}
+            onChange={(e) => setFrom(e.target.value as TemperatureUnit)}
+            className={FIELD}
+          >
+            {(Object.keys(TEMPERATURE_LABELS) as TemperatureUnit[]).map(
+              (unit) => (
+                <option key={unit} value={unit}>
+                  {TEMPERATURE_LABELS[unit]}
+                </option>
+              ),
+            )}
+          </select>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {TEMPERATURE_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => {
+                setAmount(preset.value);
+                setFrom(preset.from);
+              }}
+              className={CHIP}
+            >
+              {preset.label} · {preset.value}
+              {TEMPERATURE_SHORT[preset.from]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={PANEL}>
+        <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {value === null
+              ? "Enter a temperature"
+              : `${formatNumber(value)} ${TEMPERATURE_SHORT[from]} reads as`}
+          </p>
+          <p className="mt-1 font-display text-3xl font-bold tabular-nums text-foreground">
+            {converted === null ? "n/a" : formatNumber(converted)}
+            <span className="ml-2 text-base font-medium text-muted-foreground">
+              {TEMPERATURE_SHORT[to]}
+            </span>
+          </p>
+          {converted === null && raw !== "" && (
+            <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+              That reading is not possible: nothing is colder than absolute zero.
+            </p>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => copy(copyText)}
+              disabled={converted === null}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary/40 hover:bg-primary/10 disabled:opacity-50 dark:border-white/10 dark:bg-white/5"
+            >
+              {copied ? (
+                <Check aria-hidden="true" className="h-3.5 w-3.5" />
+              ) : (
+                <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+              )}
+              {copied ? "Copied" : "Copy result"}
+            </button>
+            <span className="text-xs text-muted-foreground">
+              °F = °C × 9/5 + 32 · K = °C + 273.15 · °R = (°C + 273.15) × 9/5
+            </span>
+          </div>
+        </div>
+
+        <table className="mt-4 w-full text-xs">
+          <caption className="sr-only">
+            Working temperatures on every scale
+          </caption>
+          <thead>
+            <tr className="text-left text-muted-foreground">
+              <th scope="col" className="py-1.5 font-medium">
+                Working reading
+              </th>
+              <th scope="col" className="py-1.5 text-right font-medium">
+                °C
+              </th>
+              <th scope="col" className="py-1.5 text-right font-medium">
+                °F
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {TEMPERATURE_REFERENCE.map((row) => (
+              <tr key={row.label} className="border-t border-white/10">
+                <td className="py-1.5 text-muted-foreground">{row.label}</td>
+                <td className="py-1.5 text-right tabular-nums text-foreground">
+                  {row.celsius}
+                </td>
+                <td className="py-1.5 text-right tabular-nums text-foreground">
+                  {formatNumber(fromCelsius(row.celsius, "f"), 1)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

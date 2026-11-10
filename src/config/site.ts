@@ -74,6 +74,28 @@ export const navWorkspaces: NavWorkspace[] = [
   // one place (src/config/construction-tools.ts). The old calculator/estimator
   // nav duplicates (e.g. "Paint Cost Estimator" = /paint-calculator?mode=cost)
   // collapse into their authoritative tool.
+  // The two pages people reach for between calculators: a converter for
+  // whatever unit a drawing or data sheet arrives in, and the map of who and
+  // what is where. Both sat several clicks deep before, which on a phone meant
+  // they were never found, so they get their own workspace near the top.
+  {
+    label: "Convert & Explore",
+    path: "/unit-converter",
+    children: [
+      {
+        label: "Unit Converter",
+        path: "/unit-converter",
+        description:
+          "Feet, plots, tonnes, bags, MPa, psi, kN, kWh, kW, gpm, °C and °F",
+      },
+      {
+        label: "Explore Map",
+        path: "/map",
+        description:
+          "Professionals, projects and material stock on a 3D globe",
+      },
+    ],
+  },
   {
     label: "Construction Tools",
     path: "/construction-tools",
@@ -173,11 +195,6 @@ export const navWorkspaces: NavWorkspace[] = [
         label: "Pro Connect",
         path: "/pro-connect",
         description: "Hire verified construction professionals",
-      },
-      {
-        label: "Explore Map",
-        path: "/map",
-        description: "Professionals, projects and stock on a 3D globe",
       },
       {
         label: "Developer API",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AREA_TO_M2,
+  convertTemperature,
   convertUniversal,
   bagsFromMass,
   convertArea,
@@ -292,5 +293,50 @@ describe("universal conversion across every unit", () => {
   it("handles zero, and rejects negative amounts", () => {
     expect(convertUniversal(0, "len-ft", "len-m").value).toBe(0);
     expect(convertUniversal(-2, "len-ft", "len-m").value).toBeNull();
+  });
+});
+
+describe("universal catalogue coverage", () => {
+  it("gives every unit a unique id and a positive factor", () => {
+    const ids = UNIVERSAL_UNITS.map((unit) => unit.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const unit of UNIVERSAL_UNITS) {
+      expect(unit.factor).toBeGreaterThan(0);
+      expect(unit.label).toBeTruthy();
+    }
+  });
+
+  it("holds every dimension the converter advertises", () => {
+    const dimensions = new Set(UNIVERSAL_UNITS.map((unit) => unit.dimension));
+    [
+      "length",
+      "area",
+      "volume",
+      "mass",
+      "pressure",
+      "force",
+      "energy",
+      "power",
+      "speed",
+      "density",
+      "flow",
+      "angle",
+      "time",
+    ].forEach((dimension) => {
+      expect(dimensions.has(dimension as never)).toBe(true);
+    });
+  });
+
+  it("converts temperature with the offset, not a ratio", () => {
+    expect(convertTemperature(20, "c", "f")).toBeCloseTo(68, 10);
+    expect(convertTemperature(0, "c", "k")).toBeCloseTo(273.15, 10);
+    expect(convertTemperature(-40, "c", "f")).toBeCloseTo(-40, 10);
+    expect(convertTemperature(491.67, "r", "c")).toBeCloseTo(0, 6);
+  });
+
+  it("refuses to mix pressure and force", () => {
+    const result = convertUniversal(1, "press-bar", "force-kn");
+    expect(result.value).toBeNull();
+    expect(result.explanation).toMatch(/different things/i);
   });
 });
