@@ -49,9 +49,27 @@ export interface ExtractionField {
   evidence?: string;
 }
 
+/** One room the drawing actually labels, with the sides it states. */
+export interface ExtractedRoom {
+  label: string;
+  lengthM: number;
+  widthM: number;
+  /** Wall height for this room; null when the drawing gives none. */
+  heightM: number | null;
+  doors: number;
+  windows: number;
+  source: ExtractionSource;
+  confidence: number;
+  evidence?: string;
+}
+
 export interface ConstructionExtractionResult {
   documentKind: DocumentKind;
   fields: ExtractionField[];
+  /** Rooms read from the drawing. Absent when the document labels none. */
+  rooms?: ExtractedRoom[];
+  /** How many room entries the server refused as incomplete. */
+  roomsDropped?: number;
   notes: string[];
   warnings: string[];
   processedAt: string;

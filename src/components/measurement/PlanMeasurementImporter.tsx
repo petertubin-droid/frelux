@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ConstructionExtractionError,
   requestConstructionExtraction,
@@ -7,7 +7,10 @@ import {
 import {
   buildingFromMeasurements,
   measurementsFromExtraction,
+  roomReconciliation,
+  roomsFromExtraction,
   type PlanMeasurements,
+  type RoomReading,
 } from "@/lib/takeoff/plan-measurements";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
 
@@ -72,10 +75,12 @@ export function PlanMeasurementImporter() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [measurements, setMeasurements] = useState<PlanMeasurements | null>(null);
+  const [roomReading, setRoomReading] = useState<RoomReading | null>(null);
   const [confirmed, setConfirmed] = useState(false);
 
   const reset = useCallback(() => {
     setMeasurements(null);
+    setRoomReading(null);
     setConfirmed(false);
     setStatus("");
   }, []);
@@ -117,6 +122,7 @@ export function PlanMeasurementImporter() {
         return;
       }
       setMeasurements(outcome.measurements);
+      setRoomReading(roomsFromExtraction(extraction, outcome.measurements.storeyHeight.value));
     } catch (caught) {
       setError(
         caught instanceof ConstructionExtractionError
@@ -130,14 +136,39 @@ export function PlanMeasurementImporter() {
 
   const apply = useCallback(() => {
     if (!measurements) return;
-    const building = buildingFromMeasurements(measurements);
+    const rooms = roomReading?.rooms ?? [];
+    const building = buildingFromMeasurements(measurements, rooms);
     setBuilding(building);
+    const shape = rooms.length
+      ? `${rooms.length} room${rooms.length === 1 ? "" : "s"} inside a ${measurements.length.value.toFixed(2)} m by ${measurements.width.value.toFixed(2)} m footprint`
+      : `${measurements.length.value.toFixed(2)} m by ${measurements.width.value.toFixed(2)} m envelope`;
     setStatus(
-      `Measured building filled from ${fileName || "the drawing"}: ${measurements.length.value.toFixed(2)} m by ${measurements.width.value.toFixed(2)} m, ${measurements.storeyHeight.value.toFixed(2)} m storey height, ${measurements.storeys.value} floor${measurements.storeys.value === 1 ? "" : "s"}. Net wall area ${building.totals.netWallAreaM2.toFixed(2)} m².`,
+      `Measured building filled from ${fileName || "the drawing"}: ${shape}, ${measurements.storeyHeight.value.toFixed(2)} m storey height. Net wall area ${building.totals.netWallAreaM2.toFixed(2)} m².`,
     );
-  }, [fileName, measurements, setBuilding]);
+  }, [fileName, measurements, roomReading, setBuilding]);
 
-  const blocked = !!measurements && measurements.needsConfirmation.length > 0 && !confirmed;
+  const reconciliation = useMemo(
+    () => (measurements && roomReading ? roomReconciliation(measurements, roomReading.rooms) : null),
+    [measurements, roomReading],
+  );
+
+  // Anything the reader could not use is named before the form is filled, and
+  // nothing is filled until those lines have been read and accepted.
+  const cautionLines = useMemo(() => {
+    if (!measurements || !roomReading) return [];
+    const lines = [...measurements.needsConfirmation];
+    if (roomReading.refused.length > 0) {
+      lines.push(
+        `${roomReading.refused.length} room${roomReading.refused.length === 1 ? "" : "s"} could not be read and will not be in the schedule: ${roomReading.refused
+          .map((r) => `${r.label} (${r.reason})`)
+          .join("; ")}.`,
+      );
+    }
+    if (reconciliation?.overMeasured) lines.push(reconciliation.note);
+    return lines;
+  }, [measurements, roomReading, reconciliation]);
+
+  const blocked = !!measurements && cautionLines.length > 0 && !confirmed;
 
   return (
     <section
@@ -267,10 +298,42 @@ export function PlanMeasurementImporter() {
             </div>
           </dl>
 
-          {measurements.needsConfirmation.length > 0 ? (
+          {roomReading && roomReading.rooms.length > 0 ? (
+            <div className="mt-3">
+              <h3 className="text-xs font-semibold text-foreground">Rooms on the drawing</h3>
+              <ul className="mt-1 divide-y divide-border text-sm">
+                {roomReading.rooms.map((room) => (
+                  <li key={room.label} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-1">
+                    <span className="text-foreground">{room.label}</span>
+                    <span className="text-muted-foreground">
+                      {room.lengthM.toFixed(2)} by {room.widthM.toFixed(2)} m
+                      <span className="ml-2">
+                        {room.heightM.toFixed(2)} m high
+                        {room.heightAssumed ? " (storey height)" : ""}
+                      </span>
+                      <span className="ml-2">
+                        {room.doors} door{room.doors === 1 ? "" : "s"}, {room.windows} window
+                        {room.windows === 1 ? "" : "s"}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {reconciliation ? (
+                <p className="mt-2 text-xs text-muted-foreground">{reconciliation.note}</p>
+              ) : null}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Rooms are measured as separate spaces, so a wall between two rooms is measured on both
+                of its faces. That is the right quantity for plaster and paint, and it is not the
+                external wall quantity for blockwork.
+              </p>
+            </div>
+          ) : null}
+
+          {cautionLines.length > 0 ? (
             <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">
               <ul className="list-disc pl-4">
-                {measurements.needsConfirmation.map((line) => (
+                {cautionLines.map((line) => (
                   <li key={line}>{line}</li>
                 ))}
               </ul>
@@ -291,7 +354,9 @@ export function PlanMeasurementImporter() {
             disabled={blocked}
             onClick={apply}
           >
-            Fill the measured building
+            {roomReading && roomReading.rooms.length > 0
+              ? "Fill the measured rooms"
+              : "Fill the measured building"}
           </button>
         </div>
       ) : null}

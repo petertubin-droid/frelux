@@ -14,12 +14,14 @@
 import type {
   ConstructionExtractionResult,
   DocumentKind,
+  ExtractedRoom,
   ExtractionField,
   ExtractionSource,
 } from "@/lib/construction-extraction";
 import { STANDARD_OPENING_M } from "@/lib/measurement/building-schedule";
 import { draftsToSchedule, scheduleTotals, type AppliedBuilding } from "@/lib/measurement/building-schedule";
 import type { RoomDraft } from "@/lib/measurement/building-presets";
+import type { SpaceType } from "@/lib/measurement/types";
 
 /** One measurement as the form will hold it: metres, and where it came from. */
 export interface MeasuredValue {
@@ -230,6 +232,147 @@ export function measurementsFromExtraction(
   };
 }
 
+
+/** A room the form will hold: metres, with where its height came from. */
+export interface PlanRoom {
+  label: string;
+  lengthM: number;
+  widthM: number;
+  heightM: number;
+  /** True when the room height was taken from the storey height, not the room. */
+  heightAssumed: boolean;
+  doors: number;
+  windows: number;
+  source: ExtractionSource;
+  confidence: number;
+}
+
+export interface RoomReading {
+  rooms: PlanRoom[];
+  /** Rooms the drawing offered that cannot be a measurement, with the reason. */
+  refused: { label: string; reason: string }[];
+}
+
+const ROOM_WORDS: { match: RegExp; type: SpaceType }[] = [
+  { match: /bed/i, type: "bedroom" },
+  { match: /kitchen/i, type: "kitchen" },
+  { match: /bath|w\.?c\.?|toilet/i, type: "bathroom" },
+  { match: /dining/i, type: "dining" },
+  { match: /parlour|parlor|lounge|living|sitting/i, type: "living_room" },
+  { match: /corridor|passage|hall/i, type: "corridor" },
+  { match: /store|pantry/i, type: "store" },
+  { match: /stair/i, type: "staircase" },
+  { match: /office|study/i, type: "office" },
+  { match: /garage|car ?port/i, type: "garage" },
+  { match: /veranda|porch|balcony/i, type: "veranda" },
+];
+
+function spaceTypeOf(label: string): SpaceType {
+  for (const entry of ROOM_WORDS) if (entry.match.test(label)) return entry.type;
+  return "other";
+}
+
+/**
+ * Rooms from an extraction result, or the reason a room cannot be used.
+ *
+ * The same rules that govern the building as a whole govern each room: a room
+ * read only by eye is refused, a room whose sides are missing was already
+ * dropped by the server, and a room with no stated height takes the storey
+ * height and says so. Nothing is divided, averaged or shared out.
+ */
+export function roomsFromExtraction(
+  result: ConstructionExtractionResult,
+  storeyHeightM: number,
+): RoomReading {
+  const offered: ExtractedRoom[] = Array.isArray(result.rooms) ? result.rooms : [];
+  const rooms: PlanRoom[] = [];
+  const refused: { label: string; reason: string }[] = [];
+
+  offered.forEach((room, index) => {
+    const label = (room.label || `Room ${index + 1}`).trim();
+    const confidence = Number.isFinite(room.confidence) ? room.confidence : 0;
+
+    if (room.source === "visual_estimate" || confidence < MIN_READING_CONFIDENCE) {
+      refused.push({
+        label,
+        reason: "its sides were estimated by eye rather than read from dimensions",
+      });
+      return;
+    }
+
+    const lengthM = Number(room.lengthM);
+    const widthM = Number(room.widthM);
+    if (
+      !Number.isFinite(lengthM) ||
+      !Number.isFinite(widthM) ||
+      lengthM < MIN_M ||
+      widthM < MIN_M ||
+      lengthM > MAX_M ||
+      widthM > MAX_M
+    ) {
+      refused.push({ label, reason: "its sides are not a size a room can be" });
+      return;
+    }
+
+    const statedHeight = room.heightM === null ? null : Number(room.heightM);
+    const usableHeight =
+      statedHeight !== null && Number.isFinite(statedHeight) && statedHeight >= 1.5 && statedHeight <= 12
+        ? statedHeight
+        : null;
+
+    rooms.push({
+      label,
+      lengthM,
+      widthM,
+      heightM: usableHeight ?? storeyHeightM,
+      heightAssumed: usableHeight === null,
+      doors: Math.max(0, Math.round(Number(room.doors) || 0)),
+      windows: Math.max(0, Math.round(Number(room.windows) || 0)),
+      source: room.source,
+      confidence,
+    });
+  });
+
+  return { rooms, refused };
+}
+
+export interface RoomReconciliation {
+  roomAreaM2: number;
+  footprintM2: number;
+  /** Footprint the labelled rooms do not account for: circulation, not invented space. */
+  unlabelledM2: number;
+  /** True when the rooms exceed the footprint, which means a reading is wrong. */
+  overMeasured: boolean;
+  note: string;
+}
+
+/**
+ * How the labelled rooms compare with the building the drawing gives.
+ *
+ * This never adjusts a room to make the numbers agree. It reports the difference
+ * so a person can see that 38 m² of rooms sit inside a 54 m² footprint, which is a
+ * corridor and a staircase the plan did not label, rather than a silent error.
+ */
+export function roomReconciliation(
+  measurements: PlanMeasurements,
+  rooms: PlanRoom[],
+): RoomReconciliation {
+  const footprintM2 = measurements.length.value * measurements.width.value;
+  const roomAreaM2 = rooms.reduce((sum, room) => sum + room.lengthM * room.widthM, 0);
+  const unlabelledM2 = footprintM2 - roomAreaM2;
+  const overMeasured = unlabelledM2 < -0.01;
+
+  const note = rooms.length
+    ? overMeasured
+      ? `The labelled rooms total ${roomAreaM2.toFixed(2)} m², which is more than the ${footprintM2.toFixed(2)} m² footprint. One of the readings is wrong; check the room sides against the plan.`
+      : unlabelledM2 <= 0.01
+        ? `The labelled rooms account for the whole ${footprintM2.toFixed(2)} m² footprint.`
+        : `The labelled rooms total ${roomAreaM2.toFixed(2)} m² inside a ${footprintM2.toFixed(2)} m² footprint. The remaining ${unlabelledM2.toFixed(2)} m² is space the plan did not label, such as circulation.`
+    : `No rooms were labelled, so the footprint of ${footprintM2.toFixed(2)} m² is used as one space.`;
+
+  return { roomAreaM2, footprintM2, unlabelledM2, overMeasured, note };
+}
+
 /**
  * The measured building the shared store holds, built from those measurements.
  *
@@ -237,7 +380,34 @@ export function measurementsFromExtraction(
  * height, not where the partitions fall, so the schedule models the envelope the
  * document actually describes. Partition wall lengths are never inferred.
  */
-export function buildingFromMeasurements(m: PlanMeasurements): AppliedBuilding {
+export function buildingFromMeasurements(
+  m: PlanMeasurements,
+  rooms: PlanRoom[] = [],
+): AppliedBuilding {
+  if (rooms.length > 0) {
+    // Rooms are the schedule when the drawing labels them. Each room keeps its
+    // own sides, so a 3.6 m kitchen is never averaged into a 4.2 m bedroom.
+    const drafts: RoomDraft[] = rooms.map((room, index) => ({
+      id: `plan-room-${index}`,
+      spaceType: spaceTypeOf(room.label),
+      label: room.label,
+      length: room.lengthM,
+      width: room.widthM,
+      height: room.heightM,
+      quantity: 1,
+      doors: room.doors,
+      windows: room.windows,
+    }));
+    const schedule = draftsToSchedule(drafts, "meters", { label: "Measured rooms" });
+    return {
+      schedule,
+      totals: scheduleTotals(schedule),
+      label: "Measured rooms",
+      unit: "meters",
+      drafts,
+    };
+  }
+
   const drafts: RoomDraft[] = [
     {
       id: "plan-envelope",

@@ -16,6 +16,7 @@
 // estimation_enabled site setting, rate limited per client.
 // =========================================================
 
+import { sanitizeRooms, toMeters, type SanitizedRoom } from "../_shared/room-reading.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
 
@@ -364,25 +365,6 @@ const LENGTH_KEYS = new Set([
   "window_height",
 ]);
 
-// Unit conversion to meters
-function toMeters(value: number, unit: string): number {
-  switch (unit.toLowerCase()) {
-    case "mm":
-      return value / 1000;
-    case "cm":
-      return value / 100;
-    case "in":
-    case "inch":
-    case "inches":
-      return value * 0.0254;
-    case "ft":
-    case "feet":
-    case "foot":
-      return value * 0.3048;
-    default:
-      return value; // already meters
-  }
-}
 
 function jsonResponse(
   body: unknown,
@@ -645,7 +627,14 @@ serveWithCors(async (req: Request) => {
     textDescription || undefined,
     regionContext || undefined,
   );
-  const parts: Array<Record<string, unknown>> = [{ text: prompt }];
+  // Room reading is asked for as a separate section of the same answer, under the
+  // same evidence rules as the fields. It is described after the field prompt so
+  // the model treats it as a second reading pass over the same drawing.
+  const roomInstruction = documentKind === "architectural_plan" || documentKind === "text_description"
+    ? `\n\nAlso return "rooms": an array of the rooms this document actually labels or dimensions, at most 24, each as {"label": the name written on the plan, "length", "width", "height" (omit when the drawing gives no room height), "doors", "windows", "unit": the drawing's unit, "confidence", "source", "evidence": the dimension text you read}. Read each room's own dimension string; do not divide the building area by the room count, do not assume every room is the same size, and do not invent a room that is not drawn. Omit "rooms" when the drawing does not label rooms.`
+    : "";
+
+  const parts: Array<Record<string, unknown>> = [{ text: prompt + roomInstruction }];
   if (documentDataUrl) {
     const mimeMatch = documentDataUrl.match(/^data:([^;,]+)[;,]/);
     const base64 = documentDataUrl.includes(",")
@@ -714,6 +703,8 @@ serveWithCors(async (req: Request) => {
   }
 
   let fields: SanitizedField[];
+  let rooms: SanitizedRoom[] = [];
+  let roomsDropped = 0;
   let notes: string[] = [];
   let warnings: string[] = [];
   try {
@@ -722,6 +713,9 @@ serveWithCors(async (req: Request) => {
     if (!textContent) throw new Error("No response text from Gemini");
     const parsed = JSON.parse(textContent);
     fields = sanitizeFields(parsed?.fields);
+    const roomReading = sanitizeRooms(parsed?.rooms);
+    rooms = roomReading.rooms;
+    roomsDropped = roomReading.dropped;
     notes = Array.isArray(parsed?.notes)
       ? parsed.notes.filter((n: unknown) => typeof n === "string").slice(0, 12)
       : [];
@@ -747,6 +741,8 @@ serveWithCors(async (req: Request) => {
     {
       documentKind,
       fields,
+      rooms,
+      roomsDropped,
       notes,
       warnings,
       processedAt: new Date().toISOString(),

@@ -142,3 +142,79 @@ describe("reading a plan into the measured building", () => {
     expect(setBuilding).not.toHaveBeenCalled();
   });
 });
+
+describe("rooms reaching the measured building", () => {
+  const room = (over: Record<string, unknown> = {}) => ({
+    label: "Bedroom 1",
+    lengthM: 4,
+    widthM: 3.5,
+    heightM: null,
+    doors: 1,
+    windows: 1,
+    source: "dimension_annotation" as const,
+    confidence: 0.92,
+    ...over,
+  });
+
+  beforeEach(() => {
+    extraction.result = {
+      ...fullPlan(),
+      rooms: [
+        room({ label: "Kitchen", lengthM: 3.6, widthM: 2.8 }),
+        room({ label: "Bedroom 1" }),
+      ],
+    };
+    extraction.error = null;
+    setBuilding.mockClear();
+  });
+
+  it("lists the rooms it read before anything is filled", async () => {
+    render(<PlanMeasurementImporter />);
+    await chooseFile();
+    fireEvent.click(screen.getByRole("button", { name: "Read measurements" }));
+
+    expect(await screen.findByText("Rooms on the drawing")).toBeDefined();
+    expect(screen.getByText("Kitchen")).toBeDefined();
+    expect(screen.getByText(/3\.60 by 2\.80 m/)).toBeDefined();
+    expect(setBuilding).not.toHaveBeenCalled();
+  });
+
+  it("fills the rooms as separate spaces and says what the wall area counts", async () => {
+    render(<PlanMeasurementImporter />);
+    await chooseFile();
+    fireEvent.click(screen.getByRole("button", { name: "Read measurements" }));
+    await screen.findByText("Rooms on the drawing");
+
+    fireEvent.click(screen.getByRole("button", { name: "Fill the measured rooms" }));
+
+    const building = setBuilding.mock.calls[0][0];
+    expect(building.schedule.rooms).toHaveLength(2);
+    expect(building.drafts.map((d: { label: string }) => d.label)).toEqual(["Kitchen", "Bedroom 1"]);
+    // 34.71 for the kitchen plus 41.31 for the bedroom, per floor at 3 m.
+    expect(building.totals.netWallAreaM2).toBeCloseTo(76.02, 6);
+    expect(screen.getByRole("status").textContent).toMatch(/2 rooms inside a 18\.00 m by 12\.00 m footprint/);
+  });
+
+  it("holds the fill until a room it refused has been acknowledged", async () => {
+    extraction.result = {
+      ...fullPlan(),
+      rooms: [room(), room({ label: "Store", source: "visual_estimate", confidence: 0.6 })],
+    };
+    render(<PlanMeasurementImporter />);
+    await chooseFile();
+    fireEvent.click(screen.getByRole("button", { name: "Read measurements" }));
+    await screen.findByText("Rooms on the drawing");
+
+    const fill = screen.getByRole("button", { name: "Fill the measured rooms" }) as HTMLButtonElement;
+    expect(fill.disabled).toBe(true);
+    expect(screen.getByText(/1 room could not be read/)).toBeDefined();
+
+    fireEvent.click(screen.getByLabelText("I have checked these against the drawing."));
+    expect(fill.disabled).toBe(false);
+    fireEvent.click(fill);
+
+    // Only the readable room reaches the schedule.
+    const building = setBuilding.mock.calls[0][0];
+    expect(building.schedule.rooms).toHaveLength(1);
+  });
+});
