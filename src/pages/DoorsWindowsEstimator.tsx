@@ -103,6 +103,11 @@ export default function DoorsWindowsEstimator() {
     aluminium_windows: "",
     louvre_windows: "",
   });
+  const [glazing, setGlazing] = useState({
+    area: "",
+    pane: "",
+    thickness: "",
+  });
   const [includeLocksets, setIncludeLocksets] = useState(true);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_door" | "lump_sum"
@@ -190,6 +195,10 @@ export default function DoorsWindowsEstimator() {
       security_doors: num(counts.security_doors),
       aluminium_windows: num(counts.aluminium_windows),
       louvre_windows: num(counts.louvre_windows),
+      glazed_area_m2: glazing.area.trim() === "" ? null : num(glazing.area),
+      pane_area_m2: glazing.pane.trim() === "" ? null : num(glazing.pane),
+      glass_thickness_mm:
+        glazing.thickness.trim() === "" ? null : num(glazing.thickness),
       include_locksets: includeLocksets,
       labour: {
         mode: labourMode,
@@ -490,6 +499,35 @@ export default function DoorsWindowsEstimator() {
               "0",
               k,
             ),
+          )}
+        </div>
+        <h3 className="mt-5 mb-2 font-semibold">{t("Glazed envelope")}</h3>
+        <p className="mb-2 text-xs text-muted-foreground">
+          {t(
+            "For large or varied glazing where counting standard units would be wrong, enter the measured glass area. It is priced per m²; the pane count rounds up because a part pane is bought whole.",
+          )}
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {numberInput(
+            t("Measured glazed area (m²)"),
+            glazing.area,
+            (v) => setGlazing((g) => ({ ...g, area: v })),
+            "0",
+            "glazed-area",
+          )}
+          {numberInput(
+            t("Area of one pane (m²)"),
+            glazing.pane,
+            (v) => setGlazing((g) => ({ ...g, pane: v })),
+            "optional",
+            "pane-area",
+          )}
+          {numberInput(
+            t("Glass thickness (mm)"),
+            glazing.thickness,
+            (v) => setGlazing((g) => ({ ...g, thickness: v })),
+            "optional",
+            "glass-thickness",
           )}
         </div>
         <label className="mt-3 inline-flex items-center gap-2 text-sm">

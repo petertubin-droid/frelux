@@ -324,3 +324,39 @@ export function buildingAreaM2(
   if (!building) return 0;
   return surface === "wall" ? building.totals.netWallAreaM2 : building.totals.floorAreaM2;
 }
+
+/**
+ * The footprint of a building whose schedule is a single room.
+ *
+ * Only a one-room schedule has an unambiguous length and width: a building of
+ * several rooms shares walls, and the room schedule records no positions, so any
+ * overall length or width derived from it would be a guess. Returns the reason
+ * when it cannot answer, so a caller can say why instead of filling a blank.
+ */
+export function singleRoomFootprint(
+  building: AppliedBuilding | null,
+): { lengthM: number; widthM: number } | { reason: string } {
+  if (!building) {
+    return {
+      reason:
+        "No measured building saved yet. Size a building in the building panel first.",
+    };
+  }
+  if (building.drafts.length !== 1) {
+    return {
+      reason: `The measured building has ${building.drafts.length} rooms. A multi-room schedule records no room positions, so an overall footprint cannot be read from it without guessing. Enter the overall length and width.`,
+    };
+  }
+  const room = building.drafts[0];
+  const perUnit = building.unit === "feet" ? 0.3048 : 1;
+  if (room.length <= 0 || room.width <= 0) {
+    return {
+      reason:
+        "The measured room has no length or width. Complete the room dimensions before reading a footprint.",
+    };
+  }
+  return {
+    lengthM: room.length * perUnit,
+    widthM: room.width * perUnit,
+  };
+}

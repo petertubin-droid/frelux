@@ -61,6 +61,16 @@ export interface DoorsWindowsInput {
   security_doors: number;
   aluminium_windows: number;
   louvre_windows: number;
+  /**
+   * Measured glazing for a glazed envelope, where openings are too large or too
+   * varied to count as standard units, e.g. a glass house or a curtain wall
+   * bay. Priced per m² from "glazing-per-m2". Never inferred from counts.
+   */
+  glazed_area_m2?: number | null;
+  /** Area of one pane being bought, used only to report how many whole panes. */
+  pane_area_m2?: number | null;
+  /** Glass thickness in mm. Mass is computed only when this is supplied. */
+  glass_thickness_mm?: number | null;
   include_locksets: boolean;
   labour: {
     mode: "none" | "per_door" | "lump_sum";
@@ -144,6 +154,37 @@ export function calculateDoorsWindows(
         `${label} must be a whole number ≥ 0 (received ${String(input[key])}).`,
       );
     }
+  }
+  const glazedArea =
+    input.glazed_area_m2 === undefined || input.glazed_area_m2 === null
+      ? 0
+      : Number(input.glazed_area_m2);
+  if (!Number.isFinite(glazedArea) || glazedArea < 0) {
+    errors.push(
+      `Glazed area must be a number ≥ 0 in m² (received ${String(input.glazed_area_m2)}).`,
+    );
+  }
+  const paneArea =
+    input.pane_area_m2 === undefined || input.pane_area_m2 === null
+      ? null
+      : Number(input.pane_area_m2);
+  if (paneArea !== null && (!Number.isFinite(paneArea) || paneArea <= 0)) {
+    errors.push(
+      `Pane area must be a positive number in m² (received ${String(input.pane_area_m2)}).`,
+    );
+  }
+  const glassThickness =
+    input.glass_thickness_mm === undefined ||
+    input.glass_thickness_mm === null
+      ? null
+      : Number(input.glass_thickness_mm);
+  if (
+    glassThickness !== null &&
+    (!Number.isFinite(glassThickness) || glassThickness <= 0)
+  ) {
+    errors.push(
+      `Glass thickness must be a positive number in mm (received ${String(input.glass_thickness_mm)}).`,
+    );
   }
   if (errors.length > 0) {
     return {
@@ -306,8 +347,58 @@ export function calculateDoorsWindows(
     });
   }
 
+  // ── 5b. Measured glazing area (glazed envelopes) ──
+  if (glazedArea > 0) {
+    const rate = prices["glazing-per-m2"] ?? null;
+    steps.push({
+      label: "Glazed area",
+      detail: `${glazedArea} m² measured, priced per m² from glazing-per-m2. Frame, ironmongery and structural silicone are not included.`,
+    });
+    lines.push({
+      key: "glazing_area",
+      label: "Glazing (measured area)",
+      material_slug: "glazing-per-m2",
+      quantity: glazedArea,
+      quantity_source: "user_provided",
+      unit: "m²",
+      detail: `${glazedArea} m² × rate per m² (your measurement, not a pane count)`,
+      unit_price: rate,
+      line_total: rate !== null ? money(glazedArea * rate) : null,
+    });
+    if (paneArea !== null) {
+      // A part pane is bought whole, so the count rounds up and is labelled.
+      const panes = Math.ceil(glazedArea / paneArea);
+      steps.push({
+        label: "Whole panes",
+        detail: `ceil(${glazedArea} m² ÷ ${paneArea} m² per pane) = ${panes} panes. A part pane must be bought whole.`,
+      });
+      if (paneArea > 6) {
+        warnings.push(
+          `Pane area ${paneArea} m² is a large single pane. Have the glass supplier confirm the thickness and support for that pane before ordering; this engine does not design glazing.`,
+        );
+      }
+    }
+    if (glassThickness !== null) {
+      // Glass is 2500 kg/m³, so 1 m² of 1 mm is 2.5 kg. Exact from density.
+      const glassMass = glazedArea * glassThickness * 2.5;
+      steps.push({
+        label: "Glass mass",
+        detail: `${glazedArea} m² × ${glassThickness} mm × 2.5 kg/m² per mm = ${money(glassMass)} kg (2500 kg/m³). Frame, fixings and any second skin are excluded.`,
+      });
+    } else {
+      warnings.push(
+        "Glass thickness not entered, so glass mass is not shown. Mass is not assumed because thickness drives weight, handling and support.",
+      );
+    }
+  }
+  if (glazedArea > 0 && totalWindows > 0) {
+    warnings.push(
+      `Both glazed area (${glazedArea} m², priced per m²) and ${totalWindows} counted window(s) are present. If they describe the same openings they are counted twice: use counts for standard units, area for large or varied glazing.`,
+    );
+  }
+
   // ── 6. All-blank schedule check ──
-  if (totalDoors === 0 && totalWindows === 0) {
+  if (totalDoors === 0 && totalWindows === 0 && glazedArea === 0) {
     missing.push(
       "Door/window schedule: enter at least one door or window count: the engine will not invent openings.",
     );

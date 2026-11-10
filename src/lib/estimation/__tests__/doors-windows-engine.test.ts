@@ -236,4 +236,108 @@ describe("determinism", () => {
     const b = calculateDoorsWindows(makeInput(), rules, FULL_PRICES);
     expect(a).toEqual(b);
   });
+
+  // ───────────────────────────────────────────
+  // Measured glazing area: a glazed envelope is quoted by area, not by units
+  // ───────────────────────────────────────────
+
+  it("prices a measured glazed area per m² and rounds part panes up", () => {
+    const res = calculateDoorsWindows(
+      makeInput({
+        flush_doors: 0,
+        panel_doors: 0,
+        security_doors: 0,
+        aluminium_windows: 0,
+        louvre_windows: 0,
+        glazed_area_m2: 110,
+        pane_area_m2: 4.5,
+        glass_thickness_mm: 10,
+      }),
+      rules,
+      { ...FULL_PRICES, "glazing-per-m2": 42000 },
+    );
+    expect(res.ok).toBe(true);
+    const area = res.lines.find((l) => l.key === "glazing_area");
+    expect(area?.quantity).toBe(110);
+    expect(area?.unit).toBe("m²");
+    // 110 / 4.5 = 24.44 panes, and a part pane is bought whole.
+    expect(res.steps.some((s) => s.detail.includes("= 25 panes"))).toBe(true);
+    // 110 m² x 10 mm x 2.5 kg/m² per mm = 2750 kg.
+    expect(res.steps.some((s) => s.detail.includes("2750 kg"))).toBe(true);
+    expect(area?.line_total).toBe(110 * 42000);
+  });
+
+  it("does not treat an area-only schedule as missing", () => {
+    const res = calculateDoorsWindows(
+      makeInput({
+        flush_doors: 0,
+        panel_doors: 0,
+        security_doors: 0,
+        aluminium_windows: 0,
+        louvre_windows: 0,
+        glazed_area_m2: 20,
+        glass_thickness_mm: 6,
+      }),
+      rules,
+      { "glazing-per-m2": 30000 },
+    );
+    expect(res.missing.some((m) => m.includes("Door/window schedule"))).toBe(
+      false,
+    );
+    expect(res.material_subtotal).toBe(600000);
+    expect(res.grand_total).toBe(600000);
+  });
+
+  it("refuses to price an area without a configured rate", () => {
+    const res = calculateDoorsWindows(
+      makeInput({
+        flush_doors: 0,
+        panel_doors: 0,
+        security_doors: 0,
+        aluminium_windows: 0,
+        louvre_windows: 0,
+        glazed_area_m2: 30,
+      }),
+      rules,
+      {},
+    );
+    const area = res.lines.find((l) => l.key === "glazing_area");
+    expect(area?.quantity).toBe(30);
+    expect(area?.unit_price).toBeNull();
+    expect(area?.line_total).toBeNull();
+    expect(res.material_subtotal).toBeNull();
+  });
+
+  it("warns instead of assuming a thickness for the glass mass", () => {
+    const res = calculateDoorsWindows(
+      makeInput({ glazed_area_m2: 12 }),
+      rules,
+      { "glazing-per-m2": 30000 },
+    );
+    expect(res.steps.some((s) => s.label === "Glass mass")).toBe(false);
+    expect(
+      res.warnings.some((w) => w.includes("thickness not entered")),
+    ).toBe(true);
+  });
+
+  it("warns when counts and area describe the same openings", () => {
+    const res = calculateDoorsWindows(
+      makeInput({ glazed_area_m2: 10 }),
+      rules,
+      { ...FULL_PRICES, "glazing-per-m2": 30000 },
+    );
+    expect(
+      res.warnings.some((w) => w.includes("counted twice")),
+    ).toBe(true);
+  });
+
+  it("rejects a non-positive pane area rather than dividing by it", () => {
+    const res = calculateDoorsWindows(
+      makeInput({ glazed_area_m2: 10, pane_area_m2: 0 }),
+      rules,
+      { ...FULL_PRICES, "glazing-per-m2": 30000 },
+    );
+    expect(res.ok).toBe(false);
+    expect(res.errors.some((e) => e.includes("Pane area"))).toBe(true);
+  });
 });

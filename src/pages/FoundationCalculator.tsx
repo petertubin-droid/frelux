@@ -1,6 +1,8 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
 import { useState, useCallback } from "react";
+import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import { singleRoomFootprint } from "@/lib/measurement/building-schedule";
 import { useSeo } from "@/lib/seo";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EngineerReviewBadge from "@/components/EngineerReviewBadge";
@@ -68,6 +70,8 @@ export default function FoundationCalculator() {
   const [wallLoad, setWallLoad] = useState(40);
   const [columnLoad, setColumnLoad] = useState(200);
   const [depth, setDepth] = useState(0.9);
+  const { building } = useBuildingSize();
+  const [footprintNote, setFootprintNote] = useState<string | null>(null);
   const [buildingLength, setBuildingLength] = useState(15);
   const [buildingWidth, setBuildingWidth] = useState(10);
   const [measurementUnit, setMeasurementUnit] = useState<"m" | "ft">(() =>
@@ -306,6 +310,40 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
+              <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => {
+                    const footprint = singleRoomFootprint(building);
+                    if ("reason" in footprint) {
+                      setFootprintNote(footprint.reason);
+                      return;
+                    }
+                    const perUnit = measurementUnit === "ft" ? 1 / 0.3048 : 1;
+                    setBuildingLength(
+                      parseFloat((footprint.lengthM * perUnit).toFixed(2)),
+                    );
+                    setBuildingWidth(
+                      parseFloat((footprint.widthM * perUnit).toFixed(2)),
+                    );
+                    setFootprintNote(
+                      `Length and width read from the measured building: ${footprint.lengthM.toFixed(2)} m x ${footprint.widthM.toFixed(2)} m.`,
+                    );
+                  }}
+                >
+                  Use measured building
+                </Button>
+                {footprintNote && (
+                  <span
+                    role="status"
+                    className="text-[11px] leading-snug text-muted-foreground"
+                  >
+                    {footprintNote}
+                  </span>
+                )}
+              </div>
               <label
                 htmlFor="fnd-length"
                 className="text-xs font-medium text-muted-foreground mb-1.5 block"

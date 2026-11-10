@@ -4,6 +4,7 @@ import {
   draftsToSchedule,
   groupWallsByHeight,
   scheduleTotals,
+  singleRoomFootprint,
 } from "./building-schedule";
 import type { RoomDraft } from "./building-presets";
 import { runTakeoff } from "@/lib/takeoff/engine";
@@ -251,5 +252,52 @@ describe("height grouping", () => {
     expect(totals.grossWallAreaM2).toBe(0);
     expect(totals.netWallAreaM2).toBe(0);
     expect(totals.assumedOpeningCount).toBe(3);
+  });
+
+  it("reads a footprint only from a single room schedule", () => {
+    const drafts: RoomDraft[] = [
+      { id: "r1", spaceType: "living_room", label: "Room 1", length: 4.5, width: 3.2, height: 2.7, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const one = {
+      schedule: draftsToSchedule(drafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+      label: "One room",
+      unit: "meters" as const,
+      drafts,
+    };
+    const footprint = singleRoomFootprint(one);
+    expect("reason" in footprint).toBe(false);
+    if ("reason" in footprint) return;
+    expect(footprint.lengthM).toBeCloseTo(4.5, 2);
+    expect(footprint.widthM).toBeCloseTo(3.2, 2);
+
+    const twoDrafts: RoomDraft[] = [
+      ...drafts,
+      { id: "r2", spaceType: "bedroom", label: "Room 2", length: 3, width: 3, height: 2.7, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const two = { ...one, drafts: twoDrafts };
+    const refused = singleRoomFootprint(two);
+    expect("reason" in refused).toBe(true);
+    if (!("reason" in refused)) return;
+    expect(refused.reason).toContain("2 rooms");
+    expect(singleRoomFootprint(null)).toHaveProperty("reason");
+  });
+
+  it("converts a footprint stored in feet to metres", () => {
+    const drafts: RoomDraft[] = [
+      { id: "r1", spaceType: "living_room", label: "Room 1", length: 15, width: 12, height: 9, quantity: 1, doors: 1, windows: 1 },
+    ];
+    const building = {
+      schedule: draftsToSchedule(drafts, "feet"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "feet")),
+      label: "Feet room",
+      unit: "feet" as const,
+      drafts,
+    };
+    const footprint = singleRoomFootprint(building);
+    if ("reason" in footprint) throw new Error(footprint.reason);
+    // 15 ft = 4.572 m, 12 ft = 3.6576 m.
+    expect(footprint.lengthM).toBeCloseTo(4.572, 3);
+    expect(footprint.widthM).toBeCloseTo(3.6576, 3);
   });
 });
