@@ -91,7 +91,13 @@ import {
   fetchSurfaceConditions,
   fetchColourConditions,
 } from "@/lib/estimation/queries";
-import { formatNumber, classNames } from "@/lib/utils";
+import {
+  formatArea,
+  formatNumber,
+  classNames,
+  SQFT_PER_SQM,
+} from "@/lib/utils";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useAuth } from "@/lib/auth";
 import { useCalcDefaults, type CalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -1014,7 +1020,7 @@ export default function PaintCalculator({
       });
       return;
     }
-    const name = `Paint: ${input.projectType}, ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const name = `Paint: ${input.projectType}, ${formatArea(result?.paintableArea ?? 0, { unit: input.unit === "meters" ? "sqm" : "sqft" })}`;
     const configSnapshot = {
       paintTypeName: selectedPaintType?.name ?? null,
       paintTypeCoverageRate: selectedPaintType?.coverage_rate ?? null,
@@ -1061,8 +1067,11 @@ export default function PaintCalculator({
       })),
     ];
     const currency = market.currencyCode || "NGN";
-    const title = `Paint estimate · ${formatNumber(result.paintableArea)} m²`;
-    const notes = `Verified paintable area: ${result.paintableArea} m². Coats: ${result.coats}. Paint required: ${result.totalRecommendedLiters} L. This calculator does not supply material prices, so the quote starts with zero unit prices for explicit review.`;
+    const exportArea = formatArea(result.paintableArea, {
+      unit: input.unit === "meters" ? "sqm" : "sqft",
+    });
+    const title = `Paint estimate · ${exportArea}`;
+    const notes = `Verified paintable area: ${exportArea}. Coats: ${result.coats}. Paint required: ${result.totalRecommendedLiters} L. This calculator does not supply material prices, so the quote starts with zero unit prices for explicit review.`;
     const payload = {
       title,
       materials,
@@ -1303,7 +1312,12 @@ export default function PaintCalculator({
             <SaveToProjectButton
               calculatorType="paint"
               calculatorSlug="paint-calculator"
-              calcTitle={`Paint: ${input.projectType}, ${formatNumber(result.paintableArea ?? 0)} m²`}
+              calcTitle={`Paint: ${input.projectType}, ${formatArea(
+                result.paintableArea ?? 0,
+                {
+                  unit: input.unit === "meters" ? "sqm" : "sqft",
+                },
+              )}`}
               calcData={input as unknown as Record<string, unknown>}
               resultSummary={{
                 paintableArea: result.paintableArea,
@@ -1352,11 +1366,11 @@ export default function PaintCalculator({
                 toolLabel="Paint Calculator"
                 contextSummary={`Paint Calculator Results:
 - Project type: ${input.projectType}
-- Paintable area: ${formatNumber(result.paintableArea)} m²
+- Paintable area: ${formatArea(result.paintableArea, { unit: input.unit === "meters" ? "sqm" : "sqft" })}
 - Coats: ${result.coats}
 - Paint type: ${selectedPaintType?.name ?? input.paintType}
 - Surface condition: ${result.surfaceCondition}
-- Coverage rate: ${formatNumber(result.coverageRate, 1)} m²/L per coat
+- Coverage rate: ${formatArea(result.coverageRate, { unit: input.unit === "meters" ? "sqm" : "sqft" })} per litre per coat
 - Paint required: ${formatNumber(result.adjustedLiters)}L (adjusted for ${input.wasteMargin}% waste)
 - Recommended containers: ${result.recommendedContainers.map((c) => `${c.count} × ${paintPackLabel(c.size, marketCode)}`).join(", ")}
 - Total recommended: ${formatNumber(result.totalRecommendedLiters)}L
@@ -2262,7 +2276,12 @@ function Step3({
             {typesLoading && <option value="">Loading…</option>}
             {paintTypes.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.name} ({Number(t.coverage_rate)} m²/L per coat)
+                {t.name} (
+                {coverageLabel(
+                  t.coverage_rate,
+                  input.unit === "meters" ? "sqm" : "sqft",
+                )}{" "}
+                per coat)
               </option>
             ))}
           </select>
@@ -2301,7 +2320,9 @@ function Step3({
                   const price = qp
                     ? ` · ${formatCurrency(qp.price)} / ${perContainerText}`
                     : "";
-                  const coverage = q.coverage ? ` · ${q.coverage} m²/L` : "";
+                  const coverage = q.coverage
+                    ? ` · ${coverageLabel(q.coverage, input.unit === "meters" ? "sqm" : "sqft")}`
+                    : "";
                   return (
                     <option key={q.id} value={q.id}>
                       {q.name}
@@ -2318,7 +2339,12 @@ function Step3({
                   </p>
                   {selectedQuality.coverage && (
                     <p className="mt-0.5 text-muted-foreground dark:text-muted-foreground">
-                      Coverage: {selectedQuality.coverage} m²/L per coat
+                      Coverage:{" "}
+                      {coverageLabel(
+                        selectedQuality.coverage,
+                        input.unit === "meters" ? "sqm" : "sqft",
+                      )}{" "}
+                      per coat
                     </p>
                   )}
                   {selectedQualityPrice && (
@@ -2496,6 +2522,15 @@ function ResultCard({
   const bucketNoun = paintPackTerm
     ? `containers (${paintPackTerm})`
     : "buckets";
+  // The customer works in the unit they measured the room in. Areas follow that
+  // unit, never the engine's internal square metres.
+  const areaUnit: "sqft" | "sqm" = input.unit === "meters" ? "sqm" : "sqft";
+  const area = (sqm: number, digits = 0) =>
+    formatArea(sqm, { unit: areaUnit, digits });
+  const totalBuckets = result.recommendedContainers.reduce(
+    (s2, c) => s2 + c.count,
+    0,
+  );
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">
       <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
@@ -2529,20 +2564,12 @@ function ResultCard({
       </div>
 
       <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-card">
-        <Stat
-          label="Paintable area"
-          value={`${formatNumber(result.paintableArea)} m²`}
-          countValue={result.paintableArea}
-          suffix=" m²"
-        />
+        <Stat label="Paintable area" value={area(result.paintableArea)} />
         <Stat label="Paint type" value={paintTypeName} />
         {qualityName && <Stat label="Quality" value={qualityName} />}
         <Stat
-          label="Coverage rate"
-          value={`${formatNumber(result.coverageRate, 1)} m²/L per coat (internal)`}
-          countValue={result.coverageRate}
-          decimals={1}
-          suffix=" m²/L"
+          label="Coverage rate (per litre)"
+          value={`${area(result.coverageRate)} per coat`}
         />
         <Stat
           label={
@@ -2662,16 +2689,54 @@ function ResultCard({
         </div>
       </div>
 
+      <div className="px-6 pt-4 sm:px-8">
+        <ShareEstimateButton
+          estimate={{
+            kind: "Paint Estimate",
+            title: input.projectType,
+            summaryLines: [
+              { label: "Paintable area", value: area(result.paintableArea) },
+              { label: "Paint type", value: paintTypeName },
+              ...(qualityName
+                ? [{ label: "Quality", value: qualityName }]
+                : []),
+              { label: "Coats", value: String(result.coats) },
+            ],
+            lineItems: [
+              ...result.recommendedContainers.map((c) => ({
+                description: `${paintPackNoun(c.size, marketCode)} ${paintPackLabel(c.size, marketCode)}`,
+                quantity: `${c.count} × ${paintPackLabel(c.size, marketCode)}`,
+              })),
+              ...result.primerContainers.map((c) => ({
+                section: "Primer",
+                description: `${paintPackNoun(c.size, marketCode)} ${paintPackLabel(c.size, marketCode)}`,
+                quantity: `${c.count} × ${paintPackLabel(c.size, marketCode)}`,
+              })),
+            ],
+            totals: [
+              {
+                label: "Paint required",
+                value: `${totalBuckets} ${bucketNoun}`,
+                emphasized: true,
+              },
+            ],
+            link: "/paint-calculator",
+            notes: [
+              "Paint amounts are calculated for the stated coats and surface condition. Final amounts vary with texture and application method.",
+            ],
+          }}
+          compact
+        />
+      </div>
+
       <div className="border-t border-border/50 bg-muted/50 px-6 py-4 text-xs text-muted-foreground sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground">
-        Wall area: {formatNumber(result.wallArea)} m²
-        {result.ceilingArea > 0 &&
-          ` · Ceiling: ${formatNumber(result.ceilingArea)} m²`}
-        {result.doorArea > 0 && ` · Doors: ${formatNumber(result.doorArea)} m²`}
-        {result.windowArea > 0 &&
-          ` · Windows: ${formatNumber(result.windowArea)} m²`}
+        Wall area: {area(result.wallArea)}
+        {result.ceilingArea > 0 && ` · Ceiling: ${area(result.ceilingArea)}`}
+        {result.doorArea > 0 && ` · Doors: ${area(result.doorArea)}`}
+        {result.windowArea > 0 && ` · Windows: ${area(result.windowArea)}`}
         <br />
-        Base coverage {formatNumber(result.baseCoverageRate, 1)} m²/L → adjusted{" "}
-        {formatNumber(result.coverageRate, 1)} m²/L (
+        Base coverage {area(result.baseCoverageRate)} per litre → adjusted{" "}
+        {area(result.coverageRate)} per litre (
         {SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? "Smooth"}
         ). {result.coats} coat(s). Final amounts vary by surface texture,
         application method, and product.
@@ -2692,11 +2757,11 @@ function ResultCard({
           assumptions={[
             {
               label: "Base coverage",
-              value: `${formatNumber(result.baseCoverageRate, 1)} m²/L per coat`,
+              value: `${coverageLabel(result.baseCoverageRate, input.unit === "meters" ? "sqm" : "sqft")} per coat`,
             },
             {
               label: "Adjusted coverage",
-              value: `${formatNumber(result.coverageRate, 1)} m²/L (${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? "Smooth"})`,
+              value: `${coverageLabel(result.coverageRate, input.unit === "meters" ? "sqm" : "sqft")} (${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? "Smooth"})`,
             },
             {
               label: "Coats",
@@ -2787,6 +2852,28 @@ function ResultCard({
       </div>
     </div>
   );
+}
+
+/**
+ * Convert a published coverage rate to the unit the visitor is working in.
+ *
+ * Catalogue rates are stored per square metre, sometimes as a range ("6-8").
+ * A customer never reads an m² figure, so each number is converted in place
+ * and the punctuation is kept, which keeps a range honest instead of collapsing
+ * it to a single misleading figure.
+ */
+function coverageLabel(
+  value: string | number | null | undefined,
+  unit: "sqft" | "sqm",
+): string {
+  if (value === null || value === undefined || value === "") return "";
+  const text =
+    unit === "sqm"
+      ? String(value)
+      : String(value).replace(/(\d+(?:\.\d+)?)/g, (n) =>
+          formatNumber(Number(n) * SQFT_PER_SQM),
+        );
+  return `${text} ${unit === "sqm" ? "m²" : "sq ft"}/L`;
 }
 
 function Stat({

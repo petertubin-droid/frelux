@@ -52,6 +52,30 @@ export function feetToMeters(ft: number): number {
   return ft * 0.3048;
 }
 
+/** Square feet in one square metre (international foot, exact by definition). */
+export const SQFT_PER_SQM = 1 / (0.3048 * 0.3048);
+
+/**
+ * Customer-facing area display for the estimators.
+ *
+ * FRELUX estimators compute in square metres, but the owner rule is that a
+ * customer never reads an m² figure or types one: rooms are measured in feet
+ * and results come back in square feet. Metric markets, which reach the
+ * calculators with a meter unit, keep m². Pass the unit the visitor is
+ * actually working in so the number and the label never disagree.
+ */
+export function formatArea(
+  sqm: number,
+  opts: { unit?: "sqft" | "sqm"; digits?: number } = {},
+): string {
+  if (!Number.isFinite(sqm)) return "—";
+  const unit = opts.unit ?? "sqft";
+  const digits = opts.digits ?? 0;
+  return unit === "sqft"
+    ? `${formatNumber(sqm * SQFT_PER_SQM, digits)} sq ft`
+    : `${formatNumber(sqm, digits)} m²`;
+}
+
 // ─────────────────────────────────────────────────────────
 // Universal unit helpers (single source of truth for Unit)
 // ─────────────────────────────────────────────────────────
