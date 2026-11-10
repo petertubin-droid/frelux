@@ -413,8 +413,12 @@ describe("eaves and ridge heights", () => {
     expect(l3.gross_external_wall_area_m2).toBe(126);
     expect(l3.total_opening_deductions_m2).toBe(110);
     expect(l3.net_masonry_area_m2).toBe(16);
-    expect(
-      glassHouse.discrepancies.some((d) => d.id === "advisory-glazed-envelope"),
-    ).toBe(true);
+    const advisory = glassHouse.discrepancies.find(
+      (d) => d.id === "advisory-glazed-envelope",
+    );
+    expect(advisory).toBeTruthy();
+    // The advisory must name the glass by area, because the estimator it points
+    // at prices per panel and a count alone cannot be costed.
+    expect(advisory?.mathematical_proof).toContain("110.0 m² are windows");
   });
 });

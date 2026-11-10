@@ -618,6 +618,18 @@ export function calculateMathematicalElevation(
     gross_masonry_area_m2 > 0
       ? (total_opening_deductions_m2 / gross_masonry_area_m2) * 100
       : 0;
+  const openingAreaByType = input.openings.reduce(
+    (totals, opening) => {
+      const area = opening.width * opening.height * opening.count;
+      if (opening.type === "window") totals.window += area;
+      else if (opening.type === "door") totals.door += area;
+      else totals.other += area;
+      return totals;
+    },
+    { window: 0, door: 0, other: 0 },
+  );
+  const glazedAreaM2 = openingAreaByType.window;
+  const doorAreaM2 = openingAreaByType.door;
   if (
     glazedSharePercent >= 60 &&
     total_opening_deductions_m2 <= gross_masonry_area_m2
@@ -630,9 +642,9 @@ export function calculateMathematicalElevation(
       detected_value: `${glazedSharePercent.toFixed(1)}% of the gross wall is opening`,
       permissible_threshold: "Advisory only; a glazed envelope is a valid design",
       regulation_code: "Scope note",
-      mathematical_proof: `Openings total ${total_opening_deductions_m2.toFixed(1)} m² of the ${gross_masonry_area_m2.toFixed(1)} m² gross wall, so only ${net_masonry_area_m2.toFixed(1)} m² is solid masonry. Glass, framing and fixings are not measured or priced here.`,
-      recommended_fix:
-        "Price the glazing from the opening schedule in the windows and doors estimator, and treat the masonry figure as the solid remainder only.",
+      mathematical_proof: `Openings total ${total_opening_deductions_m2.toFixed(1)} m² of the ${gross_masonry_area_m2.toFixed(1)} m² gross wall, so only ${net_masonry_area_m2.toFixed(1)} m² is solid masonry. Of the openings, ${glazedAreaM2.toFixed(1)} m² are windows and ${doorAreaM2.toFixed(1)} m² are doors. Glass, framing and fixings are not measured or priced here.`,
+      recommended_fix: `Enter ${glazedAreaM2.toFixed(1)} m² of glazing as panels of the size being bought: the windows and doors estimator prices per unit, so its rate must match the panel size, not a standard window.`,
+
     });
   }
 
