@@ -55,6 +55,7 @@ import {
   apiError,
 } from "./_engines.bundle.js";
 import { serveWithCors } from "../_shared/serve.ts";
+import { resolveRequestId } from "../_shared/request-id.ts";
 import {
   attachRateLimitHeaders,
   checkRateLimit,
@@ -1711,7 +1712,9 @@ async function handleKeys(
 // just the refusal. Previously only the 429 disclosed the limit, so an
 // integrator could only learn it by being turned away mid-batch.
 async function routeRequest(req: Request): Promise<Response> {
-  const requestId = crypto.randomUUID();
+  // A client retry names the request it is retrying; without that the billing
+  // guarantee in the database is unreachable. See _shared/request-id.ts.
+  const requestId = resolveRequestId(req.headers.get("X-Request-Id"));
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   const url = new URL(req.url);
