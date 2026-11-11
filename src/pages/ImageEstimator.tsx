@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import Container from "@/components/ui/Container";
@@ -206,6 +207,22 @@ export default function ImageEstimator() {
   );
   const [pdfGateOpen, setPdfGateOpen] = useState(false);
   const [pdfUnlocked, setPdfUnlocked] = useState(false);
+
+  // A new photo is a new building: the image, its provenance, the reading and
+  // the priced estimate all clear, and the page returns to the upload step.
+  const resetInputs = () => {
+    setImageDataUrl(null);
+    setAnalysisPreviewUrl(null);
+    setProvenance(null);
+    setAnalysis(null);
+    setEstimateInput(null);
+    setEstimate(null);
+    setProjectName("");
+    setError("");
+    setSavedId(null);
+    setAnalysisElapsed(0);
+    setPhase("upload");
+  };
   const fileRef = useRef<HTMLInputElement>(null);
 
   // ── Load access config on mount ──
@@ -998,6 +1015,7 @@ export default function ImageEstimator() {
             photoPreview={analysisPreviewUrl}
             savedId={savedId}
             onEdit={() => setPhase("review")}
+            onReset={resetInputs}
             isPaid={isPaid}
             pdfGateOpen={pdfGateOpen}
             pdfUnlocked={pdfUnlocked}
@@ -1205,6 +1223,7 @@ export function EstimateResultView({
   photoPreview,
   savedId,
   onEdit,
+  onReset,
   isPaid,
   pdfGateOpen,
   pdfUnlocked,
@@ -1221,6 +1240,7 @@ export function EstimateResultView({
   photoPreview?: string | null;
   savedId: string | null;
   onEdit: () => void;
+  onReset: () => void;
   isPaid: boolean;
   pdfGateOpen: boolean;
   pdfUnlocked: boolean;
@@ -1555,6 +1575,7 @@ export function EstimateResultView({
               <CheckCircle2 className="w-3.5 h-3.5" /> Saved to your projects
             </span>
           )}
+          <CalculatorResetButton onReset={onReset} />
           <QuoteShareButton
             build={buildEstimateQuote}
             kind="AI Photo Estimate"

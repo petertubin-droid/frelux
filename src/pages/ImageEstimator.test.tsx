@@ -65,6 +65,7 @@ describe("ImageEstimator", () => {
           buildingPhoto="data:image/jpeg;base64,full-image"
           savedId={null}
           onEdit={() => {}}
+          onReset={() => {}}
           isPaid={false}
           pdfGateOpen={false}
           pdfUnlocked={false}
@@ -101,6 +102,7 @@ describe("ImageEstimator", () => {
           photoPreview="data:image/jpeg;base64,preview"
           savedId={null}
           onEdit={() => {}}
+          onReset={() => {}}
           isPaid={false}
           pdfGateOpen={false}
           pdfUnlocked={false}
@@ -138,6 +140,7 @@ describe("ImageEstimator", () => {
           photoPreview="data:image/jpeg;base64,preview"
           savedId={null}
           onEdit={() => {}}
+          onReset={() => {}}
           isPaid={false}
           pdfGateOpen={false}
           pdfUnlocked={false}
@@ -160,6 +163,7 @@ describe("ImageEstimator", () => {
           buildingPhoto="data:image/jpeg;base64,original"
           savedId={null}
           onEdit={() => {}}
+          onReset={() => {}}
           isPaid={false}
           pdfGateOpen={false}
           pdfUnlocked={false}
