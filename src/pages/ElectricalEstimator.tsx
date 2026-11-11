@@ -11,6 +11,7 @@
  * This is ESTIMATION, not professional electrical design.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -135,6 +136,16 @@ const DEFAULT_RUNS: Record<RunField, string> = {
 };
 
 export default function ElectricalEstimator() {
+  // Measurement fields and labour choice only: the price map and rule rows are
+  // the catalogue the engine prices against.
+  const resetInputs = () => {
+    setBuildingType(DEFAULT_BUILDING_TYPE);
+    setRuns(DEFAULT_RUNS);
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -699,6 +710,7 @@ export default function ElectricalEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Electrical Estimate"

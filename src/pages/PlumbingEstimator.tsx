@@ -10,6 +10,7 @@
  * This is ESTIMATION, not professional plumbing design.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -118,6 +119,13 @@ const DEFAULT_RUNS: Record<RunField, string> = {
 };
 
 export default function PlumbingEstimator() {
+  const resetInputs = () => {
+    setRuns(DEFAULT_RUNS);
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -660,6 +668,7 @@ export default function PlumbingEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Plumbing Estimate"

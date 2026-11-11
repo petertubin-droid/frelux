@@ -12,6 +12,7 @@
  *   the total is withheld, never invented.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -50,6 +51,15 @@ import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 export default function SolarPvEstimator() {
+  const resetInputs = () => {
+    setMode("roof_area");
+    setModelId("");
+    setRoofArea("");
+    setEnergyTarget("");
+    setCableRun("");
+    setStorage("");
+    setResult(null);
+  };
   const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
@@ -636,6 +646,7 @@ export default function SolarPvEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Solar/PV Installation Estimate"
