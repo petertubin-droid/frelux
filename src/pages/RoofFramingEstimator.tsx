@@ -1,3 +1,4 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useState } from "react";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
@@ -1175,6 +1176,8 @@ export default function RoofFramingEstimator() {
             </aside>
           </section>
         )}
+
+        <EstimateDisclaimer />
 
         {/* Ad slot, placement "calculator_mid" */}
         <RecommendedProducts category="roofing" />

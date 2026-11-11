@@ -1,3 +1,4 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Ruler, Layers, BrickWall, Truck } from "lucide-react";
@@ -748,6 +749,8 @@ export default function FenceBlockCalculator() {
         </div>
 
         <AdSlot slotKey="calculator_mid" />
+
+        <EstimateDisclaimer />
 
         <section aria-labelledby="fence-faq" className="space-y-4">
           <h2

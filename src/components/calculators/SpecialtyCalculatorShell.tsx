@@ -15,6 +15,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import ToolFaqs from "@/components/seo/ToolFaqs";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
@@ -520,6 +521,8 @@ export function SpecialtyCalculatorShell({
             ) : null}
           </section>
         </div>
+
+        <EstimateDisclaimer />
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
 
