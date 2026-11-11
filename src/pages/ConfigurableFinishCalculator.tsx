@@ -14,6 +14,7 @@
  * - No placeholder/demo products: if nothing is configured, the page says so.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -103,6 +104,17 @@ export default function ConfigurableFinishCalculator({
   calculatorType,
   embedded = false,
 }: ConfigurableFinishCalculatorProps) {
+  // Product, profile, area and coats clear; the loaded configuration is the
+  // book this page runs on and stays.
+  const resetInputs = () => {
+    setProductId("");
+    setProfileId("");
+    setArea("");
+    setCoats("");
+    setSaveState("idle");
+    setSaveMessage("");
+    setResult(null);
+  };
   const { t } = useLanguage();
   const market = useMarket();
   const { marketCode } = market;
@@ -801,6 +813,10 @@ export default function ConfigurableFinishCalculator({
                       </div>
 
                       <div className="md:col-span-2">
+                        <CalculatorResetButton
+                          onReset={resetInputs}
+                          className="mb-4"
+                        />
                         <ShareEstimateButton
                           estimate={{
                             kind: "Finish Material Estimate",
