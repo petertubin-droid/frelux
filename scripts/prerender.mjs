@@ -2564,6 +2564,14 @@ const routes = [
 
   // ── About / Contact / Legal ──
   {
+    path: "/roadmap",
+    title: "Product Roadmap: What’s Next | FRELUX",
+    description:
+      "See FRELUX product priorities for calculators, project workflows, market data, and user experience, with clear distinctions between planned, pending-evidence, and exploratory work.",
+    priority: "0.6",
+    changefreq: "monthly",
+  },
+  {
     path: "/about",
     title: "About FRELUX SMART CALC",
     description:

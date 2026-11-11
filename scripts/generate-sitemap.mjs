@@ -131,6 +131,7 @@ const routes = [
   { path: "/tools/ai", priority: "0.7", changefreq: "monthly" },
   { path: "/tools/pro", priority: "0.7", changefreq: "monthly" },
   { path: "/feedback", priority: "0.7", changefreq: "monthly" },
+  { path: "/roadmap", priority: "0.7", changefreq: "monthly" },
   { path: "/faq", priority: "0.9", changefreq: "monthly" },
   ...faqArticleRoutes(),
   { path: "/data-request", priority: "0.6", changefreq: "yearly" },

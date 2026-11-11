@@ -29,6 +29,7 @@ export interface HeaderImageRule {
 
 /** Ordered rules: first match wins, most specific patterns first. */
 const HEADER_IMAGE_RULES: HeaderImageRule[] = [
+  { test: /^\/roadmap$/, image: "/assets/headers/build.jpg" },
   // ── Trade tools ──────────────────────────────────────────
   {
     // Window treatments: blind estimator and window covering pages.

@@ -100,6 +100,7 @@ function isCoverageFixRoute(p: string): boolean {
 const COVERAGE_FIX_ROUTES = [
   "/construction-tools",
   "/feedback",
+  "/roadmap",
   "/data-request",
   "/smart-calculator",
   "/paint-comparison",

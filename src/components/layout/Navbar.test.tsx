@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -64,6 +64,16 @@ describe("Navbar", () => {
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "FRELUX navigation menu" })).toBeNull());
     await waitFor(() => expect(trigger).toHaveFocus());
     expect(drawer).toHaveProperty("inert", true);
+  });
+
+  it("includes the roadmap in the Learn navigation menu", async () => {
+    await renderNavbar();
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    fireEvent.click(within(drawer).getByRole("button", { name: "Learn" }));
+    expect(await within(drawer).findByRole("link", { name: "Roadmap" })).toHaveAttribute("href", "/roadmap");
   });
 
   it("includes header container for ad-free prompt notices", async () => {

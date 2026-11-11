@@ -72,6 +72,7 @@ const resourcesLinks = [
   { label: "Glossary", path: "/glossary" },
   { label: "Free Templates", path: "/printables" },
   { label: "User Guide", path: "/user-guide" },
+  { label: "Roadmap", path: "/roadmap" },
   { label: "Pricing", path: "/pricing" },
   { label: "Developer API", path: "/developers" },
   { label: "Merchant API", path: "/developers/merchant-webhooks" },

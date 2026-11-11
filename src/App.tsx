@@ -517,6 +517,7 @@ const ProcurementRequestDetail = lazy(
   () => import("@/pages/procurement/ProcurementRequestDetail"),
 );
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
+const Roadmap = lazy(() => import("@/pages/Roadmap"));
 const MarketIntelligenceOverview = lazy(
   () => import("@/pages/market-intelligence/MarketOverview"),
 );
@@ -1983,6 +1984,7 @@ export default function App() {
                             </Suspense>
                           }
                         />
+                        <Route path="/roadmap" element={<Roadmap />} />
                         <Route
                           path="/global-markets"
                           element={<GlobalMarkets />}
