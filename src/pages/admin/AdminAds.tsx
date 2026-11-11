@@ -33,7 +33,11 @@ import {
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { classNames } from "@/lib/utils";
-import { clearAdConfigCache } from "@/lib/ad-config";
+import {
+  clearAdConfigCache,
+  fetchAdConfig,
+  type AdProviderMode,
+} from "@/lib/ad-config";
 import {
   BUILTIN_PROVIDERS,
   CUSTOM_PROVIDER_SCHEMA,
@@ -51,6 +55,205 @@ import { useLanguage } from "@/lib/i18n";
 
 type Tab = "providers" | "placements" | "analytics" | "network";
 
+const PROVIDER_MODE_OPTIONS: {
+  value: AdProviderMode;
+  label: string;
+  hint: string;
+}[] = [
+  {
+    value: "auto",
+    label: "Any active provider",
+    hint: "Waterfall in priority order. AdSense leads once its row carries the primary flag.",
+  },
+  {
+    value: "adsense_only",
+    label: "AdSense only",
+    hint: "Google fills every slot. Any other active network stays idle.",
+  },
+  {
+    value: "single",
+    label: "One provider only",
+    hint: "The provider you name below, everywhere, with no fallback.",
+  },
+  {
+    value: "off",
+    label: "No ads",
+    hint: "Every slot resolves to nothing. Layout collapses the space.",
+  },
+];
+
+/**
+ * One switch for every slot.
+ *
+ * Placements still own their position and density, but which network may fill
+ * them is decided once, here, and read by the resolver before any placement is
+ * considered. Everything below this card is per-placement detail; none of it has
+ * to be touched to change networks.
+ */
+function ProviderControlCard() {
+  const [mode, setMode] = useState<AdProviderMode>("auto");
+  const [slug, setSlug] = useState<string>("");
+  const [providers, setProviders] = useState<DbAdProvider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [settingsRes, providersRes] = await Promise.all([
+          supabase
+            .from("site_settings")
+            .select("id, ad_provider_mode, ad_provider_slug")
+            .limit(1)
+            .maybeSingle(),
+          supabase
+            .from("ad_providers")
+            .select("*")
+            .eq("is_active", true)
+            .order("priority"),
+        ]);
+        if (cancelled) return;
+        if (settingsRes.error) setError(settingsRes.error.message);
+        const row = settingsRes.data as {
+          ad_provider_mode?: string | null;
+          ad_provider_slug?: string | null;
+        } | null;
+        const nextMode = row?.ad_provider_mode;
+        setMode(
+          nextMode === "adsense_only" ||
+            nextMode === "single" ||
+            nextMode === "off"
+            ? nextMode
+            : "auto",
+        );
+        setSlug(row?.ad_provider_slug ?? "");
+        setProviders((providersRes.data as DbAdProvider[]) ?? []);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function save() {
+    if (mode === "single" && !slug) {
+      setError("Choose the provider that should fill every slot.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    const { error: writeError } = await supabase
+      .from("site_settings")
+      .update({
+        ad_provider_mode: mode,
+        ad_provider_slug: mode === "single" ? slug : null,
+      })
+      .not("id", "is", null);
+    setSaving(false);
+    if (writeError) {
+      setError(writeError.message);
+      return;
+    }
+    // The resolver caches config for a minute; force it so the switch is
+    // visibly in force on the next page rather than a minute later.
+    clearAdConfigCache();
+    fetchAdConfig(true).catch(() => {});
+    setSaved(true);
+  }
+
+  const selected = PROVIDER_MODE_OPTIONS.find((o) => o.value === mode);
+
+  return (
+    <AdminCard className="mb-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <Radio className="h-4 w-4 text-primary" />
+            Provider control, all slots
+          </h3>
+          <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+            One decision for the whole site. Placements below keep their
+            position and density; this governs who may fill them. Rewarded
+            offerwalls keep their own providers.
+          </p>
+        </div>
+        {saved && (
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+            <Check className="h-3.5 w-3.5" /> Saved
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <p className="mt-4 text-xs text-muted-foreground">Reading settings…</p>
+      ) : (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminField label="Which network may serve">
+            <AdminSelect
+              value={mode}
+              onChange={(e) => setMode(e.target.value as AdProviderMode)}
+            >
+              {PROVIDER_MODE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </AdminSelect>
+            {selected && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {selected.hint}
+              </p>
+            )}
+          </AdminField>
+
+          <AdminField label="Provider">
+            <AdminSelect
+              value={slug}
+              disabled={mode !== "single"}
+              onChange={(e) => setSlug(e.target.value)}
+            >
+              <option value="">Choose a provider…</option>
+              {providers.map((prov) => (
+                <option key={prov.id} value={prov.slug}>
+                  {prov.name} ({prov.slug})
+                </option>
+              ))}
+            </AdminSelect>
+            {mode !== "single" && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Only used when one provider is chosen above.
+              </p>
+            )}
+          </AdminField>
+        </div>
+      )}
+
+      {error && (
+        <p className="mt-3 text-xs font-medium text-destructive">{error}</p>
+      )}
+
+      <div className="mt-4">
+        <AdminButton onClick={save} disabled={saving || loading}>
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          Apply to all slots
+        </AdminButton>
+      </div>
+    </AdminCard>
+  );
+}
+
 export default function AdminAds() {
   const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>("providers");
@@ -60,6 +263,7 @@ export default function AdminAds() {
         title={t("Ad Management Center")}
         subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes."
       />
+      <ProviderControlCard />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">
         {(
           [

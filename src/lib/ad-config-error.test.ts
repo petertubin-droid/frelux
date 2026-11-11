@@ -15,27 +15,43 @@ const callState = {
 };
 
 vi.mock("@/lib/supabase-lazy", () => {
-  const from = vi.fn((table: string) => ({
-    select: vi.fn(() => ({
-      eq: vi.fn(() => {
-        const res =
-          table === "ad_providers_public"
-            ? {
-                data: [{ id: "p1", slug: "google_adsense", priority: 1 }],
-                error: callState.current.providersError,
-              }
-            : {
-                data: [{ id: "pl1", placement_key: "home_top" }],
-                error: callState.current.placementsError,
-              };
-        // providers chain adds .order(), placements resolves directly
-        return table === "ad_providers_public"
-          ? { order: vi.fn(() => Promise.resolve(res)) }
-          : Promise.resolve(res);
-      }),
-    })),
-    insert: vi.fn(() => Promise.resolve({ error: null })),
-  }));
+  const from = vi.fn((table: string) => {
+    if (table === "site_settings") {
+      return {
+        select: vi.fn(() => ({
+          limit: vi.fn(() => ({
+            maybeSingle: vi.fn(() =>
+              Promise.resolve({
+                data: { ad_provider_mode: "auto", ad_provider_slug: null },
+                error: null,
+              }),
+            ),
+          })),
+        })),
+      };
+    }
+    return {
+      select: vi.fn(() => ({
+        eq: vi.fn(() => {
+          const res =
+            table === "ad_providers_public"
+              ? {
+                  data: [{ id: "p1", slug: "google_adsense", priority: 1 }],
+                  error: callState.current.providersError,
+                }
+              : {
+                  data: [{ id: "pl1", placement_key: "home_top" }],
+                  error: callState.current.placementsError,
+                };
+          // providers chain adds .order(), placements resolves directly
+          return table === "ad_providers_public"
+            ? { order: vi.fn(() => Promise.resolve(res)) }
+            : Promise.resolve(res);
+        }),
+      })),
+      insert: vi.fn(() => Promise.resolve({ error: null })),
+    };
+  });
   return {
     getSupabase: vi.fn(() => Promise.resolve({ from })),
     isSupabaseConfigured: true,

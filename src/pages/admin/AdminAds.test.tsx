@@ -58,7 +58,12 @@ const placementsData: Row[] = [
     is_active: true,
     provider_ids: ["prov-monetag"],
     ad_unit_ids: {},
-    display_rules: { mobile: true, desktop: true, min_height: 100, refresh_seconds: 0 },
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      min_height: 100,
+      refresh_seconds: 0,
+    },
     sort_order: 20,
     created_at: "",
     updated_at: "",
@@ -72,7 +77,12 @@ const placementsData: Row[] = [
     is_active: true,
     provider_ids: ["prov-monetag"],
     ad_unit_ids: {},
-    display_rules: { mobile: true, desktop: true, min_height: 100, refresh_seconds: 0 },
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      min_height: 100,
+      refresh_seconds: 0,
+    },
     sort_order: 30,
     created_at: "",
     updated_at: "",
@@ -86,7 +96,12 @@ const placementsData: Row[] = [
     is_active: true,
     provider_ids: ["prov-monetag"],
     ad_unit_ids: {},
-    display_rules: { mobile: true, desktop: true, min_height: 100, refresh_seconds: 0 },
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      min_height: 100,
+      refresh_seconds: 0,
+    },
     sort_order: 40,
     created_at: "",
     updated_at: "",
@@ -96,6 +111,11 @@ const placementsData: Row[] = [
 function tableData(table: string): Row[] {
   if (table === "ad_providers") return providersData;
   if (table === "ad_placements") return placementsData;
+  // The central provider control reads the single settings row.
+  if (table === "site_settings")
+    return [
+      { id: "settings-1", ad_provider_mode: "auto", ad_provider_slug: null },
+    ];
   return [];
 }
 
@@ -107,6 +127,12 @@ function buildChain(table: string) {
   const chain: Record<string, unknown> = {};
   chain.select = vi.fn(() => chain);
   chain.order = vi.fn(() => chain);
+  chain.eq = vi.fn(() => chain);
+  chain.limit = vi.fn(() => chain);
+  chain.maybeSingle = vi.fn(() =>
+    Promise.resolve({ data: tableData(table)[0] ?? null, error: null }),
+  );
+  chain.not = vi.fn(() => ({ then: chain.then, eq: eqResults }));
   chain.then = (resolve: (v: unknown) => unknown) =>
     resolve({ data: tableData(table), error: null });
   chain.update = vi.fn((payload: Row) => {
@@ -127,6 +153,9 @@ vi.mock("@/lib/supabase", () => ({
 
 vi.mock("@/lib/ad-config", () => ({
   clearAdConfigCache: vi.fn(),
+  fetchAdConfig: vi.fn(() =>
+    Promise.resolve({ providers: [], placements: [] }),
+  ),
 }));
 
 beforeEach(() => {
@@ -216,9 +245,9 @@ describe("AdminAds", () => {
         (call) => call.table === "ad_placements",
       );
       expect(placementUpdates).toHaveLength(2);
-      expect(placementUpdates.map((u) => u.payload.sort_order).sort()).toEqual(
-        [20, 30],
-      );
+      expect(placementUpdates.map((u) => u.payload.sort_order).sort()).toEqual([
+        20, 30,
+      ]);
     });
   });
 
@@ -253,9 +282,7 @@ describe("AdminAds", () => {
       expect(
         screen.getByText(/2 active placements have no fillable ad unit/),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText(/home_native, home_mid/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/home_native, home_mid/)).toBeInTheDocument();
       expect(
         screen.getAllByText(/No fillable ad unit, slot renders nothing/),
       ).toHaveLength(2);

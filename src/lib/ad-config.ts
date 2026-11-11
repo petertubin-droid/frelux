@@ -14,6 +14,51 @@ interface AdConfigResult {
 }
 
 /**
+ * The sitewide provider policy (owner directive 2026-11-11).
+ *
+ * Placement rows decide where an ad goes and how dense it may be. Which network
+ * may fill it is one decision, made once, in Admin -> Ads -> Provider control.
+ * Keeping it here means a new owner switch does not require editing forty
+ * placement rows, and the resolver cannot drift from what the admin shows.
+ */
+export type AdProviderMode = "auto" | "adsense_only" | "single" | "off";
+
+export interface AdProviderPolicy {
+  mode: AdProviderMode;
+  /** Provider slug honoured when mode === "single". */
+  slug: string | null;
+}
+
+/** Waterfall behaviour until a site row says otherwise. */
+const DEFAULT_AD_POLICY: AdProviderPolicy = { mode: "auto", slug: null };
+let policyCache: AdProviderPolicy = DEFAULT_AD_POLICY;
+
+/** Read the sitewide policy, tolerating a missing table or a failed read. */
+async function readAdPolicy(
+  supabase: Awaited<ReturnType<typeof getSupabase>>,
+): Promise<{
+  ad_provider_mode?: string | null;
+  ad_provider_slug?: string | null;
+} | null> {
+  try {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("ad_provider_mode, ad_provider_slug")
+      .limit(1)
+      .maybeSingle();
+    if (error) return null;
+    return (data as { ad_provider_mode?: string | null } | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Current sitewide policy. Set by fetchAdConfig. */
+export function getAdProviderPolicy(): AdProviderPolicy {
+  return policyCache;
+}
+
+/**
  * Fetch all active ad providers and placements, cached for 1 minute.
  */
 export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
@@ -23,13 +68,14 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
   }
 
   const supabase = await getSupabase();
-  const [provRes, placeRes] = await Promise.all([
+  const [provRes, placeRes, policyRes] = await Promise.all([
     supabase
       .from("ad_providers_public")
       .select("*")
       .eq("is_active", true)
       .order("priority"),
     supabase.from("ad_placements").select("*").eq("is_active", true),
+    readAdPolicy(supabase),
   ]);
 
   // Failure handling (stale-while-error): a failed read must NEVER be
@@ -45,6 +91,23 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
     placementsCache = [];
     cacheExpiry = now + FAILED_FETCH_RETRY_MS;
     return { providers: [], placements: [] };
+  }
+
+  // A failed policy read must not silently widen or narrow the chain: keep the
+  // last known policy and fall back to the waterfall on first load.
+  const policyRow = policyRes as {
+    ad_provider_mode?: string | null;
+    ad_provider_slug?: string | null;
+  } | null;
+  if (policyRow) {
+    const mode = policyRow.ad_provider_mode;
+    policyCache = {
+      mode:
+        mode === "adsense_only" || mode === "single" || mode === "off"
+          ? mode
+          : "auto",
+      slug: policyRow.ad_provider_slug?.trim() || null,
+    };
   }
 
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
@@ -85,10 +148,29 @@ export function getProvidersForPlacement(
   placementKey: string,
   providers: DbAdProvider[],
   placements: DbAdPlacement[],
+  policy: AdProviderPolicy = policyCache,
 ): DbAdProvider[] {
   const placement = placements.find((p) => p.placement_key === placementKey);
   if (!placement) return [];
 
+  // The central control outranks a placement's own pin (the same precedent as
+  // applyPrimaryNetwork): choosing one network sitewide must not leave slots
+  // empty because a row still names an older provider.
+  const chain =
+    policy.mode === "auto"
+      ? buildPlacementChain(placement, providers)
+      : applyPrimaryNetwork(providers, providers);
+  return applyProviderPolicy(chain, placement, policy);
+}
+
+/**
+ * The per-placement chain: the placement's own provider list when it has one,
+ * otherwise every active provider in priority order.
+ */
+function buildPlacementChain(
+  placement: DbAdPlacement,
+  providers: DbAdProvider[],
+): DbAdProvider[] {
   if (placement.provider_ids.length > 0) {
     const ordered: DbAdProvider[] = [];
     for (const pid of placement.provider_ids) {
@@ -100,6 +182,33 @@ export function getProvidersForPlacement(
 
   // No explicit provider list, use all active providers sorted by priority
   return applyPrimaryNetwork(providers, providers);
+}
+
+/**
+ * Apply the sitewide policy to one placement's chain.
+ *
+ * Rewarded placements are exempt: an offerwall is a rewarded flow with its own
+ * providers and its own consent, and serving AdSense into it would be a policy
+ * violation rather than a preference.
+ */
+function applyProviderPolicy(
+  chain: DbAdProvider[],
+  placement: DbAdPlacement,
+  policy: AdProviderPolicy,
+): DbAdProvider[] {
+  if (placement.placement_type === "rewarded") return chain;
+  const { mode, slug } = policy;
+  if (mode === "off") return [];
+  if (mode === "adsense_only") {
+    return chain.filter((p) => p.slug === "google_adsense");
+  }
+  if (mode === "single") {
+    // A named provider that is not active, or not present in this chain, means
+    // no ad rather than a quiet fallback to a network the owner did not choose.
+    if (!slug) return [];
+    return chain.filter((p) => p.slug === slug);
+  }
+  return chain;
 }
 
 /**
