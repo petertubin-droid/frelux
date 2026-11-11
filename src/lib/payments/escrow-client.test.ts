@@ -3,6 +3,8 @@ import {
   contractFigures,
   describeStatus,
   formatMinor,
+  parseAmountToMinor,
+  stageBalance,
   type EscrowContractRow,
 } from "./escrow-client";
 
@@ -73,5 +75,34 @@ describe("escrow client presentation", () => {
     );
     expect(describeStatus("funds_held").label).toBe("Funds held in escrow");
     expect(describeStatus("refunded").label).toBe("Refunded");
+  });
+
+  it("parses typed naira amounts into minor units", () => {
+    expect(parseAmountToMinor("50,000")).toBe(5_000_000);
+    expect(parseAmountToMinor("50000.50")).toBe(5_000_050);
+    expect(parseAmountToMinor("")).toBeNull();
+    expect(parseAmountToMinor("0")).toBeNull();
+    expect(parseAmountToMinor("abc")).toBeNull();
+  });
+
+  it("says when drafted stages do not add up to the total", () => {
+    const short = stageBalance(5_000_000, [
+      { label: "Deposit", amountMinor: 2_000_000 },
+    ]);
+    expect(short.balanced).toBe(false);
+    expect(short.remainingMinor).toBe(3_000_000);
+
+    const exact = stageBalance(5_000_000, [
+      { label: "Deposit", amountMinor: 2_000_000 },
+      { label: "On delivery", amountMinor: 3_000_000 },
+    ]);
+    expect(exact.balanced).toBe(true);
+    expect(exact.remainingMinor).toBe(0);
+
+    const over = stageBalance(1_000_000, [
+      { label: "Too much", amountMinor: 2_000_000 },
+    ]);
+    expect(over.balanced).toBe(false);
+    expect(over.remainingMinor).toBe(-1_000_000);
   });
 });

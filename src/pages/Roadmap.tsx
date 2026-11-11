@@ -131,7 +131,7 @@ const STATUS_SECTIONS: {
         id: "escrow-settlement",
         title: "Diaspora escrow settlement",
         description:
-          "The money path is wired to Paystack and runs in test mode: a contract can be funded through checkout, the signed webhook records the payment exactly once, and releasing a stage pays the seller that amount minus the 7 percent FRELUX fee. A failed payout leaves the ledger untouched. Real money waits for the production key to be switched on, so the page still labels its example as an example.",
+          "The money path is wired to Paystack and runs in test mode: a buyer can create a contract with staged payments, fund it through checkout, the signed webhook records the payment exactly once, and releasing a stage pays the seller that amount minus the 7 percent FRELUX fee. A failed payout leaves the ledger untouched. Real money waits for the production key to be switched on, so the page still labels its example as an example.",
         category: "project-workflow",
         icon: Banknote,
       },

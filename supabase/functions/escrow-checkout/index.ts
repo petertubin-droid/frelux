@@ -42,12 +42,123 @@ Deno.serve(async (req) => {
     return json({ error: "Authentication required" }, 401);
   }
 
-  let payload: { contract_id?: string; callback_url?: string };
+  let payload: {
+    action?: "create" | "fund";
+    contract_id?: string;
+    callback_url?: string;
+    title?: string;
+    currency?: string;
+    total_minor?: number;
+    seller_name?: string;
+    seller_email?: string;
+    seller_bank_code?: string;
+    seller_account_number?: string;
+    buyer_name?: string;
+    buyer_email?: string;
+    milestones?: { label?: string; amount_minor?: number }[];
+  };
   try {
     payload = await req.json();
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
+  if (payload.action === "create") {
+    const title = (payload.title ?? "").trim();
+    const sellerName = (payload.seller_name ?? "").trim();
+    const currency = (payload.currency ?? "NGN").trim().toUpperCase();
+    const total = Number(payload.total_minor ?? 0);
+    const lines = Array.isArray(payload.milestones) ? payload.milestones : [];
+
+    if (title.length < 3 || title.length > 160) {
+      return json(
+        { error: "Give the contract a title of 3 to 160 characters" },
+        400,
+      );
+    }
+    if (!sellerName) return json({ error: "The seller needs a name" }, 400);
+    if (!/^[A-Z]{3}$/.test(currency)) {
+      return json({ error: "Currency must be a three letter code" }, 400);
+    }
+    if (!Number.isInteger(total) || total <= 0) {
+      return json(
+        { error: "The contract total must be a whole amount in kobo" },
+        400,
+      );
+    }
+    if (lines.length === 0 || lines.length > 12) {
+      return json({ error: "Add between 1 and 12 payment stages" }, 400);
+    }
+
+    const stages = lines.map((line, index) => {
+      const label = (line.label ?? `Stage ${index + 1}`).trim().slice(0, 120);
+      const amount = Number(line.amount_minor ?? 0);
+      return { label: label || `Stage ${index + 1}`, amount, index };
+    });
+    for (const stage of stages) {
+      if (!Number.isInteger(stage.amount) || stage.amount <= 0) {
+        return json(
+          { error: `Stage "${stage.label}" needs a positive whole amount` },
+          400,
+        );
+      }
+    }
+    const planned = stages.reduce((sum, stage) => sum + stage.amount, 0);
+    if (planned !== total) {
+      return json(
+        {
+          error: `The stages add up to ${planned} but the contract total is ${total}`,
+        },
+        400,
+      );
+    }
+
+    const reference = `ESC-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+    const { data: created, error: createError } = await admin
+      .from("escrow_contracts")
+      .insert({
+        created_by: auth.user.id,
+        reference_code: reference,
+        title,
+        currency,
+        total_minor: total,
+        seller_name: sellerName,
+        seller_email: payload.seller_email ?? null,
+        seller_bank_code: payload.seller_bank_code ?? null,
+        seller_account_number: payload.seller_account_number ?? null,
+        buyer_name: payload.buyer_name ?? null,
+        buyer_email: payload.buyer_email ?? auth.user.email ?? null,
+      })
+      .select("id, reference_code")
+      .single();
+
+    if (createError || !created) {
+      console.error(
+        "escrow-checkout could not create the contract",
+        createError,
+      );
+      return json({ error: "Could not create the escrow contract" }, 500);
+    }
+
+    const { error: milestoneError } = await admin
+      .from("escrow_milestones")
+      .insert(
+        stages.map((stage) => ({
+          contract_id: created.id,
+          label: stage.label,
+          position: stage.index,
+          amount_minor: stage.amount,
+        })),
+      );
+
+    if (milestoneError) {
+      console.error("escrow-checkout could not add the stages", milestoneError);
+      await admin.from("escrow_contracts").delete().eq("id", created.id);
+      return json({ error: "Could not add the payment stages" }, 500);
+    }
+
+    payload.contract_id = created.id;
+  }
+
   if (!payload.contract_id)
     return json({ error: "contract_id is required" }, 400);
 
@@ -116,6 +227,8 @@ Deno.serve(async (req) => {
     .eq("id", contract.id);
 
   return json({
+    contract_id: contract.id,
+    reference_code: contract.reference_code,
     authorization_url: result.data?.authorization_url ?? null,
     access_code: result.data?.access_code ?? null,
     reference: result.data?.reference ?? contract.reference_code,

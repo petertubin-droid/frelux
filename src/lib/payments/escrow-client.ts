@@ -162,6 +162,76 @@ async function readFunctionError(error: unknown): Promise<string> {
   return "The escrow service did not complete the request.";
 }
 
+/** "50,000" or "50000.50" becomes integer minor units, or null if unusable. */
+export function parseAmountToMinor(input: string): number | null {
+  const cleaned = input.replace(/[^0-9.]/g, "");
+  if (!cleaned) return null;
+  const value = Number(cleaned);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const minor = Math.round(value * 100);
+  return minor > 0 ? minor : null;
+}
+
+export interface StageDraft {
+  label: string;
+  amountMinor: number;
+}
+
+export interface StageBalance {
+  plannedMinor: number;
+  remainingMinor: number;
+  balanced: boolean;
+}
+
+/** How the drafted stages compare with the contract total. */
+export function stageBalance(
+  totalMinor: number,
+  stages: StageDraft[],
+): StageBalance {
+  const planned = stages.reduce(
+    (sum, stage) => sum + (Number(stage.amountMinor) || 0),
+    0,
+  );
+  return {
+    plannedMinor: planned,
+    remainingMinor: (Number(totalMinor) || 0) - planned,
+    balanced: planned === Number(totalMinor) && planned > 0,
+  };
+}
+
+export interface NewContractInput {
+  title: string;
+  sellerName: string;
+  sellerBankCode?: string;
+  sellerAccountNumber?: string;
+  totalMinor: number;
+  stages: StageDraft[];
+}
+
+export async function createEscrowContract(input: NewContractInput) {
+  const payload = {
+    action: "create" as const,
+    title: input.title.trim(),
+    seller_name: input.sellerName.trim(),
+    seller_bank_code: input.sellerBankCode?.trim() || undefined,
+    seller_account_number: input.sellerAccountNumber?.trim() || undefined,
+    total_minor: input.totalMinor,
+    milestones: input.stages.map((stage, index) => ({
+      label: stage.label.trim() || `Stage ${index + 1}`,
+      amount_minor: stage.amountMinor,
+    })),
+  };
+  const data = await callEscrow("escrow-checkout", payload);
+  const url =
+    typeof data.authorization_url === "string" ? data.authorization_url : null;
+  const contractId =
+    typeof data.contract_id === "string" ? data.contract_id : null;
+  if (!url || !contractId) {
+    throw new Error("The contract was not created.");
+  }
+  return { checkoutUrl: url, contractId };
+}
+
 export async function startEscrowCheckout(contractId: string) {
   const data = await callEscrow("escrow-checkout", {
     contract_id: contractId,

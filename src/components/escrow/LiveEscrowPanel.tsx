@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Banknote, CheckCircle2, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
+import NewEscrowContractForm from "@/components/escrow/NewEscrowContractForm";
 import {
   contractFigures,
   describeStatus,
@@ -114,16 +115,13 @@ export default function LiveEscrowPanel({
   if (state === "error" || contracts.length === 0) {
     if (compact) return null;
     return (
-      <div className="rounded-2xl border border-border/60 bg-card p-5">
-        <p className="text-sm font-semibold text-foreground">
-          {state === "error"
-            ? "Your escrow contracts could not be loaded."
-            : "You have no live escrow contract yet."}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          The example below shows how a funded contract behaves. A live contract
-          holds real money and releases it stage by stage.
-        </p>
+      <div className="space-y-4">
+        {state === "error" && (
+          <p className="rounded-2xl border border-border/60 bg-card p-5 text-sm font-semibold text-foreground">
+            Your escrow contracts could not be loaded.
+          </p>
+        )}
+        <NewEscrowContractForm />
       </div>
     );
   }
@@ -145,6 +143,15 @@ export default function LiveEscrowPanel({
           {message}
         </p>
       )}
+
+      <details className="rounded-2xl border border-border/60 bg-card p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-foreground">
+          Start another escrow contract
+        </summary>
+        <div className="mt-4">
+          <NewEscrowContractForm />
+        </div>
+      </details>
 
       {contracts.map((contract) => {
         const figures = contractFigures(contract);
