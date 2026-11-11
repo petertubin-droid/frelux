@@ -1581,7 +1581,10 @@ export function VisualFinishingEstimator({
                         quantity: [m.quantity, m.unit]
                           .filter((v) => v !== null && v !== undefined)
                           .join(" "),
-                        amount: m.lineCost === null ? "" : String(m.lineCost),
+                        amount:
+                          m.totalCost === null
+                            ? "unpriced"
+                            : String(m.totalCost),
                       })),
                       totals: [
                         {
