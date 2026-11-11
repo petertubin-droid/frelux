@@ -131,7 +131,7 @@ const STATUS_SECTIONS: {
         id: "escrow-settlement",
         title: "Diaspora escrow settlement",
         description:
-          "The milestone model, budget tracker and release rules are built and tested, and the page currently shows a worked example rather than a live contract. No money moves until a payment provider is wired to the milestones, so treat escrow stages as planning figures.",
+          "The money path is wired to Paystack and runs in test mode: a contract can be funded through checkout, the signed webhook records the payment exactly once, and releasing a stage pays the seller that amount minus the 7 percent FRELUX fee. A failed payout leaves the ledger untouched. Real money waits for the production key to be switched on, so the page still labels its example as an example.",
         category: "project-workflow",
         icon: Banknote,
       },

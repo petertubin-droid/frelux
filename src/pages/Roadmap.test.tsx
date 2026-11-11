@@ -115,7 +115,7 @@ describe("Roadmap page", () => {
     expect(live!.textContent).not.toMatch(/escrow/i);
     expect(building!.textContent).toContain("Marketplace order settlement");
     expect(building!.textContent).toContain("Diaspora escrow settlement");
-    expect(building!.textContent).toContain("No money moves until");
+    expect(building!.textContent).toContain("runs in test mode");
   });
 
   it("states no promised release date anywhere on the page", async () => {

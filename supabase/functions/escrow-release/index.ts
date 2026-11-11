@@ -1,0 +1,306 @@
+// Releases one milestone to the seller. The FRELUX fee is taken from the
+// released amount, never from money the buyer can still be refunded.
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Apikey",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors });
+  }
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  const url = Deno.env.get("SUPABASE_URL") ?? "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const paystackKey =
+    Deno.env.get("PAYSTACK_ESCROW_SECRET") ??
+    Deno.env.get("PAYSTACK_SECRET_KEY") ??
+    "";
+  if (!url || !serviceKey || !paystackKey) {
+    return json({ error: "Server configuration error" }, 500);
+  }
+
+  const token =
+    req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+  if (!token) return json({ error: "Authentication required" }, 401);
+  const admin = createClient(url, serviceKey);
+  const { data: auth, error: authError } = await admin.auth.getUser(token);
+  if (authError || !auth.user) {
+    return json({ error: "Authentication required" }, 401);
+  }
+
+  let payload: {
+    contract_id?: string;
+    milestone_id?: string;
+    action?: "release" | "refund";
+    amount_minor?: number;
+  };
+  try {
+    payload = await req.json();
+  } catch {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+  if (!payload.contract_id) {
+    return json({ error: "contract_id is required" }, 400);
+  }
+
+  if (payload.action === "refund") {
+    const { data: refundContract, error: refundError } = await admin
+      .from("escrow_contracts")
+      .select(
+        "id, created_by, status, held_minor, released_minor, refunded_minor, provider_transaction_id, provider_reference",
+      )
+      .eq("id", payload.contract_id)
+      .maybeSingle();
+
+    if (refundError) return json({ error: "Could not read the contract" }, 500);
+    if (!refundContract) return json({ error: "Contract not found" }, 404);
+    if (refundContract.created_by !== auth.user.id) {
+      return json({ error: "Only the buyer can ask for this refund" }, 403);
+    }
+
+    const refundable =
+      Number(refundContract.held_minor) -
+      Number(refundContract.released_minor) -
+      Number(refundContract.refunded_minor);
+    if (refundable <= 0) {
+      return json({ error: "There is no held money left to refund" }, 409);
+    }
+
+    const requested = payload.amount_minor ?? refundable;
+    if (
+      !Number.isInteger(requested) ||
+      requested <= 0 ||
+      requested > refundable
+    ) {
+      return json(
+        { error: `Refund must be between 1 and ${refundable} minor units` },
+        400,
+      );
+    }
+
+    const transaction =
+      refundContract.provider_transaction_id ??
+      refundContract.provider_reference;
+    if (!transaction)
+      return json({ error: "This contract was never funded" }, 409);
+
+    const refundResponse = await fetch("https://api.paystack.co/refund", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${paystackKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transaction, amount: requested }),
+    });
+    const refundResult = await refundResponse.json().catch(() => null);
+    if (!refundResponse.ok || !refundResult?.status) {
+      const reason =
+        (refundResult && (refundResult.message as string)) ||
+        "Paystack refused the refund";
+      console.error("escrow-refund failed", reason);
+      return json({ error: reason }, 502);
+    }
+
+    const refundedMinor = Number(refundContract.refunded_minor) + requested;
+    const fullyRefunded =
+      refundedMinor + Number(refundContract.released_minor) >=
+      Number(refundContract.held_minor);
+
+    await admin
+      .from("escrow_contracts")
+      .update({
+        refunded_minor: refundedMinor,
+        status: fullyRefunded ? "refunded" : refundContract.status,
+      })
+      .eq("id", refundContract.id);
+
+    if (fullyRefunded) {
+      await admin
+        .from("escrow_milestones")
+        .update({ state: "refunded" })
+        .eq("contract_id", refundContract.id)
+        .eq("state", "pending");
+    }
+
+    return json({
+      refunded_minor: requested,
+      contract_status: fullyRefunded ? "refunded" : refundContract.status,
+      provider_refund: refundResult.data?.status ?? "pending",
+    });
+  }
+
+  if (!payload.milestone_id) {
+    return json({ error: "milestone_id is required to release funds" }, 400);
+  }
+
+  const { data: contract, error: contractError } = await admin
+    .from("escrow_contracts")
+    .select(
+      "id, created_by, status, held_minor, released_minor, refunded_minor, fee_minor, fee_basis_points, seller_name, seller_email, seller_bank_code, seller_account_number, seller_recipient_code, currency",
+    )
+    .eq("id", payload.contract_id)
+    .maybeSingle();
+
+  if (contractError) return json({ error: "Could not read the contract" }, 500);
+  if (!contract) return json({ error: "Contract not found" }, 404);
+  if (contract.created_by !== auth.user.id) {
+    return json({ error: "Only the buyer can release this escrow" }, 403);
+  }
+  if (!["funds_held", "partially_released"].includes(contract.status)) {
+    return json(
+      {
+        error: `Nothing can be released while the contract is ${contract.status}`,
+      },
+      409,
+    );
+  }
+
+  const { data: milestone } = await admin
+    .from("escrow_milestones")
+    .select("id, label, amount_minor, state")
+    .eq("id", payload.milestone_id)
+    .eq("contract_id", contract.id)
+    .maybeSingle();
+
+  if (!milestone) return json({ error: "Milestone not found" }, 404);
+  if (milestone.state !== "pending") {
+    return json({ error: `This milestone is already ${milestone.state}` }, 409);
+  }
+
+  const available =
+    Number(contract.held_minor) -
+    Number(contract.released_minor) -
+    Number(contract.refunded_minor);
+  const amount = Number(milestone.amount_minor);
+  if (available < amount) {
+    return json(
+      { error: "Not enough funds held to release this milestone" },
+      409,
+    );
+  }
+
+  const fee = Math.floor((amount * Number(contract.fee_basis_points)) / 10000);
+  const payout = amount - fee;
+  if (payout <= 0) return json({ error: "Released amount is too small" }, 400);
+
+  let recipient = contract.seller_recipient_code as string | null;
+  if (!recipient) {
+    if (!contract.seller_bank_code || !contract.seller_account_number) {
+      return json(
+        {
+          error:
+            "The seller has no payout account on file. Add bank code and account number first.",
+        },
+        400,
+      );
+    }
+    const recipientResponse = await fetch(
+      "https://api.paystack.co/transferrecipient",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${paystackKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "nubank",
+          name: contract.seller_name,
+          account_number: contract.seller_account_number,
+          bank_code: contract.seller_bank_code,
+          currency: contract.currency,
+        }),
+      },
+    );
+    const recipientResult = await recipientResponse.json().catch(() => null);
+    if (!recipientResponse.ok || !recipientResult?.status) {
+      const reason =
+        (recipientResult && (recipientResult.message as string)) ||
+        "Paystack rejected the seller payout account";
+      console.error("escrow-release recipient failed", reason);
+      return json({ error: reason }, 502);
+    }
+    recipient = recipientResult.data?.recipient_code ?? null;
+    if (!recipient) return json({ error: "No payout recipient returned" }, 502);
+    await admin
+      .from("escrow_contracts")
+      .update({ seller_recipient_code: recipient })
+      .eq("id", contract.id);
+  }
+
+  const transferResponse = await fetch("https://api.paystack.co/transfer", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${paystackKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      source: "balance",
+      amount: payout,
+      recipient,
+      reason: `FRELUX escrow release: ${milestone.label}`,
+      reference: `escrow-${contract.id.slice(0, 8)}-${milestone.id.slice(0, 8)}`,
+    }),
+  });
+  const transferResult = await transferResponse.json().catch(() => null);
+  if (!transferResponse.ok || !transferResult?.status) {
+    const reason =
+      (transferResult && (transferResult.message as string)) ||
+      "Paystack refused the transfer";
+    console.error("escrow-release transfer failed", reason);
+    return json({ error: reason }, 502);
+  }
+
+  const transferCode = transferResult.data?.transfer_code ?? null;
+  const { data: claimed } = await admin
+    .from("escrow_milestones")
+    .update({
+      state: "released",
+      released_at: new Date().toISOString(),
+      transfer_code: transferCode,
+    })
+    .eq("id", milestone.id)
+    .eq("state", "pending")
+    .select("id");
+
+  if (!claimed?.length) {
+    console.error("escrow-release race: milestone already released");
+    return json({ error: "This milestone was already released" }, 409);
+  }
+
+  const releasedMinor = Number(contract.released_minor) + amount;
+  const { data: siblings } = await admin
+    .from("escrow_milestones")
+    .select("state")
+    .eq("contract_id", contract.id);
+  const allReleased = (siblings ?? []).every((row) => row.state !== "pending");
+
+  await admin
+    .from("escrow_contracts")
+    .update({
+      released_minor: releasedMinor,
+      fee_minor: Number(contract.fee_minor ?? 0) + fee,
+      status: allReleased ? "released" : "partially_released",
+    })
+    .eq("id", contract.id);
+
+  return json({
+    released_minor: amount,
+    platform_fee_minor: fee,
+    seller_payout_minor: payout,
+    transfer_code: transferCode,
+    transfer_status: transferResult.data?.status ?? "pending",
+    contract_status: allReleased ? "released" : "partially_released",
+  });
+});

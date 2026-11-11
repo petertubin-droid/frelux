@@ -23,6 +23,7 @@ import {
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import { Link } from "react-router-dom";
+import LiveEscrowPanel from "@/components/escrow/LiveEscrowPanel";
 
 export default function DiasporaEscrow() {
   const { t } = useLanguage();
@@ -93,6 +94,8 @@ export default function DiasporaEscrow() {
       </div>
 
       <Container className="py-10 space-y-8">
+        <LiveEscrowPanel />
+
         {actionSuccess && (
           <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
