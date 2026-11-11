@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import Container from "@/components/ui/Container";
@@ -1451,6 +1452,8 @@ export default function BoqStudio() {
           </section>
         </div>
       )}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
     </Container>
   );
 }

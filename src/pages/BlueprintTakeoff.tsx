@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -941,6 +942,43 @@ export default function BlueprintTakeoff() {
               </Button>
               {handoffError && (
                 <p className="mt-2 text-xs text-destructive">{handoffError}</p>
+              )}
+              {handoff && (
+                <div className="mt-3">
+                  <ShareEstimateButton
+                    estimate={{
+                      kind: "Blueprint Takeoff",
+                      summaryLines: [
+                        {
+                          label: "Linear runs",
+                          value: `${handoff.linearRunsM.toFixed(2)} m`,
+                        },
+                        {
+                          label: "Plan areas",
+                          value: `${handoff.totalAreaM2.toFixed(2)} m²`,
+                        },
+                        {
+                          label: "Marks counted",
+                          value: String(handoff.totalCount),
+                        },
+                      ],
+                      lineItems: handoff.concreteSlabs.map((slab) => ({
+                        description: `Slab ${slab.markId} (${slab.lengthM.toFixed(2)} x ${slab.widthM.toFixed(2)} x ${slab.depthM} m)`,
+                        quantity: `${slab.result.concreteVolumeM3.toFixed(2)} m³, ${slab.result.volumeWithWasteM3.toFixed(2)} m³ with waste`,
+                      })),
+                      totals: [
+                        {
+                          label: "Cement to buy",
+                          value: `${handoff.concreteSlabs.reduce((sum, slab) => sum + slab.result.cementBagsToBuy, 0)} bags`,
+                          emphasized: true,
+                        },
+                      ],
+                      notes: handoff.notes,
+                      link: "/blueprint-takeoff",
+                    }}
+                    compact
+                  />
+                </div>
               )}
               {handoff && (
                 <div className="mt-3 space-y-2 text-xs">

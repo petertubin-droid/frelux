@@ -7,6 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import AdSlot from "@/components/ui/AdSlot";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import type { CustomerLocation } from "@/lib/estimation/painting-engine";
@@ -2435,6 +2436,8 @@ function EstimateResult({
           </div>
 
           <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
+          <AdSlot slotKey="calculator_mid" className="mt-8" />
+          <AdSlot slotKey="calculator_native" className="mt-8" />
           <ReportCalculationIssue
             calculatorType="painting"
             userInput={{

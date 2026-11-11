@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
@@ -742,6 +743,8 @@ export default function PopCeilingCostEstimator({
                     </div>
                   )}
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                  <AdSlot slotKey="calculator_mid" className="mt-8" />
+                  <AdSlot slotKey="calculator_native" className="mt-8" />
                   <ReportCalculationIssue
                     calculatorType="pop_ceiling_cost"
                     userInput={{

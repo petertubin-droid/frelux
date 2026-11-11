@@ -3,6 +3,7 @@
 // Deterministic high-rise screening page
 // =========================================================
 
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "@/lib/seo";
@@ -348,6 +349,49 @@ export default function TallBuildingCalculator() {
       />
 
       <div className="flex flex-wrap gap-3">
+        <ShareEstimateButton
+          estimate={{
+            kind: "High Rise Screening",
+            title: params.project_name || "High rise screening",
+            summaryLines: [
+              { label: "Storeys", value: String(params.floors) },
+              {
+                label: "Height above ground",
+                value: `${geometry.total_height_m.toFixed(1)} m`,
+              },
+              {
+                label: "Gravity load",
+                value: `${gravity.total_gravity_load_mn.toFixed(1)} MN`,
+              },
+              {
+                label: "Occupants",
+                value: String(architecture.totalOccupants),
+              },
+            ],
+            lineItems: [
+              {
+                description: "Total concrete",
+                quantity: `${quantities.total_concrete_m3.toFixed(1)} m³`,
+              },
+              {
+                description: "Reinforcement",
+                quantity: `${quantities.total_rebar_tonnes.toFixed(1)} t`,
+              },
+            ],
+            totals: [
+              {
+                label: "Programme",
+                value: `${schedule.total_days} days`,
+                emphasized: true,
+              },
+            ],
+            notes: [
+              "Screening calculation against published relationships, not a structural design.",
+            ],
+            link: "/tall-building-calculator",
+          }}
+          compact
+        />
         <Button
           onClick={downloadCsv}
           variant="outline"

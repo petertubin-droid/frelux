@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
@@ -108,7 +109,14 @@ function tileQuoteOptions(
     subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
     metaRows: [
       ["Gross surface area", `${formatNumber(result.surfaceArea)} m²`],
-      ...(result.openingArea > 0 ? [["Opening deductions", `−${formatNumber(result.openingArea)} m²`] as [string, string]] : []),
+      ...(result.openingArea > 0
+        ? [
+            [
+              "Opening deductions",
+              `−${formatNumber(result.openingArea)} m²`,
+            ] as [string, string],
+          ]
+        : []),
       ["Net tiled area", `${formatNumber(result.netSurfaceArea)} m²`],
       ["Tiles needed", String(result.tilesNeeded)],
       ["Boxes needed", String(result.boxesNeeded)],
@@ -369,9 +377,18 @@ export default function TileCostEstimator({
 
   function compute() {
     if (input.surfaceType === "wall") {
-      const grossArea = input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1));
-      if (!Number.isFinite(input.openingArea ?? 0) || (input.openingArea ?? 0) < 0 || (input.openingArea ?? 0) > grossArea) {
-        setOpeningError("Opening area must be between 0 and the total gross wall area.");
+      const grossArea =
+        input.length *
+        input.height *
+        Math.max(1, Math.round(input.quantity ?? 1));
+      if (
+        !Number.isFinite(input.openingArea ?? 0) ||
+        (input.openingArea ?? 0) < 0 ||
+        (input.openingArea ?? 0) > grossArea
+      ) {
+        setOpeningError(
+          "Opening area must be between 0 and the total gross wall area.",
+        );
         return;
       }
     }
@@ -383,7 +400,10 @@ export default function TileCostEstimator({
         currencySymbol,
       ),
     );
-    const labourCost = calculateLabourCost(labourConfig, rawResult.netSurfaceArea);
+    const labourCost = calculateLabourCost(
+      labourConfig,
+      rawResult.netSurfaceArea,
+    );
     const r: TileCalcResult = {
       ...rawResult,
       labourCost,
@@ -598,21 +618,39 @@ export default function TileCostEstimator({
                     <input
                       type="number"
                       min={0}
-                      max={input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1))}
+                      max={
+                        input.length *
+                        input.height *
+                        Math.max(1, Math.round(input.quantity ?? 1))
+                      }
                       step="0.01"
                       value={input.openingArea ?? 0}
                       aria-invalid={Boolean(openingError)}
-                      aria-describedby={openingError ? "tile-opening-error" : undefined}
-                      onChange={(e) => update(
-                        "openingArea",
-                        Math.min(
-                          input.length * input.height * Math.max(1, Math.round(input.quantity ?? 1)),
-                          Math.max(0, Number(e.target.value) || 0),
-                        ),
-                      )}
+                      aria-describedby={
+                        openingError ? "tile-opening-error" : undefined
+                      }
+                      onChange={(e) =>
+                        update(
+                          "openingArea",
+                          Math.min(
+                            input.length *
+                              input.height *
+                              Math.max(1, Math.round(input.quantity ?? 1)),
+                            Math.max(0, Number(e.target.value) || 0),
+                          ),
+                        )
+                      }
                       className="input-field dark:bg-card dark:border-white/10"
                     />
-                    {openingError && <span id="tile-opening-error" role="alert" className="mt-1 block text-xs text-destructive">{openingError}</span>}
+                    {openingError && (
+                      <span
+                        id="tile-opening-error"
+                        role="alert"
+                        className="mt-1 block text-xs text-destructive"
+                      >
+                        {openingError}
+                      </span>
+                    )}
                   </Field>
                 )}
               </div>
@@ -795,9 +833,20 @@ export default function TileCostEstimator({
                 )}
                 {result ? (
                   <>
-                    <Row label="Gross surface area" value={`${formatNumber(result.surfaceArea)} m²`} />
-                    {result.openingArea > 0 && <Row label="Opening deductions" value={`−${formatNumber(result.openingArea)} m²`} />}
-                    <Row label="Net tiled area" value={`${formatNumber(result.netSurfaceArea)} m²`} />
+                    <Row
+                      label="Gross surface area"
+                      value={`${formatNumber(result.surfaceArea)} m²`}
+                    />
+                    {result.openingArea > 0 && (
+                      <Row
+                        label="Opening deductions"
+                        value={`−${formatNumber(result.openingArea)} m²`}
+                      />
+                    )}
+                    <Row
+                      label="Net tiled area"
+                      value={`${formatNumber(result.netSurfaceArea)} m²`}
+                    />
                     <Row label="Tiles needed" value={`${result.tilesNeeded}`} />
                     <Row label="Boxes needed" value={`${result.boxesNeeded}`} />
                     <Row
@@ -991,8 +1040,18 @@ export default function TileCostEstimator({
                               description: "Gross surface area",
                               value: `${formatNumber(result.surfaceArea)} m²`,
                             },
-                            ...(result.openingArea > 0 ? [{ description: "Opening deductions", value: `${formatNumber(result.openingArea)} m²` }] : []),
-                            { description: "Net tiled area", value: `${formatNumber(result.netSurfaceArea)} m²` },
+                            ...(result.openingArea > 0
+                              ? [
+                                  {
+                                    description: "Opening deductions",
+                                    value: `${formatNumber(result.openingArea)} m²`,
+                                  },
+                                ]
+                              : []),
+                            {
+                              description: "Net tiled area",
+                              value: `${formatNumber(result.netSurfaceArea)} m²`,
+                            },
                             {
                               description: "Tiles needed",
                               value: String(result.tilesNeeded),
@@ -1090,6 +1149,8 @@ export default function TileCostEstimator({
               {result && (
                 <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                  <AdSlot slotKey="calculator_mid" className="mt-8" />
+                  <AdSlot slotKey="calculator_native" className="mt-8" />
                   <ReportCalculationIssue
                     calculatorType="tile_cost"
                     userInput={{

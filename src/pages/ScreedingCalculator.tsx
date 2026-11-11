@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, useRef } from "react";
 import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
@@ -461,6 +462,8 @@ export default function ScreedingCalculator({
       </div>
 
       <div className="mx-auto max-w-3xl px-4 pb-10 sm:px-6">
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+
         <HowCalculatedSection methodologyText="Screeding area is calculated by measuring the room length, width, and wall height, normalising to metres using exact conversion factors (1 ft = 0.3048 m), computing wall area as perimeter × height (where perimeter = 2 × (length + width)), and subtracting door and window openings. The final result is in m²." />
         <EstimateDisclaimer />
         <ReportCalculationIssue calculatorType="screeding-calculator" />

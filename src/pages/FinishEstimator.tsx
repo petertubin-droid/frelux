@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -932,6 +933,8 @@ export default function FinishEstimator({
               ]}
             />
             <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+            <AdSlot slotKey="calculator_mid" className="mt-8" />
+            <AdSlot slotKey="calculator_native" className="mt-8" />
             <ReportCalculationIssue
               calculatorType="finish"
               userInput={{

@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { useSeo } from "@/lib/seo";
@@ -691,6 +692,8 @@ export default function WaterTowerEstimator() {
             </Card>
           </div>
         </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
     </div>
   );

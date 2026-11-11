@@ -1,3 +1,4 @@
+import AdSlot from "@/components/ui/AdSlot";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -715,6 +716,8 @@ export default function GlobalSiteSafetyEstimator() {
             </a>
           </CardContent>
         </Card>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
         <RelatedTools
           links={[
             CALC_LINKS.buildToRoof,
