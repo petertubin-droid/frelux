@@ -56,6 +56,15 @@ describe("buildBoqPdf", () => {
     expect(bytes.byteLength).toBeGreaterThan(2000);
   });
 
+  it("stamps the FRELUX mark on the PDF it produces", async () => {
+    const compiled = compileBoq(doc());
+    const pdf = await buildBoqPdf(compiled.standard, compiled.document);
+    const raw = Buffer.from(pdf.output("arraybuffer")).toString("latin1");
+    // An image XObject is the logo; a text-only header would leave none.
+    expect(/\/Subtype\s*\/Image/.test(raw)).toBe(true);
+    expect(raw).toContain("FRELUX");
+  });
+
   it("states the preliminary status when no reviewer is named", async () => {
     const compiled = compileBoq(doc());
     const pdf = await buildBoqPdf(compiled.standard, compiled.document);

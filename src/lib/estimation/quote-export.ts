@@ -87,6 +87,7 @@ export function exportQuoteToDocumentStudio(
  */
 
 import type { ResolvedBranding } from "@/lib/brand-studio";
+import { SITE_URL } from "@/lib/seo";
 
 export interface QuoteLine {
   label: string;
@@ -297,6 +298,22 @@ function getBaseStyles(primaryColor: string, accentColor: string): string {
     margin-top: 6px;
   }
   .footer-brand strong { color: ${primaryColor}; }
+  .brand-mark {
+    height: 32px;
+    width: auto;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .pdf-watermark--mark {
+    transform: translate(-50%, -50%);
+  }
+  .pdf-watermark--mark img {
+    width: 60vw;
+    max-width: 560px;
+    height: auto;
+    display: block;
+    opacity: 1;
+  }
   .pdf-watermark {
     position: absolute;
     top: 50%;
@@ -314,6 +331,7 @@ function getBaseStyles(primaryColor: string, accentColor: string): string {
   }
   @media print {
     body { background: #ffffff; padding: 0; margin: 0; }
+    .brand-mark { height: 26px; }
     .invoice {
       box-shadow: none;
       border: none;
@@ -434,9 +452,15 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
     opts.footer ??
     "Estimates are indicative and not a formal quote. Unpriced items are reported, never invented.";
 
-  const watermarkHtml = showWatermark
-    ? `<div class="pdf-watermark">${escapeHtml(watermarkText)}</div>`
-    : "";
+  const logoSource = opts.branding?.logoUrl || `${SITE_URL}/logo-mark.png`;
+  const brandMarkHtml = `<img class="brand-mark" src="${escapeHtml(logoSource)}" alt="${escapeHtml(brandName)}" onerror="this.remove()" />`;
+  // A document with no brand logo of its own gets the FRELUX mark as the faint
+  // background; a branded one keeps its wordmark watermark.
+  const watermarkHtml = !showWatermark
+    ? ""
+    : opts.branding?.logoUrl
+      ? `<div class="pdf-watermark">${escapeHtml(watermarkText)}</div>`
+      : `<div class="pdf-watermark pdf-watermark--mark"><img src="${escapeHtml(logoSource)}" alt="" onerror="this.remove()" /></div>`;
 
   return `<!doctype html><html><head><meta charset="utf-8">
     <title>${escapeHtml(opts.title)} - ${escapeHtml(brandName)}</title>
@@ -445,6 +469,7 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
       ${watermarkHtml}
       <div class="header">
         <div class="company">
+          ${brandMarkHtml}
           <div class="company-name">${escapeHtml(brandName)}</div>
           <div class="company-tagline">${escapeHtml(tagline)}</div>
           <div class="company-info">Smart Construction Estimation &amp; Quantity Surveying</div>

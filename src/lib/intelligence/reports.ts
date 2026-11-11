@@ -13,6 +13,7 @@
 import { formatByCode } from "@/lib/international/currency-format";
 import type { IntelligenceSnapshot } from "./types";
 import { safeFilename, workbookBlob, type Sheet, type SheetCell } from "./xlsx";
+import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 
 export type ReportType =
   | "project_cost"
@@ -393,6 +394,7 @@ export async function downloadReportPdf(
   const contentWidth = pageWidth - margin * 2;
 
   const drawHeader = (subtitle: string) => {
+    drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
     doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
     doc.rect(0, 0, pageWidth, 22, "F");
     doc.setTextColor(255, 255, 255);
@@ -402,7 +404,16 @@ export async function downloadReportPdf(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.text(table.title, margin, 16);
-    doc.text(scopeLabel, pageWidth - margin, 16, { align: "right" });
+    const mark = drawFreluxMark(doc, {
+      pageWidth,
+      margin,
+      heightMm: 8,
+      top: 5,
+      plate: true,
+    });
+    doc.text(scopeLabel, pageWidth - margin - (mark ? mark.width + 6 : 0), 16, {
+      align: "right",
+    });
     doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
     doc.setFontSize(7.5);
     const note = doc.splitTextToSize(subtitle, contentWidth) as string[];

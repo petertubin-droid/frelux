@@ -21,6 +21,7 @@ import {
   applyJspdfHeader,
   applyJspdfFooter,
 } from "@/lib/pdf-branding";
+import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import { saveSealedPdf } from "@/lib/pdf-seal";
 
 const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
@@ -51,10 +52,15 @@ export async function generateQuotationPDF(
   const margin = 15;
   let y = margin;
 
-  // ─── WATERMARK (branding layer) ───
-  if (branding?.watermark?.enabled) {
-    applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-  }
+  // ─── WATERMARK (branding layer, FRELUX mark by default) ───
+  const paintWatermark = () => {
+    if (branding?.watermark?.enabled) {
+      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
+    } else {
+      drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
+    }
+  };
+  paintWatermark();
 
   // ─── HEADER ───
   if (branding) {
@@ -88,6 +94,10 @@ export async function generateQuotationPDF(
       } catch {
         // Logo may fail to load, skip
       }
+    }
+
+    if (!quotation.company_logo_url) {
+      drawFreluxMark(doc, { pageWidth, margin, heightMm: 9, top: 6 });
     }
 
     y += 12;
@@ -264,6 +274,7 @@ export async function generateQuotationPDF(
   // ─── PAYMENT & VALIDITY ───
   if (y > pageHeight - 60) {
     doc.addPage();
+    paintWatermark();
     y = margin;
   }
 
@@ -351,10 +362,15 @@ export async function generateShoppingListPDF(
   const margin = 15;
   let y = margin;
 
-  // ─── WATERMARK (branding layer) ───
-  if (branding?.watermark?.enabled) {
-    applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-  }
+  // ─── WATERMARK (branding layer, FRELUX mark by default) ───
+  const paintWatermark = () => {
+    if (branding?.watermark?.enabled) {
+      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
+    } else {
+      drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
+    }
+  };
+  paintWatermark();
 
   // ─── HEADER ───
   if (branding) {
@@ -366,6 +382,10 @@ export async function generateShoppingListPDF(
       margin,
       y,
     );
+  }
+
+  if (!branding?.logoUrl) {
+    drawFreluxMark(doc, { pageWidth, margin, heightMm: 9, top: 6 });
   }
 
   doc.setFontSize(20);
@@ -428,6 +448,7 @@ export async function generateShoppingListPDF(
     for (const item of categoryItems) {
       if (y > 280) {
         doc.addPage();
+        paintWatermark();
         y = margin;
       }
 
@@ -462,6 +483,7 @@ export async function generateShoppingListPDF(
     // Category subtotal
     if (y > 280) {
       doc.addPage();
+      paintWatermark();
       y = margin;
     }
     doc.setFont("helvetica", "bold");

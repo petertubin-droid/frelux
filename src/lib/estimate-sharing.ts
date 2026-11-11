@@ -30,6 +30,7 @@ import {
   applyJspdfHeader,
   applyJspdfFooter,
 } from "@/lib/pdf-branding";
+import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import { saveSealedPdf, sealPdf } from "@/lib/pdf-seal";
 
 // ─────────────────────────────────────────────
@@ -201,8 +202,18 @@ export async function buildEstimatePdfDoc(
     );
   };
 
-  applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
+  const paintWatermark = () => {
+    if (branding.watermark.enabled) {
+      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
+    } else {
+      drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
+    }
+  };
+  paintWatermark();
   let y = applyJspdfHeader(doc, branding, null, pageWidth, margin, 10);
+  if (!branding.logoUrl) {
+    drawFreluxMark(doc, { pageWidth, margin, heightMm: 9, top: 4 });
+  }
 
   // ── Title block ──
   ink(24, 24, 27);
@@ -252,6 +263,7 @@ export async function buildEstimatePdfDoc(
       if (y > pageHeight - 60) {
         applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
         doc.addPage();
+        paintWatermark();
         applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
         y = 20;
       }
@@ -270,6 +282,7 @@ export async function buildEstimatePdfDoc(
     if (y > pageHeight - 70) {
       applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
       doc.addPage();
+      paintWatermark();
       applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
       y = 20;
     }
@@ -284,6 +297,7 @@ export async function buildEstimatePdfDoc(
       if (y > pageHeight - 45) {
         applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
         doc.addPage();
+        paintWatermark();
         applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
         y = 20;
       }
@@ -315,6 +329,7 @@ export async function buildEstimatePdfDoc(
     if (y > pageHeight - 70) {
       applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
       doc.addPage();
+      paintWatermark();
       applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
       y = 20;
     }
@@ -344,6 +359,7 @@ export async function buildEstimatePdfDoc(
   if (y > pageHeight - 60) {
     applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
     doc.addPage();
+    paintWatermark();
     applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
     y = 20;
   }

@@ -12,6 +12,7 @@ import { formatByCode } from "@/lib/international/currency-format";
 import type { StandardBoqDocument } from "@/lib/finance/boq-standard";
 import { documentStatusLabel } from "./compile";
 import { saveSealedPdf } from "@/lib/pdf-seal";
+import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import type { BoqStudioDocument } from "./types";
 
 const BRAND = { r: 15, g: 23, b: 42 };
@@ -55,6 +56,8 @@ export async function buildBoqPdf(
   let y = margin;
 
   const drawHeader = () => {
+    // Faint mark first, so it always sits under the table content.
+    drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
     doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
     doc.rect(0, 0, pageWidth, 18, "F");
     doc.setTextColor(255, 255, 255);
@@ -68,9 +71,16 @@ export async function buildBoqPdf(
       margin + 26,
       11,
     );
+    const mark = drawFreluxMark(doc, {
+      pageWidth,
+      margin,
+      heightMm: 7.5,
+      top: 5.2,
+      plate: true,
+    });
     doc.text(
       `${studio.reference || "No reference"}  ·  R${studio.revision}`,
-      pageWidth - margin,
+      pageWidth - margin - (mark ? mark.width + 6 : 0),
       11,
       {
         align: "right",

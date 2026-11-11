@@ -50,6 +50,32 @@ describe("buildQuoteHtml", () => {
     expect(html).toContain("#1E40AF");
   });
 
+  it("prints the FRELUX mark in the header and as the background", () => {
+    const html = buildQuoteHtml(opts);
+    expect(html).toContain('class="brand-mark"');
+    expect(html).toContain("/logo-mark.png");
+    expect(html).toContain("pdf-watermark--mark");
+    // The mark sits under the content: the watermark div opens the invoice body.
+    expect(html.indexOf("pdf-watermark--mark")).toBeLessThan(
+      html.indexOf("Generator 10 kVA"),
+    );
+  });
+
+  it("keeps a branded document's own logo in the header", () => {
+    const html = buildQuoteHtml({
+      ...opts,
+      branding: {
+        brandName: "Apex Builders Ltd",
+        logoUrl: "https://example.com/apex.png",
+      },
+    });
+    expect(html).toContain("https://example.com/apex.png");
+    expect(html).not.toContain(
+      '<div class="pdf-watermark pdf-watermark--mark">',
+    );
+    expect(html).toContain('<div class="pdf-watermark">');
+  });
+
   it("escapes HTML in user-provided values", () => {
     const html = buildQuoteHtml({
       ...opts,

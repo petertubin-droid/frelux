@@ -8,6 +8,7 @@
 
 import type { ResolvedBranding } from "@/lib/brand-studio";
 import type { PdfWatermarkConfig, PdfTemplateConfig } from "@/types/database";
+import { FRELUX_LOGO_ASPECT, FRELUX_LOGO_DATA_URL } from "@/lib/pdf-logo-data";
 
 // ───────────────────────────────────────────────────────
 // jsPDF helpers (for generateQuotationPDF / generateShoppingListPDF)
@@ -31,7 +32,11 @@ export function applyJspdfWatermark(
     // Calculate watermark dimensions
     const scale = Math.max(0.1, Math.min(1.0, wm.scale));
     const wmWidth = pageWidth * scale;
-    const wmHeight = wmWidth * 0.4; // logos are typically wider than tall
+    // The fallback mark is the FRELUX art, so its own proportion is used
+    // rather than a guess, or the watermark would print squashed.
+    const wmHeight = branding.logoUrl
+      ? wmWidth * 0.4
+      : wmWidth / FRELUX_LOGO_ASPECT;
 
     // Position
     let x = (pageWidth - wmWidth) / 2; // center default
@@ -47,13 +52,14 @@ export function applyJspdfWatermark(
       y = pageHeight - wmHeight - 20;
     }
 
-    if (branding.logoUrl) {
+    if (branding.logoUrl || FRELUX_LOGO_DATA_URL) {
+      const logoSrc = branding.logoUrl || FRELUX_LOGO_DATA_URL;
       // Try to add the logo as a faded background image
       try {
         doc.saveGraphicsState();
         doc.setGState(doc.GState({ opacity: wm.opacity }));
         doc.addImage(
-          branding.logoUrl,
+          logoSrc,
           "PNG",
           x,
           y,
@@ -158,16 +164,10 @@ export function applyJspdfHeader(
   } else {
     // logo-right (default)
     doc.text(branding.brandName, margin, y + 5);
-    if (branding.logoUrl) {
+    if (branding.logoUrl || FRELUX_LOGO_DATA_URL) {
+      const logoSrc = branding.logoUrl || FRELUX_LOGO_DATA_URL;
       try {
-        doc.addImage(
-          branding.logoUrl,
-          "PNG",
-          pageWidth - margin - 30,
-          y,
-          30,
-          15,
-        );
+        doc.addImage(logoSrc, "PNG", pageWidth - margin - 30, y, 30, 15);
       } catch {
         /* skip */
       }
