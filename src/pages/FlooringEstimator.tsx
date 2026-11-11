@@ -28,6 +28,12 @@ import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
+import {
+  convertArea,
+  convertLength,
+  type AreaUnit,
+  type LengthUnit,
+} from "@/lib/convert/units";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import {
@@ -102,7 +108,21 @@ export default function FlooringEstimator() {
     { name: "Flooring Estimator", path: "/flooring" },
   ]);
   const { user } = useAuth();
-  const { marketCode, market } = useMarket();
+  const {
+    marketCode,
+    market,
+    preferredAreaUnit,
+    preferredLengthUnit,
+    setAreaUnit,
+    setLengthUnit,
+  } = useMarket();
+  const areaUnit: AreaUnit = preferredAreaUnit === "sqft" ? "ft2" : "m2";
+  const lengthUnit: LengthUnit =
+    preferredLengthUnit === "feet" || preferredLengthUnit === "ft" ? "ft" : "m";
+  const areaLabel = areaUnit === "ft2" ? "ft²" : "m²";
+  const lengthLabel = lengthUnit === "ft" ? "ft" : "m";
+  /** Money per square metre, whichever area unit the visitor is typing in. */
+  const rateFactor = convertArea(1, "m2", areaUnit);
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
 
@@ -175,17 +195,23 @@ export default function FlooringEstimator() {
       const n = Number(trimmed);
       return Number.isFinite(n) ? n : Number.NaN;
     };
+    const area = run(areaInput);
+    const skirting = run(skirtingInput);
+    const rate = run(labourRate);
     return {
       flooring_type: floorType,
-      floor_area_m2: run(areaInput),
-      skirting_run_m: run(skirtingInput),
+      floor_area_m2: area === null ? null : convertArea(area, areaUnit, "m2"),
+      skirting_run_m:
+        skirting === null ? null : convertLength(skirting, lengthUnit, "m"),
       include_underlay: includeUnderlay,
       include_adhesive: includeAdhesive,
       labour: {
         mode: labourMode,
         per_m2_rate:
-          labourMode === "per_m2" ? Number(labourRate) || null : null,
-        lump_sum: labourMode === "lump_sum" ? Number(labourRate) || null : null,
+          labourMode === "per_m2" && rate !== null && Number.isFinite(rate)
+            ? rate * rateFactor
+            : null,
+        lump_sum: labourMode === "lump_sum" ? rate : null,
       },
     };
   }, [
@@ -196,6 +222,9 @@ export default function FlooringEstimator() {
     includeAdhesive,
     labourMode,
     labourRate,
+    areaUnit,
+    lengthUnit,
+    rateFactor,
   ]);
 
   const run = useCallback(() => {
@@ -408,6 +437,32 @@ export default function FlooringEstimator() {
     </label>
   );
 
+  /**
+   * Switching a unit converts the typed figure, so a measurement never
+   * silently changes meaning between m² and ft².
+   */
+  const switchAreaUnit = (next: AreaUnit) => {
+    if (next === areaUnit) return;
+    const value = Number(areaInput);
+    if (Number.isFinite(value) && value > 0) {
+      setAreaInput(
+        String(Math.round(convertArea(value, areaUnit, next) * 100) / 100),
+      );
+    }
+    void setAreaUnit(next);
+  };
+
+  const switchLengthUnit = (next: LengthUnit) => {
+    if (next === lengthUnit) return;
+    const value = Number(skirtingInput);
+    if (Number.isFinite(value) && value > 0) {
+      setSkirtingInput(
+        String(Math.round(convertLength(value, lengthUnit, next) * 100) / 100),
+      );
+    }
+    void setLengthUnit(next === "ft" ? "feet" : "meters");
+  };
+
   return (
     <Container>
       <MarketScopeNotice />
@@ -449,11 +504,20 @@ export default function FlooringEstimator() {
             surface="floor"
             onChange={(areaM2, totals) => {
               setAreaInput(
-                areaM2 > 0 ? String(Math.round(areaM2 * 100) / 100) : "",
+                areaM2 > 0
+                  ? String(
+                      Math.round(convertArea(areaM2, "m2", areaUnit) * 100) /
+                        100,
+                    )
+                  : "",
               );
               setSkirtingInput(
                 totals && totals.perimeterM > 0
-                  ? String(Math.round(totals.perimeterM * 100) / 100)
+                  ? String(
+                      Math.round(
+                        convertLength(totals.perimeterM, "m", lengthUnit) * 100,
+                      ) / 100,
+                    )
                   : "",
               );
               setResult(null);
@@ -481,9 +545,40 @@ export default function FlooringEstimator() {
             ))}
           </select>
         </label>
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">{t("Units")}</span>
+          <div className="inline-flex overflow-hidden rounded-md border border-input">
+            {(["m2", "ft2"] as const).map((unit) => (
+              <button
+                key={unit}
+                type="button"
+                aria-pressed={areaUnit === unit}
+                aria-label={`Area in ${unit === "ft2" ? "ft²" : "m²"}`}
+                onClick={() => switchAreaUnit(unit)}
+                className={`px-2.5 py-1.5 ${areaUnit === unit ? "bg-primary font-semibold text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
+                {unit === "ft2" ? "ft²" : "m²"}
+              </button>
+            ))}
+          </div>
+          <div className="inline-flex overflow-hidden rounded-md border border-input">
+            {(["m", "ft"] as const).map((unit) => (
+              <button
+                key={unit}
+                type="button"
+                aria-pressed={lengthUnit === unit}
+                aria-label={`Length in ${unit === "ft" ? "ft" : "m"}`}
+                onClick={() => switchLengthUnit(unit)}
+                className={`px-2.5 py-1.5 ${lengthUnit === unit ? "bg-primary font-semibold text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
+                {unit === "ft" ? "ft" : "m"}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {numberInput(
-            "Floor area (m²)",
+            `Floor area (${areaLabel})`,
             areaInput,
             setAreaInput,
             "0",
@@ -491,7 +586,7 @@ export default function FlooringEstimator() {
             true,
           )}
           {numberInput(
-            "Skirting run: room perimeter (m)",
+            `Skirting run: room perimeter (${lengthLabel})`,
             skirtingInput,
             setSkirtingInput,
           )}
@@ -517,7 +612,11 @@ export default function FlooringEstimator() {
         <div className="mt-4">
           <WasteFactorControl
             material="flooring"
-            baseQuantity={Number(areaInput) > 0 ? Number(areaInput) : undefined}
+            baseQuantity={
+              Number(areaInput) > 0
+                ? convertArea(Number(areaInput), areaUnit, "m2")
+                : undefined
+            }
             unit="m²"
             packageSize={calcRules.laminate_pack_coverage_m2 ?? null}
             compact
@@ -536,14 +635,14 @@ export default function FlooringEstimator() {
               className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
             >
               <option value="none">{t("Not included")}</option>
-              <option value="per_m2">Per m² treated (rate)</option>
+              <option value="per_m2">{`Per ${areaLabel} treated (rate)`}</option>
               <option value="lump_sum">{t("Lump sum")}</option>
             </select>
           </label>
           {labourMode !== "none" &&
             numberInput(
               labourMode === "per_m2"
-                ? `Rate per m² (${currencySymbol})`
+                ? `Rate per ${areaLabel} (${currencySymbol})`
                 : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,

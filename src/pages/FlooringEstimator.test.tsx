@@ -43,6 +43,11 @@ vi.mock("@/components/estimation/RecommendedProducts", () => ({
 vi.mock("@/components/prices/PriceFreshnessNotice", () => ({
   default: () => null,
 }));
+const marketState = vi.hoisted(() => ({
+  area: "sqm" as "sqm" | "sqft",
+  length: "meters" as "meters" | "feet",
+}));
+
 vi.mock("@/lib/international/market-context", () => ({
   useMarket: () => ({
     market: {
@@ -51,8 +56,16 @@ vi.mock("@/lib/international/market-context", () => ({
       currencySymbol: "₦",
       countryName: "Nigeria",
     },
-    preferredLengthUnit: "meters",
-    preferredAreaUnit: "sqm",
+    preferredLengthUnit: marketState.length,
+    preferredAreaUnit: marketState.area,
+    setAreaUnit: (unit: "sqm" | "sqft") => {
+      marketState.area = unit;
+      return Promise.resolve();
+    },
+    setLengthUnit: (unit: "meters" | "feet") => {
+      marketState.length = unit;
+      return Promise.resolve();
+    },
   }),
 }));
 vi.mock("@/lib/international/currency-context", () => ({
@@ -65,6 +78,8 @@ vi.mock("@/lib/international/currency-context", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  marketState.area = "sqm";
+  marketState.length = "meters";
 });
 
 describe("FlooringEstimator", () => {
@@ -107,5 +122,39 @@ describe("FlooringEstimator", () => {
       (screen.getByLabelText(/skirting run/i) as HTMLInputElement).value,
     ).toBe("");
     expect(screen.queryAllByLabelText(/identical rooms/i)).toHaveLength(0);
+  });
+
+  it("asks a feet market for square feet and converts the template into them", async () => {
+    marketState.area = "sqft";
+    marketState.length = "feet";
+    const { default: Page } = await import("@/pages/FlooringEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText(/floor area \(ft²\)/i)).toBeTruthy();
+    expect(screen.getByLabelText(/room perimeter \(ft\)/i)).toBeTruthy();
+
+    const picker = screen.getByLabelText(/building type/i) as HTMLSelectElement;
+    const option = Array.from(picker.options).find(
+      (item) => item.value && item.value !== "custom",
+    );
+    fireEvent.change(picker, { target: { value: option!.value } });
+
+    expect(
+      (await screen.findAllByLabelText(/identical rooms/i)).length,
+    ).toBeGreaterThan(0);
+    const feetArea = Number(
+      (screen.getByLabelText(/floor area/i) as HTMLInputElement).value,
+    );
+    expect(feetArea).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /area in m²/i }));
+    const metresArea = Number(
+      (screen.getByLabelText(/floor area/i) as HTMLInputElement).value,
+    );
+    expect(metresArea).toBeCloseTo(feetArea / 10.7639, 1);
   });
 });
