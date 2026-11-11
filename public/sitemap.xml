@@ -105,6 +105,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://freluxtools.com/roadmap/</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freluxtools.com/faq/</loc>
     <lastmod>2026-11-10</lastmod>
     <changefreq>monthly</changefreq>
@@ -983,6 +989,12 @@
   <url>
     <loc>https://freluxtools.com/blueprint-takeoff/</loc>
     <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/planning-approvals/</loc>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

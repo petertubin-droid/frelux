@@ -50,6 +50,49 @@ describe("Roadmap page", () => {
     ).toHaveAttribute("href", "/feedback");
   });
 
+  it("separates shipped work from work that has not been built", async () => {
+    renderRoadmap();
+    expect(
+      await screen.findByRole("heading", { name: "Live now" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Building" }),
+    ).toBeInTheDocument();
+    // Shipped engineering wins are named, and only where they exist.
+    expect(
+      screen.getByRole("heading", {
+        name: "Vector PDF, DXF and scale-checked takeoff",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Structural engine suite" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "Nigerian building code and NIS 444-1 reference",
+      }),
+    ).toBeInTheDocument();
+    // Accounting export has no code behind it yet, so it must not read as live.
+    const accounting = screen.getByRole("heading", {
+      name: "QuickBooks and Xero accounting export",
+    });
+    expect(accounting.closest("article")).toHaveTextContent("Planned");
+    expect(accounting.closest("article")).toHaveTextContent(
+      "does not exist yet",
+    );
+  });
+
+  it("states no promised release date anywhere on the page", async () => {
+    const { container } = renderRoadmap();
+    await screen.findByRole("heading", { name: "Live now" });
+    const text = container.textContent ?? "";
+    expect(text).toContain("not promised release dates");
+    // A quarter or a year target would be a promise this page cannot keep.
+    expect(text).not.toMatch(/Q[1-4]\s*20\d\d/);
+    expect(text).not.toMatch(/expected (in|by)\s+20\d\d/i);
+    expect(text).not.toMatch(/deliver(y|ed) (in|by)\s+20\d\d/i);
+  });
+
   it("filters roadmap cards by category and keeps the selected filter accessible", async () => {
     renderRoadmap();
     await screen.findByRole("heading", { name: "Reusable building schedules" });

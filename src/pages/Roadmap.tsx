@@ -2,13 +2,21 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  Blocks,
-  Calculator,
+  Banknote,
   BarChart3,
+  Blocks,
+  BookOpen,
+  Calculator,
   ClipboardCheck,
+  CloudOff,
   Database,
   FileStack,
   FlaskConical,
+  Gauge,
+  Layers,
+  Ruler,
+  ShieldCheck,
+  Truck,
   type LucideIcon,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -17,7 +25,8 @@ import { useMarket } from "@/lib/international/market-context";
 import { useBreadcrumbJsonLd, useSeo } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 
-type RoadmapStatus = "up-next" | "awaiting-evidence" | "exploring";
+type RoadmapStatus =
+  "live" | "building" | "up-next" | "awaiting-evidence" | "exploring";
 type RoadmapCategory =
   "calculators" | "project-workflow" | "market-data" | "experience";
 type Filter = "all" | RoadmapCategory;
@@ -28,6 +37,8 @@ interface RoadmapItem {
   description: string;
   category: RoadmapCategory;
   icon: LucideIcon;
+  /** Month the item went live. Only stated where it is known, never predicted. */
+  shipped?: string;
 }
 
 const FILTERS: { id: Filter; label: string }[] = [
@@ -45,6 +56,88 @@ const STATUS_SECTIONS: {
   items: RoadmapItem[];
 }[] = [
   {
+    id: "live",
+    title: "Live now",
+    description:
+      "Shipped and running on FreluxTools. Dates are the month a feature went live, never a target.",
+    items: [
+      {
+        id: "blueprint-takeoff",
+        title: "Vector PDF, DXF and scale-checked takeoff",
+        description:
+          "Read drawings you upload, calibrate the measured scale from the sheet's annotation or a known dimension, and refuse to measure a sheet that cannot be scaled instead of guessing.",
+        category: "project-workflow",
+        icon: Layers,
+      },
+      {
+        id: "structural-suite",
+        title: "Structural engine suite",
+        description:
+          "Beams, slabs, columns, retaining walls and foundations, sized against the governing codes with the market's standards inherited by each page.",
+        category: "calculators",
+        icon: ShieldCheck,
+      },
+      {
+        id: "nigerian-codes",
+        title: "Nigerian building code and NIS 444-1 reference",
+        description:
+          "Material grades, mix classes and code references available beside the estimators that depend on them, so a mix is traceable rather than assumed.",
+        category: "market-data",
+        icon: BookOpen,
+      },
+      {
+        id: "planning-guide",
+        title: "Planning approval and setback guide",
+        description:
+          "Issuing authority, governing instrument and approval route for 37 Nigerian jurisdictions and 31 international markets. A setback figure is only stated where a published source exists.",
+        category: "market-data",
+        icon: Ruler,
+        shipped: "November 2026",
+      },
+      {
+        id: "diaspora-escrow",
+        title: "Diaspora escrow and budget tracking",
+        description:
+          "Stage payments against a planned build, with the spend tracked against the budget you set rather than committed blind from abroad.",
+        category: "project-workflow",
+        icon: Banknote,
+      },
+      {
+        id: "share-and-export",
+        title: "WhatsApp share and branded PDF export",
+        description:
+          "Every calculator shares a readable summary on WhatsApp and exports a PDF carrying the FRELUX mark, with the assumptions and warnings included rather than trimmed away.",
+        category: "experience",
+        icon: FileStack,
+        shipped: "November 2026",
+      },
+    ],
+  },
+  {
+    id: "building",
+    title: "Building",
+    description:
+      "Actively in progress. Shipped in part, not yet complete across every market.",
+    items: [
+      {
+        id: "price-verification",
+        title: "Local retailer price verification",
+        description:
+          "Reading market prices from retailer catalogues in the market's own currency. A market is only labelled verified once enough local rows are captured; some retailer sites still refuse automated reading, and those markets say so.",
+        category: "market-data",
+        icon: Gauge,
+      },
+      {
+        id: "finish-coverage",
+        title: "Wider finish and material coverage",
+        description:
+          "Stucco and mineral stone estimation is live. Coverage is being extended with maker figures for more products, and a product with no public price returns quantity with an explicit cost-unavailable warning.",
+        category: "calculators",
+        icon: Calculator,
+      },
+    ],
+  },
+  {
     id: "up-next",
     title: "Up next",
     description:
@@ -57,6 +150,46 @@ const STATUS_SECTIONS: {
           "Enter room and opening measurements once, then reuse compatible quantities across relevant calculators while keeping each tool’s assumptions visible.",
         category: "project-workflow",
         icon: Blocks,
+      },
+      {
+        id: "accounting-exports",
+        title: "QuickBooks and Xero accounting export",
+        description:
+          "Export a BOQ in the formats accounting software imports. This does not exist yet: FRELUX today exports PDF and spreadsheets, and the accounting formats have to be built before they are offered.",
+        category: "project-workflow",
+        icon: Database,
+      },
+      {
+        id: "raster-measuring",
+        title: "Point-and-click measuring on raster plans",
+        description:
+          "Measure a scanned or photographed plan by clicking it. Vector PDF and DXF takeoff is live; a raster sheet still needs a known dimension entered by hand.",
+        category: "project-workflow",
+        icon: Calculator,
+      },
+      {
+        id: "supplier-stock-alerts",
+        title: "Supplier stock alerts",
+        description:
+          "Tell you when a priced material is listed as available near the project, once retailer catalogues carry reliable stock signals in your market.",
+        category: "market-data",
+        icon: Truck,
+      },
+      {
+        id: "setback-figures",
+        title: "Local setback and permit figures",
+        description:
+          "Extend the planning guide from published national figures and scheme-based guidance to reviewed local figures, state by state and authority by authority.",
+        category: "market-data",
+        icon: Ruler,
+      },
+      {
+        id: "offline-field-mode",
+        title: "Offline field mode",
+        description:
+          "Keep measuring and estimating on site with no signal, then sync the saved project when the device reconnects.",
+        category: "experience",
+        icon: CloudOff,
       },
       {
         id: "explainable-estimates",
@@ -133,6 +266,8 @@ const CATEGORY_LABELS: Record<RoadmapCategory, string> = {
 };
 
 const STATUS_STYLES: Record<RoadmapStatus, string> = {
+  live: "bg-emerald-100 text-emerald-900 dark:bg-emerald-300/15 dark:text-emerald-200",
+  building: "bg-sky-100 text-sky-900 dark:bg-sky-300/15 dark:text-sky-200",
   "up-next":
     "bg-amber-100 text-amber-900 dark:bg-amber-300/15 dark:text-amber-200",
   "awaiting-evidence":
@@ -142,9 +277,31 @@ const STATUS_STYLES: Record<RoadmapStatus, string> = {
 };
 
 const STATUS_LABELS: Record<RoadmapStatus, string> = {
-  "up-next": "Up next",
+  live: "Live",
+  building: "Building",
+  "up-next": "Planned",
   "awaiting-evidence": "Awaiting evidence",
   exploring: "Exploring",
+};
+
+const STATUS_DOTS: Record<RoadmapStatus, string> = {
+  live: "bg-emerald-500",
+  building: "bg-sky-500",
+  "up-next": "bg-amber-300",
+  "awaiting-evidence": "bg-orange-500",
+  exploring: "bg-slate-400",
+};
+
+const SECTION_SKINS: Record<RoadmapStatus, string> = {
+  live: "border-emerald-200/80 bg-emerald-50/60 dark:border-emerald-300/10 dark:bg-emerald-300/[0.035]",
+  building:
+    "border-sky-200/80 bg-sky-50/60 dark:border-sky-300/10 dark:bg-sky-300/[0.035]",
+  "up-next":
+    "border-amber-200/80 bg-amber-50/60 dark:border-amber-300/10 dark:bg-amber-300/[0.035]",
+  "awaiting-evidence":
+    "border-orange-200/70 bg-orange-50/40 dark:border-orange-300/10 dark:bg-orange-300/[0.025]",
+  exploring:
+    "border-border/60 bg-muted/30 dark:border-white/10 dark:bg-white/[0.015]",
 };
 
 function RoadmapCard({
@@ -173,10 +330,15 @@ function RoadmapCard({
       <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
         {item.description}
       </p>
-      <div className="mt-5 border-t border-border/60 pt-3 dark:border-white/10">
+      <div className="mt-5 flex items-center justify-between gap-2 border-t border-border/60 pt-3 dark:border-white/10">
         <span className="text-xs font-semibold text-muted-foreground">
           {CATEGORY_LABELS[item.category]}
         </span>
+        {item.shipped && (
+          <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            Shipped {item.shipped}
+          </span>
+        )}
       </div>
     </article>
   );
@@ -188,9 +350,9 @@ export default function Roadmap() {
   const [filter, setFilter] = useState<Filter>("all");
 
   useSeo({
-    title: "Product Roadmap: What’s Next | FRELUX",
+    title: "Live Feature and Release Tracker | FRELUX Roadmap",
     description:
-      "See FRELUX product priorities for calculators, project workflows, market data, and user experience, with clear distinctions between planned, pending-evidence, and exploratory work.",
+      "What FRELUX has shipped, what is being built now, and what is planned next for construction calculators, blueprint takeoff, structural engines, market data and project workflow. Shipped items carry the month they went live; planned items carry no promised date.",
     canonicalPath: "/roadmap",
     ogType: "website",
   });
@@ -215,10 +377,10 @@ export default function Roadmap() {
       <div className="relative overflow-hidden bg-background">
         <Container>
           <PageHeader
-            eyebrow={t("Product roadmap")}
+            eyebrow={t("Live feature and release tracker")}
             title={t("What’s next for FRELUX?")}
             subtitle={t(
-              "A clear view of planned priorities, pending evidence, and ideas under consideration.",
+              "What is live now, what is being built, and what is planned. Shipped work carries the month it went live; nothing below carries a promised release date.",
             )}
             variant="data"
             breadcrumbs={[
@@ -238,15 +400,9 @@ export default function Roadmap() {
             <span key={section.id} className="inline-flex items-center gap-2">
               <span
                 aria-hidden="true"
-                className={`h-3 w-3 rounded-full ${
-                  section.id === "up-next"
-                    ? "bg-amber-300"
-                    : section.id === "awaiting-evidence"
-                      ? "bg-orange-500"
-                      : "bg-slate-400"
-                }`}
+                className={`h-3 w-3 rounded-full ${STATUS_DOTS[section.id]}`}
               />
-              {t(section.title)}
+              {t(STATUS_LABELS[section.id])}
             </span>
           ))}
         </div>
@@ -281,26 +437,14 @@ export default function Roadmap() {
             <section
               key={section.id}
               aria-labelledby={`roadmap-${section.id}`}
-              className={`rounded-2xl border p-4 sm:p-5 ${
-                section.id === "up-next"
-                  ? "border-amber-200/80 bg-amber-50/60 dark:border-amber-300/10 dark:bg-amber-300/[0.035]"
-                  : section.id === "awaiting-evidence"
-                    ? "border-orange-200/70 bg-orange-50/40 dark:border-orange-300/10 dark:bg-orange-300/[0.025]"
-                    : "border-border/60 bg-muted/30 dark:border-white/10 dark:bg-white/[0.015]"
-              }`}
+              className={`rounded-2xl border p-4 sm:p-5 ${SECTION_SKINS[section.id]}`}
             >
               <div className="mb-4 flex flex-wrap items-start justify-between gap-3 px-1">
                 <div>
                   <div className="flex items-center gap-2.5">
                     <span
                       aria-hidden="true"
-                      className={`h-3.5 w-3.5 rounded-full ${
-                        section.id === "up-next"
-                          ? "bg-amber-300"
-                          : section.id === "awaiting-evidence"
-                            ? "bg-orange-500"
-                            : "bg-slate-400"
-                      }`}
+                      className={`h-3.5 w-3.5 rounded-full ${STATUS_DOTS[section.id]}`}
                     />
                     <h2
                       id={`roadmap-${section.id}`}

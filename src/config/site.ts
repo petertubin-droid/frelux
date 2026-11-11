@@ -91,8 +91,7 @@ export const navWorkspaces: NavWorkspace[] = [
       {
         label: "Explore Map",
         path: "/map",
-        description:
-          "Professionals, projects and material stock on a 3D globe",
+        description: "Professionals, projects and material stock on a 3D globe",
       },
     ],
   },
@@ -273,7 +272,7 @@ export const navWorkspaces: NavWorkspace[] = [
       {
         label: "Roadmap",
         path: "/roadmap",
-        description: "See what we are building and exploring",
+        description: "See what is live, building and planned",
       },
       {
         label: "About FRELUX",
