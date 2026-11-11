@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import AdSlot from "@/components/ui/AdSlot";
@@ -30,6 +31,11 @@ import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstall
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 
 export default function WaterTowerEstimator() {
+  const resetInputs = () => {
+    setTankVolume(5000);
+    setHeight(6);
+    setMaterial("steel");
+  };
   const [tankVolume, setTankVolume] = useState<number>(5000);
   const [height, setHeight] = useState<number>(6);
   const [material, setMaterial] = useState<"steel" | "concrete">("steel");
@@ -453,6 +459,7 @@ export default function WaterTowerEstimator() {
                 </Button>
               </CardHeader>
               <CardContent className="pt-4 space-y-3">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Overhead Tank Staging Takeoff",

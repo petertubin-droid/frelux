@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -135,6 +136,25 @@ const ROOM_PRESETS: {
 ];
 
 export default function WallpaperCalculator() {
+  const resetInputs = () => {
+    setWalls([{ ...INITIAL_WALL }]);
+    setRoll("standard");
+    setWasteRate(0);
+    setPatternRepeat(0);
+    setTrimAllowance(0.3);
+    setWallpaperType("nonwoven");
+    setInstallationMethod("pasted");
+    setVisualStyle("plain");
+    setCustomRollWidth(0.53);
+    setCustomRollLength(10);
+    setDoorWidth(1.0);
+    setDoorHeight(2.1);
+    setWindowWidth(1.25);
+    setWindowHeight(1.2);
+    setExtraRoll(false);
+    setUnitsPerPackage(1);
+    setAdhesivePerRolls(5);
+  };
   const { market, preferredLengthUnit, preferredAreaUnit } = useMarket();
   const [unit, setUnit] = useState<DisplayUnit>(
     preferredLengthUnit === "feet"
@@ -914,6 +934,7 @@ export default function WallpaperCalculator() {
                 )}
               </div>
               <div className="border-t border-border px-5 pb-5 sm:px-6">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: isPanelFormat

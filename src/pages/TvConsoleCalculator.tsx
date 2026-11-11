@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -118,6 +119,30 @@ const CONSOLE_FAQS = [
 ];
 
 export default function TvConsoleCalculator() {
+  const resetInputs = () => {
+    setWidth(1800);
+    setHeight(400);
+    setDepth(350);
+    setThickness(18);
+    setBackThickness(6);
+    setShelves(2);
+    setDividers(0);
+    setDrawers(0);
+    setDrawerFrontHeight(200);
+    setDoors(0);
+    setReveal(2);
+    setWaste(10);
+    setWorkshopRate("");
+    setFinishingRate("");
+    setTaxPercent("");
+    setWallPanelRate("");
+    setLedRate("");
+    setTvInches(65);
+    setWallTreatment("none");
+    setWallPanelHeight(0);
+    setMounting("floating");
+    setLedMetres(0);
+  };
   const marketCurrency = useCurrencyCode();
   const [selectedId, setSelectedId] = useState(TV_CONSOLE_TEMPLATES[0].id);
   const [width, setWidth] = useState(1800);
@@ -917,6 +942,10 @@ export default function TvConsoleCalculator() {
                   </div>
 
                   <div className="mt-3">
+                    <CalculatorResetButton
+                      onReset={resetInputs}
+                      className="mb-4"
+                    />
                     <ShareEstimateButton
                       estimate={{
                         kind: "TV Console Estimate",

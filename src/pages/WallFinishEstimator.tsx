@@ -12,6 +12,7 @@
  * never invented.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
@@ -157,6 +158,17 @@ function makeRoom(name: string, unit: RoomUnit = "meters"): DraftRoom {
 /* ── page ────────────────────────────────────────────────── */
 
 export default function WallFinishEstimator() {
+  // One default room again, in the market's own unit.
+  const resetInputs = () => {
+    setRooms([
+      makeRoom("Living room", resolveMarketRoomUnit(market, "meters")),
+    ]);
+    setBuildingType("residential");
+    setRegion("");
+    setContingency(10);
+    setEquipmentCost("");
+    setSaveNote(null);
+  };
   const { t } = useLanguage();
   useBreadcrumbJsonLd([
     { name: "Construction Tools", path: "/construction-tools" },
@@ -1189,6 +1201,7 @@ export default function WallFinishEstimator() {
                 >
                   {t("Export PDF")}
                 </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <QuoteShareButton
                   build={buildShareQuote}
                   kind="Wall Finishing Estimate"
