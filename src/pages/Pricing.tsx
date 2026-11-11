@@ -273,9 +273,9 @@ export default function Pricing() {
 
     if (!premiumLive) {
       toast({
-        title: "Coming Soon",
+        title: "Checkout unavailable",
         message:
-          "FRELUX Premium subscriptions are coming soon. We'll let you know as soon as they go live!",
+          "FRELUX Premium checkout is currently unavailable. Please contact support for current availability.",
       });
       return;
     }
@@ -466,13 +466,19 @@ export default function Pricing() {
               className="mx-auto h-8 w-8 text-brand-purple"
             />
             <h3 className="mt-3 text-lg font-bold text-foreground dark:text-primary-foreground">
-              {t("Premium Subscriptions, Coming Soon")}
+              {t("Premium subscriptions are currently unavailable")}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              We're putting the finishing touches on FRELUX Premium. Browse the
-              plans below to see what's coming, and check back shortly to
-              subscribe.
+              Checkout is not enabled right now. Contact support for current
+              availability; no subscription or waitlist request will be created
+              from this page.
             </p>
+            <Link
+              to="/contact?subject=Premium%20availability"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              {t("Contact support")}
+            </Link>
           </div>
         )}
 

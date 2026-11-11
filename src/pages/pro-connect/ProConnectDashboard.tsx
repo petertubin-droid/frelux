@@ -52,6 +52,7 @@ import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
+import { proConnectCountryName } from "@/pages/pro-connect/coverage";
 
 export default function ProConnectDashboard() {
   const { t } = useLanguage();
@@ -336,12 +337,22 @@ export default function ProConnectDashboard() {
           )}
 
           {/* Locations */}
-          {locations.length > 0 && (
+          {(locations.length > 0 || profile.service_area_text || profile.country) && (
             <div className="mt-3">
               <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 {t("Service Areas")}
               </p>
               <div className="flex flex-wrap gap-1.5">
+                {profile.service_area_text && (
+                  <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                    {profile.service_area_text}
+                  </span>
+                )}
+                {profile.country && (
+                  <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                    {proConnectCountryName(profile.country)}
+                  </span>
+                )}
                 {locations.map((l, i) => (
                   <span
                     key={i}

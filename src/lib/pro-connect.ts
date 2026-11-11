@@ -121,7 +121,7 @@ export async function getMyProProfile(
   const { data, error } = await supabase
     .from("pro_profiles")
     .select(
-      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+      "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
     )
     .eq("user_id", userId)
     .maybeSingle();
@@ -151,7 +151,7 @@ export async function getProProfileBySlug(
   const { data, error } = await supabase
     .from("pro_profiles")
     .select(
-      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+      "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -279,7 +279,7 @@ export async function searchProfessionals(
   let query = supabase
     .from("pro_profiles")
     .select(
-      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+      "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
       { count: "exact" },
     )
     .eq("is_listed", true)
@@ -405,7 +405,7 @@ export async function createProProfile(profile: {
       website_url: profile.website_url || null,
     })
     .select(
-      "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
+      "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
     )
     .single();
   if (error) {
@@ -467,10 +467,15 @@ export async function updateProfileLocations(
   locationIds: string[],
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  await supabase
+  const { error: deleteError } = await supabase
     .from("pro_profile_locations")
     .delete()
     .eq("profile_id", profileId);
+  if (deleteError) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] updateProfileLocations delete:", deleteError.message);
+    return false;
+  }
   if (locationIds.length > 0) {
     const inserts = locationIds.map((location_id) => ({
       profile_id: profileId,
@@ -606,7 +611,7 @@ export async function getOrCreateConversation(
   let query = supabase
     .from("pro_conversations")
     .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
     )
     .eq("customer_id", user.id)
     .eq("professional_id", professionalId);
@@ -628,7 +633,7 @@ export async function getOrCreateConversation(
       project_context: projectContext || null,
     })
     .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
     )
     .single();
   if (error) {
@@ -650,7 +655,7 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   const { data: asCustomer, error: err1 } = await supabase
     .from("pro_conversations")
     .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
     )
     .eq("customer_id", user.id)
     .order("last_message_at DESC", { nullsFirst: false });
@@ -667,7 +672,7 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
     const { data: proConvos } = await supabase
       .from("pro_conversations")
       .select(
-        "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+        "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
       )
       .eq("professional_id", (proProfile as { id: string }).id)
       .order("last_message_at DESC", { nullsFirst: false });

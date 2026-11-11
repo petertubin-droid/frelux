@@ -98,6 +98,9 @@ describe("UI accessibility gate", () => {
         // it is dismissed by Escape and by the dialog's own close button.
         const after = s.slice(div.start, div.start + 400);
         if (/fixed inset-0/.test(after)) continue;
+        // Pointer-only scrims are hidden from assistive technology; the modal
+        // that owns them provides Escape and an explicit close button.
+        if (/aria-hidden="true"/.test(div.text)) continue;
         // A handler that only stops propagation is not an interaction.
         if (/onClick=\{\(e\) => e\.stopPropagation\(\)\}/.test(div.text))
           continue;

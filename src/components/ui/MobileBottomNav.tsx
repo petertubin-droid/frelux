@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
               to={item.to}
               aria-current={active ? "page" : undefined}
               className={classNames(
-                "relative flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg py-0.5 text-[9.5px] font-semibold leading-none transition-colors",
+                "relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-0.5 py-1 text-[11px] font-semibold leading-tight transition-colors",
                 active
                   ? "text-brand-purple dark:text-brand-purple-lighter"
                   : "text-muted-foreground dark:text-muted-foreground",
@@ -55,7 +55,7 @@ export default function MobileBottomNav() {
             >
               <span
                 className={classNames(
-                  "relative inline-flex h-[22px] w-[22px] items-center justify-center rounded-md transition-all duration-200",
+                  "relative inline-flex h-6 w-6 items-center justify-center rounded-md transition-all duration-200",
                   active &&
                     "bg-primary/10 ring-1 ring-inset ring-primary/15 dark:bg-primary/20",
                 )}

@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import { proConnectCountryName } from "@/pages/pro-connect/coverage";
 
 const availabilityConfig = {
   available: {
@@ -308,13 +309,23 @@ export default function ProConnectProfile() {
               </div>
 
               {/* Location */}
-              {locations.length > 0 && (
+              {(locations.length > 0 || profile.service_area_text || profile.country) && (
                 <div className="mt-3 flex flex-wrap items-start gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                   <MapPin
                     aria-hidden="true"
                     className="mt-0.5 h-4 w-4 shrink-0"
                   />
                   <div className="flex flex-wrap gap-1.5">
+                    {profile.service_area_text && (
+                      <span className="rounded-md bg-muted px-2 py-0.5 text-xs dark:bg-white/5">
+                        {profile.service_area_text}
+                      </span>
+                    )}
+                    {profile.country && (
+                      <span className="rounded-md bg-muted px-2 py-0.5 text-xs dark:bg-white/5">
+                        {proConnectCountryName(profile.country)}
+                      </span>
+                    )}
                     {locations.slice(0, 5).map((l, i) => (
                       <span
                         key={i}

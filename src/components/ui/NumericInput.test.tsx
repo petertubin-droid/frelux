@@ -23,6 +23,27 @@ describe("NumericInput", () => {
     expect(screen.getByTestId("committed").textContent).toBe("0");
   });
 
+  it("can opt into a blank display for a stored zero without changing the calculation value", () => {
+    const onValueChange = vi.fn();
+    render(
+      <>
+        <NumericInput
+          aria-label="Room length"
+          value={0}
+          onValueChange={onValueChange}
+          emptyWhenZero
+          placeholder="Enter dimension"
+        />
+        <output data-testid="calculation">0</output>
+      </>,
+    );
+    const field = screen.getByLabelText("Room length") as HTMLInputElement;
+    expect(field.value).toBe("");
+    expect(field.placeholder).toBe("Enter dimension");
+    expect(screen.getByTestId("calculation").textContent).toBe("0");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it("accepts a fresh number typed into a cleared field", () => {
     render(<Harness />);
     const field = screen.getByLabelText("Width") as HTMLInputElement;

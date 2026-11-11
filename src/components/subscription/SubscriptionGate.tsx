@@ -22,7 +22,7 @@ interface SubscriptionGateProps {
  * Access rules:
  * - Admins always see the content
  * - Users with active paid subscription see the content
- * - When premium subscriptions are disabled (admin toggle), shows "Coming Soon"
+ * - When premium subscriptions are disabled (admin toggle), explains that checkout is unavailable
  * - Everyone else sees the locked paywall
  *
  * For rewarded-ad gating (daily free uses + ad unlock), use RewardedFeatureGate instead.
@@ -129,14 +129,18 @@ export function SubscriptionGate({
 
           <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-6 py-3 text-sm font-bold text-brand-purple">
             <Gem className="h-4 w-4" />
-            {t("Coming Soon")}
+            {t("Premium checkout unavailable")}
           </div>
 
-          {user && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t("You'll be notified as soon as Premium goes live.")}
-            </p>
-          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            {t("Premium subscriptions are not currently available. Contact support for current availability.")}
+          </p>
+          <Link
+            to="/contact?subject=Premium%20availability"
+            className="mt-3 inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            {t("Contact support")}
+          </Link>
         </div>
       </div>
     );

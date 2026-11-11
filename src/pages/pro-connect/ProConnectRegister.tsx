@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Check, Mail, Shield, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -51,6 +51,8 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import { proConnectCountryName } from "@/pages/pro-connect/coverage";
 
 export default function ProConnectRegister() {
   const { t } = useLanguage();
@@ -77,6 +79,7 @@ export default function ProConnectRegister() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [country, setCountry] = useState("NG");
+  const [serviceAreaText, setServiceAreaText] = useState("");
   const [availability, setAvailability] = useState<
     "available" | "busy" | "unavailable"
   >("available");
@@ -148,6 +151,7 @@ export default function ProConnectRegister() {
           setYearsExperience(existing.years_experience?.toString() || "");
           setPhone((await getMyProContactPhone()) || "");
           if (existing.country) setCountry(existing.country);
+          setServiceAreaText(existing.service_area_text || "");
           setWebsite(existing.website_url || "");
           setAvailability(existing.availability);
           setStep(1);
@@ -244,13 +248,25 @@ export default function ProConnectRegister() {
   async function handleStep3Submit() {
     if (!profileId) return;
     setSaving(true);
-    await updateProfileLocations(profileId, selectedLocations);
-    await updateProProfile(profileId, {
+    setError("");
+    const locationsSaved = await updateProfileLocations(profileId, selectedLocations);
+    if (!locationsSaved) {
+      setError("We couldn't save your selected service locations. Please try again.");
+      setSaving(false);
+      return;
+    }
+    const profileSaved = await updateProProfile(profileId, {
       availability,
       country,
+      service_area_text: serviceAreaText.trim() || null,
       is_profile_complete: true,
       is_listed: true,
     } as Partial<DbProProfile>);
+    if (!profileSaved) {
+      setError("We couldn't save your profile coverage. Please try again.");
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     setStep(4);
   }
@@ -404,7 +420,7 @@ export default function ProConnectRegister() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
+        <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
           {error}
         </div>
       )}
@@ -597,23 +613,49 @@ export default function ProConnectRegister() {
             <select
               aria-label={t("Country")}
               value={country}
-              onChange={(e) => setCountry(e.target.value)}
+              onChange={(e) => {
+                setCountry(e.target.value);
+                setSelectedLocations([]);
+                setServiceAreaText("");
+              }}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
-              <option value="NG">{t("Nigeria")}</option>
-              <option value="GH">{t("Ghana")}</option>
-              <option value="KE">{t("Kenya")}</option>
-              <option value="ZA">{t("South Africa")}</option>
+              {COUNTRY_OPTIONS.map((group) => (
+                <optgroup key={group.group} label={t(group.group)}>
+                  {group.countries.map((option) => (
+                    <option key={option.code} value={option.code}>
+                      {t(option.name)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </div>
 
-          {states.length === 0 && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
-              Service areas for this country are coming soon: you can continue
-              without selecting any. Your profile will be listed under your
-              selected country.
+          <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3">
+            {states.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                FRELUX doesn’t have a verified city list for {proConnectCountryName(country)} yet. Your text coverage will appear on your profile, but won’t be geocoded or included in nearby searches.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {t("Add other areas you serve. Text coverage appears on your profile but is not geocoded or included in nearby searches.")}
+              </p>
+            )}
+            <div>
+              <label htmlFor="pro-service-area-text" className="mb-1 block text-sm font-medium text-foreground">
+                {t("Additional service area (city, region, or radius)")}
+              </label>
+              <input
+                id="pro-service-area-text"
+                value={serviceAreaText}
+                onChange={(event) => setServiceAreaText(event.target.value)}
+                maxLength={160}
+                placeholder={t("e.g. Accra and nearby areas")}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground"
+              />
             </div>
-          )}
+          </div>
 
           {states.map((state) => {
             const stateLocations = countryLocations.filter(

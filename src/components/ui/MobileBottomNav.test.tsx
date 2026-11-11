@@ -119,6 +119,15 @@ describe("MobileBottomNav", () => {
     expect(nav.className).toContain("md:hidden");
   });
 
+  it("keeps each navigation link at a 44px physical touch target on scaled phones", () => {
+    renderNav();
+    const css = readFileSync("src/index.css", "utf8");
+    expect(css).toMatch(/#root \.mobile-bottom-nav a,[\s\S]*?min-height: max\(2\.75rem, calc\(2\.75rem \/ var\(--frelux-display-scale, 1\)\)\)/);
+    for (const label of ["Home", "Tools", "Market", "Projects", "Rewards"]) {
+      expect(screen.getByText(label).closest("a")?.className).toContain("min-h-11");
+    }
+  });
+
   it("lifts by the ad height without changing its own size or alignment", () => {
     render(
       <MemoryRouter>

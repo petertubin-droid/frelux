@@ -79,6 +79,8 @@ export interface DbProProfile {
   display_name: string;
   slug: string;
   country?: string;
+  /** User-entered service coverage where no verified city/area registry exists. */
+  service_area_text?: string | null;
   bio: string | null;
   profile_image_url: string | null;
   cover_image_url: string | null;

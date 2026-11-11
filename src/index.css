@@ -2758,6 +2758,7 @@ html[data-frelux-wide-view="true"]
    physical one. Hold 44 physical pixels by dividing by the scale. */
 @media (pointer: coarse) {
   #root button,
+  #root .mobile-bottom-nav a,
   #root input:not([type="checkbox"]):not([type="radio"]),
   #root select,
   #root textarea {

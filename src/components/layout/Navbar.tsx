@@ -71,12 +71,67 @@ export default function Navbar() {
   const { marketCode } = useMarket();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const previouslyOpenRef = useRef(false);
 
   useEffect(() => {
     setMobileOpen(false);
     setOpenDropdown(null);
     setMobileExpanded(null);
   }, [location.pathname]);
+
+  // Make the off-canvas drawer genuinely absent to keyboard and assistive
+  // technology users while closed, and manage focus like a modal navigation.
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    if (drawer) drawer.inert = !mobileOpen;
+
+    if (mobileOpen) {
+      requestAnimationFrame(() =>
+        drawer?.querySelector<HTMLElement>("[data-menu-close]")?.focus(),
+      );
+    } else if (previouslyOpenRef.current) {
+      menuTriggerRef.current?.focus();
+    }
+    previouslyOpenRef.current = mobileOpen;
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("hidden"));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        drawer.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
 
   useEffect(() => {
     let ticking = false;
@@ -219,6 +274,7 @@ export default function Navbar() {
             <Button
               variant="ghost"
               type="button"
+              ref={menuTriggerRef}
               onClick={() => setMobileOpen(true)}
               className="glass-control inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-all active:scale-95 dark:text-card-foreground"
               aria-label="Open menu"
@@ -703,16 +759,9 @@ export default function Navbar() {
           mobileOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
       >
-        {/* Scrim */}
+        {/* Scrim: pointer-only; keyboard dismissal is handled by Escape. */}
         <div
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              (e.currentTarget as HTMLElement).click();
-            }
-          }}
+          aria-hidden="true"
           className={classNames(
             "absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300",
             mobileOpen ? "opacity-100" : "opacity-0",
@@ -721,6 +770,12 @@ export default function Navbar() {
         />
         {/* Drawer */}
         <div
+          ref={drawerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="FRELUX navigation menu"
+          aria-hidden={!mobileOpen}
+          tabIndex={-1}
           className={classNames(
             "surface-sheet absolute left-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
@@ -746,6 +801,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 dark:hover:bg-white/5"
                 aria-label="Close menu"
+                data-menu-close
               >
                 <X className="h-[18px] w-[18px]" />
               </Button>

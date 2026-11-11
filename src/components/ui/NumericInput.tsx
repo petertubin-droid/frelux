@@ -11,7 +11,7 @@
  * empty or half-typed value leaves the last committed number in place, and on
  * blur the box returns to that number rather than inventing a zero.
  */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/shadcn/input";
 import { cn } from "@/lib/cn";
 
@@ -24,6 +24,8 @@ export interface NumericInputProps {
   max?: number;
   step?: number | string;
   placeholder?: string;
+  /** Render a numeric zero as an empty prompt for unset dimensions. */
+  emptyWhenZero?: boolean;
   className?: string;
   disabled?: boolean;
   required?: boolean;
@@ -70,6 +72,7 @@ export function NumericInput({
   max,
   step = "any",
   placeholder,
+  emptyWhenZero = false,
   className,
   disabled,
   inputMode = "decimal",
@@ -81,14 +84,21 @@ export function NumericInput({
   "aria-label": ariaLabel,
   ...aria
 }: NumericInputProps) {
-  const [draft, setDraft] = useState(() => formatNumber(toNumber(value)));
+  const displayValue = useCallback(
+    (input: number | string) => {
+      const number = toNumber(input);
+      return emptyWhenZero && number === 0 ? "" : formatNumber(number);
+    },
+    [emptyWhenZero],
+  );
+  const [draft, setDraft] = useState(() => displayValue(value));
   const [editing, setEditing] = useState(false);
   const lastCommitted = useRef(toNumber(value));
 
   // Follow external changes (presets, resets, unit conversions) unless the
   // user is mid-edit, where overwriting the box would fight their keystrokes.
   useEffect(() => {
-    const next = formatNumber(toNumber(value));
+    const next = displayValue(value);
     const parsedDraft = parseDraft(draft);
     if (parsedDraft !== null && parsedDraft !== toNumber(value)) {
       // The form clamped or rounded what we committed (a negative cost floored
@@ -101,7 +111,7 @@ export function NumericInput({
     if (editing) return;
     lastCommitted.current = toNumber(value);
     setDraft(next);
-  }, [value, draft, editing]);
+  }, [value, draft, editing, displayValue]);
 
   return (
     <Input
@@ -120,7 +130,7 @@ export function NumericInput({
       className={cn(className)}
       disabled={disabled}
       value={draft}
-      onFocus={(event) => setEditing(true)}
+      onFocus={() => setEditing(true)}
       onChange={(event) => {
         const raw = event.target.value;
         setDraft(raw);
@@ -140,7 +150,7 @@ export function NumericInput({
         // An emptied or invalid box goes back to the last real number instead
         // of silently becoming zero.
         const next = parsed === null ? lastCommitted.current : parsed;
-        setDraft(formatNumber(next));
+        setDraft(displayValue(next));
         if (next !== toNumber(value)) onValueChange(next);
       }}
     />

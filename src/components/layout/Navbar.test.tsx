@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -41,6 +41,29 @@ describe("Navbar", () => {
   it("renders without crashing", async () => {
     const { container } = await renderNavbar();
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("traps focus in the mobile drawer and closes with Escape", async () => {
+    await renderNavbar();
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.click(trigger);
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Close menu"));
+    expect(drawer).not.toHaveProperty("inert", true);
+    const focusable = drawer.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    const last = focusable[focusable.length - 1];
+    last.focus();
+    fireEvent.keyDown(document, { key: "Tab" });
+    expect(document.activeElement).toBe(focusable[0]);
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "FRELUX navigation menu" })).toBeNull());
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(drawer).toHaveProperty("inert", true);
   });
 
   it("includes header container for ad-free prompt notices", async () => {

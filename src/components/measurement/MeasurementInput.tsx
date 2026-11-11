@@ -111,7 +111,8 @@ function DimensionInput({
         onValueChange={onChange}
         min={0}
         step="any"
-        placeholder="0"
+        emptyWhenZero
+        placeholder="Enter dimension"
         className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-ring focus:outline-none"
       />
     </div>
