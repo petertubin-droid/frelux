@@ -95,8 +95,19 @@ export default function RetainingWallEstimator() {
     });
   };
 
+  const resetInputs = () => {
+    setLength("");
+    setHeight("");
+    setSoil("stable");
+    setStem("block");
+    setWidthOverride("");
+    setOverrides({});
+    setResult(null);
+  };
+
   return (
     <SpecialtyCalculatorShell
+      onReset={resetInputs}
       calculatorType="retaining_wall"
       title="Retaining Wall Material Calculator"
       subtitle="Size the footing, stem, reinforcement and drainage for a retaining wall, then cost the materials at your own prices."
@@ -147,7 +158,9 @@ export default function RetainingWallEstimator() {
               />
               <div className="mt-4 rounded-lg border border-border bg-card p-3.5 text-xs">
                 <div className="flex items-center justify-between font-semibold text-foreground">
-                  <span>Geotechnical Stability Check (BS 8002 / Eurocode 7)</span>
+                  <span>
+                    Geotechnical Stability Check (BS 8002 / Eurocode 7)
+                  </span>
                   <span
                     className={`rounded px-2 py-0.5 text-[11px] font-medium ${
                       preview.stability.overturning_pass &&
@@ -186,7 +199,9 @@ export default function RetainingWallEstimator() {
                           : "font-medium text-amber-600 dark:text-amber-400"
                       }
                     >
-                      {preview.stability.factor_of_safety_overturning.toFixed(2)}{" "}
+                      {preview.stability.factor_of_safety_overturning.toFixed(
+                        2,
+                      )}{" "}
                       (≥1.5)
                     </span>
                   </div>
@@ -214,8 +229,8 @@ export default function RetainingWallEstimator() {
             </>
           )}
           <p className="mt-3">
-            Rules in use: footing base {rules.footing_width_m} m scaled by height
-            and soil, {rules.footing_thickness_m} m base thickness,{" "}
+            Rules in use: footing base {rules.footing_width_m} m scaled by
+            height and soil, {rules.footing_thickness_m} m base thickness,{" "}
             {rules.blocks_per_m2} blocks per m², {rules.waste_pct}% block waste,
             weep holes every {rules.weep_spacing_m} m, bars at{" "}
             {rules.bar_spacing_m} m centres.

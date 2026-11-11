@@ -14,6 +14,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import ToolFaqs from "@/components/seo/ToolFaqs";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
@@ -63,6 +64,8 @@ export interface SpecialtyCalculatorShellProps {
   proCallout?: { title: string; body: string; cta: string; to: string };
   quoteTitle: string;
   quoteFooter: string;
+  /** Restores the page's own inputs. Loaded catalogues are left intact. */
+  onReset?: () => void;
 }
 
 function fmt(v: number | null, symbol: string): string {
@@ -88,6 +91,7 @@ export function SpecialtyCalculatorShell({
   onPriceOverride,
   bookSummary,
   crossLinks,
+  onReset,
   faqSlug,
   proCallout,
   quoteTitle,
@@ -522,6 +526,12 @@ export function SpecialtyCalculatorShell({
             ) : null}
           </section>
         </div>
+
+        {onReset ? (
+          <div className="mt-6 flex justify-end">
+            <CalculatorResetButton onReset={onReset} />
+          </div>
+        ) : null}
 
         <EstimateDisclaimer />
 

@@ -111,8 +111,21 @@ export default function SoffitGutterEstimator() {
     );
   };
 
+  const resetInputs = () => {
+    setMode("perimeter");
+    setPerimeter("");
+    setLength("");
+    setWidth("");
+    setOverhang("0.6");
+    setMaterial("aluminium");
+    setOverrides({});
+    setEnvelopeNote(null);
+    setResult(null);
+  };
+
   return (
     <SpecialtyCalculatorShell
+      onReset={resetInputs}
       calculatorType="soffit_gutter"
       title="Soffit, Fascia & Gutter Estimator"
       subtitle="Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, ready to price."

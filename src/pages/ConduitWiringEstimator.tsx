@@ -47,6 +47,14 @@ const DEVICE_LABELS: Record<DeviceType, { label: string; color: string }> = {
   tap: { label: "Tap / Fixture", color: "#14b8a6" },
 };
 
+const DEFAULT_ROUTER_POINTS: MEPPoint[] = [
+  { id: "p-db", type: "distribution_board", x: 0.5, y: 0.5, label: "Main DB" },
+  { id: "p-sw1", type: "switch", x: 0.5, y: 3.5, label: "Door Switch" },
+  { id: "p-l1", type: "light", x: 3.0, y: 4.0, label: "Center Light" },
+  { id: "p-sk1", type: "socket", x: 5.5, y: 2.0, label: "Ring Socket 1" },
+  { id: "p-sk2", type: "socket", x: 5.5, y: 6.5, label: "Ring Socket 2" },
+];
+
 export default function ConduitWiringEstimator() {
   const { priceMap, ruleRows, bookSummary } =
     useSpecialtyPrices("conduit_wiring");
@@ -67,19 +75,25 @@ export default function ConduitWiringEstimator() {
   const [ceilingHeight, setCeilingHeight] = useState(3.0); // meters
   const [deviceTypeToAdd, setDeviceTypeToAdd] = useState<DeviceType>("socket");
 
-  const [routerPoints, setRouterPoints] = useState<MEPPoint[]>([
-    {
-      id: "p-db",
-      type: "distribution_board",
-      x: 0.5,
-      y: 0.5,
-      label: "Main DB",
-    },
-    { id: "p-sw1", type: "switch", x: 0.5, y: 3.5, label: "Door Switch" },
-    { id: "p-l1", type: "light", x: 3.0, y: 4.0, label: "Center Light" },
-    { id: "p-sk1", type: "socket", x: 5.5, y: 2.0, label: "Ring Socket 1" },
-    { id: "p-sk2", type: "socket", x: 5.5, y: 6.5, label: "Ring Socket 2" },
-  ]);
+  const [routerPoints, setRouterPoints] = useState<MEPPoint[]>(
+    DEFAULT_ROUTER_POINTS,
+  );
+
+  // Start over restores the seeded plan and the default counts. The rule rows
+  // and supplier price book are catalogue data, so they stay as loaded.
+  const resetInputs = () => {
+    setActiveMode("quick");
+    setArea(120);
+    setLights(12);
+    setSockets(10);
+    setOverrides({});
+    setResult(null);
+    setRoomWidth(6);
+    setRoomLength(8);
+    setCeilingHeight(3.0);
+    setDeviceTypeToAdd("socket");
+    setRouterPoints(DEFAULT_ROUTER_POINTS);
+  };
 
   const rules = useMemo(() => parseConduitWiringRules(ruleRows), [ruleRows]);
   // The contractor's own supplier rates sit under the market book, in the
@@ -233,6 +247,7 @@ export default function ConduitWiringEstimator() {
         setOverrides((prev) => ({ ...prev, [slug]: value }))
       }
       bookSummary={bookSummary}
+      onReset={resetInputs}
       quoteTitle="FRELUX Electrical Material Estimate"
       quoteFooter="Material takeoff only, not a circuit design. Circuit sizing, earthing and breaker ratings are the electrician's design."
       proCallout={{

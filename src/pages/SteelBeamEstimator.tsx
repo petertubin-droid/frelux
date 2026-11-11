@@ -58,11 +58,9 @@ export default function SteelBeamEstimator() {
   const bookRates = resolve(priceCurrency).rates;
 
   const prices = useMemo(
-
     () => mergePriceOverrides(applyPriceBook(priceMap, bookRates), overrides),
 
     [priceMap, overrides, bookRates],
-
   );
 
   const input: SteelBeamInput = {
@@ -101,8 +99,20 @@ export default function SteelBeamEstimator() {
     });
   };
 
+  const resetInputs = () => {
+    setPreset("custom");
+    setProfile("ipe_200");
+    setSpan("");
+    setCount("1");
+    setRate("");
+    setColumns(false);
+    setOverrides({});
+    setResult(null);
+  };
+
   return (
     <SpecialtyCalculatorShell
+      onReset={resetInputs}
       calculatorType="steel_beam"
       title="Structural Steel I-Beam Weight & Cost Calculator"
       subtitle="Convert span and profile into kilograms, then tonnes, then a cost at your own merchant rate."
