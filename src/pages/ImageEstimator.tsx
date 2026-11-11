@@ -46,7 +46,7 @@ import type {
   BuildToRoofResult,
 } from "@/types/build-to-roof";
 import { useMarket } from "@/lib/international/market-context";
-import { formatCurrency } from "@/lib/utils";
+import { formatArea, formatCurrency } from "@/lib/utils";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
@@ -1227,6 +1227,12 @@ export function EstimateResultView({
   setPdfUnlocked: (unlocked: boolean) => void;
 }) {
   const [photoExpanded, setPhotoExpanded] = useState(false);
+  // The photo analysis measures in square metres. That is the engine's unit,
+  // not necessarily the visitor's: print, share and the screen all read the
+  // floor area back in the unit their market works in.
+  const { preferredAreaUnit } = useMarket();
+  const areaLabel = (sqm: number | null | undefined) =>
+    formatArea(Number(sqm ?? 0), { unit: preferredAreaUnit, digits: 0 });
 
   // One payload feeds the printed sheet and the share sheet, so the figures a
   // customer forwards can never drift from the figures they approved.
@@ -1234,11 +1240,11 @@ export function EstimateResultView({
     if (!estimate) return null;
     return {
       title: `FRELUX AI Photo Estimate: ${estimate.project_name || "Building Project"}`,
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${estimate.building_type || "Residential"} · ${estimate.total_floor_area} m² · ${estimate.confidence} confidence`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${estimate.building_type || "Residential"} · ${areaLabel(estimate.total_floor_area)} · ${estimate.confidence} confidence`,
       metaRows: [
         ["Project Name", estimate.project_name || "N/A"],
         ["Building Type", estimate.building_type || "Residential"],
-        ["Total Floor Area", `${estimate.total_floor_area} m²`],
+        ["Total Floor Area", areaLabel(estimate.total_floor_area)],
         [
           "Construction Stage",
           estimate.construction_stage || "Foundation to Roof",
@@ -1367,7 +1373,7 @@ export function EstimateResultView({
               {estimate.project_name}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {estimate.location} · {estimate.total_floor_area} m² ·{" "}
+              {estimate.location} · {areaLabel(estimate.total_floor_area)} ·{" "}
               {estimate.building_type}
             </p>
           </div>
@@ -1527,7 +1533,7 @@ export function EstimateResultView({
           <SaveToProjectButton
             calculatorType="build_to_roof"
             calculatorSlug="ai-photo-estimator"
-            calcTitle={`AI Photo: ${estimate.project_name} (${estimate.total_floor_area} m²)`}
+            calcTitle={`AI Photo: ${estimate.project_name} (${areaLabel(estimate.total_floor_area)})`}
             calcData={estimate as unknown as Record<string, unknown>}
             resultSummary={{
               grand_total: estimate.grand_total,
