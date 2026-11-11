@@ -456,7 +456,7 @@ export default function GermanFloorCalculator() {
           </section>
         </div>
 
-        <AdSlot slotKey="calculator_inline" />
+        <AdSlot slotKey="calculator_mid" />
 
         <section aria-labelledby="floor-faq" className="space-y-4">
           <h2

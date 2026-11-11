@@ -747,7 +747,7 @@ export default function FenceBlockCalculator() {
           </section>
         </div>
 
-        <AdSlot slotKey="calculator_inline" />
+        <AdSlot slotKey="calculator_mid" />
 
         <section aria-labelledby="fence-faq" className="space-y-4">
           <h2

@@ -1108,9 +1108,13 @@ export default function CostEstimator({
                 )}
               </div>
               <div className="px-6 pb-2">
+                {/* The offer must match the paint this estimate actually
+                    priced. A fixed product name showed supplier quotes for a
+                    material the customer may not have chosen. */}
                 <SupplierOfferBadge
-                  materialName="Silk Vinyl Emulsion Paint"
+                  materialName={input.paintProductName || "Paint"}
                   marketCode={market?.marketCode || "KE"}
+                  quantity={Math.max(1, result?.paintContainerCount ?? 1)}
                 />
               </div>
               <div className="border-t border-border/50 bg-muted/50 px-6 py-3 text-xs text-muted-foreground">
