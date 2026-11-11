@@ -34,7 +34,8 @@
     "faqs:sync": "npm run faqs:sql && npm run faqs:prerender && npm run faqs:apply",
     "buildings:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-building-type-prerender.ts",
     "audit:mobile": "node scripts/audit-mobile-overflow.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "audit:ux": "node scripts/audit-ux.mjs"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.11.1",
