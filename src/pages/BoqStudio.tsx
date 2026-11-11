@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -1454,6 +1456,17 @@ export default function BoqStudio() {
       )}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </Container>
   );
 }

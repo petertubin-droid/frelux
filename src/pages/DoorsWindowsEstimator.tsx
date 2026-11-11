@@ -11,6 +11,7 @@
  * This is ESTIMATION, not a fixing specification.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -178,10 +179,7 @@ export default function DoorsWindowsEstimator() {
   const { resolve } = usePriceBook();
   const effectivePrices = useMemo(
     () =>
-      applyPriceBook(
-        priceMap,
-        resolve(market?.currencyCode ?? "NGN").rates,
-      ),
+      applyPriceBook(priceMap, resolve(market?.currencyCode ?? "NGN").rates),
     [priceMap, resolve, market, marketCode],
   );
 
@@ -939,6 +937,15 @@ export default function DoorsWindowsEstimator() {
           </li>
         </ul>
       </section>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
     </Container>
   );
 }

@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -295,6 +297,17 @@ export default function SmartCalculator() {
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+            CALC_LINKS.structuralCalc,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </>
   );
 }

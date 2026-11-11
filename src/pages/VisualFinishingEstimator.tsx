@@ -1,3 +1,4 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import React from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -39,6 +40,7 @@ export default function VisualFinishingEstimatorPage() {
           <RelatedTools links={Object.values(CALC_LINKS)} />
         </div>
       </Container>
+      <EstimateDisclaimer />
     </>
   );
 }

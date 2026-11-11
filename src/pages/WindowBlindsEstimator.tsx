@@ -12,6 +12,8 @@
 // supplies the figure, and tax is never assumed.
 // =========================================================
 
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -1117,6 +1119,17 @@ export default function WindowBlindsEstimator() {
           ))}
         </section>
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </div>
   );
 }

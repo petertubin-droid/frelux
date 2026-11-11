@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
@@ -57,6 +59,17 @@ export default function ConcreteTakeoffPage() {
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </>
   );
 }

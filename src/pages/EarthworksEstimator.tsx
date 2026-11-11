@@ -1,3 +1,4 @@
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useState } from "react";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
@@ -512,6 +513,15 @@ export default function EarthworksEstimator() {
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+          ]}
+        />
+      </div>
     </>
   );
 }

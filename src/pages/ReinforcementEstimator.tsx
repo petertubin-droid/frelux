@@ -11,6 +11,7 @@
  * This is ESTIMATION and does NOT design reinforcement.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -841,6 +842,15 @@ export default function ReinforcementEstimator() {
         </ul>
       </section>
       <BarBendingSchedulePanel />
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
     </Container>
   );
 }

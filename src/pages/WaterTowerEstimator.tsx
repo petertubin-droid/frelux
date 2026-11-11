@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import AdSlot from "@/components/ui/AdSlot";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -695,6 +697,17 @@ export default function WaterTowerEstimator() {
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </div>
   );
 }

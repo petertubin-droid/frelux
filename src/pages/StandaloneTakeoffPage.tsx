@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import PageHeader from "@/components/ui/PageHeader";
@@ -421,8 +428,7 @@ export default function StandaloneTakeoffPage({
             applicationType: "internal_plaster",
           });
         }
-      }
-      else if (engine === "drywall")
+      } else if (engine === "drywall")
         next = calculateDrywallTakeoff({
           marketCode,
           wallLengthM: number("length"),
@@ -700,7 +706,9 @@ export default function StandaloneTakeoffPage({
                 {t("Measuring")} {building.label}: {building.totals.roomCount}{" "}
                 {t("rooms, run")} {building.totals.wallRunM.toFixed(1)} m,{" "}
                 {building.totals.netWallAreaM2.toFixed(2)} m²{" "}
-                {t("of wall after openings. Run the calculation to price these rooms.")}
+                {t(
+                  "of wall after openings. Run the calculation to price these rooms.",
+                )}
               </p>
             )}
           </div>
@@ -1064,6 +1072,15 @@ export default function StandaloneTakeoffPage({
           </section>
         )}
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
     </div>
   );
 }

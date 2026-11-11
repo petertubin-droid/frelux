@@ -13,6 +13,7 @@
  * design.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -700,6 +701,15 @@ export default function GeneratorEstimator() {
           </li>
         </ul>
       </section>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.structuralCalc,
+          ]}
+        />
+      </div>
     </Container>
   );
 }

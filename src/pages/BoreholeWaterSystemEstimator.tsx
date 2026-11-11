@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { useSeo } from "@/lib/seo";
@@ -1670,6 +1672,17 @@ export default function BoreholeWaterSystemEstimator() {
           </div>
         </div>
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.smartCalc,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -1212,6 +1213,7 @@ export default function TvConsoleCalculator() {
         faqs={CONSOLE_FAQS}
         title="TV console calculator: frequently asked questions"
       />
+      <EstimateDisclaimer />
       <RelatedToolsLinks />
     </main>
   );

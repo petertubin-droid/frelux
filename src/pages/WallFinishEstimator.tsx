@@ -12,6 +12,7 @@
  * never invented.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1286,6 +1287,15 @@ export default function WallFinishEstimator() {
           </div>
         </div>
       )}
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.tyrolene,
+            CALC_LINKS.paintCalculator,
+          ]}
+        />
+      </div>
     </div>
   );
 }

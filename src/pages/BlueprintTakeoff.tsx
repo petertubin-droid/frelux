@@ -1,3 +1,4 @@
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -1127,6 +1128,15 @@ export default function BlueprintTakeoff() {
         <AdSlot slotKey="calculator_native" className="mt-8" />
         <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.imageEstimator,
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
     </div>
   );
 }

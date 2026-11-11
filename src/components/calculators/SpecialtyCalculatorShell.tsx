@@ -14,6 +14,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import ToolFaqs from "@/components/seo/ToolFaqs";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -525,6 +526,16 @@ export function SpecialtyCalculatorShell({
         <EstimateDisclaimer />
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
+
+        <div className="mt-10">
+          <RelatedTools
+            links={[
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.structuralCalc,
+              CALC_LINKS.smartCalc,
+            ]}
+          />
+        </div>
 
         {proCallout ? (
           <div className="mt-8 rounded-xl border bg-card p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">

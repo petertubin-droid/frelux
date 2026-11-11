@@ -1,3 +1,4 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AdSlot from "@/components/ui/AdSlot";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -729,6 +730,7 @@ export default function GlobalSiteSafetyEstimator() {
         />
         <ToolFaqs slug="global-site-safety-estimator" />
       </Container>
+      <EstimateDisclaimer />
     </div>
   );
 }

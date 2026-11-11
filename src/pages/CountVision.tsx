@@ -14,6 +14,8 @@
  *   gone when the count completes.
  */
 
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
@@ -355,6 +357,17 @@ export default function CountVision() {
           onClose={() => setGateOpen(false)}
         />
       )}
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.imageEstimator,
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </Container>
   );
 }

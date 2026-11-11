@@ -1,3 +1,5 @@
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
@@ -379,6 +381,17 @@ export default function ConversationalEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </Container>
   );
 }

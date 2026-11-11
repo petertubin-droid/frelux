@@ -9,6 +9,8 @@
  *   This page renders; it never computes money itself.
  */
 
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
@@ -456,6 +458,17 @@ export default function MarginCalculator() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      </div>
+
+      <EstimateDisclaimer />
     </Container>
   );
 }

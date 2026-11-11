@@ -12,6 +12,7 @@
  *   the total is withheld, never invented.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
@@ -698,6 +699,15 @@ export default function SolarPvEstimator() {
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.smartCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.foundationCalc,
+          ]}
+        />
+      </div>
     </Container>
   );
 }

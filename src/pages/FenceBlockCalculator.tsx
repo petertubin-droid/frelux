@@ -1,3 +1,4 @@
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -806,6 +807,15 @@ export default function FenceBlockCalculator() {
           </p>
         </section>
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.foundationCalc,
+            CALC_LINKS.buildToRoof,
+          ]}
+        />
+      </div>
     </>
   );
 }

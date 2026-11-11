@@ -10,6 +10,7 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useMarket } from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -689,6 +690,15 @@ export default function WaterproofingEstimator() {
           </li>
         </ul>
       </section>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.smartCalc,
+          ]}
+        />
+      </div>
     </Container>
   );
 }

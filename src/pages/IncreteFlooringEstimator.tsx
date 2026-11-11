@@ -1,3 +1,4 @@
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
@@ -658,6 +659,15 @@ export default function IncreteFlooringEstimator() {
           supplier availability and installation requirements with qualified
           local professionals and manufacturers.
         </p>
+      </div>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.tileCalc,
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.tileCost,
+          ]}
+        />
       </div>
     </Container>
   );

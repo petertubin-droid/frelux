@@ -1,3 +1,4 @@
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useState } from "react";
@@ -1186,6 +1187,15 @@ export default function RoofFramingEstimator() {
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
+      <div className="mt-10">
+        <RelatedTools
+          links={[
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.structuralCalc,
+            CALC_LINKS.tyrolene,
+          ]}
+        />
+      </div>
     </>
   );
 }
