@@ -1,3 +1,4 @@
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/auth", () => ({

@@ -14,6 +14,7 @@
  * - No placeholder/demo products: if nothing is configured, the page says so.
  */
 
+import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -976,9 +977,15 @@ export default function ConfigurableFinishCalculator({
           </div>
         )}
 
+        {/* Two slots, the calculator ceiling. Empty placements collapse, so a
+            visitor with no ad served sees no gap and no label. */}
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+
         <div className="mt-8">
           <EstimateDisclaimer />
         </div>
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
     </div>
   );
