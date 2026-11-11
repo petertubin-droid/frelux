@@ -460,9 +460,11 @@ export default function FlooringEstimator() {
             }}
           />
           <p className="mt-2 text-xs text-muted-foreground">
-            Templates provide starting room dimensions only. Edit the schedule
-            and verify measured floor area and skirting; perimeter excludes
-            internal partitions.
+            Templates provide starting room dimensions only. The skirting figure
+            is the sum of room perimeters, so a wall shared by two rooms is
+            counted twice and door openings are not deducted. Edit the schedule,
+            measure the floor area and skirting, and deduct shared partitions
+            and door openings before ordering.
           </p>
         </div>
         <label className="mb-3 block text-sm sm:max-w-xs">
@@ -560,6 +562,7 @@ export default function FlooringEstimator() {
           >
             {t("Calculate estimate")}
           </button>
+          <CalculatorResetButton onReset={resetInputs} />
           {result?.ok && (
             <>
               <button
@@ -575,7 +578,6 @@ export default function FlooringEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <HowCalculatedSection
                 methodologyText={methodologyText("flooring")}
               />
