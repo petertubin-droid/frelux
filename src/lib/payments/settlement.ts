@@ -56,6 +56,13 @@ export class SettlementError extends Error {
   }
 }
 
+/**
+ * FRELUX's escrow and marketplace fee, set by the owner at 7 percent on
+ * 12 November 2026. Held here as one constant so the checkout, the release and
+ * any report read the same number instead of each carrying their own.
+ */
+export const ESCROW_FEE_BASIS_POINTS = 700;
+
 /** Platform fee on a gross amount, rounded down so FRELUX never over-bills. */
 export function feeOn(gross: number, feeBasisPoints: number): number {
   assertMinorUnits(gross, "gross");

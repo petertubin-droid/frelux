@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ESCROW_FEE_BASIS_POINTS,
   SettlementError,
   createSettlement,
   feeOn,
@@ -59,6 +60,14 @@ describe("settlement core", () => {
   it("calculates the fee as whole minor units, rounding down", () => {
     expect(feeOn(500_000_00, 250)).toBe(1_250_000); // 12,500 naira
     expect(feeOn(333, 250)).toBe(8); // 8.325 rounded down
+  });
+
+  it("uses the owner's 7 percent escrow fee", () => {
+    expect(ESCROW_FEE_BASIS_POINTS).toBe(700);
+    // 1,000,000 naira escrowed, 70,000 naira fee, 930,000 to the seller.
+    const fee = feeOn(1_000_000_00, ESCROW_FEE_BASIS_POINTS);
+    expect(fee).toBe(70_000_00);
+    expect(1_000_000_00 - fee).toBe(930_000_00);
   });
 
   it("cannot release before the money arrives", () => {
