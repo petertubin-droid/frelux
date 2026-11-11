@@ -18,6 +18,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
+import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PageHeader from "@/components/ui/PageHeader";
@@ -437,6 +438,28 @@ export default function FlooringEstimator() {
         </p>
         <div className="mb-4">
           <MeasurementTip what="flooring unit and waste setting" />
+        </div>
+        <div className="mb-4">
+          <BuildingTemplatePanel
+            marketCode={marketCode}
+            surface="floor"
+            onChange={(areaM2, totals) => {
+              setAreaInput(
+                areaM2 > 0 ? String(Math.round(areaM2 * 100) / 100) : "",
+              );
+              setSkirtingInput(
+                totals && totals.perimeterM > 0
+                  ? String(Math.round(totals.perimeterM * 100) / 100)
+                  : "",
+              );
+              setResult(null);
+            }}
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Templates provide starting room dimensions only. Edit the schedule
+            and verify measured floor area and skirting; perimeter excludes
+            internal partitions.
+          </p>
         </div>
         <label className="mb-3 block text-sm sm:max-w-xs">
           <span className="mb-1 block font-medium">{t("Flooring type")}</span>

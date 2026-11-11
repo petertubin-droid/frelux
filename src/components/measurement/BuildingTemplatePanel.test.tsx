@@ -7,14 +7,21 @@ import {
   getBuildingPresets,
   presetToRoomDrafts,
 } from "@/lib/measurement/building-presets";
-import { draftsToSchedule, scheduleTotals } from "@/lib/measurement/building-schedule";
+import {
+  draftsToSchedule,
+  scheduleTotals,
+} from "@/lib/measurement/building-schedule";
 
 describe("BuildingTemplatePanel", () => {
   it("uses net wall area from the shared schedule for editable building templates", () => {
     const onChange = vi.fn();
     render(
       <MemoryRouter>
-        <BuildingTemplatePanel marketCode="NG" surface="wall" onChange={onChange} />
+        <BuildingTemplatePanel
+          marketCode="NG"
+          surface="wall"
+          onChange={onChange}
+        />
       </MemoryRouter>,
     );
     const preset = getBuildingPresets("NG").find((item) =>
@@ -25,8 +32,12 @@ describe("BuildingTemplatePanel", () => {
       target: { value: preset!.id },
     });
     const drafts = presetToRoomDrafts(preset!, defaultPresetUnit("NG"));
-    const expected = scheduleTotals(draftsToSchedule(drafts, "feet")).netWallAreaM2;
-    expect(onChange).toHaveBeenLastCalledWith(expected);
+    const expected = scheduleTotals(
+      draftsToSchedule(drafts, "feet"),
+    ).netWallAreaM2;
+    expect(
+      onChange.mock.calls[onChange.mock.calls.length - 1]?.[0],
+    ).toBeCloseTo(expected);
     expect(screen.getByText(/assumed standard sizes/i)).toBeTruthy();
   });
 
@@ -34,7 +45,11 @@ describe("BuildingTemplatePanel", () => {
     const onChange = vi.fn();
     render(
       <MemoryRouter>
-        <BuildingTemplatePanel marketCode="GB" surface="floor" onChange={onChange} />
+        <BuildingTemplatePanel
+          marketCode="GB"
+          surface="floor"
+          onChange={onChange}
+        />
       </MemoryRouter>,
     );
     fireEvent.change(screen.getByLabelText(/building type/i), {
@@ -42,47 +57,75 @@ describe("BuildingTemplatePanel", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /add custom room/i }));
     expect(screen.getByLabelText(/room type for custom room 1/i)).toBeTruthy();
-    expect(onChange).toHaveBeenLastCalledWith(9);
+    expect(onChange.mock.calls[onChange.mock.calls.length - 1]?.[0]).toBe(0);
     fireEvent.change(screen.getByLabelText(/room type for custom room 1/i), {
       target: { value: "Workshop" },
     });
     fireEvent.change(screen.getByLabelText(/length \(m\)/i), {
       target: { value: "4" },
     });
+    fireEvent.change(screen.getByLabelText(/width \(m\)/i), {
+      target: { value: "3" },
+    });
     expect(screen.getByLabelText(/room type for workshop/i)).toBeTruthy();
-    expect(onChange).toHaveBeenLastCalledWith(12);
+    expect(
+      onChange.mock.calls[onChange.mock.calls.length - 1]?.[0],
+    ).toBeCloseTo(12);
   });
 
   it("subtracts added opening counts from wall area and leaves floor area unaffected", () => {
     const wallOnChange = vi.fn();
     const { unmount } = render(
       <MemoryRouter>
-        <BuildingTemplatePanel marketCode="GB" surface="wall" onChange={wallOnChange} />
+        <BuildingTemplatePanel
+          marketCode="GB"
+          surface="wall"
+          onChange={wallOnChange}
+        />
       </MemoryRouter>,
     );
     fireEvent.change(screen.getByLabelText(/building type/i), {
       target: { value: "custom" },
     });
     fireEvent.click(screen.getByRole("button", { name: /add custom room/i }));
-    const grossWall = wallOnChange.mock.calls[wallOnChange.mock.calls.length - 1]?.[0] as number;
+    fireEvent.change(screen.getByLabelText(/length \(m\)/i), {
+      target: { value: "4" },
+    });
+    fireEvent.change(screen.getByLabelText(/width \(m\)/i), {
+      target: { value: "3" },
+    });
+    fireEvent.change(screen.getByLabelText(/height \(m\)/i), {
+      target: { value: "2.7" },
+    });
+    const grossWall = wallOnChange.mock.calls[
+      wallOnChange.mock.calls.length - 1
+    ]?.[0] as number;
     fireEvent.change(screen.getByLabelText(/doors per room/i), {
       target: { value: "1" },
     });
-    const netWall = wallOnChange.mock.calls[wallOnChange.mock.calls.length - 1]?.[0] as number;
+    const netWall = wallOnChange.mock.calls[
+      wallOnChange.mock.calls.length - 1
+    ]?.[0] as number;
     expect(netWall).toBeLessThan(grossWall);
     unmount();
 
     const floorOnChange = vi.fn();
     render(
       <MemoryRouter>
-        <BuildingTemplatePanel marketCode="GB" surface="floor" onChange={floorOnChange} />
+        <BuildingTemplatePanel
+          marketCode="GB"
+          surface="floor"
+          onChange={floorOnChange}
+        />
       </MemoryRouter>,
     );
     fireEvent.change(screen.getByLabelText(/building type/i), {
       target: { value: "custom" },
     });
     fireEvent.click(screen.getByRole("button", { name: /add custom room/i }));
-    const floorBefore = floorOnChange.mock.calls[floorOnChange.mock.calls.length - 1]?.[0] as number;
-    expect(floorBefore).toBe(9);
+    const floorBefore = floorOnChange.mock.calls[
+      floorOnChange.mock.calls.length - 1
+    ]?.[0] as number;
+    expect(floorBefore).toBe(0);
   });
 });

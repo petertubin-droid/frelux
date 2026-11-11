@@ -74,6 +74,28 @@ describe("tall building engine: geometry and system", () => {
   });
 });
 
+describe("tall building engine: screening limits", () => {
+  it("always discloses that roof-specific actions are outside the model", () => {
+    const result = calculateTallBuilding(DEFAULT_TALL_INPUT);
+    expect(result.checks.some((check) => check.id === "roof-not-modeled")).toBe(
+      true,
+    );
+  });
+
+  it("flags bounded or non-finite inputs that were normalized", () => {
+    const bounded = calculateTallBuilding({ floors: 200 });
+    expect(bounded.input.floors).toBe(140);
+    expect(
+      bounded.checks.some((check) => check.id === "input-normalized"),
+    ).toBe(true);
+
+    const invalid = calculateTallBuilding({ floors: Number.NaN });
+    expect(
+      invalid.checks.some((check) => check.id === "input-normalized"),
+    ).toBe(true);
+  });
+});
+
 describe("tall building engine: wind", () => {
   it("follows the square law on wind speed", () => {
     const base = calculateTallBuilding({ basic_wind_speed_ms: 20 });

@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
@@ -139,6 +140,7 @@ const ROOM_PRESETS: {
 export default function WallpaperCalculator() {
   const resetInputs = () => {
     setWalls([{ ...INITIAL_WALL }]);
+    setUnplacedTemplateOpenings(0);
     setRoll("standard");
     setWasteRate(0);
     setPatternRepeat(0);
@@ -181,6 +183,7 @@ export default function WallpaperCalculator() {
   const [walls, setWalls] = useState<WallpaperWallInput[]>([
     { ...INITIAL_WALL },
   ]);
+  const [unplacedTemplateOpenings, setUnplacedTemplateOpenings] = useState(0);
   const [roll, setRoll] = useState("standard");
   const [wasteRate, setWasteRate] = useState(0);
   const [patternRepeat, setPatternRepeat] = useState(0);
@@ -384,6 +387,7 @@ export default function WallpaperCalculator() {
 
   const reset = () => {
     setWalls([{ ...INITIAL_WALL }]);
+    setUnplacedTemplateOpenings(0);
     setRoll("standard");
     setVisualStyle("plain");
     setWasteRate(0);
@@ -422,7 +426,61 @@ export default function WallpaperCalculator() {
           >
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <h2 className="text-lg font-bold text-foreground">
-                Start with a room
+                Start with a building schedule
+              </h2>
+              <p className="mb-4 mt-1 text-sm text-muted-foreground">
+                Load an editable market building template or create a custom
+                room schedule. This expands each room to four walls, within the
+                calculator’s 100-wall limit. Door and window counts use the
+                calculator’s editable opening-size assumptions; verify each
+                opening before ordering.
+              </p>
+              <BuildingTemplatePanel
+                marketCode={market.marketCode}
+                surface="wall"
+                maxRoomCount={25}
+                onChange={(_area, _totals, schedule) => {
+                  setUnplacedTemplateOpenings(
+                    schedule?.unplacedOpenings?.length ?? 0,
+                  );
+                  const next = (schedule?.rooms ?? []).flatMap((room) =>
+                    (room.walls ?? []).map((wall) => ({
+                      id: wall.id,
+                      label: `${room.label} · ${wall.label}`,
+                      widthM: wall.length,
+                      heightM: wall.height,
+                      doors: (wall.openings ?? []).filter(
+                        (opening) => opening.kind === "door",
+                      ).length,
+                      windows: (wall.openings ?? []).filter(
+                        (opening) => opening.kind === "window",
+                      ).length,
+                    })),
+                  );
+                  if (next.length > 0 && next.length <= 100) {
+                    setWalls(next);
+                    setPreviewWallId(next[0].id);
+                  }
+                }}
+              />
+              {unplacedTemplateOpenings > 0 && (
+                <p
+                  role="status"
+                  className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-foreground"
+                >
+                  {unplacedTemplateOpenings} template opening
+                  {unplacedTemplateOpenings === 1
+                    ? " could not"
+                    : "s could not"}{" "}
+                  be placed on the room walls with the shared assumed sizes, so{" "}
+                  {unplacedTemplateOpenings === 1 ? "it is" : "they are"} not
+                  deducted. Review the wall opening counts and sizes below.
+                </p>
+              )}
+            </div>
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+              <h2 className="text-lg font-bold text-foreground">
+                Or start with a single room
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Pick the room you are papering. It replaces the walls below with

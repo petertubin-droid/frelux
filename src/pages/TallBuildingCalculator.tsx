@@ -94,9 +94,8 @@ const TALL_FAQS = [
 ];
 
 /**
- * Typical towers. A visitor who does not know a floor plate from a plan ratio
- * still needs a sane starting point, so the page opens on a real building
- * rather than on a wall of empty engineering fields.
+ * Illustrative tower input presets. They are not verified designs or market
+ * standards and must be replaced with project-specific geometry and loads.
  */
 const TALL_PRESETS: {
   id: string;
@@ -106,7 +105,7 @@ const TALL_PRESETS: {
 }[] = [
   {
     id: "office-6",
-    name: "6-storey office",
+    name: "6-storey office (illustrative)",
     blurb: "30 × 22 m floor plate",
     patch: {
       floors: 6,
@@ -119,7 +118,7 @@ const TALL_PRESETS: {
   },
   {
     id: "apartments-12",
-    name: "12-storey apartments",
+    name: "12-storey apartments (illustrative)",
     blurb: "26 × 20 m floor plate",
     patch: {
       floors: 12,
@@ -132,7 +131,7 @@ const TALL_PRESETS: {
   },
   {
     id: "mixed-20",
-    name: "20-storey mixed use",
+    name: "20-storey mixed use (illustrative)",
     blurb: "34 × 26 m floor plate",
     patch: {
       floors: 20,
@@ -145,7 +144,7 @@ const TALL_PRESETS: {
   },
   {
     id: "tower-40",
-    name: "40-storey tower",
+    name: "40-storey tower (illustrative)",
     blurb: "42 × 32 m floor plate",
     patch: {
       floors: 40,
@@ -153,6 +152,214 @@ const TALL_PRESETS: {
       ground_floor_height: 5.0,
       plan_length: 42,
       plan_width: 32,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "tower-60",
+    name: "60-storey high-rise",
+    blurb: "Illustrative 46 × 34 m office plate",
+    patch: {
+      floors: 60,
+      floor_height: 3.6,
+      ground_floor_height: 5,
+      plan_length: 46,
+      plan_width: 34,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "tower-80",
+    name: "80-storey skyscraper",
+    blurb: "Illustrative 50 × 38 m hotel plate",
+    patch: {
+      floors: 80,
+      floor_height: 3.5,
+      ground_floor_height: 5,
+      plan_length: 50,
+      plan_width: 38,
+      occupancy: "hotel",
+    },
+  },
+  {
+    id: "tower-100",
+    name: "100-storey skyscraper",
+    blurb: "Illustrative 54 × 40 m office plate",
+    patch: {
+      floors: 100,
+      floor_height: 3.6,
+      ground_floor_height: 5.5,
+      plan_length: 54,
+      plan_width: 40,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "tower-120",
+    name: "120-storey skyscraper",
+    blurb: "Illustrative 58 × 42 m office plate",
+    patch: {
+      floors: 120,
+      floor_height: 3.6,
+      ground_floor_height: 6,
+      plan_length: 58,
+      plan_width: 42,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "tower-140",
+    name: "140-storey megatall screening",
+    blurb: "Illustrative upper-range inputs, not a verified tower",
+    patch: {
+      floors: 140,
+      floor_height: 3.6,
+      ground_floor_height: 6,
+      plan_length: 62,
+      plan_width: 46,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "screen-3",
+    name: "3-storey mixed-use starter",
+    blurb: "Illustrative 26 × 20 m floor plate",
+    patch: {
+      floors: 3,
+      floor_height: 3.1,
+      ground_floor_height: 3.6,
+      plan_length: 26,
+      plan_width: 20,
+      occupancy: "residential",
+    },
+  },
+  {
+    id: "screen-8",
+    name: "8-storey residential",
+    blurb: "Illustrative 28 × 22 m floor plate",
+    patch: {
+      floors: 8,
+      floor_height: 3.0,
+      ground_floor_height: 3.6,
+      plan_length: 28,
+      plan_width: 22,
+      occupancy: "residential",
+    },
+  },
+  {
+    id: "screen-15",
+    name: "15-storey hotel",
+    blurb: "Illustrative 32 × 24 m floor plate",
+    patch: {
+      floors: 15,
+      floor_height: 3.2,
+      ground_floor_height: 4.0,
+      plan_length: 32,
+      plan_width: 24,
+      occupancy: "hotel",
+    },
+  },
+  {
+    id: "screen-25",
+    name: "25-storey office",
+    blurb: "Illustrative 36 × 28 m floor plate",
+    patch: {
+      floors: 25,
+      floor_height: 3.5,
+      ground_floor_height: 4.5,
+      plan_length: 36,
+      plan_width: 28,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "screen-30",
+    name: "30-storey education",
+    blurb: "Illustrative 38 × 30 m floor plate",
+    patch: {
+      floors: 30,
+      floor_height: 3.4,
+      ground_floor_height: 4.2,
+      plan_length: 38,
+      plan_width: 30,
+      occupancy: "education",
+    },
+  },
+  {
+    id: "screen-35",
+    name: "35-storey hotel tower",
+    blurb: "Illustrative 40 × 30 m floor plate",
+    patch: {
+      floors: 35,
+      floor_height: 3.3,
+      ground_floor_height: 4.5,
+      plan_length: 40,
+      plan_width: 30,
+      occupancy: "hotel",
+    },
+  },
+  {
+    id: "screen-50",
+    name: "50-storey residential high-rise",
+    blurb: "Illustrative 44 × 34 m floor plate",
+    patch: {
+      floors: 50,
+      floor_height: 3.2,
+      ground_floor_height: 4.8,
+      plan_length: 44,
+      plan_width: 34,
+      occupancy: "residential",
+    },
+  },
+  {
+    id: "screen-70",
+    name: "70-storey mixed-use tower",
+    blurb: "Illustrative 48 × 36 m floor plate",
+    patch: {
+      floors: 70,
+      floor_height: 3.5,
+      ground_floor_height: 5.0,
+      plan_length: 48,
+      plan_width: 36,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "screen-90",
+    name: "90-storey skyscraper",
+    blurb: "Illustrative 52 × 38 m floor plate",
+    patch: {
+      floors: 90,
+      floor_height: 3.6,
+      ground_floor_height: 5.2,
+      plan_length: 52,
+      plan_width: 38,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "screen-110",
+    name: "110-storey skyscraper",
+    blurb: "Illustrative 56 × 42 m floor plate",
+    patch: {
+      floors: 110,
+      floor_height: 3.6,
+      ground_floor_height: 5.5,
+      plan_length: 56,
+      plan_width: 42,
+      occupancy: "office",
+    },
+  },
+  {
+    id: "screen-130",
+    name: "130-storey megatall screening",
+    blurb: "Illustrative 60 × 44 m floor plate",
+    patch: {
+      floors: 130,
+      floor_height: 3.6,
+      ground_floor_height: 6.0,
+      plan_length: 60,
+      plan_width: 44,
       occupancy: "office",
     },
   },
@@ -176,6 +383,17 @@ export default function TallBuildingCalculator() {
   });
 
   const result = useMemo(() => calculateTallBuilding(params), [params]);
+  const adjustedInputs = (
+    Object.keys(params) as Array<keyof TallBuildingInput>
+  ).filter((key) => {
+    const supplied = params[key];
+    const normalized = result.input[key];
+    return (
+      typeof supplied === "number" &&
+      typeof normalized === "number" &&
+      supplied !== normalized
+    );
+  });
   const {
     geometry,
     gravity,
@@ -419,6 +637,21 @@ export default function TallBuildingCalculator() {
         </Button>
       </div>
 
+      {adjustedInputs.length > 0 && (
+        <div
+          role="alert"
+          className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm"
+        >
+          <strong>
+            Some inputs were normalized to the supported screening range.
+          </strong>
+          <p className="mt-1 text-muted-foreground">
+            Review the entered values and screening limits before interpreting
+            results. Adjusted fields: {adjustedInputs.join(", ")}.
+          </p>
+        </div>
+      )}
+
       {/* Start here */}
       <section
         className="rounded-2xl border border-border bg-card p-5 space-y-4"
@@ -430,12 +663,22 @@ export default function TallBuildingCalculator() {
             Pick the tower closest to yours
           </h2>
           <p className="text-sm text-muted-foreground">
-            Each option fills the height, floor plate and loading with a typical
-            building of that size. Change anything below and every figure
-            follows.
+            All 20 options are illustrative starting inputs, not verified
+            designs or typical market data. Replace their geometry and
+            assumptions with project-specific information.
           </p>
+          <div
+            role="note"
+            className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-foreground"
+          >
+            Screening scope: the roof is not independently modeled. Floor-load
+            inputs are used as the generic repeated-floor model; roof geometry,
+            roof-specific snow/live loads, transfer levels, outriggers, and
+            detailed load paths are outside this screen. Foundation outputs
+            require project-specific geotechnical and structural design review.
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {TALL_PRESETS.map((preset) => {
             const active =
               params.floors === preset.patch.floors &&

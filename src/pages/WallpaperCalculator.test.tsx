@@ -137,6 +137,22 @@ describe("WallpaperCalculator page", () => {
     ).toBeTruthy();
   });
 
+  it("loads an editable market building template into the wallpaper wall schedule", async () => {
+    render(
+      <MemoryRouter>
+        <WallpaperCalculator />
+      </MemoryRouter>,
+    );
+    const picker = screen.getByLabelText("Building type (optional)");
+    const presetOption = Array.from((picker as HTMLSelectElement).options).find(
+      (option) => option.value && option.value !== "custom",
+    );
+    expect(presetOption).toBeTruthy();
+    fireEvent.change(picker, { target: { value: presetOption!.value } });
+    expect(await screen.findByText(/template floor area/)).toBeTruthy();
+    expect(screen.getAllByLabelText(/Width \(m\)/i).length).toBeGreaterThan(1);
+  });
+
   it("answers in rolls, shop packages and wall covered", () => {
     render(
       <MemoryRouter>

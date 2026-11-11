@@ -1543,6 +1543,62 @@ export function calculateTallBuilding(
   // ── Checks ──
   const checks: TallCheck[] = [];
 
+  checks.push({
+    id: "roof-not-modeled",
+    severity: "advisory",
+    title: "Roof actions are not independently modeled",
+    observed: "Repeated floor-load assumptions only",
+    threshold: "No roof geometry, snow load, or roof-specific live-load check",
+    basis: "Defined scope of this preliminary screening engine",
+    action:
+      "Assess roof framing, plant, snow/rain, parapets, and roof-specific load combinations in the project structural model.",
+  });
+
+  const boundedNumericKeys: Array<keyof TallBuildingInput> = [
+    "floors",
+    "floor_height",
+    "ground_floor_height",
+    "plan_length",
+    "plan_width",
+    "concrete_grade_mpa",
+    "dead_load_kpa",
+    "live_load_kpa",
+    "partition_kpa",
+    "cladding_kpa",
+    "basic_wind_speed_ms",
+    "wind_directionality_kd",
+    "force_coefficient_cf",
+    "seismic_sds",
+    "seismic_sd1",
+    "seismic_s1",
+    "seismic_r",
+    "seismic_importance",
+    "spt_n",
+    "water_table_m",
+    "pile_diameter_m",
+    "pile_length_m",
+    "cycle_days_per_floor",
+  ];
+  const changedInputs = boundedNumericKeys.filter((key) => {
+    const supplied = rawInput[key];
+    if (supplied === undefined) return false;
+    const raw = Number(supplied);
+    return !Number.isFinite(raw) || raw !== input[key];
+  });
+  if (changedInputs.length > 0) {
+    checks.push({
+      id: "input-normalized",
+      severity: "warning",
+      title: "One or more inputs were normalized",
+      observed: changedInputs.join(", "),
+      threshold:
+        "Values outside the screening engine's supported ranges are bounded",
+      basis: "Input validation ranges documented in this calculator",
+      action:
+        "Review each supplied value against the supported range before relying on any result.",
+    });
+  }
+
   if (!withinRange) {
     checks.push({
       id: "system-range",
