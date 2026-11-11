@@ -117,12 +117,11 @@ export default function FlooringEstimator() {
     setLengthUnit,
   } = useMarket();
   const areaUnit: AreaUnit = preferredAreaUnit === "sqft" ? "ft2" : "m2";
-  const lengthUnit: LengthUnit =
-    preferredLengthUnit === "feet" || preferredLengthUnit === "ft" ? "ft" : "m";
+  const lengthUnit: LengthUnit = preferredLengthUnit === "feet" ? "ft" : "m";
   const areaLabel = areaUnit === "ft2" ? "ft²" : "m²";
   const lengthLabel = lengthUnit === "ft" ? "ft" : "m";
   /** Money per square metre, whichever area unit the visitor is typing in. */
-  const rateFactor = convertArea(1, "m2", areaUnit);
+  const rateFactor = convertArea(1, "m2", areaUnit) ?? 1;
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
 
@@ -188,6 +187,19 @@ export default function FlooringEstimator() {
     [rules, sharedWaste.value],
   );
 
+  const displayToAreaM2 = useCallback(
+    (value: number) => convertArea(value, areaUnit, "m2") ?? value,
+    [areaUnit],
+  );
+  const displayToLengthM = useCallback(
+    (value: number) => convertLength(value, lengthUnit, "m") ?? value,
+    [lengthUnit],
+  );
+  const areaM2ToDisplay = (value: number) =>
+    convertArea(value, "m2", areaUnit) ?? value;
+  const lengthMToDisplay = (value: number) =>
+    convertLength(value, "m", lengthUnit) ?? value;
+
   const input: FlooringInput = useMemo(() => {
     const run = (v: string): number | null => {
       const trimmed = v.trim();
@@ -200,9 +212,8 @@ export default function FlooringEstimator() {
     const rate = run(labourRate);
     return {
       flooring_type: floorType,
-      floor_area_m2: area === null ? null : convertArea(area, areaUnit, "m2"),
-      skirting_run_m:
-        skirting === null ? null : convertLength(skirting, lengthUnit, "m"),
+      floor_area_m2: area === null ? null : displayToAreaM2(area),
+      skirting_run_m: skirting === null ? null : displayToLengthM(skirting),
       include_underlay: includeUnderlay,
       include_adhesive: includeAdhesive,
       labour: {
@@ -222,8 +233,8 @@ export default function FlooringEstimator() {
     includeAdhesive,
     labourMode,
     labourRate,
-    areaUnit,
-    lengthUnit,
+    displayToAreaM2,
+    displayToLengthM,
     rateFactor,
   ]);
 
@@ -441,24 +452,26 @@ export default function FlooringEstimator() {
    * Switching a unit converts the typed figure, so a measurement never
    * silently changes meaning between m² and ft².
    */
-  const switchAreaUnit = (next: AreaUnit) => {
+  const switchAreaUnit = (next: "m2" | "ft2") => {
     if (next === areaUnit) return;
     const value = Number(areaInput);
     if (Number.isFinite(value) && value > 0) {
-      setAreaInput(
-        String(Math.round(convertArea(value, areaUnit, next) * 100) / 100),
-      );
+      const converted = convertArea(value, areaUnit, next);
+      if (converted !== null) {
+        setAreaInput(String(Math.round(converted * 100) / 100));
+      }
     }
-    void setAreaUnit(next);
+    void setAreaUnit(next === "ft2" ? "sqft" : "sqm");
   };
 
   const switchLengthUnit = (next: LengthUnit) => {
     if (next === lengthUnit) return;
     const value = Number(skirtingInput);
     if (Number.isFinite(value) && value > 0) {
-      setSkirtingInput(
-        String(Math.round(convertLength(value, lengthUnit, next) * 100) / 100),
-      );
+      const converted = convertLength(value, lengthUnit, next);
+      if (converted !== null) {
+        setSkirtingInput(String(Math.round(converted * 100) / 100));
+      }
     }
     void setLengthUnit(next === "ft" ? "feet" : "meters");
   };
@@ -505,18 +518,14 @@ export default function FlooringEstimator() {
             onChange={(areaM2, totals) => {
               setAreaInput(
                 areaM2 > 0
-                  ? String(
-                      Math.round(convertArea(areaM2, "m2", areaUnit) * 100) /
-                        100,
-                    )
+                  ? String(Math.round(areaM2ToDisplay(areaM2) * 100) / 100)
                   : "",
               );
               setSkirtingInput(
                 totals && totals.perimeterM > 0
                   ? String(
-                      Math.round(
-                        convertLength(totals.perimeterM, "m", lengthUnit) * 100,
-                      ) / 100,
+                      Math.round(lengthMToDisplay(totals.perimeterM) * 100) /
+                        100,
                     )
                   : "",
               );
@@ -614,7 +623,7 @@ export default function FlooringEstimator() {
             material="flooring"
             baseQuantity={
               Number(areaInput) > 0
-                ? convertArea(Number(areaInput), areaUnit, "m2")
+                ? displayToAreaM2(Number(areaInput))
                 : undefined
             }
             unit="m²"
