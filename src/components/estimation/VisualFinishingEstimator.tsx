@@ -1,5 +1,9 @@
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import React, { useState, useRef, useId } from "react";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import {
   Camera,
   Upload,
@@ -144,6 +148,27 @@ export function VisualFinishingEstimator({
   const [result, setResult] = useState<VisualFinishingEstimateResult | null>(
     null,
   );
+
+  /** Start over returns the page to an empty photograph step. Media, surfaces,
+   *  calibration, drafts and the finished estimate all go together: a cleared
+   *  photo with a surviving price list would be a quote for nothing. */
+  const startOver = () => {
+    setStep(1);
+    setActivity(initialActivity);
+    setMarketCode(initialMarket);
+    setMedia(null);
+    setImagePreview(null);
+    setSelectedKeyframeIndex(0);
+    setUploadError(null);
+    setVideoProgress(null);
+    setVisionWarnings([]);
+    setSurfaces([]);
+    setSurfaceDimensionDrafts({});
+    setCalibrationWarnings([]);
+    setIsCalibrated(false);
+    setResult(null);
+    setCloudSaveStatus(null);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -1539,6 +1564,52 @@ export function VisualFinishingEstimator({
             )}
           </div>
 
+          <div className="mt-4 space-y-3">
+            <QuoteShareButton
+              build={() =>
+                result
+                  ? {
+                      title: `FRELUX ${result.activityName} Estimate`,
+                      metaRows: [
+                        ["Market", result.marketName],
+                        ["Calibration", result.provenance.calibrationMethod],
+                        ["Surfaces measured", String(result.surfaces.length)],
+                        ["Priced", result.isFullyPriced ? "yes" : "partly"],
+                      ] as Array<[string, string]>,
+                      lines: result.materials.map((m) => ({
+                        label: m.name,
+                        quantity: [m.quantity, m.unit]
+                          .filter((v) => v !== null && v !== undefined)
+                          .join(" "),
+                        amount: m.lineCost === null ? "" : String(m.lineCost),
+                      })),
+                      totals: [
+                        {
+                          label: "Material subtotal",
+                          value:
+                            result.subtotalMaterialCost === null
+                              ? ""
+                              : String(result.subtotalMaterialCost),
+                          strong: true,
+                        },
+                      ],
+                      warnings: [
+                        ...result.missingInformation,
+                        ...(result.isFullyPriced
+                          ? []
+                          : [
+                              "Some lines are unpriced. Confirm them with a supplier before quoting.",
+                            ]),
+                      ],
+                    }
+                  : null
+              }
+              kind={`${t("Visual finishing estimate")}`}
+              link="/tools/visual-finishing-estimator"
+            />
+            <CalculatorResetButton onReset={startOver} />
+          </div>
+
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <Button variant="outline" size="sm" onClick={() => setStep(2)}>
@@ -1571,6 +1642,11 @@ export function VisualFinishingEstimator({
                 {cloudSaveStatus}
               </p>
             )}
+            <div className="w-full">
+              <HowCalculatedSection
+                methodologyText={methodologyText("wall-finish")}
+              />
+            </div>
           </div>
         </div>
       )}

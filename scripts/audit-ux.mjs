@@ -127,9 +127,13 @@ function pageFeatures(file) {
     ],
     share: hit(/QuoteShareButton|ShareRow|shareEstimate|WhatsAppShare|ShareBar|buildShareMessage|shareQuote/),
     pdf: hit(/pdf|PDF|Pdf/),
-    reset: hit(/CalculatorResetButton|ResetButton|onReset|handleReset|resetForm|StartOver|startOver/),
+    reset: hit(
+      /CalculatorResetButton|ResetButton|onReset|handleReset|resetForm|StartOver|startOver|Start fresh|startFresh|clearAll|Clear all/i,
+    ),
     disclaimer: hit(/Disclaimer|disclaimer/),
-    methodology: hit(/Methodology|MethodNote|howCalculated|how we calculated|How we calculated/i),
+    methodology: hit(
+      /HowCalculatedSection|methodology|MethodNote|howCalculated|how we calculated/i,
+    ),
   };
 }
 

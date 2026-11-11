@@ -1,4 +1,8 @@
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
@@ -145,6 +149,49 @@ export default function ConversationalEstimator() {
       alive = false;
     };
   }, []);
+
+  /** Start over clears the described job and its reading. The language packs and
+   *  market configuration stay, since they are the vocabulary, not an input. */
+  const resetInputs = () => {
+    setThread("");
+    setResult(null);
+  };
+
+  const buildQuote = () => {
+    if (!result) return null;
+    const paint = result.paintEstimate;
+    return {
+      title: "FRELUX Conversational Estimate",
+      metaRows: [
+        ["Read as", result.intent],
+        ["Language", result.language],
+        ...result.understood.map((u) => [u.label, u.value] as [string, string]),
+      ] as Array<[string, string]>,
+      lines: paint
+        ? paint.containers.map((c) => ({
+            label: `${c.size} L container`,
+            quantity: String(c.count),
+            unit: "container(s)",
+          }))
+        : [],
+      totals: paint
+        ? [
+            { label: "Paintable area", value: `${paint.paintableArea} sq ft` },
+            { label: "Litres required", value: `${paint.liters} L` },
+            {
+              label: "Coats applied",
+              value: String(paint.coats),
+              strong: true,
+            },
+          ]
+        : [],
+      warnings: [
+        ...(result.notFoundNote ? [result.notFoundNote] : []),
+        ...result.followUpQuestions,
+        ...(paint?.warnings ?? []),
+      ],
+    };
+  };
 
   async function onEstimate() {
     if (thread.trim().length === 0) return;
@@ -379,6 +426,17 @@ export default function ConversationalEstimator() {
         )}
       </section>
 
+      <div className="mt-6 space-y-3">
+        <QuoteShareButton
+          build={buildQuote}
+          kind="Conversational Estimate"
+          link="/conversational-estimator"
+        />
+        <CalculatorResetButton onReset={resetInputs} />
+        <HowCalculatedSection
+          methodologyText={methodologyText("conversational")}
+        />
+      </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <div className="mt-10">

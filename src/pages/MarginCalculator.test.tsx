@@ -242,4 +242,16 @@ describe("engine route registration (regression)", () => {
       );
     }
   });
+
+  it("offers start over and the how-calculated note on the page", () => {
+    render(
+      <MemoryRouter>
+        <MarginCalculator />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("button", { name: /start over/i })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /how this estimate is calculated/i }),
+    ).toBeTruthy();
+  });
 });

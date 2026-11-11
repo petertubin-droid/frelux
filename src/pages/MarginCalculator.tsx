@@ -10,6 +10,10 @@
  */
 
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -97,6 +101,52 @@ export default function MarginCalculator() {
       Number.isFinite(Number(value)) &&
       Number(value) >= 0,
   );
+
+  /** Clears only what the visitor typed. Presets and rules stay loaded, since
+   *  they are the catalogue this calculator prices against, not user input. */
+  const resetInputs = () => {
+    setCost("");
+    setMaterials("");
+    setOtherDirect("");
+    setLaborHours("");
+    setLaborRate("");
+    setWeeklyOverhead("");
+    setDurationWeeks("");
+    setCostBreakdown(null);
+    setResult(null);
+  };
+
+  const buildQuote = () => {
+    if (!result?.ok || result.quote_total === null) return null;
+    return {
+      title: "FRELUX Profit Margin Estimate",
+      metaRows: [
+        ["Preset", selected?.name ?? "Configured preset"],
+        ["Basis", result.basis ?? "margin on price"],
+        ["Margin applied", `${result.margin_percent ?? 0}%`],
+        ["Base cost", result.base_cost === null ? "" : money(result.base_cost)],
+      ] as Array<[string, string]>,
+      lines: (result.steps ?? []).map((step) => ({
+        label: step.label,
+        detail: step.detail,
+      })),
+      totals: [
+        {
+          label: "Profit",
+          value: result.profit === null ? "" : money(result.profit),
+        },
+        {
+          label: result.vat_rate !== null ? `VAT (${result.vat_rate}%)` : "VAT",
+          value: result.vat_amount === null ? "" : money(result.vat_amount),
+        },
+        {
+          label: "Quote total",
+          value: money(result.quote_total),
+          strong: true,
+        },
+      ],
+    };
+  };
 
   const run = () => {
     if (!selected) return;
@@ -455,6 +505,15 @@ export default function MarginCalculator() {
             </details>
           </div>
         )}
+      </div>
+      <div className="mt-6 space-y-3">
+        <QuoteShareButton
+          build={buildQuote}
+          kind="Profit Margin Estimate"
+          link="/margin-calculator"
+        />
+        <CalculatorResetButton onReset={resetInputs} />
+        <HowCalculatedSection methodologyText={methodologyText("margin")} />
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />

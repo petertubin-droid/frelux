@@ -1,4 +1,8 @@
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useNavigate } from "react-router-dom";
 import { stageStudioImport } from "@/lib/document-studio";
@@ -158,6 +162,59 @@ export default function BoqGenerator() {
   const [savedRef, setSavedRef] = useState<string | null>(null);
   /** Row id (uuid) of the saved quote — revisions reference this, not the ref string. */
   const [savedId, setSavedId] = useState<string | null>(null);
+
+  /** Start over returns the page to an empty bill. The generated document,
+   *  revision trail and saved reference go with it, because a half-cleared
+   *  revision history would read as a real record of a quote that no longer
+   *  exists. Estimates loaded from the library are left untouched. */
+  const resetInputs = () => {
+    setTitle("");
+    setClientName("");
+    setClientContact("");
+    setProjectLocation("");
+    setItems([]);
+    setResult(null);
+    setQuoteRef(null);
+    setSavedRef(null);
+    setSavedId(null);
+    setSaveMsg(null);
+    setRevision(1);
+    setRevisions([]);
+    setRestoredFrom(null);
+    setVolatilityPct(0);
+  };
+
+  const buildShareQuote = () => {
+    if (!result?.ok || !result.totals) return null;
+    const t = result.totals;
+    return {
+      title: title.trim() || "FRELUX Bill of Quantities",
+      metaRows: [
+        ["Client", clientName],
+        ["Project location", projectLocation],
+        ["Reference", quoteRef ?? ""],
+        ["Revision", `v${revision}`],
+      ] as Array<[string, string]>,
+      lines: items.map((item) => ({
+        label: item.description,
+        quantity: `${item.quantity} ${item.unit}`,
+        amount: money(item.quantity * item.unit_cost),
+      })),
+      totals: [
+        { label: "Subtotal", value: money(t.subtotal) },
+        {
+          label: "Contingency",
+          value:
+            t.contingency_amount === null ? "" : money(t.contingency_amount),
+        },
+        {
+          label: "VAT",
+          value: t.vat_amount === null ? "" : money(t.vat_amount),
+        },
+        { label: "Grand total", value: money(t.grand_total), strong: true },
+      ],
+    };
+  };
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
@@ -1273,6 +1330,15 @@ export default function BoqGenerator() {
             )}
           </div>
         )}
+      </div>
+      <div className="mt-6 space-y-3">
+        <QuoteShareButton
+          build={buildShareQuote}
+          kind="Bill of Quantities"
+          link="/boq-generator"
+        />
+        <CalculatorResetButton onReset={resetInputs} />
+        <HowCalculatedSection methodologyText={methodologyText("boq")} />
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />

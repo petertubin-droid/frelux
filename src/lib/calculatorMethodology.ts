@@ -10,11 +10,13 @@
  */
 export type MethodologyKey =
   | "blueprint-takeoff"
+  | "boq"
   | "standalone-takeoff"
   | "ai-photo-estimate"
   | "borehole"
   | "build-to-roof"
   | "configurable-finish"
+  | "conversational"
   | "doors-windows"
   | "electrical"
   | "fence-block"
@@ -23,7 +25,9 @@ export type MethodologyKey =
   | "foundation-estimator"
   | "generator"
   | "site-safety"
+  | "smart-calc"
   | "labour"
+  | "margin"
   | "painting"
   | "plumbing"
   | "pop-ceiling"
@@ -40,6 +44,22 @@ export type MethodologyKey =
   | "window-blinds";
 
 const METHODOLOGY: Record<MethodologyKey, string> = {
+  "smart-calc": `The reading happens on the page, before any paid step. The description is scanned for the words that identify a trade and the numbers that size it, and that decides which calculator the project belongs in.
+Anything recognised is quoted back as a summary line, and every dimension the description did not give is listed as not stated rather than filled with a default, because an invented room size produces a confident wrong total.
+The page then hands you the calculator that owns that trade, where the deterministic engine does the measuring and the pricing. This page routes the job, it does not price it.`,
+
+  boq: `A bill of quantities is built from line items, and each line keeps the estimate or manual entry it came from. Nothing is invented: a line without a source is marked as manual, so a reader can see which figures came out of a calculator and which were typed by a person.
+Quantities are priced at the unit cost held against each line. The subtotal is the sum of quantity times unit cost, then contingency and the volatility buffer are added as their own visible lines rather than folded into a rate.
+VAT is applied from the configured rule only after those additions, and the grand total is the number the document stands behind. Revisions snapshot the lines and prices at the moment of generation, so an older revision still reads as it was issued even after the price book moves.`,
+
+  conversational: `The thread is read as a description of a job, not a form. Language detection runs first so a Nigerian, Spanish or French description is parsed with the right vocabulary, then the parser pulls the numbers that decide a quantity: dimensions, storeys, number of rooms, wall height and openings.
+Anything it could not find is listed as missing rather than assumed, so a critical gap produces a question instead of a total. When the job is a painting job the parsed dimensions go into the same paint engine the calculator page uses, which is why the two pages agree.
+The reply quotes only the figures it read from your words, names the calculator that would finish the job, and writes a parse log so a wrong reading can be traced rather than argued about.`,
+
+  margin: `The page adds nothing of its own to the money. Base cost is either entered as one figure or summed from materials, other direct costs, labour hours at a labour rate, and weekly overhead for the number of weeks on site.
+The chosen admin preset then decides whether the percentage is a margin on the selling price or a markup on the cost, and those are not the same number: a 20 percent margin is a 25 percent markup. The engine applies the basis it reports, then VAT from your configured rule.
+The output states the margin used, its equivalent on the other basis, the profit, the priced subtotal and the quote total, so a price can be defended line by line rather than asserted.`,
+
   "blueprint-takeoff": `You calibrate the drawing once per sheet, by marking a known dimension and telling the page its real length. Every later mark is converted with that scale, so the measurement is only as good as the line you calibrated against.
 
 Areas come from the polygon you trace, taken as the shoelace sum of its points. A rectangle drawn with four marks is checked for being near square before it is treated as one.

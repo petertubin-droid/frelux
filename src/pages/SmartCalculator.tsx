@@ -1,4 +1,8 @@
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
@@ -85,6 +89,29 @@ export default function SmartCalculator() {
     () => (usable ? buildProjectContext(trimmed) : ""),
     [trimmed, usable],
   );
+
+  /** Start over blanks the described project, including the saved draft, so a
+   *  reload does not bring back a job the visitor just cleared. */
+  const resetInputs = () => setDescription("");
+
+  const buildShareQuote = () =>
+    reading
+      ? {
+          title: "FRELUX Smart Calculator Reading",
+          metaRows: [
+            ["Project type", reading.intent?.label ?? "not identified"],
+            ["Calculator", reading.intent?.path ?? ""],
+          ] as Array<[string, string]>,
+          lines: reading.summaryLines.map((line) => ({
+            label: line,
+            quantity: "",
+          })),
+          totals: [],
+          warnings: reading.missing.length
+            ? [`Not stated yet: ${reading.missing.join(", ")}`]
+            : [],
+        }
+      : null;
 
   useEffect(() => {
     try {
@@ -290,6 +317,18 @@ export default function SmartCalculator() {
             <ArrowLeft className="h-4 w-4" />
             {t("Browse every calculator")}
           </Link>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          <QuoteShareButton
+            build={buildShareQuote}
+            kind="Smart Calculator Reading"
+            link="/smart-calculator"
+          />
+          <CalculatorResetButton onReset={resetInputs} />
+          <HowCalculatedSection
+            methodologyText={methodologyText("smart-calc")}
+          />
         </div>
 
         {/* Ad slot, placement "calculator_mid" */}
