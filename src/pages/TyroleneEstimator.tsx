@@ -9,6 +9,7 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
+import AdSlot from "@/components/ui/AdSlot";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import {
@@ -1863,6 +1864,9 @@ export default function TyroleneEstimator({
           </div>
         )}
       </Container>
+
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
 
       {!embedded && (
         <>
