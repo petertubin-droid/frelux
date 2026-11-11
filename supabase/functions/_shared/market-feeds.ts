@@ -502,6 +502,29 @@ const GENERIC_MATERIAL_WORDS = new Set([
   "kit",
 ]);
 
+/** Size units, which are kept as tokens even at one character.
+ *
+ *  A pack size is often a single digit and a single letter: "4 L" of bitumen
+ *  primer, "5 kg" of filler. Dropping one-character tokens erased the whole
+ *  size, so "Bitumen primer 4 L" carried no size at all and a 20 litre tub
+ *  scored 0.82 against it. Keeping the unit and the digit is what lets the
+ *  size check below separate a 4 L pack from a 20 L one. */
+const SIZE_UNIT_TOKENS = new Set([
+  "mm",
+  "cm",
+  "m",
+  "m2",
+  "m3",
+  "kg",
+  "g",
+  "l",
+  "ml",
+  "w",
+  "kw",
+  "a",
+  "v",
+]);
+
 function tokens(value: string): string[] {
   return (
     value
@@ -512,7 +535,11 @@ function tokens(value: string): string[] {
       .replace(/(\d)\s*([a-z])/g, "$1 $2")
       .replace(/[^a-z0-9. ]+/g, " ")
       .split(/\s+/)
-      .filter((t) => t.length > 1 && !STOP_WORDS.has(t))
+      .filter(
+        (t) =>
+          (t.length > 1 || /\d/.test(t) || SIZE_UNIT_TOKENS.has(t)) &&
+          !STOP_WORDS.has(t),
+      )
   );
 }
 
@@ -545,6 +572,18 @@ export function scoreTokens(a: string[], b: string[]): number {
     (t) => !/\d/.test(t) && !GENERIC_MATERIAL_WORDS.has(t),
   );
   if (specific.some((t) => !aSet.has(t))) return 0;
+  // A material whose identity is entirely generic ("N-grade rebar 12mm") has no
+  // specific word to check, so nothing anchored the row to the product: a rope
+  // grab written "12mm" scored 0.64 against 12mm rebar. When every identity
+  // word is generic, the row must at least name one of them.
+  const identityWords = b.filter((t) => GENERIC_MATERIAL_WORDS.has(t));
+  if (
+    specific.length === 0 &&
+    identityWords.length > 0 &&
+    !identityWords.some((t) => aSet.has(t))
+  ) {
+    return 0;
+  }
   const shared = b.filter((t) => aSet.has(t)).length;
   if (shared === 0) return 0;
   const coverage = shared / b.length; // material covered by the row

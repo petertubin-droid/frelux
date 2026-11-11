@@ -66,7 +66,7 @@ begin
         access_status, access_notes, reliability_score, source_format
       ) values (
         s.market,
-        '_catalogue',
+        '*',
         s.retailer,
         s.retailer || ' catalogue (' || s.market || ')',
         s.catalogue_url,
