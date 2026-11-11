@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -533,6 +534,25 @@ export default function GermanFloorCalculator() {
         />
       </div>
 
+      <HowCalculatedSection
+        methodologyText={`Floor area comes from the plot preset you pick or your own length x width. Each layer is then priced separately, because each is a separate purchase.
+
+Hardcore: area x hardcore depth, then multiplied by 1.25 loose bulking. Hardcore is bought loose and compacts down, so a cubic metre in the ground is more than a cubic metre on the lorry.
+
+Sand blinding: a thin sand layer spread under the membrane to stop it puncturing on the hardcore.
+
+Membrane: floor area plus a 10% lap allowance where the sheets overlap.
+
+Concrete slab: wet volume is area x slab depth. Dry volume adds a factor of 1.54 because sand and granite bulk up when dry. The mix ratio you choose splits that dry volume into cement, sand and granite, and cement is converted to bags at your market's bag weight. Slab quantities carry 5% wastage.
+
+Prices come from the market book for your country. Labour and any rate you type are added on top.`}
+        assumptions={[
+          { label: "Loose bulking on hardcore", value: "1.25" },
+          { label: "Concrete dry factor", value: "1.54" },
+          { label: "Membrane lap", value: "10%" },
+          { label: "Slab wastage", value: "5%" },
+        ]}
+      />
       <EstimateDisclaimer />
     </>
   );

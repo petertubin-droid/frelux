@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useState } from "react";
 import { useEngineAccess } from "@/lib/use-engine-access";
@@ -428,6 +429,21 @@ export default function EarthworksEstimator() {
                   <CalculatorResetButton
                     onReset={resetInputs}
                     className="mb-4"
+                  />
+                  <HowCalculatedSection
+                    methodologyText={`Volumes use the average end area method, the standard site method for cut and fill.
+
+For each pair of stations the calculator takes the two cross-section areas, averages them, and multiplies by the chainage distance between them. Three stations give two volumes, one per interval.
+
+Cut volumes are multiplied by your bulking factor, because excavated soil swells and the lorry is paid in loose cubic metres. Fill volumes are multiplied by your shrinkage factor, because fill compacts down and the material you import must exceed the void it fills.
+
+With reuse switched on, suitable cut is netted against fill before anything is bought in or taken away, so you only pay to import the shortfall or remove the surplus.
+
+The soil description is recorded for the job record. It does not change the quantities.`}
+                    assumptions={[
+                      { label: "Method", value: "Average end area" },
+                      { label: "Bulking and shrinkage", value: "Your factors" },
+                    ]}
                   />
                   <ShareEstimateButton
                     estimate={{

@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -935,6 +936,19 @@ export default function WallpaperCalculator() {
               </div>
               <div className="border-t border-border px-5 pb-5 sm:px-6">
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={`Net wall area is each wall's length x its height, with door and window openings deducted at the sizes you give.
+
+A roll's usable coverage is its width x its length. What decides the number of rolls is the drop, not the area: each drop is cut at the wall height plus your trim allowance, and the pattern repeat is added on top.
+
+A straight match rounds every cut up to a whole repeat, because the sheet must line up with the one beside it. A half-drop match adds half a repeat to every second drop, which is the published cutting rule. With no pattern repeat, no matching allowance is applied.
+
+Drops per roll are worked out from the cut length, and rolls are rounded up to whole rolls. Your waste rate and the optional spare roll are added after that, so a room that just fits does not come up one roll short.`}
+                  assumptions={[
+                    { label: "Coverage", value: "Roll width x length" },
+                    { label: "Matching", value: "Straight or half-drop" },
+                  ]}
+                />
                 <ShareEstimateButton
                   estimate={{
                     kind: isPanelFormat

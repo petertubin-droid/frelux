@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -945,6 +946,21 @@ export default function TvConsoleCalculator() {
                     <CalculatorResetButton
                       onReset={resetInputs}
                       className="mb-4"
+                    />
+                    <HowCalculatedSection
+                      methodologyText={`The console is priced as sheet material, not as a picture.
+
+Carcass: the top, bottom, two sides and back are cut from your overall width, height and depth at the board thickness you choose. Back panel thickness is counted at its own value.
+
+Shelves, dividers and drawers each add board area. Drawer fronts are cut at your drawer front height. Doors are cut to the opening with your reveal deducted between them, so a two-door unit loses one reveal, not two.
+
+The board total is raised by your waste percentage, because a 2.4 m sheet does not cut into 1.9 m panels without offcut.
+
+Wall panel area and LED metres are priced separately at the rates you enter, and a floating mount carries its own allowance. Workshop rate is charged on the board area, finishing rate on the finished surface, and tax is added last.`}
+                      assumptions={[
+                        { label: "Carcass", value: "Cut from your dimensions" },
+                        { label: "Waste", value: "Your percentage" },
+                      ]}
                     />
                     <ShareEstimateButton
                       estimate={{

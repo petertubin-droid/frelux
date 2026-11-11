@@ -1,4 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -604,6 +605,19 @@ export default function IncreteFlooringEstimator() {
             </details>
             <div className="mt-5">
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={`Floor volume is area x thickness, in the units you choose.
+
+Each product you add is priced against its own coverage rate from the Increte system in your market, so a topping, a hardener and a sealer each return the quantity their own datasheet implies rather than a single blended figure.
+
+The labour rate you enter is applied to the floor area and shown separately from materials.
+
+Prices come from the market book for your selected market. Anything you type over it replaces the book figure for that line only.`}
+                assumptions={[
+                  { label: "Volume", value: "Area x thickness" },
+                  { label: "Coverage", value: "Product datasheet rate" },
+                ]}
+              />
               <ShareEstimateButton
                 estimate={{
                   kind: "Increte Flooring Estimate",
