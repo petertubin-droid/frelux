@@ -11,6 +11,7 @@
  * This is ESTIMATION, not a flooring specification.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -78,6 +79,16 @@ function fmtN(v: number | null): string {
 }
 
 export default function FlooringEstimator() {
+  const resetInputs = () => {
+    setFloorType("laminate");
+    setAreaInput("");
+    setSkirtingInput("");
+    setIncludeUnderlay(true);
+    setIncludeAdhesive(false);
+    setLabourMode("none");
+    setLabourRate("");
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -535,6 +546,7 @@ export default function FlooringEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Flooring Estimate"

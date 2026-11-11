@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import {
   useEffect,
   useRef,
@@ -104,6 +105,23 @@ const ADVANCED_FEATURES = [
 export default function PopCeilingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  // Back to the opening figures, with the market unit and the visitor's own
+  // waste allowance respected. Loaded materials and workflows stay.
+  const resetInputs = () => {
+    setInput({
+      workflow: "nigeria",
+      roomLength: 0,
+      roomWidth: 0,
+      unit: resolveMarketRoomUnit(market, "meters"),
+      wasteMargin: sharedWaste.value,
+      includeDecorative: false,
+      includeOptional: false,
+    });
+    setAlreadyHave(0);
+    setErrors({});
+    setSaveMsg("");
+    setResult(null);
+  };
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling");
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
@@ -350,6 +368,7 @@ export default function PopCeilingCalculator({
           calculatorType="pop"
           onLoad={(t) => setInput(t.input_data as unknown as PopCalcInput)}
         />
+        <CalculatorResetButton onReset={resetInputs} />
         <SaveTemplateButton
           calculatorType="pop"
           inputData={input as unknown as Record<string, unknown>}

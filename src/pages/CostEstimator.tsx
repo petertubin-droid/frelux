@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { MacroTrackerCard } from "@/components/pricing/MacroTrackerCard";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { SupplierOfferBadge } from "@/components/calculator/SupplierOfferBadge";
@@ -173,6 +174,45 @@ function exportCostQuote(args: {
 export default function CostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const resetInputs = () => {
+    setInput({
+      projectType: "room",
+      paintableArea: 0,
+      paintLiters: 0,
+      coats: 2,
+      paintType: "",
+      paintProductId: null,
+      paintProductName: "",
+      paintContainerSize: 0,
+      paintContainerPrice: 0,
+      paintPricePerLiter: 0,
+      paintUseContainerPricing: false,
+      includePrimer: false,
+      primerLiters: 0,
+      primerPricePerLiter: 0,
+      includeFiller: false,
+      fillerCost: 0,
+      includePutty: false,
+      puttyCost: 0,
+      includeSandpaper: false,
+      sandpaperCost: 0,
+      includeBrushes: false,
+      brushesCost: 0,
+      includeRollers: false,
+      rollersCost: 0,
+      includeOther: false,
+      otherMaterialsCost: 0,
+      laborMode: "manual",
+      laborRatePerSqm: 0,
+      laborTotal: 0,
+      currency,
+      currencySymbol,
+    });
+    setLabourConfig(DEFAULT_LABOUR_CONFIG);
+    setManualBucketSize(20);
+    setManualBucketPrice(0);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { defaults: calcDefaults } = useCalcDefaults("cost");
   const seoOfferCurrency = useSeoOfferCurrency();
@@ -1213,6 +1253,10 @@ export default function CostEstimator({
 
               {result && (
                 <>
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="cost"

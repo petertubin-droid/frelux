@@ -10,6 +10,7 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useMarket } from "@/lib/international/market-context";
@@ -77,6 +78,22 @@ function fmtN(v: number | null): string {
 }
 
 export default function WaterproofingEstimator() {
+  // Restores the six measurement fields and the labour choice. The price map
+  // and rule rows stay: they are the catalogue the engine prices against.
+  const resetInputs = () => {
+    setAreas({
+      dpc_run_m: "",
+      dpm_area_m2: "",
+      wet_floor_area_m2: "",
+      wet_wall_area_m2: "",
+      wet_perimeter_m: "",
+      terrace_area_m2: "",
+    });
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -437,6 +454,7 @@ export default function WaterproofingEstimator() {
               >
                 {saving ? "Saving…" : "Save estimate"}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Waterproofing Estimate"
