@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -426,6 +428,9 @@ export default function FoundationCalculator() {
 
             <div className="mb-6">
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("foundation")}
+              />
               <ShareEstimateButton
                 estimate={{
                   kind: "Foundation Design",

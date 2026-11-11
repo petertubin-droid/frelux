@@ -10,6 +10,8 @@
  * This is ESTIMATION, not professional plumbing design.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -669,6 +671,9 @@ export default function PlumbingEstimator() {
                 {t("Export quote (PDF)")}
               </button>
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("plumbing")}
+              />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Plumbing Estimate"

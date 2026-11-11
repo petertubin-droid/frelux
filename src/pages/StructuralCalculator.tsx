@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
@@ -762,6 +764,9 @@ export function ConcreteTakeoffCalculator() {
               </button>
             )}
             <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+            <HowCalculatedSection
+              methodologyText={methodologyText("structural")}
+            />
             <QuoteShareButton
               build={buildConcreteQuote}
               kind="Concrete Takeoff"

@@ -9,6 +9,8 @@
  *   This page renders; it never computes durations itself.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
@@ -256,6 +258,9 @@ export default function LabourEstimator() {
               </div>
               <div className="mt-3">
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("labour")}
+                />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Labour Duration",

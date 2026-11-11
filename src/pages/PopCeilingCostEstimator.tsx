@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -664,6 +666,9 @@ export default function PopCeilingCostEstimator({
                         <CalculatorResetButton
                           onReset={resetInputs}
                           className="mb-4"
+                        />
+                        <HowCalculatedSection
+                          methodologyText={methodologyText("pop-ceiling")}
                         />
                         <ShareEstimateButton
                           estimate={quoteToShareable(

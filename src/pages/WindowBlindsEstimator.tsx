@@ -12,6 +12,8 @@
 // supplies the figure, and tax is never assumed.
 // =========================================================
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
@@ -836,6 +838,9 @@ export default function WindowBlindsEstimator() {
               </p>
               <div className="mt-4">
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("window-blinds")}
+                />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Window Blinds Estimate",

@@ -7,6 +7,8 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
@@ -2362,6 +2364,9 @@ function EstimateResult({
               <FileDown className="h-4 w-4" /> {t("Export Quote (PDF)")}
             </Button>
             <CalculatorResetButton onReset={onReset} className="mb-4" />
+            <HowCalculatedSection
+              methodologyText={methodologyText("painting")}
+            />
             <ShareEstimateButton
               estimate={quoteToShareable(
                 paintingQuoteOptions({

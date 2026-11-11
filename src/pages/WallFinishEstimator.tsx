@@ -12,6 +12,8 @@
  * never invented.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
@@ -1202,6 +1204,9 @@ export default function WallFinishEstimator() {
                   {t("Export PDF")}
                 </button>
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("wall-finish")}
+                />
                 <QuoteShareButton
                   build={buildShareQuote}
                   kind="Wall Finishing Estimate"

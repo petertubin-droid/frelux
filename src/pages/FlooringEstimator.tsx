@@ -11,6 +11,8 @@
  * This is ESTIMATION, not a flooring specification.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -547,6 +549,9 @@ export default function FlooringEstimator() {
                 {t("Export quote (PDF)")}
               </button>
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("flooring")}
+              />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Flooring Estimate"

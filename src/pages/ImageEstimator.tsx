@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
@@ -1576,6 +1578,9 @@ export function EstimateResultView({
             </span>
           )}
           <CalculatorResetButton onReset={onReset} />
+          <HowCalculatedSection
+            methodologyText={methodologyText("ai-photo-estimate")}
+          />
           <QuoteShareButton
             build={buildEstimateQuote}
             kind="AI Photo Estimate"

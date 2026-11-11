@@ -10,6 +10,8 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
@@ -455,6 +457,9 @@ export default function WaterproofingEstimator() {
                 {saving ? "Saving…" : "Save estimate"}
               </button>
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("waterproofing")}
+              />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Waterproofing Estimate"

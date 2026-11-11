@@ -3,6 +3,8 @@
 // Deterministic high-rise screening page
 // =========================================================
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -355,6 +357,9 @@ export default function TallBuildingCalculator() {
 
       <div className="flex flex-wrap gap-3">
         <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+        <HowCalculatedSection
+          methodologyText={methodologyText("tall-building")}
+        />
         <ShareEstimateButton
           estimate={{
             kind: "High Rise Screening",

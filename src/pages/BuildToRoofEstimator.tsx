@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import AdSlot from "@/components/ui/AdSlot";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { stageStudioImport } from "@/lib/document-studio";
@@ -3742,6 +3744,9 @@ function EstimateResult({
               {t("Export CSV")}
             </Button>
           )}
+          <HowCalculatedSection
+            methodologyText={methodologyText("build-to-roof")}
+          />
           <ShareEstimateButton
             estimate={quoteToShareable(
               quoteOptions(),

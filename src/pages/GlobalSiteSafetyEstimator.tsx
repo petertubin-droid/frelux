@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AdSlot from "@/components/ui/AdSlot";
@@ -540,6 +542,9 @@ export default function GlobalSiteSafetyEstimator() {
                     <CalculatorResetButton
                       onReset={resetInputs}
                       className="mb-4"
+                    />
+                    <HowCalculatedSection
+                      methodologyText={methodologyText("site-safety")}
                     />
                     <ShareEstimateButton
                       estimate={{

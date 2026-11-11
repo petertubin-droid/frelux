@@ -11,6 +11,8 @@
  * This is ESTIMATION and does NOT design foundations.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -534,6 +536,9 @@ export default function FoundationEstimator() {
                 </button>
               )}
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("foundation-estimator")}
+              />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Foundation Estimate"

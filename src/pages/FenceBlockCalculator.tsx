@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
@@ -568,6 +570,9 @@ export default function FenceBlockCalculator() {
             ) : result ? (
               <div className="mt-4 space-y-5">
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("fence-block")}
+                />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Fence Block Takeoff",

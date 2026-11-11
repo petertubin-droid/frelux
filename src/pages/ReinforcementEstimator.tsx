@@ -11,6 +11,8 @@
  * This is ESTIMATION and does NOT design reinforcement.
  */
 
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -565,6 +567,9 @@ export default function ReinforcementEstimator() {
                 </button>
               )}
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+              <HowCalculatedSection
+                methodologyText={methodologyText("reinforcement")}
+              />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Rebar Estimate"

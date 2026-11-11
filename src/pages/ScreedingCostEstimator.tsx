@@ -1,3 +1,5 @@
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
@@ -837,6 +839,9 @@ export default function ScreedingCostEstimator({
                           <CalculatorResetButton
                             onReset={resetInputs}
                             className="mb-4"
+                          />
+                          <HowCalculatedSection
+                            methodologyText={methodologyText("screeding")}
                           />
                           <ShareEstimateButton
                             estimate={quoteToShareable(
