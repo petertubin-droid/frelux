@@ -11,6 +11,7 @@
  * This is ESTIMATION and does NOT design foundations.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -79,6 +80,18 @@ function fmtN(v: number | null): string {
 }
 
 export default function FoundationEstimator() {
+  const resetInputs = () => {
+    setFields({
+      concrete_volume_m3: "",
+      block_wall_area_m2: "",
+      hardcore_volume_m3: "",
+      formwork_area_m2: "",
+    });
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/foundation-calculator");
   const { code: displayCurrencyCode, symbol: displayCurrencySymbol } =
@@ -520,6 +533,7 @@ export default function FoundationEstimator() {
                   {t("Export quote (PDF)")}
                 </button>
               )}
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Foundation Estimate"

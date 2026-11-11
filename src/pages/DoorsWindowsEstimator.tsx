@@ -11,6 +11,7 @@
  * This is ESTIMATION, not a fixing specification.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -88,6 +89,21 @@ function fmtN(v: number | null): string {
 }
 
 export default function DoorsWindowsEstimator() {
+  const resetInputs = () => {
+    setCounts({
+      flush_doors: "",
+      panel_doors: "",
+      security_doors: "",
+      aluminium_windows: "",
+      louvre_windows: "",
+    });
+    setGlazing({ area: "", pane: "", thickness: "" });
+    setIncludeLocksets(true);
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -605,6 +621,7 @@ export default function DoorsWindowsEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Doors & Windows Estimate"

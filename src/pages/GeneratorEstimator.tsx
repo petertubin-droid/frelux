@@ -13,6 +13,7 @@
  * design.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -68,6 +69,17 @@ function fmtN(v: number | null): string {
 }
 
 export default function GeneratorEstimator() {
+  const resetInputs = () => {
+    setSize("20kva");
+    setUnits("1");
+    setCableRun("");
+    setIncludeAts(true);
+    setIncludeBattery(true);
+    setLabourMode("none");
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
@@ -453,6 +465,7 @@ export default function GeneratorEstimator() {
               >
                 {t("Export quote (PDF)")}
               </button>
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Backup Power Estimate"

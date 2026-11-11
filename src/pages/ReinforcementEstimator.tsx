@@ -11,6 +11,7 @@
  * This is ESTIMATION and does NOT design reinforcement.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -93,6 +94,14 @@ const DEFAULT_LENS: Record<LenField, string> = {
 };
 
 export default function ReinforcementEstimator() {
+  // The bar schedule returns to the empty opening set: the price map and rule
+  // rows are the loaded book and stay.
+  const resetInputs = () => {
+    setLens(DEFAULT_LENS);
+    setLabourRate("");
+    setSaveState(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/reinforcement");
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
@@ -555,6 +564,7 @@ export default function ReinforcementEstimator() {
                   {t("Export quote (PDF)")}
                 </button>
               )}
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <QuoteShareButton
                 build={buildQuote}
                 kind="Rebar Estimate"
