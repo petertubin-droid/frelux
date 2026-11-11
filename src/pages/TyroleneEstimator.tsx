@@ -9,6 +9,7 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
@@ -196,6 +197,27 @@ function exportTyroleneQuote(args: {
 export default function TyroleneEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  // One partition type at the loaded defaults again; the product and its
+  // configured rules are the book and stay loaded.
+  const resetInputs = () => {
+    setProjectDescription("");
+    setCustomerLocation("unknown");
+    setInputMode("standard");
+    setStandardCount(4);
+    setPartitionTypes([
+      {
+        id: "pt1",
+        label: "Partition Type 1",
+        quantity: 10,
+        width: 3,
+        height: 3,
+      },
+    ]);
+    setAlreadyHave(0);
+    setShowSteps(false);
+    setSaved(false);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
@@ -1710,6 +1732,10 @@ export default function TyroleneEstimator({
                     />
 
                     <div className="pt-2">
+                      <CalculatorResetButton
+                        onReset={resetInputs}
+                        className="mb-4"
+                      />
                       <ShareEstimateButton
                         estimate={{
                           kind: "Tyrolene Estimate",
