@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useRef, useState } from "react";
@@ -73,6 +74,16 @@ interface PdfDocumentProxy {
 const COLORS = ["#2563eb", "#e11d48", "#059669", "#d97706", "#7c3aed"];
 
 export default function BlueprintTakeoff() {
+  // Marks, calibration scales and the draft polygon clear. The loaded sheet,
+  // its page count and the zoom stay: the visitor is still on the same drawing.
+  const resetInputs = () => {
+    setMarks([]);
+    setDraft([]);
+    setScalesByPage({});
+    setMode("calibrate");
+    setLabelInput("");
+    setCalibrationLength("1");
+  };
   const { marketCode } = useMarket();
   useSeo({
     title: "Blueprint & Plan Takeoff | FRELUX",
@@ -946,6 +957,10 @@ export default function BlueprintTakeoff() {
               )}
               {handoff && (
                 <div className="mt-3">
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
                   <ShareEstimateButton
                     estimate={{
                       kind: "Blueprint Takeoff",

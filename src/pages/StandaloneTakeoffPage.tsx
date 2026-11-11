@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import {
   useCallback,
@@ -166,6 +167,14 @@ export default function StandaloneTakeoffPage({
 }: {
   initialEngine?: Engine;
 }) {
+  const resetInputs = () => {
+    setResult(null);
+    setError("");
+    setBuilding(null);
+    setBuildingNotes([]);
+    setPlasterFaces(2);
+    setBridgeProvenance("");
+  };
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -999,6 +1008,10 @@ export default function StandaloneTakeoffPage({
                     <Download className="mr-2 h-4 w-4" />
                     {t("Export PDF")}
                   </Button>
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
                   <QuoteShareButton
                     build={buildTakeoffQuote}
                     kind={`${title} Takeoff`}
