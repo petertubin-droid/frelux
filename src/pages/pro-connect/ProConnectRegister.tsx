@@ -12,6 +12,7 @@ import {
   updateProfileLocations,
   getMyProProfile,
   getMyProContactPhone,
+  getProProfileCoverageForEdit,
   generateProSlug,
   isSlugAvailable,
   upgradeToProWorker,
@@ -52,7 +53,10 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
-import { proConnectCountryName } from "@/pages/pro-connect/coverage";
+import {
+  proConnectCountryName,
+  proConnectLocationsForCountry,
+} from "@/pages/pro-connect/coverage";
 
 export default function ProConnectRegister() {
   const { t } = useLanguage();
@@ -78,6 +82,9 @@ export default function ProConnectRegister() {
   const [website, setWebsite] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [profileCoverageLoading, setProfileCoverageLoading] = useState(false);
+  const [profileCoverageLoadFailed, setProfileCoverageLoadFailed] =
+    useState(false);
   const [country, setCountry] = useState("NG");
   const [serviceAreaText, setServiceAreaText] = useState("");
   const [availability, setAvailability] = useState<
@@ -150,8 +157,33 @@ export default function ProConnectRegister() {
           setBio(existing.bio || "");
           setYearsExperience(existing.years_experience?.toString() || "");
           setPhone((await getMyProContactPhone()) || "");
-          if (existing.country) setCountry(existing.country);
+          const existingCountry = existing.country || "NG";
+          setCountry(existingCountry);
           setServiceAreaText(existing.service_area_text || "");
+          setProfileCoverageLoading(true);
+          const existingCoverage = await getProProfileCoverageForEdit(
+            existing.id,
+          );
+          if (!existingCoverage.ok) {
+            setProfileCoverageLoadFailed(true);
+            setError(
+              "We couldn't load your saved services and locations. Refresh and try again before editing.",
+            );
+          } else {
+            setSelectedServices(
+              existingCoverage.services.map((link) => link.service_id),
+            );
+            setSelectedLocations(
+              existingCoverage.locations
+                .filter(
+                  (link) =>
+                    (link.location?.country ?? "NG").toUpperCase() ===
+                    existingCountry.toUpperCase(),
+                )
+                .map((link) => link.location_id),
+            );
+          }
+          setProfileCoverageLoading(false);
           setWebsite(existing.website_url || "");
           setAvailability(existing.availability);
           setStep(1);
@@ -160,9 +192,7 @@ export default function ProConnectRegister() {
     })();
   }, [user]);
 
-  const countryLocations = locations.filter(
-    (l) => (l.country ?? "NG") === country,
-  );
+  const countryLocations = proConnectLocationsForCountry(locations, country);
   const states = [...new Set(countryLocations.map((l) => l.state))].sort();
   const filteredServices = categoryId
     ? services.filter((s) => s.category_id === categoryId)
@@ -179,6 +209,18 @@ export default function ProConnectRegister() {
   }, [displayName, businessName, existingProfile]);
 
   async function handleStep1Submit() {
+    if (profileCoverageLoading) {
+      setError(
+        "Your saved services and locations are still loading. Please wait.",
+      );
+      return;
+    }
+    if (existingProfile && profileCoverageLoadFailed) {
+      setError(
+        "Your saved service coverage could not be loaded. Refresh and try again before editing.",
+      );
+      return;
+    }
     if (!displayName.trim()) {
       setError("Display name is required");
       return;
@@ -222,7 +264,7 @@ export default function ProConnectRegister() {
         return;
       }
     } else {
-      await updateProProfile(profileId, {
+      const profileSaved = await updateProProfile(profileId, {
         display_name: displayName,
         category_id: categoryId,
         business_name: businessName || null,
@@ -231,6 +273,11 @@ export default function ProConnectRegister() {
         contact_phone: phone || null,
         website_url: website || null,
       } as Partial<DbProProfile>);
+      if (!profileSaved) {
+        setError("We couldn't save your profile details. Please try again.");
+        setSaving(false);
+        return;
+      }
     }
 
     setSaving(false);
@@ -240,7 +287,16 @@ export default function ProConnectRegister() {
   async function handleStep2Submit() {
     if (!profileId) return;
     setSaving(true);
-    await updateProfileServices(profileId, selectedServices);
+    setError("");
+    const servicesSaved = await updateProfileServices(
+      profileId,
+      selectedServices,
+    );
+    if (!servicesSaved) {
+      setError("We couldn't save your selected services. Please try again.");
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     setStep(3);
   }
@@ -249,9 +305,14 @@ export default function ProConnectRegister() {
     if (!profileId) return;
     setSaving(true);
     setError("");
-    const locationsSaved = await updateProfileLocations(profileId, selectedLocations);
+    const locationsSaved = await updateProfileLocations(
+      profileId,
+      selectedLocations,
+    );
     if (!locationsSaved) {
-      setError("We couldn't save your selected service locations. Please try again.");
+      setError(
+        "We couldn't save your selected service locations. Please try again.",
+      );
       setSaving(false);
       return;
     }
@@ -420,7 +481,10 @@ export default function ProConnectRegister() {
       </div>
 
       {error && (
-        <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
+        <div
+          role="alert"
+          className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400"
+        >
           {error}
         </div>
       )}
@@ -635,15 +699,23 @@ export default function ProConnectRegister() {
           <div className="space-y-3 rounded-lg border border-border bg-muted/30 p-3">
             {states.length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                FRELUX doesn’t have a verified city list for {proConnectCountryName(country)} yet. Your text coverage will appear on your profile, but won’t be geocoded or included in nearby searches.
+                FRELUX doesn’t have a verified city list for{" "}
+                {proConnectCountryName(country)} yet. Your text coverage will
+                appear on your profile, but won’t be geocoded or included in
+                nearby searches.
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                {t("Add other areas you serve. Text coverage appears on your profile but is not geocoded or included in nearby searches.")}
+                {t(
+                  "Add other areas you serve. Text coverage appears on your profile but is not geocoded or included in nearby searches.",
+                )}
               </p>
             )}
             <div>
-              <label htmlFor="pro-service-area-text" className="mb-1 block text-sm font-medium text-foreground">
+              <label
+                htmlFor="pro-service-area-text"
+                className="mb-1 block text-sm font-medium text-foreground"
+              >
                 {t("Additional service area (city, region, or radius)")}
               </label>
               <input

@@ -13,6 +13,7 @@ import type {
   ProAvailability,
 } from "@/types/pro-connect";
 import { sendPushToUser } from "@/lib/push-notifications";
+import { normalizeProConnectSearchQuery } from "@/lib/pro-connect-search";
 
 // =========================================================
 // PRO CONNECT, Data access layer
@@ -179,6 +180,37 @@ export async function getProProfileServices(
   return data as DbProProfileService[];
 }
 
+export async function getProProfileCoverageForEdit(profileId: string): Promise<{
+  ok: boolean;
+  services: DbProProfileService[];
+  locations: DbProProfileLocation[];
+}> {
+  if (!isSupabaseConfigured) return { ok: false, services: [], locations: [] };
+  const [servicesResult, locationsResult] = await Promise.all([
+    supabase
+      .from("pro_profile_services")
+      .select("*, service:pro_services(*)")
+      .eq("profile_id", profileId),
+    supabase
+      .from("pro_profile_locations")
+      .select("*, location:pro_locations(*)")
+      .eq("profile_id", profileId),
+  ]);
+  if (servicesResult.error || locationsResult.error) {
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] getProProfileCoverageForEdit:",
+        servicesResult.error?.message ?? locationsResult.error?.message,
+      );
+    return { ok: false, services: [], locations: [] };
+  }
+  return {
+    ok: true,
+    services: (servicesResult.data ?? []) as DbProProfileService[],
+    locations: (locationsResult.data ?? []) as DbProProfileLocation[],
+  };
+}
+
 export async function getProProfileLocations(
   profileId: string,
 ): Promise<DbProProfileLocation[]> {
@@ -276,6 +308,63 @@ export async function searchProfessionals(
   const pageSize = params.pageSize || 12;
   const offset = (page - 1) * pageSize;
 
+  // Resolve many-to-many filters before paging so filtered pages and totals stay accurate.
+  let candidateProfileIds: Set<string> | null = null;
+  if (params.serviceId) {
+    const { data, error } = await supabase
+      .from("pro_profile_services")
+      .select("profile_id")
+      .eq("service_id", params.serviceId);
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] search service filter:", error.message);
+      return { profiles: [], total: 0, hasMore: false };
+    }
+    candidateProfileIds = new Set((data ?? []).map((row) => row.profile_id));
+  }
+
+  if (params.state || params.city) {
+    let locationQuery = supabase.from("pro_locations").select("id");
+    if (params.country)
+      locationQuery = locationQuery.eq("country", params.country.toUpperCase());
+    if (params.state) locationQuery = locationQuery.eq("state", params.state);
+    if (params.city) locationQuery = locationQuery.eq("city", params.city);
+    const { data: locations, error: locationError } = await locationQuery;
+    if (locationError) {
+      if (import.meta.env.DEV)
+        console.error(
+          "[pro-connect] search location filter:",
+          locationError.message,
+        );
+      return { profiles: [], total: 0, hasMore: false };
+    }
+    const locationIds = (locations ?? []).map((location) => location.id);
+    if (locationIds.length === 0)
+      return { profiles: [], total: 0, hasMore: false };
+    const { data: links, error: linkError } = await supabase
+      .from("pro_profile_locations")
+      .select("profile_id")
+      .in("location_id", locationIds);
+    if (linkError) {
+      if (import.meta.env.DEV)
+        console.error(
+          "[pro-connect] search location links:",
+          linkError.message,
+        );
+      return { profiles: [], total: 0, hasMore: false };
+    }
+    const locationProfileIds = new Set(
+      (links ?? []).map((link) => link.profile_id),
+    );
+    candidateProfileIds = candidateProfileIds
+      ? new Set(
+          [...candidateProfileIds].filter((id) => locationProfileIds.has(id)),
+        )
+      : locationProfileIds;
+  }
+  if (candidateProfileIds?.size === 0)
+    return { profiles: [], total: 0, hasMore: false };
+
   let query = supabase
     .from("pro_profiles")
     .select(
@@ -286,7 +375,10 @@ export async function searchProfessionals(
     .neq("verification_status", "suspended");
 
   if (params.country) {
-    query = query.eq("country", params.country);
+    query = query.eq("country", params.country.toUpperCase());
+  }
+  if (candidateProfileIds) {
+    query = query.in("id", [...candidateProfileIds]);
   }
   if (params.categoryId) {
     query = query.eq("category_id", params.categoryId);
@@ -300,9 +392,10 @@ export async function searchProfessionals(
   if (params.verifiedOnly) {
     query = query.eq("verification_status", "verified");
   }
-  if (params.searchQuery) {
+  const searchTerm = normalizeProConnectSearchQuery(params.searchQuery ?? "");
+  if (searchTerm) {
     query = query.or(
-      `display_name.ilike.%${params.searchQuery}%,business_name.ilike.%${params.searchQuery}%,bio.ilike.%${params.searchQuery}%`,
+      `display_name.ilike.%${searchTerm}%,business_name.ilike.%${searchTerm}%,bio.ilike.%${searchTerm}%,service_area_text.ilike.%${searchTerm}%`,
     );
   }
 
@@ -324,52 +417,10 @@ export async function searchProfessionals(
 
   const profiles = (data || []) as DbProProfile[];
   const total = count || 0;
-
-  // If filtering by service or location, we need post-filter
-  let filteredProfiles = profiles;
-
-  if (params.serviceId) {
-    const profileIds = profiles.map((p) => p.id);
-    if (profileIds.length > 0) {
-      const { data: serviceLinks } = await supabase
-        .from("pro_profile_services")
-        .select("profile_id")
-        .in("profile_id", profileIds)
-        .eq("service_id", params.serviceId);
-      const validIds = new Set((serviceLinks || []).map((s) => s.profile_id));
-      filteredProfiles = filteredProfiles.filter((p) => validIds.has(p.id));
-    }
-  }
-
-  if (params.state || params.city) {
-    const profileIds = filteredProfiles.map((p) => p.id);
-    if (profileIds.length > 0) {
-      const locQuery = supabase
-        .from("pro_profile_locations")
-        .select("profile_id, location:pro_locations(state, city)")
-        .in("profile_id", profileIds);
-      const { data: locLinks } = await locQuery;
-      const validIds = new Set(
-        (locLinks || [])
-          .filter((link) => {
-            const loc =
-              (link as unknown as { location: DbProLocation[] })
-                .location?.[0] ?? null;
-            if (!loc) return false;
-            if (params.state && loc.state !== params.state) return false;
-            if (params.city && loc.city !== params.city) return false;
-            return true;
-          })
-          .map((l) => (l as { profile_id: string }).profile_id),
-      );
-      filteredProfiles = filteredProfiles.filter((p) => validIds.has(p.id));
-    }
-  }
-
   return {
-    profiles: filteredProfiles,
-    total: filteredProfiles.length,
-    hasMore: page * pageSize < total,
+    profiles,
+    total,
+    hasMore: offset + profiles.length < total,
   };
 }
 
@@ -440,22 +491,51 @@ export async function updateProfileServices(
   serviceIds: string[],
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  // Delete existing and re-insert (simple, safe)
-  await supabase
+  const requestedIds = [...new Set(serviceIds)];
+  const { data: current, error: readError } = await supabase
     .from("pro_profile_services")
-    .delete()
+    .select("service_id")
     .eq("profile_id", profileId);
-  if (serviceIds.length > 0) {
-    const inserts = serviceIds.map((service_id) => ({
-      profile_id: profileId,
-      service_id,
-    }));
+  if (readError) {
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] updateProfileServices read:",
+        readError.message,
+      );
+    return false;
+  }
+  const currentIds = new Set((current ?? []).map((row) => row.service_id));
+  const additions = requestedIds
+    .filter((id) => !currentIds.has(id))
+    .map((service_id) => ({ profile_id: profileId, service_id }));
+  if (additions.length > 0) {
     const { error } = await supabase
       .from("pro_profile_services")
-      .insert(inserts);
+      .insert(additions);
     if (error) {
       if (import.meta.env.DEV)
-        console.error("[pro-connect] updateProfileServices:", error.message);
+        console.error(
+          "[pro-connect] updateProfileServices insert:",
+          error.message,
+        );
+      return false;
+    }
+  }
+  const obsoleteIds = [...currentIds].filter(
+    (id) => !requestedIds.includes(id),
+  );
+  for (const serviceId of obsoleteIds) {
+    const { error } = await supabase
+      .from("pro_profile_services")
+      .delete()
+      .eq("profile_id", profileId)
+      .eq("service_id", serviceId);
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error(
+          "[pro-connect] updateProfileServices delete:",
+          error.message,
+        );
       return false;
     }
   }
@@ -467,26 +547,51 @@ export async function updateProfileLocations(
   locationIds: string[],
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error: deleteError } = await supabase
+  const requestedIds = [...new Set(locationIds)];
+  const { data: current, error: readError } = await supabase
     .from("pro_profile_locations")
-    .delete()
+    .select("location_id")
     .eq("profile_id", profileId);
-  if (deleteError) {
+  if (readError) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] updateProfileLocations delete:", deleteError.message);
+      console.error(
+        "[pro-connect] updateProfileLocations read:",
+        readError.message,
+      );
     return false;
   }
-  if (locationIds.length > 0) {
-    const inserts = locationIds.map((location_id) => ({
-      profile_id: profileId,
-      location_id,
-    }));
+  const currentIds = new Set((current ?? []).map((row) => row.location_id));
+  const additions = requestedIds
+    .filter((id) => !currentIds.has(id))
+    .map((location_id) => ({ profile_id: profileId, location_id }));
+  if (additions.length > 0) {
     const { error } = await supabase
       .from("pro_profile_locations")
-      .insert(inserts);
+      .insert(additions);
     if (error) {
       if (import.meta.env.DEV)
-        console.error("[pro-connect] updateProfileLocations:", error.message);
+        console.error(
+          "[pro-connect] updateProfileLocations insert:",
+          error.message,
+        );
+      return false;
+    }
+  }
+  const obsoleteIds = [...currentIds].filter(
+    (id) => !requestedIds.includes(id),
+  );
+  for (const locationId of obsoleteIds) {
+    const { error } = await supabase
+      .from("pro_profile_locations")
+      .delete()
+      .eq("profile_id", profileId)
+      .eq("location_id", locationId);
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error(
+          "[pro-connect] updateProfileLocations delete:",
+          error.message,
+        );
       return false;
     }
   }

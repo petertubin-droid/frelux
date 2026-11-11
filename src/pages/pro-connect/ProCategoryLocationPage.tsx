@@ -78,7 +78,9 @@ export default function ProCategoryLocationPage() {
 
       const result = await searchProfessionals({
         categoryId: cat.id,
+        country: loc.country ?? "NG",
         state: loc.state,
+        city: loc.city,
         pageSize: 20,
       });
       setPros(result.profiles);

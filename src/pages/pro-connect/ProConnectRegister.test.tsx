@@ -58,6 +58,11 @@ vi.mock("@/lib/pro-connect", () => ({
   updateProfileLocations: vi.fn(async () => true),
   getMyProProfile: vi.fn(async () => null),
   getMyProContactPhone: vi.fn(async () => null),
+  getProProfileCoverageForEdit: vi.fn(async () => ({
+    ok: true,
+    services: [],
+    locations: [],
+  })),
   generateProSlug: vi.fn(() => "pro"),
   isSlugAvailable: vi.fn(async () => true),
   upgradeToProWorker: () => upgradeToProWorker(),

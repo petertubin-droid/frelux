@@ -40,6 +40,12 @@ import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
+import { normalizeProConnectSearchQuery } from "@/lib/pro-connect-search";
+import {
+  proConnectCities,
+  proConnectLocationsForCountry,
+  proConnectStates,
+} from "@/pages/pro-connect/coverage";
 
 export default function ProConnectDirectory() {
   const { t } = useLanguage();
@@ -72,7 +78,7 @@ export default function ProConnectDirectory() {
   const [profiles, setProfiles] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const [_page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [userLocation, _setUserLocation] =
@@ -126,9 +132,9 @@ export default function ProConnectDirectory() {
 
   // Search
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       setLoading(true);
-      setPage(1);
       const result = await searchProfessionals({
         country: selectedCountry || undefined,
         categoryId: selectedCategory || undefined,
@@ -139,11 +145,14 @@ export default function ProConnectDirectory() {
         minRating: minRating || undefined,
         availability:
           (availabilityFilter as "available" | "busy" | undefined) || undefined,
-        searchQuery: searchQuery || undefined,
-        page: 1,
+        searchQuery: normalizeProConnectSearchQuery(searchQuery) || undefined,
+        page,
         pageSize: 12,
       });
-      setProfiles(result.profiles);
+      if (cancelled) return;
+      setProfiles((current) =>
+        page === 1 ? result.profiles : [...current, ...result.profiles],
+      );
       setTotal(result.total);
       setHasMore(result.hasMore);
       setLoading(false);
@@ -152,6 +161,7 @@ export default function ProConnectDirectory() {
       const svcMap: Record<string, DbProService[]> = {};
       const catMap: Record<string, DbProCategory> = {};
       for (const p of result.profiles) {
+        if (cancelled) return;
         const ps = await getProProfileServices(p.id);
         svcMap[p.id] = ps
           .map((s) => s.service)
@@ -161,9 +171,16 @@ export default function ProConnectDirectory() {
           if (cat) catMap[p.id] = cat;
         }
       }
-      setProfileServices(svcMap);
-      setProfileCategories(catMap);
-    })();
+      if (!cancelled) {
+        setProfileServices((current) => ({ ...current, ...svcMap }));
+        setProfileCategories((current) => ({ ...current, ...catMap }));
+      }
+    })().catch(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [
     selectedCountry,
     selectedCategory,
@@ -175,6 +192,7 @@ export default function ProConnectDirectory() {
     availabilityFilter,
     searchQuery,
     categories,
+    page,
   ]);
 
   // Nearby professionals when location is set
@@ -210,20 +228,19 @@ export default function ProConnectDirectory() {
     minRating,
   ]);
 
-  const states = [...new Set(locations.map((l) => l.state))].sort();
-  const cities = selectedState
-    ? [
-        ...new Set(
-          locations.filter((l) => l.state === selectedState).map((l) => l.city),
-        ),
-      ].sort()
-    : [];
+  const countryLocations = proConnectLocationsForCountry(
+    locations,
+    selectedCountry,
+  );
+  const states = proConnectStates(countryLocations);
+  const cities = proConnectCities(countryLocations, selectedState);
 
   const filteredServices = selectedCategory
     ? services.filter((s) => s.category_id === selectedCategory)
     : services;
 
   function clearFilters() {
+    setPage(1);
     setSelectedCategory(null);
     setSelectedService(null);
     setSelectedState(null);
@@ -279,8 +296,12 @@ export default function ProConnectDirectory() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("Search by name, business, or keyword...")}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
+              aria-label={t("Search by name, business, bio, or service area")}
+              placeholder={t("Search name, business, bio, or service area...")}
               className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
             />
           </div>
@@ -300,6 +321,7 @@ export default function ProConnectDirectory() {
               <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">
                 {
                   [
+                    selectedCountry,
                     selectedCategory,
                     selectedService,
                     selectedState,
@@ -311,6 +333,12 @@ export default function ProConnectDirectory() {
             )}
           </Button>
         </div>
+
+        <p className="-mt-4 mb-5 text-xs text-muted-foreground">
+          {t(
+            "Service-area text is self-reported and keyword-searchable; it is not geocoded or used for distance matching.",
+          )}
+        </p>
 
         {/* Filters panel */}
         {showFilters && (
@@ -324,7 +352,10 @@ export default function ProConnectDirectory() {
                 <select
                   aria-label={t("Category")}
                   value={selectedCategory || ""}
-                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value || null);
+                    setPage(1);
+                  }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
                   <option value="">{t("All categories")}</option>
@@ -344,7 +375,10 @@ export default function ProConnectDirectory() {
                 <select
                   aria-label={t("Service")}
                   value={selectedService || ""}
-                  onChange={(e) => setSelectedService(e.target.value || null)}
+                  onChange={(e) => {
+                    setSelectedService(e.target.value || null);
+                    setPage(1);
+                  }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
                   <option value="">{t("All services")}</option>
@@ -359,15 +393,16 @@ export default function ProConnectDirectory() {
               {/* State */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                  {t("State")}
+                  {t("Country")}
                 </label>
                 <select
-                  aria-label={t("State")}
+                  aria-label={t("Country")}
                   value={selectedCountry || ""}
                   onChange={(e) => {
                     setSelectedCountry(e.target.value || null);
                     setSelectedState(null);
                     setSelectedCity(null);
+                    setPage(1);
                   }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
@@ -383,10 +418,12 @@ export default function ProConnectDirectory() {
                   ))}
                 </select>
                 <select
+                  aria-label={t("State")}
                   value={selectedState || ""}
                   onChange={(e) => {
                     setSelectedState(e.target.value || null);
                     setSelectedCity(null);
+                    setPage(1);
                   }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
@@ -407,7 +444,10 @@ export default function ProConnectDirectory() {
                 <select
                   aria-label={t("City")}
                   value={selectedCity || ""}
-                  onChange={(e) => setSelectedCity(e.target.value || null)}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value || null);
+                    setPage(1);
+                  }}
                   disabled={!selectedState}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
                 >
@@ -430,9 +470,10 @@ export default function ProConnectDirectory() {
                 <select
                   aria-label={t("Availability")}
                   value={availabilityFilter || ""}
-                  onChange={(e) =>
-                    setAvailabilityFilter(e.target.value || null)
-                  }
+                  onChange={(e) => {
+                    setAvailabilityFilter(e.target.value || null);
+                    setPage(1);
+                  }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
                   <option value="">{t("Any availability")}</option>
@@ -447,11 +488,12 @@ export default function ProConnectDirectory() {
                 <select
                   aria-label={t("Minimum Rating")}
                   value={minRating?.toString() || ""}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setMinRating(
                       e.target.value ? parseFloat(e.target.value) : null,
-                    )
-                  }
+                    );
+                    setPage(1);
+                  }}
                   className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 >
                   <option value="">{t("Any rating")}</option>
@@ -468,7 +510,10 @@ export default function ProConnectDirectory() {
                 <input
                   type="checkbox"
                   checked={verifiedOnly}
-                  onChange={(e) => setVerifiedOnly(e.target.checked)}
+                  onChange={(e) => {
+                    setVerifiedOnly(e.target.checked);
+                    setPage(1);
+                  }}
                   className="rounded border-border text-brand-purple focus:ring-brand-purple"
                 />
                 {t("Verified professionals only")}
@@ -493,9 +538,12 @@ export default function ProConnectDirectory() {
             <Link
               key={cat.id}
               to={`/pro-connect/?category=${cat.slug}`}
-              onClick={() =>
-                setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
-              }
+              onClick={() => {
+                setSelectedCategory(
+                  selectedCategory === cat.id ? null : cat.id,
+                );
+                setPage(1);
+              }}
               className={classNames(
                 "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
                 selectedCategory === cat.id
@@ -614,9 +662,12 @@ export default function ProConnectDirectory() {
                 <Button
                   variant="ghost"
                   onClick={() => setPage((p) => p + 1)}
+                  disabled={loading}
                   className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
                 >
-                  {t("Load more professionals")}
+                  {loading
+                    ? t("Loading professionals...")
+                    : t("Load more professionals")}
                 </Button>
               </div>
             )}
