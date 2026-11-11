@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   checkAiAccess,
   getClientId,
   requestRewardedAccess,
+  rewardedFailureNextAction,
   type AiAccessConfig,
   type AiUsageStatus,
 } from "@/lib/ai-access";
@@ -225,9 +226,27 @@ describe("ai-access, getClientId", () => {
 });
 
 describe("ai-access, requestRewardedAccess", () => {
-  it("returns not granted when no provider configured", async () => {
-    const result = await requestRewardedAccess();
+  it("grants only after the rewarded stack confirms the view", async () => {
+    const showRewardedAd = vi.fn(async () => ({
+      creditsEarned: 3,
+      newBalance: 12,
+    }));
+    const result = await requestRewardedAccess(showRewardedAd);
+    expect(showRewardedAd).toHaveBeenCalledTimes(1);
+    expect(result.granted).toBe(true);
+    expect(result.reason).toContain("3 credit");
+  });
+
+  it("reports the provider's reason instead of a hardcoded refusal", async () => {
+    const result = await requestRewardedAccess(async () => {
+      throw new Error("Could not start a secure ayeT reward session.");
+    });
     expect(result.granted).toBe(false);
-    expect(result.reason).toContain("configured");
+    expect(result.reason).toContain("Could not start a secure ayeT");
+  });
+
+  it("never dead-ends: a failed reward offers paid access when configured", () => {
+    expect(rewardedFailureNextAction({ paidEnabled: true })).toBe("paid");
+    expect(rewardedFailureNextAction({ paidEnabled: false })).toBe("none");
   });
 });

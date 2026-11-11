@@ -103,6 +103,21 @@ describe("Roadmap page", () => {
     });
   });
 
+  it("never presents escrow or marketplace settlement as money in motion", async () => {
+    renderRoadmap();
+    const live = (
+      await screen.findByRole("heading", { name: "Live now" })
+    ).closest("section");
+    const building = screen
+      .getByRole("heading", { name: "Building" })
+      .closest("section");
+    // Settlement has no provider behind it, so it cannot sit in the live column.
+    expect(live!.textContent).not.toMatch(/escrow/i);
+    expect(building!.textContent).toContain("Marketplace order settlement");
+    expect(building!.textContent).toContain("Diaspora escrow settlement");
+    expect(building!.textContent).toContain("No money moves until");
+  });
+
   it("states no promised release date anywhere on the page", async () => {
     const { container } = renderRoadmap();
     await screen.findByRole("heading", { name: "Live now" });

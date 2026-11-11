@@ -173,18 +173,49 @@ export function checkAiAccess(
   return { allowed: false, reason: "disabled" };
 }
 
-// Rewarded access: the server must verify the reward before granting access.
-// This is a placeholder architecture, when a real rewarded ad provider is
-// configured, the verification call goes here. For now, it always returns
-// false because no provider is configured.
-export async function requestRewardedAccess(): Promise<{
+// Rewarded access: the server verifies the reward before any access is
+// granted. This used to return a hardcoded refusal, which meant the rewarded
+// access mode could never grant anything even when a provider was configured.
+// It now asks the real rewarded stack, which starts a server-created session
+// and only reports success once the provider has confirmed the view.
+export async function requestRewardedAccess(
+  showRewardedAd: () => Promise<{
+    creditsEarned: number;
+    newBalance: number;
+  }> = async () => {
+    const { showAyetRewardedAd } = await import("@/lib/ayet-rewarded");
+    return showAyetRewardedAd();
+  },
+): Promise<{
   granted: boolean;
   reason: string;
 }> {
-  return {
-    granted: false,
-    reason: "No rewarded access provider is currently configured.",
-  };
+  try {
+    const result = await showRewardedAd();
+    return {
+      granted: true,
+      reason: `Reward verified. ${result.creditsEarned} credit(s) added.`,
+    };
+  } catch (error) {
+    return {
+      granted: false,
+      reason:
+        error instanceof Error && error.message
+          ? error.message
+          : "The reward could not be verified, so access was not granted.",
+    };
+  }
+}
+
+/**
+ * Where a user goes when a reward cannot be served. Rewarded mode must never
+ * dead-end: if paid access is configured the user is offered it, otherwise the
+ * caller is told there is no route rather than shown a button that does nothing.
+ */
+export function rewardedFailureNextAction(
+  config: Pick<AiAccessConfig, "paidEnabled">,
+): "paid" | "none" {
+  return config.paidEnabled ? "paid" : "none";
 }
 
 export interface AiGatewayStatus {

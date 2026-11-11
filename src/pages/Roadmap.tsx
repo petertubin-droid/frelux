@@ -95,14 +95,6 @@ const STATUS_SECTIONS: {
         shipped: "November 2026",
       },
       {
-        id: "diaspora-escrow",
-        title: "Diaspora escrow and budget tracking",
-        description:
-          "Stage payments against a planned build, with the spend tracked against the budget you set rather than committed blind from abroad.",
-        category: "project-workflow",
-        icon: Banknote,
-      },
-      {
         id: "share-and-export",
         title: "WhatsApp share and branded PDF export",
         description:
@@ -126,6 +118,22 @@ const STATUS_SECTIONS: {
           "Reading market prices from retailer catalogues in the market's own currency. A market is only labelled verified once enough local rows are captured; some retailer sites still refuse automated reading, and those markets say so.",
         category: "market-data",
         icon: Gauge,
+      },
+      {
+        id: "marketplace-settlement",
+        title: "Marketplace order settlement",
+        description:
+          "Listings, orders and order status pages are live, but taking payment, holding it and releasing it on delivery is not connected to a payment provider yet. The settlement rules now exist as a tested money model, so the remaining work is the provider checkout, its webhook and the payout step, not the arithmetic.",
+        category: "project-workflow",
+        icon: Truck,
+      },
+      {
+        id: "escrow-settlement",
+        title: "Diaspora escrow settlement",
+        description:
+          "The milestone model, budget tracker and release rules are built and tested, and the page currently shows a worked example rather than a live contract. No money moves until a payment provider is wired to the milestones, so treat escrow stages as planning figures.",
+        category: "project-workflow",
+        icon: Banknote,
       },
       {
         id: "engine-verification",
