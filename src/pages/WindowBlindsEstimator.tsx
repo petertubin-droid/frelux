@@ -12,6 +12,7 @@
 // supplies the figure, and tax is never assumed.
 // =========================================================
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -137,6 +138,19 @@ const newOpening = (over: Partial<BlindOpening> = {}): BlindOpening => ({
 });
 
 export default function WindowBlindsEstimator() {
+  const resetInputs = () => {
+    setUnit("ft");
+    setGrade("standard");
+    setInstall(true);
+    setOpenings([
+      newOpening({ label: "Living room", typeKey: "day-night" }),
+      newOpening({ label: "Bedroom", typeKey: "roller", width: 3 }),
+    ]);
+    setActiveRow(null);
+    setManualRate("");
+    setManualMinimum("");
+    setTaxRate("");
+  };
   useSeo({
     title:
       "Window Blind Calculator: Cost per Window and per Square Metre | FRELUX",
@@ -821,6 +835,7 @@ export default function WindowBlindsEstimator() {
                   : "Tax is the rate you entered, not a local assumption"}
               </p>
               <div className="mt-4">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Window Blinds Estimate",

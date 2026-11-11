@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -121,6 +122,11 @@ const initialDesignForm = (): DesignForm => ({
 });
 
 export default function RoofFramingEstimator() {
+  const resetInputs = () => {
+    setForm(initialForm());
+    setMode("takeoff");
+    setResult(null);
+  };
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/roof-framing-calculator");
   useSeo({
@@ -637,6 +643,10 @@ export default function RoofFramingEstimator() {
                       />
                     </div>
                     <div className="mt-4">
+                      <CalculatorResetButton
+                        onReset={resetInputs}
+                        className="mb-4"
+                      />
                       <ShareEstimateButton
                         estimate={{
                           kind: "Roof Framing Schedule",

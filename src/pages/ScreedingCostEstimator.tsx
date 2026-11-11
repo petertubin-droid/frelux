@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
@@ -31,7 +32,10 @@ import {
   type QuoteOptions,
 } from "@/lib/estimation/quote-export";
 import { quoteToShareable } from "@/lib/estimate-sharing";
-import { ACTION_BTN, ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
+import {
+  ACTION_BTN,
+  ACTION_BTN_PRIMARY,
+} from "@/components/calculators/CalculatorActions";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
 import LabourCostSection, {
@@ -91,6 +95,12 @@ interface AvailableSystem {
 export default function ScreedingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const resetInputs = () => {
+    setNetArea(0);
+    setSelectedSystem(null);
+    setCoats(null);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const navigate = useNavigate();
   useBreadcrumbJsonLd([
@@ -824,6 +834,10 @@ export default function ScreedingCostEstimator({
                           >
                             {t("Print Quote")}
                           </button>
+                          <CalculatorResetButton
+                            onReset={resetInputs}
+                            className="mb-4"
+                          />
                           <ShareEstimateButton
                             estimate={quoteToShareable(
                               screedingQuoteOptions({
