@@ -25,6 +25,12 @@ import {
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
+  escrowReferenceOf,
+  planEscrowFunding,
+  planEscrowRefund,
+  verifyPaystackSignature,
+} from "../_shared/escrow_paystack.ts";
+import {
   configAsPack,
   pickPack,
   type TokenPackRow,
@@ -41,34 +47,6 @@ const PLAN_DURATIONS_DAYS: Record<string, number> = {
   yearly: 365,
 };
 
-async function verifySignature(req: Request): Promise<boolean> {
-  const signature = req.headers.get("x-paystack-signature");
-  if (!signature) return false;
-
-  const secretKey = Deno.env.get("PAYSTACK_SECRET_KEY");
-  if (!secretKey) return false;
-
-  const body = await req.text();
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secretKey),
-    // Paystack signs webhook bodies with HMAC-SHA512 of the raw body
-    // keyed with the SECRET KEY (per Paystack's webhook docs). The
-    // previous SHA-256 verification rejected every genuine webhook,
-    // so activation/crediting silently depended on the client-side
-    // verify endpoints. Full-site audit fix, 2026-10-09.
-    { name: "HMAC", hash: "SHA-512" },
-    false,
-    ["sign"],
-  );
-  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
-  const hash = Array.from(new Uint8Array(signed))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-  return constantTimeEqual(hash, signature);
-}
-
 serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -81,8 +59,18 @@ serveWithCors(async (req: Request) => {
   }
 
   try {
-    // Verify Paystack signature
-    const isValid = await verifySignature(req.clone());
+    // Verify Paystack signature over the RAW body. Escrow may be signed with
+    // either secret while the test key is in place; in production both are the
+    // same Live Mode secret.
+    const rawBody = await req.text();
+    const isValid = await verifyPaystackSignature(
+      rawBody,
+      req.headers.get("x-paystack-signature"),
+      [
+        Deno.env.get("PAYSTACK_SECRET_KEY"),
+        Deno.env.get("PAYSTACK_ESCROW_SECRET"),
+      ],
+    );
     if (!isValid) {
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 401,
@@ -90,7 +78,7 @@ serveWithCors(async (req: Request) => {
       });
     }
 
-    const body = await req.json();
+    const body = JSON.parse(rawBody);
     const event = body.event;
     const data = body.data;
 
@@ -98,7 +86,8 @@ serveWithCors(async (req: Request) => {
     if (
       event !== "charge.success" &&
       event !== "subscription.enable" &&
-      event !== "charge.refunded"
+      event !== "charge.refunded" &&
+      event !== "charge.failed"
     ) {
       return new Response(JSON.stringify({ received: true, skipped: true }), {
         status: 200,
@@ -109,6 +98,199 @@ serveWithCors(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // ── ESCROW DISPATCH ─────────────────────────────────────────
+    // Escrow runs through this same webhook so Paystack keeps one Live Mode
+    // URL. A reference reaches escrow only when it is an escrow contract code
+    // AND that contract exists, so an ordinary payment can never create or
+    // fund escrow state, and an escrow charge can never grant a plan.
+    const escrowRef = escrowReferenceOf(data ?? {});
+    if (escrowRef) {
+      const { data: escrowContract, error: escrowError } = await supabase
+        .from("escrow_contracts")
+        .select(
+          "id, status, total_minor, currency, held_minor, released_minor, refunded_minor, provider_transaction_id",
+        )
+        .eq("reference_code", escrowRef)
+        .maybeSingle();
+
+      if (escrowError) {
+        return new Response(JSON.stringify({ error: escrowError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (!escrowContract) {
+        console.warn(
+          "[paystack-webhook] escrow reference without a contract",
+          escrowRef,
+        );
+        // An escrow-shaped reference with no contract is never treated as an
+        // ordinary payment: report it and stop.
+        return new Response(
+          JSON.stringify({ received: true, escrow: "unknown_reference" }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      if (event === "charge.success") {
+        const decision = planEscrowFunding(escrowContract, data ?? {});
+        if (decision.action === "duplicate") {
+          return new Response(
+            JSON.stringify({ received: true, escrow: "duplicate" }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+        if (decision.action === "reject") {
+          console.warn(
+            "[paystack-webhook] escrow charge rejected",
+            escrowRef,
+            decision.reason,
+          );
+          return new Response(
+            JSON.stringify({
+              received: true,
+              escrow: "rejected",
+              reason: decision.reason,
+            }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+
+        const { data: funded, error: fundError } = await supabase
+          .from("escrow_contracts")
+          .update({
+            status: "funds_held",
+            held_minor: decision.amountMinor,
+            provider_transaction_id: decision.transactionId,
+            provider_reference: escrowRef,
+          })
+          .eq("id", escrowContract.id)
+          .eq("status", "pending_payment")
+          .is("provider_transaction_id", null)
+          .select("id, held_minor, status")
+          .maybeSingle();
+
+        if (fundError) {
+          return new Response(JSON.stringify({ error: fundError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        if (!funded) {
+          console.warn(
+            "[paystack-webhook] escrow charge already applied",
+            escrowRef,
+          );
+          // Lost a race with another delivery: nothing doubled, nothing moved.
+          return new Response(
+            JSON.stringify({ received: true, escrow: "already_processed" }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+
+        console.log(
+          "[paystack-webhook] escrow funded",
+          funded.id,
+          decision.amountMinor,
+        );
+        return new Response(
+          JSON.stringify({
+            received: true,
+            escrow: "funds_held",
+            contract_id: funded.id,
+            held_minor: funded.held_minor,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      if (event === "charge.refunded") {
+        const decision = planEscrowRefund(escrowContract, data ?? {});
+        if (decision.action !== "refund") {
+          return new Response(
+            JSON.stringify({
+              received: true,
+              escrow: decision.action,
+              reason: decision.reason,
+            }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+
+        const refundedTotal =
+          Number(escrowContract.refunded_minor ?? 0) + decision.amountMinor;
+        const releasedTotal = Number(escrowContract.released_minor ?? 0);
+        const fullyRefunded =
+          refundedTotal + releasedTotal >=
+          Number(escrowContract.held_minor ?? 0);
+
+        const { error: refundError } = await supabase
+          .from("escrow_contracts")
+          .update({
+            refunded_minor: refundedTotal,
+            status: fullyRefunded ? "refunded" : escrowContract.status,
+          })
+          .eq("id", escrowContract.id)
+          .eq("refunded_minor", Number(escrowContract.refunded_minor ?? 0));
+
+        if (refundError) {
+          return new Response(JSON.stringify({ error: refundError.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(
+          JSON.stringify({
+            received: true,
+            escrow: "refunded",
+            refunded_minor: refundedTotal,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      if (event === "charge.failed") {
+        return new Response(
+          JSON.stringify({ received: true, escrow: "payment_failed" }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ received: true, escrow: "ignored", event }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     // ── FRELUX API plan refund (Phase 7 §17): idempotent downgrade ──
     if (event === "charge.refunded") {
