@@ -2856,7 +2856,29 @@ export const faqSchemaByPath = {
       "a": "The calculators read from the book for the market selected, and where no price exists for a material in that market, the calculator asks for a figure instead of substituting one. That keeps a price in a quote traceable to either the book or to you, which is the only basis on which a total can be defended line by line."
     }
   ],
-  "/faq/borehole-water-system": [
+  "/faq/borehole-water-system-estimator": [
+    {
+      "q": "How does the engine calculate pump depth and total dynamic head from drilling yield?",
+      "a": "Pump setting depth is calculated to sit safely below the dynamic pumping water level with at least three to five metres of submergence, while remaining comfortably above the well bottom to avoid drawing silt. Total dynamic head combines the static lift from the dynamic pumping level to surface grade, the vertical elevation of the elevated tower staging platform, pipe friction loss along the riser and delivery line using the Hazen-Williams formula, and fitting equivalent lengths. This calculated head, combined with target flow rate and mechanical wire-to-water efficiency, determines true pump shaft power and motor horsepower instead of guessing."
+    },
+    {
+      "q": "Why is sanitary surface casing grouting necessary and how is its volume estimated?",
+      "a": "Surface casing grouting is essential to protect groundwater quality by forming an impermeable hydraulic barrier between the borehole casing and the drilled borehole wall. Without a proper annular grout seal, contaminated surface stormwater runoff, agricultural fertilizer runoff, and nearby latrine leachate can migrate straight down the borehole into the drinking aquifer. The calculator determines the annular volume between the outer drilling diameter and casing outer diameter across the specified sanitary seal depth, converting this into exact required volumes of bentonite pellets and neat Portland cement grout."
+    },
+    {
+      "q": "How does the system determine whether iron removal, water softening, or UV disinfection is required?",
+      "a": "The treatment module evaluates your laboratory water test inputs against international drinking water guidelines published by the World Health Organization and regional standards. If turbidity exceeds five nephelometric turbidity units, multi-stage sediment cartridges are prescribed. If dissolved iron exceeds zero point three milligrams per litre, catalytic manganese dioxide oxidation media is specified. Total hardness above one hundred and eighty milligrams per litre triggers ion-exchange resin softening, while any detected microbial presence or surface water influence mandates ultraviolet sterilization or residual chlorination."
+    },
+    {
+      "q": "Why does the elevated water tower buffer peak demand instead of using direct pumping?",
+      "a": "Relying on a borehole pump to start and stop on demand whenever a tap opens causes rapid motor short-cycling, severe pressure surges, and accelerated electrical contactor wear. Pumping to an elevated storage tank allows the submersible pump to operate continuously at its optimal hydraulic efficiency point during controlled refill cycles. The elevated reservoir absorbs simultaneous peak morning and evening domestic rush hours, provides emergency reserve days during grid power outages, and maintains quiet, continuous hydrostatic pressure throughout the distribution network purely by gravity."
+    },
+    {
+      "q": "How are solar photovoltaic array wattage and generator sizes calculated for submersible pumps?",
+      "a": "Submersible borehole pump motors are inductive electrical loads that draw five to seven times their nominal running current during startup. When sizing an alternating current backup generator, the engine applies an inductive surge multiplier to ensure the alternator does not stall or suffer voltage collapse during starting. For solar photovoltaic installations, the calculator determines motor kilowatts, factors inverter efficiency and panel thermal derating, and divides total daily pumping energy by your location's peak sun hours to specify solar panel wattage and pump controller capacity."
+    }
+  ],
+  "/borehole-water-system-estimator": [
     {
       "q": "How is the overhead tank and its stand sized?",
       "a": "The stand is sized from the load, not from a picture of one. A litre of water weighs a kilogram, so a 5,000 litre tank carries five tonnes before the tank shell, the ring beam, the deck and the piers are counted. That load is divided between the piers, and each pier gets a footing pad sized so the pressure on the ground stays inside the allowable bearing value. The tank sits on a reinforced concrete ring beam the full width of its base, because point loading a plastic tank on four block corners is how bases crack. Above 12 times the pier thickness the tool warns that a freestanding pier is getting slender, and past the BS 5628 limit of 27 it tells you to pour columns instead."
@@ -2878,7 +2900,7 @@ export const faqSchemaByPath = {
       "a": "It leaves out the things that need a person on site. The strata, the specific capacity and the water quality are modelled from what you enter, so a driller's log and a laboratory assay replace them. The stand is priced by quantity and checked against simple limits, not designed and signed: the ring beam reinforcement, the pad mesh and the column cage still need an engineer. Prices, tax and labour come from your price book, and where a market has no verified figure the tool does not invent one."
     }
   ],
-  "/borehole-water-system-estimator": [
+  "/faq/borehole-water-system": [
     {
       "q": "How is the overhead tank and its stand sized?",
       "a": "The stand is sized from the load, not from a picture of one. A litre of water weighs a kilogram, so a 5,000 litre tank carries five tonnes before the tank shell, the ring beam, the deck and the piers are counted. That load is divided between the piers, and each pier gets a footing pad sized so the pressure on the ground stays inside the allowable bearing value. The tank sits on a reinforced concrete ring beam the full width of its base, because point loading a plastic tank on four block corners is how bases crack. Above 12 times the pier thickness the tool warns that a freestanding pier is getting slender, and past the BS 5628 limit of 27 it tells you to pour columns instead."

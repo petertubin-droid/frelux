@@ -2842,6 +2842,92 @@ const routes = [
       "Autonomous Borehole & Water Supply System Estimator | FRELUX SMART CALC",
     description:
       "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
+    priority: "0.8",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Borehole Water System Estimator",
+            item: `${SITE_URL}/borehole-water-system-estimator`,
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Autonomous Borehole & Water Supply System Estimator",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "How does the engine calculate pump depth and total dynamic head from drilling yield?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Pump setting depth is calculated below the pumping dynamic water level with adequate submerged submergence. Total dynamic head combines static water lift, the elevated tower height, pipe friction calculated using the Hazen-Williams equation, and fitting losses.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Why is sanitary surface casing grouting necessary and how is its volume estimated?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Surface casing grouting seals the annular space between the drill hole and casing wall to prevent surface runoff and latrine leachate from entering the aquifer. The engine calculates grout volume from drill diameter, casing diameter, and seal depth.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How does the system determine whether iron removal, water softening, or UV disinfection is required?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "The treatment selector checks your laboratory water test inputs against health and aesthetic thresholds. Elevated turbidity triggers sediment filtration, high iron prompts catalytic oxidation media, hardness adds ion exchange softening, and microbial risks trigger ultraviolet disinfection.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Why does the elevated water tower buffer peak demand instead of using direct pumping?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "A borehole pump operates at a steady, energy-efficient duty point to fill elevated storage. The overhead tank then buffers simultaneous domestic peak usage through gravity flow, preventing pump short-cycling, motor overheating, and pressure spikes.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How are solar photovoltaic array wattage and generator sizes calculated for submersible pumps?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Motor shaft power and electrical demand are calculated from flow rate and head. The engine sizes an AC generator with starting surge headroom to handle inductive inrush current, or calculates a solar photovoltaic DC array based on peak sun hours and inverter derating.",
+            },
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/global-site-safety-estimator",

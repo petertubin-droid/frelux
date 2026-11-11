@@ -2367,6 +2367,61 @@ const ENGINE_FAQ_ENTRIES: EngineFaqEntry[] = [
       ],
     },
   },
+  {
+    slug: "borehole-water-system-estimator",
+    route: "/borehole-water-system-estimator",
+    name: "Borehole Water System Estimator",
+    category: "services",
+    questions: [
+      {
+        q: "How does the engine calculate pump depth and total dynamic head from drilling yield?",
+        a: "Pump setting depth is calculated below the pumping dynamic water level with adequate submerged submergence. Total dynamic head combines static water lift, the elevated tower height, pipe friction calculated using the Hazen-Williams equation, and fitting losses.",
+      },
+      {
+        q: "Why is sanitary surface casing grouting necessary and how is its volume estimated?",
+        a: "Surface casing grouting seals the annular space between the drill hole and casing wall to prevent surface runoff and latrine leachate from entering the aquifer. The engine calculates grout volume from drill diameter, casing diameter, and seal depth.",
+      },
+      {
+        q: "How does the system determine whether iron removal, water softening, or UV disinfection is required?",
+        a: "The treatment selector checks your laboratory water test inputs against health and aesthetic thresholds. Elevated turbidity triggers sediment filtration, high iron prompts catalytic oxidation media, hardness adds ion exchange softening, and microbial risks trigger ultraviolet disinfection.",
+      },
+      {
+        q: "Why does the elevated water tower buffer peak demand instead of using direct pumping?",
+        a: "A borehole pump operates at a steady, energy-efficient duty point to fill elevated storage. The overhead tank then buffers simultaneous domestic peak usage through gravity flow, preventing pump short-cycling, motor overheating, and pressure spikes.",
+      },
+      {
+        q: "How are solar photovoltaic array wattage and generator sizes calculated for submersible pumps?",
+        a: "Motor shaft power and electrical demand are calculated from flow rate and head. The engine sizes an AC generator with starting surge headroom to handle inductive inrush current, or calculates a solar photovoltaic DC array based on peak sun hours and inverter derating.",
+      },
+    ],
+    article: {
+      summary:
+        "Calculates borehole hydraulics, casing, pumping plant, water treatment, storage tower and gravity distribution.",
+      description:
+        "An end to end water supply engineering estimator. You enter aquifer depth, pumping water level, yield and daily demand, and the tool calculates casing and screen schedules, total dynamic head, pump sizing, treatment stages, storage capacity, and gravity delivery pressure.",
+      functions: [
+        "Calculates dynamic drawdown, total dynamic head, and required motor power from water levels and yield.",
+        "Sizes sanitary grout volume, gravel pack, casing pipes, and intake slotted screen lengths.",
+        "Selects water filtration, catalytic iron removal, softening, and ultraviolet treatment from lab test inputs.",
+        "Calculates elevated storage tank volume to buffer peak domestic usage and emergency reserves.",
+        "Calculates hydrostatic distribution head and residual pressure at ground level and fixture tap points.",
+      ],
+      advantages: [
+        "Pumping plant horsepower is calculated from hydraulic physics instead of rule of thumb guesses.",
+        "Sanitary annular grout volume is explicitly quantified to prevent groundwater contamination.",
+        "Multi-barrier water treatment stages are tied to entered laboratory test parameters.",
+        "Solar photovoltaic and generator power options include realistic starting surge allowances.",
+        "Storage buffering avoids pump motor short-cycling and maintains reliable gravity pressure.",
+      ],
+      limits: [
+        "It does not replace an on-site geophysical hydrogeological resistivity survey.",
+        "It does not perform certified laboratory chemical or microbiological assays.",
+        "It does not replace certified structural engineering calculations for high wind or seismic tower foundations.",
+        "It does not guarantee groundwater yield, recharge rate, or seasonal aquifer sustainability.",
+        "It does not grant drilling permits, abstraction licenses, or environmental compliance approvals.",
+      ],
+    },
+  },
 ];
 
 export const ENGINE_FAQ_GROUPS: ToolFaqGroup[] = ENGINE_FAQ_ENTRIES.map(

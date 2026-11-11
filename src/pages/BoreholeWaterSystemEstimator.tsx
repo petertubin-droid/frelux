@@ -38,6 +38,7 @@ import {
   CasingMaterial,
 } from "@/lib/estimation/borehole-water-system-engine";
 import BoreholeWaterSystemAnimation from "@/components/tools/BoreholeWaterSystemAnimation";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import BoreholeProConnectCta from "@/components/tools/BoreholeProConnectCta";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { getToolFaqGroup } from "@/config/tool-faqs";
@@ -1694,6 +1695,7 @@ export default function BoreholeWaterSystemEstimator() {
             before drinking raw groundwater.
           </div>
         </div>
+        <ToolFaqs slug="borehole-water-system-estimator" />
       </Container>
       <div className="mt-10">
         <RelatedTools
