@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AdSlot from "@/components/ui/AdSlot";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -76,6 +77,20 @@ function QuantityField({
 }
 
 export default function GlobalSiteSafetyEstimator() {
+  const resetInputs = () => {
+    setPerimeterMeters(120);
+    setCrewCount(10);
+    setReservePpe(2);
+    setSignSpacingMeters(15);
+    setHasFallRisk(true);
+    setWorkersAtHeight(4);
+    setHasExcavation(false);
+    setTapeLines(2);
+    setExcavationSignCount(4);
+    setHasHotWork(false);
+    setFirstAidWorkersPerKit(10);
+    setFireExtinguisherCount(1);
+  };
   const [framework, setFramework] =
     useState<SafetyFramework>("INTERNATIONAL_ISO");
   const [perimeterMeters, setPerimeterMeters] = useState(120);
@@ -522,6 +537,10 @@ export default function GlobalSiteSafetyEstimator() {
                       <Download className="h-4 w-4" />
                       CSV
                     </Button>
+                    <CalculatorResetButton
+                      onReset={resetInputs}
+                      className="mb-4"
+                    />
                     <ShareEstimateButton
                       estimate={{
                         kind: "Site Safety Inventory",

@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -53,6 +54,24 @@ import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function BoreholeWaterSystemEstimator() {
+  const resetInputs = () => {
+    setDepthM(60);
+    setStaticLevelM(18);
+    setAquifer("fractured_basement");
+    setCasingMat("upvc");
+    setTowerHeightM(6);
+    setOccupants(6);
+    setTier("suburban_standard");
+    setPower("single_phase_220v");
+    setTurbidity(3.5);
+    setIron(0.25);
+    setManganese(0.05);
+    setHardness(110);
+    setColiformDetected(false);
+    setSoilType("firm_clay");
+    setTestedBearingKpa("");
+    setStandLegs(4);
+  };
   // Input states
   const [depthM, setDepthM] = useState<number>(60);
   const [staticLevelM, setStaticLevelM] = useState<number>(18);
@@ -480,6 +499,7 @@ export default function BoreholeWaterSystemEstimator() {
         </div>
 
         <div className="mt-4">
+          <CalculatorResetButton onReset={resetInputs} className="mb-4" />
           <ShareEstimateButton
             estimate={
               engineAccess.canExport
