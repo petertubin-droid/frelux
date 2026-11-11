@@ -11771,6 +11771,10 @@
     "lastmod": "2026-11-10",
     "hash": "3f7649cd404842eb"
   },
+  "/mineral-stone-calculator": {
+    "lastmod": "2026-11-11",
+    "hash": null
+  },
   "/paint-calculator": {
     "lastmod": "2026-11-10",
     "hash": "298632fdaaecd288"
@@ -11898,6 +11902,10 @@
   "/structural-steel-i-beam-calculator": {
     "lastmod": "2026-11-10",
     "hash": "69447b3679148ca0"
+  },
+  "/stucco-calculator": {
+    "lastmod": "2026-11-11",
+    "hash": null
   },
   "/suppliers": {
     "lastmod": "2026-11-10",

@@ -544,15 +544,42 @@ export default function ConfigurableFinishCalculator({
         ) : products.length === 0 ? (
           <div className="rounded-lg border border-border bg-card p-6">
             <h2 className="text-lg font-semibold">
-              {t("No products configured yet")}
+              {t("This finish has no priced product yet")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              The calculator uses only verified product data from the database:
-              it never estimates with assumed coverage rates. An administrator
-              must configure at least one Mineral Stone product (with a
-              calculation model, coverage or consumption data, package size and
-              coat count) under <b>Admin → Estimation Products</b> before this
-              calculator can produce results.
+              {t(
+                "FRELUX quotes this finish only from verified product data: the coverage rate, package size and price printed by the manufacturer or retailer for the product you actually buy. Nothing here is estimated from a general rule of thumb.",
+              )}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t(
+                "No such product is on file for this finish yet, so no quantity is shown rather than a figure that would look precise and be wrong.",
+              )}
+            </p>
+            <ul className="mt-4 space-y-1.5 text-sm">
+              <li>
+                <a
+                  href="/finish-estimator"
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  {t("Estimate another finish")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/marketplace?tab=products"
+                  className="font-medium text-primary underline underline-offset-2"
+                >
+                  {t(
+                    "Find the product, coverage and pack size on the marketplace",
+                  )}
+                </a>
+              </li>
+            </ul>
+            <p className="mt-4 text-xs text-muted-foreground">
+              {t(
+                "Administrators add products, their calculation model, coverage or consumption data, package size and coat count under Admin, Estimation Products.",
+              )}
             </p>
           </div>
         ) : (

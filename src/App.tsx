@@ -579,6 +579,10 @@ const WaterproofingEstimator = lazy(
   () => import("@/pages/WaterproofingEstimator"),
 );
 const WallFinishEstimator = lazy(() => import("@/pages/WallFinishEstimator"));
+const MineralStoneCalculator = lazy(
+  () => import("@/pages/MineralStoneCalculator"),
+);
+const StuccoCalculator = lazy(() => import("@/pages/StuccoCalculator"));
 const FlooringEstimator = lazy(() => import("@/pages/FlooringEstimator"));
 const IncreteFlooringEstimator = lazy(
   () => import("@/pages/IncreteFlooringEstimator"),
@@ -2143,6 +2147,26 @@ export default function App() {
                         <Route
                           path="/wall-finish-estimator"
                           element={<WallFinishEstimator />}
+                        />
+                        {/* The finish engines were only reachable as tabs on the
+                            finish hub, so the URLs their breadcrumbs advertise
+                            did not exist. These two give each finish its own
+                            address. */}
+                        <Route
+                          path="/mineral-stone-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <MineralStoneCalculator />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/stucco-calculator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <StuccoCalculator />
+                            </Suspense>
+                          }
                         />
                         <Route
                           path="/masonry-calculator"

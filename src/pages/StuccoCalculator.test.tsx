@@ -129,7 +129,7 @@ describe("StuccoCalculator", () => {
     mockedFetch.mockResolvedValue({ data: [], error: null });
     renderPage();
     expect(
-      await screen.findByText(/No products configured yet/i),
+      await screen.findByText(/no priced product yet/i),
     ).toBeInTheDocument();
     expect(mockedFetch).toHaveBeenCalledWith("stucco");
   });

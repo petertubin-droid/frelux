@@ -693,6 +693,81 @@ const routes = [
     ],
   },
   {
+    path: "/mineral-stone-calculator",
+    title:
+      "Mineral Stone Calculator: Quantity and Cost from Product Data | FRELUX",
+    description:
+      "Estimate mineral stone finish from measured wall area and the selected product's published coverage, pack size and price. Quantities are rounded up to whole packages, and no coverage rate is assumed.",
+    priority: "0.7",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX Mineral Stone Calculator",
+        applicationCategory: "CalculatorApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0" },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Mineral Stone Calculator",
+            item: `${SITE_URL}/mineral-stone-calculator`,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "/stucco-calculator",
+    title: "Stucco Calculator: Material Quantity and Package Count | FRELUX",
+    description:
+      "Estimate stucco from measured wall area using the selected product's published thickness or coverage, its pack size and its price. Package counts round up, and the calculation shows every step.",
+    priority: "0.7",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX Stucco Calculator",
+        applicationCategory: "CalculatorApplication",
+        operatingSystem: "Web",
+        offers: { "@type": "Offer", price: "0" },
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Stucco Calculator",
+            item: `${SITE_URL}/stucco-calculator`,
+          },
+        ],
+      },
+    ],
+  },
+  {
     path: "/tile-calculator",
     title: "Tile Calculator: How Many Tiles Do I Need? | FRELUX SMART CALC",
     description:
