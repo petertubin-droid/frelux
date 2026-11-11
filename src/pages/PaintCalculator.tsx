@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useNavigate } from "react-router-dom";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
@@ -189,6 +190,32 @@ import { NumericInput } from "@/components/ui/NumericInput";
 export default function PaintCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const resetInputs = () => {
+    setInput({
+      projectType: "room",
+      length: 0,
+      width: 0,
+      wallHeight: 0,
+      doors: 0,
+      doorDims: defaultDoorDims,
+      windows: 0,
+      windowDims: defaultWindowDims,
+      coats: 2,
+      paintType: "",
+      unit: roomUnit,
+      includeCeiling: false,
+      wasteMargin: sharedWaste.value,
+      surfaceCondition: "smooth",
+      colorCondition: "same_or_light",
+      includePrimer: false,
+    });
+    setStep(1);
+    setResult(null);
+    setErrors({});
+    setStepAttempted(false);
+    setSelectedQualityId("");
+  };
+
   const navigate = useNavigate();
   const { marketCode, market } = useMarket();
   const { citySlug } = useProjectCity();
@@ -1288,6 +1315,7 @@ export default function PaintCalculator({
 
         {result && (
           <div ref={resultsRef}>
+            <CalculatorResetButton onReset={resetInputs} className="mb-4" />
             <ResultCard
               result={result}
               input={input}

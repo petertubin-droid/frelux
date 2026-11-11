@@ -1,9 +1,13 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
-import { roomSpans, slabSpanDirection } from "@/lib/measurement/building-schedule";
+import {
+  roomSpans,
+  slabSpanDirection,
+} from "@/lib/measurement/building-schedule";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
 import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
@@ -279,6 +283,21 @@ export default function StructuralCalculator() {
 // ── Concrete quantity takeoff (separate from structural design) ──
 
 export function ConcreteTakeoffCalculator() {
+  const resetInputs = () => {
+    setElementType("slab");
+    setLength("");
+    setWidth("");
+    setDepth("");
+    setCement("");
+    setSand("");
+    setAggregate("");
+    setWaste("0");
+    setBagMass("50");
+    setBars([]);
+    setMetricDims(null);
+    setErrors([]);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const [elementType, setElementType] = useState<
     "slab" | "beam" | "column" | "footing"
@@ -742,6 +761,7 @@ export function ConcreteTakeoffCalculator() {
                 {t("Export quote (PDF)")}
               </button>
             )}
+            <CalculatorResetButton onReset={resetInputs} className="mb-4" />
             <QuoteShareButton
               build={buildConcreteQuote}
               kind="Concrete Takeoff"
@@ -1807,7 +1827,11 @@ function MeasuredSpanPicker({
   onPick,
   hint,
 }: {
-  onPick: (span: { label: string; shortSpanM: number; longSpanM: number }) => void;
+  onPick: (span: {
+    label: string;
+    shortSpanM: number;
+    longSpanM: number;
+  }) => void;
   hint: string;
 }) {
   const { t } = useLanguage();
@@ -1824,7 +1848,10 @@ function MeasuredSpanPicker({
   return (
     <div className="sm:col-span-2">
       <div className="flex flex-wrap items-center gap-2">
-        <label className="text-xs font-medium text-muted-foreground" htmlFor="measured-span-room">
+        <label
+          className="text-xs font-medium text-muted-foreground"
+          htmlFor="measured-span-room"
+        >
           {t("Room")}
         </label>
         <select
@@ -1854,14 +1881,18 @@ function MeasuredSpanPicker({
           <option value="">{t("Use measured room span")}</option>
           {usable.map((r) => (
             <option key={r.id} value={r.id}>
-              {r.label} ({r.shortSpanM?.toFixed(2)} x {r.longSpanM?.toFixed(2)} m)
+              {r.label} ({r.shortSpanM?.toFixed(2)} x {r.longSpanM?.toFixed(2)}{" "}
+              m)
             </option>
           ))}
         </select>
         <span className="text-[11px] text-muted-foreground">{t(hint)}</span>
       </div>
       {note && (
-        <p role="status" className="mt-1 text-[11px] leading-snug text-muted-foreground">
+        <p
+          role="status"
+          className="mt-1 text-[11px] leading-snug text-muted-foreground"
+        >
           {note}
         </p>
       )}
@@ -2001,9 +2032,7 @@ function BeamCalculator() {
             onPick={(picked) => {
               // The beam tab works in the market's length unit, so convert.
               const factor = lengthUnit === "ft" ? 1 / 0.3048 : 1;
-              setSpan(
-                parseFloat((picked.shortSpanM * factor).toFixed(2)),
-              );
+              setSpan(parseFloat((picked.shortSpanM * factor).toFixed(2)));
             }}
           />
           <NumInput

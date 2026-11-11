@@ -3,6 +3,7 @@
 // Deterministic high-rise screening page
 // =========================================================
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -156,6 +157,10 @@ const TALL_PRESETS: {
 ];
 
 export default function TallBuildingCalculator() {
+  const resetInputs = () => {
+    setParams(DEFAULT_TALL_INPUT);
+    setShowAdvanced(false);
+  };
   const [params, setParams] = useState<TallBuildingInput>(DEFAULT_TALL_INPUT);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -349,6 +354,7 @@ export default function TallBuildingCalculator() {
       />
 
       <div className="flex flex-wrap gap-3">
+        <CalculatorResetButton onReset={resetInputs} className="mb-4" />
         <ShareEstimateButton
           estimate={{
             kind: "High Rise Screening",

@@ -7,6 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
@@ -202,6 +203,20 @@ function exportPaintingQuote(args: Parameters<typeof paintingQuoteOptions>[0]) {
 export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  // One default room again, re-keyed to the market's unit. Paint selection,
+  // surface condition and coat count are page settings and stay as chosen.
+  const resetInputs = () => {
+    setRooms([createDefaultRoom()]);
+    setProjectDescription("");
+    setLocationCountry("");
+    setNigeriaInOwerri(null);
+    setExpandedRoom(0);
+    setShowCalculation(false);
+    setAttempted(false);
+    setAlreadyHave(0);
+    setResult(null);
+  };
+
   const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
@@ -1194,6 +1209,7 @@ export default function PaintingEstimator({
               engine={engine}
               alreadyHave={alreadyHave}
               onAlreadyHaveChange={setAlreadyHave}
+              onReset={resetInputs}
               labourConfig={labourConfig}
               setLabourConfig={setLabourConfig}
               marketCode={marketCode}
@@ -1751,12 +1767,14 @@ function EstimateResult({
   engine,
   alreadyHave,
   onAlreadyHaveChange,
+  onReset,
   labourConfig,
   setLabourConfig,
   marketCode,
 }: {
   result: PaintingEstimateResult;
   marketCode: string;
+  onReset: () => void;
   showCalculation: boolean;
   onToggleCalculation: () => void;
   onSave: () => void;
@@ -2343,6 +2361,7 @@ function EstimateResult({
             >
               <FileDown className="h-4 w-4" /> {t("Export Quote (PDF)")}
             </Button>
+            <CalculatorResetButton onReset={onReset} className="mb-4" />
             <ShareEstimateButton
               estimate={quoteToShareable(
                 paintingQuoteOptions({
