@@ -55,7 +55,7 @@ export default function CodeReference() {
     title:
       "International Building Code Reference: Standards by Country | FRELUX",
     description:
-      "Select your project country, building type and structural system to see the building code, edition and standards that govern concrete, reinforcement, loads, wind, snow, foundations, durability and materials — with unsupported regulations identified, never filled from another country.",
+      "Select your project country, building type and structural system to see the building code, edition and standards that govern concrete, reinforcement, loads, wind, snow, foundations, durability and materials, with unsupported regulations identified, never filled from another country.",
     canonicalPath: "/code-reference",
     ogType: "website",
     structuredDataArray: [
@@ -68,7 +68,7 @@ export default function CodeReference() {
         url: "https://freluxtools.com/code-reference",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0",  },
+        offers: { "@type": "Offer", price: "0" },
         isPartOf: {
           "@type": "WebSite",
           name: "FRELUX SMART CALC",
@@ -133,7 +133,7 @@ export default function CodeReference() {
         <PageHeader
           eyebrow="Regulatory reference"
           title="International Building Code Reference"
-          subtitle="Configure your project and see which building code, edition and technical standards govern it — with every unsupported or locally-verifiable point stated plainly. This engine names documents; it never substitutes one country's design values for another's."
+          subtitle="Configure your project and see which building code, edition and technical standards govern it, with every unsupported or locally-verifiable point stated plainly. This engine names documents; it never substitutes one country's design values for another's."
           backTo="/construction-tools"
           backLabel="All tools"
         />
@@ -260,7 +260,7 @@ export default function CodeReference() {
                   return (
                     <option key={id} value={id}>
                       {item.name}
-                      {adopted ? " — adopted here" : ""}
+                      {adopted ? ", adopted here" : ""}
                     </option>
                   );
                 })}
@@ -342,7 +342,7 @@ export default function CodeReference() {
               )}
               {report.jurisdictionSupported
                 ? "Adopted family for this country"
-                : "Not the adopted code here — comparison only"}
+                : "Not the adopted code here, comparison only"}
             </span>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -401,8 +401,8 @@ export default function CodeReference() {
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Documents only. No load factor, mix ratio, spacing or wind/snow
-            value is produced here — those come from the adopted edition and
-            your engineer.
+            value is produced here. Those come from the adopted edition and your
+            engineer.
           </p>
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             {report.domains.map((domain) => (
@@ -524,7 +524,7 @@ export default function CodeReference() {
                 </li>
                 <li>
                   • The authority having jurisdiction may adopt amendments this
-                  registry does not track — confirm every reference locally.
+                  registry does not track. Confirm every reference locally.
                 </li>
                 <li>
                   • Where a domain is marked “not codified”, no other country's

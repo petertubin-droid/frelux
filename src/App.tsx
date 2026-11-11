@@ -563,6 +563,7 @@ const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 const MaterialAdvisor = lazy(() => import("@/pages/MaterialAdvisor"));
 const CodeReference = lazy(() => import("@/pages/CodeReference"));
+const PlanningApprovals = lazy(() => import("@/pages/PlanningApprovals"));
 const MaterialPriceIndex = lazy(() => import("@/pages/MaterialPriceIndex"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
@@ -2105,6 +2106,12 @@ export default function App() {
                         <Route
                           path="/code-reference"
                           element={<CodeReference />}
+                        />
+                      </Route>
+                      <Route>
+                        <Route
+                          path="/planning-approvals"
+                          element={<PlanningApprovals />}
                         />
                         <Route
                           path="/material-price-index"

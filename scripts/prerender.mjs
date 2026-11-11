@@ -2916,6 +2916,12 @@ const routes = [
       "Construction material prices across Lagos, Abuja, Port Harcourt, Onitsha, Ibadan, Kano and more, with sample sizes, sources and last verification dates. Figures are published only when at least three independent prices support them.",
   },
   {
+    path: "/planning-approvals",
+    title: "Building Permit and Setback Guide by State and Country | FRELUX SMART CALC",
+    description:
+      "Who issues the building permit in every Nigerian state and the FCT, the law they work under, the approval stages from plot check to certificate of fitness, and an honest note where set back figures are not published.",
+  },
+  {
     path: "/code-reference",
     title: "International Building Code Reference | FRELUX SMART CALC",
     description:

@@ -380,6 +380,7 @@ const routes = [
   { path: "/insulation-calculator", priority: "0.8", changefreq: "monthly" },
   { path: "/demolition-calculator", priority: "0.8", changefreq: "monthly" },
   { path: "/blueprint-takeoff", priority: "0.8", changefreq: "monthly" },
+  { path: "/planning-approvals", priority: "0.8", changefreq: "monthly" },
   {
     path: "/concrete-takeoff-calculator",
     priority: "0.8",
