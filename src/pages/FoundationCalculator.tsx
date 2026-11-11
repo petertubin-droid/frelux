@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import CopyResultsButton from "@/components/calculators/CopyResultsButton";
@@ -48,6 +49,18 @@ import AdSlot from "@/components/ui/AdSlot";
 import { NumericInput } from "@/components/ui/NumericInput";
 
 export default function FoundationCalculator() {
+  const resetInputs = () => {
+    setShape("strip");
+    setSoilType("lateritic");
+    setCustomBearing(150);
+    setWallLoad(40);
+    setColumnLoad(200);
+    setDepth(0.9);
+    setBuildingLength(15);
+    setBuildingWidth(10);
+    setShowFormulas(false);
+    setResult(null);
+  };
   const {
     fieldsRef,
     resultsRef,
@@ -412,6 +425,7 @@ export default function FoundationCalculator() {
             </div>
 
             <div className="mb-6">
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <ShareEstimateButton
                 estimate={{
                   kind: "Foundation Design",

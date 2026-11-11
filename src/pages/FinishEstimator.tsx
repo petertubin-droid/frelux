@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
@@ -142,6 +143,26 @@ function exportFinishQuote(args: Parameters<typeof finishQuoteOptions>[0]) {
 export default function FinishEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const resetInputs = () => {
+    setAreaInput({
+      method: "full_room",
+      roomLength: 0,
+      roomWidth: 0,
+      wallWidth: 0,
+      wallCount: 1,
+      wallHeight: 0,
+      doors: 0,
+      doorDims: defaultDoorDims,
+      windows: 0,
+      windowDims: defaultWindowDims,
+      unit: resolveMarketRoomUnit(market, "meters"),
+    });
+    setCoats(2);
+    setWasteMargin(10);
+    setErrors({});
+    setSaved(false);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("finish");
@@ -754,6 +775,7 @@ export default function FinishEstimator({
                 >
                   {t("Export quote (PDF)")}
                 </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={quoteToShareable(
                     finishQuoteOptions({
