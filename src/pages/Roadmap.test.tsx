@@ -82,6 +82,27 @@ describe("Roadmap page", () => {
     );
   });
 
+  it("names the systems that are built but not finished", async () => {
+    renderRoadmap();
+    const building = (
+      await screen.findByRole("heading", { name: "Building" })
+    ).closest("section");
+    expect(building).not.toBeNull();
+    expect(building).toHaveTextContent("Engine verification by market");
+    expect(building).toHaveTextContent(
+      "Retailer catalogue coverage in every market",
+    );
+    expect(building).toHaveTextContent("Market intelligence and price index");
+    expect(building).toHaveTextContent("Local retailer price verification");
+    // Everything in this section is in progress, never labelled shipped.
+    const cards = building!.querySelectorAll("article");
+    expect(cards.length).toBeGreaterThanOrEqual(5);
+    cards.forEach((card) => {
+      expect(card.textContent).toContain("Building");
+      expect(card.textContent).not.toContain("Live");
+    });
+  });
+
   it("states no promised release date anywhere on the page", async () => {
     const { container } = renderRoadmap();
     await screen.findByRole("heading", { name: "Live now" });

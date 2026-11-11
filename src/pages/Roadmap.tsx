@@ -128,6 +128,30 @@ const STATUS_SECTIONS: {
         icon: Gauge,
       },
       {
+        id: "engine-verification",
+        title: "Engine verification by market",
+        description:
+          "Every engine records an operational state per market (unavailable, partial, configured, verified operational or suspended) with an evidence owner and open gaps. Today most engine and market pairs are configured rather than operationally verified, and an estimate built on an unverified pair says so instead of pretending to local certainty.",
+        category: "market-data",
+        icon: ShieldCheck,
+      },
+      {
+        id: "catalogue-coverage",
+        title: "Retailer catalogue coverage in every market",
+        description:
+          "Six retailer catalogues are registered and read in their own currency, but a catalogue that carries no matching local line prices nothing. Coverage is being widened market by market, and a shop that blocks automated reading stays on the open list rather than being quietly dropped.",
+        category: "market-data",
+        icon: Database,
+      },
+      {
+        id: "market-intelligence",
+        title: "Market intelligence and price index",
+        description:
+          "Price history, index and provenance pages exist and label where each figure came from. Verified coverage is still thin outside the markets captured so far, so an unverified lane stays labelled unverified instead of being filled with survey estimates.",
+        category: "market-data",
+        icon: BarChart3,
+      },
+      {
         id: "finish-coverage",
         title: "Wider finish and material coverage",
         description:
