@@ -713,7 +713,7 @@ export const DERIVED_ROLE_MAPPINGS: Readonly<
       name: "Pintura vinílica interior 19L (MX)",
       unit: "19l",
       notes:
-        "This market's own priced product (MXN 1199); Mercado Libre MX / Amazon MX web survey 2026-10-11 (Comex 19L MX$1,199; band $899-1,400).",
+        "This market's own priced product (MXN 495); Materiales de Construcción MX, Adhekon vinyl paint 19 L cubeta, verified 2026-11-11.",
     },
     sandpaper: {
       slug: "gen-sandpaper-sheet",

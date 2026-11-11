@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-11T15:19:11.172Z",
+  "scanned_at": "2026-11-11T15:39:46.238Z",
   "max_age_days": 45,
   "markets": {
     "NG": {
@@ -13,6 +13,13 @@
       "total": 220,
       "local_verified": 128,
       "fx_reference": 92,
+      "stale": 0,
+      "verified": false
+    },
+    "MX": {
+      "total": 39,
+      "local_verified": 21,
+      "fx_reference": 18,
       "stale": 0,
       "verified": false
     },
@@ -44,13 +51,6 @@
       "stale": 0,
       "verified": true
     },
-    "MX": {
-      "total": 38,
-      "local_verified": 19,
-      "fx_reference": 19,
-      "stale": 0,
-      "verified": false
-    },
     "SA": {
       "total": 28,
       "local_verified": 12,
@@ -80,9 +80,9 @@
       "verified": false
     },
     "GH": {
-      "total": 39,
+      "total": 38,
       "local_verified": 22,
-      "fx_reference": 17,
+      "fx_reference": 16,
       "stale": 0,
       "verified": false
     },

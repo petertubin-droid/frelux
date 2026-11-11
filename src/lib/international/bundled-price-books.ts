@@ -2789,10 +2789,38 @@ export const BUNDLED_PRICE_BOOK: Readonly<Record<string, BundledMaterial>> = {
     pack: null,
     markets: {
       MX: {
-        p: 1199,
+        p: 495,
         c: "MXN",
-        v: "2026-10-11",
-        s: "Mercado Libre MX / Amazon MX web survey 2026-10-11 (Comex 19L MX$1,199; band $899-1,400)",
+        v: "2026-11-11",
+        s: "Materiales de Construcción MX: Adhekon Pintura Vinílica Básica, cubeta 19 L (variant price)",
+        f: "manual",
+      },
+    },
+  },
+  "mx-bench-sellador-19l": {
+    name: "Sellador vinílico 19 L (MX)",
+    category: "paint",
+    pack: null,
+    markets: {
+      MX: {
+        p: 790,
+        c: "MXN",
+        v: "2026-11-11",
+        s: "Materiales de Construcción MX: Adhekon Sellador Vinílico 5x1, cubeta 19 L (variant price)",
+        f: "manual",
+      },
+    },
+  },
+  "mx-bench-imperm-19l": {
+    name: "Impermeabilizante acrílico 5 años 19 L (MX)",
+    category: "waterproofing",
+    pack: null,
+    markets: {
+      MX: {
+        p: 1150,
+        c: "MXN",
+        v: "2026-11-11",
+        s: "Materiales de Construcción MX: Adhekon Impermeabilizante Acrílico 5 años, cubeta 19 L (variant price)",
         f: "manual",
       },
     },
