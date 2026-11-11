@@ -43,6 +43,123 @@
       "access_status": "ok",
       "live_state": "active, 250 rows staged, none mapped. Canadian materials are pipes, rebar and gypsum products, so a lumber merchant has nothing to attach to yet.",
       "access_notes": "Lumber and building supplies in CAD. Needs matching CA material rows before it can price anything."
+    },
+    {
+      "market": "AE",
+      "retailer": "Nextrise",
+      "publisher": "Nextrise (AE)",
+      "base_url": "https://nextrisedubai.com",
+      "catalogue_url": "https://nextrisedubai.com/wp-json/wc/store/products?per_page=100",
+      "platform": "woocommerce",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 100,
+      "building_products": 38,
+      "examples": [
+        "High-Performance Cement (50kg Bag)",
+        "Portland cement 50kg",
+        "Washed sand"
+      ],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Cement, aggregate, blocks, rebar, paint, ridge and pipe in AED.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
+    },
+    {
+      "market": "MX",
+      "retailer": "Materiales de Construccion",
+      "publisher": "Materiales de Construccion (MX)",
+      "base_url": "https://materialesconstruccion.mx",
+      "catalogue_url": "https://materialesconstruccion.mx/wp-json/wc/store/products?per_page=100",
+      "platform": "woocommerce",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 86,
+      "building_products": 14,
+      "examples": [
+        "Cemento Gris Cruz Azul",
+        "Block De Concreto Macizo Ligero",
+        "Tuberia PVC"
+      ],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Cement, block and plumbing in MXN, priced per bag and per piece.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
+    },
+    {
+      "market": "KE",
+      "retailer": "Randtech Kenya",
+      "publisher": "Randtech Kenya (KE)",
+      "base_url": "https://randtech.co.ke",
+      "catalogue_url": "https://randtech.co.ke/wp-json/wc/store/products?per_page=100",
+      "platform": "woocommerce",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 100,
+      "building_products": 15,
+      "examples": [
+        "White Cement",
+        "Simba Cement 32.5R",
+        "Chain link fence 14-Gauge"
+      ],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Cement, rebar, paint, waterproofing and pipe in KES.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
+    },
+    {
+      "market": "ZA",
+      "retailer": "DIY Shop",
+      "publisher": "DIY Shop (ZA)",
+      "base_url": "https://diyshop.co.za",
+      "catalogue_url": "https://diyshop.co.za/products.json?limit=250",
+      "platform": "shopify",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 250,
+      "building_products": 36,
+      "examples": ["Casofour Rhinolite Plaster", "Builders cement PPC 50kg"],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Plaster, cement, blocks, timber and paint in ZAR. Shopify payload omits currency, so the registry currency is the assertion.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
+    },
+    {
+      "market": "ZA",
+      "retailer": "Buildmat",
+      "publisher": "Buildmat (ZA)",
+      "base_url": "https://buildmat.co.za",
+      "catalogue_url": "https://buildmat.co.za/wp-json/wc/store/products?per_page=100",
+      "platform": "woocommerce",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 100,
+      "building_products": 35,
+      "examples": ["Cement 50kg", "Rapid set cement", "Roofing screw"],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Paint, timber, cement, rebar and roofing in ZAR.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
+    },
+    {
+      "market": "AU",
+      "retailer": "Trade Warehouse",
+      "publisher": "Trade Warehouse (AU)",
+      "base_url": "https://tradewarehouse.com.au",
+      "catalogue_url": "https://tradewarehouse.com.au/products.json?limit=250",
+      "platform": "shopify",
+      "source_class": "retail_catalogue",
+      "source_format": "json",
+      "products": 250,
+      "building_products": 57,
+      "examples": [
+        "Boral Cement 20kg",
+        "Flarex Ripstop PPE2 Womens FR Inherent T"
+      ],
+      "access_status": "ok",
+      "live_state": "registered 2026-11-11 via migration 20261111160500; no matched price promoted yet",
+      "access_notes": "Cement, sand, timber, roofing, paint and pipe in AUD. Store currency asserted at registry level.",
+      "probed_at": "2026-11-11T16:05:00.000Z"
     }
   ],
   "rejected": [
@@ -100,6 +217,131 @@
       "base_url": "https://workerswood.ca",
       "market": "CA",
       "reason": "36 products, 1 building match; specialist hardwood supplier, nothing to map."
+    },
+    {
+      "base_url": "https://realitybm.com",
+      "market": "AE",
+      "reason": ".ae storefront returning PKR prices: currency does not match the market, so any match would have repriced AED rows in rupees. Rejected on currency, not on coverage."
+    },
+    {
+      "base_url": "https://mnsuae.com",
+      "market": "AE",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://shabbirihardware.co.ke",
+      "market": "KE",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://builders.co.za",
+      "market": "ZA",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://leroymerlin.co.za",
+      "market": "ZA",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://buildersmart.in",
+      "market": "IN",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://moglix.com",
+      "market": "IN",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://telhanorte.com.br",
+      "market": "BR",
+      "reason": "no machine readable catalogue endpoint on the probed paths."
+    },
+    {
+      "base_url": "https://obramax.com.br",
+      "market": "BR",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://zoro.com",
+      "market": "US",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://acehardware.com",
+      "market": "US",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://rona.ca",
+      "market": "CA",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://canac.ca",
+      "market": "CA",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://homehardware.ca",
+      "market": "CA",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://baustoffshop.de",
+      "market": "DE",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://shop.bauwelt.eu",
+      "market": "DE",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://sonderpreis-baumarkt.de",
+      "market": "DE",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://raab-karcher.de",
+      "market": "DE",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://selcobw.com",
+      "market": "GB",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://buildingmaterials.co.uk",
+      "market": "GB",
+      "reason": "no machine readable catalogue endpoint."
+    },
+    {
+      "base_url": "https://roofingsuperstore.co.uk",
+      "market": "GB",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://industrybuying.com",
+      "market": "IN",
+      "reason": "blocks server-side fetch (403/429)."
+    },
+    {
+      "base_url": "https://monotaro.com",
+      "market": "JP",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://hardwareandgeneral.com",
+      "market": "AU",
+      "reason": "unreachable from the scanner."
+    },
+    {
+      "base_url": "https://binja.ae",
+      "market": "AE",
+      "reason": "fetchable but only 6 building products cleared the filter: waterproofing and tanking lines only, below the 10 item threshold for a market source. Revisit if the catalogue grows."
     }
   ],
   "false_matches_found": [
@@ -110,5 +352,6 @@
       "why_wrong": "a wrench is a tool; the price would have described PVC drainage pipe",
       "action": "observation deleted, row quarantined as rejected_tool, and catalogue_title_is_tool() now blocks tool titles at the write boundary (migration 20261031130000)"
     }
-  ]
+  ],
+  "swept_at": "2026-11-11T16:05:00.000Z"
 }

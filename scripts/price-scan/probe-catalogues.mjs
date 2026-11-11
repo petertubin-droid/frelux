@@ -49,7 +49,29 @@ const BUILDING_NOUNS = [
   "window",
   "fence",
   "deck",
-];
+  "cemento",
+  "varilla",
+  "block",
+  "arena",
+  "grava",
+  "tuberia",
+  "cimento",
+  "areia",
+  "bloco",
+  "telha",
+  "madeira",
+  "tinta",
+  "semen",
+  "pasir",
+  "bata",
+  "cat",
+  "beton",
+  "ciment",
+  "sable",
+  "brique",
+  "acier",
+  "peinture",
+]
 
 // A tool is not a material. "Paint sprayer", "tile cutter" and "hose kit" all
 // contain a building noun while telling you nothing about the price of paint or

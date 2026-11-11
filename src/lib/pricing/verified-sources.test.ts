@@ -94,8 +94,10 @@ describe("verified supplier catalogue registry", () => {
   it("does not claim a market it has no source for", () => {
     const markets = new Set(registry.sources.map((s) => s.market));
     expect(markets.size).toBeLessThan(32);
-    // Markets the owner asked about that still have nothing verified.
-    for (const missing of ["MX", "AE", "CN"]) {
+    // CN still has nothing verified; AE and MX gained sources on 2026-11-11,
+    // so they are no longer in this list. Each market that is claimed must be
+    // backed by a source above the threshold, which the first test enforces.
+    for (const missing of ["CN"]) {
       expect(markets.has(missing)).toBe(false);
     }
   });
