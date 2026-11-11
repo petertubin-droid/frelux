@@ -128,4 +128,44 @@ describe("BuildingTemplatePanel", () => {
     ]?.[0] as number;
     expect(floorBefore).toBe(0);
   });
+
+  it("clears the template and its room rows when the calculator starts over", () => {
+    const onChange = vi.fn();
+    const preset = getBuildingPresets("NG")[0];
+    const view = render(
+      <MemoryRouter>
+        <BuildingTemplatePanel
+          marketCode="NG"
+          surface="wall"
+          resetKey={0}
+          onChange={onChange}
+        />
+      </MemoryRouter>,
+    );
+    fireEvent.change(screen.getByLabelText(/building type/i), {
+      target: { value: preset.id },
+    });
+    expect(
+      onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] as number,
+    ).toBeGreaterThan(0);
+
+    view.rerender(
+      <MemoryRouter>
+        <BuildingTemplatePanel
+          marketCode="NG"
+          surface="wall"
+          resetKey={1}
+          onChange={onChange}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(
+      onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] as number,
+    ).toBe(0);
+    expect(
+      (screen.getByLabelText(/building type/i) as HTMLSelectElement).value,
+    ).toBe("");
+    expect(screen.queryByLabelText(/identical rooms/i)).toBeNull();
+  });
 });

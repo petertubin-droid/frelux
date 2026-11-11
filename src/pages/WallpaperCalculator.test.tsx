@@ -170,4 +170,31 @@ describe("WallpaperCalculator page", () => {
       ),
     ).toBeTruthy();
   });
+
+  it("clears the loaded building template when the calculator starts over", async () => {
+    render(
+      <MemoryRouter>
+        <WallpaperCalculator />
+      </MemoryRouter>,
+    );
+    const picker = screen.getByLabelText(
+      "Building type (optional)",
+    ) as HTMLSelectElement;
+    const option = Array.from(picker.options).find(
+      (item) => item.value && item.value !== "custom",
+    );
+    expect(option).toBeTruthy();
+    fireEvent.change(picker, { target: { value: option!.value } });
+    expect(
+      (await screen.findAllByLabelText(/identical rooms/i)).length,
+    ).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /start over/i }));
+
+    expect(
+      (screen.getByLabelText("Building type (optional)") as HTMLSelectElement)
+        .value,
+    ).toBe("");
+    expect(screen.queryAllByLabelText(/identical rooms/i)).toHaveLength(0);
+  });
 });

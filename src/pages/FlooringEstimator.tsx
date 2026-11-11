@@ -82,7 +82,10 @@ function fmtN(v: number | null): string {
 }
 
 export default function FlooringEstimator() {
+  const [templateResetKey, setTemplateResetKey] = useState(0);
+
   const resetInputs = () => {
+    setTemplateResetKey((value) => value + 1);
     setFloorType("laminate");
     setAreaInput("");
     setSkirtingInput("");
@@ -442,6 +445,7 @@ export default function FlooringEstimator() {
         <div className="mb-4">
           <BuildingTemplatePanel
             marketCode={marketCode}
+            resetKey={templateResetKey}
             surface="floor"
             onChange={(areaM2, totals) => {
               setAreaInput(

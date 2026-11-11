@@ -365,6 +365,33 @@ const TALL_PRESETS: {
   },
 ];
 
+/** Human labels for the inputs the screening engine bounds. */
+const TALL_INPUT_LABELS: Partial<Record<keyof TallBuildingInput, string>> = {
+  floors: "number of storeys",
+  floor_height: "typical floor height",
+  ground_floor_height: "ground floor height",
+  plan_length: "plan length",
+  plan_width: "plan width",
+  concrete_grade_mpa: "concrete grade",
+  dead_load_kpa: "superimposed dead load",
+  live_load_kpa: "live load",
+  partition_kpa: "partition allowance",
+  cladding_kpa: "cladding load",
+  basic_wind_speed_ms: "basic wind speed",
+  wind_directionality_kd: "wind directionality factor",
+  force_coefficient_cf: "force coefficient",
+  seismic_sds: "short period spectral acceleration",
+  seismic_sd1: "one second spectral acceleration",
+  seismic_s1: "mapped S1 value",
+  seismic_r: "response modification factor",
+  seismic_importance: "seismic importance factor",
+  spt_n: "SPT blow count",
+  water_table_m: "water table depth",
+  pile_diameter_m: "pile diameter",
+  pile_length_m: "pile length",
+  cycle_days_per_floor: "cycle days per floor",
+};
+
 export default function TallBuildingCalculator() {
   const resetInputs = () => {
     setParams(DEFAULT_TALL_INPUT);
@@ -647,7 +674,11 @@ export default function TallBuildingCalculator() {
           </strong>
           <p className="mt-1 text-muted-foreground">
             Review the entered values and screening limits before interpreting
-            results. Adjusted fields: {adjustedInputs.join(", ")}.
+            results. Adjusted fields:{" "}
+            {adjustedInputs
+              .map((key) => TALL_INPUT_LABELS[key] ?? key.replace(/_/g, " "))
+              .join(", ")}
+            .
           </p>
         </div>
       )}

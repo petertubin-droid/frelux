@@ -141,6 +141,8 @@ export default function WallpaperCalculator() {
   const resetInputs = () => {
     setWalls([{ ...INITIAL_WALL }]);
     setUnplacedTemplateOpenings(0);
+    setTemplateWallsOverLimit(0);
+    setTemplateResetKey((value) => value + 1);
     setRoll("standard");
     setWasteRate(0);
     setPatternRepeat(0);
@@ -184,6 +186,8 @@ export default function WallpaperCalculator() {
     { ...INITIAL_WALL },
   ]);
   const [unplacedTemplateOpenings, setUnplacedTemplateOpenings] = useState(0);
+  const [templateWallsOverLimit, setTemplateWallsOverLimit] = useState(0);
+  const [templateResetKey, setTemplateResetKey] = useState(0);
   const [roll, setRoll] = useState("standard");
   const [wasteRate, setWasteRate] = useState(0);
   const [patternRepeat, setPatternRepeat] = useState(0);
@@ -388,6 +392,8 @@ export default function WallpaperCalculator() {
   const reset = () => {
     setWalls([{ ...INITIAL_WALL }]);
     setUnplacedTemplateOpenings(0);
+    setTemplateWallsOverLimit(0);
+    setTemplateResetKey((value) => value + 1);
     setRoll("standard");
     setVisualStyle("plain");
     setWasteRate(0);
@@ -437,6 +443,7 @@ export default function WallpaperCalculator() {
               </p>
               <BuildingTemplatePanel
                 marketCode={market.marketCode}
+                resetKey={templateResetKey}
                 surface="wall"
                 maxRoomCount={25}
                 onChange={(_area, _totals, schedule) => {
@@ -457,12 +464,28 @@ export default function WallpaperCalculator() {
                       ).length,
                     })),
                   );
-                  if (next.length > 0 && next.length <= 100) {
+                  if (next.length > 100) {
+                    setTemplateWallsOverLimit(next.length);
+                    return;
+                  }
+                  setTemplateWallsOverLimit(0);
+                  if (next.length > 0) {
                     setWalls(next);
                     setPreviewWallId(next[0].id);
                   }
                 }}
               />
+              {templateWallsOverLimit > 100 && (
+                <p
+                  role="status"
+                  className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-foreground"
+                >
+                  That schedule expands to {templateWallsOverLimit} walls, above
+                  this calculator&apos;s 100-wall limit, so it was not loaded.
+                  Reduce the number of identical rooms or pick a smaller
+                  template, then load it again.
+                </p>
+              )}
               {unplacedTemplateOpenings > 0 && (
                 <p
                   role="status"

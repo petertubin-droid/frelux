@@ -74,4 +74,25 @@ describe("TallBuildingCalculator", () => {
       "Skyscraper Structure",
     );
   });
+
+  it("offers the 20 illustrative tower presets and does not warn on default inputs", async () => {
+    const { default: Page } = await import("@/pages/TallBuildingCalculator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    await screen.findAllByRole("heading");
+
+    const presets = screen
+      .getAllByRole("button")
+      .filter((button) =>
+        /illustrative|skyscraper|high-rise|storey|megatall/i.test(
+          button.textContent || "",
+        ),
+      );
+    expect(presets.length).toBeGreaterThanOrEqual(20);
+
+    expect(screen.queryByText(/Some inputs were normalized/i)).toBeNull();
+  });
 });

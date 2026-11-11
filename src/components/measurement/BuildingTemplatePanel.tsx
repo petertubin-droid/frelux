@@ -28,12 +28,19 @@ export function BuildingTemplatePanel({
   marketCode,
   surface,
   maxRoomCount,
+  resetKey,
   onChange,
 }: {
   marketCode: string;
   surface: "wall" | "floor";
   /** Limits expanded room/wall rows for calculators with bounded schedules. */
   maxRoomCount?: number;
+  /**
+   * Increment from the page's start-over handler to clear the selected
+   * template and every room row. Without it a reset in the calculator leaves
+   * the template schedule on screen while the calculator inputs are empty.
+   */
+  resetKey?: number;
   onChange: (
     areaM2: number,
     totals?: ScheduleTotals,
@@ -83,15 +90,25 @@ export function BuildingTemplatePanel({
     onChangeRef.current(metrics.areaM2, metrics.totals, metrics.schedule);
   }, [makeMetrics, presetId, rooms]);
 
+  const resetKeyRef = useRef(resetKey);
+
+  useEffect(() => {
+    if (resetKey === undefined) return;
+    if (resetKeyRef.current === resetKey) return;
+    resetKeyRef.current = resetKey;
+    setPresetId("");
+    setRooms([]);
+    const metrics = makeMetrics([]);
+    onChangeRef.current(0, metrics.totals, metrics.schedule);
+  }, [makeMetrics, resetKey]);
+
   function apply(id: string) {
     setPresetId(id);
     const preset = findBuildingPreset(marketCode, id);
     if (!preset) {
       setRooms([]);
-      if (!id) {
-        const metrics = makeMetrics([]);
-        onChangeRef.current(0, metrics.totals, metrics.schedule);
-      }
+      const metrics = makeMetrics([]);
+      onChangeRef.current(0, metrics.totals, metrics.schedule);
       return;
     }
     setRooms(
