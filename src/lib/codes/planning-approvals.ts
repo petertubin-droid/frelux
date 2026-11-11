@@ -52,6 +52,14 @@ export interface PlanningJurisdiction {
   region: string | null;
   /** The body that issues the permit. */
   authority: string;
+  /**
+   * "verified" means the issuing body was confirmed on its own portal on
+   * verifiedOn, and sourceUrl points at that portal. "confirm-office" means
+   * the office is described from the national planning framework but its
+   * current name or portal was not confirmed, so the applicant must check
+   * the name at the secretariat before submitting.
+   */
+  authorityStatus: "verified" | "confirm-office";
   /** The law, regulation or code the authority works under. */
   instruments: string[];
   setbackStatus: SetbackStatus;
@@ -158,6 +166,8 @@ interface NgStateSeed {
   town: string;
   extraInstrument?: string;
   extraInstrument2?: string;
+  authorityStatus?: "verified" | "confirm-office";
+  sourceUrl?: string;
   /** Set only where the state publishes something we could read. */
   setbackStatus?: SetbackStatus;
   setbacks?: SetbackRule[];
@@ -264,6 +274,8 @@ const NG_STATES: NgStateSeed[] = [
     town: "Kaduna",
     extraInstrument:
       "Kaduna State urban planning and development authority law",
+    authorityStatus: "verified",
+    sourceUrl: "https://kasupda.kdsg.gov.ng",
   },
   {
     region: "Kano",
@@ -299,6 +311,8 @@ const NG_STATES: NgStateSeed[] = [
     extraInstrument:
       "Lagos State Urban and Regional Planning and Development Law 2019",
     extraInstrument2: "Lagos State Physical Planning Permit Regulations 2019",
+    authorityStatus: "verified",
+    sourceUrl: "https://lagosppa.gov.ng",
     caution:
       "Lagos runs planning and building control as two agencies. LASPPPA issues the planning permit, the building control agency inspects the site and can seal it. A permit from one is not a permit from the other, and district offices apply district specific standards, so the Ikeja headquarters answer and the district answer are not always the same document.",
   },
@@ -375,6 +389,7 @@ const NG_FCT: PlanningJurisdiction = {
   region: "Federal Capital Territory",
   authority:
     "FCT Development Control Department, under the Federal Capital Territory Administration, Abuja",
+  authorityStatus: "verified",
   instruments: [
     "FCT Act 1976 and the FCT planning regulations made under it",
     "National Building Code (Nigeria), 2006 edition",
@@ -403,6 +418,7 @@ const NG_FCT: PlanningJurisdiction = {
   setbackNote:
     "The FCT applies different standards across districts of the territory, and the district scheme controls. Ask Development Control for the standard for your plot number before you draw. Figures quoted on social media for Abuja are not the scheme.",
   approvals: NG_APPROVAL_CHAIN,
+  sourceUrl: "https://fcta.gov.ng",
   caution:
     "Development Control can stop work on an unapproved site without a court order, and the territory enforces the district scheme strictly on setback and plot coverage. Land allocated under a statutory right of occupancy still needs the development permit.",
   verifiedOn: NG_VERIFIED_ON,
@@ -417,6 +433,7 @@ export const NG_JURISDICTIONS: PlanningJurisdiction[] = [
     country: "Nigeria",
     region: s.region,
     authority: s.authority,
+    authorityStatus: s.authorityStatus ?? "confirm-office",
     instruments: [
       `State planning law of ${s.region} State governing development control`,
       "National Building Code (Nigeria), 2006 edition, as adopted by the state",
@@ -430,7 +447,8 @@ export const NG_JURISDICTIONS: PlanningJurisdiction[] = [
     caution:
       s.caution ??
       `Approval is issued by the ${s.authority.split(",")[0]}, and inspection is handled by the same office in ${s.town}. Fees and turnaround change with the state's current tariff, so ask for the current schedule in writing rather than budgeting from an old quotation.`,
-    verifiedOn: NG_VERIFIED_ON,
+    sourceUrl: s.sourceUrl,
+    verifiedOn: s.sourceUrl ? NG_VERIFIED_ON : undefined,
   })),
 ];
 
@@ -449,6 +467,7 @@ interface MarketSeed {
   approvals: ApprovalStep[];
   caution: string;
   sourceUrl?: string;
+  authorityStatus?: "verified" | "confirm-office";
 }
 
 const MARKET_SEEDS: MarketSeed[] = [
@@ -1520,6 +1539,7 @@ export const INTERNATIONAL_JURISDICTIONS: PlanningJurisdiction[] =
     country: m.country,
     region: null,
     authority: m.authority,
+    authorityStatus: m.authorityStatus ?? "confirm-office",
     instruments: m.instruments,
     setbackStatus: m.setbackStatus,
     setbacks: m.setbacks ?? [],
@@ -1527,7 +1547,7 @@ export const INTERNATIONAL_JURISDICTIONS: PlanningJurisdiction[] =
     approvals: m.approvals,
     caution: m.caution,
     sourceUrl: m.sourceUrl,
-    verifiedOn: NG_VERIFIED_ON,
+    verifiedOn: m.sourceUrl ? NG_VERIFIED_ON : undefined,
   }));
 
 export const ALL_JURISDICTIONS: PlanningJurisdiction[] = [

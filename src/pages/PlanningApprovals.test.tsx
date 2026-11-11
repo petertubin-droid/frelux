@@ -10,6 +10,7 @@ vi.mock("@/components/ui/AdSlot", () => ({
 import PlanningApprovals from "./PlanningApprovals";
 import {
   ALL_JURISDICTIONS,
+  INTERNATIONAL_JURISDICTIONS,
   NG_JURISDICTIONS,
   PLANNING_COUNTRIES,
   getJurisdictionsByCountry,
@@ -62,6 +63,76 @@ describe("Planning approvals guide", () => {
     const gb = getJurisdictionsByCountry("GB")[0];
     expect(gb.setbackStatus).toBe("set-by-scheme");
     expect(gb.setbacks).toHaveLength(0);
+  });
+
+  it("never claims a portal check without a portal to point at", () => {
+    for (const jurisdiction of ALL_JURISDICTIONS) {
+      if (jurisdiction.verifiedOn) {
+        expect(jurisdiction.authorityStatus).toBe("verified");
+        expect(jurisdiction.sourceUrl).toBeTruthy();
+      }
+      if (jurisdiction.authorityStatus === "verified") {
+        expect(jurisdiction.sourceUrl).toBeTruthy();
+        expect(jurisdiction.verifiedOn).toBeTruthy();
+      }
+    }
+  });
+
+  it("marks only the offices it actually reached as verified", () => {
+    const verified = ALL_JURISDICTIONS.filter(
+      (j) => j.authorityStatus === "verified",
+    );
+    expect(verified.map((j) => j.id).sort()).toEqual([
+      "ng-fct",
+      "ng-kaduna",
+      "ng-lagos",
+    ]);
+  });
+
+  it("claims no published setback figure anywhere in the guide", () => {
+    expect(
+      ALL_JURISDICTIONS.filter((j) => j.setbackStatus === "published"),
+    ).toHaveLength(0);
+  });
+
+  it("covers every international market the platform serves", () => {
+    expect(INTERNATIONAL_JURISDICTIONS).toHaveLength(31);
+    const codes = INTERNATIONAL_JURISDICTIONS.map((j) => j.countryCode);
+    for (const code of [
+      "AE",
+      "AU",
+      "BR",
+      "CA",
+      "CH",
+      "CI",
+      "CN",
+      "DE",
+      "EG",
+      "ES",
+      "ET",
+      "FR",
+      "GB",
+      "GH",
+      "ID",
+      "IN",
+      "IT",
+      "JP",
+      "KE",
+      "KR",
+      "MX",
+      "NL",
+      "NZ",
+      "PL",
+      "SA",
+      "SE",
+      "SG",
+      "TR",
+      "TZ",
+      "US",
+      "ZA",
+    ]) {
+      expect(codes).toContain(code);
+    }
   });
 
   it("lists Nigeria first in the country picker", () => {

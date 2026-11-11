@@ -174,19 +174,28 @@ function JurisdictionCard({
       </section>
 
       <footer className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        {jurisdiction.verifiedOn ? (
-          <span>Checked {jurisdiction.verifiedOn}</span>
-        ) : null}
-        {jurisdiction.sourceUrl ? (
-          <a
-            className="underline"
-            href={jurisdiction.sourceUrl}
-            rel="nofollow noopener noreferrer"
-            target="_blank"
-          >
-            Source document
-          </a>
-        ) : null}
+        {jurisdiction.authorityStatus === "verified" &&
+        jurisdiction.sourceUrl ? (
+          <>
+            <span>
+              Office confirmed on its own portal, checked{" "}
+              {jurisdiction.verifiedOn}
+            </span>
+            <a
+              className="underline"
+              href={jurisdiction.sourceUrl}
+              rel="nofollow noopener noreferrer"
+              target="_blank"
+            >
+              Open the authority portal
+            </a>
+          </>
+        ) : (
+          <span>
+            Office described from the national planning framework. Confirm its
+            current name at the state secretariat before you submit.
+          </span>
+        )}
       </footer>
     </article>
   );
@@ -314,6 +323,44 @@ export default function PlanningApprovals() {
             </span>
           </label>
         </div>
+
+        <section className="mt-6 rounded-2xl border border-border bg-muted/40 p-4 text-sm text-foreground/80">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">
+            What this guide verifies, and what it does not
+          </h2>
+          <ul className="mt-2 space-y-2">
+            <li>
+              <span className="font-semibold text-foreground">Verified:</span>{" "}
+              the approval route and the instruments. The sequence from plot and
+              zoning check to certificate of fitness comes from Nigerian
+              planning law, and the standards cited are the National Building
+              Code (Nigeria) 2006 and each state's planning law. International
+              rows name the planning and building law of that country, with no
+              individual statute link yet, so treat the instrument as the
+              framework to quote rather than a citation.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">
+                Verified on the authority portal:
+              </span>{" "}
+              the office for the jurisdictions whose portal answered on 11
+              November 2026, which is Lagos (LASPPPA), Kaduna (KASUPDA) and the
+              FCT (FCTA). Every other row names the office the framework
+              provides and asks you to confirm its current name before
+              submitting.
+            </li>
+            <li>
+              <span className="font-semibold text-foreground">
+                Not verified, and not invented:
+              </span>{" "}
+              numerical setback values. No Nigerian state publishes its setback
+              schedule online, so no row here carries a published figure. The
+              residential norm shown is the planning norm authorities generally
+              apply, labelled as such, and it is not this state's instrument.
+              Ask for the plot standard in writing.
+            </li>
+          </ul>
+        </section>
 
         {query.trim() ? (
           <section className="mt-6">
