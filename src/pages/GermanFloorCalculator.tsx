@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -37,6 +38,13 @@ const MARKETS = CEMENT_MARKETS.map((code) => ({
 }));
 
 export default function GermanFloorCalculator() {
+  const resetInputs = () => {
+    setPreset("full-plot");
+    setCustom({ length: "10", width: "8" });
+    setHardcoreMm(150);
+    setSlabMm(100);
+    setMixKey("1:2:4");
+  };
   const { t } = useLanguage();
   useSeo({
     title:
@@ -300,6 +308,7 @@ export default function GermanFloorCalculator() {
               </ul>
             ) : result ? (
               <div className="mt-4 space-y-5">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: "German Floor Takeoff",

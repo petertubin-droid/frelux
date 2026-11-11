@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -49,6 +50,14 @@ const blankProduct = (): DraftProduct => ({
 const num = (value: string) => (value.trim() === "" ? null : Number(value));
 
 export default function IncreteFlooringEstimator() {
+  const resetInputs = () => {
+    setLength("");
+    setWidth("");
+    setThickness("");
+    setLabour("");
+    setProducts([blankProduct()]);
+    setStatus("");
+  };
   const { t } = useLanguage();
   const { marketCode, market } = useMarket();
   const { user } = useAuth();
@@ -594,6 +603,7 @@ export default function IncreteFlooringEstimator() {
               </ol>
             </details>
             <div className="mt-5">
+              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <ShareEstimateButton
                 estimate={{
                   kind: "Increte Flooring Estimate",

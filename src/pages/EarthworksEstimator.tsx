@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useState } from "react";
 import { useEngineAccess } from "@/lib/use-engine-access";
@@ -33,6 +34,19 @@ const display = (n: number) =>
   new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
 
 export default function EarthworksEstimator() {
+  // Back to two empty stations. Nothing else on this page is loaded data.
+  const resetInputs = () => {
+    setStations([
+      { chainageM: "", cutAreaM2: "", fillAreaM2: "" },
+      { chainageM: "", cutAreaM2: "", fillAreaM2: "" },
+    ]);
+    setSoilDescription("");
+    setBulking("");
+    setShrinkage("");
+    setReuse(false);
+    setErrors([]);
+    setResult(null);
+  };
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/earthworks-cut-fill");
   useSeo({
@@ -411,6 +425,10 @@ export default function EarthworksEstimator() {
                   </div>
                 )}
                 <div className="mt-5">
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
                   <ShareEstimateButton
                     estimate={{
                       kind: "Earthworks Quantity Report",

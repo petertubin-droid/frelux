@@ -9,6 +9,7 @@
  *   This page renders; it never computes durations itself.
  */
 
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -34,6 +35,13 @@ import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 
 export default function LabourEstimator() {
+  // Clears the job description only: the crew rates are the loaded book.
+  const resetInputs = () => {
+    setTaskKey("");
+    setQuantity("");
+    setCrewSize("2");
+    setResult(null);
+  };
   const { t } = useLanguage();
   const { market } = useMarket();
   useBreadcrumbJsonLd([
@@ -247,6 +255,7 @@ export default function LabourEstimator() {
                 </p>
               </div>
               <div className="mt-3">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Labour Duration",
