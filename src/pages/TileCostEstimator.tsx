@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
@@ -284,6 +285,14 @@ export default function TileCostEstimator({
     labourRatePerSqm: passed.input?.labourRatePerSqm ?? 2000,
     unit: passed.input?.unit ?? "meters",
   });
+
+  // Opening figures, including anything passed in from the tile calculator.
+  const openingInput = useRef(input);
+  const resetInputs = () => {
+    setInput(openingInput.current);
+    setUsingNgReference(false);
+    setResult(null);
+  };
 
   // Regional data flow: a calculator opened from a saved project follows
   // the project's location → active market profile currency. No location
@@ -939,6 +948,10 @@ export default function TileCostEstimator({
                           >
                             {t("Print Quote")}
                           </button>
+                          <CalculatorResetButton
+                            onReset={resetInputs}
+                            className="mb-4"
+                          />
                           <ShareEstimateButton
                             estimate={quoteToShareable(
                               tileQuoteOptions(result, result.method),

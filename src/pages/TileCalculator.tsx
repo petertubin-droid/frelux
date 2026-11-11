@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import {
   useEffect,
   useId,
@@ -275,6 +276,18 @@ export default function TileCalculator({
     labourRatePerSqm: 2000,
     unit: resolveMarketRoomUnit(market, "meters"),
   });
+
+  // "Start over" returns to the figures the page opened with. The opening input
+  // is captured on the first render, so values handed over from another
+  // calculator come back too, market sand unit included.
+  const openingInput = useRef(input);
+  const resetInputs = () => {
+    setInput(openingInput.current);
+    setResult(null);
+    setAlreadyHave(0);
+    setTileMode("single");
+    setPresetId("");
+  };
   // Every material price carries its source. "frelux" means the figure in
   // the price book, which is indicative until verified; "custom" means the
   // number the user typed. The engine only ever sees one number per material.
@@ -1464,6 +1477,7 @@ export default function TileCalculator({
 
         {result && (
           <div ref={resultsRef}>
+            <CalculatorResetButton onReset={resetInputs} className="mb-4" />
             <TileResultCard
               result={result}
               input={input}

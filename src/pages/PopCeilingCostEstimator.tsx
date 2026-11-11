@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
@@ -201,6 +202,14 @@ export default function PopCeilingCostEstimator({
     includeDecorative: true,
     includeOptional: false,
   });
+
+  const openingInput = useRef(input);
+  const resetInputs = () => {
+    setInput(openingInput.current);
+    setUsingNgReference(false);
+    setSaveMsg("");
+    setResult(null);
+  };
   // First-visit market detection can resolve after first render: sync the
   // pristine input's unit to the market default without touching edits.
   const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
@@ -652,6 +661,10 @@ export default function PopCeilingCostEstimator({
                         >
                           {t("Export quote (PDF)")}
                         </button>
+                        <CalculatorResetButton
+                          onReset={resetInputs}
+                          className="mb-4"
+                        />
                         <ShareEstimateButton
                           estimate={quoteToShareable(
                             popQuoteOptions(result),

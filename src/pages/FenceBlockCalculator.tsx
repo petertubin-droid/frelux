@@ -1,3 +1,4 @@
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -32,6 +33,15 @@ const display = (n: number) =>
 const COACH_CHOICES = [3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function FenceBlockCalculator() {
+  const resetInputs = () => {
+    setPreset("full-plot");
+    setCustom({ length: "30.48", width: "15.24" });
+    setCoaches(5);
+    setUnitKey("ng-block-9");
+    setGateWidth("3");
+    setGateCoaches("4");
+    setFoundationCourses("3");
+  };
   const { t } = useLanguage();
   useSeo({
     title: "Fence and Coach Block Calculator: Blocks, Cement and Sand | FRELUX",
@@ -557,6 +567,7 @@ export default function FenceBlockCalculator() {
               </ul>
             ) : result ? (
               <div className="mt-4 space-y-5">
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
                   estimate={{
                     kind: "Fence Block Takeoff",
