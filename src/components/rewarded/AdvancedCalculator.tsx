@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useState, useEffect, useCallback, useRef, useId } from "react";
 import {
   Bot,
@@ -955,6 +956,38 @@ function SavedTab({
             </p>
           </div>
           <div className="flex items-center gap-1">
+            <ShareEstimateButton
+              estimate={{
+                kind: "Saved Estimate",
+                title: e.title,
+                summaryLines: [
+                  {
+                    label: "Saved",
+                    value: new Date(e.createdAt).toLocaleDateString(),
+                  },
+                  {
+                    label: "Currency",
+                    value: e.currency,
+                  },
+                ],
+                lineItems: [],
+                totals: [
+                  {
+                    label: "Total",
+                    // An AI text estimate carries no computed figure. Saying
+                    // "0" here would invent a number the customer never saw.
+                    value:
+                      e.totalCost > 0
+                        ? `${e.currency} ${formatNumber(e.totalCost)}`
+                        : "AI text estimate",
+                    emphasized: true,
+                  },
+                ],
+                notes: ["Saved estimate from the FRELUX advanced calculator."],
+                link: "/smart-calculator",
+              }}
+              compact
+            />
             <Button
               variant="ghost"
               type="button"
