@@ -125,7 +125,10 @@ export class AiGateway {
     options: GateCheckOptions,
   ): Promise<GatewayAuthResult> {
     const { userId, clientHash } = await this.resolveIdentity(req);
-    const featureCost = options.costOverride ?? 10; // authoritatively 10 credits
+    // Must match AI_CREDIT_COST in src/lib/credits.ts (100). This default was
+    // still 10 after the platform-wide retune, so any function that did not
+    // pass costOverride charged a tenth of the advertised price.
+    const featureCost = options.costOverride ?? 100;
 
     // 1. Check global AI settings
     const { data: settings } = await this.supabase
@@ -193,6 +196,24 @@ export class AiGateway {
           reservationId: logEntry?.id,
         };
       }
+    }
+
+    // 3b. Paid-subscription-only mode. When the owner has chosen "paid" in
+    // site_settings, the guest allowance and the credit-purchase branch below
+    // both contradict the policy: a subscription is the only entry. Admins and
+    // active subscribers have already returned above.
+    const { data: accessModeRow } = await this.supabase
+      .from("site_settings")
+      .select("ai_access_mode")
+      .limit(1)
+      .maybeSingle();
+
+    if (accessModeRow?.ai_access_mode === "paid") {
+      throw new Error(
+        userId
+          ? "SUBSCRIPTION_REQUIRED: FRELUX AI is available on a paid FRELUX plan. Subscribe to continue."
+          : "AUTH_REQUIRED: Sign in with a paid FRELUX plan to use AI.",
+      );
     }
 
     // 4. Anonymous Guest (State A: exactly 1 initial AI operation per calendar day)
@@ -279,10 +300,13 @@ export class AiGateway {
     // Fixes the reported bug where redeeming deducted credits and granted
     // nothing: redeem_reward only ever recorded an unconsumed redemption and
     // no AI path checked it. Atomic (FOR UPDATE SKIP LOCKED) and free.
-    const { data: grantData } = await this.supabase.rpc("consume_reward_grant", {
-      p_user_id: userId,
-      p_reward_type: "ai_token",
-    });
+    const { data: grantData } = await this.supabase.rpc(
+      "consume_reward_grant",
+      {
+        p_user_id: userId,
+        p_reward_type: "ai_token",
+      },
+    );
     const grantRow = Array.isArray(grantData) ? grantData[0] : grantData;
     if (grantRow?.success) {
       const { data: grantLog } = await this.supabase

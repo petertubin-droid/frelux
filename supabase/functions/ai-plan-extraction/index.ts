@@ -23,6 +23,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
 
 // ── Rate limiting (inlined mirror of _shared/rate-limit.ts) ──
 
@@ -183,6 +184,10 @@ Return ONLY JSON with this exact shape:
 // ── Main ──
 
 serveWithCors(async (req: Request) => {
+  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
+  // function is reachable directly, so the browser gate is not enough.
+  const paywall = await requirePaidAiAccess(req);
+  if (!paywall.ok) return paywall.response;
   if (req.method === "OPTIONS")
     return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST")

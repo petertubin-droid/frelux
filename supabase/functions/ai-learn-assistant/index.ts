@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
 import { sanitizeAiProse } from "../_shared/ai-text-format.ts";
 import {
   checkRateLimit,
@@ -185,6 +186,10 @@ When the knowledge base has relevant content, cite it. When it doesn't, say what
 Formatting (mandatory): the answer renders as plain text in a chat bubble. No markdown at all — never write **bold**, *italic*, # headings, or backticks. Use "- " for list items. Never use em dashes (—) or en dashes (–); use a comma, colon, or plain hyphen instead.`;
 
 serveWithCors(async (req: Request) => {
+  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
+  // function is reachable directly, so the browser gate is not enough.
+  const paywall = await requirePaidAiAccess(req);
+  if (!paywall.ok) return paywall.response;
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
   // (falls back to client IP). OPTIONS preflights are answered at
   // the CORS boundary and never reach this check.

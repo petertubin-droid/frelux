@@ -16,9 +16,14 @@
 // estimation_enabled site setting, rate limited per client.
 // =========================================================
 
-import { sanitizeRooms, toMeters, type SanitizedRoom } from "../_shared/room-reading.ts";
+import {
+  sanitizeRooms,
+  toMeters,
+  type SanitizedRoom,
+} from "../_shared/room-reading.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
 
 // ── Rate limiting (inlined mirror of supabase/functions/_shared/rate-limit.ts) ──
 
@@ -365,7 +370,6 @@ const LENGTH_KEYS = new Set([
   "window_height",
 ]);
 
-
 function jsonResponse(
   body: unknown,
   status = 200,
@@ -528,6 +532,10 @@ ${textDescription ? `\nThe user's description:\n"""${textDescription.slice(0, 20
 // ── Main ──
 
 serveWithCors(async (req: Request) => {
+  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
+  // function is reachable directly, so the browser gate is not enough.
+  const paywall = await requirePaidAiAccess(req);
+  if (!paywall.ok) return paywall.response;
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -630,11 +638,14 @@ serveWithCors(async (req: Request) => {
   // Room reading is asked for as a separate section of the same answer, under the
   // same evidence rules as the fields. It is described after the field prompt so
   // the model treats it as a second reading pass over the same drawing.
-  const roomInstruction = documentKind === "architectural_plan" || documentKind === "text_description"
-    ? `\n\nAlso return "rooms": an array of the rooms this document actually labels or dimensions, at most 24, each as {"label": the name written on the plan, "length", "width", "height" (omit when the drawing gives no room height), "doors", "windows", "unit": the drawing's unit, "confidence", "source", "evidence": the dimension text you read}. Read each room's own dimension string; do not divide the building area by the room count, do not assume every room is the same size, and do not invent a room that is not drawn. Omit "rooms" when the drawing does not label rooms.`
-    : "";
+  const roomInstruction =
+    documentKind === "architectural_plan" || documentKind === "text_description"
+      ? `\n\nAlso return "rooms": an array of the rooms this document actually labels or dimensions, at most 24, each as {"label": the name written on the plan, "length", "width", "height" (omit when the drawing gives no room height), "doors", "windows", "unit": the drawing's unit, "confidence", "source", "evidence": the dimension text you read}. Read each room's own dimension string; do not divide the building area by the room count, do not assume every room is the same size, and do not invent a room that is not drawn. Omit "rooms" when the drawing does not label rooms.`
+      : "";
 
-  const parts: Array<Record<string, unknown>> = [{ text: prompt + roomInstruction }];
+  const parts: Array<Record<string, unknown>> = [
+    { text: prompt + roomInstruction },
+  ];
   if (documentDataUrl) {
     const mimeMatch = documentDataUrl.match(/^data:([^;,]+)[;,]/);
     const base64 = documentDataUrl.includes(",")

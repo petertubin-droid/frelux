@@ -17,6 +17,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
 
 async function getVerifiedUserId(req: Request): Promise<string | null> {
   const auth = req.headers.get("Authorization");
@@ -410,6 +411,10 @@ STRICT PROFESSIONAL REQUIREMENTS & CONSTRAINTS:
 // ── Handler ──
 
 export async function handler(req: Request): Promise<Response> {
+  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
+  // function is reachable directly, so the browser gate is not enough.
+  const paywall = await requirePaidAiAccess(req);
+  if (!paywall.ok) return paywall.response;
   if (req.method !== "POST") {
     return jsonResponse(
       { error: "Method not allowed. Use POST.", code: "METHOD_NOT_ALLOWED" },
