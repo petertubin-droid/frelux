@@ -121,10 +121,18 @@ export default function Navbar() {
       }
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (event.shiftKey && (document.activeElement === first || !drawer.contains(document.activeElement))) {
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          !drawer.contains(document.activeElement))
+      ) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !drawer.contains(document.activeElement))) {
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          !drawer.contains(document.activeElement))
+      ) {
         event.preventDefault();
         first.focus();
       }
@@ -746,7 +754,6 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-
           </div>
         </nav>
         <AdFreePromptNotice />
@@ -786,7 +793,7 @@ export default function Navbar() {
           <BrandBackdrop variant="drawer" />
           <div className="relative flex-1 overflow-y-auto overscroll-contain">
             {/* Drawer header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3.5 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
               <Link
                 to="/"
                 onClick={() => setMobileOpen(false)}
@@ -821,7 +828,7 @@ export default function Navbar() {
                   )
                 }
                 aria-expanded={mobileExpanded === "__quick_tools"}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
               >
                 Quick tools
                 <ChevronDown
@@ -857,7 +864,7 @@ export default function Navbar() {
                       key={item.to}
                       to={item.to}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                      className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground/80 dark:hover:bg-white/5"
                     >
                       <item.icon
                         aria-hidden="true"
@@ -873,9 +880,9 @@ export default function Navbar() {
             </div>
 
             {/* Drawer nav, collapsible sections */}
-            <div className="px-3 py-4">
+            <div className="px-3 py-3">
               {navWorkspaces.map((workspace) => (
-                <div key={t(workspace.label)} className="mb-1">
+                <div key={t(workspace.label)} className="mb-0.5">
                   {workspace.children ? (
                     <>
                       <Button
@@ -888,7 +895,7 @@ export default function Navbar() {
                           )
                         }
                         className={classNames(
-                          "relative flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                          "relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
                           location.pathname.startsWith(workspace.path)
                             ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                             : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
@@ -935,7 +942,7 @@ export default function Navbar() {
                               // directly. No pointless "More" dropdown.
                               if (!group.section) {
                                 return (
-                                  <div key={gi} className="mb-1.5 space-y-0.5">
+                                  <div key={gi} className="mb-1 space-y-0.5">
                                     {renderLinks("")}
                                   </div>
                                 );
@@ -943,7 +950,7 @@ export default function Navbar() {
                               // Named section (Materials & Finishes, Building
                               // Structure, ...): collapsible dropdown.
                               return (
-                                <div key={gi} className="mb-1.5">
+                                <div key={gi} className="mb-1">
                                   <button
                                     type="button"
                                     aria-expanded={
@@ -956,7 +963,7 @@ export default function Navbar() {
                                           : groupKey,
                                       )
                                     }
-                                    className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
+                                    className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
                                   >
                                     {t(group.section)}
                                     <ChevronDown
@@ -1010,8 +1017,12 @@ export default function Navbar() {
               <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
                 <div className="flex items-center justify-between gap-3 px-3 py-2">
                   <div>
-                    <p className="text-sm font-semibold text-card-foreground">Display & layout</p>
-                    <p className="text-xs text-muted-foreground">Scale and calculator view</p>
+                    <p className="text-sm font-semibold text-card-foreground">
+                      Display & layout
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Scale and calculator view
+                    </p>
                   </div>
                   <DisplaySettings />
                 </div>
@@ -1020,29 +1031,29 @@ export default function Navbar() {
                   <LanguageSwitcher inline={true} />
                   <CurrencySwitcher inline={true} />
                   <MarketSelector inline={true} />
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={toggle}
-                  aria-label="Toggle dark mode"
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-                >
-                  {theme === "dark" ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                  <span>Dark mode</span>
-                  <span
-                    className={classNames(
-                      "ml-auto text-xs",
-                      theme === "dark"
-                        ? "text-brand-purple dark:text-brand-purple-lighter"
-                        : "text-muted-foreground",
-                    )}
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={toggle}
+                    aria-label="Toggle dark mode"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                   >
-                    {theme === "dark" ? "On" : "Off"}
-                  </span>
+                    {theme === "dark" ? (
+                      <Sun className="h-4 w-4" />
+                    ) : (
+                      <Moon className="h-4 w-4" />
+                    )}
+                    <span>Dark mode</span>
+                    <span
+                      className={classNames(
+                        "ml-auto text-xs",
+                        theme === "dark"
+                          ? "text-brand-purple dark:text-brand-purple-lighter"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {theme === "dark" ? "On" : "Off"}
+                    </span>
                   </Button>
                 </div>
               </div>
