@@ -535,13 +535,42 @@ const routes = [
   })),
 ];
 
+
+function fallbackLearnRoutesFromSitemap() {
+  const sitemapUrl = new URL("../public/sitemap.xml", import.meta.url);
+  if (!existsSync(sitemapUrl)) return [];
+  try {
+    const xml = readFileSync(sitemapUrl, "utf8");
+    const urls = xml.match(/<url>[\s\S]*?<\/url>/g) ?? [];
+    const routes = [];
+    const seen = new Set();
+    for (const u of urls) {
+      const locMatch = /<loc>https:\/\/freluxtools\.com([^<]+)<\/loc>/.exec(u);
+      if (!locMatch) continue;
+      const path = locMatch[1].replace(/\/$/, "");
+      if (!path.startsWith("/learn/") && !path.startsWith("/suppliers/")) continue;
+      if (isLocalePrefixed(path)) continue;
+      if (seen.has(path)) continue;
+      seen.add(path);
+      const prio = /<priority>([^<]+)<\/priority>/.exec(u)?.[1] || "0.6";
+      const freq = /<changefreq>([^<]+)<\/changefreq>/.exec(u)?.[1] || "monthly";
+      const last = /<lastmod>([^<]+)<\/lastmod>/.exec(u)?.[1];
+      routes.push({ path, priority: prio, changefreq: freq, lastmod: last });
+    }
+    console.log(`  ℹ️  retained ${routes.length} existing learn/supplier route(s) from public/sitemap.xml fallback`);
+    return routes;
+  } catch {
+    return [];
+  }
+}
+
 // ── Learn section: dynamic category + article URLs from Supabase ─────
 async function fetchLearnRoutes() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL.includes("placeholder")) {
     failBuildIfNetlify(
       "Supabase env vars missing — dynamic Learn URLs skipped",
     );
-    return [];
+    return fallbackLearnRoutesFromSitemap();
   }
   const headers = {
     apikey: SUPABASE_ANON_KEY,
@@ -628,11 +657,11 @@ async function fetchLearnRoutes() {
       failBuildIfNetlify(
         `Learn fetch failed (categories ${catRes.status}, articles ${artRes.status})`,
       );
-      return learnRoutes;
+      return learnRoutes.length ? learnRoutes : fallbackLearnRoutesFromSitemap();
     }
   } catch (err) {
     failBuildIfNetlify(`Learn fetch failed (${err.message})`);
-    return [];
+    return fallbackLearnRoutesFromSitemap();
   }
   return learnRoutes;
 }
@@ -773,9 +802,29 @@ const manifestNoindex = manifestData.noindex;
  * indexable ones are real pages with hreflang and a self-canonical, and they
  * belong in the sitemap. A noindex page never does.
  */
-const translatedLocalePaths = new Set(
-  manifest.filter((p) => isLocalePrefixed(p) && !manifestNoindex.has(p)),
-);
+const fallbackLocales = (() => {
+  const sitemapUrl = new URL("../public/sitemap.xml", import.meta.url);
+  if (!existsSync(sitemapUrl)) return new Set();
+  try {
+    const xml = readFileSync(sitemapUrl, "utf8");
+    const urls = xml.match(/<url>[\s\S]*?<\/url>/g) ?? [];
+    const set = new Set();
+    for (const u of urls) {
+      const locMatch = /<loc>https:\/\/freluxtools\.com([^<]+)<\/loc>/.exec(u);
+      if (!locMatch) continue;
+      const path = locMatch[1].replace(/\/$/, "");
+      if (isLocalePrefixed(path)) set.add(path);
+    }
+    return set;
+  } catch {
+    return new Set();
+  }
+})();
+
+const translatedLocalePaths = new Set([
+  ...manifest.filter((p) => isLocalePrefixed(p) && !manifestNoindex.has(p)),
+  ...fallbackLocales,
+]);
 
 // The manifest is written by prerender.mjs from the files it actually emitted,
 // so a page that exists but is missing from the curated lists above still gets
