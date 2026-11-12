@@ -57,6 +57,10 @@ def repo_files():
     out = []
     for path in sorted(glob.glob(os.path.join(MIGRATIONS_DIR, "*.sql"))):
         fname = os.path.basename(path)
+        # Rollback scripts are the undo path, never a forward migration: running
+        # one here would drop the objects its forward file just created.
+        if fname.endswith("_rollback.sql"):
+            continue
         out.append((int(fname.split("_")[0]), fname))
     return out
 

@@ -21,6 +21,7 @@ import {
   Cpu,
   Crown,
   Dna,
+  CreditCard,
   DollarSign,
   ExternalLink,
   Factory,
@@ -283,6 +284,11 @@ export const navModules: NavModule[] = [
       { label: "Labour Rates", to: "/admin/labour-rates", icon: HardHat },
       { label: "Labour Settings", to: "/admin/labour-settings", icon: HardHat },
       { label: "Cost & Pricing", to: "/admin/pricing", icon: DollarSign },
+      {
+        label: "Subscription prices",
+        to: "/admin/subscription_pricing",
+        icon: CreditCard,
+      },
       {
         label: "Market Intelligence",
         to: "/admin/market-intelligence",
