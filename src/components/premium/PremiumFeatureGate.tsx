@@ -3,7 +3,7 @@
  *
  * Shows a golden crown icon and two unlock buttons:
  * 1. Watch Ad to Unlock (uses existing unlockFeatureViaAd)
- * 2. Use 10 Credits to Unlock (uses existing spendAiCredits)
+ * 2. Use the standard AI credit cost to unlock (spendAiCredits)
  *
  * Unlock is session-scoped (useState only), once the user leaves
  * the feature, they must unlock again.

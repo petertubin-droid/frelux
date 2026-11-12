@@ -30,6 +30,7 @@ import type {
 } from "@/types/pro-connect";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { toE164 } from "@/lib/phone/msisdn";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { VerificationBadge } from "@/components/pro-connect/VerificationBadge";
@@ -153,11 +154,6 @@ export default function ProConnectProfile() {
     navigate(`/messages/${convo.id}`);
   }
 
-  function digitsOf(value: string | null | undefined): string | null {
-    const digits = (value ?? "").replace(/[^0-9]/g, "");
-    return digits.length >= 10 ? digits : null;
-  }
-
   useSeo({
     title:
       profile?.seo_title ||
@@ -199,6 +195,10 @@ export default function ProConnectProfile() {
       </div>
     );
   }
+
+  // Professionals store the number the way they dial it locally, so it is
+  // normalised to an international number before it goes into a link.
+  const contactNumber = toE164(publicPhone, profile?.country);
 
   if (!profile) {
     return (
@@ -391,10 +391,10 @@ export default function ProConnectProfile() {
                     <MessageSquare className="h-4 w-4" />
                     {t("Message this professional")}
                   </Button>
-                  {digitsOf(publicPhone) && (
+                  {contactNumber && (
                     <>
                       <a
-                        href={`https://wa.me/${digitsOf(publicPhone)}?text=${encodeURIComponent(
+                        href={`https://wa.me/${contactNumber}?text=${encodeURIComponent(
                           `Hello ${profile.display_name}, I found you on FRELUX Pro Connect and would like to discuss a job.`,
                         )}`}
                         target="_blank"
@@ -405,7 +405,7 @@ export default function ProConnectProfile() {
                         {t("WhatsApp")}
                       </a>
                       <a
-                        href={`tel:${digitsOf(publicPhone)}`}
+                        href={`tel:${contactNumber}`}
                         className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-3 text-sm font-semibold transition-colors hover:bg-muted"
                       >
                         <Phone className="h-4 w-4" />

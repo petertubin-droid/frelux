@@ -173,7 +173,7 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
     );
   }
 
-  // ── State B: Registered Free User (Requires 10 credits) ──
+  // ── State B: Registered Free User (Requires the standard cost) ──
   const balance = wallet?.balance ?? 0;
   const standardCost = 10;
   const hasEnoughCredits = balance >= standardCost;

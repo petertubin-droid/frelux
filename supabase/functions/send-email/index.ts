@@ -154,6 +154,16 @@ async function sendEmail(
   return { sent: false, error: detail.slice(0, 200) };
 }
 
+/** Display names are user-supplied: text in an email, never markup. */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
@@ -251,14 +261,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { data: pro } = await admin
       .from("pro_profiles")
-      .select(
-        "display_name, business_name, slug, user_id, contact_email_public",
-      )
+      .select("display_name, business_name, slug, user_id")
       .eq("id", convo.professional_id)
       .maybeSingle();
 
-    let recipient = pro?.contact_email_public ?? null;
-    if (!recipient && pro?.user_id) {
+    // contact_email_public is a boolean visibility flag, not an address, so
+    // the alert always goes to the professional's own account email.
+    let recipient: string | null = null;
+    if (pro?.user_id) {
       const { data: proUser } = await admin.auth.admin.getUserById(
         pro.user_id as string,
       );
@@ -274,16 +284,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const customerName =
+    const customerName = escapeHtml(
       (customer.user_metadata?.full_name as string) ||
-      customer.email ||
-      "A customer";
+        customer.email ||
+        "A customer",
+    );
+    const proName = escapeHtml(pro?.display_name ?? "there");
     const dashboard = "https://freluxtools.com/pro-connect/dashboard";
     const sent = await sendEmail(
       apiKey,
       recipient,
       "New client enquiry on FRELUX Pro Connect",
-      `<p>Hello ${pro?.display_name ?? "there"},</p>
+      `<p>Hello ${proName},</p>
        <p><strong>${customerName}</strong> has started a conversation with you on FRELUX Pro Connect.</p>
        <p>Open your dashboard to reply: <a href="${dashboard}">${dashboard}</a></p>
        <p>Replying quickly wins the job. You are receiving this because your profile is listed on FRELUX Pro Connect.</p>`,
