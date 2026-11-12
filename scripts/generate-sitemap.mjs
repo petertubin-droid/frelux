@@ -152,6 +152,7 @@ const routes = [
   { path: "/stucco-calculator", priority: "0.7", changefreq: "monthly" },
   { path: "/colors", priority: "0.8", changefreq: "weekly" },
   { path: "/colors/compare", priority: "0.7", changefreq: "monthly" },
+  { path: "/color-preview", priority: "0.7", changefreq: "monthly" },
   { path: "/ai-color-assistant", priority: "0.7", changefreq: "monthly" },
   { path: "/learn", priority: "0.8", changefreq: "weekly" },
   { path: "/prices", priority: "0.8", changefreq: "daily" },
