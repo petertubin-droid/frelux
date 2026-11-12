@@ -701,20 +701,21 @@ export default function ProConnectDirectory() {
                   <X className="h-4 w-4" /> {t("Clear filters")}
                 </Button>
               )}
-              <Link to="/pro-connect/register">
-                <Button size="sm" className="w-full gap-2 text-xs font-semibold sm:w-auto">
+              <Button asChild size="sm" className="w-full gap-2 text-xs font-semibold sm:w-auto">
+                <Link to="/pro-connect/register">
                   {t("Are you a professional? List your business")}
-                </Button>
-              </Link>
-              <Link to="/pro-connect/liquidity">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground sm:w-auto"
-                >
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="w-full gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground sm:w-auto"
+              >
+                <Link to="/pro-connect/liquidity">
                   <Compass className="h-4 w-4" /> {t("Request a match")}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         ) : (
