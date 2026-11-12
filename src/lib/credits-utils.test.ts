@@ -34,7 +34,7 @@ describe("getDailyRefId", () => {
 
 describe("AI credit cost constants", () => {
   it("defines a flat cost per AI tool use", () => {
-    expect(AI_CREDIT_COST).toBe(10);
+    expect(AI_CREDIT_COST).toBe(100);
   });
 
   it("caps ad limits at sane positive values", () => {

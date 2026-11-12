@@ -3,13 +3,14 @@ import { MAX_ADS_PER_DAY, CREDITS_PER_AD, AI_CREDIT_COST } from "./credits";
 
 describe("FRELUX AI Credit Economy & Access Policy Rules", () => {
   describe("Arithmetic & Cost Constants", () => {
-    it("enforces exact arithmetic: 5 credits per ad * 2 ads = 10 credits (1 AI op)", () => {
-      const adsWatched = 2;
+    it("enforces exact arithmetic: 5 credits per ad, so a full day of 4 ads is 20 credits", () => {
+      const adsWatched = MAX_ADS_PER_DAY;
       const earnedCredits = CREDITS_PER_AD * adsWatched;
       expect(CREDITS_PER_AD).toBe(5);
-      expect(AI_CREDIT_COST).toBe(10);
-      expect(earnedCredits).toBe(10);
-      expect(earnedCredits).toBe(AI_CREDIT_COST);
+      expect(AI_CREDIT_COST).toBe(100);
+      expect(earnedCredits).toBe(20);
+      // A day of rewarded ads no longer pays for an AI operation.
+      expect(earnedCredits).toBeLessThan(AI_CREDIT_COST);
     });
 
     it("enforces unpaid user daily ad limit of exactly 4 ads (max 20 credits/day)", () => {
@@ -103,18 +104,18 @@ describe("FRELUX AI Credit Economy & Access Policy Rules", () => {
   });
 
   describe("Registered Free User Balance & Spending", () => {
-    it("calculates remaining credits after 1 operation for a user starting with 15 credits", () => {
-      const initialBalance = 15;
+    it("calculates remaining credits after 1 operation for a user starting with 150 credits", () => {
+      const initialBalance = 150;
       const remaining = initialBalance - AI_CREDIT_COST;
-      expect(remaining).toBe(5);
+      expect(remaining).toBe(50);
     });
 
-    it("blocks user with 5 credits from starting a 10-credit AI operation", () => {
-      const userBalance = 5;
+    it("blocks a user with 20 credits from starting a 100-credit AI operation", () => {
+      const userBalance = 20;
       const canExecute = userBalance >= AI_CREDIT_COST;
       const missing = AI_CREDIT_COST - userBalance;
       expect(canExecute).toBe(false);
-      expect(missing).toBe(5);
+      expect(missing).toBe(80);
     });
 
     it("registered free users with insufficient balance must go to profile rather than in-tool ad popup", () => {

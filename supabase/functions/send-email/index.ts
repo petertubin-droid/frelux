@@ -183,7 +183,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
   }
 
-  let body: { type?: string; id?: string };
+  let body: { type?: string; id?: string; conversation_id?: string };
   try {
     body = await req.json();
   } catch {
@@ -192,6 +192,108 @@ const handler = async (req: Request): Promise<Response> => {
       headers: { "Content-Type": "application/json" },
     });
   }
+  // ── Pro enquiry alert ──────────────────────────────────────
+  // A customer opened a conversation with a professional. The customer is
+  // proven from their token, the conversation from the database, and the
+  // recipient from the professional's own row: nothing in the body can pick
+  // an address or write the email.
+  if (body?.type === "pro_inquiry") {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceRoleKey) {
+      return new Response(JSON.stringify({ sent: false, reason: "no env" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (typeof body.conversation_id !== "string") {
+      return new Response(
+        JSON.stringify({ error: "conversation_id required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const token = (req.headers.get("Authorization") ?? "").replace(
+      /^Bearer\s+/i,
+      "",
+    );
+    const { data: authData } = token
+      ? await admin.auth.getUser(token)
+      : { data: { user: null } };
+    const customer = authData?.user;
+    if (!customer) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const { data: convo } = await admin
+      .from("pro_conversations")
+      .select("id, customer_id, professional_id")
+      .eq("id", body.conversation_id)
+      .maybeSingle();
+    if (!convo || convo.customer_id !== customer.id) {
+      return new Response(
+        JSON.stringify({ sent: false, reason: "not owner" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const { data: pro } = await admin
+      .from("pro_profiles")
+      .select(
+        "display_name, business_name, slug, user_id, contact_email_public",
+      )
+      .eq("id", convo.professional_id)
+      .maybeSingle();
+
+    let recipient = pro?.contact_email_public ?? null;
+    if (!recipient && pro?.user_id) {
+      const { data: proUser } = await admin.auth.admin.getUserById(
+        pro.user_id as string,
+      );
+      recipient = proUser?.user?.email ?? null;
+    }
+    if (!recipient) {
+      return new Response(
+        JSON.stringify({ sent: false, reason: "no address" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const customerName =
+      (customer.user_metadata?.full_name as string) ||
+      customer.email ||
+      "A customer";
+    const dashboard = "https://freluxtools.com/pro-connect/dashboard";
+    const sent = await sendEmail(
+      apiKey,
+      recipient,
+      "New client enquiry on FRELUX Pro Connect",
+      `<p>Hello ${pro?.display_name ?? "there"},</p>
+       <p><strong>${customerName}</strong> has started a conversation with you on FRELUX Pro Connect.</p>
+       <p>Open your dashboard to reply: <a href="${dashboard}">${dashboard}</a></p>
+       <p>Replying quickly wins the job. You are receiving this because your profile is listed on FRELUX Pro Connect.</p>`,
+    );
+    return new Response(JSON.stringify({ sent: sent.sent }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   if (body?.type !== "contact" || typeof body.id !== "string") {
     return new Response(JSON.stringify({ error: "Unsupported request" }), {
       status: 400,

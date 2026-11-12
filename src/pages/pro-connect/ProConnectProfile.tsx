@@ -7,6 +7,8 @@ import {
   Briefcase,
   Globe,
   MessageSquare,
+  Phone,
+  MessageCircle,
   Flag,
 } from "lucide-react";
 import {
@@ -27,6 +29,7 @@ import type {
   DbProReview,
 } from "@/types/pro-connect";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { VerificationBadge } from "@/components/pro-connect/VerificationBadge";
@@ -66,6 +69,11 @@ export default function ProConnectProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const [contactError, setContactError] = useState<string | null>(null);
+  // The public number comes from an RPC that only returns it when the
+  // professional has published contact_phone_public, so the column itself
+  // never reaches the browser.
+  const [publicPhone, setPublicPhone] = useState<string | null>(null);
   const [profile, setProfile] = useState<DbProProfile | null>(null);
   const [services, setServices] = useState<DbProService[]>([]);
   const [locations, setLocations] = useState<DbProLocation[]>([]);
@@ -107,6 +115,10 @@ export default function ProConnectProfile() {
       ]);
       setCredentials(creds);
       setProSettings(settings);
+      const { data: phone } = await supabase.rpc("get_pro_public_phone", {
+        p_slug: slug,
+      });
+      setPublicPhone(typeof phone === "string" ? phone : null);
       setLoading(false);
     })();
   }, [slug]);
@@ -118,9 +130,32 @@ export default function ProConnectProfile() {
     }
     if (!profile) return;
     const convo = await getOrCreateConversation(profile.id);
-    if (convo) {
-      navigate(`/messages/${convo.id}/`);
+    if (!convo) {
+      setContactError(
+        t("We could not open a conversation. Please try again in a moment."),
+      );
+      return;
     }
+    // Best-effort alert so the professional hears about the enquiry even if
+    // they are not signed in. The stored conversation remains the source of
+    // truth; a mail failure never blocks the customer.
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      await supabase.functions.invoke("send-email", {
+        body: { type: "pro_inquiry", conversation_id: convo.id },
+        headers: sessionData.session
+          ? { Authorization: `Bearer ${sessionData.session.access_token}` }
+          : undefined,
+      });
+    } catch {
+      /* email is a courtesy, never a gate */
+    }
+    navigate(`/messages/${convo.id}`);
+  }
+
+  function digitsOf(value: string | null | undefined): string | null {
+    const digits = (value ?? "").replace(/[^0-9]/g, "");
+    return digits.length >= 10 ? digits : null;
   }
 
   useSeo({
@@ -309,7 +344,9 @@ export default function ProConnectProfile() {
               </div>
 
               {/* Location */}
-              {(locations.length > 0 || profile.service_area_text || profile.country) && (
+              {(locations.length > 0 ||
+                profile.service_area_text ||
+                profile.country) && (
                 <div className="mt-3 flex flex-wrap items-start gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                   <MapPin
                     aria-hidden="true"
@@ -345,14 +382,43 @@ export default function ProConnectProfile() {
 
               {/* CTA */}
               {!isOwner && (
-                <Button
-                  variant="default"
-                  onClick={handleMessage}
-                  className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-colors hover:bg-primary/90"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {t("Message this professional")}
-                </Button>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <Button
+                    variant="default"
+                    onClick={handleMessage}
+                    className="inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-colors hover:bg-primary/90"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    {t("Message this professional")}
+                  </Button>
+                  {digitsOf(publicPhone) && (
+                    <>
+                      <a
+                        href={`https://wa.me/${digitsOf(publicPhone)}?text=${encodeURIComponent(
+                          `Hello ${profile.display_name}, I found you on FRELUX Pro Connect and would like to discuss a job.`,
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        {t("WhatsApp")}
+                      </a>
+                      <a
+                        href={`tel:${digitsOf(publicPhone)}`}
+                        className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-3 text-sm font-semibold transition-colors hover:bg-muted"
+                      >
+                        <Phone className="h-4 w-4" />
+                        {t("Call")}
+                      </a>
+                    </>
+                  )}
+                </div>
+              )}
+              {contactError && (
+                <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">
+                  {contactError}
+                </p>
               )}
             </div>
           </div>

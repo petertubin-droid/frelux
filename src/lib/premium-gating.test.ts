@@ -41,8 +41,8 @@ import {
 
 describe("Premium Feature Gating, credits integration", () => {
   describe("AI_CREDIT_COST constant", () => {
-    it("is 10 credits per unlock", () => {
-      expect(AI_CREDIT_COST).toBe(10);
+    it("is 100 credits per unlock", () => {
+      expect(AI_CREDIT_COST).toBe(100);
     });
   });
 
@@ -238,6 +238,6 @@ describe("Premium gating, one-time use session scoping", () => {
     // credit_cost=0. This is enforced at the DB level, not client-side.
     // The PremiumFeatureGate should never be rendered for ai_livechat.
     // This test documents that contract.
-    expect(AI_CREDIT_COST).toBe(10); // all other features cost 10
+    expect(AI_CREDIT_COST).toBe(100); // all other features cost 100
   });
 });

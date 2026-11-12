@@ -239,7 +239,9 @@ describe("ai-access, paid subscription mode", () => {
   };
   const usage = {
     usedToday: 0,
-    dailyLimit: 0,
+    remaining: 0,
+    limit: 0,
+    resetPeriod: "daily",
     hasRemaining: false,
     isAuthenticated: true,
   };
