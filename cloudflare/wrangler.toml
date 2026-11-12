@@ -9,9 +9,11 @@ name = "frelux-files"
 main = "src/index.ts"
 compatibility_date = "2026-11-01"
 
-# Attach a custom domain instead of the workers.dev hostname so the app talks to
-# one stable origin: files.freluxtools.com
-routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+# freluxtools.com DNS is not on this Cloudflare account (the zone list is empty),
+# so the Worker is published on its workers.dev hostname. Point
+# VITE_R2_WORKER_URL at that hostname. When the zone moves to Cloudflare, add:
+#   routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+workers_dev = true
 
 [observability]
 enabled = true
