@@ -26,6 +26,23 @@ and RLS; R2 only holds objects.
    keys, this check must switch to JWKS verification, otherwise every upload will
    return 401.
 
+## Where it stands today
+
+Live as of 12 November 2026:
+
+| Thing       | Value                                                                                                             |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| Worker      | `frelux-files`                                                                                                    |
+| URL         | `https://files.freluxtools.com` (custom domain on the `freluxtools.com` zone)                                     |
+| Buckets     | `frelux-avatars`, `frelux-brand-assets`, `frelux-marketplace`, `frelux-plan-documents`, `frelux-pro-verification` |
+| Upload mode | binding, so no R2 S3 keys exist                                                                                   |
+| Auth mode   | introspection (`/auth/v1/user`)                                                                                   |
+| Deploy      | `node scripts/deploy-worker.mjs --domain files.freluxtools.com --zone <zone id>`                                  |
+
+`/health` confirms the bindings and both modes. The script bundles with esbuild and
+PUTs the script through the API because this account signs in with an
+account-owned token, which wrangler does not accept.
+
 ## Create the buckets
 
 ```bash
@@ -40,10 +57,11 @@ npx wrangler r2 bucket create frelux-pro-verification
 Bucket names match the existing Supabase buckets so object keys survive a
 straight copy.
 
-## CORS on each bucket
+## CORS on each bucket (only for presigned uploads)
 
-A browser PUT to a presigned URL is cross-origin, so R2 must allow it. Save this
-as `cors.json` and apply it to every bucket:
+Uploads through the Worker are server-side, so the buckets need no CORS policy.
+Add one only if you enable `/presign/*` later, because a browser PUT to a presigned
+URL is cross-origin. Save this as `cors.json` and apply it to every bucket:
 
 ```json
 [
@@ -115,18 +133,21 @@ Worker requires moving DNS.
 ## Deploy
 
 ```bash
-cd cloudflare
-npm install
-npx wrangler deploy
+node scripts/deploy-worker.mjs --domain files.freluxtools.com --zone <zone id>
 curl https://files.freluxtools.com/health
 ```
+
+`cd cloudflare && npx wrangler deploy` also works when the token is a normal
+user-scoped API token. The script path is the one that works with an
+account-owned token.
 
 `/health` answers with the bucket list and `configured: true` once the two R2
 credentials are present.
 
 ## Switch the app over
 
-Add to the app environment, then rebuild:
+Add to the app environment (Netlify: Site configuration > Environment variables),
+then rebuild:
 
 ```bash
 VITE_R2_WORKER_URL=https://files.freluxtools.com
