@@ -9,10 +9,12 @@ name = "frelux-files"
 main = "src/index.ts"
 compatibility_date = "2026-11-01"
 
-# freluxtools.com DNS is not on this Cloudflare account (the zone list is empty),
-# so the Worker is published on its workers.dev hostname. Point
-# VITE_R2_WORKER_URL at that hostname. When the zone moves to Cloudflare, add:
-#   routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+# freluxtools.com is delegated to Cloudflare (anahi/garrett.ns.cloudflare.com) and
+# the Worker already answers on its custom domain, so the route is declared here
+# rather than left for a future zone move:
+#   GET https://files.freluxtools.com/health -> {"service":"frelux-files",...}
+# VITE_R2_WORKER_URL points at that hostname.
+routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
 workers_dev = true
 
 [observability]
