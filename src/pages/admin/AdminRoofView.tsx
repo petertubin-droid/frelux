@@ -570,6 +570,7 @@ export default function AdminRoofView() {
                 <AdminField key={key} label={field.label}>
                   {field.type === "boolean" ? (
                     <Toggle
+                      srLabel={`Setting ${key}`}
                       checked={settings[key] === "true"}
                       onChange={(v) =>
                         setSettings((s) => ({ ...s, [key]: String(v) }))

@@ -201,6 +201,7 @@ function ProductsTab() {
                 </div>
                 <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <Toggle
+                    srLabel="{`Active: ${item.name}`}"
                     checked={item.is_active}
                     onChange={() => toggleActive(item)}
                   />
@@ -382,7 +383,11 @@ function SimpleForm({
             {tx("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>
@@ -492,6 +497,7 @@ function MaterialsTab() {
               </div>
               <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle
+                  srLabel="{`Active: ${item.name}`}"
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -720,7 +726,7 @@ function MaterialForm({
           {tx("Active")}
         </span>
         <div className="mt-2">
-          <Toggle checked={isActive} onChange={setIsActive} />
+          <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
         </div>
       </div>
       {formError && (
@@ -826,6 +832,7 @@ function LaborTab() {
               </div>
               <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle
+                  srLabel="{`Active: ${item.name}`}"
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -958,7 +965,7 @@ function LaborForm({
           {tx("Active")}
         </span>
         <div className="mt-2">
-          <Toggle checked={isActive} onChange={setIsActive} />
+          <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
         </div>
       </div>
       {formError && (

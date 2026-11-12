@@ -252,6 +252,7 @@ export default function AdminCarbonFactors() {
                   </td>
                   <td className="p-3">
                     <Toggle
+                      srLabel="{`Active: ${f.name}`}"
                       checked={f.is_active}
                       onChange={() =>
                         updateCarbonFactor(f.id, {
@@ -360,6 +361,7 @@ export default function AdminCarbonFactors() {
 
           <AdminField label="Active">
             <Toggle
+              srLabel="Active"
               checked={form.is_active}
               onChange={(v) => setForm({ ...form, is_active: v })}
             />

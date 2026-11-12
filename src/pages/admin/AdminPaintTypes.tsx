@@ -130,6 +130,7 @@ export default function AdminPaintTypes() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
+                  srLabel="{`Active: ${item.name}`}"
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -296,7 +297,11 @@ function PaintTypeForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>

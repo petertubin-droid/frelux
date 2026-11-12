@@ -278,6 +278,7 @@ export default function AdminImageEstimation() {
               </p>
             </div>
             <Toggle
+              srLabel="Image estimation enabled"
               checked={config.estimation_enabled}
               onChange={(v) =>
                 setConfig((prev) => ({ ...prev, estimation_enabled: v }))
@@ -355,6 +356,7 @@ export default function AdminImageEstimation() {
                 </p>
               </div>
               <Toggle
+                srLabel="Rewarded users"
                 checked={config.estimation_rewarded_enabled}
                 onChange={(v) =>
                   setConfig((prev) => ({
@@ -380,6 +382,7 @@ export default function AdminImageEstimation() {
                   </p>
                 </div>
                 <Toggle
+                  srLabel="Paid users"
                   checked={config.estimation_paid_enabled}
                   onChange={(v) =>
                     setConfig((prev) => ({
@@ -462,6 +465,7 @@ export default function AdminImageEstimation() {
               </p>
             </div>
             <Toggle
+              srLabel="Admin override"
               checked={config.estimation_admin_override}
               onChange={(v) =>
                 setConfig((prev) => ({ ...prev, estimation_admin_override: v }))

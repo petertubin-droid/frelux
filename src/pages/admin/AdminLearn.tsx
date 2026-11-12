@@ -604,6 +604,7 @@ export default function AdminLearn() {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Toggle
+                    srLabel={`Published: ${article.title}`}
                     checked={article.status === "published"}
                     onChange={() => handleTogglePublished(article)}
                   />
@@ -683,6 +684,7 @@ export default function AdminLearn() {
                   {cat.is_active ? "Active" : "Inactive"}
                 </span>
                 <Toggle
+                  srLabel="{`Active: ${cat.name}`}"
                   checked={cat.is_active}
                   onChange={() => handleToggleCategoryActive(cat)}
                 />
@@ -845,6 +847,7 @@ export default function AdminLearn() {
                               </div>
                               <div className="flex shrink-0 items-center gap-2">
                                 <Toggle
+                                  srLabel="{`Active: ${faq.name}`}"
                                   checked={faq.is_active}
                                   onChange={() => handleToggleFaq(faq)}
                                 />
@@ -986,6 +989,7 @@ export default function AdminLearn() {
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
                               <Toggle
+                                srLabel="{`Active: ${ins.name}`}"
                                 checked={ins.is_active}
                                 onChange={() => handleToggleInsert(ins)}
                               />

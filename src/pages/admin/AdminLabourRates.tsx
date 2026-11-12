@@ -241,6 +241,7 @@ export default function AdminLabourRates() {
                   </td>
                   <td className="p-3">
                     <Toggle
+                      srLabel="{`Active: ${r.name}`}"
                       checked={r.is_active}
                       onChange={() =>
                         updateLabourRate(r.id, {
@@ -338,6 +339,7 @@ export default function AdminLabourRates() {
 
           <AdminField label="Active">
             <Toggle
+              srLabel="Active"
               checked={form.is_active}
               onChange={(v) => setForm({ ...form, is_active: v })}
             />

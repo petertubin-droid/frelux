@@ -226,6 +226,7 @@ export default function AdminEstimationProduction() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Toggle
+                                  srLabel="{`Active: ${rule.name}`}"
                                   checked={rule.is_active}
                                   onChange={() =>
                                     handleToggleActive(rule.id, rule.is_active)

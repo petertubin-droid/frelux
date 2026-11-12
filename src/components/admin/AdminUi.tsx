@@ -145,14 +145,21 @@ export function Toggle({
   checked,
   onChange,
   label,
+  srLabel,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label?: string;
+  /** Screen-reader name for switches whose meaning comes from the surrounding row. */
+  srLabel?: string;
 }) {
   return (
     <div className="inline-flex items-center gap-2">
-      <Switch checked={checked} onCheckedChange={onChange} aria-label={label} />
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        aria-label={srLabel ?? label}
+      />
       {label && <span className="text-sm text-muted-foreground">{label}</span>}
     </div>
   );

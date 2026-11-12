@@ -111,6 +111,7 @@ export default function AdminLegal() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
+                  srLabel="{`Published: ${item.name}`}"
                   checked={item.is_published}
                   onChange={() => togglePublished(item)}
                 />
@@ -211,7 +212,11 @@ function LegalForm({
           public site.
         </p>
         <div className="mt-2">
-          <Toggle checked={isPublished} onChange={setIsPublished} />
+          <Toggle
+            srLabel="Published"
+            checked={isPublished}
+            onChange={setIsPublished}
+          />
         </div>
       </div>
       {formError && (

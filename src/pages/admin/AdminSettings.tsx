@@ -353,6 +353,7 @@ export default function AdminSettings() {
               </p>
             </div>
             <Toggle
+              srLabel="Premium subscriptions"
               checked={settings.premium_subscriptions_enabled ?? false}
               onChange={(v) => update("premium_subscriptions_enabled", v)}
             />
@@ -472,6 +473,7 @@ export default function AdminSettings() {
                 <span className="text-xs text-green-600">✓ Live</span>
               )}
               <Toggle
+                srLabel="Maintenance mode"
                 checked={settings.maintenance_mode}
                 onChange={async (v) => {
                   update("maintenance_mode", v);

@@ -373,6 +373,7 @@ export default function AdminDefects() {
                     <td className="p-3 font-mono text-xs">{d.symptom_key}</td>
                     <td className="p-3">
                       <Toggle
+                        srLabel="{`Active: ${d.name}`}"
                         checked={d.is_active}
                         onChange={() =>
                           updateDefect(d.id, { is_active: !d.is_active }).then(
@@ -463,6 +464,7 @@ export default function AdminDefects() {
                     </td>
                     <td className="p-3">
                       <Toggle
+                        srLabel="{`Active: ${c.name}`}"
                         checked={c.is_active}
                         onChange={() =>
                           updateDefectCause(c.id, {
@@ -536,6 +538,7 @@ export default function AdminDefects() {
           </AdminField>
           <AdminField label="Active">
             <Toggle
+              srLabel="{`Active: ${defectForm.name}`}"
               checked={defectForm.is_active}
               onChange={(v) => setDefectForm({ ...defectForm, is_active: v })}
             />
@@ -670,6 +673,7 @@ export default function AdminDefects() {
           </div>
           <AdminField label="Active">
             <Toggle
+              srLabel="{`Active: ${causeForm.name}`}"
               checked={causeForm.is_active}
               onChange={(v) => setCauseForm({ ...causeForm, is_active: v })}
             />

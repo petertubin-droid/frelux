@@ -415,6 +415,7 @@ export default function AdminEstimationProducts() {
                                   </AdminButton>
                                 )}
                                 <Toggle
+                                  srLabel="{`Active: ${p.name}`}"
                                   checked={p.is_active}
                                   onChange={() => toggleActive(p)}
                                 />
@@ -472,6 +473,7 @@ export default function AdminEstimationProducts() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                       <Toggle
+                                        srLabel="{`Active: ${q.name}`}"
                                         checked={q.is_active}
                                         onChange={() => toggleQualityActive(q)}
                                       />
@@ -823,7 +825,11 @@ function ProductForm({
             {t("Has quality levels")}
           </span>
           <div className="mt-2">
-            <Toggle checked={hasQuality} onChange={setHasQuality} />
+            <Toggle
+              srLabel="Quality applied"
+              checked={hasQuality}
+              onChange={setHasQuality}
+            />
           </div>
         </div>
         <div>
@@ -831,7 +837,11 @@ function ProductForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>
@@ -1250,7 +1260,11 @@ function QualityForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
         <AdminField label="Sort order">

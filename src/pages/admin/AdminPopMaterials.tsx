@@ -286,6 +286,7 @@ export default function AdminPopMaterials() {
                         </div>
                         <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                           <Toggle
+                            srLabel="{`Active: ${mat.name}`}"
                             checked={mat.is_active}
                             onChange={() => handleToggleActive(mat)}
                           />

@@ -217,6 +217,7 @@ function SettingsTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle
+                    srLabel="{`Enabled: ${setting.name}`}"
                     checked={setting.is_enabled}
                     onChange={(v) =>
                       updateSetting(setting.id, { is_enabled: v })
@@ -462,6 +463,7 @@ function CategoriesTab() {
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
               <Toggle
+                srLabel="{`Active: ${cat.name}`}"
                 checked={cat.is_active}
                 onChange={() => toggleActive(cat)}
               />
@@ -640,7 +642,11 @@ function CategoryForm({
         </AdminField>
         <AdminField label="Active">
           <div className="pt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </AdminField>
       </div>

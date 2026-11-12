@@ -386,6 +386,7 @@ export default function AdminEstimationPricing() {
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Toggle
+                      srLabel="{`Active: ${item.name}`}"
                       checked={item.is_active}
                       onChange={() => toggleActive(item)}
                     />
@@ -688,7 +689,7 @@ function PricingForm({
         <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           {t("Is Active")}
         </span>
-        <Toggle checked={isActive} onChange={setIsActive} />
+        <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
       </div>
 
       {formError && (

@@ -517,6 +517,7 @@ function ProvidersTab() {
                     </p>
                   </div>
                   <Toggle
+                    srLabel="Display ads"
                     checked={prov.settings?.display_ads_enabled !== false}
                     onChange={() => toggleDisplayAds(prov)}
                   />
@@ -543,6 +544,7 @@ function ProvidersTab() {
                     <ArrowDown className="h-3 w-3" />
                   </AdminIconButton>
                   <Toggle
+                    srLabel="{`Active: ${prov.name}`}"
                     checked={prov.is_active}
                     onChange={() => toggleActive(prov)}
                   />
@@ -782,7 +784,11 @@ function ProviderForm({
         </AdminField>
         <AdminField label="Active">
           <div className="pt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </AdminField>
       </div>
@@ -846,6 +852,7 @@ function ProviderForm({
                 {field.type === "boolean" ? (
                   <div className="pt-2">
                     <Toggle
+                      srLabel={`Enable ${field.key}`}
                       checked={
                         (settings[field.key] as boolean) ??
                         (field.default as boolean)
@@ -1321,6 +1328,7 @@ function PlacementsTab() {
                 )}
               <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle
+                  srLabel="{`Active: ${pl.name}`}"
                   checked={pl.is_active}
                   onChange={() => toggleActive(pl)}
                 />
@@ -1688,7 +1696,11 @@ function PlacementForm({
         </AdminField>
         <AdminField label="Active">
           <div className="pt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </AdminField>
       </div>
@@ -1702,6 +1714,7 @@ function PlacementForm({
           <AdminField label="Show on Mobile">
             <div className="pt-2">
               <Toggle
+                srLabel="Show on mobile"
                 checked={displayRules.mobile}
                 onChange={(v) =>
                   setDisplayRules({ ...displayRules, mobile: v })
@@ -1712,6 +1725,7 @@ function PlacementForm({
           <AdminField label="Show on Desktop">
             <div className="pt-2">
               <Toggle
+                srLabel="Show on desktop"
                 checked={displayRules.desktop}
                 onChange={(v) =>
                   setDisplayRules({ ...displayRules, desktop: v })

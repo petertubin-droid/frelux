@@ -255,6 +255,7 @@ export default function AdminCashFlowTemplates() {
                     <td className="p-3 font-mono">{sum}%</td>
                     <td className="p-3">
                       <Toggle
+                        srLabel="{`Default: ${t.name}`}"
                         checked={t.is_default}
                         onChange={() =>
                           updateCashFlowTemplate(t.id, {
@@ -265,6 +266,7 @@ export default function AdminCashFlowTemplates() {
                     </td>
                     <td className="p-3">
                       <Toggle
+                        srLabel="{`Active: ${t.name}`}"
                         checked={t.is_active}
                         onChange={() =>
                           updateCashFlowTemplate(t.id, {
@@ -394,12 +396,14 @@ export default function AdminCashFlowTemplates() {
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Default template">
               <Toggle
+                srLabel="Default"
                 checked={form.is_default}
                 onChange={(v) => setForm({ ...form, is_default: v })}
               />
             </AdminField>
             <AdminField label="Active">
               <Toggle
+                srLabel="Active"
                 checked={form.is_active}
                 onChange={(v) => setForm({ ...form, is_active: v })}
               />

@@ -690,7 +690,11 @@ function PaintColorForm({
             {t("Interior")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isInterior} onChange={setIsInterior} />
+            <Toggle
+              srLabel="Interior"
+              checked={isInterior}
+              onChange={setIsInterior}
+            />
           </div>
         </div>
         <div>
@@ -698,7 +702,11 @@ function PaintColorForm({
             {t("Exterior")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isExterior} onChange={setIsExterior} />
+            <Toggle
+              srLabel="Exterior"
+              checked={isExterior}
+              onChange={setIsExterior}
+            />
           </div>
         </div>
         <div>
@@ -706,7 +714,11 @@ function PaintColorForm({
             {t("Featured")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isFeatured} onChange={setIsFeatured} />
+            <Toggle
+              srLabel="Featured"
+              checked={isFeatured}
+              onChange={setIsFeatured}
+            />
           </div>
         </div>
         <div>
@@ -714,7 +726,11 @@ function PaintColorForm({
             {t("Trending")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isTrending} onChange={setIsTrending} />
+            <Toggle
+              srLabel="Trending"
+              checked={isTrending}
+              onChange={setIsTrending}
+            />
           </div>
         </div>
       </div>
@@ -1168,6 +1184,7 @@ function FamiliesTab() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle
+                  srLabel="{`Active: ${item.name}`}"
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -1300,7 +1317,11 @@ function FamilyForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>
@@ -1451,6 +1472,7 @@ function CombinationsTab() {
                   )}
                   <div className="mt-2.5 flex items-center justify-between border-t border-border/50 pt-2.5 dark:border-white/5">
                     <Toggle
+                      srLabel="{`Published: ${item.name}`}"
                       checked={item.is_published}
                       onChange={() => togglePublished(item)}
                     />
@@ -1734,7 +1756,11 @@ function CombinationForm({
             {t("Published")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isPublished} onChange={setIsPublished} />
+            <Toggle
+              srLabel="Published"
+              checked={isPublished}
+              onChange={setIsPublished}
+            />
           </div>
         </div>
       </div>
@@ -1858,6 +1884,7 @@ function CategoriesTab() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle
+                  srLabel="{`Active: ${item.name}`}"
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -1998,7 +2025,11 @@ function CategoryForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>

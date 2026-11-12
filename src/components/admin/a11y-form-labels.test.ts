@@ -65,3 +65,41 @@ describe("admin form accessibility", () => {
     expect(offenders.length).toBeLessThanOrEqual(REMAINING_UNNAMED);
   });
 });
+
+describe("admin switches", () => {
+  it("names every Toggle for screen readers", () => {
+    const unnamed = adminFiles().flatMap((file) => {
+      const source = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
+      const found: string[] = [];
+
+      for (const match of source.matchAll(/<Toggle\b/g)) {
+        let i = match.index + 7;
+        let braces = 0;
+        let quote: string | null = null;
+
+        while (i < source.length) {
+          const char = source[i];
+          if (quote) {
+            if (char === quote) quote = null;
+          } else if (char === '"' || char === "'" || char === "`") {
+            quote = char;
+          } else if (char === "{") braces += 1;
+          else if (char === "}") braces -= 1;
+          else if (char === ">" && braces === 0) break;
+          i += 1;
+        }
+
+        const tag = source.slice(match.index, i + 1);
+        if (!/\blabel=|\baria-label|\bsrLabel/.test(tag)) {
+          found.push(
+            `${file}:${source.slice(0, match.index).split("\n").length}`,
+          );
+        }
+      }
+
+      return found;
+    });
+
+    expect(unnamed).toEqual([]);
+  });
+});

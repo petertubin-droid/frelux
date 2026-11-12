@@ -293,7 +293,11 @@ function PuttyConfigPanel({
         <div className="mt-2">
           <AdminField label="Active">
             <div className="mt-2">
-              <Toggle checked={isActive} onChange={setIsActive} />
+              <Toggle
+                srLabel="Active"
+                checked={isActive}
+                onChange={setIsActive}
+              />
             </div>
           </AdminField>
         </div>
@@ -584,7 +588,11 @@ function MixConfigPanel({
         <div className="mt-2">
           <AdminField label="Active">
             <div className="mt-2">
-              <Toggle checked={isActive} onChange={setIsActive} />
+              <Toggle
+                srLabel="Active"
+                checked={isActive}
+                onChange={setIsActive}
+              />
             </div>
           </AdminField>
         </div>
@@ -750,7 +758,11 @@ function MixConfigPanel({
               {t("Extra Material (e.g. Bond)")}
             </h2>
           </div>
-          <Toggle checked={extraEnabled} onChange={setExtraEnabled} />
+          <Toggle
+            srLabel="Extra option"
+            checked={extraEnabled}
+            onChange={setExtraEnabled}
+          />
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
           Optional third material calculated from the same coverage rule, e.g.

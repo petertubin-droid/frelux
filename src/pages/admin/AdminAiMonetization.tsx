@@ -227,6 +227,7 @@ export default function AdminAiMonetization() {
               </h2>
               <div className="mt-3 flex items-center gap-3">
                 <Toggle
+                  srLabel="AI enabled"
                   checked={settings.ai_enabled}
                   onChange={(v) => update("ai_enabled", v)}
                 />
@@ -330,6 +331,7 @@ export default function AdminAiMonetization() {
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle
+              srLabel="Rewarded users"
               checked={settings.ai_rewarded_enabled}
               onChange={(v) => update("ai_rewarded_enabled", v)}
             />
@@ -357,6 +359,7 @@ export default function AdminAiMonetization() {
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle
+              srLabel="Paid users"
               checked={settings.ai_paid_enabled}
               onChange={(v) => {
                 // Issue #4 fix: Prevent enabling paid toggle without a provider
@@ -420,6 +423,7 @@ export default function AdminAiMonetization() {
           </p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle
+              srLabel="Admin override"
               checked={settings.ai_admin_override}
               onChange={(v) => update("ai_admin_override", v)}
             />

@@ -215,6 +215,7 @@ export default function AdminMarginPresets() {
                   <td className="p-3 font-mono">{p.margin_percent}%</td>
                   <td className="p-3">
                     <Toggle
+                      srLabel="{`Default: ${p.name}`}"
                       checked={p.is_default}
                       onChange={() =>
                         updateMarginPreset(p.id, {
@@ -225,6 +226,7 @@ export default function AdminMarginPresets() {
                   </td>
                   <td className="p-3">
                     <Toggle
+                      srLabel="{`Active: ${p.name}`}"
                       checked={p.is_active}
                       onChange={() =>
                         updateMarginPreset(p.id, {
@@ -316,12 +318,14 @@ export default function AdminMarginPresets() {
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Default preset">
               <Toggle
+                srLabel="Default"
                 checked={form.is_default}
                 onChange={(v) => setForm({ ...form, is_default: v })}
               />
             </AdminField>
             <AdminField label="Active">
               <Toggle
+                srLabel="Active"
                 checked={form.is_active}
                 onChange={(v) => setForm({ ...form, is_active: v })}
               />

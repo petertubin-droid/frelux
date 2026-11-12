@@ -266,6 +266,7 @@ function UnitsTab() {
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <Toggle
+                        srLabel="{`Active: ${item.name}`}"
                         checked={item.is_active}
                         onChange={() => toggleActive(item)}
                       />
@@ -439,7 +440,11 @@ function UnitForm({
             {tx("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>
@@ -631,6 +636,7 @@ function PackSizesTab() {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <Toggle
+                    srLabel="{`Active: ${item.name}`}"
                     checked={item.is_active}
                     onChange={() => toggleActive(item)}
                   />
@@ -916,7 +922,7 @@ function PackSizeForm({
           {tx("Active")}
         </span>
         <div className="mt-2">
-          <Toggle checked={isActive} onChange={setIsActive} />
+          <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
         </div>
       </div>
 
@@ -1108,6 +1114,7 @@ function CalcRulesTab() {
 
               <div className="flex shrink-0 items-center gap-3 pt-1">
                 <Toggle
+                  srLabel="{`Active: ${rule.name}`}"
                   checked={rule.is_active}
                   onChange={() => toggleActive(rule)}
                 />
@@ -1284,7 +1291,7 @@ function CalcRuleForm({
           {tx("Active")}
         </span>
         <div className="mt-2">
-          <Toggle checked={isActive} onChange={setIsActive} />
+          <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
         </div>
       </div>
 
@@ -1429,6 +1436,7 @@ function CalcVersionsTab() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
+                  srLabel="{`Active: ${ver.name}`}"
                   checked={ver.is_active}
                   onChange={() => toggleActive(ver)}
                 />
@@ -1583,7 +1591,7 @@ function CalcVersionForm({
           {tx("Active")}
         </span>
         <div className="mt-2">
-          <Toggle checked={isActive} onChange={setIsActive} />
+          <Toggle srLabel="Active" checked={isActive} onChange={setIsActive} />
         </div>
       </div>
 

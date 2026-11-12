@@ -297,6 +297,7 @@ export default function AdminRegionalCostIndices() {
                   </td>
                   <td className="p-3">
                     <Toggle
+                      srLabel="{`Active: ${i.name}`}"
                       checked={i.is_active}
                       onChange={() =>
                         updateRegionalCostIndex(i.id, {
@@ -432,6 +433,7 @@ export default function AdminRegionalCostIndices() {
 
           <AdminField label="Active">
             <Toggle
+              srLabel="Active"
               checked={form.is_active}
               onChange={(v) => setForm({ ...form, is_active: v })}
             />

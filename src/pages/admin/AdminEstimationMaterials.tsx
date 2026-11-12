@@ -272,6 +272,7 @@ export default function AdminEstimationMaterials() {
                       </div>
                       <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                         <Toggle
+                          srLabel="{`Active: ${item.name}`}"
                           checked={item.is_active}
                           onChange={() => toggleActive(item)}
                         />
@@ -545,7 +546,11 @@ function MaterialForm({
             {t("Active")}
           </span>
           <div className="mt-2">
-            <Toggle checked={isActive} onChange={setIsActive} />
+            <Toggle
+              srLabel="Active"
+              checked={isActive}
+              onChange={setIsActive}
+            />
           </div>
         </div>
       </div>
