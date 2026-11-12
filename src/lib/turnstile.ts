@@ -83,6 +83,52 @@ export function loadTurnstile(): Promise<TurnstileApi> {
 export type TurnstileCheck = { ok: boolean; reason?: string };
 
 /**
+ * The file Worker also runs siteverify, one hop from the visitor. Checking there
+ * first keeps a form submission off the Supabase functions hot path; the function
+ * stays as the fallback so a Worker outage cannot lock anyone out.
+ */
+const EDGE_VERIFY_URL = (
+  (import.meta.env.VITE_R2_WORKER_URL as string | undefined) ?? ""
+)
+  .trim()
+  .replace(/\/+$/, "");
+
+/**
+ * One attempt at the edge. Returns null when the edge should not be trusted to
+ * answer (unreachable, or not configured there), which sends the caller to
+ * Supabase. A token is single-use, so a reached-but-failed edge is reported
+ * rather than retried against a second verifier.
+ */
+async function verifyAtEdge(
+  token: string,
+  action: string,
+): Promise<TurnstileCheck | null> {
+  if (!EDGE_VERIFY_URL) return null;
+  try {
+    const response = await fetch(`${EDGE_VERIFY_URL}/api/turnstile`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ token, action }),
+    });
+    if (response.status === 503) return null;
+    if (response.status === 502) return { ok: false, reason: "network" };
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as {
+        reason?: string;
+      } | null;
+      return { ok: false, reason: payload?.reason ?? "rejected" };
+    }
+    const payload = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+    } | null;
+    if (payload?.ok) return { ok: true };
+    return { ok: false, reason: "rejected" };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Ask the backend to verify a widget token for one action.
  * Fails closed: a network error is a rejection, never a pass.
  */
@@ -92,6 +138,10 @@ export async function verifyTurnstileToken(
 ): Promise<TurnstileCheck> {
   if (!turnstileConfigured) return { ok: true, reason: "not-configured" };
   if (!token) return { ok: false, reason: "missing-token" };
+
+  const edge = await verifyAtEdge(token, action);
+  if (edge) return edge;
+
   try {
     const { data, error } = await supabase.functions.invoke(
       "turnstile-verify",
