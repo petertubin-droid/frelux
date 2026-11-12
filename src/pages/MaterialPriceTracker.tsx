@@ -28,6 +28,7 @@ import PriceSubmissionForm from "@/components/estimation/PriceSubmissionForm";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 const fmt = (v: number) => formatCurrency(v || 0);
 
 export default function MaterialPriceTracker() {
@@ -50,6 +51,7 @@ export default function MaterialPriceTracker() {
   const [editSource, setEditSource] = useState("");
   const [saving, setSaving] = useState(false);
   const [historyFor, setHistoryFor] = useState<MaterialWithPrice | null>(null);
+  useEscapeKey(() => setHistoryFor(null));
   const [history, setHistory] = useState<DbMaterialPriceHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
@@ -417,10 +419,13 @@ export default function MaterialPriceTracker() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setHistoryFor(null)}
+          role="presentation"
         >
           <div
             className="w-full max-w-lg rounded-2xl border bg-card p-6 shadow-xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
             <div className="flex items-center justify-between mb-4">
               <div>

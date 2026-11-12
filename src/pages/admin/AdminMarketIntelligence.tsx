@@ -66,6 +66,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 type Tab =
   "providers" | "sources" | "observations" | "approved" | "anomalies" | "logs";
 
@@ -647,16 +648,20 @@ function CrawlReportModal({
   };
   onClose: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const job = report.job;
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
@@ -783,6 +788,7 @@ function SourceEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [form, setForm] = useState({
     source_name: "",
@@ -821,10 +827,13 @@ function SourceEditModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           {t("New Source")}
@@ -1220,6 +1229,7 @@ function ManualEntryModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -1296,10 +1306,13 @@ function ManualEntryModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           {t("Manual Price Entry")}

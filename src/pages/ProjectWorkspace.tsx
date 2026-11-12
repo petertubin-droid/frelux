@@ -32,6 +32,7 @@ import { WorkspaceSwitcher } from "@/components/workspace/WorkspaceSwitcher";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 const STATUS_COLORS: Record<string, string> = {
   draft:
     "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20",
@@ -72,6 +73,7 @@ export default function ProjectWorkspace() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  useEscapeKey(() => setShowCreate(false));
   const [newProject, setNewProject] = useState({
     name: "",
     description: "",
@@ -399,11 +401,14 @@ export default function ProjectWorkspace() {
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
             onClick={() => setShowCreate(false)}
+            role="presentation"
           >
             <div
               className="w-full max-w-lg rounded-2xl border bg-card p-6 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
               style={{ animation: "fadeInScale 0.3s ease-out" }}
+              role="dialog"
+              aria-modal="true"
             >
               <div className="mb-4 flex items-center gap-2">
                 <Crown className="h-5 w-5 text-primary" />

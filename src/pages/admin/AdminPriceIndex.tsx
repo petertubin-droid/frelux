@@ -9,7 +9,13 @@
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Download, ExternalLink, Flag, History, ShieldCheck } from "lucide-react";
+import {
+  Download,
+  ExternalLink,
+  Flag,
+  History,
+  ShieldCheck,
+} from "lucide-react";
 import {
   AdminButton,
   AdminCard,
@@ -54,12 +60,13 @@ export default function AdminPriceIndex() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [submissionResult, cityResult, listingResult, auditResult] = await Promise.all([
-      fetchPendingSubmissions(),
-      fetchCities(),
-      fetchListings({ limit: 800 }),
-      fetchAuditTrail(60),
-    ]);
+    const [submissionResult, cityResult, listingResult, auditResult] =
+      await Promise.all([
+        fetchPendingSubmissions(),
+        fetchCities(),
+        fetchListings({ limit: 800 }),
+        fetchAuditTrail(60),
+      ]);
     setSubmissions(submissionResult.rows);
     setCities(cityResult.cities);
     setListings(listingResult.listings);
@@ -97,7 +104,9 @@ export default function AdminPriceIndex() {
     const group = grouped.get(compareMaterial) ?? [];
     return cities
       .map((city) => {
-        const cityListings = group.filter((listing) => listing.city_slug === city.slug);
+        const cityListings = group.filter(
+          (listing) => listing.city_slug === city.slug,
+        );
         const stats = computeStats(toSamples(cityListings));
         return {
           city: city.name,
@@ -116,7 +125,8 @@ export default function AdminPriceIndex() {
 
   const counts = useMemo(() => {
     const byStatus: Record<string, number> = {};
-    for (const row of submissions) byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
+    for (const row of submissions)
+      byStatus[row.status] = (byStatus[row.status] ?? 0) + 1;
     return byStatus;
   }, [submissions]);
 
@@ -141,15 +151,19 @@ export default function AdminPriceIndex() {
       }
     }
 
-    const { data, error } = await supabase.functions.invoke("price-index-review", {
-      body: { action, submission_id: submission.id, note },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "price-index-review",
+      {
+        body: { action, submission_id: submission.id, note },
+      },
+    );
     setBusy(null);
 
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || result?.ok === false) {
       setActionError(
-        result?.error ?? "The review action failed. The submission was not changed.",
+        result?.error ??
+          "The review action failed. The submission was not changed.",
       );
       return;
     }
@@ -159,9 +173,16 @@ export default function AdminPriceIndex() {
   const toggleCity = async (city: MarketCity) => {
     setBusy({ id: city.slug, action: "city" });
     setActionError(null);
-    const { data, error } = await supabase.functions.invoke("price-index-review", {
-      body: { action: "toggle_city", city_slug: city.slug, is_active: !city.is_active },
-    });
+    const { data, error } = await supabase.functions.invoke(
+      "price-index-review",
+      {
+        body: {
+          action: "toggle_city",
+          city_slug: city.slug,
+          is_active: !city.is_active,
+        },
+      },
+    );
     setBusy(null);
     const result = data as { ok?: boolean; error?: string } | null;
     if (error || result?.ok === false) {
@@ -228,7 +249,11 @@ export default function AdminPriceIndex() {
       ) : null}
 
       {actionError ? (
-        <StateMessage type="error" title="Action failed" message={actionError} />
+        <StateMessage
+          type="error"
+          title="Action failed"
+          message={actionError}
+        />
       ) : null}
 
       <AdminCard>
@@ -265,7 +290,9 @@ export default function AdminPriceIndex() {
 
       <AdminCard>
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-sm font-bold text-foreground">Submission review</h2>
+          <h2 className="text-sm font-bold text-foreground">
+            Submission review
+          </h2>
           <AdminField label="Status">
             <AdminSelect
               value={statusFilter}
@@ -281,94 +308,117 @@ export default function AdminPriceIndex() {
         </div>
 
         {loading ? (
-          <p className="mt-3 text-sm text-muted-foreground">Loading submissions…</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Loading submissions…
+          </p>
         ) : visibleSubmissions.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">
-            Nothing in this state. Submitted prices appear here for review before they
-            can change any published figure.
+            Nothing in this state. Submitted prices appear here for review
+            before they can change any published figure.
           </p>
         ) : (
           <div className="mt-3 overflow-auto rounded-lg border">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/50 text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2">Material</th>
-                  <th className="px-3 py-2">City</th>
-                  <th className="px-3 py-2">Price</th>
-                  <th className="px-3 py-2">Basis</th>
-                  <th className="px-3 py-2">Supplier</th>
-                  <th className="px-3 py-2">Source</th>
-                  <th className="px-3 py-2">Received</th>
-                  <th className="px-3 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleSubmissions.map((row) => (
-                  <tr key={row.id} className="border-t">
-                    <td className="px-3 py-2">
-                      <span className="font-medium text-foreground">{row.item_name}</span>
-                      {row.unit ? (
-                        <span className="block text-muted-foreground">per {row.unit}</span>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {cities.find((city) => city.slug === row.city_slug)?.name ??
-                        row.city_slug ??
-                        "—"}
-                    </td>
-                    <td className="px-3 py-2 font-semibold text-foreground">
-                      ₦{Number(row.price).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {row.price_kind ? PRICE_KIND_LABELS[row.price_kind] : "not stated"}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">{row.vendor ?? "—"}</td>
-                    <td className="max-w-[14rem] truncate px-3 py-2 text-muted-foreground">
-                      {row.source_url ? (
-                        <a
-                          href={row.source_url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="text-primary hover:underline"
-                        >
-                          {row.source_url}
-                        </a>
-                      ) : (
-                        "no link supplied"
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {new Date(row.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="flex flex-wrap gap-1">
-                        <AdminIconButton
-                          title="Approve" aria-label="Approve"
-                          onClick={() => review(row, "approve")}
-                          disabled={busy?.id === row.id || row.status === "approved"}
-                        >
-                          <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                        </AdminIconButton>
-                        <AdminIconButton
-                          title="Reject" aria-label="Reject"
-                          onClick={() => review(row, "reject")}
-                          disabled={busy?.id === row.id || row.status === "rejected"}
-                        >
-                          ✕
-                        </AdminIconButton>
-                        <AdminIconButton
-                          title="Flag as suspicious" aria-label="Flag as suspicious"
-                          onClick={() => review(row, "flag")}
-                          disabled={busy?.id === row.id}
-                        >
-                          <Flag aria-hidden="true" className="h-3.5 w-3.5" />
-                        </AdminIconButton>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/50 text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2">Material</th>
+                    <th className="px-3 py-2">City</th>
+                    <th className="px-3 py-2">Price</th>
+                    <th className="px-3 py-2">Basis</th>
+                    <th className="px-3 py-2">Supplier</th>
+                    <th className="px-3 py-2">Source</th>
+                    <th className="px-3 py-2">Received</th>
+                    <th className="px-3 py-2">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {visibleSubmissions.map((row) => (
+                    <tr key={row.id} className="border-t">
+                      <td className="px-3 py-2">
+                        <span className="font-medium text-foreground">
+                          {row.item_name}
+                        </span>
+                        {row.unit ? (
+                          <span className="block text-muted-foreground">
+                            per {row.unit}
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {cities.find((city) => city.slug === row.city_slug)
+                          ?.name ??
+                          row.city_slug ??
+                          "—"}
+                      </td>
+                      <td className="px-3 py-2 font-semibold text-foreground">
+                        ₦{Number(row.price).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.price_kind
+                          ? PRICE_KIND_LABELS[row.price_kind]
+                          : "not stated"}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.vendor ?? "—"}
+                      </td>
+                      <td className="max-w-[14rem] truncate px-3 py-2 text-muted-foreground">
+                        {row.source_url ? (
+                          <a
+                            href={row.source_url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="text-primary hover:underline"
+                          >
+                            {row.source_url}
+                          </a>
+                        ) : (
+                          "no link supplied"
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {new Date(row.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-wrap gap-1">
+                          <AdminIconButton
+                            title="Approve"
+                            aria-label="Approve"
+                            onClick={() => review(row, "approve")}
+                            disabled={
+                              busy?.id === row.id || row.status === "approved"
+                            }
+                          >
+                            <ShieldCheck
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5"
+                            />
+                          </AdminIconButton>
+                          <AdminIconButton
+                            title="Reject"
+                            aria-label="Reject"
+                            onClick={() => review(row, "reject")}
+                            disabled={
+                              busy?.id === row.id || row.status === "rejected"
+                            }
+                          >
+                            ✕
+                          </AdminIconButton>
+                          <AdminIconButton
+                            title="Flag as suspicious"
+                            aria-label="Flag as suspicious"
+                            onClick={() => review(row, "flag")}
+                            disabled={busy?.id === row.id}
+                          >
+                            <Flag aria-hidden="true" className="h-3.5 w-3.5" />
+                          </AdminIconButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </AdminCard>
@@ -391,45 +441,54 @@ export default function AdminPriceIndex() {
           </AdminField>
           {compareMaterial ? (
             <div className="mt-3 overflow-auto rounded-lg border">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-muted/50 text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2">City</th>
-                    <th className="px-3 py-2">Median</th>
-                    <th className="px-3 py-2">Samples</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {compareRows.map((row) => (
-                    <tr key={row.slug} className="border-t">
-                      <td className="px-3 py-2 text-foreground">{row.city}</td>
-                      <td className="px-3 py-2">
-                        {row.median !== null ? (
-                          `₦${row.median.toLocaleString()}`
-                        ) : (
-                          <span className="text-muted-foreground">
-                            below the sample gate ({row.samples})
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-2 text-muted-foreground">{row.samples}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-muted/50 text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2">City</th>
+                      <th className="px-3 py-2">Median</th>
+                      <th className="px-3 py-2">Samples</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {compareRows.map((row) => (
+                      <tr key={row.slug} className="border-t">
+                        <td className="px-3 py-2 text-foreground">
+                          {row.city}
+                        </td>
+                        <td className="px-3 py-2">
+                          {row.median !== null ? (
+                            `₦${row.median.toLocaleString()}`
+                          ) : (
+                            <span className="text-muted-foreground">
+                              below the sample gate ({row.samples})
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-muted-foreground">
+                          {row.samples}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ) : (
             <p className="mt-3 text-sm text-muted-foreground">
-              Pick a material to see which cities can publish a figure and which cannot.
+              Pick a material to see which cities can publish a figure and which
+              cannot.
             </p>
           )}
         </AdminCard>
 
         <AdminCard>
-          <h2 className="text-sm font-bold text-foreground">Supported cities</h2>
+          <h2 className="text-sm font-bold text-foreground">
+            Supported cities
+          </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Disabling a city hides it from the public index and from calculator city
-            selection.
+            Disabling a city hides it from the public index and from calculator
+            city selection.
           </p>
           <ul className="mt-3 max-h-72 space-y-1 overflow-auto">
             {cities.map((city) => (
@@ -438,9 +497,14 @@ export default function AdminPriceIndex() {
                 className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2 text-xs"
               >
                 <span>
-                  <span className="font-medium text-foreground">{city.name}</span>
+                  <span className="font-medium text-foreground">
+                    {city.name}
+                  </span>
                   {city.state ? (
-                    <span className="text-muted-foreground"> · {city.state}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {city.state}
+                    </span>
                   ) : null}
                 </span>
                 <button
@@ -463,38 +527,42 @@ export default function AdminPriceIndex() {
         </h2>
         {audit.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            No price-index changes recorded yet. Every approval, rejection, flag and
-            price write appends a row here and cannot be edited afterwards.
+            No price-index changes recorded yet. Every approval, rejection, flag
+            and price write appends a row here and cannot be edited afterwards.
           </p>
         ) : (
           <div className="mt-3 overflow-auto rounded-lg border">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/50 text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2">When</th>
-                  <th className="px-3 py-2">Action</th>
-                  <th className="px-3 py-2">Entity</th>
-                  <th className="px-3 py-2">Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                {audit.map((row) => (
-                  <tr key={row.id} className="border-t">
-                    <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                      {new Date(row.created_at).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2">
-                      <StatusBadge status={row.action} />
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {row.entity}
-                      {row.entity_id ? ` · ${row.entity_id.slice(0, 8)}` : ""}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">{row.note ?? "—"}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/50 text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2">When</th>
+                    <th className="px-3 py-2">Action</th>
+                    <th className="px-3 py-2">Entity</th>
+                    <th className="px-3 py-2">Note</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {audit.map((row) => (
+                    <tr key={row.id} className="border-t">
+                      <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
+                        {new Date(row.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2">
+                        <StatusBadge status={row.action} />
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.entity}
+                        {row.entity_id ? ` · ${row.entity_id.slice(0, 8)}` : ""}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.note ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </AdminCard>

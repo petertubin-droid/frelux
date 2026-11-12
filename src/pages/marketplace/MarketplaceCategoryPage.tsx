@@ -153,12 +153,12 @@ export default function MarketplaceCategoryPage() {
               Listings are arriving as pros join.
             </p>
             <p className="mt-3">
-              <a
-                href="/learn/"
+              <Link
+                to="/learn/"
                 className="text-sm font-semibold text-brand-purple underline-offset-4 hover:underline"
               >
                 Planning a project? Read the step-by-step guides instead.
-              </a>
+              </Link>
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
               Be the first to post a job in {category?.name}.

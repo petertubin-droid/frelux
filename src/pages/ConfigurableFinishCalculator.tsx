@@ -19,7 +19,7 @@ import HowCalculatedSection from "@/components/calculators/HowCalculatedSection"
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track, type TrackEvent } from "@/lib/analytics";
@@ -558,22 +558,22 @@ export default function ConfigurableFinishCalculator({
             </p>
             <ul className="mt-4 space-y-1.5 text-sm">
               <li>
-                <a
-                  href="/finish-estimator"
+                <Link
+                  to="/finish-estimator"
                   className="font-medium text-primary underline underline-offset-2"
                 >
                   {t("Estimate another finish")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/marketplace?tab=products"
+                <Link
+                  to="/marketplace?tab=products"
                   className="font-medium text-primary underline underline-offset-2"
                 >
                   {t(
                     "Find the product, coverage and pack size on the marketplace",
                   )}
-                </a>
+                </Link>
               </li>
             </ul>
             <p className="mt-4 text-xs text-muted-foreground">

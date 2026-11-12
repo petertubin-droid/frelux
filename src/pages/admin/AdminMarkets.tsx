@@ -52,6 +52,7 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { useEscapeKey } from "@/lib/use-escape-key";
 import {
   consistencySummary,
   marketConsistencyRows,
@@ -324,6 +325,7 @@ function ProfileEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [form, setForm] = useState({
     country_code: profile?.country_code ?? "",
@@ -373,10 +375,13 @@ function ProfileEditModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           {profile ? `Edit ${profile.country_name}` : "New Market Profile"}
@@ -647,6 +652,7 @@ function RuleEditModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [form, setForm] = useState({
     calculator_type: "painting" as MarketCalculatorType,
@@ -693,10 +699,13 @@ function RuleEditModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           New Material Rule ({marketCode})

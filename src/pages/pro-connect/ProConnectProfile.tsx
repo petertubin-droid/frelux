@@ -46,6 +46,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { proConnectCountryName } from "@/pages/pro-connect/coverage";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 const availabilityConfig = {
   available: {
     label: "Available for work",
@@ -84,6 +85,7 @@ export default function ProConnectProfile() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  useEscapeKey(() => setActiveImage(null));
   const [credentials, setCredentials] = useState<DbProCredentialPublic[]>([]);
   const [proSettings, setProSettings] = useState<DbProSettings | null>(null);
 
@@ -689,6 +691,7 @@ export default function ProConnectProfile() {
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
             onClick={() => setActiveImage(null)}
+            role="presentation"
           >
             <img
               src={activeImage}
@@ -738,6 +741,7 @@ function ReportModal({
   targetId: string;
   onClose: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
@@ -770,10 +774,13 @@ function ReportModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="w-full max-w-md rounded-2xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         {submitted ? (
           <div className="text-center py-8">
@@ -841,6 +848,7 @@ function ReviewModal({
   onClose: () => void;
   onSubmitted: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState("");
@@ -869,10 +877,13 @@ function ReviewModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="w-full max-w-md rounded-2xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <h3 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
           {t("Write a review")}

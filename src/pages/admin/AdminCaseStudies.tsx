@@ -13,6 +13,7 @@ import { CATEGORY_LABELS } from "@/lib/case-study-labels";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
+import { Link } from "react-router-dom";
 // Admin: curate before/after case studies from approved gallery
 // entries (workspace item 9). One case study per gallery entry;
 // the form edits or creates it with an upsert on gallery_entry_id.
@@ -116,12 +117,12 @@ export default function AdminCaseStudies() {
         <div className="mt-6 rounded-lg border p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No approved or featured gallery entries yet. Approve entries in{" "}
-            <a
-              href="/admin/gallery-moderation"
+            <Link
+              to="/admin/gallery-moderation"
               className="font-medium text-brand-purple hover:underline"
             >
               {t("Gallery Moderation")}
-            </a>{" "}
+            </Link>{" "}
             first, then create case studies here.
           </p>
         </div>

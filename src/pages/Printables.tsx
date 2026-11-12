@@ -11,6 +11,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 /**
  * Free printable project sheets (stand-out item 5).
  *
@@ -79,6 +80,7 @@ export default function Printables() {
   });
 
   const [preview, setPreview] = useState<string | null>(null);
+  useEscapeKey(() => setPreview(null));
   const active = SHEETS.find((s) => s.id === preview);
 
   return (
@@ -148,6 +150,7 @@ export default function Printables() {
           <div
             className="w-full max-w-2xl rounded-xl bg-background p-4 shadow-2xl dark:text-primary-foreground"
             onClick={(e) => e.stopPropagation()}
+            role="presentation"
           >
             <div className="flex items-center justify-between px-1 pb-3">
               <h3 className="font-display text-sm font-bold">{active.title}</h3>

@@ -50,6 +50,7 @@ import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import AdSlot from "@/components/ui/AdSlot";
 import { NumericInput } from "@/components/ui/NumericInput";
 
+import { Link } from "react-router-dom";
 export default function FoundationCalculator() {
   const resetInputs = () => {
     setShape("strip");
@@ -179,13 +180,13 @@ export default function FoundationCalculator() {
               <strong>{t("Foundation Estimator")}</strong>.
             </p>
           </div>
-          <a
-            href="/foundation"
+          <Link
+            to="/foundation"
             className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
           >
             {t("Open Foundation Estimator")}
             <ChevronRight className="w-3.5 h-3.5" />
-          </a>
+          </Link>
         </div>
 
         {/* Inputs */}

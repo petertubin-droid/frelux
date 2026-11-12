@@ -44,6 +44,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
 export default function WorkerChannels() {
@@ -69,8 +70,10 @@ export default function WorkerChannels() {
   const [viewingProfile, setViewingProfile] = useState<ChatUserProfile | null>(
     null,
   );
+  useEscapeKey(() => setViewingProfile(null));
   const [profileLoading, setProfileLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  useEscapeKey(() => setShowReportModal(false));
   const [reportReason, setReportReason] = useState("");
   const [reportDesc, setReportDesc] = useState("");
   const [reportingUserId, setReportingUserId] = useState<string | null>(null);
@@ -675,6 +678,7 @@ export default function WorkerChannels() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
           onClick={() => setProfileLoading(false)}
+          role="presentation"
         >
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
         </div>
@@ -683,10 +687,13 @@ export default function WorkerChannels() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setViewingProfile(null)}
+          role="presentation"
         >
           <div
             className="max-w-md rounded-2xl bg-card p-6 shadow-2xl dark:bg-card"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
@@ -815,10 +822,13 @@ export default function WorkerChannels() {
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
           onClick={() => setShowReportModal(false)}
+          role="presentation"
         >
           <div
             className="max-w-md rounded-2xl bg-card p-6 shadow-2xl dark:bg-card"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
             <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               {t("Report User")}

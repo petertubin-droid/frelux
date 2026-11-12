@@ -182,40 +182,44 @@ export default function AdminCodeRegistry() {
         </div>
 
         <div className="mt-4 max-h-72 overflow-auto rounded-lg border">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2">Domain</th>
-                <th className="px-3 py-2">Document</th>
-                <th className="px-3 py-2">Library</th>
-                <th className="px-3 py-2">Admin status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry) => (
-                <tr
-                  key={entry.key}
-                  onClick={() => setSelectedKey(entry.key)}
-                  className={
-                    entry.key === selectedKey
-                      ? "cursor-pointer bg-primary/5"
-                      : "cursor-pointer hover:bg-muted/40"
-                  }
-                >
-                  <td className="px-3 py-2 text-muted-foreground">
-                    {entry.domain}
-                  </td>
-                  <td className="px-3 py-2 font-medium text-foreground">
-                    {entry.document}
-                  </td>
-                  <td className="px-3 py-2 text-muted-foreground">
-                    {entry.libraryStatus}
-                  </td>
-                  <td className="px-3 py-2">{entry.effective.status ?? "—"}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-muted/50 text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2">Domain</th>
+                  <th className="px-3 py-2">Document</th>
+                  <th className="px-3 py-2">Library</th>
+                  <th className="px-3 py-2">Admin status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <tr
+                    key={entry.key}
+                    onClick={() => setSelectedKey(entry.key)}
+                    className={
+                      entry.key === selectedKey
+                        ? "cursor-pointer bg-primary/5"
+                        : "cursor-pointer hover:bg-muted/40"
+                    }
+                  >
+                    <td className="px-3 py-2 text-muted-foreground">
+                      {entry.domain}
+                    </td>
+                    <td className="px-3 py-2 font-medium text-foreground">
+                      {entry.document}
+                    </td>
+                    <td className="px-3 py-2 text-muted-foreground">
+                      {entry.libraryStatus}
+                    </td>
+                    <td className="px-3 py-2">
+                      {entry.effective.status ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </AdminCard>
 
@@ -295,36 +299,38 @@ export default function AdminCodeRegistry() {
           </p>
         ) : (
           <div className="mt-3 overflow-auto rounded-lg border">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-muted/50 text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2">When</th>
-                  <th className="px-3 py-2">Entry</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2">Reviewer</th>
-                  <th className="px-3 py-2">Note</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((row) => (
-                  <tr key={row.id}>
-                    <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                      {new Date(row.created_at).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 font-medium text-foreground">
-                      {row.entry_key}
-                    </td>
-                    <td className="px-3 py-2">{row.status}</td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {row.reviewer ?? "—"}
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {row.note ?? "—"}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-muted/50 text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2">When</th>
+                    <th className="px-3 py-2">Entry</th>
+                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2">Reviewer</th>
+                    <th className="px-3 py-2">Note</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {history.map((row) => (
+                    <tr key={row.id}>
+                      <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
+                        {new Date(row.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 font-medium text-foreground">
+                        {row.entry_key}
+                      </td>
+                      <td className="px-3 py-2">{row.status}</td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.reviewer ?? "—"}
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground">
+                        {row.note ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </AdminCard>

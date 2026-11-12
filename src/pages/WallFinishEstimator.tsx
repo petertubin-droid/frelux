@@ -81,6 +81,7 @@ import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import type { QuotePayloadLike } from "@/lib/estimate-share-adapter";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 /* ── helpers ─────────────────────────────────────────────── */
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -219,6 +220,7 @@ export default function WallFinishEstimator() {
     title: string;
     steps: { label: string; detail: string }[];
   } | null>(null);
+  useEscapeKey(() => setStepsFor(null));
   const [savedList, setSavedList] = useState<LocalProject[]>([]);
   const [saveNote, setSaveNote] = useState<string | null>(null);
   const location = useLocation();
@@ -1283,6 +1285,7 @@ export default function WallFinishEstimator() {
           <div
             className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-card p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
+            role="presentation"
           >
             <div className="flex items-start justify-between gap-4">
               <h3 className="font-semibold">{stepsFor.title}</h3>

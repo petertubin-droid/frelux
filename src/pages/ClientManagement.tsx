@@ -32,6 +32,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 export default function ClientManagement() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -430,6 +431,7 @@ function ClientDetailDrawer({
   userId: string;
   onClose: () => void;
 }) {
+  useEscapeKey(onClose);
   const { t } = useLanguage();
   const [communications, setCommunications] = useState<DbClientCommunication[]>(
     [],
@@ -513,10 +515,13 @@ function ClientDetailDrawer({
     <div
       className="fixed inset-0 z-50 flex items-end justify-end bg-black/50 sm:items-center sm:justify-center"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-[26px] bg-card p-6 sm:rounded-[22px]"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <div className="flex items-start justify-between">
           <div>

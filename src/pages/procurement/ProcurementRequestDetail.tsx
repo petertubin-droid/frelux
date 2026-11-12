@@ -366,39 +366,43 @@ export default function ProcurementRequestDetail() {
                     </div>
                   </div>
 
-                  <table className="mt-3 w-full text-xs">
-                    <thead>
-                      <tr className="text-left text-slate-500">
-                        <th className="pb-1 font-medium">Line</th>
-                        <th className="pb-1 text-right font-medium">Qty</th>
-                        <th className="pb-1 text-right font-medium">Rate</th>
-                        <th className="pb-1 text-right font-medium">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(quote.lines ?? []).map((line, index) => (
-                        <tr key={index} className="border-t border-slate-100">
-                          <td className="py-1 text-slate-700">
-                            {line.description}
-                            <span className="text-slate-400">
-                              {" "}
-                              · {line.unit}
-                            </span>
-                          </td>
-                          <td className="py-1 text-right">{line.quantity}</td>
-                          <td className="py-1 text-right">
-                            {formatByCode(line.unit_rate, quote.currency)}
-                          </td>
-                          <td className="py-1 text-right">
-                            {formatByCode(
-                              line.quantity * line.unit_rate,
-                              quote.currency,
-                            )}
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="mt-3 w-full text-xs">
+                      <thead>
+                        <tr className="text-left text-slate-500">
+                          <th className="pb-1 font-medium">Line</th>
+                          <th className="pb-1 text-right font-medium">Qty</th>
+                          <th className="pb-1 text-right font-medium">Rate</th>
+                          <th className="pb-1 text-right font-medium">
+                            Amount
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {(quote.lines ?? []).map((line, index) => (
+                          <tr key={index} className="border-t border-slate-100">
+                            <td className="py-1 text-slate-700">
+                              {line.description}
+                              <span className="text-slate-400">
+                                {" "}
+                                · {line.unit}
+                              </span>
+                            </td>
+                            <td className="py-1 text-right">{line.quantity}</td>
+                            <td className="py-1 text-right">
+                              {formatByCode(line.unit_rate, quote.currency)}
+                            </td>
+                            <td className="py-1 text-right">
+                              {formatByCode(
+                                line.quantity * line.unit_rate,
+                                quote.currency,
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
                   {quote.notes ? (
                     <p className="mt-2 text-xs text-slate-600">{quote.notes}</p>

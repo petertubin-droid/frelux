@@ -988,24 +988,26 @@ function ImportModal({
             </AdminButton>
           </div>
           <div className="mt-2 max-h-32 overflow-y-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-left text-muted-foreground dark:text-muted-foreground">
-                  <th className="pb-1">{t("Name")}</th>
-                  <th className="pb-1">{t("HEX")}</th>
-                  <th className="pb-1">{t("Status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {preview.slice(0, 20).map((r, i) => (
-                  <tr key={i} className={r.valid ? "" : "text-red-500"}>
-                    <td className="py-0.5">{r.name || ""}</td>
-                    <td className="py-0.5 font-mono">{r.hex || ""}</td>
-                    <td className="py-0.5">{r.valid ? "OK" : r.error}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-left text-muted-foreground dark:text-muted-foreground">
+                    <th className="pb-1">{t("Name")}</th>
+                    <th className="pb-1">{t("HEX")}</th>
+                    <th className="pb-1">{t("Status")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {preview.slice(0, 20).map((r, i) => (
+                    <tr key={i} className={r.valid ? "" : "text-red-500"}>
+                      <td className="py-0.5">{r.name || ""}</td>
+                      <td className="py-0.5 font-mono">{r.hex || ""}</td>
+                      <td className="py-0.5">{r.valid ? "OK" : r.error}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {preview.length > 20 && (
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 …and {preview.length - 20} more

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
+import { useEscapeKey } from "@/lib/use-escape-key";
 export default function AdminMaterialPrices() {
   const { t } = useLanguage();
   const [materials, setMaterials] = useState<MaterialWithPrice[]>([]);
@@ -19,6 +20,7 @@ export default function AdminMaterialPrices() {
   const [newPrice, setNewPrice] = useState("");
   const [history, setHistory] = useState<DbMaterialPriceHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  useEscapeKey(() => setShowHistory(false));
 
   useEffect(() => {
     fetchMaterialsWithPrices()
@@ -176,11 +178,14 @@ export default function AdminMaterialPrices() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
           onClick={() => setShowHistory(false)}
+          role="presentation"
         >
           <div
             className="w-full max-w-2xl rounded-2xl border bg-card p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "fadeInScale 0.3s ease-out" }}
+            role="dialog"
+            aria-modal="true"
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-lg">{t("Price History")}</h3>
