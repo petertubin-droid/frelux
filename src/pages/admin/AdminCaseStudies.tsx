@@ -395,6 +395,7 @@ function CaseStudyForm({
           </Field>
           <Field label="Project Duration">
             <input
+              aria-label="3 weeks"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -403,6 +404,7 @@ function CaseStudyForm({
           </Field>
           <Field label="Budget (₦)">
             <input
+              aria-label="850000"
               type="number"
               min="0"
               value={budget}

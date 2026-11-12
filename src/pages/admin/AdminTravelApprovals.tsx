@@ -194,6 +194,7 @@ export default function AdminTravelApprovals() {
         <label className="text-xs font-medium text-muted-foreground">
           Approval note
           <input
+            aria-label="Why this move is safe"
             value={note}
             onChange={(event) => setNote(event.target.value)}
             placeholder="Why this move is safe"

@@ -1211,6 +1211,7 @@ export default function NetworkHub() {
               </p>
               <div className="mt-2 flex gap-2">
                 <input
+                  aria-label="https://partner-site.com"
                   value={aiUrl}
                   onChange={(e) => setAiUrl(e.target.value)}
                   onKeyDown={(e) => {
@@ -1299,6 +1300,7 @@ export default function NetworkHub() {
                     className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 text-xs"
                   />
                   <input
+                    aria-label="https://partner-site.com"
                     value={r.url}
                     onChange={(e) =>
                       patch((d) => {

@@ -179,12 +179,14 @@ export default function AdminIntelligenceSources() {
           </h2>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             <input
+              aria-label="Source name"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Source name"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
             />
             <input
+              aria-label="https://example.com"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="https://example.com"
               value={draft.base_url}
@@ -215,12 +217,14 @@ export default function AdminIntelligenceSources() {
               ))}
             </AdminSelect>
             <input
+              aria-label="Country (e.g. NG)"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Country (e.g. NG)"
               value={draft.country}
               onChange={(e) => setDraft({ ...draft, country: e.target.value })}
             />
             <input
+              aria-label="Region (optional)"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Region (optional)"
               value={draft.region ?? ""}
@@ -279,6 +283,7 @@ export default function AdminIntelligenceSources() {
             ))}
           </div>
           <input
+            aria-label="Purpose / notes"
             className="w-full rounded-md border px-2 py-1.5 text-sm"
             placeholder="Purpose / notes"
             onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
@@ -298,6 +303,7 @@ export default function AdminIntelligenceSources() {
           </p>
           <div className="flex gap-2">
             <input
+              aria-label="e.g. current cement price Lagos Nigeria"
               className="flex-1 rounded-md border px-2 py-1.5 text-sm"
               placeholder="e.g. current cement price Lagos Nigeria"
               value={query}

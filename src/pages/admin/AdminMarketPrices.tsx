@@ -418,6 +418,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Material slug</span>
               <input
+                aria-label="cement-50kg"
                 value={quote.material_slug}
                 onChange={(e) =>
                   setQuote({ ...quote, material_slug: e.target.value })
@@ -429,6 +430,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Supplier</span>
               <input
+                aria-label="BuildCo"
                 value={quote.supplier_name}
                 onChange={(e) =>
                   setQuote({ ...quote, supplier_name: e.target.value })
@@ -440,6 +442,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Supplier location</span>
               <input
+                aria-label="Lagos"
                 value={quote.supplier_location}
                 onChange={(e) =>
                   setQuote({ ...quote, supplier_location: e.target.value })
@@ -451,6 +454,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Price</span>
               <input
+                aria-label="8500"
                 value={quote.price}
                 onChange={(e) => setQuote({ ...quote, price: e.target.value })}
                 inputMode="decimal"
@@ -469,6 +473,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Specification</span>
               <input
+                aria-label="50kg bag"
                 value={quote.specification}
                 onChange={(e) =>
                   setQuote({ ...quote, specification: e.target.value })
@@ -480,6 +485,7 @@ export default function AdminMarketPrices() {
             <label className="text-sm">
               <span className="text-muted-foreground">Unit</span>
               <input
+                aria-label="bag"
                 value={quote.unit}
                 onChange={(e) => setQuote({ ...quote, unit: e.target.value })}
                 placeholder="bag"

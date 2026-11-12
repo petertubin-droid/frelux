@@ -256,12 +256,14 @@ export default function AdminLearningReview() {
           </h2>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
             <input
+              aria-label="Topic"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Topic"
               value={archieTopic}
               onChange={(e) => setArchieTopic(e.target.value)}
             />
             <input
+              aria-label="Capability (e.g. ux_recommendations)"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Capability (e.g. ux_recommendations)"
               value={archieCapability}
@@ -280,6 +282,7 @@ export default function AdminLearningReview() {
               )}
             </AdminSelect>
             <input
+              aria-label="Scope key (market, e.g. NG)"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Scope key (market, e.g. NG)"
               value={archieScopeKey}
@@ -310,6 +313,7 @@ export default function AdminLearningReview() {
             />
             <div className="flex items-end gap-2">
               <input
+                aria-label="0.0-1.0"
                 className="rounded-md border px-2 py-1.5 text-sm w-24"
                 placeholder="0.0-1.0"
                 value={archieConfidence}
@@ -335,24 +339,28 @@ export default function AdminLearningReview() {
           </h2>
           <div className="grid gap-2 md:grid-cols-4">
             <input
+              aria-label="Capability"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Capability"
               value={outcomeCapability}
               onChange={(e) => setOutcomeCapability(e.target.value)}
             />
             <input
+              aria-label="Subject (e.g. Stage 3 blocks)"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Subject (e.g. Stage 3 blocks)"
               value={outcomeSubject}
               onChange={(e) => setOutcomeSubject(e.target.value)}
             />
             <input
+              aria-label="Estimated value"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Estimated value"
               value={outcomeEstimated}
               onChange={(e) => setOutcomeEstimated(e.target.value)}
             />
             <input
+              aria-label="Actual value"
               className="rounded-md border px-2 py-1.5 text-sm"
               placeholder="Actual value"
               value={outcomeActual}
@@ -537,6 +545,7 @@ export default function AdminLearningReview() {
 
                     <div className="space-y-2 border-t pt-2">
                       <input
+                        aria-label="Reason / change justification (required for approval)"
                         className="w-full rounded-md border px-2 py-1.5 text-sm"
                         placeholder="Reason / change justification (required for approval)"
                         value={actionReason}

@@ -216,6 +216,7 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
 
       <div className="mt-4">
         <input
+          aria-label="Filter materials by name"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Filter materials by name"

@@ -437,6 +437,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               {t("Metric")}
               <input
+                aria-label="construction_output"
                 list="metric-suggestions"
                 value={newMetric.metric}
                 onChange={(e) =>
@@ -476,6 +477,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm md:col-span-2">
               Source name (required — unsourced metrics are never stored)
               <input
+                aria-label="e.g. ONS construction output bulletin"
                 value={newMetric.source_name}
                 onChange={(e) =>
                   setNewMetric((v) => ({ ...v, source_name: e.target.value }))
@@ -487,6 +489,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               {t("Source URL")}
               <input
+                aria-label="https://"
                 value={newMetric.source_url}
                 onChange={(e) =>
                   setNewMetric((v) => ({ ...v, source_url: e.target.value }))

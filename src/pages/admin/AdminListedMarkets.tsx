@@ -294,6 +294,7 @@ export default function AdminListedMarkets() {
           <label className="text-xs text-muted-foreground">
             Account email
             <input
+              aria-label="investor@example.com"
               type="email"
               value={grantEmail}
               onChange={(e) => setGrantEmail(e.target.value)}
