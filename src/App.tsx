@@ -2034,11 +2034,19 @@ export default function App() {
                         />
                         <Route
                           path="/admin/listed-markets"
-                          element={<AdminListedMarkets />}
+                          element={
+                            <RequireAdmin>
+                              <AdminListedMarkets />
+                            </RequireAdmin>
+                          }
                         />
                         <Route
                           path="/admin/seo-performance"
-                          element={<SeoPerformance />}
+                          element={
+                            <RequireAdmin>
+                              <SeoPerformance />
+                            </RequireAdmin>
+                          }
                         />
                         <Route
                           path="/regional-cost-index"

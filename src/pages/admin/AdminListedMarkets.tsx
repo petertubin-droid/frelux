@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSeo } from "@/lib/seo";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useAsyncData } from "@/lib/market-intelligence/use-async";
@@ -151,12 +153,10 @@ export default function AdminListedMarkets() {
       setBusy(null);
       return;
     }
-    const { error } = await supabase
-      .from("mi_investor_access")
-      .insert({
-        user_id: profile.id,
-        note: `granted by ${user?.email ?? "admin"}`,
-      });
+    const { error } = await supabase.from("mi_investor_access").insert({
+      user_id: profile.id,
+      note: `granted by ${user?.email ?? "admin"}`,
+    });
     setMessage(error ? error.message : `Investor access granted to ${email}.`);
     setGrantEmail("");
     setBusy(null);
@@ -164,6 +164,13 @@ export default function AdminListedMarkets() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <Link
+        to="/admin"
+        className="mb-4 inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Admin
+      </Link>
       <AdminPageHeader
         eyebrow="Administration"
         title="Market Intelligence control panel"

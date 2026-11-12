@@ -20,6 +20,7 @@ const ROWS = [
     description: "Fresh plaster, still curing",
     requires_preparation: true,
     primer_recommended: true,
+    coverage_adjustment_factor: 0.8,
     is_active: true,
     sort_order: 1,
   },
@@ -30,6 +31,7 @@ const ROWS = [
     description: "Moisture visible",
     requires_preparation: true,
     primer_recommended: false,
+    coverage_adjustment_factor: 1.5,
     is_active: false,
     sort_order: 2,
   },
@@ -78,10 +80,38 @@ describe("AdminSurfaceConditions", () => {
       name: "Damp walls",
       requires_preparation: true,
       primer_recommended: false,
+      coverage_adjustment_factor: 1.5,
       is_active: false,
       sort_order: 2,
     });
     expect(mocks.eq).toHaveBeenCalledWith("id", "row-2");
+  });
+
+  it("saves an edited coverage factor, which is what changes the estimate", async () => {
+    await renderPage();
+    const factorInput = await screen.findByDisplayValue("0.8");
+    fireEvent.change(factorInput, { target: { value: "0.65" } });
+
+    // Row 1 is the one edited above.
+    fireEvent.click(screen.getAllByRole("button", { name: "Save" })[0]);
+
+    await waitFor(() => expect(mocks.update).toHaveBeenCalledTimes(1));
+    expect(mocks.update.mock.calls[0][0]).toMatchObject({
+      coverage_adjustment_factor: 0.65,
+    });
+  });
+
+  it("refuses a coverage factor outside 0.10 to 2.00", async () => {
+    await renderPage();
+    const factorInput = await screen.findByDisplayValue("0.8");
+    fireEvent.change(factorInput, { target: { value: "9" } });
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Save" })[0]);
+
+    await waitFor(() =>
+      expect(screen.getByText(/Coverage factor must be between/)).toBeDefined(),
+    );
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it("reports a failed read instead of looking empty", async () => {

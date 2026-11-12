@@ -18,7 +18,8 @@ import {
  *
  * These rows come from `estimation_surface_conditions`, the table the
  * estimators themselves read (condition_key, name, description,
- * requires_preparation, primer_recommended, is_active, sort_order).
+ * requires_preparation, primer_recommended, coverage_adjustment_factor,
+ * is_active, sort_order).
  * This page used to render a hardcoded list whose keys did not exist in the
  * engine at all (new_wall, smooth, dirty…), with an Edit button that had no
  * handler, so an admin could neither see nor change what the calculators use.
@@ -31,6 +32,7 @@ interface SurfaceConditionRow {
   description: string | null;
   requires_preparation: boolean;
   primer_recommended: boolean;
+  coverage_adjustment_factor: number | null;
   is_active: boolean;
   sort_order: number;
 }
@@ -40,6 +42,7 @@ interface Draft {
   description: string;
   requires_preparation: boolean;
   primer_recommended: boolean;
+  coverage_adjustment_factor: string;
   is_active: boolean;
   sort_order: string;
 }
@@ -49,6 +52,7 @@ const toDraft = (row: SurfaceConditionRow): Draft => ({
   description: row.description ?? "",
   requires_preparation: row.requires_preparation,
   primer_recommended: row.primer_recommended,
+  coverage_adjustment_factor: String(row.coverage_adjustment_factor ?? 1),
   is_active: row.is_active,
   sort_order: String(row.sort_order ?? 0),
 });
@@ -69,7 +73,7 @@ export default function AdminSurfaceConditions() {
       const { data, error: loadError } = await supabase
         .from("estimation_surface_conditions")
         .select(
-          "id, condition_key, name, description, requires_preparation, primer_recommended, is_active, sort_order",
+          "id, condition_key, name, description, requires_preparation, primer_recommended, coverage_adjustment_factor, is_active, sort_order",
         )
         .order("sort_order", { ascending: true });
 
@@ -115,6 +119,18 @@ export default function AdminSurfaceConditions() {
       setError("Sort order must be a number.");
       return;
     }
+    const coverage = Number(draft.coverage_adjustment_factor);
+    if (
+      draft.coverage_adjustment_factor.trim() === "" ||
+      !Number.isFinite(coverage) ||
+      coverage < 0.1 ||
+      coverage > 2
+    ) {
+      setError(
+        "Coverage factor must be between 0.10 and 2.00. Use 1.00 for full coverage.",
+      );
+      return;
+    }
 
     setSavingId(row.id);
     setError("");
@@ -127,6 +143,7 @@ export default function AdminSurfaceConditions() {
           description: draft.description.trim() || null,
           requires_preparation: draft.requires_preparation,
           primer_recommended: draft.primer_recommended,
+          coverage_adjustment_factor: coverage,
           is_active: draft.is_active,
           sort_order: sortOrder,
           updated_at: new Date().toISOString(),
@@ -145,6 +162,7 @@ export default function AdminSurfaceConditions() {
                   description: draft.description.trim() || null,
                   requires_preparation: draft.requires_preparation,
                   primer_recommended: draft.primer_recommended,
+                  coverage_adjustment_factor: coverage,
                   is_active: draft.is_active,
                   sort_order: sortOrder,
                 }
@@ -158,6 +176,7 @@ export default function AdminSurfaceConditions() {
           ...draft,
           name: draft.name.trim(),
           description: draft.description.trim(),
+          coverage_adjustment_factor: String(coverage),
           sort_order: String(sortOrder),
         },
       }));
@@ -278,6 +297,24 @@ export default function AdminSurfaceConditions() {
                       />
                     </AdminField>
                   </div>
+
+                  <AdminField
+                    label="Coverage factor"
+                    hint="1.00 = full coverage. 0.80 means the surface needs 20% more paint. This is the number that changes the estimate."
+                  >
+                    <AdminInput
+                      type="number"
+                      min={0.1}
+                      max={2}
+                      step={0.01}
+                      value={draft.coverage_adjustment_factor}
+                      onChange={(event) =>
+                        patchDraft(row.id, {
+                          coverage_adjustment_factor: event.target.value,
+                        })
+                      }
+                    />
+                  </AdminField>
 
                   <AdminField label="Description">
                     <AdminInput

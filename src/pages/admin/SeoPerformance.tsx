@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSeo } from "@/lib/seo";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
@@ -121,6 +123,13 @@ export default function SeoPerformance() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
+      <Link
+        to="/admin"
+        className="mb-4 inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Admin
+      </Link>
       <AdminPageHeader
         eyebrow="Administration"
         title="SEO performance"

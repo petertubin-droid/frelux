@@ -459,7 +459,8 @@ export const navModules: NavModule[] = [
       { label: "Error Monitor", to: "/admin/errors", icon: AlertTriangle },
       {
         label: "Error Analysis",
-        to: "/admin/error_analysis",
+        // Lives inside the Studio tool routes, not at the admin root.
+        to: "/admin/studio/error_analysis",
         icon: AlertTriangle,
       },
       { label: "System Health", to: "/admin/system-health", icon: ShieldCheck },
