@@ -468,9 +468,9 @@ describe("raft foundation, first principles", () => {
   };
 
   it("spreads all wall load over the whole footprint", () => {
-    // Perimeter 36 m at 20 kN/m is 720 kN over 80 m² = 9 kN/m².
+    // Perimeter 36 m at 20 kN/m is 720 kN x 1.10 self-weight = 792 kN over 80 m² = 9.9 kN/m².
     const r = designFoundation({ ...raft, wall_load: 20 });
-    closeTo(r.applied_pressure, 9, 0.1);
+    closeTo(r.applied_pressure, 9.9, 0.1);
     expect(r.bearing_check_pass).toBe(true);
   });
 
@@ -481,21 +481,21 @@ describe("raft foundation, first principles", () => {
     closeTo(r.excavation_volume, 80 * 1.2, 0.1);
   });
 
-  it("passes 135 kN/m² on firm clay, whose allowable is 150", () => {
-    // 300 kN/m x 36 m = 10,800 kN over 80 m² = 135 kN/m². Correctly a PASS, and
+  it("passes 148.5 kN/m² on firm clay, whose allowable is 150", () => {
+    // 300 kN/m x 36 m = 10,800 kN x 1.10 = 11,880 kN over 80 m² = 148.5 kN/m². Correctly a PASS, and
     // worth pinning: claiming failure here would be its own inaccuracy.
     const r = designFoundation({ ...raft, wall_load: 300 });
-    closeTo(r.applied_pressure, 135, 0.5);
+    closeTo(r.applied_pressure, 148.5, 0.5);
     expect(r.bearing_check_pass).toBe(true);
   });
 
-  it("fails the same 135 kN/m² on loose sand, whose allowable is 100", () => {
+  it("fails the same 148.5 kN/m² on loose sand, whose allowable is 100", () => {
     const r = designFoundation({
       ...raft,
       wall_load: 300,
       soil_type: "loose_sand",
     });
-    closeTo(r.applied_pressure, 135, 0.5);
+    closeTo(r.applied_pressure, 148.5, 0.5);
     expect(r.bearing_check_pass).toBe(false);
     expect((r.warnings ?? []).join(" ")).toMatch(/exceeds/i);
   });
