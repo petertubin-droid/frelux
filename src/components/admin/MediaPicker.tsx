@@ -111,6 +111,7 @@ export function MediaPicker({
             {t("Media Library")}
           </h2>
           <Button
+            aria-label="Close media library"
             variant="ghost"
             type="button"
             onClick={onClose}
@@ -250,6 +251,7 @@ export function MediaPicker({
                         </div>
                       )}
                       <Button
+                        aria-label="Remove media"
                         variant="ghost"
                         type="button"
                         onClick={(e) => {

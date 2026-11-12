@@ -130,6 +130,13 @@ export default function AdminHeaderImages() {
   }
 
   async function resetOverride(route: string) {
+    if (
+      !window.confirm(
+        `Remove the custom header image for ${route} and go back to the default?`,
+      )
+    ) {
+      return;
+    }
     setSaving(true);
     setError("");
     try {

@@ -121,7 +121,7 @@ interface NavModule {
   items: NavItem[];
 }
 
-const navModules: NavModule[] = [
+export const navModules: NavModule[] = [
   {
     heading: "Worker safety",
     items: [
@@ -293,6 +293,11 @@ const navModules: NavModule[] = [
         to: "/admin/price-submissions",
         icon: ClipboardList,
       },
+      {
+        label: "Price Index Review",
+        to: "/admin/price-index",
+        icon: ClipboardList,
+      },
     ],
   },
   {
@@ -366,6 +371,11 @@ const navModules: NavModule[] = [
     items: [
       { label: "Learn Articles", to: "/admin/learn", icon: BookOpen },
       {
+        label: "Content Translations",
+        to: "/admin/translations",
+        icon: Languages,
+      },
+      {
         label: "Wall Finishing Library",
         to: "/admin/learn/wall-finishing",
         icon: Globe,
@@ -403,6 +413,7 @@ const navModules: NavModule[] = [
     heading: "Monetization",
     items: [
       { label: "Ad Management", to: "/admin/ads", icon: Megaphone },
+      { label: "Ad Manager", to: "/admin/ad-manager", icon: Megaphone },
       { label: "AI Monetization", to: "/admin/ai-monetization", icon: Crown },
       { label: "Rewarded Access", to: "/admin/rewarded-access", icon: Gift },
       { label: "Credits & Rewards", to: "/admin/rewards", icon: Gem },
@@ -413,7 +424,7 @@ const navModules: NavModule[] = [
     heading: "Marketplace & Pros",
     items: [
       { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
-      { label: "Marketplace Products", to: "/admin/products", icon: Package },
+      { label: "Supplier Network", to: "/admin/suppliers", icon: Factory },
       {
         label: "Professionals & Reports",
         to: "/admin/pro-connect",

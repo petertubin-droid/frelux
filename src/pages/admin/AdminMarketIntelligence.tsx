@@ -668,6 +668,7 @@ function CrawlReportModal({
             {t("Crawl Report")}
           </h2>
           <Button
+            aria-label="Close crawl report"
             variant="ghost"
             onClick={onClose}
             className="text-muted-foreground hover:text-muted-foreground"

@@ -78,6 +78,7 @@ export default function SevenCountryCoverage() {
   const [rows, setRows] = useState<CoverageRow[]>([]);
   const [sources, setSources] = useState<SourceRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     let live = true;
@@ -92,6 +93,11 @@ export default function SevenCountryCoverage() {
           .like("source_class", "official%"),
       ]);
       if (!live) return;
+      if (coverage.error || official.error) {
+        setLoadError(
+          "Could not read coverage data. The table below may be out of date.",
+        );
+      }
       setRows(
         ((coverage.data ?? []) as CoverageRow[])
           .slice()
@@ -153,6 +159,18 @@ export default function SevenCountryCoverage() {
               <tr>
                 <td colSpan={8} className="py-6 text-sm text-muted-foreground">
                   Reading connections
+                </td>
+              </tr>
+            )}
+            {!loading && loadError && (
+              <tr>
+                <td colSpan={8} className="py-6">
+                  <p
+                    role="alert"
+                    className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+                  >
+                    {loadError}
+                  </p>
                 </td>
               </tr>
             )}

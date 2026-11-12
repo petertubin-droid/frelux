@@ -101,6 +101,7 @@ export default function AdminProjectStages() {
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing ? "Edit" : "Add"} Stage</h3>
             <Button
+              aria-label="Close stage form"
               variant="ghost"
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted"
@@ -197,6 +198,7 @@ export default function AdminProjectStages() {
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
+                  aria-label="Edit stage"
                   variant="ghost"
                   onClick={() => {
                     setEditing(stage);
@@ -214,6 +216,7 @@ export default function AdminProjectStages() {
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
+                  aria-label="Delete stage"
                   variant="ghost"
                   onClick={() => handleDelete(stage.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"

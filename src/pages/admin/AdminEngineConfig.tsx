@@ -406,6 +406,7 @@ function MaterialProfileForm({
           {existing ? "Edit" : "Add"} Material Profile
         </h3>
         <Button onClick={onClose}>
+          aria-label="Close material profile editor"
           <X aria-hidden="true" className="h-4 w-4" />
         </Button>
       </div>
@@ -1159,6 +1160,7 @@ function SettingsTab() {
                 {item.is_editable &&
                   (editing[item.setting_key] !== undefined ? (
                     <Button
+                      aria-label="Save setting"
                       variant="ghost"
                       onClick={() => handleSave(item.setting_key)}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
@@ -1167,6 +1169,7 @@ function SettingsTab() {
                     </Button>
                   ) : (
                     <Button
+                      aria-label="Edit setting"
                       variant="ghost"
                       onClick={() =>
                         setEditing({

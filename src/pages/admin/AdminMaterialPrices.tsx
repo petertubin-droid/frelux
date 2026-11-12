@@ -139,6 +139,7 @@ export default function AdminMaterialPrices() {
                           autoFocus
                         />
                         <Button
+                          aria-label="Save price"
                           variant="ghost"
                           onClick={() => handleUpdatePrice(m)}
                           className="rounded p-1.5 hover:bg-emerald-500/10 transition-all hover:scale-110"
@@ -146,6 +147,7 @@ export default function AdminMaterialPrices() {
                           <Save className="h-4 w-4 text-emerald-600" />
                         </Button>
                         <Button
+                          aria-label="Cancel price edit"
                           variant="ghost"
                           onClick={() => setEditingId(null)}
                           className="rounded p-1.5 hover:bg-muted transition-all"
@@ -190,6 +192,7 @@ export default function AdminMaterialPrices() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-lg">{t("Price History")}</h3>
               <Button
+                aria-label="Close price history"
                 variant="ghost"
                 onClick={() => setShowHistory(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"

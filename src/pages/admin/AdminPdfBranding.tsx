@@ -667,6 +667,7 @@ export default function AdminPdfBranding() {
                   </label>
                   {!tpl.is_system && (
                     <Button
+                      aria-label="Delete template"
                       variant="ghost"
                       onClick={() => handleDeleteTemplate(tpl.id)}
                       className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"

@@ -481,6 +481,9 @@ export function AdminTabButton({
       variant="ghost"
       type="button"
       onClick={onClick}
+      // Expose the selected tab to assistive tech: the active state was only
+      // visual before, so a screen reader could not tell which panel was open.
+      aria-pressed={active}
       className={classNames(
         base,
         v.base,

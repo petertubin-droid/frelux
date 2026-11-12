@@ -615,6 +615,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                 </pre>
               </div>
               <Button
+                aria-label="Delete material rule"
                 variant="ghost"
                 onClick={async () => {
                   await deleteMaterialRule(r.id);

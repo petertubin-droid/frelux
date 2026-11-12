@@ -289,6 +289,13 @@ export default function AdManager() {
 
   const remove = async (campaign: Campaign) => {
     if (!campaign.id) return;
+    if (
+      !window.confirm(
+        `Delete the campaign "${campaign.name}"? It stops serving immediately.`,
+      )
+    ) {
+      return;
+    }
     setBusy(true);
     const { error: deleteError } = await supabase
       .from("ad_campaigns")
@@ -802,6 +809,7 @@ export default function AdManager() {
                           </Button>
                         )}
                         <Button
+                          aria-label="Delete campaign"
                           variant="ghost"
                           size="sm"
                           onClick={() => void remove(campaign)}

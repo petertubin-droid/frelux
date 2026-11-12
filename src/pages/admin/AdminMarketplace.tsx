@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Eye,
   EyeOff,
@@ -65,35 +65,44 @@ import {
 } from "@/types/marketplace-expansion";
 import { Button } from "@/components/ui/shadcn/button";
 
-type Tab =
-  | "listings"
-  | "products"
-  | "orders"
-  | "disputes"
-  | "reports"
-  | "reviews"
-  | "sellers";
+// One list drives both the tab bar and the ?tab= deep link, so a link cannot
+// point at a tab that does not exist.
+const MARKETPLACE_TABS = [
+  ["listings", "Listings"],
+  ["products", "Products"],
+  ["orders", "Orders"],
+  ["disputes", "Disputes"],
+  ["reports", "Reports"],
+  ["reviews", "Reviews"],
+  ["sellers", "Sellers"],
+] as const;
+
+type Tab = (typeof MARKETPLACE_TABS)[number][0];
+
+const TAB_KEYS = MARKETPLACE_TABS.map(([key]) => key) as readonly string[];
 
 export default function AdminMarketplace() {
   const { t } = useLanguage();
-  const [tab, setTab] = useState<Tab>("listings");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requested = searchParams.get("tab");
+  const tab: Tab = TAB_KEYS.includes(requested ?? "")
+    ? (requested as Tab)
+    : "listings";
+  const setTab = useCallback(
+    (next: Tab) => {
+      const params = new URLSearchParams(searchParams);
+      params.set("tab", next);
+      setSearchParams(params, { replace: true });
+    },
+    [searchParams, setSearchParams],
+  );
 
   return (
     <div>
       <AdminPageHeader title={t("Marketplace Management")} />
 
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
-        {(
-          [
-            ["listings", "Listings"],
-            ["products", "Products"],
-            ["orders", "Orders"],
-            ["disputes", "Disputes"],
-            ["reports", "Reports"],
-            ["reviews", "Reviews"],
-            ["sellers", "Sellers"],
-          ] as const
-        ).map(([key, label]) => (
+        {MARKETPLACE_TABS.map(([key, label]) => (
           <AdminTabButton
             key={key}
             active={tab === key}

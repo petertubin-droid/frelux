@@ -46,6 +46,7 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [coverage, setCoverage] = useState<CoverageRow[]>([]);
   const [reasons, setReasons] = useState<ReasonRow[]>([]);
   const [classifying, setClassifying] = useState(false);
@@ -60,8 +61,15 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
       .order("price", { ascending: false })
       .limit(200);
     if (market) q = q.eq("market", market);
-    const { data } = await q;
-    setRows((data ?? []) as CatalogueRow[]);
+    const { data, error: rowsError } = await q;
+    if (rowsError) {
+      setLoadError(
+        "Could not read the staged catalogue. This is not an empty queue; try again.",
+      );
+    } else {
+      setLoadError("");
+      setRows((data ?? []) as CatalogueRow[]);
+    }
 
     const { data: coverageRows } = await supabase
       .from("catalogue_coverage_by_market")
@@ -221,7 +229,15 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
             Reading staged catalogue
           </p>
         )}
-        {!loading && rows.length === 0 && (
+        {!loading && loadError && (
+          <p
+            role="alert"
+            className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+          >
+            {loadError}
+          </p>
+        )}
+        {!loading && !loadError && rows.length === 0 && (
           <p className="py-4 text-sm text-muted-foreground">
             Nothing waiting. Supplier catalogues arrive on the six-hourly sync,
             or add a catalogue in Data sources.
