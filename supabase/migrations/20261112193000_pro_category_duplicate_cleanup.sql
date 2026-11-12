@@ -42,6 +42,7 @@ WITH normalised AS (
   SELECT
     id,
     name,
+    created_at,
     trim(
       regexp_replace(
         regexp_replace(

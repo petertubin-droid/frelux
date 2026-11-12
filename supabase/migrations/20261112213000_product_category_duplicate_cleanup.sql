@@ -35,6 +35,7 @@ WITH normalised AS (
   SELECT
     id,
     slug,
+    created_at,
     trim(
       regexp_replace(
         regexp_replace(
