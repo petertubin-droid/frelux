@@ -15,6 +15,11 @@ compatibility_date = "2026-11-01"
 #   GET https://files.freluxtools.com/health -> {"service":"frelux-files",...}
 # VITE_R2_WORKER_URL points at that hostname.
 routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+# api.freluxtools.com is bound to this same Worker (Workers Custom Domain, DNS
+# resolving) but its edge certificate had not issued when checked on 2026-11-12:
+# TLS to the hostname resets while the files host serves normally. Until it
+# serves, new endpoints belong under a path on the files host rather than a new
+# hostname. Add the route here once GET /health answers on it.
 workers_dev = true
 
 [observability]
