@@ -59,6 +59,37 @@ def remote_functions():
     return out
 
 
+def config_verify_jwt() -> dict:
+    """verify_jwt per function from supabase/config.toml.
+
+    A brand-new function has no production value to inherit, so the pinned
+    config is the only statement of whether it may be called anonymously.
+    """
+    path = os.path.join("supabase", "config.toml")
+    values: dict = {}
+    current = None
+    try:
+        with open(path, encoding="utf-8") as handle:
+            for line in handle:
+                line = line.strip()
+                if line.startswith("[functions.") and line.endswith("]"):
+                    current = line[len("[functions.") : -1]
+                    continue
+                if line.startswith("[") and current:
+                    current = None
+                    continue
+                if (
+                    current
+                    and line.startswith("verify_jwt")
+                    and "=" in line
+                ):
+                    value = line.split("=", 1)[1].strip().lower()
+                    values[current] = value == "true"
+    except FileNotFoundError:
+        pass
+    return values
+
+
 def local_functions():
     return sorted(
         d
@@ -107,10 +138,14 @@ def main() -> int:
     local = local_functions()
     todo = []
 
+    pinned = config_verify_jwt()
+
     for slug in local:
         info = remote.get(slug)
         if info is None:
-            todo.append((slug, True, None, "missing remotely"))
+            # Prefer the pinned config over the CLI default (which requires a JWT
+            # and would break an anonymous endpoint).
+            todo.append((slug, True, pinned.get(slug), "missing remotely"))
             continue
         newest = to_dt(last_commit(os.path.join(FUNCTIONS_DIR, slug)))
         deployed = to_dt(info["updated_at"])
@@ -156,8 +191,15 @@ def main() -> int:
             "--yes",
         ]
         if verify is False:
-            # Keep the anonymous-endpoint contract this function already has.
+            # Keep the anonymous-endpoint contract this function already has
+            # (or has just been given in config.toml, for a new function).
             cmd.append("--no-verify-jwt")
+        elif verify is None:
+            print(
+                f"WARNING {slug}: verify_jwt not pinned in config.toml; the CLI "
+                "default (JWT required) will apply.",
+                file=sys.stderr,
+            )
         print(f"\nDEPLOY {slug}", flush=True)
         result = subprocess.run(cmd)
         if result.returncode != 0:
