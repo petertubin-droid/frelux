@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPanel } from "@/components/map/MapPanel";
 import {
@@ -39,6 +39,7 @@ import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { formatByCode } from "@/lib/international/currency-format";
+import { buildTradeOptions } from "@/lib/pro-connect-trades";
 import { tx } from "@/lib/i18n";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -180,26 +181,39 @@ export default function MarketplaceHome() {
   const loadJobs = useCallback(
     async (reset = false) => {
       setJobsLoading(true);
+      setLoadError(null);
       const off = reset ? 0 : jobsOffsetRef.current;
-      const { listings: data, total: count } = await fetchListings({
-        search: jobSearch || undefined,
-        project_type: projectType || undefined,
-        location_country: jobCountry || undefined,
-        location_state: jobState || undefined,
-        limit: 12,
-        offset: off,
-      });
-      setListings(reset ? data : [...listingsRef.current, ...data]);
-      setJobsTotal(count);
-      setJobsHasMore(off + data.length < count);
-      if (reset) setJobsOffset(0);
-      else setJobsOffset(off + data.length);
-      setJobsLoading(false);
+      try {
+        const { listings: data, total: count } = await fetchListings({
+          search: jobSearch || undefined,
+          project_type: projectType || undefined,
+          location_country: jobCountry || undefined,
+          location_state: jobState || undefined,
+          limit: 12,
+          offset: off,
+        });
+        setListings(reset ? data : [...listingsRef.current, ...data]);
+        setJobsTotal(count);
+        setJobsHasMore(off + data.length < count);
+        if (reset) setJobsOffset(0);
+        else setJobsOffset(off + data.length);
+      } catch {
+        if (reset) setListings([]);
+        setLoadError(
+          "We could not load the marketplace just now. Check your connection and try again.",
+        );
+      } finally {
+        setJobsLoading(false);
+      }
     },
     [jobSearch, projectType, jobState, jobCountry],
   );
 
   // Load products, same ref pattern to prevent infinite loop
+  // A rejected query used to leave the page on its skeletons forever, because
+  // neither loader caught anything. One failure now ends loading and says so.
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const productsOffsetRef = useRef(productsOffset);
   const productsRef = useRef(products);
   productsOffsetRef.current = productsOffset;
@@ -212,24 +226,33 @@ export default function MarketplaceHome() {
       const catId = productCategories.find(
         (c) => c.slug === productCategory,
       )?.id;
-      const { products: data, total: count } = await searchProducts({
-        search: productSearch || undefined,
-        category_id: catId,
-        condition: (productCondition || undefined) as
-          ProductCondition | undefined,
-        location_country: productCountry || undefined,
-        location_state: productState || undefined,
-        sort: productSort as
-          "newest" | "price_low" | "price_high" | "popular" | "featured",
-        limit: 24,
-        offset: off,
-      });
-      setProducts(reset ? data : [...productsRef.current, ...data]);
-      setProductsTotal(count);
-      setProductsHasMore(off + data.length < count);
-      if (reset) setProductsOffset(0);
-      else setProductsOffset(off + data.length);
-      setProductsLoading(false);
+      setLoadError(null);
+      try {
+        const { products: data, total: count } = await searchProducts({
+          search: productSearch || undefined,
+          category_id: catId,
+          condition: (productCondition || undefined) as
+            ProductCondition | undefined,
+          location_country: productCountry || undefined,
+          location_state: productState || undefined,
+          sort: productSort as
+            "newest" | "price_low" | "price_high" | "popular" | "featured",
+          limit: 24,
+          offset: off,
+        });
+        setProducts(reset ? data : [...productsRef.current, ...data]);
+        setProductsTotal(count);
+        setProductsHasMore(off + data.length < count);
+        if (reset) setProductsOffset(0);
+        else setProductsOffset(off + data.length);
+      } catch {
+        if (reset) setProducts([]);
+        setLoadError(
+          "We could not load these products just now. Check your connection and try again.",
+        );
+      } finally {
+        setProductsLoading(false);
+      }
     },
     [
       productSearch,
@@ -498,6 +521,22 @@ export default function MarketplaceHome() {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {loadError && (
+          <div
+            role="alert"
+            className="mb-4 flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p className="text-sm font-medium text-foreground">{loadError}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => (tab === "jobs" ? loadJobs(true) : loadProducts(true))}
+              className="shrink-0 text-xs font-semibold"
+            >
+              {tx("Try again")}
+            </Button>
+          </div>
+        )}
         {tab === "jobs" ? (
           <JobsTab
             listings={listings}
@@ -843,6 +882,21 @@ function ProductsTab(props: {
   setShowFilters: (v: boolean) => void;
   onLoadMore: () => void;
 }) {
+  // One pill per category, not per row: the category table repeats some names, and
+  // a repeated name reads as a bug to a buyer. The rest sit behind a disclosure so
+  // the pills never push the products off the first screen.
+  const categoryOptions = useMemo(
+    () =>
+      buildTradeOptions(
+        props.categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
+      ),
+    [props.categories],
+  );
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const visibleCategories = showAllCategories
+    ? categoryOptions
+    : categoryOptions.slice(0, 8);
+
   return (
     <div>
       {/* Materials and open projects on the map */}
@@ -913,21 +967,37 @@ function ProductsTab(props: {
         >
           {tx("All")}
         </Button>
-        {props.categories.map((c) => (
+        {visibleCategories.map((c) => {
+          const slug = c.slugs[0] ?? "";
+          const active = props.category === slug;
+          return (
+            <Button
+              variant="ghost"
+              key={c.key}
+              aria-pressed={active}
+              onClick={() => props.setCategory(active ? "" : slug)}
+              className={classNames(
+                "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
+              )}
+            >
+              {c.name}
+            </Button>
+          );
+        })}
+        {categoryOptions.length > 8 && (
           <Button
             variant="ghost"
-            key={c.id}
-            onClick={() => props.setCategory(c.slug)}
-            className={classNames(
-              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-              props.category === c.slug
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
-            )}
+            onClick={() => setShowAllCategories((v) => !v)}
+            className="rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-medium text-brand-purple dark:border-white/20 dark:text-brand-purple-lighter"
           >
-            {c.name}
+            {showAllCategories
+              ? tx("Fewer categories")
+              : `${tx("All")} ${categoryOptions.length} ${tx("categories")}`}
           </Button>
-        ))}
+        )}
       </div>
 
       {/* Filters */}

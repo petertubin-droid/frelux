@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { buildIlikeOrFilter } from "@/lib/search-term";
 import type {
   DbMarketplaceProduct,
   DbProductCategory,
@@ -68,11 +69,11 @@ export async function searchProducts(params: {
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false });
 
-  if (params.search) {
-    query = query.or(
-      `title.ilike.%${params.search}%,description.ilike.%${params.search}%,brand.ilike.%${params.search}%`,
-    );
-  }
+  const productFilter = buildIlikeOrFilter(
+    ["title", "description", "brand"],
+    params.search ?? "",
+  );
+  if (productFilter) query = query.or(productFilter);
   if (params.category_id) query = query.eq("category_id", params.category_id);
   if (params.min_price !== undefined)
     query = query.gte("price", params.min_price);
@@ -80,7 +81,8 @@ export async function searchProducts(params: {
     query = query.lte("price", params.max_price);
   if (params.condition) query = query.eq("condition", params.condition);
   if (params.location_country)
-    query = query.eq("location_country", params.location_country);
+    // Stored as an ISO code; a lower-case "ng" from a link must still match.
+    query = query.eq("location_country", params.location_country.toUpperCase());
   if (params.location_state)
     query = query.eq("location_state", params.location_state);
   if (params.location_city)
@@ -102,6 +104,10 @@ export async function searchProducts(params: {
       .order("is_featured", { ascending: false })
       .order("view_count", { ascending: false });
   }
+
+  // Stable paging: without a tie-breaker, rows tied on price or view count can
+  // appear on two pages at once and another page can lose a row entirely.
+  query = query.order("id", { ascending: true });
 
   query = query.range(offset, offset + limit - 1);
 

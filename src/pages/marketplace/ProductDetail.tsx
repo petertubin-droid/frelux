@@ -51,6 +51,8 @@ export default function ProductDetail() {
   const [inquiryPhone, setInquiryPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [inquirySent, setInquirySent] = useState(false);
+  const [inquiryError, setInquiryError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<
     DbMarketplaceProduct[]
   >([]);
@@ -59,12 +61,16 @@ export default function ProductDetail() {
   const load = useCallback(async () => {
     if (!id) return;
     setLoading(true);
-    const p = await fetchProduct(id);
-    setProduct(p);
-    setLoading(false);
-    if (p) {
+    setLoadFailed(false);
+    try {
+      const p = await fetchProduct(id);
+      setProduct(p);
+      if (!p) return;
+
       incrementProductView(id);
-      // Fetch related products in same category
+
+      // Related stock, same category. A failure here must not blank the page that
+      // already loaded, so it stays inside its own guard.
       if (p.category_id) {
         const { data: related } = await supabase
           .from("marketplace_products")
@@ -81,6 +87,12 @@ export default function ProductDetail() {
           (related ?? []) as unknown as DbMarketplaceProduct[],
         );
       }
+    } catch {
+      // Without this the spinner ran forever: the old code had no catch, so a
+      // rejected read left the page loading with nothing to show or retry.
+      setLoadFailed(true);
+    } finally {
+      setLoading(false);
     }
   }, [id]);
 
@@ -112,8 +124,11 @@ export default function ProductDetail() {
             "@type": "Offer",
             price: product.price,
             priceCurrency: product.currency,
+            // Stock, not just status: a product with nothing left is OutOfStock
+            // even while its listing is active, and telling Google otherwise
+            // earns a Merchant Center mismatch rather than a sale.
             availability:
-              product.status === "active"
+              product.status === "active" && product.quantity > 0
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
           },
@@ -132,18 +147,40 @@ export default function ProductDetail() {
       return;
     }
     if (!product) return;
+
+    const message = inquiryMessage.trim();
+    if (message.length < 10) {
+      setInquiryError(
+        tr("Add a short message (at least 10 characters) so the seller can reply."),
+      );
+      return;
+    }
+    // A half-typed price must not be sent as NaN: PostgREST would reject the row
+    // and the buyer would see nothing at all.
+    const offered = inquiryPrice.trim() ? Number(inquiryPrice) : undefined;
+    if (offered !== undefined && (!Number.isFinite(offered) || offered < 0)) {
+      setInquiryError(tr("Enter a valid offer price, or leave it blank."));
+      return;
+    }
+
     setSubmitting(true);
+    setInquiryError(null);
     try {
       await createInquiry({
         product_id: product.id,
         buyer_id: user.id,
-        message: inquiryMessage.trim(),
-        offered_price: inquiryPrice ? parseFloat(inquiryPrice) : undefined,
-        contact_phone: inquiryPhone || undefined,
+        message,
+        offered_price: offered,
+        contact_phone: inquiryPhone.trim() || undefined,
       });
       setInquirySent(true);
     } catch (_e) {
-      // Show error inline
+      // The old code swallowed this, so a rejected inquiry looked like a sent one.
+      setInquiryError(
+        tr(
+          "The inquiry could not be sent. Please try again, or contact the seller directly from their profile.",
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -169,15 +206,29 @@ export default function ProductDetail() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-lg font-medium text-foreground dark:text-primary-foreground">
-          {tr("Product not found")}
+          {loadFailed
+            ? tr("We could not load this product")
+            : tr("Product not found")}
         </p>
-        <Link
-          to="/marketplace/"
-          className="mt-3 inline-flex items-center gap-2 text-sm text-brand-purple"
-        >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
-          Marketplace
-        </Link>
+        <div className="mt-3 flex items-center justify-center gap-4">
+          {loadFailed && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => load()}
+              className="text-xs font-semibold"
+            >
+              {tr("Try again")}
+            </Button>
+          )}
+          <Link
+            to="/marketplace/"
+            className="inline-flex items-center gap-2 text-sm text-brand-purple"
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
+            Marketplace
+          </Link>
+        </div>
       </div>
     );
   }
@@ -399,6 +450,14 @@ export default function ProductDetail() {
               </div>
             )}
 
+            {product.quantity <= 0 && (
+              <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                {tr(
+                  "This seller has nothing left in stock. You can still ask when it is back.",
+                )}
+              </p>
+            )}
+
             {/* Actions */}
             <div className="mt-5 flex flex-col gap-2 sm:flex-row">
               <Button
@@ -407,7 +466,9 @@ export default function ProductDetail() {
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 <MessageCircle aria-hidden="true" className="h-4 w-4" />
-                {tr("Contact Seller")}
+                {product.quantity <= 0
+                  ? tr("Ask about restock")
+                  : tr("Contact Seller")}
               </Button>
               <Button
                 variant="ghost"
@@ -458,6 +519,14 @@ export default function ProductDetail() {
                     className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                 </div>
+                {inquiryError && (
+                  <p
+                    role="alert"
+                    className="rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+                  >
+                    {inquiryError}
+                  </p>
+                )}
                 <Button
                   variant="default"
                   onClick={handleInquiry}

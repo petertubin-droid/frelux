@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { buildIlikeOrFilter } from "@/lib/search-term";
 import { assertNotPaused } from "@/lib/trust-safety/trust-safety-client";
 import type {
   DbMarketplaceListing,
@@ -44,11 +45,17 @@ export async function fetchListings(params: {
     query = query.eq("location_city", params.location_city);
   if (params.category_id) query = query.eq("category_id", params.category_id);
   if (params.featured_only) query = query.eq("is_featured", true);
-  if (params.search) {
-    query = query.or(
-      `title.ilike.%${params.search}%,description.ilike.%${params.search}%`,
-    );
-  }
+  // `.or()` takes a filter expression, so the term is sanitised before it is
+  // composed; a raw comma or bracket in a search box would become query syntax.
+  const listingFilter = buildIlikeOrFilter(
+    ["title", "description"],
+    params.search ?? "",
+  );
+  if (listingFilter) query = query.or(listingFilter);
+
+  // Stable paging: listings tied on featured/created order need a tie-breaker or
+  // a row can repeat on page 2 while another never appears.
+  query = query.order("id", { ascending: true });
 
   const limit = params.limit ?? 12;
   const offset = params.offset ?? 0;
