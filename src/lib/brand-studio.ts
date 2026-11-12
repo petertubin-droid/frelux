@@ -7,6 +7,7 @@
 // =========================================================
 
 import { invalidateCache } from "@/lib/data-cache";
+import { r2PublicUrl, uploadStoredFile } from "@/lib/storage/files";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
@@ -758,14 +759,17 @@ export async function uploadBrandLogo(
   const ext = contentType === "image/jpeg" ? "jpg" : "png";
   const path = `${userId}/logo_${Date.now()}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("brand-assets")
-    .upload(path, file, { contentType });
+  const stored = await uploadStoredFile({
+    bucket: "brand-assets",
+    file,
+    path,
+    contentType,
+    filename: `logo.${ext}`,
+  });
+  if (stored.error) return { url: null, error: stored.error };
 
-  if (uploadError) {
-    return { url: null, error: uploadError.message };
-  }
-
-  const { data } = supabase.storage.from("brand-assets").getPublicUrl(path);
-  return { url: data.publicUrl, error: null };
+  return {
+    url: stored.publicUrl ?? r2PublicUrl("brand-assets", stored.path),
+    error: null,
+  };
 }

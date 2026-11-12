@@ -42,6 +42,9 @@ function makeBucket() {
         httpMetadata: { contentType: found.contentType },
       };
     },
+    delete: async (key: string) => {
+      objects.delete(key);
+    },
     put: async (
       key: string,
       value: ReadableStream,
@@ -198,6 +201,39 @@ describe("file worker", () => {
       env,
     );
     expect(theirs.status).toBe(404);
+  });
+
+  it("deletes the caller's own file and refuses anyone else's", async () => {
+    const env = makeEnv();
+    const created = (await (
+      await upload(
+        env,
+        "bucket=marketplace&filename=quote.pdf",
+        token("user-1"),
+        "pdf",
+        "application/pdf",
+      )
+    ).json()) as { key: string };
+
+    const stranger = await worker.fetch(
+      new Request(url(`/files/marketplace/${created.key}`), {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token("user-2")}` },
+      }),
+      env,
+    );
+    expect(stranger.status).toBe(404);
+    expect(env.BUCKET_MARKETPLACE?.objects.has(created.key)).toBe(true);
+
+    const owner = await worker.fetch(
+      new Request(url(`/files/marketplace/${created.key}`), {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token("user-1")}` },
+      }),
+      env,
+    );
+    expect(owner.status).toBe(204);
+    expect(env.BUCKET_MARKETPLACE?.objects.has(created.key)).toBe(false);
   });
 
   it("serves public buckets and keeps private ones closed", async () => {

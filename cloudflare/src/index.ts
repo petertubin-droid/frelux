@@ -27,6 +27,7 @@ interface R2ObjectLike {
 
 interface R2BucketLike {
   get(key: string): Promise<R2ObjectLike | null>;
+  delete(key: string): Promise<void>;
   put(
     key: string,
     value: ReadableStream | ArrayBuffer | Uint8Array,
@@ -392,6 +393,26 @@ export default {
           ...cors,
         },
       });
+    }
+
+    if (url.pathname.startsWith("/files/") && request.method === "DELETE") {
+      const user = await requireUser(request, env, url);
+      if (user instanceof Response)
+        return json(await user.json(), user.status, cors);
+
+      const [, , bucketName, ...rest] = url.pathname.split("/");
+      if (!isBucket(bucketName)) return json({ error: "Not found" }, 404, cors);
+      const policy = BUCKETS[bucketName];
+      const key = decodeURIComponent(rest.join("/"));
+      if (!policy.public && !key.startsWith(`${user.sub}/`)) {
+        return json({ error: "Not found" }, 404, cors);
+      }
+      const store = bindingFor(env, policy);
+      if (!store)
+        return json({ error: `Binding missing for ${bucketName}` }, 500, cors);
+
+      await store.delete(key);
+      return new Response(null, { status: 204, headers: cors });
     }
 
     if (url.pathname.startsWith("/public/") && request.method === "GET") {

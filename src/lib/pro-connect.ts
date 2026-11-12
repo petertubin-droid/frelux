@@ -1,4 +1,9 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  removeStoredFile,
+  signedUrlFor,
+  uploadStoredFile,
+} from "@/lib/storage/files";
 import type {
   DbProProfile,
   DbProCategory,
@@ -1850,24 +1855,26 @@ export async function uploadVerificationDocument(
   const ext = file.name.split(".").pop() || "jpg";
   const path = `${user.id}/${profileId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("pro-verification")
-    .upload(path, file);
+  const stored = await uploadStoredFile({
+    bucket: "pro-verification",
+    file,
+    path,
+    contentType: file.type,
+    filename: file.name,
+  });
 
-  if (uploadError) {
+  if (stored.error) {
     if (import.meta.env.DEV)
-      console.error(
-        "[pro-connect] uploadVerificationDocument:",
-        uploadError.message,
-      );
+      console.error("[pro-connect] uploadVerificationDocument:", stored.error);
     return null;
   }
+  const storagePath = stored.path;
 
   const { error } = await supabase.from("pro_verification_documents").insert({
     profile_id: profileId,
     request_id: requestId,
     document_type: documentType,
-    storage_path: path,
+    storage_path: storagePath,
     file_name: file.name,
     file_size: file.size,
     mime_type: file.type,
@@ -1881,7 +1888,7 @@ export async function uploadVerificationDocument(
       );
   }
 
-  return path;
+  return storagePath;
 }
 
 export async function getVerificationDocuments(
@@ -1904,16 +1911,17 @@ export async function getVerificationDocuments(
 export async function createSignedUrlForDocument(
   storagePath: string,
 ): Promise<string | null> {
-  if (!isSupabaseConfigured) return null;
-  const { data, error } = await supabase.storage
-    .from("pro-verification")
-    .createSignedUrl(storagePath, 300); // 5-minute expiry
+  const { url, error } = await signedUrlFor(
+    "pro-verification",
+    storagePath,
+    300,
+  );
   if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] createSignedUrlForDocument:", error.message);
+      console.error("[pro-connect] createSignedUrlForDocument:", error);
     return null;
   }
-  return data?.signedUrl || null;
+  return url;
 }
 
 export async function deleteVerificationDocument(
@@ -1921,7 +1929,7 @@ export async function deleteVerificationDocument(
   storagePath: string,
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  await supabase.storage.from("pro-verification").remove([storagePath]);
+  await removeStoredFile("pro-verification", storagePath);
   const { error } = await supabase
     .from("pro_verification_documents")
     .delete()

@@ -10,6 +10,11 @@
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
+import {
+  removeStoredFile,
+  signedUrlFor,
+  uploadStoredFile,
+} from "@/lib/storage/files";
 import type { PlanDocument, PlanExtraction } from "./types";
 
 // =========================================================
@@ -117,18 +122,20 @@ export async function uploadPlanDocument(
     return { document: null as never, error: "Sign in to upload documents." };
   }
 
-  const storagePath = `${userId}/${Date.now()}_${file.name.replace(/[^\w.-]/g, "_")}`;
+  let storagePath = `${userId}/${Date.now()}_${file.name.replace(/[^\w.-]/g, "_")}`;
 
   // 1. Original file → private bucket (never modified afterwards).
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(storagePath, file, {
-      contentType: file.type,
-      upsert: false,
-    });
-  if (uploadError) {
-    return { document: null as never, error: uploadError.message };
+  const stored = await uploadStoredFile({
+    bucket: BUCKET,
+    file,
+    path: storagePath,
+    contentType: file.type,
+    filename: file.name,
+  });
+  if (stored.error) {
+    return { document: null as never, error: stored.error };
   }
+  storagePath = stored.path;
 
   // 2. Record with ownership (RLS enforces user_id = auth.uid()).
   const { data, error } = await supabase
@@ -147,7 +154,7 @@ export async function uploadPlanDocument(
 
   if (error) {
     // Best-effort cleanup of the orphaned upload.
-    await supabase.storage.from(BUCKET).remove([storagePath]);
+    await removeStoredFile(BUCKET, storagePath);
     return { document: null as never, error: error.message };
   }
 
@@ -203,12 +210,7 @@ export async function createDocumentSignedUrl(
   storagePath: string,
   expiresIn = 300,
 ): Promise<{ url: string | null; error: string | null }> {
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(storagePath, expiresIn);
-  if (error || !data)
-    return { url: null, error: error?.message ?? "Signed URL failed." };
-  return { url: data.signedUrl, error: null };
+  return signedUrlFor(BUCKET, storagePath, expiresIn);
 }
 
 /** Delete a document (and cascade its extractions via FK). */

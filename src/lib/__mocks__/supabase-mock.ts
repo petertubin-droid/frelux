@@ -43,11 +43,14 @@ export function createSupabaseMock() {
     storage: {
       from: vi.fn().mockReturnValue({
         upload: vi.fn().mockResolvedValue({ data: null, error: null }),
-        getPublicUrl: vi
-          .fn()
-          .mockReturnValue({
-            data: { publicUrl: "https://example.com/file.png" },
-          }),
+        remove: vi.fn().mockResolvedValue({ data: null, error: null }),
+        createSignedUrl: vi.fn().mockResolvedValue({
+          data: { signedUrl: "https://example.com/signed" },
+          error: null,
+        }),
+        getPublicUrl: vi.fn().mockReturnValue({
+          data: { publicUrl: "https://example.com/file.png" },
+        }),
       }),
     },
     rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
