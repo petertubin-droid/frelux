@@ -29,3 +29,10 @@ Expected baseline: no off-screen bleed, no clipped text, no tap target under
 24px except inline links inside a sentence, no type under 11px, one `h1` per
 page. Requests to Supabase resolve to `ERR_NAME_NOT_RESOLVED` when the sandbox
 has no network access; that noise is environmental, not a page fault.
+
+## Perf probe
+
+`node scripts/ui-audit/perf-probe.mjs` (preview running on :4173) reports LCP, CLS,
+TBT and request counts per route on a throttled mid-range phone: 4x CPU, 1.6 Mbps
+down, 150 ms latency. Set `ROUTES="/,/products/"` to pick routes; default is the
+homepage, marketplace, directory, paint calculator and learn index.

@@ -59,13 +59,14 @@ export default function PageHeader({
           the transition below the header is invisible. */}
       {resolvedImage && (
         <>
-          <img
-            src={resolvedImage}
-            alt=""
+          {/* Decorative band only: kept as a CSS background so it never wins
+              the largest-contentful-paint slot from the page heading, and so
+              it loads at background priority instead of competing with the
+              fonts and scripts the first paint depends on. */}
+          <div
             aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-            className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${isTool ? "opacity-15 dark:opacity-10" : "opacity-25 dark:opacity-20"}`}
+            className={`pointer-events-none absolute inset-0 h-full w-full bg-cover bg-center ${isTool ? "opacity-15 dark:opacity-10" : "opacity-25 dark:opacity-20"}`}
+            style={{ backgroundImage: `url("${resolvedImage}")` }}
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background"

@@ -605,7 +605,7 @@ export default function Layout() {
       <main
         id="main-content"
         data-calculator-page={String(isCalculatorPath(location.pathname))}
-        className="w-full flex-1 pt-16 pb-36 md:pb-0"
+        className="w-full flex-1 min-h-[calc(100svh-4rem)] pt-16 pb-36 md:pb-0"
         role="main"
       >
         {/* The market caveat qualifies a calculation result, so it is scoped

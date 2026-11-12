@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeftRight, CloudSun, Globe2 } from "lucide-react";
 import { classNames } from "@/lib/utils";
@@ -59,6 +59,31 @@ const LABEL =
  */
 export default function MapWeatherBand() {
   const { t } = useLanguage();
+  // maplibre is 770 KB and keeps a render loop alive, so the globe waits until
+  // the band is actually approaching the viewport. Everything above it stays
+  // smooth on a mid-range phone, and the map is ready by the time it is seen.
+  const [mapReady, setMapReady] = useState(false);
+  const mapHostRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const host = mapHostRef.current;
+    if (!host || typeof IntersectionObserver === "undefined") {
+      setMapReady(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setMapReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
+
   const [layer, setLayer] = useState<MapLayer>("pros");
   const { location: viewer } = useLocation();
 
@@ -182,7 +207,7 @@ export default function MapWeatherBand() {
             </Link>
           </div>
 
-          <div className="pt-3">
+          <div className="pt-3" ref={mapHostRef}>
             <Suspense
               fallback={
                 <div
@@ -192,18 +217,26 @@ export default function MapWeatherBand() {
                 />
               }
             >
-              <GlobeMap
-                bleed
-                className="frelux-map-surface"
-                points={points}
-                center={viewerPoint}
-                height="clamp(260px, 40vw, 420px)"
-                label={t("Live construction map")}
-                emptyTitle={t(
-                  error ? "Map data unavailable" : "No pins here yet",
-                )}
-                emptyHint={error ?? t(meta.empty)}
-              />
+              {mapReady ? (
+                <GlobeMap
+                  bleed
+                  className="frelux-map-surface"
+                  points={points}
+                  center={viewerPoint}
+                  height="clamp(260px, 40vw, 420px)"
+                  label={t("Live construction map")}
+                  emptyTitle={t(
+                    error ? "Map data unavailable" : "No pins here yet",
+                  )}
+                  emptyHint={error ?? t(meta.empty)}
+                />
+              ) : (
+                <div
+                  className="w-full animate-pulse bg-muted/50 dark:bg-white/5"
+                  style={{ height: "clamp(260px, 40vw, 420px)" }}
+                  aria-hidden="true"
+                />
+              )}
             </Suspense>
             <p className="mt-2 text-[11px] text-muted-foreground">
               {loading
