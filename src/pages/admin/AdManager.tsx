@@ -44,6 +44,7 @@ import {
 } from "@/lib/ads/campaigns";
 import { SponsoredBanner } from "@/components/ads/CampaignSlot";
 import { AdminHeader } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 const EMPTY_DRAFT: CampaignDraft = {
   name: "",
@@ -143,6 +144,9 @@ export default function AdManager() {
   const { user, loading: authLoading } = useAuth();
   const market = useMarket();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  // Campaigns accumulate for the life of the account, so the table pages.
+  const [campaignPage, setCampaignPage] = useState(0);
+  const [campaignPageSize, setCampaignPageSize] = useState(25);
   const [events, setEvents] = useState<CampaignEventRow[]>([]);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -753,86 +757,91 @@ export default function AdManager() {
               </tr>
             </thead>
             <tbody>
-              {campaigns.map((campaign) => {
-                const stats = summariseEvents(
-                  campaign.id ? (perCampaign.get(campaign.id) ?? []) : [],
-                );
-                return (
-                  <tr key={campaign.id ?? campaign.slug} className="border-t">
-                    <td className="px-3 py-2">
-                      <span className="font-medium">{campaign.name}</span>
-                      {campaign.is_sponsored ? (
-                        <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
-                          sponsored
+              {campaigns
+                .slice(
+                  campaignPage * campaignPageSize,
+                  campaignPage * campaignPageSize + campaignPageSize,
+                )
+                .map((campaign) => {
+                  const stats = summariseEvents(
+                    campaign.id ? (perCampaign.get(campaign.id) ?? []) : [],
+                  );
+                  return (
+                    <tr key={campaign.id ?? campaign.slug} className="border-t">
+                      <td className="px-3 py-2">
+                        <span className="font-medium">{campaign.name}</span>
+                        {campaign.is_sponsored ? (
+                          <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                            sponsored
+                          </span>
+                        ) : null}
+                        <span className="block text-xs text-muted-foreground">
+                          {campaign.headline}
                         </span>
-                      ) : null}
-                      <span className="block text-xs text-muted-foreground">
-                        {campaign.headline}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
-                      {campaign.status}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">
-                      {campaign.placements.length} ·{" "}
-                      {campaign.target_tools.length
-                        ? campaign.target_tools.join(", ")
-                        : "all calculators"}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {stats.impressions}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {stats.clicks}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {stats.ctr}%
-                    </td>
-                    <td className="px-3 py-2">
-                      <div className="flex flex-wrap justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setDraft(toDraft(campaign));
-                            setEditingId(campaign.id);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        {campaign.status === "active" ? (
+                      </td>
+                      <td className="px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
+                        {campaign.status}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-muted-foreground">
+                        {campaign.placements.length} ·{" "}
+                        {campaign.target_tools.length
+                          ? campaign.target_tools.join(", ")
+                          : "all calculators"}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {stats.impressions}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {stats.clicks}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {stats.ctr}%
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-wrap justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => void setStatus(campaign, "paused")}
-                            disabled={busy}
+                            onClick={() => {
+                              setDraft(toDraft(campaign));
+                              setEditingId(campaign.id);
+                            }}
                           >
-                            <Pause className="mr-1 h-3 w-3" /> Pause
+                            Edit
                           </Button>
-                        ) : (
+                          {campaign.status === "active" ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => void setStatus(campaign, "paused")}
+                              disabled={busy}
+                            >
+                              <Pause className="mr-1 h-3 w-3" /> Pause
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => void setStatus(campaign, "active")}
+                              disabled={busy}
+                            >
+                              <Play className="mr-1 h-3 w-3" /> Activate
+                            </Button>
+                          )}
                           <Button
+                            aria-label="Delete campaign"
                             variant="ghost"
                             size="sm"
-                            onClick={() => void setStatus(campaign, "active")}
+                            onClick={() => void remove(campaign)}
                             disabled={busy}
                           >
-                            <Play className="mr-1 h-3 w-3" /> Activate
+                            <Trash2 className="h-3 w-3" />
                           </Button>
-                        )}
-                        <Button
-                          aria-label="Delete campaign"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => void remove(campaign)}
-                          disabled={busy}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               {!campaigns.length ? (
                 <tr>
                   <td
@@ -846,6 +855,18 @@ export default function AdManager() {
               ) : null}
             </tbody>
           </table>
+          {campaigns.length > campaignPageSize && (
+            <AdminPagination
+              page={campaignPage}
+              pageSize={campaignPageSize}
+              total={campaigns.length}
+              onPageChange={setCampaignPage}
+              onPageSizeChange={(size) => {
+                setCampaignPageSize(size);
+                setCampaignPage(0);
+              }}
+            />
+          )}{" "}
         </div>
       </section>
 
