@@ -287,6 +287,12 @@ export async function getProReviews(
 export interface DirectorySearchParams {
   country?: string;
   categoryId?: string;
+  /**
+   * Several category rows that mean the same trade, or the trades a search term
+   * named. Rows are folded together rather than replaced, because duplicate
+   * category rows each hold their own professionals.
+   */
+  categoryIds?: string[];
   serviceId?: string;
   state?: string;
   city?: string;
@@ -421,6 +427,9 @@ export async function searchProfessionals(
   if (params.categoryId) {
     query = query.eq("category_id", params.categoryId);
   }
+  if (params.categoryIds?.length) {
+    query = query.in("category_id", params.categoryIds);
+  }
   if (params.availability) {
     query = query.eq("availability", params.availability);
   }
@@ -432,8 +441,21 @@ export async function searchProfessionals(
   }
   const searchTerm = normalizeProConnectSearchQuery(params.searchQuery ?? "");
   if (searchTerm) {
+    // "painters" is a trade, not text in anyone's bio. Restricting the OR to the
+    // text columns meant a search for a trade found nothing even when that trade
+    // was listed, so the trade's category rows join the same OR: a profile
+    // matches if it is in the trade or if the words appear in its listing.
+    const textClauses = [
+      `display_name.ilike.%${searchTerm}%`,
+      `business_name.ilike.%${searchTerm}%`,
+      `bio.ilike.%${searchTerm}%`,
+      `service_area_text.ilike.%${searchTerm}%`,
+    ];
+    const tradeClause = params.categoryIds?.length
+      ? `category_id.in.(${params.categoryIds.join(",")})`
+      : null;
     query = query.or(
-      `display_name.ilike.%${searchTerm}%,business_name.ilike.%${searchTerm}%,bio.ilike.%${searchTerm}%,service_area_text.ilike.%${searchTerm}%`,
+      tradeClause ? [tradeClause, ...textClauses].join(",") : textClauses.join(","),
     );
   }
 

@@ -18,6 +18,7 @@ import {
   upgradeToProWorker,
   getAccountType,
 } from "@/lib/pro-connect";
+import { buildTradeOptions } from "@/lib/pro-connect-trades";
 import { submitIdentityDocument } from "@/lib/worker-channels";
 import {
   resendSignupConfirmation,
@@ -536,9 +537,9 @@ export default function ProConnectRegister() {
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             >
               <option value="">{t("Select your category")}</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+              {buildTradeOptions(categories).map((trade) => (
+                <option key={trade.key} value={trade.ids[0]}>
+                  {trade.name}
                 </option>
               ))}
             </select>

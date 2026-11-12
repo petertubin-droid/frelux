@@ -1,7 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from "react";
-const CommercialReadiness = lazy(
-  () => import("@/components/home/CommercialReadiness"),
-);
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
   Search,
@@ -42,6 +39,12 @@ import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
 import { normalizeProConnectSearchQuery } from "@/lib/pro-connect-search";
 import {
+  buildTradeOptions,
+  matchTrades,
+  tradeIdsFor,
+  VISIBLE_TRADE_COUNT,
+} from "@/lib/pro-connect-trades";
+import {
   proConnectCities,
   proConnectLocationsForCountry,
   proConnectStates,
@@ -81,6 +84,7 @@ export default function ProConnectDirectory() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllTrades, setShowAllTrades] = useState(false);
   const [userLocation, _setUserLocation] =
     useState<ReturnType<typeof useLocation>["location"]>(null);
   const [radius, _setRadius] = useState(25);
@@ -130,6 +134,22 @@ export default function ProConnectDirectory() {
     })();
   }, []);
 
+  // One chip per trade, not one per category row: the category table holds rows
+  // whose names mean the same trade, and rendering them all produced a wall of
+  // near-duplicates.
+  const trades = useMemo(() => buildTradeOptions(categories), [categories]);
+
+  // A search term that names a trade becomes a trade filter as well as text, so
+  // "painters" returns painters rather than only people who typed that word.
+  const matchedTrades = useMemo(
+    () => matchTrades(trades, searchQuery),
+    [trades, searchQuery],
+  );
+  const matchedTradeIds = useMemo(
+    () => tradeIdsFor(matchedTrades),
+    [matchedTrades],
+  );
+
   // Search
   useEffect(() => {
     let cancelled = false;
@@ -138,6 +158,7 @@ export default function ProConnectDirectory() {
       const result = await searchProfessionals({
         country: selectedCountry || undefined,
         categoryId: selectedCategory || undefined,
+        categoryIds: matchedTradeIds.length > 0 ? matchedTradeIds : undefined,
         serviceId: selectedService || undefined,
         state: selectedState || undefined,
         city: selectedCity || undefined,
@@ -191,6 +212,7 @@ export default function ProConnectDirectory() {
     minRating,
     availabilityFilter,
     searchQuery,
+    matchedTradeIds,
     categories,
     page,
   ]);
@@ -239,6 +261,7 @@ export default function ProConnectDirectory() {
     ? services.filter((s) => s.category_id === selectedCategory)
     : services;
 
+
   function clearFilters() {
     setPage(1);
     setSelectedCategory(null);
@@ -280,12 +303,6 @@ export default function ProConnectDirectory() {
       />
 
       <Container className="max-w-7xl pb-12 pt-6">
-        {/* Commercial readiness (moved from homepage; the pro
-          positioning pitch belongs on the pro directory) */}
-        <Suspense fallback={null}>
-          <CommercialReadiness />
-        </Suspense>
-
         {/* Search bar */}
         <div className="mb-6 flex gap-3">
           <div className="relative flex-1">
@@ -532,42 +549,98 @@ export default function ProConnectDirectory() {
           </div>
         )}
 
-        {/* Category quick filters */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              to={`/pro-connect/?category=${cat.slug}`}
-              onClick={() => {
-                setSelectedCategory(
-                  selectedCategory === cat.id ? null : cat.id,
-                );
-                setPage(1);
-              }}
-              className={classNames(
-                "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                selectedCategory === cat.id
-                  ? "border-brand-purple bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground/80",
+        {/* Trade chips: search-aware, and never the full wall at once.
+            With a search term, only the trades that term names are offered, so
+            typing "painters" leaves one chip and the results, not thirty. With
+            no term, a short default list is shown and the rest sit behind a
+            disclosure. */}
+        {matchedTrades.length > 0 ? (
+          <div className="mb-6">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("Trades matching")} “{searchQuery.trim()}”
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {matchedTrades.map((trade) => (
+                <Link
+                  key={trade.key}
+                  to={`/pro-connect/?category=${trade.slugs[0] ?? ""}`}
+                  onClick={() => {
+                    setSelectedCategory(trade.ids[0]);
+                    setPage(1);
+                  }}
+                  aria-current={
+                    trade.ids.includes(selectedCategory ?? "")
+                      ? "page"
+                      : undefined
+                  }
+                  className={classNames(
+                    "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                    trade.ids.includes(selectedCategory ?? "")
+                      ? "border-brand-purple bg-primary text-primary-foreground"
+                      : "border-brand-purple/40 bg-card text-foreground hover:border-brand-purple dark:border-brand-purple/40 dark:bg-card",
+                  )}
+                >
+                  {trade.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : searchQuery.trim() ? (
+          <p className="mb-6 text-xs text-muted-foreground">
+            {t(
+              "No trade matches that search, so the results below are listings that mention it.",
+            )}
+          </p>
+        ) : (
+          <div className="mb-6">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("Browse by trade")}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(showAllTrades
+                ? trades
+                : trades.slice(0, VISIBLE_TRADE_COUNT)
+              ).map((trade) => (
+                <Link
+                  key={trade.key}
+                  to={`/pro-connect/?category=${trade.slugs[0] ?? ""}`}
+                  onClick={() => {
+                    setSelectedCategory(
+                      trade.ids.includes(selectedCategory ?? "")
+                        ? null
+                        : trade.ids[0],
+                    );
+                    setPage(1);
+                  }}
+                  aria-current={
+                    trade.ids.includes(selectedCategory ?? "")
+                      ? "page"
+                      : undefined
+                  }
+                  className={classNames(
+                    "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                    trade.ids.includes(selectedCategory ?? "")
+                      ? "border-brand-purple bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground/80",
+                  )}
+                >
+                  {trade.name}
+                </Link>
+              ))}
+              {trades.length > VISIBLE_TRADE_COUNT && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllTrades((v) => !v)}
+                  className="rounded-full border border-dashed border-border px-3 py-1.5 text-sm font-medium text-brand-purple hover:border-brand-purple dark:border-white/20 dark:text-brand-purple-lighter"
+                >
+                  {showAllTrades
+                    ? t("Show fewer trades")
+                    : `${t("All")} ${trades.length} ${t("trades")}`}
+                </button>
               )}
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Where the professionals actually are */}
-        <MapPanel
-          layers={["pros"]}
-          className="mb-6"
-          height={340}
-          title={t("Professionals on the map")}
-          subtitle={t(
-            "Every pin is a professional's own listed base, anywhere in the world. Select one to see who they are.",
-          )}
-          nearestCount={4}
-          exploreHref="/map"
-        />
+            </div>
+          </div>
+        )}
 
         {/* Results count */}
         <div className="mb-4 flex items-center justify-between">
@@ -598,50 +671,50 @@ export default function ProConnectDirectory() {
             ))}
           </div>
         ) : profiles.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center dark:border-white/5 space-y-5">
-            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="rounded-2xl border border-border bg-card p-8 text-center dark:border-white/5 sm:p-12">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-brand-purple">
+              <ShieldCheck className="h-6 w-6" />
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">
-                {t("No Direct Profiles in This Territory Filter")}
-              </h3>
-              <p className="mt-1.5 text-sm text-muted-foreground max-w-lg mx-auto">
-                {t("Under our")}{" "}
-                <strong>{t("Marketplace Liquidity & Seeding Protocol")}</strong>
-                , we don't leave you stranded in emerging territories. Under our
-                strategic seeding protocol, you can request assisted artisan
-                matching via accredited regional trade associations or nominate
-                and onboard your trusted local contractor for verified escrow
-                milestones.
-              </p>
-            </div>
+            <h3 className="mt-4 text-lg font-bold text-foreground">
+              {hasActiveFilters
+                ? t("No professionals match these filters")
+                : t("No professionals listed here yet")}
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              {hasActiveFilters
+                ? t(
+                    "Nothing matches the trade, place and rating you selected. Widen the area or clear a filter to see more.",
+                  )
+                : t(
+                    "Pro Connect is still filling up in this market. Professionals appear here as soon as they publish a profile, and you can bring your own contractor in the meantime.",
+                  )}
+            </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              <Link to="/pro-connect/liquidity">
-                <Button size="sm" className="gap-2 text-xs font-semibold">
-                  <Compass className="w-4 h-4" /> {t("View Seeding Options")}
-                </Button>
-              </Link>
-              <Link to="/pro-connect/liquidity">
+            <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+              {hasActiveFilters && (
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={clearFilters}
                   className="gap-2 text-xs font-semibold"
                 >
-                  {t("Nominate Contractor")}
+                  <X className="h-4 w-4" /> {t("Clear filters")}
+                </Button>
+              )}
+              <Link to="/pro-connect/register">
+                <Button size="sm" className="w-full gap-2 text-xs font-semibold sm:w-auto">
+                  {t("Are you a professional? List your business")}
                 </Button>
               </Link>
-              {hasActiveFilters && (
+              <Link to="/pro-connect/liquidity">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearFilters}
-                  className="text-xs text-muted-foreground hover:text-foreground"
+                  className="w-full gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground sm:w-auto"
                 >
-                  {t("Clear all filters")}
+                  <Compass className="h-4 w-4" /> {t("Request a match")}
                 </Button>
-              )}
+              </Link>
             </div>
           </div>
         ) : (
@@ -673,6 +746,25 @@ export default function ProConnectDirectory() {
             )}
           </>
         )}
+        {/* Where the professionals actually are. Below the results on purpose:
+            a 340 px map of an empty market used to sit above a zero-result list
+            and take the whole first screen. It is also withheld entirely when
+            nobody is listed, because there is no pin to show and the empty state
+            below says what has to happen. */}
+        {total > 0 && (
+          <MapPanel
+            layers={["pros"]}
+            className="mt-10"
+            height={300}
+            title={t("Professionals on the map")}
+            subtitle={t(
+              "Every pin is a professional's own listed base. Select one to see who they are.",
+            )}
+            nearestCount={4}
+            exploreHref="/map"
+          />
+        )}
+
         <AdSlot slotKey="market_mid" className="mt-8" />
       </Container>
     </>
