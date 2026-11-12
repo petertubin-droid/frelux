@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BadgeCheck, Loader2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import {
   fetchIdentityStatus,
   identityOutcomeMessage,
@@ -23,6 +24,7 @@ export default function ClientIdentityCard({ className }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [docFile, setDocFile] = useState<File | null>(null);
   const [form, setForm] = useState<IdentitySubmission>({
     legal_name: "",
     id_type: "nin",
@@ -54,7 +56,20 @@ export default function ClientIdentityCard({ className }: Props) {
     setSaving(true);
     setError(null);
     try {
-      setRecord(await submitIdentity(form));
+      let documentPath: string | undefined;
+      if (docFile) {
+        const { data: auth } = await supabase.auth.getUser();
+        const userId = auth.user?.id;
+        if (!userId) throw new Error("Sign in again to upload your document");
+        const extension = docFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${userId}/${Date.now()}-id.${extension}`;
+        const { error: uploadError } = await supabase.storage
+          .from("client-ids")
+          .upload(path, docFile, { upsert: false, contentType: docFile.type });
+        if (uploadError) throw uploadError;
+        documentPath = path;
+      }
+      setRecord(await submitIdentity({ ...form, document_path: documentPath }));
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -224,6 +239,16 @@ export default function ClientIdentityCard({ className }: Props) {
               />
             </label>
           </div>
+
+          <label className="block text-[11px] font-medium text-muted-foreground">
+            Photo of the document (private, only you and an admin can open it)
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              onChange={(event) => setDocFile(event.target.files?.[0] ?? null)}
+              className="mt-1 block w-full text-[11px] text-muted-foreground"
+            />
+          </label>
 
           <p className="text-[11px] text-muted-foreground">
             We ask your bank for the name on that account and compare it to your

@@ -22,6 +22,7 @@ import {
 } from "@/lib/marketplace";
 import WorkerSafetyNotice from "@/components/pro-connect/WorkerSafetyNotice";
 import ClientIdentityCard from "@/components/escrow/ClientIdentityCard";
+import MilestoneSafetyActions from "@/components/escrow/MilestoneSafetyActions";
 import {
   approveAndReleaseMilestone,
   fetchOrderPayments,
@@ -571,6 +572,18 @@ export default function OrderDetail() {
                           </Button>
                         )}
                       </div>
+                    )}
+                    {m.status !== "approved" && m.status !== "rejected" && (
+                      <MilestoneSafetyActions
+                        orderId={order.id}
+                        milestoneId={m.id}
+                        role={isClient ? "client" : "pro"}
+                        jobState={
+                          (order as unknown as { job_state?: string | null })
+                            .job_state ?? null
+                        }
+                        onDone={load}
+                      />
                     )}
                     {m.status === "approved" && (
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
