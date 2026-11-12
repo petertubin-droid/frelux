@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
   Search,
@@ -49,6 +49,8 @@ import {
   proConnectLocationsForCountry,
   proConnectStates,
 } from "@/pages/pro-connect/coverage";
+
+const EMPTY_TRADE_IDS: string[] = [];
 
 export default function ProConnectDirectory() {
   const { t } = useLanguage();
@@ -141,14 +143,18 @@ export default function ProConnectDirectory() {
 
   // A search term that names a trade becomes a trade filter as well as text, so
   // "painters" returns painters rather than only people who typed that word.
+  const categoriesRef = useRef<DbProCategory[]>(categories);
+  categoriesRef.current = categories;
+
   const matchedTrades = useMemo(
     () => matchTrades(trades, searchQuery),
     [trades, searchQuery],
   );
   const matchedTradeIds = useMemo(
-    () => tradeIdsFor(matchedTrades),
+    () => (matchedTrades.length > 0 ? tradeIdsFor(matchedTrades) : EMPTY_TRADE_IDS),
     [matchedTrades],
   );
+  const matchedTradeIdsKey = matchedTradeIds.join(",");
 
   // Search
   useEffect(() => {
@@ -188,7 +194,7 @@ export default function ProConnectDirectory() {
           .map((s) => s.service)
           .filter(Boolean) as DbProService[];
         if (p.category_id) {
-          const cat = categories.find((c) => c.id === p.category_id);
+          const cat = categoriesRef.current.find((c) => c.id === p.category_id);
           if (cat) catMap[p.id] = cat;
         }
       }
@@ -212,8 +218,7 @@ export default function ProConnectDirectory() {
     minRating,
     availabilityFilter,
     searchQuery,
-    matchedTradeIds,
-    categories,
+    matchedTradeIdsKey,
     page,
   ]);
 

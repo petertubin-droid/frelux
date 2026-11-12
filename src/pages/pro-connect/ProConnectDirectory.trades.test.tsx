@@ -150,9 +150,11 @@ describe("ProConnectDirectory empty state", () => {
       expect(screen.getByText(/no professionals listed here yet/i)).toBeTruthy(),
     );
     expect(screen.queryByTestId("map-panel")).toBeNull();
-    expect(
-      screen.getByRole("link", { name: /list your business/i }),
-    ).toBeTruthy();
+    await waitFor(() =>
+      expect(
+        screen.getByRole("link", { name: /list your business/i }),
+      ).toBeTruthy(),
+    );
     // The old copy was internal protocol jargon, not something a visitor reads.
     expect(screen.queryByText(/liquidity & seeding protocol/i)).toBeNull();
   });
