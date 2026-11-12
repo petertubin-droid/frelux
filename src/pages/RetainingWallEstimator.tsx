@@ -34,17 +34,8 @@ import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
-
-/** How many metres one of each supported unit is. */
-const M_PER_UNIT: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
-};
 
 export default function RetainingWallEstimator() {
   const { priceMap, ruleRows, bookSummary } =
@@ -52,11 +43,10 @@ export default function RetainingWallEstimator() {
   // Lengths are typed in the visitor's unit and normalised to metres for the
   // engine. Feet is the default: a wall is measured on site in feet.
   const [unit, setUnit] = useState<Unit>("feet");
-  const conv = M_PER_UNIT[unit];
   const [length, setLength] = useState("");
   const [height, setHeight] = useState("");
-  const lengthM = Number(length) * conv;
-  const heightM = Number(height) * conv;
+  const lengthM = unitToMeters(Number(length), unit);
+  const heightM = unitToMeters(Number(height), unit);
   const [soil, setSoil] = useState<SoilType>("stable");
   const [stem, setStem] = useState<StemType>("block");
   const [widthOverride, setWidthOverride] = useState("");
@@ -82,7 +72,9 @@ export default function RetainingWallEstimator() {
     soil_type: soil,
     stem_type: stem,
     footing_width_override_m:
-      widthOverride.trim() === "" ? null : Number(widthOverride) * conv,
+      widthOverride.trim() === ""
+        ? null
+        : unitToMeters(Number(widthOverride), unit),
   };
 
   const preview = useMemo(() => {
@@ -97,11 +89,13 @@ export default function RetainingWallEstimator() {
         soil_type: soil,
         stem_type: stem,
         footing_width_override_m:
-          widthOverride.trim() === "" ? null : Number(widthOverride) * conv,
+          widthOverride.trim() === ""
+            ? null
+            : unitToMeters(Number(widthOverride), unit),
       },
       rules,
     );
-  }, [lengthM, heightM, soil, stem, widthOverride, conv, rules]);
+  }, [lengthM, heightM, soil, stem, widthOverride, unit, rules]);
 
   const run = () => {
     const res = calculateRetainingWall(input, rules, prices);

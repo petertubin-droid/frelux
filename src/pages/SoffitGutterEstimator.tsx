@@ -34,17 +34,8 @@ import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import { useMarket } from "@/lib/international/market-context";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
-
-/** How many metres one of each supported unit is. */
-const M_PER_UNIT: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
-};
 
 export default function SoffitGutterEstimator() {
   const { priceMap, ruleRows, bookSummary } =
@@ -52,7 +43,6 @@ export default function SoffitGutterEstimator() {
   // Lengths are typed in the visitor's unit and normalised to metres for the
   // engine. Feet is the default.
   const [unit, setUnit] = useState<Unit>("feet");
-  const conv = M_PER_UNIT[unit];
   const [mode, setMode] = useState<"perimeter" | "footprint">("perimeter");
   const [perimeter, setPerimeter] = useState("");
   const [length, setLength] = useState("");
@@ -84,10 +74,13 @@ export default function SoffitGutterEstimator() {
 
   const input: SoffitGutterInput = {
     mode,
-    perimeter_m: mode === "perimeter" ? Number(perimeter) * conv : null,
-    building_length_m: mode === "footprint" ? Number(length) * conv : null,
-    building_width_m: mode === "footprint" ? Number(width) * conv : null,
-    overhang_m: Number(overhang) * conv,
+    perimeter_m:
+      mode === "perimeter" ? unitToMeters(Number(perimeter), unit) : null,
+    building_length_m:
+      mode === "footprint" ? unitToMeters(Number(length), unit) : null,
+    building_width_m:
+      mode === "footprint" ? unitToMeters(Number(width), unit) : null,
+    overhang_m: unitToMeters(Number(overhang), unit),
     material,
   };
 

@@ -17,7 +17,7 @@ Pages checked: 61
 - Missing method explanation: 0
 - Missing disclaimer: 0
 - Inputs that may lack a label: 0 pages
-- No feet reference at all (only a defect on length based tools): 16
+- No feet reference at all (only a defect on length based tools): 13
 - Fixed wide layout that can overflow a phone: 0
 
 ## Per page

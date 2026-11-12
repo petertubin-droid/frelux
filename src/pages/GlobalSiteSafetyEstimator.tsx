@@ -41,7 +41,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
 
 const num = (value: string, fallback = 0) => {
@@ -81,15 +81,6 @@ function QuantityField({
   );
 }
 
-/** How many metres one of each supported unit is. */
-const M_PER_UNIT: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
-};
-
 export default function GlobalSiteSafetyEstimator() {
   const resetInputs = () => {
     setPerimeterMeters(120);
@@ -110,13 +101,12 @@ export default function GlobalSiteSafetyEstimator() {
   // Site lengths are typed in the visitor's unit and normalised to metres for
   // the engine. Feet is the default.
   const [unit, setUnit] = useState<Unit>("feet");
-  const conv = M_PER_UNIT[unit];
   const [perimeterMeters, setPerimeterMeters] = useState(400);
   const [crewCount, setCrewCount] = useState(10);
   const [reservePpe, setReservePpe] = useState(2);
   const [signSpacingMeters, setSignSpacingMeters] = useState(50);
-  const perimeterMetres = perimeterMeters * conv;
-  const signSpacingMetres = signSpacingMeters * conv;
+  const perimeterMetres = unitToMeters(perimeterMeters, unit);
+  const signSpacingMetres = unitToMeters(signSpacingMeters, unit);
   const [hasFallRisk, setHasFallRisk] = useState(true);
   const [workersAtHeight, setWorkersAtHeight] = useState(4);
   const [hasExcavation, setHasExcavation] = useState(false);

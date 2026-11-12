@@ -31,24 +31,28 @@ import {
 } from "@/lib/estimation/water-tower-staging-engine";
 import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstallationSequence";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 export default function WaterTowerEstimator() {
   const resetInputs = () => {
     setTankVolume(5000);
-    setHeight(6);
+    setHeight(20);
     setMaterial("steel");
   };
   const [tankVolume, setTankVolume] = useState<number>(5000);
-  const [height, setHeight] = useState<number>(6);
+  // Tower height is set in feet, the way it is called on site, and converted to
+  // metres for the structural engine. Both readings stay on screen.
+  const { toMetres } = useLengthUnit("feet");
+  const [height, setHeight] = useState<number>(20);
   const [material, setMaterial] = useState<"steel" | "concrete">("steel");
 
   const result = useMemo(() => {
     return calculateWaterTowerStaging({
       tankVolumeLiters: tankVolume,
-      towerHeightMeters: height,
+      towerHeightMeters: toMetres(height),
       constructionMaterial: material,
     });
-  }, [tankVolume, height, material]);
+  }, [tankVolume, height, material, toMetres]);
 
   useSeo({
     title: "Overhead Water Tank Staging & Tower Estimator | FRELUX",
@@ -81,7 +85,10 @@ export default function WaterTowerEstimator() {
     const rows: string[][] = [
       ["FRELUX Overhead Water Tank Staging Takeoff", ""],
       ["Tank Volume (Liters)", String(tankVolume)],
-      ["Tower Elevation Height (m)", String(height)],
+      [
+        "Tower Elevation Height",
+        `${height} ft (${toMetres(height).toFixed(2)} m)`,
+      ],
       [
         "Structural Material",
         material === "steel" ? "Structural Steel" : "Reinforced Concrete",
@@ -166,7 +173,7 @@ export default function WaterTowerEstimator() {
     link.href = url;
     link.setAttribute(
       "download",
-      `frelux-water-tower-${tankVolume}L-${height}m-${material}.csv`,
+      `frelux-water-tower-${tankVolume}L-${height}ft-${material}.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -233,23 +240,26 @@ export default function WaterTowerEstimator() {
                       Tower Elevation Height
                     </label>
                     <span className="text-sm font-bold text-primary">
-                      {height} Meters
+                      {height} ft
+                      <span className="ml-1 font-normal text-muted-foreground">
+                        ({toMetres(height).toFixed(1)} m)
+                      </span>
                     </span>
                   </div>
                   <input
                     id="tower-height"
                     type="range"
-                    min="3"
-                    max="9"
-                    step="0.5"
+                    min="10"
+                    max="30"
+                    step="1"
                     value={height}
                     onChange={(e) => setHeight(Number(e.target.value))}
                     className="w-full accent-primary h-2 bg-muted rounded-lg cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>3.0m (Standard)</span>
-                    <span>6.0m (High Pressure)</span>
-                    <span>9.0m (Multi-Floor)</span>
+                    <span>10 ft (3 m, standard)</span>
+                    <span>20 ft (6 m, high pressure)</span>
+                    <span>30 ft (9 m, multi-floor)</span>
                   </div>
                 </div>
 

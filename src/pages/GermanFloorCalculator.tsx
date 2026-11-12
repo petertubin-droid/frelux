@@ -23,6 +23,9 @@ import {
   type ConcreteMixKey,
 } from "@/lib/estimation/german-floor";
 import { slabVocabulary } from "@/lib/localization/regional-vocabulary";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -41,7 +44,7 @@ const MARKETS = CEMENT_MARKETS.map((code) => ({
 export default function GermanFloorCalculator() {
   const resetInputs = () => {
     setPreset("full-plot");
-    setCustom({ length: "10", width: "8" });
+    setCustom({ length: "33", width: "26" });
     setHardcoreMm(150);
     setSlabMm(100);
     setMixKey("1:2:4");
@@ -56,7 +59,10 @@ export default function GermanFloorCalculator() {
 
   const [market, setMarket] = useState("NG");
   const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
-  const [custom, setCustom] = useState({ length: "10", width: "8" });
+  // A custom plot is measured on site, so the two dimensions default to feet
+  // and are converted to metres for the engine.
+  const { unit, setUnit, toMetres } = useLengthUnit("feet");
+  const [custom, setCustom] = useState({ length: "33", width: "26" });
   const [hardcoreMm, setHardcoreMm] = useState(150);
   const [slabMm, setSlabMm] = useState(100);
   const [mixKey, setMixKey] = useState<ConcreteMixKey>("1:2:4");
@@ -68,13 +74,22 @@ export default function GermanFloorCalculator() {
       calculateGermanFloor({
         market,
         plotPreset: preset === "custom" ? null : preset,
-        lengthM: Number(custom.length),
-        widthM: Number(custom.width),
+        lengthM: toMetres(custom.length),
+        widthM: toMetres(custom.width),
         hardcoreMm,
         slabMm,
         mixKey,
       }),
-    [market, preset, custom.length, custom.width, hardcoreMm, slabMm, mixKey],
+    [
+      market,
+      preset,
+      custom.length,
+      custom.width,
+      hardcoreMm,
+      slabMm,
+      mixKey,
+      toMetres,
+    ],
   );
 
   const result = outcome.result;
@@ -160,52 +175,60 @@ export default function GermanFloorCalculator() {
                 </div>
 
                 {preset === "custom" ? (
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <label className="block">
+                  <>
+                    <div className="mt-3 flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">
-                        {t("Length (m)")}
+                        Plot measured in feet by default
                       </span>
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        inputMode="decimal"
-                        aria-required="true"
-                        data-required="true"
-                        data-field-label={t("Length (m)")}
-                        value={custom.length}
-                        onChange={(event) =>
-                          setCustom((prev) => ({
-                            ...prev,
-                            length: event.target.value,
-                          }))
-                        }
-                        className={`${fieldClass} mt-1`}
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-xs text-muted-foreground">
-                        {t("Width (m)")}
-                      </span>
-                      <input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        inputMode="decimal"
-                        aria-required="true"
-                        data-required="true"
-                        data-field-label={t("Width (m)")}
-                        value={custom.width}
-                        onChange={(event) =>
-                          setCustom((prev) => ({
-                            ...prev,
-                            width: event.target.value,
-                          }))
-                        }
-                        className={`${fieldClass} mt-1`}
-                      />
-                    </label>
-                  </div>
+                      <UnitToggle value={unit} onChange={setUnit} />
+                    </div>
+                    <div className="mt-1 grid grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="text-xs text-muted-foreground">
+                          {`${t("Length")} (${unitShortLabel(unit)})`}
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          inputMode="decimal"
+                          aria-required="true"
+                          data-required="true"
+                          data-field-label={`${t("Length")} (${unitShortLabel(unit)})`}
+                          value={custom.length}
+                          onChange={(event) =>
+                            setCustom((prev) => ({
+                              ...prev,
+                              length: event.target.value,
+                            }))
+                          }
+                          className={`${fieldClass} mt-1`}
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-xs text-muted-foreground">
+                          {`${t("Width")} (${unitShortLabel(unit)})`}
+                        </span>
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          inputMode="decimal"
+                          aria-required="true"
+                          data-required="true"
+                          data-field-label={`${t("Width")} (${unitShortLabel(unit)})`}
+                          value={custom.width}
+                          onChange={(event) =>
+                            setCustom((prev) => ({
+                              ...prev,
+                              width: event.target.value,
+                            }))
+                          }
+                          className={`${fieldClass} mt-1`}
+                        />
+                      </label>
+                    </div>
+                  </>
                 ) : null}
               </div>
 

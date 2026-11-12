@@ -34,17 +34,8 @@ import { applyPriceBook } from "@/lib/pricing/price-book";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
-
-/** How many metres one of each supported unit is. */
-const M_PER_UNIT: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
-};
 
 export default function SteelBeamEstimator() {
   const { priceMap, bookSummary } = useSpecialtyPrices("steel_beam");
@@ -54,7 +45,7 @@ export default function SteelBeamEstimator() {
   // mass calculation, which works from kg per metre. Feet is the default.
   const [spanUnit, setSpanUnit] = useState<Unit>("feet");
   const [span, setSpan] = useState("");
-  const spanMetres = Number(span) * M_PER_UNIT[spanUnit];
+  const spanMetres = unitToMeters(Number(span), spanUnit);
   const [count, setCount] = useState("1");
   const [rate, setRate] = useState("");
   const [columns, setColumns] = useState(false);

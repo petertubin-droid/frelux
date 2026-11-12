@@ -69,8 +69,15 @@ import type {
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 type LenField = "len_12mm_m" | "len_16mm_m" | "len_20mm_m" | "len_25mm_m";
+
+/** Bar bending schedules are written in the unit the site measures in. */
+const lenLab = (key: LenField, unit: string): string =>
+  LEN_LABELS[key].replace("(m)", `(${unit})`);
 
 const LEN_LABELS: Record<LenField, string> = {
   len_12mm_m: "12 mm: total cutting length (m)",
@@ -118,6 +125,9 @@ export default function ReinforcementEstimator() {
   const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(
     null,
   );
+  // Cutting lengths are typed in feet by default and normalised to metres for
+  // the bar mass calculation, which works from kg per metre.
+  const { unit, setUnit, toMetres } = useLengthUnit("feet");
   const [lens, setLens] = useState<Record<LenField, string>>(DEFAULT_LENS);
   const [labourMode, setLabourMode] = useState<
     "none" | "per_tonne" | "lump_sum"
@@ -212,7 +222,8 @@ export default function ReinforcementEstimator() {
       const trimmed = v.trim();
       if (!trimmed) return null;
       const n = Number(trimmed);
-      return Number.isFinite(n) ? n : Number.NaN;
+      if (!Number.isFinite(n)) return Number.NaN;
+      return toMetres(n);
     };
     return {
       len_12mm_m: run(lens.len_12mm_m),
@@ -226,7 +237,7 @@ export default function ReinforcementEstimator() {
         lump_sum: labourMode === "lump_sum" ? Number(labourRate) || null : null,
       },
     };
-  }, [lens, labourMode, labourRate]);
+  }, [lens, labourMode, labourRate, toMetres]);
 
   const run = useCallback(() => {
     const res = calculateReinforcement(input, rules, priceMap);
@@ -500,10 +511,16 @@ export default function ReinforcementEstimator() {
           engineering decisions that must come from your engineer: this tool
           only converts your schedule into purchasable quantities.
         </p>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground">
+            Cutting lengths in {unitShortLabel(unit)} by default
+          </span>
+          <UnitToggle value={unit} onChange={setUnit} />
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {(Object.keys(LEN_LABELS) as LenField[]).map((k) =>
             numberInput(
-              `${LEN_LABELS[k].replace(": total", ` ${reinforcementTerm.toLowerCase()}: total`)}`,
+              `${lenLab(k, unitShortLabel(unit)).replace(": total", ` ${reinforcementTerm.toLowerCase()}: total`)}`,
               lens[k],
               (v) => setLens((l) => ({ ...l, [k]: v })),
             ),

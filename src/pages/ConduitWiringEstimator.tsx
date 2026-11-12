@@ -38,7 +38,7 @@ import { applyPriceBook } from "@/lib/pricing/price-book";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
 
 type DeviceType = MEPPoint["type"];
@@ -60,14 +60,6 @@ const DEFAULT_ROUTER_POINTS: MEPPoint[] = [
   { id: "p-sk2", type: "socket", x: 5.5, y: 6.5, label: "Ring Socket 2" },
 ];
 
-/** How many metres one of each supported unit is. */
-const M_PER_UNIT: Record<Unit, number> = {
-  meters: 1,
-  feet: 0.3048,
-  inches: 0.0254,
-  centimeters: 0.01,
-  millimeters: 0.001,
-};
 /** Upper bound for a room dimension, expressed in each unit. */
 const UNIT_MAX: Record<Unit, number> = {
   meters: 30,
@@ -99,9 +91,9 @@ export default function ConduitWiringEstimator() {
   const [roomWidth, setRoomWidth] = useState(20); // in routerUnit
   const [roomLength, setRoomLength] = useState(26); // in routerUnit
   const [ceilingHeight, setCeilingHeight] = useState(9.8); // in routerUnit
-  const roomWidthM = roomWidth * M_PER_UNIT[routerUnit];
-  const roomLengthM = roomLength * M_PER_UNIT[routerUnit];
-  const ceilingHeightM = ceilingHeight * M_PER_UNIT[routerUnit];
+  const roomWidthM = unitToMeters(roomWidth, routerUnit);
+  const roomLengthM = unitToMeters(roomLength, routerUnit);
+  const ceilingHeightM = unitToMeters(ceilingHeight, routerUnit);
   const [deviceTypeToAdd, setDeviceTypeToAdd] = useState<DeviceType>("socket");
 
   const [routerPoints, setRouterPoints] = useState<MEPPoint[]>(
