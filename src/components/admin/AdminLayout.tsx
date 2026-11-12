@@ -123,6 +123,16 @@ interface NavModule {
 
 const navModules: NavModule[] = [
   {
+    heading: "Worker safety",
+    items: [
+      {
+        label: "Travel approvals",
+        to: "/admin/travel-approvals",
+        icon: HardHat,
+      },
+    ],
+  },
+  {
     heading: "Overview",
     items: [
       { label: "Dashboard", to: "/admin", icon: LayoutDashboard, end: true },

@@ -1,11 +1,9 @@
 // =========================================================
 // Automatic client identity review.
 //
-// Lives in a shared module and is called by paystack-verify, because the
-// project is at its function limit (402 on deploy) and this check is a
-// Paystack interaction anyway: the bank tells us the name on the account, we
-// compare it to the name on the ID, and only an ambiguous pair reaches a
-// person.
+// Called by the client-identity function. The bank tells us the name on the
+// account, we compare it to the name on the ID, and only an ambiguous pair
+// reaches a person.
 // =========================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { decideNameMatch } from "./name-match.ts";

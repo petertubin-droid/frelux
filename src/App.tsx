@@ -212,6 +212,9 @@ const AdminQuotationSettings = lazy(
 
 // Admin pages, all lazy-loaded to keep the public bundle small
 const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
+const AdminTravelApprovals = lazy(
+  () => import("@/pages/admin/AdminTravelApprovals"),
+);
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
@@ -2347,6 +2350,12 @@ export default function App() {
                       >
                         {/* Dashboard */}
                         <Route index element={<AdminOverview />} />
+
+                        {/* Worker safety: rule 4 travel approvals */}
+                        <Route
+                          path="travel-approvals"
+                          element={<AdminTravelApprovals />}
+                        />
 
                         {/* AI Assistant */}
                         <Route

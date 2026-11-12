@@ -578,10 +578,6 @@ export default function OrderDetail() {
                         orderId={order.id}
                         milestoneId={m.id}
                         role={isClient ? "client" : "pro"}
-                        jobState={
-                          (order as unknown as { job_state?: string | null })
-                            .job_state ?? null
-                        }
                         onDone={load}
                       />
                     )}

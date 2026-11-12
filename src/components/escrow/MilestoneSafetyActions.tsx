@@ -1,14 +1,13 @@
 import { useRef, useState } from "react";
-import { Camera, Loader2, ShieldAlert, PlaneTakeoff } from "lucide-react";
+import { Camera, Loader2, ShieldAlert } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-type Role = "pro" | "client" | "admin";
+type Role = "pro" | "client";
 
 interface Props {
   orderId: string;
   milestoneId: string;
   role: Role;
-  jobState?: string | null;
   onDone?: () => void;
 }
 
@@ -28,7 +27,6 @@ export default function MilestoneSafetyActions({
   orderId,
   milestoneId,
   role,
-  jobState,
   onDone,
 }: Props) {
   const fileInput = useRef<HTMLInputElement | null>(null);
@@ -105,27 +103,6 @@ export default function MilestoneSafetyActions({
     }
   };
 
-  const approveTravel = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const { error: rpcError } = await supabase.rpc(
-        "approve_cross_state_job",
-        {
-          p_order_id: orderId,
-          p_note: "Approved from the order page",
-          p_expires_at: null,
-        },
-      );
-      if (rpcError) throw rpcError;
-      onDone?.();
-    } catch (travelError) {
-      setError(readError(travelError));
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <div className="mt-1 ml-8 space-y-1">
       <div className="flex flex-wrap items-center gap-1.5">
@@ -164,18 +141,6 @@ export default function MilestoneSafetyActions({
           >
             <ShieldAlert className="h-3 w-3" aria-hidden="true" />
             Report a problem
-          </button>
-        )}
-
-        {role === "admin" && jobState && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={approveTravel}
-            className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground hover:text-brand-purple disabled:opacity-60 dark:border-white/10"
-          >
-            <PlaneTakeoff className="h-3 w-3" aria-hidden="true" />
-            Approve travel to {jobState}
           </button>
         )}
       </div>

@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 /**
  * Client identity front end. The verdict itself is produced by the
- * paystack-verify function, which asks Paystack for the name on the funding
+ * client-identity function, which asks Paystack for the name on the funding
  * account and compares it to the name on the ID.
  */
 
@@ -54,7 +54,7 @@ export const NG_BANKS: { code: string; name: string }[] = [
 async function callIdentity(
   body: Record<string, unknown>,
 ): Promise<IdentityRecord> {
-  const { data, error } = (await supabase.functions.invoke("paystack-verify", {
+  const { data, error } = (await supabase.functions.invoke("client-identity", {
     body,
   })) as { data: IdentityRecord | null; error: unknown };
   if (error) {
