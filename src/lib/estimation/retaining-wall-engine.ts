@@ -30,7 +30,12 @@ import {
   type SpecialtyStep,
 } from "./specialty";
 
-export type SoilType = "stable" | "loose_sand" | "wet_clay";
+export type SoilType =
+  | "stable"
+  | "loose_sand"
+  | "wet_clay"
+  /** Lateritic / red tropical residual soil: cohesive when dry, loses strength fast when soaked. */
+  | "lateritic";
 export type StemType = "block" | "concrete";
 
 export interface RetainingWallRules {
@@ -82,12 +87,16 @@ export const SOIL_FOOTING_FACTOR: Record<SoilType, number> = {
   stable: 1,
   loose_sand: 1.15,
   wet_clay: 1.3,
+  // Laterite sits between stable ground and loose sand: it stands well when
+  // drained, but the fines wash out and the thrust rises once it is wet.
+  lateritic: 1.1,
 };
 
 export const SOIL_LABELS: Record<SoilType, string> = {
   stable: "Stable soil (firm natural ground)",
   loose_sand: "Loose sand (granular, low cohesion)",
   wet_clay: "Wet clay (high moisture, high lateral thrust)",
+  lateritic: "Lateritic soil (tropical residual, weakens when soaked)",
 };
 
 /** 1:2:4 concrete, dry volume method: per m3 of finished concrete. */
@@ -158,6 +167,9 @@ export function computeRetainingWallStability(
     stable: { phi_deg: 32, gamma: 18, mu: 0.38 },
     loose_sand: { phi_deg: 28, gamma: 17, mu: 0.33 },
     wet_clay: { phi_deg: 20, gamma: 19, mu: 0.25 },
+    // φ and μ for moist laterite, γ a little heavier than sand because of the
+    // clay fraction (typical 18-19 kN/m³).
+    lateritic: { phi_deg: 30, gamma: 18.5, mu: 0.35 },
   };
   const prop = soilProps[soil_type] ?? soilProps.stable;
   const phi_rad = (prop.phi_deg * Math.PI) / 180;
@@ -241,6 +253,8 @@ export function retainingWallGeometry(
     stable: 0.55,
     loose_sand: 0.65,
     wet_clay: 0.75,
+    // Between stable ground and loose sand: standing laterite takes a moderate base.
+    lateritic: 0.6,
   };
   const heightRatio = soilRatios[input.soil_type] ?? 0.55;
   const recommended = money(rules.footing_width_m * factor);

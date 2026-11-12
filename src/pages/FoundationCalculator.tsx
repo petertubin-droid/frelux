@@ -16,6 +16,20 @@ import {
 } from "@/components/engineering/CalculatorSchematic";
 import { useMarket } from "@/lib/international/market-context";
 import {
+  KPA_PER_PSF,
+  KN_PER_KIP,
+  KN_PER_M_PER_LB_PER_FT,
+  LINE_LOAD_UNIT,
+  POINT_LOAD_UNIT,
+  PRESSURE_UNIT,
+  type LoadUnitSystem,
+  formatPressure,
+  kpaToPsf,
+  lineLoadToKnPerM,
+  pointLoadToKn,
+  pressureToKpa,
+} from "@/lib/measurement/load-units";
+import {
   designFoundation,
   SOIL_BEARING_CAPACITY,
   SOIL_DESCRIPTIONS,
@@ -86,6 +100,11 @@ export default function FoundationCalculator() {
   const [customBearing, setCustomBearing] = useState(150);
   const [wallLoad, setWallLoad] = useState(40);
   const [columnLoad, setColumnLoad] = useState(200);
+  // Loads decide the footing, and a US or UK engineer works in plf and ksf.
+  // The engine stays in kN and kPa; the conversion happens exactly here.
+  const [loadSystem, setLoadSystem] = useState<LoadUnitSystem>(
+    preferredLengthUnit === "feet" ? "imperial" : "metric",
+  );
   const [depth, setDepth] = useState(0.9);
   const { building } = useBuildingSize();
   const [footprintNote, setFootprintNote] = useState<string | null>(null);
@@ -105,9 +124,12 @@ export default function FoundationCalculator() {
       shape,
       soil_type: soilType,
       custom_bearing_capacity:
-        soilType === "custom" ? customBearing : undefined,
-      wall_load: wallLoad,
-      column_load: shape === "pad" ? columnLoad : undefined,
+        soilType === "custom"
+          ? pressureToKpa(customBearing, loadSystem)
+          : undefined,
+      wall_load: lineLoadToKnPerM(wallLoad, loadSystem),
+      column_load:
+        shape === "pad" ? pointLoadToKn(columnLoad, loadSystem) : undefined,
       foundation_depth: measurementUnit === "ft" ? depth * mPerFt : depth,
       concrete_grade: "C25",
       building_length:
@@ -128,6 +150,7 @@ export default function FoundationCalculator() {
     buildingLength,
     buildingWidth,
     measurementUnit,
+    loadSystem,
   ]);
 
   if (!result) calculate();
@@ -197,7 +220,7 @@ export default function FoundationCalculator() {
           <div className="mb-5">
             <MeasurementTip what="measurement unit and foundation dimensions" />
           </div>
-          <div className="mb-5 flex items-center gap-2">
+          <div className="mb-5 flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">
               Measurement unit:
             </span>
@@ -237,6 +260,49 @@ export default function FoundationCalculator() {
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
               >
                 ft
+              </Button>
+            </div>
+            <span className="sm:ml-3 text-xs font-medium text-muted-foreground">
+              Loads:
+            </span>
+            <div className="inline-flex rounded-lg border border-border overflow-hidden dark:border-white/10">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  if (loadSystem === "imperial") {
+                    setLoadSystem("metric");
+                    setWallLoad(
+                      parseFloat((wallLoad * KN_PER_M_PER_LB_PER_FT).toFixed(2)),
+                    );
+                    setColumnLoad(
+                      parseFloat((columnLoad * KN_PER_KIP).toFixed(1)),
+                    );
+                    setCustomBearing(
+                      parseFloat((customBearing * KPA_PER_PSF).toFixed(1)),
+                    );
+                  }
+                }}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${loadSystem === "metric" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
+              >
+                kN
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  if (loadSystem === "metric") {
+                    setLoadSystem("imperial");
+                    setWallLoad(
+                      parseFloat((wallLoad / KN_PER_M_PER_LB_PER_FT).toFixed(0)),
+                    );
+                    setColumnLoad(parseFloat((columnLoad / KN_PER_KIP).toFixed(1)));
+                    setCustomBearing(
+                      parseFloat((customBearing / KPA_PER_PSF).toFixed(0)),
+                    );
+                  }
+                }}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${loadSystem === "imperial" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
+              >
+                plf / kip
               </Button>
             </div>
           </div>
@@ -285,7 +351,7 @@ export default function FoundationCalculator() {
                   htmlFor="fnd-bearing"
                   className="text-xs font-medium text-muted-foreground mb-1.5 block"
                 >
-                  Bearing capacity (kN/m²)
+                  Bearing capacity ({PRESSURE_UNIT[loadSystem]})
                 </label>
                 <NumericInput
                   id="fnd-bearing"
@@ -300,7 +366,9 @@ export default function FoundationCalculator() {
                 htmlFor="fnd-load"
                 className="text-xs font-medium text-muted-foreground mb-1.5 block"
               >
-                {shape === "pad" ? "Column load (kN)" : "Wall load (kN/m)"}
+                {shape === "pad"
+                  ? `Column load (${POINT_LOAD_UNIT[loadSystem]})`
+                  : `Wall load (${LINE_LOAD_UNIT[loadSystem]})`}
               </label>
               <NumericInput
                 id="fnd-load"
@@ -435,7 +503,7 @@ export default function FoundationCalculator() {
               <ShareEstimateButton
                 estimate={{
                   kind: "Foundation Design",
-                  title: `${result.shape} footing at ${result.bearing_capacity} kPa`,
+                  title: `${result.shape} footing at ${formatPressure(result.bearing_capacity, loadSystem)}`,
                   summaryLines: [
                     {
                       label: "Footing shape",
@@ -459,11 +527,11 @@ export default function FoundationCalculator() {
                     },
                     {
                       label: "Bearing capacity",
-                      value: `${result.bearing_capacity} kPa`,
+                      value: formatPressure(result.bearing_capacity, loadSystem),
                     },
                     {
                       label: "Applied pressure",
-                      value: `${result.applied_pressure} kPa`,
+                      value: formatPressure(result.applied_pressure, loadSystem),
                     },
                     {
                       label: "Bearing check",
@@ -517,8 +585,9 @@ export default function FoundationCalculator() {
                   padLengthMm: result.recommended_length ?? undefined,
                 })}
                 depth={`${depth} ${measurementUnit}`}
-                bearing={`${result.bearing_capacity}`}
-                pressure={`${result.applied_pressure}`}
+                bearing={`${loadSystem === "imperial" ? Math.round(kpaToPsf(result.bearing_capacity)) : result.bearing_capacity}`}
+                pressure={`${loadSystem === "imperial" ? Math.round(kpaToPsf(result.applied_pressure)) : result.applied_pressure}`}
+                pressureUnit={PRESSURE_UNIT[loadSystem]}
               />
             </div>
 
@@ -578,8 +647,8 @@ export default function FoundationCalculator() {
                   {t("Bearing Capacity Check")}
                 </p>
                 <p className="text-sm text-foreground dark:text-primary-foreground">
-                  Applied: {result.applied_pressure} kN/m² ≤ Allowable:{" "}
-                  {result.bearing_capacity} kN/m²
+                  Applied: {formatPressure(result.applied_pressure, loadSystem)} ≤
+                  Allowable: {formatPressure(result.bearing_capacity, loadSystem)}
                 </p>
               </div>
             </div>
@@ -711,7 +780,7 @@ export default function FoundationCalculator() {
                   },
                   {
                     label: "Bearing capacity used",
-                    value: `${result.bearing_capacity} kN/m²`,
+                    value: formatPressure(result.bearing_capacity, loadSystem),
                   },
                   {
                     label: "Excavation",

@@ -543,8 +543,10 @@ export function calculateBarCutLength(
  *   fy · db / (20 λ √f'c) for No. 7 and larger, never below 300 mm. Using the
  *   No. 7 divisor for every bar, which this function used to do, overstated the
  *   anchorage of small bars by a quarter.
- * · BS 8110-1 Table 3.27: 40db tension, 32db compression for grade 460 type 2
- *   deformed bars in grade 30 concrete, which is what the schedule pages show.
+ * · BS 8110-1 Cl 3.12.8.3 with Table 3.26 bond stress (β = 0.5 for type 2
+ *   deformed bars): lb = fy·db/(4·0.5·√fcu), compression taken as 0.8 of that.
+ *   It reduces to Table 3.27's 40db/32db at fy 460 / fcu 30 and moves with both
+ *   grades, so a C20 mix is anchored as C20.
  *
  * A lap is not an anchorage: EN 1992 multiplies lb,rqd by α6 (1.5 when at most
  * half the bars are lapped in one section, 2.0 beyond that) and requires at least
@@ -572,7 +574,22 @@ export function calculateDevelopmentLength(
     return Math.ceil(Math.max(300, ld));
   }
   if (code === "bs8110") {
-    return Math.ceil(isTension ? 40 * d : 32 * d);
+    // BS 8110-1 Cl 3.12.8.3: lb = fy·db / (4·fb) with bond stress fb = β·√fcu.
+    // Table 3.27's 40db is the answer for grade 460 deformed bars in grade 30
+    // concrete and nothing else, which is what this used to return for every
+    // grade. A C20 mix, routine in Nigeria and much of West Africa, was
+    // anchored as if it were C30 and the laps it feeds were short by the same
+    // margin. Both the steel and the concrete grade now enter the length.
+    const fcu = Math.min(60, Math.max(20, fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi));
+    const beta = 0.5; // type 2 deformed bars in tension (BS 8110-1 Table 3.26)
+    const bondStress = beta * Math.sqrt(fcu); // N/mm²
+    const tension = (fyMpa * d) / (4 * bondStress);
+    // Compression anchorage is 0.8 of the tension value in Table 3.27 (32db vs
+    // 40db at the reference grade), applied to the derived length so it moves
+    // with the grades too.
+    const length = isTension ? tension : 0.8 * tension;
+    const floor = isTension ? 300 : 250; // practical minimum, mm
+    return Math.ceil(Math.max(floor, length));
   }
   const fck = fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi;
   if (!(fck > 0)) return 0;

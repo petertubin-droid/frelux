@@ -29,6 +29,7 @@
 import type { CalcRuleRow } from "./count-vision-engine";
 import { CEMENT_BAG_WEIGHT_BY_MARKET } from "./plastering-standalone-engine";
 import { ceilU } from "./shared/purchase-rounding";
+import { MORTAR_JOINT_THICKNESS, blocksPerM2 } from "./build-to-roof-engine";
 
 
 // ─────────────────────────────────────────────
@@ -53,6 +54,66 @@ export interface FoundationRules {
   mix_ratio: MixRatio | null;
   concrete_waste_pct: number;
   blocks_per_m2: number | null;
+}
+
+/**
+ * Nominal block face per market, so a UK or US user is not priced against a
+ * Nigerian 225 mm sandcrete block. Each entry is the face that shows in the
+ * wall (length × height); width is not needed for a per-area count.
+ *
+ * These are nominal published modules, not a survey: a market that is not
+ * listed, or a block that differs from the local standard, still needs the
+ * blocks_per_m2 rule set explicitly.
+ */
+export const BLOCK_FACE_BY_MARKET: Record<
+  string,
+  { lengthMm: number; heightMm: number; label: string }
+> = {
+  NG: { lengthMm: 450, heightMm: 225, label: "450×225 mm sandcrete block" },
+  GH: { lengthMm: 450, heightMm: 225, label: "450×225 mm sandcrete block" },
+  KE: { lengthMm: 450, heightMm: 225, label: "450×225 mm stone block" },
+  ZA: { lengthMm: 390, heightMm: 190, label: "390×190 mm concrete block" },
+  IN: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
+  GB: { lengthMm: 440, heightMm: 215, label: "440×215 mm concrete block" },
+  US: { lengthMm: 406, heightMm: 203, label: "16×8 in CMU" },
+  CA: { lengthMm: 406, heightMm: 203, label: "16×8 in CMU" },
+  AU: { lengthMm: 390, heightMm: 190, label: "390×190 mm concrete block" },
+  DE: { lengthMm: 300, heightMm: 250, label: "300×250 mm clay block" },
+  FR: { lengthMm: 400, heightMm: 200, label: "400×200 mm parpaing block" },
+  IT: { lengthMm: 300, heightMm: 250, label: "300×250 mm laterizio block" },
+  NL: { lengthMm: 300, heightMm: 250, label: "300×250 mm block" },
+  ES: { lengthMm: 400, heightMm: 200, label: "400×200 mm block" },
+  PL: { lengthMm: 380, heightMm: 240, label: "380×240 mm block" },
+  BR: { lengthMm: 390, heightMm: 190, label: "390×190 mm ceramic block" },
+  MX: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
+  SA: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
+  AE: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
+  CN: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
+  ID: { lengthMm: 390, heightMm: 190, label: "390×190 mm AAC block" },
+  JP: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
+  KR: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
+};
+
+/**
+ * Blocks per m² implied by the market's nominal block, using the same
+ * block + mortar joint module the build-to-roof engine counts with. Returns
+ * null for a market with no published face, so the caller can ask for the rule
+ * rather than invent a number.
+ */
+export function marketBlocksPerM2(
+  marketCode?: string,
+): { value: number; label: string } | null {
+  const code = marketCode?.toUpperCase();
+  if (!code) return null;
+  const face = BLOCK_FACE_BY_MARKET[code];
+  if (!face) return null;
+  const value = blocksPerM2(
+    face.lengthMm / 25.4,
+    face.heightMm / 25.4,
+    MORTAR_JOINT_THICKNESS,
+  );
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return { value, label: face.label };
 }
 
 export const DEFAULT_FOUNDATION_RULES: FoundationRules = {
@@ -341,16 +402,23 @@ export function calculateFoundation(
 
   // ── 3. Blockwork to DPC ──
   if (input.block_wall_area_m2 !== null && input.block_wall_area_m2 > 0) {
-    if (rules.blocks_per_m2 === null) {
+    const marketBlocks = marketBlocksPerM2(options?.marketCode);
+    const blocksRule =
+      rules.blocks_per_m2 ?? marketBlocks?.value ?? null;
+    if (blocksRule === null) {
       missing.push(
-        "Blocks: no blocks-per-m² rule configured (blocks_per_m2). Set it for the block you price: quantities will not be guessed.",
+        "Blocks: no blocks-per-m² rule configured (blocks_per_m2) and no nominal block published for this market. Set it for the block you price: quantities will not be guessed.",
       );
     } else {
-      const blocks = ceilU(input.block_wall_area_m2 * rules.blocks_per_m2);
+      const blocks = ceilU(input.block_wall_area_m2 * blocksRule);
       const price = prices["block-per-piece"] ?? null;
+      const ruleSource =
+        rules.blocks_per_m2 !== null
+          ? "configured rule"
+          : `market nominal ${marketBlocks!.label} + ${Math.round(MORTAR_JOINT_THICKNESS * 1000)} mm joint — set blocks_per_m2 to override`;
       steps.push({
         label: "Blocks to DPC",
-        detail: `${input.block_wall_area_m2} m² × ${rules.blocks_per_m2} blocks/m² = ${roundTo(input.block_wall_area_m2 * rules.blocks_per_m2, 2)} → ${blocks} blocks (whole, up). Rule must match the priced block size.`,
+        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 2)} blocks/m² = ${roundTo(input.block_wall_area_m2 * blocksRule, 2)} → ${blocks} blocks (whole, up). Source: ${ruleSource}.`,
       });
       lines.push({
         key: "blocks",
@@ -359,7 +427,7 @@ export function calculateFoundation(
         quantity: blocks,
         quantity_source: "rule_derived",
         unit: "pieces",
-        detail: `${input.block_wall_area_m2} m² × ${rules.blocks_per_m2}/m² → ${blocks} blocks`,
+        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 2)}/m² → ${blocks} blocks (${rules.blocks_per_m2 !== null ? "configured rule" : marketBlocks!.label})`,
         unit_price: price,
         line_total: price !== null ? money(blocks * price) : null,
       });

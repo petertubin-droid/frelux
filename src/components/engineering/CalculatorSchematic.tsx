@@ -31,6 +31,8 @@ type FoundationDiagram = {
   depth: string;
   bearing: string;
   pressure: string;
+  /** Unit the bearing and pressure figures are in. Defaults to kN/m². */
+  pressureUnit?: string;
 };
 type ElectricalDiagram = {
   kind: "electrical";
@@ -823,7 +825,7 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
                 textAnchor="middle"
                 className="fill-muted-foreground"
               >
-                {props.pressure} applied / {props.bearing} allowable kN/m²
+                {props.pressure} applied / {props.bearing} allowable {props.pressureUnit ?? "kN/m²"}
               </text>
             </>
           )}
