@@ -1,0 +1,41 @@
+# FRELUX file Worker: presigned R2 uploads/downloads plus public object serving.
+# Secrets are NOT stored here. Set them once with:
+#   npx wrangler secret put R2_ACCOUNT_ID
+#   npx wrangler secret put R2_ACCESS_KEY_ID
+#   npx wrangler secret put R2_SECRET_ACCESS_KEY
+#   npx wrangler secret put SUPABASE_JWT_SECRET
+
+name = "frelux-files"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Attach a custom domain instead of the workers.dev hostname so the app talks to
+# one stable origin: files.freluxtools.com
+routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+
+[observability]
+enabled = true
+
+[vars]
+ALLOWED_ORIGINS = "https://freluxtools.com,https://www.freluxtools.com,http://localhost:5173"
+PUBLIC_BASE_URL = "https://files.freluxtools.com"
+
+[[r2_buckets]]
+binding = "BUCKET_AVATARS"
+bucket_name = "frelux-avatars"
+
+[[r2_buckets]]
+binding = "BUCKET_BRAND_ASSETS"
+bucket_name = "frelux-brand-assets"
+
+[[r2_buckets]]
+binding = "BUCKET_MARKETPLACE"
+bucket_name = "frelux-marketplace"
+
+[[r2_buckets]]
+binding = "BUCKET_PLAN_DOCUMENTS"
+bucket_name = "frelux-plan-documents"
+
+[[r2_buckets]]
+binding = "BUCKET_PRO_VERIFICATION"
+bucket_name = "frelux-pro-verification"

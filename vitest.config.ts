@@ -75,6 +75,16 @@ export default defineConfig({
           ],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: "cloudflare",
+          environment: "node",
+          // Worker source lives outside src/ so the app build never bundles
+          // it, but its signing logic is pure Web Crypto and unit tested here.
+          include: ["cloudflare/**/*.test.ts"],
+        },
+      },
     ],
     coverage: {
       provider: "v8",
