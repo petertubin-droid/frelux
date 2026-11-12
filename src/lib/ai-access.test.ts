@@ -225,6 +225,48 @@ describe("ai-access, getClientId", () => {
   });
 });
 
+describe("ai-access, paid subscription mode", () => {
+  const paidConfig = {
+    aiEnabled: true,
+    accessMode: "paid" as const,
+    dailyFreeUses: 0,
+    rewardedEnabled: false,
+    paidEnabled: true,
+    paidPrice: 0,
+    paidCurrency: "NGN",
+    resetPeriod: "daily" as const,
+    adminOverride: false,
+  };
+  const usage = {
+    usedToday: 0,
+    dailyLimit: 0,
+    hasRemaining: false,
+    isAuthenticated: true,
+  };
+
+  it("refuses an unpaid visitor and points them at a subscription", () => {
+    const decision = checkAiAccess(paidConfig, usage);
+    expect(decision.allowed).toBe(false);
+    expect("nextAction" in decision && decision.nextAction).toBe("paid");
+  });
+
+  it("lets an active subscriber through even though there are no free uses", () => {
+    const decision = checkAiAccess(paidConfig, usage, false, true);
+    expect(decision.allowed).toBe(true);
+    expect(decision.reason).toBe("paid");
+  });
+
+  it("still lets a subscriber through in rewarded mode", () => {
+    const decision = checkAiAccess(
+      { ...paidConfig, accessMode: "rewarded" as const, rewardedEnabled: true },
+      { ...usage, hasRemaining: false },
+      false,
+      true,
+    );
+    expect(decision.allowed).toBe(true);
+  });
+});
+
 describe("ai-access, requestRewardedAccess", () => {
   it("grants only after the rewarded stack confirms the view", async () => {
     const showRewardedAd = vi.fn(async () => ({

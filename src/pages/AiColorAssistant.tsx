@@ -417,7 +417,13 @@ function AccessGate({
             )}
             {decision.nextAction === "paid" && (
               <p className="mt-2 text-xs text-muted-foreground">
-                {t("Paid AI access will be available in the future.")}
+                {t("AI tools are included with a FRELUX subscription.")}{" "}
+                <Link
+                  to="/pricing"
+                  className="font-semibold text-brand-purple hover:underline"
+                >
+                  {t("See the plans")}
+                </Link>
               </p>
             )}
             {!isAuthenticated && (
@@ -453,6 +459,7 @@ function TextConsultation({
   usage: AiUsageStatus | null;
   onUsageConsumed: () => void;
 }) {
+  const { isPaid } = useAuth();
   const { t } = useLanguage();
   const { user } = useAuth();
   const [description, setDescription] = useState("");
@@ -483,7 +490,7 @@ function TextConsultation({
 
   const decision: AiAccessDecision =
     config && usage
-      ? checkAiAccess(config, usage)
+      ? checkAiAccess(config, usage, false, isPaid)
       : { allowed: true, reason: "free" };
   const canSubmit =
     description.trim().length >= 10 &&
@@ -678,6 +685,7 @@ function ImageConsultation({
   usage: AiUsageStatus | null;
   onUsageConsumed: () => void;
 }) {
+  const { isPaid } = useAuth();
   const { t } = useLanguage();
   const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
@@ -711,7 +719,7 @@ function ImageConsultation({
 
   const decision: AiAccessDecision =
     config && usage
-      ? checkAiAccess(config, usage)
+      ? checkAiAccess(config, usage, false, isPaid)
       : { allowed: true, reason: "free" };
 
   const onFile = useCallback((f: File | undefined) => {

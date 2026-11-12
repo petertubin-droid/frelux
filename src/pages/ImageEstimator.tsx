@@ -9,6 +9,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback, useRef, useEffect, useId } from "react";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
+import { Link } from "react-router-dom";
 import { trackAiPhotoEstimatorRewards } from "@/lib/rewards-integration";
 import { supabase } from "@/lib/supabase";
 import { recordExtractionCorrection } from "@/lib/learning/learning-client";
@@ -1192,11 +1193,14 @@ function LockedView({
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
           <Button
+            asChild
             variant="default"
             className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:bg-primary/90"
           >
-            <PremiumBadge size="xs" />
-            Upgrade
+            <Link to="/pricing">
+              <PremiumBadge size="xs" />
+              Upgrade
+            </Link>
           </Button>
         )}
         {"nextAction" in decision && decision.nextAction === "login" && (

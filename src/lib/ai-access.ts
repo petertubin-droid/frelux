@@ -136,6 +136,7 @@ export function checkAiAccess(
   config: AiAccessConfig,
   usage: AiUsageStatus,
   isAdmin = false,
+  hasPaidAccess = false,
 ): AiAccessDecision {
   if (!config.aiEnabled) return { allowed: false, reason: "disabled" };
   if (config.accessMode === "disabled")
@@ -143,6 +144,11 @@ export function checkAiAccess(
 
   if (isAdmin && config.adminOverride)
     return { allowed: true, reason: "admin_override" };
+
+  // An active subscription unlocks AI in every mode, which is what makes
+  // "paid subscription only" usable: the mode below only decides what an
+  // unpaid visitor is offered.
+  if (hasPaidAccess) return { allowed: true, reason: "paid" };
 
   if (config.accessMode === "free") {
     return usage.hasRemaining
