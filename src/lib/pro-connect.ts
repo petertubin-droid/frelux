@@ -434,6 +434,7 @@ export async function createProProfile(profile: {
   bio?: string;
   years_experience?: number;
   contact_phone?: string;
+  contact_phone_public?: boolean;
   website_url?: string;
 }): Promise<DbProProfile | null> {
   if (!isSupabaseConfigured) return null;
@@ -453,6 +454,7 @@ export async function createProProfile(profile: {
       bio: profile.bio || null,
       years_experience: profile.years_experience || null,
       contact_phone: profile.contact_phone || null,
+      contact_phone_public: profile.contact_phone_public ?? false,
       website_url: profile.website_url || null,
     })
     .select(

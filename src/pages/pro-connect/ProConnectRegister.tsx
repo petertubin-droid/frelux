@@ -79,6 +79,7 @@ export default function ProConnectRegister() {
   const [bio, setBio] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
   const [phone, setPhone] = useState("");
+  const [phonePublic, setPhonePublic] = useState(false);
   const [website, setWebsite] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -157,6 +158,7 @@ export default function ProConnectRegister() {
           setBio(existing.bio || "");
           setYearsExperience(existing.years_experience?.toString() || "");
           setPhone((await getMyProContactPhone()) || "");
+          setPhonePublic(existing.contact_phone_public === true);
           const existingCountry = existing.country || "NG";
           setCountry(existingCountry);
           setServiceAreaText(existing.service_area_text || "");
@@ -254,6 +256,7 @@ export default function ProConnectRegister() {
           ? parseInt(yearsExperience)
           : undefined,
         contact_phone: phone || undefined,
+        contact_phone_public: phonePublic,
         website_url: website || undefined,
       });
       if (result) {
@@ -271,6 +274,7 @@ export default function ProConnectRegister() {
         bio: bio || null,
         years_experience: yearsExperience ? parseInt(yearsExperience) : null,
         contact_phone: phone || null,
+        contact_phone_public: phonePublic,
         website_url: website || null,
       } as Partial<DbProProfile>);
       if (!profileSaved) {
@@ -578,6 +582,19 @@ export default function ProConnectRegister() {
                 placeholder={t("Your contact phone")}
                 className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
               />
+              <label className="mt-2 flex items-start gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={phonePublic}
+                  onChange={(e) => setPhonePublic(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>
+                  {t(
+                    "Show this number on my public profile so customers can call or message me on WhatsApp",
+                  )}
+                </span>
+              </label>
             </div>
           </div>
           <div>
