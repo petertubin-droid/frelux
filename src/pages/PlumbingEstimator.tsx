@@ -63,6 +63,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type NumField =
   | "taps"
@@ -932,6 +933,7 @@ export default function PlumbingEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

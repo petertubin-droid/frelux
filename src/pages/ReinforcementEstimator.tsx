@@ -68,6 +68,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type LenField = "len_12mm_m" | "len_16mm_m" | "len_20mm_m" | "len_25mm_m";
 
@@ -866,6 +867,7 @@ export default function ReinforcementEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

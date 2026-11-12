@@ -57,6 +57,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type AreaField =
   | "dpc_run_m"
@@ -722,6 +723,7 @@ export default function WaterproofingEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

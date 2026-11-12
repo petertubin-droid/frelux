@@ -70,6 +70,7 @@ import type {
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type NumField =
   | "flush_doors"
@@ -968,6 +969,7 @@ export default function DoorsWindowsEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

@@ -69,6 +69,7 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 const BUILDING_TYPES = [
   "Residential: flat / bungalow",
@@ -1129,6 +1130,7 @@ export default function ElectricalEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

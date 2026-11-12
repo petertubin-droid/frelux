@@ -63,6 +63,7 @@ import type {
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type Field =
   | "concrete_volume_m3"
@@ -805,6 +806,7 @@ export default function FoundationEstimator() {
           </li>
         </ul>
       </section>
+      <EstimateDisclaimer />
     </Container>
   );
 }

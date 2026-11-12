@@ -11,77 +11,77 @@ Pages checked: 61
 
 ## Totals
 
-- Missing header: 1
+- Missing header: 0
 - More than 3 ad slots: 0
-- Missing share or PDF: 18
-- Missing method explanation: 17
-- Missing disclaimer: 19
+- Missing share or PDF: 8
+- Missing method explanation: 4
+- Missing disclaimer: 4
 - Inputs that may lack a label: 0 pages
-- No feet reference at all (only a defect on length based tools): 33
+- No feet reference at all (only a defect on length based tools): 25
 - Fixed wide layout that can overflow a phone: 0
 
 ## Per page
 
-| Page | Header | Ads | Share/PDF | Method | Disclaimer | Unlabelled inputs |
-| --- | --- | --- | --- | --- | --- | --- |
-| `BlueprintTakeoff.tsx` | yes | 2 | yes | yes | yes |  |
-| `BoqGenerator.tsx` | yes | 2 | yes | yes | yes |  |
-| `BoqStudio.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `BoreholeWaterSystemEstimator.tsx` | yes | 1 | yes | yes | yes |  |
-| `BuildToRoofEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `Calculators.tsx` | **no** | 0 | **no** | **no** | **no** |  |
-| `ConcreteTakeoffPage.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `ConduitWiringEstimator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `ConfigurableFinishCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `ConversationalEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `CostEstimator.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `CountVision.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `DoorsWindowsEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `EarthworksEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `ElectricalEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `FenceBlockCalculator.tsx` | yes | 1 | yes | yes | yes |  |
-| `FinishEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `FinishingCalculatorHub.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `FlooringEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `FoundationCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `FoundationEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `GeneratorEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `GermanFloorCalculator.tsx` | yes | 1 | yes | yes | yes |  |
-| `GlobalSiteSafetyEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `ImageEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `IncreteFlooringEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `LabourEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `MarginCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `MineralStoneCalculator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `PaintCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `PaintingCalculatorHub.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `PaintingEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `PlumbingEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `PopCeilingCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `PopCeilingCalculatorHub.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `PopCeilingCostEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `ReinforcementEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `RetainingWallEstimator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `RoofFramingEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `ScreedingCalculator.tsx` | yes | 1 | **no** | yes | yes |  |
-| `ScreedingCalculatorHub.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `ScreedingCostEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `SmartCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `SoffitGutterEstimator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `SolarPvEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `StandaloneTakeoffPage.tsx` | yes | 2 | yes | yes | yes |  |
-| `SteelBeamEstimator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `StructuralCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `StuccoCalculator.tsx` | yes | 0 | **no** | **no** | **no** |  |
-| `TallBuildingCalculator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `TileCalculator.tsx` | yes | 2 | yes | yes | yes |  |
-| `TileCalculatorHub.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `TileCostEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `TvConsoleCalculator.tsx` | yes | 1 | yes | yes | yes |  |
-| `TyroleneEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `VisualFinishingEstimator.tsx` | yes | 2 | **no** | **no** | yes |  |
-| `WallFinishEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `WallpaperCalculator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `WaterproofingEstimator.tsx` | yes | 2 | yes | yes | **no** |  |
-| `WaterTowerEstimator.tsx` | yes | 2 | yes | yes | yes |  |
-| `WindowBlindsEstimator.tsx` | yes | 1 | yes | yes | yes |  |
+| Page | Kind | Header | Ads | Share/PDF | Method | Disclaimer | Unlabelled inputs |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `BlueprintTakeoff.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `BoqGenerator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `BoqStudio.tsx` | calculator | yes | 2 | **no** | yes | yes |  |
+| `BoreholeWaterSystemEstimator.tsx` | calculator | yes | 1 | yes | yes | yes |  |
+| `BuildToRoofEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `Calculators.tsx` | redirect | **no** | 0 | **no** | **no** | **no** |  |
+| `ConcreteTakeoffPage.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `ConduitWiringEstimator.tsx` | calculator | yes | 0 | **no** | yes | **no** |  |
+| `ConfigurableFinishCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `ConversationalEstimator.tsx` | index | yes | 2 | yes | yes | yes |  |
+| `CostEstimator.tsx` | calculator | yes | 2 | **no** | **no** | yes |  |
+| `CountVision.tsx` | calculator | yes | 2 | **no** | **no** | yes |  |
+| `DoorsWindowsEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `EarthworksEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `ElectricalEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `FenceBlockCalculator.tsx` | calculator | yes | 1 | yes | yes | yes |  |
+| `FinishEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `FinishingCalculatorHub.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `FlooringEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `FoundationCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `FoundationEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `GeneratorEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `GermanFloorCalculator.tsx` | calculator | yes | 1 | yes | yes | yes |  |
+| `GlobalSiteSafetyEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `ImageEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `IncreteFlooringEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `LabourEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `MarginCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `MineralStoneCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `PaintCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `PaintingCalculatorHub.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `PaintingEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `PlumbingEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `PopCeilingCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `PopCeilingCalculatorHub.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `PopCeilingCostEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `ReinforcementEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `RetainingWallEstimator.tsx` | calculator | yes | 0 | **no** | **no** | **no** |  |
+| `RoofFramingEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `ScreedingCalculator.tsx` | calculator | yes | 1 | **no** | yes | yes |  |
+| `ScreedingCalculatorHub.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `ScreedingCostEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `SmartCalculator.tsx` | index | yes | 2 | yes | yes | yes |  |
+| `SoffitGutterEstimator.tsx` | calculator | yes | 0 | **no** | **no** | **no** |  |
+| `SolarPvEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `StandaloneTakeoffPage.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `SteelBeamEstimator.tsx` | calculator | yes | 0 | **no** | yes | **no** |  |
+| `StructuralCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `StuccoCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `TallBuildingCalculator.tsx` | index | yes | 2 | yes | yes | yes |  |
+| `TileCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `TileCalculatorHub.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `TileCostEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `TvConsoleCalculator.tsx` | calculator | yes | 1 | yes | yes | yes |  |
+| `TyroleneEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `VisualFinishingEstimator.tsx` | index | yes | 2 | **no** | **no** | yes |  |
+| `WallFinishEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `WallpaperCalculator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `WaterproofingEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `WaterTowerEstimator.tsx` | calculator | yes | 2 | yes | yes | yes |  |
+| `WindowBlindsEstimator.tsx` | calculator | yes | 1 | yes | yes | yes |  |

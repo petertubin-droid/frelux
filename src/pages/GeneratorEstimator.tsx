@@ -56,6 +56,7 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type GenSize = "10kva" | "20kva" | "30kva" | "50kva";
 
@@ -728,6 +729,7 @@ export default function GeneratorEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

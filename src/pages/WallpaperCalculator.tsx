@@ -18,6 +18,7 @@ import { formatWithSymbol } from "@/lib/international/currency-format";
 import AdSlot from "@/components/ui/AdSlot";
 import ToolFaqs from "@/components/seo/ToolFaqs";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 const METRES_PER_FOOT = 0.3048;
 const INITIAL_WALL: WallpaperWallInput = {
@@ -1516,6 +1517,7 @@ function WallDiagram({
           Opening symbols show one example; counts are entered above.
         </text>
       </svg>
+      <EstimateDisclaimer />
     </div>
   );
 }

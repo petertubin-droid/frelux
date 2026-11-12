@@ -31,6 +31,8 @@ import { track } from "@/lib/analytics";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 
 export default function SteelBeamEstimator() {
   const { priceMap, bookSummary } = useSpecialtyPrices("steel_beam");
@@ -247,4 +249,5 @@ export default function SteelBeamEstimator() {
       }
     />
   );
+  <HowCalculatedSection methodologyText={methodologyText("structural")} />;
 }

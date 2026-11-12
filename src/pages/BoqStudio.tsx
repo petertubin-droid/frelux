@@ -53,6 +53,8 @@ import { downloadBoqXlsx } from "@/lib/boq/xlsx";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import { openBoqPrint } from "@/lib/boq/print";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 
 /**
  * BOQ Studio.
@@ -1466,6 +1468,7 @@ export default function BoqStudio() {
         />
       </div>
 
+      <HowCalculatedSection methodologyText={methodologyText("boq")} />
       <EstimateDisclaimer />
     </Container>
   );

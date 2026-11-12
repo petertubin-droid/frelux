@@ -20,8 +20,30 @@ const files = readdirSync(PAGES)
   .filter((f) => f.endsWith(".tsx") && !f.endsWith(".test.tsx"))
   .filter((f) => TOOL.test(f));
 
+/**
+ * Several calculators are thin wrappers: they render a shared shell and pass a
+ * title, so their own file contains none of the chrome. Checking only the page
+ * file reported those shells' share button and disclaimer as missing. Resolve
+ * one level of delegation so a feature counts wherever it actually renders.
+ */
+const SHELLS = ["ConfigurableFinishCalculator", "SpecialtyCalculatorShell"];
+const shellCache = new Map();
+function shellProvides(name) {
+  if (shellCache.has(name)) return shellCache.get(name);
+  let source = "";
+  try {
+    source = readFileSync(join(PAGES, name + ".tsx"), "utf8");
+  } catch {
+    source = "";
+  }
+  shellCache.set(name, source);
+  return source;
+}
+
 const rows = files.map((file) => {
-  const s = readFileSync(join(PAGES, file), "utf8");
+  const own = readFileSync(join(PAGES, file), "utf8");
+  const delegated = SHELLS.filter((n) => own.includes("<" + n));
+  const s = own + delegated.map(shellProvides).join("\n");
   const adSlots = (s.match(/<AdSlot/g) ?? []).length;
   const inputs = (s.match(/<input\b/g) ?? []).length;
   // A field wrapper carrying a label prop counts as a label: most calculators
@@ -30,7 +52,14 @@ const rows = files.map((file) => {
   const labels = (s.match(/<label\b|<Label\b|label=\{|label="/g) ?? []).length;
   const aria = (s.match(/aria-label=/g) ?? []).length;
   const feet = /\bft\b|feet|Feet|FT/.test(s);
+  // A redirect stub renders no UI at all, and a hub is an index of tools with
+  // no inputs of its own. Neither owes a disclaimer or a share button, so they
+  // are classified instead of being counted as failures.
+  const redirect = s.trim().length < 1200 && /<Navigate/.test(s);
+  const hub = /Hub\.tsx$/.test(file) || (!/<input\b/.test(s) && !/Field\b/.test(s));
+
   return {
+    kind: redirect ? "redirect" : hub ? "index" : "calculator",
     file,
     // Thin wrappers delegate to a shared shell that renders the header.
     header: /PageHeader|SpecialtyCalculatorShell|ConfigurableFinishCalculator/.test(s),
@@ -53,17 +82,18 @@ const rows = files.map((file) => {
   };
 });
 
-const fails = (pred) => rows.filter((r) => !pred(r));
+const real = rows.filter((r) => r.kind === "calculator");
+const fails = (pred) => real.filter((r) => !pred(r));
 const share = fails((r) => r.share);
 const method = fails((r) => r.method);
 const disclaimer = fails((r) => r.disclaimer);
 const header = fails((r) => r.header);
-const ads = rows.filter((r) => !r.adRule);
-const labelling = rows.filter((r) => r.unlabelledInputs > 0);
+const ads = real.filter((r) => !r.adRule);
+const labelling = real.filter((r) => r.unlabelledInputs > 0);
 const feet = fails((r) => r.feet);
-const wide = rows.filter((r) => r.wideFixed);
+const wide = real.filter((r) => r.wideFixed);
 
-console.log(`calculator pages: ${rows.length}`);
+console.log(`pages: ${rows.length} (${real.length} calculators, ${rows.length - real.length} hub or redirect)`);
 console.log(`no header:        ${header.length}`);
 console.log(
   `over 3 ad slots:  ${ads.length} ${ads.map((r) => r.file).join(", ")}`,
@@ -77,7 +107,7 @@ console.log(`fixed wide layout:${wide.length}`);
 
 if (process.argv.includes("--write")) {
   const line = (r) =>
-    `| \`${r.file}\` | ${r.header ? "yes" : "**no**"} | ${r.ads} | ${r.share ? "yes" : "**no**"} | ${r.method ? "yes" : "**no**"} | ${r.disclaimer ? "yes" : "**no**"} | ${r.unlabelledInputs || ""} |`;
+    `| \`${r.file}\` | ${r.kind} | ${r.header ? "yes" : "**no**"} | ${r.ads} | ${r.share ? "yes" : "**no**"} | ${r.method ? "yes" : "**no**"} | ${r.disclaimer ? "yes" : "**no**"} | ${r.unlabelledInputs || ""} |`;
   const body = [
     "---",
     "title: Calculator UI audit",
@@ -103,8 +133,8 @@ if (process.argv.includes("--write")) {
     "",
     "## Per page",
     "",
-    "| Page | Header | Ads | Share/PDF | Method | Disclaimer | Unlabelled inputs |",
-    "| --- | --- | --- | --- | --- | --- | --- |",
+    "| Page | Kind | Header | Ads | Share/PDF | Method | Disclaimer | Unlabelled inputs |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ...rows.sort((a, b) => a.file.localeCompare(b.file)).map(line),
     "",
   ].join("\n");

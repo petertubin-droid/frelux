@@ -74,6 +74,7 @@ import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { WasteFactorControl } from "@/components/calculators/WasteFactorControl";
 import { useWasteBridge } from "@/lib/waste/use-waste-settings";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type FloorType = "laminate" | "vinyl" | "parquet";
 
@@ -972,6 +973,7 @@ export default function FlooringEstimator() {
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

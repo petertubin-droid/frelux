@@ -23,6 +23,7 @@ import {
   type IncreteSystem,
 } from "@/lib/estimation/increte-engine";
 import { useLanguage } from "@/lib/i18n";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 const SYSTEMS: Array<{ value: IncreteSystem; label: string }> = [
   { value: "stamped-concrete", label: "Stamped concrete" },
@@ -693,6 +694,7 @@ Prices come from the market book for your selected market. Anything you type ove
           ]}
         />
       </div>
+      <EstimateDisclaimer />
     </Container>
   );
 }

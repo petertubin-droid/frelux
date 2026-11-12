@@ -35,6 +35,8 @@ import { Plus, Trash2, Download, Route, Layers } from "lucide-react";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 
 type DeviceType = MEPPoint["type"];
 
@@ -690,4 +692,5 @@ export default function ConduitWiringEstimator() {
       }
     />
   );
+  <HowCalculatedSection methodologyText={methodologyText("electrical")} />;
 }

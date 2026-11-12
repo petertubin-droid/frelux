@@ -50,6 +50,7 @@ import {
   type TallStructuralSystemKey,
 } from "@/lib/engineering/tall-building-engine";
 import type { TallOccupancy } from "@/lib/engineering/architectural-planning";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 const metresToFeet = (value: number) => value * 3.28084;
 
@@ -1551,6 +1552,7 @@ export default function TallBuildingCalculator() {
       <FaqItemsWithSchema faqs={TALL_FAQS} title="Tall building questions" />
 
       <RelatedToolsLinks />
+      <EstimateDisclaimer />
     </div>
   );
 }

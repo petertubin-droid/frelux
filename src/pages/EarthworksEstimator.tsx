@@ -19,6 +19,7 @@ import {
   calculateEarthwork,
   type EarthworkResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -546,6 +547,7 @@ The soil description is recorded for the job record. It does not change the quan
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
+        <EstimateDisclaimer />
       </Container>
       <div className="mt-10">
         <RelatedTools
