@@ -300,12 +300,51 @@ export async function fetchMyOrders(userId: string, role: "client" | "pro") {
   return (data ?? []) as unknown as DbMarketplaceOrder[];
 }
 
+/**
+ * Order statuses a participant may move an order to.
+ *
+ * The database trigger enforces the real transition rules; this list exists so the
+ * client cannot even attempt a status the UI has no meaning for, and so a typo
+ * becomes a clear error instead of a row that silently keeps its old status.
+ */
+export const ORDER_STATUSES = [
+  "pending_start",
+  "in_progress",
+  "client_review",
+  "completed",
+  "disputed",
+  "cancelled",
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+/** Columns a participant may send alongside a status change. */
+const ORDER_UPDATE_WHITELIST = new Set([
+  "cancel_reason",
+  "agreement_terms",
+  "agreed_timeline_days",
+]);
+
 export async function updateOrderStatus(
   orderId: string,
-  status: string,
+  status: OrderStatus,
   extra?: Record<string, unknown>,
 ) {
-  const updates: Record<string, unknown> = { status, ...extra };
+  if (!ORDER_STATUSES.includes(status)) {
+    throw new Error(`Unknown order status: ${String(status)}`);
+  }
+  // Anything outside the whitelist is a column the caller has no business setting
+  // here. Silently dropping it would hide the mistake, so it is refused.
+  const rejected = Object.keys(extra ?? {}).filter(
+    (key) => !ORDER_UPDATE_WHITELIST.has(key),
+  );
+  if (rejected.length > 0) {
+    throw new Error(
+      `These fields cannot be set with a status change: ${rejected.join(", ")}`,
+    );
+  }
+
+  const updates: Record<string, unknown> = { status, ...(extra ?? {}) };
   if (status === "in_progress") updates.started_at = new Date().toISOString();
   if (status === "completed") updates.completed_at = new Date().toISOString();
   if (status === "cancelled") updates.cancelled_at = new Date().toISOString();
@@ -326,14 +365,20 @@ export async function submitOrderReview(
   rating: number,
   review: string,
 ) {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    throw new Error("A rating must be a whole number from 1 to 5.");
+  }
+  const trimmed = String(review ?? "").trim().slice(0, 2000);
   const updates: Record<string, unknown> = {};
+  // Only the caller's own side is written. A participant writing the other
+  // party's review is rejected by the database trigger as well.
   if (role === "client") {
     updates.client_rating = rating;
-    updates.client_review = review;
+    updates.client_review = trimmed;
     updates.client_reviewed_at = new Date().toISOString();
   } else {
     updates.pro_rating = rating;
-    updates.pro_review = review;
+    updates.pro_review = trimmed;
     updates.pro_reviewed_at = new Date().toISOString();
   }
 

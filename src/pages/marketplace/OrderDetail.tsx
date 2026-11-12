@@ -19,6 +19,7 @@ import {
   updateOrderStatus,
   submitOrderReview,
   createMilestone,
+  type OrderStatus,
 } from "@/lib/marketplace";
 import WorkerSafetyNotice from "@/components/pro-connect/WorkerSafetyNotice";
 import ClientIdentityCard from "@/components/escrow/ClientIdentityCard";
@@ -42,12 +43,13 @@ import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 
-const STATUS_FLOW = [
-  "pending_start",
-  "in_progress",
-  "client_review",
-  "completed",
-];
+/**
+ * The happy path, per side. The professional starts work and submits it; the
+ * client accepts it. The database trigger rejects anything else, so the button
+ * only ever offers a move the person pressing it is allowed to make.
+ */
+const PRO_FLOW: OrderStatus[] = ["pending_start", "in_progress", "client_review"];
+const CLIENT_FLOW: OrderStatus[] = ["client_review", "completed"];
 const STATUS_COLORS: Record<string, string> = {
   pending_start:
     "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
@@ -85,6 +87,7 @@ export default function OrderDetail() {
   const [payments, setPayments] = useState<Record<string, unknown>[]>([]);
   const [escrowError, setEscrowError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -118,19 +121,37 @@ export default function OrderDetail() {
   const paymentSummary = summariseOrderPayments(payments);
   const isClient = order?.client_id === user.id;
   const isPro = !isClient;
-  const canAdvance =
-    order?.status === "pending_start" || order?.status === "in_progress";
+  // The next move this side is allowed to make, if any. A pending_start order is
+  // the professional's to start; a submitted one is the client's to accept.
+  const nextStatus = (() => {
+    if (!order) return undefined;
+    const flow = isClient ? CLIENT_FLOW : PRO_FLOW;
+    const at = flow.indexOf(order.status as OrderStatus);
+    return at === -1 ? undefined : flow[at + 1];
+  })();
+  const NEXT_ACTION_LABEL: Record<string, string> = {
+    in_progress: isClient ? "Send back for rework" : "Start work",
+    client_review: "Submit finished work",
+    completed: "Accept work",
+  };
+  const canAdvance = Boolean(nextStatus);
 
   async function handleAdvanceStatus() {
-    if (!order) return;
+    if (!order || !nextStatus) return;
+
     setSubmitting(true);
+    setActionError(null);
     try {
-      const nextStatus =
-        STATUS_FLOW[STATUS_FLOW.indexOf(order.status) + 1] || "completed";
       await updateOrderStatus(order.id, nextStatus);
       load();
     } catch {
-      /* ignore */
+      // This used to fail silently: pressing "advance" on a move the order does
+      // not allow looked like a dead button.
+      setActionError(
+        t(
+          "That change was not accepted. Refresh the order to see its current state, then try again.",
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -411,9 +432,19 @@ export default function OrderDetail() {
               ) : (
                 <Check aria-hidden="true" className="h-4 w-4" />
               )}
-              {isPro ? "Mark Progress" : "Advance Status"}
+              {(nextStatus && NEXT_ACTION_LABEL[nextStatus]) ||
+                (isPro ? "Mark Progress" : "Advance Status")}
             </Button>
           </div>
+        )}
+
+        {actionError && (
+          <p
+            role="alert"
+            className="mt-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive"
+          >
+            {actionError}
+          </p>
         )}
 
         {/* Milestones */}
