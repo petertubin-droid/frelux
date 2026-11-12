@@ -22,7 +22,9 @@ import {
 } from "@/lib/marketplace";
 import {
   approveAndReleaseMilestone,
+  fetchOrderPayments,
   fundOrderWithEscrow,
+  summariseOrderPayments,
 } from "@/lib/marketplace/escrow-bridge";
 import { useAuth } from "@/lib/auth";
 import type {
@@ -77,6 +79,7 @@ export default function OrderDetail() {
   const [newMilestoneTitle, setNewMilestoneTitle] = useState("");
   const [newMilestoneAmount, setNewMilestoneAmount] = useState("");
   const [escrowBusy, setEscrowBusy] = useState(false);
+  const [payments, setPayments] = useState<Record<string, unknown>[]>([]);
   const [escrowError, setEscrowError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -87,6 +90,15 @@ export default function OrderDetail() {
       const [o, m] = await Promise.all([fetchOrder(id), fetchMilestones(id)]);
       setOrder(o);
       setMilestones(m);
+      // The settlement trail is written by the escrow engine, not by this
+      // page, so a failure to read it must not hide the order itself.
+      try {
+        setPayments(
+          (await fetchOrderPayments(id)) as Record<string, unknown>[],
+        );
+      } catch {
+        setPayments([]);
+      }
     } catch {
       navigate("/marketplace");
     } finally {
@@ -100,6 +112,7 @@ export default function OrderDetail() {
 
   if (!user) return null;
 
+  const paymentSummary = summariseOrderPayments(payments);
   const isClient = order?.client_id === user.id;
   const isPro = !isClient;
   const canAdvance =
@@ -445,6 +458,46 @@ export default function OrderDetail() {
               >
                 {t("Add")}
               </Button>
+            </div>
+          )}
+
+          {paymentSummary.rows.length > 0 && (
+            <div className="mb-4 rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                  {t("Payments released")}
+                </h3>
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  {formatByCode(paymentSummary.totalPaid, order.currency)}
+                </span>
+              </div>
+              <ul className="mt-2 space-y-1">
+                {paymentSummary.rows.map((payment) => (
+                  <li
+                    key={payment.id}
+                    className="flex items-center justify-between text-[11px] text-muted-foreground dark:text-muted-foreground"
+                  >
+                    <span>
+                      {formatByCode(
+                        payment.amount,
+                        payment.currency || order.currency,
+                      )}
+                      {payment.provider ? ` · ${payment.provider}` : ""}
+                      {payment.providerRef ? ` · ${payment.providerRef}` : ""}
+                    </span>
+                    <span
+                      className={classNames(
+                        "font-medium capitalize",
+                        payment.status === "completed"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-amber-600 dark:text-amber-400",
+                      )}
+                    >
+                      {payment.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

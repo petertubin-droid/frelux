@@ -68,14 +68,20 @@ export async function fetchServices(
   }
 }
 
-export async function fetchLocations(): Promise<DbProLocation[]> {
+export async function fetchLocations(
+  countryCode?: string,
+): Promise<DbProLocation[]> {
   try {
     if (!isSupabaseConfigured) return [];
-    const { data, error } = await supabase
+    let query = supabase
       .from("pro_locations")
       .select("*")
-      .eq("is_active", true)
-      .order("state, city, sort_order");
+      .eq("is_active", true);
+    // Structured location filters only work where rows exist, so callers can
+    // ask for one country rather than receiving a Nigeria-only list and
+    // silently offering it to an international professional.
+    if (countryCode) query = query.eq("country", countryCode.toUpperCase());
+    const { data, error } = await query.order("state, city, sort_order");
     if (error) {
       if (import.meta.env.DEV)
         console.error("[pro-connect] fetchLocations:", error.message);
@@ -90,9 +96,18 @@ export async function fetchLocations(): Promise<DbProLocation[]> {
   }
 }
 
-export async function fetchStates(): Promise<string[]> {
+/** Country codes that actually have structured locations, so the picker never
+ *  offers a country it cannot filter by. */
+export async function fetchLocationCountries(): Promise<string[]> {
+  const locations = await fetchLocations();
+  return [...new Set(locations.map((l) => l.country ?? ""))]
+    .filter(Boolean)
+    .sort();
+}
+
+export async function fetchStates(countryCode?: string): Promise<string[]> {
   try {
-    const locations = await fetchLocations();
+    const locations = await fetchLocations(countryCode);
     return [...new Set(locations.map((l) => l.state))].sort();
   } catch (err) {
     if (import.meta.env.DEV) console.error("[pro-connect] fetchStates:", err);

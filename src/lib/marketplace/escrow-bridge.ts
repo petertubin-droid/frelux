@@ -150,3 +150,37 @@ export async function fetchOrderPayments(orderId: string) {
   if (error) throw error;
   return data ?? [];
 }
+
+export interface PaymentSummary {
+  rows: ReturnType<typeof toPaymentRow>[];
+  totalPaid: number;
+  lastPaidAt: string | null;
+}
+
+function toPaymentRow(payment: Record<string, unknown>) {
+  return {
+    id: String(payment.id ?? ""),
+    amount: Number(payment.amount ?? 0),
+    currency: String(payment.currency ?? ""),
+    status: String(payment.status ?? "pending"),
+    provider: payment.provider ? String(payment.provider) : null,
+    providerRef: payment.provider_ref ? String(payment.provider_ref) : null,
+    createdAt: String(payment.created_at ?? ""),
+  };
+}
+
+/**
+ * Shape the escrow settlement rows for display. Totals only count completed
+ * payments, so a pending or failed row can never read as money received.
+ */
+export function summariseOrderPayments(
+  payments: Record<string, unknown>[],
+): PaymentSummary {
+  const rows = payments.map(toPaymentRow);
+  const completed = rows.filter((row) => row.status === "completed");
+  return {
+    rows,
+    totalPaid: completed.reduce((sum, row) => sum + row.amount, 0),
+    lastPaidAt: completed[0]?.createdAt ?? null,
+  };
+}

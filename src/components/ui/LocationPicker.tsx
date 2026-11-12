@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MapPin, Navigation, X, Loader2, Crosshair } from "lucide-react";
 import { useLocation, DISTANCE_FILTERS } from "@/lib/location";
 import { fetchLocations } from "@/lib/pro-connect";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import type { DbProLocation } from "@/types/pro-connect";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
@@ -38,6 +39,7 @@ export default function LocationPicker({
   } = useLocation();
   const [showManual, setShowManual] = useState(false);
   const [dbLocations, setDbLocations] = useState<DbProLocation[]>([]);
+  const [manualCountry, setManualCountry] = useState("NG");
   const [manualState, setManualState] = useState("");
   const [manualCity, setManualCity] = useState("");
   const [radius, setRadius] = useState(25);
@@ -62,10 +64,22 @@ export default function LocationPicker({
     [onRadiusChange],
   );
 
-  const states = [...new Set(dbLocations.map((l) => l.state))].sort();
+  const countryCodes = [...new Set(dbLocations.map((l) => l.country ?? ""))]
+    .filter(Boolean)
+    .sort();
+  const countryName = (code: string) =>
+    COUNTRY_OPTIONS.flatMap((group) => group.countries).find(
+      (country) => country.code === code,
+    )?.name ?? code;
+  const countryLocations = dbLocations.filter(
+    (l) => !manualCountry || l.country === manualCountry,
+  );
+  const states = [...new Set(countryLocations.map((l) => l.state))].sort();
   const cities = [
     ...new Set(
-      dbLocations.filter((l) => l.state === manualState).map((l) => l.city),
+      countryLocations
+        .filter((l) => l.state === manualState)
+        .map((l) => l.city),
     ),
   ].sort();
 
@@ -80,7 +94,10 @@ export default function LocationPicker({
         longitude: dbLoc.longitude,
         city: manualCity || undefined,
         state: manualState,
-        label: [manualCity, manualState].filter(Boolean).join(", "),
+        country: manualCountry || undefined,
+        label: [manualCity, manualState, countryName(manualCountry)]
+          .filter(Boolean)
+          .join(", "),
       });
     } else {
       // Even without coordinates, set the label for filtering
@@ -89,7 +106,10 @@ export default function LocationPicker({
         longitude: 0,
         city: manualCity || undefined,
         state: manualState,
-        label: [manualCity, manualState].filter(Boolean).join(", "),
+        country: manualCountry || undefined,
+        label: [manualCity, manualState, countryName(manualCountry)]
+          .filter(Boolean)
+          .join(", "),
       });
     }
     setShowManual(false);
@@ -192,6 +212,22 @@ export default function LocationPicker({
       {showManual && (
         <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="flex flex-wrap gap-2">
+            <select
+              aria-label="Country"
+              value={manualCountry}
+              onChange={(e) => {
+                setManualCountry(e.target.value);
+                setManualState("");
+                setManualCity("");
+              }}
+              className="rounded-md border border-border bg-card px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            >
+              {countryCodes.map((code) => (
+                <option key={code} value={code}>
+                  {countryName(code)}
+                </option>
+              ))}
+            </select>
             <select
               aria-label="State"
               value={manualState}
