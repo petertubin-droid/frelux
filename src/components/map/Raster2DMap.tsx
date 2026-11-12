@@ -10,7 +10,6 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import {
-  basemapAttribution,
   basemapRasterFallbackUrl,
   basemapRasterUrl,
   cartoApiKey,
@@ -25,8 +24,7 @@ import {
   Minimize2,
   Minus,
   Plus,
-  RotateCcw,
-  Satellite,
+  Crosshair,
   X,
 } from "lucide-react";
 import { classNames } from "@/lib/utils";
@@ -292,11 +290,6 @@ export function Raster2DMap({
 
   const zoomBy = (amount: number) =>
     setZoom((z) => clamp(Math.round((z + amount) * 10) / 10, 2, 18));
-  const reset = () => {
-    setCenter({ lat: opening.lat, lon: opening.lon });
-    setZoom(opening.zoom);
-    setSelected(null);
-  };
   const toggleFullscreen = () => {
     const el = rootRef.current;
     if (!el) return;
@@ -641,58 +634,79 @@ export function Raster2DMap({
           </div>
         )}
         <div className="absolute inset-0 pointer-events-none">
-          {markers.map(
-            ({ point, x, y, visible }) =>
-              visible && (
-                <button
-                  key={point.id}
-                  type="button"
-                  aria-label={`${t(LAYER_NOUN[point.kind])}: ${point.title}${point.meta ? `, ${point.meta}` : ""}`}
-                  className={classNames(
-                    "frelux-pin pointer-events-auto",
-                    `frelux-pin--${point.kind}`,
-                    point.id === activeId && "is-active",
-                  )}
-                  style={{
-                    position: "absolute",
-                    left: x,
-                    top: y,
-                    transform: "translate(-50%, -100%)",
-                    zIndex: point.id === selected?.id ? 25 : 15,
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    choose(point);
-                  }}
-                >
-                  <span className="frelux-pin__halo" />
-                  <span className="frelux-pin__core">
-                    <span className="frelux-pin__glyph" />
-                  </span>
-                  <span className="frelux-pin__label">
-                    {point.title.replace(/[<>&]/g, "")}
-                  </span>
-                </button>
-              ),
-          )}
+          {markers.map(({ point, x, y, visible }) => {
+            if (!visible) return null;
+            const isYou = point.kind === "you";
+            return (
+              <button
+                key={point.id}
+                type="button"
+                aria-label={`${t(LAYER_NOUN[point.kind])}: ${point.title}${point.meta ? `, ${point.meta}` : ""}`}
+                className={classNames(
+                  isYou
+                    ? "frelux-you-dot pointer-events-auto"
+                    : "frelux-pin pointer-events-auto",
+                  `frelux-pin--${point.kind}`,
+                  point.id === activeId && "is-active",
+                )}
+                style={{
+                  position: "absolute",
+                  left: x,
+                  top: y,
+                  transform: isYou
+                    ? "translate(-50%, -50%)"
+                    : "translate(-50%, -100%)",
+                  zIndex: point.id === selected?.id ? 25 : 15,
+                }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  choose(point);
+                }}
+              >
+                {isYou ? (
+                  <>
+                    <span className="frelux-you-dot__halo" />
+                    <span className="frelux-you-dot__core" />
+                  </>
+                ) : (
+                  <svg
+                    viewBox="0 0 24 34"
+                    width="28"
+                    height="38"
+                    className="frelux-pin__marker"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 0C5.373 0 0 5.373 0 12c0 8.5 12 22 12 22s12-13.5 12-22c0-6.627-5.373-12-12-12z"
+                      fill="var(--pin)"
+                    />
+                    <circle cx="12" cy="11.5" r="4.8" fill="#ffffff" />
+                    <circle cx="12" cy="11.5" r="2.2" fill="var(--pin)" />
+                  </svg>
+                )}
+                <span className="frelux-pin__label">
+                  {point.title.replace(/[<>&]/g, "")}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="absolute left-3 top-3 z-20 flex items-center gap-2 pointer-events-none">
-        <span className="frelux-map__pill pointer-events-auto">
-          <span className="frelux-map__live" aria-hidden="true" />
-          <span className="tabular-nums">{points.length}</span>
-          <span className="text-muted-foreground/80">
+      <div className="absolute left-3 top-3 z-20 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/95 px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] backdrop-blur dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-200">
+          <span
+            className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"
+            aria-hidden="true"
+          />
+          <span className="font-semibold tabular-nums">{points.length}</span>
+          <span className="text-zinc-500 dark:text-zinc-400">
             {points.length === 1 ? "place" : "places"}
           </span>
         </span>
-        <span className="frelux-map__pill hidden sm:inline-flex pointer-events-auto">
-          <span className="tabular-nums">{Math.round(zoom * 10) / 10}</span>
-          <span className="text-muted-foreground/80">zoom</span>
-        </span>
         {notice && (
           <span
-            className="frelux-map__pill hidden md:inline-flex pointer-events-auto border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[11px]"
+            className="hidden md:inline-flex items-center rounded-lg border border-amber-500/30 bg-white/95 px-2.5 py-1.5 text-[11px] font-medium text-amber-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] backdrop-blur dark:bg-zinc-900/95 dark:text-amber-400"
             title={notice}
           >
             {notice}
@@ -701,69 +715,102 @@ export function Raster2DMap({
       </div>
 
       {interactive && (
-        <div className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={reset}
-            className="frelux-map__dial group"
-            aria-label="Recenter map"
-            title="Recenter map"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-foreground transition-transform group-hover:-rotate-45" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setSatellite((on) => !on)}
-            className="frelux-map__dial group"
-            aria-pressed={satellite}
-            aria-label={
-              satellite ? "Show the street map" : "Show satellite imagery"
-            }
-            title={satellite ? "Street map" : "Satellite"}
-          >
-            <Satellite
+        <>
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSatellite(false)}
               className={classNames(
-                "h-3.5 w-3.5 transition-colors",
-                satellite ? "text-brand-purple" : "text-foreground",
+                "rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-[0_2px_6px_rgba(0,0,0,0.2)] transition-colors",
+                !satellite
+                  ? "border-blue-600 bg-blue-600 text-white"
+                  : "border-black/10 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800",
               )}
-              aria-hidden="true"
-            />
-          </button>
-          <div className="frelux-map__keys">
+              aria-label="Show the street map"
+              title="Map"
+            >
+              Map
+            </button>
+            <button
+              type="button"
+              onClick={() => setSatellite(true)}
+              className={classNames(
+                "rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-[0_2px_6px_rgba(0,0,0,0.2)] transition-colors",
+                satellite
+                  ? "border-blue-600 bg-blue-600 text-white"
+                  : "border-black/10 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800",
+              )}
+              aria-label="Show satellite imagery"
+              title="Satellite"
+            >
+              Satellite
+            </button>
             <button
               type="button"
               onClick={toggleFullscreen}
-              className="frelux-map__key"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-black/10 bg-white text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
               aria-label={
                 fullscreen ? "Exit fullscreen" : "Open map fullscreen"
               }
             >
               {fullscreen ? (
-                <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <Minimize2 className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <Maximize2 className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
-            <span className="frelux-map__key-divider" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => zoomBy(1)}
-              className="frelux-map__key"
-              aria-label="Zoom in"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <span className="frelux-map__key-divider" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => zoomBy(-1)}
-              className="frelux-map__key"
-              aria-label="Zoom out"
-            >
-              <Minus className="h-4 w-4" aria-hidden="true" />
-            </button>
           </div>
-        </div>
+
+          <div className="absolute bottom-5 right-3 z-20 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (
+                  you &&
+                  Number.isFinite(you.lat) &&
+                  Number.isFinite(you.lon)
+                ) {
+                  setCenter({ lat: you.lat, lon: you.lon });
+                  setZoom((current) => Math.max(current, 14));
+                }
+              }}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white text-zinc-600 shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+              aria-label={
+                you
+                  ? "Recenter on my current location"
+                  : "Location is not available on this map"
+              }
+              title={
+                you ? "Recenter on my current location" : "Location unavailable"
+              }
+              disabled={!you}
+            >
+              <Crosshair className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <div className="flex flex-col items-center overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] dark:border-white/10 dark:bg-zinc-900">
+              <button
+                type="button"
+                onClick={() => zoomBy(1)}
+                className="flex h-10 w-10 items-center justify-center text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                aria-label="Zoom in"
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+              </button>
+              <div
+                className="h-px w-6 bg-zinc-200 dark:bg-zinc-700"
+                aria-hidden="true"
+              />
+              <button
+                type="button"
+                onClick={() => zoomBy(-1)}
+                className="flex h-10 w-10 items-center justify-center text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                aria-label="Zoom out"
+              >
+                <Minus className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {selected && selectedPosition && (

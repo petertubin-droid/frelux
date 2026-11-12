@@ -4,8 +4,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { ESRI_SATELLITE_TEMPLATE } from "@/lib/map/cartoTiles";
 import {
   ArrowUpRight,
-  Crosshair,
-  Satellite,
   Compass,
   Globe2,
   Maximize2,
@@ -21,10 +19,10 @@ import type { MapPoint } from "@/lib/map/geo";
 import { defaultMapOpening } from "@/lib/map/defaults";
 import { Raster2DMap } from "@/components/map/Raster2DMap";
 
-const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/liberty";
-// "dark" paints at zero saturation, which reads as a grey sheet. "fiord" keeps
-// colour in dark mode while staying dark enough for the chrome to sit on.
-const DARK_STYLE = "https://tiles.openfreemap.org/styles/fiord";
+// OpenFreeMap "bright" style provides Google Maps-standard vibrant colors:
+// lush green parks, sky-blue water, warm highway fills, and clean white streets.
+const LIGHT_STYLE = "https://tiles.openfreemap.org/styles/bright";
+const DARK_STYLE = "https://tiles.openfreemap.org/styles/bright";
 // Terrain tiles from the public AWS elevation set (Terrarium encoding).
 const SATELLITE_SOURCE = "frelux-satellite";
 const SATELLITE_LAYER = "frelux-satellite-layer";
@@ -546,15 +544,27 @@ export function GlobeMap({
           "aria-label",
           `${t(LAYER_NOUN[point.kind])}: ${point.title}${point.meta ? `, ${point.meta}` : ""}`,
         );
-        el.className = classNames(
-          "frelux-pin",
-          `frelux-pin--${point.kind}`,
-          point.id === activeId && "is-active",
-        );
-        el.innerHTML =
-          '<span class="frelux-pin__halo"></span>' +
-          '<span class="frelux-pin__core"><span class="frelux-pin__glyph"></span></span>' +
-          `<span class="frelux-pin__label">${point.title.replace(/[<>&]/g, "")}</span>`;
+
+        if (point.kind === "you") {
+          el.className = "frelux-you-dot pointer-events-auto";
+          el.innerHTML =
+            '<span class="frelux-you-dot__halo"></span>' +
+            '<span class="frelux-you-dot__core"></span>' +
+            `<span class="frelux-pin__label">${point.title.replace(/[<>&]/g, "")}</span>`;
+        } else {
+          el.className = classNames(
+            "frelux-pin",
+            `frelux-pin--${point.kind}`,
+            point.id === activeId && "is-active",
+          );
+          el.innerHTML =
+            '<svg viewBox="0 0 24 34" width="28" height="38" class="frelux-pin__marker" aria-hidden="true">' +
+            '<path d="M12 0C5.373 0 0 5.373 0 12c0 8.5 12 22 12 22s12-13.5 12-22c0-6.627-5.373-12-12-12z" fill="var(--pin)"/>' +
+            '<circle cx="12" cy="11.5" r="4.8" fill="#ffffff"/>' +
+            '<circle cx="12" cy="11.5" r="2.2" fill="var(--pin)"/>' +
+            "</svg>" +
+            `<span class="frelux-pin__label">${point.title.replace(/[<>&]/g, "")}</span>`;
+        }
 
         el.addEventListener("click", (event) => {
           event.stopPropagation();
@@ -563,7 +573,7 @@ export function GlobeMap({
 
         const marker = new maplibregl.Marker({
           element: el,
-          anchor: "bottom",
+          anchor: point.kind === "you" ? "center" : "bottom",
         })
           .setLngLat([point.lon, point.lat])
           .addTo(map);
@@ -786,136 +796,170 @@ export function GlobeMap({
         style={{ pointerEvents: interactive ? "auto" : "none" }}
       />
 
-      {/* Depth wash: keeps pins and chrome legible over bright imagery. */}
-      <div className="pointer-events-none absolute inset-0 z-10 frelux-map__vignette" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 frelux-map__fade-top" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 frelux-map__fade-bottom" />
-
-      {/* Live readout */}
+      {/* Google Standard Map / Satellite Layer Switcher + Place Count */}
       {ready && (
-        <div className="absolute left-3 top-3 z-20 flex items-center gap-2">
-          <span className="frelux-map__pill">
-            <span className="frelux-map__live" aria-hidden="true" />
-            <span className="tabular-nums">{points.length}</span>
-            <span className="text-muted-foreground/80">
+        <div className="absolute left-3 top-3 z-20 flex flex-wrap items-center gap-2">
+          <div className="flex items-center overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] dark:border-white/10 dark:bg-zinc-900">
+            <button
+              type="button"
+              onClick={() => setSatellite(false)}
+              className={classNames(
+                "px-3 py-1.5 text-xs font-semibold transition-colors",
+                !satellite
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800",
+              )}
+              aria-label="Show the street map"
+              title="Street map"
+            >
+              Map
+            </button>
+            <div
+              className="h-4 w-px bg-zinc-200 dark:bg-zinc-700"
+              aria-hidden="true"
+            />
+            <button
+              type="button"
+              onClick={() => setSatellite(true)}
+              className={classNames(
+                "px-3 py-1.5 text-xs font-semibold transition-colors",
+                satellite
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800",
+              )}
+              aria-label="Show satellite imagery"
+              title="Satellite imagery"
+            >
+              Satellite
+            </button>
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-black/10 bg-white/95 px-2.5 py-1.5 text-xs font-medium text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] backdrop-blur dark:border-white/10 dark:bg-zinc-900/95 dark:text-zinc-200">
+            <span
+              className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"
+              aria-hidden="true"
+            />
+            <span className="font-semibold tabular-nums">{points.length}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">
               {points.length === 1 ? "place" : "places"}
             </span>
-          </span>
-          <span className="frelux-map__pill hidden sm:inline-flex">
-            <span className="tabular-nums">
-              {Math.round(view.zoom * 10) / 10}
-            </span>
-            <span className="text-muted-foreground/80">zoom</span>
           </span>
         </div>
       )}
 
-      {/* Compass dial + zoom keys */}
+      {/* Google Standard Controls: Top-right Tools & Bottom-right Location + Zoom Stack */}
       {ready && interactive && (
-        <div className="absolute right-3 top-3 z-20 flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setSatellite((on) => !on)}
-            aria-label={
-              satellite ? "Show the street map" : "Show satellite imagery"
-            }
-            aria-pressed={satellite}
-            title={satellite ? "Street map" : "Satellite"}
-            data-satellite={satellite ? "on" : "off"}
-            className={classNames(
-              "frelux-map__dial group",
-              satellite && "frelux-map__dial--active",
+        <>
+          {/* Top-right: Fullscreen & Compass */}
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-2">
+            {(Math.abs(north) > 2 || view.pitch > 2) && (
+              <button
+                type="button"
+                onClick={resetNorth}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-all hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                aria-label={`Compass, facing ${Math.round(north)} degrees. Reset north and tilt.`}
+                title="Reset north and flatten tilt"
+              >
+                <Compass
+                  className="h-5 w-5 text-red-500 transition-transform"
+                  style={{ transform: `rotate(${-north}deg)` }}
+                  aria-hidden="true"
+                />
+              </button>
             )}
-          >
-            <Satellite
-              className={classNames(
-                "h-4 w-4",
-                satellite && "text-brand-purple",
-              )}
-              aria-hidden="true"
-            />
-          </button>
-          <button
-            type="button"
-            onClick={locate}
-            className="frelux-map__dial group"
-            aria-label={
-              locateState === "denied"
-                ? "Location unavailable. Allow location access to place your pin."
-                : "Show my current location"
-            }
-            title="Show my current location"
-            data-locate-state={locateState}
-          >
-            <Crosshair
-              className={classNames(
-                "h-4 w-4",
-                locateState === "locating" && "animate-pulse",
-                locateState === "ready" && "text-emerald-500",
-              )}
-              aria-hidden="true"
-            />
-          </button>
-          <button
-            type="button"
-            onClick={resetNorth}
-            className="frelux-map__dial group"
-            aria-label={`Compass, facing ${Math.round(north)} degrees. Reset north and tilt.`}
-            title="Reset north and flatten tilt"
-          >
-            <span
-              className="frelux-map__needle"
-              style={{ transform: `rotate(${-north}deg)` }}
-              aria-hidden="true"
-            >
-              <span className="frelux-map__needle-north" />
-              <span className="frelux-map__needle-south" />
-            </span>
-            <span className="frelux-map__dial-letter" aria-hidden="true">
-              N
-            </span>
-            {view.pitch >= 5 && (
-              <span className="frelux-map__tilt" aria-hidden="true">
-                {Math.round(view.pitch)}°
-              </span>
-            )}
-          </button>
-
-          <div className="frelux-map__keys">
             <button
               type="button"
               onClick={toggleFullscreen}
-              className="frelux-map__key"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-all hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
               aria-label={
                 fullscreen ? "Exit fullscreen" : "Open map fullscreen"
               }
+              title={fullscreen ? "Exit fullscreen" : "Fullscreen"}
             >
               {fullscreen ? (
-                <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <Minimize2 className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <Maximize2 className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
-            <span className="frelux-map__key-divider" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => mapRef.current?.zoomIn()}
-              className="frelux-map__key"
-              aria-label="Zoom in"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <span className="frelux-map__key-divider" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => mapRef.current?.zoomOut()}
-              className="frelux-map__key"
-              aria-label="Zoom out"
-            >
-              <Minus className="h-4 w-4" aria-hidden="true" />
-            </button>
           </div>
-        </div>
+
+          {/* Bottom-right: Google Standard Location Button & Zoom Stack */}
+          <div className="absolute bottom-5 right-3 z-20 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={locate}
+              className={classNames(
+                "flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-all hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-zinc-900 dark:hover:bg-zinc-800",
+                locateState === "ready" && "text-blue-600 dark:text-blue-400",
+                locateState === "locating" && "text-blue-600 animate-pulse",
+                locateState === "denied" && "text-red-500",
+                locateState === "idle" && "text-zinc-600 dark:text-zinc-300",
+              )}
+              aria-label={
+                locateState === "denied"
+                  ? "Location unavailable. Allow location access to place your pin."
+                  : "Show my current location"
+              }
+              title={
+                locateState === "denied"
+                  ? "Location access denied"
+                  : locateState === "ready"
+                    ? "Your location is active (click to recenter)"
+                    : "Show my current location"
+              }
+              data-locate-state={locateState}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className={classNames(
+                  "h-5 w-5",
+                  locateState === "locating" && "animate-spin",
+                )}
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
+                {locateState === "ready" && (
+                  <circle cx="12" cy="12" r="3" fill="#1a73e8" />
+                )}
+              </svg>
+            </button>
+
+            <div className="flex flex-col items-center overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] dark:border-white/10 dark:bg-zinc-900">
+              <button
+                type="button"
+                onClick={() => mapRef.current?.zoomIn()}
+                className="flex h-10 w-10 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                aria-label="Zoom in"
+                title="Zoom in"
+              >
+                <Plus
+                  className="h-4 w-4"
+                  strokeWidth={2.4}
+                  aria-hidden="true"
+                />
+              </button>
+              <div
+                className="h-px w-6 bg-zinc-200 dark:bg-zinc-700"
+                aria-hidden="true"
+              />
+              <button
+                type="button"
+                onClick={() => mapRef.current?.zoomOut()}
+                className="flex h-10 w-10 items-center justify-center text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                aria-label="Zoom out"
+                title="Zoom out"
+              >
+                <Minus
+                  className="h-4 w-4"
+                  strokeWidth={2.4}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Record card, anchored to the chosen pin */}

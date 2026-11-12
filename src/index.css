@@ -2194,29 +2194,11 @@ h2 {
   outline: none;
 }
 
-/* Depth wash so pins and chrome stay legible over imagery. */
-.frelux-map__vignette {
-  background: radial-gradient(
-    120% 90% at 50% 40%,
-    transparent 55%,
-    hsl(var(--background) / 0.22) 100%
-  );
-}
-
-.frelux-map__fade-top {
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--background) / 0.55),
-    transparent
-  );
-}
-
+/* Depth wash: disabled so full Google standard map colors render with 100% clarity and zero washing out */
+.frelux-map__vignette,
+.frelux-map__fade-top,
 .frelux-map__fade-bottom {
-  background: linear-gradient(
-    to top,
-    hsl(var(--background) / 0.72),
-    transparent
-  );
+  display: none !important;
 }
 
 /* Glass pill used for the live readout. */
@@ -2396,16 +2378,37 @@ h2 {
 }
 
 /* Pins: a teardrop with a halo, label on hover or focus. */
+/* Google Maps standard teardrop pins with drop shadow and authentic category colors */
 .frelux-pin {
   position: relative;
-  display: block;
-  width: 22px;
-  height: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 38px;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35));
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0, 0, 1),
+    filter 0.18s ease;
   --pin: hsl(var(--primary));
+}
+
+.frelux-pin:hover,
+.frelux-pin.is-active {
+  transform: scale(1.15) translateY(-3px);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+  z-index: 35 !important;
+}
+
+.frelux-pin:focus-visible {
+  outline: none;
+  transform: scale(1.15) translateY(-3px);
+  filter: drop-shadow(0 0 0 3px rgba(66, 133, 244, 0.65));
 }
 
 .frelux-pin--pro {
@@ -2413,15 +2416,75 @@ h2 {
 }
 
 .frelux-pin--job {
-  --pin: #0ea5e9;
+  --pin: #1a73e8;
 }
 
 .frelux-pin--material {
-  --pin: #f59e0b;
+  --pin: #ea580c;
+}
+
+.frelux-pin--supplier {
+  --pin: #0f9d58;
 }
 
 .frelux-pin--you {
-  --pin: #10b981;
+  --pin: #4285f4;
+}
+
+.frelux-pin__marker {
+  display: block;
+  width: 28px;
+  height: 38px;
+}
+
+/* Google Maps Blue Dot for visitor location */
+.frelux-you-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.frelux-you-dot__core {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #1a73e8;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.frelux-you-dot__halo {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  background: rgba(26, 115, 232, 0.22);
+  border: 1px solid rgba(26, 115, 232, 0.45);
+  animation: frelux-radar-pulse 2.2s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes frelux-radar-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.95;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 
 .frelux-pin__halo {
@@ -2603,11 +2666,7 @@ h2 {
 }
 
 .dark .frelux-map__vignette {
-  background: radial-gradient(
-    120% 90% at 50% 40%,
-    transparent 50%,
-    rgba(4, 4, 10, 0.55) 100%
-  );
+  display: none !important;
 }
 
 .dark .frelux-map__core,
