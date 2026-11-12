@@ -224,7 +224,7 @@ export default function AdminSurfaceConditions() {
                 <AdminCard key={row.id} className="space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground dark:bg-white/10">
+                      <span className="max-w-full break-all rounded-full bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground dark:bg-white/10">
                         {row.condition_key}
                       </span>
                       {!row.is_active && (
