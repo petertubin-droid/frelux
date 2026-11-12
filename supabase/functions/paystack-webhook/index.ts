@@ -25,6 +25,10 @@ import {
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
+  applyEscrowFunding,
+  applyEscrowRefund,
+} from "../_shared/escrow_apply.ts";
+import {
   escrowReferenceOf,
   planEscrowFunding,
   planEscrowRefund,
@@ -167,27 +171,13 @@ serveWithCors(async (req: Request) => {
           );
         }
 
-        const { data: funded, error: fundError } = await supabase
-          .from("escrow_contracts")
-          .update({
-            status: "funds_held",
-            held_minor: decision.amountMinor,
-            provider_transaction_id: decision.transactionId,
-            provider_reference: escrowRef,
-          })
-          .eq("id", escrowContract.id)
-          .eq("status", "pending_payment")
-          .is("provider_transaction_id", null)
-          .select("id, held_minor, status")
-          .maybeSingle();
-
-        if (fundError) {
-          return new Response(JSON.stringify({ error: fundError.message }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        if (!funded) {
+        const applied = await applyEscrowFunding(
+          supabase,
+          escrowContract,
+          decision,
+          "paystack",
+        );
+        if (applied.status !== "funded") {
           console.warn(
             "[paystack-webhook] escrow charge already applied",
             escrowRef,
@@ -204,15 +194,15 @@ serveWithCors(async (req: Request) => {
 
         console.log(
           "[paystack-webhook] escrow funded",
-          funded.id,
+          applied.contractId,
           decision.amountMinor,
         );
         return new Response(
           JSON.stringify({
             received: true,
             escrow: "funds_held",
-            contract_id: funded.id,
-            held_minor: funded.held_minor,
+            contract_id: applied.contractId,
+            held_minor: applied.heldMinor,
           }),
           {
             status: 200,
@@ -237,34 +227,26 @@ serveWithCors(async (req: Request) => {
           );
         }
 
-        const refundedTotal =
-          Number(escrowContract.refunded_minor ?? 0) + decision.amountMinor;
-        const releasedTotal = Number(escrowContract.released_minor ?? 0);
-        const fullyRefunded =
-          refundedTotal + releasedTotal >=
-          Number(escrowContract.held_minor ?? 0);
-
-        const { error: refundError } = await supabase
-          .from("escrow_contracts")
-          .update({
-            refunded_minor: refundedTotal,
-            status: fullyRefunded ? "refunded" : escrowContract.status,
-          })
-          .eq("id", escrowContract.id)
-          .eq("refunded_minor", Number(escrowContract.refunded_minor ?? 0));
-
-        if (refundError) {
-          return new Response(JSON.stringify({ error: refundError.message }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+        const applied = await applyEscrowRefund(
+          supabase,
+          escrowContract,
+          decision.amountMinor,
+        );
+        if (applied.status !== "refunded") {
+          return new Response(
+            JSON.stringify({ received: true, escrow: "already_processed" }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
         }
 
         return new Response(
           JSON.stringify({
             received: true,
             escrow: "refunded",
-            refunded_minor: refundedTotal,
+            refunded_minor: applied.refundedMinor,
           }),
           {
             status: 200,

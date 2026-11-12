@@ -1,6 +1,7 @@
 // Releases one milestone to the seller. The FRELUX fee is taken from the
 // released amount, never from money the buyer can still be refunded.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { minorToMajor } from "../_shared/escrow_providers.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -96,6 +97,52 @@ Deno.serve(async (req) => {
     if (!transaction)
       return json({ error: "This contract was never funded" }, 409);
 
+    if (refundContract.provider === "flutterwave") {
+      const flwKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
+      if (!flwKey) return json({ error: "Flutterwave is not configured" }, 503);
+      const flwRefund = await fetch(
+        `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(transaction)}/refund`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${flwKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount: minorToMajor(requested) }),
+        },
+      );
+      const flwRefundResult = await flwRefund.json().catch(() => null);
+      if (!flwRefund.ok || flwRefundResult?.status !== "success") {
+        const reason =
+          (flwRefundResult && (flwRefundResult.message as string)) ||
+          "Flutterwave refused the refund";
+        console.error("escrow-release flutterwave refund failed", reason);
+        return json({ error: reason }, 502);
+      }
+      const { data: refundClaimed } = await admin
+        .from("escrow_contracts")
+        .update({
+          refunded_minor: Number(refundContract.refunded_minor) + requested,
+          status:
+            Number(refundContract.refunded_minor) + requested >=
+            Number(refundContract.held_minor)
+              ? "refunded"
+              : refundContract.status,
+        })
+        .eq("id", refundContract.id)
+        .eq("refunded_minor", Number(refundContract.refunded_minor))
+        .select("id, refunded_minor, status");
+      if (!refundClaimed?.length)
+        return json({ error: "This refund was already applied" }, 409);
+      return json({
+        refunded_minor: requested,
+        refunded_total_minor: Number(refundClaimed[0].refunded_minor),
+        status: refundClaimed[0].status,
+        provider: "flutterwave",
+        provider_refund: flwRefundResult.data?.status ?? "pending",
+      });
+    }
+
     const refundResponse = await fetch("https://api.paystack.co/refund", {
       method: "POST",
       headers: {
@@ -148,7 +195,7 @@ Deno.serve(async (req) => {
   const { data: contract, error: contractError } = await admin
     .from("escrow_contracts")
     .select(
-      "id, created_by, status, held_minor, released_minor, refunded_minor, fee_minor, fee_basis_points, seller_name, seller_email, seller_bank_code, seller_account_number, seller_recipient_code, currency",
+      "id, created_by, status, held_minor, released_minor, refunded_minor, fee_minor, fee_basis_points, seller_name, seller_email, seller_bank_code, seller_account_number, seller_recipient_code, currency, provider",
     )
     .eq("id", payload.contract_id)
     .maybeSingle();
@@ -194,6 +241,87 @@ Deno.serve(async (req) => {
   const fee = Math.floor((amount * Number(contract.fee_basis_points)) / 10000);
   const payout = amount - fee;
   if (payout <= 0) return json({ error: "Released amount is too small" }, 400);
+
+  if (contract.provider === "flutterwave") {
+    const flwKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
+    if (!flwKey) return json({ error: "Flutterwave is not configured" }, 503);
+    if (!contract.seller_bank_code || !contract.seller_account_number) {
+      return json(
+        {
+          error:
+            "The seller has no payout account on file. Add bank code and account number first.",
+        },
+        400,
+      );
+    }
+    const flwTransfer = await fetch(
+      "https://api.flutterwave.com/v3/transfers",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${flwKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          account_bank: contract.seller_bank_code,
+          account_number: contract.seller_account_number,
+          amount: minorToMajor(payout),
+          currency: contract.currency,
+          narration: `FRELUX escrow release: ${milestone.label}`,
+          reference: `escrow-${contract.id.slice(0, 8)}-${milestone.id.slice(0, 8)}`,
+        }),
+      },
+    );
+    const flwTransferResult = await flwTransfer.json().catch(() => null);
+    if (!flwTransfer.ok || flwTransferResult?.status !== "success") {
+      const reason =
+        (flwTransferResult && (flwTransferResult.message as string)) ||
+        "Flutterwave refused the transfer";
+      console.error("escrow-release flutterwave transfer failed", reason);
+      return json({ error: reason }, 502);
+    }
+
+    const { data: flwClaimed } = await admin
+      .from("escrow_milestones")
+      .update({
+        state: "released",
+        released_at: new Date().toISOString(),
+        transfer_code:
+          flwTransferResult.data?.reference ??
+          flwTransferResult.data?.id?.toString() ??
+          null,
+      })
+      .eq("id", milestone.id)
+      .eq("state", "pending")
+      .select("id");
+    if (!flwClaimed?.length)
+      return json({ error: "This milestone was already released" }, 409);
+
+    const { data: flwSiblings } = await admin
+      .from("escrow_milestones")
+      .select("state")
+      .eq("contract_id", contract.id);
+    const flwAllReleased = (flwSiblings ?? []).every(
+      (row) => row.state !== "pending",
+    );
+
+    await admin
+      .from("escrow_contracts")
+      .update({
+        released_minor: Number(contract.released_minor) + amount,
+        fee_minor: Number(contract.fee_minor ?? 0) + fee,
+        status: flwAllReleased ? "released" : "partially_released",
+      })
+      .eq("id", contract.id);
+
+    return json({
+      released_minor: amount,
+      platform_fee_minor: fee,
+      payout_minor: payout,
+      provider: "flutterwave",
+      provider_transfer: flwTransferResult.data?.status ?? "pending",
+    });
+  }
 
   let recipient = contract.seller_recipient_code as string | null;
   if (!recipient) {

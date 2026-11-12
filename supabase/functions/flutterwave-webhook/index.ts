@@ -32,6 +32,16 @@ import {
 } from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import {
+  ESCROW_REFERENCE_PREFIX,
+  planEscrowFunding,
+  planEscrowRefund,
+} from "../_shared/escrow_paystack.ts";
+import { classifyFlutterwaveEvent } from "../_shared/escrow_providers.ts";
+import {
+  applyEscrowFunding,
+  applyEscrowRefund,
+} from "../_shared/escrow_apply.ts";
+import {
   configAsPack,
   pickPack,
   validatePackPayment,
@@ -79,6 +89,122 @@ serveWithCors(async (req: Request) => {
     const body = await req.json();
     const event = body?.event;
     const data = body?.data;
+
+    // ── ESCROW DISPATCH ─────────────────────────────────────────
+    // Flutterwave carries the international escrow rail. A reference reaches
+    // escrow only when it is an escrow contract code AND that contract exists,
+    // so ordinary purchases and subscriptions never touch escrow tables.
+    const escrowEvent = classifyFlutterwaveEvent(body);
+    const escrowRef =
+      escrowEvent.reference &&
+      escrowEvent.reference.startsWith(ESCROW_REFERENCE_PREFIX)
+        ? escrowEvent.reference
+        : null;
+
+    if (escrowRef) {
+      const escrowUrl = Deno.env.get("SUPABASE_URL")!;
+      const escrowServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const escrowAdmin = createClient(escrowUrl, escrowServiceKey);
+
+      const { data: escrowContract } = await escrowAdmin
+        .from("escrow_contracts")
+        .select(
+          "id, status, total_minor, currency, held_minor, released_minor, refunded_minor, provider, provider_transaction_id",
+        )
+        .eq("reference_code", escrowRef)
+        .maybeSingle();
+
+      if (!escrowContract) {
+        console.warn(
+          "[flutterwave-webhook] escrow reference without a contract",
+          escrowRef,
+        );
+        return json({ received: true, escrow: "unknown_reference" });
+      }
+
+      if (escrowEvent.kind === "charge") {
+        const decision = planEscrowFunding(
+          escrowContract,
+          {
+            id: escrowEvent.transactionId ?? undefined,
+            status: escrowEvent.successful ? "success" : "failed",
+            amount: escrowEvent.amountMinor ?? undefined,
+            currency: escrowEvent.currency ?? escrowContract.currency,
+            reference: escrowRef,
+          },
+          { provider: "flutterwave" },
+        );
+
+        if (decision.action === "duplicate")
+          return json({ received: true, escrow: "duplicate" });
+
+        if (decision.action === "reject") {
+          console.warn(
+            "[flutterwave-webhook] escrow charge rejected",
+            escrowRef,
+            decision.reason,
+          );
+          return json({
+            received: true,
+            escrow: "rejected",
+            reason: decision.reason,
+          });
+        }
+
+        const applied = await applyEscrowFunding(
+          escrowAdmin,
+          escrowContract,
+          decision,
+          "flutterwave",
+        );
+        if (applied.status !== "funded")
+          return json({ received: true, escrow: "already_processed" });
+
+        console.log(
+          "[flutterwave-webhook] escrow funded",
+          applied.contractId,
+          decision.amountMinor,
+        );
+        return json({
+          received: true,
+          escrow: "funds_held",
+          contract_id: applied.contractId,
+          held_minor: applied.heldMinor,
+        });
+      }
+
+      if (escrowEvent.kind === "refund") {
+        const decision = planEscrowRefund(escrowContract, {
+          id: escrowEvent.transactionId ?? undefined,
+          status: "success",
+          amount: escrowEvent.amountMinor ?? undefined,
+          currency: escrowEvent.currency ?? escrowContract.currency,
+          reference: escrowRef,
+        });
+        if (decision.action !== "refund")
+          return json({
+            received: true,
+            escrow: decision.action,
+            reason: "reason" in decision ? decision.reason : undefined,
+          });
+
+        const applied = await applyEscrowRefund(
+          escrowAdmin,
+          escrowContract,
+          decision.amountMinor,
+        );
+        if (applied.status !== "refunded")
+          return json({ received: true, escrow: "already_processed" });
+
+        return json({
+          received: true,
+          escrow: "refunded",
+          refunded_minor: applied.refundedMinor,
+        });
+      }
+
+      return json({ received: true, escrow: "ignored", event });
+    }
 
     // Only successful card charges activate a subscription.
     if (event !== "charge.completed" || !data) {

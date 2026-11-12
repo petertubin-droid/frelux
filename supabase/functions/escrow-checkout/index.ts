@@ -2,6 +2,12 @@
 // The money lands in the FRELUX Paystack balance and stays there until a
 // milestone is released, so this function only ever creates a checkout link.
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  PROVIDER_CURRENCIES,
+  currencyIsSupported,
+  minorToMajor,
+  providerForCurrency,
+} from "../_shared/escrow_providers.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -185,6 +191,85 @@ Deno.serve(async (req) => {
   const email =
     contract.buyer_email || auth.user.email || "buyer@freluxtools.com";
 
+  // International buyers settle through Flutterwave; naira stays on Paystack.
+  const provider = payload.provider ?? providerForCurrency(contract.currency);
+  if (!currencyIsSupported(provider, contract.currency)) {
+    return json(
+      {
+        error: `${contract.currency} is not supported on ${provider}. Supported: ${PROVIDER_CURRENCIES[provider].join(", ")}.`,
+      },
+      400,
+    );
+  }
+
+  if (provider === "flutterwave") {
+    if (contract.currency.toUpperCase() === "NGN") {
+      return json({ error: "Naira escrow collects on Paystack" }, 400);
+    }
+    const flwKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
+    if (!flwKey) return json({ error: "Flutterwave is not configured" }, 503);
+
+    const flwResponse = await fetch("https://api.flutterwave.com/v3/payments", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${flwKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tx_ref: contract.reference_code,
+        amount: minorToMajor(Number(contract.total_minor)),
+        currency: contract.currency,
+        redirect_url:
+          payload.callback_url ??
+          `https://freluxtools.com/escrow?contract=${contract.id}`,
+        customer: {
+          email,
+          name: contract.buyer_name ?? undefined,
+        },
+        customizations: {
+          title: contract.title,
+          description: "FRELUX escrow",
+        },
+        meta: { contract_id: contract.id, purpose: "frelux_escrow" },
+      }),
+    });
+
+    const flwResult = await flwResponse.json().catch(() => null);
+    if (
+      !flwResponse.ok ||
+      flwResult?.status !== "success" ||
+      !flwResult?.data?.link
+    ) {
+      const reason =
+        (flwResult && (flwResult.message as string)) ||
+        "Flutterwave refused the request";
+      console.error(
+        "escrow-checkout flutterwave failed",
+        flwResponse.status,
+        reason,
+      );
+      return json({ error: reason }, 502);
+    }
+
+    await admin
+      .from("escrow_contracts")
+      .update({
+        provider: "flutterwave",
+        provider_reference: contract.reference_code,
+      })
+      .eq("id", contract.id);
+
+    return json({
+      contract_id: contract.id,
+      reference_code: contract.reference_code,
+      provider: "flutterwave",
+      authorization_url: flwResult.data.link,
+      reference: contract.reference_code,
+      amount_minor: Number(contract.total_minor),
+      currency: contract.currency,
+    });
+  }
+
   const response = await fetch(
     "https://api.paystack.co/transaction/initialize",
     {
@@ -229,6 +314,7 @@ Deno.serve(async (req) => {
   return json({
     contract_id: contract.id,
     reference_code: contract.reference_code,
+    provider: "paystack",
     authorization_url: result.data?.authorization_url ?? null,
     access_code: result.data?.access_code ?? null,
     reference: result.data?.reference ?? contract.reference_code,

@@ -35,6 +35,7 @@ export interface EscrowContractRow {
   currency: string;
   held_minor?: number | string;
   provider_transaction_id?: string | null;
+  provider?: string | null;
 }
 
 export type EscrowFundingDecision =
@@ -102,7 +103,18 @@ function toMinor(value: unknown): number | null {
 export function planEscrowFunding(
   contract: EscrowContractRow,
   data: PaystackChargeData,
+  event: { provider?: "paystack" | "flutterwave" } = {},
 ): EscrowFundingDecision {
+  if (
+    contract.provider &&
+    event.provider &&
+    contract.provider !== event.provider
+  )
+    return {
+      action: "reject",
+      reason: `Contract collects on ${contract.provider}, not ${event.provider}`,
+    };
+
   const transactionId =
     data.id === undefined || data.id === null ? "" : String(data.id);
   if (!transactionId)
