@@ -334,6 +334,7 @@ export default function AdminTileMaterials() {
                   />
                   <div className="flex items-center gap-0.5">
                     <AdminIconButton
+                      aria-label="Edit"
                       variant="ghost"
                       type="button"
                       onClick={() => {
@@ -345,6 +346,7 @@ export default function AdminTileMaterials() {
                       <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
                     </AdminIconButton>
                     <AdminIconButton
+                      aria-label="Delete"
                       variant="ghost"
                       type="button"
                       onClick={() => handleDeleteSize(s.id)}
@@ -419,6 +421,7 @@ export default function AdminTileMaterials() {
                             onChange={() => handleToggleMatActive(m)}
                           />
                           <AdminIconButton
+                            aria-label="Edit"
                             variant="ghost"
                             type="button"
                             onClick={() => {
@@ -430,6 +433,7 @@ export default function AdminTileMaterials() {
                             <Pencil aria-hidden="true" className="h-4 w-4" />
                           </AdminIconButton>
                           <AdminIconButton
+                            aria-label="Delete"
                             variant="ghost"
                             type="button"
                             onClick={() => handleDeleteMat(m.id)}
@@ -487,7 +491,12 @@ function TileSizeEditor({
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           {size ? "Edit Tile Size" : "New Tile Size"}
         </h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+        <AdminIconButton
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
+          aria-label="Close"
+        >
           <X className="h-4 w-4" />
         </AdminIconButton>
       </div>
@@ -598,7 +607,12 @@ function TileMaterialEditor({
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           {material ? "Edit Material" : "New Material"}
         </h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+        <AdminIconButton
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
+          aria-label="Close"
+        >
           <X className="h-4 w-4" />
         </AdminIconButton>
       </div>

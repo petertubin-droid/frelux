@@ -240,6 +240,7 @@ export default function AdminMedia() {
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </AdminButton>
                         <AdminIconButton
+                          aria-label="Cancel"
                           variant="ghost"
                           type="button"
                           onClick={() => setEditingAlt(null)}
@@ -257,6 +258,7 @@ export default function AdminMedia() {
                           {item.file_name}
                         </p>
                         <AdminIconButton
+                          aria-label="Edit"
                           variant="ghost"
                           type="button"
                           onClick={() => {

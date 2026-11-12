@@ -291,6 +291,7 @@ export default function AdminPopMaterials() {
                           />
                           <div className="flex items-center gap-0.5">
                             <AdminIconButton
+                              aria-label="Edit"
                               variant="ghost"
                               type="button"
                               onClick={() => {
@@ -301,6 +302,7 @@ export default function AdminPopMaterials() {
                               <Pencil className="h-3 w-3" />
                             </AdminIconButton>
                             <AdminIconButton
+                              aria-label="Delete"
                               variant="danger"
                               type="button"
                               onClick={() => handleDelete(mat.id)}
@@ -368,7 +370,12 @@ function MaterialEditor({
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           {material ? "Edit Material" : "New Material"}
         </h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+        <AdminIconButton
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
+          aria-label="Close"
+        >
           <X aria-hidden="true" className="h-4 w-4" />
         </AdminIconButton>
       </div>

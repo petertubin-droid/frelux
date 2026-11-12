@@ -276,6 +276,7 @@ export default function AdminTypography() {
               {TYPOGRAPHY_AREAS.find((a) => a.key === pickerArea)?.label}
             </h2>
             <AdminIconButton
+              aria-label="Close"
               variant="ghost"
               type="button"
               onClick={() => setPickerArea(null)}

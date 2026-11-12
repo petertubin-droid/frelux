@@ -549,6 +549,7 @@ function ProvidersTab() {
                 </div>
                 <div className="flex items-center gap-0.5">
                   <AdminIconButton
+                    aria-label="Edit"
                     variant="ghost"
                     type="button"
                     onClick={() => {
@@ -560,6 +561,7 @@ function ProvidersTab() {
                   </AdminIconButton>
                   {!prov.is_system && (
                     <AdminIconButton
+                      aria-label="Delete"
                       variant="danger"
                       type="button"
                       onClick={() => remove(prov)}
@@ -1324,6 +1326,7 @@ function PlacementsTab() {
                 />
                 <div className="flex items-center gap-0.5">
                   <AdminIconButton
+                    aria-label="Move up"
                     variant="ghost"
                     type="button"
                     title={t("Move up")}
@@ -1332,6 +1335,7 @@ function PlacementsTab() {
                     <ArrowUp className="h-3 w-3" />
                   </AdminIconButton>
                   <AdminIconButton
+                    aria-label="Move down"
                     variant="ghost"
                     type="button"
                     title={t("Move down")}
@@ -1340,6 +1344,7 @@ function PlacementsTab() {
                     <ArrowDown className="h-3 w-3" />
                   </AdminIconButton>
                   <AdminIconButton
+                    aria-label="Edit"
                     variant="ghost"
                     type="button"
                     onClick={() => {
@@ -1350,6 +1355,7 @@ function PlacementsTab() {
                     <Pencil className="h-3 w-3" />
                   </AdminIconButton>
                   <AdminIconButton
+                    aria-label="Delete"
                     variant="danger"
                     type="button"
                     onClick={() => remove(pl)}
@@ -1858,6 +1864,7 @@ function PlacementForm({
                       #{order + 1}
                     </span>
                     <AdminIconButton
+                      aria-label="Move up"
                       variant="ghost"
                       type="button"
                       onClick={() => moveProvider(prov.id, -1)}
@@ -1866,6 +1873,7 @@ function PlacementForm({
                       <ArrowUp className="h-3 w-3" />
                     </AdminIconButton>
                     <AdminIconButton
+                      aria-label="Move down"
                       variant="ghost"
                       type="button"
                       onClick={() => moveProvider(prov.id, 1)}

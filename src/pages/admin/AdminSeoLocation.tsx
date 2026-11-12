@@ -297,6 +297,7 @@ function LocationsTab() {
                       {editingId === loc.id ? (
                         <>
                           <AdminIconButton
+                            aria-label="Loading"
                             variant="ghost"
                             onClick={() => handleSave(loc.id)}
                             disabled={saving}
@@ -315,6 +316,7 @@ function LocationsTab() {
                             )}
                           </AdminIconButton>
                           <AdminIconButton
+                            aria-label="Cancel"
                             variant="ghost"
                             onClick={() => setEditingId(null)}
                           >
@@ -324,6 +326,7 @@ function LocationsTab() {
                       ) : (
                         <>
                           <AdminIconButton
+                            aria-label={t("Edit")}
                             variant="ghost"
                             onClick={() => startEdit(loc)}
                             title={t("Edit")}
@@ -336,6 +339,7 @@ function LocationsTab() {
                           </AdminIconButton>
                           {!loc.latitude && (
                             <AdminIconButton
+                              aria-label={t("Auto-geocode")}
                               variant="ghost"
                               onClick={() => handleAutoGeocode(loc)}
                               className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10"
@@ -793,6 +797,7 @@ function SeoPagesTab() {
                   )}
                 </span>
                 <AdminIconButton
+                  aria-label="Delete"
                   variant="danger"
                   onClick={() => handleDelete(s.id)}
                 >
@@ -922,6 +927,7 @@ function IndexabilityTab() {
                 </p>
               </div>
               <AdminIconButton
+                aria-label="Show"
                 variant="ghost"
                 onClick={() => toggleListingIndexable(l.id, l.seo_indexable)}
                 className={classNames(
@@ -962,6 +968,7 @@ function IndexabilityTab() {
                 </p>
               </div>
               <AdminIconButton
+                aria-label="Show"
                 variant="ghost"
                 onClick={() => toggleProfileIndexable(p.id, p.seo_indexable)}
                 className={classNames(

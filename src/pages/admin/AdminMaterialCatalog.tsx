@@ -244,6 +244,7 @@ export default function AdminMaterialCatalog() {
                   <td className="py-2">
                     <div className="flex gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         variant="ghost"
                         onClick={() => {
                           setEditing(item);
@@ -253,6 +254,7 @@ export default function AdminMaterialCatalog() {
                         <Edit3 className="h-4 w-4 text-muted-foreground" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         variant="danger"
                         onClick={() => handleDelete(item.id)}
                       >

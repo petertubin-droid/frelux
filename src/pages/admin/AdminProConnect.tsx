@@ -278,6 +278,7 @@ function AdminProfessionalsTab() {
               </AdminSelect>
               {!p.pro_level ? (
                 <AdminIconButton
+                  aria-label={t("Award FRELUX Pro")}
                   variant="ghost"
                   onClick={() => handleAwardProLevel(p.id)}
                   title={t("Award FRELUX Pro")}
@@ -287,6 +288,7 @@ function AdminProfessionalsTab() {
                 </AdminIconButton>
               ) : (
                 <AdminIconButton
+                  aria-label="Disable"
                   variant="danger"
                   onClick={() => handleRevokeProLevel(p.id)}
                   title={t("Revoke FRELUX Pro")}
@@ -1925,12 +1927,14 @@ function AdminChannelsTab() {
               </div>
               <div className="flex gap-1">
                 <AdminIconButton
+                  aria-label="Show"
                   variant="ghost"
                   onClick={() => startEditCategory(cat)}
                 >
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton
+                  aria-label="Delete"
                   variant="ghost"
                   onClick={() => deleteCategory(cat.id)}
                   className="rounded-lg p-1.5 text-red-400 hover:text-red-600"
@@ -1993,12 +1997,14 @@ function AdminChannelsTab() {
               </div>
               <div className="flex gap-1">
                 <AdminIconButton
+                  aria-label="Show"
                   variant="ghost"
                   onClick={() => startEditChannel(ch)}
                 >
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton
+                  aria-label="Delete"
                   variant="ghost"
                   onClick={() => deleteChannel(ch.id)}
                   className="rounded-lg p-1.5 text-red-400 hover:text-red-600"

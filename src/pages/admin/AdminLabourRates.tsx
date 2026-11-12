@@ -252,12 +252,14 @@ export default function AdminLabourRates() {
                   <td className="p-3">
                     <div className="flex gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         onClick={() => openEdit(r)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         onClick={() => remove(r)}
                         title={t("Delete")}
                       >

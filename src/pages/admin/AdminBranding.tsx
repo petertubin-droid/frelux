@@ -469,6 +469,7 @@ export default function AdminBranding() {
                       className="w-24 text-xs"
                     />
                     <AdminIconButton
+                      aria-label={t("Remove highlight")}
                       variant="danger"
                       onClick={() => removeHighlight(hl.wordIndex)}
 

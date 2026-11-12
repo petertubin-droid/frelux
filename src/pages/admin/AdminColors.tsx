@@ -1456,6 +1456,7 @@ function CombinationsTab() {
                     />
                     <div className="flex items-center gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         variant="ghost"
                         type="button"
                         onClick={() => {
@@ -1466,6 +1467,7 @@ function CombinationsTab() {
                         <Pencil className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         variant="danger"
                         type="button"
                         onClick={() => remove(item)}

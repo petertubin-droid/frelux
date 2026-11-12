@@ -263,12 +263,14 @@ export default function AdminCarbonFactors() {
                   <td className="p-3">
                     <div className="flex gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         onClick={() => openEdit(f)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         onClick={() => remove(f)}
                         title={t("Delete")}
                       >

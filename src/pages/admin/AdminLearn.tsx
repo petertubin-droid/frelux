@@ -608,6 +608,7 @@ export default function AdminLearn() {
                     onChange={() => handleTogglePublished(article)}
                   />
                   <AdminIconButton
+                    aria-label="Edit"
                     variant="ghost"
                     type="button"
                     onClick={() => {
@@ -619,6 +620,7 @@ export default function AdminLearn() {
                     <Pencil className="h-4 w-4" />
                   </AdminIconButton>
                   <AdminIconButton
+                    aria-label="Delete"
                     variant="ghost"
                     type="button"
                     onClick={() => handleDelete(article.id)}
@@ -847,6 +849,7 @@ export default function AdminLearn() {
                                   onChange={() => handleToggleFaq(faq)}
                                 />
                                 <AdminIconButton
+                                  aria-label="Edit"
                                   variant="ghost"
                                   type="button"
                                   onClick={() =>
@@ -860,6 +863,7 @@ export default function AdminLearn() {
                                   <Pencil className="h-3.5 w-3.5" />
                                 </AdminIconButton>
                                 <AdminIconButton
+                                  aria-label="Delete"
                                   variant="ghost"
                                   type="button"
                                   onClick={() =>
@@ -986,6 +990,7 @@ export default function AdminLearn() {
                                 onChange={() => handleToggleInsert(ins)}
                               />
                               <AdminIconButton
+                                aria-label="Edit"
                                 variant="ghost"
                                 type="button"
                                 onClick={() =>
@@ -999,6 +1004,7 @@ export default function AdminLearn() {
                                 <Pencil className="h-3.5 w-3.5" />
                               </AdminIconButton>
                               <AdminIconButton
+                                aria-label="Delete"
                                 variant="ghost"
                                 type="button"
                                 onClick={() =>
@@ -1330,7 +1336,12 @@ function ArticleEditor({
         <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           {article ? "Edit Article" : "New Article"}
         </h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
+        <AdminIconButton
+          variant="ghost"
+          type="button"
+          onClick={onCancel}
+          aria-label="Close"
+        >
           <X aria-hidden="true" className="h-4 w-4" />
         </AdminIconButton>
       </div>
@@ -1507,6 +1518,7 @@ function ArticleEditor({
               {t("Google Compliance Report")}
             </h3>
             <AdminIconButton
+              aria-label="Close"
               variant="ghost"
               type="button"
               onClick={() => setShowCompliance(false)}

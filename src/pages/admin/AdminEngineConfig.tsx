@@ -405,8 +405,7 @@ function MaterialProfileForm({
         <h3 className="font-semibold">
           {existing ? "Edit" : "Add"} Material Profile
         </h3>
-        <Button onClick={onClose}>
-          aria-label="Close material profile editor"
+        <Button onClick={onClose} aria-label="Close">
           <X aria-hidden="true" className="h-4 w-4" />
         </Button>
       </div>

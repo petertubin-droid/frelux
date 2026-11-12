@@ -408,10 +408,11 @@ export function AdminIconButton({
   disabled?: boolean;
   className?: string;
   title?: string;
-  "aria-label"?: string;
+  /** Required: an icon-only control has no visible text to name it. */
+  "aria-label": string;
 }) {
   const base =
-    "inline-flex items-center justify-center rounded-lg p-1.5 transition-all duration-150 active:scale-95 disabled:opacity-50";
+    "inline-flex items-center justify-center rounded-lg p-2 transition-all duration-150 active:scale-95 disabled:opacity-50";
   const variants = {
     ghost:
       "text-muted-foreground hover:bg-muted/70 hover:text-primary dark:hover:bg-white/10",

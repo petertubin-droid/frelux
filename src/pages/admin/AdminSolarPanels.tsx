@@ -249,12 +249,14 @@ export default function AdminSolarPanels() {
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         onClick={() => openEdit(m)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         onClick={() => remove(m)}
                         title={t("Delete")}
                         variant="danger"

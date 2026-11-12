@@ -421,6 +421,7 @@ export default function AdminEstimationProducts() {
                               </div>
                               <div className="flex items-center gap-0.5">
                                 <AdminIconButton
+                                  aria-label="Edit"
                                   variant="ghost"
                                   type="button"
                                   onClick={() => {
@@ -431,6 +432,7 @@ export default function AdminEstimationProducts() {
                                   <Pencil className="h-3 w-3" />
                                 </AdminIconButton>
                                 <AdminIconButton
+                                  aria-label="Delete"
                                   variant="danger"
                                   type="button"
                                   onClick={() => remove(p)}

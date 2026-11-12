@@ -205,6 +205,7 @@ export default function AdminTemplates() {
                   </td>
                   <td className="px-4 py-3">
                     <AdminIconButton
+                      aria-label="Show"
                       variant="ghost"
                       onClick={() => togglePublished(t)}
                       className={classNames(
@@ -223,6 +224,7 @@ export default function AdminTemplates() {
                   </td>
                   <td className="px-4 py-3">
                     <AdminIconButton
+                      aria-label="Feature template"
                       variant="ghost"
                       onClick={() => toggleFeatured(t)}
                     >
@@ -243,6 +245,7 @@ export default function AdminTemplates() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <AdminIconButton
+                        aria-label="Edit"
                         variant="ghost"
                         onClick={() => setEditing(t)}
                         title={tr("Edit")}
@@ -250,6 +253,7 @@ export default function AdminTemplates() {
                         <Edit2 aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Copy"
                         variant="ghost"
                         onClick={() => handleDuplicate(t)}
                         title={tr("Duplicate")}
@@ -257,6 +261,7 @@ export default function AdminTemplates() {
                         <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton
+                        aria-label="Delete"
                         variant="danger"
                         onClick={() => handleDelete(t.id)}
                         title={tr("Delete")}

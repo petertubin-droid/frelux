@@ -390,6 +390,7 @@ export default function AdminEstimationPricing() {
                       onChange={() => toggleActive(item)}
                     />
                     <AdminIconButton
+                      aria-label={t("History")}
                       variant="ghost"
                       type="button"
                       onClick={() => setHistoryItem(item)}
@@ -398,6 +399,7 @@ export default function AdminEstimationPricing() {
                       <History className="h-3 w-3" />
                     </AdminIconButton>
                     <AdminIconButton
+                      aria-label="Edit"
                       variant="ghost"
                       type="button"
                       onClick={() => {
@@ -408,6 +410,7 @@ export default function AdminEstimationPricing() {
                       <Pencil className="h-3 w-3" />
                     </AdminIconButton>
                     <AdminIconButton
+                      aria-label="Delete"
                       variant="danger"
                       type="button"
                       onClick={() => remove(item)}

@@ -384,18 +384,21 @@ export default function AdminDefects() {
                     <td className="p-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1">
                         <AdminIconButton
+                          aria-label={t("Manage causes")}
                           onClick={() => setSelected(d)}
                           title={t("Manage causes")}
                         >
                           <Stethoscope className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
+                          aria-label="Edit"
                           onClick={() => openDefectEdit(d)}
                           title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
+                          aria-label="Delete"
                           onClick={() => removeDefect(d)}
                           title={t("Delete")}
                         >
@@ -471,12 +474,14 @@ export default function AdminDefects() {
                     <td className="p-3">
                       <div className="flex gap-1">
                         <AdminIconButton
+                          aria-label="Edit"
                           onClick={() => openCauseEdit(c)}
                           title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
+                          aria-label="Delete"
                           onClick={() => removeCause(c)}
                           title={t("Delete")}
                         >
