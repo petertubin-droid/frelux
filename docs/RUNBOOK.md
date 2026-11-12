@@ -13,9 +13,9 @@ npm run build      # production bundle
 ## Environment
 
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — backend.
-- Optional: Sentry, analytics, `VITE_STRIPE_PUBLISHABLE_KEY` (client half of
-  Stripe checkout; pairs with the `STRIPE_SECRET_KEY` Supabase secret on the
-  `stripe-checkout` edge function).
+- Optional: Sentry, analytics. There is no browser-side payment key: both rails
+  are initialised server-side, so only the Supabase edge secrets
+  (`PAYSTACK_SECRET_KEY`, `FLUTTERWAVE_SECRET_KEY`) are needed.
 - Secrets never live in the repo.
 
 ## Database migrations
@@ -80,14 +80,14 @@ do NOT deploy until the owner resumes builds. Verify deployment state with:
   `src/lib/seo.ts`, the sitemap `<loc>` host, and canonicals, and
   301 the old host.
 
-## Stripe checkout (international cards)
+## Removed: Stripe checkout
 
-1. Set `STRIPE_SECRET_KEY` (Supabase edge secret) and
-   `VITE_STRIPE_PUBLISHABLE_KEY` (Netlify env).
-2. Deploy the `stripe-checkout` edge function (`supabase/functions/stripe-checkout`).
-3. Test with a Stripe test card; NGN amounts are in kobo in the function.
-4. Until configured, the gateway returns not-configured and checkout falls
-   back to Paystack.
+Stripe was deleted rather than repaired. The old function created sessions from a
+hardcoded naira table, carried no buyer identity and had no signature-verified
+webhook, so a successful payment could not credit anything. If Stripe is ever
+wanted again, it comes back as a new integration: server-side price, buyer id in
+the session metadata, and a webhook that verifies `Stripe-Signature` before
+crediting. Do not restore the old files.
 
 ## Flutterwave checkout (Pan-African + international cards)
 

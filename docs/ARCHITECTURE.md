@@ -40,8 +40,13 @@ handle payments and third-party calls.
 - **Templates** — `src/lib/template-data.ts` stores calculator inputs (never
   results); `src/lib/templates-market.ts` derives per-market SEO pages and the
   hreflang family consumed by prerender and the sitemap.
-- **Payments** — Paystack (default); `stripe-checkout` edge function for
-  international cards, returns 501 until `STRIPE_SECRET_KEY` is set.
+- **Payments** — two rails, chosen by the currency being charged, never by the
+  browser: Paystack for NGN (`escrow-checkout`, `paystack` webhook) and
+  Flutterwave for every other currency (`flutterwave-checkout`, verified
+  webhook). `providerForCurrency` in `supabase/functions/_shared/
+escrow_providers.ts` is the single policy and `src/lib/payments/gateway.ts`
+  mirrors it. Stripe was removed: it had no signature-verified webhook, so it
+  could take money it could not honour.
 
 ## Quality gates
 

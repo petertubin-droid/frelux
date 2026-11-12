@@ -267,12 +267,12 @@ export default function AdminSettings() {
                 onChange={(e) =>
                   update(
                     "payment_gateway",
-                    e.target.value as "paystack" | "stripe" | "flutterwave",
+                    e.target.value as "paystack" | "flutterwave",
                   )
                 }
               >
                 <option value="paystack">{t("Paystack (Nigeria)")}</option>
-                <option value="stripe">{t("Stripe (international)")}</option>
+
                 <option value="flutterwave">
                   {t("Flutterwave (Pan-African)")}
                 </option>

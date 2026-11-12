@@ -59,6 +59,7 @@ Deno.serve(async (req) => {
     seller_email?: string;
     seller_bank_code?: string;
     seller_account_number?: string;
+    job_country?: string;
     buyer_name?: string;
     buyer_email?: string;
     milestones?: { label?: string; amount_minor?: number }[];
@@ -89,6 +90,30 @@ Deno.serve(async (req) => {
       return json(
         { error: "The contract total must be a whole amount in kobo" },
         400,
+      );
+    }
+
+    // A market that is not open must not start a charge. Switching a country on
+    // is a business decision, and "coming soon" is a promise a payment rail
+    // cannot keep. A market with no profile row is not gated: that is the
+    // existing behaviour for everywhere FRELUX has not formally listed yet.
+    const jobCountry = (payload.job_country ?? "NG").trim().toUpperCase();
+    if (!/^[A-Z]{2}$/.test(jobCountry)) {
+      return json({ error: "Country must be a two letter code" }, 400);
+    }
+    const { data: market } = await admin
+      .from("market_profiles")
+      .select("status")
+      .eq("country_code", jobCountry)
+      .maybeSingle();
+    const marketStatus = market?.status ? String(market.status) : null;
+    if (marketStatus && !["active", "test_only"].includes(marketStatus)) {
+      return json(
+        {
+          error: `FRELUX is not taking payments in ${jobCountry} yet.`,
+          market_status: marketStatus,
+        },
+        409,
       );
     }
     if (lines.length === 0 || lines.length > 12) {

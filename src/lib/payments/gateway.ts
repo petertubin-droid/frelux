@@ -22,36 +22,30 @@ import {
 } from "@/lib/paystack";
 import type { SubscriptionPlan } from "@/lib/subscription";
 
-export type PaymentGateway = "paystack" | "stripe" | "flutterwave";
+/**
+ * Two gateways, split by what can actually settle the money.
+ *
+ * Paystack charges in its own settlement currencies (NGN, GHS, ZAR, KES).
+ * Flutterwave covers everywhere else and also gives an international card a
+ * route into an African market, so it is never wrong, only slower.
+ *
+ * Stripe was removed rather than repaired: it had no signature-verified
+ * webhook, so a payment could succeed without ever crediting a purchase.
+ * Running two working rails is better than three where one takes money it
+ * cannot honour.
+ */
+export type PaymentGateway = "paystack" | "flutterwave";
 
-export const PAYMENT_GATEWAYS: PaymentGateway[] = [
-  "paystack",
-  "stripe",
-  "flutterwave",
-];
+export const PAYMENT_GATEWAYS: PaymentGateway[] = ["paystack", "flutterwave"];
 
 export interface GatewayRuntimeConfig {
-  stripePublishableKey?: string;
   flutterwavePublicKey?: string;
-  /** Explicit opt-in; Stripe is parked until a webhook can credit purchases. */
-  stripeEnabled?: boolean;
 }
 
 export function parseGateway(value: unknown): PaymentGateway {
   return PAYMENT_GATEWAYS.includes(value as PaymentGateway)
     ? (value as PaymentGateway)
     : "paystack";
-}
-
-/**
- * A publishable key alone is not enough: Stripe stays parked server-side
- * (`stripe-checkout` answers 501) until a signature-verified webhook can credit
- * a purchase, so a leftover key must not put Stripe in front of a customer.
- * VITE_STRIPE_ENABLED is the explicit opt-in that turns the gateway on.
- */
-export function isStripeConfigured(cfg: GatewayRuntimeConfig): boolean {
-  if (!cfg.stripePublishableKey) return false;
-  return cfg.stripeEnabled ?? import.meta.env.VITE_STRIPE_ENABLED === "true";
 }
 
 export function isFlutterwaveConfigured(_cfg: GatewayRuntimeConfig): boolean {
@@ -79,11 +73,7 @@ export function resolveCheckoutGateway(
   const wanted = parseGateway(setting);
   if (wanted === "paystack") return { gateway: "paystack" };
 
-  const configured =
-    wanted === "stripe"
-      ? isStripeConfigured(cfg)
-      : isFlutterwaveConfigured(cfg);
-
+  const configured = isFlutterwaveConfigured(cfg);
   if (configured) return { gateway: wanted };
 
   return {
@@ -94,31 +84,71 @@ export function resolveCheckoutGateway(
 }
 
 /**
- * Gateways with a browser-side checkout path. Paystack/Flutterwave use
- * hosted Edge Function checkout, so their secret configuration is not visible
- * here. Stripe still requires its public browser key.
+ * Gateways with a browser-side checkout path. Both use hosted Edge Function
+ * checkout, so their secret configuration cannot be inferred from VITE_
+ * variables and neither is hidden on that basis.
  */
-export function availableGateways(cfg: GatewayRuntimeConfig): PaymentGateway[] {
-  // Paystack and Flutterwave both use hosted checkout initialized by Edge
-  // Functions. Their server-side secret keys cannot be reliably inferred from
-  // VITE_ variables, so don't hide these gateways based on unused public keys.
-  const list: PaymentGateway[] = ["paystack", "flutterwave"];
-  if (isStripeConfigured(cfg)) list.push("stripe");
-  return list;
+export function availableGateways(
+  _cfg: GatewayRuntimeConfig,
+): PaymentGateway[] {
+  return ["paystack", "flutterwave"];
 }
 
 /**
- * Markets where Paystack can settle charges in the local currency
- * (NGN, GHS, ZAR, KES). Everywhere else the local currency is outside
- * Paystack's settlement rails, so Flutterwave is the only gateway that
- * can actually complete the payment.
+ * The rail is decided by the currency being charged, not by where the buyer
+ * happens to be sitting, because that is what the server does:
+ * `providerForCurrency` in supabase/functions/_shared/escrow_providers.ts keeps
+ * naira on Paystack and sends every other currency to Flutterwave. Two list of
+ * countries used to disagree with that rule, which is how a Ghanaian buyer could
+ * be sent to a rail the server would not have chosen.
+ *
+ * Paystack's account can also settle GHS, ZAR and KES. Adding them here (and to
+ * the server map) is a one-line change once the Paystack account is enabled for
+ * those countries; until then they go to Flutterwave, which settles them today.
  */
-export const PAYSTACK_MARKETS: readonly string[] = ["NG", "GH", "ZA", "KE"];
+export const PAYSTACK_CURRENCIES: readonly string[] = ["NGN"];
 
-/** The gateway that can charge this market at all. */
+/** Settlement currency for the markets FRELUX lists. */
+const MARKET_CURRENCY: Record<string, string> = {
+  NG: "NGN",
+  GH: "GHS",
+  ZA: "ZAR",
+  KE: "KES",
+  US: "USD",
+  CA: "CAD",
+  GB: "GBP",
+  IE: "EUR",
+  DE: "EUR",
+  FR: "EUR",
+  NL: "EUR",
+  ES: "EUR",
+  IT: "EUR",
+  PT: "EUR",
+  AE: "AED",
+  EG: "EGP",
+};
+
+/** The gateway that can settle a charge in this currency. */
+export function gatewayForCurrency(currency?: string | null): PaymentGateway {
+  const code = String(currency || "").toUpperCase();
+  return PAYSTACK_CURRENCIES.includes(code) ? "paystack" : "flutterwave";
+}
+
+/**
+ * The gateway for a market, via its settlement currency. A market FRELUX does
+ * not list has no known currency, so it is treated as international rather than
+ * guessed at naira.
+ */
 export function gatewayForMarket(marketCode?: string | null): PaymentGateway {
   const code = String(marketCode || "").toUpperCase();
-  return PAYSTACK_MARKETS.includes(code) ? "paystack" : "flutterwave";
+  return gatewayForCurrency(MARKET_CURRENCY[code]);
+}
+
+/** The settlement currency FRELUX assumes for a market, when it knows one. */
+export function currencyForMarket(
+  marketCode?: string | null,
+): string | undefined {
+  return MARKET_CURRENCY[String(marketCode || "").toUpperCase()];
 }
 
 /**
@@ -138,8 +168,6 @@ export function gatewaysForMarket(
 
 export function currentGatewayRuntimeConfig(): GatewayRuntimeConfig {
   return {
-    stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
-    stripeEnabled: import.meta.env.VITE_STRIPE_ENABLED === "true",
     flutterwavePublicKey: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
   };
 }

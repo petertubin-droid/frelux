@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import {
   availableGateways,
+  currencyForMarket,
+  gatewayForCurrency,
   gatewayForMarket,
   gatewaysForMarket,
 } from "./gateway";
@@ -14,25 +16,23 @@ vi.mock("@/lib/paystack", () => ({
 import {
   parseGateway,
   resolveCheckoutGateway,
-  isStripeConfigured,
   isFlutterwaveConfigured,
+  PAYMENT_GATEWAYS,
   type GatewayRuntimeConfig,
 } from "./gateway";
 
 const EMPTY: GatewayRuntimeConfig = {};
-const FULL: GatewayRuntimeConfig = {
-  stripePublishableKey: "pk_test_x",
-  stripeEnabled: true,
-  flutterwavePublicKey: "FLWPUBK_test_x",
-};
-/** A key with the gateway still parked server-side. */
-const KEY_ONLY: GatewayRuntimeConfig = { stripePublishableKey: "pk_test_x" };
+const FULL: GatewayRuntimeConfig = { flutterwavePublicKey: "FLWPUBK_test_x" };
 
 describe("parseGateway", () => {
-  it("accepts the three supported gateways", () => {
+  it("accepts exactly the two gateways that can settle a charge", () => {
+    expect(PAYMENT_GATEWAYS).toEqual(["paystack", "flutterwave"]);
     expect(parseGateway("paystack")).toBe("paystack");
-    expect(parseGateway("stripe")).toBe("stripe");
     expect(parseGateway("flutterwave")).toBe("flutterwave");
+  });
+
+  it("no longer recognises stripe", () => {
+    expect(parseGateway("stripe")).toBe("paystack");
   });
 
   it("falls back to paystack for unknown, null or undefined settings", () => {
@@ -44,12 +44,6 @@ describe("parseGateway", () => {
 });
 
 describe("configuration checks", () => {
-  it("needs both a publishable key and the explicit opt-in", () => {
-    expect(isStripeConfigured(FULL)).toBe(true);
-    expect(isStripeConfigured(KEY_ONLY)).toBe(false);
-    expect(isStripeConfigured(EMPTY)).toBe(false);
-  });
-
   it("Flutterwave hosted checkout does not require an unused browser key", () => {
     expect(isFlutterwaveConfigured(FULL)).toBe(true);
     expect(isFlutterwaveConfigured(EMPTY)).toBe(true);
@@ -67,23 +61,19 @@ describe("resolveCheckoutGateway", () => {
   });
 
   it("uses the selected gateway when it is configured", () => {
-    expect(resolveCheckoutGateway("stripe", FULL)).toEqual({
-      gateway: "stripe",
-    });
     expect(resolveCheckoutGateway("flutterwave", FULL)).toEqual({
+      gateway: "flutterwave",
+    });
+    expect(resolveCheckoutGateway("flutterwave", EMPTY)).toEqual({
       gateway: "flutterwave",
     });
   });
 
-  it("falls back to paystack only when the selected browser gateway is unavailable", () => {
-    const stripeFallback = resolveCheckoutGateway("stripe", EMPTY);
-    expect(stripeFallback.gateway).toBe("paystack");
-    expect(stripeFallback.fallbackFrom).toBe("stripe");
-    expect(stripeFallback.reason).toContain("stripe");
-
-    expect(resolveCheckoutGateway("flutterwave", EMPTY)).toEqual({
-      gateway: "flutterwave",
-    });
+  it("a removed gateway in stored settings degrades to paystack, never to itself", () => {
+    // Old rows may still say 'stripe'. They must not reach a checkout.
+    const legacy = resolveCheckoutGateway("stripe", FULL);
+    expect(legacy.gateway).toBe("paystack");
+    expect(legacy.fallbackFrom).toBeUndefined();
   });
 
   it("never falls back to an unavailable gateway itself", () => {
@@ -93,24 +83,34 @@ describe("resolveCheckoutGateway", () => {
 });
 
 describe("availableGateways", () => {
-  it("lists every configured gateway, paystack included when its key is set", () => {
-    expect(availableGateways(FULL)).toEqual([
-      "paystack",
-      "flutterwave",
-      "stripe",
-    ]);
+  it("offers both hosted gateways regardless of browser keys", () => {
+    expect(availableGateways(FULL)).toEqual(["paystack", "flutterwave"]);
+    expect(availableGateways(EMPTY)).toEqual(["paystack", "flutterwave"]);
   });
 
-  it("keeps hosted gateways available without browser keys", () => {
-    expect(availableGateways(EMPTY)).toEqual(["paystack", "flutterwave"]);
+  it("never advertises a gateway that has no checkout path", () => {
+    expect(availableGateways(FULL)).not.toContain("stripe");
   });
 });
 
 describe("gatewaysForMarket", () => {
-  it("routes African settlement markets to paystack first", () => {
-    for (const code of ["NG", "GH", "ZA", "KE", "ng"]) {
+  it("routes Nigeria to paystack first", () => {
+    for (const code of ["NG", "ng"]) {
       expect(gatewayForMarket(code)).toBe("paystack");
       expect(gatewaysForMarket(code, EMPTY)[0]).toBe("paystack");
+    }
+  });
+
+  it("matches the server: only a currency paystack settles locally goes to paystack", () => {
+    // providerForCurrency in the edge functions keeps NGN on Paystack and sends
+    // GHS, ZAR, KES and everything else to Flutterwave. The client must agree,
+    // or a buyer is shown a rail the server would not have used.
+    expect(gatewayForCurrency("NGN")).toBe("paystack");
+    for (const currency of ["GHS", "ZAR", "KES", "USD", "GBP", "EUR", "EGP"]) {
+      expect(gatewayForCurrency(currency)).toBe("flutterwave");
+    }
+    for (const code of ["GH", "ZA", "KE"]) {
+      expect(gatewayForMarket(code)).toBe("flutterwave");
     }
   });
 
@@ -125,6 +125,12 @@ describe("gatewaysForMarket", () => {
 
   it("keeps flutterwave reachable for African buyers paying by international card", () => {
     expect(gatewaysForMarket("NG", EMPTY)).toContain("flutterwave");
+  });
+
+  it("knows the settlement currency it routed on", () => {
+    expect(currencyForMarket("NG")).toBe("NGN");
+    expect(currencyForMarket("us")).toBe("USD");
+    expect(currencyForMarket("ZZ")).toBeUndefined();
   });
 
   it("defaults to flutterwave when the market is unknown", () => {
