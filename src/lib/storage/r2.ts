@@ -2,9 +2,9 @@
  * Cloudflare R2 uploads for the browser.
  *
  * The bucket is never public and the storage key never reaches the client: the
- * Worker checks the caller's Supabase token, decides the object key, and returns
- * a short-lived presigned URL. The file then goes straight to R2, which keeps
- * large plans and receipts off the app server and out of its request budget.
+ * Worker checks the caller's Supabase token, decides the object key, and writes
+ * the object through its R2 binding. Uploads therefore need no R2 access keys,
+ * and large plans and receipts stay off the app server.
  *
  * Storage stays behind a driver switch so R2 can be turned on bucket by bucket
  * (`VITE_STORAGE_DRIVER=r2`) and rolled back by unsetting one variable.
@@ -63,14 +63,13 @@ export interface UploadResult {
 /**
  * Uploads a file to R2 and returns its key. `publicUrl` is filled in only for
  * the public buckets (avatars, brand assets); everything else is fetched back
- * through a signed URL.
+ * through the Worker.
  */
 export async function uploadToR2(params: {
   bucket: StorageBucket;
   file: Blob;
   filename?: string;
   accessToken: string;
-  expiresIn?: number;
 }): Promise<UploadResult> {
   const worker = r2WorkerUrl();
   if (!worker) throw new StorageError("R2 storage is not configured", 0);
@@ -88,52 +87,45 @@ export async function uploadToR2(params: {
   }
   const contentType = file.type || "application/octet-stream";
 
-  const presignResponse = await fetch(`${worker}/presign/upload`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${accessToken}`,
+  const response = await fetch(
+    `${worker}/files?bucket=${encodeURIComponent(bucket)}&filename=${encodeURIComponent(name)}`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": contentType,
+        authorization: `Bearer ${accessToken}`,
+      },
+      body: file,
     },
-    body: JSON.stringify({
-      bucket,
-      filename: name,
-      contentType,
-      size: file.size,
-      expiresIn: params.expiresIn,
-    }),
-  });
+  );
 
-  const presign = (await presignResponse.json().catch(() => ({}))) as {
+  const body = (await response.json().catch(() => ({}))) as {
     key?: string;
-    uploadUrl?: string;
     publicUrl?: string | null;
     error?: string;
   };
 
-  if (!presignResponse.ok || !presign.uploadUrl || !presign.key) {
+  if (!response.ok || !body.key) {
     throw new StorageError(
-      presign.error ?? "The storage service refused the upload",
-      presignResponse.status,
+      body.error ?? "The storage service refused the upload",
+      response.status,
     );
-  }
-
-  const put = await fetch(presign.uploadUrl, {
-    method: "PUT",
-    headers: { "content-type": contentType },
-    body: file,
-  });
-  if (!put.ok) {
-    throw new StorageError(`Upload failed (${put.status})`, put.status);
   }
 
   return {
     bucket,
-    key: presign.key,
-    publicUrl: presign.publicUrl ?? null,
+    key: body.key,
+    publicUrl: body.publicUrl ?? null,
   };
 }
 
-/** Signed read URL for a private object. */
+/**
+ * URL that reads a stored object back.
+ *
+ * When the Worker has R2 S3 keys it hands out a short-lived presigned URL. When
+ * it does not, the object is streamed through the Worker and the caller's token
+ * travels as `?token=`, which is what an <img src> or a download link can carry.
+ */
 export async function createR2DownloadUrl(params: {
   bucket: StorageBucket;
   key: string;
@@ -142,6 +134,7 @@ export async function createR2DownloadUrl(params: {
 }): Promise<string> {
   const worker = r2WorkerUrl();
   if (!worker) throw new StorageError("R2 storage is not configured", 0);
+  if (!params.accessToken) throw new StorageError("Sign in to read files", 401);
 
   const response = await fetch(`${worker}/presign/download`, {
     method: "POST",
@@ -156,13 +149,18 @@ export async function createR2DownloadUrl(params: {
     }),
   });
 
+  if (response.status === 501) {
+    const path = params.key.replace(/^\/+/, "");
+    return `${worker}/files/${encodeURIComponent(params.bucket)}/${path}?token=${encodeURIComponent(params.accessToken)}`;
+  }
+
   const body = (await response.json().catch(() => ({}))) as {
     url?: string;
     error?: string;
   };
   if (!response.ok || !body.url) {
     throw new StorageError(
-      body.error ?? "Could not sign that file",
+      body.error ?? "Could not open that file",
       response.status,
     );
   }

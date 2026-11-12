@@ -58,18 +58,17 @@ describe("uploadToR2", () => {
     vi.restoreAllMocks();
   });
 
-  it("presigns, then PUTs the file straight to R2", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce(
-        jsonResponse({
+  it("posts the file to the Worker and returns the stored key", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse(
+        {
+          bucket: "avatars",
           key: "user-9/2026-11-12/ab12cd34-logo.png",
-          uploadUrl:
-            "https://r2.example/avatars/user-9/logo.png?X-Amz-Signature=x",
           publicUrl: `${WORKER}/public/avatars/user-9/2026-11-12/ab12cd34-logo.png`,
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 200 }));
+        },
+        201,
+      ),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     const file = new File(["pixels"], "logo.png", { type: "image/png" });
@@ -82,20 +81,12 @@ describe("uploadToR2", () => {
     expect(result.key).toBe("user-9/2026-11-12/ab12cd34-logo.png");
     expect(result.publicUrl).toContain("/public/avatars/");
 
-    const presignCall = fetchMock.mock.calls[0];
-    expect(presignCall[0]).toBe(`${WORKER}/presign/upload`);
-    expect(presignCall[1].headers.authorization).toBe("Bearer jwt-token");
-    expect(JSON.parse(presignCall[1].body)).toMatchObject({
-      bucket: "avatars",
-      filename: "logo.png",
-      contentType: "image/png",
-      size: 6,
-    });
-
-    const putCall = fetchMock.mock.calls[1];
-    expect(putCall[0]).toContain("X-Amz-Signature");
-    expect(putCall[1].method).toBe("PUT");
-    expect(putCall[1].headers["content-type"]).toBe("image/png");
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${WORKER}/files?bucket=avatars&filename=logo.png`);
+    expect(init.method).toBe("POST");
+    expect(init.headers.authorization).toBe("Bearer jwt-token");
+    expect(init.headers["content-type"]).toBe("image/png");
+    expect(init.body).toBe(file);
   });
 
   it("rejects an oversized file before touching the network", async () => {
@@ -157,7 +148,7 @@ describe("createR2DownloadUrl", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns the signed URL from the Worker", async () => {
+  it("returns the presigned URL when the Worker can sign", async () => {
     vi.stubEnv("VITE_R2_WORKER_URL", WORKER);
     const fetchMock = vi
       .fn()
@@ -182,6 +173,30 @@ describe("createR2DownloadUrl", () => {
     });
   });
 
+  it("falls back to a token-carrying Worker URL when presigning is off", async () => {
+    vi.stubEnv("VITE_R2_WORKER_URL", WORKER);
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse(
+            { error: "Presigning needs R2 keys", mode: "binding" },
+            501,
+          ),
+        ),
+    );
+
+    await expect(
+      createR2DownloadUrl({
+        bucket: "pro-verification",
+        key: "user-7/2026-11-12/id.pdf",
+        accessToken: "jwt token",
+      }),
+    ).resolves.toBe(
+      `${WORKER}/files/pro-verification/user-7/2026-11-12/id.pdf?token=jwt%20token`,
+    );
+  });
   it("reports a refusal instead of returning an empty URL", async () => {
     vi.stubEnv("VITE_R2_WORKER_URL", WORKER);
     vi.stubGlobal(

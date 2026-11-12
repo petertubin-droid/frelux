@@ -1,15 +1,20 @@
 /**
  * FRELUX file Worker.
  *
- * Two jobs, both of which the browser cannot do for itself:
- *   1. Hand out short-lived presigned R2 URLs so uploads and downloads never
- *      pass through the platform and the storage keys stay server-side.
- *   2. Serve the public buckets (avatars, brand assets) straight from the
- *      edge with immutable caching.
+ * The browser cannot be trusted with storage keys and should not push plans or
+ * verification documents through the app server, so this Worker is the only
+ * thing that touches the bucket:
  *
- * The routes are deliberately narrow: a caller may only touch the buckets in
- * BUCKETS, only within its own key prefix, and only up to that bucket's size
- * and content-type limits.
+ *   POST /files            upload, written through the R2 binding
+ *   GET  /files/:b/:key    private read, owner prefix only (?token= for <img>)
+ *   GET  /public/:b/:key   public read for avatars and brand assets
+ *   POST /presign/upload   optional direct-to-R2 upload, only when S3 keys exist
+ *   POST /presign/download optional direct-to-R2 download, same condition
+ *
+ * Uploads go through the binding by default, which means no R2 access keys are
+ * needed at all. The presign routes exist for large files, where handing the
+ * browser a signed URL avoids streaming 50 MB through a Worker, and they return
+ * 501 until R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are set.
  */
 import { presignR2Url, safeObjectKey } from "./sigv4";
 
@@ -17,17 +22,24 @@ interface R2ObjectLike {
   body: ReadableStream;
   size: number;
   httpEtag?: string;
-  httpMetadata?: { contentType?: string; cacheControl?: string };
+  httpMetadata?: { contentType?: string };
 }
 
 interface R2BucketLike {
   get(key: string): Promise<R2ObjectLike | null>;
+  put(
+    key: string,
+    value: ReadableStream | ArrayBuffer | Uint8Array,
+    options?: {
+      httpMetadata?: { contentType?: string; cacheControl?: string };
+    },
+  ): Promise<unknown>;
 }
 
 export interface Env {
-  R2_ACCOUNT_ID: string;
-  R2_ACCESS_KEY_ID: string;
-  R2_SECRET_ACCESS_KEY: string;
+  R2_ACCOUNT_ID?: string;
+  R2_ACCESS_KEY_ID?: string;
+  R2_SECRET_ACCESS_KEY?: string;
   SUPABASE_JWT_SECRET: string;
   ALLOWED_ORIGINS?: string;
   PUBLIC_BASE_URL?: string;
@@ -37,6 +49,13 @@ export interface Env {
   BUCKET_PLAN_DOCUMENTS?: R2BucketLike;
   BUCKET_PRO_VERIFICATION?: R2BucketLike;
 }
+
+type BucketName =
+  | "avatars"
+  | "brand-assets"
+  | "marketplace"
+  | "plan-documents"
+  | "pro-verification";
 
 interface BucketPolicy {
   binding: keyof Env;
@@ -64,7 +83,7 @@ const DOCUMENTS = [
   "application/zip",
 ];
 
-const BUCKETS: Record<string, BucketPolicy> = {
+const BUCKETS: Record<BucketName, BucketPolicy> = {
   avatars: {
     binding: "BUCKET_AVATARS",
     maxBytes: 5 * MB,
@@ -96,6 +115,9 @@ const BUCKETS: Record<string, BucketPolicy> = {
     types: [...IMAGES, "application/pdf"],
   },
 };
+
+const isBucket = (value: string): value is BucketName =>
+  Object.prototype.hasOwnProperty.call(BUCKETS, value);
 
 const json = (body: unknown, status = 200, headers: HeadersInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -130,7 +152,7 @@ const b64urlToBuffer = (value: string): ArrayBuffer => {
 
 /**
  * Verifies a Supabase access token (HS256) so an anonymous caller cannot mint
- * upload URLs. Returns the subject, which becomes the caller's key prefix.
+ * upload URLs or read someone else's file. The subject becomes the key prefix.
  */
 async function verifySupabaseJwt(
   token: string,
@@ -165,20 +187,21 @@ async function verifySupabaseJwt(
   return typeof claims.sub === "string" ? { sub: claims.sub } : null;
 }
 
-const endpointFor = (env: Env) =>
-  `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+const bearerFrom = (request: Request, url?: URL): string => {
+  const header = request.headers.get("authorization") ?? "";
+  if (header.toLowerCase().startsWith("bearer ")) return header.slice(7).trim();
+  return url?.searchParams.get("token")?.trim() ?? "";
+};
 
 async function requireUser(
   request: Request,
   env: Env,
+  url?: URL,
 ): Promise<{ sub: string } | Response> {
   if (!env.SUPABASE_JWT_SECRET) {
     return json({ error: "SUPABASE_JWT_SECRET is not configured" }, 500);
   }
-  const header = request.headers.get("authorization") ?? "";
-  const token = header.toLowerCase().startsWith("bearer ")
-    ? header.slice(7).trim()
-    : "";
+  const token = bearerFrom(request, url);
   if (!token) return json({ error: "Missing bearer token" }, 401);
 
   const user = await verifySupabaseJwt(token, env.SUPABASE_JWT_SECRET);
@@ -186,13 +209,30 @@ async function requireUser(
   return user;
 }
 
-interface PresignUploadBody {
-  bucket?: string;
-  filename?: string;
-  contentType?: string;
-  size?: number;
-  expiresIn?: number;
-}
+const bindingFor = (env: Env, policy: BucketPolicy): R2BucketLike | null => {
+  const binding = env[policy.binding] as unknown;
+  return binding && typeof (binding as R2BucketLike).get === "function"
+    ? (binding as R2BucketLike)
+    : null;
+};
+
+const s3Configured = (env: Env) =>
+  Boolean(
+    env.R2_ACCOUNT_ID && env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY,
+  );
+
+const newKey = (sub: string, filename: string) =>
+  `${sub}/${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID().slice(0, 8)}-${safeObjectKey(filename)}`;
+
+const publicUrlFor = (
+  env: Env,
+  bucket: BucketName,
+  policy: BucketPolicy,
+  key: string,
+) =>
+  policy.public && env.PUBLIC_BASE_URL
+    ? `${env.PUBLIC_BASE_URL.replace(/\/+$/, "")}/public/${bucket}/${key}`
+    : null;
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -209,27 +249,25 @@ export default {
           ok: true,
           service: "frelux-files",
           buckets: Object.keys(BUCKETS),
-          configured: Boolean(env.R2_ACCOUNT_ID && env.R2_ACCESS_KEY_ID),
+          uploadMode: s3Configured(env) ? "presign-available" : "binding",
+          stores: Object.keys(BUCKETS).filter((name) => {
+            const policy = BUCKETS[name as BucketName];
+            return Boolean(bindingFor(env, policy));
+          }),
         },
         200,
         cors,
       );
     }
 
-    if (url.pathname === "/presign/upload" && request.method === "POST") {
-      const user = await requireUser(request, env);
+    // Upload through the R2 binding. No R2 access keys required.
+    if (url.pathname === "/files" && request.method === "POST") {
+      const user = await requireUser(request, env, url);
       if (user instanceof Response)
         return json(await user.json(), user.status, cors);
 
-      let body: PresignUploadBody;
-      try {
-        body = (await request.json()) as PresignUploadBody;
-      } catch {
-        return json({ error: "Body must be JSON" }, 400, cors);
-      }
-
-      const policy = body.bucket ? BUCKETS[body.bucket] : undefined;
-      if (!body.bucket || !policy) {
+      const bucket = url.searchParams.get("bucket") ?? "";
+      if (!isBucket(bucket)) {
         return json(
           {
             error: `Unknown bucket. Expected one of: ${Object.keys(BUCKETS).join(", ")}`,
@@ -238,104 +276,94 @@ export default {
           cors,
         );
       }
-      if (!body.contentType || !policy.types.includes(body.contentType)) {
+      const policy = BUCKETS[bucket];
+      const store = bindingFor(env, policy);
+      if (!store)
+        return json({ error: `Binding missing for ${bucket}` }, 500, cors);
+
+      const contentType = (request.headers.get("content-type") ?? "")
+        .split(";")[0]
+        .trim()
+        .toLowerCase();
+      if (!policy.types.includes(contentType)) {
         return json(
           {
-            error: `Unsupported content type for ${body.bucket}: ${body.contentType ?? "none"}`,
+            error: `Unsupported content type for ${bucket}: ${contentType || "none"}`,
           },
           415,
           cors,
         );
       }
-      if (typeof body.size !== "number" || body.size <= 0) {
-        return json({ error: "size is required" }, 400, cors);
-      }
-      if (body.size > policy.maxBytes) {
+
+      const declared = Number(request.headers.get("content-length") ?? "0");
+      if (declared > policy.maxBytes) {
         return json(
           {
-            error: `File is larger than the ${Math.round(policy.maxBytes / MB)} MB limit for ${body.bucket}`,
+            error: `File is larger than the ${Math.round(policy.maxBytes / MB)} MB limit for ${bucket}`,
           },
           413,
           cors,
         );
       }
+      if (!request.body) return json({ error: "Empty upload" }, 400, cors);
 
-      const stamp = new Date().toISOString().slice(0, 10);
-      const nonce = crypto.randomUUID().slice(0, 8);
-      const key = `${user.sub}/${stamp}/${nonce}-${safeObjectKey(body.filename ?? "file")}`;
-      const expiresIn = Math.min(Math.max(body.expiresIn ?? 900, 60), 3600);
-
-      const uploadUrl = await presignR2Url({
-        method: "PUT",
-        endpoint: endpointFor(env),
-        bucket: body.bucket,
-        key,
-        accessKeyId: env.R2_ACCESS_KEY_ID,
-        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-        expiresIn,
+      const filename = url.searchParams.get("filename") ?? "file";
+      const key = newKey(user.sub, filename);
+      await store.put(key, request.body, {
+        httpMetadata: { contentType, cacheControl: "private, max-age=0" },
       });
 
       return json(
-        {
-          bucket: body.bucket,
-          key,
-          uploadUrl,
-          expiresIn,
-          publicUrl:
-            policy.public && env.PUBLIC_BASE_URL
-              ? `${env.PUBLIC_BASE_URL.replace(/\/+$/, "")}/${body.bucket}/${key}`
-              : null,
-        },
-        200,
+        { bucket, key, publicUrl: publicUrlFor(env, bucket, policy, key) },
+        201,
         cors,
       );
     }
 
-    if (url.pathname === "/presign/download" && request.method === "POST") {
-      const user = await requireUser(request, env);
+    if (url.pathname.startsWith("/files/") && request.method === "GET") {
+      const user = await requireUser(request, env, url);
       if (user instanceof Response)
         return json(await user.json(), user.status, cors);
 
-      const body = (await request.json().catch(() => ({}))) as {
-        bucket?: string;
-        key?: string;
-        expiresIn?: number;
-      };
-      const policy = body.bucket ? BUCKETS[body.bucket] : undefined;
-      if (!body.bucket || !policy || !body.key) {
-        return json({ error: "bucket and key are required" }, 400, cors);
-      }
-      // Private objects are readable only from the owner's own prefix.
-      if (!policy.public && !body.key.startsWith(`${user.sub}/`)) {
+      const [, , bucketName, ...rest] = url.pathname.split("/");
+      if (!isBucket(bucketName)) return json({ error: "Not found" }, 404, cors);
+      const policy = BUCKETS[bucketName];
+      if (
+        !policy.public &&
+        !decodeURIComponent(rest.join("/")).startsWith(`${user.sub}/`)
+      ) {
         return json({ error: "Not found" }, 404, cors);
       }
+      const store = bindingFor(env, policy);
+      if (!store)
+        return json({ error: `Binding missing for ${bucketName}` }, 500, cors);
 
-      const expiresIn = Math.min(Math.max(body.expiresIn ?? 300, 60), 3600);
-      const downloadUrl = await presignR2Url({
-        method: "GET",
-        endpoint: endpointFor(env),
-        bucket: body.bucket,
-        key: body.key,
-        accessKeyId: env.R2_ACCESS_KEY_ID,
-        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-        expiresIn,
+      const object = await store.get(decodeURIComponent(rest.join("/")));
+      if (!object) return json({ error: "Not found" }, 404, cors);
+
+      return new Response(object.body, {
+        headers: {
+          "content-type":
+            object.httpMetadata?.contentType ?? "application/octet-stream",
+          "cache-control": "private, max-age=60",
+          etag: object.httpEtag ?? "",
+          ...cors,
+        },
       });
-      return json({ url: downloadUrl, expiresIn }, 200, cors);
     }
 
     if (url.pathname.startsWith("/public/") && request.method === "GET") {
       const [, , bucketName, ...rest] = url.pathname.split("/");
-      const policy = BUCKETS[bucketName];
-      if (!policy || !policy.public)
+      if (!isBucket(bucketName))
         return new Response("Not found", { status: 404 });
+      const policy = BUCKETS[bucketName];
+      if (!policy.public) return new Response("Not found", { status: 404 });
 
-      const binding = env[policy.binding];
-      if (!binding || typeof (binding as R2BucketLike).get !== "function") {
+      const store = bindingFor(env, policy);
+      if (!store)
         return new Response("Bucket binding missing", { status: 500 });
-      }
-      const object = await (binding as R2BucketLike).get(
-        decodeURIComponent(rest.join("/")),
-      );
+
+      const object = await store.get(decodeURIComponent(rest.join("/")));
       if (!object) return new Response("Not found", { status: 404 });
 
       return new Response(object.body, {
@@ -347,6 +375,121 @@ export default {
           ...cors,
         },
       });
+    }
+
+    if (url.pathname === "/presign/upload" && request.method === "POST") {
+      if (!s3Configured(env)) {
+        return json(
+          {
+            error: "Presigning needs R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY",
+            mode: "binding",
+          },
+          501,
+          cors,
+        );
+      }
+      const user = await requireUser(request, env, url);
+      if (user instanceof Response)
+        return json(await user.json(), user.status, cors);
+
+      const body = (await request.json().catch(() => ({}))) as {
+        bucket?: string;
+        filename?: string;
+        contentType?: string;
+        size?: number;
+        expiresIn?: number;
+      };
+      const bucket = body.bucket ?? "";
+      if (!isBucket(bucket))
+        return json({ error: "Unknown bucket" }, 400, cors);
+
+      const policy = BUCKETS[bucket];
+      const contentType = (body.contentType ?? "").toLowerCase();
+      if (!policy.types.includes(contentType)) {
+        return json(
+          { error: `Unsupported content type: ${contentType || "none"}` },
+          415,
+          cors,
+        );
+      }
+      if (typeof body.size !== "number" || body.size <= 0) {
+        return json({ error: "size is required" }, 400, cors);
+      }
+      if (body.size > policy.maxBytes) {
+        return json(
+          {
+            error: `File is larger than the ${Math.round(policy.maxBytes / MB)} MB limit for ${bucket}`,
+          },
+          413,
+          cors,
+        );
+      }
+
+      const key = newKey(user.sub, body.filename ?? "file");
+      const expiresIn = Math.min(Math.max(body.expiresIn ?? 900, 60), 3600);
+      const uploadUrl = await presignR2Url({
+        method: "PUT",
+        endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        bucket,
+        key,
+        accessKeyId: env.R2_ACCESS_KEY_ID as string,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY as string,
+        expiresIn,
+      });
+
+      return json(
+        {
+          bucket,
+          key,
+          uploadUrl,
+          expiresIn,
+          publicUrl: publicUrlFor(env, bucket, policy, key),
+        },
+        200,
+        cors,
+      );
+    }
+
+    if (url.pathname === "/presign/download" && request.method === "POST") {
+      if (!s3Configured(env)) {
+        return json(
+          {
+            error: "Presigning needs R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY",
+            mode: "binding",
+          },
+          501,
+          cors,
+        );
+      }
+      const user = await requireUser(request, env, url);
+      if (user instanceof Response)
+        return json(await user.json(), user.status, cors);
+
+      const body = (await request.json().catch(() => ({}))) as {
+        bucket?: string;
+        key?: string;
+        expiresIn?: number;
+      };
+      const bucket = body.bucket ?? "";
+      if (!isBucket(bucket) || !body.key) {
+        return json({ error: "bucket and key are required" }, 400, cors);
+      }
+      const policy = BUCKETS[bucket];
+      if (!policy.public && !body.key.startsWith(`${user.sub}/`)) {
+        return json({ error: "Not found" }, 404, cors);
+      }
+
+      const expiresIn = Math.min(Math.max(body.expiresIn ?? 300, 60), 3600);
+      const downloadUrl = await presignR2Url({
+        method: "GET",
+        endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        bucket,
+        key: body.key,
+        accessKeyId: env.R2_ACCESS_KEY_ID as string,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY as string,
+        expiresIn,
+      });
+      return json({ url: downloadUrl, expiresIn }, 200, cors);
     }
 
     return new Response("Not found", { status: 404, headers: cors });

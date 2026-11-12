@@ -13,6 +13,8 @@ Presigned Cloudflare R2 URLs plus edge serving for the two public buckets.
 
 ## Rules the Worker enforces
 
+- Uploads need no R2 access keys: the object is written through the binding, so
+  only `SUPABASE_JWT_SECRET` is required to run this.
 - Bucket allowlist with a per-bucket size cap and content-type allowlist.
 - Key prefix is the JWT subject, so one user cannot read or overwrite another
   user's objects.
@@ -25,10 +27,11 @@ Presigned Cloudflare R2 URLs plus edge serving for the two public buckets.
 cd cloudflare
 npm install
 npx wrangler dev                    # local, with the R2 bindings
+npx wrangler secret put SUPABASE_JWT_SECRET
+# optional: only to enable /presign/* (direct browser uploads for big files)
 npx wrangler secret put R2_ACCOUNT_ID
 npx wrangler secret put R2_ACCESS_KEY_ID
 npx wrangler secret put R2_SECRET_ACCESS_KEY
-npx wrangler secret put SUPABASE_JWT_SECRET
 npx wrangler deploy
 ```
 

@@ -70,12 +70,25 @@ bucket's Settings > CORS Policy.
 
 ## Secrets and variables
 
+Uploads are written through the R2 binding, so the only secret required is:
+
+```bash
+npx wrangler secret put SUPABASE_JWT_SECRET
+```
+
+The three R2 S3 secrets are optional. Set them only if you want `/presign/*`, which
+lets the browser PUT a large file straight to R2 instead of streaming it through a
+Worker:
+
 ```bash
 npx wrangler secret put R2_ACCOUNT_ID
 npx wrangler secret put R2_ACCESS_KEY_ID
 npx wrangler secret put R2_SECRET_ACCESS_KEY
-npx wrangler secret put SUPABASE_JWT_SECRET
 ```
+
+Those last two come from R2 > Manage R2 API Tokens, which is a different thing from
+a Cloudflare API token (the token used to deploy the Worker cannot sign S3
+requests). Until they exist `/presign/*` answers 501 and the app uses the binding.
 
 `ALLOWED_ORIGINS` and `PUBLIC_BASE_URL` are plain vars in `wrangler.toml`.
 
@@ -124,8 +137,8 @@ first):
 | `pro-verification` | `src/lib/contractor.ts`, private receipts |
 
 Each one moves from `supabase.storage.from(bucket).upload(...)` to
-`uploadToR2({ bucket, file, accessToken })`, which returns `{ bucket, key,
-publicUrl }`. Store `key` in the same column that holds the Supabase path today;
+`uploadToR2({ bucket, file, accessToken })`, which POSTs the file to the Worker and
+returns `{ bucket, key, publicUrl }`. Store `key` in the same column that holds the Supabase path today;
 for public buckets the URL is `publicUrl`, for private ones call
 `createR2DownloadUrl` at read time.
 
