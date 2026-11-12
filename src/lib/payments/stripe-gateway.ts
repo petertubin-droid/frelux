@@ -17,8 +17,17 @@ export class StripeNotConfiguredError extends Error {
   }
 }
 
+/**
+ * Stripe is parked server-side (`stripe-checkout` returns 501) until a
+ * signature-verified webhook can credit a purchase. The extra flag means a
+ * leftover publishable key can never advertise a checkout the platform cannot
+ * complete: both the key and an explicit opt-in are required.
+ */
 export function isStripeConfigured(): boolean {
-  return Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  return (
+    Boolean(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) &&
+    import.meta.env.VITE_STRIPE_ENABLED === "true"
+  );
 }
 
 export interface StripeCheckoutRequest {

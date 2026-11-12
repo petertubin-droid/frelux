@@ -22,8 +22,11 @@ import {
 const EMPTY: GatewayRuntimeConfig = {};
 const FULL: GatewayRuntimeConfig = {
   stripePublishableKey: "pk_test_x",
+  stripeEnabled: true,
   flutterwavePublicKey: "FLWPUBK_test_x",
 };
+/** A key with the gateway still parked server-side. */
+const KEY_ONLY: GatewayRuntimeConfig = { stripePublishableKey: "pk_test_x" };
 
 describe("parseGateway", () => {
   it("accepts the three supported gateways", () => {
@@ -41,8 +44,9 @@ describe("parseGateway", () => {
 });
 
 describe("configuration checks", () => {
-  it("stripe is configured only with a publishable key", () => {
+  it("needs both a publishable key and the explicit opt-in", () => {
     expect(isStripeConfigured(FULL)).toBe(true);
+    expect(isStripeConfigured(KEY_ONLY)).toBe(false);
     expect(isStripeConfigured(EMPTY)).toBe(false);
   });
 

@@ -1,7 +1,32 @@
-// Stripe Checkout for international cards (worldwide layer).
-// Env: STRIPE_SECRET_KEY (Supabase secret). When no key is set,
-// returns 501 so the client falls back to Paystack.
-import { serve } from "https://deno.land/std/http/server.ts";
+// Stripe Checkout — parked deliberately.
+//
+// This endpoint used to create a session from a hardcoded naira price table
+// (pro ₦5,000, premium ₦15,000, …) with no authentication, no metadata tying the
+// session to a user, and no webhook to credit anything. Two things were wrong
+// with that, and both cost real money:
+//
+//   1. The prices here drifted away from the canonical
+//      `subscription_plan_prices` table the pricing page renders, so a customer
+//      could pay an amount the platform never quoted.
+//   2. Even a successful payment could not be honoured: nothing listened for
+//      Stripe events, and the session carried no user id, so there was no way to
+//      grant the plan. A customer would have paid and received nothing.
+//
+// Stripe stays off until it can be done to the same standard as Paystack and
+// Flutterwave. What a working version needs, in order:
+//
+//   • price resolved server-side from `subscription_plan_prices`
+//     (see `../_shared/subscription-pricing.ts`), never a literal;
+//   • the caller authenticated, with their user id in
+//     `client_reference_id` and `metadata.user_id`;
+//   • a `stripe-webhook` that verifies the `Stripe-Signature` HMAC (t=,v1=)
+//     in constant time, then calls `apply_subscription_purchase` with the
+//     session id as the reference, so replays are idempotent;
+//   • the paid amount compared against the quote before granting.
+//
+// Until then this returns 501, which the client already treats as
+// "not configured" and falls back to Paystack. Failing closed here is the whole
+// point: no session can be created that the platform cannot complete.
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -16,63 +41,16 @@ function json(body: unknown, status = 200) {
   });
 }
 
-const NGN_AMOUNTS: Record<string, number> = {
-  "pro:monthly": 500000, // N5,000 in kobo
-  "pro:yearly": 5000000,
-  "premium:monthly": 1500000,
-  "premium:yearly": 15000000,
-  "enterprise:monthly": 5000000,
-  "enterprise:yearly": 50000000,
-};
-
-serve(async (req) => {
+Deno.serve((req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
-  const secret = Deno.env.get("STRIPE_SECRET_KEY");
-  if (!secret) {
-    return json({ error: "stripe_not_configured" }, 501);
-  }
-
-  let body: {
-    planId?: string;
-    cycle?: string;
-    success_url?: string;
-    cancel_url?: string;
-  };
-  try {
-    body = await req.json();
-  } catch {
-    return json({ error: "invalid_body" }, 400);
-  }
-  const key = `${body.planId}:${body.cycle}`;
-  const amount = NGN_AMOUNTS[key];
-  if (!amount) return json({ error: "unknown_plan" }, 400);
-  if (!body.success_url || !body.cancel_url) {
-    return json({ error: "missing_urls" }, 400);
-  }
-
-  const params = new URLSearchParams({
-    mode: "payment",
-    "line_items[0][quantity]": "1",
-    "line_items[0][price_data][currency]": "ngn",
-    "line_items[0][price_data][unit_amount]": String(amount),
-    "line_items[0][price_data][product_data][name]": `FRELUX ${body.planId} (${body.cycle})`,
-    success_url: body.success_url,
-    cancel_url: body.cancel_url,
-  });
-
-  const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${secret}`,
-      "Content-Type": "application/x-www-form-urlencoded",
+  return json(
+    {
+      error: "stripe_not_available",
+      reason:
+        "Stripe checkout is parked until a signature-verified webhook can credit the purchase; use Paystack or Flutterwave.",
     },
-    body: params,
-  });
-  const session = await res.json();
-  if (!res.ok) {
-    return json({ error: session?.error?.message ?? "stripe_error" }, 502);
-  }
-  return json({ url: session.url });
+    501,
+  );
 });

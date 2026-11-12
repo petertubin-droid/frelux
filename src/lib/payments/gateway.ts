@@ -33,6 +33,8 @@ export const PAYMENT_GATEWAYS: PaymentGateway[] = [
 export interface GatewayRuntimeConfig {
   stripePublishableKey?: string;
   flutterwavePublicKey?: string;
+  /** Explicit opt-in; Stripe is parked until a webhook can credit purchases. */
+  stripeEnabled?: boolean;
 }
 
 export function parseGateway(value: unknown): PaymentGateway {
@@ -41,8 +43,15 @@ export function parseGateway(value: unknown): PaymentGateway {
     : "paystack";
 }
 
+/**
+ * A publishable key alone is not enough: Stripe stays parked server-side
+ * (`stripe-checkout` answers 501) until a signature-verified webhook can credit
+ * a purchase, so a leftover key must not put Stripe in front of a customer.
+ * VITE_STRIPE_ENABLED is the explicit opt-in that turns the gateway on.
+ */
 export function isStripeConfigured(cfg: GatewayRuntimeConfig): boolean {
-  return Boolean(cfg.stripePublishableKey);
+  if (!cfg.stripePublishableKey) return false;
+  return cfg.stripeEnabled ?? import.meta.env.VITE_STRIPE_ENABLED === "true";
 }
 
 export function isFlutterwaveConfigured(_cfg: GatewayRuntimeConfig): boolean {
@@ -130,6 +139,7 @@ export function gatewaysForMarket(
 export function currentGatewayRuntimeConfig(): GatewayRuntimeConfig {
   return {
     stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
+    stripeEnabled: import.meta.env.VITE_STRIPE_ENABLED === "true",
     flutterwavePublicKey: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
   };
 }
