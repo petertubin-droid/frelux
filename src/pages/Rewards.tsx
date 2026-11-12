@@ -454,7 +454,7 @@ export default function Rewards() {
               {t("Sign In")}
             </Link>
             <Link
-              to="/register/?redirect=/rewards"
+              to="/login?redirect=/rewards"
               className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
             >
               {t("Create Free Account")}

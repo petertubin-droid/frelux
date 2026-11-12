@@ -165,7 +165,7 @@ export default function AcceptInvitation() {
               to accept this invitation.
             </p>
             <Button asChild className="w-full">
-              <Link to={`/auth?redirect=/invite/${token}`}>
+              <Link to={`/login?redirect=/invite/${token}`}>
                 {t("Sign In to Accept")}{" "}
                 <ArrowRight className="h-4 w-4 ml-1.5" />
               </Link>
