@@ -248,7 +248,10 @@ export default function AdminLogin() {
           )}
         </div>
         <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground">
-          <Link to="/" className="hover:text-brand-purple">
+          <Link
+            to="/"
+            className="inline-flex min-h-8 items-center hover:text-brand-purple"
+          >
             {t("Back to website")}
           </Link>
         </p>
