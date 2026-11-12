@@ -57,6 +57,17 @@ import {
   type WindCode,
 } from "@/lib/engineering/wind-load";
 import {
+  LINE_LOAD_UNIT,
+  POINT_LOAD_UNIT,
+  KN_PER_KIP,
+  KPA_PER_PSF,
+  PRESSURE_UNIT,
+  type LoadUnitSystem,
+  pointLoadToKn,
+  pressureToKpa,
+  KN_PER_M_PER_LB_PER_FT,
+} from "@/lib/measurement/load-units";
+import {
   ec8CriticalRegions,
   seismicDetailingAci,
   sdcFromInputs,
@@ -1924,6 +1935,12 @@ function BeamCalculator() {
   const [support, setSupport] = useState<SupportCondition>("simply_supported");
   const [liveLoad, setLiveLoad] = useState(2.0);
   const [deadLoad, setDeadLoad] = useState(3.0);
+  // The span already follows the market; the loads that decide the section
+  // have to as well. The engine stays in kN and kPa and the conversion happens
+  // once, exactly, at the edge.
+  const [loadSystem, setLoadSystem] = useState<LoadUnitSystem>(
+    preferredLengthUnit === "meters" ? "metric" : "imperial",
+  );
   const [tribWidth, setTribWidth] = useState(3.0);
 
   const { market } = useMarket();
@@ -1967,8 +1984,8 @@ function BeamCalculator() {
       span: toMetres(span),
       beam_type: beamType,
       support_condition: support,
-      live_load: liveLoad,
-      dead_load: deadLoad,
+      live_load: pressureToKpa(liveLoad, loadSystem),
+      dead_load: pressureToKpa(deadLoad, loadSystem),
       tributary_width: toMetres(tribWidth),
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
@@ -2009,6 +2026,7 @@ function BeamCalculator() {
     support,
     liveLoad,
     deadLoad,
+    loadSystem,
     tribWidth,
     concreteGrade,
     steelGrade,
@@ -2031,6 +2049,19 @@ function BeamCalculator() {
             "Support bearing width caps the effective span at clear span plus bearing (BS 8110-1 cl. 3.4.1.1). Leave it at 0 if unknown: the engine then applies only the clear span plus d limit and states that the moment errs high rather than low.",
           )}
         </p>
+        <LoadUnitToggle
+          system={loadSystem}
+          pressure
+          onChange={(next) => {
+            if (next === loadSystem) return;
+            const f = next === "imperial" ? 1 / KPA_PER_PSF : KPA_PER_PSF;
+            const r = (v: number) =>
+              parseFloat((v * f).toFixed(next === "imperial" ? 0 : 2));
+            setLiveLoad(r(liveLoad));
+            setDeadLoad(r(deadLoad));
+            setLoadSystem(next);
+          }}
+        />
         <InputGrid>
           <MeasuredSpanPicker
             hint="The span filled is the clear distance between the room walls."
@@ -2084,16 +2115,16 @@ function BeamCalculator() {
             ]}
           />
           <NumInput
-            label="Live load (kN/m²)"
+            label={`Live load (${PRESSURE_UNIT[loadSystem]})`}
             value={liveLoad}
             onChange={setLiveLoad}
-            step="0.5"
+            step={loadSystem === "imperial" ? "10" : "0.5"}
           />
           <NumInput
-            label="Dead load (kN/m²)"
+            label={`Dead load (${PRESSURE_UNIT[loadSystem]})`}
             value={deadLoad}
             onChange={setDeadLoad}
-            step="0.5"
+            step={loadSystem === "imperial" ? "10" : "0.5"}
           />
           <NumInput
             label={`Tributary width (${lengthUnit})`}
@@ -2143,7 +2174,11 @@ function BeamCalculator() {
               support={support}
               section={`${result.recommended_width} × ${result.recommended_depth} mm`}
               bars={`${result.recommended_bar_count}Y${result.recommended_bar_diameter}`}
-              load={`${result.factored_load.toFixed(2)} kN/m`}
+              load={
+                loadSystem === "imperial"
+                  ? `${(result.factored_load / KN_PER_M_PER_LB_PER_FT).toFixed(0)} ${LINE_LOAD_UNIT.imperial}`
+                  : `${result.factored_load.toFixed(2)} ${LINE_LOAD_UNIT.metric}`
+              }
             />
           </div>
           <div className="grid md:grid-cols-3 gap-4 mb-6">
@@ -2318,6 +2353,10 @@ function ColumnCalculator() {
   useEffect(() => {
     setColumnLengthUnit(columnLengthUnitPref === "meters" ? "m" : "ft");
   }, [columnLengthUnitPref]);
+  // A column load is a force, so it follows the load system, not the length one.
+  const [columnLoadSystem, setColumnLoadSystem] = useState<LoadUnitSystem>(
+    columnLengthUnitPref === "meters" ? "metric" : "imperial",
+  );
   const concreteStandard = useMemo(
     () => getConcreteStandardForMarket(market.marketCode),
     [market.marketCode],
@@ -2344,7 +2383,7 @@ function ColumnCalculator() {
 
   const calculate = useCallback(() => {
     const input: ColumnDesignInput = {
-      axial_load: axialLoad,
+      axial_load: pointLoadToKn(axialLoad, columnLoadSystem),
       height: columnLengthUnit === "ft" ? height * 0.3048 : height,
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
@@ -2356,16 +2395,33 @@ function ColumnCalculator() {
     setResult(
       monitoredCalc("Structural Calculator", () => designColumn(input)),
     );
-  }, [axialLoad, height, concreteGrade, steelGrade, cover, isRect]);
+  }, [
+    axialLoad,
+    columnLoadSystem,
+    height,
+    concreteGrade,
+    steelGrade,
+    cover,
+    isRect,
+  ]);
 
   if (!result) calculate();
 
   return (
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <LoadUnitToggle
+          system={columnLoadSystem}
+          onChange={(next) => {
+            if (next === columnLoadSystem) return;
+            const f = next === "imperial" ? 1 / KN_PER_KIP : KN_PER_KIP;
+            setAxialLoad(parseFloat((axialLoad * f).toFixed(1)));
+            setColumnLoadSystem(next);
+          }}
+        />
         <InputGrid>
           <NumInput
-            label="Axial load (kN)"
+            label={`Axial load (${POINT_LOAD_UNIT[columnLoadSystem]})`}
             value={axialLoad}
             onChange={setAxialLoad}
             step="10"
@@ -2552,6 +2608,18 @@ function ColumnCalculator() {
 function SlabCalculator() {
   const { t } = useLanguage();
   const designAccess = useEngineAccess("/structural-calculator");
+  const { preferredLengthUnit } = useMarket();
+  const [lengthUnit, setLengthUnit] = useState<"m" | "ft">(
+    preferredLengthUnit === "meters" ? "m" : "ft",
+  );
+  useEffect(() => {
+    setLengthUnit(preferredLengthUnit === "meters" ? "m" : "ft");
+  }, [preferredLengthUnit]);
+  const toMetres = (value: number) =>
+    lengthUnit === "ft" ? value * 0.3048 : value;
+  const [loadSystem, setLoadSystem] = useState<LoadUnitSystem>(
+    preferredLengthUnit === "meters" ? "metric" : "imperial",
+  );
   const [spanX, setSpanX] = useState(4.0);
   const [spanY, setSpanY] = useState(6.0);
   const [slabType, setSlabType] = useState<SlabType>("one_way");
@@ -2594,12 +2662,12 @@ function SlabCalculator() {
 
   const calculate = useCallback(() => {
     const input: SlabDesignInput = {
-      span_x: spanX,
-      span_y: spanY,
+      span_x: toMetres(spanX),
+      span_y: toMetres(spanY),
       slab_type: slabType,
       support_condition: support,
-      live_load: liveLoad,
-      dead_load: deadLoad,
+      live_load: pressureToKpa(liveLoad, loadSystem),
+      dead_load: pressureToKpa(deadLoad, loadSystem),
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
@@ -2635,6 +2703,8 @@ function SlabCalculator() {
   }, [
     spanX,
     spanY,
+    loadSystem,
+    lengthUnit,
     slabType,
     support,
     liveLoad,
@@ -2651,12 +2721,28 @@ function SlabCalculator() {
   return (
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+        <LoadUnitToggle
+          system={loadSystem}
+          pressure
+          onChange={(next) => {
+            if (next === loadSystem) return;
+            const f = next === "imperial" ? 1 / KPA_PER_PSF : KPA_PER_PSF;
+            const r = (v: number) =>
+              parseFloat((v * f).toFixed(next === "imperial" ? 0 : 2));
+            setLiveLoad(r(liveLoad));
+            setDeadLoad(r(deadLoad));
+            setLoadSystem(next);
+          }}
+        />
         <InputGrid>
           <MeasuredSpanPicker
             hint="Both spans are filled, and one-way or two-way follows the 2:1 ratio."
             onPick={(picked) => {
-              setSpanX(parseFloat(picked.shortSpanM.toFixed(2)));
-              setSpanY(parseFloat(picked.longSpanM.toFixed(2)));
+              // Measured spans arrive in metres; the fields show the slab tab's
+              // unit, so convert before filling them.
+              const factor = lengthUnit === "ft" ? 1 / 0.3048 : 1;
+              setSpanX(parseFloat((picked.shortSpanM * factor).toFixed(2)));
+              setSpanY(parseFloat((picked.longSpanM * factor).toFixed(2)));
               const direction = slabSpanDirection(
                 picked.shortSpanM,
                 picked.longSpanM,
@@ -2665,13 +2751,13 @@ function SlabCalculator() {
             }}
           />
           <NumInput
-            label="Short span (m)"
+            label={`Short span (${lengthUnit})`}
             value={spanX}
             onChange={setSpanX}
             step="0.1"
           />
           <NumInput
-            label="Long span (m)"
+            label={`Long span (${lengthUnit})`}
             value={spanY}
             onChange={setSpanY}
             step="0.1"
@@ -2707,16 +2793,16 @@ function SlabCalculator() {
             ]}
           />
           <NumInput
-            label="Live load (kN/m²)"
+            label={`Live load (${PRESSURE_UNIT[loadSystem]})`}
             value={liveLoad}
             onChange={setLiveLoad}
-            step="0.5"
+            step={loadSystem === "imperial" ? "10" : "0.5"}
           />
           <NumInput
-            label="Dead load (kN/m²)"
+            label={`Dead load (${PRESSURE_UNIT[loadSystem]})`}
             value={deadLoad}
             onChange={setDeadLoad}
-            step="0.5"
+            step={loadSystem === "imperial" ? "10" : "0.5"}
           />
           <SelectInput
             label={`Concrete grade (${concreteStandard.name})`}
@@ -2756,8 +2842,8 @@ function SlabCalculator() {
           <div className="mb-6">
             <CalculatorSchematic
               kind="slab"
-              spanX={`${spanX} m`}
-              spanY={`${spanY} m`}
+              spanX={`${spanX} ${lengthUnit}`}
+              spanY={`${spanY} ${lengthUnit}`}
               thickness={`${result.recommended_thickness} mm`}
               bars={`Y${result.recommended_bar_diameter} @ ${result.recommended_bar_spacing} mm c/c`}
               slabType={result.slab_type.replace(/_/g, " ")}
@@ -2944,6 +3030,45 @@ function SlabCalculator() {
 function InputGrid({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{children}</div>
+  );
+}
+
+/**
+ * Load units follow the market by default; this lets an engineer who thinks in
+ * the other system say so without leaving the page. Values are converted in
+ * place so the load itself never changes.
+ */
+function LoadUnitToggle({
+  system,
+  onChange,
+  pressure = false,
+}: {
+  system: LoadUnitSystem;
+  onChange: (next: LoadUnitSystem) => void;
+  pressure?: boolean;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground">
+        Loads:
+      </span>
+      <div className="inline-flex overflow-hidden rounded-lg border border-border dark:border-white/10">
+        <button
+          type="button"
+          onClick={() => system !== "metric" && onChange("metric")}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${system === "metric" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
+        >
+          {pressure ? "kN/m²" : "kN"}
+        </button>
+        <button
+          type="button"
+          onClick={() => system !== "imperial" && onChange("imperial")}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${system === "imperial" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
+        >
+          {pressure ? "psf" : "kip"}
+        </button>
+      </div>
+    </div>
   );
 }
 
