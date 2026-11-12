@@ -37,6 +37,9 @@ import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
 
 type DeviceType = MEPPoint["type"];
 
@@ -57,6 +60,23 @@ const DEFAULT_ROUTER_POINTS: MEPPoint[] = [
   { id: "p-sk2", type: "socket", x: 5.5, y: 6.5, label: "Ring Socket 2" },
 ];
 
+/** How many metres one of each supported unit is. */
+const M_PER_UNIT: Record<Unit, number> = {
+  meters: 1,
+  feet: 0.3048,
+  inches: 0.0254,
+  centimeters: 0.01,
+  millimeters: 0.001,
+};
+/** Upper bound for a room dimension, expressed in each unit. */
+const UNIT_MAX: Record<Unit, number> = {
+  meters: 30,
+  feet: 100,
+  inches: 1200,
+  centimeters: 3000,
+  millimeters: 30000,
+};
+
 export default function ConduitWiringEstimator() {
   const { priceMap, ruleRows, bookSummary } =
     useSpecialtyPrices("conduit_wiring");
@@ -72,9 +92,16 @@ export default function ConduitWiringEstimator() {
   const [result, setResult] = useState<SpecialtyResult | null>(null);
 
   // Router mode inputs
-  const [roomWidth, setRoomWidth] = useState(6); // meters
-  const [roomLength, setRoomLength] = useState(8); // meters
-  const [ceilingHeight, setCeilingHeight] = useState(3.0); // meters
+  // Routed dimensions are entered in the visitor's unit and normalised to
+  // metres for the router, which works in metres. Feet is the default because
+  // the owner rule is that a customer reads and types feet, not metres.
+  const [routerUnit, setRouterUnit] = useState<Unit>("feet");
+  const [roomWidth, setRoomWidth] = useState(20); // in routerUnit
+  const [roomLength, setRoomLength] = useState(26); // in routerUnit
+  const [ceilingHeight, setCeilingHeight] = useState(9.8); // in routerUnit
+  const roomWidthM = roomWidth * M_PER_UNIT[routerUnit];
+  const roomLengthM = roomLength * M_PER_UNIT[routerUnit];
+  const ceilingHeightM = ceilingHeight * M_PER_UNIT[routerUnit];
   const [deviceTypeToAdd, setDeviceTypeToAdd] = useState<DeviceType>("socket");
 
   const [routerPoints, setRouterPoints] = useState<MEPPoint[]>(
@@ -90,9 +117,9 @@ export default function ConduitWiringEstimator() {
     setSockets(10);
     setOverrides({});
     setResult(null);
-    setRoomWidth(6);
-    setRoomLength(8);
-    setCeilingHeight(3.0);
+    setRoomWidth(20);
+    setRoomLength(26);
+    setCeilingHeight(9.8);
     setDeviceTypeToAdd("socket");
     setRouterPoints(DEFAULT_ROUTER_POINTS);
   };
@@ -112,10 +139,10 @@ export default function ConduitWiringEstimator() {
 
   const routingResult = useMemo(() => {
     return calculateMEPRouting(routerPoints, {
-      ceilingHeightMeters: ceilingHeight,
+      ceilingHeightMeters: ceilingHeightM,
       conduitStandardLengthMeters: rules.conduit_length_m,
     });
-  }, [routerPoints, ceilingHeight, rules.conduit_length_m]);
+  }, [routerPoints, ceilingHeightM, rules.conduit_length_m]);
 
   const input: ConduitWiringInput = {
     floor_area_m2: area,
@@ -141,8 +168,8 @@ export default function ConduitWiringEstimator() {
       {
         id: newId,
         type: deviceTypeToAdd,
-        x: Math.min(roomWidth - 0.5, 1.0 + nextOffset),
-        y: Math.min(roomLength - 0.5, 1.5 + nextOffset),
+        x: Math.min(roomWidthM - 0.5, 1.0 + nextOffset),
+        y: Math.min(roomLengthM - 0.5, 1.5 + nextOffset),
         label: `${DEVICE_LABELS[deviceTypeToAdd].label} #${prev.length + 1}`,
       },
     ]);
@@ -157,7 +184,7 @@ export default function ConduitWiringEstimator() {
       (p) => p.type === "light" || p.type === "switch",
     ).length;
     const socketCount = routerPoints.filter((p) => p.type === "socket").length;
-    const calcArea = Math.round(roomWidth * roomLength);
+    const calcArea = Math.round(roomWidthM * roomLengthM);
 
     setArea(calcArea);
     setLights(lightCount);
@@ -170,9 +197,12 @@ export default function ConduitWiringEstimator() {
       ["FRELUX Manhattan Conduit & Wiring Route Schedule", ""],
       [
         "Room Dimensions",
-        `${roomWidth}m × ${roomLength}m (${roomWidth * roomLength} m²)`,
+        `${roomWidth} ${unitShortLabel(routerUnit)} × ${roomLength} ${unitShortLabel(routerUnit)} (${(roomWidthM * roomLengthM).toFixed(1)} m²)`,
       ],
-      ["Ceiling Height", `${ceilingHeight}m`],
+      [
+        "Ceiling Height",
+        `${ceilingHeight} ${unitShortLabel(routerUnit)} (${ceilingHeightM.toFixed(2)} m)`,
+      ],
       [
         "Total Horizontal Manhattan Run",
         `${routingResult.totalHorizontalLengthM} m`,
@@ -220,7 +250,7 @@ export default function ConduitWiringEstimator() {
     link.href = url;
     link.setAttribute(
       "download",
-      `mep-conduit-route-${roomWidth}x${roomLength}m.csv`,
+      `mep-conduit-route-${roomWidth}x${roomLength}${unitShortLabel(routerUnit)}.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -364,53 +394,59 @@ export default function ConduitWiringEstimator() {
               {/* Room Geometry Parameters */}
               <FieldGroup title="Room Dimensions & Ceiling">
                 <div className="grid grid-cols-3 gap-3">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      Room measured in feet by default
+                    </span>
+                    <UnitToggle value={routerUnit} onChange={setRouterUnit} />
+                  </div>
                   <div>
                     <label className="text-xs font-medium text-foreground block mb-1">
-                      Width (m)
+                      Width ({unitShortLabel(routerUnit)})
                     </label>
                     <input
-                      aria-label="Width (m)"
+                      aria-label={`Width (${unitShortLabel(routerUnit)})`}
                       type="number"
-                      min={2}
-                      max={30}
+                      min={1}
+                      max={UNIT_MAX[routerUnit]}
                       step={0.5}
                       value={roomWidth}
                       onChange={(e) =>
-                        setRoomWidth(Math.max(2, Number(e.target.value)))
+                        setRoomWidth(Math.max(1, Number(e.target.value)))
                       }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-foreground block mb-1">
-                      Length (m)
+                      Length ({unitShortLabel(routerUnit)})
                     </label>
                     <input
-                      aria-label="Length (m)"
+                      aria-label={`Length (${unitShortLabel(routerUnit)})`}
                       type="number"
-                      min={2}
-                      max={30}
+                      min={1}
+                      max={UNIT_MAX[routerUnit]}
                       step={0.5}
                       value={roomLength}
                       onChange={(e) =>
-                        setRoomLength(Math.max(2, Number(e.target.value)))
+                        setRoomLength(Math.max(1, Number(e.target.value)))
                       }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-foreground block mb-1">
-                      Ceiling (m)
+                      Ceiling ({unitShortLabel(routerUnit)})
                     </label>
                     <input
-                      aria-label="Ceiling (m)"
+                      aria-label={`Ceiling (${unitShortLabel(routerUnit)})`}
                       type="number"
-                      min={2.4}
-                      max={6.0}
+                      min={1}
+                      max={UNIT_MAX[routerUnit] / 2}
                       step={0.1}
                       value={ceilingHeight}
                       onChange={(e) =>
-                        setCeilingHeight(Math.max(2.4, Number(e.target.value)))
+                        setCeilingHeight(Math.max(1, Number(e.target.value)))
                       }
                       className="w-full rounded-lg border border-input bg-background px-2.5 py-1.5 text-sm"
                     />
@@ -426,14 +462,16 @@ export default function ConduitWiringEstimator() {
                     & Glowing Wall Runs
                   </span>
                   <Badge variant="outline" className="text-[10px] font-mono">
-                    {routerPoints.length} Points · {roomWidth}m × {roomLength}m
+                    {routerPoints.length} Points · {roomWidth}{" "}
+                    {unitShortLabel(routerUnit)} × {roomLength}{" "}
+                    {unitShortLabel(routerUnit)}
                   </Badge>
                 </div>
 
                 {/* SVG Visual Canvas */}
                 <div className="relative border border-border/80 rounded-lg bg-slate-950 p-2 overflow-hidden aspect-[4/3] flex items-center justify-center">
                   <svg
-                    viewBox={`0 0 ${roomWidth * 50 + 40} ${roomLength * 50 + 40}`}
+                    viewBox={`0 0 ${roomWidthM * 50 + 40} ${roomLengthM * 50 + 40}`}
                     className="w-full h-full select-none"
                   >
                     <defs>
@@ -456,8 +494,8 @@ export default function ConduitWiringEstimator() {
                     <rect
                       x="20"
                       y="20"
-                      width={roomWidth * 50}
-                      height={roomLength * 50}
+                      width={roomWidthM * 50}
+                      height={roomLengthM * 50}
                       fill="#020617"
                       stroke="#334155"
                       strokeWidth="3"

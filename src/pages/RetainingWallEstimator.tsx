@@ -33,12 +33,30 @@ import { track } from "@/lib/analytics";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
+
+/** How many metres one of each supported unit is. */
+const M_PER_UNIT: Record<Unit, number> = {
+  meters: 1,
+  feet: 0.3048,
+  inches: 0.0254,
+  centimeters: 0.01,
+  millimeters: 0.001,
+};
 
 export default function RetainingWallEstimator() {
   const { priceMap, ruleRows, bookSummary } =
     useSpecialtyPrices("retaining_wall");
+  // Lengths are typed in the visitor's unit and normalised to metres for the
+  // engine. Feet is the default: a wall is measured on site in feet.
+  const [unit, setUnit] = useState<Unit>("feet");
+  const conv = M_PER_UNIT[unit];
   const [length, setLength] = useState("");
   const [height, setHeight] = useState("");
+  const lengthM = Number(length) * conv;
+  const heightM = Number(height) * conv;
   const [soil, setSoil] = useState<SoilType>("stable");
   const [stem, setStem] = useState<StemType>("block");
   const [widthOverride, setWidthOverride] = useState("");
@@ -59,17 +77,17 @@ export default function RetainingWallEstimator() {
   );
 
   const input: RetainingWallInput = {
-    length_m: Number(length),
-    height_m: Number(height),
+    length_m: lengthM,
+    height_m: heightM,
     soil_type: soil,
     stem_type: stem,
     footing_width_override_m:
-      widthOverride.trim() === "" ? null : Number(widthOverride),
+      widthOverride.trim() === "" ? null : Number(widthOverride) * conv,
   };
 
   const preview = useMemo(() => {
-    const length_m = Number(length);
-    const height_m = Number(height);
+    const length_m = lengthM;
+    const height_m = heightM;
     if (!Number.isFinite(length_m) || length_m <= 0) return null;
     if (!Number.isFinite(height_m) || height_m <= 0) return null;
     return retainingWallGeometry(
@@ -79,11 +97,11 @@ export default function RetainingWallEstimator() {
         soil_type: soil,
         stem_type: stem,
         footing_width_override_m:
-          widthOverride.trim() === "" ? null : Number(widthOverride),
+          widthOverride.trim() === "" ? null : Number(widthOverride) * conv,
       },
       rules,
     );
-  }, [length, height, soil, stem, widthOverride, rules]);
+  }, [lengthM, heightM, soil, stem, widthOverride, conv, rules]);
 
   const run = () => {
     const res = calculateRetainingWall(input, rules, prices);
@@ -151,8 +169,12 @@ export default function RetainingWallEstimator() {
             <>
               <CalculatorSchematic
                 kind="retaining-wall"
-                length={length ? `${length} m` : "not entered"}
-                height={height ? `${height} m` : "not entered"}
+                length={
+                  length ? `${length} ${unitShortLabel(unit)}` : "not entered"
+                }
+                height={
+                  height ? `${height} ${unitShortLabel(unit)}` : "not entered"
+                }
                 footingWidth={`${preview.footing_width_m} m`}
                 soil={SOIL_LABELS[soil]}
                 stem={stem === "block" ? "hollow block" : "poured concrete"}
@@ -241,21 +263,27 @@ export default function RetainingWallEstimator() {
       inputs={
         <>
           <FieldGroup title="Wall">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                Measured in feet by default
+              </span>
+              <UnitToggle value={unit} onChange={setUnit} />
+            </div>
             <NumberField
               label="Wall length"
               required
-              unit="m"
+              unit={unitShortLabel(unit)}
               value={length}
               onChange={setLength}
-              placeholder="10"
+              placeholder="33"
             />
             <NumberField
               label="Wall height"
               required
-              unit="m"
+              unit={unitShortLabel(unit)}
               value={height}
               onChange={setHeight}
-              placeholder="1.8"
+              placeholder="6"
             />
           </FieldGroup>
 
@@ -281,7 +309,7 @@ export default function RetainingWallEstimator() {
             />
             <NumberField
               label="Footing width override"
-              unit="m, optional"
+              unit={`${unitShortLabel(unit)}, optional`}
               value={widthOverride}
               onChange={setWidthOverride}
               placeholder="leave blank to use the recommendation"

@@ -33,12 +33,28 @@ import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
+
+/** How many metres one of each supported unit is. */
+const M_PER_UNIT: Record<Unit, number> = {
+  meters: 1,
+  feet: 0.3048,
+  inches: 0.0254,
+  centimeters: 0.01,
+  millimeters: 0.001,
+};
 
 export default function SteelBeamEstimator() {
   const { priceMap, bookSummary } = useSpecialtyPrices("steel_beam");
   const [preset, setPreset] = useState<string>("custom");
   const [profile, setProfile] = useState<string>("ipe_200");
+  // The span is typed in the visitor's unit and normalised to metres for the
+  // mass calculation, which works from kg per metre. Feet is the default.
+  const [spanUnit, setSpanUnit] = useState<Unit>("feet");
   const [span, setSpan] = useState("");
+  const spanMetres = Number(span) * M_PER_UNIT[spanUnit];
   const [count, setCount] = useState("1");
   const [rate, setRate] = useState("");
   const [columns, setColumns] = useState(false);
@@ -67,7 +83,7 @@ export default function SteelBeamEstimator() {
 
   const input: SteelBeamInput = {
     profile,
-    span_m: Number(span),
+    span_m: spanMetres,
     beam_count: Number(count),
     price_per_tonne: rate.trim() === "" ? null : Number(rate),
     columns_included: columns,
@@ -77,12 +93,12 @@ export default function SteelBeamEstimator() {
     () =>
       steelMassKg({
         profile,
-        span_m: Number(span),
+        span_m: spanMetres,
         beam_count: Number(count),
         price_per_tonne: null,
         columns_included: columns,
       }),
-    [profile, span, count, columns],
+    [profile, spanMetres, count, columns],
   );
 
   const applyPreset = (key: string) => {
@@ -153,7 +169,11 @@ export default function SteelBeamEstimator() {
         <>
           <CalculatorSchematic
             kind="steel"
-            span={span ? `${span} m` : "not entered"}
+            span={
+              span
+                ? `${span} ${unitShortLabel(spanUnit)} (${spanMetres.toFixed(2)} m)`
+                : "not entered"
+            }
             profile={STEEL_PROFILE_BY_KEY[profile]?.label ?? profile}
             count={count || "0"}
             mass={
@@ -198,13 +218,19 @@ export default function SteelBeamEstimator() {
           </FieldGroup>
 
           <FieldGroup title="Span">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                Span in feet by default
+              </span>
+              <UnitToggle value={spanUnit} onChange={setSpanUnit} />
+            </div>
             <NumberField
               label="Span length"
               required
-              unit="m"
+              unit={unitShortLabel(spanUnit)}
               value={span}
               onChange={setSpan}
-              placeholder="6"
+              placeholder="20"
             />
             <NumberField
               label="Number of beams"

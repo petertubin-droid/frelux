@@ -33,15 +33,31 @@ import { buildingEnvelope } from "@/lib/measurement/building-schedule";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import { useMarket } from "@/lib/international/market-context";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
+
+/** How many metres one of each supported unit is. */
+const M_PER_UNIT: Record<Unit, number> = {
+  meters: 1,
+  feet: 0.3048,
+  inches: 0.0254,
+  centimeters: 0.01,
+  millimeters: 0.001,
+};
 
 export default function SoffitGutterEstimator() {
   const { priceMap, ruleRows, bookSummary } =
     useSpecialtyPrices("soffit_gutter");
+  // Lengths are typed in the visitor's unit and normalised to metres for the
+  // engine. Feet is the default.
+  const [unit, setUnit] = useState<Unit>("feet");
+  const conv = M_PER_UNIT[unit];
   const [mode, setMode] = useState<"perimeter" | "footprint">("perimeter");
   const [perimeter, setPerimeter] = useState("");
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
-  const [overhang, setOverhang] = useState("0.6");
+  const [overhang, setOverhang] = useState("2");
   const [material, setMaterial] = useState<SoffitMaterial>("aluminium");
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [result, setResult] = useState<SpecialtyResult | null>(null);
@@ -68,10 +84,10 @@ export default function SoffitGutterEstimator() {
 
   const input: SoffitGutterInput = {
     mode,
-    perimeter_m: mode === "perimeter" ? Number(perimeter) : null,
-    building_length_m: mode === "footprint" ? Number(length) : null,
-    building_width_m: mode === "footprint" ? Number(width) : null,
-    overhang_m: Number(overhang),
+    perimeter_m: mode === "perimeter" ? Number(perimeter) * conv : null,
+    building_length_m: mode === "footprint" ? Number(length) * conv : null,
+    building_width_m: mode === "footprint" ? Number(width) * conv : null,
+    overhang_m: Number(overhang) * conv,
     material,
   };
 
@@ -116,7 +132,7 @@ export default function SoffitGutterEstimator() {
     setPerimeter("");
     setLength("");
     setWidth("");
-    setOverhang("0.6");
+    setOverhang("2");
     setMaterial("aluminium");
     setOverrides({});
     setEnvelopeNote(null);
@@ -232,7 +248,7 @@ export default function SoffitGutterEstimator() {
               <NumberField
                 label="Roof perimeter at the eaves"
                 required
-                unit="m"
+                unit={unitShortLabel(unit)}
                 value={perimeter}
                 onChange={setPerimeter}
                 placeholder="65"
@@ -243,14 +259,14 @@ export default function SoffitGutterEstimator() {
                 <NumberField
                   label="Building length"
                   required
-                  unit="m"
+                  unit={unitShortLabel(unit)}
                   value={length}
                   onChange={setLength}
                 />
                 <NumberField
                   label="Building width"
                   required
-                  unit="m"
+                  unit={unitShortLabel(unit)}
                   value={width}
                   onChange={setWidth}
                 />
@@ -259,10 +275,10 @@ export default function SoffitGutterEstimator() {
             <NumberField
               label="Eaves overhang width"
               required
-              unit="m"
+              unit={unitShortLabel(unit)}
               value={overhang}
               onChange={setOverhang}
-              hint="0.6 m is the common overhang; 0.9 m is used on wider eaves."
+              hint="About 2 ft is the common overhang; 3 ft is used on wider eaves."
             />
           </FieldGroup>
 

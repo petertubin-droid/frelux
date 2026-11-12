@@ -56,6 +56,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { metersToFeet } from "@/lib/utils";
 
 type Phase = "upload" | "analyzing" | "review" | "result" | "locked" | "error";
 
@@ -136,8 +137,10 @@ export function describeVisionFailure(
     const length = Number(m.building_length_m);
     const width = Number(m.building_width_m);
     const floors = Number(m.number_of_floors);
-    if (Number.isFinite(length) && length > 0) read.push(`${length} m long`);
-    if (Number.isFinite(width) && width > 0) read.push(`${width} m wide`);
+    if (Number.isFinite(length) && length > 0)
+      read.push(`${length} m (${metersToFeet(length).toFixed(0)} ft) long`);
+    if (Number.isFinite(width) && width > 0)
+      read.push(`${width} m (${metersToFeet(width).toFixed(0)} ft) wide`);
     if (Number.isFinite(floors) && floors > 0) {
       read.push(floors === 1 ? "one storey" : `${floors} storeys`);
     }

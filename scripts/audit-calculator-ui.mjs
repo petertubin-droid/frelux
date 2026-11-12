@@ -54,7 +54,16 @@ const rows = files.map((file) => {
   // naive count of <label> tags reports false positives.
   const labels = (s.match(/<label\b|<Label\b|label=\{|label="/g) ?? []).length;
   const aria = (s.match(/aria-label=/g) ?? []).length;
-  const feet = /\bft\b|feet|Feet|FT/.test(s);
+  // Square feet and the other imperial readings count too: a page that offers
+  // sq ft or inches is offering the imperial system, which is what the rule
+  // asks for. A currency or count tool may legitimately mention none of this.
+  // Pages built on the shared MeasurementInput or UnitToggle collect lengths in
+  // a unit the visitor picks, so they offer feet without the word appearing in
+  // the page file. A literal imperial label is the other route.
+  const feet =
+    /\bft\b|sq\s?ft|sqft|feet|Feet|\binch|MeasurementInput|UnitToggle|useMeasurementProject|lengthUnit/.test(
+      s,
+    );
   // A redirect stub renders no UI at all, and a hub is an index of tools with
   // no inputs of its own. Neither owes a disclaimer or a share button, so they
   // are classified instead of being counted as failures.
