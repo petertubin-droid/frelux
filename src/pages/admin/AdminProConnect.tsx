@@ -69,6 +69,7 @@ import { CredentialReviewConsole } from "@/components/pro-connect/CredentialRevi
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminRegistrationsTab from "@/components/admin/AdminRegistrationsTab";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 type Tab =
   | "registrations"
@@ -167,6 +168,9 @@ function AdminProfessionalsTab() {
   const [profiles, setProfiles] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  // Every professional lands in this list eventually, so it pages now.
+  const [listPage, setListPage] = useState(0);
+  const [listPageSize, setListPageSize] = useState(25);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
@@ -237,6 +241,11 @@ function AdminProfessionalsTab() {
     );
   }
 
+  const pagedProfiles = filtered.slice(
+    listPage * listPageSize,
+    listPage * listPageSize + listPageSize,
+  );
+
   return (
     <div>
       <div className="mb-4">
@@ -248,14 +257,17 @@ function AdminProfessionalsTab() {
           <AdminInput
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setListPage(0);
+            }}
             placeholder={t("Search professionals...")}
             className="w-full rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background"
           />
         </div>
       </div>
       <div className="space-y-3">
-        {filtered.map((p) => (
+        {pagedProfiles.map((p) => (
           <div
             key={p.id}
             className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
@@ -345,6 +357,18 @@ function AdminProfessionalsTab() {
           </div>
         ))}
       </div>
+      {filtered.length > listPageSize && (
+        <AdminPagination
+          page={listPage}
+          pageSize={listPageSize}
+          total={filtered.length}
+          onPageChange={setListPage}
+          onPageSizeChange={(size) => {
+            setListPageSize(size);
+            setListPage(0);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -366,6 +390,9 @@ function LegacyVerificationRequests() {
   const [requests, setRequests] = useState<DbProVerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("pending");
+  // A verification backlog is expected to grow; page it before it does.
+  const [reqPage, setReqPage] = useState(0);
+  const [reqPageSize, setReqPageSize] = useState(12);
   const [selectedRequest, setSelectedRequest] =
     useState<DbProVerificationRequest | null>(null);
   const [actionNotes, setActionNotes] = useState("");
@@ -491,238 +518,262 @@ function LegacyVerificationRequests() {
           {t("No verification requests found.")}
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {requests.map((req) => {
-            const profile = (
-              req as unknown as {
-                profile?: {
-                  display_name: string;
-                  slug: string;
-                  business_name: string | null;
-                };
-              }
-            ).profile;
-            return (
-              <div
-                key={req.id}
-                className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={classNames(
-                          "rounded-full px-2 py-0.5 text-xs font-medium",
-                          req.request_type === "identity"
-                            ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
-                            : req.request_type === "contact"
-                              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                              : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
-                        )}
-                      >
-                        {req.request_type}
-                      </span>
-                      <span
-                        className={classNames(
-                          "rounded-full px-2 py-0.5 text-xs font-medium",
-                          req.status === "pending"
-                            ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                            : req.status === "approved"
-                              ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                              : req.status === "rejected"
-                                ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                                : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
-                        )}
-                      >
-                        {req.status.replace("_", " ")}
-                      </span>
-                      {req.auto_verified && (
-                        <span
-                          data-testid="auto-verified-badge"
-                          title="Approved by the automatic review fallback because no administrator reviewed it in time"
-                          className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300"
-                        >
-                          auto-verified
-                        </span>
-                      )}
-                    </div>
-                    {profile && (
-                      <p className="mt-2 text-sm font-medium text-foreground dark:text-primary-foreground">
-                        {profile.display_name}{" "}
-                        {profile.business_name && `· ${profile.business_name}`}
-                      </p>
-                    )}
-                    {req.professional_name && (
-                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                        Name: {req.professional_name}
-                      </p>
-                    )}
-                    {req.identity_document_type && (
-                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                        ID Type:{" "}
-                        <span className="capitalize">
-                          {req.identity_document_type.replace(/_/g, " ")}
-                        </span>
-                      </p>
-                    )}
-                    {req.years_experience != null && (
-                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                        Experience: {req.years_experience} years
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Submitted:{" "}
-                      {new Date(req.submitted_at).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                    {req.admin_notes && (
-                      <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
-                        Admin notes: {req.admin_notes}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex shrink-0 gap-1">
-                    {profile && (
-                      <a
-                        href={`/pro-connect/${profile.slug}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
-                        title={t("View profile")}
-                      >
-                        <Eye aria-hidden="true" className="h-4 w-4" />
-                      </a>
-                    )}
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleViewDocs(req)}
-                      className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
-                      title={t("View verification documents")}
-                    >
-                      <FileText aria-hidden="true" className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                {req.status === "pending" && (
-                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
-                    {selectedRequest?.id === req.id ? (
-                      <div className="space-y-3">
-                        <AdminInput
-                          type="text"
-                          value={actionNotes}
-                          onChange={(e) => setActionNotes(e.target.value)}
-                          placeholder={t("Admin notes (optional)")}
-                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
-                        />
-                        <AdminInput
-                          type="text"
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
-                          placeholder={t("Rejection reason (if rejecting)")}
-                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
-                        />
-                        <AdminInput
-                          type="text"
-                          value={moreInfoText}
-                          onChange={(e) => setMoreInfoText(e.target.value)}
-                          placeholder={t(
-                            "What additional info is needed? (if requesting more info)",
+        <>
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {requests
+              .slice(reqPage * reqPageSize, reqPage * reqPageSize + reqPageSize)
+              .map((req) => {
+                const profile = (
+                  req as unknown as {
+                    profile?: {
+                      display_name: string;
+                      slug: string;
+                      business_name: string | null;
+                    };
+                  }
+                ).profile;
+                return (
+                  <div
+                    key={req.id}
+                    className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={classNames(
+                              "rounded-full px-2 py-0.5 text-xs font-medium",
+                              req.request_type === "identity"
+                                ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                                : req.request_type === "contact"
+                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                                  : "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+                            )}
+                          >
+                            {req.request_type}
+                          </span>
+                          <span
+                            className={classNames(
+                              "rounded-full px-2 py-0.5 text-xs font-medium",
+                              req.status === "pending"
+                                ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                                : req.status === "approved"
+                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                                  : req.status === "rejected"
+                                    ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                                    : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
+                            )}
+                          >
+                            {req.status.replace("_", " ")}
+                          </span>
+                          {req.auto_verified && (
+                            <span
+                              data-testid="auto-verified-badge"
+                              title="Approved by the automatic review fallback because no administrator reviewed it in time"
+                              className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/10 dark:text-slate-300"
+                            >
+                              auto-verified
+                            </span>
                           )}
-                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
-                        />
-                        <div className="flex flex-wrap gap-2">
-                          <AdminButton
-                            variant="success"
-                            onClick={() =>
-                              handleApprove(req.profile_id, req.id)
-                            }
-                            className="text-xs"
-                          >
-                            <Check
-                              aria-hidden="true"
-                              className="mr-1 inline h-3.5 w-3.5"
-                            />
-                            {t("Approve")}
-                          </AdminButton>
-                          <AdminButton
-                            variant="danger"
-                            onClick={() => handleReject(req.profile_id, req.id)}
-                            className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
-                          >
-                            <X className="mr-1 inline h-3.5 w-3.5" />
-                            {t("Reject")}
-                          </AdminButton>
-                          <AdminButton
-                            variant="secondary"
-                            onClick={() =>
-                              handleMoreInfo(req.profile_id, req.id)
-                            }
-                            className="text-xs text-blue-600 dark:text-blue-400"
-                          >
-                            <FileWarning
-                              aria-hidden="true"
-                              className="mr-1 inline h-3.5 w-3.5"
-                            />
-                            {t("Request Info")}
-                          </AdminButton>
-                          <AdminButton
-                            variant="secondary"
-                            onClick={() => setSelectedRequest(null)}
-                            className="text-xs"
-                          >
-                            {t("Cancel")}
-                          </AdminButton>
                         </div>
+                        {profile && (
+                          <p className="mt-2 text-sm font-medium text-foreground dark:text-primary-foreground">
+                            {profile.display_name}{" "}
+                            {profile.business_name &&
+                              `· ${profile.business_name}`}
+                          </p>
+                        )}
+                        {req.professional_name && (
+                          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                            Name: {req.professional_name}
+                          </p>
+                        )}
+                        {req.identity_document_type && (
+                          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                            ID Type:{" "}
+                            <span className="capitalize">
+                              {req.identity_document_type.replace(/_/g, " ")}
+                            </span>
+                          </p>
+                        )}
+                        {req.years_experience != null && (
+                          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                            Experience: {req.years_experience} years
+                          </p>
+                        )}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Submitted:{" "}
+                          {new Date(req.submitted_at).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )}
+                        </p>
+                        {req.admin_notes && (
+                          <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
+                            Admin notes: {req.admin_notes}
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <AdminButton
-                        variant="link"
-                        onClick={() => {
-                          setSelectedRequest(req);
-                          setActionNotes("");
-                          setRejectionReason("");
-                          setMoreInfoText("");
-                        }}
-                        className="text-sm font-medium"
-                      >
-                        Review Request →
-                      </AdminButton>
+                      <div className="flex shrink-0 gap-1">
+                        {profile && (
+                          <a
+                            href={`/pro-connect/${profile.slug}/`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
+                            title={t("View profile")}
+                          >
+                            <Eye aria-hidden="true" className="h-4 w-4" />
+                          </a>
+                        )}
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleViewDocs(req)}
+                          className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
+                          title={t("View verification documents")}
+                        >
+                          <FileText aria-hidden="true" className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    {req.status === "pending" && (
+                      <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
+                        {selectedRequest?.id === req.id ? (
+                          <div className="space-y-3">
+                            <AdminInput
+                              type="text"
+                              value={actionNotes}
+                              onChange={(e) => setActionNotes(e.target.value)}
+                              placeholder={t("Admin notes (optional)")}
+                              className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
+                            />
+                            <AdminInput
+                              type="text"
+                              value={rejectionReason}
+                              onChange={(e) =>
+                                setRejectionReason(e.target.value)
+                              }
+                              placeholder={t("Rejection reason (if rejecting)")}
+                              className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
+                            />
+                            <AdminInput
+                              type="text"
+                              value={moreInfoText}
+                              onChange={(e) => setMoreInfoText(e.target.value)}
+                              placeholder={t(
+                                "What additional info is needed? (if requesting more info)",
+                              )}
+                              className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
+                            />
+                            <div className="flex flex-wrap gap-2">
+                              <AdminButton
+                                variant="success"
+                                onClick={() =>
+                                  handleApprove(req.profile_id, req.id)
+                                }
+                                className="text-xs"
+                              >
+                                <Check
+                                  aria-hidden="true"
+                                  className="mr-1 inline h-3.5 w-3.5"
+                                />
+                                {t("Approve")}
+                              </AdminButton>
+                              <AdminButton
+                                variant="danger"
+                                onClick={() =>
+                                  handleReject(req.profile_id, req.id)
+                                }
+                                className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
+                              >
+                                <X className="mr-1 inline h-3.5 w-3.5" />
+                                {t("Reject")}
+                              </AdminButton>
+                              <AdminButton
+                                variant="secondary"
+                                onClick={() =>
+                                  handleMoreInfo(req.profile_id, req.id)
+                                }
+                                className="text-xs text-blue-600 dark:text-blue-400"
+                              >
+                                <FileWarning
+                                  aria-hidden="true"
+                                  className="mr-1 inline h-3.5 w-3.5"
+                                />
+                                {t("Request Info")}
+                              </AdminButton>
+                              <AdminButton
+                                variant="secondary"
+                                onClick={() => setSelectedRequest(null)}
+                                className="text-xs"
+                              >
+                                {t("Cancel")}
+                              </AdminButton>
+                            </div>
+                          </div>
+                        ) : (
+                          <AdminButton
+                            variant="link"
+                            onClick={() => {
+                              setSelectedRequest(req);
+                              setActionNotes("");
+                              setRejectionReason("");
+                              setMoreInfoText("");
+                            }}
+                            className="text-sm font-medium"
+                          >
+                            Review Request →
+                          </AdminButton>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reinstation/Suspension for non-pending */}
+                    {req.status === "approved" && (
+                      <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
+                        <AdminButton
+                          variant="danger"
+                          onClick={() => handleSuspend(req.profile_id)}
+                          className="text-xs"
+                        >
+                          {t("Suspend Verification")}
+                        </AdminButton>
+                      </div>
+                    )}
+                    {req.status === "rejected" && (
+                      <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
+                        <AdminButton
+                          variant="success"
+                          onClick={() => handleReinstate(req.profile_id)}
+                          className="text-xs bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100"
+                        >
+                          {t("Reinstate")}
+                        </AdminButton>
+                      </div>
                     )}
                   </div>
-                )}
-
-                {/* Reinstation/Suspension for non-pending */}
-                {req.status === "approved" && (
-                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
-                    <AdminButton
-                      variant="danger"
-                      onClick={() => handleSuspend(req.profile_id)}
-                      className="text-xs"
-                    >
-                      {t("Suspend Verification")}
-                    </AdminButton>
-                  </div>
-                )}
-                {req.status === "rejected" && (
-                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
-                    <AdminButton
-                      variant="success"
-                      onClick={() => handleReinstate(req.profile_id)}
-                      className="text-xs bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100"
-                    >
-                      {t("Reinstate")}
-                    </AdminButton>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+          </div>
+          {requests.length > reqPageSize && (
+            <AdminPagination
+              page={reqPage}
+              pageSize={reqPageSize}
+              total={requests.length}
+              onPageChange={setReqPage}
+              onPageSizeChange={(size) => {
+                setReqPageSize(size);
+                setReqPage(0);
+              }}
+            />
+          )}
+        </>
       )}
     </div>
   );

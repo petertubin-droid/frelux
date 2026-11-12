@@ -6,6 +6,7 @@ import {
   AdminCard,
   StateMessage,
 } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 /**
  * Who just joined.
@@ -71,6 +72,10 @@ export default function AdminRegistrationsTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  // The register keeps growing: page it now rather than when it hurts.
+  const [prosPage, setProsPage] = useState(0);
+  const [clientsPage, setClientsPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +103,11 @@ export default function AdminRegistrationsTab() {
 
   const term = search.trim().toLowerCase();
 
+  useEffect(() => {
+    setProsPage(0);
+    setClientsPage(0);
+  }, [term, days]);
+
   const pros = useMemo(
     () =>
       (data?.pros ?? []).filter(
@@ -116,6 +126,15 @@ export default function AdminRegistrationsTab() {
         (client) => !term || client.email?.toLowerCase().includes(term),
       ),
     [data, term],
+  );
+
+  const pagedPros = pros.slice(
+    prosPage * pageSize,
+    prosPage * pageSize + pageSize,
+  );
+  const pagedClients = clients.slice(
+    clientsPage * pageSize,
+    clientsPage * pageSize + pageSize,
   );
 
   return (
@@ -227,7 +246,7 @@ export default function AdminRegistrationsTab() {
               </AdminCard>
             ) : (
               <div className="space-y-2">
-                {pros.map((pro) => (
+                {pagedPros.map((pro) => (
                   <AdminCard key={pro.id} compact>
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -262,6 +281,19 @@ export default function AdminRegistrationsTab() {
                 ))}
               </div>
             )}
+            {pros.length > pageSize && (
+              <AdminPagination
+                page={prosPage}
+                pageSize={pageSize}
+                total={pros.length}
+                onPageChange={setProsPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setProsPage(0);
+                  setClientsPage(0);
+                }}
+              />
+            )}
           </section>
 
           <section>
@@ -282,7 +314,7 @@ export default function AdminRegistrationsTab() {
               </AdminCard>
             ) : (
               <div className="space-y-2">
-                {clients.map((client) => (
+                {pagedClients.map((client) => (
                   <AdminCard key={client.id} compact>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-sm text-foreground">
@@ -301,7 +333,28 @@ export default function AdminRegistrationsTab() {
                 ))}
               </div>
             )}
+            {clients.length > pageSize && (
+              <AdminPagination
+                page={clientsPage}
+                pageSize={pageSize}
+                total={clients.length}
+                onPageChange={setClientsPage}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setClientsPage(0);
+                  setProsPage(0);
+                }}
+              />
+            )}
           </section>
+
+          <p className="text-xs text-muted-foreground">
+            Suspend, revoke, edit or delete an account in{" "}
+            <a className="underline" href="/admin/users">
+              Users
+            </a>
+            , where both registers are paginated and searchable.
+          </p>
         </>
       )}
     </div>

@@ -64,6 +64,42 @@ serveWithCors(async (req: Request) => {
             "Invitation was sent, but profile details could not be saved. Edit the user after they appear.",
             500,
           );
+
+        // An admin-added professional is a professional straight away: without a
+        // pro_profiles row they would show up as a client and never appear in any
+        // professional register or directory listing.
+        if (account_type === "pro_worker") {
+          const base =
+            (full_name || email.split("@")[0])
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "")
+              .slice(0, 40) || "pro";
+          const slug = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+          const { error: proError } = await admin.from("pro_profiles").insert({
+            user_id: data.user.id,
+            display_name: full_name || email.split("@")[0],
+            slug,
+            is_listed: false,
+            verification_status: "unverified",
+          });
+          if (proError) {
+            return jsonResponse({
+              ok: true,
+              userId: data.user.id,
+              warning:
+                "Invitation sent, but the professional profile could not be created. Create it before inviting them to list.",
+            });
+          }
+        }
+
+        await admin.from("admin_account_events").insert({
+          user_id: data.user.id,
+          actor_id: actorId,
+          action: "create",
+          to_state: "active",
+          detail: { account_type, email },
+        });
       }
       return jsonResponse({ ok: true, userId: data.user?.id });
     }
@@ -101,9 +137,86 @@ serveWithCors(async (req: Request) => {
         .update({ full_name, phone, account_type })
         .eq("id", userId);
       if (profileError) return errorResponse(profileError.message, 500);
+
+      // Professional details live on pro_profiles; the whitelist there is the
+      // authority on which of them an admin may set.
+      const proPatch = body.pro as Record<string, unknown> | undefined;
+      if (proPatch && typeof proPatch === "object") {
+        const { error: proError } = await admin.rpc(
+          "admin_update_pro_profile",
+          {
+            p_user_id: userId,
+            p_patch: proPatch,
+            p_actor: actorId,
+          },
+        );
+        if (proError) return errorResponse(proError.message, 400);
+      }
       return jsonResponse({ ok: true });
     }
+    if (action === "suspend" || action === "revoke" || action === "restore") {
+      const state =
+        action === "restore"
+          ? "active"
+          : action === "suspend"
+            ? "suspended"
+            : "revoked";
+      const reason = String(body.reason ?? "")
+        .trim()
+        .slice(0, 300);
+      if (state !== "active" && reason.length < 3)
+        return errorResponse("Give a reason of at least 3 characters.", 400);
+
+      const { error: stateError } = await admin.rpc("admin_set_account_state", {
+        p_user_id: userId,
+        p_state: state,
+        p_reason: reason || null,
+        p_actor: actorId,
+      });
+      if (stateError) return errorResponse(stateError.message, 400);
+
+      // The state row is the record; the auth ban is what actually stops a
+      // suspended or revoked account from signing back in.
+      const { error: banError } = await admin.auth.admin.updateUserById(
+        userId,
+        {
+          ban_duration: state === "active" ? "none" : "876000h",
+        },
+      );
+      if (banError) {
+        return jsonResponse({
+          ok: true,
+          state,
+          warning:
+            "State saved, but the sign-in block could not be applied. Retry to enforce it.",
+        });
+      }
+      return jsonResponse({ ok: true, state });
+    }
+
     if (action === "delete") {
+      // History outlives people: an account with orders, contracts or
+      // verification records is revoked, never erased.
+      const { data: hasHistory, error: historyError } = await admin.rpc(
+        "admin_account_has_history",
+        { p_user_id: userId },
+      );
+      if (historyError) return errorResponse(historyError.message, 500);
+      if (hasHistory) {
+        return errorResponse(
+          "This account has orders, contracts or verification history. Revoke it instead: the person loses access and the record stays reviewable.",
+          409,
+        );
+      }
+      await admin.from("admin_account_events").insert({
+        user_id: userId,
+        actor_id: actorId,
+        action: "delete",
+        reason:
+          String(body.reason ?? "")
+            .trim()
+            .slice(0, 300) || null,
+      });
       const { error } = await admin.auth.admin.deleteUser(userId);
       if (error) return errorResponse(error.message, 400);
       return jsonResponse({ ok: true });

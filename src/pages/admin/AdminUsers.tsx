@@ -19,6 +19,9 @@ import {
   Mail,
   RefreshCw,
   Users,
+  Ban,
+  ShieldOff,
+  RotateCcw,
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -72,8 +75,22 @@ export default function AdminUsers() {
     full_name: "",
     phone: "",
     account_type: "client",
+    display_name: "",
+    business_name: "",
+    years_experience: "",
+    availability: "available",
+    is_listed: false,
   });
   const [actionBusy, setActionBusy] = useState(false);
+  const [kind, setKind] = useState<"all" | "pro" | "client">("all");
+  const [stateFilter, setStateFilter] = useState<
+    "all" | "active" | "suspended" | "revoked"
+  >("all");
+  const [stateTarget, setStateTarget] = useState<{
+    user: UserWithPaid;
+    state: "suspended" | "revoked" | "active";
+  } | null>(null);
+  const [stateReason, setStateReason] = useState("");
 
   const load = useCallback(async () => {
     setStatus("loading");
@@ -89,6 +106,13 @@ export default function AdminUsers() {
       profileQuery = profileQuery.or(
         `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`,
       );
+    if (kind !== "all")
+      profileQuery = profileQuery.eq(
+        "account_type",
+        kind === "pro" ? "pro_worker" : "client",
+      );
+    if (stateFilter !== "all")
+      profileQuery = profileQuery.eq("account_state", stateFilter);
     const profilesRes = await profileQuery
       .order("created_at", { ascending: false })
       .range(page * pageSize, page * pageSize + pageSize - 1);
@@ -124,7 +148,7 @@ export default function AdminUsers() {
     setUsers(merged);
     setTotal(profilesRes.count ?? 0);
     setStatus("ready");
-  }, [page, pageSize, search]);
+  }, [page, pageSize, search, kind, stateFilter]);
 
   useEffect(() => {
     load();
@@ -196,7 +220,17 @@ export default function AdminUsers() {
 
   function openCreate() {
     setEditingUser(null);
-    setForm({ email: "", full_name: "", phone: "", account_type: "client" });
+    setForm({
+      email: "",
+      full_name: "",
+      phone: "",
+      account_type: "client",
+      display_name: "",
+      business_name: "",
+      years_experience: "",
+      availability: "available",
+      is_listed: false,
+    });
     setEditorOpen(true);
   }
 
@@ -207,6 +241,11 @@ export default function AdminUsers() {
       full_name: user.full_name ?? "",
       phone: user.phone ?? "",
       account_type: user.account_type ?? "client",
+      display_name: user.full_name ?? "",
+      business_name: "",
+      years_experience: "",
+      availability: "available",
+      is_listed: false,
     });
     setEditorOpen(true);
   }
@@ -222,6 +261,18 @@ export default function AdminUsers() {
           action: editingUser ? "update" : "invite",
           userId: editingUser?.id,
           ...form,
+          // Professional details live on pro_profiles; the whitelist in
+          // admin_update_pro_profile decides what may be written.
+          pro:
+            form.account_type === "pro_worker" && editingUser
+              ? {
+                  display_name: form.display_name,
+                  business_name: form.business_name,
+                  years_experience: form.years_experience || undefined,
+                  availability: form.availability,
+                  is_listed: form.is_listed,
+                }
+              : undefined,
         },
       },
     );
@@ -258,6 +309,39 @@ export default function AdminUsers() {
     }
     if (users.length === 1 && page > 0) setPage(page - 1);
     else await load();
+  }
+
+  async function applyState() {
+    if (!stateTarget) return;
+    setActionBusy(true);
+    setError("");
+    const action =
+      stateTarget.state === "active"
+        ? "restore"
+        : stateTarget.state === "suspended"
+          ? "suspend"
+          : "revoke";
+    const { data, error: fnError } = await supabase.functions.invoke(
+      "admin-user-management",
+      {
+        body: {
+          action,
+          userId: stateTarget.user.id,
+          reason: stateReason,
+        },
+      },
+    );
+    setActionBusy(false);
+    if (fnError || data?.error) {
+      setError(
+        data?.error || fnError?.message || "Could not change the state.",
+      );
+      return;
+    }
+    if (data?.warning) setError(data.warning);
+    setStateTarget(null);
+    setStateReason("");
+    await load();
   }
 
   function startEdit(u: UserWithPaid) {
@@ -302,7 +386,7 @@ export default function AdminUsers() {
           </AdminButton>
         }
       />
-      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+      <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-center">
         <div className="relative max-w-xl">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <AdminInput
@@ -315,6 +399,35 @@ export default function AdminUsers() {
             }}
             className="pl-9"
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <AdminSelect
+            aria-label="Filter by account type"
+            value={kind}
+            onChange={(e) => {
+              setKind(e.target.value as "all" | "pro" | "client");
+              setPage(0);
+            }}
+          >
+            <option value="all">All accounts</option>
+            <option value="pro">Professionals</option>
+            <option value="client">Clients</option>
+          </AdminSelect>
+          <AdminSelect
+            aria-label="Filter by account state"
+            value={stateFilter}
+            onChange={(e) => {
+              setStateFilter(
+                e.target.value as "all" | "active" | "suspended" | "revoked",
+              );
+              setPage(0);
+            }}
+          >
+            <option value="all">Any state</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="revoked">Revoked</option>
+          </AdminSelect>
         </div>
         <div className="admin-inset flex items-center gap-2 rounded-xl px-4 py-2 text-sm">
           <Users aria-hidden="true" className="h-4 w-4 text-primary" />
@@ -350,6 +463,9 @@ export default function AdminUsers() {
                   {t("Role")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
+                  {t("State")}
+                </th>
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   {t("Subscription")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
@@ -367,7 +483,7 @@ export default function AdminUsers() {
               {users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
                     {t("No users yet.")}
@@ -404,6 +520,28 @@ export default function AdminUsers() {
                         >
                           {u.role}
                         </span>
+                      </td>
+                      <td className="py-3 pr-4">
+                        {(() => {
+                          const state = u.account_state ?? "active";
+                          const tone =
+                            state === "active"
+                              ? "bg-accent-green/15 text-accent-green"
+                              : state === "suspended"
+                                ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+                          return (
+                            <span
+                              className={classNames(
+                                "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
+                                tone,
+                              )}
+                              title={u.account_state_reason || undefined}
+                            >
+                              {state}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="py-3 pr-4">
                         {isActive ? (
@@ -512,6 +650,60 @@ export default function AdminUsers() {
                               <Pencil className="h-3.5 w-3.5" />
                               <span className="sr-only">Edit user</span>
                             </AdminButton>
+                            {(u.account_state ?? "active") === "active" && (
+                              <AdminButton
+                                variant="secondary"
+                                onClick={() => {
+                                  setStateReason("");
+                                  setStateTarget({
+                                    user: u,
+                                    state: "suspended",
+                                  });
+                                }}
+                                disabled={actionBusy || u.role === "admin"}
+                                className="px-2.5 py-1.5"
+                                title="Suspend this account"
+                              >
+                                <Ban className="h-3.5 w-3.5" />
+                                <span className="sr-only">
+                                  Suspend {u.full_name || u.email}
+                                </span>
+                              </AdminButton>
+                            )}
+                            {(u.account_state ?? "active") !== "revoked" && (
+                              <AdminButton
+                                variant="secondary"
+                                onClick={() => {
+                                  setStateReason("");
+                                  setStateTarget({ user: u, state: "revoked" });
+                                }}
+                                disabled={actionBusy || u.role === "admin"}
+                                className="px-2.5 py-1.5"
+                                title="Revoke this account"
+                              >
+                                <ShieldOff className="h-3.5 w-3.5" />
+                                <span className="sr-only">
+                                  Revoke {u.full_name || u.email}
+                                </span>
+                              </AdminButton>
+                            )}
+                            {(u.account_state ?? "active") !== "active" && (
+                              <AdminButton
+                                variant="secondary"
+                                onClick={() => {
+                                  setStateReason("");
+                                  setStateTarget({ user: u, state: "active" });
+                                }}
+                                disabled={actionBusy || u.role === "admin"}
+                                className="px-2.5 py-1.5"
+                                title="Restore access"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" />
+                                <span className="sr-only">
+                                  Restore {u.full_name || u.email}
+                                </span>
+                              </AdminButton>
+                            )}
                             <AdminButton
                               variant="danger"
                               onClick={() => void deleteUser(u)}
@@ -596,6 +788,61 @@ export default function AdminUsers() {
               <option value="pro_worker">Professional</option>
             </AdminSelect>
           </AdminField>
+          {form.account_type === "pro_worker" && (
+            <>
+              <AdminField
+                label="Professional name"
+                hint="Shown in the directory instead of the account name."
+              >
+                <AdminInput
+                  value={form.display_name}
+                  onChange={(e) =>
+                    setForm({ ...form, display_name: e.target.value })
+                  }
+                />
+              </AdminField>
+              <AdminField label="Business name">
+                <AdminInput
+                  value={form.business_name}
+                  onChange={(e) =>
+                    setForm({ ...form, business_name: e.target.value })
+                  }
+                />
+              </AdminField>
+              <AdminField label="Years of experience">
+                <AdminInput
+                  inputMode="numeric"
+                  value={form.years_experience}
+                  onChange={(e) =>
+                    setForm({ ...form, years_experience: e.target.value })
+                  }
+                />
+              </AdminField>
+              <AdminField label="Availability">
+                <AdminSelect
+                  value={form.availability}
+                  onChange={(e) =>
+                    setForm({ ...form, availability: e.target.value })
+                  }
+                >
+                  <option value="available">Available</option>
+                  <option value="busy">Busy</option>
+                  <option value="unavailable">Unavailable</option>
+                </AdminSelect>
+              </AdminField>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={form.is_listed}
+                  onChange={(e) =>
+                    setForm({ ...form, is_listed: e.target.checked })
+                  }
+                  className="h-4 w-4 rounded border-border"
+                />
+                List this professional in the directory
+              </label>
+            </>
+          )}
           <div className="flex justify-end gap-2 pt-2">
             <AdminButton
               variant="secondary"
@@ -616,6 +863,59 @@ export default function AdminUsers() {
             </AdminButton>
           </div>
         </form>
+      </AdminModal>
+      <AdminModal
+        open={!!stateTarget}
+        onClose={() => setStateTarget(null)}
+        title={
+          stateTarget?.state === "suspended"
+            ? "Suspend account"
+            : stateTarget?.state === "revoked"
+              ? "Revoke account"
+              : "Restore access"
+        }
+        description={
+          stateTarget?.state === "active"
+            ? "The person can sign in again. A suspended professional stays unlisted until you verify them."
+            : "The person is signed out and blocked from signing in. Their records, orders and contracts are kept."
+        }
+        maxWidth="max-w-lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {stateTarget?.user.full_name || stateTarget?.user.email}
+          </p>
+          {stateTarget?.state !== "active" && (
+            <AdminField
+              label="Reason"
+              hint="Kept in the account history. At least 3 characters."
+            >
+              <AdminInput
+                value={stateReason}
+                onChange={(e) => setStateReason(e.target.value)}
+                placeholder="Why is this account being closed?"
+              />
+            </AdminField>
+          )}
+          <div className="flex justify-end gap-2">
+            <AdminButton
+              variant="secondary"
+              onClick={() => setStateTarget(null)}
+            >
+              Cancel
+            </AdminButton>
+            <AdminButton
+              onClick={() => void applyState()}
+              disabled={
+                actionBusy ||
+                (stateTarget?.state !== "active" &&
+                  stateReason.trim().length < 3)
+              }
+            >
+              {actionBusy ? "Saving…" : "Confirm"}
+            </AdminButton>
+          </div>
+        </div>
       </AdminModal>
       <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-900/20 dark:text-blue-300">
         <p className="font-semibold">{t("Subscription Management")}</p>

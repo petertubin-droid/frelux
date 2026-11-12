@@ -12,6 +12,10 @@ export interface DbProfile {
   onboarding_completed: boolean;
   onboarding_goals: string[];
   onboarding_state: string | null;
+  /** Admin-controlled: active | suspended | revoked. */
+  account_state?: "active" | "suspended" | "revoked";
+  account_state_reason?: string | null;
+  account_state_changed_at?: string | null;
   /** At-most-once guard for the welcome email (server-set, hint for the client). */
   welcome_email_sent: boolean;
   created_at: string;
