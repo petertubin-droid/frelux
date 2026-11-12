@@ -70,7 +70,19 @@ bucket's Settings > CORS Policy.
 
 ## Secrets and variables
 
-Uploads are written through the R2 binding, so the only secret required is:
+Uploads are written through the R2 binding, so no storage secret is required. The
+Worker has two ways to confirm a caller, and it tries the local signature first,
+then falls back to asking Supabase:
+
+| Configured                           | Behaviour                                                   |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `SUPABASE_JWT_SECRET`                | HS256 verified inside the Worker, no round trip             |
+| `SUPABASE_URL` + `SUPABASE_ANON_KEY` | `GET /auth/v1/user` on Supabase, works with asymmetric keys |
+| both                                 | Local first, then Supabase if the signature does not match  |
+| neither                              | Every upload is refused with 500                            |
+
+Both public values are already set in `wrangler.toml`. The signing secret is
+optional:
 
 ```bash
 npx wrangler secret put SUPABASE_JWT_SECRET

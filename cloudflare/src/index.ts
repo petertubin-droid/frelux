@@ -40,7 +40,9 @@ export interface Env {
   R2_ACCOUNT_ID?: string;
   R2_ACCESS_KEY_ID?: string;
   R2_SECRET_ACCESS_KEY?: string;
-  SUPABASE_JWT_SECRET: string;
+  SUPABASE_JWT_SECRET?: string;
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
   ALLOWED_ORIGINS?: string;
   PUBLIC_BASE_URL?: string;
   BUCKET_AVATARS?: R2BucketLike;
@@ -193,20 +195,55 @@ const bearerFrom = (request: Request, url?: URL): string => {
   return url?.searchParams.get("token")?.trim() ?? "";
 };
 
+/**
+ * Confirms the caller and returns their subject.
+ *
+ * Two routes, in order: verify the HS256 signature locally when the secret is
+ * configured, then ask Supabase's own /auth/v1/user endpoint. The fallback means
+ * a wrong or missing JWT secret cannot lock users out, and it keeps working if
+ * the project ever moves to asymmetric signing keys. The anon key it sends is
+ * public by design: it ships in the browser bundle.
+ */
 async function requireUser(
   request: Request,
   env: Env,
   url?: URL,
 ): Promise<{ sub: string } | Response> {
-  if (!env.SUPABASE_JWT_SECRET) {
-    return json({ error: "SUPABASE_JWT_SECRET is not configured" }, 500);
-  }
   const token = bearerFrom(request, url);
   if (!token) return json({ error: "Missing bearer token" }, 401);
 
-  const user = await verifySupabaseJwt(token, env.SUPABASE_JWT_SECRET);
-  if (!user) return json({ error: "Invalid or expired token" }, 401);
-  return user;
+  let verified = false;
+  if (env.SUPABASE_JWT_SECRET) {
+    const local = await verifySupabaseJwt(token, env.SUPABASE_JWT_SECRET);
+    if (local) return local;
+    verified = true;
+  }
+
+  if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+    verified = true;
+    const response = await fetch(
+      `${env.SUPABASE_URL.replace(/\/+$/, "")}/auth/v1/user`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+          apikey: env.SUPABASE_ANON_KEY,
+        },
+      },
+    );
+    if (response.ok) {
+      const user = (await response.json().catch(() => null)) as {
+        id?: string;
+      } | null;
+      if (user?.id) return { sub: user.id };
+    }
+    return json({ error: "Invalid or expired token" }, 401);
+  }
+
+  // A bad token is a 401 even when the only method available is the local
+  // signature; 500 is reserved for a Worker with no verification at all.
+  return verified
+    ? json({ error: "Invalid or expired token" }, 401)
+    : json({ error: "No token verification configured" }, 500);
 }
 
 const bindingFor = (env: Env, policy: BucketPolicy): R2BucketLike | null => {
@@ -250,6 +287,11 @@ export default {
           service: "frelux-files",
           buckets: Object.keys(BUCKETS),
           uploadMode: s3Configured(env) ? "presign-available" : "binding",
+          authMode: env.SUPABASE_JWT_SECRET
+            ? "hs256+introspection"
+            : env.SUPABASE_URL && env.SUPABASE_ANON_KEY
+              ? "introspection"
+              : "none",
           stores: Object.keys(BUCKETS).filter((name) => {
             const policy = BUCKETS[name as BucketName];
             return Boolean(bindingFor(env, policy));

@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import worker, { type Env } from "./index";
 
 const SECRET = "test-jwt-secret";
@@ -67,6 +67,12 @@ const makeEnv = (): Env => ({
 });
 
 const url = (path: string) => `https://files.example${path}`;
+
+const jsonResponse = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
 
 const upload = (
   env: Env,
@@ -255,5 +261,68 @@ describe("file worker", () => {
       makeEnv(),
     );
     expect(denied.headers.get("access-control-allow-origin")).toBeNull();
+  });
+});
+
+describe("token verification without a usable signing secret", () => {
+  const envWithIntrospection = (): Env => ({
+    ...makeEnv(),
+    SUPABASE_JWT_SECRET: undefined,
+    SUPABASE_URL: "https://project.supabase.co",
+    SUPABASE_ANON_KEY: "anon-key",
+  });
+
+  it("accepts a token Supabase itself vouches for", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        calls.push(String(input));
+        return jsonResponse({ id: "user-42" });
+      }),
+    );
+
+    const response = await upload(
+      envWithIntrospection(),
+      "bucket=avatars&filename=logo.png",
+      token("ignored-because-no-secret"),
+    );
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { key: string };
+    expect(body.key.startsWith("user-42/")).toBe(true);
+    expect(calls[0]).toBe("https://project.supabase.co/auth/v1/user");
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects a token Supabase refuses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ message: "invalid claim" }, 401)),
+    );
+
+    const response = await upload(
+      envWithIntrospection(),
+      "bucket=avatars&filename=logo.png",
+      "not-a-real-token",
+    );
+
+    expect(response.status).toBe(401);
+    vi.unstubAllGlobals();
+  });
+
+  it("still tries the local signature first when a secret is configured", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const response = await upload(
+      makeEnv(),
+      "bucket=avatars&filename=logo.png",
+      token("user-7"),
+    );
+
+    expect(response.status).toBe(201);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 });

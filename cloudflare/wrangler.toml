@@ -17,6 +17,10 @@ routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
 enabled = true
 
 [vars]
+# Public values, the same ones the browser bundle ships. The Worker uses them to
+# verify tokens against Supabase when no signing secret is configured.
+SUPABASE_URL = "https://nfgaaohweygwydoelxnf.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mZ2Fhb2h3ZXlnd3lkb2VseG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MDc0MDYsImV4cCI6MjA5ODE4MzQwNn0.5ebLSj0RZBfdT_GEZ5Sf_qN_uNh2RUzJQlnuIXGCdXI"
 ALLOWED_ORIGINS = "https://freluxtools.com,https://www.freluxtools.com,http://localhost:5173"
 PUBLIC_BASE_URL = "https://files.freluxtools.com"
 
