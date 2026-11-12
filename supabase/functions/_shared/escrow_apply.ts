@@ -8,8 +8,22 @@
 // delivery a no-op rather than a second credit.
 // =========================================================
 
+type EscrowRow = {
+  id: string;
+  held_minor?: number | string | null;
+  refunded_minor?: number | string | null;
+};
+
+type UpdateQuery = {
+  eq: (column: string, value: string | number) => UpdateQuery;
+  is: (column: string, value: null) => UpdateQuery;
+  select: (columns: string) => Promise<{ data: EscrowRow[] | null }>;
+};
+
 type Admin = {
-  from: (table: string) => any;
+  from: (table: string) => {
+    update: (values: Record<string, unknown>) => UpdateQuery;
+  };
 };
 
 export interface AppliedFunding {

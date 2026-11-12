@@ -702,8 +702,19 @@ const localesForSlug = (slug) =>
 const withSlash = (p) => (p === "/" ? p : `${p}/`);
 
 /** hreflang set for one article: English, x-default, then each translation. */
+function localesForArticlePath(articlePath, slug) {
+  // Published translation rows are the preferred source, but CI/local builds
+  // may not have Supabase credentials. The prerender manifest is the build's
+  // source of truth for indexable locale pages and must still produce reciprocal
+  // sitemap alternates when those pages were emitted.
+  const emittedLocales = INDEXABLE_LOCALE_CODES.filter((locale) =>
+    translatedLocalePaths.has(`/${locale}${articlePath}`),
+  );
+  return [...new Set([...localesForSlug(slug), ...emittedLocales])];
+}
+
 function articleAlternates(articlePath, slug) {
-  const locales = localesForSlug(slug);
+  const locales = localesForArticlePath(articlePath, slug);
   if (locales.length === 0) return undefined;
   return [
     { hreflang: "x-default", href: `${SITE_URL}${withSlash(articlePath)}` },
@@ -814,7 +825,7 @@ for (const r of allRoutes) {
 }
 
 for (const [slug, route] of articleRouteBySlug) {
-  const locales = localesForSlug(slug);
+  const locales = localesForArticlePath(route.path, slug);
   if (locales.length === 0) continue;
   const alternates = articleAlternates(route.path, slug);
   route.alternates = alternates;
