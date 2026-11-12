@@ -31,10 +31,13 @@ const shellCache = new Map();
 function shellProvides(name) {
   if (shellCache.has(name)) return shellCache.get(name);
   let source = "";
-  try {
-    source = readFileSync(join(PAGES, name + ".tsx"), "utf8");
-  } catch {
-    source = "";
+  for (const dir of [PAGES, "src/components/calculators"]) {
+    try {
+      source = readFileSync(join(dir, name + ".tsx"), "utf8");
+      break;
+    } catch {
+      /* try the next location */
+    }
   }
   shellCache.set(name, source);
   return source;
@@ -55,8 +58,10 @@ const rows = files.map((file) => {
   // A redirect stub renders no UI at all, and a hub is an index of tools with
   // no inputs of its own. Neither owes a disclaimer or a share button, so they
   // are classified instead of being counted as failures.
-  const redirect = s.trim().length < 1200 && /<Navigate/.test(s);
-  const hub = /Hub\.tsx$/.test(file) || (!/<input\b/.test(s) && !/Field\b/.test(s));
+  const redirect = own.trim().length < 1200 && /<Navigate/.test(own);
+  const hub =
+    /Hub\.tsx$/.test(file) ||
+    (!/<input\b/.test(own) && !/Field\b/.test(own) && !/type="file"/.test(own));
 
   return {
     kind: redirect ? "redirect" : hub ? "index" : "calculator",
@@ -104,6 +109,15 @@ console.log(`no disclaimer:    ${disclaimer.length}`);
 console.log(`inputs possibly unlabelled: ${labelling.length}`);
 console.log(`no feet reference (check if length based): ${feet.length}`);
 console.log(`fixed wide layout:${wide.length}`);
+
+if (process.argv.includes("--verbose")) {
+  const show = (label, list) =>
+    console.log(`${label}: ${list.map((r) => r.file).join(", ") || "none"}`);
+  show("missing share", share);
+  show("missing method", method);
+  show("missing disclaimer", disclaimer);
+  show("over ad slots", ads);
+}
 
 if (process.argv.includes("--write")) {
   const line = (r) =>

@@ -42,6 +42,9 @@ import {
 } from "@/lib/estimation/count-vision-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
 import { useLanguage } from "@/lib/i18n";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 
 const ITEM_HINTS = [
   "Cement bags",
@@ -367,6 +370,34 @@ export default function CountVision() {
         />
       </div>
 
+      <ShareEstimateButton
+        estimate={
+          result
+            ? {
+                kind: "Counter-Vision Count",
+                summaryLines: [
+                  { label: "Verdict", value: result.verdict },
+                  {
+                    label: "Units counted",
+                    value:
+                      result.count === null
+                        ? "not counted"
+                        : `${result.count}${result.unitLabel ? " " + result.unitLabel : ""}`,
+                  },
+                  {
+                    label: "Confidence",
+                    value: `${(result.confidence * 100).toFixed(0)}%`,
+                  },
+                ],
+                lineItems: [],
+                totals: [],
+                notes: [result.reason],
+                link: "/count-vision",
+              }
+            : null
+        }
+      />
+      <HowCalculatedSection methodologyText={methodologyText("count-vision")} />
       <EstimateDisclaimer />
     </Container>
   );

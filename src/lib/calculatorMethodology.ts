@@ -32,6 +32,10 @@ export type MethodologyKey =
   | "plumbing"
   | "pop-ceiling"
   | "reinforcement"
+  | "soffit-gutter"
+  | "retaining-wall"
+  | "cost"
+  | "count-vision"
   | "roof-framing"
   | "screeding"
   | "solar-pv"
@@ -167,6 +171,22 @@ Fittings, valves and supports are counted per run and per change of direction, a
 Suspension is counted on a grid: main runners at their spacing, cross tees at theirs, and hangers per square metre. The grid is laid out to the room so the counts are whole members, not an average rate.
 
 Boards are counted from the board size with the wastage for cuts, and jointing compound and tape follow from the board joints and the number of coats you select.`,
+
+  cost: `The page measures before it prices. Wall area comes from the room dimensions you enter minus the door and window openings, and that area is divided by the coverage printed on the paint you select, multiplied by the number of coats, then rounded up to whole containers of the size you buy.
+Everything else is added as its own line: primer, filler, putty, sandpaper, brushes and rollers where you tick them, each at the price you enter or the price the market book carries. Labour is your rate times the area.
+The total is the sum of those lines. Nothing is added for wear, and no line appears unless it was ticked or priced.`,
+
+  "count-vision": `The count comes from a photograph, not from a formula. The image goes to the Counter-Vision function, which identifies the material, counts the visible units and returns a confidence figure with a reason.
+If that confidence is below the floor FRELUX sets, or the server cannot stand behind the answer, the page reports that it cannot count rather than guessing, because a wrong count of bags or blocks is worse than no count.
+The photo is not stored: the count is the record.`,
+
+  "soffit-gutter": `The eaves perimeter is the basis. Measure it directly at the eaves, or let the page derive it from the footprint plus overhang, which is the same helper the roof estimate uses, so the two numbers agree.
+That perimeter becomes linear fascia and gutter, so both are bought in metres and rounded up to whole lengths. The overhang becomes soffit area, taken as perimeter times the overhang you enter. The gutter run then decides the downpipes and brackets from the spacings you set rather than from a guess.
+Any perimeter you type overrides the derived one, and the page shows which of the two it used.`,
+
+  "retaining-wall": `The wall is priced from length and height. Footing width starts from the rule for your market and is scaled by a printed factor for the soil you select, because loose sand and wet clay carry more lateral thrust than stable ground, and the trench volume follows from that width and the footing thickness.
+Stem area is the face you see, taken as length times height, and it becomes either hollow blocks at the printed blocks per square metre or poured concrete at the stem thickness. Vertical bars follow the spacing you set, weep holes follow the weep spacing, and waste is added on top.
+The stability figures on the page, the active pressure coefficient and the bearing pressure at the toe, are shown so the geometry can be traced, not as a design. Excavation labour, backfill, drainage aggregate, mortar, plaster and any engineer's design are outside the figure.`,
 
   reinforcement: `Bar weights come from the nominal mass per metre of the bar diameter, so the total is a length multiplied by a published weight rather than an estimate per element.
 

@@ -97,6 +97,9 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import { methodologyText } from "@/lib/calculatorMethodology";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 
 // Printable professional quote, market-currency formatted.
 function exportCostQuote(args: {
@@ -161,8 +164,15 @@ function exportCostQuote(args: {
       })),
       totals: [
         { label: "Material cost", value: fmt(result.total - result.laborCost) },
-        { label: "Labour", value: fmt(result.laborCost) },
-        { label: "Grand total", value: fmt(result.total), strong: true },
+        {
+          label: "Labour",
+          value: formatCurrency(result.laborCost, currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value: formatCurrency(result.total, currencySymbol),
+          strong: true,
+        },
       ],
       footer:
         "Estimates are indicative and not a formal quote. Prices reflect the configured material database for your market.",
@@ -1256,6 +1266,58 @@ export default function CostEstimator({
                   <CalculatorResetButton
                     onReset={resetInputs}
                     className="mb-4"
+                  />
+                  <ShareEstimateButton
+                    estimate={
+                      result
+                        ? {
+                            kind: "Painting Cost Estimate",
+                            summaryLines: [
+                              {
+                                label: "Paint containers",
+                                value: String(result.paintContainerCount ?? 0),
+                              },
+                            ],
+                            lineItems: [],
+                            totals: [
+                              ...(result.paintCost
+                                ? [
+                                    {
+                                      label: "Paint",
+                                      value: formatCurrency(
+                                        result.paintCost,
+                                        currencySymbol,
+                                      ),
+                                    },
+                                  ]
+                                : []),
+                              ...(result.laborCost
+                                ? [
+                                    {
+                                      label: "Labour",
+                                      value: formatCurrency(
+                                        result.laborCost,
+                                        currencySymbol,
+                                      ),
+                                    },
+                                  ]
+                                : []),
+                              {
+                                label: "Total",
+                                value: formatCurrency(
+                                  result.total,
+                                  currencySymbol,
+                                ),
+                                emphasized: true,
+                              },
+                            ],
+                            link: "/cost-estimator",
+                          }
+                        : null
+                    }
+                  />
+                  <HowCalculatedSection
+                    methodologyText={methodologyText("cost")}
                   />
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue

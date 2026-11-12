@@ -108,6 +108,7 @@ export default function RetainingWallEstimator() {
   return (
     <SpecialtyCalculatorShell
       onReset={resetInputs}
+      methodology="retaining-wall"
       calculatorType="retaining_wall"
       title="Retaining Wall Material Calculator"
       subtitle="Size the footing, stem, reinforcement and drainage for a retaining wall, then cost the materials at your own prices."

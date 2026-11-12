@@ -53,6 +53,7 @@ import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 
 export default function ScreedingCalculator({
   embedded = false,
@@ -423,6 +424,28 @@ export default function ScreedingCalculator({
               </Link>
             </div>
 
+            <ShareEstimateButton
+              estimate={
+                screedingResult
+                  ? {
+                      kind: "Screeding Estimate",
+                      summaryLines: [
+                        { label: "Finish", value: finishTerm },
+                        {
+                          label: "Surface area",
+                          value: `${formatNumber(screedingResult.totalAreaM2, 2)} m²`,
+                        },
+                      ],
+                      lineItems: [],
+                      totals: [],
+                      notes: [
+                        "Area only. Material quantities are applied in the cost estimate.",
+                      ],
+                      link: "/screeding-calculator",
+                    }
+                  : null
+              }
+            />
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <CopyResultsButton
                 block={{

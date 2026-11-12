@@ -55,6 +55,7 @@ import { openBoqPrint } from "@/lib/boq/print";
 import { NumericInput } from "@/components/ui/NumericInput";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 
 /**
  * BOQ Studio.
@@ -1468,6 +1469,33 @@ export default function BoqStudio() {
         />
       </div>
 
+      <ShareEstimateButton
+        estimate={
+          compiled
+            ? {
+                kind: "Bill of Quantities",
+                summaryLines: [],
+                lineItems: [],
+                totals: [
+                  {
+                    label: "Measured works",
+                    value: money(compiled.standard.summary.measuredWorksTotal),
+                  },
+                  {
+                    label: "Before tax",
+                    value: money(compiled.standard.summary.subtotalBeforeTax),
+                  },
+                  {
+                    label: "Gross total",
+                    value: money(compiled.standard.summary.grossTotal),
+                    emphasized: true,
+                  },
+                ],
+                link: "/boq-studio",
+              }
+            : null
+        }
+      />
       <HowCalculatedSection methodologyText={methodologyText("boq")} />
       <EstimateDisclaimer />
     </Container>

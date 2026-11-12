@@ -32,6 +32,11 @@ import { printQuote } from "@/lib/estimation/quote-export";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { PriceBookSummary } from "@/lib/prices/freshness";
 import type { SpecialtyResult } from "@/lib/estimation/specialty";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import {
+  methodologyText,
+  type MethodologyKey,
+} from "@/lib/calculatorMethodology";
 
 export interface SpecialtyCrossLink {
   label: string;
@@ -66,6 +71,8 @@ export interface SpecialtyCalculatorShellProps {
   quoteFooter: string;
   /** Restores the page's own inputs. Loaded catalogues are left intact. */
   onReset?: () => void;
+  /** Registry key for the "how this is calculated" note. */
+  methodology?: MethodologyKey;
 }
 
 function fmt(v: number | null, symbol: string): string {
@@ -96,6 +103,7 @@ export function SpecialtyCalculatorShell({
   proCallout,
   quoteTitle,
   quoteFooter,
+  methodology,
 }: SpecialtyCalculatorShellProps) {
   const { market, marketCode } = useMarket();
   const access = useEngineAccess(routePath);
@@ -256,6 +264,12 @@ export function SpecialtyCalculatorShell({
                 Enter your measurements and calculate to see the shopping list.
                 Every quantity below will show the rule that produced it.
               </div>
+            ) : null}
+
+            {methodology && result?.ok ? (
+              <HowCalculatedSection
+                methodologyText={methodologyText(methodology)}
+              />
             ) : null}
 
             {result?.ok ? (

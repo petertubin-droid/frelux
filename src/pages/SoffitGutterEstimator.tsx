@@ -125,6 +125,7 @@ export default function SoffitGutterEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      methodology="soffit-gutter"
       onReset={resetInputs}
       calculatorType="soffit_gutter"
       title="Soffit, Fascia & Gutter Estimator"
