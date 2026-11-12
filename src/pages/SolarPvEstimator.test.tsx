@@ -391,6 +391,10 @@ describe("SolarPvEstimator page", () => {
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "m-1" },
     });
+    // The hand-verified figures are in metres, and the page now defaults to
+    // feet, so the test asks for metric before typing.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
+    fireEvent.click(screen.getByRole("button", { name: "Metres" }));
     fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
       target: { value: "60" },
     });
@@ -447,6 +451,10 @@ describe("SolarPvEstimator page", () => {
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "m-1" },
     });
+    // The hand-verified figures are in metres, and the page now defaults to
+    // feet, so the test asks for metric before typing.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
+    fireEvent.click(screen.getByRole("button", { name: "Metres" }));
     fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
       target: { value: "2" },
     });
@@ -478,6 +486,10 @@ describe("SolarPvEstimator page", () => {
       target: { value: "15" },
     });
     expect(btn).toBeDisabled();
+    // The hand-verified figures are in metres, and the page now defaults to
+    // feet, so the test asks for metric before typing.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
+    fireEvent.click(screen.getByRole("button", { name: "Metres" }));
     fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
       target: { value: "60" },
     });

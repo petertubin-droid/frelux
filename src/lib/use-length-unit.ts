@@ -8,7 +8,7 @@
  */
 import { useCallback, useState } from "react";
 import type { Unit } from "@/types";
-import { unitToMeters } from "@/lib/utils";
+import { unitShortLabel, unitToMeters } from "@/lib/utils";
 
 export interface LengthUnit {
   /** The unit the visitor is typing in. */
@@ -18,6 +18,8 @@ export interface LengthUnit {
   toMetres: (value: string | number) => number;
   /** Convert a stated number of metres back into the visitor's unit. */
   fromMetres: (metres: number) => number;
+  /** Short suffix for an input label: ft, m, in, cm, mm. */
+  label: string;
 }
 
 export function useLengthUnit(defaultUnit: Unit = "feet"): LengthUnit {
@@ -42,5 +44,5 @@ export function useLengthUnit(defaultUnit: Unit = "feet"): LengthUnit {
     [unit],
   );
 
-  return { unit, setUnit, toMetres, fromMetres };
+  return { unit, setUnit, toMetres, fromMetres, label: unitShortLabel(unit) };
 }

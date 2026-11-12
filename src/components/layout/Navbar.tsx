@@ -382,7 +382,7 @@ export default function Navbar() {
                                   >
                                     {/* Section label */}
                                     {group.section && (
-                                      <div className="px-3 pb-1 pt-2.5">
+                                      <div className="px-3 pb-0.5 pt-2">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
                                           {t(group.section)}
                                         </p>
@@ -395,7 +395,7 @@ export default function Navbar() {
                                         to={child.path}
                                         className={({ isActive }) =>
                                           classNames(
-                                            "group flex items-start gap-3 rounded-xl px-3 py-2 transition-all duration-150",
+                                            "group flex min-h-[40px] items-start gap-3 rounded-xl px-3 py-1.5 transition-all duration-150",
                                             isActive
                                               ? "bg-primary/10"
                                               : "hover:bg-primary/5",
@@ -418,7 +418,7 @@ export default function Navbar() {
                                             )}
                                           </p>
                                           {child.description && (
-                                            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground dark:text-muted-foreground">
+                                            <p className="mt-0 text-[11px] leading-snug text-muted-foreground dark:text-muted-foreground">
                                               {child.description}
                                             </p>
                                           )}
@@ -426,7 +426,7 @@ export default function Navbar() {
                                       </NavLink>
                                     ))}
                                     {gi < groups.length - 1 && (
-                                      <div className="mx-3 my-1.5 border-t border-border/50 dark:border-white/5" />
+                                      <div className="mx-3 my-1 border-t border-border/50 dark:border-white/5" />
                                     )}
                                   </div>
                                 ))}

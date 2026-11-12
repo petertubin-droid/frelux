@@ -20,6 +20,10 @@ import {
   type EarthworkResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { useAreaUnit } from "@/lib/use-area-unit";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -56,6 +60,20 @@ export default function EarthworksEstimator() {
     description:
       "Calculate surveyed cut and fill quantities from cross-section areas, chainages and project-specific bulking and shrinkage factors.",
   });
+  // Chainage is typed in feet and the cross-section areas in square feet; the
+  // engine takes metres and square metres, so both convert on the way in.
+  const {
+    setUnit: setChainageUnit,
+    toMetres: chainageToMetres,
+    label: chainageLabel,
+    unit: chainageUnit,
+  } = useLengthUnit("feet");
+  const {
+    setUnit: setAreaUnit,
+    toSqm: areaToSqm,
+    label: areaLabel,
+    unit: areaUnit,
+  } = useAreaUnit("ft2");
   const [stations, setStations] = useState<
     Array<{ chainageM: string; cutAreaM2: string; fillAreaM2: string }>
   >([
@@ -82,9 +100,9 @@ export default function EarthworksEstimator() {
     }
     const response = calculateEarthwork({
       stations: stations.map((s) => ({
-        chainageM: Number(s.chainageM),
-        cutAreaM2: Number(s.cutAreaM2),
-        fillAreaM2: Number(s.fillAreaM2),
+        chainageM: chainageToMetres(s.chainageM),
+        cutAreaM2: areaToSqm(s.cutAreaM2),
+        fillAreaM2: areaToSqm(s.fillAreaM2),
       })),
       bulkingPercent: Number(bulking),
       shrinkagePercent: Number(shrinkage),
@@ -232,7 +250,17 @@ export default function EarthworksEstimator() {
                 + Add station
               </button>
             </div>
-            <div className="mt-5 space-y-3">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                Chainage in {chainageLabel}, section areas in {areaLabel} by
+                default
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <UnitToggle value={chainageUnit} onChange={setChainageUnit} />
+                <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+              </div>
+            </div>
+            <div className="mt-3 space-y-3">
               {stations.map((station, index) => (
                 <div
                   key={index}
@@ -240,9 +268,9 @@ export default function EarthworksEstimator() {
                 >
                   {(
                     [
-                      ["chainageM", "Chainage (m)"],
-                      ["cutAreaM2", "Cut area (m²)"],
-                      ["fillAreaM2", "Fill area (m²)"],
+                      ["chainageM", `Chainage (${chainageLabel})`],
+                      ["cutAreaM2", `Cut area (${areaLabel})`],
+                      ["fillAreaM2", `Fill area (${areaLabel})`],
                     ] as const
                   ).map(([key, label]) => (
                     <label

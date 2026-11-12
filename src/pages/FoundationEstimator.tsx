@@ -64,6 +64,9 @@ import type {
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import VolumeUnitToggle from "@/components/measurement/VolumeUnitToggle";
+import { useAreaUnit, useVolumeUnit } from "@/lib/use-area-unit";
 
 type Field =
   | "concrete_volume_m3"
@@ -72,10 +75,18 @@ type Field =
   | "formwork_area_m2";
 
 const FIELD_LABELS: Record<Field, string> = {
-  concrete_volume_m3: "Foundation concrete volume (m³)",
-  block_wall_area_m2: "Blockwork-to-DPC wall area (m²)",
-  hardcore_volume_m3: "Hardcore fill volume (m³)",
-  formwork_area_m2: "Formwork contact area (m²)",
+  concrete_volume_m3: "Foundation concrete volume",
+  block_wall_area_m2: "Blockwork-to-DPC wall area",
+  hardcore_volume_m3: "Hardcore fill volume",
+  formwork_area_m2: "Formwork contact area",
+};
+
+/** The unit each field is typed in: two are volumes, two are areas. */
+const FIELD_UNIT_KIND: Record<Field, "volume" | "area"> = {
+  concrete_volume_m3: "volume",
+  block_wall_area_m2: "area",
+  hardcore_volume_m3: "volume",
+  formwork_area_m2: "area",
 };
 
 function fmtN(v: number | null): string {
@@ -101,6 +112,20 @@ export default function FoundationEstimator() {
     useDisplayCurrency();
   const { user } = useAuth();
 
+  // Volumes default to cubic feet and areas to square feet, both converted to SI
+  // before the engine sees them. The engine only ever receives m³ and m².
+  const {
+    setUnit: setVolumeUnit,
+    toM3,
+    label: volumeLabel,
+    unit: volumeUnit,
+  } = useVolumeUnit("ft3");
+  const {
+    setUnit: setAreaUnit,
+    toSqm,
+    label: areaLabel,
+    unit: areaUnit,
+  } = useAreaUnit("ft2");
   const [fields, setFields] = useState<Record<Field, string>>({
     concrete_volume_m3: "",
     block_wall_area_m2: "",
@@ -177,17 +202,18 @@ export default function FoundationEstimator() {
   );
 
   const input: FoundationInput = useMemo(() => {
-    const run = (v: string): number | null => {
+    const run = (v: string, kind: "volume" | "area"): number | null => {
       const trimmed = v.trim();
       if (!trimmed) return null;
       const n = Number(trimmed);
-      return Number.isFinite(n) ? n : Number.NaN;
+      if (!Number.isFinite(n)) return Number.NaN;
+      return kind === "volume" ? toM3(n) : toSqm(n);
     };
     return {
-      concrete_volume_m3: run(fields.concrete_volume_m3),
-      block_wall_area_m2: run(fields.block_wall_area_m2),
-      hardcore_volume_m3: run(fields.hardcore_volume_m3),
-      formwork_area_m2: run(fields.formwork_area_m2),
+      concrete_volume_m3: run(fields.concrete_volume_m3, "volume"),
+      block_wall_area_m2: run(fields.block_wall_area_m2, "area"),
+      hardcore_volume_m3: run(fields.hardcore_volume_m3, "volume"),
+      formwork_area_m2: run(fields.formwork_area_m2, "area"),
       labour: {
         mode: labourMode,
         per_m3_rate:
@@ -195,7 +221,7 @@ export default function FoundationEstimator() {
         lump_sum: labourMode === "lump_sum" ? Number(labourRate) || null : null,
       },
     };
-  }, [fields, labourMode, labourRate]);
+  }, [fields, labourMode, labourRate, toM3, toSqm]);
 
   const run = useCallback(() => {
     const res = calculateFoundation(input, calcRules, priceMap);
@@ -459,10 +485,21 @@ export default function FoundationEstimator() {
           depth and reinforcement are structural engineering decisions: use the
           Reinforcement estimator for the bar schedule.
         </p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground">
+            Volumes in {volumeLabel}, areas in {areaLabel} by default
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <VolumeUnitToggle value={volumeUnit} onChange={setVolumeUnit} />
+            <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {(Object.keys(FIELD_LABELS) as Field[]).map((k) =>
-            numberInput(FIELD_LABELS[k], fields[k], (v) =>
-              setFields((f) => ({ ...f, [k]: v })),
+            numberInput(
+              `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "volume" ? volumeLabel : areaLabel})`,
+              fields[k],
+              (v) => setFields((f) => ({ ...f, [k]: v })),
             ),
           )}
         </div>
@@ -505,7 +542,7 @@ export default function FoundationEstimator() {
                 ? Number(fields.concrete_volume_m3)
                 : undefined
             }
-            unit="m³"
+            unit={volumeLabel === "cu ft" ? "ft³" : "m³"}
             packageSize={null}
             compact
           />

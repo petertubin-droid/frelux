@@ -19,6 +19,10 @@ describe("EarthworksEstimator page", () => {
         <EarthworksEstimator />
       </MemoryRouter>,
     );
+    // The page now defaults to feet and square feet. These cases pin the
+    // survey figures in metres, so the test asks for metric first.
+    fireEvent.click(screen.getByRole("button", { name: "Metres" }));
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     fireEvent.click(
       screen.getByRole("button", { name: /Calculate cut & fill/i }),
     );
@@ -57,6 +61,10 @@ describe("EarthworksEstimator page", () => {
         <EarthworksEstimator />
       </MemoryRouter>,
     );
+    // The page now defaults to feet and square feet. These cases pin the
+    // survey figures in metres, so the test asks for metric first.
+    fireEvent.click(screen.getByRole("button", { name: "Metres" }));
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const values = [
       ["Station 1 Chainage (m)", "0"],
       ["Station 1 Cut area (m²)", "2"],

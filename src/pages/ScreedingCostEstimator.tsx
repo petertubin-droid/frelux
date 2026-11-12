@@ -79,6 +79,8 @@ import { getSafeError } from "@/lib/safeError";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import { useAreaUnit } from "@/lib/use-area-unit";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -166,6 +168,15 @@ export default function ScreedingCostEstimator({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [marketNotConfigured, setMarketNotConfigured] = useState(false);
+  // The screeding area is typed in square feet by default and held in square
+  // metres, which is what every engine and saved record expects.
+  const {
+    setUnit: setAreaUnit,
+    toSqm,
+    fromSqm,
+    label: areaLabel,
+    unit: areaUnit,
+  } = useAreaUnit("ft2");
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [selectedSystem, setSelectedSystem] =
     useState<ScreedingMaterialSystem | null>(null);
@@ -438,16 +449,24 @@ export default function ScreedingCostEstimator({
               </Section>
 
               <Section title={`${finishTerm} Area`}>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    Measured in square feet by default
+                  </span>
+                  <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+                </div>
                 <Field
-                  label={`Net ${finishTerm.toLowerCase()} area (m²)`}
+                  label={`Net ${finishTerm.toLowerCase()} area (${areaLabel})`}
                   hint="From the calculator or enter manually"
                 >
                   <input
                     type="number"
                     min={0}
                     step="0.01"
-                    value={netArea || ""}
-                    onChange={(e) => setNetArea(Number(e.target.value))}
+                    value={
+                      netArea > 0 ? Number(fromSqm(netArea).toFixed(2)) : ""
+                    }
+                    onChange={(e) => setNetArea(toSqm(e.target.value))}
                     className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />

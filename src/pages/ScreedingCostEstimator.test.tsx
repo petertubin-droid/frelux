@@ -271,6 +271,9 @@ describe("ScreedingCostEstimator, Putty Flow", () => {
     });
 
     // Enter area
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -328,6 +331,9 @@ describe("ScreedingCostEstimator, Putty Flow", () => {
       expect(screen.getByText("Putty")).toBeTruthy();
     });
 
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -371,6 +377,9 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
     fireEvent.click(mixButton!);
 
     // Enter area
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -412,6 +421,9 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
       .closest("button");
     fireEvent.click(mixButton!);
 
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -450,6 +462,9 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
       .closest("button");
     fireEvent.click(mixButton!);
 
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -486,6 +501,9 @@ describe("ScreedingCostEstimator, Material System Isolation", () => {
     });
 
     // Enter area with Putty selected (default)
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;
@@ -539,6 +557,9 @@ describe("ScreedingCostEstimator, configured coat default", () => {
       .closest("button");
     fireEvent.click(mixButton!);
 
+    // The page defaults to square feet; these cases pin metric figures, so the
+    // test asks for m² first.
+    fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     const input = container.querySelector(
       'input[type="number"]',
     ) as HTMLInputElement;

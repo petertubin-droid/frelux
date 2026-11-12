@@ -105,6 +105,22 @@ const header = fails((r) => r.header);
 const ads = real.filter((r) => !r.adRule);
 const labelling = real.filter((r) => r.unlabelledInputs > 0);
 const feet = fails((r) => r.feet);
+
+// Pages that never ask for a length, area or volume, so a unit selector would
+// be decoration. The reason is kept next to the file: this list is the only
+// place a calculator is allowed to be missing imperial units.
+const EXEMPT_NO_LENGTH = new Map([
+  ["BlueprintTakeoff.tsx", "reads measure lines out of an uploaded drawing"],
+  ["StandaloneTakeoffPage.tsx", "reads measure lines out of an uploaded drawing"],
+  ["BoqGenerator.tsx", "builds a bill of quantities from typed line items"],
+  ["CountVision.tsx", "counts objects in a photo"],
+  ["DoorsWindowsEstimator.tsx", "takes counts per door and window type"],
+  ["GeneratorEstimator.tsx", "takes a load in kVA"],
+  ["LabourEstimator.tsx", "takes labour rates and days"],
+  ["MarginCalculator.tsx", "takes prices and a margin"],
+]);
+const feetExempt = feet.filter((r) => EXEMPT_NO_LENGTH.has(r.file));
+const feetUnexplained = feet.filter((r) => !EXEMPT_NO_LENGTH.has(r.file));
 const wide = real.filter((r) => r.wideFixed);
 
 console.log(`pages: ${rows.length} (${real.length} calculators, ${rows.length - real.length} hub or redirect)`);
@@ -116,7 +132,11 @@ console.log(`no share/PDF:     ${share.length}`);
 console.log(`no method note:   ${method.length}`);
 console.log(`no disclaimer:    ${disclaimer.length}`);
 console.log(`inputs possibly unlabelled: ${labelling.length}`);
-console.log(`no feet reference (check if length based): ${feet.length}`);
+console.log(
+  `no feet reference: ${feetUnexplained.length} unexplained, ${feetExempt.length} exempt (no length entered)`,
+);
+if (feetUnexplained.length)
+  console.log(`  needs a unit: ${feetUnexplained.map((r) => r.file).join(", ")}`);
 console.log(`fixed wide layout:${wide.length}`);
 
 if (process.argv.includes("--verbose")) {
@@ -126,6 +146,7 @@ if (process.argv.includes("--verbose")) {
   show("missing method", method);
   show("missing disclaimer", disclaimer);
   show("over ad slots", ads);
+  show("no feet, exempt", feetExempt);
 }
 
 if (process.argv.includes("--write")) {

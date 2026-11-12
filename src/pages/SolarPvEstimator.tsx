@@ -51,6 +51,11 @@ import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { unitShortLabel } from "@/lib/utils";
+import { useAreaUnit } from "@/lib/use-area-unit";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 export default function SolarPvEstimator() {
   const resetInputs = () => {
@@ -82,6 +87,19 @@ export default function SolarPvEstimator() {
 
   const [mode, setMode] = useState<"roof_area" | "energy_target">("roof_area");
   const [modelId, setModelId] = useState("");
+  // The roof is measured in square feet and the cable run in feet by default;
+  // both are converted to SI where the engine reads them.
+  const {
+    setUnit: setAreaUnit,
+    toSqm,
+    label: areaLabel,
+    unit: areaUnit,
+  } = useAreaUnit("ft2");
+  const {
+    setUnit: setCableUnit,
+    toMetres: cableToMetres,
+    unit: cableUnit,
+  } = useLengthUnit("feet");
   const [roofArea, setRoofArea] = useState("");
   const [energyTarget, setEnergyTarget] = useState("");
   const [cableRun, setCableRun] = useState("");
@@ -112,9 +130,9 @@ export default function SolarPvEstimator() {
           mode,
           panel_model: model?.model_name ?? "",
           panel_watt_peak: model?.watt_peak ?? null,
-          usable_roof_area_m2: roofArea ? Number(roofArea) : null,
+          usable_roof_area_m2: roofArea ? toSqm(roofArea) : null,
           daily_energy_target_kwh: energyTarget ? Number(energyTarget) : null,
-          cable_run_m: Number(cableRun),
+          cable_run_m: cableToMetres(cableRun),
           battery_storage_kwh: storage ? Number(storage) : null,
           system: {
             panel_count: result.panel_count,
@@ -250,7 +268,7 @@ export default function SolarPvEstimator() {
           "Batteries",
           result.battery_count > 0 ? `${result.battery_count} unit(s)` : "none",
         ],
-        ["Cable run", `${cableRun} m`],
+        ["Cable run", `${cableRun} ${unitShortLabel(cableUnit)}`],
       ],
       lines,
       totals: [
@@ -304,7 +322,7 @@ export default function SolarPvEstimator() {
             unit_price_naira: model.unit_price_naira,
           }
         : null,
-      usable_roof_area_m2: roofArea ? Number(roofArea) : undefined,
+      usable_roof_area_m2: roofArea ? toSqm(roofArea) : undefined,
       daily_energy_target_kwh: energyTarget ? Number(energyTarget) : undefined,
       cable_run_m: Number(cableRun),
       battery_storage_kwh: storage ? Number(storage) : null,
@@ -399,17 +417,20 @@ export default function SolarPvEstimator() {
               </label>
 
               {mode === "roof_area" ? (
-                <label className="grid gap-1 text-sm font-medium">
-                  Usable roof area (m²)
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.1"
-                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                    value={roofArea}
-                    onChange={(e) => setRoofArea(e.target.value)}
-                  />
-                </label>
+                <div className="grid gap-1 text-sm font-medium">
+                  <label className="grid gap-1">
+                    Usable roof area ({areaLabel})
+                    <input
+                      type="number"
+                      min="1"
+                      step="0.1"
+                      className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                      value={roofArea}
+                      onChange={(e) => setRoofArea(e.target.value)}
+                    />
+                  </label>
+                  <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+                </div>
               ) : (
                 <label className="grid gap-1 text-sm font-medium">
                   {t("Target daily energy (kWh/day)")}
@@ -424,17 +445,20 @@ export default function SolarPvEstimator() {
                 </label>
               )}
 
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Cable run, array to inverter (m)")}
-                <input
-                  type="number"
-                  min="1"
-                  step="0.1"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={cableRun}
-                  onChange={(e) => setCableRun(e.target.value)}
-                />
-              </label>
+              <div className="grid gap-1 text-sm font-medium">
+                <label className="grid gap-1">
+                  {`${t("Cable run, array to inverter")} (${unitShortLabel(cableUnit)})`}
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.1"
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={cableRun}
+                    onChange={(e) => setCableRun(e.target.value)}
+                  />
+                </label>
+                <UnitToggle value={cableUnit} onChange={setCableUnit} />
+              </div>
 
               <label className="grid gap-1 text-sm font-medium">
                 Battery storage wanted (kWh: leave blank for none)
@@ -665,7 +689,7 @@ export default function SolarPvEstimator() {
                   {
                     mode,
                     panel_model: modelId,
-                    cable_run_m: Number(cableRun),
+                    cable_run_m: cableToMetres(cableRun),
                     result: {
                       panel_count: result.panel_count,
                       array_kwp: result.array_kwp,

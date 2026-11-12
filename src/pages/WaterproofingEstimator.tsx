@@ -58,6 +58,10 @@ import type {
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import { useAreaUnit } from "@/lib/use-area-unit";
+import { useLengthUnit } from "@/lib/use-length-unit";
 
 type AreaField =
   | "dpc_run_m"
@@ -68,12 +72,22 @@ type AreaField =
   | "terrace_area_m2";
 
 const FIELD_LABELS: Record<AreaField, string> = {
-  dpc_run_m: "DPC run length (m)",
-  dpm_area_m2: "DPM membrane area (m²)",
-  wet_floor_area_m2: "Wet-area floor area (m²)",
-  wet_wall_area_m2: "Wet-area wall splash area (m²)",
-  wet_perimeter_m: "Wet-area perimeter for tape (m)",
-  terrace_area_m2: "Terrace / roof treatment area (m²)",
+  dpc_run_m: "DPC run length",
+  dpm_area_m2: "DPM membrane area",
+  wet_floor_area_m2: "Wet-area floor area",
+  wet_wall_area_m2: "Wet-area wall splash area",
+  wet_perimeter_m: "Wet-area perimeter for tape",
+  terrace_area_m2: "Terrace / roof treatment area",
+};
+
+/** Two fields are runs, the other four are surfaces. */
+const FIELD_UNIT_KIND: Record<AreaField, "length" | "area"> = {
+  dpc_run_m: "length",
+  dpm_area_m2: "area",
+  wet_floor_area_m2: "area",
+  wet_wall_area_m2: "area",
+  wet_perimeter_m: "length",
+  terrace_area_m2: "area",
 };
 
 function fmtN(v: number | null): string {
@@ -108,6 +122,20 @@ export default function WaterproofingEstimator() {
   const currencyCode = market?.currencyCode || "NGN";
   const { user } = useAuth();
 
+  // Runs are typed in feet and surfaces in square feet by default; the engine
+  // receives metres and square metres.
+  const {
+    setUnit: setLengthUnit,
+    toMetres: lengthToMetres,
+    label: lengthLabel,
+    unit: lengthUnit,
+  } = useLengthUnit("feet");
+  const {
+    setUnit: setAreaUnit,
+    toSqm: areaToSqm,
+    label: areaLabel,
+    unit: areaUnit,
+  } = useAreaUnit("ft2");
   const [areas, setAreas] = useState<Record<AreaField, string>>({
     dpc_run_m: "",
     dpm_area_m2: "",
@@ -183,19 +211,20 @@ export default function WaterproofingEstimator() {
   );
 
   const input: WaterproofingInput = useMemo(() => {
-    const run = (v: string): number | null => {
+    const run = (v: string, kind: "length" | "area"): number | null => {
       const trimmed = v.trim();
       if (!trimmed) return null;
       const n = Number(trimmed);
-      return Number.isFinite(n) ? n : Number.NaN;
+      if (!Number.isFinite(n)) return Number.NaN;
+      return kind === "length" ? lengthToMetres(n) : areaToSqm(n);
     };
     return {
-      dpc_run_m: run(areas.dpc_run_m),
-      dpm_area_m2: run(areas.dpm_area_m2),
-      wet_floor_area_m2: run(areas.wet_floor_area_m2),
-      wet_wall_area_m2: run(areas.wet_wall_area_m2),
-      wet_perimeter_m: run(areas.wet_perimeter_m),
-      terrace_area_m2: run(areas.terrace_area_m2),
+      dpc_run_m: run(areas.dpc_run_m, "length"),
+      dpm_area_m2: run(areas.dpm_area_m2, "area"),
+      wet_floor_area_m2: run(areas.wet_floor_area_m2, "area"),
+      wet_wall_area_m2: run(areas.wet_wall_area_m2, "area"),
+      wet_perimeter_m: run(areas.wet_perimeter_m, "length"),
+      terrace_area_m2: run(areas.terrace_area_m2, "area"),
       labour: {
         mode: labourMode,
         per_m2_rate:
@@ -402,10 +431,21 @@ export default function WaterproofingEstimator() {
           needs a decision (the estimate is marked incomplete) and enter 0 only
           when the surface truly doesn't exist.
         </p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground">
+            Runs in {lengthLabel}, surfaces in {areaLabel} by default
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <UnitToggle value={lengthUnit} onChange={setLengthUnit} />
+            <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(Object.keys(FIELD_LABELS) as AreaField[]).map((k) =>
-            numberInput(FIELD_LABELS[k], areas[k], (v) =>
-              setAreas((a) => ({ ...a, [k]: v })),
+            numberInput(
+              `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "length" ? lengthLabel : areaLabel})`,
+              areas[k],
+              (v) => setAreas((a) => ({ ...a, [k]: v })),
             ),
           )}
         </div>
