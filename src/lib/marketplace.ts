@@ -360,6 +360,7 @@ export async function createMilestone(data: {
   description?: string;
   sort_order?: number;
   expected_date?: string;
+  amount?: number | null;
 }) {
   const { data: result, error } = await supabase
     .from("marketplace_milestones")

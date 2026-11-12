@@ -14,6 +14,8 @@ import {
   Truck,
   CheckCircle2,
   Clock,
+  MessageSquare,
+  Mail,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
@@ -30,7 +32,14 @@ import {
   SELLER_TYPE_LABELS,
   SELLER_VERIFICATION_LABELS,
 } from "@/types/marketplace-expansion";
-import type { DbMarketplaceProduct } from "@/types/marketplace-products";
+import type {
+  DbMarketplaceProduct,
+  DbProductInquiry,
+} from "@/types/marketplace-products";
+import {
+  fetchInquiriesForSeller,
+  updateInquiryStatus,
+} from "@/lib/marketplace-products";
 import { PRODUCT_STATUS_LABELS } from "@/types/marketplace-products";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
@@ -52,6 +61,8 @@ export default function SellerDashboard() {
     null,
   );
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
+  const [inquiries, setInquiries] = useState<DbProductInquiry[]>([]);
+  const [inquiryBusyId, setInquiryBusyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -98,7 +109,35 @@ export default function SellerDashboard() {
       .limit(50);
     if (prodErr) throw prodErr;
     setProducts((prods ?? []) as unknown as DbMarketplaceProduct[]);
+
+    // Buyer leads were being written to marketplace_product_inquiries with no
+    // screen to read them, so sellers never saw an offer. This is that inbox.
+    // A failure here must not take the rest of the dashboard down.
+    try {
+      setInquiries(await fetchInquiriesForSeller(user.id));
+    } catch {
+      setInquiries([]);
+    }
   }, [navigate]);
+
+  async function handleInquiryStatus(
+    inquiryId: string,
+    status: "responded" | "closed",
+  ) {
+    setInquiryBusyId(inquiryId);
+    try {
+      await updateInquiryStatus(inquiryId, status);
+      setInquiries((current) =>
+        current.map((item) =>
+          item.id === inquiryId ? { ...item, status } : item,
+        ),
+      );
+    } catch {
+      /* leave the row as it was */
+    } finally {
+      setInquiryBusyId(null);
+    }
+  }
 
   useEffect(() => {
     loadProfile()
@@ -187,7 +226,7 @@ export default function SellerDashboard() {
 
       <Container className="max-w-5xl pb-12 pt-6">
         {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           <StatCard
             icon={<Package aria-hidden="true" className="h-5 w-5" />}
             label="Active Products"
@@ -216,6 +255,11 @@ export default function SellerDashboard() {
             icon={<DollarSign aria-hidden="true" className="h-5 w-5" />}
             label="Total Sales"
             value={profile?.total_sales ?? 0}
+          />
+          <StatCard
+            icon={<MessageSquare aria-hidden="true" className="h-5 w-5" />}
+            label="New Inquiries"
+            value={inquiries.filter((item) => item.status === "pending").length}
           />
         </div>
 
@@ -390,6 +434,112 @@ export default function SellerDashboard() {
               Your seller profile is unverified. Submit verification documents
               to get a verified badge.
             </div>
+          )}
+        </div>
+
+        {/* Buyer Inquiries */}
+        <div className="mb-6 rounded-xl border border-border dark:border-white/10">
+          <div className="flex items-center justify-between border-b border-border p-4 dark:border-white/10">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+              {t("Buyer Inquiries")}
+            </h2>
+            <span className="text-xs text-muted-foreground">
+              {inquiries.length}{" "}
+              {inquiries.length === 1 ? "enquiry" : "enquiries"}
+            </span>
+          </div>
+          {inquiries.length === 0 ? (
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              <Mail
+                aria-hidden="true"
+                className="mx-auto mb-2 h-6 w-6 opacity-60"
+              />
+              {t(
+                "No buyer inquiries yet. Offers and questions will appear here.",
+              )}
+            </div>
+          ) : (
+            <ul className="divide-y divide-border dark:divide-white/10">
+              {inquiries.map((inquiry) => (
+                <li key={inquiry.id} className="p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                        {inquiry.buyer?.full_name || t("A buyer")}
+                        {inquiry.product?.title && (
+                          <span className="font-normal text-muted-foreground">
+                            {" "}
+                            · {inquiry.product.title}
+                          </span>
+                        )}
+                      </p>
+                      <p className="mt-1 whitespace-pre-line break-words text-sm text-muted-foreground">
+                        {inquiry.message}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                        {inquiry.offered_price != null && (
+                          <span className="font-semibold text-brand-purple">
+                            {t("Offer")}:{" "}
+                            {formatByCode(
+                              inquiry.offered_price,
+                              inquiry.product?.currency ?? "NGN",
+                            )}
+                          </span>
+                        )}
+                        {inquiry.contact_phone && (
+                          <span className="inline-flex items-center gap-1">
+                            <Phone aria-hidden="true" className="h-3 w-3" />
+                            {inquiry.contact_phone}
+                          </span>
+                        )}
+                        <span>
+                          {new Date(inquiry.created_at).toLocaleDateString()}
+                        </span>
+                        <span className="rounded-full bg-muted px-2 py-0.5 font-medium capitalize">
+                          {inquiry.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        to="/messages"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10"
+                      >
+                        <MessageSquare
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5"
+                        />
+                        {t("Reply")}
+                      </Link>
+                      {inquiry.status === "pending" && (
+                        <Button
+                          variant="ghost"
+                          disabled={inquiryBusyId === inquiry.id}
+                          onClick={() =>
+                            handleInquiryStatus(inquiry.id, "responded")
+                          }
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium dark:border-white/10"
+                        >
+                          {t("Mark answered")}
+                        </Button>
+                      )}
+                      {inquiry.status !== "closed" && (
+                        <Button
+                          variant="ghost"
+                          disabled={inquiryBusyId === inquiry.id}
+                          onClick={() =>
+                            handleInquiryStatus(inquiry.id, "closed")
+                          }
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium dark:border-white/10"
+                        >
+                          {t("Close")}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 

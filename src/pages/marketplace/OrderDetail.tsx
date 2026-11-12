@@ -20,6 +20,10 @@ import {
   submitOrderReview,
   createMilestone,
 } from "@/lib/marketplace";
+import {
+  approveAndReleaseMilestone,
+  fundOrderWithEscrow,
+} from "@/lib/marketplace/escrow-bridge";
 import { useAuth } from "@/lib/auth";
 import type {
   DbMarketplaceOrder,
@@ -71,6 +75,9 @@ export default function OrderDetail() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
   const [newMilestoneTitle, setNewMilestoneTitle] = useState("");
+  const [newMilestoneAmount, setNewMilestoneAmount] = useState("");
+  const [escrowBusy, setEscrowBusy] = useState(false);
+  const [escrowError, setEscrowError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async () => {
@@ -114,8 +121,59 @@ export default function OrderDetail() {
   }
 
   async function handleApproveMilestone(milestoneId: string) {
+    if (!order) return;
+    const milestone = milestones.find((item) => item.id === milestoneId);
+    if (!milestone) return;
+
+    setEscrowError(null);
+
+    // A funded order releases the money in the same click, because approving
+    // work is what pays the professional. An unfunded order just records
+    // approval and says so, rather than implying a payment happened.
+    if (order.escrow_contract_id) {
+      setEscrowBusy(true);
+      try {
+        await approveAndReleaseMilestone(order, milestone);
+      } catch (error) {
+        setEscrowError(
+          error instanceof Error
+            ? error.message
+            : "The escrow release could not be completed.",
+        );
+      } finally {
+        setEscrowBusy(false);
+      }
+      load();
+      return;
+    }
+
     await approveMilestone(milestoneId);
+    setEscrowError(
+      "Approved. This order is not funded through escrow, so no payment was released.",
+    );
     load();
+  }
+
+  async function handleFundOrder() {
+    if (!order) return;
+    setEscrowBusy(true);
+    setEscrowError(null);
+    try {
+      const { contractId } = await fundOrderWithEscrow(order, milestones);
+      // Re-open the same checkout link if the contract already exists.
+      const { startEscrowCheckout } =
+        await import("@/lib/payments/escrow-client");
+      const url = await startEscrowCheckout(contractId);
+      window.location.href = url;
+    } catch (error) {
+      setEscrowError(
+        error instanceof Error
+          ? error.message
+          : "The escrow checkout could not be started.",
+      );
+    } finally {
+      setEscrowBusy(false);
+    }
   }
 
   async function handleUpdateMilestone(milestoneId: string, status: string) {
@@ -133,8 +191,10 @@ export default function OrderDetail() {
         order_id: order.id,
         title: newMilestoneTitle.trim(),
         sort_order: milestones.length + 1,
+        amount: newMilestoneAmount ? Number(newMilestoneAmount) : null,
       });
       setNewMilestoneTitle("");
+      setNewMilestoneAmount("");
       setShowMilestoneForm(false);
       load();
     } catch {
@@ -250,7 +310,7 @@ export default function OrderDetail() {
             </div>
             <div className="ml-auto">
               <Link
-                to="/pro-connect/messages/"
+                to="/messages"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
               >
                 <MessageSquare className="h-3.5 w-3.5" /> {t("Message")}
@@ -275,6 +335,44 @@ export default function OrderDetail() {
               {order.payment_status.replace("_", " ")}
             </span>
           </div>
+
+          {order.escrow_contract_id ? (
+            <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
+              {t(
+                "Escrow contract linked. Approving a milestone releases its payment.",
+              )}
+            </p>
+          ) : (
+            isClient && (
+              <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3 dark:border-white/10">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  {t(
+                    "Fund this order through escrow so approved milestones can be paid out. Milestone amounts must add up to the agreed price.",
+                  )}
+                </p>
+                <Button
+                  variant="default"
+                  onClick={handleFundOrder}
+                  disabled={escrowBusy || milestones.length === 0}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+                >
+                  <Wallet aria-hidden="true" className="h-3.5 w-3.5" />
+                  {escrowBusy
+                    ? t("Starting checkout...")
+                    : t("Fund with escrow")}
+                </Button>
+              </div>
+            )
+          )}
+
+          {escrowError && (
+            <p
+              role="alert"
+              className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-300"
+            >
+              {escrowError}
+            </p>
+          )}
         </div>
 
         {/* Status advancement */}
@@ -328,6 +426,16 @@ export default function OrderDetail() {
                 onChange={(e) => setNewMilestoneTitle(e.target.value)}
                 placeholder={t("Milestone title...")}
                 className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+              />
+              <input
+                aria-label={t("Milestone amount")}
+                type="number"
+                min="0"
+                step="0.01"
+                value={newMilestoneAmount}
+                onChange={(e) => setNewMilestoneAmount(e.target.value)}
+                placeholder={t("Amount")}
+                className="w-28 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <Button
                 variant="default"
@@ -398,7 +506,9 @@ export default function OrderDetail() {
                             className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-primary-foreground hover:bg-emerald-700"
                           >
                             <Check aria-hidden="true" className="h-3 w-3" />{" "}
-                            Approve
+                            {order.escrow_contract_id
+                              ? t("Approve & pay")
+                              : t("Approve")}
                           </Button>
                         )}
                       </div>
@@ -409,6 +519,11 @@ export default function OrderDetail() {
                       </span>
                     )}
                   </div>
+                  {m.amount != null && (
+                    <p className="mt-1 ml-8 text-[10px] font-semibold text-foreground dark:text-primary-foreground">
+                      {formatByCode(Number(m.amount), order.currency)}
+                    </p>
+                  )}
                   {m.expected_date && (
                     <p className="mt-1 ml-8 text-[10px] text-muted-foreground dark:text-muted-foreground">
                       <Calendar

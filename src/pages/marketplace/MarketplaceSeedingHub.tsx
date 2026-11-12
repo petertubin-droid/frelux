@@ -76,40 +76,52 @@ export default function MarketplaceSeedingHub() {
     return true;
   });
 
-  const handleConciergeSubmit = (e: React.FormEvent) => {
+  const handleConciergeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!conciergeName || !conciergeEmail) return;
-    submitConciergeRequest({
-      clientName: conciergeName,
-      clientEmail: conciergeEmail,
-      territoryName: selectedTerritory.territoryName,
-      tradeNeeded: conciergeTrade,
-      projectBudgetEstimate: conciergeBudget,
-      escrowRequired: true,
-    });
-    setConciergeFeedback(
-      `Concierge request dispatched for ${selectedTerritory.territoryName}. Trade guild coordinators have been notified.`,
-    );
-    setConciergeName("");
-    setConciergeEmail("");
+    try {
+      await submitConciergeRequest({
+        clientName: conciergeName,
+        clientEmail: conciergeEmail,
+        territoryName: selectedTerritory.territoryName,
+        tradeNeeded: conciergeTrade,
+        projectBudgetEstimate: conciergeBudget,
+        escrowRequired: true,
+      });
+      setConciergeFeedback(
+        `Concierge request received for ${selectedTerritory.territoryName}. Our sourcing team will follow up by email.`,
+      );
+      setConciergeName("");
+      setConciergeEmail("");
+    } catch {
+      setConciergeFeedback(
+        "We could not save that request. Please check your connection and try again.",
+      );
+    }
   };
 
-  const handleNominationSubmit = (e: React.FormEvent) => {
+  const handleNominationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nomArtisanName || !nomArtisanPhone || !nomEmail) return;
-    nominateArtisanForEscrow({
-      clientEmail: nomEmail,
-      artisanName: nomArtisanName,
-      artisanPhone: nomArtisanPhone,
-      artisanTrade: nomArtisanTrade,
-      locationCity: nomCity || selectedTerritory.territoryName,
-    });
-    setNomFeedback(
-      `Fast-track invite sent to ${nomArtisanName}. Identity verification initiated for escrow milestone clearance.`,
-    );
-    setNomArtisanName("");
-    setNomArtisanPhone("");
-    setNomEmail("");
+    try {
+      await nominateArtisanForEscrow({
+        clientEmail: nomEmail,
+        artisanName: nomArtisanName,
+        artisanPhone: nomArtisanPhone,
+        artisanTrade: nomArtisanTrade,
+        locationCity: nomCity || selectedTerritory.territoryName,
+      });
+      setNomFeedback(
+        `Nomination received for ${nomArtisanName}. Our vetting team will contact them about identity verification.`,
+      );
+      setNomArtisanName("");
+      setNomArtisanPhone("");
+      setNomEmail("");
+    } catch {
+      setNomFeedback(
+        "We could not save that nomination. Please check your connection and try again.",
+      );
+    }
   };
 
   return (

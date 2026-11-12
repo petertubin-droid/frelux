@@ -16,6 +16,68 @@ function json(body: unknown, status = 200) {
   });
 }
 
+/** Write the money movement back onto the marketplace side. Money has already
+ *  left the escrow account by this point, so a failure here is logged and never
+ *  rolls the release back. */
+async function syncMarketplaceRelease(
+  admin: ReturnType<typeof createClient>,
+  args: {
+    contractId: string;
+    escrowMilestoneId: string;
+    amountMinor: number;
+    feeMinor: number;
+    provider: string;
+    providerRef: string | null;
+  },
+): Promise<void> {
+  try {
+    const { data: order } = await admin
+      .from("marketplace_orders")
+      .select("id, client_id, currency")
+      .eq("escrow_contract_id", args.contractId)
+      .maybeSingle();
+    if (!order) return;
+
+    const now = new Date();
+    await admin
+      .from("marketplace_milestones")
+      .update({
+        status: "approved",
+        client_approved: true,
+        client_approved_at: now.toISOString(),
+        completed_date: now.toISOString().slice(0, 10),
+      })
+      .eq("escrow_milestone_id", args.escrowMilestoneId);
+
+    await admin.from("marketplace_payments").insert({
+      order_id: order.id,
+      payer_id: order.client_id,
+      payee_id: null,
+      amount: args.amountMinor / 100,
+      currency: order.currency,
+      payment_type: "milestone_release",
+      status: "completed",
+      provider: args.provider,
+      provider_ref: args.providerRef,
+      notes: `Escrow release; platform fee ${(args.feeMinor / 100).toFixed(2)}`,
+    });
+
+    const { data: milestones } = await admin
+      .from("marketplace_milestones")
+      .select("status")
+      .eq("order_id", order.id);
+    const settled = (milestones ?? []).every(
+      (row) => row.status === "approved",
+    );
+    await admin
+      .from("marketplace_orders")
+      .update({ payment_status: settled ? "fully_paid" : "partially_paid" })
+      .eq("id", order.id);
+  } catch (error) {
+    console.error("escrow-release: marketplace sync failed", error);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: cors });
@@ -314,6 +376,18 @@ Deno.serve(async (req) => {
       })
       .eq("id", contract.id);
 
+    await syncMarketplaceRelease(admin, {
+      contractId: contract.id,
+      escrowMilestoneId: milestone.id,
+      amountMinor: amount,
+      feeMinor: fee,
+      provider: "flutterwave",
+      providerRef:
+        flwTransferResult.data?.reference ??
+        flwTransferResult.data?.id?.toString() ??
+        null,
+    });
+
     return json({
       released_minor: amount,
       platform_fee_minor: fee,
@@ -422,6 +496,15 @@ Deno.serve(async (req) => {
       status: allReleased ? "released" : "partially_released",
     })
     .eq("id", contract.id);
+
+  await syncMarketplaceRelease(admin, {
+    contractId: contract.id,
+    escrowMilestoneId: milestone.id,
+    amountMinor: amount,
+    feeMinor: fee,
+    provider: "paystack",
+    providerRef: transferCode,
+  });
 
   return json({
     released_minor: amount,

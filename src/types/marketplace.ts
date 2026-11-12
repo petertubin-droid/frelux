@@ -97,6 +97,8 @@ export interface DbMarketplaceOrder {
   currency: string;
   payment_status:
     "unpaid" | "deposit_paid" | "partially_paid" | "fully_paid" | "refunded";
+  /** Escrow contract funding this order, once the client has started checkout. */
+  escrow_contract_id?: string | null;
   status:
     | "pending_start"
     | "in_progress"
@@ -150,6 +152,10 @@ export interface DbMarketplaceMilestone {
   client_approved: boolean;
   client_approved_at: string | null;
   pro_notes: string | null;
+  /** Milestone value in the order currency. */
+  amount?: number | null;
+  /** Matching stage on the escrow contract. */
+  escrow_milestone_id?: string | null;
   created_at: string;
   updated_at: string;
 }

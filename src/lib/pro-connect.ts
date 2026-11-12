@@ -323,6 +323,13 @@ export async function searchProfessionals(
     candidateProfileIds = new Set((data ?? []).map((row) => row.profile_id));
   }
 
+  // pro_locations is seeded with Nigerian states and LGAs only. A pro outside
+  // Nigeria can still declare a country and a free-text service area, so when a
+  // structured filter matches nothing we fall back to that text (scoped by the
+  // country filter above) instead of returning an empty page. Structured
+  // matches, when they exist, still win.
+  let serviceAreaFilter: string | null = null;
+
   if (params.state || params.city) {
     let locationQuery = supabase.from("pro_locations").select("id");
     if (params.country)
@@ -339,28 +346,39 @@ export async function searchProfessionals(
       return { profiles: [], total: 0, hasMore: false };
     }
     const locationIds = (locations ?? []).map((location) => location.id);
-    if (locationIds.length === 0)
-      return { profiles: [], total: 0, hasMore: false };
-    const { data: links, error: linkError } = await supabase
-      .from("pro_profile_locations")
-      .select("profile_id")
-      .in("location_id", locationIds);
-    if (linkError) {
-      if (import.meta.env.DEV)
-        console.error(
-          "[pro-connect] search location links:",
-          linkError.message,
-        );
-      return { profiles: [], total: 0, hasMore: false };
+
+    if (locationIds.length === 0) {
+      serviceAreaFilter = params.city || params.state || null;
+    } else {
+      const { data: links, error: linkError } = await supabase
+        .from("pro_profile_locations")
+        .select("profile_id")
+        .in("location_id", locationIds);
+      if (linkError) {
+        if (import.meta.env.DEV)
+          console.error(
+            "[pro-connect] search location links:",
+            linkError.message,
+          );
+        return { profiles: [], total: 0, hasMore: false };
+      }
+      const locationProfileIds = new Set(
+        (links ?? []).map((link) => link.profile_id),
+      );
+      if (locationProfileIds.size === 0) {
+        // The location exists but no pro is linked to it yet; the free-text
+        // service area is the only remaining signal.
+        serviceAreaFilter = params.city || params.state || null;
+      } else {
+        candidateProfileIds = candidateProfileIds
+          ? new Set(
+              [...candidateProfileIds].filter((id) =>
+                locationProfileIds.has(id),
+              ),
+            )
+          : locationProfileIds;
+      }
     }
-    const locationProfileIds = new Set(
-      (links ?? []).map((link) => link.profile_id),
-    );
-    candidateProfileIds = candidateProfileIds
-      ? new Set(
-          [...candidateProfileIds].filter((id) => locationProfileIds.has(id)),
-        )
-      : locationProfileIds;
   }
   if (candidateProfileIds?.size === 0)
     return { profiles: [], total: 0, hasMore: false };
@@ -399,12 +417,21 @@ export async function searchProfessionals(
     );
   }
 
-  // Order by: verified first, then rating, then profile completeness
+  if (serviceAreaFilter) {
+    query = query.ilike("service_area_text", `%${serviceAreaFilter}%`);
+  }
+
+  // Order by: verified first, then rating, then profile completeness.
+  // verification_rank is a generated column (verified 3 > pending 2 >
+  // suspended 1 > unverified 0); ordering on verification_status text put
+  // unverified above pending, because reversed alphabet is
+  // verified > unverified > suspended > pending.
   query = query
-    .order("verification_status", { ascending: false }) // 'verified' > 'pending' > 'unverified' alphabetically reversed
+    .order("verification_rank", { ascending: false })
     .order("rating_avg", { ascending: false })
     .order("is_profile_complete", { ascending: false })
     .order("years_experience", { ascending: false, nullsFirst: false })
+    .order("id", { ascending: true }) // stable paging when the ranks tie
     .range(offset, offset + pageSize - 1);
 
   const { data, error, count } = await query;
