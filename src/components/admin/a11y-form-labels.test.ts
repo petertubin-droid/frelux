@@ -9,7 +9,7 @@ import path from "node:path";
  * This is a ratchet: the number may only go down. Give the field an
  * aria-label, an id that a <label htmlFor> points at, or wrap it in a label.
  */
-const REMAINING_UNNAMED = 42;
+const REMAINING_UNNAMED = 0;
 
 const roots = ["src/pages/admin", "src/components/admin"];
 

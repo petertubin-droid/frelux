@@ -289,6 +289,7 @@ export default function AdminSolarPrices() {
                 label={`Component key (one of: ${ENGINE_KEYS.slice(0, 4).join(", ")}, …)`}
               >
                 <input
+                  aria-label="Component key"
                   list="solar-component-keys"
                   className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
                   value={form.component_key}

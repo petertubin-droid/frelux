@@ -187,6 +187,7 @@ export function MediaPicker({
                 <Upload aria-hidden="true" className="h-4 w-4" />
                 {uploading ? "Uploading…" : "Upload"}
                 <input
+                  aria-label="Upload image file"
                   type="file"
                   accept="image/*"
                   className="hidden"

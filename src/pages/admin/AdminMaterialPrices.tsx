@@ -134,6 +134,7 @@ export default function AdminMaterialPrices() {
                     {editingId === m.id ? (
                       <div className="flex gap-1">
                         <input
+                          aria-label="New price"
                           type="number"
                           className="w-24 rounded border bg-background px-2 py-1 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
                           value={newPrice}

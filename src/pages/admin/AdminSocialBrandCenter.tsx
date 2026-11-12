@@ -325,6 +325,7 @@ export default function AdminSocialBrandCenter() {
                     <label className="space-y-1 text-xs">
                       <span className="text-muted-foreground">{p.idLabel}</span>
                       <input
+                        aria-label="Client ID"
                         value={credentialForm.clientId}
                         onChange={(e) =>
                           setCredentialForm({
@@ -342,6 +343,7 @@ export default function AdminSocialBrandCenter() {
                         {p.secretLabel}
                       </span>
                       <input
+                        aria-label="Client secret"
                         type="password"
                         value={credentialForm.clientSecret}
                         onChange={(e) =>

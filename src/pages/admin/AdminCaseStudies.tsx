@@ -334,6 +334,7 @@ function CaseStudyForm({
       <div className="grid gap-4">
         <Field label="Headline">
           <input
+            aria-label="Headline"
             value={headline}
             onChange={(e) => setHeadline(e.target.value)}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
@@ -387,6 +388,7 @@ function CaseStudyForm({
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Materials (comma separated)">
             <input
+              aria-label="Materials used"
               value={materials}
               onChange={(e) => setMaterials(e.target.value)}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"

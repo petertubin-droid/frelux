@@ -812,6 +812,7 @@ export default function SystemHealth() {
           {/* Filters */}
           <div className="flex flex-wrap gap-2">
             <input
+              aria-label="Search errors"
               type="text"
               placeholder={tr("Search errors...")}
               value={search}

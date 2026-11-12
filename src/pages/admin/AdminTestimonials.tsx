@@ -139,18 +139,21 @@ export default function AdminTestimonials() {
         />
         <div className="grid gap-3 sm:grid-cols-4">
           <input
+            aria-label={t("Author name")}
             value={form.author_name}
             onChange={(e) => setForm({ ...form, author_name: e.target.value })}
             placeholder={t("Author name")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
+            aria-label={t("Role (e.g. Homeowner)")}
             value={form.author_role}
             onChange={(e) => setForm({ ...form, author_role: e.target.value })}
             placeholder={t("Role (e.g. Homeowner)")}
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
+            aria-label={t("Location (optional)")}
             value={form.author_location}
             onChange={(e) =>
               setForm({ ...form, author_location: e.target.value })
@@ -159,6 +162,7 @@ export default function AdminTestimonials() {
             className="rounded-lg border border-border bg-background p-2 text-sm"
           />
           <input
+            aria-label={t("Sort order")}
             type="number"
             value={form.sort_order}
             onChange={(e) =>

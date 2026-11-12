@@ -1133,6 +1133,7 @@ function SettingsTab() {
               <td className="px-3 py-2">
                 {editing[item.setting_key] !== undefined ? (
                   <input
+                    aria-label={`Value for ${item.setting_key}`}
                     type="text"
                     value={editing[item.setting_key]}
                     onChange={(e) =>

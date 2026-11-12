@@ -456,6 +456,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               {t("Value")}
               <input
+                aria-label="Metric value"
                 value={newMetric.value}
                 onChange={(e) =>
                   setNewMetric((v) => ({ ...v, value: e.target.value }))
@@ -467,6 +468,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               Unit (with currency/period, e.g. "billion USD (2024)")
               <input
+                aria-label="Unit"
                 value={newMetric.unit}
                 onChange={(e) =>
                   setNewMetric((v) => ({ ...v, unit: e.target.value }))
@@ -501,6 +503,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               {t("As of (date)")}
               <input
+                aria-label="As of date"
                 type="date"
                 value={newMetric.as_of}
                 onChange={(e) =>
@@ -526,6 +529,7 @@ export default function AdminPricePipeline() {
             <label className="text-sm">
               {t("Notes")}
               <input
+                aria-label="Notes"
                 value={newMetric.notes}
                 onChange={(e) =>
                   setNewMetric((v) => ({ ...v, notes: e.target.value }))

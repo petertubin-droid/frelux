@@ -367,6 +367,7 @@ export default function AdminRegionalCostIndices() {
               </AdminSelect>
             ) : (
               <input
+                aria-label={t("Region name")}
                 type="text"
                 value={form.state}
                 onChange={(e) => setForm({ ...form, state: e.target.value })}

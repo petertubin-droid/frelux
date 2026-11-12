@@ -13,8 +13,16 @@ import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
-import { fetchReports, fetchSoilClassifications, reviewReport } from "@/lib/site-intelligence/queries";
-import type { GeotechReport, RegionalSiteProfile, SoilClassification } from "@/lib/site-intelligence/types";
+import {
+  fetchReports,
+  fetchSoilClassifications,
+  reviewReport,
+} from "@/lib/site-intelligence/queries";
+import type {
+  GeotechReport,
+  RegionalSiteProfile,
+  SoilClassification,
+} from "@/lib/site-intelligence/types";
 
 const EMPTY_PROFILE = {
   country_code: "NG",
@@ -34,7 +42,8 @@ const EMPTY_PROFILE = {
 export default function AdminSiteIntelligence() {
   useSeo({
     title: "Site intelligence administration | FRELUXTOOLS",
-    description: "Manage regional screening sources, soil classifications and geotechnical report review.",
+    description:
+      "Manage regional screening sources, soil classifications and geotechnical report review.",
     canonicalPath: "/admin/site-intelligence",
     noIndex: true,
   });
@@ -83,7 +92,8 @@ export default function AdminSiteIntelligence() {
         r.id === report.id
           ? {
               ...r,
-              verification_status: decision === "verify" ? "verified" : "rejected",
+              verification_status:
+                decision === "verify" ? "verified" : "rejected",
             }
           : r,
       ),
@@ -91,25 +101,33 @@ export default function AdminSiteIntelligence() {
   }
 
   async function addProfile() {
-    if (!form.region_slug.trim() || !form.region_name.trim() || !form.source_reference.trim()) {
-      setError("A region and a source reference are required: screening data must say where it came from.");
+    if (
+      !form.region_slug.trim() ||
+      !form.region_name.trim() ||
+      !form.source_reference.trim()
+    ) {
+      setError(
+        "A region and a source reference are required: screening data must say where it came from.",
+      );
       return;
     }
-    const { error: insertError } = await supabase.from("regional_site_profiles").insert({
-      country_code: form.country_code.trim().toUpperCase(),
-      region_slug: form.region_slug.trim().toLowerCase(),
-      region_name: form.region_name.trim(),
-      city_slug: form.city_slug.trim().toLowerCase() || null,
-      flood_exposure: form.flood_exposure,
-      groundwater_note: form.groundwater_note || null,
-      drainage_note: form.drainage_note || null,
-      terrain_note: form.terrain_note || null,
-      erosion_note: form.erosion_note || null,
-      source_reference: form.source_reference.trim(),
-      source_url: form.source_url.trim() || null,
-      source_year: form.source_year ? Number(form.source_year) : null,
-      verification_status: "sourced",
-    });
+    const { error: insertError } = await supabase
+      .from("regional_site_profiles")
+      .insert({
+        country_code: form.country_code.trim().toUpperCase(),
+        region_slug: form.region_slug.trim().toLowerCase(),
+        region_name: form.region_name.trim(),
+        city_slug: form.city_slug.trim().toLowerCase() || null,
+        flood_exposure: form.flood_exposure,
+        groundwater_note: form.groundwater_note || null,
+        drainage_note: form.drainage_note || null,
+        terrain_note: form.terrain_note || null,
+        erosion_note: form.erosion_note || null,
+        source_reference: form.source_reference.trim(),
+        source_url: form.source_url.trim() || null,
+        source_year: form.source_year ? Number(form.source_year) : null,
+        verification_status: "sourced",
+      });
     if (insertError) {
       setError(insertError.message);
       return;
@@ -184,7 +202,10 @@ export default function AdminSiteIntelligence() {
               <tbody className="divide-y divide-border/60">
                 {reports.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
+                    <td
+                      colSpan={5}
+                      className="px-3 py-6 text-center text-muted-foreground"
+                    >
                       No reports have been uploaded yet.
                     </td>
                   </tr>
@@ -198,17 +219,26 @@ export default function AdminSiteIntelligence() {
                         {new Date(r.created_at).toLocaleDateString()}
                       </p>
                     </td>
-                    <td className="px-3 py-2 text-xs">{r.report_type.replace(/_/g, " ")}</td>
                     <td className="px-3 py-2 text-xs">
-                      {r.bearing_capacity_kpa ? `${r.bearing_capacity_kpa} kN/m²` : "Not stated"}
+                      {r.report_type.replace(/_/g, " ")}
                     </td>
-                    <td className="px-3 py-2 text-xs">{r.verification_status}</td>
+                    <td className="px-3 py-2 text-xs">
+                      {r.bearing_capacity_kpa
+                        ? `${r.bearing_capacity_kpa} kN/m²`
+                        : "Not stated"}
+                    </td>
+                    <td className="px-3 py-2 text-xs">
+                      {r.verification_status}
+                    </td>
                     <td className="px-3 py-2">
                       <div className="flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          disabled={busyId === r.id || r.verification_status === "verified"}
+                          disabled={
+                            busyId === r.id ||
+                            r.verification_status === "verified"
+                          }
                           onClick={() => decide(r, "verify")}
                         >
                           {busyId === r.id ? (
@@ -222,7 +252,10 @@ export default function AdminSiteIntelligence() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          disabled={busyId === r.id || r.verification_status === "rejected"}
+                          disabled={
+                            busyId === r.id ||
+                            r.verification_status === "rejected"
+                          }
                           onClick={() => decide(r, "reject")}
                         >
                           <X className="mr-1 h-3 w-3" /> Reject
@@ -253,8 +286,11 @@ export default function AdminSiteIntelligence() {
                 <label key={key} className="text-xs">
                   <span className="text-muted-foreground">{label}</span>
                   <input
+                    aria-label={`Setting ${key}`}
                     value={form[key]}
-                    onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, [key]: e.target.value }))
+                    }
                     className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                   />
                 </label>
@@ -263,7 +299,12 @@ export default function AdminSiteIntelligence() {
                 <span className="text-muted-foreground">Flood exposure</span>
                 <select
                   value={form.flood_exposure}
-                  onChange={(e) => setForm((prev) => ({ ...prev, flood_exposure: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      flood_exposure: e.target.value,
+                    }))
+                  }
                   className="mt-1 h-9 w-full rounded-md border border-border/70 bg-background px-2 text-sm"
                 >
                   <option value="unknown">Unknown</option>
@@ -293,9 +334,12 @@ export default function AdminSiteIntelligence() {
                 <tbody className="divide-y divide-border/60">
                   {profiles.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
-                        No regional screening sources yet. The public page says so rather than
-                        showing placeholder values.
+                      <td
+                        colSpan={5}
+                        className="px-3 py-6 text-center text-muted-foreground"
+                      >
+                        No regional screening sources yet. The public page says
+                        so rather than showing placeholder values.
                       </td>
                     </tr>
                   )}
@@ -304,15 +348,20 @@ export default function AdminSiteIntelligence() {
                       <td className="px-3 py-2">
                         {p.region_name}
                         <span className="text-xs text-muted-foreground">
-                          {p.city_slug ? ` · ${p.city_slug}` : ""} · {p.country_code}
+                          {p.city_slug ? ` · ${p.city_slug}` : ""} ·{" "}
+                          {p.country_code}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-xs">{p.flood_exposure ?? "unknown"}</td>
+                      <td className="px-3 py-2 text-xs">
+                        {p.flood_exposure ?? "unknown"}
+                      </td>
                       <td className="px-3 py-2 text-xs">
                         {p.source_reference}
                         {p.source_year ? ` (${p.source_year})` : ""}
                       </td>
-                      <td className="px-3 py-2 text-xs">{p.verification_status}</td>
+                      <td className="px-3 py-2 text-xs">
+                        {p.verification_status}
+                      </td>
                       <td className="px-3 py-2">
                         <Button
                           size="sm"
@@ -344,10 +393,16 @@ export default function AdminSiteIntelligence() {
                   <tr key={s.id}>
                     <td className="px-3 py-2 font-medium">
                       {s.name}
-                      <span className="ml-2 text-xs text-muted-foreground">{s.code}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {s.code}
+                      </span>
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">{s.implication}</td>
-                    <td className="px-3 py-2 text-xs">{s.investigation_priority}</td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">
+                      {s.implication}
+                    </td>
+                    <td className="px-3 py-2 text-xs">
+                      {s.investigation_priority}
+                    </td>
                   </tr>
                 ))}
               </tbody>

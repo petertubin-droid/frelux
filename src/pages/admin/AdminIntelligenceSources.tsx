@@ -243,6 +243,7 @@ export default function AdminIntelligenceSources() {
               ))}
             </AdminSelect>
             <input
+              aria-label="Maximum pages"
               className="rounded-md border px-2 py-1.5 text-sm"
               type="number"
               min={1}

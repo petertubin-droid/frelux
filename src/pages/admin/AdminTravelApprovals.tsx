@@ -204,6 +204,7 @@ export default function AdminTravelApprovals() {
         <label className="text-xs font-medium text-muted-foreground">
           Valid for (days, 0 = no expiry)
           <input
+            aria-label="Days"
             type="number"
             min={0}
             max={365}

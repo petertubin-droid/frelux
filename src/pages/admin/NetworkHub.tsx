@@ -753,6 +753,7 @@ export default function NetworkHub() {
               >
                 {label}
                 <input
+                  aria-label={`AdSense for ${key}`}
                   type="checkbox"
                   className="h-4 w-4"
                   checked={state.adsense[key]}
@@ -1119,6 +1120,7 @@ export default function NetworkHub() {
                   </span>
                 </span>
                 <input
+                  aria-label={`Ad slot ${family}`}
                   type="checkbox"
                   className="h-4 w-4"
                   checked={state.slots[family]}
@@ -1285,6 +1287,7 @@ export default function NetworkHub() {
                     </span>
                   </label>
                   <input
+                    aria-label={tr("Headline")}
                     value={r.label}
                     onChange={(e) =>
                       patch((d) => {
@@ -1314,6 +1317,7 @@ export default function NetworkHub() {
                     className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
                   />
                   <input
+                    aria-label={tr("Short description")}
                     value={r.blurb}
                     onChange={(e) =>
                       patch((d) => {
@@ -1329,6 +1333,7 @@ export default function NetworkHub() {
                     className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 text-xs"
                   />
                   <input
+                    aria-label={tr("Logo image URL")}
                     value={r.logo_url ?? ""}
                     onChange={(e) =>
                       patch((d) => {
@@ -1343,6 +1348,7 @@ export default function NetworkHub() {
                   />
                   <div className="lg:col-span-2 flex gap-1.5">
                     <input
+                      aria-label={tr("Ads by (name)")}
                       value={r.owner_name ?? ""}
                       onChange={(e) =>
                         patch((d) => {

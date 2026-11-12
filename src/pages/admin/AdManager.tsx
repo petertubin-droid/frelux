@@ -416,6 +416,7 @@ export default function AdManager() {
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Campaign name">
               <input
+                aria-label="Campaign name"
                 className={inputClass}
                 value={draft.name}
                 onChange={(event) =>
@@ -425,6 +426,7 @@ export default function AdManager() {
             </Field>
             <Field label="Slug" hint="used in links and reports">
               <input
+                aria-label="Slug"
                 className={inputClass}
                 value={draft.slug}
                 onChange={(event) =>
@@ -439,6 +441,7 @@ export default function AdManager() {
             </Field>
             <Field label="Headline">
               <input
+                aria-label="Headline"
                 className={inputClass}
                 value={draft.headline}
                 onChange={(event) =>
@@ -448,6 +451,7 @@ export default function AdManager() {
             </Field>
             <Field label="Button label">
               <input
+                aria-label="Button label"
                 className={inputClass}
                 value={draft.cta_label}
                 onChange={(event) =>
@@ -469,6 +473,7 @@ export default function AdManager() {
               hint="a path like /pricing or an https:// address"
             >
               <input
+                aria-label="Destination URL"
                 className={inputClass}
                 value={draft.destination_url}
                 onChange={(event) =>
@@ -478,6 +483,7 @@ export default function AdManager() {
             </Field>
             <Field label="Banner image URL" hint="optional">
               <input
+                aria-label="Image URL"
                 className={inputClass}
                 value={draft.image_url ?? ""}
                 onChange={(event) =>
@@ -487,6 +493,7 @@ export default function AdManager() {
             </Field>
             <Field label="Image alt text" hint="required for a banner">
               <input
+                aria-label="Image alt text"
                 className={inputClass}
                 value={draft.image_alt ?? ""}
                 onChange={(event) =>
@@ -534,6 +541,7 @@ export default function AdManager() {
             </Field>
             <Field label="Advertiser" hint="shown with the sponsored label">
               <input
+                aria-label="Advertiser name"
                 className={inputClass}
                 value={draft.advertiser_name ?? ""}
                 onChange={(event) =>
@@ -543,6 +551,7 @@ export default function AdManager() {
             </Field>
             <Field label="Priority" hint="0 to 100, higher wins">
               <input
+                aria-label="Priority"
                 type="number"
                 min={0}
                 max={100}
@@ -555,6 +564,7 @@ export default function AdManager() {
             </Field>
             <Field label="Starts">
               <input
+                aria-label="Start date"
                 type="date"
                 className={inputClass}
                 value={draft.starts_at?.slice(0, 10) ?? ""}
@@ -565,6 +575,7 @@ export default function AdManager() {
             </Field>
             <Field label="Ends">
               <input
+                aria-label="End date"
                 type="date"
                 className={inputClass}
                 value={draft.ends_at?.slice(0, 10) ?? ""}

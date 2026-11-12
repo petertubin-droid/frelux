@@ -842,6 +842,7 @@ export default function AdminCreditsAds() {
                     </div>
                     <div className="mt-1.5 flex items-center gap-2">
                       <input
+                        aria-label="Token price"
                         type="number"
                         min={0}
                         step="0.01"
@@ -970,6 +971,7 @@ export default function AdminCreditsAds() {
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               <input
+                aria-label={t("User ID (UUID)")}
                 placeholder={t("User ID (UUID)")}
                 value={adjustUserId}
                 onChange={(e) => setAdjustUserId(e.target.value)}
@@ -982,6 +984,7 @@ export default function AdminCreditsAds() {
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <input
+                aria-label={t("Reason (required)")}
                 placeholder={t("Reason (required)")}
                 value={adjustReason}
                 onChange={(e) => setAdjustReason(e.target.value)}
