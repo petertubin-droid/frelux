@@ -236,14 +236,14 @@ export default function AdminMarginPresets() {
                   <td className="p-3">
                     <div className="flex gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${p.name}`}
                         onClick={() => openEdit(p)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${p.name}`}
                         onClick={() => remove(p)}
                         title={t("Delete")}
                       >

@@ -276,14 +276,14 @@ export default function AdminCashFlowTemplates() {
                     <td className="p-3">
                       <div className="flex gap-1">
                         <AdminIconButton
-                          aria-label="Edit"
+                          aria-label={`Edit ${t.name}`}
                           onClick={() => openEdit(t)}
                           title={tr("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
-                          aria-label="Delete"
+                          aria-label={`Delete ${t.name}`}
                           onClick={() => remove(t)}
                           title={tr("Delete")}
                         >
@@ -351,7 +351,7 @@ export default function AdminCashFlowTemplates() {
                   placeholder="months"
                 />
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${m.label}`}
                   title={tr("Remove milestone")}
                   onClick={() =>
                     setForm((f) => ({

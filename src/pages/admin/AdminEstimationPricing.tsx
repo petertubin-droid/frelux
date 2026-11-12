@@ -399,7 +399,7 @@ export default function AdminEstimationPricing() {
                       <History className="h-3 w-3" />
                     </AdminIconButton>
                     <AdminIconButton
-                      aria-label="Edit"
+                      aria-label={`Edit ${item.ref_id}`}
                       variant="ghost"
                       type="button"
                       onClick={() => {
@@ -410,7 +410,7 @@ export default function AdminEstimationPricing() {
                       <Pencil className="h-3 w-3" />
                     </AdminIconButton>
                     <AdminIconButton
-                      aria-label="Delete"
+                      aria-label={`Delete ${item.ref_id}`}
                       variant="danger"
                       type="button"
                       onClick={() => remove(item)}

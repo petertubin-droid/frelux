@@ -120,7 +120,7 @@ export default function AdminTimelineTemplates() {
                 </div>
                 <div className="flex gap-1">
                   <AdminIconButton
-                    aria-label="Edit"
+                    aria-label={`Edit ${tpl.name}`}
                     variant="ghost"
                     onClick={() => {
                       setEditing(tpl);
@@ -133,7 +133,7 @@ export default function AdminTimelineTemplates() {
                     />
                   </AdminIconButton>
                   <AdminIconButton
-                    aria-label="Delete"
+                    aria-label={`Delete ${tpl.name}`}
                     variant="danger"
                     onClick={() => handleDelete(tpl.id)}
                   >
@@ -381,7 +381,7 @@ function TemplateForm({
                   className="rounded-lg border border-border px-2 py-1.5 text-sm"
                 />
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${phase.name}`}
                   variant="danger"
                   onClick={() => setPhases(phases.filter((_, j) => j !== i))}
                 >

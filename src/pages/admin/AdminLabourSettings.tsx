@@ -467,7 +467,7 @@ function CategoriesTab() {
               />
               <div className="flex items-center gap-0.5">
                 <AdminIconButton
-                  aria-label="Edit"
+                  aria-label={`Edit ${cat.category_name}`}
                   variant="ghost"
                   type="button"
                   onClick={() => {
@@ -478,7 +478,7 @@ function CategoriesTab() {
                   <Pencil className="h-3 w-3" />
                 </AdminIconButton>
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${cat.category_name}`}
                   variant="danger"
                   type="button"
                   onClick={() => remove(cat)}

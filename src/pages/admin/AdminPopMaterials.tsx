@@ -291,7 +291,7 @@ export default function AdminPopMaterials() {
                           />
                           <div className="flex items-center gap-0.5">
                             <AdminIconButton
-                              aria-label="Edit"
+                              aria-label={`Edit ${mat.name}`}
                               variant="ghost"
                               type="button"
                               onClick={() => {
@@ -302,7 +302,7 @@ export default function AdminPopMaterials() {
                               <Pencil className="h-3 w-3" />
                             </AdminIconButton>
                             <AdminIconButton
-                              aria-label="Delete"
+                              aria-label={`Delete ${mat.name}`}
                               variant="danger"
                               type="button"
                               onClick={() => handleDelete(mat.id)}

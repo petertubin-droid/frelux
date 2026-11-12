@@ -280,7 +280,7 @@ function ListingsTab() {
                 {l.is_featured ? "Featured" : "Feature"}
               </Button>
               <AdminIconButton
-                aria-label="Delete"
+                aria-label={`Delete ${l.title}`}
                 variant="ghost"
                 onClick={() => handleRemove(l.id)}
                 className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-muted-foreground hover:text-red-500"
@@ -477,7 +477,7 @@ function ProductsTab() {
                   )}
                 </AdminIconButton>
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${p.title}`}
                   variant="danger"
                   onClick={() => adminRemoveProduct(p.id)}
                   title={t("Remove")}

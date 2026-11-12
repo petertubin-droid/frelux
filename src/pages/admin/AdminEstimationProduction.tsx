@@ -232,7 +232,7 @@ export default function AdminEstimationProduction() {
                                   }
                                 />
                                 <AdminIconButton
-                                  aria-label="Edit"
+                                  aria-label={`Edit ${rule.product_category}`}
                                   variant="ghost"
                                   onClick={() => {
                                     setEditing(rule);
@@ -242,7 +242,7 @@ export default function AdminEstimationProduction() {
                                   <Pencil className="h-4 w-4" />
                                 </AdminIconButton>
                                 <AdminIconButton
-                                  aria-label="Delete"
+                                  aria-label={`Delete ${rule.product_category}`}
                                   variant="danger"
                                   onClick={() => handleDelete(rule.id)}
                                 >

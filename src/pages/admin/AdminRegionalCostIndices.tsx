@@ -308,14 +308,14 @@ export default function AdminRegionalCostIndices() {
                   <td className="p-3">
                     <div className="flex gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${i.state}`}
                         onClick={() => openEdit(i)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${i.state}`}
                         onClick={() => remove(i)}
                         title={t("Delete")}
                       >

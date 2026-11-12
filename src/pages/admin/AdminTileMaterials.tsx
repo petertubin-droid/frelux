@@ -334,7 +334,7 @@ export default function AdminTileMaterials() {
                   />
                   <div className="flex items-center gap-0.5">
                     <AdminIconButton
-                      aria-label="Edit"
+                      aria-label={`Edit ${s.name}`}
                       variant="ghost"
                       type="button"
                       onClick={() => {
@@ -346,7 +346,7 @@ export default function AdminTileMaterials() {
                       <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
                     </AdminIconButton>
                     <AdminIconButton
-                      aria-label="Delete"
+                      aria-label={`Delete ${s.name}`}
                       variant="ghost"
                       type="button"
                       onClick={() => handleDeleteSize(s.id)}
@@ -421,7 +421,7 @@ export default function AdminTileMaterials() {
                             onChange={() => handleToggleMatActive(m)}
                           />
                           <AdminIconButton
-                            aria-label="Edit"
+                            aria-label={`Edit ${m.name}`}
                             variant="ghost"
                             type="button"
                             onClick={() => {
@@ -433,7 +433,7 @@ export default function AdminTileMaterials() {
                             <Pencil aria-hidden="true" className="h-4 w-4" />
                           </AdminIconButton>
                           <AdminIconButton
-                            aria-label="Delete"
+                            aria-label={`Delete ${m.name}`}
                             variant="ghost"
                             type="button"
                             onClick={() => handleDeleteMat(m.id)}

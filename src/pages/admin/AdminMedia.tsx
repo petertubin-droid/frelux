@@ -258,7 +258,7 @@ export default function AdminMedia() {
                           {item.file_name}
                         </p>
                         <AdminIconButton
-                          aria-label="Edit"
+                          aria-label={`Edit ${item.file_name}`}
                           variant="ghost"
                           type="button"
                           onClick={() => {

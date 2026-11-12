@@ -608,7 +608,7 @@ export default function AdminLearn() {
                     onChange={() => handleTogglePublished(article)}
                   />
                   <AdminIconButton
-                    aria-label="Edit"
+                    aria-label={`Edit ${article.title}`}
                     variant="ghost"
                     type="button"
                     onClick={() => {
@@ -620,7 +620,7 @@ export default function AdminLearn() {
                     <Pencil className="h-4 w-4" />
                   </AdminIconButton>
                   <AdminIconButton
-                    aria-label="Delete"
+                    aria-label={`Delete ${article.title}`}
                     variant="ghost"
                     type="button"
                     onClick={() => handleDelete(article.id)}
@@ -849,7 +849,7 @@ export default function AdminLearn() {
                                   onChange={() => handleToggleFaq(faq)}
                                 />
                                 <AdminIconButton
-                                  aria-label="Edit"
+                                  aria-label={`Edit ${faq.question}`}
                                   variant="ghost"
                                   type="button"
                                   onClick={() =>
@@ -863,7 +863,7 @@ export default function AdminLearn() {
                                   <Pencil className="h-3.5 w-3.5" />
                                 </AdminIconButton>
                                 <AdminIconButton
-                                  aria-label="Delete"
+                                  aria-label={`Delete ${faq.question}`}
                                   variant="ghost"
                                   type="button"
                                   onClick={() =>
@@ -990,7 +990,7 @@ export default function AdminLearn() {
                                 onChange={() => handleToggleInsert(ins)}
                               />
                               <AdminIconButton
-                                aria-label="Edit"
+                                aria-label={`Edit ${ins.title}`}
                                 variant="ghost"
                                 type="button"
                                 onClick={() =>
@@ -1004,7 +1004,7 @@ export default function AdminLearn() {
                                 <Pencil className="h-3.5 w-3.5" />
                               </AdminIconButton>
                               <AdminIconButton
-                                aria-label="Delete"
+                                aria-label={`Delete ${ins.title}`}
                                 variant="ghost"
                                 type="button"
                                 onClick={() =>

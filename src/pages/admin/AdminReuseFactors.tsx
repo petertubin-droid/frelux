@@ -307,14 +307,14 @@ export default function AdminReuseFactors() {
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${f.category_label}`}
                         onClick={() => openEdit(f)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${f.category_label}`}
                         onClick={() => remove(f)}
                         title={t("Delete")}
                         variant="danger"

@@ -261,14 +261,14 @@ export default function AdminThermalFactors() {
                   <td className="p-3 text-right">
                     <div className="flex justify-end gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${f.surface_type}`}
                         onClick={() => openEdit(f)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${f.surface_type}`}
                         onClick={() => remove(f)}
                         title={t("Delete")}
                         variant="danger"

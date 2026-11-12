@@ -391,14 +391,14 @@ export default function AdminDefects() {
                           <Stethoscope className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
-                          aria-label="Edit"
+                          aria-label={`Edit ${d.symptom_label}`}
                           onClick={() => openDefectEdit(d)}
                           title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
-                          aria-label="Delete"
+                          aria-label={`Delete ${d.symptom_label}`}
                           onClick={() => removeDefect(d)}
                           title={t("Delete")}
                         >
@@ -474,14 +474,14 @@ export default function AdminDefects() {
                     <td className="p-3">
                       <div className="flex gap-1">
                         <AdminIconButton
-                          aria-label="Edit"
+                          aria-label={`Edit ${c.cause_label}`}
                           onClick={() => openCauseEdit(c)}
                           title={t("Edit")}
                         >
                           <Pencil className="h-4 w-4" />
                         </AdminIconButton>
                         <AdminIconButton
-                          aria-label="Delete"
+                          aria-label={`Delete ${c.cause_label}`}
                           onClick={() => removeCause(c)}
                           title={t("Delete")}
                         >

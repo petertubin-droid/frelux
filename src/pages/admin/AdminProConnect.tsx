@@ -1934,7 +1934,7 @@ function AdminChannelsTab() {
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${cat.name}`}
                   variant="ghost"
                   onClick={() => deleteCategory(cat.id)}
                   className="rounded-lg p-1.5 text-red-400 hover:text-red-600"
@@ -2004,7 +2004,7 @@ function AdminChannelsTab() {
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${ch.name}`}
                   variant="ghost"
                   onClick={() => deleteChannel(ch.id)}
                   className="rounded-lg p-1.5 text-red-400 hover:text-red-600"

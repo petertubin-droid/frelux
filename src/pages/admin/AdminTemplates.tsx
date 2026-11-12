@@ -245,7 +245,7 @@ export default function AdminTemplates() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${t.name}`}
                         variant="ghost"
                         onClick={() => setEditing(t)}
                         title={tr("Edit")}
@@ -261,7 +261,7 @@ export default function AdminTemplates() {
                         <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${t.name}`}
                         variant="danger"
                         onClick={() => handleDelete(t.id)}
                         title={tr("Delete")}

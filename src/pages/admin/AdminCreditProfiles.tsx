@@ -262,14 +262,14 @@ export default function AdminCreditProfiles() {
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
                       <AdminIconButton
-                        aria-label="Edit"
+                        aria-label={`Edit ${p.contractor_name}`}
                         onClick={() => openEdit(p)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label="Delete"
+                        aria-label={`Delete ${p.contractor_name}`}
                         onClick={() => remove(p)}
                         title={t("Delete")}
                         variant="danger"

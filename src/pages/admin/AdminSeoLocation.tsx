@@ -797,7 +797,7 @@ function SeoPagesTab() {
                   )}
                 </span>
                 <AdminIconButton
-                  aria-label="Delete"
+                  aria-label={`Delete ${s.canonical_path}`}
                   variant="danger"
                   onClick={() => handleDelete(s.id)}
                 >
