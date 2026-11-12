@@ -209,11 +209,57 @@ export class AiGateway {
       .maybeSingle();
 
     if (accessModeRow?.ai_access_mode === "paid") {
-      throw new Error(
-        userId
-          ? "SUBSCRIPTION_REQUIRED: FRELUX AI is available on a paid FRELUX plan. Subscribe to continue."
-          : "AUTH_REQUIRED: Sign in with a paid FRELUX plan to use AI.",
+      if (!userId) {
+        throw new Error(
+          "AUTH_REQUIRED: Sign in with a paid FRELUX plan, or buy AI credits, to use AI.",
+        );
+      }
+
+      // No subscription: pay with credits the user BOUGHT. Earned credits
+      // (ads, tasks) sit in the wallet's main balance and are deliberately
+      // not spendable here.
+      const creditKey = `ai_gw_${userId}_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 9)}`;
+      const { data: spendData } = await this.supabase.rpc(
+        "spend_purchased_ai_credits",
+        {
+          p_user_id: userId,
+          p_amount: featureCost,
+          p_feature_key: options.featureKey,
+          p_idempotency_key: creditKey,
+        },
       );
+      const spendRow = Array.isArray(spendData) ? spendData[0] : spendData;
+
+      if (!spendRow?.success) {
+        throw new Error(
+          `AI_CREDIT_REQUIRED: FRELUX AI is for paid subscribers, or ${featureCost} purchased AI credits per operation. You have ${spendRow?.purchased_balance ?? 0}. Buy AI credits to continue.`,
+        );
+      }
+
+      const { data: creditLog } = await this.supabase
+        .from("ai_gateway_operations_log")
+        .insert({
+          user_id: userId,
+          client_hash: clientHash,
+          feature_key: options.featureKey,
+          model_name: options.modelName,
+          access_tier: "purchased_credit",
+          status: "reserved",
+          prompt_chars: options.promptChars ?? 0,
+        })
+        .select("id")
+        .single();
+
+      return {
+        userId,
+        clientHash,
+        accessTier: "purchased_credit",
+        reservationId: creditLog?.id,
+        creditCost: featureCost,
+        creditsRemaining: spendRow.purchased_balance,
+      };
     }
 
     // 4. Anonymous Guest (State A: exactly 1 initial AI operation per calendar day)

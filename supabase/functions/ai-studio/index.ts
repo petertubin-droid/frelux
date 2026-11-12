@@ -6,7 +6,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
-import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
+import { serveAi } from "../_shared/serve-ai.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -405,11 +405,7 @@ async function callStudioAgent(
   return response;
 }
 
-serveWithCors(async (req: Request) => {
-  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
-  // function is reachable directly, so the browser gate is not enough.
-  const paywall = await requirePaidAiAccess(req);
-  if (!paywall.ok) return paywall.response;
+serveAi(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }

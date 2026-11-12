@@ -23,7 +23,7 @@ import {
 } from "../_shared/room-reading.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
-import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
+import { serveAi } from "../_shared/serve-ai.ts";
 
 // ── Rate limiting (inlined mirror of supabase/functions/_shared/rate-limit.ts) ──
 
@@ -531,11 +531,7 @@ ${textDescription ? `\nThe user's description:\n"""${textDescription.slice(0, 20
 
 // ── Main ──
 
-serveWithCors(async (req: Request) => {
-  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
-  // function is reachable directly, so the browser gate is not enough.
-  const paywall = await requirePaidAiAccess(req);
-  if (!paywall.ok) return paywall.response;
+serveAi(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

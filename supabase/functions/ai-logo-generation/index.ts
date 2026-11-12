@@ -14,7 +14,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
-import { requirePaidAiAccess } from "../_shared/paid-ai-guard.ts";
+import { serveAi } from "../_shared/serve-ai.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -51,11 +51,7 @@ async function _sha256(text: string): Promise<string> {
     .join("");
 }
 
-serveWithCors(async (req: Request) => {
-  // Paid-subscription gate: FRELUX AI is subscriber-only, and this edge
-  // function is reachable directly, so the browser gate is not enough.
-  const paywall = await requirePaidAiAccess(req);
-  if (!paywall.ok) return paywall.response;
+serveAi(async (req: Request) => {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
   // (falls back to client IP). OPTIONS preflights are answered at
   // the CORS boundary and never reach this check.

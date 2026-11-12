@@ -30,6 +30,11 @@ export type PaidAiGate =
       userId: string | null;
       plan: string | null;
       admin: boolean;
+      /** Set when a purchased AI credit paid for this request. Calling it
+       *  refunds that credit, so a failed generation costs the buyer nothing. */
+      release?: () => Promise<void>;
+      /** 'subscription' | 'admin' | 'purchased_credit' | 'mode_off' */
+      via: "subscription" | "admin" | "purchased_credit" | "mode_off";
     }
   | { ok: false; response: Response };
 
@@ -54,9 +59,18 @@ export function bearerToken(req: Request): string | null {
  *   const gate = await requirePaidAiAccess(req);
  *   if (!gate.ok) return gate.response;
  */
+/** One AI operation costs the same everywhere (AI_CREDIT_COST in src/lib/credits.ts). */
+export const AI_OPERATION_COST = 100;
+
 export async function requirePaidAiAccess(
   req: Request,
-  options: { allowAnonymous?: boolean } = {},
+  options: {
+    allowAnonymous?: boolean;
+    /** Spend one purchased AI credit for a non-subscriber. */
+    consumePurchased?: boolean;
+    /** Label written to the credit ledger, e.g. "ai-copilot". */
+    featureKey?: string;
+  } = {},
 ): Promise<PaidAiGate> {
   const url = Deno.env.get("SUPABASE_URL");
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -119,7 +133,7 @@ export async function requirePaidAiAccess(
   }
 
   if (!paidOnly) {
-    return { ok: true, userId, plan: null, admin: false };
+    return { ok: true, userId, plan: null, admin: false, via: "mode_off" };
   }
 
   if (!userId) {
@@ -143,7 +157,7 @@ export async function requirePaidAiAccess(
     .eq("id", userId)
     .maybeSingle();
   if (profile?.role === "admin") {
-    return { ok: true, userId, plan: "admin", admin: true };
+    return { ok: true, userId, plan: "admin", admin: true, via: "admin" };
   }
 
   // 4. Paid subscription only.
@@ -163,21 +177,106 @@ export async function requirePaidAiAccess(
     };
   }
 
-  const active =
+  const subscribed =
     paid?.is_paid === true &&
     (!paid.paid_until || new Date(paid.paid_until).getTime() > Date.now());
 
-  if (!active) {
+  if (subscribed) {
+    return {
+      ok: true,
+      userId,
+      plan: paid.plan ?? "pro",
+      admin: false,
+      via: "subscription",
+    };
+  }
+
+  // A user with no subscription may still use AI with credits they BOUGHT.
+  // Rewarded-ad and task credits stay parked in the earned bucket, so farming
+  // ads can never buy an AI operation.
+  const featureKey = options.featureKey ?? "ai_generation";
+
+  if (options.consumePurchased) {
+    const idempotencyKey = `ai_credit_${userId}_${Date.now()}_${Math.random()
+      .toString(36)
+      .slice(2, 9)}`;
+
+    const { data, error } = await admin.rpc("spend_purchased_ai_credits", {
+      p_user_id: userId,
+      p_amount: AI_OPERATION_COST,
+      p_feature_key: featureKey,
+      p_idempotency_key: idempotencyKey,
+    });
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (error) {
+      return {
+        ok: false,
+        response: json(503, {
+          error: "AI access could not be verified.",
+          code: "AI_GATE_UNAVAILABLE",
+        }),
+      };
+    }
+
+    if (!row?.success) {
+      return {
+        ok: false,
+        response: json(402, {
+          error: `FRELUX AI is for paid subscribers, or you can buy AI credits (${AI_OPERATION_COST} credits per operation).`,
+          code: "AI_CREDIT_REQUIRED",
+          upgradeUrl: "/pricing",
+          creditShopUrl: "/rewards",
+          creditsNeeded: AI_OPERATION_COST,
+          creditsAvailable: row?.purchased_balance ?? 0,
+        }),
+      };
+    }
+
+    return {
+      ok: true,
+      userId,
+      plan: "credits",
+      admin: false,
+      via: "purchased_credit",
+      release: async () => {
+        await admin.rpc("refund_purchased_ai_credits", {
+          p_user_id: userId,
+          p_amount: AI_OPERATION_COST,
+          p_idempotency_key: idempotencyKey,
+        });
+      },
+    };
+  }
+
+  const { data: wallet } = await admin
+    .from("credit_wallets")
+    .select("purchased_balance")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const purchased = wallet?.purchased_balance ?? 0;
+
+  if (purchased < AI_OPERATION_COST) {
     return {
       ok: false,
       response: json(402, {
-        error:
-          "FRELUX AI is available on a paid FRELUX plan. Subscribe to continue.",
-        code: "SUBSCRIPTION_REQUIRED",
+        error: `FRELUX AI is for paid subscribers, or you can buy AI credits (${AI_OPERATION_COST} credits per operation).`,
+        code: "AI_CREDIT_REQUIRED",
         upgradeUrl: "/pricing",
+        creditShopUrl: "/rewards",
+        creditsNeeded: AI_OPERATION_COST,
+        creditsAvailable: purchased,
       }),
     };
   }
 
-  return { ok: true, userId, plan: paid.plan ?? "pro", admin: false };
+  return {
+    ok: true,
+    userId,
+    plan: "credits",
+    admin: false,
+    via: "purchased_credit",
+  };
 }
