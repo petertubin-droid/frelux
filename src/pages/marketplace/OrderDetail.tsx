@@ -36,6 +36,12 @@ import type {
   DbMarketplaceMilestone,
 } from "@/types/marketplace";
 import { ORDER_STATUS_LABELS, PROJECT_TYPE_LABELS } from "@/types/marketplace";
+import OrderDisputePanel from "@/components/marketplace/OrderDisputePanel";
+import {
+  loadOrderDispute,
+  withinDisputeWindow,
+  type OrderDispute,
+} from "@/lib/marketplace-disputes";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
@@ -92,6 +98,7 @@ export default function OrderDetail() {
   const [escrowError, setEscrowError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [dispute, setDispute] = useState<OrderDispute | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -108,6 +115,13 @@ export default function OrderDetail() {
         );
       } catch {
         setPayments([]);
+      }
+      // Same reasoning for the dispute record: if it cannot be read the order
+      // still has to render, it just cannot show the complaint.
+      try {
+        setDispute(await loadOrderDispute(id));
+      } catch {
+        setDispute(null);
       }
     } catch {
       navigate("/marketplace");
@@ -440,6 +454,20 @@ export default function OrderDetail() {
                 (isPro ? "Mark Progress" : "Advance Status")}
             </Button>
           </div>
+        )}
+
+        {order && (
+          <OrderDisputePanel
+            orderId={order.id}
+            status={order.status}
+            isClient={isClient}
+            canOpen={withinDisputeWindow(
+              (order as unknown as { client_review_at?: string | null })
+                .client_review_at,
+            )}
+            dispute={dispute}
+            onChanged={load}
+          />
         )}
 
         {actionError && (

@@ -458,6 +458,7 @@ const AdminImageEstimation = lazy(
   () => import("@/pages/admin/AdminImageEstimation"),
 );
 const AdminMarketplace = lazy(() => import("@/pages/admin/AdminMarketplace"));
+const AdminFinance = lazy(() => import("@/pages/admin/AdminFinance"));
 const AdminSuppliers = lazy(() => import("@/pages/admin/AdminSuppliers"));
 const AdManager = lazy(() => import("@/pages/admin/AdManager"));
 const AdminSeoLocation = lazy(() => import("@/pages/admin/AdminSeoLocation"));
@@ -2665,6 +2666,7 @@ export default function App() {
                           path="marketplace"
                           element={<AdminMarketplace />}
                         />
+                        <Route path="finance" element={<AdminFinance />} />
                         <Route
                           path="suppliers"
                           element={

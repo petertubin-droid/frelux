@@ -424,6 +424,7 @@ export const navModules: NavModule[] = [
     heading: "Marketplace & Pros",
     items: [
       { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
+      { label: "Money & disputes", to: "/admin/finance", icon: Wallet },
       { label: "Supplier Network", to: "/admin/suppliers", icon: Factory },
       {
         label: "Professionals & Reports",

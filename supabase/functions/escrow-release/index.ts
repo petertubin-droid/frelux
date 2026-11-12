@@ -154,7 +154,10 @@ Deno.serve(async (req) => {
     }
     const released: Record<string, unknown>[] = [];
     const failed: Record<string, unknown>[] = [];
-    for (const row of (due ?? []) as { milestone_id: string; contract_id: string }[]) {
+    for (const row of (due ?? []) as {
+      milestone_id: string;
+      contract_id: string;
+    }[]) {
       // The platform still enforces a valid JWT on this function, so the
       // worker's internal call carries the public anon key as its token while
       // the secret proves it is the scheduled worker rather than a stranger.
@@ -184,7 +187,11 @@ Deno.serve(async (req) => {
         failed.push({ milestone_id: row.milestone_id, reason: body });
       }
     }
-    return json({ released: released.length, failed: failed.length, detail: { released, failed } });
+    return json({
+      released: released.length,
+      failed: failed.length,
+      detail: { released, failed },
+    });
   }
 
   if (!payload.contract_id) {
@@ -203,7 +210,19 @@ Deno.serve(async (req) => {
     if (refundError) return json({ error: "Could not read the contract" }, 500);
     if (!refundContract) return json({ error: "Contract not found" }, 404);
     if (!systemInvocation && refundContract.created_by !== actorId) {
-      return json({ error: "Only the buyer can ask for this refund" }, 403);
+      // Platform review returns held money when a buyer's dispute is upheld.
+      // Everyone else still has to be the buyer: an admin is the only extra
+      // identity that can move someone else's escrow, and only to give it back.
+      const { data: actorRow } = actorId
+        ? await admin
+            .from("profiles")
+            .select("role")
+            .eq("id", actorId)
+            .maybeSingle()
+        : { data: null };
+      if (actorRow?.role !== "admin") {
+        return json({ error: "Only the buyer can ask for this refund" }, 403);
+      }
     }
 
     const refundable =

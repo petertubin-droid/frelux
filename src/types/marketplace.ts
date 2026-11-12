@@ -108,6 +108,8 @@ export interface DbMarketplaceOrder {
     | "cancelled";
   started_at: string | null;
   completed_at: string | null;
+  /** When the finished work reached the client; starts the dispute window. */
+  client_review_at?: string | null;
   cancelled_at: string | null;
   cancel_reason: string | null;
   cancel_initiated_by: string | null;
