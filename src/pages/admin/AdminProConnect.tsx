@@ -68,8 +68,10 @@ import { Button } from "@/components/ui/shadcn/button";
 import { CredentialReviewConsole } from "@/components/pro-connect/CredentialReviewConsole";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminRegistrationsTab from "@/components/admin/AdminRegistrationsTab";
 
 type Tab =
+  | "registrations"
   | "professionals"
   | "verification"
   | "kyc"
@@ -81,7 +83,34 @@ type Tab =
 
 export default function AdminProConnect() {
   const { t } = useLanguage();
-  const [tab, setTab] = useState<Tab>("professionals");
+  const [tab, setTab] = useState<Tab>("registrations");
+  // A quiet badge so this page reports arrivals instead of waiting to be asked.
+  const [newSignups, setNewSignups] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.rpc("admin_recent_registrations", {
+          p_days: 7,
+        });
+        const counts = data as {
+          pros_in_window?: number;
+          clients_in_window?: number;
+        } | null;
+        if (!cancelled) {
+          setNewSignups(
+            (counts?.pros_in_window ?? 0) + (counts?.clients_in_window ?? 0),
+          );
+        }
+      } catch {
+        // A missing function must not break the page; the tab explains itself.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div>
@@ -91,6 +120,7 @@ export default function AdminProConnect() {
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {(
           [
+            ["registrations", "Registrations"],
             ["professionals", "Professionals"],
             ["verification", "Verification"],
             ["kyc", "KYC / NIN"],
@@ -107,10 +137,16 @@ export default function AdminProConnect() {
             onClick={() => setTab(key)}
           >
             {label}
+            {key === "registrations" && newSignups > 0 && (
+              <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
+                {newSignups}
+              </span>
+            )}
           </AdminTabButton>
         ))}
       </div>
 
+      {tab === "registrations" && <AdminRegistrationsTab />}
       {tab === "professionals" && <AdminProfessionalsTab />}
       {tab === "verification" && <AdminVerificationTab />}
       {tab === "kyc" && <AdminKycTab />}
