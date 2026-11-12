@@ -9,10 +9,12 @@ import type { MaterialWithPrice } from "@/lib/project-intelligence";
 import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/components/ui/Toast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
 export default function AdminMaterialPrices() {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [materials, setMaterials] = useState<MaterialWithPrice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function AdminMaterialPrices() {
       setEditingId(null);
       setNewPrice("");
     } catch (e) {
-      alert((e as Error).message);
+      notifyError((e as Error).message);
     }
   }
 

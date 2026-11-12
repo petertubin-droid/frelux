@@ -13,9 +13,11 @@ import { fetchStageTemplates } from "@/lib/project-intelligence";
 import type { DbProjectStageTemplate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/components/ui/Toast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminProjectStages() {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [stages, setStages] = useState<DbProjectStageTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export default function AdminProjectStages() {
       .from("project_stage_templates")
       .upsert(form, { onConflict: "stage_key" });
     if (error) {
-      alert(error.message);
+      notifyError(error.message);
       return;
     }
     setShowForm(false);

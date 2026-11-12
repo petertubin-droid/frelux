@@ -127,6 +127,7 @@ export default function AdminMarketplace() {
 import AdminPagination from "@/components/admin/AdminPagination";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/components/ui/Toast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 function ListingsTab() {
@@ -301,6 +302,7 @@ function ListingsTab() {
 // PRODUCTS TAB
 // ============================================================
 function ProductsTab() {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -361,7 +363,7 @@ function ProductsTab() {
       .update({ status: newStatus })
       .eq("id", id);
     if (error) {
-      alert(error.message);
+      notifyError(error.message);
       return;
     }
     setProducts(
@@ -378,7 +380,7 @@ function ProductsTab() {
       .update({ admin_removed: true, status: "removed" })
       .eq("id", id);
     if (error) {
-      alert(error.message);
+      notifyError(error.message);
       return;
     }
     setProducts(products.filter((p) => p.id !== id));

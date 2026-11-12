@@ -81,6 +81,7 @@ import {
 } from "@/lib/engine-integration";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/components/ui/Toast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 type Tab =
@@ -360,6 +361,7 @@ function MaterialProfileForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [form, setForm] = useState({
     material_key: existing?.material_key ?? "",
@@ -394,7 +396,7 @@ function MaterialProfileForm({
       onSaved();
     } catch (e) {
       console.error(e);
-      alert("Failed to save");
+      notifyError("Failed to save");
     }
     setSaving(false);
   }
@@ -1062,6 +1064,7 @@ function RulesTab() {
 // ============================================================
 
 function SettingsTab() {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [items, setItems] = useState<EmEngineSetting[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1095,7 +1098,7 @@ function SettingsTab() {
       load();
     } catch (e) {
       console.error(e);
-      alert("Failed to save");
+      notifyError("Failed to save");
     }
   }
 

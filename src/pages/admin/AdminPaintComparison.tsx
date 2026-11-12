@@ -8,9 +8,11 @@ import {
 import type { DbPaintComparison } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/components/ui/Toast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default function AdminPaintComparison() {
+  const { error: notifyError } = useToast();
   const { t } = useLanguage();
   const [items, setItems] = useState<DbPaintComparison[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +56,7 @@ export default function AdminPaintComparison() {
       setForm(empty);
       setEditing(null);
     } catch (e) {
-      alert((e as Error).message);
+      notifyError((e as Error).message);
     }
   }
 
