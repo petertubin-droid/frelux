@@ -138,7 +138,7 @@ export default function CalculatorNearMe({
                 key={f.value}
                 onClick={() => setRadius(f.value)}
                 className={classNames(
-                  "rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-colors",
+                  "rounded-md px-1.5 py-0.5 text-[11px] font-medium transition-colors",
                   radius === f.value
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-brand-purple",
@@ -227,7 +227,7 @@ export default function CalculatorNearMe({
                       <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                         {pro.business_name || pro.display_name}
                       </p>
-                      <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                         {pro.verification_status === "verified"
                           ? "✓ Verified"
                           : ""}{" "}
@@ -268,7 +268,7 @@ export default function CalculatorNearMe({
                     <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {listing.title}
                     </p>
-                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                       {listing.location_city || ""} ·{" "}
                       {formatDistance(listing.distance_km)}
                     </p>

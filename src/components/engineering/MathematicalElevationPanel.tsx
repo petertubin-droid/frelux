@@ -359,7 +359,7 @@ export function MathematicalElevationPanel({
               className="h-auto flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-xs"
             >
               <span className="font-semibold">{exit.label}</span>
-              <span className="text-[10px] font-normal text-muted-foreground">
+              <span className="text-[11px] font-normal text-muted-foreground">
                 {exit.carries}
               </span>
             </Button>
@@ -523,7 +523,7 @@ export function MathematicalElevationPanel({
                       </span>
                       <Badge
                         variant="outline"
-                        className={`text-[10px] font-mono uppercase ${
+                        className={`text-[11px] font-mono uppercase ${
                           disc.severity === "critical"
                             ? "border-red-500/40 text-red-500"
                             : "border-amber-500/40 text-amber-500"
@@ -1139,7 +1139,7 @@ export function MathematicalElevationPanel({
               <dd className="font-mono font-semibold text-foreground">
                 Not estimated
               </dd>
-              <dd className="text-[10px] text-muted-foreground">
+              <dd className="text-[11px] text-muted-foreground">
                 Requires project sequencing and resource inputs
               </dd>
             </div>
@@ -1170,7 +1170,7 @@ export function MathematicalElevationPanel({
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L1: Foundation
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[11px]">
                 Not designed
               </Badge>
             </div>
@@ -1188,7 +1188,7 @@ export function MathematicalElevationPanel({
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L2: Ground Slab
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[11px]">
                 +
                 {measure(
                   levels.level_2_ground_slab.plinth_height_above_ground_m,
@@ -1215,7 +1215,7 @@ export function MathematicalElevationPanel({
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L3: Walls
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[11px]">
                 Geometry ratio:{" "}
                 {levels.level_3_superstructure.slenderness_ratio}
               </Badge>
@@ -1238,7 +1238,7 @@ export function MathematicalElevationPanel({
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L4: Ring Beam
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[11px]">
                 Not designed
               </Badge>
             </div>
@@ -1257,7 +1257,7 @@ export function MathematicalElevationPanel({
               <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
                 L5: Roof Pitch
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[11px]">
                 {params.roof_pitch_deg}° Pitch
               </Badge>
             </div>

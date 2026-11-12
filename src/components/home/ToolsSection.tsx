@@ -89,7 +89,7 @@ export default function ToolsSection() {
                   <li key={tool.slug}>
                     <Link
                       to={tool.to}
-                      className="inline-flex items-center gap-1.5 text-sm text-card-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+                      className="inline-flex min-h-8 items-center gap-1.5 text-sm text-card-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                     >
                       <ArrowRight
                         aria-hidden="true"

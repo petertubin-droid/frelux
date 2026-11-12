@@ -203,7 +203,7 @@ function SettingsTab() {
                   <h3 className="text-xs font-bold text-foreground dark:text-primary-foreground">
                     {ESTIMATOR_LABELS[setting.estimator_key] ??
                       setting.estimator_key}
-                    <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+                    <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[11px] font-bold uppercase text-muted-foreground">
                       {setting.market} · {MARKET_CURRENCY[setting.market] ?? ""}
                     </span>
                   </h3>
@@ -443,7 +443,7 @@ function CategoriesTab() {
                   <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                     {cat.category_name}
                   </h3>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     {PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦
                     {Number(cat.suggested_rate).toLocaleString()}
                   </p>
@@ -451,7 +451,7 @@ function CategoriesTab() {
               </div>
               <span
                 className={
-                  "rounded-full px-1.5 py-0.5 text-[9px] font-semibold " +
+                  "rounded-full px-1.5 py-0.5 text-[11px] font-semibold " +
                   (cat.is_active
                     ? "bg-accent-green/15 text-accent-green"
                     : "bg-muted text-muted-foreground")

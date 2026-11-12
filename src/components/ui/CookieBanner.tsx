@@ -134,7 +134,7 @@ export function CookieBanner() {
                                 {label}
                               </span>
                               {required && (
-                                <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:text-brand-purple-lighter bg-primary/10 dark:bg-primary/15 px-1.5 py-0.5 rounded">
+                                <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-purple dark:text-brand-purple-lighter bg-primary/10 dark:bg-primary/15 px-1.5 py-0.5 rounded">
                                   Always on
                                 </span>
                               )}

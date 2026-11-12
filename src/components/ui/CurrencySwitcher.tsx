@@ -102,7 +102,7 @@ export function CurrencySwitcher({
                 {code === c.code && <Check className="h-4 w-4" />}
               </Button>
             ))}
-            <p className="px-3 pt-1.5 text-[10px] leading-snug text-muted-foreground/70">
+            <p className="px-3 pt-1.5 text-[11px] leading-snug text-muted-foreground/70">
               Estimates stay in the currency they were priced in. This only
               changes how amounts are displayed, using dated exchange rates. The
               original figures are never overwritten.
@@ -161,7 +161,7 @@ export function CurrencySwitcher({
               {code === c.code && <Check className="h-4 w-4" />}
             </Button>
           ))}
-          <p className="border-t border-border/40 px-4 py-1.5 text-[10px] leading-snug text-muted-foreground/70 dark:border-white/10">
+          <p className="border-t border-border/40 px-4 py-1.5 text-[11px] leading-snug text-muted-foreground/70 dark:border-white/10">
             Estimates always calculate in Naira
             {converting ? `; shown as ${rateDescription} (approximate).` : "."}
           </p>

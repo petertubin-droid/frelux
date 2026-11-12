@@ -1114,7 +1114,7 @@ export default function NetworkHub() {
               >
                 <span>
                   {label}
-                  <span className="block text-[10px] font-mono text-muted-foreground">
+                  <span className="block text-[11px] font-mono text-muted-foreground">
                     {placementKey}
                   </span>
                 </span>
@@ -1279,7 +1279,7 @@ export default function NetworkHub() {
                       }
                       className="h-4 w-4 rounded"
                     />
-                    <span className="text-[9px] font-bold uppercase text-muted-foreground">
+                    <span className="text-[11px] font-bold uppercase text-muted-foreground">
                       {tr("On")}
                     </span>
                   </label>
@@ -1608,7 +1608,7 @@ function SlotConnectivity({
     return (
       <span
         className={classNames(
-          "rounded-full px-2 py-0.5 text-[10px] font-bold font-mono whitespace-nowrap",
+          "rounded-full px-2 py-0.5 text-[11px] font-bold font-mono whitespace-nowrap",
           map[c.status],
         )}
       >
@@ -1645,19 +1645,19 @@ function SlotConnectivity({
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-muted/50 text-muted-foreground text-left">
-              <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
                 {tr("Slot")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
                 {tr("Placement key")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
                 {tr("Serving provider")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
                 {tr("Reachability")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[10px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
                 {tr("Detail")}
               </th>
             </tr>
@@ -1699,7 +1699,7 @@ function SlotConnectivity({
           </tbody>
         </table>
       </div>
-      <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
         <Radio className="h-3 w-3" /> Live checks run from your browser:
         Adsterra invoke.js is fetched directly (200 = serving, 403 = unit
         refused), Monetag's tag is probed opaquely. AdSense approval status

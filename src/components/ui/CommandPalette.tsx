@@ -344,7 +344,7 @@ export function CommandPalette({
             placeholder="Search calculators, colors, tools..."
             className="flex-1 bg-transparent text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none dark:text-muted-foreground/60"
           />
-          <kbd className="hidden rounded-md border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:inline-block dark:border-white/10">
+          <kbd className="hidden rounded-md border border-border px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground sm:inline-block dark:border-white/10">
             ESC
           </kbd>
         </div>
@@ -353,7 +353,7 @@ export function CommandPalette({
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
           {filtered.recent.length > 0 && (
             <div className="mb-2">
-              <p className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <p className="flex items-center gap-1.5 px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <Clock aria-hidden="true" className="h-3 w-3" /> Recent
               </p>
               {filtered.recent.map((item, i) => (
@@ -375,7 +375,7 @@ export function CommandPalette({
           {filtered.all.length > 0 ? (
             <div>
               {filtered.recent.length > 0 && (
-                <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                   All
                 </p>
               )}
@@ -406,19 +406,19 @@ export function CommandPalette({
         <div className="flex items-center justify-between border-t border-border/50 px-4 py-2 dark:border-white/5">
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border px-1 text-[10px] dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-[11px] dark:border-white/10">
                 ↑↓
               </kbd>{" "}
               navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border px-1 text-[10px] dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-[11px] dark:border-white/10">
                 ↵
               </kbd>{" "}
               select
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-border px-1 text-[10px] dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-[11px] dark:border-white/10">
                 esc
               </kbd>{" "}
               close

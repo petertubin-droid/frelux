@@ -202,7 +202,7 @@ export default function AdminMacroTracker() {
                         {ind.headline_name}
                         <Badge
                           variant="outline"
-                          className="text-[10px] uppercase font-mono"
+                          className="text-[11px] uppercase font-mono"
                         >
                           {ind.indicator_type}
                         </Badge>
@@ -381,7 +381,7 @@ export default function AdminMacroTracker() {
                       <div className="font-medium text-slate-900 dark:text-slate-100">
                         {res.name}
                       </div>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[11px] text-slate-400">
                         Base: {res.basePrice} {currentMarketMeta.currency}
                       </div>
                     </div>
@@ -389,7 +389,7 @@ export default function AdminMacroTracker() {
                       <div className="font-bold text-slate-900 dark:text-slate-100">
                         {res.adjustedPrice} {currentMarketMeta.currency}
                       </div>
-                      <div className="text-[10px] text-amber-600 font-semibold">
+                      <div className="text-[11px] text-amber-600 font-semibold">
                         {res.pct > 0 ? `+${res.pct}%` : "0% (Gate active)"}
                       </div>
                     </div>

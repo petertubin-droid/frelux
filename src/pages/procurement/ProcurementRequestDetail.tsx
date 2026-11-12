@@ -340,7 +340,7 @@ export default function ProcurementRequestDetail() {
                         {String(supplier.company_name ?? "Supplier")}
                       </p>
                       <p className="text-xs text-slate-500">
-                        <Badge variant="outline" className="mr-2 text-[10px]">
+                        <Badge variant="outline" className="mr-2 text-[11px]">
                           {badge.label}
                         </Badge>
                         {[supplier.neighbourhood, supplier.city]

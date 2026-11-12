@@ -308,7 +308,7 @@ export default function Colors() {
                           title={f.name}
                         >
                           <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
                               {f.name}
                             </span>
                           </div>

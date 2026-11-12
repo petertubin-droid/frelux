@@ -172,7 +172,7 @@ function TrafficTrend({ report }: { report: TrafficReport }) {
                 className="w-full rounded-sm bg-primary/80 transition-colors group-hover:bg-primary"
                 style={{ height: `${height}%` }}
               />
-              <span className="h-4 text-center text-[10px] text-muted-foreground">
+              <span className="h-4 text-center text-[11px] text-muted-foreground">
                 {showLabel ? point.date.slice(5) : ""}
               </span>
             </div>

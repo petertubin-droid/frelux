@@ -429,7 +429,7 @@ function ReviewPanel({
               </span>
               <span
                 className={classNames(
-                  "shrink-0 rounded-full px-2 py-0.5 text-[10px]",
+                  "shrink-0 rounded-full px-2 py-0.5 text-[11px]",
                   badgeClass(fact),
                 )}
               >

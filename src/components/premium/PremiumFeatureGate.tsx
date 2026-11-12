@@ -285,7 +285,7 @@ export function PremiumFeatureGate({
               <>
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />
-                  <span className="text-[10px] font-medium text-muted-foreground">
+                  <span className="text-[11px] font-medium text-muted-foreground">
                     {t("OR")}
                   </span>
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />

@@ -73,7 +73,7 @@ export default function QuickCalculatorShortcuts() {
                   <s.icon className="h-5 w-5" />
                 </span>
                 {s.badge && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-orange">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-orange/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-accent-orange">
                     <BadgeCheck className="h-2.5 w-2.5" />
                     {s.badge}
                   </span>

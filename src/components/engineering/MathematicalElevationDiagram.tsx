@@ -1157,7 +1157,7 @@ export function MathematicalElevationDiagram({
             <span className="text-xs font-bold uppercase tracking-wider text-brand-purple font-mono">
               {levelHUDInfo.title}
             </span>
-            <Badge variant="outline" className="text-[10px] bg-background">
+            <Badge variant="outline" className="text-[11px] bg-background">
               Step {activeLevel} of 5
             </Badge>
           </div>

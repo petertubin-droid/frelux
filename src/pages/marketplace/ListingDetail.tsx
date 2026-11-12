@@ -293,7 +293,7 @@ export default function ListingDetail() {
                   {listing.client.full_name || "Anonymous"}
                 </p>
                 {listing.client.marketplace_id && (
-                  <p className="text-[10px] tracking-wider text-muted-foreground">
+                  <p className="text-[11px] tracking-wider text-muted-foreground">
                     {listing.client.marketplace_id}
                   </p>
                 )}
@@ -304,7 +304,7 @@ export default function ListingDetail() {
           {/* Meta grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 {t("Budget")}
               </p>
               <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
@@ -317,7 +317,7 @@ export default function ListingDetail() {
             </div>
             {listing.location_state && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                   {t("Location")}
                 </p>
                 <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
@@ -329,7 +329,7 @@ export default function ListingDetail() {
               </div>
             )}
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 {t("Bids")}
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
@@ -338,7 +338,7 @@ export default function ListingDetail() {
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 {t("Views")}
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
@@ -352,7 +352,7 @@ export default function ListingDetail() {
           {listing.scope_summary &&
             Object.keys(listing.scope_summary).length > 0 && (
               <div className="mt-4 rounded-lg bg-muted/50 p-4 dark:bg-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                   {t("Project Scope")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">

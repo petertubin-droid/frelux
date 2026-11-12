@@ -84,7 +84,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
                 {t("Closed-Loop Price Sharing")}
                 <Badge
                   variant="outline"
-                  className="text-[10px] text-blue-600 border-blue-200"
+                  className="text-[11px] text-blue-600 border-blue-200"
                 >
                   {t("Self-Healing Data")}
                 </Badge>
@@ -153,7 +153,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
         )}
 
         {/* Privacy Note */}
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+        <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
           <ShieldCheck className="w-3 h-3 text-slate-400" />
           <span>
             100% Anonymized. Your contractor identity, client details, and

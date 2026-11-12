@@ -17,7 +17,7 @@ import type { ScheduleInput } from "@/lib/takeoff/types";
 import type { SpaceType } from "@/lib/measurement/types";
 import { PlanMeasurementImporter } from "./PlanMeasurementImporter";
 
-export type { AppliedBuilding }
+export type { AppliedBuilding };
 
 /**
  * Pick a building type, adjust the rooms, and hand the whole building to a
@@ -82,7 +82,9 @@ export function BuildingSchedulePanel({
 
   const updateRoom = (id: string, patch: Partial<RoomDraft>) => {
     setRooms((current) => {
-      const next = current.map((room) => (room.id === id ? { ...room, ...patch } : room));
+      const next = current.map((room) =>
+        room.id === id ? { ...room, ...patch } : room,
+      );
       emit(next, currentLabel);
       return next;
     });
@@ -120,7 +122,9 @@ export function BuildingSchedulePanel({
     emit(next, currentLabel);
   };
 
-  const currentPreset = presetId ? findBuildingPreset(marketCode, presetId) : undefined;
+  const currentPreset = presetId
+    ? findBuildingPreset(marketCode, presetId)
+    : undefined;
   const currentLabel = currentPreset?.label ?? "Custom building";
   const totals = rooms.length
     ? scheduleTotals(draftsToSchedule(rooms, unit, { label: currentLabel }))
@@ -132,12 +136,15 @@ export function BuildingSchedulePanel({
       className="rounded-xl border border-border bg-card p-4"
     >
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="building-schedule-heading" className="text-sm font-semibold text-foreground">
+        <h2
+          id="building-schedule-heading"
+          className="text-sm font-semibold text-foreground"
+        >
           Measure a whole building
         </h2>
         <button
           type="button"
-          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+          className="inline-flex min-h-6 items-center text-xs font-medium text-primary underline-offset-2 hover:underline"
           onClick={() => {
             setPresetId("");
             setRooms([]);
@@ -152,7 +159,10 @@ export function BuildingSchedulePanel({
         <PlanMeasurementImporter />
       </div>
 
-      <label htmlFor="building-schedule-type" className="block text-xs font-medium text-muted-foreground">
+      <label
+        htmlFor="building-schedule-type"
+        className="block text-xs font-medium text-muted-foreground"
+      >
         Building type
       </label>
       <select
@@ -176,7 +186,7 @@ export function BuildingSchedulePanel({
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <button
           type="button"
-          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+          className="inline-flex min-h-6 items-center text-xs font-medium text-primary underline-offset-2 hover:underline"
           onClick={addRoom}
         >
           Add a room
@@ -189,24 +199,40 @@ export function BuildingSchedulePanel({
       {rooms.length > 0 && (
         <div className="mt-3 space-y-3">
           <p className="text-xs text-muted-foreground">
-            {currentLabel}. {rooms.length} room {rooms.length === 1 ? "type" : "types"}, measured
-            in {unitLabel}. Every quantity below is recomputed from these rooms.
+            {currentLabel}. {rooms.length} room{" "}
+            {rooms.length === 1 ? "type" : "types"}, measured in {unitLabel}.
+            Every quantity below is recomputed from these rooms.
           </p>
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] border-collapse text-xs">
               <caption className="sr-only">
-                Room schedule: length, width, height, identical count, doors and windows
+                Room schedule: length, width, height, identical count, doors and
+                windows
               </caption>
               <thead>
                 <tr className="text-left text-muted-foreground">
-                  <th scope="col" className="p-1 font-medium">Room</th>
-                  <th scope="col" className="p-1 font-medium">Length ({unitLabel})</th>
-                  <th scope="col" className="p-1 font-medium">Width ({unitLabel})</th>
-                  <th scope="col" className="p-1 font-medium">Height ({unitLabel})</th>
-                  <th scope="col" className="p-1 font-medium">Identical</th>
-                  <th scope="col" className="p-1 font-medium">Doors</th>
-                  <th scope="col" className="p-1 font-medium">Windows</th>
+                  <th scope="col" className="p-1 font-medium">
+                    Room
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Length ({unitLabel})
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Width ({unitLabel})
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Height ({unitLabel})
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Identical
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Doors
+                  </th>
+                  <th scope="col" className="p-1 font-medium">
+                    Windows
+                  </th>
                   <th scope="col" className="p-1 font-medium">
                     <span className="sr-only">Remove</span>
                   </th>
@@ -215,17 +241,25 @@ export function BuildingSchedulePanel({
               <tbody>
                 {rooms.map((room) => (
                   <tr key={room.id} className="border-t border-border/60">
-                    <th scope="row" className="p-1 text-left font-medium text-foreground">
+                    <th
+                      scope="row"
+                      className="p-1 text-left font-medium text-foreground"
+                    >
                       <input
                         aria-label={`Room name, ${room.label}`}
                         className="input-field"
                         value={room.label}
-                        onChange={(event) => updateRoom(room.id, { label: event.target.value })}
+                        onChange={(event) =>
+                          updateRoom(room.id, { label: event.target.value })
+                        }
                       />
                     </th>
                     {(["length", "width", "height"] as const).map((key) => (
                       <td key={key} className="p-1">
-                        <label className="sr-only" htmlFor={`${room.id}-${key}`}>
+                        <label
+                          className="sr-only"
+                          htmlFor={`${room.id}-${key}`}
+                        >
                           {`${room.label} ${key} in ${unitLabel}`}
                         </label>
                         <input
@@ -236,13 +270,18 @@ export function BuildingSchedulePanel({
                           className="input-field"
                           value={room[key] || ""}
                           onChange={(event) =>
-                            updateRoom(room.id, { [key]: Number(event.target.value) })
+                            updateRoom(room.id, {
+                              [key]: Number(event.target.value),
+                            })
                           }
                         />
                       </td>
                     ))}
                     <td className="p-1">
-                      <label className="sr-only" htmlFor={`${room.id}-quantity`}>
+                      <label
+                        className="sr-only"
+                        htmlFor={`${room.id}-quantity`}
+                      >
                         {`Identical copies of ${room.label}`}
                       </label>
                       <input
@@ -254,7 +293,10 @@ export function BuildingSchedulePanel({
                         value={room.quantity}
                         onChange={(event) =>
                           updateRoom(room.id, {
-                            quantity: Math.max(1, Math.round(Number(event.target.value) || 1)),
+                            quantity: Math.max(
+                              1,
+                              Math.round(Number(event.target.value) || 1),
+                            ),
                           })
                         }
                       />
@@ -271,7 +313,12 @@ export function BuildingSchedulePanel({
                         className="input-field"
                         value={room.doors}
                         onChange={(event) =>
-                          updateRoom(room.id, { doors: Math.max(0, Math.round(Number(event.target.value) || 0)) })
+                          updateRoom(room.id, {
+                            doors: Math.max(
+                              0,
+                              Math.round(Number(event.target.value) || 0),
+                            ),
+                          })
                         }
                       />
                     </td>
@@ -287,7 +334,12 @@ export function BuildingSchedulePanel({
                         className="input-field"
                         value={room.windows}
                         onChange={(event) =>
-                          updateRoom(room.id, { windows: Math.max(0, Math.round(Number(event.target.value) || 0)) })
+                          updateRoom(room.id, {
+                            windows: Math.max(
+                              0,
+                              Math.round(Number(event.target.value) || 0),
+                            ),
+                          })
                         }
                       />
                     </td>
@@ -310,23 +362,33 @@ export function BuildingSchedulePanel({
             <dl className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
               <div>
                 <dt className="text-muted-foreground">Rooms</dt>
-                <dd className="font-medium text-foreground">{totals.roomCount}</dd>
+                <dd className="font-medium text-foreground">
+                  {totals.roomCount}
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Wall run</dt>
-                <dd className="font-medium text-foreground">{totals.wallRunM.toFixed(1)} m</dd>
+                <dd className="font-medium text-foreground">
+                  {totals.wallRunM.toFixed(1)} m
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Net wall area</dt>
-                <dd className="font-medium text-foreground">{totals.netWallAreaM2.toFixed(2)} m²</dd>
+                <dd className="font-medium text-foreground">
+                  {totals.netWallAreaM2.toFixed(2)} m²
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Floor area</dt>
-                <dd className="font-medium text-foreground">{totals.floorAreaM2.toFixed(2)} m²</dd>
+                <dd className="font-medium text-foreground">
+                  {totals.floorAreaM2.toFixed(2)} m²
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Openings deducted</dt>
-                <dd className="font-medium text-foreground">{totals.openingsAreaM2.toFixed(2)} m²</dd>
+                <dd className="font-medium text-foreground">
+                  {totals.openingsAreaM2.toFixed(2)} m²
+                </dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Wall heights</dt>
@@ -343,19 +405,20 @@ export function BuildingSchedulePanel({
               className="rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-foreground"
             >
               {totals.unplacedOpeningCount} opening
-              {totals.unplacedOpeningCount === 1 ? "" : "s"} wider or larger than
-              any wall of its room, so {totals.unplacedOpeningCount === 1 ? "it is" : "they are"}{" "}
-              not deducted from the wall area. Widen the room or correct the
-              opening to have it measured.
+              {totals.unplacedOpeningCount === 1 ? "" : "s"} wider or larger
+              than any wall of its room, so{" "}
+              {totals.unplacedOpeningCount === 1 ? "it is" : "they are"} not
+              deducted from the wall area. Widen the room or correct the opening
+              to have it measured.
             </p>
           )}
 
           {totals && totals.assumedOpeningCount > 0 && (
             <p className="text-xs text-muted-foreground">
               {totals.assumedOpeningCount} opening
-              {totals.assumedOpeningCount === 1 ? "" : "s"} measured at the standard sizes, a door
-              at 0.9 × 2.1 m and a window at 1.2 × 1.5 m, because the template counts openings
-              rather than measuring them.
+              {totals.assumedOpeningCount === 1 ? "" : "s"} measured at the
+              standard sizes, a door at 0.9 × 2.1 m and a window at 1.2 × 1.5 m,
+              because the template counts openings rather than measuring them.
             </p>
           )}
         </div>

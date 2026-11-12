@@ -560,14 +560,14 @@ export default function SupplierPortal() {
                             <div className="font-semibold text-slate-900 dark:text-slate-100">
                               {item.product_name}
                             </div>
-                            <div className="text-[10px] text-slate-400 font-mono">
+                            <div className="text-[11px] text-slate-400 font-mono">
                               SKU: {item.sku || "CUSTOM-SUPPLIER"} • {item.unit}
                             </div>
                           </td>
                           <td className="py-3 px-3">
                             <Badge
                               variant="outline"
-                              className="text-[10px] capitalize"
+                              className="text-[11px] capitalize"
                             >
                               {item.category || item.material_category}
                             </Badge>
@@ -589,7 +589,7 @@ export default function SupplierPortal() {
                           <td className="py-3 px-3">
                             <button
                               onClick={() => handleStockToggle(item.id)}
-                              className={`px-2 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 ${
+                              className={`px-2 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 ${
                                 item.in_stock
                                   ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"

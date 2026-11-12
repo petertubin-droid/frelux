@@ -67,7 +67,7 @@ export default function MobileBottomNav() {
                   )}
                 />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-amber-400 px-1 text-[8px] font-bold text-primary-foreground">
+                  <span className="absolute -right-1 -top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-bold text-primary-foreground">
                     {item.badge}
                   </span>
                 )}

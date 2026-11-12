@@ -16,10 +16,7 @@
 
 import { useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import {
-  computeMapLayout,
-  TILE_DISCLOSURE,
-} from "@/lib/geospatial/tiles";
+import { computeMapLayout, TILE_DISCLOSURE } from "@/lib/geospatial/tiles";
 import {
   resolveCustomImageryProvider,
   resolveImageryProvider,
@@ -152,9 +149,7 @@ export default function SiteMap({
             viewBox={`0 0 ${viewSizePx} ${viewSizePx}`}
           >
             <polygon
-              points={layout.polygonPath
-                .map((p) => `${p.x},${p.y}`)
-                .join(" ")}
+              points={layout.polygonPath.map((p) => `${p.x},${p.y}`).join(" ")}
               fill="rgba(59,130,246,0.15)"
               stroke="rgb(59,130,246)"
               strokeWidth={2}
@@ -168,7 +163,7 @@ export default function SiteMap({
           <div className="h-3.5 w-3.5 rounded-full border-2 border-white bg-red-600 shadow-md" />
         </div>
         {/* License-required attribution, always visible on the map */}
-        <p className="absolute bottom-1 left-1 max-w-[85%] rounded bg-background/80 px-1.5 py-0.5 text-[9px] leading-tight text-foreground/80 backdrop-blur-sm">
+        <p className="absolute bottom-1 left-1 max-w-[85%] rounded bg-background/80 px-1.5 py-0.5 text-[11px] leading-tight text-foreground/80 backdrop-blur-sm">
           {attribution}
         </p>
         <div className="absolute bottom-2 right-2 flex gap-1">

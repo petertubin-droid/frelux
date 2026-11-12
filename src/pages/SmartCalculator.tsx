@@ -312,7 +312,7 @@ export default function SmartCalculator() {
         <div className="mt-8">
           <Link
             to="/calculators"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex min-h-8 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             {t("Browse every calculator")}

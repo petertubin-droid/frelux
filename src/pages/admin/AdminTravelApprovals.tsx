@@ -299,7 +299,7 @@ export default function AdminTravelApprovals() {
                         {travelLabel(state)}
                       </span>
                       {approval?.expires_at && (
-                        <span className="mt-1 block text-[10px] text-muted-foreground">
+                        <span className="mt-1 block text-[11px] text-muted-foreground">
                           until{" "}
                           {new Date(approval.expires_at).toLocaleDateString()}
                         </span>

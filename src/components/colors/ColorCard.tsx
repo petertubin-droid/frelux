@@ -38,12 +38,12 @@ export default function ColorCard({
 
           {/* Badges */}
           {color.is_trending && (
-            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-orange backdrop-blur-sm dark:bg-background/90">
+            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-orange backdrop-blur-sm dark:bg-background/90">
               {t("Trending")}
             </span>
           )}
           {color.is_featured && !color.is_trending && (
-            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple backdrop-blur-sm dark:bg-background/90">
+            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-purple backdrop-blur-sm dark:bg-background/90">
               {t("Featured")}
             </span>
           )}

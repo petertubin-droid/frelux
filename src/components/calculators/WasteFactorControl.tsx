@@ -196,7 +196,7 @@ export function WasteFactorControl({
           <dl className="grid grid-cols-2 gap-2 rounded-xl bg-muted/40 p-3 text-xs dark:bg-white/[0.04]">
             {preview.rows.map((row) => (
               <div key={row.label}>
-                <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
                   {row.label}
                 </dt>
                 <dd className="font-semibold text-foreground">{row.value}</dd>

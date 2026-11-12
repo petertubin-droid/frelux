@@ -798,11 +798,11 @@ function SidebarContent({
                 onClick={() => toggleCollapsed(module.heading)}
                 aria-expanded={isOpen}
                 aria-label={`Toggle ${module.heading} section`}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
               >
                 <span>{module.heading}</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold text-muted-foreground/50">
+                  <span className="text-[11px] font-semibold text-muted-foreground/50">
                     {module.items.length}
                   </span>
                   <ChevronDown
@@ -823,7 +823,7 @@ function SidebarContent({
                   return (
                     <div key={item.to}>
                       {showGroup && (
-                        <p className="mt-2 px-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                        <p className="mt-2 px-3 pb-0.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
                           {item.group}
                         </p>
                       )}

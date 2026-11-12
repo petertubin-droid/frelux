@@ -155,7 +155,7 @@ export default function TemplatesShowcase() {
               </Button>
               <Link
                 to="/my-templates/"
-                className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-purple transition-all hover:gap-2 dark:text-brand-purple-lighter"
+                className="ml-auto inline-flex min-h-8 items-center gap-1 text-xs font-semibold text-brand-purple transition-all hover:gap-2 dark:text-brand-purple-lighter"
               >
                 {t("View all")}
                 <ArrowRight className="h-3.5 w-3.5" />

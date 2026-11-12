@@ -1975,12 +1975,12 @@ function AdminChannelsTab() {
                     {ch.name}
                   </p>
                   {ch.is_official && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-brand-purple">
                       {t("Official")}
                     </span>
                   )}
                   {!ch.is_active && (
-                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-500">
+                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-500">
                       {t("Inactive")}
                     </span>
                   )}

@@ -76,7 +76,7 @@ export default function ArticleToolPromo({
             <PrimaryIcon className="h-5 w-5 text-brand-purple" />
           </span>
           <div className="min-w-0">
-            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               <Calculator className="h-3 w-3" aria-hidden="true" />
               FRELUX tool
             </p>
@@ -111,7 +111,7 @@ export default function ArticleToolPromo({
 
       {rest.length > 0 ? (
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border bg-muted/20 px-5 py-3 sm:px-6">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Also for this topic
           </span>
           {rest.map((tool) => (

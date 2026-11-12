@@ -349,7 +349,7 @@ export default function Dashboard() {
                             </p>
                           </div>
                           <span
-                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${st.className}`}
+                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${st.className}`}
                           >
                             {st.label}
                           </span>

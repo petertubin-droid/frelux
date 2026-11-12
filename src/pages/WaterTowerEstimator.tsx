@@ -280,7 +280,7 @@ export default function WaterTowerEstimator() {
                     >
                       <Layers className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Structural Steel</span>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         H-Beams + Angle Braces
                       </span>
                     </button>
@@ -295,7 +295,7 @@ export default function WaterTowerEstimator() {
                     >
                       <Building2 className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Reinforced Concrete</span>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         4x 230mm Columns
                       </span>
                     </button>
@@ -552,7 +552,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.structuralHBeamsMeters} m
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           4 lengths @ {height}m
                         </div>
                       </div>
@@ -571,7 +571,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.angleIronBracingMeters} m
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Across {Math.max(1, Math.round(height / 3))} tiers
                         </div>
                       </div>
@@ -590,7 +590,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.timberPlatform2x6Pieces} Pieces
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Even weight distribution
                         </div>
                       </div>
@@ -611,7 +611,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.concreteVolumeM3} m³
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Cast-in-place columns
                         </div>
                       </div>
@@ -625,7 +625,7 @@ export default function WaterTowerEstimator() {
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.cementBags50kg} Bags
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground">
                           50kg bags
                         </span>
                       </div>
@@ -636,7 +636,7 @@ export default function WaterTowerEstimator() {
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.sandCubicMeters} m³
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground">
                           Clean washed
                         </span>
                       </div>
@@ -647,7 +647,7 @@ export default function WaterTowerEstimator() {
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.gravelCubicMeters} m³
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground">
                           3/4" aggregate
                         </span>
                       </div>
@@ -666,7 +666,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.verticalRebarY16Lengths} Lengths
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Standard 12m commercial bars
                         </div>
                       </div>
@@ -685,7 +685,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.stirrupsRebarY8Lengths} Lengths
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Standard 12m commercial bars
                         </div>
                       </div>
@@ -705,7 +705,7 @@ export default function WaterTowerEstimator() {
                           {result.structuralBOM.timberPlatform2x6PiecesConcrete}{" "}
                           Pieces
                         </div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Tank platform base
                         </div>
                       </div>

@@ -584,11 +584,17 @@ export default function TallBuildingCalculator() {
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-8">
       <nav aria-label="Breadcrumb" className="text-xs text-muted-foreground">
-        <Link to="/" className="hover:text-foreground">
+        <Link
+          to="/"
+          className="inline-flex min-h-6 items-center hover:text-foreground"
+        >
           Home
         </Link>
         <span aria-hidden="true"> / </span>
-        <Link to="/construction-tools" className="hover:text-foreground">
+        <Link
+          to="/construction-tools"
+          className="inline-flex min-h-6 items-center hover:text-foreground"
+        >
           Construction tools
         </Link>
         <span aria-hidden="true"> / </span>
@@ -1161,7 +1167,7 @@ export default function TallBuildingCalculator() {
                     <span className="font-semibold text-foreground">
                       {check.title}
                     </span>
-                    <Badge variant="outline" className="text-[10px] uppercase">
+                    <Badge variant="outline" className="text-[11px] uppercase">
                       {check.severity}
                     </Badge>
                   </div>
@@ -1279,7 +1285,7 @@ export default function TallBuildingCalculator() {
           <h2 className="text-sm font-semibold text-foreground">
             Foundation sizing
           </h2>
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[11px]">
             {foundation.foundation_label}
           </Badge>
         </div>
@@ -1417,7 +1423,7 @@ export default function TallBuildingCalculator() {
           <h2 className="text-sm font-semibold text-foreground">
             Architectural mathematics
           </h2>
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[11px]">
             {params.occupancy}
           </Badge>
         </div>

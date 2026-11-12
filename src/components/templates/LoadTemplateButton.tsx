@@ -84,7 +84,7 @@ export default function LoadTemplateButton({
               {/* Public / built-in templates */}
               {publicTemplates.length > 0 && (
                 <div className="mb-2">
-                  <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                  <p className="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                     {t("Built-in Templates")}
                   </p>
                   <div className="space-y-0.5">
@@ -127,7 +127,7 @@ export default function LoadTemplateButton({
                   {publicTemplates.length > 0 && (
                     <div className="my-1 border-t border-border/50 dark:border-white/5" />
                   )}
-                  <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                  <p className="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                     {t("My Templates")}
                   </p>
                   {templates.length === 0 ? (

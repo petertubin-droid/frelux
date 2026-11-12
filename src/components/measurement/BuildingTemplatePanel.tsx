@@ -199,7 +199,7 @@ export function BuildingTemplatePanel({
         </label>
         <Link
           to="/building-types"
-          className="text-xs font-medium text-primary underline-offset-2 hover:underline"
+          className="inline-flex min-h-6 items-center text-xs font-medium text-primary underline-offset-2 hover:underline"
         >
           Room schedules
         </Link>

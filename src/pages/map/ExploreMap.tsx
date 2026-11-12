@@ -199,7 +199,7 @@ export default function ExploreMap() {
                 role="listbox"
                 aria-label={t("Places worldwide")}
               >
-                <p className="flex items-center gap-1.5 border-b border-border/50 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:border-white/5">
+                <p className="flex items-center gap-1.5 border-b border-border/50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:border-white/5">
                   <Globe2 className="h-3 w-3" aria-hidden="true" />
                   {t("Places worldwide")}
                 </p>

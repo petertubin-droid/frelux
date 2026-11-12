@@ -620,7 +620,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
             1
           </span>
           {t("Media Input")}
@@ -634,7 +634,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
             2
           </span>
           {t("Surfaces & Dimensions")}
@@ -648,7 +648,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
             3
           </span>
           {t("Specification")}
@@ -662,7 +662,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[10px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
             4
           </span>
           {t("Takeoff & Provenance")}
@@ -1284,14 +1284,14 @@ export function VisualFinishingEstimator({
                   ) : marketRates?.source === "verified_db" ? (
                     <Badge
                       variant="outline"
-                      className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-[10px]"
+                      className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-[11px]"
                     >
                       {t("Verified DB Rates")}
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
-                      className="border-amber-500 text-amber-600 bg-amber-500/10 text-[10px]"
+                      className="border-amber-500 text-amber-600 bg-amber-500/10 text-[11px]"
                     >
                       {t("Price Unavailable")}
                     </Badge>
@@ -1439,7 +1439,7 @@ export function VisualFinishingEstimator({
                                 ? "outline"
                                 : "secondary"
                           }
-                          className="text-[10px]"
+                          className="text-[11px]"
                         >
                           {m.priceStatus}
                         </Badge>

@@ -116,7 +116,7 @@ export default function PageHeader({
         {backTo && (
           <Link
             to={backTo}
-            className="group mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+            className="group mb-5 inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
           >
             <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             {backLabel ?? "Back"}
@@ -134,7 +134,7 @@ export default function PageHeader({
                 {crumb.path ? (
                   <Link
                     to={crumb.path}
-                    className="transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter"
+                    className="inline-flex min-h-6 items-center transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter"
                   >
                     {crumb.label}
                   </Link>

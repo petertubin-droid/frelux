@@ -748,7 +748,7 @@ export default function MyProjects() {
                                   <h4 className="text-sm font-bold text-foreground">
                                     {cp.name}
                                   </h4>
-                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary capitalize">
+                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary capitalize">
                                     {cp.status.replace("_", " ")}
                                   </span>
                                 </div>
@@ -1215,7 +1215,7 @@ export default function MyProjects() {
                                 </Button>
                                 {moveState?.colorId === col.id && (
                                   <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-border bg-card p-2 shadow-lg dark:border-white/5 dark:bg-card">
-                                    <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">
+                                    <p className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">
                                       {t("Move to")}
                                     </p>
                                     {collections

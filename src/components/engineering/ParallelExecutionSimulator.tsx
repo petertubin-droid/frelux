@@ -301,7 +301,7 @@ export function ParallelExecutionSimulator({
             <h4 className="text-sm font-bold text-foreground">
               {t("Interactive Parallel Execution Runner")}
             </h4>
-            <span className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+            <span className="rounded bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
               {t("ISO 21502 / PMBOK 7th Ed")}
             </span>
           </div>

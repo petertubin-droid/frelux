@@ -138,7 +138,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                       </div>
                       <Badge
                         variant="secondary"
-                        className={`text-[10px] px-1.5 py-0 flex items-center gap-0.5 ${
+                        className={`text-[11px] px-1.5 py-0 flex items-center gap-0.5 ${
                           isSpike
                             ? isPositive
                               ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300"
@@ -158,7 +158,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
 
                     <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
                       <span>Index: {ind.current_index_value}</span>
-                      <span className="truncate max-w-[140px] text-[10px] text-slate-400">
+                      <span className="truncate max-w-[140px] text-[11px] text-slate-400">
                         {ind.source_name}
                       </span>
                     </div>

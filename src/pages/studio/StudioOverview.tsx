@@ -127,7 +127,7 @@ export default function StudioOverview() {
                   className="flex items-center gap-3 rounded-lg border border-border/50 p-2 transition-colors hover:bg-muted/50 dark:border-white/5 dark:hover:bg-white/5"
                 >
                   <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                    className={`rounded px-2 py-0.5 text-[11px] font-medium ${
                       e.severity === "critical"
                         ? "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
                         : e.severity === "high"

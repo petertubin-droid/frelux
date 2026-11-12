@@ -35,7 +35,11 @@ import { useToast } from "@/components/ui/Toast";
 export const ProfileCreditsWallet: React.FC = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const { wallet, refresh: refreshWallet, loading: walletLoading } = useCredits();
+  const {
+    wallet,
+    refresh: refreshWallet,
+    loading: walletLoading,
+  } = useCredits();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<CreditTask[]>([]);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
@@ -95,7 +99,9 @@ export const ProfileCreditsWallet: React.FC = () => {
       });
       if (!result.verifiedCreditsEarned || !result.verifiedBalance) {
         setAdMessage(
-          t("ayeT has not confirmed the reward yet. No credits were added by this page."),
+          t(
+            "ayeT has not confirmed the reward yet. No credits were added by this page.",
+          ),
         );
         return;
       }
@@ -156,20 +162,22 @@ export const ProfileCreditsWallet: React.FC = () => {
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {t(
-              "Centralized balance for all FRELUX AI tools (AI Building Estimation, Smart Color Assistant, Studio)."
+              "Centralized balance for all FRELUX AI tools (AI Building Estimation, Smart Color Assistant, Studio).",
             )}
           </p>
         </div>
 
         <div className="bg-primary/10 border border-primary/20 px-4 py-2.5 rounded-xl flex items-center gap-3">
           <div>
-            <div className="text-[10px] uppercase font-semibold text-primary tracking-wider">
+            <div className="text-[11px] uppercase font-semibold text-primary tracking-wider">
               {t("Available Balance")}
             </div>
             {walletLoading ? (
               <div className="flex items-center gap-1.5 py-1 text-primary">
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-                <span className="text-xs text-muted-foreground">{t("Loading...")}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t("Loading...")}
+                </span>
               </div>
             ) : wallet !== null ? (
               <div className="text-2xl font-black text-primary">
@@ -195,7 +203,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-foreground mt-0.5">
             {AI_CREDIT_COST} {t("Credits")}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
+          <div className="text-[11px] text-muted-foreground mt-0.5">
             {t("Uniform across all tools")}
           </div>
         </div>
@@ -206,8 +214,9 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
             +{CREDITS_PER_AD} {t("Credits")}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Max {MAX_ADS_PER_DAY} ads daily ({todayAdCount}/{MAX_ADS_PER_DAY} watched)
+          <div className="text-[11px] text-muted-foreground mt-0.5">
+            Max {MAX_ADS_PER_DAY} ads daily ({todayAdCount}/{MAX_ADS_PER_DAY}{" "}
+            watched)
           </div>
         </div>
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border text-center">
@@ -217,7 +226,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-primary mt-0.5">
             {t("Standard AI Included")}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
+          <div className="text-[11px] text-muted-foreground mt-0.5">
             {t("Standard tools exempt from credit deductions")}
           </div>
         </div>
@@ -233,14 +242,17 @@ export const ProfileCreditsWallet: React.FC = () => {
               <h3 className="font-semibold text-sm text-foreground">
                 {t("Watch Partner Ad to Earn Credits")}
               </h3>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {todayAdCount} / {MAX_ADS_PER_DAY} {t("watched today")}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
               {isDailyAdLimitReached ? (
                 <span className="text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5 inline" aria-hidden="true" />
+                  <AlertCircle
+                    className="w-3.5 h-3.5 inline"
+                    aria-hidden="true"
+                  />
                   {`Daily limit reached (${todayAdCount}/${MAX_ADS_PER_DAY} ads watched today, ${MAX_ADS_PER_DAY * CREDITS_PER_AD} credits earned). Check back tomorrow, complete eligible tasks, or purchase credit bundles.`}
                 </span>
               ) : (
@@ -248,13 +260,16 @@ export const ProfileCreditsWallet: React.FC = () => {
                   {adProviderReady
                     ? `You can watch ${MAX_ADS_PER_DAY - todayAdCount} more today.`
                     : t(
-                        "Secure server verification is not configured yet. Ad rewards are temporarily unavailable."
+                        "Secure server verification is not configured yet. Ad rewards are temporarily unavailable.",
                       )}
                 </>
               )}
             </p>
             {adMessage && (
-              <p className="text-xs font-medium text-primary mt-1" role="status">
+              <p
+                className="text-xs font-medium text-primary mt-1"
+                role="status"
+              >
                 {adMessage}
               </p>
             )}
@@ -342,14 +357,17 @@ export const ProfileCreditsWallet: React.FC = () => {
         <div className="p-4 rounded-xl border border-border bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-foreground" aria-hidden="true" />
+              <ShoppingCart
+                className="w-5 h-5 text-foreground"
+                aria-hidden="true"
+              />
               <h3 className="font-semibold text-sm text-foreground">
                 {t("Need More Credits or Pro Subscription?")}
               </h3>
             </div>
             <p className="text-xs text-muted-foreground">
               {t(
-                "Purchase credit packages or subscribe to a monthly plan for uninterrupted AI estimations."
+                "Purchase credit packages or subscribe to a monthly plan for uninterrupted AI estimations.",
               )}
             </p>
           </div>
@@ -373,7 +391,10 @@ export const ProfileCreditsWallet: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+              <Clock
+                className="w-4 h-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               {t("Recent AI Credit Activity")}
             </h3>
           </div>
@@ -395,35 +416,48 @@ export const ProfileCreditsWallet: React.FC = () => {
                       <div className="flex items-center gap-2.5">
                         {isPositive ? (
                           <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-                            <ArrowDownLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                            <ArrowDownLeft
+                              className="w-3.5 h-3.5"
+                              aria-hidden="true"
+                            />
                           </div>
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center">
-                            <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+                            <ArrowUpRight
+                              className="w-3.5 h-3.5"
+                              aria-hidden="true"
+                            />
                           </div>
                         )}
                         <div>
                           <div className="font-medium text-foreground">
                             {tx.reason}
                           </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {new Date(tx.created_at).toLocaleDateString(undefined, {
-                              year: "numeric",
-                              month: "short",
-                              day: "numeric",
-                            })}{" "}
+                          <div className="text-[11px] text-muted-foreground">
+                            {new Date(tx.created_at).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}{" "}
                             at{" "}
-                            {new Date(tx.created_at).toLocaleTimeString(undefined, {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {new Date(tx.created_at).toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
                           </div>
                         </div>
                       </div>
                       <div
                         className={`font-bold ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}
                       >
-                        {isPositive ? `+${tx.amount}` : tx.amount} {t("Credits")}
+                        {isPositive ? `+${tx.amount}` : tx.amount}{" "}
+                        {t("Credits")}
                       </div>
                     </div>
                   );

@@ -402,7 +402,7 @@ export default function MaterialPrices() {
                               </td>
                               <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
                                 {money(r.price, r.currency)}
-                                <span className="ml-1 text-[10px] font-normal text-muted-foreground">
+                                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
                                   {r.currency}
                                 </span>
                               </td>
@@ -413,7 +413,7 @@ export default function MaterialPrices() {
                                 <span className="mt-1 flex flex-wrap items-center gap-1.5">
                                   <span
                                     title={EVIDENCE_NOTE[r.evidence]}
-                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
                                       r.evidence === "supplier_verified"
                                         ? "border-accent-green/40 text-accent-green dark:text-accent-green-light"
                                         : r.evidence === "supplier_reported"
@@ -423,7 +423,7 @@ export default function MaterialPrices() {
                                   >
                                     {EVIDENCE_LABEL[r.evidence]}
                                   </span>
-                                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                                     {r.market}
                                   </span>
                                 </span>

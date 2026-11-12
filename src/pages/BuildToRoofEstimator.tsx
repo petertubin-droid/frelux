@@ -900,7 +900,7 @@ export default function BuildToRoofEstimator({
                     }`}
                   >
                     <div
-                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
                         isActive
                           ? "bg-primary-foreground text-primary"
                           : isDone

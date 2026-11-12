@@ -1073,7 +1073,7 @@ function TransactionHistory({
                 {tx.amount > 0 ? "+" : ""}
                 {tx.amount}
               </p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 Bal: {tx.balance_after}
               </p>
             </div>

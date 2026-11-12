@@ -262,12 +262,12 @@ export default function AdminPopMaterials() {
                                 {mat.name}
                               </p>
                               {mat.is_optional && (
-                                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                                   {t("Opt")}
                                 </span>
                               )}
                             </div>
-                            <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                            <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
                               {mat.coverage_rate} {mat.coverage_unit} ·{" "}
                               {mat.package_size}
                               {mat.package_unit} · ₦{mat.unit_price}
@@ -275,7 +275,7 @@ export default function AdminPopMaterials() {
                           </div>
                           <span
                             className={classNames(
-                              "rounded-full px-1.5 py-0.5 text-[9px] font-semibold",
+                              "rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
                               mat.is_active
                                 ? "bg-accent-green/15 text-accent-green"
                                 : "bg-muted text-muted-foreground",

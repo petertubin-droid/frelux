@@ -150,15 +150,15 @@ function WeatherDayCard({ day }: { day: WeatherDay }) {
       <div className="flex items-center justify-center gap-0.5">
         <Icon className={classNames("h-3.5 w-3.5", config.color)} />
       </div>
-      <p className={classNames("mt-0.5 text-[10px] font-medium", config.color)}>
+      <p className={classNames("mt-0.5 text-[11px] font-medium", config.color)}>
         {config.label}
       </p>
       <div className="mt-2 space-y-0.5">
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+        <p className="flex items-center justify-center gap-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
           <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}
           %
         </p>
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+        <p className="flex items-center justify-center gap-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
           <Thermometer aria-hidden="true" className="h-2.5 w-2.5" />{" "}
           {Math.round(day.tempMax)}°
         </p>
@@ -193,7 +193,7 @@ export function WeatherWidgetCompact() {
       </div>
       <div className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5">
         <span className="text-lg font-bold text-brand-purple">{goodDays}</span>
-        <span className="text-[10px] text-muted-foreground">/ 5 good</span>
+        <span className="text-[11px] text-muted-foreground">/ 5 good</span>
       </div>
     </div>
   );

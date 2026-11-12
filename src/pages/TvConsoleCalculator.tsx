@@ -540,7 +540,7 @@ export default function TvConsoleCalculator() {
                     }}
                     label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
                   />
-                  <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] backdrop-blur">
+                  <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[11px] backdrop-blur">
                     Calculated elevation
                   </span>
                   {selectedId === item.id && (

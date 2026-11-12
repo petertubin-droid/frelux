@@ -220,10 +220,10 @@ function ListingsTab() {
         {filteredListings.map((l) => (
           <div key={l.id} className="card p-3">
             <div className="flex items-center justify-between">
-              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
                 {PROJECT_TYPE_LABELS[l.project_type]}
               </span>
-              <span className="text-[10px] font-semibold text-muted-foreground">
+              <span className="text-[11px] font-semibold text-muted-foreground">
                 {LISTING_STATUS_LABELS[l.status]}
               </span>
             </div>
@@ -234,12 +234,12 @@ function ListingsTab() {
               {l.title}
             </Link>
             {l.location_state && (
-              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[11px] text-muted-foreground">
                 <MapPin aria-hidden="true" className="h-2.5 w-2.5" />{" "}
                 {l.location_state}
               </p>
             )}
-            <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
+            <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-0.5">
                 <Users aria-hidden="true" className="h-2.5 w-2.5" />{" "}
                 {l.bid_count}
@@ -255,7 +255,7 @@ function ListingsTab() {
                 type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
                 className={classNames(
-                  "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors",
+                  "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[11px] font-medium transition-colors",
                   l.is_featured
                     ? "text-amber-600"
                     : "text-muted-foreground hover:text-amber-500",
@@ -272,7 +272,7 @@ function ListingsTab() {
               <AdminIconButton
                 variant="ghost"
                 onClick={() => handleRemove(l.id)}
-                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-red-500"
+                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-muted-foreground hover:text-red-500"
               >
                 <Trash2 aria-hidden="true" className="h-3 w-3" /> {t("Remove")}
               </AdminIconButton>
@@ -550,10 +550,10 @@ function OrdersTab() {
           {orders.map((o) => (
             <div key={o.id} className="card p-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-muted-foreground">
+                <span className="font-mono text-[11px] text-muted-foreground">
                   {o.order_number}
                 </span>
-                <span className="text-[10px] font-semibold text-muted-foreground">
+                <span className="text-[11px] font-semibold text-muted-foreground">
                   {ORDER_STATUS_LABELS[o.status]}
                 </span>
               </div>
@@ -563,13 +563,13 @@ function OrdersTab() {
               >
                 {o.listing?.title || "Untitled"}
               </Link>
-              <p className="mt-0.5 text-[10px] text-muted-foreground">
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
                 Pro: {o.pro_profile?.display_name || "Unknown"}
               </p>
               <p className="mt-1 text-sm font-bold text-foreground dark:text-primary-foreground">
                 {formatByCode(o.agreed_price, o.currency)}
               </p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+              <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>
                 {o.client_rating && <span>{o.client_rating} rating</span>}
               </div>
@@ -646,7 +646,7 @@ function DisputesTab() {
           <div className="flex items-center justify-between">
             <span
               className={classNames(
-                "rounded-md px-2 py-0.5 text-[10px] font-semibold",
+                "rounded-md px-2 py-0.5 text-[11px] font-semibold",
                 d.status === "open"
                   ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                   : d.status === "resolved"
@@ -656,7 +656,7 @@ function DisputesTab() {
             >
               {String(d.status)}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               By {d.raised_by_role as string} ·{" "}
               {new Date(d.created_at as string).toLocaleDateString()}
             </span>

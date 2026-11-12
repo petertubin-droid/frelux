@@ -239,11 +239,11 @@ export default function AdminTypography() {
                       </p>
                     </div>
                     {config[area.key] === originalConfig[area.key] ? (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                         {t("Active")}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
                         {t("Modified")}
                       </span>
                     )}
@@ -519,12 +519,12 @@ function FontCard({
       </p>
       <div className="mt-3 flex items-center gap-2">
         {font.goodForBody && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
             {t("Body")}
           </span>
         )}
         {font.goodForHeadings && (
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
             {t("Heading")}
           </span>
         )}

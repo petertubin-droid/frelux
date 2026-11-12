@@ -168,12 +168,12 @@ function ProductsTab() {
                       {item.name}
                     </h3>
                     {!item.is_active && (
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                         {tx("Off")}
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                  <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
                     {item.brand && `${item.brand} · `}
                     {type?.name ?? "No type"} · {item.container_size} L
                   </p>
@@ -181,20 +181,20 @@ function ProductsTab() {
                     <span className="font-semibold text-brand-purple">
                       {formatCurrency(Number(item.price), "₦")}
                     </span>
-                    <div className="flex items-center gap-1 text-[10px]">
+                    <div className="flex items-center gap-1 text-[11px]">
                       <span className="font-mono bg-muted/60 px-1 py-0.5 rounded text-muted-foreground">
                         {item.regional_multiplier
                           ? `×${Number(item.regional_multiplier).toFixed(2)}`
                           : "×1.00"}
                       </span>
-                      <span className="capitalize text-[9px] px-1 py-0.5 rounded bg-brand-purple/10 text-brand-purple font-medium">
+                      <span className="capitalize text-[11px] px-1 py-0.5 rounded bg-brand-purple/10 text-brand-purple font-medium">
                         {item.last_updated_via || "manual"}
                       </span>
                     </div>
                   </div>
                   {item.base_price !== undefined &&
                     item.base_price !== null && (
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground">
                         Base: {formatCurrency(Number(item.base_price), "₦")}
                       </p>
                     )}
@@ -478,12 +478,12 @@ function MaterialsTab() {
                     {item.name}
                   </h3>
                   {!item.is_active && (
-                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                       {tx("Off")}
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 text-[10px] text-muted-foreground capitalize">
+                <p className="mt-0.5 text-[11px] text-muted-foreground capitalize">
                   {item.category} · {item.unit}
                 </p>
                 <p className="mt-1 text-xs font-semibold text-brand-purple">
@@ -815,7 +815,7 @@ function LaborTab() {
                     {item.name}
                   </h3>
                   {!item.is_active && (
-                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                       {tx("Off")}
                     </span>
                   )}

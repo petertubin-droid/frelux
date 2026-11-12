@@ -541,7 +541,7 @@ function RoomCard({
         {/* Drag handle (visual only) */}
         <div className="flex flex-col items-center gap-0.5 pt-1">
           <GripVertical className="h-5 w-5 cursor-grab text-muted-foreground/80" />
-          <span className="text-[10px] font-bold text-muted-foreground dark:text-muted-foreground">
+          <span className="text-[11px] font-bold text-muted-foreground dark:text-muted-foreground">
             {index + 1}
           </span>
         </div>

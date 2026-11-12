@@ -315,7 +315,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Record Measurement")}</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground">
                   {t("Laser beam capture")}
                 </span>
               </Button>
@@ -326,7 +326,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Edit BOQ Quantities")}</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground">
                   {t("Concurrent line update")}
                 </span>
               </Button>
@@ -337,7 +337,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Log Escrow Proof")}</span>
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[11px] text-muted-foreground">
                   {t("Milestone clearance")}
                 </span>
               </Button>
@@ -445,7 +445,7 @@ export default function OfflineSyncHub() {
                       key={mat}
                       className="p-2 rounded bg-card border border-border/50"
                     >
-                      <div className="text-muted-foreground text-[10px] capitalize">
+                      <div className="text-muted-foreground text-[11px] capitalize">
                         {mat.replace(/_/g, " ")}
                       </div>
                       <div className="font-bold text-foreground">

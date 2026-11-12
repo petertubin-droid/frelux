@@ -139,7 +139,7 @@ export default function PWASection() {
                     <span className="text-xs font-bold text-primary-foreground">
                       {t("FRELUX")}
                     </span>
-                    <span className="text-[10px] text-primary-foreground/40">
+                    <span className="text-[11px] text-primary-foreground/40">
                       {t("Paint Calculator")}
                     </span>
                   </div>
@@ -159,7 +159,7 @@ export default function PWASection() {
                     <div className="mt-3 space-y-2">
                       <div className="flex gap-2">
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
-                          <p className="text-[9px] text-primary-foreground/30">
+                          <p className="text-[11px] text-primary-foreground/30">
                             {t("Length")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
@@ -167,7 +167,7 @@ export default function PWASection() {
                           </p>
                         </div>
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
-                          <p className="text-[9px] text-primary-foreground/30">
+                          <p className="text-[11px] text-primary-foreground/30">
                             {t("Width")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
@@ -177,7 +177,7 @@ export default function PWASection() {
                       </div>
                       <div className="flex gap-2">
                         <div className="flex-1 rounded-lg bg-white/5 px-3 py-2">
-                          <p className="text-[9px] text-primary-foreground/30">
+                          <p className="text-[11px] text-primary-foreground/30">
                             {t("Height")}
                           </p>
                           <p className="text-xs font-bold text-primary-foreground">
@@ -185,7 +185,7 @@ export default function PWASection() {
                           </p>
                         </div>
                         <div className="flex-1 rounded-lg bg-primary/10 px-3 py-2">
-                          <p className="text-[9px] text-brand-purple-light/50">
+                          <p className="text-[11px] text-brand-purple-light/50">
                             {t("Coats")}
                           </p>
                           <p className="text-xs font-bold text-brand-purple-light">
@@ -197,13 +197,13 @@ export default function PWASection() {
 
                     {/* Result */}
                     <div className="mt-3 rounded-lg bg-primary/10 p-3">
-                      <p className="text-[9px] font-semibold uppercase tracking-wide text-brand-purple-light/60">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-purple-light/60">
                         {t("Paint needed")}
                       </p>
                       <p className="font-display text-xl font-bold text-primary-foreground">
                         14 L
                       </p>
-                      <p className="text-[10px] text-primary-foreground/40">
+                      <p className="text-[11px] text-primary-foreground/40">
                         2 buckets · 409 ft²
                       </p>
                     </div>
@@ -213,19 +213,19 @@ export default function PWASection() {
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Square className="mx-auto h-4 w-4 text-accent-cyan" />
-                      <p className="mt-1 text-[9px] text-primary-foreground/50">
+                      <p className="mt-1 text-[11px] text-primary-foreground/50">
                         {t("Screeding")}
                       </p>
                     </div>
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Layers className="mx-auto h-4 w-4 text-brand-purple-light" />
-                      <p className="mt-1 text-[9px] text-primary-foreground/50">
+                      <p className="mt-1 text-[11px] text-primary-foreground/50">
                         {t("POP")}
                       </p>
                     </div>
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Grid3x3 className="mx-auto h-4 w-4 text-accent-cyan" />
-                      <p className="mt-1 text-[9px] text-primary-foreground/50">
+                      <p className="mt-1 text-[11px] text-primary-foreground/50">
                         {t("Tiles")}
                       </p>
                     </div>
@@ -243,10 +243,10 @@ export default function PWASection() {
                     <Download className="h-3.5 w-3.5" />
                   </span>
                   <div>
-                    <p className="text-[10px] font-bold text-foreground dark:text-primary-foreground">
+                    <p className="text-[11px] font-bold text-foreground dark:text-primary-foreground">
                       {t("Install FRELUX")}
                     </p>
-                    <p className="text-[9px] text-muted-foreground dark:text-primary-foreground/40">
+                    <p className="text-[11px] text-muted-foreground dark:text-primary-foreground/40">
                       {t("Add to home screen")}
                     </p>
                   </div>

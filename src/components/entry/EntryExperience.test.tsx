@@ -27,9 +27,10 @@ describe("EntryExperience (first-visit welcome)", () => {
       screen.getByRole("dialog", { name: /welcome to frelux/i }),
     ).toBeDefined();
     expect(screen.getByText("FRELUX")).toBeDefined();
-    const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.textContent).toContain("Smarter Construction.");
-    expect(h1.textContent).toContain("More Accurate Decisions.");
+    // The intro overlay is presentation: the page keeps a single h1 in <Hero>.
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+    expect(screen.getByText("Smarter Construction.")).toBeDefined();
+    expect(screen.getByText("More Accurate Decisions.")).toBeDefined();
     expect(
       screen.getByText(
         "Tools, intelligence and practical technology designed to help you plan, calculate and build with greater confidence.",

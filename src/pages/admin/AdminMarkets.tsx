@@ -242,7 +242,7 @@ function ProfilesTab() {
               </div>
               <span
                 className={classNames(
-                  "rounded-md px-2 py-0.5 text-[10px] font-semibold",
+                  "rounded-md px-2 py-0.5 text-[11px] font-semibold",
                   p.status === "active"
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                     : p.status === "coming_soon"
@@ -592,7 +592,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
                     {CALCULATOR_TYPE_LABELS[
                       r.calculator_type as MarketCalculatorType
                     ] ?? r.calculator_type}

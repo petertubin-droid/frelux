@@ -134,7 +134,7 @@ export function PitchInput({
                 if (mode === "unknown") onChange(null);
               }}
               disabled={disabled}
-              className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
+              className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
                 inputMode === mode
                   ? "bg-foreground text-background"
                   : "bg-muted text-muted-foreground hover:bg-muted"

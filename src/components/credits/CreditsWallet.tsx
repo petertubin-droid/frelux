@@ -261,7 +261,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {tx.reason}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {new Date(tx.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -303,7 +303,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {evt.ad_provider}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {new Date(evt.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -983,7 +983,7 @@ export function AiFeatureGate({
                 <>
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />
-                    <span className="text-[10px] font-medium text-muted-foreground">
+                    <span className="text-[11px] font-medium text-muted-foreground">
                       {t("OR")}
                     </span>
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />

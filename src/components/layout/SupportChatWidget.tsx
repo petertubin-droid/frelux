@@ -295,7 +295,7 @@ export default function SupportChatWidget() {
                           </div>
                           <p
                             className={classNames(
-                              "mt-1 px-1 text-[10px] text-muted-foreground/80 dark:text-muted-foreground",
+                              "mt-1 px-1 text-[11px] text-muted-foreground/80 dark:text-muted-foreground",
                               m.from === "user" ? "text-right" : "text-left",
                             )}
                           >

@@ -392,7 +392,7 @@ export default function Login() {
                     >
                       {t("Client")}
                     </p>
-                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                       {t("Estimate and save projects")}
                     </p>
                   </div>
@@ -427,7 +427,7 @@ export default function Login() {
                     >
                       {t("Worker")}
                     </p>
-                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                       {t("Offer your services")}
                     </p>
                   </div>
@@ -623,7 +623,7 @@ export default function Login() {
         <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground">
           <Link
             to="/"
-            className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter"
+            className="inline-flex min-h-8 items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter"
           >
             <ArrowLeft className="h-3 w-3" /> {t("Back to website")}
           </Link>

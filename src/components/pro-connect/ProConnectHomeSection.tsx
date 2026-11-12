@@ -53,7 +53,9 @@ export default function ProConnectHomeSection() {
             {t("Find the Right Professional for Your Project")}
           </h2>
           <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
-            {t("Find construction professionals in available locations. Directory coverage varies by market.")}
+            {t(
+              "Find construction professionals in available locations. Directory coverage varies by market.",
+            )}
           </p>
         </div>
 
@@ -104,7 +106,7 @@ export default function ProConnectHomeSection() {
         <div className="mt-8 text-center">
           <Link
             to="/pro-connect/"
-            className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-lighter"
+            className="inline-flex min-h-8 items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-lighter"
           >
             {t("Explore All Professionals")}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />

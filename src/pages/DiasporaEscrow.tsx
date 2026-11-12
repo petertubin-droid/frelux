@@ -259,7 +259,7 @@ export default function DiasporaEscrow() {
                     contract.sourceCurrency,
                   )}
                 </span>
-                <span className="text-[10px] text-muted-foreground block mt-1">
+                <span className="text-[11px] text-muted-foreground block mt-1">
                   Escrowed foreign currency
                 </span>
               </div>
@@ -274,7 +274,7 @@ export default function DiasporaEscrow() {
                     contract.localCurrency,
                   )}
                 </span>
-                <span className="text-[10px] text-emerald-500 font-medium block mt-1">
+                <span className="text-[11px] text-emerald-500 font-medium block mt-1">
                   Guaranteed local conversion
                 </span>
               </div>
@@ -286,7 +286,7 @@ export default function DiasporaEscrow() {
                 <span className="text-xl font-bold font-mono text-foreground">
                   {summary.releasedCount} of {summary.milestoneCount} Released
                 </span>
-                <span className="text-[10px] text-muted-foreground block mt-1">
+                <span className="text-[11px] text-muted-foreground block mt-1">
                   {summary.completionPercentage}% verified project completion
                 </span>
               </div>
@@ -327,7 +327,7 @@ export default function DiasporaEscrow() {
                       <p className="text-xs font-medium text-foreground line-clamp-1">
                         {photo.caption}
                       </p>
-                      <span className="text-[10px] text-muted-foreground block">
+                      <span className="text-[11px] text-muted-foreground block">
                         {m.phaseName} · GPS cleared
                       </span>
                     </div>
@@ -488,7 +488,7 @@ export default function DiasporaEscrow() {
                             <p className="text-xs font-medium text-foreground line-clamp-1">
                               {photo.caption}
                             </p>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[11px] text-muted-foreground">
                               Foreman verified · GPS cleared
                             </span>
                           </div>

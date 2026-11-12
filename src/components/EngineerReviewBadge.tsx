@@ -96,7 +96,7 @@ export default function EngineerReviewBadge({
               </a>
             </div>
             {scope.localScope && (
-              <p className="text-[10px] leading-relaxed text-muted-foreground/80">
+              <p className="text-[11px] leading-relaxed text-muted-foreground/80">
                 {scope.localScope}
               </p>
             )}

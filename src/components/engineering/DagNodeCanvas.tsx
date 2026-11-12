@@ -404,27 +404,27 @@ export function DagNodeCanvas({
                     >
                       {/* Status indicator & Float badge */}
                       <div className="mb-2 flex items-center justify-between gap-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
                           {node.stage}
                         </span>
                         {status === "in_progress" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold text-brand-purple animate-pulse">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[11px] font-bold text-brand-purple animate-pulse">
                             <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
                             {t("Executing")}
                           </span>
                         )}
                         {status === "completed" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
                             <CheckCircle2 className="h-3 w-3" /> {t("Done")}
                           </span>
                         )}
                         {status === "pending" && node.isCritical && (
-                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">
+                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-bold text-amber-600">
                             {t("Critical (0d float)")}
                           </span>
                         )}
                         {status === "pending" && !node.isCritical && (
-                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
                             TF: {node.totalFloat}d
                           </span>
                         )}
@@ -434,7 +434,7 @@ export function DagNodeCanvas({
                         {node.name}
                       </h5>
 
-                      <p className="mt-1 text-[10px] text-muted-foreground">
+                      <p className="mt-1 text-[11px] text-muted-foreground">
                         {formatTradeName(node.trade)}
                       </p>
 
@@ -443,7 +443,7 @@ export function DagNodeCanvas({
                           <Clock className="h-3 w-3 text-brand-purple" />
                           {node.duration}d
                         </span>
-                        <span className="font-mono text-[10px]">
+                        <span className="font-mono text-[11px]">
                           ES:{node.earlyStart} · EF:{node.earlyFinish}
                         </span>
                       </div>

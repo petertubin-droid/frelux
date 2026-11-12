@@ -358,7 +358,7 @@ export default function AdminEstimationEstimates() {
                       </span>
 
                       <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium capitalize ${getLabourBadge(est.labour_status)}`}
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${getLabourBadge(est.labour_status)}`}
                       >
                         Labour: {est.labour_status.replace(/_/g, " ")}
                       </span>
@@ -392,7 +392,7 @@ export default function AdminEstimationEstimates() {
                       <span className="text-base font-extrabold text-foreground dark:text-primary-foreground">
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
-                      <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                         {t("Total Material Cost")}
                       </p>
                     </div>
@@ -459,14 +459,14 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 font-medium text-foreground">
                                   {item.item_name}
                                   {item.notes && (
-                                    <p className="text-[10px] text-muted-foreground italic">
+                                    <p className="text-[11px] text-muted-foreground italic">
                                       {item.notes}
                                     </p>
                                   )}
                                 </td>
                                 <td className="p-2.5">
                                   <span
-                                    className={`inline-flex rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}
+                                    className={`inline-flex rounded border px-1.5 py-0.5 text-[11px] font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}
                                   >
                                     {item.item_type}
                                   </span>
@@ -477,7 +477,7 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 text-right font-mono font-semibold text-card-foreground dark:text-muted-foreground/60">
                                   {item.practical_purchase_qty} {item.unit}
                                   {item.pack_size && (
-                                    <span className="block text-[9px] text-muted-foreground dark:text-muted-foreground">
+                                    <span className="block text-[11px] text-muted-foreground dark:text-muted-foreground">
                                       Pack: {item.pack_size}
                                     </span>
                                   )}
@@ -497,7 +497,7 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 capitalize text-muted-foreground text-[11px]">
                                   {item.calculation_source}
                                   {item.adjustment_status !== "none" && (
-                                    <span className="ml-1 text-[10px] text-orange-600">
+                                    <span className="ml-1 text-[11px] text-orange-600">
                                       ({item.adjustment_status})
                                     </span>
                                   )}

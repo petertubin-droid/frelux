@@ -108,7 +108,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 overflow-y-auto p-3">
         {TOOL_CATEGORIES.map((cat) => (
           <div key={cat} className="mb-4">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+            <p className="mb-1 px-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
               {cat}
             </p>
             <div className="space-y-0.5">

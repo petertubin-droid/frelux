@@ -39,7 +39,7 @@ function StatusChip({ status }: { status: "verified" | "verify-locally" }) {
   return (
     <span
       className={classNames(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
         status === "verified"
           ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
           : "bg-amber-500/10 text-amber-700 dark:text-amber-400",
@@ -412,12 +412,12 @@ export default function CodeReference() {
                     {domain.label}
                   </h3>
                   {domain.status === "unsupported" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-destructive">
                       <CircleSlash aria-hidden="true" className="h-3 w-3" />
                       Not codified
                     </span>
                   ) : (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
                       {domain.references.length} reference
                       {domain.references.length === 1 ? "" : "s"}
                     </span>

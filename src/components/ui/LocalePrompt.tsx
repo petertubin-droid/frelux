@@ -80,8 +80,7 @@ const PROMPT_COPY: Record<
     country: "the Arab region",
   },
   hi: {
-    question:
-      "आप प्रतीत होते हैं भारत से ब्राउज़ कर रहे हैं। Frelux को हिन्दी में दिखाएँ?",
+    question: "आप प्रतीत होते हैं भारत से ब्राउज़ कर रहे हैं। Frelux को हिन्दी में दिखाएँ?",
     decline: "नहीं, धन्यवाद",
     country: "India",
   },
@@ -232,7 +231,7 @@ export function LocalePrompt() {
           {copy.decline}
         </Button>
       </div>
-      <p className="mt-2 flex items-center gap-1 text-[9px] leading-snug text-muted-foreground/70">
+      <p className="mt-2 flex items-center gap-1 text-[11px] leading-snug text-muted-foreground/70">
         <Globe aria-hidden="true" className="h-3 w-3 shrink-0" />
         Detected locally from your timezone and browser settings. Never shared.
       </p>

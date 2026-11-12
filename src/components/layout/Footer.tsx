@@ -165,7 +165,7 @@ export default function Footer() {
               <a
                 href={`mailto:${siteConfig.email}`}
                 aria-label="Email us"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
               >
                 <Mail className="h-3.5 w-3.5" />
                 {siteConfig.email}
@@ -240,11 +240,13 @@ function FooterColumn({
   // Every group is open on every breakpoint (owner report 2026-10-29: the
   // collapse-to-dropdown footer read as unprofessional). Length is controlled
   // by density instead of hiding links: two CSS columns on phones for the long
-  // groups, tighter type, and no per-row padding.
+  // groups, tighter type, and no per-row padding. The hit area is a 24 px
+  // minimum (WCAG 2.5.8) carried by the link itself, so the density is
+  // untouched while a thumb can actually land on a row.
   const { t } = useLanguage();
   return (
     <nav aria-label={t(title)}>
-      <h3 className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
         {t(title)}
       </h3>
       <ul
@@ -260,7 +262,7 @@ function FooterColumn({
           >
             <Link
               to={link.path}
-              className="text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              className="inline-flex min-h-6 items-center text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
               {t(link.label)}
             </Link>

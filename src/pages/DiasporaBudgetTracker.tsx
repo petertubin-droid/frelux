@@ -212,7 +212,7 @@ export default function DiasporaBudgetTracker() {
                 className="w-full text-xl font-bold font-mono bg-transparent border-none focus:outline-hidden"
               />
             </div>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               Original foreign allocation
             </span>
           </div>
@@ -240,7 +240,7 @@ export default function DiasporaBudgetTracker() {
                 className="w-full text-xl font-bold font-mono bg-transparent border-none focus:outline-hidden"
               />
             </div>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               Actual contractor liquidity rate
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function DiasporaBudgetTracker() {
                 className="w-full text-xl font-bold font-mono bg-transparent border-none focus:outline-hidden"
               />
             </div>
-            <span className="text-[10px] text-amber-500 font-medium">
+            <span className="text-[11px] text-amber-500 font-medium">
               +{result.exchangeRateGapPercent}% Parallel Spread
             </span>
           </div>
@@ -271,7 +271,7 @@ export default function DiasporaBudgetTracker() {
               {result.inflationAdjustedProjectedForeign.toLocaleString()}{" "}
               {sponsorCurrency}
             </div>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               +{Math.round((result.inflationMultiplier - 1) * 100)}% buffer over{" "}
               {timelineMonths}mo
             </span>
@@ -423,7 +423,7 @@ export default function DiasporaBudgetTracker() {
                     <div className="flex items-center gap-3">
                       <Badge
                         variant={m.completed ? "default" : "outline"}
-                        className={`text-[10px] ${m.completed ? "bg-emerald-600" : ""}`}
+                        className={`text-[11px] ${m.completed ? "bg-emerald-600" : ""}`}
                       >
                         {m.completed
                           ? "Disbursed / Cleared"
@@ -485,7 +485,7 @@ export default function DiasporaBudgetTracker() {
                         {sponsorCurrency}
                         {m.spentLocal > 0 && (
                           <span
-                            className={`ml-2 text-[10px] ${
+                            className={`ml-2 text-[11px] ${
                               variance > 0 ? "text-red-500" : "text-emerald-500"
                             }`}
                           >

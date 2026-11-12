@@ -811,7 +811,7 @@ function CatalogueTab({
                           ? "secondary"
                           : "outline"
                     }
-                    className="text-[10px]"
+                    className="text-[11px]"
                   >
                     {listing.listing_status === "active"
                       ? "Live"

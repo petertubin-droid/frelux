@@ -57,7 +57,7 @@ function confidenceBadge(confidence: number | null) {
     return (
       <Badge
         variant="outline"
-        className="border-border text-[10px] text-muted-foreground"
+        className="border-border text-[11px] text-muted-foreground"
       >
         stated
       </Badge>
@@ -71,7 +71,7 @@ function confidenceBadge(confidence: number | null) {
         ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
         : "border-destructive/30 bg-destructive/10 text-destructive";
   return (
-    <Badge variant="outline" className={`text-[10px] ${tone}`}>
+    <Badge variant="outline" className={`text-[11px] ${tone}`}>
       {pct}% read
     </Badge>
   );
@@ -225,7 +225,7 @@ export default function PlanImportPanel({
         </div>
         <Badge
           variant="outline"
-          className="border-brand-purple/25 bg-brand-purple/10 text-brand-purple text-[10px]"
+          className="border-brand-purple/25 bg-brand-purple/10 text-brand-purple text-[11px]"
         >
           Vision read, maths applied
         </Badge>

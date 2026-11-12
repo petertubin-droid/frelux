@@ -451,7 +451,7 @@ export default function Pricing() {
               )}
             >
               {t("Yearly")}
-              <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold text-accent-green">
+              <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-bold text-accent-green">
                 {t("Save up to")} {MAX_YEARLY_SAVING}%
               </span>
             </Button>

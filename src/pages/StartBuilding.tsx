@@ -516,7 +516,7 @@ function CategoryCard({
             key={tool.to}
             to={tool.to}
             onClick={onClick}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
+            className="inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
           >
             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/80 dark:text-muted-foreground" />
             {tool.label}

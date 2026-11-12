@@ -404,7 +404,7 @@ export default function WorkspaceSettings() {
                                 <p className="font-semibold text-sm leading-tight">
                                   {m.profile?.full_name || "Team Member"}
                                   {isSelf && (
-                                    <span className="ml-1 text-[10px] text-primary font-normal">
+                                    <span className="ml-1 text-[11px] text-primary font-normal">
                                       (You)
                                     </span>
                                   )}
@@ -450,7 +450,7 @@ export default function WorkspaceSettings() {
                               </span>
                             )}
                             {m.status && m.status !== "active" && (
-                              <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/30">
+                              <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide bg-destructive/10 text-destructive border border-destructive/30">
                                 {m.status}
                               </span>
                             )}
@@ -706,7 +706,7 @@ export default function WorkspaceSettings() {
               {posture.map((p) => (
                 <li key={p.surface} className="text-sm">
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide mr-2 border ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide mr-2 border ${
                       p.status === "approved"
                         ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
                         : p.status === "rejected"

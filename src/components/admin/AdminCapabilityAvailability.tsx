@@ -56,13 +56,13 @@ function PortabilityBadge({ engine }: { engine: EngineCapability }) {
   const { t } = useLanguage();
   if (engine.deterministic) {
     return (
-      <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+      <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
         <Cpu className="h-3 w-3" /> deterministic
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+    <span className="inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
       {t("AI-mediated")}
     </span>
   );
@@ -181,7 +181,7 @@ export function AdminCapabilityAvailability() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold">{e.name}</span>
                     <PortabilityBadge engine={e} />
-                    <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
                       {CATEGORY_LABELS[e.category]}
                     </span>
                   </div>
@@ -224,8 +224,8 @@ export function AdminCapabilityAvailability() {
                       }
                       className={
                         ok
-                          ? "rounded bg-emerald-600/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400"
-                          : "rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground line-through"
+                          ? "rounded bg-emerald-600/10 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400"
+                          : "rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground line-through"
                       }
                     >
                       {m}

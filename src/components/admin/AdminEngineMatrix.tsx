@@ -391,7 +391,7 @@ function MarketPill({
   return (
     <span
       title={`${market}: ${c.label} - ${notes}`}
-      className={`px-1.5 py-0.5 rounded text-[9px] border ${c.bg} ${c.text}`}
+      className={`px-1.5 py-0.5 rounded text-[11px] border ${c.bg} ${c.text}`}
     >
       {market}
     </span>
@@ -472,7 +472,7 @@ function Detail({
 }) {
   return (
     <div>
-      <div className="font-semibold text-zinc-400 uppercase text-[10px]">
+      <div className="font-semibold text-zinc-400 uppercase text-[11px]">
         {title}
       </div>
       <div className={`text-zinc-300 mt-1 ${mono ? "font-mono" : ""}`}>

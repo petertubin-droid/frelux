@@ -453,7 +453,7 @@ export default function ConduitWiringEstimator() {
                     <Route className="h-4 w-4 text-primary" /> Visual Floorplan
                     & Glowing Wall Runs
                   </span>
-                  <Badge variant="outline" className="text-[10px] font-mono">
+                  <Badge variant="outline" className="text-[11px] font-mono">
                     {routerPoints.length} Points · {roomWidth}{" "}
                     {unitShortLabel(routerUnit)} × {roomLength}{" "}
                     {unitShortLabel(routerUnit)}
@@ -610,13 +610,13 @@ export default function ConduitWiringEstimator() {
                       className="flex items-center justify-between p-2 rounded-lg bg-muted/40 text-xs border border-border/40"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] text-muted-foreground">
+                        <span className="font-mono text-[11px] text-muted-foreground">
                           #{i + 1}
                         </span>
                         <span className="font-medium text-foreground">
                           {p.label}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[11px] text-muted-foreground">
                           ({p.x}m, {p.y}m)
                         </span>
                       </div>
@@ -654,7 +654,7 @@ export default function ConduitWiringEstimator() {
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.conduitPvcPipes20mmPieces} Lengths
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {routingResult.totalConduitLengthM}m total @ 2.9m/pipe
                     </span>
                   </div>
@@ -667,7 +667,7 @@ export default function ConduitWiringEstimator() {
                       {routingResult.totalHorizontalLengthM}m +{" "}
                       {routingResult.totalVerticalLengthM}m
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Wall perimeter & drops
                     </span>
                   </div>
@@ -679,7 +679,7 @@ export default function ConduitWiringEstimator() {
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.lightingWireCoils1_5mm} Coil(s)
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       100m bundles
                     </span>
                   </div>
@@ -691,7 +691,7 @@ export default function ConduitWiringEstimator() {
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.socketWireCoils2_5mm} Coil(s)
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       100m ring/radial
                     </span>
                   </div>

@@ -370,7 +370,7 @@ export default function MaterialPriceTracker() {
                               </p>
                             )}
                             {m.price_updated_at && (
-                              <p className="text-[10px] text-muted-foreground">
+                              <p className="text-[11px] text-muted-foreground">
                                 {new Date(
                                   m.price_updated_at,
                                 ).toLocaleDateString()}

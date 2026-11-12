@@ -497,7 +497,7 @@ export default function IntelligenceDashboard() {
                         </span>
                       </span>
                       {milestone.delayed ? (
-                        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+                        <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
                           past end date
                         </span>
                       ) : null}
@@ -650,7 +650,7 @@ export default function IntelligenceDashboard() {
                           {move.source}
                         </td>
                         <td className="px-3 py-2">
-                          <span className="rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                          <span className="rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
                             {move.verification}
                           </span>
                         </td>
@@ -938,7 +938,7 @@ export default function IntelligenceDashboard() {
                           </span>
                         </span>
                         <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${
                             ["approved", "completed"].includes(
                               milestone.status.toLowerCase(),
                             )

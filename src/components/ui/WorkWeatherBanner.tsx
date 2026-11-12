@@ -142,7 +142,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
               {today.dayName} {today.condition}
             </span>
             {source === "estimated" && (
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-1 ring-inset ring-border">
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-1 ring-inset ring-border">
                 Estimated
               </span>
             )}
@@ -230,10 +230,10 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                     )}
                   </div>
                   <r.Icon className={classNames("h-3.5 w-3.5", r.color)} />
-                  <p className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground">
+                  <p className="text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
                     {Math.round(day.tempMax)}°
                   </p>
-                  <p className="text-[9px] text-muted-foreground dark:text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                     {day.humidity}%
                   </p>
                 </div>

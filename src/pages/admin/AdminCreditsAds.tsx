@@ -464,7 +464,7 @@ export default function AdminCreditsAds() {
               >
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">
+                    <label className="text-[11px] font-semibold text-muted-foreground">
                       {t("Feature Name")}
                     </label>
                     <input
@@ -480,7 +480,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">
+                    <label className="text-[11px] font-semibold text-muted-foreground">
                       {t("Credit Cost")}
                     </label>
                     <NumericInput
@@ -499,7 +499,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">
+                    <label className="text-[11px] font-semibold text-muted-foreground">
                       Daily Usage Limit (0=unlimited)
                     </label>
                     <NumericInput
@@ -518,7 +518,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">
+                    <label className="text-[11px] font-semibold text-muted-foreground">
                       {t("Description")}
                     </label>
                     <input
@@ -615,7 +615,7 @@ export default function AdminCreditsAds() {
           </h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-[10px] font-semibold text-muted-foreground">
+              <label className="text-[11px] font-semibold text-muted-foreground">
                 {t("Credits per Ad")}
               </label>
               <input
@@ -632,7 +632,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-muted-foreground">
+              <label className="text-[11px] font-semibold text-muted-foreground">
                 {t("Daily Earn Limit")}
               </label>
               <input
@@ -649,7 +649,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-muted-foreground">
+              <label className="text-[11px] font-semibold text-muted-foreground">
                 {t("Cooldown (seconds)")}
               </label>
               <NumericInput
@@ -665,7 +665,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-muted-foreground">
+              <label className="text-[11px] font-semibold text-muted-foreground">
                 {t("Min Interval Between Ads (seconds)")}
               </label>
               <NumericInput
@@ -731,7 +731,7 @@ export default function AdminCreditsAds() {
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-[10px] font-semibold text-muted-foreground">
+                <label className="text-[11px] font-semibold text-muted-foreground">
                   {t("Tokens per Pack")}
                 </label>
                 <NumericInput
@@ -748,7 +748,7 @@ export default function AdminCreditsAds() {
                 />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-muted-foreground">
+                <label className="text-[11px] font-semibold text-muted-foreground">
                   Price (₦)
                 </label>
                 <NumericInput
@@ -835,7 +835,7 @@ export default function AdminCreditsAds() {
                         {c.symbol} {c.code}
                       </span>
                       {saved && (
-                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
                           {t("Active")}
                         </span>
                       )}
@@ -860,7 +860,7 @@ export default function AdminCreditsAds() {
                         type="button"
                         onClick={() => handleSaveTokenPrice(c.code)}
                         disabled={savingTokenPrice === c.code}
-                        className="shrink-0 rounded-lg bg-primary px-2.5 py-1.5 text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
+                        className="shrink-0 rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-bold text-primary-foreground hover:bg-primary/90"
                       >
                         {savingTokenPrice === c.code ? (
                           <Loader2
@@ -900,12 +900,12 @@ export default function AdminCreditsAds() {
                           ? formatMinor(p.amount_kobo, p.currency)
                           : formatNaira(p.amount_kobo)}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground">
                         {p.reference} •{" "}
                         {new Date(p.created_at).toLocaleString()}
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
                       {p.status}
                     </span>
                   </div>
@@ -928,12 +928,12 @@ export default function AdminCreditsAds() {
                 <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                   {tx.reason}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   {tx.type} • {new Date(tx.created_at).toLocaleString()} •
                   Balance: {tx.balance_after}
                 </p>
                 {tx.reference_id && (
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Ref: {tx.reference_id}
                   </p>
                 )}
@@ -1018,7 +1018,7 @@ export default function AdminCreditsAds() {
                   <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                     {w.user_id.slice(0, 8)}…
                   </p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Earned: {w.total_earned} • Spent: {w.total_spent}
                   </p>
                 </div>
@@ -1107,11 +1107,11 @@ export default function AdminCreditsAds() {
                   </div>
                   <div className="flex items-center gap-2">
                     {u.unlocked_via_ad ? (
-                      <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                      <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
                         {t("Ad")}
                       </span>
                     ) : (
-                      <span className="rounded bg-accent-green/10 px-1.5 py-0.5 text-[10px] font-semibold text-accent-green">
+                      <span className="rounded bg-accent-green/10 px-1.5 py-0.5 text-[11px] font-semibold text-accent-green">
                         {u.credits_spent}cr
                       </span>
                     )}
@@ -1177,7 +1177,7 @@ function StatCard({
     <div className="rounded-xl border border-border p-3 dark:border-white/10">
       <div className="flex items-center gap-2">
         {icon}
-        <span className="text-[10px] font-medium text-muted-foreground">
+        <span className="text-[11px] font-medium text-muted-foreground">
           {label}
         </span>
       </div>

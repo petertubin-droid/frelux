@@ -174,7 +174,7 @@ function PluginManager() {
               </div>
               <span
                 className={classNames(
-                  "rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
+                  "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
                   p.status === "enabled"
                     ? "bg-accent-green/15 text-accent-green"
                     : p.status === "installed"
@@ -197,7 +197,7 @@ function PluginManager() {
                 {p.author && ` · ${p.author}`}
               </span>
               {p.is_official && (
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
                   {t("Official")}
                 </span>
               )}
@@ -384,7 +384,7 @@ function PromptLibrary() {
                         {p.title}
                       </p>
                       {p.is_builtin && (
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground dark:text-muted-foreground">
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground dark:text-muted-foreground">
                           {t("Built in")}
                         </span>
                       )}
@@ -560,7 +560,7 @@ function IntegrationCenter() {
               <div className="flex items-center gap-3">
                 <span
                   className={classNames(
-                    "rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
+                    "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
                     i.status === "connected"
                       ? "bg-accent-green/15 text-accent-green"
                       : "bg-muted text-muted-foreground dark:text-muted-foreground",
@@ -650,10 +650,10 @@ function FeatureManagement() {
                 <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   {f.label}
                 </p>
-                <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
                   {f.feature_key}
                 </code>
-                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
                   {f.category}
                 </span>
               </div>
@@ -821,7 +821,7 @@ function RoleManagement() {
                     {r.role_name}
                   </p>
                   {r.is_system && (
-                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
                       {t("System")}
                     </span>
                   )}
@@ -835,7 +835,7 @@ function RoleManagement() {
                   {r.permissions.map((perm, i) => (
                     <span
                       key={i}
-                      className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground"
+                      className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-mono text-muted-foreground"
                     >
                       {perm}
                     </span>
@@ -927,7 +927,7 @@ function SystemMonitoring() {
                         {m.metric_value.toLocaleString()}
                         {m.unit && ` ${m.unit}`}
                       </p>
-                      <p className="mt-0.5 text-[10px] text-muted-foreground">
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
                         {new Date(m.recorded_at).toLocaleString()}
                       </p>
                     </div>
@@ -1329,7 +1329,7 @@ function FileManager() {
                   <p className="text-xs text-muted-foreground">
                     {a.artifact_type} · {a.language}
                   </p>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
                     {new Date(a.updated_at).toLocaleDateString()}
                   </p>
                 </div>

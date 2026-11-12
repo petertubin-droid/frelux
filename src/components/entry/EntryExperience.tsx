@@ -173,7 +173,9 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
 
           {/* Headline: split coloring: the craft in white, the outcome in
               the brand's violet-to-orange gradient. */}
-          <h1
+          {/* Presentation only. The homepage <Hero> owns the page's single h1,
+              so an intro overlay that kept its own h1 gave the document two. */}
+          <p
             className="entry-rise mt-6 font-display text-[30px] font-semibold leading-[1.12] text-balance sm:mt-8 sm:text-5xl sm:leading-[1.1] lg:text-[56px]"
             style={rise(420)}
           >
@@ -182,7 +184,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
               {t("More Accurate Decisions.")}
             </span>
-          </h1>
+          </p>
 
           {/* Supporting text */}
           <p

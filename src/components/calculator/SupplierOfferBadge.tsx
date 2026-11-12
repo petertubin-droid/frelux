@@ -75,7 +75,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
             </span>
             <Badge
               variant="outline"
-              className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
+              className="text-[11px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
             >
               <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 inline" />
               {t("Verified supplier")}
@@ -91,7 +91,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
             {bestOffer.bulkDiscountApplied && (
               <Badge
                 variant="secondary"
-                className="text-[10px] text-indigo-600 bg-indigo-50 dark:bg-indigo-950"
+                className="text-[11px] text-indigo-600 bg-indigo-50 dark:bg-indigo-950"
               >
                 <Percent className="w-2.5 h-2.5 mr-0.5 inline" />
                 {t("Bulk Tier Applied")}

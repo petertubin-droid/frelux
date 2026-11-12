@@ -248,17 +248,17 @@ export default function AdminEstimationMaterials() {
                               {item.name}
                             </h3>
                             {!item.is_active && (
-                              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                                 {t("Off")}
                               </span>
                             )}
                           </div>
                           {item.description && (
-                            <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                            <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
                               {item.description}
                             </p>
                           )}
-                          <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                          <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
                             {baseUnit && <span>{baseUnit.symbol}</span>}
                             {item.pack_size != null && (
                               <span>

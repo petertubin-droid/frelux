@@ -743,7 +743,7 @@ export default function SystemHealth() {
                         style={{ height: `${heightPct}%`, minHeight: "2px" }}
                       />
                       {trend.length <= 24 && (
-                        <span className="mt-1 text-[10px] text-muted-foreground">
+                        <span className="mt-1 text-[11px] text-muted-foreground">
                           {point.hour.split(" ")[1] || point.hour}
                         </span>
                       )}
@@ -777,7 +777,7 @@ export default function SystemHealth() {
                   >
                     <span
                       className={classNames(
-                        "rounded px-2 py-0.5 text-[10px] font-medium border",
+                        "rounded px-2 py-0.5 text-[11px] font-medium border",
                         SEVERITY_STYLES[e.severity],
                       )}
                     >
@@ -894,7 +894,7 @@ export default function SystemHealth() {
                       <td className="py-2 pr-3">
                         <span
                           className={classNames(
-                            "rounded px-2 py-0.5 text-[10px] font-medium border",
+                            "rounded px-2 py-0.5 text-[11px] font-medium border",
                             SEVERITY_STYLES[e.severity],
                           )}
                         >
@@ -1228,7 +1228,7 @@ export default function SystemHealth() {
                     </span>
                     <span
                       className={classNames(
-                        "rounded px-1.5 py-0.5 text-[10px] font-medium",
+                        "rounded px-1.5 py-0.5 text-[11px] font-medium",
                         aiDiagnosis.risk_level === "critical"
                           ? "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
                           : aiDiagnosis.risk_level === "high"
@@ -1340,7 +1340,7 @@ export default function SystemHealth() {
                     <div key={h.id} className="flex items-center gap-2 text-xs">
                       <span
                         className={classNames(
-                          "rounded px-1.5 py-0.5 text-[10px] font-medium",
+                          "rounded px-1.5 py-0.5 text-[11px] font-medium",
                           h.status === "verified"
                             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
                             : h.status === "deployed"

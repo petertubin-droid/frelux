@@ -413,7 +413,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
                   <div className="min-w-0">
                     <p className="text-sm font-medium">
                       {r.name}
-                      <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-secondary-foreground">
+                      <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-secondary-foreground">
                         {r.provider_id}
                       </span>
                     </p>

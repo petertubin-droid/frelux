@@ -898,7 +898,7 @@ export default function BoqStudio() {
                                   }
                                 />
                                 {item.source && (
-                                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                                  <span className="mt-0.5 block text-[11px] text-slate-400">
                                     from {item.source.label} · ref{" "}
                                     {item.source.ref.slice(0, 8)}
                                   </span>
@@ -989,7 +989,7 @@ export default function BoqStudio() {
                                 >
                                   Remove
                                 </button>
-                                <span className="mt-1 block text-[10px] text-slate-400">
+                                <span className="mt-1 block text-[11px] text-slate-400">
                                   {money(itemUnitRate(item))}/unit
                                 </span>
                               </td>

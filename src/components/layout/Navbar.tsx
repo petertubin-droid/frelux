@@ -383,7 +383,7 @@ export default function Navbar() {
                                     {/* Section label */}
                                     {group.section && (
                                       <div className="px-3 pb-0.5 pt-2">
-                                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
+                                        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
                                           {t(group.section)}
                                         </p>
                                       </div>
@@ -482,7 +482,7 @@ export default function Navbar() {
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search</span>
-              <kbd className="rounded border border-border px-1 text-[10px] font-medium dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-[11px] font-medium dark:border-white/10">
                 ⌘K
               </kbd>
             </Button>
@@ -583,7 +583,7 @@ export default function Navbar() {
                             <p className="text-xs font-semibold text-foreground truncate">
                               {profile?.full_name || user.email?.split("@")[0]}
                             </p>
-                            <p className="text-[10px] text-muted-foreground truncate">
+                            <p className="text-[11px] text-muted-foreground truncate">
                               {user.email}
                             </p>
                           </div>
@@ -603,14 +603,14 @@ export default function Navbar() {
                               <span className="flex h-5 w-5 items-center justify-center rounded bg-primary text-primary-foreground">
                                 <Bot className="h-3 w-3" />
                               </span>
-                              <span className="text-[10px] font-semibold text-muted-foreground">
+                              <span className="text-[11px] font-semibold text-muted-foreground">
                                 Credits
                               </span>
                             </div>
                             <Link
                               to="/rewards/"
                               onClick={() => setOpenDropdown(null)}
-                              className="text-[9px] font-medium text-brand-purple hover:opacity-70 dark:text-brand-purple-lighter"
+                              className="text-[11px] font-medium text-brand-purple hover:opacity-70 dark:text-brand-purple-lighter"
                             >
                               →
                             </Link>
@@ -619,7 +619,7 @@ export default function Navbar() {
                             <span className="text-lg font-bold tracking-tight text-foreground">
                               {wallet?.balance ?? 0}
                             </span>
-                            <span className="text-[10px] font-medium text-muted-foreground">
+                            <span className="text-[11px] font-medium text-muted-foreground">
                               {wallet?.total_earned ?? 0} earned
                             </span>
                           </div>
@@ -636,7 +636,7 @@ export default function Navbar() {
                           <span className="text-[11px] font-bold text-brand-purple dark:text-brand-purple-lighter">
                             {isPaid ? "Premium" : "Free"}
                           </span>
-                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                             Plan
                           </span>
                         </Link>
@@ -649,7 +649,7 @@ export default function Navbar() {
                           <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                             {wallet?.total_earned ?? 0}
                           </span>
-                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                             Earned
                           </span>
                         </Link>
@@ -662,7 +662,7 @@ export default function Navbar() {
                           <span className="text-[11px] font-bold text-muted-foreground">
                             {wallet?.total_spent ?? 0}
                           </span>
-                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
+                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                             Spent
                           </span>
                         </Link>
@@ -678,7 +678,7 @@ export default function Navbar() {
                             {si > 0 && (
                               <div className="mx-1.5 my-1 border-t border-border/40 dark:border-white/5" />
                             )}
-                            <p className="px-2 pb-0.5 pt-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                            <p className="px-2 pb-0.5 pt-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                               {section.section}
                             </p>
                             {section.items.map((item) => {
@@ -727,7 +727,7 @@ export default function Navbar() {
                         <p className="text-xs font-semibold text-card-foreground">
                           Welcome to FRELUX
                         </p>
-                        <p className="text-[10px] text-muted-foreground">
+                        <p className="text-[11px] text-muted-foreground">
                           Sign in for projects, estimates & rewards.
                         </p>
                       </div>
@@ -1080,14 +1080,14 @@ export default function Navbar() {
                     <Link
                       to="/rewards/"
                       onClick={() => setMobileOpen(false)}
-                      className="ml-auto text-[10px] font-medium text-brand-purple dark:text-brand-purple-lighter"
+                      className="ml-auto text-[11px] font-medium text-brand-purple dark:text-brand-purple-lighter"
                     >
                       Manage →
                     </Link>
                   </div>
                   <div className="mt-2.5 flex items-center justify-between gap-2">
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Available
                       </span>
                       <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
@@ -1100,7 +1100,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex flex-col transition-opacity hover:opacity-70"
                     >
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Total Owned
                       </span>
                       <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
@@ -1113,7 +1113,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex flex-col transition-opacity hover:opacity-70"
                     >
-                      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Plan
                       </span>
                       <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">

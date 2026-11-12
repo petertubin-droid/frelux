@@ -87,7 +87,7 @@ export default function GoogleDataUse() {
           )}{" "}
           <Link
             to="/privacy-policy"
-            className="inline-flex items-center gap-1 font-semibold text-primary underline-offset-4 hover:underline"
+            className="inline-flex min-h-8 items-center gap-1 font-semibold text-primary underline-offset-4 hover:underline"
           >
             {t("Read the full privacy policy")}
             <ArrowRight className="h-3 w-3" aria-hidden="true" />

@@ -175,7 +175,7 @@ export default function MapWeatherBand() {
             </div>
             <Link
               to="/map"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 dark:border-white/10 dark:bg-white/5"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-semibold inline-flex min-h-8 items-center text-foreground transition-colors hover:border-primary/30 dark:border-white/10 dark:bg-white/5"
             >
               {t("Open the full map")}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -241,7 +241,7 @@ export default function MapWeatherBand() {
             </div>
             <Link
               to="/unit-converter"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-primary/30 dark:border-white/10 dark:bg-white/5"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-1.5 text-xs font-semibold inline-flex min-h-8 items-center text-foreground transition-colors hover:border-primary/30 dark:border-white/10 dark:bg-white/5"
             >
               {t("Open the full converter")}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -325,7 +325,7 @@ export default function MapWeatherBand() {
 
           <Link
             to="/paint-calculator"
-            className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary"
+            className="mt-4 inline-flex min-h-8 items-center gap-2 text-xs font-semibold text-primary"
           >
             <CloudSun className="h-4 w-4" aria-hidden="true" />
             {t("Plan around the weather")}

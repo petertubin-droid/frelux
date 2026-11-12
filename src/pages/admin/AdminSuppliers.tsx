@@ -531,7 +531,7 @@ export default function AdminSuppliers() {
                           ? "outline"
                           : "secondary"
                       }
-                      className="text-[10px]"
+                      className="text-[11px]"
                     >
                       {
                         verificationDefinition(supplier.verification_level)

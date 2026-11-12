@@ -824,7 +824,7 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setIron(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Limit: ≤ 0.3 mg/L
                     </span>
                   </div>
@@ -846,7 +846,7 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setManganese(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Limit: ≤ 0.1 mg/L
                     </span>
                   </div>
@@ -871,7 +871,7 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setHardness(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Soft: &lt;60 | Hard: &gt;120
                     </span>
                   </div>
@@ -893,7 +893,7 @@ export default function BoreholeWaterSystemEstimator() {
                       onChange={(e) => setTurbidity(Number(e.target.value))}
                       className="w-full rounded border border-input bg-background px-2.5 py-1.5 text-xs font-mono"
                     />
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       WHO Limit: ≤ 5 NTU
                     </span>
                   </div>
@@ -992,7 +992,7 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                     {result.pumping.recommendedMotorHp} HP
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     TDH: {result.pumping.totalDynamicHeadMeters}m (
                     {result.pumping.totalDynamicHeadFeet} ft)
                   </p>
@@ -1008,7 +1008,7 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="text-xl font-bold text-sky-600 dark:text-sky-400">
                     {result.storage.commercialTankSizeLiters.toLocaleString()} L
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     {result.storage.commercialTankSizeUsGal.toLocaleString()} US
                     Gal capacity
                   </p>
@@ -1024,7 +1024,7 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                     {result.well.sanitaryGroutCementBags50kg} Bags
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Top {result.well.sanitaryGroutDepthMeters}m sealed runoff
                     barrier
                   </p>
@@ -1039,7 +1039,7 @@ export default function BoreholeWaterSystemEstimator() {
                   <div className="text-xl font-bold text-primary">
                     {result.distribution.groundHydrostaticPressureBar} bar
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     {result.distribution.groundHydrostaticPressurePsi} psi
                     hydrostatic head
                   </p>
@@ -1131,8 +1131,8 @@ export default function BoreholeWaterSystemEstimator() {
                         onClick={() => setStandStructure(option)}
                         className={
                           standStructure === option
-                            ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[10px] font-semibold"
-                            : "rounded-md border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted"
+                            ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[11px] font-semibold"
+                            : "rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted"
                         }
                       >
                         {option === "reinforced_concrete"
@@ -1146,7 +1146,7 @@ export default function BoreholeWaterSystemEstimator() {
               <CardContent className="space-y-3 text-xs sm:text-sm">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <label className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Market
                     </span>
                     <select
@@ -1163,7 +1163,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </select>
                   </label>
                   <label className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Ground
                     </span>
                     <select
@@ -1182,7 +1182,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </select>
                   </label>
                   <label className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Test figure
                     </span>
                     <input
@@ -1200,7 +1200,7 @@ export default function BoreholeWaterSystemEstimator() {
                     />
                   </label>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Piers
                     </span>
                     <div className="flex gap-1">
@@ -1212,8 +1212,8 @@ export default function BoreholeWaterSystemEstimator() {
                           onClick={() => setStandLegs(count)}
                           className={
                             standLegs === count
-                              ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[10px] font-semibold"
-                              : "rounded-md border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-muted"
+                              ? "rounded-md border border-primary bg-primary/10 px-2 py-1 text-[11px] font-semibold"
+                              : "rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted"
                           }
                         >
                           {count}
@@ -1244,7 +1244,7 @@ export default function BoreholeWaterSystemEstimator() {
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       <div className="rounded-lg border border-border bg-muted/30 p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Loaded mass
                         </div>
                         <div className="font-mono font-semibold">
@@ -1252,7 +1252,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border bg-muted/30 p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Footing pads
                         </div>
                         <div className="font-mono font-semibold">
@@ -1260,7 +1260,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border bg-muted/30 p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Footing concrete
                         </div>
                         <div className="font-mono font-semibold">
@@ -1268,7 +1268,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border bg-muted/30 p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Bearing pressure
                         </div>
                         <div className="font-mono font-semibold">
@@ -1280,7 +1280,7 @@ export default function BoreholeWaterSystemEstimator() {
                     {stand.result.blockwork ? (
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Blocks
                           </div>
                           <div className="font-mono font-semibold">
@@ -1288,7 +1288,7 @@ export default function BoreholeWaterSystemEstimator() {
                           </div>
                         </div>
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Cement
                           </div>
                           <div className="font-mono font-semibold">
@@ -1296,7 +1296,7 @@ export default function BoreholeWaterSystemEstimator() {
                           </div>
                         </div>
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Sharp sand
                           </div>
                           <div className="font-mono font-semibold">
@@ -1304,7 +1304,7 @@ export default function BoreholeWaterSystemEstimator() {
                           </div>
                         </div>
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Courses
                           </div>
                           <div className="font-mono font-semibold">
@@ -1317,7 +1317,7 @@ export default function BoreholeWaterSystemEstimator() {
                     {stand.result.steel ? (
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Legs
                           </div>
                           <div className="font-mono font-semibold">
@@ -1325,7 +1325,7 @@ export default function BoreholeWaterSystemEstimator() {
                           </div>
                         </div>
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Steel length
                           </div>
                           <div className="font-mono font-semibold">
@@ -1333,7 +1333,7 @@ export default function BoreholeWaterSystemEstimator() {
                           </div>
                         </div>
                         <div className="rounded-lg border border-border p-2">
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-[11px] text-muted-foreground">
                             Anchor bolts
                           </div>
                           <div className="font-mono font-semibold">
@@ -1345,7 +1345,7 @@ export default function BoreholeWaterSystemEstimator() {
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       <div className="rounded-lg border border-border p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Tank shell
                         </div>
                         <div className="font-mono font-semibold">
@@ -1353,7 +1353,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Platform
                         </div>
                         <div className="font-mono font-semibold">
@@ -1361,7 +1361,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Ring beam
                         </div>
                         <div className="font-mono font-semibold">
@@ -1369,7 +1369,7 @@ export default function BoreholeWaterSystemEstimator() {
                         </div>
                       </div>
                       <div className="rounded-lg border border-border p-2">
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-[11px] text-muted-foreground">
                           Wind safety
                         </div>
                         <div
@@ -1411,7 +1411,7 @@ export default function BoreholeWaterSystemEstimator() {
                       ))}
                     </div>
 
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       Quantities only. Bearing capacity is assumed unless a soil
                       test exists, and the stand must be checked by a licensed
                       engineer before it carries water.
@@ -1452,7 +1452,7 @@ export default function BoreholeWaterSystemEstimator() {
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                           Barrier {st.stageNumber}: {st.name}
                         </span>
-                        <Badge variant="outline" className="text-[10px]">
+                        <Badge variant="outline" className="text-[11px]">
                           Required
                         </Badge>
                       </div>
@@ -1509,7 +1509,7 @@ export default function BoreholeWaterSystemEstimator() {
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Pump Setting Depth
                     </span>
                     <div className="font-semibold font-mono text-sm">
@@ -1517,7 +1517,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Dynamic Water Level
                     </span>
                     <div className="font-semibold font-mono text-sm">
@@ -1525,7 +1525,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Riser Pipe Friction Loss
                     </span>
                     <div className="font-semibold font-mono text-sm">
@@ -1533,7 +1533,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Total Dynamic Head (TDH)
                     </span>
                     <div className="font-semibold font-mono text-sm text-primary">
@@ -1542,7 +1542,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Submersible Cable
                     </span>
                     <div className="font-semibold font-mono text-sm">
@@ -1551,7 +1551,7 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                   </div>
                   <div className="rounded border border-border p-2 bg-muted/20">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Safety Wire Rope (316 SS)
                     </span>
                     <div className="font-semibold font-mono text-sm">
@@ -1612,7 +1612,7 @@ export default function BoreholeWaterSystemEstimator() {
                             <div className="font-medium text-foreground">
                               {item.item}
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
+                            <div className="text-[11px] text-muted-foreground">
                               {item.category}
                             </div>
                           </td>

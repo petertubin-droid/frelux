@@ -475,7 +475,7 @@ export default function AdminAiSettings() {
                       </h3>
                       <span
                         className={classNames(
-                          "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                          "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
                           feature.category === "user-facing"
                             ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
                             : feature.category === "estimation"
@@ -667,7 +667,7 @@ export default function AdminAiSettings() {
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           Powered by Google Gemini (gemini-3.6-flash). System
                           prompt is in the edge function source. Requires{" "}
-                          <code className="text-[10px] text-brand-purple">
+                          <code className="text-[11px] text-brand-purple">
                             GEMINI_API_KEY
                           </code>{" "}
                           in Supabase secrets.
@@ -720,7 +720,7 @@ export default function AdminAiSettings() {
                               <>
                                 Powered by the Solas Superagent (Base44).
                                 Requires{" "}
-                                <code className="text-[10px] text-brand-purple">
+                                <code className="text-[11px] text-brand-purple">
                                   SOLAS_API_KEY
                                 </code>{" "}
                                 in Supabase secrets.
@@ -728,7 +728,7 @@ export default function AdminAiSettings() {
                             ) : (
                               <>
                                 Powered by Google Gemini. Requires{" "}
-                                <code className="text-[10px] text-brand-purple">
+                                <code className="text-[11px] text-brand-purple">
                                   GEMINI_API_KEY
                                 </code>{" "}
                                 in Supabase secrets.
@@ -790,7 +790,7 @@ function InfoTile({
 }) {
   return (
     <div className="rounded-lg border border-border p-3 dark:border-white/5">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
         <Icon aria-hidden="true" className="h-3 w-3" />
         {label}
       </div>
@@ -822,7 +822,7 @@ function SecretRow({
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground/80">
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground/80">
           {provider}
         </span>
         <span

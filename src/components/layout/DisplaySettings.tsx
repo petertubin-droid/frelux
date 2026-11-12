@@ -134,7 +134,10 @@ function SettingsPreview({
           </span>
         </div>
         <div
-          className={cn("mt-1.5 space-y-1", compact ? "space-y-0.5" : "space-y-1")}
+          className={cn(
+            "mt-1.5 space-y-1",
+            compact ? "space-y-0.5" : "space-y-1",
+          )}
         >
           <span className="block h-1 rounded-full bg-muted-foreground/25" />
           <span className="block h-1 w-4/5 rounded-full bg-muted-foreground/20" />
@@ -170,10 +173,7 @@ export default function DisplaySettings() {
 
   // Reset is device-aware, so "nothing to reset" has to be judged against this
   // device's own defaults (a phone starts at 80%, a desktop at 50%).
-  const deviceDefaults = useMemo(
-    () => defaultPreferencesForDevice(),
-    [scale],
-  );
+  const deviceDefaults = useMemo(() => defaultPreferencesForDevice(), [scale]);
   const isDefault =
     scale === deviceDefaults.scale &&
     compact === deviceDefaults.compact &&
@@ -364,7 +364,7 @@ export default function DisplaySettings() {
 
             <footer className="border-t border-border/60 px-3 py-2.5 dark:border-white/10">
               <div className="flex items-center justify-between gap-2">
-                <p className="min-w-0 text-[10px] leading-4 text-muted-foreground">
+                <p className="min-w-0 text-[11px] leading-4 text-muted-foreground">
                   Display only. Browser zoom and calculations are untouched.
                 </p>
                 <button

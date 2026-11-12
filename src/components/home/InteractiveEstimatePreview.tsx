@@ -213,7 +213,7 @@ export default function InteractiveEstimatePreview() {
               {/* Left: Input parameters */}
               <div className="space-y-4">
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Ruler className="h-3 w-3" />
                     {t("Room dimensions")}
                   </p>
@@ -231,7 +231,7 @@ export default function InteractiveEstimatePreview() {
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.coats}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("Coats")}
                     </p>
                   </div>
@@ -240,7 +240,7 @@ export default function InteractiveEstimatePreview() {
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.doors}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("Doors")}
                     </p>
                   </div>
@@ -249,14 +249,14 @@ export default function InteractiveEstimatePreview() {
                     <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.windows}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">
+                    <p className="text-[11px] text-muted-foreground">
                       {t("Windows")}
                     </p>
                   </div>
                 </div>
 
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
+                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Calculator className="h-3 w-3" />
                     {t("Coverage rate")}
                   </p>
@@ -270,7 +270,7 @@ export default function InteractiveEstimatePreview() {
               <div className="space-y-4">
                 {/* Paintable area */}
                 <div className="rounded-xl border border-brand-purple/10 bg-primary/5 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
                     {t("Paintable area")}
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
@@ -289,7 +289,7 @@ export default function InteractiveEstimatePreview() {
 
                 {/* Paint required */}
                 <div className="rounded-xl border border-accent-cyan/10 bg-accent-cyan/5 p-4">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-cyan">
+                  <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-cyan">
                     <Droplets className="h-3 w-3" />
                     {t("Paint buckets required")}
                   </p>
@@ -309,7 +309,7 @@ export default function InteractiveEstimatePreview() {
 
                 {/* Container recommendation */}
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     {t("Recommended purchase")}
                   </p>
                   <div className="mt-2.5 space-y-1.5">
