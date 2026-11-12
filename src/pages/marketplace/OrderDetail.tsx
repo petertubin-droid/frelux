@@ -21,6 +21,7 @@ import {
   createMilestone,
 } from "@/lib/marketplace";
 import WorkerSafetyNotice from "@/components/pro-connect/WorkerSafetyNotice";
+import ClientIdentityCard from "@/components/escrow/ClientIdentityCard";
 import {
   approveAndReleaseMilestone,
   fetchOrderPayments,
@@ -503,6 +504,8 @@ export default function OrderDetail() {
           )}
 
           <WorkerSafetyNotice className="mb-3" />
+
+          {isClient && <ClientIdentityCard className="mb-3" />}
 
           {milestones.length === 0 ? (
             <p className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card">

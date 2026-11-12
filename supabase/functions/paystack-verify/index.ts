@@ -19,6 +19,7 @@ import {
 } from "../_shared/subscription-pricing.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { handleClientIdentity } from "../_shared/client-identity.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -67,7 +68,20 @@ serveWithCors(async (req: Request) => {
   }
 
   try {
-    const { reference } = await req.json();
+    const body = await req.json();
+
+    // Client identity lives here because the project is at its function limit
+    // and this check is a Paystack interaction. Both actions share the same
+    // JWT gate above.
+    if (typeof body?.action === "string" && body.action.startsWith("client_identity")) {
+      const result = await handleClientIdentity(req, body);
+      return new Response(JSON.stringify(result.body), {
+        status: result.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const reference = body?.reference;
 
     if (!reference) {
       return new Response(JSON.stringify({ error: "Missing reference" }), {
