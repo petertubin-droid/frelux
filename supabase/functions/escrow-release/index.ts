@@ -94,19 +94,41 @@ Deno.serve(async (req) => {
     return json({ error: "Server configuration error" }, 500);
   }
 
-  const token =
-    req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
-  if (!token) return json({ error: "Authentication required" }, 401);
   const admin = createClient(url, serviceKey);
-  const { data: auth, error: authError } = await admin.auth.getUser(token);
-  if (authError || !auth.user) {
-    return json({ error: "Authentication required" }, 401);
+
+  // Two ways in. A signed-in buyer releases their own escrow, and the
+  // scheduled worker releases work the client never answered. The worker is
+  // not a user, so it carries the cron secret instead of a session.
+  const cronSecret = req.headers.get("x-frelux-cron-secret") ?? "";
+  let systemInvocation = false;
+  let actorId: string | null = null;
+
+  if (cronSecret) {
+    const { data: cronConfig } = await admin
+      .from("frelux_internal_config")
+      .select("value")
+      .eq("name", "escrow_autorelease_cron_secret")
+      .maybeSingle();
+    const expected = (cronConfig?.value as string | undefined) ?? "";
+    if (!expected || cronSecret !== expected) {
+      return json({ error: "Invalid cron secret" }, 401);
+    }
+    systemInvocation = true;
+  } else {
+    const token =
+      req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+    if (!token) return json({ error: "Authentication required" }, 401);
+    const { data: auth, error: authError } = await admin.auth.getUser(token);
+    if (authError || !auth.user) {
+      return json({ error: "Authentication required" }, 401);
+    }
+    actorId = auth.user.id;
   }
 
   let payload: {
     contract_id?: string;
     milestone_id?: string;
-    action?: "release" | "refund";
+    action?: "release" | "refund" | "auto_release";
     amount_minor?: number;
   };
   try {
@@ -114,6 +136,57 @@ Deno.serve(async (req) => {
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
+
+  // The scheduled pass: find every milestone whose 48 hour clock has run out
+  // and release it through the same code path a buyer would use, so there is
+  // one release implementation and one ledger.
+  if (payload.action === "auto_release") {
+    if (!systemInvocation) {
+      return json({ error: "Only the scheduled worker can do this" }, 403);
+    }
+    const { data: due, error: dueError } = await admin.rpc(
+      "escrow_auto_release_due",
+      { p_limit: 25 },
+    );
+    if (dueError) {
+      console.error("escrow auto release could not list due work", dueError);
+      return json({ error: "Could not read due milestones" }, 500);
+    }
+    const released: Record<string, unknown>[] = [];
+    const failed: Record<string, unknown>[] = [];
+    for (const row of (due ?? []) as { milestone_id: string; contract_id: string }[]) {
+      // The platform still enforces a valid JWT on this function, so the
+      // worker's internal call carries the public anon key as its token while
+      // the secret proves it is the scheduled worker rather than a stranger.
+      const inner = await fetch(`${url}/functions/v1/escrow-release`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-frelux-cron-secret": cronSecret,
+          Authorization: `Bearer ${Deno.env.get("SUPABASE_ANON_KEY") ?? ""}`,
+        },
+        body: JSON.stringify({
+          contract_id: row.contract_id,
+          milestone_id: row.milestone_id,
+          action: "release",
+        }),
+      });
+      const body = await inner.json().catch(() => null);
+      if (inner.ok) {
+        await admin
+          .from("escrow_milestones")
+          .update({ auto_released_at: new Date().toISOString() })
+          .eq("id", row.milestone_id);
+        released.push({ milestone_id: row.milestone_id, ...body });
+      } else {
+        // A refusal is recorded, not retried in a loop: the next scheduled
+        // pass will pick it up only if it is still due and still valid.
+        failed.push({ milestone_id: row.milestone_id, reason: body });
+      }
+    }
+    return json({ released: released.length, failed: failed.length, detail: { released, failed } });
+  }
+
   if (!payload.contract_id) {
     return json({ error: "contract_id is required" }, 400);
   }
@@ -129,7 +202,7 @@ Deno.serve(async (req) => {
 
     if (refundError) return json({ error: "Could not read the contract" }, 500);
     if (!refundContract) return json({ error: "Contract not found" }, 404);
-    if (refundContract.created_by !== auth.user.id) {
+    if (!systemInvocation && refundContract.created_by !== actorId) {
       return json({ error: "Only the buyer can ask for this refund" }, 403);
     }
 
@@ -264,7 +337,7 @@ Deno.serve(async (req) => {
 
   if (contractError) return json({ error: "Could not read the contract" }, 500);
   if (!contract) return json({ error: "Contract not found" }, 404);
-  if (contract.created_by !== auth.user.id) {
+  if (!systemInvocation && contract.created_by !== actorId) {
     return json({ error: "Only the buyer can release this escrow" }, 403);
   }
   if (!["funds_held", "partially_released"].includes(contract.status)) {

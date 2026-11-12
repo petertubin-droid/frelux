@@ -54,6 +54,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import { proConnectCountryName } from "@/pages/pro-connect/coverage";
 
+import WorkerSafetyNotice from "@/components/pro-connect/WorkerSafetyNotice";
 export default function ProConnectDashboard() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -337,7 +338,9 @@ export default function ProConnectDashboard() {
           )}
 
           {/* Locations */}
-          {(locations.length > 0 || profile.service_area_text || profile.country) && (
+          {(locations.length > 0 ||
+            profile.service_area_text ||
+            profile.country) && (
             <div className="mt-3">
               <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 {t("Service Areas")}
@@ -1146,6 +1149,7 @@ function PortfolioForm({
 
   return (
     <div className="mb-4 rounded-xl border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">
+      <WorkerSafetyNotice variant="full" className="mb-4" />
       <div className="space-y-3">
         <input
           type="text"

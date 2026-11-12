@@ -133,11 +133,45 @@ Deno.serve(async (req) => {
         seller_account_number: payload.seller_account_number ?? null,
         buyer_name: payload.buyer_name ?? null,
         buyer_email: payload.buyer_email ?? auth.user.email ?? null,
+        // Who the two sides are, so the contact gate and the safety rules can
+        // reason about the pairing instead of matching names and emails.
+        buyer_user_id: auth.user.id,
+        seller_user_id: payload.seller_user_id ?? null,
+        source:
+          payload.source === "pro_connect" || payload.source === "marketplace"
+            ? payload.source
+            : "direct",
+        job_city: payload.job_city ?? null,
+        job_state: payload.job_state ?? null,
+        job_country: payload.job_country ?? "NG",
       })
       .select("id, reference_code")
       .single();
 
     if (createError || !created) {
+      // The worker safety guard refuses the contract on purpose. Pass its
+      // reason through so the person sees what to fix instead of a 500.
+      const reason = `${createError?.message ?? ""} ${createError?.details ?? ""}`;
+      if (reason.includes("CLIENT_ID_REQUIRED")) {
+        return json(
+          {
+            error:
+              "The client must verify one government ID before a worker can be booked",
+            code: "CLIENT_ID_REQUIRED",
+          },
+          409,
+        );
+      }
+      if (reason.includes("CROSS_STATE_JOB_BLOCKED")) {
+        return json(
+          {
+            error:
+              "This job is outside the professional's own city and state. An admin has to approve the travel first.",
+            code: "CROSS_STATE_JOB_BLOCKED",
+          },
+          409,
+        );
+      }
       console.error(
         "escrow-checkout could not create the contract",
         createError,
