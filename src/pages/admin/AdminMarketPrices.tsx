@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { classNames } from "@/lib/utils";
 import SevenCountryCoverage from "@/components/admin/SevenCountryCoverage";
 import CatalogueReviewPanel from "@/components/admin/CatalogueReviewPanel";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 interface MarketRow {
   market: string;
@@ -158,6 +159,9 @@ export default function AdminMarketPrices() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
+  // A market can hold hundreds of observations; the table pages.
+  const [materialPage, setMaterialPage] = useState(0);
+  const [materialPageSize, setMaterialPageSize] = useState(25);
   const [sources, setSources] = useState<SourceRow[]>([]);
   // Prices and sources are one picture: every price row carries the number of
   // scanner sources configured for that material in that market, so a figure
@@ -689,125 +693,146 @@ export default function AdminMarketPrices() {
                         </tr>
                       </thead>
                       <tbody>
-                        {materials.map((row) => (
-                          <tr
-                            key={row.id}
-                            className="border-b border-border/40 align-top"
-                          >
-                            <td className="px-3 py-2.5">
-                              <div className="font-medium text-foreground">
-                                {row.product_name ?? row.material_slug}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {[row.brand, row.specification, row.unit]
-                                  .filter(Boolean)
-                                  .join(" · ") || row.material_slug}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <span
-                                className={classNames(
-                                  "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
-                                  row.last_scanned_at
-                                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                                    : "bg-muted text-muted-foreground",
-                                )}
-                              >
-                                {row.last_scanned_at ? "Scanned" : "Price book"}
-                              </span>
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                {sourcesByMaterial.get(row.material_slug) ?? 0}{" "}
-                                {(sourcesByMaterial.get(row.material_slug) ??
-                                  0) === 1
-                                  ? "source"
-                                  : "sources"}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2.5 text-muted-foreground">
-                              {row.supplier_name ?? "n/a"}
-                              {row.source_url && (
-                                <a
-                                  href={row.source_url}
-                                  target="_blank"
-                                  rel="noreferrer noopener"
-                                  className="ml-1 inline-flex text-primary"
-                                >
-                                  <ExternalLink className="h-3 w-3" />
-                                </a>
-                              )}
-                              <div className="text-xs">
-                                {row.supplier_location ?? ""}
-                              </div>
-                            </td>
-                            <td className="px-3 py-2.5 font-medium">
-                              {fmt(row.median_price, row.currency)}
-                              <div className="text-xs font-normal text-muted-foreground">
-                                {row.suppliers_count} supplier(s)
-                              </div>
-                            </td>
-                            <td className="px-3 py-2.5 text-muted-foreground">
-                              {fmt(row.min_observed, row.currency)} to{" "}
-                              {fmt(row.max_observed, row.currency)}
-                            </td>
-                            <td className="px-3 py-2.5 text-muted-foreground">
-                              {fmt(row.previous_price, row.currency)}
-                            </td>
-                            <td
-                              className={classNames(
-                                "px-3 py-2.5 font-medium",
-                                (row.price_change_percent ?? 0) > 0
-                                  ? "text-rose-600 dark:text-rose-400"
-                                  : (row.price_change_percent ?? 0) < 0
-                                    ? "text-emerald-600 dark:text-emerald-400"
-                                    : "text-muted-foreground",
-                              )}
+                        {materials
+                          .slice(
+                            materialPage * materialPageSize,
+                            materialPage * materialPageSize + materialPageSize,
+                          )
+                          .map((row) => (
+                            <tr
+                              key={row.id}
+                              className="border-b border-border/40 align-top"
                             >
-                              {row.price_change_percent === null
-                                ? "n/a"
-                                : `${row.price_change_percent > 0 ? "+" : ""}${row.price_change_percent.toFixed(1)}%`}
-                            </td>
-                            <td className="px-3 py-2.5 text-muted-foreground">
-                              {row.confidence_score === null
-                                ? "n/a"
-                                : row.confidence_score.toFixed(2)}
-                            </td>
-                            <td className="px-3 py-2.5">
-                              <span
+                              <td className="px-3 py-2.5">
+                                <div className="font-medium text-foreground">
+                                  {row.product_name ?? row.material_slug}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {[row.brand, row.specification, row.unit]
+                                    .filter(Boolean)
+                                    .join(" · ") || row.material_slug}
+                                </div>
+                              </td>
+                              <td className="px-3 py-2.5">
+                                <span
+                                  className={classNames(
+                                    "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                    row.last_scanned_at
+                                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                                      : "bg-muted text-muted-foreground",
+                                  )}
+                                >
+                                  {row.last_scanned_at
+                                    ? "Scanned"
+                                    : "Price book"}
+                                </span>
+                                <div className="mt-1 text-xs text-muted-foreground">
+                                  {sourcesByMaterial.get(row.material_slug) ??
+                                    0}{" "}
+                                  {(sourcesByMaterial.get(row.material_slug) ??
+                                    0) === 1
+                                    ? "source"
+                                    : "sources"}
+                                </div>
+                              </td>
+                              <td className="px-3 py-2.5 text-muted-foreground">
+                                {row.supplier_name ?? "n/a"}
+                                {row.source_url && (
+                                  <a
+                                    href={row.source_url}
+                                    target="_blank"
+                                    rel="noreferrer noopener"
+                                    className="ml-1 inline-flex text-primary"
+                                  >
+                                    <ExternalLink className="h-3 w-3" />
+                                  </a>
+                                )}
+                                <div className="text-xs">
+                                  {row.supplier_location ?? ""}
+                                </div>
+                              </td>
+                              <td className="px-3 py-2.5 font-medium">
+                                {fmt(row.median_price, row.currency)}
+                                <div className="text-xs font-normal text-muted-foreground">
+                                  {row.suppliers_count} supplier(s)
+                                </div>
+                              </td>
+                              <td className="px-3 py-2.5 text-muted-foreground">
+                                {fmt(row.min_observed, row.currency)} to{" "}
+                                {fmt(row.max_observed, row.currency)}
+                              </td>
+                              <td className="px-3 py-2.5 text-muted-foreground">
+                                {fmt(row.previous_price, row.currency)}
+                              </td>
+                              <td
                                 className={classNames(
-                                  "rounded-full px-2 py-0.5 text-xs capitalize",
-                                  STATUS_STYLES[row.verification_status] ??
-                                    STATUS_STYLES.no_data,
+                                  "px-3 py-2.5 font-medium",
+                                  (row.price_change_percent ?? 0) > 0
+                                    ? "text-rose-600 dark:text-rose-400"
+                                    : (row.price_change_percent ?? 0) < 0
+                                      ? "text-emerald-600 dark:text-emerald-400"
+                                      : "text-muted-foreground",
                                 )}
                               >
-                                {row.verification_status.replace("_", " ")}
-                              </span>
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                {(() => {
-                                  const provenance = describePriceProvenance({
-                                    verificationStatus: row.verification_status,
-                                    lastVerifiedAt: row.last_verified_at,
-                                    lastScannedAt: row.last_scanned_at,
-                                    sourceUrl: row.source_url,
-                                    supplierName: row.supplier_name,
-                                    observationsCount: row.observations_count,
-                                  });
-                                  return (
-                                    <span title={provenance.detail}>
-                                      {provenance.label} ·{" "}
-                                      {ago(
-                                        row.last_verified_at ??
-                                          row.last_scanned_at,
-                                      )}
-                                    </span>
-                                  );
-                                })()}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                                {row.price_change_percent === null
+                                  ? "n/a"
+                                  : `${row.price_change_percent > 0 ? "+" : ""}${row.price_change_percent.toFixed(1)}%`}
+                              </td>
+                              <td className="px-3 py-2.5 text-muted-foreground">
+                                {row.confidence_score === null
+                                  ? "n/a"
+                                  : row.confidence_score.toFixed(2)}
+                              </td>
+                              <td className="px-3 py-2.5">
+                                <span
+                                  className={classNames(
+                                    "rounded-full px-2 py-0.5 text-xs capitalize",
+                                    STATUS_STYLES[row.verification_status] ??
+                                      STATUS_STYLES.no_data,
+                                  )}
+                                >
+                                  {row.verification_status.replace("_", " ")}
+                                </span>
+                                <div className="mt-1 text-xs text-muted-foreground">
+                                  {(() => {
+                                    const provenance = describePriceProvenance({
+                                      verificationStatus:
+                                        row.verification_status,
+                                      lastVerifiedAt: row.last_verified_at,
+                                      lastScannedAt: row.last_scanned_at,
+                                      sourceUrl: row.source_url,
+                                      supplierName: row.supplier_name,
+                                      observationsCount: row.observations_count,
+                                    });
+                                    return (
+                                      <span title={provenance.detail}>
+                                        {provenance.label} ·{" "}
+                                        {ago(
+                                          row.last_verified_at ??
+                                            row.last_scanned_at,
+                                        )}
+                                      </span>
+                                    );
+                                  })()}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
+                )}
+                {materials.length > materialPageSize && (
+                  <AdminPagination
+                    page={materialPage}
+                    pageSize={materialPageSize}
+                    total={materials.length}
+                    onPageChange={setMaterialPage}
+                    onPageSizeChange={(size) => {
+                      setMaterialPageSize(size);
+                      setMaterialPage(0);
+                    }}
+                  />
                 )}
               </AdminCard>
 
