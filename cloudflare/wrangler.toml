@@ -32,6 +32,8 @@ SUPABASE_URL = "https://nfgaaohweygwydoelxnf.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mZ2Fhb2h3ZXlnd3lkb2VseG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MDc0MDYsImV4cCI6MjA5ODE4MzQwNn0.5ebLSj0RZBfdT_GEZ5Sf_qN_uNh2RUzJQlnuIXGCdXI"
 ALLOWED_ORIGINS = "https://freluxtools.com,https://www.freluxtools.com,http://localhost:5173"
 PUBLIC_BASE_URL = "https://files.freluxtools.com"
+# Edge API vars. TURNSTILE_HOSTNAMES is an allowlist, so an empty value fails closed.
+TURNSTILE_HOSTNAMES = "freluxtools.com,www.freluxtools.com"
 
 [[r2_buckets]]
 binding = "BUCKET_AVATARS"

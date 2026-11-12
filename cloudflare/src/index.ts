@@ -16,6 +16,7 @@
  * browser a signed URL avoids streaming 50 MB through a Worker, and they return
  * 501 until R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are set.
  */
+import { handleGateway, handleHook, handleTurnstile } from "./api";
 import { presignR2Url, safeObjectKey } from "./sigv4";
 
 interface R2ObjectLike {
@@ -46,6 +47,12 @@ export interface Env {
   SUPABASE_ANON_KEY?: string;
   ALLOWED_ORIGINS?: string;
   PUBLIC_BASE_URL?: string;
+  /** Edge API: turnstile check, function gateway, webhook relay. */
+  TURNSTILE_SECRET?: string;
+  TURNSTILE_HOSTNAMES?: string;
+  WEBHOOK_SECRET?: string;
+  /** "on" enables ?w=/?h= variants through Cloudflare Image Resizing. */
+  IMAGE_RESIZE?: string;
   BUCKET_AVATARS?: R2BucketLike;
   BUCKET_BRAND_ASSETS?: R2BucketLike;
   BUCKET_MARKETPLACE?: R2BucketLike;
@@ -262,6 +269,18 @@ const s3Configured = (env: Env) =>
 const newKey = (sub: string, filename: string) =>
   `${sub}/${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID().slice(0, 8)}-${safeObjectKey(filename)}`;
 
+/** Clamps a query parameter to a sane range; null means "not requested". */
+const resizeParam = (
+  value: string | null,
+  min: number,
+  max: number,
+): number | null => {
+  if (value === null || value.trim() === "") return null;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return null;
+  return Math.min(Math.max(parsed, min), max);
+};
+
 const publicUrlFor = (
   env: Env,
   bucket: BucketName,
@@ -297,6 +316,12 @@ export default {
             const policy = BUCKETS[name as BucketName];
             return Boolean(bindingFor(env, policy));
           }),
+          api: {
+            turnstile: Boolean(env.TURNSTILE_SECRET && env.TURNSTILE_HOSTNAMES),
+            gateway: Boolean(env.SUPABASE_URL),
+            hooks: Boolean(env.WEBHOOK_SECRET),
+            imageResize: env.IMAGE_RESIZE === "on",
+          },
         },
         200,
         cors,
@@ -426,8 +451,50 @@ export default {
       if (!store)
         return new Response("Bucket binding missing", { status: 500 });
 
-      const object = await store.get(decodeURIComponent(rest.join("/")));
+      const key = decodeURIComponent(rest.join("/"));
+      const object = await store.get(key);
       if (!object) return new Response("Not found", { status: 404 });
+
+      // Width/height variants. Cloudflare Image Resizing does the work on a
+      // subrequest to this same public URL, which keeps the original cached
+      // object as the source of truth. Anything unsupported falls back to the
+      // original bytes instead of failing the image.
+      const contentType =
+        object.httpMetadata?.contentType ?? "application/octet-stream";
+      const width = resizeParam(url.searchParams.get("w"), 16, 2400);
+      const height = resizeParam(url.searchParams.get("h"), 16, 2400);
+      const quality = resizeParam(url.searchParams.get("q"), 1, 100) ?? 82;
+      if (
+        env.IMAGE_RESIZE === "on" &&
+        env.PUBLIC_BASE_URL &&
+        contentType.startsWith("image/") &&
+        contentType !== "image/svg+xml" &&
+        (width !== null || height !== null)
+      ) {
+        const source = `${env.PUBLIC_BASE_URL.replace(/\/+$/, "")}/public/${bucketName}/${rest.join("/")}`;
+        const resized = await fetch(source, {
+          cf: {
+            image: {
+              width: width ?? undefined,
+              height: height ?? undefined,
+              quality,
+              fit: "scale-down",
+              format: "auto",
+            },
+          },
+        } as RequestInit).catch(() => null);
+        const resizedType = resized?.headers.get("content-type") ?? "";
+        if (resized?.ok && resizedType.startsWith("image/")) {
+          return new Response(resized.body, {
+            headers: {
+              "content-type": resizedType,
+              "cache-control": "public, max-age=31536000, immutable",
+              "x-frelux-resize": "hit",
+              ...cors,
+            },
+          });
+        }
+      }
 
       return new Response(object.body, {
         headers: {
@@ -554,6 +621,17 @@ export default {
       });
       return json({ url: downloadUrl, expiresIn }, 200, cors);
     }
+
+    // Edge API. Stateless and cheap: a widget check, a thin gateway, and a
+    // signature-checked webhook relay.
+    if (url.pathname === "/api/turnstile" && request.method === "POST")
+      return handleTurnstile(request, env, cors);
+
+    if (url.pathname.startsWith("/api/fn/"))
+      return handleGateway(request, env, url, cors);
+
+    if (url.pathname.startsWith("/api/hook/") && request.method === "POST")
+      return handleHook(request, env, url, cors);
 
     return new Response("Not found", { status: 404, headers: cors });
   },
