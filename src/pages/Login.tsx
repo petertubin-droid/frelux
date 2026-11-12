@@ -22,6 +22,8 @@ import { getSafeAuthRedirect } from "@/lib/auth-redirect";
 import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
+import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import { useTurnstileGate } from "@/components/security/useTurnstileGate";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 
@@ -190,10 +192,23 @@ export default function Login() {
     );
   }
 
+  // One action per mode: a token solved for sign-up cannot be replayed
+  // for a sign-in or a password reset.
+  const turnstileAction =
+    mode === "signup" ? "signup" : mode === "signin" ? "signin" : "reset";
+  const turnstile = useTurnstileGate(turnstileAction);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfo(null);
+    setVerifyError(null);
+    const verdict = await turnstile.gate();
+    if (!verdict.ok) {
+      setVerifyError(turnstile.errorMessage(verdict));
+      return;
+    }
     setLoading(true);
 
     if (mode === "reset") {
@@ -551,10 +566,25 @@ export default function Login() {
                 <p>{error}</p>
               </div>
             )}
+            <TurnstileWidget
+              key={`${turnstileAction}-${turnstile.attempt}`}
+              action={turnstileAction}
+              onToken={turnstile.setToken}
+              className="flex justify-center"
+            />
+            {verifyError && (
+              <p role="alert" className="text-sm font-medium text-destructive">
+                {verifyError}
+              </p>
+            )}
             <Button
               variant="default"
               type="submit"
-              disabled={loading || !configured}
+              disabled={
+                loading ||
+                !configured ||
+                (turnstile.required && !turnstile.token)
+              }
               className="press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {mode === "signin" ? (

@@ -20,6 +20,8 @@ import {
   fetchProductCategories,
 } from "@/lib/marketplace-products";
 import { supabase } from "@/lib/supabase";
+import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import { useTurnstileGate } from "@/components/security/useTurnstileGate";
 import type {
   DbMarketplaceProduct,
   DbProductCategory,
@@ -138,6 +140,8 @@ export default function ProductDetail() {
       : undefined,
   });
 
+  const turnstile = useTurnstileGate("inquiry");
+
   async function handleInquiry() {
     const {
       data: { user },
@@ -151,7 +155,9 @@ export default function ProductDetail() {
     const message = inquiryMessage.trim();
     if (message.length < 10) {
       setInquiryError(
-        tr("Add a short message (at least 10 characters) so the seller can reply."),
+        tr(
+          "Add a short message (at least 10 characters) so the seller can reply.",
+        ),
       );
       return;
     }
@@ -160,6 +166,12 @@ export default function ProductDetail() {
     const offered = inquiryPrice.trim() ? Number(inquiryPrice) : undefined;
     if (offered !== undefined && (!Number.isFinite(offered) || offered < 0)) {
       setInquiryError(tr("Enter a valid offer price, or leave it blank."));
+      return;
+    }
+
+    const verdict = await turnstile.gate();
+    if (!verdict.ok) {
+      setInquiryError(turnstile.errorMessage(verdict));
       return;
     }
 
@@ -519,6 +531,11 @@ export default function ProductDetail() {
                     className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                 </div>
+                <TurnstileWidget
+                  key={turnstile.attempt}
+                  action="inquiry"
+                  onToken={turnstile.setToken}
+                />
                 {inquiryError && (
                   <p
                     role="alert"
@@ -530,7 +547,11 @@ export default function ProductDetail() {
                 <Button
                   variant="default"
                   onClick={handleInquiry}
-                  disabled={submitting || !inquiryMessage.trim()}
+                  disabled={
+                    submitting ||
+                    !inquiryMessage.trim() ||
+                    (turnstile.required && !turnstile.token)
+                  }
                   className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
                 >
                   {submitting ? (

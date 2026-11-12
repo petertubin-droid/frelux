@@ -13,6 +13,8 @@ import { track } from "@/lib/analytics";
 import { classNames } from "@/lib/utils";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
+import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import { useTurnstileGate } from "@/components/security/useTurnstileGate";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 
@@ -37,6 +39,9 @@ export default function Contact() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<Status>("idle");
+  // Bot check runs before the message is stored; the token is single-use.
+  const turnstile = useTurnstileGate("contact");
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
   function update<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -58,6 +63,12 @@ export default function Contact() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
+    setVerifyError(null);
+    const verdict = await turnstile.gate();
+    if (!verdict.ok) {
+      setVerifyError(turnstile.errorMessage(verdict));
+      return;
+    }
     setStatus("submitting");
     try {
       const { data: inserted, error } = await supabase
@@ -149,10 +160,28 @@ export default function Contact() {
                 </Field>
               </div>
 
+              <TurnstileWidget
+                key={turnstile.attempt}
+                action="contact"
+                onToken={turnstile.setToken}
+                className="mt-6"
+              />
+              {verifyError && (
+                <p
+                  role="alert"
+                  className="mt-2 text-sm font-medium text-destructive"
+                >
+                  {verifyError}
+                </p>
+              )}
+
               <Button
                 variant="default"
                 type="submit"
-                disabled={status === "submitting"}
+                disabled={
+                  status === "submitting" ||
+                  (turnstile.required && !turnstile.token)
+                }
                 className="mt-6 w-full sm:w-auto disabled:opacity-50"
               >
                 <Send aria-hidden="true" className="h-4 w-4" />
