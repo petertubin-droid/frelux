@@ -854,6 +854,10 @@ function JobsTab(props: {
               </Button>
             </div>
           )}
+          {/* Paid placement sits after the goods, never inside the grid, so a
+              sponsored card can never be mistaken for an organic result. */}
+          <AdSlot slotKey="marketplace_native" className="mt-6" />
+          <AdSlot slotKey="marketplace_sidebar" className="mt-4" />
         </>
       )}
     </div>

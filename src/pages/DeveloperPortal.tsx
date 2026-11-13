@@ -158,6 +158,10 @@ function CodeBlock({ children }: { children: string }) {
   );
 }
 
+// Read from the environment instead of a baked project ref: the docs must
+// not point at whichever project happened to be linked when they were written.
+const FUNCTIONS_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
 export default function DeveloperPortal() {
   const { t } = useLanguage();
   const { user, loading } = useAuth();
@@ -286,7 +290,7 @@ export default function DeveloperPortal() {
           <h2 id="quickstart-heading" className="mb-3 text-lg font-semibold">
             {t("Quick start")}
           </h2>
-          <CodeBlock>{`curl -X POST "https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/frelix-api/v1/calculators/tyrolene_partition_area" \\
+          <CodeBlock>{`curl -X POST "${FUNCTIONS_BASE}/frelix-api/v1/calculators/tyrolene_partition_area" \\
   -H "Authorization: Bearer FLX-YOUR-KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"input":{"length":4,"width":3,"height":3}}'`}</CodeBlock>
