@@ -200,6 +200,7 @@ interface MarketReadinessRow {
   tax_rules: number;
   material_rows: number;
   estimation_rows: number;
+  pricebook_depth: "local" | "thin" | "none";
   readiness: "ready" | "limited" | "blocked";
   reasons: string[];
 }

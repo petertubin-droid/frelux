@@ -84,6 +84,23 @@ export function resolveTemplateMarketContext(
   };
 }
 
+/**
+ * Markets that get crawlable market-template pages.
+ *
+ * Publishing is a claim: these pages tell a reader (and a crawler) that FRELUX
+ * prices this market locally. The eleven markets added commercially in
+ * November 2026 (AT, BE, DK, FI, IE, MY, NO, PH, PK, PT, TH) carry a skeleton
+ * price book of 8 to 24 lines, so their pages are withheld until the book is
+ * real - thin generated pages are the pattern search engines treat as low
+ * value, and AdSense approval depends on not shipping them.
+ *
+ * The set is derived from the built-in profiles, which are the markets with a
+ * full local book; the readiness report names the rest and their depth.
+ */
+export const PUBLISHED_MARKET_CODES: readonly string[] = Object.freeze(
+  BUILTIN_MARKET_PROFILES.map((p) => p.country_code),
+);
+
 export function marketTemplatesPath(code: string): string {
   return `/market/${code.toLowerCase()}/templates`;
 }
