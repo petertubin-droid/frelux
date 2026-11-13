@@ -1344,7 +1344,7 @@
     "hash": "81489cfe17f91fda"
   },
   "/learn/build-in-nigeria-from-abroad": {
-    "lastmod": "2026-11-10",
+    "lastmod": "2026-11-13",
     "hash": "c0f7f8f5ad5f9f98"
   },
   "/learn/building-in-the-rainy-season": {
@@ -3917,7 +3917,7 @@
   },
   "/market/ch": {
     "lastmod": "2026-11-13",
-    "hash": "4eb0f30f61283e24"
+    "hash": "81d74d9402edcd15"
   },
   "/market/ch/templates": {
     "lastmod": "2026-11-13",
@@ -3925,7 +3925,7 @@
   },
   "/market/ch/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "7bb363b1e9674aef"
+    "hash": "37daf269da0201fc"
   },
   "/market/ch/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -3937,55 +3937,59 @@
   },
   "/market/ch/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "f27fcbe6eb356752"
+    "hash": "9e5b5ccca2e46ce6"
   },
   "/market/ch/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "736e312d43b99208"
+    "hash": "765b60a3618acb5f"
   },
   "/market/ch/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "b8bc416ee16153ce"
+    "hash": "f9f7b50a0c824827"
   },
   "/market/ch/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "7c4ecca898e72a41"
+    "hash": "f83e2d98cf9ceb11"
   },
   "/market/ch/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "abbab6c8894c6fdf"
+    "hash": "4ed38902934c58fc"
   },
   "/market/ch/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "bf2b53373635381b"
+    "hash": "08aa90511094c980"
   },
   "/market/ch/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b2635e765e7449e8"
+    "hash": "b1edf897783700cf"
   },
   "/market/ch/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "facbcb720545e2b7"
+    "hash": "7a3250185f0a2fef"
   },
   "/market/ch/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "d8ce0df06d903ffc"
+    "hash": "eb4e7ebeff9c0ba0"
   },
   "/market/ch/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "03e15243fc470a7b"
+    "hash": "e9abe037253a24d4"
   },
   "/market/ch/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "4adca8f333a564ed"
+    "hash": "3af686043ea7fc81"
   },
   "/market/ch/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "f719291d2b6e3798"
   },
+  "/market/ch/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "279ee3cf42b1f7c8"
+  },
   "/market/ch/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "dde7f24a9075b91f"
+    "hash": "7d9f022a7e506c0f"
   },
   "/market/ch/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -3997,71 +4001,83 @@
   },
   "/market/ch/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "07dd4a63e9785750"
+    "hash": "01c3ba75c30027fc"
   },
   "/market/ch/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "92aadf3a03d7ae56"
+    "hash": "692aec4524b08612"
   },
   "/market/ch/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "74dbb70bfe0a6168"
   },
+  "/market/ch/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6517a65ec8817e8b"
+  },
   "/market/ch/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "a6b0e733a0e775b8"
+    "hash": "a50064df62ed4d47"
   },
   "/market/ch/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "2f839919a757b99c"
+    "hash": "af3be7b69a9f4f1c"
   },
   "/market/ch/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "47b29d58f93de6dd"
+    "hash": "0574635aab4df779"
   },
   "/market/ch/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e4b53e3411efa562"
+    "hash": "fa4ac04e176d81e6"
   },
   "/market/ch/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "81fa65fe979023bf"
+    "hash": "c461d958a0307224"
   },
   "/market/ch/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "8c3c30107557b9cd"
+    "hash": "050f3835799d810d"
   },
   "/market/ch/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "8072513c0569ab74"
+    "hash": "fabbc3947d58ed3e"
   },
   "/market/ch/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c38dff0287cd289d"
+    "hash": "c22bb18fa5c0b99e"
   },
   "/market/ch/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "8f02815fa4ce0960"
+    "hash": "5da027ed8fc713d9"
   },
   "/market/ch/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "fa22d912eedeabd9"
+    "hash": "1c4d6e488d73dc28"
   },
   "/market/ch/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "589d4ed790fea840"
+    "hash": "44d0189a87108279"
+  },
+  "/market/ch/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3dd9593b3606d5c9"
   },
   "/market/ch/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "f454b272cc80e5b6"
+    "hash": "7b2d9a3b6828703a"
   },
   "/market/ch/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "9ae91095f65295eb"
   },
+  "/market/ch/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b044b95396bbc404"
+  },
   "/market/ch/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "6b04a47a66e8e270"
+    "hash": "a90c2a3d23da30e1"
   },
   "/market/ch/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4069,11 +4085,11 @@
   },
   "/market/ch/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a7ce703eea1991ba"
+    "hash": "2327da654424e68c"
   },
   "/market/ch/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "ef727302beb1784e"
+    "hash": "268c358fb69f97b4"
   },
   "/market/ch/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4221,7 +4237,7 @@
   },
   "/market/cn": {
     "lastmod": "2026-11-13",
-    "hash": "8c3a31449066ef38"
+    "hash": "ff41c2a92025e133"
   },
   "/market/cn/templates": {
     "lastmod": "2026-11-13",
@@ -4229,11 +4245,11 @@
   },
   "/market/cn/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a1e5d360ef399f70"
+    "hash": "ce680a92539e32a2"
   },
   "/market/cn/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "2f3a7e8797b61d7c"
+    "hash": "ddebe77bed40253a"
   },
   "/market/cn/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4249,7 +4265,7 @@
   },
   "/market/cn/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "128bfe936dd7a80d"
+    "hash": "b3fe6a9f9ec7d6cc"
   },
   "/market/cn/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -4257,7 +4273,7 @@
   },
   "/market/cn/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "38de9e66ea656e40"
+    "hash": "a5e43ce4815ddcab"
   },
   "/market/cn/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4269,15 +4285,15 @@
   },
   "/market/cn/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "10c64f47d25495d7"
+    "hash": "a5a4f2c36430b73d"
   },
   "/market/cn/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "64b7a6a3bd7ed511"
+    "hash": "602ee71f84c71b1b"
   },
   "/market/cn/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "c2e75d9566005aeb"
+    "hash": "31a18698ad8d46b4"
   },
   "/market/cn/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4289,11 +4305,11 @@
   },
   "/market/cn/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3614c3602621e501"
+    "hash": "b815b9e610de9d6c"
   },
   "/market/cn/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "a30961cd89aec877"
+    "hash": "22130008613b08ba"
   },
   "/market/cn/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4305,7 +4321,7 @@
   },
   "/market/cn/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "7069608a02a1e91e"
+    "hash": "952930119e5f0b70"
   },
   "/market/cn/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4317,7 +4333,7 @@
   },
   "/market/cn/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e12665f0ddca11ac"
+    "hash": "b4c0cf1fc5c12339"
   },
   "/market/cn/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -4325,11 +4341,11 @@
   },
   "/market/cn/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "61d01c602f64d919"
+    "hash": "da8d47efb3622697"
   },
   "/market/cn/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a41a804e98e31e99"
+    "hash": "026116062de99d91"
   },
   "/market/cn/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -4341,7 +4357,7 @@
   },
   "/market/cn/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "7bb93d882b160398"
+    "hash": "cef1b69fbf8b5e3b"
   },
   "/market/cn/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4349,7 +4365,7 @@
   },
   "/market/cn/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d29736c858c2b12d"
+    "hash": "5d9b02606bae5811"
   },
   "/market/cn/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4357,7 +4373,7 @@
   },
   "/market/cn/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "04a17035ce216804"
+    "hash": "ca75d14b82ac39a5"
   },
   "/market/cn/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -4549,7 +4565,7 @@
   },
   "/market/eg": {
     "lastmod": "2026-11-13",
-    "hash": "28ffa882d2c6670d"
+    "hash": "88a625f411a93d78"
   },
   "/market/eg/templates": {
     "lastmod": "2026-11-13",
@@ -4557,7 +4573,7 @@
   },
   "/market/eg/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b75eccaa314a59a3"
+    "hash": "003c7948774c93da"
   },
   "/market/eg/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4569,55 +4585,59 @@
   },
   "/market/eg/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "70d0c5b9297d64a1"
+    "hash": "e9ae7fd464e8a3bd"
   },
   "/market/eg/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e4b9896ecaf3a757"
+    "hash": "07082075911b3350"
   },
   "/market/eg/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "3a7c82e401800d60"
+    "hash": "32f77baa9d58ec31"
   },
   "/market/eg/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "9d7fd41e90e25ee7"
+    "hash": "1b3b2208acba51cd"
   },
   "/market/eg/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "838c1183be36d482"
+    "hash": "a2c54a411dc4144f"
   },
   "/market/eg/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "f7404b46c56b752f"
+    "hash": "51e7e00a87008533"
   },
   "/market/eg/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "f010273bc42db3ee"
+    "hash": "da69ab2ae3f2b0a5"
   },
   "/market/eg/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "7ad1a8919e32f7fc"
+    "hash": "da640079591ef503"
   },
   "/market/eg/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "ce0a554829a4e172"
+    "hash": "59e621059660f40b"
   },
   "/market/eg/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a77b8ff90ce3ce50"
+    "hash": "1fa35b9f5e921d44"
   },
   "/market/eg/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b0994bbe07b0f61b"
+    "hash": "b63dbbb259c9faba"
   },
   "/market/eg/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "572dcfa7d83f3ee3"
   },
+  "/market/eg/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "aff38b6fbca7dff2"
+  },
   "/market/eg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "a14c6f79eadd120b"
+    "hash": "e5cdb92afa128dff"
   },
   "/market/eg/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -4629,71 +4649,83 @@
   },
   "/market/eg/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "9266e8edc5a436c8"
+    "hash": "b50d74a9d2ff6cdb"
   },
   "/market/eg/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "689f25c5f1c39639"
+    "hash": "12539c87bc9b8222"
   },
   "/market/eg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "4761df3dfc26c185"
   },
+  "/market/eg/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "76e5bc1f720589eb"
+  },
   "/market/eg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "52b55d2c3a941004"
+    "hash": "63b982751adbac29"
   },
   "/market/eg/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "9ab1f3a4805ea5f6"
+    "hash": "6ba69c8b746bac8f"
   },
   "/market/eg/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "d1bab65130a36c20"
+    "hash": "6bd50bbc58d85570"
   },
   "/market/eg/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "7a18f1ff2a037aa4"
+    "hash": "1365b45a5e75fb70"
   },
   "/market/eg/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "07ebf0d58a35fd82"
+    "hash": "6f27af65c887c9e3"
   },
   "/market/eg/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "1e22fe3cd1ce8dd6"
+    "hash": "5c80f07b90829603"
   },
   "/market/eg/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "c62fce688ab290f5"
+    "hash": "424427637e295d90"
   },
   "/market/eg/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ec970f4d233259e3"
+    "hash": "aa83d1c8a8120bc6"
   },
   "/market/eg/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "38ac25be41f22ef3"
+    "hash": "7f04651bfb5a19a1"
   },
   "/market/eg/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "f1b48d9939d5c38b"
+    "hash": "a04558910e4243b8"
   },
   "/market/eg/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "885a672c1fd9c8d8"
+    "hash": "2db30b8501a401a6"
+  },
+  "/market/eg/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "8dee0a52d007782d"
   },
   "/market/eg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "59c7af54593c8c83"
+    "hash": "f574660b5d37a222"
   },
   "/market/eg/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "19c49b47664c8eca"
   },
+  "/market/eg/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "afb28580c843954f"
+  },
   "/market/eg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "dbb030adf7a6abc7"
+    "hash": "49851ba4eb8d4ba5"
   },
   "/market/eg/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4701,11 +4733,11 @@
   },
   "/market/eg/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "529aece5d44a8664"
+    "hash": "c198796e837a9670"
   },
   "/market/eg/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "1c25d0173e509765"
+    "hash": "75d13688099d58b7"
   },
   "/market/eg/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4717,7 +4749,7 @@
   },
   "/market/es": {
     "lastmod": "2026-11-13",
-    "hash": "efcab8c2cdbdd7d0"
+    "hash": "5c450531088864f8"
   },
   "/market/es/templates": {
     "lastmod": "2026-11-13",
@@ -4725,7 +4757,7 @@
   },
   "/market/es/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "faa3fba83a054997"
+    "hash": "6f79176986424081"
   },
   "/market/es/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4737,55 +4769,59 @@
   },
   "/market/es/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "feb1bd76d502c9f9"
+    "hash": "85ed71121dc4b93b"
   },
   "/market/es/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "82c92906b3a79b46"
+    "hash": "901c9ee99e0726f5"
   },
   "/market/es/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "0405b66841385f24"
+    "hash": "177ce3f0644b7205"
   },
   "/market/es/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "0aba2c0b4f0ad373"
+    "hash": "78a905a5c3c1b10b"
   },
   "/market/es/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "73e812d0a488e940"
+    "hash": "8eacdd01ffe08c24"
   },
   "/market/es/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "a3a4570048ff7e7e"
+    "hash": "aae7c2512b0374b4"
   },
   "/market/es/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b0f40d9d698eb4a6"
+    "hash": "4313d044a0e963e9"
   },
   "/market/es/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "0fcb5c47d08cbc74"
+    "hash": "b87d9484ad049041"
   },
   "/market/es/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "196f40212b47a161"
+    "hash": "dd612b85ac2ba93b"
   },
   "/market/es/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "563e41022a0524ef"
+    "hash": "d7fd673f430851b8"
   },
   "/market/es/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "99f2e9eda4dfa242"
+    "hash": "902a393e7652ce87"
   },
   "/market/es/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a553ca4ddfc94cb5"
   },
+  "/market/es/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "d7a8b2a34b8f95cf"
+  },
   "/market/es/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "9e3e75b24eadc235"
+    "hash": "4a6e02083804a79e"
   },
   "/market/es/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -4797,71 +4833,83 @@
   },
   "/market/es/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "7339a609bb5ab393"
+    "hash": "63c3893f0f4f42ed"
   },
   "/market/es/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3994bdd1159f3254"
+    "hash": "c19c5539e9a97c73"
   },
   "/market/es/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "3ece2ca1bde9c74f"
   },
+  "/market/es/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c67fc469f17f194c"
+  },
   "/market/es/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "a648a29f7297d77e"
+    "hash": "1fae348bef28eb3e"
   },
   "/market/es/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "db1851d9bcab38ea"
+    "hash": "8e48a9bd72c5f693"
   },
   "/market/es/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "bb677079b03885ff"
+    "hash": "f1ab0119a1b38671"
   },
   "/market/es/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d7b28b22e61154d1"
+    "hash": "3327f3d49dc21b57"
   },
   "/market/es/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "80345bf243da2aaf"
+    "hash": "73a47563cdafdc1a"
   },
   "/market/es/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e8d5f5dd233870e8"
+    "hash": "9c1203d04f614ef7"
   },
   "/market/es/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "4d5d585465f960be"
+    "hash": "7b668b046ae34dce"
   },
   "/market/es/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3703fdf166c6eddf"
+    "hash": "636af3db62147cf7"
   },
   "/market/es/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "8a9a1d420baeb5be"
+    "hash": "e31c152db9abc0c4"
   },
   "/market/es/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "c2d523d594efe7b5"
+    "hash": "b58b2ca2da986ceb"
   },
   "/market/es/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "0799976d0921b569"
+    "hash": "bc5a16aa50ed5b0d"
+  },
+  "/market/es/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3eb274428374de8e"
   },
   "/market/es/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "f989475124eb444a"
+    "hash": "96ad737ad05354bb"
   },
   "/market/es/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7ec1ea4140082422"
   },
+  "/market/es/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "dac9d8ee69d9839d"
+  },
   "/market/es/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d4f379290cd13c08"
+    "hash": "7486bd29bd65fc66"
   },
   "/market/es/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4869,11 +4917,11 @@
   },
   "/market/es/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "51fbe574df8bf813"
+    "hash": "4d3a68a0248955b6"
   },
   "/market/es/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "1facb8d30ba9af42"
+    "hash": "fa849a5a2c6c6c15"
   },
   "/market/es/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -5485,7 +5533,7 @@
   },
   "/market/id": {
     "lastmod": "2026-11-13",
-    "hash": "d81f32fd892b87a4"
+    "hash": "3dcf7e375015fad4"
   },
   "/market/id/templates": {
     "lastmod": "2026-11-13",
@@ -5493,7 +5541,7 @@
   },
   "/market/id/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "eca6557083ea5992"
+    "hash": "b2f36f7c24ff09ef"
   },
   "/market/id/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -5505,7 +5553,7 @@
   },
   "/market/id/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e918a0983ec0f097"
+    "hash": "34cf89f27f323085"
   },
   "/market/id/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5521,7 +5569,7 @@
   },
   "/market/id/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "f4e178e76ece0849"
+    "hash": "986b3409c846886e"
   },
   "/market/id/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -5529,7 +5577,7 @@
   },
   "/market/id/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b230e573b3c3d569"
+    "hash": "f2c7cd1c7478c007"
   },
   "/market/id/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5541,11 +5589,11 @@
   },
   "/market/id/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "0da902b124172fdb"
+    "hash": "3eeff115409c2fe3"
   },
   "/market/id/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c9d7a1696775e226"
+    "hash": "a7b4032959bef17c"
   },
   "/market/id/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
@@ -5553,7 +5601,7 @@
   },
   "/market/id/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "3dff9e8bf3c8804d"
+    "hash": "6964ff0f16ee6b19"
   },
   "/market/id/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5573,7 +5621,7 @@
   },
   "/market/id/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "82dc7e0314327948"
+    "hash": "d9e8f3688ad25b20"
   },
   "/market/id/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -5581,7 +5629,7 @@
   },
   "/market/id/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "15f220eeb726d322"
+    "hash": "5e8beec6ca325b1f"
   },
   "/market/id/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5593,7 +5641,7 @@
   },
   "/market/id/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e178b5b62abdcb7e"
+    "hash": "2b64655fac1db5a0"
   },
   "/market/id/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5605,7 +5653,7 @@
   },
   "/market/id/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9bf4c75e82b174f2"
+    "hash": "9225d463b3622192"
   },
   "/market/id/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -5613,11 +5661,11 @@
   },
   "/market/id/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3c6279c516bfd636"
+    "hash": "b2ff85d1496c0c25"
   },
   "/market/id/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "437b10e3a2abdad4"
+    "hash": "1f7c0ade14128dca"
   },
   "/market/id/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -5629,7 +5677,7 @@
   },
   "/market/id/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "bc0f3cf03fab870d"
+    "hash": "bf7e8e72a0a4fa24"
   },
   "/market/id/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5641,7 +5689,7 @@
   },
   "/market/id/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "154b018e8e6f9101"
+    "hash": "a5782444c6c40b69"
   },
   "/market/id/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5653,7 +5701,7 @@
   },
   "/market/id/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "aa734224bb0db24a"
+    "hash": "96e4ebb69dd2a0f9"
   },
   "/market/id/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -6405,7 +6453,7 @@
   },
   "/market/kr": {
     "lastmod": "2026-11-13",
-    "hash": "1084845ff8f0a603"
+    "hash": "333bf8edd1bebe59"
   },
   "/market/kr/templates": {
     "lastmod": "2026-11-13",
@@ -6413,7 +6461,7 @@
   },
   "/market/kr/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "fdca64a4435a0dab"
+    "hash": "64cb7d585e7c5d6f"
   },
   "/market/kr/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -6425,7 +6473,7 @@
   },
   "/market/kr/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "099349d5029a914c"
+    "hash": "d4d9a5e1ed9ccba2"
   },
   "/market/kr/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6441,7 +6489,7 @@
   },
   "/market/kr/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "624077b5996b0417"
+    "hash": "3e13db3201f7f672"
   },
   "/market/kr/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -6449,7 +6497,7 @@
   },
   "/market/kr/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b8bd57ae9aa292fe"
+    "hash": "8c37ce8091f44a6e"
   },
   "/market/kr/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6461,11 +6509,11 @@
   },
   "/market/kr/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "d4699a13fee0fdd0"
+    "hash": "63ca9e253af1a152"
   },
   "/market/kr/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "0ef05db2e1ba3134"
+    "hash": "789ddfb87b2175ac"
   },
   "/market/kr/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
@@ -6473,7 +6521,7 @@
   },
   "/market/kr/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "0f3c959c804b63b9"
+    "hash": "a942bc75b49a94db"
   },
   "/market/kr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6493,7 +6541,7 @@
   },
   "/market/kr/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c88471ffeb4e717a"
+    "hash": "9bca434dcd9bee0e"
   },
   "/market/kr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -6501,7 +6549,7 @@
   },
   "/market/kr/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "8f2af7c7a88b8ad3"
+    "hash": "e27ef6375487ed8b"
   },
   "/market/kr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6513,7 +6561,7 @@
   },
   "/market/kr/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ec491704ba0e588c"
+    "hash": "35207a2e391e9395"
   },
   "/market/kr/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6525,7 +6573,7 @@
   },
   "/market/kr/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ee332bb6713d695c"
+    "hash": "1e14663fb3ae9989"
   },
   "/market/kr/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -6533,11 +6581,11 @@
   },
   "/market/kr/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "96c2baa2a473a993"
+    "hash": "2055042b33bf60bc"
   },
   "/market/kr/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "04749df25e570fbc"
+    "hash": "2033ea2dc2c18ef7"
   },
   "/market/kr/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -6549,7 +6597,7 @@
   },
   "/market/kr/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "64abebbe2a419ce8"
+    "hash": "a0e95f651c5d6b65"
   },
   "/market/kr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6561,7 +6609,7 @@
   },
   "/market/kr/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "4bc495229ef66d76"
+    "hash": "d834e8c6c08ee702"
   },
   "/market/kr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6573,7 +6621,7 @@
   },
   "/market/kr/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "21014dad92bc2cbb"
+    "hash": "028850acdf0786b9"
   },
   "/market/kr/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -6589,7 +6637,7 @@
   },
   "/market/mx": {
     "lastmod": "2026-11-13",
-    "hash": "79f34a20892a5de8"
+    "hash": "dc1d427ec21c0a32"
   },
   "/market/mx/templates": {
     "lastmod": "2026-11-13",
@@ -6597,7 +6645,7 @@
   },
   "/market/mx/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a3a01cae603fe5a4"
+    "hash": "6dd666e64f7fde45"
   },
   "/market/mx/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -6609,7 +6657,7 @@
   },
   "/market/mx/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9763cf15df4bcb1e"
+    "hash": "0adbd91ea583951e"
   },
   "/market/mx/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6625,7 +6673,7 @@
   },
   "/market/mx/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "0f3fc8f5be73cf37"
+    "hash": "5e8a02e213d110f3"
   },
   "/market/mx/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -6633,7 +6681,7 @@
   },
   "/market/mx/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3cbc4936a227debf"
+    "hash": "446d95b944524120"
   },
   "/market/mx/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6645,11 +6693,11 @@
   },
   "/market/mx/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "895708ebf0acd309"
+    "hash": "3697970e32214db9"
   },
   "/market/mx/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "49856bfaf3834c61"
+    "hash": "1bddbbdabf793a89"
   },
   "/market/mx/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
@@ -6657,7 +6705,7 @@
   },
   "/market/mx/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "58bdb9a4b1acd7cf"
+    "hash": "c5fbd905a94c9f87"
   },
   "/market/mx/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6677,7 +6725,7 @@
   },
   "/market/mx/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "535f5e5c5b4d371f"
+    "hash": "aeac3d7c56e357b3"
   },
   "/market/mx/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -6685,7 +6733,7 @@
   },
   "/market/mx/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "41d29fab1ebc9112"
+    "hash": "4587f6ac5d1f7db6"
   },
   "/market/mx/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6697,7 +6745,7 @@
   },
   "/market/mx/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "72827b6568bf2bf1"
+    "hash": "7d5b6d9a93cfa295"
   },
   "/market/mx/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6709,7 +6757,7 @@
   },
   "/market/mx/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "984e4a5133d685d6"
+    "hash": "36b442cdcfdce025"
   },
   "/market/mx/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -6717,11 +6765,11 @@
   },
   "/market/mx/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c89ab7cbc3591086"
+    "hash": "527685cf949c5590"
   },
   "/market/mx/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "81bb45b07dd81542"
+    "hash": "d5f9562e758317c8"
   },
   "/market/mx/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -6733,7 +6781,7 @@
   },
   "/market/mx/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "4a5942b489613e03"
+    "hash": "39c6ff9110457fd5"
   },
   "/market/mx/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6745,7 +6793,7 @@
   },
   "/market/mx/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "2363767799572567"
+    "hash": "96c4c433dfba3e73"
   },
   "/market/mx/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6757,7 +6805,7 @@
   },
   "/market/mx/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "1a6af2d7911ac846"
+    "hash": "db09fef5aaad0048"
   },
   "/market/mx/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -6957,7 +7005,7 @@
   },
   "/market/nl": {
     "lastmod": "2026-11-13",
-    "hash": "b16b6f404603f890"
+    "hash": "fcff6aeb1c3defec"
   },
   "/market/nl/templates": {
     "lastmod": "2026-11-13",
@@ -6965,7 +7013,7 @@
   },
   "/market/nl/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c1f32139ac61a3e6"
+    "hash": "d867988ada2dd84f"
   },
   "/market/nl/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -6977,7 +7025,7 @@
   },
   "/market/nl/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "46fd5c5d76d4cbe0"
+    "hash": "bd85fde5eaa6be5a"
   },
   "/market/nl/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6993,7 +7041,7 @@
   },
   "/market/nl/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "7122668fe96b280c"
+    "hash": "9d62ff991e6d744e"
   },
   "/market/nl/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -7001,7 +7049,7 @@
   },
   "/market/nl/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "947190a8f76e15e3"
+    "hash": "b614778c6c393cdb"
   },
   "/market/nl/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7013,11 +7061,11 @@
   },
   "/market/nl/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "aa686c9dd064f7f1"
+    "hash": "e6715313001d1de8"
   },
   "/market/nl/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "d3b7c0dce5ff17cf"
+    "hash": "aafdf561801ff047"
   },
   "/market/nl/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
@@ -7025,7 +7073,7 @@
   },
   "/market/nl/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e0250124d9524338"
+    "hash": "b835c72da5321915"
   },
   "/market/nl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7045,7 +7093,7 @@
   },
   "/market/nl/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e2259dee521f678b"
+    "hash": "a15559b54948cfa5"
   },
   "/market/nl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7053,7 +7101,7 @@
   },
   "/market/nl/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "5640bc74e2155094"
+    "hash": "95fccd5b622b3287"
   },
   "/market/nl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7065,7 +7113,7 @@
   },
   "/market/nl/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "879430e1fb3c6ed0"
+    "hash": "a576e833e47e7833"
   },
   "/market/nl/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7077,7 +7125,7 @@
   },
   "/market/nl/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "4c4aec06dfd8bd3f"
+    "hash": "8eef5382a1d8648c"
   },
   "/market/nl/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -7085,11 +7133,11 @@
   },
   "/market/nl/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "c4706af46f83e715"
+    "hash": "f4fd2e381bd7a91c"
   },
   "/market/nl/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "eba44df463bd2d64"
+    "hash": "383063a845e7bf73"
   },
   "/market/nl/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -7101,7 +7149,7 @@
   },
   "/market/nl/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "9ee514c6dd65358e"
+    "hash": "c545aaed8e100a20"
   },
   "/market/nl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7113,7 +7161,7 @@
   },
   "/market/nl/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "1ce13ae85845ae77"
+    "hash": "b7ac5ccccbd13388"
   },
   "/market/nl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7125,7 +7173,7 @@
   },
   "/market/nl/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "0a7121659aec772c"
+    "hash": "cd330443fd3a9f9e"
   },
   "/market/nl/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -7141,7 +7189,7 @@
   },
   "/market/nz": {
     "lastmod": "2026-11-13",
-    "hash": "be5b00f1349a63ee"
+    "hash": "9bf6d54e224e3a40"
   },
   "/market/nz/templates": {
     "lastmod": "2026-11-13",
@@ -7149,7 +7197,7 @@
   },
   "/market/nz/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e22f0dc9bd9c9972"
+    "hash": "ed0d74c729911d1a"
   },
   "/market/nz/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7161,55 +7209,59 @@
   },
   "/market/nz/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a426d19ff16c1c56"
+    "hash": "fe423939832f9ff2"
   },
   "/market/nz/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "932d0d1502e9cd87"
+    "hash": "eed8797fe6e55712"
   },
   "/market/nz/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "44326b9b24161ddd"
+    "hash": "39882c870c6ffb2c"
   },
   "/market/nz/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "b239e669451023ed"
+    "hash": "367d91902311ef8c"
   },
   "/market/nz/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "21be7d7e524ca0e8"
+    "hash": "37183efc6e00d4fd"
   },
   "/market/nz/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "2d456661b7807edc"
+    "hash": "1fd123dadb8f0a35"
   },
   "/market/nz/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e1b1b7d806fdb1b4"
+    "hash": "3b8d71bc64651179"
   },
   "/market/nz/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d000da07d3d09e91"
+    "hash": "fbdefd9c042e3f8d"
   },
   "/market/nz/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "14df3b9e1b3ceebb"
+    "hash": "4f3b7bfac5f906d3"
   },
   "/market/nz/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a331a37e5e5c4aad"
+    "hash": "baa93c11e3250033"
   },
   "/market/nz/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "926ee03671278998"
+    "hash": "ecf8988d45ee3419"
   },
   "/market/nz/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "1045cba8719cbb89"
   },
+  "/market/nz/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "72b2153fa2e7696f"
+  },
   "/market/nz/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "22544afae7437cc4"
+    "hash": "9b7baaafba07dd80"
   },
   "/market/nz/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -7221,71 +7273,83 @@
   },
   "/market/nz/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "351b7c152dfa62e6"
+    "hash": "d2a8d0d73e9be261"
   },
   "/market/nz/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "77ba39046ef7a7a3"
+    "hash": "f92e98e4a232fca1"
   },
   "/market/nz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "996f30dbc8a62f49"
   },
+  "/market/nz/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ccfaf02912151699"
+  },
   "/market/nz/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "9e78fdf7bbaa5220"
+    "hash": "269e0c530dd2fcf7"
   },
   "/market/nz/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "471e2fd8cfe149a3"
+    "hash": "f1d90a57244ecedc"
   },
   "/market/nz/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ff54cbf7b1e7f3da"
+    "hash": "1f07c64e4310c1f0"
   },
   "/market/nz/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d91dadc2624daec8"
+    "hash": "a7331190634d9115"
   },
   "/market/nz/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "123674c9cb373d54"
+    "hash": "0be56a095efbe601"
   },
   "/market/nz/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "884c37f3151290a2"
+    "hash": "c294aa83dd1fc7a9"
   },
   "/market/nz/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "937687807dff5631"
+    "hash": "5529fbba8d299fb0"
   },
   "/market/nz/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "7ed92121577a18b8"
+    "hash": "5ff9944053e36cb4"
   },
   "/market/nz/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "a96d2c7590a31ba3"
+    "hash": "9d9eb25f3a42c741"
   },
   "/market/nz/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "170f63979bec7155"
+    "hash": "88b17c4e09589a20"
   },
   "/market/nz/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "6993b7551a2a301b"
+    "hash": "1db56b1c99ea82bf"
+  },
+  "/market/nz/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c0d4d3231af96dc5"
   },
   "/market/nz/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "3a2eb0214163ab88"
+    "hash": "1decdbaee1fbf101"
   },
   "/market/nz/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a50c73e1c152b5d4"
   },
+  "/market/nz/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ef010e463eb5284f"
+  },
   "/market/nz/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "6c93226df17b43d8"
+    "hash": "9bc103ab8dff8bc4"
   },
   "/market/nz/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7293,11 +7357,11 @@
   },
   "/market/nz/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "dd5f47af1ca724c5"
+    "hash": "506a7889a025b16c"
   },
   "/market/nz/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "3d34b458c8d2a42d"
+    "hash": "7b24d3b98ad27577"
   },
   "/market/nz/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7309,7 +7373,7 @@
   },
   "/market/pl": {
     "lastmod": "2026-11-13",
-    "hash": "69974ac6238e68d0"
+    "hash": "60a8e96c1eb97947"
   },
   "/market/pl/templates": {
     "lastmod": "2026-11-13",
@@ -7317,7 +7381,7 @@
   },
   "/market/pl/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "88da06b3e6e5f64f"
+    "hash": "06c6c2defb969609"
   },
   "/market/pl/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7329,55 +7393,59 @@
   },
   "/market/pl/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "d09ecd98b644d44c"
+    "hash": "46f897275614c27a"
   },
   "/market/pl/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "c49dc81598429edd"
+    "hash": "b557aeb3d54101c4"
   },
   "/market/pl/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "1f4e2e019c60c207"
+    "hash": "192cde7d82d65cad"
   },
   "/market/pl/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "7caa9dd5e12dc660"
+    "hash": "65122e4f0ae7d997"
   },
   "/market/pl/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "92d0b52a08d14ca3"
+    "hash": "7ae052d4923dca34"
   },
   "/market/pl/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "02bebb1f3a863e5e"
+    "hash": "23ef4e91584bded7"
   },
   "/market/pl/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "3d20eb3811fc9041"
+    "hash": "1a0828a3a6c26558"
   },
   "/market/pl/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "c2319d575e29c2c6"
+    "hash": "6067bcd00e9f7852"
   },
   "/market/pl/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "5f3e79da960d33f6"
+    "hash": "98b7eb9596b4a323"
   },
   "/market/pl/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9e5594770ea92d6f"
+    "hash": "347eed14052f3a09"
   },
   "/market/pl/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "adc0b89b2941232d"
+    "hash": "82b06577fe26434e"
   },
   "/market/pl/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "9707ff6be116fb7d"
   },
+  "/market/pl/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9bf6af9e33458094"
+  },
   "/market/pl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "75729b05450ba075"
+    "hash": "5ec87755f34d72ca"
   },
   "/market/pl/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -7389,71 +7457,83 @@
   },
   "/market/pl/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "c50b497ff3e3a331"
+    "hash": "ee87191534410aca"
   },
   "/market/pl/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9f9900d5e3bd9123"
+    "hash": "3038bb899479deb7"
   },
   "/market/pl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "20d509b632df3554"
   },
+  "/market/pl/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5b8f8d971d60039d"
+  },
   "/market/pl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "1ee6d68d6bd32d27"
+    "hash": "3b6ee489942c5e9c"
   },
   "/market/pl/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "aa4d4e0054e0c3f2"
+    "hash": "33120ed8d94135b4"
   },
   "/market/pl/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "69e832d0ec1547e9"
+    "hash": "bfdeeafd712b809f"
   },
   "/market/pl/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "5f926615d09c9f50"
+    "hash": "5b9bb31f443be884"
   },
   "/market/pl/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "a179875234dfe0cd"
+    "hash": "b7633ad77456a85b"
   },
   "/market/pl/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9c55edf08ee431aa"
+    "hash": "c423b99826db8bd7"
   },
   "/market/pl/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "04dc0f9ab69c2eb0"
+    "hash": "e3f623ec05681a2a"
   },
   "/market/pl/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e925dbd36b21e7de"
+    "hash": "624d047bf7dd9cc8"
   },
   "/market/pl/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e99a0baf6ce84890"
+    "hash": "741937ff2864a326"
   },
   "/market/pl/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "510be1a570606dd7"
+    "hash": "eab10f4a35f8a517"
   },
   "/market/pl/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "bcd3a7cea187172a"
+    "hash": "d7a717c8b8360109"
+  },
+  "/market/pl/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "23955238fd479636"
   },
   "/market/pl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "a4e036491113b403"
+    "hash": "d5ef882c276ea5d2"
   },
   "/market/pl/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "91043f71306ed4e3"
   },
+  "/market/pl/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5adf18c3cff6f785"
+  },
   "/market/pl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "42d7a23c02753be2"
+    "hash": "93d4e336be250ada"
   },
   "/market/pl/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7461,11 +7541,11 @@
   },
   "/market/pl/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "6554a0b4a0a4a7be"
+    "hash": "3ba24fd66b4d38a9"
   },
   "/market/pl/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "5e18f5561a4a91d0"
+    "hash": "6b17b70b80bfb85d"
   },
   "/market/pl/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7661,7 +7741,7 @@
   },
   "/market/se": {
     "lastmod": "2026-11-13",
-    "hash": "6a22e14633f4b0db"
+    "hash": "0411a9d743e20862"
   },
   "/market/se/templates": {
     "lastmod": "2026-11-13",
@@ -7669,7 +7749,7 @@
   },
   "/market/se/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "cb433c3d61592220"
+    "hash": "a8d322de42b0ad3f"
   },
   "/market/se/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7681,7 +7761,7 @@
   },
   "/market/se/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "62a4346aceeedc39"
+    "hash": "398a3d7bedc9a09b"
   },
   "/market/se/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7697,7 +7777,7 @@
   },
   "/market/se/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ff1e5c9c9381d432"
+    "hash": "4977f33191dec84e"
   },
   "/market/se/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
@@ -7705,7 +7785,7 @@
   },
   "/market/se/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "71d2afc8cebc6c3e"
+    "hash": "221eeda0a2d1b925"
   },
   "/market/se/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7717,15 +7797,19 @@
   },
   "/market/se/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "08d78204a1d0243c"
+    "hash": "d791d8a98a21860a"
   },
   "/market/se/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "fe88b71e33cfd23e"
+    "hash": "b4d5d5d49595f50c"
   },
   "/market/se/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "2982c19a7b800782"
+  },
+  "/market/se/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "80b6f1cf43251880"
   },
   "/market/se/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7745,11 +7829,15 @@
   },
   "/market/se/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e3fa264a739da6a0"
+    "hash": "23b2f255bcb525f2"
   },
   "/market/se/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "5bb3a78611bfa79e"
+  },
+  "/market/se/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ad5a023e96b6875a"
   },
   "/market/se/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7761,7 +7849,7 @@
   },
   "/market/se/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "0eabbe0e60ab9bf7"
+    "hash": "342d1eb3eeb9e7ca"
   },
   "/market/se/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7773,7 +7861,7 @@
   },
   "/market/se/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e6ebcb4f4e3d1a2f"
+    "hash": "0c04453aa4370789"
   },
   "/market/se/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
@@ -7781,11 +7869,11 @@
   },
   "/market/se/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "432eb475fd1f3936"
+    "hash": "447a0a84da5ee83e"
   },
   "/market/se/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "15b3eca091cab688"
+    "hash": "c95571a9f23566bb"
   },
   "/market/se/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
@@ -7795,6 +7883,10 @@
     "lastmod": "2026-11-13",
     "hash": "ac7bef0f17cdfd91"
   },
+  "/market/se/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "1dd369a97f0011a4"
+  },
   "/market/se/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "c98c8796edeaa35e"
@@ -7802,6 +7894,10 @@
   "/market/se/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7222af94ab382e17"
+  },
+  "/market/se/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "cef651bfa2c9a2df"
   },
   "/market/se/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7813,7 +7909,7 @@
   },
   "/market/se/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "2740e232f18577d5"
+    "hash": "64a0ac63c58c2bbe"
   },
   "/market/se/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
@@ -7829,7 +7925,7 @@
   },
   "/market/sg": {
     "lastmod": "2026-11-13",
-    "hash": "e8e2416adbc87aaa"
+    "hash": "3c82dab0c11fcbe2"
   },
   "/market/sg/templates": {
     "lastmod": "2026-11-13",
@@ -7837,7 +7933,7 @@
   },
   "/market/sg/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "5c215751fbfd4cea"
+    "hash": "923043f904697ef6"
   },
   "/market/sg/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7849,55 +7945,59 @@
   },
   "/market/sg/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ac5590c2c3c807ae"
+    "hash": "46ed9a86c5afa083"
   },
   "/market/sg/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d64b772675178f2a"
+    "hash": "108ce52fced2fd24"
   },
   "/market/sg/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "4cd9139bdef96801"
+    "hash": "ef5a5d7d60f147c4"
   },
   "/market/sg/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "9c65d4643976d52a"
+    "hash": "1fc19f125c20adb9"
   },
   "/market/sg/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "d7230817425816ff"
+    "hash": "062ae4926a87fa84"
   },
   "/market/sg/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "5c454df448f2970c"
+    "hash": "312162a6cab92ec8"
   },
   "/market/sg/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "06fbee65b47dfcfd"
+    "hash": "42fe6004f658cb1a"
   },
   "/market/sg/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d97af07a56c2ccb8"
+    "hash": "9ca85a1a3adaee79"
   },
   "/market/sg/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "68e08e2445b91078"
+    "hash": "fd62b603ef56bdc0"
   },
   "/market/sg/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "9b2c19f240020367"
+    "hash": "6f197f11e15f28e5"
   },
   "/market/sg/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "1258a1c7c263e759"
+    "hash": "093f091ce0faaec5"
   },
   "/market/sg/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "77c8ed8431dc10fb"
   },
+  "/market/sg/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5fe2d133ad82c597"
+  },
   "/market/sg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "596effb57458824d"
+    "hash": "06d91db5c711089c"
   },
   "/market/sg/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -7909,71 +8009,83 @@
   },
   "/market/sg/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "6659b4a66c5509e6"
+    "hash": "5d986dce693aff28"
   },
   "/market/sg/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "39c85d6a21ab8664"
+    "hash": "e4827e6d8c25b56f"
   },
   "/market/sg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "d14dab527825921a"
   },
+  "/market/sg/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "12cc6b505d217e1c"
+  },
   "/market/sg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "0f43b39774a205d9"
+    "hash": "fc7952cbfb74eef2"
   },
   "/market/sg/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "39b10bfd9dcd99e6"
+    "hash": "6caae079aff3408d"
   },
   "/market/sg/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "f026786f1428dca2"
+    "hash": "6ed5af69fc55451c"
   },
   "/market/sg/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "c958c5a80bbc370b"
+    "hash": "fd162ab948aa80d4"
   },
   "/market/sg/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "4d260e6e267ade30"
+    "hash": "f3b8a491a71d1ef6"
   },
   "/market/sg/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "438c44d4da594574"
+    "hash": "7ce8e1456cf3cce7"
   },
   "/market/sg/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "29c1deef563ce17a"
+    "hash": "256b8ec867ad12d5"
   },
   "/market/sg/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "e10fff944151031d"
+    "hash": "e5702ce5f3cabc35"
   },
   "/market/sg/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "1310d42c6ebf12bf"
+    "hash": "230137c66d8c3a3c"
   },
   "/market/sg/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "bed1e8ad1a7c819f"
+    "hash": "06eca038a8eafc63"
   },
   "/market/sg/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "cd6bd9404a2d5149"
+    "hash": "802aad52df5af36f"
+  },
+  "/market/sg/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "8fdc574281531c3d"
   },
   "/market/sg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "83bcfd2d73b6d83e"
+    "hash": "3fae986f786f8aa5"
   },
   "/market/sg/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "de02bad50edc2a2e"
   },
+  "/market/sg/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9aa39672f9ffd49c"
+  },
   "/market/sg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "15145a459846592c"
+    "hash": "ba16027fa218017e"
   },
   "/market/sg/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7981,11 +8093,11 @@
   },
   "/market/sg/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "1c5134ecad2abb0e"
+    "hash": "a878951949e09f6d"
   },
   "/market/sg/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "378bf54cc3cc2e2a"
+    "hash": "062a5072b436e7e3"
   },
   "/market/sg/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7997,7 +8109,7 @@
   },
   "/market/tr": {
     "lastmod": "2026-11-13",
-    "hash": "6dc17de6ca89771e"
+    "hash": "50b8481c855e8f07"
   },
   "/market/tr/templates": {
     "lastmod": "2026-11-13",
@@ -8005,7 +8117,7 @@
   },
   "/market/tr/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
-    "hash": "f3a17165d963e666"
+    "hash": "c9b8e541ea768401"
   },
   "/market/tr/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -8017,55 +8129,59 @@
   },
   "/market/tr/templates/childrens-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "10946bb4e6fd6543"
+    "hash": "25a95509ae18125b"
   },
   "/market/tr/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "85e406123011cef0"
+    "hash": "d9684e29c9573a5a"
   },
   "/market/tr/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "8094682b357d1aaf"
+    "hash": "c72cd62672c0937c"
   },
   "/market/tr/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "1e3b458d3cac669a"
+    "hash": "931b72168a17e43b"
   },
   "/market/tr/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-13",
-    "hash": "7ea68281b8485a54"
+    "hash": "f0b569e55ddbf8f3"
   },
   "/market/tr/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "b5bc6fbddb1ad7f5"
+    "hash": "b418a19f14ef655a"
   },
   "/market/tr/templates/dining-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "17c5dddfadbcac8c"
+    "hash": "c853f9a83f19479f"
   },
   "/market/tr/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "16fa9d30384c4d12"
+    "hash": "8061db0a0dbbff2f"
   },
   "/market/tr/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "815b893f98c40083"
+    "hash": "4bd88637084eded9"
   },
   "/market/tr/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-13",
-    "hash": "537cb968a7551134"
+    "hash": "cb6b0a9cf90ec6be"
   },
   "/market/tr/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-13",
-    "hash": "ecbd4751f84e9ccb"
+    "hash": "122bb7f080df8bc4"
   },
   "/market/tr/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "0144ba4c6f09183a"
   },
+  "/market/tr/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "bb7ad65cb2fb3659"
+  },
   "/market/tr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "8c1fc0441e20fdc2"
+    "hash": "145772273e911706"
   },
   "/market/tr/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -8077,71 +8193,83 @@
   },
   "/market/tr/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e08a67a798f063f5"
+    "hash": "00b439946bc7848d"
   },
   "/market/tr/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
-    "hash": "033f44d1e4c15541"
+    "hash": "0d0c01fb9cd3e546"
   },
   "/market/tr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "4b1943de4fed54f8"
   },
+  "/market/tr/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "a9734f247c16cdb9"
+  },
   "/market/tr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "f9f87d7975bb2084"
+    "hash": "daaafa61f6feba5b"
   },
   "/market/tr/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "276698aa9c6ba8e1"
+    "hash": "3a229d1fa483f93f"
   },
   "/market/tr/templates/master-bedroom-painting": {
     "lastmod": "2026-11-13",
-    "hash": "04d55d0b493cd2c4"
+    "hash": "6064cb67b6df364b"
   },
   "/market/tr/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "63d215844f7786ce"
+    "hash": "3f33ce64dcb6c4cc"
   },
   "/market/tr/templates/office-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "36732dfdcc2e7264"
+    "hash": "4801eb811b8ee827"
   },
   "/market/tr/templates/office-space-painting": {
     "lastmod": "2026-11-13",
-    "hash": "b68d00813cb59566"
+    "hash": "3ba440b0fcf9c344"
   },
   "/market/tr/templates/shop-front-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "551b6c8ca86e2809"
+    "hash": "ab5eca21fd4939b3"
   },
   "/market/tr/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-13",
-    "hash": "27dc7640ad915bd9"
+    "hash": "7f4f5162f581107b"
   },
   "/market/tr/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-13",
-    "hash": "67496c0bdd0e00f0"
+    "hash": "44b2ef13458ff984"
   },
   "/market/tr/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "0633b2255f7c1b6f"
+    "hash": "6bed7b4982aeff2f"
   },
   "/market/tr/templates/single-wall-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "eaae86213f43d8a6"
+    "hash": "2ad2938cb444ff31"
+  },
+  "/market/tr/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "041348fc4e865a51"
   },
   "/market/tr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "3e396953597b0cca"
+    "hash": "55c6b78f6f22221e"
   },
   "/market/tr/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a3b76d698b91a57a"
   },
+  "/market/tr/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "e087cf34bf4c7d40"
+  },
   "/market/tr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "854450402e940c47"
+    "hash": "43c6755402bd550a"
   },
   "/market/tr/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -8149,11 +8277,11 @@
   },
   "/market/tr/templates/standard-living-room-painting": {
     "lastmod": "2026-11-13",
-    "hash": "4649ef16045886fc"
+    "hash": "e9eff1a02a6ad9db"
   },
   "/market/tr/templates/standard-room-screeding": {
     "lastmod": "2026-11-13",
-    "hash": "22b0dc11da2bf256"
+    "hash": "74cc932d5127e3a9"
   },
   "/market/tr/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",

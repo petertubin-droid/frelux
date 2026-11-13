@@ -186,14 +186,75 @@ export async function loadMarketPriceFacts() {
  * are kept identical (per m3 to per m3, per bag to per bag) so a displayed
  * price is never a price for a different quantity.
  */
+// Market-specific slugs are listed first in each role because several markets
+// price the same product under a local name (Wandfarbe, plastica, lateksowa,
+// väggfärg) and carry no curated role row at all, so the alias is the only
+// thing standing between a stored local price and a page that says the book
+// holds nothing. A slug only answers a role in the market that prices it, and
+// every alias here is the same kind of product on the same unit basis as the
+// role it fills.
 export const ROLE_MATERIAL_ALIASES = Object.freeze({
-  sand: ["sand-per-m3", "sand"],
+  sand: [
+    "sand-per-m3",
+    "ch-bausand-25kg",
+    "eg-sand-25kg",
+    "es-arena-25kg",
+    "nz-sand-25kg",
+    "pl-piasek-25kg",
+    "sg-sand-25kg",
+    "tr-kum-25kg",
+    "sand",
+  ],
   "concrete-mix": ["cement-per-bag", "cement"],
   "skim-plaster": ["plaster-per-bag", "skim-plaster", "gypsum-plaster"],
-  "interior-paint": ["interior-emulsion", "emulsion", "paint-interior"],
-  primer: ["primer", "emulsion-primer"],
-  "joint-filler": ["joint-filler", "putty", "filler"],
-  sandpaper: ["sandpaper", "abrasive"],
+  "interior-paint": [
+    "interior-emulsion",
+    "emulsion",
+    "paint-interior",
+    "ch-wandfarbe-10l",
+    "eg-emulsion-4l",
+    "es-plastica-15l",
+    "nz-interior-10l",
+    "pl-lateksowa-10l",
+    "se-vaggfarg-10l",
+    "sg-emulsion-5l",
+    "tr-ic-boyasi-15l",
+  ],
+  "exterior-paint": [
+    "ch-fassadenfarbe-10l",
+    "eg-exterior-4l",
+    "es-fachada-15l",
+    "nz-exterior-10l",
+    "pl-fasadowa-10l",
+    "se-fadafarg-10l",
+    "sg-exterior-5l",
+    "tr-dis-boyasi-15l",
+  ],
+  primer: [
+    "primer",
+    "emulsion-primer",
+    "ch-grundier-5l",
+    "eg-primer-4l",
+    "es-imprimacion-4l",
+    "nz-primer-10l",
+    "pl-grunt-10l",
+    "se-grundfarg-10l",
+    "sg-primer-5l",
+    "tr-astar-15l",
+  ],
+  "joint-filler": [
+    "joint-filler",
+    "putty",
+    "filler",
+    "ch-fuellspachtel-5kg",
+    "eg-putty-20kg",
+    "nz-filler-5kg",
+    "pl-gladz-5kg",
+    "se-spackel-5kg",
+    "sg-putty-20kg",
+    "tr-macun-20kg",
+  ],
+  sandpaper: ["sandpaper", "abrasive", "gen-sandpaper-sheet"],
 });
 
 /** Rows for one market and one template type, priced first. */
