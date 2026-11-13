@@ -91,7 +91,7 @@ const dims = [
     criteria: [
       { label: "32px control standard", value: 1, target: 1, rule: "held in calculator UI" },
       { label: "Lighthouse run in CI", value: 1, target: 1, rule: "on every push" },
-      { label: "Bundle budget gated in CI", value: /check-bundle-budget/.test(buildScript) ? 1 : 0, target: 1, rule: "fails the build when a chunk exceeds budget" },
+      { label: "Bundle regression ceiling on every build", value: /check-bundle-budget/.test(buildScript) ? 1 : 0, target: 1, rule: "fails the build when a chunk exceeds budget" },
     ],
   },
 ];
