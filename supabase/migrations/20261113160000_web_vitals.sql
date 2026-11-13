@@ -33,3 +33,10 @@ create policy "Admins read web vitals"
   for select
   to authenticated
   using (public.is_admin());
+
+-- Privileges: a new table in Supabase carries none. The edge function writes as
+-- service_role; admins read through the policy above as authenticated. Nothing
+-- is granted to anon, so an anonymous caller cannot read or write measurements.
+grant usage on schema public to anon, authenticated, service_role;
+grant select on public.web_vitals to authenticated;
+grant select, insert on public.web_vitals to service_role;
