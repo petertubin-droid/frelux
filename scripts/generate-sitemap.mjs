@@ -839,7 +839,9 @@ const manifestOnlyRoutes = manifest
 const candidateRoutes = [
   ...routes,
   ...learnRoutes,
-  ...marketTemplateRoutes,
+  // Market pages the prerenderer withheld from the index (thin book, or no
+  // verified local price for that scope) are not advertised here either.
+  ...marketTemplateRoutes.filter((r) => !manifestNoindex.has(r.path)),
   ...manifestOnlyRoutes,
 ];
 
@@ -858,13 +860,26 @@ if (droppedLocaleRoutes > 0) {
   );
 }
 
+// A page the prerenderer marked noindex must never be advertised here. The
+// manifest is written from the files actually emitted, so this is the one place
+// that keeps the sitemap and the robots meta from disagreeing.
+const indexableRoutes = allRoutes.filter((r) => {
+  const clean = r.path.replace(/\/$/, "") || "/";
+  return !manifestNoindex.has(clean) && !manifestNoindex.has(`${clean}/`);
+});
+if (indexableRoutes.length !== allRoutes.length) {
+  console.log(
+    `  ℹ️  sitemap dropped ${allRoutes.length - indexableRoutes.length} noindex URL(s)`,
+  );
+}
+
 // ── Learn article hreflang ───────────────────────────────────────────
 // Pair every English article with its published translations, and add the
 // localized URLs themselves, each carrying the same alternate set. Without this
 // the /es pages only reached the sitemap through the prerender manifest and
 // stated no relationship to the English original.
 const articleRouteBySlug = new Map();
-for (const r of allRoutes) {
+for (const r of indexableRoutes) {
   // Two canonical shapes: a library article at /learn/<slug> and a
   // market-tagged one at /learn/wall-finishing/<market>/<slug>. The translation
   // key is the slug in both.
@@ -881,13 +896,13 @@ for (const [slug, route] of articleRouteBySlug) {
   route.alternates = alternates;
   for (const locale of locales) {
     const localizedPath = `/${locale}${route.path}`;
-    if (allRoutes.some((r) => r.path === localizedPath)) {
-      const existing = allRoutes.find((r) => r.path === localizedPath);
+    if (indexableRoutes.some((r) => r.path === localizedPath)) {
+      const existing = indexableRoutes.find((r) => r.path === localizedPath);
       existing.alternates = alternates;
       existing.lang = locale;
       continue;
     }
-    allRoutes.push({
+    indexableRoutes.push({
       path: localizedPath,
       priority: "0.5",
       changefreq: "monthly",
@@ -932,7 +947,7 @@ ${(opts.alternates ?? [])
     <priority>${opts.priority ?? "0.6"}</priority>
   </url>`;
 const localizedEntries = [];
-for (const r of allRoutes) {
+for (const r of indexableRoutes) {
   localizedEntries.push(
     urlEntry(r.path, {
       priority: r.priority ?? (r.path === "/" ? "1.0" : "0.6"),
@@ -974,5 +989,5 @@ if (existsSync(LASTMOD_MANIFEST) || manifestEntries.length > 0) {
   console.log(`  ✅ ${LASTMOD_MANIFEST}`);
 }
 console.log(
-  `\n sitemap generated with ${localizedEntries.length} URLs (${allRoutes.length} unique English routes)`,
+  `\n sitemap generated with ${localizedEntries.length} URLs (${indexableRoutes.length} unique English routes)`,
 );

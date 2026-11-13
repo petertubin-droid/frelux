@@ -35,7 +35,9 @@
     "buildings:prerender": "tsx --tsconfig tsconfig.app.json scripts/generate-building-type-prerender.ts",
     "audit:mobile": "node scripts/audit-mobile-overflow.mjs",
     "prepare": "husky",
-    "audit:ux": "node scripts/audit-ux.mjs"
+    "audit:ux": "node scripts/audit-ux.mjs",
+    "audit:content": "node scripts/audit-thin-content.mjs",
+    "audit:content:strict": "node scripts/audit-thin-content.mjs --strict"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.11.1",

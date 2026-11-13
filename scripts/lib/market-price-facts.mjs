@@ -28,7 +28,7 @@ const escapeHtml = (value) =>
 
 import { ROLES_BY_TYPE, ROLE_LABELS } from "./template-price-roles.mjs";
 
-async function fetchAll(table, query) {
+export async function fetchAll(table, query) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
@@ -106,6 +106,15 @@ export function priceRowsFor(facts, marketCode, templateType) {
     .filter(Boolean)
     .map((row) => ({ ...row, label: ROLE_LABELS[row.role] ?? row.role }));
   return { supported: true, rows };
+}
+
+/**
+ * True when this market has at least one stored price for this template's
+ * materials. A page cannot claim local pricing without one.
+ */
+export function hasVerifiedPrices(facts, marketCode, templateType) {
+  const { rows } = priceRowsFor(facts, marketCode, templateType);
+  return rows.some((row) => row.price && row.price.price != null);
 }
 
 /** Body HTML for the "verified local prices" section, or "" when unsupported. */

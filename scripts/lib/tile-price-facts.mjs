@@ -80,6 +80,11 @@ const formatCoverage = (row) => {
 };
 
 /** Body HTML for the tile price section, or "" when the market has no rows. */
+/** True when the market has any configured tile material row. */
+export function hasTilePrices(byMarket, marketCode) {
+  return (byMarket.get(String(marketCode).toUpperCase()) ?? []).length > 0;
+}
+
 export function renderTilePriceFacts(byMarket, marketCode, countryName) {
   const rows = byMarket.get(String(marketCode).toUpperCase()) ?? [];
   if (rows.length === 0) {

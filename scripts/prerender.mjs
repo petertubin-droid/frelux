@@ -16,16 +16,28 @@ import {
 import { join, dirname } from "path";
 import { seoContentMap } from "./seo-content-map.mjs";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
+import {
+  FULL_BOOK_MIN_ROWS,
+  hasFullBook,
+  loadMarketBookDepth,
+} from "./lib/market-publishing.mjs";
 import { marketLandingDescription } from "./lib/market-description.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import {
+  fetchAll,
+  hasVerifiedPrices,
   loadMarketPriceFacts,
   renderPriceFacts,
 } from "./lib/market-price-facts.mjs";
 import {
+  hasTilePrices,
   loadTileMaterialFacts,
   renderTilePriceFacts,
 } from "./lib/tile-price-facts.mjs";
+import {
+  ROLES_BY_TYPE,
+  ROLE_LABELS,
+} from "./lib/template-price-roles.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import {
   colourFaq,
@@ -4668,6 +4680,15 @@ const TOOL_BODY_MIN_WORDS = 150;
       (t.description ? `<p>${t.description}</p>` : "") +
       renderTemplateInputs(t, "meters") +
       `<h2>What the estimate gives you</h2><p>The ${TEMPLATE_TYPE_LABEL[t.type] ?? t.type} calculator runs these settings through the deterministic engine for that discipline: measured quantities first, then the material and labour lines the quantities imply, priced from the market book for your currency. Nothing in the estimate is guessed by an AI.</p>` +
+      `<h2>Materials this scope consumes</h2>` +
+      `<p>The estimate prices these material roles for the scope above, each from the market's own price book:</p>` +
+      `<ul>${(ROLES_BY_TYPE[t.type] ?? [])
+        .map((role) => `<li>${ROLE_LABELS[role] ?? role}</li>`)
+        .join("")}</ul>` +
+      `<h2>What it does not do</h2>` +
+      `<p>It does not decide structural adequacy, choose products for you, or substitute another country's prices. Where a material has no verified local price, the line asks for your own figure and is labelled as entered. Confirm quantities and products with your supplier before buying.</p>` +
+      `<h2>Units and currency</h2>` +
+      `<p>Dimensions can be entered in metres, feet or inches; areas in square metres or square feet. Totals are shown in the currency of the market you run the estimate in, converted once at a stored rate so the figure you see is the figure you were quoted.</p>` +
       (siblings.length
         ? `<h2>Other ${(TEMPLATE_TYPE_LABEL[t.type] ?? t.type).toLowerCase()} templates</h2><ul>${siblings
             .slice(0, 8)
@@ -4765,8 +4786,11 @@ let count = 0;
 // Real per-market material prices for the template pages. Loaded once: the
 // market template loop below writes 1,280 pages from the same three tables.
 const marketPriceFacts = await loadMarketPriceFacts();
+const marketBookDepth = await loadMarketBookDepth(fetchAll);
 const tileMaterialFacts = loadTileMaterialFacts();
 let priceFactPages = 0;
+let unindexedMarketTemplatePages = 0;
+let priceFactPagesForFamily = 0;
 
 const templatePriceSection = (market, template) => {
   const html =
@@ -4789,8 +4813,16 @@ const templatePriceSection = (market, template) => {
 // family. These are prerendered so Google receives real HTML, not an SPA shell.
 for (const m of marketLandingRoutes) {
   const hubPath = `/market/${m.code.toLowerCase()}/templates`;
+  const marketPublished = hasFullBook(marketBookDepth, m.code);
   routes.push({
     path: hubPath,
+    // The market × template layer is a utility view of the same forty
+    // templates. Measured against their siblings it is 59% identical prose
+    // differing only by country name, so it does not ask to be indexed: the
+    // canonical template page is the page worth ranking, and this one points
+    // there. It stays fully usable and internally linked.
+    robots: "noindex, follow",
+    canonical: `${SITE_URL}/templates/`,
     alternates: [
       { hreflang: "x-default", href: `${SITE_URL}/templates/` },
       ...marketLandingRoutes.map((mm) => ({
@@ -4847,8 +4879,26 @@ for (const m of marketLandingRoutes) {
   });
   for (const t of TEMPLATE_CATALOG) {
     const path = `${hubPath}/${t.slug}`;
+    const priceSection = templatePriceSection(m, t);
+    const hasLocalPrices =
+      t.type === "tile"
+        ? hasTilePrices(tileMaterialFacts, m.code)
+        : hasVerifiedPrices(marketPriceFacts, m.code, t.type);
+    // Same reasoning as the hub: near-duplicate of its siblings, so it is a
+    // utility page that points at the canonical template. hasLocalPrices is
+    // kept for the build log: a market page carrying real local prices is the
+    // evidence needed before any of this family is reconsidered for indexing.
+    const indexable = false;
+    if (!indexable) unindexedMarketTemplatePages += 1;
+    if (hasLocalPrices) priceFactPagesForFamily += 1;
     routes.push({
       path,
+      ...(indexable
+        ? {}
+        : {
+            robots: "noindex, follow",
+            canonical: `${SITE_URL}/templates/${t.slug}/`,
+          }),
       alternates: [
         { hreflang: "x-default", href: `${SITE_URL}/templates/${t.slug}/` },
         ...marketLandingRoutes.map((mm) => ({
@@ -4871,7 +4921,7 @@ for (const m of marketLandingRoutes) {
         `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
         renderTemplateInputs(t, m.code === "US" ? "feet" : "meters") +
         `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
-        templatePriceSection(m, t) +
+        priceSection +
         `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [
         {
@@ -4913,7 +4963,9 @@ for (const m of marketLandingRoutes) {
 }
 
 console.log(
-  `[prerender] market template pages carrying stored local prices: ${priceFactPages}`,
+  `[prerender] market template pages carrying stored local prices: ${priceFactPages}` +
+    `, withheld as a duplicate layer: ${unindexedMarketTemplatePages}` +
+    ` (of which ${priceFactPagesForFamily} carry verified local prices)`,
 );
 
 // ── Market landing pages (Phase 3 globalization, 2026-10-27) ────────
@@ -4974,6 +5026,49 @@ for (const m of marketLandingRoutes) {
       },
     ],
   });
+}
+
+// The Learn library is a database index. When the articles could not be read
+// the page still exists (so internal links do not break) but it holds no list,
+// so it is withheld from the index rather than published as an empty index.
+{
+  const libRoute = routes.find((r) => r.path === "/learn/library");
+  const libWords = String(contentMap["/learn/library"] ?? "")
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  if (libRoute && libWords < 150) {
+    libRoute.robots = "noindex, follow";
+    libRoute.canonical = `${SITE_URL}/learn/`;
+    console.log(
+      `[prerender] /learn/library withheld: ${libWords} words, article rows unavailable at build time`,
+    );
+  }
+}
+
+// Market landers: the curated copy is shared scaffolding, so each page gains
+// the two things that are genuinely local and verifiable - the block count its
+// own wall unit produces per square metre, and the material prices stored for
+// that market. Both differ per country, which is what keeps thirty-two pages
+// from being one page with thirty-two names.
+for (const route of routes) {
+  const hit = /^\/market\/([a-z]{2})$/.exec(route.path);
+  if (!hit) continue;
+  const m = marketLandingRoutes.find(
+    (row) => row.code.toLowerCase() === hit[1],
+  );
+  if (!m) continue;
+  const lengthM = m.blockLengthMm / 1000;
+  const heightM = m.blockHeightMm / 1000;
+  const joint = 0.01;
+  const blocksPerSqm = 1 / ((lengthM + joint) * (heightM + joint));
+  const per100 = Math.ceil(blocksPerSqm * 100 * 1.05);
+  const extra =
+    `<h2>Blockwork in ${m.countryName}</h2>` +
+    `<p>With the ${m.blockName} used in this market and a 10 mm joint, one square metre of wall takes about ` +
+    `${blocksPerSqm.toFixed(2)} blocks. A 100 m2 wall therefore needs roughly ${per100} blocks once 5% cutting and breakage is allowed, before any openings are deducted.</p>` +
+    templatePriceSection(m, { type: "paint" });
+  contentMap[route.path] = `${contentMap[route.path] ?? route.content ?? ""}${extra}`;
 }
 
 // Reciprocal hreflang: the global template page declares its 32 market
