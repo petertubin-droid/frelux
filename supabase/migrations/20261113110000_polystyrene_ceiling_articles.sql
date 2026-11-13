@@ -2,20 +2,15 @@
 -- are, how they are sized, measured, bonded, framed, suspended, cut, jointed,
 -- painted, rated for fire, and priced. Each guide links to the POP calculator
 -- at /pop-ceiling-calculator, where polystyrene is the second ceiling system.
--- Upserted by slug, so re-running is safe.
+-- Upserted by slug, so re-running is safe. Regenerated from the applied rows.
 
 insert into learn_categories (slug, name, description, icon, is_active, sort_order)
 values ('ceiling-guides', 'Ceiling Guides', 'Measuring, installing and costing plaster of Paris and polystyrene ceilings.', 'Layers', true, 60)
 on conflict (slug) do nothing;
 
-INSERT INTO learn_articles (
-  slug, title, excerpt, content, category_slug,
-  author, read_time_minutes, status, is_featured,
-  meta_title, meta_description, meta_keywords,
-  published_at, sort_order, cover_image_url, market
-) VALUES
-(
-  'what-is-a-polystyrene-ceiling', 'What a Polystyrene Ceiling Is, and Where It Belongs', 'A polystyrene ceiling is a ceiling built from high-density foam boards rather than plaster. This guide explains what the boards are, how they differ from POP, where they win, and where they should not be used.', $PS$## The short answer
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('what-is-a-polystyrene-ceiling', 'What a Polystyrene Ceiling Is, and Where It Belongs', 'A polystyrene ceiling is a ceiling built from high-density foam boards rather than plaster. This guide explains what the boards are, how they differ from POP, where they win, and where they should not be used.', $PS$
+## The short answer
 
 A polystyrene ceiling is a ceiling finished with boards of expanded polystyrene foam, usually between 20 mm and 30 mm thick, fixed to the underside of a concrete slab or hung from a timber or metal frame. It is not a plaster. Nothing is mixed, nothing is floated on with a trowel, and nothing needs three days to dry. The board arrives flat and white, the joiner cuts it, glues or screws it, fills the joints, and the ceiling is there.
 
@@ -123,15 +118,13 @@ The one repair that is awkward is a damaged board in the middle of a ceiling. It
 - **Solvent paint.** The foam dissolves, the surface crazes, and the ceiling has to be replaced.
 
 Each of those is a specification error, not a material failure, and each is cheaper to prevent than to correct.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 9, 'published', true,
-  'What Is a Polystyrene Ceiling? Boards, Methods and Limits',
-  'A polystyrene ceiling uses high-density foam boards instead of plaster: what the boards are, how they differ from POP, and where they should not be used.',
-  'polystyrene ceiling, polystyrene ceiling boards, EPS ceiling, POP vs polystyrene, foam board ceiling, ceiling materials',
-  '2026-11-13 09:00:00+00', 10, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-),
-(
-  'polystyrene-ceiling-board-sizes-and-thickness', 'Polystyrene Ceiling Board Sizes and Thickness: Choosing the Right Sheet', 'Board size and thickness decide the board count, the seam length, the fixing pattern and the finished rigidity of a polystyrene ceiling. This guide works through each option and the trade-offs between them.', $PS$## Why the sheet size matters more than people think
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 9, 'published', true, 'What Is a Polystyrene Ceiling? Boards, Methods and Limits', 'A polystyrene ceiling uses high-density foam boards instead of plaster: what the boards are, how they differ from POP, and where they should not be used.', 'polystyrene ceiling, polystyrene ceiling boards, EPS ceiling, POP vs polystyrene, foam board ceiling, ceiling materials', '2026-11-13 09:00:00+00', 10, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('polystyrene-ceiling-board-sizes-and-thickness', 'Polystyrene Ceiling Board Sizes and Thickness: Choosing the Right Sheet', 'Board size and thickness decide the board count, the seam length, the fixing pattern and the finished rigidity of a polystyrene ceiling. This guide works through each option and the trade-offs between them.', $PS$
+## Why the sheet size matters more than people think
 
 A polystyrene ceiling is bought in sheets. The sheet size therefore sets three things at once: how many sheets the room needs, how much seam has to be taped, and how much of the last sheet is thrown away. Choosing 1.2 m by 2.4 m instead of 1.2 m by 3.0 m is not a small variation. On a twenty square metre ceiling it changes the board count, the joint density, and the offcut pattern.
 
@@ -247,15 +240,13 @@ Mixing sizes is allowed and sometimes smart: 3.0 m sheets down the long axis of 
 A 30 mm board takes a screw better than a 20 mm board: there is more material for the thread to hold, so screws can sit further apart and the frame can be lighter. A 20 mm board screwed to battens at 600 mm centres needs the screws at 200 mm to stop the board cupping between them, and a 20 mm board bonded to a slab needs a continuous adhesive bed rather than spots, because a thin board telegraphs every gap behind it.
 
 These are the reasons thickness is an input to the take-off and not a note on the order. Change the thickness and the fixing quantities, the adhesive method and the labour rate all change with it.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'Polystyrene Ceiling Board Sizes and Thickness Guide',
-  '1.2 m by 2.4 m or 1.2 m by 3.0 m, 20 mm to 30 mm: how sheet size and thickness change board count, seam length, fixings and finish on a polystyrene ceiling.',
-  'polystyrene ceiling board sizes, 1.2m x 2.4m ceiling board, 25mm polystyrene ceiling, board thickness, EPS sheet size, ceiling board density',
-  '2026-11-13 09:05:00+00', 20, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL'
-,
-(
-  'how-to-measure-a-ceiling-for-polystyrene-boards', 'How to Measure a Ceiling for Polystyrene Boards', 'Every board, roll of tape and bag of filler comes from the measurement. This guide sets out the method for flat areas, drops, tray steps, perimeters and irregular rooms, with the mistakes that cause a shortage on the last day.', $PS$## The measurement is the estimate
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'Polystyrene Ceiling Board Sizes and Thickness Guide', '1.2 m by 2.4 m or 1.2 m by 3.0 m, 20 mm to 30 mm: how sheet size and thickness change board count, seam length, fixings and finish on a polystyrene ceiling.', 'polystyrene ceiling board sizes, 1.2m x 2.4m ceiling board, 25mm polystyrene ceiling, board thickness, EPS sheet size, ceiling board density', '2026-11-13 09:05:00+00', 20, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('how-to-measure-a-ceiling-for-polystyrene-boards', 'How to Measure a Ceiling for Polystyrene Boards', 'Every board, roll of tape and bag of filler comes from the measurement. This guide sets out the method for flat areas, drops, tray steps, perimeters and irregular rooms, with the mistakes that cause a shortage on the last day.', $PS$
+## The measurement is the estimate
 
 Nothing else on a board ceiling is negotiable. The board count is arithmetic from the measured area, the tape is arithmetic from the joint density, and the adhesive is arithmetic from the bonded area. Get the measurement wrong by four percent and you buy a board you do not need, or worse, you run out with one row left to fix and the supplier has a different batch.
 
@@ -363,15 +354,13 @@ Order 31 sheets and 102 m of cornice, keep one sheet spare, and the house is cov
 ## Why this matters more on board than on plaster
 
 Plaster is mixed on site, so a small measurement error is absorbed by mixing a little more. Board is cut and delivered, so a small error becomes a short delivery and a second trip. The measurement is the entire buffer, and it is the only part of the job that costs nothing but time.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'How to Measure a Ceiling for Polystyrene Boards',
-  'Measure flat area, tray drops, step risers, perimeters and irregular rooms correctly, with the errors that leave a polystyrene ceiling one board short.',
-  'how to measure ceiling for polystyrene boards, ceiling drop measurement, tray ceiling measurement, ceiling area calculator, step riser area',
-  '2026-11-13 09:10:00+00', 30, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-),
-(
-  'bonding-polystyrene-boards-to-a-concrete-slab', 'Bonding Polystyrene Ceiling Boards Directly to a Concrete Slab', 'Direct bonding is the fastest and cheapest way to hang a board ceiling, and the least forgiving of a dirty slab. This guide covers surface preparation, adhesive choice and coverage, placing the boards, and the failures to avoid.', $PS$## Why bonding is the default where there is a slab
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'How to Measure a Ceiling for Polystyrene Boards', 'Measure flat area, tray drops, step risers, perimeters and irregular rooms correctly, with the errors that leave a polystyrene ceiling one board short.', 'how to measure ceiling for polystyrene boards, ceiling drop measurement, tray ceiling measurement, ceiling area calculator, step riser area', '2026-11-13 09:10:00+00', 30, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('bonding-polystyrene-boards-to-a-concrete-slab', 'Bonding Polystyrene Ceiling Boards Directly to a Concrete Slab', 'Direct bonding is the fastest and cheapest way to hang a board ceiling, and the least forgiving of a dirty slab. This guide covers surface preparation, adhesive choice and coverage, placing the boards, and the failures to avoid.', $PS$
+## Why bonding is the default where there is a slab
 
 If there is a concrete soffit overhead, flat and sound, there is no reason to build a frame under it. Glue the board to the concrete, fill the joints, paint, and the ceiling exists. No battens, no hangers, no lost height, no drilling into a slab that may contain a post-tensioned tendon, and a materials list that fits in one hand.
 
@@ -485,16 +474,13 @@ Any hollow board found at this stage is a ten minute fix. The same board found a
 Do not bond where the slab is wet, where the soffit is carrying friable coatings that cannot be removed, where the ceiling must be level but the slab is not, where the void has to carry services, or where the building code requires a cavity for fire or acoustic performance. In each of those cases the answer is a frame, and a frame is a different take-off with different quantities.
 
 That is why the calculator asks for the installation method before it returns anything. A bill of materials is only correct for the method it was built for.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'Bonding Polystyrene Ceiling Boards to a Concrete Slab',
-  'Direct bonding a polystyrene ceiling: slab preparation, foam, bonding agent and POP slurry, adhesive coverage, setting out, and the four failures to avoid.',
-  'bond polystyrene ceiling boards, direct bonding ceiling, polyurethane foam adhesive ceiling, top bond ceiling, slab preparation, ceiling adhesive coverage',
-  '2026-11-13 09:15:00+00', 40, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL'
-)
-,
-(
-  'timber-noggin-polystyrene-ceiling-under-trusses', 'Timber Noggin Ceilings Under Roof Trusses: The Bungalow Detail', 'Where there is a roof truss overhead and no concrete slab, the ceiling hangs on a timber frame. This guide covers batten sizing, the 600 mm grid, fixing without damaging the truss, ventilation, and the failures that show up two years later.', $PS$## The detail, and why it exists
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'Bonding Polystyrene Ceiling Boards to a Concrete Slab', 'Direct bonding a polystyrene ceiling: slab preparation, foam, bonding agent and POP slurry, adhesive coverage, setting out, and the four failures to avoid.', 'bond polystyrene ceiling boards, direct bonding ceiling, polyurethane foam adhesive ceiling, top bond ceiling, slab preparation, ceiling adhesive coverage', '2026-11-13 09:15:00+00', 40, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('timber-noggin-polystyrene-ceiling-under-trusses', 'Timber Noggin Ceilings Under Roof Trusses: The Bungalow Detail', 'Where there is a roof truss overhead and no concrete slab, the ceiling hangs on a timber frame. This guide covers batten sizing, the 600 mm grid, fixing without damaging the truss, ventilation, and the failures that show up two years later.', $PS$
+## The detail, and why it exists
 
 A bungalow has a roof, not a slab. The boards have to hang from something, and that something is a frame fixed beneath the bottom chords of the roof trusses. Treated timber battens run in one direction, noggins or crossing battens run in the other, and the boards are bonded and screwed to that grid. It is the standard construction on single storey buildings, on top floors under a pitched roof, and on any building where the ceiling plane has to sit below a structure that is not flat.
 
@@ -600,15 +586,13 @@ That is a small, precise list, and it is the list that turns a "we need some tim
 It buys a ceiling where there is no slab. It buys a service void, ventilation, and the ability to level a wavy structure. It also buys a maintenance liability, because timber in a roof space needs the roof to stay watertight and the void to stay ventilated.
 
 Where a slab exists and is flat, direct bonding avoids all of that. Where a slab exists but is uneven, a frame is often cheaper than levelling the slab. The choice is not about preference. It is about what is overhead.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 11, 'published', false,
-  'Timber Noggin Polystyrene Ceiling Under Roof Trusses',
-  'Timber noggin ceiling detail for bungalows: batten sizing, the 600 mm grid, fixing to trusses, roof ventilation and the failures that appear later.',
-  'timber noggin ceiling, ceiling battens 600mm, polystyrene ceiling under trusses, bungalow ceiling detail, ceiling frame, roof void ventilation',
-  '2026-11-13 09:20:00+00', 50, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL'
-),
-(
-  'metal-channel-and-wire-suspended-polystyrene-ceilings', 'Metal Channel and Wire-Suspended Polystyrene Ceilings', 'When the slab is high, the services are heavy, or the design has more than one level, boards hang on wires and channels. This guide covers the components, the levelling, the tolerances and the coordination that makes it work.', $PS$## When suspension is the only right answer
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 11, 'published', false, 'Timber Noggin Polystyrene Ceiling Under Roof Trusses', 'Timber noggin ceiling detail for bungalows: batten sizing, the 600 mm grid, fixing to trusses, roof ventilation and the failures that appear later.', 'timber noggin ceiling, ceiling battens 600mm, polystyrene ceiling under trusses, bungalow ceiling detail, ceiling frame, roof void ventilation', '2026-11-13 09:20:00+00', 50, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('metal-channel-and-wire-suspended-polystyrene-ceilings', 'Metal Channel and Wire-Suspended Polystyrene Ceilings', 'When the slab is high, the services are heavy, or the design has more than one level, boards hang on wires and channels. This guide covers the components, the levelling, the tolerances and the coordination that makes it work.', $PS$
+## When suspension is the only right answer
 
 Direct bonding puts the board on the slab. A timber frame sits just below the trusses. Neither can give a ceiling that is a metre below a slab, and neither can carry a void deep enough for ducting, drainage or a run of conduit. That is the job of a suspended ceiling: boards on a metal grid or on wires, at a level chosen by the designer rather than dictated by the structure.
 
@@ -732,16 +716,13 @@ The honest comparison is between the three methods on the same room, and the cal
 A suspended ceiling that is specified in one line on a drawing is a ceiling that will be built to whatever the installer decides. The drawing needs the finished level relative to a floor datum, the anchor type and spacing, the primary and secondary channel centres, the board type, thickness and size, the perimeter detail, the position of every access panel, and the fire or acoustic performance the assembly must achieve. With those seven items, three contractors will price the same ceiling. Without them, three contractors will price three different ceilings and the cheapest will win for the wrong reason.
 
 A last point on anchors: specify the type, not just the spacing. A drawing that says "suitable anchors at 1200 mm centres" leaves the choice to whoever is on the ladder, and the cheapest box on the van is not always the right one for the slab.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 11, 'published', false,
-  'Metal Channel and Wire-Suspended Polystyrene Ceilings',
-  'Suspended polystyrene ceilings on wire hangers and metal channels: components, levelling tolerances, hanger layout, services coordination and failures.',
-  'suspended ceiling polystyrene, metal channel ceiling, wire hanger ceiling, drop ceiling grid, ceiling void depth, suspended ceiling tolerance',
-  '2026-11-13 09:25:00+00', 60, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-)
-,
-(
-  'polystyrene-ceiling-wastage-and-cutting', 'Wastage and Cutting on a Polystyrene Ceiling', 'Board is bought whole sheet by whole sheet, so wastage is a design decision and not a rounding. This guide explains the four wastage rates, how to set out a grid that wastes less, and how to cut and nest offcuts properly.', $PS$## Wastage is geometry, not caution
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 11, 'published', false, 'Metal Channel and Wire-Suspended Polystyrene Ceilings', 'Suspended polystyrene ceilings on wire hangers and metal channels: components, levelling tolerances, hanger layout, services coordination and failures.', 'suspended ceiling polystyrene, metal channel ceiling, wire hanger ceiling, drop ceiling grid, ceiling void depth, suspended ceiling tolerance', '2026-11-13 09:25:00+00', 60, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('polystyrene-ceiling-wastage-and-cutting', 'Wastage and Cutting on a Polystyrene Ceiling', 'Board is bought whole sheet by whole sheet, so wastage is a design decision and not a rounding. This guide explains the four wastage rates, how to set out a grid that wastes less, and how to cut and nest offcuts properly.', $PS$
+## Wastage is geometry, not caution
 
 Every board is cut from a rectangle. The pieces you keep are the pieces the room needs. The difference between the sheet area you bought and the area you used is wastage, and its size is decided by the shape of the room, the layout of the grid, the design of the ceiling and the size of the sheet. It is not a number to pick out of the air to feel safe.
 
@@ -858,15 +839,13 @@ Add to that the second delivery charge, the half day lost, and the artisan paid 
 Every extra piece that has to be cut to fit an awkward edge is time as well as board. A ceiling laid out on a regular grid with equal edge strips is quicker to board because the cuts repeat: the same strip width at the same position in every row. A ceiling where every row needs a different infill is slower, needs more care at every joint, and produces joints at angles that have to be taped and feathered by hand.
 
 That is why a five minute setting-out exercise has a labour value as well as a material value, and why the fastest boarders on any site are the ones who spend the longest before the first cut.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'Polystyrene Ceiling Wastage and Cutting Guide',
-  'Why wastage on a polystyrene ceiling is 10, 15, 20 or 25 percent, how to set out a grid that wastes less, and how to cut, nest and store board offcuts.',
-  'polystyrene ceiling wastage, ceiling board cutting, ceiling offcuts, board wastage allowance, curve cutting foam board, ceiling board layout',
-  '2026-11-13 09:30:00+00', 70, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL'
-),
-(
-  'jointing-polystyrene-ceiling-boards', 'Jointing Polystyrene Ceiling Boards: Tape, Filas and Filler', 'Every seam is a place a crack can start. This guide covers seam length, mesh tape against soaked fibre, two-pass filling, screw heads, sanding and the lighting check that finds what the eye misses.', $PS$## A ceiling is judged at its joints
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'Polystyrene Ceiling Wastage and Cutting Guide', 'Why wastage on a polystyrene ceiling is 10, 15, 20 or 25 percent, how to set out a grid that wastes less, and how to cut, nest and store board offcuts.', 'polystyrene ceiling wastage, ceiling board cutting, ceiling offcuts, board wastage allowance, curve cutting foam board, ceiling board layout', '2026-11-13 09:30:00+00', 70, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('jointing-polystyrene-ceiling-boards', 'Jointing Polystyrene Ceiling Boards: Tape, Filas and Filler', 'Every seam is a place a crack can start. This guide covers seam length, mesh tape against soaked fibre, two-pass filling, screw heads, sanding and the lighting check that finds what the eye misses.', $PS$
+## A ceiling is judged at its joints
 
 A board ceiling has no other feature to look at. The face is flat and white, and the eye goes to the lines where boards meet. If those lines are tight, filled and flat, the ceiling reads as professional. If they undulate, shine, or show a hairline, no amount of good boarding rescues it.
 
@@ -984,16 +963,13 @@ On a ceiling without a cornice, the wall junction is taped and filled like a sea
 Nothing about that changes with the size of the room; only the number of screws does.
 
 The habit that keeps a ceiling sound is therefore simple and boring: tape every seam, tape the wall edge, and refuse to let anyone paint until the light has been checked.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'Jointing Polystyrene Ceiling Boards: Tape, Filas and Filler',
-  'Seam length, mesh tape against soaked filas, two-pass filling, screw heads, sanding and the raking-light check that finds what daylight hides.',
-  'polystyrene ceiling joints, ceiling mesh tape, filas ceiling, joint compound ceiling, ceiling crack repair, taping ceiling boards',
-  '2026-11-13 09:35:00+00', 80, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-)
-,
-(
-  'painting-a-polystyrene-ceiling', 'Painting a Polystyrene Ceiling Without Melting It', 'Polystyrene takes paint well, but only water-based paint. This guide covers why solvent and gloss destroy the foam, how to prepare and prime, coat coverage, spray against roller, and the failures that show up months later.', $PS$## The one rule that is not negotiable
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'Jointing Polystyrene Ceiling Boards: Tape, Filas and Filler', 'Seam length, mesh tape against soaked filas, two-pass filling, screw heads, sanding and the raking-light check that finds what daylight hides.', 'polystyrene ceiling joints, ceiling mesh tape, filas ceiling, joint compound ceiling, ceiling crack repair, taping ceiling boards', '2026-11-13 09:35:00+00', 80, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('painting-a-polystyrene-ceiling', 'Painting a Polystyrene Ceiling Without Melting It', 'Polystyrene takes paint well, but only water-based paint. This guide covers why solvent and gloss destroy the foam, how to prepare and prime, coat coverage, spray against roller, and the failures that show up months later.', $PS$
+## The one rule that is not negotiable
 
 Water-based paint only. Emulsion, matt, silk, satin, acrylic. Never gloss, never an oil-based undercoat, never a solvent-borne sealer, never cellulose or a lacquer, and never a paint whose tin lists a solvent as the carrier.
 
@@ -1113,15 +1089,13 @@ A roller frame that holds its sleeve, a sleeve that does not shed, a bucket with
 A final note on the mist coat: it is not a full coat and should not be judged as one. Its job is to seal the surface and even out absorption so the two coats that follow sit on a uniform base. A mist coat that looks patchy is working correctly, and it should be left to dry before anyone judges the ceiling.
 
 Keep a small quantity of the paint used, labelled with the room and the date, and sealed. It is the only reliable way to touch in a scuff from furniture a year later without repainting the plane, and it costs nothing to keep.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 10, 'published', false,
-  'Painting a Polystyrene Ceiling Without Melting It',
-  'Polystyrene takes paint well, but only water-based paint: why solvent and gloss destroy the foam, preparation, priming and coverage.',
-  'painting polystyrene ceiling, water based paint polystyrene, paint foam ceiling, ceiling paint coverage, solvent free ceiling paint',
-  '2026-11-13 09:40:00+00', 90, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL'
-),
-(
-  'fire-performance-of-polystyrene-ceilings', 'Fire Performance and Standards for Polystyrene Ceilings', 'Fire is where a board ceiling has to be specified rather than chosen. This guide explains what a fire-retardant grade actually claims, which standard applies where, and what a tested assembly means.', $PS$## Why fire decides the specification
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 10, 'published', false, 'Painting a Polystyrene Ceiling Without Melting It', 'Polystyrene takes paint well, but only water-based paint: why solvent and gloss destroy the foam, preparation, priming and coverage.', 'painting polystyrene ceiling, water based paint polystyrene, paint foam ceiling, ceiling paint coverage, solvent free ceiling paint', '2026-11-13 09:40:00+00', 90, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/96f6cd94d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('fire-performance-of-polystyrene-ceilings', 'Fire Performance and Standards for Polystyrene Ceilings', 'Fire is where a board ceiling has to be specified rather than chosen. This guide explains what a fire-retardant grade actually claims, which standard applies where, and what a tested assembly means.', $PS$
+## Why fire decides the specification
 
 Every other property of a ceiling board is a preference. Fire performance is a requirement, and it is set by a building code that does not care what the supplier's brochure says. A ceiling that is part of a fire-resisting floor, a protected escape route or a compartment boundary is a tested assembly, and the board in it is one component of that assembly.
 
@@ -1244,15 +1218,13 @@ Most small projects never see a fire engineer, and the requirement arrives inste
 The safe approach on any building with more than one dwelling, any commercial kitchen, any plant room, and any escape corridor, is to ask the question explicitly before the ceiling is specified: is this ceiling a lining or part of a resisting element? If nobody can answer, treat it as a resisting element until someone can, because the cost of a rated board is small and the cost of rebuilding a ceiling after a refusal is not.
 
 The paperwork is not bureaucracy for its own sake. It is the record that the specification was met, and on a ceiling nobody can inspect after handover, the record is the only evidence there is.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 12, 'published', false,
-  'Fire Performance and Standards for Polystyrene Ceilings',
-  'What a fire-retardant polystyrene board actually claims, EN 13163 and ASTM C578 against Euroclass and E84, tested assemblies, penetrations and code checks.',
-  'polystyrene ceiling fire rating, EN 13163, ASTM C578, Euroclass ceiling, fire retardant ceiling board, ceiling fire assembly',
-  '2026-11-13 09:45:00+00', 100, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-,
-(
-  'costing-a-polystyrene-ceiling-and-comparing-quotes', 'Costing a Polystyrene Ceiling and Comparing Quotes', 'Two quotes for the same board ceiling can differ by half and both be honest. This guide sets out the cost structure, how per square metre rates hide quantities, and how to compare a board ceiling with a plaster one on equal terms.', $PS$## Why the same room gets three different prices
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 12, 'published', false, 'Fire Performance and Standards for Polystyrene Ceilings', 'What a fire-retardant polystyrene board actually claims, EN 13163 and ASTM C578 against Euroclass and E84, tested assemblies, penetrations and code checks.', 'polystyrene ceiling fire rating, EN 13163, ASTM C578, Euroclass ceiling, fire retardant ceiling board, ceiling fire assembly', '2026-11-13 09:45:00+00', 100, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
+
+INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order, cover_image_url, market)
+VALUES ('costing-a-polystyrene-ceiling-and-comparing-quotes', 'Costing a Polystyrene Ceiling and Comparing Quotes', 'Two quotes for the same board ceiling can differ by half and both be honest. This guide sets out the cost structure, how per square metre rates hide quantities, and how to compare a board ceiling with a plaster one on equal terms.', $PS$
+## Why the same room gets three different prices
 
 Three contractors price the same 20 m² bedroom ceiling at three different numbers, and none of them is lying. One is pricing 20 mm board bonded to the slab. One is pricing 25 mm board on a timber frame. One has allowed for a tray, a cornice and two coats of paint that were never mentioned in the brief. The scope is different, so the price is different, and a single square metre rate cannot tell you which one you are looking at.
 
@@ -1365,28 +1337,6 @@ A signed, itemised quote and a photographed finish are the two documents that ma
 Keep them with the building file: the quote with its scope, the datasheet for the board, the delivery note with the batch number, and the photographs of the frame and the services before the boards closed them in. When a fitting needs moving, a leak appears above the ceiling, or a new owner asks what is up there, that small bundle answers the question in five minutes. Without it, the answer is a hole cut in a finished ceiling to find out.
 
 Write the agreed scope into the quote before signing it, even if it is three lines. A ceiling that was priced verbally and argued about afterwards has cost more than the paperwork would have, and more than the time it takes to write three clear lines before the first board goes up.
-$PS$,
-  'ceiling-guides', 'FRELUX Editorial', 12, 'published', false,
-  'Costing a Polystyrene Ceiling and Comparing Quotes',
-  'Cost structure of a polystyrene ceiling: what a square metre rate hides, labour outputs, and how to compare quotes on the same scope.',
-  'polystyrene ceiling cost, ceiling price per square metre, ceiling quote comparison, ceiling labour rate, POP vs polystyrene cost, ceiling bill of materials',
-  '2026-11-13 09:50:00+00', 110, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL'
-);
-)
--- Re-running must refresh the guides rather than fail on the unique slug.
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title,
-  excerpt = EXCLUDED.excerpt,
-  content = EXCLUDED.content,
-  category_slug = EXCLUDED.category_slug,
-  cover_image_url = EXCLUDED.cover_image_url,
-  read_time_minutes = EXCLUDED.read_time_minutes,
-  status = EXCLUDED.status,
-  is_featured = EXCLUDED.is_featured,
-  meta_title = EXCLUDED.meta_title,
-  meta_description = EXCLUDED.meta_description,
-  meta_keywords = EXCLUDED.meta_keywords,
-  published_at = EXCLUDED.published_at,
-  sort_order = EXCLUDED.sort_order,
-  market = EXCLUDED.market,
-  updated_at = now();
+
+$PS$, 'ceiling-guides', 'FRELUX Editorial', 12, 'published', false, 'Costing a Polystyrene Ceiling and Comparing Quotes', 'Cost structure of a polystyrene ceiling: what a square metre rate hides, labour outputs, and how to compare quotes on the same scope.', 'polystyrene ceiling cost, ceiling price per square metre, ceiling quote comparison, ceiling labour rate, POP vs polystyrene cost, ceiling bill of materials', '2026-11-13 09:50:00+00', 110, 'https://media.base44.com/images/public/6a872e1df3b5e9fc45fc13fb/1c092b45d_generated_image.png', 'GLOBAL')
+ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, category_slug = EXCLUDED.category_slug, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, sort_order = EXCLUDED.sort_order, cover_image_url = EXCLUDED.cover_image_url, market = EXCLUDED.market, updated_at = now();
