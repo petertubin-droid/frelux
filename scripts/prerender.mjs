@@ -54,6 +54,11 @@ import {
   recipeSentence,
 } from "./lib/color-mixing.mjs";
 import { renderTemplateInputs } from "./lib/template-input-summary.mjs";
+import {
+  PS_ROLE_FAMILY,
+  renderPolystyreneMaterials,
+  renderPolystyreneTakeoff,
+} from "./lib/polystyrene-template.mjs";
 import { legalPageContent } from "./lib/legal-page-content.mjs";
 import { repairInternalLinks } from "./lib/internal-link-repair.mjs";
 import { loadToolRegistry } from "./lib/tool-registry.mjs";
@@ -4663,6 +4668,24 @@ Object.assign(contentMap, legalPageContent);
 // counted, so this measures content rather than chrome.
 const TOOL_BODY_MIN_WORDS = 150;
 
+// Every catalog template needs a global page: the market pages canonicalise to
+// it, link to it as the global version, and a catalog entry that exists only in
+// the market layer leaves both of those pointing at a 404.
+for (const t of TEMPLATE_CATALOG) {
+  const path = `/templates/${t.slug}`;
+  if (routes.some((r) => r.path === path)) continue;
+  routes.push({
+    path,
+    title: `${t.name} | FRELUX calculator template`,
+    description: fitDescription([
+      t.description || t.seoDescription,
+      "Pre-set scope you can adjust before pricing",
+    ]),
+    priority: "0.6",
+    changefreq: "monthly",
+  });
+}
+
 // Global template pages carried the generated family blurb only: a name and one
 // sentence, so all 40 read alike. Anything under the tool threshold is rebuilt
 // with the template's real stored configuration and links to its type's
@@ -4685,12 +4708,14 @@ const TOOL_BODY_MIN_WORDS = 150;
       `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/templates">Templates</a> &rsaquo; ${t.name}</nav>` +
       (t.description ? `<p>${t.description}</p>` : "") +
       renderTemplateInputs(t, "meters") +
-      `<h2>What the estimate gives you</h2><p>The ${TEMPLATE_TYPE_LABEL[t.type] ?? t.type} calculator runs these settings through the deterministic engine for that discipline: measured quantities first, then the material and labour lines the quantities imply, priced from the market book for your currency. Nothing in the estimate is guessed by an AI.</p>` +
-      `<h2>Materials this scope consumes</h2>` +
-      `<p>The estimate prices these material roles for the scope above, each from the market's own price book:</p>` +
-      `<ul>${(ROLES_BY_TYPE[t.type] ?? [])
-        .map((role) => `<li>${ROLE_LABELS[role] ?? role}</li>`)
-        .join("")}</ul>` +
+      (t.inputs?.system === "polystyrene"
+        ? renderPolystyreneTakeoff(t) + renderPolystyreneMaterials()
+        : `<h2>What the estimate gives you</h2><p>The ${TEMPLATE_TYPE_LABEL[t.type] ?? t.type} calculator runs these settings through the deterministic engine for that discipline: measured quantities first, then the material and labour lines the quantities imply, priced from the market book for your currency. Nothing in the estimate is guessed by an AI.</p>` +
+          `<h2>Materials this scope consumes</h2>` +
+          `<p>The estimate prices these material roles for the scope above, each from the market's own price book:</p>` +
+          `<ul>${(ROLES_BY_TYPE[t.type] ?? [])
+            .map((role) => `<li>${ROLE_LABELS[role] ?? role}</li>`)
+            .join("")}</ul>`) +
       `<h2>What it does not do</h2>` +
       `<p>It does not decide structural adequacy, choose products for you, or substitute another country's prices. Where a material has no verified local price, the line asks for your own figure and is labelled as entered. Confirm quantities and products with your supplier before buying.</p>` +
       `<h2>Units and currency</h2>` +
@@ -4913,12 +4938,17 @@ for (const m of marketLandingRoutes) {
   });
   for (const t of TEMPLATE_CATALOG) {
     const path = `${hubPath}/${t.slug}`;
-    const priceSection = templatePriceSection(m, t);
-    const hasLocalPrices = pageHasLocalPrices(t);
+    // A board ceiling consumes joint filler, paint, abrasive and sand, not
+    // cement and aggregate, so it prices from its own role family.
+    const isPs = t.inputs?.system === "polystyrene";
+    const priceFamily = isPs ? PS_ROLE_FAMILY : t.type;
+    const priced = { ...t, type: priceFamily };
+    const priceSection = templatePriceSection(m, priced);
+    const hasLocalPrices = pageHasLocalPrices(priced);
     const categorySection =
       t.type === "tile"
         ? ""
-        : renderCategoryPrices(marketPriceFacts, m.code, t.type, m.countryName);
+        : renderCategoryPrices(marketPriceFacts, m.code, priceFamily, m.countryName);
     // The page's own evidence decides: a verified local price for a material
     // this template consumes makes the page local, and it is indexed with its
     // own price table. Without one it is the canonical template wearing a
@@ -4954,14 +4984,21 @@ for (const m of marketLandingRoutes) {
         `<main><h1>${t.name} template for ${m.countryName}</h1>` +
         `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/market/${m.code.toLowerCase()}/">${m.countryName}</a> &rsaquo; <a href="${hubPath}/">Templates</a> &rsaquo; ${t.name}</nav>` +
         (t.description ? `<p>${t.description}</p>` : "") +
-        `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
+        `<h2>What this template sets up</h2><p>` +
+        (isPs
+          ? `${t.name} pre-fills a board ceiling rather than a plaster one: a stocked board size, a thickness, a fixing method and a design, which is everything the take-off needs. You adjust the room, the board and the method, and the quantities follow from those choices.`
+          : `${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.`) +
+        `</p>` +
         renderTemplateInputs(t, m.code === "US" ? "feet" : "meters") +
+        (isPs ? renderPolystyreneTakeoff(t) : "") +
         `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice - ${m.blockName.toLowerCase()}, ${m.cementBagKg} kg cement bags, ${m.electricalStandard} wiring at ${m.electricalVoltage} - and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
         `<p>On site, that means measuring in the units ${m.countryName} trades use and checking the material specification against what your supplier actually stocks, because a block or a bag that matches the label but not the size changes the quantity.</p>` +
         priceSection +
         categorySection +
         `<h2>What moves the number in ${m.countryName}</h2>` +
-        `<p>Three things decide this estimate: how much surface the ${t.type} scope actually covers once openings are deducted, how many coats the spec calls for, and whether your supplier's ${m.currency} price is the one stored in the book today. Waste allowance is added from the template, not guessed at the till.</p>` +
+        (isPs
+          ? `<p>Four things decide a board ceiling: the measured surface including any drop faces, the wastage the design produces, the board size and thickness your ${m.countryName} supplier actually stocks, and the unit price you enter. A price change moves the cost only; the quantity of board, tape, adhesive and putty is fixed by the geometry.</p>`
+          : `<p>Three things decide this estimate: how much surface the ${t.type} scope actually covers once openings are deducted, how many coats the spec calls for, and whether your supplier's ${m.currency} price is the one stored in the book today. Waste allowance is added from the template, not guessed at the till.</p>`) +
         `<p>Costs stay in ${m.currency} (${m.currencySymbol}) end to end, so the figure you read here is the figure the estimate uses, with no conversion step between the page and the total.</p>` +
         `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [

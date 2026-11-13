@@ -217,8 +217,11 @@ export default function PolystyreneCeilingPanel({
           lengthM: toMetres(length, unit),
           widthM: toMetres(width, unit),
           includeDrops,
-          dropHeightM: includeDrops ? dropHeight : 0,
-          dropPerimeterM: includeDrops ? dropRun || 0 : 0,
+          // Drop inputs are entered in the visitor's unit, exactly like the
+          // room dimensions, so a feet user is not silently feeding feet into a
+          // metre calculation.
+          dropHeightM: includeDrops ? toMetres(dropHeight, unit) : 0,
+          dropPerimeterM: includeDrops ? toMetres(dropRun, unit) : 0,
           boardSize,
           thickness,
           installation,
@@ -367,9 +370,11 @@ export default function PolystyreneCeilingPanel({
                   value={dropHeight || ""}
                   onChange={(e) => setDropHeight(Number(e.target.value))}
                   className="input-field"
-                  placeholder="0.20"
+                  placeholder={unit === "feet" ? "0.66" : "0.20"}
                 />
-                <span className="text-sm text-muted-foreground">m</span>
+                <span className="text-sm text-muted-foreground">
+                  {unitLabel}
+                </span>
               </div>
             </label>
             <label className="block">
@@ -384,9 +389,11 @@ export default function PolystyreneCeilingPanel({
                   value={dropRun || ""}
                   onChange={(e) => setDropRun(Number(e.target.value))}
                   className="input-field"
-                  placeholder="Leave blank to use the room perimeter"
+                  placeholder="Blank uses the room perimeter"
                 />
-                <span className="text-sm text-muted-foreground">m</span>
+                <span className="text-sm text-muted-foreground">
+                  {unitLabel}
+                </span>
               </div>
             </label>
           </div>
@@ -584,7 +591,7 @@ export default function PolystyreneCeilingPanel({
                           {row.packLabel}
                         </td>
                         <td className="py-2 text-right tabular-nums">
-                          {row.unitPrice > 0 ? money(row.cost) : "—"}
+                          {row.unitPrice > 0 ? money(row.cost) : "Not priced"}
                         </td>
                       </tr>
                     ))}

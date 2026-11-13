@@ -238,6 +238,7 @@ export function templateSummaryForMarket(
     unit,
   ) as Record<string, number | string | boolean | undefined>;
   const u = unitShort(unit);
+  const system = typeof d.system === "string" ? d.system : "";
   const fmt = (v: unknown) =>
     typeof v === "number" ? String(roundForDisplay(v, unit)) : String(v);
   const parts: TemplateSummaryItem[] = [];
@@ -281,6 +282,33 @@ export function templateSummaryForMarket(
     if (d.windows) parts.push({ label: "Windows", value: String(d.windows) });
     if (d.wasteMargin)
       parts.push({ label: "Waste Margin", value: `${d.wasteMargin}%` });
+  } else if (system === "polystyrene") {
+    // Board ceilings are configured by board, thickness, method and design;
+    // the plaster fields do not exist on that form. Mirrors
+    // scripts/lib/template-input-summary.mjs, which the parity test compares.
+    const length = Number(d.length) || Number(d.roomLength) || 0;
+    const width = Number(d.width) || Number(d.roomWidth) || 0;
+    if (length)
+      parts.push({ label: "Room Length", value: `${fmt(length)} ${u}` });
+    if (width) parts.push({ label: "Room Width", value: `${fmt(width)} ${u}` });
+    if (d.boardSize)
+      parts.push({
+        label: "Board Size",
+        value: String(d.boardSize).replace("x", " x "),
+      });
+    if (d.thickness)
+      parts.push({ label: "Board Thickness", value: `${d.thickness} mm` });
+    if (d.installation)
+      parts.push({ label: "Installation", value: String(d.installation) });
+    if (d.design) parts.push({ label: "Design", value: String(d.design) });
+    if (d.includeDrops)
+      parts.push({
+        label: "Tray drops",
+        value: `Included at ${fmt(Number(d.dropHeight) || 0)} ${u}`,
+      });
+    if (d.includeCornice) parts.push({ label: "Cornice", value: "Included" });
+    if (d.includePaint)
+      parts.push({ label: "Paint", value: "Two coats included" });
   } else if (template.calculator_type === "pop") {
     if (d.roomLength)
       parts.push({ label: "Room Length", value: `${fmt(d.roomLength)} ${u}` });

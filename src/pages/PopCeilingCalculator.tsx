@@ -168,28 +168,6 @@ export default function PopCeilingCalculator({
                 },
               ],
             },
-            {
-              "@context": "https://schema.org",
-              "@type": "FAQPage",
-              mainEntity: [
-                {
-                  "@type": "Question",
-                  name: "What is a POP ceiling?",
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster, popular in many homes.",
-                  },
-                },
-                {
-                  "@type": "Question",
-                  name: "How much POP cement do I need?",
-                  acceptedAnswer: {
-                    "@type": "Answer",
-                    text: "POP cement quantity depends on ceiling area and design complexity. Use the calculator for an accurate estimate.",
-                  },
-                },
-              ],
-            },
           ],
         }
       : null,
@@ -426,7 +404,10 @@ export default function PopCeilingCalculator({
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <button
               type="button"
-              onClick={() => setCeilingSystem("plaster")}
+              onClick={() => {
+                setResult(null);
+                setCeilingSystem("plaster");
+              }}
               aria-pressed={ceilingSystem === "plaster"}
               className={
                 "rounded-xl border p-3 text-left transition-colors " +
@@ -445,7 +426,10 @@ export default function PopCeilingCalculator({
             </button>
             <button
               type="button"
-              onClick={() => setCeilingSystem("polystyrene")}
+              onClick={() => {
+                setResult(null);
+                setCeilingSystem("polystyrene");
+              }}
               aria-pressed={ceilingSystem === "polystyrene"}
               className={
                 "rounded-xl border p-3 text-left transition-colors " +

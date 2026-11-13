@@ -116,16 +116,36 @@ describe("polystyrene ceiling take-off", () => {
     expect(pick(framed, "nails")?.packs).toBe(112);
   });
 
-  it("adds hangers and binding wire only for a wire-suspended drop", () => {
+  it("adds hangers and binding wire to everything that hangs from a slab", () => {
     const wire = calculatePolystyreneCeiling({ ...base, installation: "wire" });
     expect(pick(wire, "hangers")?.packs).toBe(14); // 20 m2 at one per 1.44 m2
     expect(pick(wire, "wire")?.quantity).toBeCloseTo(0.42, 2);
+
+    // A metal channel grid is hung on hangers too; it is not nailed up like a
+    // timber frame, so it carries hangers and no concrete nails.
     const metal = calculatePolystyreneCeiling({
       ...base,
       installation: "metal",
     });
-    expect(pick(metal, "hangers")).toBeUndefined();
     expect(pick(metal, "frame")?.label).toMatch(/metal/i);
+    expect(pick(metal, "hangers")?.packs).toBe(14);
+    expect(pick(metal, "wire")?.quantity).toBeCloseTo(0.42, 2);
+    expect(pick(metal, "nails")).toBeUndefined();
+
+    // Timber is fixed to the structure with nails and hangs from nothing.
+    const timber = calculatePolystyreneCeiling({
+      ...base,
+      installation: "timber",
+    });
+    expect(pick(timber, "nails")?.packs).toBeGreaterThan(0);
+    expect(pick(timber, "hangers")).toBeUndefined();
+    expect(pick(timber, "wire")).toBeUndefined();
+
+    // Bonded goes straight onto the slab: no frame, no hangers, no nails.
+    const bonded = calculatePolystyreneCeiling(base);
+    expect(pick(bonded, "frame")).toBeUndefined();
+    expect(pick(bonded, "hangers")).toBeUndefined();
+    expect(pick(bonded, "nails")).toBeUndefined();
   });
 
   it("adds cornice by perimeter and paint by two coats", () => {

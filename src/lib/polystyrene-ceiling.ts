@@ -43,7 +43,7 @@ export const PS_BOARDS: Record<PsBoardSize, PsBoardSpec> = {
     lengthMm: 3000,
     widthMm: 1200,
     areaM2: 3.6,
-    label: "1.2 m x 3.0 m",
+    label: "1.2 m x 3.0 m (4 ft x 10 ft)",
   },
 };
 
@@ -275,6 +275,10 @@ export function calculatePolystyreneCeiling(
     input.installation === "timber" ||
     input.installation === "metal" ||
     input.installation === "wire";
+  // A metal or wire ceiling hangs from the slab, so it needs hangers and wire.
+  // Only a timber frame is nailed up to the trusses.
+  const suspended =
+    input.installation === "metal" || input.installation === "wire";
 
   const adhesiveCans = ceilPacks(
     surfaceM2 / (framed ? ADHESIVE_M2_PER_CAN_FRAMED : ADHESIVE_M2_PER_CAN),
@@ -289,9 +293,9 @@ export function calculatePolystyreneCeiling(
   const frameLm = framed ? surfaceM2 * FRAME_LM_PER_M2 : 0;
   const frameLengths = ceilPacks(frameLm / FRAME_STOCK_M);
   const screws = framed ? ceilPacks(surfaceM2 * SCREWS_PER_M2) : 0;
-  const nails = framed ? ceilPacks(surfaceM2 * NAILS_PER_M2) : 0;
-  const hangers =
-    input.installation === "wire" ? ceilPacks(surfaceM2 * HANGERS_PER_M2) : 0;
+  const nails =
+    input.installation === "timber" ? ceilPacks(surfaceM2 * NAILS_PER_M2) : 0;
+  const hangers = suspended ? ceilPacks(surfaceM2 * HANGERS_PER_M2) : 0;
   const wireKg = round2(hangers * WIRE_KG_PER_HANGER);
 
   const line = (
@@ -386,6 +390,11 @@ export function calculatePolystyreneCeiling(
         "framing",
         "200 mm along every run",
       ),
+    );
+  }
+
+  if (input.installation === "timber") {
+    lines.push(
       line(
         "nails",
         "Concrete nails",
@@ -394,12 +403,12 @@ export function calculatePolystyreneCeiling(
         nails,
         "pieces",
         "framing",
-        "Fixing the frame to the slab",
+        "Fixing the battens to the trusses above",
       ),
     );
   }
 
-  if (input.installation === "wire") {
+  if (suspended) {
     lines.push(
       line(
         "hangers",

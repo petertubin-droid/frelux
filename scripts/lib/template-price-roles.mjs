@@ -7,6 +7,16 @@ export const ROLES_BY_TYPE = Object.freeze({
   paint: Object.freeze(["interior-paint", "primer", "joint-filler", "sandpaper"]),
   screeding: Object.freeze(["sand", "concrete-mix", "skim-plaster"]),
   pop: Object.freeze(["concrete-mix", "sand"]),
+  // A polystyrene board ceiling consumes no cement or aggregate: the book rows
+  // that apply are the ones it really uses, the joint filler, the paint, the
+  // abrasive and the sand for bedding a tray.
+  polystyrene: Object.freeze([
+    "joint-filler",
+    "interior-paint",
+    "primer",
+    "sandpaper",
+    "sand",
+  ]),
   tile: Object.freeze([]),
 });
 

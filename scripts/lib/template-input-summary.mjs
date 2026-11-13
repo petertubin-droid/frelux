@@ -87,6 +87,20 @@ export function templateInputSummary(template, unit = "meters") {
     if (d.doors) add("Doors", String(d.doors));
     if (d.windows) add("Windows", String(d.windows));
     if (d.wasteMargin) add("Waste Margin", `${d.wasteMargin}%`);
+  } else if (template?.inputs?.system === "polystyrene") {
+    // A board ceiling is configured by board, thickness, method and design,
+    // none of which exist on the plaster form.
+    const length = d.length || d.roomLength;
+    const width = d.width || d.roomWidth;
+    if (length) add("Room Length", `${fmt(length)} ${u}`);
+    if (width) add("Room Width", `${fmt(width)} ${u}`);
+    if (d.boardSize) add("Board Size", String(d.boardSize).replace("x", " x "));
+    if (d.thickness) add("Board Thickness", `${d.thickness} mm`);
+    if (d.installation) add("Installation", String(d.installation));
+    if (d.design) add("Design", String(d.design));
+    if (d.includeDrops) add("Tray drops", `Included at ${fmt(Number(d.dropHeight) || 0)} ${u}`);
+    if (d.includeCornice) add("Cornice", "Included");
+    if (d.includePaint) add("Paint", "Two coats included");
   } else if (template.type === "pop") {
     if (d.roomLength) add("Room Length", `${fmt(d.roomLength)} ${u}`);
     if (d.roomWidth) add("Room Width", `${fmt(d.roomWidth)} ${u}`);
