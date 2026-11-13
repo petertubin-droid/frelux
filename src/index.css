@@ -2823,12 +2823,35 @@ html[data-frelux-wide-view="true"]
   #root textarea {
     min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
   }
+  /* Checkboxes and radios are replaced elements: forcing a 44px box enlarged
+     the glyph itself, so ticks rendered oversized and ate the label's width.
+     Hold the 44px target on the label row and keep the glyph at text scale. */
   #root input[type="checkbox"],
   #root input[type="radio"] {
-    min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+    width: 1.125rem;
+    height: 1.125rem;
+    min-width: 1.125rem;
+    min-height: 1.125rem;
+    flex: 0 0 auto;
+  }
+  #root label:has(> input[type="checkbox"]),
+  #root label:has(> input[type="radio"]),
+  #root label:has(> span > input[type="checkbox"]),
+  #root label:has(> span > input[type="radio"]) {
     min-height: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
   }
   #root .frelux-display-settings-trigger {
     min-width: max(2.75rem, calc(2.75rem / var(--frelux-display-scale, 1)));
+  }
+}
+
+/* FRELUX mobile type floor: the dense 10-11px labels that suit a desktop data
+   grid are below legible size on a phone, so they are lifted to 12px there and
+   left alone on wide screens, where the extra density is the point. */
+@media (max-width: 767px) {
+  #root [class*="text-[10px]"],
+  #root [class*="text-[11px]"] {
+    font-size: 0.75rem;
+    line-height: 1.05rem;
   }
 }

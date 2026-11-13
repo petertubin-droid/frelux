@@ -393,7 +393,7 @@ export default function AdminFinance() {
 
             <AdminCard>
               <p className="admin-eyebrow">Money in by day</p>
-              <div className="mt-2 max-h-56 overflow-y-auto">
+              <div className="mt-2 max-h-56 overflow-x-auto overflow-y-auto">
                 {summary.daily.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Nothing settled in this window.
