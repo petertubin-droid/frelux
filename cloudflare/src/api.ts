@@ -14,6 +14,19 @@
  */
 import { verifyTurnstile } from "../../supabase/functions/_shared/turnstile";
 
+/**
+ * Public, slow-changing GET reads that are safe to answer from the edge cache.
+ * A hit costs no Supabase invocation at all, which is the whole point: the
+ * gateway alone still bills one call per request.
+ *
+ * Only names listed here are cached, only GET, and never when the caller sent
+ * an Authorization header, so a per-user answer can never be shared.
+ */
+export const CACHEABLE_READS: Record<string, number> = {
+  "price-index-api": 600,
+  health: 60,
+};
+
 export interface ApiEnv {
   SUPABASE_URL?: string;
   TURNSTILE_SECRET?: string;
@@ -107,6 +120,7 @@ export async function handleGateway(
   env: ApiEnv,
   url: URL,
   cors: Record<string, string>,
+  ctx?: { waitUntil: (p: Promise<unknown>) => void },
 ): Promise<Response> {
   const name = decodeURIComponent(url.pathname.slice("/api/fn/".length));
   if (!SLUG.test(name)) return json({ error: "Unknown function" }, 404, cors);
@@ -114,6 +128,32 @@ export async function handleGateway(
     return json({ error: "Method not allowed" }, 405, cors);
   if (!env.SUPABASE_URL)
     return json({ error: "Gateway not configured" }, 503, cors);
+
+  const ttl = CACHEABLE_READS[name];
+  const cache =
+    ttl &&
+    request.method === "GET" &&
+    !request.headers.get("authorization") &&
+    typeof caches !== "undefined" &&
+    "default" in caches
+      ? (caches as { default: Cache }).default
+      : null;
+  const cacheKey = cache
+    ? new Request(`${url.origin}${url.pathname}${url.search}`, {
+        method: "GET",
+      })
+    : null;
+
+  if (cache && cacheKey) {
+    const hit = await cache.match(cacheKey);
+    if (hit) {
+      // A cached 200 is served as-is; the marker makes an edge hit visible in
+      // devtools instead of looking like a fast origin.
+      const headers = new Headers(hit.headers);
+      headers.set("x-frelux-cache", "hit");
+      return new Response(hit.body, { status: hit.status, headers });
+    }
+  }
 
   const headers = new Headers();
   for (const header of FORWARDED_HEADERS) {
@@ -143,6 +183,21 @@ export async function handleGateway(
   if (contentType) responseHeaders["content-type"] = contentType;
   const cacheControl = upstream.headers.get("cache-control");
   if (cacheControl) responseHeaders["cache-control"] = cacheControl;
+
+  if (cache && cacheKey && ttl) {
+    responseHeaders["x-frelux-cache"] = "miss";
+    if (upstream.ok && upstream.status === 200) {
+      responseHeaders["cache-control"] =
+        `public, max-age=${ttl}, s-maxage=${ttl}`;
+      const copy = new Response(upstream.clone().body, {
+        status: 200,
+        headers: { ...responseHeaders },
+      });
+      const put = cache.put(cacheKey, copy).catch(() => undefined);
+      if (ctx?.waitUntil) ctx.waitUntil(put);
+      else await put;
+    }
+  }
 
   return new Response(upstream.body, {
     status: upstream.status,

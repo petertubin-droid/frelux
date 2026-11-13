@@ -292,7 +292,11 @@ const publicUrlFor = (
     : null;
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx?: { waitUntil: (p: Promise<unknown>) => void },
+  ): Promise<Response> {
     const url = new URL(request.url);
     const cors = corsHeaders(request.headers.get("origin"), env);
 
@@ -628,7 +632,7 @@ export default {
       return handleTurnstile(request, env, cors);
 
     if (url.pathname.startsWith("/api/fn/"))
-      return handleGateway(request, env, url, cors);
+      return handleGateway(request, env, url, cors, ctx);
 
     if (url.pathname.startsWith("/api/hook/") && request.method === "POST")
       return handleHook(request, env, url, cors);
