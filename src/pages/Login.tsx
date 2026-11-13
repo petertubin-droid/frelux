@@ -82,6 +82,13 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
+  // One action per mode: a token solved for sign-up cannot be replayed
+  // for a sign-in or a password reset.
+  const turnstileAction =
+    mode === "signup" ? "signup" : mode === "signin" ? "signin" : "reset";
+  const turnstile = useTurnstileGate(turnstileAction);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
   // Returning visitors who asked to be remembered get the address prefilled.
   useEffect(() => {
     try {
@@ -191,13 +198,6 @@ export default function Login() {
       </div>
     );
   }
-
-  // One action per mode: a token solved for sign-up cannot be replayed
-  // for a sign-in or a password reset.
-  const turnstileAction =
-    mode === "signup" ? "signup" : mode === "signin" ? "signin" : "reset";
-  const turnstile = useTurnstileGate(turnstileAction);
-  const [verifyError, setVerifyError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
