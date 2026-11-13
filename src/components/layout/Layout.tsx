@@ -6,6 +6,7 @@ import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
+import MaintenanceTicker from "@/components/layout/MaintenanceTicker";
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import { AdPushWorkerGate } from "@/components/ads/AdPushWorkerGate";
@@ -94,6 +95,12 @@ export default function Layout() {
   const navigate = useNavigate();
   const { user, isPaid, loading: authLoading } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
+  // The ticker is independent of the maintenance gate: it informs without
+  // closing the site, and it is fed by the same row and the same subscription.
+  const [maintenanceBanner, setMaintenanceBanner] = useState({
+    enabled: false,
+    message: "",
+  });
   const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
@@ -472,7 +479,9 @@ export default function Layout() {
       // Then check maintenance mode
       const { data, error } = await supabase
         .from("site_settings")
-        .select("maintenance_mode")
+        .select(
+          "maintenance_mode, maintenance_banner_enabled, maintenance_banner_message",
+        )
         .limit(1)
         .maybeSingle();
 
@@ -485,6 +494,10 @@ export default function Layout() {
       }
 
       setMaintenance(!!data?.maintenance_mode);
+      setMaintenanceBanner({
+        enabled: !!data?.maintenance_banner_enabled,
+        message: data?.maintenance_banner_message ?? "",
+      });
     }
 
     ric(() => checkMaintenance());
@@ -499,9 +512,18 @@ export default function Layout() {
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "site_settings" },
           (payload) => {
-            const newMode = (payload.new as Record<string, unknown>)
-              ?.maintenance_mode;
-            setMaintenance(!!newMode);
+            const row = payload.new as Record<string, unknown> | null;
+            setMaintenance(!!row?.maintenance_mode);
+            setMaintenanceBanner((current) => ({
+              enabled:
+                row?.maintenance_banner_enabled === undefined
+                  ? current.enabled
+                  : !!row.maintenance_banner_enabled,
+              message:
+                typeof row?.maintenance_banner_message === "string"
+                  ? row.maintenance_banner_message
+                  : current.message,
+            }));
           },
         )
         .subscribe();
@@ -608,6 +630,9 @@ export default function Layout() {
         className="w-full flex-1 min-h-[calc(100svh-4rem)] pt-16 pb-36 md:pb-0"
         role="main"
       >
+        {maintenanceBanner.enabled && (
+          <MaintenanceTicker message={maintenanceBanner.message} />
+        )}
         {/* The market caveat qualifies a calculation result, so it is scoped
             to calculator pages rather than printed above every route. */}
         {[

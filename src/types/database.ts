@@ -125,6 +125,10 @@ export interface DbSiteSettings {
   default_currency_symbol: string;
   default_unit: "meters" | "feet";
   maintenance_mode: boolean;
+  /** The orange site-wide ticker under the header. Independent of the
+   *  full maintenance gate so an announcement can run without closing the site. */
+  maintenance_banner_enabled: boolean;
+  maintenance_banner_message: string | null;
   seo_title: string | null;
   seo_description: string | null;
   // AI access control

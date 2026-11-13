@@ -14,6 +14,8 @@ import {
   AdminTextarea,
 } from "@/components/admin/AdminUi";
 import { MediaUploader } from "@/components/admin/MediaUploader";
+import MaintenanceTicker from "@/components/layout/MaintenanceTicker";
+import { MAINTENANCE_PRESETS } from "@/config/maintenance-presets";
 import { invalidateHeroContentCache } from "@/lib/useHeroContent";
 import {
   DEFAULT_LOADER_CONFIG,
@@ -27,6 +29,8 @@ import { useLanguage } from "@/lib/i18n";
 export default function AdminSettings() {
   const { t } = useLanguage();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
+  const [bannerSaving, setBannerSaving] = useState(false);
+  const [bannerSaved, setBannerSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -81,6 +85,37 @@ export default function AdminSettings() {
   }
 
   const loader = settings?.loader_config ?? null;
+
+  async function saveBanner(patch: { enabled?: boolean }) {
+    if (!settings) return;
+    const message = (settings.maintenance_banner_message ?? "").trim();
+    const enabled = patch.enabled ?? settings.maintenance_banner_enabled;
+    // The database refuses an enabled banner without a message; say so here
+    // instead of surfacing a constraint violation.
+    if (enabled && !message) {
+      setError("Write the ticker message first, then turn it on.");
+      return;
+    }
+    setBannerSaving(true);
+    setBannerSaved(false);
+    setError(null);
+    const { error: bannerError } = await supabase
+      .from("site_settings")
+      .update({
+        maintenance_banner_message: message || null,
+        maintenance_banner_enabled: enabled,
+      })
+      .eq("id", settings.id);
+    setBannerSaving(false);
+    if (bannerError) {
+      setError(bannerError.message);
+      return;
+    }
+    update("maintenance_banner_message", message);
+    update("maintenance_banner_enabled", enabled);
+    setBannerSaved(true);
+    window.setTimeout(() => setBannerSaved(false), 3000);
+  }
 
   function updateLoader(patch: Partial<LoaderConfig>) {
     if (!settings) return;
@@ -493,6 +528,104 @@ export default function AdminSettings() {
                   }
                 }}
               />
+            </div>
+          </div>
+
+          {/* Ticker: informs without closing the site. */}
+          <div className="mt-6 border-t border-border/60 pt-6 dark:border-white/10">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+                  Maintenance ticker
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                  A thin orange line that slides under the header on every page,
+                  carrying your message. Independent of maintenance mode, so you
+                  can announce planned work without closing the site.
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {bannerSaved && (
+                  <span className="text-xs text-green-600">✓ Live</span>
+                )}
+                <Toggle
+                  srLabel="Maintenance ticker"
+                  checked={settings.maintenance_banner_enabled}
+                  onChange={(next) => saveBanner({ enabled: next })}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <AdminField
+                label="Ticker message"
+                hint="Up to 240 characters. It loops, so two short sentences read best."
+              >
+                <AdminTextarea
+                  rows={3}
+                  maxLength={240}
+                  value={settings.maintenance_banner_message ?? ""}
+                  onChange={(event) =>
+                    update("maintenance_banner_message", event.target.value)
+                  }
+                  placeholder="Scheduled maintenance tonight, 11:00 pm to 1:00 am."
+                />
+              </AdminField>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">
+                  {(settings.maintenance_banner_message ?? "").length}/240
+                </span>
+                <div className="flex items-center gap-2">
+                  {bannerSaving && (
+                    <span className="text-xs text-muted-foreground">
+                      Saving…
+                    </span>
+                  )}
+                  <AdminButton
+                    onClick={() => saveBanner({})}
+                    disabled={bannerSaving}
+                  >
+                    <Save className="h-4 w-4" />
+                    Publish message
+                  </AdminButton>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Presets
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {MAINTENANCE_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() =>
+                      update("maintenance_banner_message", preset.message)
+                    }
+                    className="rounded-full border border-border/70 px-3 py-1.5 text-xs font-medium text-card-foreground transition-colors hover:border-brand-purple/40 hover:bg-primary/5 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-white/5"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-xl border border-border/60 dark:border-white/10">
+              <p className="border-b border-border/60 bg-muted/40 px-3 py-2 text-xs font-semibold text-muted-foreground dark:border-white/10 dark:bg-white/5">
+                Preview
+              </p>
+              {(settings.maintenance_banner_message ?? "").trim() ? (
+                <MaintenanceTicker
+                  inline
+                  message={settings.maintenance_banner_message ?? ""}
+                />
+              ) : (
+                <p className="px-3 py-3 text-xs text-muted-foreground">
+                  Write a message, or pick a preset, to see it here.
+                </p>
+              )}
             </div>
           </div>
         </AdminCard>

@@ -2855,3 +2855,35 @@ html[data-frelux-wide-view="true"]
     line-height: 1.05rem;
   }
 }
+
+/* ── Maintenance ticker ───────────────────────────────────────────────
+   A thin orange strip under the fixed header. The track holds two identical
+   copies of the sentence and travels exactly one copy's width, so the loop is
+   seamless. Paused on hover or keyboard focus, and stopped entirely for
+   visitors who ask for reduced motion. */
+@keyframes frelux-ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.maintenance-ticker-track {
+  animation-name: frelux-ticker;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.maintenance-ticker:hover .maintenance-ticker-track,
+.maintenance-ticker:focus-within .maintenance-ticker-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maintenance-ticker-track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
