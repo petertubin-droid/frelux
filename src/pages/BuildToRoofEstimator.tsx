@@ -1733,7 +1733,7 @@ export default function BuildToRoofEstimator({
                           title={t("Concrete Mix Ratio")}
                           icon={Settings}
                         >
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                             <Field
                               label="Cement (parts)"
                               value={input.concrete_mix_cement}
@@ -3526,43 +3526,47 @@ function EstimateResult({
                 <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                   {t("Materials")}
                 </h4>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/50 text-left">
-                      <th className="py-2 font-medium text-muted-foreground">
-                        {t("Item")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Qty")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Unit")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Cost")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(engineAccess.limited
-                      ? stage.materials.slice(0, engineAccess.visibleLines)
-                      : stage.materials
-                    ).map((m, j) => (
-                      <tr key={j} className="border-b border-border/50">
-                        <td className="py-2 text-card-foreground">{m.label}</td>
-                        <td className="py-2 text-right text-muted-foreground">
-                          {formatNumber(m.final_quantity)}
-                        </td>
-                        <td className="py-2 text-right text-muted-foreground">
-                          {m.unit}
-                        </td>
-                        <td className="py-2 text-right font-medium text-foreground">
-                          {formatCurrency(m.total_cost)}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border/50 text-left">
+                        <th className="py-2 font-medium text-muted-foreground">
+                          {t("Item")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Qty")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Unit")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Cost")}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {(engineAccess.limited
+                        ? stage.materials.slice(0, engineAccess.visibleLines)
+                        : stage.materials
+                      ).map((m, j) => (
+                        <tr key={j} className="border-b border-border/50">
+                          <td className="py-2 text-card-foreground">
+                            {m.label}
+                          </td>
+                          <td className="py-2 text-right text-muted-foreground">
+                            {formatNumber(m.final_quantity)}
+                          </td>
+                          <td className="py-2 text-right text-muted-foreground">
+                            {m.unit}
+                          </td>
+                          <td className="py-2 text-right font-medium text-foreground">
+                            {formatCurrency(m.total_cost)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
             {/* Labour */}
@@ -3571,40 +3575,44 @@ function EstimateResult({
                 <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                   {t("Labour")}
                 </h4>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border/50 text-left">
-                      <th className="py-2 font-medium text-muted-foreground">
-                        {t("Task")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Qty")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Rate")}
-                      </th>
-                      <th className="py-2 font-medium text-muted-foreground text-right">
-                        {t("Cost")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stage.labour.map((l, j) => (
-                      <tr key={j} className="border-b border-border/50">
-                        <td className="py-2 text-card-foreground">{l.label}</td>
-                        <td className="py-2 text-right text-muted-foreground">
-                          {formatNumber(l.quantity)}
-                        </td>
-                        <td className="py-2 text-right text-muted-foreground">
-                          {formatCurrency(l.rate)}
-                        </td>
-                        <td className="py-2 text-right font-medium text-foreground">
-                          {formatCurrency(l.total_cost)}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border/50 text-left">
+                        <th className="py-2 font-medium text-muted-foreground">
+                          {t("Task")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Qty")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Rate")}
+                        </th>
+                        <th className="py-2 font-medium text-muted-foreground text-right">
+                          {t("Cost")}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {stage.labour.map((l, j) => (
+                        <tr key={j} className="border-b border-border/50">
+                          <td className="py-2 text-card-foreground">
+                            {l.label}
+                          </td>
+                          <td className="py-2 text-right text-muted-foreground">
+                            {formatNumber(l.quantity)}
+                          </td>
+                          <td className="py-2 text-right text-muted-foreground">
+                            {formatCurrency(l.rate)}
+                          </td>
+                          <td className="py-2 text-right font-medium text-foreground">
+                            {formatCurrency(l.total_cost)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

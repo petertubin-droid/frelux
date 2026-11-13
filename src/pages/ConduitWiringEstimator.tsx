@@ -385,7 +385,7 @@ export default function ConduitWiringEstimator() {
             <div className="space-y-6">
               {/* Room Geometry Parameters */}
               <FieldGroup title="Room Dimensions & Ceiling">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <span className="text-xs text-muted-foreground">
                       Room measured in feet by default

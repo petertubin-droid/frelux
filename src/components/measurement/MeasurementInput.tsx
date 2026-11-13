@@ -423,7 +423,7 @@ function TileConfigFields({
       </p>
 
       {/* Tile size */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <DimensionInput
           label="Tile Length"
           value={tc.tileLength}

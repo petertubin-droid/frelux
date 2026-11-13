@@ -1233,7 +1233,7 @@ export default function DocumentStudio() {
                       {block.rows.map((row, i) => (
                         <div
                           key={i}
-                          className="grid grid-cols-5 border-b py-1 text-xs"
+                          className="grid grid-cols-2 border-b py-1 text-xs sm:grid-cols-5"
                         >
                           <span>{row.label || "—"}</span>
                           <span>{row.quantity}</span>

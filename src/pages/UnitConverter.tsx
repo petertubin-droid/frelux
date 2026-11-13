@@ -1347,7 +1347,11 @@ function WeightPanel() {
 
 // ---------------------------------------------------------------- temperature
 
-const TEMPERATURE_PRESETS: { label: string; value: string; from: TemperatureUnit }[] = [
+const TEMPERATURE_PRESETS: {
+  label: string;
+  value: string;
+  from: TemperatureUnit;
+}[] = [
   { label: "Water freezes", value: "0", from: "c" },
   { label: "Room temperature", value: "20", from: "c" },
   { label: "Paint application", value: "10", from: "c" },
@@ -1379,8 +1383,7 @@ function TemperaturePanel() {
   const raw = amount.trim();
   const parsed = raw === "" ? NaN : Number(raw.replace(/[\s,]/g, ""));
   const value = Number.isFinite(parsed) ? parsed : null;
-  const converted =
-    value === null ? null : convertTemperature(value, from, to);
+  const converted = value === null ? null : convertTemperature(value, from, to);
 
   const swap = () => {
     setFrom(to);
@@ -1499,7 +1502,8 @@ function TemperaturePanel() {
           </p>
           {converted === null && raw !== "" && (
             <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
-              That reading is not possible: nothing is colder than absolute zero.
+              That reading is not possible: nothing is colder than absolute
+              zero.
             </p>
           )}
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -1522,37 +1526,39 @@ function TemperaturePanel() {
           </div>
         </div>
 
-        <table className="mt-4 w-full text-xs">
-          <caption className="sr-only">
-            Working temperatures on every scale
-          </caption>
-          <thead>
-            <tr className="text-left text-muted-foreground">
-              <th scope="col" className="py-1.5 font-medium">
-                Working reading
-              </th>
-              <th scope="col" className="py-1.5 text-right font-medium">
-                °C
-              </th>
-              <th scope="col" className="py-1.5 text-right font-medium">
-                °F
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {TEMPERATURE_REFERENCE.map((row) => (
-              <tr key={row.label} className="border-t border-white/10">
-                <td className="py-1.5 text-muted-foreground">{row.label}</td>
-                <td className="py-1.5 text-right tabular-nums text-foreground">
-                  {row.celsius}
-                </td>
-                <td className="py-1.5 text-right tabular-nums text-foreground">
-                  {formatNumber(fromCelsius(row.celsius, "f"), 1)}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="mt-4 w-full text-xs">
+            <caption className="sr-only">
+              Working temperatures on every scale
+            </caption>
+            <thead>
+              <tr className="text-left text-muted-foreground">
+                <th scope="col" className="py-1.5 font-medium">
+                  Working reading
+                </th>
+                <th scope="col" className="py-1.5 text-right font-medium">
+                  °C
+                </th>
+                <th scope="col" className="py-1.5 text-right font-medium">
+                  °F
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {TEMPERATURE_REFERENCE.map((row) => (
+                <tr key={row.label} className="border-t border-white/10">
+                  <td className="py-1.5 text-muted-foreground">{row.label}</td>
+                  <td className="py-1.5 text-right tabular-nums text-foreground">
+                    {row.celsius}
+                  </td>
+                  <td className="py-1.5 text-right tabular-nums text-foreground">
+                    {formatNumber(fromCelsius(row.celsius, "f"), 1)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -176,7 +176,7 @@ export function BarBendingSchedulePanel() {
                 ))}
               </select>
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <label className="grid gap-1 text-sm font-medium">
                 A
                 <input

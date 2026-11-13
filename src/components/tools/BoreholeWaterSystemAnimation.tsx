@@ -165,7 +165,7 @@ export default function BoreholeWaterSystemAnimation({
       </div>
 
       {/* Step Indicators / Tabs */}
-      <div className="grid grid-cols-7 gap-1 border-b border-border bg-muted/20 p-1 text-center text-xs">
+      <div className="grid grid-cols-3 gap-1 border-b border-border bg-muted/20 p-1 text-center text-xs sm:grid-cols-7">
         {steps.map((st, idx) => (
           <button
             key={st.id}

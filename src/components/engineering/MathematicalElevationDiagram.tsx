@@ -1101,7 +1101,7 @@ export function MathematicalElevationDiagram({
               requirements to build a defensible schedule.
             </div>
             {result.five_d_bim.timeline_phases.length > 0 && (
-              <div className="rounded-xl border border-border bg-card overflow-hidden">
+              <div className="rounded-xl border border-border bg-card overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead className="bg-muted/50 border-b border-border">
                     <tr>

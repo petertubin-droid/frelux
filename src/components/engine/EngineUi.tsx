@@ -525,33 +525,35 @@ export function EngineEstimateReportView({
           <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
             {t("Materials")}
           </h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border dark:border-white/10 text-left">
-                <th className="pb-1 font-medium text-muted-foreground">
-                  {t("Material")}
-                </th>
-                <th className="pb-1 font-medium text-muted-foreground">
-                  {t("Quantity")}
-                </th>
-                <th className="pb-1 font-medium text-muted-foreground">
-                  {t("Unit")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.materials.map((mat, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-border/50 dark:border-white/5"
-                >
-                  <td className="py-1.5">{mat.productName}</td>
-                  <td className="py-1.5">{mat.totalQuantity}</td>
-                  <td className="py-1.5">{mat.quantityUnit}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border dark:border-white/10 text-left">
+                  <th className="pb-1 font-medium text-muted-foreground">
+                    {t("Material")}
+                  </th>
+                  <th className="pb-1 font-medium text-muted-foreground">
+                    {t("Quantity")}
+                  </th>
+                  <th className="pb-1 font-medium text-muted-foreground">
+                    {t("Unit")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {report.materials.map((mat, i) => (
+                  <tr
+                    key={i}
+                    className="border-b border-border/50 dark:border-white/5"
+                  >
+                    <td className="py-1.5">{mat.productName}</td>
+                    <td className="py-1.5">{mat.totalQuantity}</td>
+                    <td className="py-1.5">{mat.quantityUnit}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

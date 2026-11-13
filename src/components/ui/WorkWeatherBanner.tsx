@@ -212,7 +212,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
       {/* Expandable 5-day forecast */}
       {expanded && (
         <div className="border-t border-border/50 bg-white/40 p-3 dark:border-white/10 dark:bg-white/5">
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {days.map((day) => {
               const r = ratingConfig[day.paintRating];
               return (

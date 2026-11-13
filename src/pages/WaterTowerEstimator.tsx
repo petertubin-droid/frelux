@@ -617,7 +617,7 @@ export default function WaterTowerEstimator() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
                         <span className="text-[11px] text-muted-foreground block">
                           Cement

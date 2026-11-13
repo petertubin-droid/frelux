@@ -611,7 +611,7 @@ export function VisualFinishingEstimator({
       </div>
 
       {/* ── Workflow Stepper ── */}
-      <div className="mb-6 grid grid-cols-4 gap-2 text-center text-xs font-medium">
+      <div className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-4 text-center text-xs font-medium">
         <button
           onClick={() => setStep(1)}
           className={`flex items-center justify-center gap-1 rounded-md py-2 border transition-colors ${

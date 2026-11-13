@@ -116,7 +116,7 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
           {/* Mock content */}
           <div className="relative z-10 p-6">
             <div className="mb-4 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
-              <div className="grid grid-cols-4 gap-4 text-xs">
+              <div className="grid grid-cols-2 gap-4 text-xs sm:grid-cols-4">
                 <div>
                   <span className="text-muted-foreground">Project Type</span>
                   <br />
