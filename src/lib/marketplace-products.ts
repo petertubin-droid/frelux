@@ -136,16 +136,30 @@ export async function fetchProduct(
   return data as unknown as DbMarketplaceProduct;
 }
 
+/** A seller's own products, one page at a time with an exact count. */
 export async function fetchMyProducts(
   userId: string,
-): Promise<DbMarketplaceProduct[]> {
-  const { data, error } = await supabase
+  params: { limit?: number; offset?: number; status?: string } = {},
+): Promise<{ products: DbMarketplaceProduct[]; total: number }> {
+  const limit = params.limit ?? 10;
+  const offset = params.offset ?? 0;
+  let query = supabase
     .from("marketplace_products")
-    .select("*")
-    .eq("seller_id", userId)
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .eq("seller_id", userId);
+  // The status tab filters in the query, not in the browser: filtering a page
+  // after it was fetched shows a page of "no products" whenever the matches sit
+  // on another page.
+  if (params.status) query = query.eq("status", params.status);
+  const { data, error, count } = await query
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range(offset, offset + limit - 1);
   if (error) throw error;
-  return (data ?? []) as DbMarketplaceProduct[];
+  return {
+    products: (data ?? []) as DbMarketplaceProduct[],
+    total: count ?? 0,
+  };
 }
 
 export async function createProduct(data: {

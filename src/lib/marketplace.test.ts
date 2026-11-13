@@ -53,9 +53,12 @@ describe("marketplace (supabase not configured)", () => {
     expect(result).toBeNull();
   });
 
-  it("fetchMyListings returns array", async () => {
+  it("fetchMyListings returns a page with a total", async () => {
+    // Paged since 2026-11-13: an array here meant the screen could not know
+    // whether more rows existed, so the pager was never shown.
     const result = await fetchMyListings("user1");
-    expect(Array.isArray(result)).toBe(true);
+    expect(result.listings).toEqual([]);
+    expect(result.total).toBe(0);
   });
 
   it("createListing returns null (no data)", async () => {

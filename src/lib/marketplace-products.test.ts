@@ -61,8 +61,12 @@ describe("marketplace-products (supabase not configured)", () => {
     expect(await fetchProduct("test-id")).toBeNull();
   });
 
-  it("fetchMyProducts returns array", async () => {
-    expect(await fetchMyProducts("user1")).toEqual([]);
+  it("fetchMyProducts returns an empty page with a total", async () => {
+    // Paged since 2026-11-13: the seller screen pages server-side, so the
+    // shape carries { products, total } rather than a bare array.
+    const result = await fetchMyProducts("user1");
+    expect(result.products).toEqual([]);
+    expect(result.total).toBe(0);
   });
 
   it("createProduct returns null (no data)", async () => {

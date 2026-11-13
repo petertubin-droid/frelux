@@ -473,6 +473,7 @@ const CreditsPage = lazy(() => import("@/pages/Credits"));
 const PostProduct = lazy(() => import("@/pages/marketplace/PostProduct"));
 const ProductDetail = lazy(() => import("@/pages/marketplace/ProductDetail"));
 const MyProducts = lazy(() => import("@/pages/marketplace/MyProducts"));
+const PromoteProduct = lazy(() => import("@/pages/marketplace/PromoteProduct"));
 const MarketplaceLayout = lazy(
   () => import("@/components/marketplace/MarketplaceLayout"),
 );
@@ -1834,6 +1835,10 @@ export default function App() {
                           <Route
                             path="products/:id"
                             element={<ProductDetail />}
+                          />
+                          <Route
+                            path="products/:id/promote"
+                            element={<PromoteProduct />}
                           />
                           <Route
                             path="products"

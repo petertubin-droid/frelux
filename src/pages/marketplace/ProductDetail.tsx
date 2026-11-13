@@ -48,6 +48,14 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showInquiry, setShowInquiry] = useState(false);
+
+  // "Message seller" on a grid card lands here with ?contact=1: open the form
+  // rather than making the buyer hunt for the button again.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("contact") === "1") {
+      setShowInquiry(true);
+    }
+  }, []);
   const [inquiryMessage, setInquiryMessage] = useState("");
   const [inquiryPrice, setInquiryPrice] = useState("");
   const [inquiryPhone, setInquiryPhone] = useState("");

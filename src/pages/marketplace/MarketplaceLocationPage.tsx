@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, ArrowRight, Loader2, Package } from "lucide-react";
 import { fetchLocations } from "@/lib/pro-connect";
@@ -42,6 +42,14 @@ export default function MarketplaceLocationPage() {
   const [pros, setPros] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [listingsTotal, setListingsTotal] = useState(0);
+  const [listingsLoadingMore, setListingsLoadingMore] = useState(false);
+  // Paging state lives in a ref so the "show more" handler always reads the
+  // offsets that exist now, not the ones captured when it was created.
+  const listingScope = useRef<{ state: string; city: string | null }>({
+    state: "",
+    city: null,
+  });
 
   useEffect(() => {
     if (!locationSlug) return;
@@ -73,16 +81,20 @@ export default function MarketplaceLocationPage() {
         );
       if (!dbLoc) return;
 
-      // Fetch listings in this location
-      const { listings: listingData } = await fetchListings({
+      // Fetch listings in this location.
+      //
+      // The city used to be filtered in the browser after taking the first 30
+      // rows for the whole state, so a city whose listings sat past row 30
+      // showed "no listings" while they existed. The city is part of the query
+      // now, and the page knows how many there are.
+      listingScope.current = { state: dbLoc.state, city: dbLoc.city || null };
+      const { listings: listingData, total } = await fetchListings({
         location_state: dbLoc.state,
-        limit: 30,
+        location_city: dbLoc.city || undefined,
+        limit: 12,
       });
-      // Filter by city if available
-      const cityFiltered = dbLoc.city
-        ? listingData.filter((l) => l.location_city === dbLoc.city)
-        : listingData;
-      setListings(cityFiltered);
+      setListings(listingData);
+      setListingsTotal(total);
 
       // Fetch professionals in this location
       const proResult = await searchProfessionals({
@@ -220,6 +232,35 @@ export default function MarketplaceLocationPage() {
                       </p>
                     </Link>
                   ))}
+                </div>
+              )}
+              {listings.length > 0 && listings.length < listingsTotal && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    disabled={listingsLoadingMore}
+                    onClick={async () => {
+                      setListingsLoadingMore(true);
+                      try {
+                        const { listings: more } = await fetchListings({
+                          location_state: listingScope.current.state,
+                          location_city: listingScope.current.city || undefined,
+                          limit: 12,
+                          offset: listings.length,
+                        });
+                        setListings((current) => [...current, ...more]);
+                      } catch {
+                        // Leave the button in place: pressing it again retries.
+                      } finally {
+                        setListingsLoadingMore(false);
+                      }
+                    }}
+                    className="inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold text-foreground hover:border-brand-purple hover:text-brand-purple disabled:opacity-60 dark:border-white/10 dark:text-primary-foreground"
+                  >
+                    {listingsLoadingMore
+                      ? t("Loading…")
+                      : `${t("Show more")} (${listingsTotal - listings.length})`}
+                  </button>
                 </div>
               )}
             </section>

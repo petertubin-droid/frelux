@@ -13,6 +13,7 @@ import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
+import AdminPagination from "@/components/admin/AdminPagination";
 import Container from "@/components/ui/Container";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -39,29 +40,46 @@ export default function MyListings() {
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const pageSize = 10;
 
-  const load = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const data = await fetchMyListings(user.id);
-      setListings(data);
-    } catch {
-      /* ignore */
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+  const load = useCallback(
+    async (pageIndex = 0) => {
+      if (!user) return;
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const { listings: rows, total: count } = await fetchMyListings(
+          user.id,
+          { limit: pageSize, offset: pageIndex * pageSize },
+        );
+        setListings(rows);
+        setTotal(count);
+      } catch {
+        // Silent before: a rejected query looked identical to "no listings".
+        setListings([]);
+        setTotal(0);
+        setLoadError(
+          "We could not load your listings just now. Refresh to try again.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user, pageSize],
+  );
 
   useEffect(() => {
-    load();
-  }, [load]);
+    void load(page);
+  }, [load, page]);
 
   async function handleCancel(id: string) {
     setCancellingId(id);
     try {
       await cancelListing(id, "Cancelled by owner");
-      load();
+      await load(page);
     } catch {
       /* ignore */
     } finally {
@@ -91,7 +109,7 @@ export default function MyListings() {
         ]}
         eyebrow={t("Marketplace")}
         title={t("My Listings")}
-        subtitle={`${listings.length} ${listings.length === 1 ? "listing" : "listings"} total`}
+        subtitle={`${total} ${total === 1 ? "listing" : "listings"} total`}
         actions={
           <Link
             to="/marketplace/post/"
@@ -103,6 +121,14 @@ export default function MyListings() {
       />
 
       <Container className="max-w-4xl pb-12 pt-6">
+        {loadError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200"
+          >
+            {loadError}
+          </div>
+        )}
         {listings.length === 0 ? (
           <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center dark:border-white/5 dark:bg-card">
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
@@ -117,97 +143,111 @@ export default function MyListings() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 space-y-3">
-            {listings.map((listing) => (
-              <div
-                key={listing.id}
-                className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
-                        {PROJECT_TYPE_LABELS[listing.project_type]}
-                      </span>
-                      <span
-                        className={classNames(
-                          "rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                          STATUS_COLORS[listing.status] ||
-                            "bg-muted text-muted-foreground",
-                        )}
-                      >
-                        {LISTING_STATUS_LABELS[listing.status]}
-                      </span>
-                      {listing.urgency === "urgent" && (
-                        <span className="inline-flex items-center gap-0.5 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                          <Clock aria-hidden="true" className="h-3 w-3" />{" "}
-                          Urgent
+          <>
+            <div className="mt-6 space-y-3">
+              {listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
+                          {PROJECT_TYPE_LABELS[listing.project_type]}
                         </span>
+                        <span
+                          className={classNames(
+                            "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+                            STATUS_COLORS[listing.status] ||
+                              "bg-muted text-muted-foreground",
+                          )}
+                        >
+                          {LISTING_STATUS_LABELS[listing.status]}
+                        </span>
+                        {listing.urgency === "urgent" && (
+                          <span className="inline-flex items-center gap-0.5 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                            <Clock aria-hidden="true" className="h-3 w-3" />{" "}
+                            Urgent
+                          </span>
+                        )}
+                      </div>
+                      <Link
+                        to={`/marketplace/${listing.id}/`}
+                        className="mt-2 block text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
+                      >
+                        {listing.title}
+                      </Link>
+                      {listing.location_state && (
+                        <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                          <MapPin aria-hidden="true" className="h-3 w-3" />
+                          {[listing.location_city, listing.location_state]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
                       )}
                     </div>
-                    <Link
-                      to={`/marketplace/${listing.id}/`}
-                      className="mt-2 block text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
-                    >
-                      {listing.title}
-                    </Link>
-                    {listing.location_state && (
-                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                        <MapPin aria-hidden="true" className="h-3 w-3" />
-                        {[listing.location_city, listing.location_state]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                    )}
+
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Users aria-hidden="true" className="h-3 w-3" />{" "}
+                        {listing.bid_count}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Eye aria-hidden="true" className="h-3 w-3" />{" "}
+                        {listing.view_count}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Users aria-hidden="true" className="h-3 w-3" />{" "}
-                      {listing.bid_count}
+                  {/* Actions */}
+                  <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3 dark:border-white/5">
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {new Date(listing.created_at).toLocaleDateString()}
                     </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Eye aria-hidden="true" className="h-3 w-3" />{" "}
-                      {listing.view_count}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3 dark:border-white/5">
-                  <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                    {new Date(listing.created_at).toLocaleDateString()}
-                  </span>
-                  <div className="flex gap-2">
-                    {listing.status === "open" && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleCancel(listing.id)}
-                        disabled={cancellingId === listing.id}
-                        className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
+                    <div className="flex gap-2">
+                      {listing.status === "open" && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleCancel(listing.id)}
+                          disabled={cancellingId === listing.id}
+                          className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
+                        >
+                          {cancellingId === listing.id ? (
+                            <Loader2
+                              aria-hidden="true"
+                              className="h-3 w-3 animate-spin"
+                            />
+                          ) : (
+                            <X aria-hidden="true" className="h-3 w-3" />
+                          )}
+                          Cancel
+                        </Button>
+                      )}
+                      <Link
+                        to={`/marketplace/${listing.id}/`}
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
                       >
-                        {cancellingId === listing.id ? (
-                          <Loader2
-                            aria-hidden="true"
-                            className="h-3 w-3 animate-spin"
-                          />
-                        ) : (
-                          <X aria-hidden="true" className="h-3 w-3" />
-                        )}
-                        Cancel
-                      </Button>
-                    )}
-                    <Link
-                      to={`/marketplace/${listing.id}/`}
-                      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
-                    >
-                      {t("View Details")}
-                    </Link>
+                        {t("View Details")}
+                      </Link>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+
+            {total > pageSize && (
+              <div className="mt-6">
+                <AdminPagination
+                  page={page}
+                  pageSize={pageSize}
+                  total={total}
+                  onPageChange={setPage}
+                  loading={loading}
+                />
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </Container>
     </>

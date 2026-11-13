@@ -81,14 +81,32 @@ export async function fetchListing(id: string) {
   };
 }
 
-export async function fetchMyListings(userId: string) {
-  const { data, error } = await supabase
+/**
+ * A seller's own listings, one page at a time.
+ *
+ * This used to select every row the seller had ever posted, which PostgREST
+ * silently caps at 1000: past that the rest simply never appeared, and no
+ * screen said so. It returns an exact count now so the page control can show
+ * how much there is.
+ */
+export async function fetchMyListings(
+  userId: string,
+  params: { limit?: number; offset?: number } = {},
+) {
+  const limit = params.limit ?? 10;
+  const offset = params.offset ?? 0;
+  const { data, error, count } = await supabase
     .from("marketplace_listings")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range(offset, offset + limit - 1);
   if (error) throw error;
-  return (data ?? []) as DbMarketplaceListing[];
+  return {
+    listings: (data ?? []) as DbMarketplaceListing[],
+    total: count ?? 0,
+  };
 }
 
 export async function createListing(data: {
@@ -368,7 +386,9 @@ export async function submitOrderReview(
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     throw new Error("A rating must be a whole number from 1 to 5.");
   }
-  const trimmed = String(review ?? "").trim().slice(0, 2000);
+  const trimmed = String(review ?? "")
+    .trim()
+    .slice(0, 2000);
   const updates: Record<string, unknown> = {};
   // Only the caller's own side is written. A participant writing the other
   // party's review is rejected by the database trigger as well.

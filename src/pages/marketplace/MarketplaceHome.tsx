@@ -2,14 +2,15 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPanel } from "@/components/map/MapPanel";
 import {
-  Search,
-  Plus,
-  MapPin,
-  Loader2,
-  SlidersHorizontal,
-  X,
-  Store,
   Briefcase,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Store,
+  X,
 } from "lucide-react";
 import { fetchListings } from "@/lib/marketplace";
 import {
@@ -1120,68 +1121,99 @@ function ProductsTab(props: {
                     )
                   : null;
               return (
-                <Link
+                <div
                   key={product.id}
-                  to={`/marketplace/products/${product.id}/`}
-                  className="group rounded-xl border border-border overflow-hidden transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
                 >
-                  {/* Image */}
-                  <div className="aspect-square overflow-hidden bg-muted dark:bg-white/5 relative">
-                    {product.images.length > 0 ? (
-                      <img
-                        src={
-                          product.images[product.primary_image_idx] ||
-                          product.images[0]
-                        }
-                        alt={product.title}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
-                        <Store className="h-8 w-8" />
-                      </div>
-                    )}
-                    {discount && (
-                      <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-                        -{discount}%
-                      </span>
-                    )}
-                  </div>
-                  {/* Info */}
-                  <div className="p-3">
-                    <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
-                      {product.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {product.category?.name || "Other"}
-                    </p>
-                    <div className="mt-2 flex items-baseline gap-1">
-                      <span className="text-sm font-bold text-brand-purple">
-                        {formatPrice(product.price, product.currency)}
-                      </span>
-                      {product.compare_at_price &&
-                        product.compare_at_price > product.price && (
-                          <span className="text-xs text-muted-foreground line-through">
-                            {formatPrice(
-                              product.compare_at_price,
-                              product.currency,
-                            )}
-                          </span>
-                        )}
-                    </div>
-                    <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
-                      {product.location_city && (
-                        <span className="inline-flex items-center gap-0.5">
-                          <MapPin aria-hidden="true" className="h-2.5 w-2.5" />
-                          {product.location_city}
+                  <Link
+                    to={`/marketplace/products/${product.id}/`}
+                    className="block"
+                  >
+                    {/* Image */}
+                    <div className="aspect-square overflow-hidden bg-muted dark:bg-white/5 relative">
+                      {product.images.length > 0 ? (
+                        <img
+                          src={
+                            product.images[product.primary_image_idx] ||
+                            product.images[0]
+                          }
+                          alt={product.title}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
+                          <Store className="h-8 w-8" />
+                        </div>
+                      )}
+                      {discount && (
+                        <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                          -{discount}%
                         </span>
                       )}
                     </div>
+                    {/* Info */}
+                    <div className="p-3">
+                      <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
+                        {product.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {product.category?.name || "Other"}
+                      </p>
+                      <div className="mt-2 flex items-baseline gap-1">
+                        <span className="text-sm font-bold text-brand-purple">
+                          {formatPrice(product.price, product.currency)}
+                        </span>
+                        {product.compare_at_price &&
+                          product.compare_at_price > product.price && (
+                            <span className="text-xs text-muted-foreground line-through">
+                              {formatPrice(
+                                product.compare_at_price,
+                                product.currency,
+                              )}
+                            </span>
+                          )}
+                      </div>
+                      {product.description && (
+                        // Two lines of the real description: a grid of bare
+                        // titles tells a buyer nothing about the goods.
+                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                          {product.description}
+                        </p>
+                      )}
+                      <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>
+                          {PRODUCT_CONDITION_LABELS[product.condition]}
+                        </span>
+                        {product.location_city && (
+                          <span className="inline-flex items-center gap-0.5">
+                            <MapPin
+                              aria-hidden="true"
+                              className="h-2.5 w-2.5"
+                            />
+                            {product.location_city}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                  {/* Seller contact stays outside the card link: a button
+                      nested inside an anchor is invalid HTML and a mis-tap
+                      opened the product instead of the message box. */}
+                  <div className="border-t border-border px-3 py-2 dark:border-white/10">
+                    <Link
+                      to={`/marketplace/products/${product.id}/?contact=1`}
+                      className="inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-border text-xs font-semibold text-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-primary-foreground"
+                    >
+                      <MessageCircle
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5"
+                      />
+                      {tx("Message seller")}
+                    </Link>
                   </div>
-                </Link>
+                </div>
               );
             })}
           </div>
