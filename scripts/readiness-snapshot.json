@@ -1,0 +1,303 @@
+{
+  "measured_at": "2026-11-13",
+  "source": "market_profiles, estimation_prices, tax_jurisdiction_rules + repository greps",
+  "markets": [
+    {
+      "code": "AE",
+      "currency": "AED",
+      "ui_locale": "en",
+      "price_rows": 55
+    },
+    {
+      "code": "AT",
+      "currency": "EUR",
+      "ui_locale": "de",
+      "price_rows": 17
+    },
+    {
+      "code": "AU",
+      "currency": "AUD",
+      "ui_locale": "en",
+      "price_rows": 57
+    },
+    {
+      "code": "BE",
+      "currency": "EUR",
+      "ui_locale": "nl",
+      "price_rows": 8
+    },
+    {
+      "code": "BR",
+      "currency": "BRL",
+      "ui_locale": "pt",
+      "price_rows": 58
+    },
+    {
+      "code": "CA",
+      "currency": "CAD",
+      "ui_locale": "en",
+      "price_rows": 56
+    },
+    {
+      "code": "CH",
+      "currency": "CHF",
+      "ui_locale": "de",
+      "price_rows": 10
+    },
+    {
+      "code": "CI",
+      "currency": "XOF",
+      "ui_locale": "en",
+      "price_rows": 1
+    },
+    {
+      "code": "CN",
+      "currency": "CNY",
+      "ui_locale": "zh",
+      "price_rows": 48
+    },
+    {
+      "code": "DE",
+      "currency": "EUR",
+      "ui_locale": "de",
+      "price_rows": 61
+    },
+    {
+      "code": "DK",
+      "currency": "DKK",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "EG",
+      "currency": "EGP",
+      "ui_locale": "ar",
+      "price_rows": 12
+    },
+    {
+      "code": "ES",
+      "currency": "EUR",
+      "ui_locale": "es",
+      "price_rows": 9
+    },
+    {
+      "code": "ET",
+      "currency": "ETB",
+      "ui_locale": "en",
+      "price_rows": 0
+    },
+    {
+      "code": "FI",
+      "currency": "EUR",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "FR",
+      "currency": "EUR",
+      "ui_locale": "fr",
+      "price_rows": 56
+    },
+    {
+      "code": "GB",
+      "currency": "GBP",
+      "ui_locale": "en",
+      "price_rows": 64
+    },
+    {
+      "code": "GH",
+      "currency": "GHS",
+      "ui_locale": "en",
+      "price_rows": 56
+    },
+    {
+      "code": "ID",
+      "currency": "IDR",
+      "ui_locale": "id",
+      "price_rows": 56
+    },
+    {
+      "code": "IE",
+      "currency": "EUR",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "IN",
+      "currency": "INR",
+      "ui_locale": "en",
+      "price_rows": 56
+    },
+    {
+      "code": "IT",
+      "currency": "EUR",
+      "ui_locale": "en",
+      "price_rows": 57
+    },
+    {
+      "code": "JP",
+      "currency": "JPY",
+      "ui_locale": "ja",
+      "price_rows": 55
+    },
+    {
+      "code": "KE",
+      "currency": "KES",
+      "ui_locale": "en",
+      "price_rows": 57
+    },
+    {
+      "code": "KR",
+      "currency": "KRW",
+      "ui_locale": "en",
+      "price_rows": 55
+    },
+    {
+      "code": "MX",
+      "currency": "MXN",
+      "ui_locale": "es",
+      "price_rows": 58
+    },
+    {
+      "code": "MY",
+      "currency": "MYR",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "NG",
+      "currency": "NGN",
+      "ui_locale": "en",
+      "price_rows": 56
+    },
+    {
+      "code": "NL",
+      "currency": "EUR",
+      "ui_locale": "nl",
+      "price_rows": 47
+    },
+    {
+      "code": "NO",
+      "currency": "NOK",
+      "ui_locale": "en",
+      "price_rows": 9
+    },
+    {
+      "code": "NZ",
+      "currency": "NZD",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "PH",
+      "currency": "PHP",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "PK",
+      "currency": "PKR",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "PL",
+      "currency": "PLN",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "PT",
+      "currency": "EUR",
+      "ui_locale": "pt",
+      "price_rows": 8
+    },
+    {
+      "code": "SA",
+      "currency": "SAR",
+      "ui_locale": "ar",
+      "price_rows": 55
+    },
+    {
+      "code": "SE",
+      "currency": "SEK",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "SG",
+      "currency": "SGD",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "TH",
+      "currency": "THB",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "TR",
+      "currency": "TRY",
+      "ui_locale": "en",
+      "price_rows": 8
+    },
+    {
+      "code": "TZ",
+      "currency": "TZS",
+      "ui_locale": "en",
+      "price_rows": 1
+    },
+    {
+      "code": "US",
+      "currency": "USD",
+      "ui_locale": "en",
+      "price_rows": 76
+    },
+    {
+      "code": "ZA",
+      "currency": "ZAR",
+      "ui_locale": "en",
+      "price_rows": 60
+    }
+  ],
+  "tax_rule_markets": 1,
+  "chargeable_currencies": [
+    "AED",
+    "AUD",
+    "BRL",
+    "CAD",
+    "CNY",
+    "EGP",
+    "EUR",
+    "GBP",
+    "GHS",
+    "IDR",
+    "INR",
+    "JPY",
+    "KES",
+    "KRW",
+    "MXN",
+    "NGN",
+    "RUB",
+    "RWF",
+    "SAR",
+    "TRY",
+    "TZS",
+    "UGX",
+    "USD",
+    "XOF",
+    "ZAR"
+  ],
+  "sitemap_urls": 2296,
+  "calculator_pages": 45,
+  "admin_routes": 109,
+  "test_cases": 11859,
+  "articles_published": 449,
+  "articles_min_words": 1196,
+  "ceiling_guides": 11,
+  "ceiling_min_words": 2004,
+  "faq_rows": 918,
+  "locales_complete": 6,
+  "locales_total": 13
+}
