@@ -37,6 +37,7 @@ import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import Logo from "@/components/brand/Logo";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { navWorkspaces, siteConfig, type NavChild } from "@/config/site";
+import { groupWorkspaces } from "@/config/navigation";
 import { classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
@@ -65,6 +66,9 @@ export default function Navbar() {
     null,
   );
   const [avatarError, setAvatarError] = useState(false);
+  // Drawer search: with sixty-odd tools, typing the one you want is faster
+  // than opening four accordions on a phone.
+  const [navQuery, setNavQuery] = useState("");
   const location = useLocation();
   const { user, profile, signOut, isPaid } = useAuth();
   const { wallet } = useCredits();
@@ -784,8 +788,13 @@ export default function Navbar() {
           aria-hidden={!mobileOpen}
           tabIndex={-1}
           className={classNames(
-            "surface-sheet absolute left-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
-            mobileOpen ? "translate-x-0" : "-translate-x-full",
+            // Logical anchoring: in Arabic the drawer must enter from the
+            // right edge, not the left one. `start-2` follows the writing
+            // direction, and the closed transform mirrors with it.
+            "surface-sheet absolute start-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
+            mobileOpen
+              ? "translate-x-0"
+              : "ltr:-translate-x-full rtl:translate-x-full",
           )}
         >
           {/* Same architectural backdrop as the hero and footer, held
@@ -879,139 +888,349 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Drawer nav, collapsible sections */}
+            {/* Identity: who you are signed in as, or the way in. A menu that
+                never says whose account it is leaves people guessing on a
+                shared phone. */}
+            <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
+              {user ? (
+                <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/70 p-3 dark:border-white/10 dark:bg-white/5">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-primary-deep text-sm font-semibold text-primary-foreground">
+                    {avatarError || !profile?.avatar_url ? (
+                      <UserCircle
+                        aria-hidden="true"
+                        className="h-5 w-5 opacity-90"
+                      />
+                    ) : (
+                      <img
+                        src={profile.avatar_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-card-foreground">
+                      {profile?.full_name?.trim() ||
+                        profile?.email ||
+                        t("Your account")}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {isPaid ? t("Paid plan") : t("Free plan")}
+                    </p>
+                  </div>
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMobileOpen(false)}
+                    className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-muted/60 dark:text-brand-purple-lighter dark:hover:bg-white/5"
+                  >
+                    {t("My dashboard")}
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-card/70 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/60 dark:border-white/10 dark:bg-white/5 dark:text-foreground"
+                  >
+                    <LogIn aria-hidden="true" className="h-4 w-4" />
+                    {t("Sign in")}
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary-deep text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-95"
+                  >
+                    <User aria-hidden="true" className="h-4 w-4" />
+                    {t("Create account")}
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Search across every workspace, tool and page name. Matches are
+                shown flat with their workspace underneath, so a result is
+                never ambiguous about where it lives. */}
+            <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
+              <label htmlFor="mobile-nav-search" className="sr-only">
+                {t("Search tools and pages")}
+              </label>
+              <div className="relative">
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <input
+                  id="mobile-nav-search"
+                  type="search"
+                  value={navQuery}
+                  onChange={(event) => setNavQuery(event.target.value)}
+                  placeholder={t("Search tools and pages")}
+                  autoComplete="off"
+                  className="h-10 w-full rounded-xl border border-border/60 bg-card/80 pl-9 pr-9 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-brand-purple/50 focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5"
+                />
+                {navQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setNavQuery("")}
+                    aria-label={t("Clear search")}
+                    className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground dark:hover:bg-white/10"
+                  >
+                    <X aria-hidden="true" className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="px-3 py-3">
-              {navWorkspaces.map((workspace) => (
-                <div key={t(workspace.label)} className="mb-0.5">
-                  {workspace.children ? (
-                    <>
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          setMobileExpanded(
-                            mobileExpanded === workspace.label
-                              ? null
-                              : workspace.label,
-                          )
-                        }
-                        className={classNames(
-                          "relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                          location.pathname.startsWith(workspace.path)
-                            ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
-                        )}
-                      >
-                        {t(workspace.label)}
-                        <ChevronDown
-                          className={classNames(
-                            "h-4 w-4 transition-transform duration-200",
-                            mobileExpanded === workspace.label && "rotate-180",
-                          )}
-                        />
-                      </Button>
-                      {mobileExpanded === workspace.label && (
-                        <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                          {groupBySection(workspace.children).map(
-                            (group, gi) => {
-                              const groupKey = `${t(workspace.label)}/${group.section ?? "general"}`;
-                              const renderLinks = (indent: string) =>
-                                group.items.map((child) => (
-                                  <NavLink
-                                    key={child.path}
-                                    to={child.path}
-                                    onClick={() => setMobileOpen(false)}
-                                    className={({ isActive }) =>
-                                      classNames(
-                                        "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                                        indent,
-                                        isActive
-                                          ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                          : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
-                                      )
-                                    }
-                                  >
-                                    <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                                    {getMarketNavigationLabel(
-                                      child.path,
-                                      marketCode,
-                                      child.label,
-                                    )}
-                                  </NavLink>
-                                ));
-                              // No section name (e.g. Services): show the links
-                              // directly. No pointless "More" dropdown.
-                              if (!group.section) {
-                                return (
-                                  <div key={gi} className="mb-1 space-y-0.5">
-                                    {renderLinks("")}
-                                  </div>
-                                );
-                              }
-                              // Named section (Materials & Finishes, Building
-                              // Structure, ...): collapsible dropdown.
-                              return (
-                                <div key={gi} className="mb-1">
-                                  <button
-                                    type="button"
-                                    aria-expanded={
-                                      mobileSubExpanded === groupKey
-                                    }
-                                    onClick={() =>
-                                      setMobileSubExpanded(
-                                        mobileSubExpanded === groupKey
-                                          ? null
-                                          : groupKey,
-                                      )
-                                    }
-                                    className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-1.5 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
-                                  >
-                                    {t(group.section)}
-                                    <ChevronDown
-                                      className={classNames(
-                                        "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
-                                        mobileSubExpanded === groupKey &&
-                                          "rotate-180",
-                                      )}
-                                    />
-                                  </button>
-                                  {mobileSubExpanded === groupKey && (
-                                    <div className="mt-0.5 space-y-0.5 pl-2">
-                                      {renderLinks("")}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            },
-                          )}
-                        </div>
-                      )}
-                    </>
-                  ) : workspace.external ? (
-                    <a
-                      href={workspace.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
-                    >
-                      {t(workspace.label)}
-                    </a>
-                  ) : (
+              {(() => {
+                const query = navQuery.trim().toLowerCase();
+                if (query) {
+                  const matches = navWorkspaces
+                    .filter((workspace) => workspace.path !== "/")
+                    .flatMap((workspace) => [
+                      {
+                        path: workspace.path,
+                        workspace: workspace.label,
+                        label: workspace.label,
+                        description: "",
+                        external: workspace.external,
+                      },
+                      ...(workspace.children ?? []).map((child) => ({
+                        path: child.path,
+                        workspace: workspace.label,
+                        label: child.label,
+                        description: child.description ?? "",
+                        external: false,
+                      })),
+                    ])
+                    .filter((entry) =>
+                      `${entry.label} ${entry.description}`
+                        .toLowerCase()
+                        .includes(query),
+                    )
+                    .slice(0, 24);
+
+                  if (matches.length === 0) {
+                    return (
+                      <div className="px-3 py-6 text-center">
+                        <p className="text-sm font-medium text-card-foreground">
+                          {t("No matches")}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {t("Try a trade, a material or a page name.")}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-0.5">
+                      {matches.map((entry, index) => (
+                        <Link
+                          key={`${entry.path}-${index}`}
+                          to={entry.path}
+                          onClick={() => setMobileOpen(false)}
+                          className="block rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
+                        >
+                          <span className="block text-sm font-medium text-card-foreground">
+                            {getMarketNavigationLabel(
+                              entry.path,
+                              marketCode,
+                              entry.label,
+                            )}
+                          </span>
+                          <span className="block text-xs text-muted-foreground">
+                            {t(entry.workspace)}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  );
+                }
+
+                return (
+                  <>
                     <NavLink
-                      to={workspace.path}
+                      to="/"
+                      onClick={() => setMobileOpen(false)}
                       className={({ isActive }) =>
                         classNames(
-                          "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                          "relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                           isActive
                             ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
                             : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                         )
                       }
                     >
-                      {t(workspace.label)}
+                      <LayoutDashboard
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 opacity-70"
+                      />
+                      {t("Home")}
                     </NavLink>
-                  )}
-                </div>
-              ))}
+
+                    {groupWorkspaces(
+                      navWorkspaces.filter(
+                        (workspace) => workspace.path !== "/",
+                      ),
+                    ).map(({ group, workspaces }) => (
+                      <div key={group.key} className="mt-4 first:mt-2">
+                        <p className="px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
+                          {t(group.label)}
+                        </p>
+                        <p className="mb-1 px-3 text-xs text-muted-foreground">
+                          {t(group.description)}
+                        </p>
+                        {workspaces.map((workspace) => (
+                          <div key={workspace.label} className="mb-0.5">
+                            {workspace.children ? (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  onClick={() =>
+                                    setMobileExpanded(
+                                      mobileExpanded === workspace.label
+                                        ? null
+                                        : workspace.label,
+                                    )
+                                  }
+                                  aria-expanded={
+                                    mobileExpanded === workspace.label
+                                  }
+                                  className={classNames(
+                                    "relative flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                                    location.pathname.startsWith(workspace.path)
+                                      ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                                  )}
+                                >
+                                  <span className="min-w-0 flex-1 truncate text-left">
+                                    {t(workspace.label)}
+                                  </span>
+                                  <ChevronDown
+                                    aria-hidden="true"
+                                    className={classNames(
+                                      "h-4 w-4 shrink-0 transition-transform duration-200",
+                                      mobileExpanded === workspace.label &&
+                                        "rotate-180",
+                                    )}
+                                  />
+                                </Button>
+                                {mobileExpanded === workspace.label && (
+                                  <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
+                                    {groupBySection(workspace.children).map(
+                                      (group, gi) => {
+                                        const groupKey = `${workspace.label}/${group.section ?? "general"}`;
+                                        const renderLinks = () =>
+                                          group.items.map((child) => (
+                                            <NavLink
+                                              key={child.path}
+                                              to={child.path}
+                                              onClick={() =>
+                                                setMobileOpen(false)
+                                              }
+                                              className={({ isActive }) =>
+                                                classNames(
+                                                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                                                  isActive
+                                                    ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                                    : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
+                                                )
+                                              }
+                                            >
+                                              <ChevronRight
+                                                aria-hidden="true"
+                                                className="h-3.5 w-3.5 shrink-0 opacity-50"
+                                              />
+                                              {getMarketNavigationLabel(
+                                                child.path,
+                                                marketCode,
+                                                child.label,
+                                              )}
+                                            </NavLink>
+                                          ));
+                                        if (!group.section) {
+                                          return (
+                                            <div
+                                              key={gi}
+                                              className="mb-1 space-y-0.5"
+                                            >
+                                              {renderLinks()}
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <div key={gi} className="mb-1">
+                                            <button
+                                              type="button"
+                                              aria-expanded={
+                                                mobileSubExpanded === groupKey
+                                              }
+                                              onClick={() =>
+                                                setMobileSubExpanded(
+                                                  mobileSubExpanded === groupKey
+                                                    ? null
+                                                    : groupKey,
+                                                )
+                                              }
+                                              className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
+                                            >
+                                              {t(group.section)}
+                                              <ChevronDown
+                                                aria-hidden="true"
+                                                className={classNames(
+                                                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                                                  mobileSubExpanded ===
+                                                    groupKey && "rotate-180",
+                                                )}
+                                              />
+                                            </button>
+                                            {mobileSubExpanded === groupKey && (
+                                              <div className="mt-0.5 space-y-0.5 pl-2">
+                                                {renderLinks()}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      },
+                                    )}
+                                  </div>
+                                )}
+                              </>
+                            ) : workspace.external ? (
+                              <a
+                                href={workspace.path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                              >
+                                {t(workspace.label)}
+                              </a>
+                            ) : (
+                              <NavLink
+                                to={workspace.path}
+                                onClick={() => setMobileOpen(false)}
+                                className={({ isActive }) =>
+                                  classNames(
+                                    "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                                    isActive
+                                      ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                                  )
+                                }
+                              >
+                                {t(workspace.label)}
+                              </NavLink>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </>
+                );
+              })()}
 
               {/* Display and accessibility controls live in the hamburger menu */}
               <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
@@ -1058,6 +1277,21 @@ export default function Navbar() {
                 </div>
               </div>
 
+              {user && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={async () => {
+                    setMobileOpen(false);
+                    await signOut();
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                >
+                  <LogOut aria-hidden="true" className="h-4 w-4" />
+                  <span>{t("Sign out")}</span>
+                </Button>
+              )}
+
               {/* Email contact */}
               <a
                 href={`mailto:${siteConfig.email}`}
@@ -1080,14 +1314,14 @@ export default function Navbar() {
                     <Link
                       to="/rewards/"
                       onClick={() => setMobileOpen(false)}
-                      className="ml-auto text-[11px] font-medium text-brand-purple dark:text-brand-purple-lighter"
+                      className="ml-auto text-xs font-medium text-brand-purple dark:text-brand-purple-lighter"
                     >
                       Manage →
                     </Link>
                   </div>
                   <div className="mt-2.5 flex items-center justify-between gap-2">
                     <div className="flex flex-col">
-                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Available
                       </span>
                       <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
@@ -1100,7 +1334,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex flex-col transition-opacity hover:opacity-70"
                     >
-                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Total Owned
                       </span>
                       <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
@@ -1113,7 +1347,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex flex-col transition-opacity hover:opacity-70"
                     >
-                      <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         Plan
                       </span>
                       <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">

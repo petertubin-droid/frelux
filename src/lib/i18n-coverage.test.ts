@@ -11,6 +11,7 @@ import {
 } from "@/lib/i18n-coverage";
 import { LANGUAGES, translations } from "@/lib/i18n";
 import { INDEXABLE_LOCALES } from "@/lib/translation-index";
+import navLabelGaps from "@/lib/i18n/nav-label-gaps.json";
 
 const TARGET_LOCALES = [
   "es",
@@ -165,6 +166,47 @@ describe("indexing gate", () => {
   it("keeps every target locale in the complete set", () => {
     for (const locale of TARGET_LOCALES) {
       expect(CHROME_COMPLETE_LOCALES).toContain(locale);
+    }
+  });
+});
+
+describe("navigation label backlog", () => {
+  // Chinese, Japanese and Russian carry the new navigation and admin labels as
+  // their English source until a translator fills them in. Recording the exact
+  // list keeps the gap countable and stops it from quietly growing: any other
+  // untranslated string in any locale fails here.
+  const pending = navLabelGaps as Record<string, string[]>;
+
+  it("declares every locale that still shows English labels", () => {
+    for (const locale of Object.keys(pending)) {
+      expect(TARGET_LOCALES).toContain(locale);
+    }
+  });
+
+  it("pins only the declared labels to English", () => {
+    // Only the labels in this catalog are judged; proper nouns such as
+    // "Ghana (GH)" and identifiers such as paper sizes read the same in every
+    // language by design.
+    const catalog = new Set(Object.values(pending).flat());
+    // Words that are spelled the same in the target language: "Structure" is
+    // the French word for structure, not an untranslated label.
+    const SAME_SPELLING = new Set(["Structure", "Admin"]);
+    for (const language of TARGET_LOCALES) {
+      const declared = [...(pending[language] ?? [])].sort();
+      const dictionary = GENERATED_DICTIONARIES[language];
+      const untranslated = Object.entries(dictionary)
+        .filter(
+          ([key, value]) =>
+            value === key &&
+            catalog.has(key) &&
+            !(SAME_SPELLING.has(key) && !declared.includes(key)),
+        )
+        .map(([key]) => key)
+        .sort();
+      expect(
+        untranslated,
+        `${language} shows English labels that are not declared`,
+      ).toEqual(declared);
     }
   });
 });

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -50,7 +56,12 @@ describe("Navbar", () => {
     const drawer = await screen.findByRole("dialog", {
       name: "FRELUX navigation menu",
     });
-    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Close menu"));
+    await waitFor(() =>
+      expect(document.activeElement).toHaveAttribute(
+        "aria-label",
+        "Close menu",
+      ),
+    );
     expect(drawer).not.toHaveProperty("inert", true);
     const focusable = drawer.querySelectorAll<HTMLElement>(
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
@@ -61,9 +72,45 @@ describe("Navbar", () => {
     expect(document.activeElement).toBe(focusable[0]);
 
     fireEvent.keyDown(document, { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("dialog", { name: "FRELUX navigation menu" })).toBeNull());
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "FRELUX navigation menu" }),
+      ).toBeNull(),
+    );
     await waitFor(() => expect(trigger).toHaveFocus());
     expect(drawer).toHaveProperty("inert", true);
+  });
+
+  it("filters the menu by what the visitor types", async () => {
+    await renderNavbar();
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    const search = within(drawer).getByRole("searchbox", {
+      name: "Search tools and pages",
+    });
+    fireEvent.change(search, { target: { value: "unit conv" } });
+    const hit = await within(drawer).findByRole("link", {
+      name: /Unit Converter/i,
+    });
+    expect(hit).toHaveAttribute("href", "/unit-converter");
+    // A page that does not match is gone rather than merely dimmed.
+    expect(within(drawer).queryByRole("link", { name: "Learn" })).toBeNull();
+
+    fireEvent.change(search, { target: { value: "zzzzz" } });
+    expect(within(drawer).getByText("No matches")).toBeInTheDocument();
+  });
+
+  it("names both sections of the menu so a search result has a home", async () => {
+    await renderNavbar();
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    expect(within(drawer).getByText("Estimate & build")).toBeInTheDocument();
+    expect(within(drawer).getByText("Explore & trade")).toBeInTheDocument();
+    expect(within(drawer).getByText("Manage & learn")).toBeInTheDocument();
   });
 
   it("includes the roadmap in the Learn navigation menu", async () => {
@@ -73,7 +120,9 @@ describe("Navbar", () => {
       name: "FRELUX navigation menu",
     });
     fireEvent.click(within(drawer).getByRole("button", { name: "Learn" }));
-    expect(await within(drawer).findByRole("link", { name: "Roadmap" })).toHaveAttribute("href", "/roadmap");
+    expect(
+      await within(drawer).findByRole("link", { name: "Roadmap" }),
+    ).toHaveAttribute("href", "/roadmap");
   });
 
   it("includes header container for ad-free prompt notices", async () => {

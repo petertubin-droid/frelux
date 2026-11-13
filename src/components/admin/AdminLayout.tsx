@@ -818,12 +818,12 @@ function SidebarContent({
                 type="button"
                 onClick={() => toggleCollapsed(module.heading)}
                 aria-expanded={isOpen}
-                aria-label={`Toggle ${module.heading} section`}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
+                aria-label={`${t("Toggle section")}: ${t(module.heading)}`}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
               >
-                <span>{module.heading}</span>
+                <span>{t(module.heading)}</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-semibold text-muted-foreground/50">
+                  <span className="text-xs font-semibold text-muted-foreground/50">
                     {module.items.length}
                   </span>
                   <ChevronDown
@@ -844,8 +844,8 @@ function SidebarContent({
                   return (
                     <div key={item.to}>
                       {showGroup && (
-                        <p className="mt-2 px-3 pb-0.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                          {item.group}
+                        <p className="mt-2 px-3 pb-0.5 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                          {t(item.group ?? "")}
                         </p>
                       )}
                       <NavLink
@@ -862,7 +862,7 @@ function SidebarContent({
                         }
                       >
                         <Icon className="h-4 w-4 shrink-0" />
-                        {item.label}
+                        {t(item.label)}
                       </NavLink>
                     </div>
                   );
