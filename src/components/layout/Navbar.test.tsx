@@ -81,6 +81,31 @@ describe("Navbar", () => {
     expect(drawer).toHaveProperty("inert", true);
   });
 
+  it("opens a profile menu with identity, balance and sections", async () => {
+    const { useAuth } = await import("@/lib/auth");
+    (
+      useAuth as unknown as { mockReturnValue: (v: unknown) => void }
+    ).mockReturnValue({
+      user: { email: "ada@example.com" },
+      profile: { full_name: "Ada Obi" },
+      loading: false,
+      isPaid: true,
+      signOut: vi.fn(),
+    });
+    await renderNavbar();
+    fireEvent.click(screen.getByRole("button", { name: "Account menu" }));
+    const menu = await screen.findByRole("menu", { name: "Your account" });
+    expect(within(menu).getByText("Ada Obi")).toBeInTheDocument();
+    expect(within(menu).getByText("ada@example.com")).toBeInTheDocument();
+    expect(within(menu).getByText("Paid plan")).toBeInTheDocument();
+    expect(within(menu).getByText("Credits")).toBeInTheDocument();
+    expect(within(menu).getByText("Total Owned")).toBeInTheDocument();
+    expect(within(menu).getByText("Business")).toBeInTheDocument();
+    expect(
+      within(menu).getByRole("button", { name: "Sign out" }),
+    ).toBeInTheDocument();
+  });
+
   it("filters the menu by what the visitor types", async () => {
     await renderNavbar();
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));

@@ -183,7 +183,7 @@ export default function Navbar() {
 
   const accountMenuSections = [
     {
-      section: "Account",
+      section: "Your account",
       items: [
         { label: "My Profile", to: "/profile", icon: UserCircle },
         { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -527,7 +527,7 @@ export default function Navbar() {
                   setOpenDropdown(openDropdown === "account" ? null : "account")
                 }
                 className={classNames(
-                  "inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-card-foreground active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60",
+                  "inline-flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground ring-1 ring-transparent transition-all hover:bg-muted hover:text-card-foreground hover:ring-border/60 active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:ring-white/15 dark:hover:text-muted-foreground/60",
                   openDropdown === "account" &&
                     "bg-muted text-brand-purple dark:bg-white/5 dark:text-brand-purple-lighter",
                 )}
@@ -538,11 +538,11 @@ export default function Navbar() {
                   <img
                     src={profile.avatar_url}
                     alt=""
-                    className="h-7 w-7 rounded-full object-cover"
+                    className="h-8 w-8 rounded-full object-cover ring-1 ring-border/50 dark:ring-white/15"
                     onError={() => setAvatarError(true)}
                   />
                 ) : user ? (
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-[13px] font-bold text-primary-foreground">
                     {(profile?.full_name?.charAt(0) || (user.email ?? "?"))
                       .charAt(0)
                       .toUpperCase()}
@@ -554,27 +554,30 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="surface-float absolute right-0 top-full z-50 mt-2 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-[22px] animate-fade-in-up"
+                  role="menu"
+                  aria-label={user ? t("Your account") : t("Sign In")}
+                  className="surface-float absolute right-0 top-full z-50 mt-3 max-h-[calc(100vh-6rem)] w-[352px] max-w-[calc(100vw-1.5rem)] overflow-y-auto overscroll-contain rounded-[26px] border border-border/50 shadow-[0_28px_70px_-28px_rgba(15,23,42,0.45)] animate-fade-in-up dark:border-white/10"
                   style={{
-                    animationDuration: "0.18s",
+                    animationDuration: "0.2s",
                     transformOrigin: "top right",
                   }}
                 >
                   {user ? (
                     <>
-                      {/* Compact profile header */}
-                      <div className="relative overflow-hidden rounded-t-xl px-3 pt-3 pb-2.5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent dark:from-primary/15" />
-                        <div className="relative flex items-center gap-2.5">
+                      {/* Identity. Large avatar, readable name, plan stated once
+                          here instead of repeated in three places. */}
+                      <div className="relative overflow-hidden rounded-t-[26px] px-5 pb-5 pt-6">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/12 via-primary/5 to-transparent dark:from-primary/20 dark:via-primary/5" />
+                        <div className="relative flex items-center gap-4">
                           {profile?.avatar_url && !avatarError ? (
                             <img
                               src={profile.avatar_url}
                               alt=""
-                              className="h-8 w-8 rounded-full object-cover ring-1 ring-border/40 shadow-sm dark:ring-white/15"
+                              className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-white shadow-md dark:ring-white/15"
                               onError={() => setAvatarError(true)}
                             />
                           ) : (
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-xs font-bold text-primary-foreground shadow-sm">
+                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-lg font-bold text-primary-foreground shadow-md">
                               {(
                                 profile?.full_name?.charAt(0) ||
                                 (user.email ?? "?")
@@ -584,106 +587,85 @@ export default function Navbar() {
                             </span>
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-semibold text-foreground truncate">
+                            <p className="truncate text-[15px] font-semibold leading-tight text-foreground">
                               {profile?.full_name || user.email?.split("@")[0]}
                             </p>
-                            <p className="text-[11px] text-muted-foreground truncate">
+                            <p className="mt-0.5 truncate text-xs text-muted-foreground">
                               {user.email}
                             </p>
-                          </div>
-                        </div>
-                        {isPaid && (
-                          <div className="relative mt-2">
-                            <PremiumBadge size="xs" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* AI Credits balance, compact */}
-                      <div className="px-2.5 pb-2">
-                        <div className="rounded-lg border border-border/40 bg-muted/30 px-2.5 py-2 dark:border-white/5 dark:bg-white/5">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1.5">
-                              <span className="flex h-5 w-5 items-center justify-center rounded bg-primary text-primary-foreground">
-                                <Bot className="h-3 w-3" />
-                              </span>
-                              <span className="text-[11px] font-semibold text-muted-foreground">
-                                Credits
-                              </span>
-                            </div>
-                            <Link
-                              to="/rewards/"
-                              onClick={() => setOpenDropdown(null)}
-                              className="text-[11px] font-medium text-brand-purple hover:opacity-70 dark:text-brand-purple-lighter"
-                            >
-                              →
-                            </Link>
-                          </div>
-                          <div className="mt-1.5 flex items-baseline justify-between">
-                            <span className="text-lg font-bold tracking-tight text-foreground">
-                              {wallet?.balance ?? 0}
-                            </span>
-                            <span className="text-[11px] font-medium text-muted-foreground">
-                              {wallet?.total_earned ?? 0} earned
+                            <span className="mt-2 inline-flex items-center rounded-full border border-brand-purple/20 bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-brand-purple dark:border-white/10 dark:bg-white/10 dark:text-brand-purple-lighter">
+                              {isPaid ? t("Paid plan") : t("Free plan")}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Plan strip, compact */}
-                      <div className="flex items-center justify-between gap-1 border-y border-border/40 bg-muted/20 px-2.5 py-1.5 dark:border-white/5 dark:bg-white/3">
-                        <Link
-                          to="/dashboard/"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
-                        >
-                          <span className="text-[11px] font-bold text-brand-purple dark:text-brand-purple-lighter">
-                            {isPaid ? "Premium" : "Free"}
-                          </span>
-                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                            Plan
-                          </span>
-                        </Link>
-                        <div className="h-6 w-px bg-border dark:bg-white/10" />
+                      {/* Balance. The single number people open this panel for,
+                          given the room it deserves. */}
+                      <div className="px-3 pb-3">
                         <Link
                           to="/rewards/"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
+                          className="group flex items-center justify-between rounded-2xl border border-border/50 bg-card/70 px-4 py-3 transition-colors hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20"
                         >
-                          <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                            {wallet?.total_earned ?? 0}
-                          </span>
-                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                            Earned
-                          </span>
-                        </Link>
-                        <div className="h-6 w-px bg-border dark:bg-white/10" />
-                        <Link
-                          to="/pricing/"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
-                        >
-                          <span className="text-[11px] font-bold text-muted-foreground">
-                            {wallet?.total_spent ?? 0}
-                          </span>
-                          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                            Spent
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              {t("Credits")}
+                            </p>
+                            <p className="mt-0.5 text-2xl font-bold leading-none tracking-tight text-foreground">
+                              {wallet?.balance ?? 0}
+                            </p>
+                          </div>
+                          <span className="flex items-center gap-1 text-xs font-semibold text-brand-purple transition-transform group-hover:translate-x-0.5 dark:text-brand-purple-lighter">
+                            {t("Manage")}
+                            <ChevronRight
+                              aria-hidden="true"
+                              className="h-4 w-4"
+                            />
                           </span>
                         </Link>
                       </div>
 
-                      {/* Menu sections, compact */}
-                      <div
-                        className="max-h-[min(40vh,240px)] overflow-y-auto nav-scroll px-1.5 py-1"
-                        style={{ scrollbarWidth: "thin" }}
-                      >
+                      {/* Three facts, wide enough to read. */}
+                      <div className="mx-3 mb-2 grid grid-cols-2 gap-2">
+                        <Link
+                          to="/rewards/"
+                          onClick={() => setOpenDropdown(null)}
+                          className="rounded-xl bg-muted/40 px-2 py-2.5 text-center transition-colors hover:bg-muted/70 dark:bg-white/5 dark:hover:bg-white/10"
+                        >
+                          <span className="block text-sm font-bold text-foreground">
+                            {wallet?.total_earned ?? 0}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            {t("Total Owned")}
+                          </span>
+                        </Link>
+                        <Link
+                          to="/dashboard/"
+                          onClick={() => setOpenDropdown(null)}
+                          className="rounded-xl bg-muted/40 px-2 py-2.5 text-center transition-colors hover:bg-muted/70 dark:bg-white/5 dark:hover:bg-white/10"
+                        >
+                          <span className="block truncate text-sm font-bold text-foreground">
+                            {isPaid ? "Premium" : t("Free")}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            {t("Plan")}
+                          </span>
+                        </Link>
+                      </div>
+
+                      {/* Destinations. Comfortable rows, 18px icons, section
+                          labels that read as labels rather than fine print. */}
+                      <div className="px-3 pb-2">
                         {accountMenuSections.map((section, si) => (
                           <div key={section.section}>
-                            {si > 0 && (
-                              <div className="mx-1.5 my-1 border-t border-border/40 dark:border-white/5" />
-                            )}
-                            <p className="px-2 pb-0.5 pt-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                              {section.section}
+                            <p
+                              className={classNames(
+                                "px-2 pb-1 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground/70",
+                                si === 0 ? "pt-1" : "pt-4",
+                              )}
+                            >
+                              {t(section.section)}
                             </p>
                             {section.items.map((item) => {
                               const Icon = item.icon;
@@ -698,10 +680,18 @@ export default function Navbar() {
                                       : undefined
                                   }
                                   onClick={() => setOpenDropdown(null)}
-                                  className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                  role="menuitem"
+                                  className="group flex h-10 items-center gap-3 rounded-xl px-2.5 text-[13px] font-medium text-card-foreground transition-colors hover:bg-primary/8 hover:text-brand-purple focus-visible:bg-primary/8 focus-visible:outline-none dark:text-muted-foreground dark:hover:bg-white/8 dark:hover:text-brand-purple-lighter"
                                 >
-                                  <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter" />
-                                  {t(item.label)}
+                                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground transition-colors group-hover:bg-primary/12 group-hover:text-brand-purple dark:bg-white/5 dark:group-hover:bg-white/10 dark:group-hover:text-brand-purple-lighter">
+                                    <Icon
+                                      aria-hidden="true"
+                                      className="h-[18px] w-[18px]"
+                                    />
+                                  </span>
+                                  <span className="min-w-0 flex-1 truncate">
+                                    {t(item.label)}
+                                  </span>
                                 </Link>
                               );
                             })}
@@ -709,8 +699,8 @@ export default function Navbar() {
                         ))}
                       </div>
 
-                      {/* Sign out footer, compact */}
-                      <div className="border-t border-border/40 px-1.5 py-1.5 dark:border-white/5">
+                      {/* Footer action, given its own space. */}
+                      <div className="border-t border-border/50 p-2 dark:border-white/5">
                         <Button
                           variant="ghost"
                           type="button"
@@ -718,41 +708,48 @@ export default function Navbar() {
                             signOut();
                             setOpenDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                          className="flex h-10 w-full items-center gap-3 rounded-xl px-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                         >
-                          <LogOut className="h-3.5 w-3.5 shrink-0" />
-                          Sign Out
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/60 dark:bg-white/5">
+                            <LogOut
+                              aria-hidden="true"
+                              className="h-[18px] w-[18px]"
+                            />
+                          </span>
+                          {t("Sign out")}
                         </Button>
                       </div>
                     </>
                   ) : (
-                    <div className="py-1.5">
-                      <div className="px-2.5 py-1.5 pb-2">
-                        <p className="text-xs font-semibold text-card-foreground">
-                          Welcome to FRELUX
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          Sign in for projects, estimates & rewards.
-                        </p>
-                      </div>
-                      <div className="px-1.5">
-                        <Link
-                          to="/login/"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex items-center gap-2 rounded-md bg-primary/5 px-2 py-1.5 text-[11px] font-semibold text-brand-purple transition-colors hover:bg-primary/10 dark:bg-primary/10 dark:text-brand-purple-lighter"
-                        >
-                          <LogIn className="h-3.5 w-3.5 shrink-0" />
-                          Sign In
-                        </Link>
-                        <Link
-                          to="/login/?mode=signup"
-                          onClick={() => setOpenDropdown(null)}
-                          className="mt-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
-                        >
-                          <User className="h-3.5 w-3.5 shrink-0" />
-                          Create Account
-                        </Link>
-                      </div>
+                    <div className="p-5">
+                      <p className="text-base font-semibold text-foreground">
+                        {t("Welcome to FRELUX")}
+                      </p>
+                      <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                        {t("Sign in for projects, estimates & rewards.")}
+                      </p>
+                      <Link
+                        to="/login/"
+                        onClick={() => setOpenDropdown(null)}
+                        className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-deep text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-95"
+                      >
+                        <LogIn
+                          aria-hidden="true"
+                          className="h-[18px] w-[18px]"
+                        />
+                        {t("Sign In")}
+                      </Link>
+                      <Link
+                        to="/login/?mode=signup"
+                        onClick={() => setOpenDropdown(null)}
+                        className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border/60 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/60 dark:border-white/10 dark:text-muted-foreground"
+                      >
+                        <User
+                          aria-hidden="true"
+                          className="h-[18px] w-[18px]"
+                        />
+                        {t("Create account")}
+                      </Link>
                     </div>
                   )}
                 </div>
