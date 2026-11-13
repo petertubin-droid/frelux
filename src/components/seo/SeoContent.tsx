@@ -160,6 +160,72 @@ export function PopCeilingCalculatorSeo(): ReactNode {
         plumbing, and adds aesthetic value to your home. Using the calculator
         ensures you order the right quantity of materials and avoid wastage.
       </p>
+
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+        {t("Polystyrene Ceilings: Boards, Thickness and Installation")}
+      </h2>
+      <p>
+        The second system in the calculator is a polystyrene ceiling, built from
+        high-density expanded polystyrene foam boards. It is specified by board
+        size and thickness rather than by a plaster mix, and it is measured the
+        same way: flat area first, then the vertical faces of every tray drop
+        and step riser, then cornice by the running metre.
+      </p>
+      <p>
+        Two board sizes cover almost every supplier: 1.2 m × 2.4 m, which covers
+        2.88 m² and is the retail default, and 1.2 m × 3.0 m, which covers 3.60
+        m² and is sold for larger commercial and residential jobs. Both come in
+        20 mm, 25 mm and 30 mm. Thicker board holds a step edge better and
+        insulates more, and costs more per sheet; 20 mm is a budget flat
+        ceiling, 25 mm is the residential standard, and 30 mm is for stepped and
+        coffered work where the board edge is visible.
+      </p>
+      <p>
+        Three installation methods change the fasteners and framing, so the
+        calculator switches the bill of materials with them. Direct bonding
+        glues the board to a clean, dry concrete soffit with polyurethane foam
+        adhesive, Top Bond or a POP cement and soaked fibre slurry, which suits
+        ground and middle floors. A timber or metal frame fixed at 600 mm
+        centres beneath roof trusses is the standard detail for bungalows and
+        top floors. A wire-suspended drop hangs the boards lower on galvanised
+        binding wire anchored into a high slab, leaving room for concealed pipes
+        and multi-level designs.
+      </p>
+
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+        {t("Wastage, Joints and Finishing")}
+      </h2>
+      <p>
+        Board is bought whole, so wastage follows the design: 10% for a plain
+        flat ceiling, 15% for a tray or step, 20% for coffered or panelled work
+        and 25% for curved or circular designs, because a curve cannot follow a
+        straight board edge. Joint length is not a guess either. A board laid in
+        a regular pattern produces one joint per board width plus one per board
+        length, which is 1.25 m of seam per square metre for a 1.2 m × 2.4 m
+        board: a 20 m² room needs about 25 m of mesh tape or soaked filas, not
+        the 70 m a rough allowance would order.
+      </p>
+      <p>
+        Finishing is water-based only. Fill and sand the seams, then apply
+        emulsion or satin paint. Never use solvent, gloss or oil-based paint on
+        polystyrene, because the solvent dissolves the foam. Where the ceiling
+        is part of a fire-resisting element, specify a fire-retardant board with
+        a stated Euroclass (EN 13163 is the European product standard) or ASTM
+        C578 classification in the United States, and follow the local building
+        code rather than the supplier's brochure.
+      </p>
+
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+        {t("Prices Are Yours, Quantities Are Not")}
+      </h2>
+      <p>
+        Board, adhesive, cornice and labour rates move between states, suppliers
+        and seasons, so the calculator locks the quantities to your measurement
+        and lets you enter the unit price you were actually quoted. Changing a
+        price changes the cost and never the take-off. Your entered prices are
+        kept for your market, so returning to the tool does not mean retyping
+        them.
+      </p>
     </SeoContent>
   );
 }

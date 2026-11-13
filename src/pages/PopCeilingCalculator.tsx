@@ -28,6 +28,7 @@ import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import PolystyreneCeilingPanel from "@/components/calculators/PolystyreneCeilingPanel";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -121,15 +122,17 @@ export default function PopCeilingCalculator({
     setErrors({});
     setSaveMsg("");
     setResult(null);
+    setCeilingSystem("plaster");
+    setPsResetSignal((n) => n + 1);
   };
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling");
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
     !embedded
       ? {
-          title: "POP Ceiling Calculator: How Much POP Cement Do I Need?",
+          title: "POP Ceiling Calculator: POP Cement and Polystyrene Boards",
           description:
-            "Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for Nigerian and international POP ceiling workflows.",
+            "Free POP ceiling calculator for plaster of Paris and polystyrene board ceilings. Enter room dimensions to get ceiling area, boards, cement, adhesive, fixings and labour, priced in your own market.",
           canonicalPath: "/pop-ceiling-calculator",
           ogType: "website",
           keywords:
@@ -213,6 +216,17 @@ export default function PopCeilingCalculator({
   const engine = useEngineFeatures({ calculatorType: "pop_ceiling" });
   const [alreadyHave, setAlreadyHave] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Which ceiling system the visitor is estimating. Plaster is the original
+  // questionnaire; polystyrene is a board take-off with its own panel.
+  const [ceilingSystem, setCeilingSystem] = useState<"plaster" | "polystyrene">(
+    "plaster",
+  );
+  const [psResetSignal, setPsResetSignal] = useState(0);
+  const [psState, setPsState] = useState<Record<string, unknown>>({});
+  const [psTemplate, setPsTemplate] = useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [psTemplateNonce, setPsTemplateNonce] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
@@ -242,9 +256,18 @@ export default function PopCeilingCalculator({
 
   const { templateData: loadedTemplate } = useTemplateLoader();
   useEffect(() => {
-    if (loadedTemplate?.input_data) {
-      setInput(loadedTemplate.input_data as unknown as PopCalcInput);
+    const data = loadedTemplate?.input_data as
+      Record<string, unknown> | undefined;
+    if (!data) return;
+    if (data.system === "polystyrene") {
+      // A board template opened from a link or the template library: show the
+      // board panel rather than feeding board inputs to the plaster form.
+      setCeilingSystem("polystyrene");
+      setPsTemplate(data);
+      setPsTemplateNonce((n) => n + 1);
+      return;
     }
+    setInput(data as unknown as PopCalcInput);
   }, [loadedTemplate]);
 
   const currencySymbol = settings?.default_currency_symbol ?? "₦";
@@ -366,17 +389,96 @@ export default function PopCeilingCalculator({
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <LoadTemplateButton
           calculatorType="pop"
-          onLoad={(t) => setInput(t.input_data as unknown as PopCalcInput)}
+          onLoad={(t) => {
+            const data = t.input_data as Record<string, unknown>;
+            if (data?.system === "polystyrene") {
+              // A board take-off saved as a pop template opens in the board
+              // panel rather than being fed to the plaster questionnaire.
+              setCeilingSystem("polystyrene");
+              setPsTemplate(data);
+              setPsTemplateNonce((n) => n + 1);
+              return;
+            }
+            setCeilingSystem("plaster");
+            setInput(data as unknown as PopCalcInput);
+          }}
         />
         <CalculatorResetButton onReset={resetInputs} />
         <SaveTemplateButton
           calculatorType="pop"
-          inputData={input as unknown as Record<string, unknown>}
-          defaultName={`${input.roomLength}×${input.roomWidth} POP`}
+          inputData={
+            ceilingSystem === "polystyrene"
+              ? psState
+              : (input as unknown as Record<string, unknown>)
+          }
+          defaultName={
+            ceilingSystem === "polystyrene"
+              ? `${psState.length ?? 0}×${psState.width ?? 0} PS ceiling`
+              : `${input.roomLength}×${input.roomWidth} POP`
+          }
         />
       </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        {!result && (
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {tx("Ceiling system")}
+          </h2>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setCeilingSystem("plaster")}
+              aria-pressed={ceilingSystem === "plaster"}
+              className={
+                "rounded-xl border p-3 text-left transition-colors " +
+                (ceilingSystem === "plaster"
+                  ? "border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                  : "border-border hover:border-brand-purple/40")
+              }
+            >
+              <span className="block text-sm font-semibold text-foreground">
+                Plaster of Paris (POP cement)
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Gypsum skim over a concrete soffit, priced from the POP material
+                book
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCeilingSystem("polystyrene")}
+              aria-pressed={ceilingSystem === "polystyrene"}
+              className={
+                "rounded-xl border p-3 text-left transition-colors " +
+                (ceilingSystem === "polystyrene"
+                  ? "border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                  : "border-border hover:border-brand-purple/40")
+              }
+            >
+              <span className="block text-sm font-semibold text-foreground">
+                Polystyrene boards (PS ceiling)
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                High-density foam boards, 20-30 mm, bonded or suspended
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {!result && ceilingSystem === "polystyrene" && (
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+            <PolystyreneCeilingPanel
+              currency={currency}
+              currencySymbol={currencySymbol}
+              marketCode={market?.marketCode}
+              onResetSignal={psResetSignal}
+              onStateChange={setPsState}
+              templateData={psTemplate}
+              templateNonce={psTemplateNonce}
+            />
+          </div>
+        )}
+
+        {!result && ceilingSystem === "plaster" && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
             <div className="mb-5">
               <MeasurementTip what="measurement unit and room dimensions" />
@@ -599,6 +701,49 @@ export default function PopCeilingCalculator({
                   "What is the difference between Nigerian and international POP workflows?",
                 answer:
                   "The Nigerian workflow uses specific local materials and techniques, while the international workflow follows standard gypsum board methods. The calculator supports both.",
+              },
+              {
+                question:
+                  "What is a polystyrene ceiling and how is it different from POP?",
+                answer:
+                  "A polystyrene ceiling is built from high-density expanded polystyrene foam boards, usually 20 mm to 30 mm thick, bonded to a concrete soffit or fixed to a timber or metal grid. Traditional POP is a gypsum plaster skim over that soffit. Polystyrene is lighter, goes up faster, needs no wet plastering, and insulates better, while POP gives a seamless sculpted finish. The calculator estimates both, so you can compare the same room either way.",
+              },
+              {
+                question: "What sizes do polystyrene ceiling boards come in?",
+                answer:
+                  "Two sizes cover almost every supplier: 1.2 m x 2.4 m (4 ft x 8 ft), which covers 2.88 m² per board and is the retail default, and 1.2 m x 3.0 m, which covers 3.60 m² and is sold for larger commercial and residential work. Both are stocked in 20 mm, 25 mm and 30 mm thicknesses. Pick the size your supplier actually holds, because the board count and the seam length both change with it.",
+              },
+              {
+                question: "How many boards do I need for a 20 m² ceiling?",
+                answer:
+                  "For a 5 m x 4 m room at 20 m², 1.2 m x 2.4 m boards at 2.88 m² each, and the 10% wastage a flat design needs, you need 22 m² of board, which is 8 boards. Dropped steps add their vertical faces to the measured area, so a stepped design of the same room typically takes 9 or 10 boards. The calculator does this in one step and shows the wastage separately.",
+              },
+              {
+                question:
+                  "Which adhesive should be used to fix polystyrene boards?",
+                answer:
+                  "Direct bonding uses a polyurethane foam adhesive, Top Bond, or a POP cement and soaked fibre slurry applied to a clean, dry concrete soffit. One 750 ml foam can bonds roughly 10 m² at bead spacing, so a 20 m² room needs two cans. On a timber or metal frame the boards are spot-bonded and screwed, which uses far less adhesive because the screws carry the board.",
+              },
+              {
+                question:
+                  "Can polystyrene ceiling boards be suspended rather than glued?",
+                answer:
+                  "Yes, and it is the standard detail on bungalows and top floors under roof trusses. Treated timber battens or galvanised channels are fixed at 600 mm centres both ways, then the boards are bonded and screwed to the frame. A wire-suspended drop hangs the same boards lower, on galvanised binding wire hangers anchored into a concrete slab, which leaves room for concealed wiring and multi-level designs.",
+              },
+              {
+                question: "How much extra board should I allow for waste?",
+                answer:
+                  "Ten percent for a plain flat ceiling, fifteen percent for a tray or stepped design, twenty percent for coffered or panelled work, and twenty-five percent for curved or circular designs. A curve cannot follow a straight board edge, so offcuts climb quickly; a flat room only loses a perimeter strip. The calculator applies the figure that matches the design you select and shows the extra area it added.",
+              },
+              {
+                question: "Can I paint a polystyrene ceiling?",
+                answer:
+                  "Yes, with water-based emulsion or satin only. Never use solvent, gloss or oil-based paint on polystyrene, because the solvent dissolves the foam and the board collapses. Fill and sand the seams first, then apply two coats of emulsion at roughly one litre per five square metres per coat.",
+              },
+              {
+                question: "Does a polystyrene ceiling meet fire requirements?",
+                answer:
+                  "Specify a fire-retardant grade and check what the board's datasheet actually claims. Expanded polystyrene is tested to EN 13163 in Europe and to ASTM C578 in the United States, and fire performance is a separate classification on top of that, usually quoted as a Euroclass or a B1 rating. Polystyrene melts and gives off smoke when it burns, so it belongs behind a plaster skim or under a rated board where a ceiling is part of a fire-resisting element, and the specification should follow the local building code rather than the supplier's brochure.",
               },
             ]}
           />

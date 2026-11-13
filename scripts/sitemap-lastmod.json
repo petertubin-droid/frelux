@@ -1344,7 +1344,7 @@
     "hash": "81489cfe17f91fda"
   },
   "/learn/build-in-nigeria-from-abroad": {
-    "lastmod": "2026-11-13",
+    "lastmod": "2026-11-10",
     "hash": "c0f7f8f5ad5f9f98"
   },
   "/learn/building-in-the-rainy-season": {
@@ -3185,7 +3185,7 @@
   },
   "/market/ae/templates": {
     "lastmod": "2026-11-13",
-    "hash": "0425fbb637263ef2"
+    "hash": "33f52b5bd4dc26ac"
   },
   "/market/ae/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -3247,6 +3247,10 @@
     "lastmod": "2026-11-13",
     "hash": "385d23ec4e9d9e73"
   },
+  "/market/ae/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "706e2a549cbf7759"
+  },
   "/market/ae/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "9a80c98d68d52476"
@@ -3270,6 +3274,10 @@
   "/market/ae/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "32345bc47a4f5dc9"
+  },
+  "/market/ae/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "0aff14dc9a974b05"
   },
   "/market/ae/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3315,6 +3323,10 @@
     "lastmod": "2026-11-13",
     "hash": "7b6ccc54b96f3d71"
   },
+  "/market/ae/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "642d0c975ef9f246"
+  },
   "/market/ae/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "02724eaf09cda87b"
@@ -3322,6 +3334,10 @@
   "/market/ae/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "d2f3e10d6c13b6a8"
+  },
+  "/market/ae/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "435c8f6a5489cabd"
   },
   "/market/ae/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3353,7 +3369,7 @@
   },
   "/market/au/templates": {
     "lastmod": "2026-11-13",
-    "hash": "4bdf9b5c1ddf7aa7"
+    "hash": "86dba3cd4a1007af"
   },
   "/market/au/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -3415,6 +3431,10 @@
     "lastmod": "2026-11-13",
     "hash": "87fd15f1876ac7f0"
   },
+  "/market/au/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "616de67b20a2d566"
+  },
   "/market/au/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "39163c990d6e9c1b"
@@ -3438,6 +3458,10 @@
   "/market/au/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "b4395d4ee86def22"
+  },
+  "/market/au/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9ee1a0b051e8b124"
   },
   "/market/au/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3483,6 +3507,10 @@
     "lastmod": "2026-11-13",
     "hash": "114d958fd1a87454"
   },
+  "/market/au/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "590c89fc1a7b0922"
+  },
   "/market/au/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "560ee7a79b234882"
@@ -3490,6 +3518,10 @@
   "/market/au/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "8d16cc094e9585ce"
+  },
+  "/market/au/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "0db8f11339bfe1ca"
   },
   "/market/au/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3521,7 +3553,7 @@
   },
   "/market/br/templates": {
     "lastmod": "2026-11-13",
-    "hash": "eec53504444c660b"
+    "hash": "e4b324dcdbcd5172"
   },
   "/market/br/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -3583,6 +3615,10 @@
     "lastmod": "2026-11-13",
     "hash": "2ae3fedf3a757d1c"
   },
+  "/market/br/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "60be16e917a04716"
+  },
   "/market/br/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "a585f55bf8b38fe8"
@@ -3606,6 +3642,10 @@
   "/market/br/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "c41467cc644b0a71"
+  },
+  "/market/br/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "8198759c181e6988"
   },
   "/market/br/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3651,6 +3691,10 @@
     "lastmod": "2026-11-13",
     "hash": "f124143ba49a9e78"
   },
+  "/market/br/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "817c76f19c2da42a"
+  },
   "/market/br/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "2c3e880d00a02eda"
@@ -3658,6 +3702,10 @@
   "/market/br/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "9e82e17d44e6ebd8"
+  },
+  "/market/br/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "12eb43b92fc741ef"
   },
   "/market/br/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3689,7 +3737,7 @@
   },
   "/market/ca/templates": {
     "lastmod": "2026-11-13",
-    "hash": "2547860126778f3d"
+    "hash": "96b04da0b78d61e8"
   },
   "/market/ca/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -3751,6 +3799,10 @@
     "lastmod": "2026-11-13",
     "hash": "e43829b43c948fab"
   },
+  "/market/ca/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5b796f38b10a9721"
+  },
   "/market/ca/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "1d993bd0d5eebecf"
@@ -3774,6 +3826,10 @@
   "/market/ca/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "db93399b4b4bac9b"
+  },
+  "/market/ca/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "0cd7f1b2a4d80cd8"
   },
   "/market/ca/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3819,6 +3875,10 @@
     "lastmod": "2026-11-13",
     "hash": "5717f6888a66185d"
   },
+  "/market/ca/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "130185d15feb5788"
+  },
   "/market/ca/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "7410f54fbf2ba25b"
@@ -3826,6 +3886,10 @@
   "/market/ca/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "3aafa3d2da36417f"
+  },
+  "/market/ca/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "49dd835a5df9afd2"
   },
   "/market/ca/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3857,7 +3921,7 @@
   },
   "/market/ch/templates": {
     "lastmod": "2026-11-13",
-    "hash": "cebbc864c220ff06"
+    "hash": "8a93474c3594c0d3"
   },
   "/market/ch/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -3919,6 +3983,10 @@
     "lastmod": "2026-11-13",
     "hash": "f719291d2b6e3798"
   },
+  "/market/ch/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6c56e1a7b24331c7"
+  },
   "/market/ch/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "dde7f24a9075b91f"
@@ -3942,6 +4010,10 @@
   "/market/ch/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "74dbb70bfe0a6168"
+  },
+  "/market/ch/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "8f10e8a826ed3607"
   },
   "/market/ch/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -3987,6 +4059,10 @@
     "lastmod": "2026-11-13",
     "hash": "589d4ed790fea840"
   },
+  "/market/ch/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3fc76f7d3024d21d"
+  },
   "/market/ch/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "f454b272cc80e5b6"
@@ -3994,6 +4070,10 @@
   "/market/ch/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "9ae91095f65295eb"
+  },
+  "/market/ch/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9370ecb420bc224a"
   },
   "/market/ch/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4025,7 +4105,7 @@
   },
   "/market/ci/templates": {
     "lastmod": "2026-11-13",
-    "hash": "52523360def7bf44"
+    "hash": "ab5c48a5514caaf9"
   },
   "/market/ci/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4063,6 +4143,10 @@
     "lastmod": "2026-11-13",
     "hash": "79459f2a758a6162"
   },
+  "/market/ci/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "13322c8aed195c2b"
+  },
   "/market/ci/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "7d3a65042ee5ddb0"
@@ -4082,6 +4166,10 @@
   "/market/ci/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "d91adef8cc0ddd59"
+  },
+  "/market/ci/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ea5ba69ad18901c1"
   },
   "/market/ci/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4111,6 +4199,10 @@
     "lastmod": "2026-11-13",
     "hash": "8653d8648aefedcb"
   },
+  "/market/ci/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "4d74f526bfe30f8a"
+  },
   "/market/ci/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "edf22f4f3f7c8e9b"
@@ -4118,6 +4210,10 @@
   "/market/ci/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "6183b9442b5f2fe4"
+  },
+  "/market/ci/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9227a5b8d1f3f174"
   },
   "/market/ci/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4145,7 +4241,7 @@
   },
   "/market/cn/templates": {
     "lastmod": "2026-11-13",
-    "hash": "3d57df64611324f3"
+    "hash": "37d9158b9f9f93e2"
   },
   "/market/cn/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -4195,6 +4291,10 @@
     "lastmod": "2026-11-13",
     "hash": "64b7a6a3bd7ed511"
   },
+  "/market/cn/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9273d9c64238770a"
+  },
   "/market/cn/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "4b52b4b15afb8886"
@@ -4206,6 +4306,10 @@
   "/market/cn/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
     "hash": "3614c3602621e501"
+  },
+  "/market/cn/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ab82b639d152fe92"
   },
   "/market/cn/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4251,9 +4355,17 @@
     "lastmod": "2026-11-13",
     "hash": "6ea75d289324b5be"
   },
+  "/market/cn/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "adaf7296ef0dd507"
+  },
   "/market/cn/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "8c4c22315be70a55"
+  },
+  "/market/cn/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "bc093ace020ffb95"
   },
   "/market/cn/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4273,7 +4385,7 @@
   },
   "/market/de/templates": {
     "lastmod": "2026-11-13",
-    "hash": "1cbe80ede3d7b4da"
+    "hash": "bc47e33b70b402be"
   },
   "/market/de/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -4335,6 +4447,10 @@
     "lastmod": "2026-11-13",
     "hash": "3fa691fc884d542b"
   },
+  "/market/de/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "397799c85f8b897d"
+  },
   "/market/de/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "65c7bfba72fe2086"
@@ -4358,6 +4474,10 @@
   "/market/de/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "05edba4f59c547cd"
+  },
+  "/market/de/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "7078f84e931941a4"
   },
   "/market/de/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4403,6 +4523,10 @@
     "lastmod": "2026-11-13",
     "hash": "5a4121d407777cd9"
   },
+  "/market/de/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b274b93fa4cea443"
+  },
   "/market/de/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "1c26cdec9896055e"
@@ -4410,6 +4534,10 @@
   "/market/de/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a182323177be09ed"
+  },
+  "/market/de/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "1d0d00ed28372105"
   },
   "/market/de/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4441,7 +4569,7 @@
   },
   "/market/eg/templates": {
     "lastmod": "2026-11-13",
-    "hash": "e2d4619d6f0ba5e6"
+    "hash": "9f4c13ab1826e09c"
   },
   "/market/eg/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -4503,6 +4631,10 @@
     "lastmod": "2026-11-13",
     "hash": "572dcfa7d83f3ee3"
   },
+  "/market/eg/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "a9b991f51fc5d7b0"
+  },
   "/market/eg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "a14c6f79eadd120b"
@@ -4526,6 +4658,10 @@
   "/market/eg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "4761df3dfc26c185"
+  },
+  "/market/eg/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6e28db76cf2b71c1"
   },
   "/market/eg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4571,6 +4707,10 @@
     "lastmod": "2026-11-13",
     "hash": "885a672c1fd9c8d8"
   },
+  "/market/eg/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "31eaa5c8030d1116"
+  },
   "/market/eg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "59c7af54593c8c83"
@@ -4578,6 +4718,10 @@
   "/market/eg/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "19c49b47664c8eca"
+  },
+  "/market/eg/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "98b1026ae9353aa5"
   },
   "/market/eg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4609,7 +4753,7 @@
   },
   "/market/es/templates": {
     "lastmod": "2026-11-13",
-    "hash": "ff028fa06e8c151a"
+    "hash": "dd591c345d642833"
   },
   "/market/es/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -4671,6 +4815,10 @@
     "lastmod": "2026-11-13",
     "hash": "a553ca4ddfc94cb5"
   },
+  "/market/es/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "828e275d68571bb3"
+  },
   "/market/es/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "9e3e75b24eadc235"
@@ -4694,6 +4842,10 @@
   "/market/es/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "3ece2ca1bde9c74f"
+  },
+  "/market/es/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "176c2900f6a25da3"
   },
   "/market/es/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4739,6 +4891,10 @@
     "lastmod": "2026-11-13",
     "hash": "0799976d0921b569"
   },
+  "/market/es/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ca46a50a3369d337"
+  },
   "/market/es/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "f989475124eb444a"
@@ -4746,6 +4902,10 @@
   "/market/es/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7ec1ea4140082422"
+  },
+  "/market/es/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "cace5dfff027b5a0"
   },
   "/market/es/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4777,7 +4937,7 @@
   },
   "/market/et/templates": {
     "lastmod": "2026-11-13",
-    "hash": "3f80b03a307fad91"
+    "hash": "6f68da137dfa8571"
   },
   "/market/et/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -4825,7 +4985,7 @@
   },
   "/market/fr/templates": {
     "lastmod": "2026-11-13",
-    "hash": "6c8d51ab290630db"
+    "hash": "5d31f9225a440ddd"
   },
   "/market/fr/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -4887,6 +5047,10 @@
     "lastmod": "2026-11-13",
     "hash": "d7a9e1db22637c94"
   },
+  "/market/fr/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ae9b512dd6f57a44"
+  },
   "/market/fr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "41978a2fe464b89b"
@@ -4910,6 +5074,10 @@
   "/market/fr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "314742908f368109"
+  },
+  "/market/fr/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "831e173c4e0c8d36"
   },
   "/market/fr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4955,6 +5123,10 @@
     "lastmod": "2026-11-13",
     "hash": "f482e1df3ee7d9c0"
   },
+  "/market/fr/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5b26e79d4c4b9c4c"
+  },
   "/market/fr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "6b63582e705062e3"
@@ -4962,6 +5134,10 @@
   "/market/fr/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "426d69bf874b5a65"
+  },
+  "/market/fr/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "882d188bf503b6fb"
   },
   "/market/fr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -4993,7 +5169,7 @@
   },
   "/market/gb/templates": {
     "lastmod": "2026-11-13",
-    "hash": "7da5069d46fad8d0"
+    "hash": "9441c075a6000d4f"
   },
   "/market/gb/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5055,6 +5231,10 @@
     "lastmod": "2026-11-13",
     "hash": "da4522d6f03f5ae2"
   },
+  "/market/gb/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "104ae8f7d1d2b90f"
+  },
   "/market/gb/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "152bbe03111d170c"
@@ -5078,6 +5258,10 @@
   "/market/gb/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "183bf3b4361f52fc"
+  },
+  "/market/gb/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "def91d11bc73fbd7"
   },
   "/market/gb/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5123,6 +5307,10 @@
     "lastmod": "2026-11-13",
     "hash": "8d7bee8a675de45e"
   },
+  "/market/gb/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "baa9298c637bb026"
+  },
   "/market/gb/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "92b9c114118b3dbc"
@@ -5130,6 +5318,10 @@
   "/market/gb/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a383fb37ef0b6cc1"
+  },
+  "/market/gb/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3ecd0b936e947b85"
   },
   "/market/gb/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5161,7 +5353,7 @@
   },
   "/market/gh/templates": {
     "lastmod": "2026-11-13",
-    "hash": "cf8fe41dcc7cccd0"
+    "hash": "7ae4ebd121fa41fc"
   },
   "/market/gh/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5223,6 +5415,10 @@
     "lastmod": "2026-11-13",
     "hash": "f5730da7072ff37f"
   },
+  "/market/gh/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "34f7e8ff025245d6"
+  },
   "/market/gh/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "1be91ce9f00df167"
@@ -5246,6 +5442,10 @@
   "/market/gh/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "45650bf4d433cabd"
+  },
+  "/market/gh/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "626174b5f02bdbdb"
   },
   "/market/gh/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5291,6 +5491,10 @@
     "lastmod": "2026-11-13",
     "hash": "feae7ea0289d4946"
   },
+  "/market/gh/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3b60d9677667b468"
+  },
   "/market/gh/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "5d0656404b65afac"
@@ -5298,6 +5502,10 @@
   "/market/gh/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "14d5c45486295280"
+  },
+  "/market/gh/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "29c2a571bacf5a89"
   },
   "/market/gh/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5329,7 +5537,7 @@
   },
   "/market/id/templates": {
     "lastmod": "2026-11-13",
-    "hash": "0988d2b9e257c6e0"
+    "hash": "06d7ae96f07d3e30"
   },
   "/market/id/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5391,6 +5599,10 @@
     "lastmod": "2026-11-13",
     "hash": "3c9940217c93e314"
   },
+  "/market/id/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "eb7525d267619016"
+  },
   "/market/id/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "c68fd91d546efc29"
@@ -5414,6 +5626,10 @@
   "/market/id/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "c7e66d850e97289b"
+  },
+  "/market/id/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "a6fe361f759cef23"
   },
   "/market/id/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5459,6 +5675,10 @@
     "lastmod": "2026-11-13",
     "hash": "edce24ed4eec7401"
   },
+  "/market/id/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "0566bf4ac58d2c0a"
+  },
   "/market/id/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "cd17db5d0bf51f87"
@@ -5466,6 +5686,10 @@
   "/market/id/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "fe96732815af646f"
+  },
+  "/market/id/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "119797d46906bc58"
   },
   "/market/id/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5497,7 +5721,7 @@
   },
   "/market/in/templates": {
     "lastmod": "2026-11-13",
-    "hash": "69b336cbbc610bb2"
+    "hash": "9c26cadc2e01065e"
   },
   "/market/in/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5559,6 +5783,10 @@
     "lastmod": "2026-11-13",
     "hash": "2dc555492bec7131"
   },
+  "/market/in/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "e74b8e0cf9b26ccd"
+  },
   "/market/in/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "6e5d8a46ad38bdab"
@@ -5582,6 +5810,10 @@
   "/market/in/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "dc39b9e36ec33be5"
+  },
+  "/market/in/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "2b932dd8831f8560"
   },
   "/market/in/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5627,6 +5859,10 @@
     "lastmod": "2026-11-13",
     "hash": "31244aaaead7cc3f"
   },
+  "/market/in/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "58f0b691963c5ecc"
+  },
   "/market/in/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "b90b83aa3eb7dbac"
@@ -5634,6 +5870,10 @@
   "/market/in/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7364e63e5fe83888"
+  },
+  "/market/in/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "69894c10de30d61a"
   },
   "/market/in/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5665,7 +5905,7 @@
   },
   "/market/it/templates": {
     "lastmod": "2026-11-13",
-    "hash": "3bfb89f77410b284"
+    "hash": "0759e62c4b38607d"
   },
   "/market/it/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5727,6 +5967,10 @@
     "lastmod": "2026-11-13",
     "hash": "84c3f69764b0f725"
   },
+  "/market/it/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "7c80947989f318d1"
+  },
   "/market/it/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "33f7b910d9e84300"
@@ -5750,6 +5994,10 @@
   "/market/it/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "d4d226b78b47a590"
+  },
+  "/market/it/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9e96470250b236c1"
   },
   "/market/it/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5795,6 +6043,10 @@
     "lastmod": "2026-11-13",
     "hash": "e16b2b2320e374da"
   },
+  "/market/it/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "bbc4213853cbc29d"
+  },
   "/market/it/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "4359fff53bd52ef2"
@@ -5802,6 +6054,10 @@
   "/market/it/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a1aef6d8c20fcc2b"
+  },
+  "/market/it/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "63ff0dafddf3f6c0"
   },
   "/market/it/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5833,7 +6089,7 @@
   },
   "/market/jp/templates": {
     "lastmod": "2026-11-13",
-    "hash": "725ffa603a7b6f71"
+    "hash": "c2b634cee9ad382c"
   },
   "/market/jp/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -5895,6 +6151,10 @@
     "lastmod": "2026-11-13",
     "hash": "719acd773b2fdea8"
   },
+  "/market/jp/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "799a179b24e77479"
+  },
   "/market/jp/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "f8a5c9178d96929b"
@@ -5918,6 +6178,10 @@
   "/market/jp/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7c4f91efda6b7882"
+  },
+  "/market/jp/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6a462f58c7e310af"
   },
   "/market/jp/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -5963,6 +6227,10 @@
     "lastmod": "2026-11-13",
     "hash": "798f4c6b26a2524a"
   },
+  "/market/jp/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5e51987d99f3184b"
+  },
   "/market/jp/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "520b8113a08c7fdf"
@@ -5970,6 +6238,10 @@
   "/market/jp/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "bc2c22b396b9da34"
+  },
+  "/market/jp/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "a7c5aadda26faaff"
   },
   "/market/jp/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6001,7 +6273,7 @@
   },
   "/market/ke/templates": {
     "lastmod": "2026-11-13",
-    "hash": "9b24b8c093530476"
+    "hash": "4944a13dcae42680"
   },
   "/market/ke/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6063,6 +6335,10 @@
     "lastmod": "2026-11-13",
     "hash": "5d83a486a26bcc13"
   },
+  "/market/ke/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5d281f47c1203772"
+  },
   "/market/ke/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "b75b7d8aceea5888"
@@ -6086,6 +6362,10 @@
   "/market/ke/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "37ed769c0844d2fe"
+  },
+  "/market/ke/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9b48e10e90dff6eb"
   },
   "/market/ke/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6131,6 +6411,10 @@
     "lastmod": "2026-11-13",
     "hash": "10a1a56fd6939f1b"
   },
+  "/market/ke/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "79c3872016b0d17f"
+  },
   "/market/ke/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "7b481eee875b95d4"
@@ -6138,6 +6422,10 @@
   "/market/ke/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "f57fd8f009a117c1"
+  },
+  "/market/ke/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "ebfc927e03d347b1"
   },
   "/market/ke/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6169,7 +6457,7 @@
   },
   "/market/kr/templates": {
     "lastmod": "2026-11-13",
-    "hash": "517b9ee615a12e00"
+    "hash": "d505b7c5fc4b2870"
   },
   "/market/kr/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6231,6 +6519,10 @@
     "lastmod": "2026-11-13",
     "hash": "218832da39f9d7b9"
   },
+  "/market/kr/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "cc58c53f6410ca67"
+  },
   "/market/kr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "dcb8bbbec5b20a9a"
@@ -6254,6 +6546,10 @@
   "/market/kr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "b7a125d15017a437"
+  },
+  "/market/kr/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "fcfb143e543addb9"
   },
   "/market/kr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6299,6 +6595,10 @@
     "lastmod": "2026-11-13",
     "hash": "afcbb4dec633e40f"
   },
+  "/market/kr/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c3b93241ee5e44e3"
+  },
   "/market/kr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "2b4a7d1544930308"
@@ -6306,6 +6606,10 @@
   "/market/kr/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "93ebe30b79434a4e"
+  },
+  "/market/kr/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6ae1aac54cf7e0e1"
   },
   "/market/kr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6337,7 +6641,7 @@
   },
   "/market/mx/templates": {
     "lastmod": "2026-11-13",
-    "hash": "5506c71e4e0a264a"
+    "hash": "54ffa00ee8034862"
   },
   "/market/mx/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6399,6 +6703,10 @@
     "lastmod": "2026-11-13",
     "hash": "7fba4de3e9591d00"
   },
+  "/market/mx/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6bab2b9bfc8565f8"
+  },
   "/market/mx/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "2600e3ea247c568b"
@@ -6422,6 +6730,10 @@
   "/market/mx/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "37746ba45b22e00e"
+  },
+  "/market/mx/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "2b8d8ad35213c176"
   },
   "/market/mx/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6467,6 +6779,10 @@
     "lastmod": "2026-11-13",
     "hash": "93365bd0010564b7"
   },
+  "/market/mx/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "878a764f155cadee"
+  },
   "/market/mx/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "e704f9e7dfdac405"
@@ -6474,6 +6790,10 @@
   "/market/mx/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "13a0cd3a459038fd"
+  },
+  "/market/mx/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "834577272dad7059"
   },
   "/market/mx/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6505,7 +6825,7 @@
   },
   "/market/ng/templates": {
     "lastmod": "2026-11-13",
-    "hash": "1a224445b6cb59d8"
+    "hash": "34ad57eb5ac5e945"
   },
   "/market/ng/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6567,6 +6887,10 @@
     "lastmod": "2026-11-13",
     "hash": "6a659ddf32549504"
   },
+  "/market/ng/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "2f530a12dd5d0b1c"
+  },
   "/market/ng/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "06b46e7ad472331f"
@@ -6590,6 +6914,10 @@
   "/market/ng/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a89e87f4ecda641e"
+  },
+  "/market/ng/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "09ca5e242e9d3ae5"
   },
   "/market/ng/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6635,6 +6963,10 @@
     "lastmod": "2026-11-13",
     "hash": "eb6c9ae3d7bfc156"
   },
+  "/market/ng/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3a805442cf7d9aff"
+  },
   "/market/ng/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "738e57b5432aa8fa"
@@ -6642,6 +6974,10 @@
   "/market/ng/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "b4bbc7e718a4e018"
+  },
+  "/market/ng/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "fd2a80571cd55f9b"
   },
   "/market/ng/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6673,7 +7009,7 @@
   },
   "/market/nl/templates": {
     "lastmod": "2026-11-13",
-    "hash": "cabf31b35fbcf2f4"
+    "hash": "bc089332110a6a1f"
   },
   "/market/nl/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6735,6 +7071,10 @@
     "lastmod": "2026-11-13",
     "hash": "9a1a59a8aa43688f"
   },
+  "/market/nl/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "48a94f4c4228ee27"
+  },
   "/market/nl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "d2ab55e83acd9c7f"
@@ -6758,6 +7098,10 @@
   "/market/nl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "8c7305a3af1f7c9e"
+  },
+  "/market/nl/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "2ad31c7cccb0d9af"
   },
   "/market/nl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6803,6 +7147,10 @@
     "lastmod": "2026-11-13",
     "hash": "bb49d4ab3870bbf3"
   },
+  "/market/nl/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "cf58544d8e21e523"
+  },
   "/market/nl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "79bbe6e50ceea1b3"
@@ -6810,6 +7158,10 @@
   "/market/nl/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "f3139eca1de21698"
+  },
+  "/market/nl/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6c1905dfba5ad66f"
   },
   "/market/nl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6841,7 +7193,7 @@
   },
   "/market/nz/templates": {
     "lastmod": "2026-11-13",
-    "hash": "547811ca21a770f4"
+    "hash": "87e6f8b58eafea99"
   },
   "/market/nz/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -6903,6 +7255,10 @@
     "lastmod": "2026-11-13",
     "hash": "1045cba8719cbb89"
   },
+  "/market/nz/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c628333a2da99170"
+  },
   "/market/nz/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "22544afae7437cc4"
@@ -6926,6 +7282,10 @@
   "/market/nz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "996f30dbc8a62f49"
+  },
+  "/market/nz/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b509b86f13c0795f"
   },
   "/market/nz/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -6971,6 +7331,10 @@
     "lastmod": "2026-11-13",
     "hash": "6993b7551a2a301b"
   },
+  "/market/nz/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c260acac22fe72de"
+  },
   "/market/nz/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "3a2eb0214163ab88"
@@ -6978,6 +7342,10 @@
   "/market/nz/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a50c73e1c152b5d4"
+  },
+  "/market/nz/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "278c3f3d494c8b48"
   },
   "/market/nz/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7009,7 +7377,7 @@
   },
   "/market/pl/templates": {
     "lastmod": "2026-11-13",
-    "hash": "0916ebb4948d7a7c"
+    "hash": "94500588dc11a7ae"
   },
   "/market/pl/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7071,6 +7439,10 @@
     "lastmod": "2026-11-13",
     "hash": "9707ff6be116fb7d"
   },
+  "/market/pl/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "f5d836978750eed2"
+  },
   "/market/pl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "75729b05450ba075"
@@ -7094,6 +7466,10 @@
   "/market/pl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "20d509b632df3554"
+  },
+  "/market/pl/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "d627a7667ffe32c7"
   },
   "/market/pl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7139,6 +7515,10 @@
     "lastmod": "2026-11-13",
     "hash": "bcd3a7cea187172a"
   },
+  "/market/pl/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5fbdfb12baabf253"
+  },
   "/market/pl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "a4e036491113b403"
@@ -7146,6 +7526,10 @@
   "/market/pl/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "91043f71306ed4e3"
+  },
+  "/market/pl/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "431c1d9388288b29"
   },
   "/market/pl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7177,7 +7561,7 @@
   },
   "/market/sa/templates": {
     "lastmod": "2026-11-13",
-    "hash": "7d7bca3d019b9e56"
+    "hash": "43e371d477d3bb78"
   },
   "/market/sa/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7239,6 +7623,10 @@
     "lastmod": "2026-11-13",
     "hash": "299caeb1daad5e9d"
   },
+  "/market/sa/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "963ae81be90d6f57"
+  },
   "/market/sa/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "0a3254a67384954b"
@@ -7262,6 +7650,10 @@
   "/market/sa/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "5eacd4397910cf35"
+  },
+  "/market/sa/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6183ad39d3d4d7b0"
   },
   "/market/sa/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7307,6 +7699,10 @@
     "lastmod": "2026-11-13",
     "hash": "f61401bd63ceb0e1"
   },
+  "/market/sa/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9fad179c04a6bf8c"
+  },
   "/market/sa/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "43eb4c670097b8ab"
@@ -7314,6 +7710,10 @@
   "/market/sa/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "ab06eee0829db3fe"
+  },
+  "/market/sa/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "51093eee32d284bb"
   },
   "/market/sa/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7345,7 +7745,7 @@
   },
   "/market/se/templates": {
     "lastmod": "2026-11-13",
-    "hash": "6f88305f2ca25ec1"
+    "hash": "a5a2ba332392d269"
   },
   "/market/se/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7407,6 +7807,10 @@
     "lastmod": "2026-11-13",
     "hash": "2982c19a7b800782"
   },
+  "/market/se/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "992c0674aae3b7ad"
+  },
   "/market/se/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "9e2f61b0a8ac268b"
@@ -7430,6 +7834,10 @@
   "/market/se/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "5bb3a78611bfa79e"
+  },
+  "/market/se/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b4b4f42b2a13fee3"
   },
   "/market/se/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7475,6 +7883,10 @@
     "lastmod": "2026-11-13",
     "hash": "ac7bef0f17cdfd91"
   },
+  "/market/se/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "52922367c1ec0546"
+  },
   "/market/se/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "c98c8796edeaa35e"
@@ -7482,6 +7894,10 @@
   "/market/se/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "7222af94ab382e17"
+  },
+  "/market/se/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3e0d7b8f8c82b9e3"
   },
   "/market/se/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7513,7 +7929,7 @@
   },
   "/market/sg/templates": {
     "lastmod": "2026-11-13",
-    "hash": "5c0d8abf46384460"
+    "hash": "6348f84635ef8368"
   },
   "/market/sg/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7575,6 +7991,10 @@
     "lastmod": "2026-11-13",
     "hash": "77c8ed8431dc10fb"
   },
+  "/market/sg/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5e8a36d0ce88fe97"
+  },
   "/market/sg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "596effb57458824d"
@@ -7598,6 +8018,10 @@
   "/market/sg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "d14dab527825921a"
+  },
+  "/market/sg/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "6c1bae57b9fee664"
   },
   "/market/sg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7643,6 +8067,10 @@
     "lastmod": "2026-11-13",
     "hash": "cd6bd9404a2d5149"
   },
+  "/market/sg/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "be2308169db547d5"
+  },
   "/market/sg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "83bcfd2d73b6d83e"
@@ -7650,6 +8078,10 @@
   "/market/sg/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "de02bad50edc2a2e"
+  },
+  "/market/sg/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "3e86d1a0e0087b99"
   },
   "/market/sg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7681,7 +8113,7 @@
   },
   "/market/tr/templates": {
     "lastmod": "2026-11-13",
-    "hash": "70996784d50ea0e0"
+    "hash": "3fd57200722d6b42"
   },
   "/market/tr/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7743,6 +8175,10 @@
     "lastmod": "2026-11-13",
     "hash": "0144ba4c6f09183a"
   },
+  "/market/tr/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "2416b749398d0a04"
+  },
   "/market/tr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "8c1fc0441e20fdc2"
@@ -7766,6 +8202,10 @@
   "/market/tr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "4b1943de4fed54f8"
+  },
+  "/market/tr/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "e3eebc453077dd25"
   },
   "/market/tr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7811,6 +8251,10 @@
     "lastmod": "2026-11-13",
     "hash": "eaae86213f43d8a6"
   },
+  "/market/tr/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "5880bdd53e2e45cc"
+  },
   "/market/tr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "3e396953597b0cca"
@@ -7818,6 +8262,10 @@
   "/market/tr/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "a3b76d698b91a57a"
+  },
+  "/market/tr/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "1f2413dc9180f61e"
   },
   "/market/tr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -7849,7 +8297,7 @@
   },
   "/market/tz/templates": {
     "lastmod": "2026-11-13",
-    "hash": "93fe518d5defb918"
+    "hash": "562ba83df6c9a4b2"
   },
   "/market/tz/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -7897,7 +8345,7 @@
   },
   "/market/us/templates": {
     "lastmod": "2026-11-13",
-    "hash": "82011b99251cec7e"
+    "hash": "01eb54fb2fce3772"
   },
   "/market/us/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -7959,6 +8407,10 @@
     "lastmod": "2026-11-13",
     "hash": "9e2f008878c6a35e"
   },
+  "/market/us/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b006b94ca85fac89"
+  },
   "/market/us/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "cac435dc89e3ffa1"
@@ -7982,6 +8434,10 @@
   "/market/us/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "67183ffe5d29daf4"
+  },
+  "/market/us/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "528fdca90bed0f8a"
   },
   "/market/us/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -8027,6 +8483,10 @@
     "lastmod": "2026-11-13",
     "hash": "eb4505ac3cd49bc3"
   },
+  "/market/us/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "faf2fc566a4e7f93"
+  },
   "/market/us/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "99ab7a63c4800dec"
@@ -8034,6 +8494,10 @@
   "/market/us/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "8529ed0f57fbb9db"
+  },
+  "/market/us/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "886ec383d9b8f832"
   },
   "/market/us/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -8065,7 +8529,7 @@
   },
   "/market/za/templates": {
     "lastmod": "2026-11-13",
-    "hash": "f991d05f8776dec1"
+    "hash": "5cd96652a7b43719"
   },
   "/market/za/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-13",
@@ -8127,6 +8591,10 @@
     "lastmod": "2026-11-13",
     "hash": "8199380b1a371d6d"
   },
+  "/market/za/templates/hall-coffered-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "22be6a914ad0333c"
+  },
   "/market/za/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "92202f54a8348ee0"
@@ -8150,6 +8618,10 @@
   "/market/za/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "128ca8201e94a453"
+  },
+  "/market/za/templates/large-living-room-polystyrene-tray-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "dbbe965289b36027"
   },
   "/market/za/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -8195,6 +8667,10 @@
     "lastmod": "2026-11-13",
     "hash": "2c59798b9f25c5b5"
   },
+  "/market/za/templates/small-office-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "a1f78993c6f3c0ab"
+  },
   "/market/za/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
     "hash": "3a341b9e7daa157a"
@@ -8202,6 +8678,10 @@
   "/market/za/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "8122f60645324c94"
+  },
+  "/market/za/templates/standard-bedroom-polystyrene-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "b0f5b173127132b2"
   },
   "/market/za/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
@@ -8437,11 +8917,11 @@
   },
   "/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "11db30347f87d5bd"
+    "hash": "00278e68ffead51d"
   },
   "/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "57d9bd8854eca802"
+    "hash": "ff989c2353699ce9"
   },
   "/templates/corridor-screeding": {
     "lastmod": "2026-11-13",
@@ -8461,7 +8941,7 @@
   },
   "/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e1e0d082626ca1ed"
+    "hash": "c6910afbe8eb697a"
   },
   "/templates/dining-room-screeding": {
     "lastmod": "2026-11-13",
@@ -8481,7 +8961,7 @@
   },
   "/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "6d11135b080cee45"
+    "hash": "8cc92a79d7f56d61"
   },
   "/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -8493,7 +8973,7 @@
   },
   "/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "7a562649676e223c"
+    "hash": "ea9f2e423c0f8145"
   },
   "/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-13",
@@ -8505,7 +8985,7 @@
   },
   "/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "e3c903a64f86e6ce"
+    "hash": "1e435068340acb68"
   },
   "/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-13",
@@ -8517,7 +8997,7 @@
   },
   "/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "85e24076f9a0fa14"
+    "hash": "9e03e1f060291044"
   },
   "/templates/office-screeding": {
     "lastmod": "2026-11-13",
@@ -8549,7 +9029,7 @@
   },
   "/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "d5b6f879b5920abe"
+    "hash": "0b2e6f0736fa49bd"
   },
   "/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
@@ -8557,7 +9037,7 @@
   },
   "/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-13",
-    "hash": "5bf0850ab7351bcd"
+    "hash": "f3caf2012c3232df"
   },
   "/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",

@@ -603,6 +603,98 @@ export const TEMPLATE_CATALOG = [
     }
   },
   {
+    "slug": "standard-bedroom-polystyrene-ceiling",
+    "name": "Standard Bedroom Polystyrene Ceiling",
+    "type": "pop",
+    "description": "Standard bedroom polystyrene ceiling: 4m x 4m, 25 mm boards bonded to the slab.",
+    "seoDescription": "Calculate polystyrene ceiling boards, adhesive and fixings for a 4m x 4m bedroom with this FRELUX template.",
+    "inputs":     {
+        "system": "polystyrene",
+        "unit": "meters",
+        "includeDrops": false,
+        "dropHeight": 0.2,
+        "dropRun": 0,
+        "boardSize": "1200x2400",
+        "thickness": 25,
+        "installation": "bonded",
+        "design": "flat",
+        "includeCornice": false,
+        "includePaint": false,
+        "labourRate": 0,
+        "length": 4,
+        "width": 4
+    }
+  },
+  {
+    "slug": "large-living-room-polystyrene-tray-ceiling",
+    "name": "Large Living Room Polystyrene Tray Ceiling",
+    "type": "pop",
+    "description": "Large living room polystyrene ceiling: 5m x 6m tray design with a 200 mm drop and cornice.",
+    "seoDescription": "Calculate polystyrene boards, tape and framing for a 5m x 6m tray ceiling with this FRELUX template.",
+    "inputs":     {
+        "system": "polystyrene",
+        "unit": "meters",
+        "includeDrops": true,
+        "dropHeight": 0.2,
+        "dropRun": 22,
+        "boardSize": "1200x2400",
+        "thickness": 30,
+        "installation": "bonded",
+        "design": "stepped",
+        "includeCornice": true,
+        "includePaint": false,
+        "labourRate": 0,
+        "length": 5,
+        "width": 6
+    }
+  },
+  {
+    "slug": "small-office-polystyrene-ceiling",
+    "name": "Small Office Polystyrene Ceiling",
+    "type": "pop",
+    "description": "Small office polystyrene ceiling: 3m x 3m flat, 20 mm boards on a timber noggin.",
+    "seoDescription": "Calculate polystyrene ceiling boards and batten quantities for a 3m x 3m office with this FRELUX template.",
+    "inputs":     {
+        "system": "polystyrene",
+        "unit": "meters",
+        "includeDrops": false,
+        "dropHeight": 0.2,
+        "dropRun": 0,
+        "boardSize": "1200x2400",
+        "thickness": 20,
+        "installation": "timber",
+        "design": "flat",
+        "includeCornice": false,
+        "includePaint": false,
+        "labourRate": 0,
+        "length": 3,
+        "width": 3
+    }
+  },
+  {
+    "slug": "hall-coffered-polystyrene-ceiling",
+    "name": "Hall Coffered Polystyrene Ceiling",
+    "type": "pop",
+    "description": "Hall polystyrene ceiling: 8m x 10m coffered design on a metal channel grid with 1.2m x 3.0m boards.",
+    "seoDescription": "Calculate polystyrene boards, channels and hangers for an 8m x 10m coffered hall ceiling with this FRELUX template.",
+    "inputs":     {
+        "system": "polystyrene",
+        "unit": "meters",
+        "includeDrops": false,
+        "dropHeight": 0.2,
+        "dropRun": 0,
+        "boardSize": "1200x3000",
+        "thickness": 30,
+        "installation": "metal",
+        "design": "coffered",
+        "includeCornice": true,
+        "includePaint": false,
+        "labourRate": 0,
+        "length": 8,
+        "width": 10
+    }
+  },
+  {
     "slug": "dining-room-pop-ceiling",
     "name": "Dining Room POP Ceiling",
     "type": "pop",
