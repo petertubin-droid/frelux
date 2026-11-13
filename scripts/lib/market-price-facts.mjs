@@ -16,8 +16,33 @@
 //   - no arithmetic: unit prices are shown as stored. Totals are the engines'
 //     job and are never computed here.
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || "";
+// Vite loads .env files into import.meta.env, not process.env, so a prerender
+// step that reads process.env sees nothing and quietly prices nothing. Read the
+// env files directly as a fallback: these two values are the public project URL
+// and the anon key, the same values that ship in the client bundle.
+function readEnvFile(name) {
+  try {
+    const text = readFileSync(join(process.cwd(), name), "utf8");
+    const out = {};
+    for (const line of text.split("\n")) {
+      const m = /^\s*([A-Za-z0-9_]+)\s*=\s*(.*)$/.exec(line);
+      if (m) out[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+const envSources = [".env", ".env.local", ".env.audit"].map(readEnvFile);
+const envValue = (key) =>
+  process.env[key] || envSources.map((e) => e[key]).find(Boolean) || "";
+
+const SUPABASE_URL = envValue("VITE_SUPABASE_URL");
+const SUPABASE_ANON_KEY = envValue("VITE_SUPABASE_ANON_KEY");
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const escapeHtml = (value) =>
   String(value ?? "")
@@ -28,10 +53,33 @@ const escapeHtml = (value) =>
 
 import { ROLES_BY_TYPE, ROLE_LABELS } from "./template-price-roles.mjs";
 
+/**
+ * Reads a table completely.
+ *
+ * PostgREST caps one response at the server's row limit, so a query asking for
+ * 4,000 price rows silently came back with the first 1,000. That truncation is
+ * invisible in the output: roles whose price fell past the cap looked unpriced,
+ * and pages were withheld from the index for want of a price the database
+ * actually holds. Paging here fixes the cause rather than the symptom.
+ */
+const PAGE_SIZE = 1000;
+
 export async function fetchAll(table, query) {
+  const rows = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const paged = `${query.replace(/(^|&)limit=\d+/, "")}&limit=${PAGE_SIZE}&offset=${offset}`;
+    const batch = await fetchPage(`${table}?${paged}`);
+    rows.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+    if (offset > 100000) break;
+  }
+  return rows;
+}
+
+async function fetchPage(pathAndQuery) {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
@@ -39,13 +87,13 @@ export async function fetchAll(table, query) {
       signal: AbortSignal.timeout(20000),
     });
     if (!res.ok) {
-      console.warn(`[prerender] ${table} skipped: HTTP ${res.status}`);
+      console.warn(`[prerender] ${pathAndQuery.split("?")[0]} skipped: HTTP ${res.status}`);
       return [];
     }
-    const rows = await res.json();
-    return Array.isArray(rows) ? rows : [];
+    const body = await res.json();
+    return Array.isArray(body) ? body : [];
   } catch (error) {
-    console.warn(`[prerender] ${table} skipped: ${error.message}`);
+    console.warn(`[prerender] ${pathAndQuery.split("?")[0]} skipped: ${error.message}`);
     return [];
   }
 }
@@ -92,8 +140,61 @@ export async function loadMarketPriceFacts() {
     });
   }
 
+  // market -> material slug -> price row, for the alias fallback below.
+  const priceByMarketSlug = new Map();
+  for (const p of prices) {
+    if (p.market == null || p.ref_id == null || p.price == null) continue;
+    const material = materialById.get(p.ref_id);
+    if (!material) continue;
+    if (!priceByMarketSlug.has(p.market)) priceByMarketSlug.set(p.market, new Map());
+    const bucket = priceByMarketSlug.get(p.market);
+    if (!bucket.has(material.slug)) bucket.set(material.slug, { ...p, material });
+  }
+
+  // Fill roles the market has no curated mapping for, but only where the market
+  // already stores a price for the equivalent material.
+  for (const [market, priced] of priceByMarketSlug) {
+    if (!byMarket.has(market)) byMarket.set(market, new Map());
+    const roleMap = byMarket.get(market);
+    for (const [role, aliases] of Object.entries(ROLE_MATERIAL_ALIASES)) {
+      const existing = roleMap.get(role);
+      if (existing && existing.price) continue;
+      const hit = aliases.map((slug) => priced.get(slug)).find(Boolean);
+      if (!hit) continue;
+      roleMap.set(role, {
+        role,
+        display_name: hit.material.name,
+        unit_label: existing?.unit_label || "unit",
+        material_name: hit.material.name,
+        price: hit,
+        alias: true,
+      });
+    }
+  }
+
   return { byMarket, markets: [...byMarket.keys()] };
 }
+
+/**
+ * Display-side aliases: which of a market's priced materials answers a role
+ * when the market has no curated market_material_roles row for that role.
+ *
+ * This is read-only and exists for the SEO pages only. The calculators keep
+ * pricing through market_material_roles, so an alias here cannot change an
+ * estimate; it can only show a visitor the local price the market already
+ * stores for that material, under the role name the template uses. Unit bases
+ * are kept identical (per m3 to per m3, per bag to per bag) so a displayed
+ * price is never a price for a different quantity.
+ */
+export const ROLE_MATERIAL_ALIASES = Object.freeze({
+  sand: ["sand-per-m3", "sand"],
+  "concrete-mix": ["cement-per-bag", "cement"],
+  "skim-plaster": ["plaster-per-bag", "skim-plaster", "gypsum-plaster"],
+  "interior-paint": ["interior-emulsion", "emulsion", "paint-interior"],
+  primer: ["primer", "emulsion-primer"],
+  "joint-filler": ["joint-filler", "putty", "filler"],
+  sandpaper: ["sandpaper", "abrasive"],
+});
 
 /** Rows for one market and one template type, priced first. */
 export function priceRowsFor(facts, marketCode, templateType) {

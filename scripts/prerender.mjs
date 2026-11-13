@@ -38,6 +38,10 @@ import {
   ROLES_BY_TYPE,
   ROLE_LABELS,
 } from "./lib/template-price-roles.mjs";
+import {
+  isHubIndexable,
+  isTemplatePageIndexable,
+} from "./lib/market-publishing.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import {
   colourFaq,
@@ -4791,6 +4795,8 @@ const tileMaterialFacts = loadTileMaterialFacts();
 let priceFactPages = 0;
 let unindexedMarketTemplatePages = 0;
 let priceFactPagesForFamily = 0;
+let indexedMarketHubs = 0;
+let indexedMarketTemplatePages = 0;
 
 const templatePriceSection = (market, template) => {
   const html =
@@ -4814,15 +4820,26 @@ const templatePriceSection = (market, template) => {
 for (const m of marketLandingRoutes) {
   const hubPath = `/market/${m.code.toLowerCase()}/templates`;
   const marketPublished = hasFullBook(marketBookDepth, m.code);
+  // A hub is only worth indexing when its children are: a list of withheld
+  // pages is not a page a searcher wants to land on.
+  const indexableChildren = TEMPLATE_CATALOG.filter((t) =>
+    isTemplatePageIndexable({
+      hasLocalPrices:
+        t.type === "tile"
+          ? hasTilePrices(tileMaterialFacts, m.code)
+          : hasVerifiedPrices(marketPriceFacts, m.code, t.type),
+    }),
+  ).length;
+  const hubIndexable = isHubIndexable(indexableChildren);
+  if (hubIndexable) indexedMarketHubs += 1;
   routes.push({
     path: hubPath,
-    // The market × template layer is a utility view of the same forty
-    // templates. Measured against their siblings it is 59% identical prose
-    // differing only by country name, so it does not ask to be indexed: the
-    // canonical template page is the page worth ranking, and this one points
-    // there. It stays fully usable and internally linked.
-    robots: "noindex, follow",
-    canonical: `${SITE_URL}/templates/`,
+    ...(hubIndexable
+      ? {}
+      : {
+          robots: "noindex, follow",
+          canonical: `${SITE_URL}/templates/`,
+        }),
     alternates: [
       { hreflang: "x-default", href: `${SITE_URL}/templates/` },
       ...marketLandingRoutes.map((mm) => ({
@@ -4842,10 +4859,31 @@ for (const m of marketLandingRoutes) {
       `<main><h1>Construction estimate templates for ${m.countryName}</h1>` +
       `<nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/market/${m.code.toLowerCase()}/">${m.countryName}</a> &rsaquo; Templates</nav>` +
       `<p>These templates pre-fill a whole job: room sizes, ceiling heights, openings and coats for the common ${m.countryName} painting, screeding, POP ceiling and tiling scopes. Pick one, adjust what differs on site, and the estimate runs in ${m.currency} (${m.currencySymbol}) with ${m.countryName} material prices.</p>` +
-      `<h2>Templates in this market</h2><ul>` +
-      TEMPLATE_CATALOG.map(
+      `<h2>What is priced in ${m.countryName} today</h2>` +
+      `<p>${indexableChildren} of the ${TEMPLATE_CATALOG.length} templates below carry verified ${m.countryName} material prices right now: ${TEMPLATE_CATALOG.filter(
         (t) =>
-          `<li><a href="${hubPath}/${t.slug}/">${t.name}</a>: ${t.description || t.seoDescription || ""}</li>`,
+          isTemplatePageIndexable({
+            hasLocalPrices:
+              t.type === "tile"
+                ? hasTilePrices(tileMaterialFacts, m.code)
+                : hasVerifiedPrices(marketPriceFacts, m.code, t.type),
+          }),
+      )
+        .map((t) => t.name)
+        .join(", ")}. The rest run with your own entered prices, clearly marked, rather than borrowing another country's rate.</p>` +
+      `<p>Local practice sets the quantities: ${m.blockName.toLowerCase()} wall units, ${m.cementBagKg} kg cement bags, ${m.electricalStandard} wiring at ${m.electricalVoltage}, and ${m.plumbingStandard} plumbing. A template from another market would measure a different wall.</p>` +
+      `<h2>Local practice behind these estimates</h2>` +
+      `<table><tbody>` +
+      `<tr><th scope="row">Wall unit</th><td>${m.blockName} (${m.blockLengthMm} x ${m.blockHeightMm} x ${m.blockWidthMm} mm)</td></tr>` +
+      `<tr><th scope="row">Cement bag</th><td>${m.cementBagKg} kg</td></tr>` +
+      `<tr><th scope="row">Electrical</th><td>${m.electricalStandard} at ${m.electricalVoltage}, ${m.electricalWiring}</td></tr>` +
+      `<tr><th scope="row">Plumbing</th><td>${m.plumbingStandard}, ${m.plumbingSupply}</td></tr>` +
+      `<tr><th scope="row">Price book</th><td>${marketBookDepth.get(m.code) ?? 0} stored ${m.currency} rows</td></tr>` +
+      `</tbody></table>` +
+      `<h2>The full template list</h2>` +
+      `<ul>` +
+      TEMPLATE_CATALOG.map(
+        (t) => `<li><a href="${hubPath}/${t.slug}/">${t.name}</a></li>`,
       ).join("") +
       `</ul><h2>Before you start</h2><p>Check the room measurements and the number of coats. FRELUX applies two coats as standard, and quantities are shown in the units used on ${m.countryName} sites rather than in a generic metric table.</p>` +
       `<ul><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market overview</a></li><li><a href="/calculators/">All FRELUX calculators</a></li><li><a href="/prices/">Material price intelligence</a></li></ul></main>`,
@@ -4884,13 +4922,14 @@ for (const m of marketLandingRoutes) {
       t.type === "tile"
         ? hasTilePrices(tileMaterialFacts, m.code)
         : hasVerifiedPrices(marketPriceFacts, m.code, t.type);
-    // Same reasoning as the hub: near-duplicate of its siblings, so it is a
-    // utility page that points at the canonical template. hasLocalPrices is
-    // kept for the build log: a market page carrying real local prices is the
-    // evidence needed before any of this family is reconsidered for indexing.
-    const indexable = false;
+    // The page's own evidence decides: a verified local price for a material
+    // this template consumes makes the page local, and it is indexed with its
+    // own price table. Without one it is the canonical template wearing a
+    // country name, so it points there instead.
+    const indexable = isTemplatePageIndexable({ hasLocalPrices });
     if (!indexable) unindexedMarketTemplatePages += 1;
     if (hasLocalPrices) priceFactPagesForFamily += 1;
+    if (indexable) indexedMarketTemplatePages += 1;
     routes.push({
       path,
       ...(indexable
@@ -4920,8 +4959,12 @@ for (const m of marketLandingRoutes) {
         (t.description ? `<p>${t.description}</p>` : "") +
         `<h2>What this template sets up</h2><p>${t.name} pre-fills the scope for this kind of ${t.type} job so you start from realistic dimensions instead of a blank form. You still adjust every measurement, opening and coat before the estimate runs.</p>` +
         renderTemplateInputs(t, m.code === "US" ? "feet" : "meters") +
-        `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
+        `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice - ${m.blockName.toLowerCase()}, ${m.cementBagKg} kg cement bags, ${m.electricalStandard} wiring at ${m.electricalVoltage} - and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
+        `<p>On site, that means measuring in the units ${m.countryName} trades use and checking the material specification against what your supplier actually stocks, because a block or a bag that matches the label but not the size changes the quantity.</p>` +
         priceSection +
+        `<h2>What moves the number in ${m.countryName}</h2>` +
+        `<p>Three things decide this estimate: how much surface the ${t.type} scope actually covers once openings are deducted, how many coats the spec calls for, and whether your supplier's ${m.currency} price is the one stored in the book today. Waste allowance is added from the template, not guessed at the till.</p>` +
+        `<p>Costs stay in ${m.currency} (${m.currencySymbol}) end to end, so the figure you read here is the figure the estimate uses, with no conversion step between the page and the total.</p>` +
         `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [
         {
@@ -4965,7 +5008,8 @@ for (const m of marketLandingRoutes) {
 console.log(
   `[prerender] market template pages carrying stored local prices: ${priceFactPages}` +
     `, withheld as a duplicate layer: ${unindexedMarketTemplatePages}` +
-    ` (of which ${priceFactPagesForFamily} carry verified local prices)`,
+    ` (of which ${priceFactPagesForFamily} carry verified local prices)` +
+    `, indexed: ${indexedMarketTemplatePages} template page(s), ${indexedMarketHubs} hub(s)`,
 );
 
 // ── Market landing pages (Phase 3 globalization, 2026-10-27) ────────

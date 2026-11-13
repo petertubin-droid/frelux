@@ -38,3 +38,28 @@ export function hasFullBook(depth, marketCode) {
   if (!depth || depth.size === 0) return true;
   return (depth.get(String(marketCode).toUpperCase()) ?? 0) >= FULL_BOOK_MIN_ROWS;
 }
+
+/**
+ * Whether one market × template page earns an index entry.
+ *
+ * The earlier rule asked whether the *market* had a full price book, which is a
+ * property of the market rather than of the page: it withheld 310 pages that
+ * carried real local prices, and would have admitted a page with none the day a
+ * market crossed thirty rows. The evidence now sits on the page itself - a
+ * verified local price for a material this template actually consumes - so a
+ * page is indexed when its own content is local, and withheld when it is only
+ * the canonical template wearing a country name.
+ */
+export function isTemplatePageIndexable({ hasLocalPrices }) {
+  return Boolean(hasLocalPrices);
+}
+
+/**
+ * A hub is a list of its children. It is worth indexing only when enough of
+ * those children are indexed, otherwise it is an index of withheld pages.
+ */
+export const HUB_MIN_INDEXABLE_CHILDREN = 3;
+
+export function isHubIndexable(indexableChildCount) {
+  return Number(indexableChildCount) >= HUB_MIN_INDEXABLE_CHILDREN;
+}
