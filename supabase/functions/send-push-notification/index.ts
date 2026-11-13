@@ -16,6 +16,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
+import { callerKindFor } from "../_shared/internal-caller.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -305,6 +306,36 @@ serveWithCors(async (req) => {
           headers: { "Content-Type": "application/json" },
         },
       );
+    }
+
+    // Anyone on the internet can reach this function (verify_jwt is off so the
+    // cron and other functions can call it), so the caller has to prove itself:
+    // either it holds the service key, or it is the signed-in user asking for a
+    // notification on their own account. Otherwise it is an open channel for
+    // sending any user a crafted notification.
+    if (callerKindFor(req, { serviceRoleKey: supabaseKey }) !== "internal") {
+      const authHeader = req.headers.get("Authorization") ?? "";
+      const token = /^Bearer\s+(.+)$/i.exec(authHeader)?.[1]?.trim() ?? "";
+      if (!token) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const { data: authUser, error: authError } =
+        await supabase.auth.getUser(token);
+      if (authError || !authUser?.user?.id) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (authUser.user.id !== userId) {
+        return new Response(
+          JSON.stringify({ error: "Cannot notify another user" }),
+          { status: 403, headers: { "Content-Type": "application/json" } },
+        );
+      }
     }
 
     // Get user's active subscriptions

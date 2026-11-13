@@ -5,6 +5,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { callerKindFor } from "../_shared/internal-caller.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -26,7 +27,46 @@ serveWithCors(async (req: Request): Promise<Response> => {
     });
   }
 
+  // Deployed with verify_jwt off so a scheduler can reach it, which means the
+  // platform gateway is not a gate: this endpoint deletes rows, so the caller
+  // must prove it is the scheduler or another function holding the service key.
+  const caller = callerKindFor(req, {
+    serviceRoleKey,
+    cronSecret: Deno.env.get("CLEANUP_CRON_SECRET"),
+  });
   const admin = createClient(supabaseUrl, serviceRoleKey);
+
+  // An administrator running the retention sweep by hand is also legitimate,
+  // so fall back to a signed-in admin rather than an all-or-nothing gate.
+  if (caller === "none") {
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = /^Bearer\s+(.+)$/i.exec(authHeader)?.[1]?.trim() ?? "";
+    if (!token) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: authUser, error: authError } =
+      await admin.auth.getUser(token);
+    if (authError || !authUser?.user?.id) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("role")
+      .eq("id", authUser.user.id)
+      .maybeSingle();
+    if (!profile || !["admin", "super_admin"].includes(String(profile.role))) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
 
   // Default: 90 days retention for resolved non-critical errors
   const retentionDays = 90;
