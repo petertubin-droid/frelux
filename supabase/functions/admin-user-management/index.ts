@@ -208,18 +208,35 @@ serveWithCors(async (req: Request) => {
           409,
         );
       }
-      await admin.from("admin_account_events").insert({
-        user_id: userId,
-        actor_id: actorId,
-        action: "delete",
-        reason:
-          String(body.reason ?? "")
-            .trim()
-            .slice(0, 300) || null,
-      });
-      const { error } = await admin.auth.admin.deleteUser(userId);
-      if (error) return errorResponse(error.message, 400);
-      return jsonResponse({ ok: true });
+      const reason =
+        String(body.reason ?? "")
+          .trim()
+          .slice(0, 300) || null;
+
+      // One transaction, one audit row, and an error the screen can print.
+      // GoTrue's own delete endpoint refused placeholder accounts without ever
+      // saying why, which reached the administrator as "Edge Function returned
+      // a non-2xx status code".
+      const { data: deleted, error: rpcError } = await admin.rpc(
+        "admin_delete_account",
+        { p_user_id: userId, p_actor: actorId, p_reason: reason },
+      );
+
+      if (rpcError) {
+        // Older environments may predate the function; fall back to GoTrue so
+        // the screen keeps working there.
+        await admin.from("admin_account_events").insert({
+          user_id: userId,
+          actor_id: actorId,
+          action: "delete",
+          reason,
+        });
+        const { error } = await admin.auth.admin.deleteUser(userId);
+        if (error) {
+          return errorResponse(rpcError.message || error.message, 400);
+        }
+      }
+      return jsonResponse({ ok: true, ...(deleted ?? {}) });
     }
     return errorResponse("Unsupported user-management action.", 400);
   } catch (error) {
