@@ -310,6 +310,7 @@ const AdminPricing = lazy(() => import("@/pages/admin/AdminPricing"));
 const AdminSubscriptionPricing = lazy(
   () => import("@/pages/admin/AdminSubscriptionPricing"),
 );
+const AdminTaxRules = lazy(() => import("@/pages/admin/AdminTaxRules"));
 const AdminPriceUpdater = lazy(() => import("@/pages/admin/AdminPriceUpdater"));
 const AdminPriceScan = lazy(() => import("@/pages/admin/AdminPriceScan"));
 const AdminMarketPrices = lazy(() => import("@/pages/admin/AdminMarketPrices"));
@@ -2581,6 +2582,7 @@ export default function App() {
                           path="subscription_pricing"
                           element={<AdminSubscriptionPricing />}
                         />
+                        <Route path="tax_rules" element={<AdminTaxRules />} />
                         <Route
                           path="price-updater"
                           element={<AdminPriceUpdater />}
