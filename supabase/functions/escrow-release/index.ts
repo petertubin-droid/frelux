@@ -262,7 +262,10 @@ Deno.serve(async (req) => {
             Authorization: `Bearer ${flwKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ amount: minorToMajor(requested) }),
+          body: JSON.stringify({
+            amount: minorToMajor(requested, refundContract.currency),
+            currency: refundContract.currency,
+          }),
         },
       );
       const flwRefundResult = await flwRefund.json().catch(() => null);
@@ -419,7 +422,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           account_bank: contract.seller_bank_code,
           account_number: contract.seller_account_number,
-          amount: minorToMajor(payout),
+          amount: minorToMajor(payout, contract.currency),
           currency: contract.currency,
           narration: `FRELUX escrow release: ${milestone.label}`,
           reference: `escrow-${contract.id.slice(0, 8)}-${milestone.id.slice(0, 8)}`,

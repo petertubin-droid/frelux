@@ -10,6 +10,7 @@
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
+import { isChargeableCurrency } from "@/lib/payments/charges";
 import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import {
   SUBSCRIPTION_CURRENCY,
@@ -106,10 +107,15 @@ export function displayedPrice(
 ): DisplayedPrice {
   const usdMajor = cycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
   const usdFormatted = formatUsdPrice(usdMajor);
-  const row =
+  const candidate =
     plan.monthlyPrice > 0
       ? pickLocalPrice(rows, marketCode, plan.id, cycle)
       : null;
+  // A local price is only quoted when a rail can collect that currency.
+  // Otherwise checkout would silently charge the dollar amount, which is
+  // exactly the quote-versus-charge mismatch this guard exists to stop.
+  const row =
+    candidate && isChargeableCurrency(candidate.currency) ? candidate : null;
 
   if (!row) {
     return {

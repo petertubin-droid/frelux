@@ -7,42 +7,54 @@
 // only at the provider edge.
 // =========================================================
 
-export type EscrowProvider = "paystack" | "flutterwave";
+import {
+  CHARGEABLE_CURRENCIES,
+  currencyExponent,
+  railForCurrency,
+  railsForCurrency,
+  type PaymentRail,
+} from "./currency-registry.ts";
 
-/** Currencies each rail can collect in. Both settle in two-decimal units. */
+export type EscrowProvider = PaymentRail;
+
+/** Currencies each rail can collect in, from the one registry. */
 export const PROVIDER_CURRENCIES: Record<EscrowProvider, readonly string[]> = {
-  paystack: ["NGN", "GHS", "ZAR", "KES", "USD"],
-  // Only currencies with a two-decimal minor unit: the ledger stores minor
-  // units, and a zero-decimal currency like XOF would be counted 100x wrong.
-  flutterwave: ["USD", "GBP", "EUR", "GHS", "KES", "ZAR", "EGP"],
+  paystack: CHARGEABLE_CURRENCIES.filter((c) =>
+    railsForCurrency(c).includes("paystack"),
+  ),
+  flutterwave: CHARGEABLE_CURRENCIES.filter((c) =>
+    railsForCurrency(c).includes("flutterwave"),
+  ),
 };
 
 /**
- * Naira stays on Paystack: it is the rail with the live integration, local
- * settlement and the lowest cost for a Nigerian buyer. Everything else goes
- * through Flutterwave, which can collect and pay out internationally.
+ * Naira stays on Paystack: it is the live integration, settles locally and
+ * costs a Nigerian buyer least. Every other chargeable currency goes through
+ * Flutterwave, which collects and pays out internationally.
  */
 export function providerForCurrency(currency: string): EscrowProvider {
-  return currency.toUpperCase() === "NGN" ? "paystack" : "flutterwave";
+  return railForCurrency(currency) ?? "flutterwave";
 }
 
 export function currencyIsSupported(
   provider: EscrowProvider,
   currency: string,
 ): boolean {
-  return PROVIDER_CURRENCIES[provider].includes(currency.toUpperCase());
+  return railsForCurrency(currency).includes(provider);
 }
 
-/** 4,500,000 kobo becomes 45000.00 for a Flutterwave request. */
-export function minorToMajor(minor: number): number {
-  return Math.round(minor) / 100;
+/** Escrow stores integer minor units; Flutterwave reports major units. */
+export function minorToMajor(amountMinor: number, currency?: string): number {
+  return amountMinor / 10 ** currencyExponent(currency);
 }
 
-/** Flutterwave reports major units; escrow stores integer minor units. */
-export function majorToMinor(amount: number | string): number | null {
+export function majorToMinor(
+  amount: number | string,
+  currency?: string,
+): number | null {
   const value = typeof amount === "string" ? Number(amount) : amount;
   if (!Number.isFinite(value)) return null;
-  const minor = Math.round(value * 100);
+  const minor = Math.round(value * 10 ** currencyExponent(currency));
   return Number.isSafeInteger(minor) && minor > 0 ? minor : null;
 }
 
@@ -83,6 +95,7 @@ export function classifyFlutterwaveEvent(body: unknown): FlutterwaveEvent {
       data.id === undefined || data.id === null ? null : String(data.id),
     amountMinor: majorToMinor(
       typeof data.amount === "number" ? data.amount : String(data.amount ?? ""),
+      typeof data.currency === "string" ? data.currency : null,
     ),
     currency:
       typeof data.currency === "string" ? data.currency.toUpperCase() : null,

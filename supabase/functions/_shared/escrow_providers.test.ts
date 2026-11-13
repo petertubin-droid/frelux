@@ -19,7 +19,11 @@ describe("escrow rails", () => {
 
   it("refuses a currency its rail cannot collect", () => {
     expect(currencyIsSupported("flutterwave", "GBP")).toBe(true);
-    expect(currencyIsSupported("flutterwave", "JPY")).toBe(false);
+    // Yen has no minor unit but Flutterwave collects it, so it is allowed
+    // and converted at exponent 0 rather than being refused.
+    expect(currencyIsSupported("flutterwave", "JPY")).toBe(true);
+    expect(currencyIsSupported("paystack", "JPY")).toBe(false);
+    expect(currencyIsSupported("flutterwave", "CHF")).toBe(false);
     expect(currencyIsSupported("paystack", "NGN")).toBe(true);
   });
 
@@ -27,6 +31,11 @@ describe("escrow rails", () => {
     expect(minorToMajor(450000)).toBe(4500);
     expect(minorToMajor(450050)).toBe(4500.5);
     expect(majorToMinor(4500)).toBe(450000);
+    // Zero-decimal currencies must not be divided by 100: a XOF invoice of
+    // 30,500 francs is 30,500, not 305.
+    expect(minorToMajor(30500, "XOF")).toBe(30500);
+    expect(majorToMinor(30500, "XOF")).toBe(30500);
+    expect(minorToMajor(5000, "JPY")).toBe(5000);
     expect(majorToMinor("120.75")).toBe(12075);
     expect(majorToMinor("abc")).toBeNull();
     expect(majorToMinor(0)).toBeNull();

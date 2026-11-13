@@ -1,3 +1,7 @@
+import {
+  CHARGEABLE_CURRENCIES,
+  railsForCurrency,
+} from "./currency-registry.ts";
 // =========================================================
 // Subscription Pricing Guard (shared edge-function module)
 //
@@ -255,24 +259,16 @@ export function constantTimeEqual(a: string, b: string): boolean {
 export const ZERO_DECIMAL_CURRENCIES = new Set(["JPY", "KRW", "IDR", "XOF"]);
 
 /** Currencies Paystack settles directly. */
-export const PAYSTACK_CURRENCIES = new Set(["NGN", "GHS", "ZAR", "KES", "USD"]);
+export const PAYSTACK_CURRENCIES = new Set(
+  CHARGEABLE_CURRENCIES.filter((c) => railsForCurrency(c).includes("paystack")),
+);
 
 /** Currencies Flutterwave can settle for international cards. */
-export const FLUTTERWAVE_CURRENCIES = new Set([
-  "USD",
-  "EUR",
-  "GBP",
-  "NGN",
-  "GHS",
-  "KES",
-  "ZAR",
-  "XOF",
-  "RWF",
-  "UGX",
-  "TZS",
-  "CAD",
-  "AUD",
-]);
+export const FLUTTERWAVE_CURRENCIES = new Set(
+  CHARGEABLE_CURRENCIES.filter((c) =>
+    railsForCurrency(c).includes("flutterwave"),
+  ),
+);
 
 export function currencyExponent(currency: string): number {
   return ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase()) ? 0 : 2;

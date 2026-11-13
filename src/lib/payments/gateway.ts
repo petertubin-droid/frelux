@@ -20,6 +20,7 @@ import {
   initializeSubscriptionCheckout,
   isPaystackConfigured,
 } from "@/lib/paystack";
+import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import type { SubscriptionPlan } from "@/lib/subscription";
 
 /**
@@ -108,25 +109,13 @@ export function availableGateways(
  */
 export const PAYSTACK_CURRENCIES: readonly string[] = ["NGN"];
 
-/** Settlement currency for the markets FRELUX lists. */
-const MARKET_CURRENCY: Record<string, string> = {
-  NG: "NGN",
-  GH: "GHS",
-  ZA: "ZAR",
-  KE: "KES",
-  US: "USD",
-  CA: "CAD",
-  GB: "GBP",
-  IE: "EUR",
-  DE: "EUR",
-  FR: "EUR",
-  NL: "EUR",
-  ES: "EUR",
-  IT: "EUR",
-  PT: "EUR",
-  AE: "AED",
-  EG: "EGP",
-};
+/** Settlement currency per listed market, from the built-in profiles. */
+function marketCurrency(marketCode?: string | null): string | undefined {
+  const code = String(marketCode || "").toUpperCase();
+  if (!code) return undefined;
+  return BUILTIN_MARKET_PROFILES.find((p) => p.country_code === code)
+    ?.currency_code;
+}
 
 /** The gateway that can settle a charge in this currency. */
 export function gatewayForCurrency(currency?: string | null): PaymentGateway {
@@ -140,15 +129,14 @@ export function gatewayForCurrency(currency?: string | null): PaymentGateway {
  * guessed at naira.
  */
 export function gatewayForMarket(marketCode?: string | null): PaymentGateway {
-  const code = String(marketCode || "").toUpperCase();
-  return gatewayForCurrency(MARKET_CURRENCY[code]);
+  return gatewayForCurrency(marketCurrency(marketCode) ?? null);
 }
 
 /** The settlement currency FRELUX assumes for a market, when it knows one. */
 export function currencyForMarket(
   marketCode?: string | null,
 ): string | undefined {
-  return MARKET_CURRENCY[String(marketCode || "").toUpperCase()];
+  return marketCurrency(marketCode);
 }
 
 /**

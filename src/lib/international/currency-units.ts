@@ -8,14 +8,12 @@
 // the amount as-is.
 // =========================================================
 
-/** Minor units per currency (0 for zero-decimal currencies). */
-const MINOR_UNITS: Record<string, number> = {
-  JPY: 0,
-  KRW: 0,
-};
+import { currencyExponent } from "@/lib/payments/charges";
 
+/** Minor units per currency, from the shared registry (yen, won and CFA
+ * francs have none). */
 export function currencyMinorUnits(code: string | undefined | null): number {
-  return MINOR_UNITS[String(code ?? "").toUpperCase()] ?? 2;
+  return currencyExponent(code);
 }
 
 /** Converts a major-unit amount to the currency's minor units. */

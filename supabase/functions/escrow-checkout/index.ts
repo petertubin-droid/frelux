@@ -276,7 +276,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         tx_ref: contract.reference_code,
-        amount: minorToMajor(Number(contract.total_minor)),
+        amount: minorToMajor(Number(contract.total_minor), contract.currency),
         currency: contract.currency,
         redirect_url:
           payload.callback_url ??
