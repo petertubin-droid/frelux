@@ -120,7 +120,74 @@ function meta(html: string, prop: string): string | null {
   return m ? m[1].trim() : null;
 }
 
-function extract(html: string): ExtractedPrice {
+/**
+ * One number, whichever convention the page writes it in.
+ *
+ * `Number("1.234,56")` is NaN and `Number("1.234")` is 1.234, so a European
+ * page used to fall through JSON-LD and be rescued by the loose regex as a
+ * thousandth of its real price. The separator that comes last is the decimal
+ * one; a lone separator followed by exactly three digits is a thousands mark.
+ */
+function parseMoney(raw: string | number | null | undefined): number | null {
+  if (typeof raw === "number")
+    return Number.isFinite(raw) && raw > 0 ? raw : null;
+  if (raw == null) return null;
+  let s = String(raw)
+    .trim()
+    .replace(/[^\d.,-]/g, "");
+  if (!s) return null;
+  const lastComma = s.lastIndexOf(",");
+  const lastDot = s.lastIndexOf(".");
+  if (lastComma > -1 && lastDot > -1) {
+    s =
+      lastComma > lastDot
+        ? s.replace(/\./g, "").replace(/,/g, ".")
+        : s.replace(/,/g, "");
+  } else if (lastComma > -1) {
+    s =
+      s.length - lastComma - 1 === 3
+        ? s.replace(/,/g, "")
+        : s.replace(",", ".");
+  } else if ((s.match(/\./g) || []).length > 1) {
+    s = s.replace(/\./g, "");
+  }
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+const CURRENCY_SYMBOLS: [RegExp, string][] = [
+  [/€/, "EUR"],
+  [/£/, "GBP"],
+  [/₹/, "INR"],
+  [/₦/, "NGN"],
+  [/CHF/i, "CHF"],
+  [/R\$/, "BRL"],
+  [/₺|TL\b/, "TRY"],
+  [/zł/i, "PLN"],
+  [/kr\b/i, "SEK"],
+];
+
+/**
+ * The currency the page itself states. A price is never relabelled into the
+ * market's currency: a Swiss source showing EUR would otherwise be filed as
+ * CHF and applied at the wrong magnitude. A bare $ resolves to the market's
+ * own dollar (CAD, AUD, SGD, NZD) when it has one.
+ */
+function detectCurrency(
+  text: string | null | undefined,
+  marketCurrency: string,
+): string | null {
+  if (!text) return null;
+  const code = text.match(
+    /\b(USD|EUR|GBP|NGN|CHF|CAD|AUD|NZD|SGD|INR|JPY|CNY|ZAR|KES|GHS|EGP|TRY|PLN|SEK|BRL|MXN|AED|SAR|KRW|IDR)\b/i,
+  );
+  if (code) return code[1].toUpperCase();
+  for (const [re, iso] of CURRENCY_SYMBOLS) if (re.test(text)) return iso;
+  if (text.includes("$")) return marketCurrency || "USD";
+  return null;
+}
+
+function extract(html: string, marketCurrency = "USD"): ExtractedPrice {
   // 1. JSON-LD
   const ldMatches = html.matchAll(
     /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
@@ -129,9 +196,10 @@ function extract(html: string): ExtractedPrice {
     try {
       const parsed: unknown = JSON.parse(m[1].trim());
       const found = findJsonLdPrice(parsed);
-      if (found?.price) {
+      const ldPrice = parseMoney(found?.price ?? null);
+      if (ldPrice) {
         return {
-          price: Math.round(found.price * 100) / 100,
+          price: Math.round(ldPrice * 100) / 100,
           currency: found.currency ?? null,
           product_name: found.name ?? null,
           extraction: "json_ld",
@@ -149,8 +217,8 @@ function extract(html: string): ExtractedPrice {
     meta(html, "product:price:amount") ??
     meta(html, "og:price:standard_amount");
   if (metaPrice) {
-    const parsed = Number(metaPrice.replace(/[^0-9.]/g, ""));
-    if (Number.isFinite(parsed) && parsed > 0) {
+    const parsed = parseMoney(metaPrice);
+    if (parsed) {
       return {
         price: Math.round(parsed * 100) / 100,
         currency:
@@ -165,14 +233,14 @@ function extract(html: string): ExtractedPrice {
 
   // 3. Currency-amount regex fallback (USD/EUR/GBP/NGN/₦/£/€/$)
   const m = html.match(
-    /(?:[$£€₹]|USD\s*|EUR\s*|GBP\s*|NGN\s*)([0-9]{1,6}(?:[.,][0-9]{2})?)\b/,
+    /(?:[$£€₹₦₺]|USD\s*|EUR\s*|GBP\s*|NGN\s*|CHF\s*)([0-9]{1,3}(?:[.,\s][0-9]{3})*(?:[.,][0-9]{1,2})?|[0-9]{1,6}(?:[.,][0-9]{1,2})?)/,
   );
   if (m) {
-    const parsed = Number(m[1].replace(/,/g, ""));
-    if (Number.isFinite(parsed) && parsed > 0) {
+    const parsed = parseMoney(m[1]);
+    if (parsed) {
       return {
         price: parsed,
-        currency: null,
+        currency: detectCurrency(m[0], marketCurrency),
         product_name: meta(html, "og:title"),
         extraction: "regex",
         confidence: "low",
@@ -278,18 +346,47 @@ serveWithCors(async (req: Request) => {
     let html = "";
     let fetchError: string | null = null;
     let attempts = 1;
-    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
-      attempts = attempt + 1;
-      try {
-        const fetchRes = await fetch(parsed.toString(), {
+    let finalUrl = parsed.toString();
+    // Redirects are followed by hand: `redirect: "follow"` would let a public
+    // retailer bounce the server into an internal address after the host check
+    // has already passed, which is the classic SSRF hole.
+    const fetchOnce = async (start: URL): Promise<Response> => {
+      let current = start;
+      for (let hop = 0; hop <= 3; hop += 1) {
+        const res = await fetch(current.toString(), {
           headers: {
             "User-Agent": BROWSER_UA,
-            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            Accept:
+              "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.9",
           },
           signal: AbortSignal.timeout(12000),
-          redirect: "follow",
+          redirect: "manual",
         });
+        if (res.status >= 300 && res.status < 400) {
+          const location = res.headers.get("location");
+          if (!location) return res;
+          const next = new URL(location, current);
+          if (next.protocol !== "https:" && next.protocol !== "http:") {
+            throw new Error("that site redirected to an unsupported protocol");
+          }
+          if (isBlockedHost(next.hostname)) {
+            throw new Error(
+              "that site redirected to a host that cannot be fetched",
+            );
+          }
+          current = next;
+          continue;
+        }
+        finalUrl = current.toString();
+        return res;
+      }
+      throw new Error("that site redirected too many times");
+    };
+    for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
+      attempts = attempt + 1;
+      try {
+        const fetchRes = await fetchOnce(parsed);
         if (fetchRes.ok) {
           html = (await fetchRes.text()).slice(0, 2_000_000);
           fetchError = null;
@@ -309,34 +406,90 @@ serveWithCors(async (req: Request) => {
       fetchError = `${fetchError} (after ${attempts} attempts)`;
     }
 
+    // The market's own currency, from the caller or the configured source. It
+    // is the comparison point, never a value stamped onto whatever the page
+    // happened to show.
+    const marketCurrency =
+      String(body.currency ?? source?.currency ?? "").toUpperCase() || null;
     const result = fetchError
-      ? { price: null, currency: null, product_name: null, extraction: null, confidence: null }
-      : extract(html);
+      ? {
+          price: null,
+          currency: null,
+          product_name: null,
+          extraction: null,
+          confidence: null,
+        }
+      : extract(html, marketCurrency ?? "USD");
+    const extractedCurrency = result.currency
+      ? String(result.currency).toUpperCase()
+      : null;
+    const currencyMismatch =
+      Boolean(extractedCurrency) &&
+      Boolean(marketCurrency) &&
+      extractedCurrency !== marketCurrency;
+    const outOfRange =
+      result.price !== null &&
+      (result.price <= 0 || result.price > 100_000_000);
 
     // ── Store the scan as a candidate (pending review — never auto-apply) ──
+    // A pack size stated in the product name is the basis the price belongs to
+    // ("Cement 50 kg" is a bag price, not a per-kilo price). Without it the
+    // candidate inherits the expected unit and the reviewer can see the gap.
+    const packInName = String(result.product_name ?? "").match(
+      /\b(\d+(?:[.,]\d+)?)\s?(kg|g|l|litre|liter|ml|tonne|t|m2|m²|m3|m³|bag|piece|pcs|sheet|roll)\b/i,
+    );
     const candidateRow = {
       source_id: body.source_id ?? null,
       market,
       material_slug: materialSlug,
       retailer,
-      product_url: parsed.toString(),
+      product_url: finalUrl,
       product_name: result.product_name,
-      scraped_price: result.price,
-      currency: String(
-        result.currency ?? body.currency ?? source?.currency ?? "USD",
+      scraped_price: outOfRange ? null : result.price,
+      currency: extractedCurrency ?? marketCurrency ?? "USD",
+      unit: String(
+        body.unit ??
+          source?.expected_unit ??
+          (packInName ? packInName[0].replace(/\s+/g, "") : "unit"),
       ),
-      unit: String(body.unit ?? source?.expected_unit ?? "unit"),
       extraction: result.extraction,
-      confidence: result.confidence ?? "low",
-      scrape_error: fetchError ??
-        (result.price === null ? "No price found on the page" : null),
-      status: (fetchError || result.price === null) ? "failed" : "pending",
+      confidence: currencyMismatch ? "low" : (result.confidence ?? "low"),
+      scrape_error:
+        fetchError ??
+        (outOfRange
+          ? "The figure on the page is outside a plausible price range"
+          : result.price === null
+            ? "No price found on the page"
+            : currencyMismatch
+              ? `The page quotes ${extractedCurrency} but this market book is ${marketCurrency}; do not apply it as ${marketCurrency}`
+              : null),
+      status:
+        fetchError || result.price === null || outOfRange
+          ? "failed"
+          : "pending",
     };
-    const { data: candidate, error: insertError } = await supabaseClient
+    // Rescanning the same product replaces the outstanding pending row instead
+    // of stacking duplicates the reviewer then has to reconcile.
+    const { data: openCandidate } = await supabaseClient
       .from("price_scan_candidates")
-      .insert(candidateRow)
-      .select()
-      .single();
+      .select("id")
+      .eq("product_url", candidateRow.product_url)
+      .eq("material_slug", materialSlug)
+      .eq("status", "pending")
+      .limit(1)
+      .maybeSingle();
+    const { data: candidate, error: insertError } = openCandidate?.id
+      ? await supabaseClient
+          .from("price_scan_candidates")
+          .update(candidateRow)
+          .eq("id", openCandidate.id)
+          .select()
+          .single()
+      : await supabaseClient
+          .from("price_scan_candidates")
+          .insert(candidateRow)
+          .select()
+          .single();
 
     if (body.source_id) {
       await supabaseClient

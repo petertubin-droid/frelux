@@ -553,29 +553,122 @@ export async function fetchPriceHistory(priceType: string, refId: string) {
   return { data: (data ?? []) as EstimationPriceHistory[], error };
 }
 
+/** The ids of the rows that were active, so a failed write can restore them. */
+async function activePriceIds(
+  priceType: string,
+  refId: string,
+  market: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("estimation_prices")
+    .select("id")
+    .eq("price_type", priceType)
+    .eq("ref_id", refId)
+    .eq("market", market)
+    .eq("is_active", true);
+  return (data ?? []).map((row) => (row as { id: string }).id);
+}
+
 export async function createOrUpdatePrice(data: Partial<EstimationPrice>) {
+  const market = data.market ?? "NG";
+  let previous: string[] = [];
   // Deactivate only the previous ACTIVE price in the SAME market -
   // multi-market price books stay independent.
   if (data.price_type && data.ref_id) {
+    previous = await activePriceIds(data.price_type, data.ref_id, market);
     await supabase
       .from("estimation_prices")
       .update({ is_active: false })
       .eq("price_type", data.price_type)
       .eq("ref_id", data.ref_id)
-      .eq("market", data.market ?? "NG")
+      .eq("market", market)
       .eq("is_active", true);
   }
 
   const { data: record, error } = await supabase
     .from("estimation_prices")
-    .insert({ ...data, is_active: true })
+    .insert({ ...data, market, is_active: true })
     .select()
     .single();
+
+  // A price book with no active row for a material prices that material at
+  // nothing, so a failed insert must not leave the old price switched off.
+  if (error && previous.length > 0) {
+    await supabase
+      .from("estimation_prices")
+      .update({ is_active: true })
+      .in("id", previous);
+  }
 
   // A new price must be visible on the next read, not after the cache expires.
   if (!error) invalidatePriceCache();
 
   return { data: record as EstimationPrice | null, error };
+}
+
+/**
+ * The same write for many rows at once.
+ *
+ * The tracker applied selected rows one request at a time, so a twenty-row
+ * review was twenty round trips and a forty-row one could time out halfway,
+ * leaving half the book updated and no way to tell which half. This deactivates
+ * the previous actives in one statement, inserts everything in one statement,
+ * and restores every previous row if the insert fails.
+ */
+export async function createOrUpdatePrices(rows: Partial<EstimationPrice>[]) {
+  const usable = rows.filter(
+    (row) =>
+      row.price_type &&
+      row.ref_id &&
+      typeof row.price === "number" &&
+      Number.isFinite(row.price) &&
+      row.price > 0,
+  );
+  if (usable.length === 0) {
+    return { data: [] as EstimationPrice[], error: null };
+  }
+
+  const key = (row: Partial<EstimationPrice>) =>
+    `${row.price_type}|${row.ref_id}|${row.market ?? "NG"}`;
+  const groups = new Map<string, Partial<EstimationPrice>>();
+  for (const row of usable) groups.set(key(row), row);
+
+  const previous: string[] = [];
+  for (const row of groups.values()) {
+    previous.push(
+      ...(await activePriceIds(
+        String(row.price_type),
+        String(row.ref_id),
+        row.market ?? "NG",
+      )),
+    );
+  }
+  if (previous.length > 0) {
+    await supabase
+      .from("estimation_prices")
+      .update({ is_active: false })
+      .in("id", previous);
+  }
+
+  const payload = [...groups.values()].map((row) => ({
+    ...row,
+    market: row.market ?? "NG",
+    is_active: true,
+  }));
+  const { data, error } = await supabase
+    .from("estimation_prices")
+    .insert(payload)
+    .select();
+
+  if (error && previous.length > 0) {
+    await supabase
+      .from("estimation_prices")
+      .update({ is_active: true })
+      .in("id", previous);
+  }
+  if (!error) invalidatePriceCache();
+
+  return { data: (data ?? []) as EstimationPrice[], error };
 }
 
 export async function fetchAllPrices(

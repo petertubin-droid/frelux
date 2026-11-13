@@ -34,56 +34,64 @@ export interface FallbackPrice {
 export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 12500,
-    price_source: "NG market survey 2026-10-10: Dangote ~N12,000 Abuja, N12,000-15,000 national range",
+    price_source:
+      "NG market survey 2026-10-10: Dangote ~N12,000 Abuja, N12,000-15,000 national range",
     unit: "bag",
     name: "Cement (50kg)",
     slug: "cement-per-bag",
   },
   block_per_piece: {
     price: 800,
-    price_source: "NG market survey 2026-10-10: 9in vibrated N750-1,000 (Ugbede/Jiji listings)",
+    price_source:
+      "NG market survey 2026-10-10: 9in vibrated N750-1,000 (Ugbede/Jiji listings)",
     unit: "piece",
     name: "Block (9-inch)",
     slug: "block-per-piece",
   },
   sand_per_m3: {
     price: 21000,
-    price_source: "NG market survey 2026-10-10: ~N13,000/tonne Lagos, ~N21,000/m3",
+    price_source:
+      "NG market survey 2026-10-10: ~N13,000/tonne Lagos, ~N21,000/m3",
     unit: "m³",
     name: "Sharp Sand",
     slug: "sand-per-m3",
   },
   sand_per_trip: {
     price: 65000,
-    price_source: "NG market survey 2026-10-10: 5-tonne tipper, ~N13,000/tonne (Jiji 30t = N390,000)",
+    price_source:
+      "NG market survey 2026-10-10: 5-tonne tipper, ~N13,000/tonne (Jiji 30t = N390,000)",
     unit: "trip",
     name: "Sharp Sand (5-tonne tipper)",
     slug: "sand-per-trip",
   },
   granite_per_m3: {
     price: 30000,
-    price_source: "NG market survey 2026-10-10: 3/4in ~N18,000-20,000/tonne, ~N30,000/m3",
+    price_source:
+      "NG market survey 2026-10-10: 3/4in ~N18,000-20,000/tonne, ~N30,000/m3",
     unit: "m³",
     name: 'Granite (3/4")',
     slug: "granite-per-m3",
   },
   granite_per_trip: {
     price: 95000,
-    price_source: "NG market survey 2026-10-10: 5-tonne tipper at ~N19,000/tonne",
+    price_source:
+      "NG market survey 2026-10-10: 5-tonne tipper at ~N19,000/tonne",
     unit: "trip",
     name: "Granite (5-tonne tipper)",
     slug: "granite-per-trip",
   },
   hardcore_per_m3: {
     price: 18000,
-    price_source: "NG market survey 2026-10-10: quarry hardcore N12,000-25,000/m3 band",
+    price_source:
+      "NG market survey 2026-10-10: quarry hardcore N12,000-25,000/m3 band",
     unit: "m³",
     name: "Hardcore / Laterite",
     slug: "hardcore-per-m3",
   },
   reinforcement_per_tonne: {
     price: 950000,
-    price_source: "NG market survey 2026-10-10: per-ton quotes N827,500-1,072,000 (Dei-Dei/steel traders)",
+    price_source:
+      "NG market survey 2026-10-10: per-ton quotes N827,500-1,072,000 (Dei-Dei/steel traders)",
     unit: "tonne",
     name: "Reinforcement (bulk)",
     slug: "reinforcement-per-tonne",
@@ -97,84 +105,96 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
   },
   rebar_16mm_per_length: {
     price: 17000,
-    price_source: "NG market survey 2026-10-10: SEG N17,050; per-ton N837,500-870,000",
+    price_source:
+      "NG market survey 2026-10-10: SEG N17,050; per-ton N837,500-870,000",
     unit: "12m length",
     name: "16mm Rebar",
     slug: "rebar-16mm-per-length",
   },
   rebar_20mm_per_length: {
     price: 26000,
-    price_source: "NG market survey 2026-10-10: local N850,000-900,000/tonne / 34 lengths",
+    price_source:
+      "NG market survey 2026-10-10: local N850,000-900,000/tonne / 34 lengths",
     unit: "12m length",
     name: "20mm Rebar",
     slug: "rebar-20mm-per-length",
   },
   rebar_25mm_per_length: {
     price: 45000,
-    price_source: "NG market survey 2026-10-10: TMT ~N1,050,000/tonne / 22 lengths",
+    price_source:
+      "NG market survey 2026-10-10: TMT ~N1,050,000/tonne / 22 lengths",
     unit: "12m length",
     name: "25mm Rebar",
     slug: "rebar-25mm-per-length",
   },
   binding_wire_per_kg: {
     price: 2000,
-    price_source: "NG market survey 2026-10-10: Abuja guide N2,200/kg; Jiji 17kg roll N30,000",
+    price_source:
+      "NG market survey 2026-10-10: Abuja guide N2,200/kg; Jiji 17kg roll N30,000",
     unit: "kg",
     name: "Binding Wire",
     slug: "binding-wire-per-kg",
   },
   timber_per_m: {
     price: 1550,
-    price_source: "NG market survey 2026-10-10: 2x4 hardwood ~N470/ft (N1,550/metre)",
+    price_source:
+      "NG market survey 2026-10-10: 2x4 hardwood ~N470/ft (N1,550/metre)",
     unit: "linear meter",
     name: "Timber (2x4)",
     slug: "timber-per-m",
   },
   roofing_sheet_per_piece: {
     price: 9800,
-    price_source: "NG market survey 2026-10-10: longspan 0.50mm N6,500/m2 x 1.5m2 sheet (Lagos)",
+    price_source:
+      "NG market survey 2026-10-10: longspan 0.50mm N6,500/m2 x 1.5m2 sheet (Lagos)",
     unit: "piece",
     name: "Roofing Sheet",
     slug: "roofing-sheet-per-piece",
   },
   ridge_cap_per_meter: {
     price: 2500,
-    price_source: "NG market survey 2026-10-10: consistent with 2017-2020 N1,500-1,700/m scaled by sheet inflation",
+    price_source:
+      "NG market survey 2026-10-10: consistent with 2017-2020 N1,500-1,700/m scaled by sheet inflation",
     unit: "linear meter",
     name: "Ridge Cap",
     slug: "ridge-cap-per-meter",
   },
   roofing_screws_per_piece: {
     price: 150,
-    price_source: "NG market survey 2026-10-10: bulk N80-140 each; retail ~N150",
+    price_source:
+      "NG market survey 2026-10-10: bulk N80-140 each; retail ~N150",
     unit: "piece",
     name: "Roofing Screw",
     slug: "roofing-screws-per-piece",
   },
   fascia_per_meter: {
     price: 3000,
-    price_source: "NG market survey 2026-10-10: facial board N2,500/m (2017) scaled by sheet inflation",
+    price_source:
+      "NG market survey 2026-10-10: facial board N2,500/m (2017) scaled by sheet inflation",
     unit: "linear meter",
     name: "Fascia Board",
     slug: "fascia-per-meter",
   },
   dpc_per_meter: {
     price: 500,
-    price_source: "NG market survey 2026-10-10: DPC roll strip pricing consistent with DPM/m2",
+    price_source:
+      "NG market survey 2026-10-10: DPC roll strip pricing consistent with DPM/m2",
     unit: "linear meter",
     name: "DPC Roll",
     slug: "dpc-per-meter",
   },
   dpm_per_m2: {
     price: 1500,
-    price_source: "NG market survey 2026-10-10: 1000g DPM rolls N800-1,500/m2 (Jiji Lagos)",
+    price_source:
+      "NG market survey 2026-10-10: 1000g DPM rolls N800-1,500/m2 (Jiji Lagos)",
     unit: "m²",
     name: "DPM Membrane",
     slug: "dpm-per-m2",
   },
   formwork_per_m2: {
     price: 8000,
-    price_source: "NG market survey 2026-10-10: 18mm ply N40,000-48,000/sheet incl. props and nails",
+    price_source:
+      "NG market survey 2026-10-10: 18mm ply N40,000-48,000/sheet incl. props and nails",
     unit: "m²",
     name: "Formwork (plywood + nails)",
     slug: "formwork-per-m2",
@@ -598,21 +618,24 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   us_flashing_tape: {
     price: 44.09,
-    price_source: "US web survey 2026-10-10: mrosupreme reg $44.09; band $35.47-$51.07",
+    price_source:
+      "US web survey 2026-10-10: mrosupreme reg $44.09; band $35.47-$51.07",
     unit: "4 in x 75 ft roll",
     name: "3M 8067 All Weather Flashing Tape",
     slug: "us-3m-flashing-tape",
   },
   us_fibatape_500ft: {
     price: 17.59,
-    price_source: "US web survey 2026-10-10: Home Depot FibaTape listings (300ft $13.99)",
+    price_source:
+      "US web survey 2026-10-10: Home Depot FibaTape listings (300ft $13.99)",
     unit: "500 ft roll",
     name: "FibaTape Mesh Drywall Joint Tape",
     slug: "us-fibatape-500ft",
   },
   us_ice_water_shield: {
     price: 199.0,
-    price_source: "US web survey 2026-10-10: Home Depot Grace 195 sqft $199-$251",
+    price_source:
+      "US web survey 2026-10-10: Home Depot Grace 195 sqft $199-$251",
     unit: "195 sq ft roll",
     name: "Ice & Water Shield Self-Adhered Membrane",
     slug: "us-ice-water-shield-195sqft",
@@ -626,16 +649,33 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   us_husky_6mil: {
     price: 67.5,
-    price_source: "US web survey 2026-10-10: Home Depot 10ft x 100ft 6-mil clear sheeting",
+    price_source:
+      "US web survey 2026-10-10: Home Depot 10ft x 100ft 6-mil clear sheeting",
     unit: "10 ft x 100 ft roll",
     name: "Husky 6-mil Polyethylene Sheeting",
     slug: "us-husky-6mil-roll",
   },
 };
 
-
 /** Markets with a web-verified reference catalog (2026-10-10 survey). */
-export type ReferenceMarket = "NG" | "US" | "GB" | "DE" | "AU" | "CA" | "IN" | "CN" | "ID" | "MX" | "KR" | "IT" | "JP" | "FR" | "BR" | "SA" | "AE";
+export type ReferenceMarket =
+  | "NG"
+  | "US"
+  | "GB"
+  | "DE"
+  | "AU"
+  | "CA"
+  | "IN"
+  | "CN"
+  | "ID"
+  | "MX"
+  | "KR"
+  | "IT"
+  | "JP"
+  | "FR"
+  | "BR"
+  | "SA"
+  | "AE";
 
 /**
  * UK reference catalog (GBP, incl. VAT retail unless noted).
@@ -645,7 +685,8 @@ export type ReferenceMarket = "NG" | "US" | "GB" | "DE" | "AU" | "CA" | "IN" | "
 export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   gb_mastercrete: {
     price: 7.99,
-    price_source: "UK web survey 2026-10-10: Buildbuddy £7.00, Pricerunner GP cement £7.48",
+    price_source:
+      "UK web survey 2026-10-10: Buildbuddy £7.00, Pricerunner GP cement £7.48",
     unit: "25kg bag",
     name: "Blue Circle Mastercrete Cement",
     slug: "gb-mastercrete-25kg",
@@ -666,7 +707,8 @@ export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   gb_thistle_multifinish: {
     price: 11.25,
-    price_source: "UK web survey 2026-10-10: Wickes £11.25, Selco £10.13, Travis Perkins £13.10",
+    price_source:
+      "UK web survey 2026-10-10: Wickes £11.25, Selco £10.13, Travis Perkins £13.10",
     unit: "25kg bag",
     name: "Thistle MultiFinish",
     slug: "gb-thistle-multifinish-25kg",
@@ -680,7 +722,8 @@ export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   gb_gyproc_tape: {
     price: 11.53,
-    price_source: "UK web survey 2026-10-10: Builder Depot £11.53, Travis Perkins £21.46",
+    price_source:
+      "UK web survey 2026-10-10: Builder Depot £11.53, Travis Perkins £21.46",
     unit: "150m roll",
     name: "Gyproc Paper Joint Tape",
     slug: "gb-gyproc-tape-150m",
@@ -694,14 +737,16 @@ export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   gb_sandtex: {
     price: 45.99,
-    price_source: "UK web survey 2026-10-10: Screwfix Sandtex Ultra Smooth 10L £45.99",
+    price_source:
+      "UK web survey 2026-10-10: Screwfix Sandtex Ultra Smooth 10L £45.99",
     unit: "10L",
     name: "Sandtex Masonry Paint",
     slug: "gb-sandtex-masonry-10l",
   },
   gb_zinsser_123: {
     price: 24.49,
-    price_source: "UK web survey 2026-10-10: Toolstation/UK retail band £19-£25 (1L)",
+    price_source:
+      "UK web survey 2026-10-10: Toolstation/UK retail band £19-£25 (1L)",
     unit: "1L",
     name: "Zinsser Bulls Eye 1-2-3",
     slug: "gb-zinsser-123-1l",
@@ -715,7 +760,8 @@ export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   gb_everbuild_sbr: {
     price: 19.9,
-    price_source: "UK web survey 2026-10-10: Amazon £24, HTC Direct £16.67, Country Supplies £19.90",
+    price_source:
+      "UK web survey 2026-10-10: Amazon £24, HTC Direct £16.67, Country Supplies £19.90",
     unit: "5L",
     name: "Everbuild SBR Bond",
     slug: "gb-everbuild-sbr-5l",
@@ -730,7 +776,8 @@ export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const DE_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   de_cement: {
     price: 6.99,
-    price_source: "DE web survey 2026-10-10: HORNBACH Dyckerhoff CEM 25kg €7.45 incl. MwSt",
+    price_source:
+      "DE web survey 2026-10-10: HORNBACH Dyckerhoff CEM 25kg €7.45 incl. MwSt",
     unit: "25kg sack",
     name: "Portlandzement CEM II 42,5N",
     slug: "de-cem-42-5n-25kg",
@@ -744,35 +791,40 @@ export const DE_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   de_mp75: {
     price: 13.88,
-    price_source: "DE web survey 2026-10-10: Bossmann Knauf MP75 Diamant 30kg €13.88 incl. MwSt",
+    price_source:
+      "DE web survey 2026-10-10: Bossmann Knauf MP75 Diamant 30kg €13.88 incl. MwSt",
     unit: "30kg sack",
     name: "Knauf MP75 Maschinenputz",
     slug: "de-knauf-mp75-30kg",
   },
   de_feinspachtel: {
     price: 44.31,
-    price_source: "DE web survey 2026-10-10: Knauf Uniflott 25kg band €44-€51.99",
+    price_source:
+      "DE web survey 2026-10-10: Knauf Uniflott 25kg band €44-€51.99",
     unit: "25kg sack",
     name: "Knauf Feinspachtel",
     slug: "de-knauf-feinspachtel-25kg",
   },
   de_tiefgrund: {
     price: 59.4,
-    price_source: "DE web survey 2026-10-10: idealo/auspreiser 7 offers, €4.99/L (10L)",
+    price_source:
+      "DE web survey 2026-10-10: idealo/auspreiser 7 offers, €4.99/L (10L)",
     unit: "10L",
     name: "Caparol Tiefgrund TB",
     slug: "de-caparol-tiefgrund-10l",
   },
   de_alpina_weiss: {
     price: 39.95,
-    price_source: "DE web survey 2026-10-10: OBI Alpina white interior 10L band",
+    price_source:
+      "DE web survey 2026-10-10: OBI Alpina white interior 10L band",
     unit: "10L",
     name: "Alpina Weiß",
     slug: "de-alpina-weiss-10l",
   },
   de_alpina_fassadenfarbe: {
     price: 59.99,
-    price_source: "DE web survey 2026-10-10: OBI premium facade 10L band €49.95-€64.95",
+    price_source:
+      "DE web survey 2026-10-10: OBI premium facade 10L band €49.95-€64.95",
     unit: "10L",
     name: "Alpina Fassadenfarbe",
     slug: "de-alpina-fassadenfarbe-10l",
@@ -786,21 +838,24 @@ export const DE_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const AU_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   au_base_coat_45: {
     price: 52.9,
-    price_source: "AU web survey 2026-10-10: Bunnings Gyprock CSR 20kg Base Coat 45 $52.90",
+    price_source:
+      "AU web survey 2026-10-10: Bunnings Gyprock CSR 20kg Base Coat 45 $52.90",
     unit: "20kg bag",
     name: "CSR Gyprock Base Coat 45",
     slug: "au-csr-base-coat-45-20kg",
   },
   au_taubmans_3in1: {
     price: 153.3,
-    price_source: "AU web survey 2026-10-10: Taubmans 15L 3-in-1 RRP $229.90 scaled per-litre",
+    price_source:
+      "AU web survey 2026-10-10: Taubmans 15L 3-in-1 RRP $229.90 scaled per-litre",
     unit: "10L",
     name: "Taubmans 3-in-1 Prep Primer",
     slug: "au-taubmans-3in1-10l",
   },
   au_taubmans_endure: {
     price: 213.9,
-    price_source: "AU web survey 2026-10-10: Bunnings Taubmans 10L Endure $213.90",
+    price_source:
+      "AU web survey 2026-10-10: Bunnings Taubmans 10L Endure $213.90",
     unit: "10L",
     name: "Taubmans Endure Low Sheen",
     slug: "au-taubmans-low-sheen-10l",
@@ -815,14 +870,16 @@ export const AU_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const CA_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   ca_cgc_compound: {
     price: 37.78,
-    price_source: "CA web survey 2026-10-10: CTS Building Supplies 12L pails band $35-$43",
+    price_source:
+      "CA web survey 2026-10-10: CTS Building Supplies 12L pails band $35-$43",
     unit: "12L pail",
     name: "CGC Sheetrock All-Purpose Compound",
     slug: "ca-cgc-allpurpose-12l",
   },
   ca_synko_tape: {
     price: 9.84,
-    price_source: "CA web survey 2026-10-10: Kent Building Supplies CGC paper tape 500ft $9.84",
+    price_source:
+      "CA web survey 2026-10-10: Kent Building Supplies CGC paper tape 500ft $9.84",
     unit: "500 ft roll",
     name: "CGC Synko Paper Joint Tape",
     slug: "ca-cgc-synko-tape-500ft",
@@ -837,7 +894,8 @@ export const CA_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const IN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   in_ultratech: {
     price: 395,
-    price_source: "IN web survey 2026-10-10: 99acres latest rates, 43 grade ₹395/bag",
+    price_source:
+      "IN web survey 2026-10-10: 99acres latest rates, 43 grade ₹395/bag",
     unit: "50kg bag",
     name: "UltraTech OPC Cement",
     slug: "in-ultratech-cement-50kg",
@@ -851,35 +909,40 @@ export const IN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   },
   in_royale_shyne: {
     price: 3920,
-    price_source: "IN web survey 2026-10-10: India retail 7L band ₹3,900-₹4,400",
+    price_source:
+      "IN web survey 2026-10-10: India retail 7L band ₹3,900-₹4,400",
     unit: "7L",
     name: "Asian Paints Royale Shyne",
     slug: "in-royale-shyne-7l",
   },
   in_tractor_emulsion: {
     price: 2600,
-    price_source: "IN web survey 2026-10-10: IndiaMART Hyderabad ₹2,600 per 20L",
+    price_source:
+      "IN web survey 2026-10-10: IndiaMART Hyderabad ₹2,600 per 20L",
     unit: "20L",
     name: "Asian Paints Tractor Emulsion",
     slug: "in-tractor-emulsion-20l",
   },
   in_trucare_primer: {
     price: 2750,
-    price_source: "IN web survey 2026-10-10: TruCare 20L retail band ₹1,850-₹3,299",
+    price_source:
+      "IN web survey 2026-10-10: TruCare 20L retail band ₹1,850-₹3,299",
     unit: "20L",
     name: "Asian Paints TruCare Primer",
     slug: "in-trucare-primer-20l",
   },
   in_birla_putty: {
     price: 700,
-    price_source: "IN web survey 2026-10-10: trade ₹700 per 40kg bag; online retail ₹1,130",
+    price_source:
+      "IN web survey 2026-10-10: trade ₹700 per 40kg bag; online retail ₹1,130",
     unit: "40kg bag",
     name: "Birla White WallCare Putty",
     slug: "in-birla-white-putty-40kg",
   },
   in_dr_fixit: {
     price: 600,
-    price_source: "IN web survey 2026-10-10: Industrybuying ₹770; IndiaMART band ₹550-₹650 (5L)",
+    price_source:
+      "IN web survey 2026-10-10: Industrybuying ₹770; IndiaMART band ₹550-₹650 (5L)",
     unit: "5L",
     name: "Dr. Fixit LW+ Waterproofing",
     slug: "in-dr-fixit-lw-5l",
@@ -891,35 +954,40 @@ export const IN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const CN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 32,
-    price_source: "CN market survey 2026-10: Anhui Conch 50kg bag P.O 42.5 ~30-35 CNY",
+    price_source:
+      "CN market survey 2026-10: Anhui Conch 50kg bag P.O 42.5 ~30-35 CNY",
     unit: "bag",
     name: "Cement 50kg (Conch / BBMG P.O 42.5)",
     slug: "cement-per-bag",
   },
   screed_paint_per_sqm: {
     price: 18,
-    price_source: "CN market survey 2026-10: Nippon Paint / Dulux 20kg waterproof putty ~18 CNY/m² applied",
+    price_source:
+      "CN market survey 2026-10: Nippon Paint / Dulux 20kg waterproof putty ~18 CNY/m² applied",
     unit: "m²",
     name: "Water-resistant Putty & Base Coat",
     slug: "screed-paint-per-sqm",
   },
   plasterboard_sheet: {
     price: 36,
-    price_source: "CN market survey 2026-10: BNBM Dragon Brand 1200x2400x9.5mm gypsum board ~36 CNY/sheet",
+    price_source:
+      "CN market survey 2026-10: BNBM Dragon Brand 1200x2400x9.5mm gypsum board ~36 CNY/sheet",
     unit: "sheet",
     name: "Gypsum Board 1200x2400x9.5mm (Dragon Brand)",
     slug: "plasterboard-sheet",
   },
   tile_adhesive_per_bag: {
     price: 45,
-    price_source: "CN market survey 2026-10: Davco / Bostik C1 C2 tile adhesive 20kg ~42-48 CNY",
+    price_source:
+      "CN market survey 2026-10: Davco / Bostik C1 C2 tile adhesive 20kg ~42-48 CNY",
     unit: "bag",
     name: "Davco C1 Tile Adhesive 20kg",
     slug: "tile-adhesive-per-bag",
   },
   waterproofing_per_bucket: {
     price: 180,
-    price_source: "CN market survey 2026-10: Oriental Yuhong JS Polymer waterproof coating 20kg ~180 CNY",
+    price_source:
+      "CN market survey 2026-10: Oriental Yuhong JS Polymer waterproof coating 20kg ~180 CNY",
     unit: "bucket",
     name: "JS Polymer Waterproof Coating 20kg",
     slug: "waterproofing-per-bucket",
@@ -929,35 +997,40 @@ export const CN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const ID_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 72000,
-    price_source: "ID market survey 2026-10: Semen Gresik / Tiga Roda 50kg bag ~68,000-75,000 IDR",
+    price_source:
+      "ID market survey 2026-10: Semen Gresik / Tiga Roda 50kg bag ~68,000-75,000 IDR",
     unit: "bag",
     name: "Cement 50kg (Semen Tiga Roda / Gresik)",
     slug: "cement-per-bag",
   },
   screed_paint_per_sqm: {
     price: 32000,
-    price_source: "ID market survey 2026-10: Mortar Utama MU-200 skim coat 40kg bag ~32,000 IDR/m²",
+    price_source:
+      "ID market survey 2026-10: Mortar Utama MU-200 skim coat 40kg bag ~32,000 IDR/m²",
     unit: "m²",
     name: "Mortar Utama MU-200 Acian Plester",
     slug: "screed-paint-per-sqm",
   },
   plasterboard_sheet: {
     price: 85000,
-    price_source: "ID market survey 2026-10: Jayaboard Sheetrock 1200x2400x9mm ~85,000 IDR/sheet",
+    price_source:
+      "ID market survey 2026-10: Jayaboard Sheetrock 1200x2400x9mm ~85,000 IDR/sheet",
     unit: "sheet",
     name: "Jayaboard Gypsum Board 9mm",
     slug: "plasterboard-sheet",
   },
   tile_adhesive_per_bag: {
     price: 95000,
-    price_source: "ID market survey 2026-10: MU-400 Perekat Keramik 25kg ~95,000 IDR",
+    price_source:
+      "ID market survey 2026-10: MU-400 Perekat Keramik 25kg ~95,000 IDR",
     unit: "bag",
     name: "MU-400 Perekat Keramik 25kg",
     slug: "tile-adhesive-per-bag",
   },
   waterproofing_per_bucket: {
     price: 240000,
-    price_source: "ID market survey 2026-10: Aquaproof / No Drop pelapis anti bocor 20kg ~240,000 IDR",
+    price_source:
+      "ID market survey 2026-10: Aquaproof / No Drop pelapis anti bocor 20kg ~240,000 IDR",
     unit: "bucket",
     name: "Aquaproof Waterproof Coating 20kg",
     slug: "waterproofing-per-bucket",
@@ -967,35 +1040,40 @@ export const ID_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const MX_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 255,
-    price_source: "MX market survey 2026-10: Cemex Tolteca / Moctezuma CPO 40 50kg bulto ~245-265 MXN",
+    price_source:
+      "MX market survey 2026-10: Cemex Tolteca / Moctezuma CPO 40 50kg bulto ~245-265 MXN",
     unit: "bag",
     name: "Cemento Gris 50kg (Cemex Tolteca)",
     slug: "cement-per-bag",
   },
   screed_paint_per_sqm: {
     price: 85,
-    price_source: "MX market survey 2026-10: Panel Rey / Yeso Redimix pasta 20kg bulto ~85 MXN/m²",
+    price_source:
+      "MX market survey 2026-10: Panel Rey / Yeso Redimix pasta 20kg bulto ~85 MXN/m²",
     unit: "m²",
     name: "Pasta Acabado Yeso / Redimix 20kg",
     slug: "screed-paint-per-sqm",
   },
   plasterboard_sheet: {
     price: 195,
-    price_source: "MX market survey 2026-10: Panel Rey Tablaroca Regular 1.22x2.44m x 12.7mm ~195 MXN",
+    price_source:
+      "MX market survey 2026-10: Panel Rey Tablaroca Regular 1.22x2.44m x 12.7mm ~195 MXN",
     unit: "sheet",
     name: "Tablaroca Panel Rey 12.7mm (1/2 in)",
     slug: "plasterboard-sheet",
   },
   tile_adhesive_per_bag: {
     price: 130,
-    price_source: "MX market survey 2026-10: Crest / Niasa Pegazulejo adhesivo 20kg ~125-135 MXN",
+    price_source:
+      "MX market survey 2026-10: Crest / Niasa Pegazulejo adhesivo 20kg ~125-135 MXN",
     unit: "bag",
     name: "Pegazulejo Crest Blanco 20kg",
     slug: "tile-adhesive-per-bag",
   },
   waterproofing_per_bucket: {
     price: 1450,
-    price_source: "MX market survey 2026-10: Fester / Comex Top impermeabilizante acrilico 19L cubeta ~1,450 MXN",
+    price_source:
+      "MX market survey 2026-10: Fester / Comex Top impermeabilizante acrilico 19L cubeta ~1,450 MXN",
     unit: "bucket",
     name: "Impermeabilizante Acrilico Fester 19L",
     slug: "waterproofing-per-bucket",
@@ -1005,35 +1083,40 @@ export const MX_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const KR_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 9500,
-    price_source: "KR market survey 2026-10: SsangYong / Hanil Portland Cement 40kg bag ~9,200-9,800 KRW",
+    price_source:
+      "KR market survey 2026-10: SsangYong / Hanil Portland Cement 40kg bag ~9,200-9,800 KRW",
     unit: "bag",
     name: "Portland Cement 40kg (SsangYong C&E)",
     slug: "cement-per-bag",
   },
   screed_paint_per_sqm: {
     price: 7500,
-    price_source: "KR market survey 2026-10: Terraco Handycoat Interior Putty 25kg pail ~7,500 KRW/m²",
+    price_source:
+      "KR market survey 2026-10: Terraco Handycoat Interior Putty 25kg pail ~7,500 KRW/m²",
     unit: "m²",
     name: "Handycoat Interior Putty (핸디코트)",
     slug: "screed-paint-per-sqm",
   },
   plasterboard_sheet: {
     price: 5200,
-    price_source: "KR market survey 2026-10: KCC Regular Gypsum Board 900x1800x9.5mm ~5,200 KRW/sheet",
+    price_source:
+      "KR market survey 2026-10: KCC Regular Gypsum Board 900x1800x9.5mm ~5,200 KRW/sheet",
     unit: "sheet",
     name: "KCC Gypsum Board 900x1800x9.5mm (석고보드)",
     slug: "plasterboard-sheet",
   },
   tile_adhesive_per_bag: {
     price: 16000,
-    price_source: "KR market survey 2026-10: SsangYong Tile Bond 20kg ~16,000 KRW",
+    price_source:
+      "KR market survey 2026-10: SsangYong Tile Bond 20kg ~16,000 KRW",
     unit: "bag",
     name: "SsangYong Tile Bond 20kg",
     slug: "tile-adhesive-per-bag",
   },
   waterproofing_per_bucket: {
     price: 68000,
-    price_source: "KR market survey 2026-10: Samhwa / Noroo Polyurethane waterproof coating 18L ~68,000 KRW",
+    price_source:
+      "KR market survey 2026-10: Samhwa / Noroo Polyurethane waterproof coating 18L ~68,000 KRW",
     unit: "bucket",
     name: "Polyurethane Waterproof Coating 18L",
     slug: "waterproofing-per-bucket",
@@ -1043,35 +1126,40 @@ export const KR_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 export const IT_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   cement_per_bag: {
     price: 6.8,
-    price_source: "IT market survey 2026-10: Buzzi Unicem / Italcementi 25kg sacco 32.5R ~6.50-7.20 EUR",
+    price_source:
+      "IT market survey 2026-10: Buzzi Unicem / Italcementi 25kg sacco 32.5R ~6.50-7.20 EUR",
     unit: "bag",
     name: "Cemento Portland 32.5R 25kg",
     slug: "cement-per-bag",
   },
   screed_paint_per_sqm: {
     price: 8.5,
-    price_source: "IT market survey 2026-10: Fassa Bortolo ZL25 / Mapei Planitop rasante gesso 25kg sacco ~8.50 EUR/m²",
+    price_source:
+      "IT market survey 2026-10: Fassa Bortolo ZL25 / Mapei Planitop rasante gesso 25kg sacco ~8.50 EUR/m²",
     unit: "m²",
     name: "Fassa Bortolo Rasante Intonaco 25kg",
     slug: "screed-paint-per-sqm",
   },
   plasterboard_sheet: {
     price: 11.5,
-    price_source: "IT market survey 2026-10: Knauf / Gyproc Saint-Gobain Lastra Cartongesso 1200x2000x12.5mm ~11.50 EUR",
+    price_source:
+      "IT market survey 2026-10: Knauf / Gyproc Saint-Gobain Lastra Cartongesso 1200x2000x12.5mm ~11.50 EUR",
     unit: "sheet",
     name: "Lastra Cartongesso Standard 12.5mm (Knauf)",
     slug: "plasterboard-sheet",
   },
   tile_adhesive_per_bag: {
     price: 18.5,
-    price_source: "IT market survey 2026-10: Mapei Adesilex P9 / Kerakoll H40 C2TE 25kg ~18.50 EUR",
+    price_source:
+      "IT market survey 2026-10: Mapei Adesilex P9 / Kerakoll H40 C2TE 25kg ~18.50 EUR",
     unit: "bag",
     name: "Mapei Adesilex P9 C2TE 25kg",
     slug: "tile-adhesive-per-bag",
   },
   waterproofing_per_bucket: {
     price: 75,
-    price_source: "IT market survey 2026-10: Mapei Mapelastic / Aquaflex impermeabilizzante 20kg fusto ~75 EUR",
+    price_source:
+      "IT market survey 2026-10: Mapei Mapelastic / Aquaflex impermeabilizzante 20kg fusto ~75 EUR",
     unit: "bucket",
     name: "Mapei Mapelastic / Aquaflex 20kg",
     slug: "waterproofing-per-bucket",
@@ -1102,7 +1190,10 @@ export const FR_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
  */
 export const BR_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
 
-export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
+export const MARKET_CATALOGS: Record<
+  ReferenceMarket,
+  Record<string, FallbackPrice>
+> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
   GB: GB_REFERENCE_PRICES,
@@ -1201,8 +1292,12 @@ export async function scanMaterialPrices(
   const { region, currency } = options;
   const market: ReferenceMarket = options.market ?? "NG";
   const defaults = MARKET_DEFAULTS[market] ?? MARKET_DEFAULTS.NG;
-  const catalog: Record<string, FallbackPrice> =
-    MARKET_CATALOGS[market] ?? FALLBACK_PRICES;
+  // No silent fallback to the Nigerian book: a market without its own catalog
+  // would otherwise be offered naira figures to apply in its own currency.
+  const catalog: Record<string, FallbackPrice> | null =
+    Object.prototype.hasOwnProperty.call(MARKET_CATALOGS, market)
+      ? MARKET_CATALOGS[market]
+      : null;
   const catalogLabel =
     market === "US"
       ? "FRELUX Reference Catalog (US retail, verified 2026-10-05/10-10)"
@@ -1211,6 +1306,20 @@ export async function scanMaterialPrices(
   const effCurrency = currency ?? defaults.currency;
   const scannedAt = new Date().toISOString();
   const results: PriceScanResultItem[] = [];
+
+  if (!catalog) {
+    return {
+      scan_date: scannedAt,
+      materials_scanned: 0,
+      materials_unconfigured: 0,
+      materials_differing: 0,
+      materials_failed: 0,
+      results,
+      currency: effCurrency,
+      market_region: effRegion,
+      error: `No reference catalog exists for ${market}; nothing is offered for application.`,
+    } as PriceScanReport;
+  }
 
   let unconfigured = 0;
   let differing = 0;
@@ -1243,7 +1352,13 @@ export async function scanMaterialPrices(
     if (!hasConfigured) unconfigured++;
 
     let changePercent: number | null = null;
-    if (hasConfigured && fallback.price !== null) {
+    // A stored zero is not a denominator: it used to report Infinity as a
+    // percentage change instead of "no comparison".
+    if (
+      hasConfigured &&
+      (configured as number) > 0 &&
+      fallback.price !== null
+    ) {
       changePercent =
         Math.round(
           ((fallback.price - (configured as number)) / (configured as number)) *

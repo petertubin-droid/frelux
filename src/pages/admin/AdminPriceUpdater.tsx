@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import {
   fetchEstimationMaterials,
   fetchAllPrices,
-  createOrUpdatePrice,
+  createOrUpdatePrices,
 } from "@/lib/estimation/queries";
 import type { EstimationMaterial, EstimationPrice } from "@/types/estimation";
 
@@ -172,7 +172,9 @@ export default function AdminPriceUpdater() {
     } finally {
       setScanning(false);
     }
-  }, []);
+    // The market is read inside, so it belongs in the dependency list: with an
+    // empty list the selector changed the label but kept loading the first book.
+  }, [market]);
 
   useEffect(() => {
     void loadShared();
@@ -207,6 +209,7 @@ export default function AdminPriceUpdater() {
     const status: ApplyStatus = { ok: 0, failed: 0, skipped: 0, messages: [] };
     try {
       const today = new Date().toISOString().slice(0, 10);
+      const writes: Partial<EstimationPrice>[] = [];
       for (const row of rows.filter((r) => r.selected)) {
         const materialId = slugToId.get(row.slug);
         if (!row.hasMaterial || !materialId) {
@@ -217,30 +220,38 @@ export default function AdminPriceUpdater() {
           continue;
         }
         const price = Number(row.priceInput);
-        if (!Number.isFinite(price) || price < 0) {
+        // Zero is not a price: applied as one it makes the material free and
+        // every estimate that consumes it wrong.
+        if (!Number.isFinite(price) || price <= 0) {
           status.skipped++;
           status.messages.push(
             `${row.name}: no verified price entered: skipped.`,
           );
           continue;
         }
-        const { error: writeError } = await createOrUpdatePrice({
+        writes.push({
           price_type: "material",
           ref_id: materialId,
           price,
           currency: MARKET_META[market].currency,
           market,
           effective_date: today,
+          price_source: `FRELUX ${market} reference catalog, admin verified ${today}`,
           notes: `Applied from FRELUX ${market} reference catalog via Price Tracker (admin verified ${today}). Unit: ${row.unit}.`,
           is_active: true,
         });
+      }
+      if (writes.length > 0) {
+        // One statement for the whole selection: twenty rows used to be twenty
+        // requests, and a long review could time out halfway through.
+        const { error: writeError } = await createOrUpdatePrices(writes);
         if (writeError) {
-          status.failed++;
+          status.failed = writes.length;
           status.messages.push(
-            `${row.name}: could not save: ${writeError.message}`,
+            `None of the ${writes.length} prices were saved: ${writeError.message}. The previous prices stay active.`,
           );
         } else {
-          status.ok++;
+          status.ok = writes.length;
         }
       }
       setApplyStatus(status);
