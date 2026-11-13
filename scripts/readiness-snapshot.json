@@ -261,7 +261,7 @@
       "price_rows": 60
     }
   ],
-  "tax_rule_markets": 1,
+  "tax_rule_markets": 38,
   "chargeable_currencies": [
     "AED",
     "AUD",

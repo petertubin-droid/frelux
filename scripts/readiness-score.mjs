@@ -11,6 +11,7 @@
  */
 import { readFileSync } from "node:fs";
 
+const buildScript = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).scripts.build;
 const snap = JSON.parse(readFileSync(new URL("./readiness-snapshot.json", import.meta.url), "utf8"));
 const markets = snap.markets;
 const total = markets.length;
@@ -90,7 +91,7 @@ const dims = [
     criteria: [
       { label: "32px control standard", value: 1, target: 1, rule: "held in calculator UI" },
       { label: "Lighthouse run in CI", value: 1, target: 1, rule: "on every push" },
-      { label: "Bundle budget gated in CI", value: 0, target: 1, rule: "script exists, not gated" },
+      { label: "Bundle budget gated in CI", value: /check-bundle-budget/.test(buildScript) ? 1 : 0, target: 1, rule: "fails the build when a chunk exceeds budget" },
     ],
   },
 ];
