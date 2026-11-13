@@ -306,9 +306,7 @@ export const AdminEngineMatrix: React.FC = () => {
                         <div className="font-semibold text-zinc-200">
                           {engine.name}
                         </div>
-                        <div className="text-xs text-zinc-500">
-                          {engine.id}
-                        </div>
+                        <div className="text-xs text-zinc-500">{engine.id}</div>
                       </td>
                       <td className="py-3 px-4">
                         {engine.classification.replace(/_/g, " ")}
@@ -416,9 +414,7 @@ function MarketDetail({
         <Icon className="w-3.5 h-3.5" />
         {c.label}
       </span>
-      <span className="text-zinc-500 text-xs truncate max-w-xs">
-        {notes}
-      </span>
+      <span className="text-zinc-500 text-xs truncate max-w-xs">{notes}</span>
     </div>
   );
 }

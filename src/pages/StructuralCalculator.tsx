@@ -3049,9 +3049,7 @@ function LoadUnitToggle({
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
-      <span className="text-xs font-medium text-muted-foreground">
-        Loads:
-      </span>
+      <span className="text-xs font-medium text-muted-foreground">Loads:</span>
       <div className="inline-flex overflow-hidden rounded-lg border border-border dark:border-white/10">
         <button
           type="button"

@@ -1,8 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getRecentTools, type RecentTool } from '@/lib/smart-defaults';
-import { Clock, ArrowRight, Calculator, Palette, Layers, Grid3x3, DollarSign, Bot } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { getRecentTools, type RecentTool } from "@/lib/smart-defaults";
+import {
+  Clock,
+  ArrowRight,
+  Calculator,
+  Palette,
+  Layers,
+  Grid3x3,
+  DollarSign,
+  Bot,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Calculator,
@@ -26,10 +35,12 @@ export function RecentlyUsed() {
     <section className="animate-fade-in-up mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-3 flex items-center gap-2">
         <Clock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-        <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Recently Used</h2>
+        <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+          Recently Used
+        </h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {tools.map(tool => {
+        {tools.map((tool) => {
           const Icon = ICON_MAP[tool.icon] ?? Clock;
           return (
             <Link
@@ -41,12 +52,22 @@ export function RecentlyUsed() {
                 <Icon className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">{tool.label}</p>
+                <p className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">
+                  {tool.label}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(tool.visitedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  {new Date(tool.visitedAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
-              <ArrowRight aria-hidden="true" className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight
+                aria-hidden="true"
+                className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5"
+              />
             </Link>
           );
         })}

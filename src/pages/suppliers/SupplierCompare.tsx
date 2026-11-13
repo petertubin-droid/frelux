@@ -229,10 +229,7 @@ export default function SupplierCompare() {
                                     .join(", ")}
                                 </span>
                                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                                  <Badge
-                                    variant="outline"
-                                    className="text-xs"
-                                  >
+                                  <Badge variant="outline" className="text-xs">
                                     {badge.label}
                                   </Badge>
                                   <span>

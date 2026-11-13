@@ -472,9 +472,7 @@ function NativeUnit({
           </button>
           <AdChoices className="-mt-0.5" />
         </div>
-        <p
-          className={`mt-1 line-clamp-2 text-xs leading-relaxed ${AD_BODY}`}
-        >
+        <p className={`mt-1 line-clamp-2 text-xs leading-relaxed ${AD_BODY}`}>
           {d.site === "sister"
             ? "Articles, AI-powered insights and interactive tools for love, healing and communication."
             : `${d.blurb} Sponsored by ${d.owner}.`}
@@ -546,9 +544,7 @@ function RecCard({
                 >
                   {d.label}
                 </span>
-                <span
-                  className={`mt-1 block truncate text-xs ${DISPLAY_URL}`}
-                >
+                <span className={`mt-1 block truncate text-xs ${DISPLAY_URL}`}>
                   {d.domain}
                 </span>
                 <span className="mt-0.5 block text-xs text-[#5f6368] dark:text-[#9aa0a6]">

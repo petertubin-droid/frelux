@@ -225,9 +225,7 @@ export default function AdminMacroTracker() {
                         {ind.pct_change_30d > 0 ? "+" : ""}
                         {ind.pct_change_30d}%
                       </div>
-                      <div className="text-xs text-slate-400">
-                        30-day shift
-                      </div>
+                      <div className="text-xs text-slate-400">30-day shift</div>
                     </div>
                   </div>
                 ))}

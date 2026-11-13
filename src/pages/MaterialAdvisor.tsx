@@ -64,9 +64,7 @@ function FactorTile({
     <div className="card-elevated p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon aria-hidden="true" className="h-4 w-4" />
-        <p className="text-xs font-semibold uppercase tracking-wide">
-          {label}
-        </p>
+        <p className="text-xs font-semibold uppercase tracking-wide">{label}</p>
       </div>
       <p className="mt-2 text-lg font-bold text-foreground">{value}</p>
       {hint ? (
@@ -233,7 +231,7 @@ export default function MaterialAdvisor() {
         url: "https://freluxtools.com/material-advisor",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0",  },
+        offers: { "@type": "Offer", price: "0" },
         isPartOf: {
           "@type": "WebSite",
           name: "FRELUX SMART CALC",

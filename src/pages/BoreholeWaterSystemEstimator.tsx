@@ -1200,9 +1200,7 @@ export default function BoreholeWaterSystemEstimator() {
                     />
                   </label>
                   <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">
-                      Piers
-                    </span>
+                    <span className="text-xs text-muted-foreground">Piers</span>
                     <div className="flex gap-1">
                       {[4, 6].map((count) => (
                         <button

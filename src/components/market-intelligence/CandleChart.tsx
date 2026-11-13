@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
-import { buildCandleGeometry, type Candle } from "@/lib/market-intelligence/chart";
+import {
+  buildCandleGeometry,
+  type Candle,
+} from "@/lib/market-intelligence/chart";
 
 interface CandleChartProps {
   candles: Candle[];
@@ -12,10 +15,18 @@ interface CandleChartProps {
  * Daily candlesticks drawn as SVG rects and wicks. Two colours only, because
  * direction is the one thing a candle encodes: rising is green, falling is red.
  */
-export default function CandleChart({ candles, label, currency, height = 260 }: CandleChartProps) {
+export default function CandleChart({
+  candles,
+  label,
+  currency,
+  height = 260,
+}: CandleChartProps) {
   const [hover, setHover] = useState<number | null>(null);
   const width = 720;
-  const geometry = useMemo(() => buildCandleGeometry(candles, width, height), [candles, height]);
+  const geometry = useMemo(
+    () => buildCandleGeometry(candles, width, height),
+    [candles, height],
+  );
 
   if (candles.length === 0) {
     return (
@@ -36,12 +47,16 @@ export default function CandleChart({ candles, label, currency, height = 260 }: 
         </figcaption>
         {active ? (
           <span className="text-xs tabular-nums text-foreground">
-            {new Date(active.ts).toLocaleDateString()} · O {prefix}{active.open.toFixed(2)} H{" "}
-            {prefix}{active.high.toFixed(2)} L {prefix}{active.low.toFixed(2)} C {prefix}
+            {new Date(active.ts).toLocaleDateString()} · O {prefix}
+            {active.open.toFixed(2)} H {prefix}
+            {active.high.toFixed(2)} L {prefix}
+            {active.low.toFixed(2)} C {prefix}
             {active.close.toFixed(2)}
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground">Hover a candle for the session range</span>
+          <span className="text-xs text-muted-foreground">
+            Hover a candle for the session range
+          </span>
         )}
       </div>
 
@@ -83,7 +98,9 @@ export default function CandleChart({ candles, label, currency, height = 260 }: 
       </svg>
       <div className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{new Date(candles[0].ts).toLocaleDateString()}</span>
-        <span>{new Date(candles[candles.length - 1].ts).toLocaleDateString()}</span>
+        <span>
+          {new Date(candles[candles.length - 1].ts).toLocaleDateString()}
+        </span>
       </div>
     </figure>
   );

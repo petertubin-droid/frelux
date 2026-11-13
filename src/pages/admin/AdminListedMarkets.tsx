@@ -219,9 +219,7 @@ export default function AdminListedMarkets() {
                   <tr key={p.slug} className="border-b border-border/60">
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground">{p.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {p.slug}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{p.slug}</p>
                     </td>
                     <td className="py-2 pr-3 text-xs text-muted-foreground">
                       {p.capabilities.join(", ")}

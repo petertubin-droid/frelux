@@ -34,11 +34,18 @@ export default function PriceChart({
   const width = 720;
 
   const scale = useMemo(() => buildScale(series.map((p) => p.value)), [series]);
-  const geometry = useMemo(() => buildLineGeometry(series, width, height, scale), [series, height, scale]);
+  const geometry = useMemo(
+    () => buildLineGeometry(series, width, height, scale),
+    [series, height, scale],
+  );
 
-  const rising = series.length > 1 && series[series.length - 1].value >= series[0].value;
+  const rising =
+    series.length > 1 && series[series.length - 1].value >= series[0].value;
   const stroke = rising ? "#0f9d58" : "#d93025";
-  const fmt = formatValue ?? ((v: number) => `${valuePrefix}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
+  const fmt =
+    formatValue ??
+    ((v: number) =>
+      `${valuePrefix}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`);
 
   if (series.length === 0) {
     return (
@@ -55,7 +62,10 @@ export default function PriceChart({
   const active = hover != null ? geometry.points[hover] : null;
 
   function downloadCsv() {
-    const csv = toCsv(["date", "value"], series.map((p) => [p.ts, p.value]));
+    const csv = toCsv(
+      ["date", "value"],
+      series.map((p) => [p.ts, p.value]),
+    );
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -68,7 +78,9 @@ export default function PriceChart({
   return (
     <figure className="w-full">
       <div className="mb-2 flex items-start justify-between gap-3">
-        <figcaption className="text-xs font-medium text-muted-foreground">{label}</figcaption>
+        <figcaption className="text-xs font-medium text-muted-foreground">
+          {label}
+        </figcaption>
         <div className="flex items-center gap-2">
           {active ? (
             <span className="text-xs tabular-nums text-foreground">
@@ -76,7 +88,8 @@ export default function PriceChart({
             </span>
           ) : (
             <span className="text-xs text-muted-foreground">
-              {series.length} points · latest {fmt(series[series.length - 1].value)}
+              {series.length} points · latest{" "}
+              {fmt(series[series.length - 1].value)}
             </span>
           )}
           <button
@@ -99,16 +112,40 @@ export default function PriceChart({
           onMouseLeave={() => setHover(null)}
         >
           <defs>
-            <linearGradient id={`fill-${label.replace(/[^a-z0-9]/gi, "")}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient
+              id={`fill-${label.replace(/[^a-z0-9]/gi, "")}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <stop offset="0%" stopColor={stroke} stopOpacity="0.22" />
               <stop offset="100%" stopColor={stroke} stopOpacity="0.02" />
             </linearGradient>
           </defs>
-          <path d={geometry.areaPath} fill={`url(#fill-${label.replace(/[^a-z0-9]/gi, "")})`} />
-          <path d={geometry.linePath} fill="none" stroke={stroke} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+          <path
+            d={geometry.areaPath}
+            fill={`url(#fill-${label.replace(/[^a-z0-9]/gi, "")})`}
+          />
+          <path
+            d={geometry.linePath}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
           {active && (
             <>
-              <line x1={active.x} y1={0} x2={active.x} y2={height} stroke={stroke} strokeOpacity={0.35} strokeDasharray="4 3" />
+              <line
+                x1={active.x}
+                y1={0}
+                x2={active.x}
+                y2={height}
+                stroke={stroke}
+                strokeOpacity={0.35}
+                strokeDasharray="4 3"
+              />
               <circle cx={active.x} cy={active.y} r={4} fill={stroke} />
             </>
           )}
@@ -128,8 +165,12 @@ export default function PriceChart({
 
       <div className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{new Date(series[0].ts).toLocaleDateString()}</span>
-        <span>low {fmt(scale.min)} · high {fmt(scale.max)}</span>
-        <span>{new Date(series[series.length - 1].ts).toLocaleDateString()}</span>
+        <span>
+          low {fmt(scale.min)} · high {fmt(scale.max)}
+        </span>
+        <span>
+          {new Date(series[series.length - 1].ts).toLocaleDateString()}
+        </span>
       </div>
 
       {/* Screen-reader and no-JS fallback: the same numbers, not a picture. */}

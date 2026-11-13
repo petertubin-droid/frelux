@@ -1174,9 +1174,7 @@ export default function TallBuildingCalculator() {
                   <p className="font-mono text-xs">
                     Observed {check.observed} · Threshold {check.threshold}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {check.basis}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{check.basis}</p>
                   <p className="text-xs font-medium text-foreground">
                     Action: {check.action}
                   </p>

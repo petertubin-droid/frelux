@@ -178,9 +178,7 @@ export function AchievementToast({
             <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
               {ach.title}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {ach.description}
-            </p>
+            <p className="text-xs text-muted-foreground">{ach.description}</p>
           </div>
           <Button
             variant="ghost"

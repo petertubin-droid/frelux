@@ -187,9 +187,7 @@ export default function SiteMap({
           </button>
         </div>
       </div>
-      <p className="text-xs leading-snug text-muted-foreground">
-        {disclosure}
-      </p>
+      <p className="text-xs leading-snug text-muted-foreground">{disclosure}</p>
     </div>
   );
 }

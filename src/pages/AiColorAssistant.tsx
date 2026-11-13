@@ -1268,9 +1268,7 @@ function ResultPanel({
                   <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                     {pc.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {pc.hex_code}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{pc.hex_code}</p>
                 </div>
               </Link>
             ))}

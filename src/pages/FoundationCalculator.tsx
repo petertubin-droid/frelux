@@ -272,7 +272,9 @@ export default function FoundationCalculator() {
                   if (loadSystem === "imperial") {
                     setLoadSystem("metric");
                     setWallLoad(
-                      parseFloat((wallLoad * KN_PER_M_PER_LB_PER_FT).toFixed(2)),
+                      parseFloat(
+                        (wallLoad * KN_PER_M_PER_LB_PER_FT).toFixed(2),
+                      ),
                     );
                     setColumnLoad(
                       parseFloat((columnLoad * KN_PER_KIP).toFixed(1)),
@@ -292,9 +294,13 @@ export default function FoundationCalculator() {
                   if (loadSystem === "metric") {
                     setLoadSystem("imperial");
                     setWallLoad(
-                      parseFloat((wallLoad / KN_PER_M_PER_LB_PER_FT).toFixed(0)),
+                      parseFloat(
+                        (wallLoad / KN_PER_M_PER_LB_PER_FT).toFixed(0),
+                      ),
                     );
-                    setColumnLoad(parseFloat((columnLoad / KN_PER_KIP).toFixed(1)));
+                    setColumnLoad(
+                      parseFloat((columnLoad / KN_PER_KIP).toFixed(1)),
+                    );
                     setCustomBearing(
                       parseFloat((customBearing / KPA_PER_PSF).toFixed(0)),
                     );
@@ -527,11 +533,17 @@ export default function FoundationCalculator() {
                     },
                     {
                       label: "Bearing capacity",
-                      value: formatPressure(result.bearing_capacity, loadSystem),
+                      value: formatPressure(
+                        result.bearing_capacity,
+                        loadSystem,
+                      ),
                     },
                     {
                       label: "Applied pressure",
-                      value: formatPressure(result.applied_pressure, loadSystem),
+                      value: formatPressure(
+                        result.applied_pressure,
+                        loadSystem,
+                      ),
                     },
                     {
                       label: "Bearing check",
@@ -647,8 +659,9 @@ export default function FoundationCalculator() {
                   {t("Bearing Capacity Check")}
                 </p>
                 <p className="text-sm text-foreground dark:text-primary-foreground">
-                  Applied: {formatPressure(result.applied_pressure, loadSystem)} ≤
-                  Allowable: {formatPressure(result.bearing_capacity, loadSystem)}
+                  Applied: {formatPressure(result.applied_pressure, loadSystem)}{" "}
+                  ≤ Allowable:{" "}
+                  {formatPressure(result.bearing_capacity, loadSystem)}
                 </p>
               </div>
             </div>

@@ -12,7 +12,11 @@ export function RangeTabs({
   disabled?: ChartRange[];
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-border p-0.5" role="tablist" aria-label="Chart timeframe">
+    <div
+      className="inline-flex rounded-lg border border-border p-0.5"
+      role="tablist"
+      aria-label="Chart timeframe"
+    >
       {RANGE_LABELS.map((range) => {
         const isDisabled = disabled.includes(range);
         return (
@@ -49,14 +53,22 @@ export function StatTile({
   tone?: "neutral" | "up" | "down";
 }) {
   const toneClass =
-    tone === "up" ? "text-emerald-600 dark:text-emerald-400"
-    : tone === "down" ? "text-red-600 dark:text-red-400"
-    : "text-foreground";
+    tone === "up"
+      ? "text-emerald-600 dark:text-emerald-400"
+      : tone === "down"
+        ? "text-red-600 dark:text-red-400"
+        : "text-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-lg font-semibold tabular-nums ${toneClass}`}>{value}</p>
-      {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p className={`mt-1 text-lg font-semibold tabular-nums ${toneClass}`}>
+        {value}
+      </p>
+      {hint ? (
+        <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
+      ) : null}
     </div>
   );
 }
@@ -106,7 +118,12 @@ export function Attribution({
     <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
       Source:{" "}
       {url ? (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-foreground"
+        >
           {source}
         </a>
       ) : (
@@ -119,11 +136,21 @@ export function Attribution({
   );
 }
 
-export function SectionHeading({ title, description }: { title: string; description?: string }) {
+export function SectionHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description?: string;
+}) {
   return (
     <div className="mb-4">
-      <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">{title}</h2>
-      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+        {title}
+      </h2>
+      {description ? (
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      ) : null}
     </div>
   );
 }
