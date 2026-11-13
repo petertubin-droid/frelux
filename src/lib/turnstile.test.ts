@@ -15,6 +15,7 @@ describe("verifyTurnstileToken", () => {
     invoke.mockReset();
     // Keep these cases on the Supabase path; the edge ones set their own origin.
     vi.stubEnv("VITE_R2_WORKER_URL", "");
+    vi.stubEnv("VITE_CLOUDFLARE_TURNSTILE_SITE_KEY", "0x4AAAAAAATestKey");
   });
 
   it("passes when the backend vouches for the token", async () => {
@@ -57,6 +58,17 @@ describe("verifyTurnstileToken", () => {
     });
     expect(invoke).not.toHaveBeenCalled();
   });
+
+  it("fails open with not-configured when no site key is configured", async () => {
+    vi.stubEnv("VITE_CLOUDFLARE_TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("VITE_TURNSTILE_SITE_KEY", "");
+    const { verifyTurnstileToken } = await loadModule();
+    await expect(verifyTurnstileToken("token", "contact")).resolves.toEqual({
+      ok: true,
+      reason: "not-configured",
+    });
+    expect(invoke).not.toHaveBeenCalled();
+  });
 });
 
 describe("turnstileErrorMessage", () => {
@@ -86,6 +98,7 @@ async function loadWithEdge() {
 describe("verifyTurnstileToken at the edge", () => {
   beforeEach(() => {
     invoke.mockReset();
+    vi.stubEnv("VITE_CLOUDFLARE_TURNSTILE_SITE_KEY", "0x4AAAAAAATestKey");
   });
 
   afterEach(() => {

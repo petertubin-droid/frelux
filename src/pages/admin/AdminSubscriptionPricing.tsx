@@ -276,6 +276,7 @@ export default function AdminSubscriptionPricing() {
               <span className="shrink-0">Reason for any change</span>
               <input
                 type="text"
+                aria-label="Reason for any change"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="e.g. quarterly FX review"
@@ -437,6 +438,7 @@ export default function AdminSubscriptionPricing() {
               <input
                 type="text"
                 inputMode="decimal"
+                aria-label={`Price in ${editing.currency}`}
                 value={manualValue}
                 onChange={(e) => setManualValue(e.target.value)}
                 className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground dark:border-white/10"
