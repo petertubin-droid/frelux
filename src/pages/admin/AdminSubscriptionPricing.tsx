@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw, AlertTriangle, CheckCircle2, Pencil } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { isChargeableCurrency } from "@/lib/payments/charges";
 import { AdminButton } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { useToast } from "@/components/ui/Toast";
@@ -329,6 +330,14 @@ export default function AdminSubscriptionPricing() {
                           {r.live_rate
                             ? ` · ${Number(r.live_rate).toFixed(4)} per USD`
                             : " · no recorded rate"}
+                          {!isChargeableCurrency(r.currency) && (
+                            <span
+                              className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                              title="No payment rail collects this currency, so customers in this market are charged the dollar price."
+                            >
+                              no rail
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-3 py-2 capitalize text-foreground">
