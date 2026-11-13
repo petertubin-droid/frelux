@@ -1362,6 +1362,8 @@ When it passes, pay the balance and keep the datasheet, the board batch and the 
 
 A signed, itemised quote and a photographed finish are the two documents that make a ceiling dispute almost impossible, and both of them take less time than one argument does.
 
+Keep them with the building file: the quote with its scope, the datasheet for the board, the delivery note with the batch number, and the photographs of the frame and the services before the boards closed them in. When a fitting needs moving, a leak appears above the ceiling, or a new owner asks what is up there, that small bundle answers the question in five minutes. Without it, the answer is a hole cut in a finished ceiling to find out.
+
 Write the agreed scope into the quote before signing it, even if it is three lines. A ceiling that was priced verbally and argued about afterwards has cost more than the paperwork would have, and more than the time it takes to write three clear lines before the first board goes up.
 $PS$,
   'ceiling-guides', 'FRELUX Editorial', 12, 'published', false,
