@@ -277,28 +277,31 @@ export async function fetchInquiriesForProduct(
 
 export async function fetchInquiriesForSeller(
   sellerId: string,
-): Promise<DbProductInquiry[]> {
-  const { data, error } = await supabase
+  params: { limit?: number; offset?: number } = {},
+): Promise<{ inquiries: DbProductInquiry[]; total: number }> {
+  const limit = params.limit ?? 10;
+  const offset = params.offset ?? 0;
+  // Filter through the embedded product instead of first loading every product
+  // id: the old `.in("product_id", ...)` built a list that grew without bound
+  // and, past a few hundred products, silently failed the whole inbox.
+  const { data, error, count } = await supabase
     .from("marketplace_product_inquiries")
     .select(
       `
       *,
-      product:marketplace_products(id, title, price, images, status),
+      product:marketplace_products!inner(id, title, price, images, status),
       buyer:profiles(id, full_name, avatar_url)
     `,
+      { count: "exact" },
     )
-    .in(
-      "product_id",
-      (
-        await supabase
-          .from("marketplace_products")
-          .select("id")
-          .eq("seller_id", sellerId)
-      ).data?.map((p) => p.id) ?? [],
-    )
-    .order("created_at", { ascending: false });
+    .eq("product.seller_id", sellerId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
   if (error) throw error;
-  return (data ?? []) as unknown as DbProductInquiry[];
+  return {
+    inquiries: (data ?? []) as unknown as DbProductInquiry[],
+    total: count ?? 0,
+  };
 }
 
 export async function updateInquiryStatus(

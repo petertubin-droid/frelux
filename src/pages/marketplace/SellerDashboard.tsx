@@ -38,14 +38,18 @@ import type {
 } from "@/types/marketplace-products";
 import {
   fetchInquiriesForSeller,
+  fetchMyProducts,
   updateInquiryStatus,
 } from "@/lib/marketplace-products";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { PRODUCT_STATUS_LABELS } from "@/types/marketplace-products";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
+
+const PAGE_SIZE = 10;
 
 export default function SellerDashboard() {
   const { t } = useLanguage();
@@ -61,7 +65,16 @@ export default function SellerDashboard() {
     null,
   );
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
+  const [productTotal, setProductTotal] = useState(0);
+  const [productPage, setProductPage] = useState(0);
+  const [sellerId, setSellerId] = useState<string | null>(null);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [inquiriesLoading, setInquiriesLoading] = useState(true);
+  const [activeProducts, setActiveProducts] = useState(0);
   const [inquiries, setInquiries] = useState<DbProductInquiry[]>([]);
+  const [inquiryTotal, setInquiryTotal] = useState(0);
+  const [inquiryPage, setInquiryPage] = useState(0);
+  const [pendingInquiries, setPendingInquiries] = useState(0);
   const [inquiryBusyId, setInquiryBusyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -101,24 +114,84 @@ export default function SellerDashboard() {
       setPickupAvailable(p.default_pickup_available);
     }
 
-    const { data: prods, error: prodErr } = await supabase
-      .from("marketplace_products")
-      .select("*")
-      .eq("seller_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (prodErr) throw prodErr;
-    setProducts((prods ?? []) as unknown as DbMarketplaceProduct[]);
+    // Products are paged by their own effect below; a 50-row cap here quietly
+    // hid every listing a busy seller added after the fiftieth.
+    setSellerId(user.id);
 
     // Buyer leads were being written to marketplace_product_inquiries with no
     // screen to read them, so sellers never saw an offer. This is that inbox.
     // A failure here must not take the rest of the dashboard down.
-    try {
-      setInquiries(await fetchInquiriesForSeller(user.id));
-    } catch {
-      setInquiries([]);
-    }
+    // The inbox is paged by its own effect; a single unpaged read grew with
+    // every enquiry a seller ever received.
   }, [navigate]);
+
+  useEffect(() => {
+    if (!sellerId) return;
+    let alive = true;
+    setInquiriesLoading(true);
+    fetchInquiriesForSeller(sellerId, {
+      limit: PAGE_SIZE,
+      offset: inquiryPage * PAGE_SIZE,
+    })
+      .then(({ inquiries: rows, total }) => {
+        if (!alive) return;
+        setInquiries(rows);
+        setInquiryTotal(total);
+      })
+      .catch(() => {
+        if (alive) setInquiries([]);
+      })
+      .finally(() => {
+        if (alive) setInquiriesLoading(false);
+      });
+    // The pending badge counts the whole inbox, not the page on screen.
+    supabase
+      .from("marketplace_product_inquiries")
+      .select("id, product:marketplace_products!inner(seller_id)", {
+        count: "exact",
+        head: true,
+      })
+      .eq("product.seller_id", sellerId)
+      .eq("status", "pending")
+      .then(({ count }) => {
+        if (alive) setPendingInquiries(count ?? 0);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [sellerId, inquiryPage]);
+
+  useEffect(() => {
+    if (!sellerId) return;
+    let alive = true;
+    setProductsLoading(true);
+    fetchMyProducts(sellerId, {
+      limit: PAGE_SIZE,
+      offset: productPage * PAGE_SIZE,
+    })
+      .then(({ products: rows, total }) => {
+        if (!alive) return;
+        setProducts(rows);
+        setProductTotal(total);
+      })
+      .catch(() => {
+        if (alive) setProducts([]);
+      })
+      .finally(() => {
+        if (alive) setProductsLoading(false);
+      });
+    supabase
+      .from("marketplace_products")
+      .select("id", { count: "exact", head: true })
+      .eq("seller_id", sellerId)
+      .eq("status", "active")
+      .then(({ count }) => {
+        if (alive) setActiveProducts(count ?? 0);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [sellerId, productPage]);
 
   async function handleInquiryStatus(
     inquiryId: string,
@@ -230,17 +303,12 @@ export default function SellerDashboard() {
           <StatCard
             icon={<Package aria-hidden="true" className="h-5 w-5" />}
             label="Active Products"
-            value={
-              products.filter(
-                (p) =>
-                  (p as unknown as Record<string, unknown>).status === "active",
-              ).length
-            }
+            value={activeProducts}
           />
           <StatCard
             icon={<TrendingUp aria-hidden="true" className="h-5 w-5" />}
             label="Total Products"
-            value={products.length}
+            value={productTotal}
           />
           <StatCard
             icon={null}
@@ -259,7 +327,7 @@ export default function SellerDashboard() {
           <StatCard
             icon={<MessageSquare aria-hidden="true" className="h-5 w-5" />}
             label="New Inquiries"
-            value={inquiries.filter((item) => item.status === "pending").length}
+            value={pendingInquiries}
           />
         </div>
 
@@ -444,8 +512,7 @@ export default function SellerDashboard() {
               {t("Buyer Inquiries")}
             </h2>
             <span className="text-xs text-muted-foreground">
-              {inquiries.length}{" "}
-              {inquiries.length === 1 ? "enquiry" : "enquiries"}
+              {inquiryTotal} {inquiryTotal === 1 ? "enquiry" : "enquiries"}
             </span>
           </div>
           {inquiries.length === 0 ? (
@@ -541,6 +608,17 @@ export default function SellerDashboard() {
               ))}
             </ul>
           )}
+          {inquiryTotal > PAGE_SIZE && (
+            <div className="border-t border-border p-3 dark:border-white/10">
+              <AdminPagination
+                page={inquiryPage}
+                pageSize={PAGE_SIZE}
+                total={inquiryTotal}
+                onPageChange={setInquiryPage}
+                loading={inquiriesLoading}
+              />
+            </div>
+          )}
         </div>
 
         {/* Products Table */}
@@ -621,6 +699,17 @@ export default function SellerDashboard() {
                   </Link>
                 );
               })}
+            </div>
+          )}
+          {productTotal > PAGE_SIZE && (
+            <div className="border-t border-border p-3 dark:border-white/10">
+              <AdminPagination
+                page={productPage}
+                pageSize={PAGE_SIZE}
+                total={productTotal}
+                onPageChange={setProductPage}
+                loading={productsLoading}
+              />
             </div>
           )}
         </div>
