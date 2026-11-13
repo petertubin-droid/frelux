@@ -143,6 +143,7 @@ export default function Logo({
           decoding="async"
           className="shrink-0 object-contain"
           style={{ height: token.edge, width: "auto" }}
+          loading="lazy"
         />
       ) : (
         <LogoMark
@@ -204,6 +205,7 @@ export function LogoMark({
       data-variant={light ? "light" : "dark"}
       className={classNames("object-contain", className)}
       style={{ height: size, width: "auto" }}
+      loading="lazy"
     />
   );
 }

@@ -433,6 +433,8 @@ function ProductsTab() {
                     src={p.images[0]}
                     alt=""
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
               </div>

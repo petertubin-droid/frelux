@@ -1344,7 +1344,7 @@
     "hash": "81489cfe17f91fda"
   },
   "/learn/build-in-nigeria-from-abroad": {
-    "lastmod": "2026-11-10",
+    "lastmod": "2026-11-13",
     "hash": "c0f7f8f5ad5f9f98"
   },
   "/learn/building-in-the-rainy-season": {
@@ -8297,7 +8297,7 @@
   },
   "/market/tz/templates": {
     "lastmod": "2026-11-13",
-    "hash": "562ba83df6c9a4b2"
+    "hash": "cbab5778fc7df808"
   },
   "/market/tz/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-13",
@@ -8307,9 +8307,37 @@
     "lastmod": "2026-11-13",
     "hash": "2cb16811f5057b4b"
   },
+  "/market/tz/templates/conference-room-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "df83d06eadd4249f"
+  },
+  "/market/tz/templates/corridor-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "e10312459b726a43"
+  },
+  "/market/tz/templates/corridor-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "07709e1e4b858b55"
+  },
+  "/market/tz/templates/corridor-walls-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "e0218092ae49ba78"
+  },
+  "/market/tz/templates/dining-room-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "0e5f4b59041fa0a0"
+  },
+  "/market/tz/templates/dining-room-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "99073069d82a0a3f"
+  },
   "/market/tz/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-13",
     "hash": "142a6631d6661433"
+  },
+  "/market/tz/templates/hall-cornice-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "c5facb3bf8949b69"
   },
   "/market/tz/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-13",
@@ -8319,17 +8347,61 @@
     "lastmod": "2026-11-13",
     "hash": "16fb3524cc8d0e71"
   },
+  "/market/tz/templates/kitchen-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "28cd8bf46d7bc10a"
+  },
   "/market/tz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "8cea06f10967259f"
+  },
+  "/market/tz/templates/large-living-room-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "095230103e2eb57f"
+  },
+  "/market/tz/templates/living-room-ceiling-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "44c2a1138698e5e1"
+  },
+  "/market/tz/templates/master-bedroom-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "eea73bebf2059650"
+  },
+  "/market/tz/templates/office-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "13b7e6d40b3bd511"
+  },
+  "/market/tz/templates/shop-front-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "e5238caccff55f15"
+  },
+  "/market/tz/templates/single-feature-wall-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "cd240c4ee4dba6b8"
+  },
+  "/market/tz/templates/single-wall-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "faafba77dee4bd43"
+  },
+  "/market/tz/templates/small-office-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "9fd151abf9f0cfb6"
   },
   "/market/tz/templates/staircase-tiling": {
     "lastmod": "2026-11-13",
     "hash": "60ba03361ffa679e"
   },
+  "/market/tz/templates/standard-bedroom-pop-ceiling": {
+    "lastmod": "2026-11-13",
+    "hash": "55540da8f968b65f"
+  },
   "/market/tz/templates/standard-floor-tiling": {
     "lastmod": "2026-11-13",
     "hash": "01e913e2620e039a"
+  },
+  "/market/tz/templates/standard-room-screeding": {
+    "lastmod": "2026-11-13",
+    "hash": "4cc3ea70ef1a6582"
   },
   "/market/tz/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-13",

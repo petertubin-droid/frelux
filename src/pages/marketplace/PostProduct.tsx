@@ -396,6 +396,8 @@ export default function PostProduct() {
                         src={img}
                         alt=""
                         className="h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                         <div className="flex gap-1">

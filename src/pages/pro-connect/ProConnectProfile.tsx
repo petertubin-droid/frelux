@@ -249,6 +249,8 @@ export default function ProConnectProfile() {
                   src={profile.profile_image_url}
                   alt={profile.display_name}
                   className="h-24 w-24 rounded-2xl object-cover ring-2 ring-border/50 dark:ring-white/10"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-primary-light/10 text-3xl font-semibold text-brand-purple dark:text-brand-purple-lighter">
@@ -697,6 +699,8 @@ export default function ProConnectProfile() {
               src={activeImage}
               alt={t("Portfolio image")}
               className="max-h-full max-w-full rounded-lg object-contain"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         )}

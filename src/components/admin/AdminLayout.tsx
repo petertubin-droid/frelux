@@ -290,6 +290,7 @@ export const navModules: NavModule[] = [
         icon: CreditCard,
       },
       { label: "Tax rules", to: "/admin/tax_rules", icon: Scale },
+      { label: "Field performance", to: "/admin/web_vitals", icon: Activity },
       {
         label: "Market Intelligence",
         to: "/admin/market-intelligence",

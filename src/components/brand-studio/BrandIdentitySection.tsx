@@ -310,7 +310,7 @@ export function BrandIdentitySection({
             <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
               Brand Colours
             </h3>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
                 <label className="text-xs text-muted-foreground">Primary</label>
                 <div className="flex items-center gap-2">
@@ -384,6 +384,8 @@ export function BrandIdentitySection({
                   src={logoUrl}
                   alt="logo"
                   className="h-12 w-12 rounded border border-border object-contain"
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
               <input

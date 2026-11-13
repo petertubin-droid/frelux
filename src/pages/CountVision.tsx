@@ -219,6 +219,8 @@ export default function CountVision() {
               src={preview}
               alt={t("Selected site photo, ready for counting")}
               className="max-h-64 rounded-md border"
+              loading="lazy"
+              decoding="async"
             />
             <p className="mt-1 text-xs text-muted-foreground">
               Ready to count: {photo?.name}

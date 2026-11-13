@@ -52,6 +52,8 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
                 alt="watermark"
                 style={{ width: "60%" }}
                 className="h-auto"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           )}
@@ -78,7 +80,13 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
             <div className="flex items-start justify-between">
               <div>
                 {logoUrl && (
-                  <img src={logoUrl} alt="logo" className="mb-2 h-10 w-auto" />
+                  <img
+                    src={logoUrl}
+                    alt="logo"
+                    className="mb-2 h-10 w-auto"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 )}
                 <h3
                   style={{ color: primaryColor }}

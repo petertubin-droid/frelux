@@ -226,6 +226,8 @@ export function RoofViewPanel() {
               src={imagery.imagery_url}
               alt={t("Aerial roof view")}
               className="w-full h-auto"
+              loading="lazy"
+              decoding="async"
             />
             <Button
               variant="ghost"

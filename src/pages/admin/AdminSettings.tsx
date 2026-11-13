@@ -658,6 +658,8 @@ export default function AdminSettings() {
                                 height: 36,
                                 objectFit: "contain",
                               }}
+                              loading="lazy"
+                              decoding="async"
                             />
                           ) : (
                             <span className="font-black text-brand-purple dark:text-brand-purple-lighter text-lg">

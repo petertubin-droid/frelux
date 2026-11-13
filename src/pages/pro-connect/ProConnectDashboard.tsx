@@ -822,6 +822,8 @@ export default function ProConnectDashboard() {
                       src={item.image_urls[0]}
                       alt={item.title}
                       className="aspect-square w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   )}
                   <div className="p-3">
@@ -1198,6 +1200,8 @@ function PortfolioForm({
                   src={url}
                   alt={t("Preview")}
                   className="h-16 w-16 rounded-lg object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               ))}
             </div>

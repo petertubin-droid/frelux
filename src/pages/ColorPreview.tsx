@@ -126,6 +126,8 @@ export default function ColorPreview() {
                   src={imagePreview}
                   alt={t("Room")}
                   className="max-h-64 rounded-lg border"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <Button
                   variant="ghost"
@@ -391,6 +393,8 @@ export default function ColorPreview() {
                     src={imagePreview}
                     alt={t("Before")}
                     className="w-full rounded-lg border"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div>

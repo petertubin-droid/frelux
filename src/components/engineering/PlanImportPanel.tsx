@@ -272,6 +272,8 @@ export default function PlanImportPanel({
             src={previewUrl}
             alt={`Uploaded plan: ${file.name}`}
             className="max-h-72 w-full rounded-lg border border-border bg-muted object-contain"
+            loading="lazy"
+            decoding="async"
           />
           <figcaption className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
             <span className="truncate">{file.name}</span>

@@ -165,7 +165,7 @@ export function EngineAlreadyHaveInput({
       >
         {t("Already Have / Purchase Quantity")}
       </div>
-      <div className="grid grid-cols-3 gap-3 text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
         <div>
           <div className="text-xs text-muted-foreground">{t("Required")}</div>
           <div className="font-semibold">

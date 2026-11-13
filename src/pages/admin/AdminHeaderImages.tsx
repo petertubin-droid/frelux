@@ -383,7 +383,7 @@ function HeaderImageCard({
             <p className="mb-2 text-xs font-medium text-muted-foreground">
               Pick an image:
             </p>
-            <div className="grid max-h-44 grid-cols-3 gap-1.5 overflow-y-auto">
+            <div className="grid max-h-44 grid-cols-2 sm:grid-cols-3 gap-1.5 overflow-y-auto">
               {HEADER_IMAGE_LIBRARY.map((option) => (
                 <button
                   key={option.id}

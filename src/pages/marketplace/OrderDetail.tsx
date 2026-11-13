@@ -341,6 +341,8 @@ export default function OrderDetail() {
                   src={order.pro_profile.profile_image_url}
                   alt=""
                   className="h-10 w-10 rounded-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <span className="text-sm font-bold text-brand-purple">

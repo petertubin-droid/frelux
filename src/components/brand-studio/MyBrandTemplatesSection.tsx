@@ -69,6 +69,8 @@ export function MyBrandTemplatesSection({
                   src={profile.logo_url}
                   alt={profile.name}
                   className="h-10 w-10 rounded border border-border object-contain"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded border border-border bg-muted text-xs font-bold text-muted-foreground">

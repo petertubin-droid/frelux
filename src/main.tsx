@@ -22,6 +22,12 @@ import "./index.css";
 // Initialize FRELUX error monitoring, global error listeners
 initErrorMonitor();
 
+// Field performance: sampled, and loaded after the shell so it never competes
+// with first paint for a request.
+if (import.meta.env.PROD) {
+  void import("@/lib/perf/vitals").then((m) => m.installVitalsReporter());
+}
+
 function mount() {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>

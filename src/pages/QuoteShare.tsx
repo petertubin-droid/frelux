@@ -155,6 +155,8 @@ export default function QuoteShare() {
               width={512}
               height={315}
               className="h-7 w-auto object-contain"
+              loading="lazy"
+              decoding="async"
             />
             <span className="text-sm font-extrabold tracking-tight text-brand-purple">
               FRELUX

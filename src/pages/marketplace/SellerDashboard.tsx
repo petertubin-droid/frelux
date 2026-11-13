@@ -588,6 +588,8 @@ export default function SellerDashboard() {
                           }
                           alt={prod.title as string}
                           className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <Package

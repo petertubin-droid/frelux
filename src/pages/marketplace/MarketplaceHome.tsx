@@ -1135,6 +1135,8 @@ function ProductsTab(props: {
                         }
                         alt={product.title}
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">

@@ -246,6 +246,8 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                       src={logo.image_url}
                       alt="generated logo"
                       className="mb-2 h-24 w-full rounded-lg object-contain"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="flex items-center justify-between">
                       <Button

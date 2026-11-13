@@ -269,7 +269,13 @@ function Thumb({
   return (
     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
       {src ? (
-        <img src={src} alt={alt} className="h-full w-full object-cover" />
+        <img
+          src={src}
+          alt={alt}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
       ) : (
         <div className="flex h-full items-center justify-center text-[11px] text-muted-foreground">
           {label}

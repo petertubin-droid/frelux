@@ -141,6 +141,8 @@ export function PaintMatcher() {
                   src={preview}
                   alt="Upload preview"
                   className="h-32 w-32 rounded-xl object-cover opacity-50"
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
               <div className="absolute inset-0 flex items-center justify-center">
@@ -181,6 +183,8 @@ export function PaintMatcher() {
                 src={preview}
                 alt="Your photo"
                 className="h-16 w-16 rounded-lg object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div className="flex items-center gap-2">
                 <div

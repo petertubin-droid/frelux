@@ -631,7 +631,7 @@ export default function TvConsoleCalculator() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {mainSizeFields.map(([label, value, setter, min, max, step]) => (
                 <div key={label} className="min-w-0 space-y-1.5">
                   <Label htmlFor={`console-${label}`}>{label}</Label>
@@ -1141,6 +1141,8 @@ Wall panel area and LED metres are priced separately at the rates you enter, and
                   src={previewUrl}
                   alt="Selected console reference upload"
                   className="mt-4 max-h-52 w-full rounded-lg object-contain bg-muted"
+                  loading="lazy"
+                  decoding="async"
                 />
               )}
               {extraction && (

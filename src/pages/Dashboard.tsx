@@ -295,7 +295,7 @@ export default function Dashboard() {
                 />
               ) : (
                 <>
-                  <div className="mb-4 grid grid-cols-3 gap-3">
+                  <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {(
                       [
                         {

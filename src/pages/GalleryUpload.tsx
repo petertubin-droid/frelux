@@ -188,6 +188,8 @@ export default function GalleryUpload() {
                           src={img}
                           alt={type}
                           className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                         <Button
                           variant="ghost"

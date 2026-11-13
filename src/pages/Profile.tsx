@@ -277,7 +277,9 @@ export default function Profile() {
       toast({
         type: "error",
         title: t("Copy failed"),
-        message: t("Could not copy automatically. Please select and copy manually."),
+        message: t(
+          "Could not copy automatically. Please select and copy manually.",
+        ),
       });
     }
   }
@@ -305,6 +307,8 @@ export default function Profile() {
                     src={avatarUrl}
                     alt={displayName}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
@@ -386,7 +390,9 @@ export default function Profile() {
                 variant="ghost"
                 type="button"
                 onClick={copyMarketplaceId}
-                aria-label={copied ? t("Marketplace ID copied") : t("Copy Marketplace ID")}
+                aria-label={
+                  copied ? t("Marketplace ID copied") : t("Copy Marketplace ID")
+                }
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5"
               >
                 {copied ? (
@@ -448,7 +454,10 @@ export default function Profile() {
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
               {nameError && (
-                <p id="profile-name-error" className="mt-1 text-xs text-destructive font-medium">
+                <p
+                  id="profile-name-error"
+                  className="mt-1 text-xs text-destructive font-medium"
+                >
                   {nameError}
                 </p>
               )}
@@ -459,7 +468,10 @@ export default function Profile() {
                 htmlFor="profile-phone"
                 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
               >
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <Phone
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 {t("Phone Number")}
               </label>
               <input
@@ -468,18 +480,27 @@ export default function Profile() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
-                placeholder={t("Include country code, e.g. +1 555 123 4567 or +44 20 7123 4567")}
+                placeholder={t(
+                  "Include country code, e.g. +1 555 123 4567 or +44 20 7123 4567",
+                )}
                 aria-invalid={!!phoneError}
-                aria-describedby={phoneError ? "profile-phone-error" : undefined}
+                aria-describedby={
+                  phoneError ? "profile-phone-error" : undefined
+                }
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
               {phoneError ? (
-                <p id="profile-phone-error" className="mt-1 text-xs text-destructive font-medium">
+                <p
+                  id="profile-phone-error"
+                  className="mt-1 text-xs text-destructive font-medium"
+                >
                   {phoneError}
                 </p>
               ) : (
                 <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                  {t("Use standard international format starting with + and country code.")}
+                  {t(
+                    "Use standard international format starting with + and country code.",
+                  )}
                 </p>
               )}
             </div>
@@ -489,7 +510,10 @@ export default function Profile() {
                 htmlFor="profile-email"
                 className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80"
               >
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <Mail
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 {t("Email")}
               </label>
               <input
@@ -500,7 +524,9 @@ export default function Profile() {
                 className="w-full cursor-not-allowed rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground"
               />
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-                {t("Email address is linked to authentication and cannot be changed here. Contact support to update.")}
+                {t(
+                  "Email address is linked to authentication and cannot be changed here. Contact support to update.",
+                )}
               </p>
             </div>
           </div>
@@ -579,14 +605,17 @@ export default function Profile() {
         {/* Marketplace Identity & Verification Note */}
         <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-primary/5 p-5 dark:bg-primary/10">
           <div className="flex items-start gap-3">
-            <ShoppingBag className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" aria-hidden="true" />
+            <ShoppingBag
+              className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple"
+              aria-hidden="true"
+            />
             <div>
               <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 {t("Marketplace & Pro Identity")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 {t(
-                  "This unique identifier is surfaced on your marketplace listings, proposals, and seller details so clients and partners can verify your credentials and transaction history."
+                  "This unique identifier is surfaced on your marketplace listings, proposals, and seller details so clients and partners can verify your credentials and transaction history.",
                 )}
               </p>
               <div className="mt-2.5">
@@ -613,7 +642,8 @@ export default function Profile() {
                   {t("Daily Activity Streak")}
                 </p>
                 <p className="text-base font-bold text-foreground dark:text-primary-foreground">
-                  {streak?.current_streak ?? 0} {t((streak?.current_streak ?? 0) === 1 ? "day" : "days")}
+                  {streak?.current_streak ?? 0}{" "}
+                  {t((streak?.current_streak ?? 0) === 1 ? "day" : "days")}
                 </p>
               </div>
             </div>

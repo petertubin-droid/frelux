@@ -873,6 +873,8 @@ function ImageConsultation({
                 src={preview}
                 alt={t("Room preview")}
                 className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
+                loading="lazy"
+                decoding="async"
               />
               <Button
                 variant="ghost"

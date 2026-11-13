@@ -278,6 +278,8 @@ export default function ListingDetail() {
                     src={listing.client.avatar_url}
                     alt=""
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
@@ -526,6 +528,8 @@ export default function ListingDetail() {
                             src={bid.pro_profile.profile_image_url}
                             alt=""
                             className="h-10 w-10 rounded-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <span className="text-sm font-bold text-brand-purple">

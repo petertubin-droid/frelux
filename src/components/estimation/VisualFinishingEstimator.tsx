@@ -862,6 +862,8 @@ export function VisualFinishingEstimator({
                     src={imagePreview}
                     alt={t("Uploaded project")}
                     className="h-full w-full object-contain opacity-80"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
@@ -1354,7 +1356,7 @@ export function VisualFinishingEstimator({
       {step === 4 && result && (
         <div className="space-y-6">
           {/* Surface Summary Cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-background p-3 text-center">
               <span className="text-xs text-muted-foreground">
                 {t("Gross Surface Area")}

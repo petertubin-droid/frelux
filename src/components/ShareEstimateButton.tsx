@@ -122,7 +122,7 @@ export function ShareEstimateButton({
 
   return (
     <div className={className}>
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
         <Button
           type="button"
           variant="ghost"

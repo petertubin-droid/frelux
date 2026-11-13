@@ -322,6 +322,8 @@ export default function DiasporaEscrow() {
                       src={photo.url}
                       alt={photo.caption}
                       className="h-44 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="p-3 bg-card border-t border-border">
                       <p className="text-xs font-medium text-foreground line-clamp-1">
@@ -483,6 +485,8 @@ export default function DiasporaEscrow() {
                             src={photo.url}
                             alt={photo.caption}
                             className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                            decoding="async"
                           />
                           <div className="p-3 bg-card border-t border-border">
                             <p className="text-xs font-medium text-foreground line-clamp-1">

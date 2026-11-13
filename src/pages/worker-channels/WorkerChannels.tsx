@@ -702,6 +702,8 @@ export default function WorkerChannels() {
                     src={viewingProfile.profile_image_url}
                     alt={viewingProfile.display_name}
                     className="h-14 w-14 rounded-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-brand-purple">

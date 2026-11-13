@@ -139,6 +139,8 @@ export default function CaseStudyDetail() {
               src={beforeImage.image_url}
               alt={`Before: ${entry.title}`}
               className="aspect-[4/3] w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="flex aspect-[4/3] items-center justify-center text-sm text-muted-foreground">
@@ -155,6 +157,8 @@ export default function CaseStudyDetail() {
               src={afterImage.image_url}
               alt={`After: ${entry.title}`}
               className="aspect-[4/3] w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="flex aspect-[4/3] items-center justify-center text-sm text-muted-foreground">

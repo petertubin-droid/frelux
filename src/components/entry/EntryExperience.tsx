@@ -116,6 +116,8 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           className={`absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-1000 ease-out ${
             bgReady ? "opacity-55" : ""
           }`}
+          loading="lazy"
+          decoding="async"
         />
 
         {/* Technical blueprint grid: thin architectural line detail */}

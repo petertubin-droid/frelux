@@ -515,6 +515,8 @@ export default function BrandedLoader() {
                     height: size * 0.34,
                     objectFit: "contain",
                   }}
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <LogoMark

@@ -745,6 +745,8 @@ export default function DocumentStudio() {
                       src={config.logoUrl}
                       alt={t("Company logo preview")}
                       className="h-10 w-auto max-w-32 object-contain rounded border border-border bg-white p-1"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <span className="text-xs text-muted-foreground truncate">
                       {config.logoPath}
@@ -1198,6 +1200,8 @@ export default function DocumentStudio() {
                     src={config.logoUrl}
                     alt={t("Company logo")}
                     className="h-8 w-auto max-w-28 object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 )}
               </div>

@@ -293,6 +293,8 @@ export default function ProductDetail() {
                 }
                 alt={product.title}
                 className="aspect-square w-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             {product.images.length > 1 && (
@@ -313,6 +315,8 @@ export default function ProductDetail() {
                       src={img}
                       alt=""
                       className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </Button>
                 ))}
@@ -442,6 +446,8 @@ export default function ProductDetail() {
                       src={product.seller.avatar_url}
                       alt=""
                       className="h-full w-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
@@ -609,6 +615,8 @@ export default function ProductDetail() {
                         src={rp.images[rp.primary_image_idx] || rp.images[0]}
                         alt=""
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">

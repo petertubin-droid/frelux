@@ -216,6 +216,8 @@ export default function CalculatorNearMe({
                           src={pro.profile_image_url}
                           alt=""
                           className="h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-xs font-bold text-brand-purple">

@@ -663,6 +663,8 @@ export default function AdminRoofView() {
                     src={testResult.imagery_url}
                     alt={t("Sample roof view imagery")}
                     className="h-48 w-48 rounded-lg border border-border object-cover dark:border-white/10"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div>
                     <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">

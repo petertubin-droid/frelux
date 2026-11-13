@@ -331,7 +331,7 @@ export default function WorkspaceSettings() {
       <Container className="max-w-6xl space-y-8 pb-12 pt-6">
         {/* Tabs */}
         <Tabs defaultValue="team" className="space-y-6">
-          <TabsList className="grid grid-cols-3 w-full sm:w-[480px]">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 w-full sm:w-[480px]">
             <TabsTrigger value="team" className="flex items-center gap-2">
               <Users className="h-4 w-4" /> Team ({members.length})
             </TabsTrigger>

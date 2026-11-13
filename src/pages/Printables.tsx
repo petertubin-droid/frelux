@@ -226,7 +226,7 @@ function QuoteComparison() {
         title={t("Quote Comparison Sheet")}
         hint="Use identical line items for every quote so the totals are genuinely comparable."
       />
-      <div className="mt-4 grid grid-cols-3 gap-6">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-6">
         <Field label="Project:" />
         <Field label="Date:" />
         <Field label="By:" />
@@ -294,7 +294,7 @@ function QuoteComparison() {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-6 text-xs">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs">
         <div className="border border-gray-300 p-2">
           <span className="font-semibold">Quote A terms:</span> validity,
           payment stages, warranty
@@ -320,7 +320,7 @@ function PaintSchedule() {
         title={t("Paint Project Schedule")}
         hint="Work top down: ceilings first, then walls, then trim. Respect drying and curing times between coats."
       />
-      <div className="mt-4 grid grid-cols-3 gap-6">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-6">
         <Field label="Project:" />
         <Field label="Start date:" />
         <Field label="Finish by:" />
@@ -385,7 +385,7 @@ function MaterialChecklist() {
         title={t("Material Shopping Checklist")}
         hint="Copy quantities from your FRELUX calculator result, then fill the price columns at the supplier."
       />
-      <div className="mt-4 grid grid-cols-3 gap-6">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-6">
         <Field label="Project:" />
         <Field label="Supplier:" />
         <Field label="Date:" />
