@@ -116,7 +116,7 @@
   }
 }
 .animate-success-pop {
-  animation: success-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: success-pop 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 @keyframes slide-down {
@@ -533,7 +533,7 @@
 }
 
 .animate-badge-pop-in {
-  animation: badge-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: badge-pop-in 0.36s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
 @keyframes progress-glow {

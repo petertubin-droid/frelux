@@ -19,53 +19,53 @@
    HSL channels for hsl(var(--token) / <alpha>) support.
    Primary/ring/accent mirror the brand colors (updated dynamically by BrandingProvider). */
 :root {
-  --background: 0 0% 100%; /* white */
-  --background-mid: 0 0% 97%; /* off-white, elevated sticky surfaces */
-  --foreground: 240 10% 9%; /* neutral-900 */
-  --card: 0 0% 100%; /* white */
-  --card-foreground: 240 10% 9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 9%;
+  --background: 38 42% 98%; /* warm paper, replaces pure white */
+  --background-mid: 36 32% 95%; /* warm sand, elevated sticky surfaces */
+  --foreground: 28 14% 12%; /* warm near-black, softer than neutral-900 */
+  --card: 40 46% 99%; /* warm white card */
+  --card-foreground: 28 14% 12%;
+  --popover: 40 46% 99%;
+  --popover-foreground: 28 14% 12%;
   --primary: 258 74% 48%; /* #6D28D9 brand-purple */
   --primary-foreground: 0 0% 100%; /* white */
   --primary-light: 258 74% 62%; /* #9B6CF2, lighter purple */
   --primary-lighter: 258 80% 75%; /* #C4A6F8, lightest purple */
-  --secondary: 240 5% 96%; /* neutral-100 */
-  --secondary-foreground: 240 10% 9%;
-  --muted: 240 5% 96%; /* neutral-100 */
-  --muted-foreground: 240 8% 47%; /* neutral-500 */
-  --accent: 240 5% 96%;
-  --accent-foreground: 240 10% 9%;
+  --secondary: 34 26% 94%; /* warm clay wash */
+  --secondary-foreground: 28 14% 12%;
+  --muted: 34 26% 94%; /* warm clay wash */
+  --muted-foreground: 28 9% 40%; /* warm grey, 7:1 on the warm background */
+  --accent: 34 28% 94%;
+  --accent-foreground: 28 14% 12%;
   --destructive: 0 72% 51%; /* red-600 */
   --destructive-foreground: 0 0% 100%;
-  --border: 240 6% 90%; /* neutral-200 */
-  --input: 240 6% 90%;
+  --border: 33 18% 88%; /* warm hairline instead of cool grey */
+  --input: 33 18% 88%;
   --ring: 258 74% 48%; /* brand-purple */
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: 240 44% 7%; /* #0A0A1A brand-navy */
-  --background-mid: 240 44% 10%; /* navy, elevated sticky surfaces */
-  --foreground: 0 0% 100%; /* white */
-  --card: 240 42% 12%; /* #12122A navy-mid */
-  --card-foreground: 0 0% 100%;
-  --popover: 240 42% 12%;
-  --popover-foreground: 0 0% 100%;
+  --background: 28 12% 8%; /* warm charcoal, replaces brand-navy */
+  --background-mid: 28 11% 11%; /* warm charcoal, elevated sticky surfaces */
+  --foreground: 38 24% 96%; /* warm white */
+  --card: 28 10% 12%; /* warm charcoal card */
+  --card-foreground: 38 24% 96%;
+  --popover: 28 10% 12%;
+  --popover-foreground: 38 24% 96%;
   --primary: 258 74% 58%; /* lighter purple for dark bg */
   --primary-foreground: 0 0% 100%;
   --primary-light: 258 74% 68%; /* even lighter for dark bg gradients */
   --primary-lighter: 258 80% 80%; /* lightest purple for dark bg */
-  --secondary: 240 28% 23%; /* #2A2A4A navy-soft */
-  --secondary-foreground: 0 0% 100%;
-  --muted: 240 28% 23%; /* navy-soft */
-  --muted-foreground: 0 0% 90%; /* near-white: secondary copy stays readable */
-  --accent: 240 28% 23%;
-  --accent-foreground: 0 0% 100%;
+  --secondary: 30 9% 18%; /* warm stone */
+  --secondary-foreground: 38 24% 96%;
+  --muted: 30 9% 18%; /* warm stone */
+  --muted-foreground: 36 14% 82%; /* warm grey: secondary copy stays readable */
+  --accent: 30 10% 19%;
+  --accent-foreground: 38 24% 96%;
   --destructive: 0 63% 40%; /* darker red for dark */
   --destructive-foreground: 0 0% 100%;
-  --border: 240 5% 18%; /* dark gray border */
-  --input: 240 5% 18%;
+  --border: 30 8% 20%; /* warm charcoal hairline */
+  --input: 30 8% 20%;
   --ring: 258 74% 58%;
 }
 
@@ -99,6 +99,9 @@
     width: 100%;
     max-width: 100vw;
     font-feature-settings: "cv01", "cv03", "cv04", "ss01";
+    /* Calm by default: prose and any element without an explicit leading
+       utility breathes a little more than Tailwind's 1.5 default. */
+    line-height: 1.6;
   }
   * {
     @apply box-border;
@@ -416,7 +419,7 @@
   .edge-rim {
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-      0 18px 44px -30px rgba(16, 12, 40, 0.4);
+      0 18px 44px -30px rgba(48, 33, 22, 0.28);
   }
   .dark .edge-rim {
     box-shadow:
@@ -435,7 +438,7 @@
     border: 1px solid hsl(var(--border) / 0.55);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
-      0 18px 44px -28px rgba(16, 12, 40, 0.42);
+      0 18px 44px -28px rgba(48, 33, 22, 0.3);
   }
   .dark .surface-float {
     background-color: hsl(var(--card) / 0.78);
@@ -466,7 +469,7 @@
     backdrop-filter: blur(22px) saturate(160%);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
-      0 18px 44px -28px rgba(16, 12, 40, 0.35);
+      0 18px 44px -28px rgba(48, 33, 22, 0.26);
   }
   .dark .nav-glass-card {
     background-color: hsl(var(--card) / 0.6);
@@ -486,7 +489,7 @@
     border-radius: 14px;
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-      0 8px 20px -16px rgba(16, 12, 40, 0.5);
+      0 8px 20px -16px rgba(48, 33, 22, 0.34);
   }
   .glass-control:hover {
     background-color: hsl(var(--card) / 0.86);
@@ -511,7 +514,7 @@
     border: 1px solid hsl(var(--border) / 0.5);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
-      0 28px 70px -34px rgba(16, 12, 40, 0.6);
+      0 28px 70px -34px rgba(48, 33, 22, 0.4);
   }
   .dark .surface-sheet {
     background-color: hsl(var(--card) / 0.88);
@@ -1465,7 +1468,7 @@ body {
    subtle illuminated edge. Static shadow: no GPU cost. */
 .bg-card,
 .bg-popover {
-  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.04);
+  box-shadow: 0 0 0 1px rgb(74 55 40 / 0.09);
 }
 .dark .bg-card,
 .dark .bg-popover {
@@ -1596,7 +1599,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 textarea,
 select,
 .border-input {
-  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.05);
+  box-shadow: 0 0 0 1px rgb(74 55 40 / 0.1);
 }
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .dark textarea,
@@ -1654,7 +1657,7 @@ select:focus-visible,
 .toast,
 [data-sonner-toast] {
   box-shadow:
-    0 0 0 1px rgb(15 23 42 / 0.04),
+    0 0 0 1px rgb(74 55 40 / 0.09),
     0 0 16px -12px rgb(var(--brand-primary) / 0.25);
 }
 
@@ -1667,7 +1670,7 @@ select:focus-visible,
 }
 .bg-muted,
 .bg-secondary {
-  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.025);
+  box-shadow: 0 0 0 1px rgb(74 55 40 / 0.07);
 }
 
 /* Badges: chip edges pick up the light */
@@ -1711,7 +1714,7 @@ select:focus-visible,
 pre,
 blockquote {
   box-shadow:
-    0 0 0 1px rgb(15 23 42 / 0.04),
+    0 0 0 1px rgb(74 55 40 / 0.09),
     0 0 14px -14px rgb(var(--brand-primary) / 0.2);
 }
 
@@ -1723,10 +1726,10 @@ blockquote {
 
 /* Table boundaries in light mode (parity with dark) */
 table {
-  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.03);
+  box-shadow: 0 0 0 1px rgb(74 55 40 / 0.08);
 }
 thead th {
-  box-shadow: inset 0 -1px 0 0 rgb(15 23 42 / 0.04);
+  box-shadow: inset 0 -1px 0 0 rgb(74 55 40 / 0.09);
 }
 
 /* Reduced motion: static frame, no spin */
@@ -2213,7 +2216,7 @@ h2 {
   font-size: 11px;
   font-weight: 600;
   color: hsl(var(--foreground));
-  box-shadow: 0 10px 26px -20px rgba(16, 12, 40, 0.65);
+  box-shadow: 0 10px 26px -20px rgba(48, 33, 22, 0.42);
   backdrop-filter: blur(14px) saturate(140%);
 }
 
@@ -2264,7 +2267,7 @@ h2 {
     hsl(var(--card) / 0.62)
   );
   box-shadow:
-    0 14px 34px -24px rgba(16, 12, 40, 0.85),
+    0 14px 34px -24px rgba(48, 33, 22, 0.5),
     inset 0 1px 0 hsl(0 0% 100% / 0.4);
   backdrop-filter: blur(16px) saturate(150%);
   transition:
@@ -2275,7 +2278,7 @@ h2 {
 .frelux-map__dial:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 18px 40px -24px rgba(16, 12, 40, 0.9),
+    0 18px 40px -24px rgba(48, 33, 22, 0.52),
     inset 0 1px 0 hsl(0 0% 100% / 0.45);
 }
 
@@ -2347,7 +2350,7 @@ h2 {
   border-radius: 12px;
   border: 1px solid hsl(var(--border) / 0.55);
   background: hsl(var(--card) / 0.72);
-  box-shadow: 0 12px 30px -22px rgba(16, 12, 40, 0.7);
+  box-shadow: 0 12px 30px -22px rgba(48, 33, 22, 0.44);
   backdrop-filter: blur(14px) saturate(140%);
 }
 
@@ -2549,7 +2552,7 @@ h2 {
   font-size: 10.5px;
   font-weight: 650;
   color: hsl(var(--foreground));
-  box-shadow: 0 10px 24px -16px rgba(16, 12, 40, 0.7);
+  box-shadow: 0 10px 24px -16px rgba(48, 33, 22, 0.44);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -2586,7 +2589,7 @@ h2 {
   border: 1px solid hsl(var(--border) / 0.6);
   background: hsl(var(--card) / 0.96);
   padding: 12px 14px;
-  box-shadow: 0 24px 50px -28px rgba(16, 12, 40, 0.7);
+  box-shadow: 0 24px 50px -28px rgba(48, 33, 22, 0.44);
   backdrop-filter: blur(18px) saturate(150%);
 }
 

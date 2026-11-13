@@ -98,14 +98,14 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
       role="dialog"
       aria-modal="true"
       aria-label={t("Welcome to FRELUX SMART CALC")}
-      className={`fixed inset-0 z-[9999] select-none overflow-hidden bg-[#0A0A1A] ${leaving ? "entry-leave" : ""}`}
+      className={`fixed inset-0 z-[9999] select-none overflow-hidden bg-[#17140F] ${leaving ? "entry-leave" : ""}`}
       data-testid="entry-experience"
     >
       {/* Background: gradient + technical grid paint instantly, the
           architectural image fades in when it loads (never blocks). */}
       <div className="absolute inset-0" aria-hidden="true">
         {/* Deep navy base with subtle vertical depth */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,#0A0A1A_0%,#0D0D22_48%,#0A0A1A_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,#17140F_0%,#221D17_48%,#17140F_100%)]" />
 
         {/* Architectural image: quiet, right-weighted on wide screens */}
         <img
@@ -203,7 +203,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             type="button"
             onClick={enter}
             data-testid="entry-cta"
-            className="entry-rise group mt-9 inline-flex min-h-[56px] items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-9 py-4 text-base font-semibold text-white shadow-[0_14px_44px_-12px_rgba(124,58,237,0.75)] ring-1 ring-white/10 transition-all duration-300 ease-out hover:from-violet-500 hover:to-orange-400 hover:shadow-[0_18px_54px_-12px_rgba(249,115,22,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A1A] active:scale-[0.98] sm:mt-11 sm:px-11"
+            className="entry-rise group mt-9 inline-flex min-h-[56px] items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-violet-600 to-orange-500 px-9 py-4 text-base font-semibold text-white shadow-[0_14px_44px_-12px_rgba(124,58,237,0.75)] ring-1 ring-white/10 transition-all duration-300 ease-out hover:from-violet-500 hover:to-orange-400 hover:shadow-[0_18px_54px_-12px_rgba(249,115,22,0.65)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#17140F] active:scale-[0.98] sm:mt-11 sm:px-11"
             style={rise(760)}
           >
             {t("Explore FRELUX")}

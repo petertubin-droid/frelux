@@ -84,7 +84,7 @@ export default function ConversionDock() {
           <div
             role="dialog"
             aria-label="Measurement conversion shortcut"
-            className="mb-3 w-[min(21rem,calc(100vw-2rem))] rounded-2xl border border-white/20 bg-white/90 p-4 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.55)] backdrop-blur-xl dark:border-white/10 dark:bg-[#0A0A1A]/95"
+            className="mb-3 w-[min(21rem,calc(100vw-2rem))] rounded-2xl border border-white/20 bg-white/90 p-4 shadow-[0_24px_60px_-24px_rgba(48,33,22,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-[#17140F]/95"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -163,7 +163,7 @@ export default function ConversionDock() {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           className={classNames(
-            "flex items-center gap-2 rounded-full border border-white/25 bg-white/90 px-4 py-2.5 text-sm font-medium text-foreground shadow-[0_16px_40px_-18px_rgba(15,23,42,0.5)] backdrop-blur-xl transition hover:border-primary/40 dark:border-white/10 dark:bg-[#0A0A1A]/90",
+            "flex items-center gap-2 rounded-full border border-white/25 bg-white/90 px-4 py-2.5 text-sm font-medium text-foreground shadow-[0_16px_40px_-18px_rgba(48,33,22,0.45)] backdrop-blur-xl transition hover:border-primary/40 dark:border-white/10 dark:bg-[#17140F]/90",
             open && "border-primary/40",
           )}
         >

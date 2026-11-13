@@ -1,3 +1,30 @@
+/**
+ * Warm neutral ramp (2026-11-13, "warm and calm" polish).
+ *
+ * The interface was built on Tailwind's cool slate/gray/zinc neutrals, and
+ * ~880 call sites still name them directly (text-slate-500, border-slate-200,
+ * bg-slate-50 ...). Re-tinting every one of those by hand would be a huge,
+ * unreviewable diff, so the four cool families are aliased to this single
+ * sand-toned ramp instead: same contrast hierarchy, warm instead of blue-grey.
+ *
+ * Contrast was checked against the warm background (#FBF7F1): 500 reads 4.8:1
+ * and 600 6.6:1, so secondary copy keeps AA. 400 stays a muted label tone,
+ * matching how the old slate-400 behaved.
+ */
+const WARM_NEUTRALS = {
+  50: "#FAF7F2",
+  100: "#F4EFE7",
+  200: "#E7DFD3",
+  300: "#D5C9B8",
+  400: "#A99A88",
+  500: "#786C5D",
+  600: "#5F5547",
+  700: "#4A4238",
+  800: "#2F2A24",
+  900: "#221F1B",
+  950: "#141210",
+};
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -6,6 +33,10 @@ export default {
     extend: {
       colors: {
         // shadcn/ui semantic tokens — hsl(var(--token) / <alpha>)
+        // Warm paper white instead of #FFFFFF: 750 `bg-white` surfaces sat
+        // #FFFFFF next to the warm background, which read as a cold rectangle.
+        // #FFFDF9 keeps the same lightness and card separation, minus the blue.
+        white: "#FFFDF9",
         background: {
           DEFAULT: "hsl(var(--background) / <alpha-value>)",
           mid: "hsl(var(--background-mid) / <alpha-value>)",
@@ -61,23 +92,16 @@ export default {
           "purple-dark": "#5B21B6",
           "purple-deep": "#4C1D95",
           navy: "rgb(var(--brand-secondary) / <alpha-value>)",
-          "navy-mid": "#12122A",
-          "navy-light": "#1E1E3A",
-          "navy-soft": "#2A2A4A",
+          "navy-mid": "#221D17",
+          "navy-light": "#2C251D",
+          "navy-soft": "#3A322A",
         },
-        neutral: {
-          50: "#FAFAFA",
-          100: "#F5F5F7",
-          200: "#E5E5EA",
-          300: "#D1D1D6",
-          400: "#A1A1AA",
-          500: "#71717A",
-          600: "#52525B",
-          700: "#3F3F46",
-          800: "#27272A",
-          900: "#18181B",
-          950: "#09090B",
-        },
+        neutral: WARM_NEUTRALS,
+        // Cool families are aliased to the warm ramp so no legacy call site
+        // can reintroduce a blue-grey surface. See WARM_NEUTRALS above.
+        slate: WARM_NEUTRALS,
+        gray: WARM_NEUTRALS,
+        zinc: WARM_NEUTRALS,
       },
       fontFamily: {
         sans: ["var(--font-body)", "system-ui", "-apple-system", "sans-serif"],
@@ -127,8 +151,8 @@ export default {
         // A hairline top highlight plus a low, wide shadow: the edge reads as
         // a bevel on a curved surface rather than a flat drop shadow.
         curve:
-          "inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 18px 44px -30px rgba(16, 12, 40, 0.40)",
-        float: "0 14px 38px -22px rgba(16, 12, 40, 0.35)",
+          "inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 18px 44px -30px rgba(48, 33, 22, 0.28)",
+        float: "0 14px 38px -22px rgba(48, 33, 22, 0.26)",
         "dark-card-hover":
           "0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3)",
       },
