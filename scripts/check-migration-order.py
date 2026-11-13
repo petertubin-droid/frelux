@@ -131,13 +131,24 @@ def strip_dollar_blocks(sql: str) -> str:
 
 def migration_files() -> list[tuple[str, str]]:
     out = []
+    seen: dict[str, str] = {}
+    dups: list[tuple[str, str, str]] = []
     for path in sorted(glob.glob(os.path.join(ROOT, "supabase/migrations/*.sql"))):
         base = os.path.basename(path)
         if "_rollback" in base:
             continue
         m = re.match(r"(\d+)_", base)
         if m:
-            out.append((m.group(1), path))
+            v = m.group(1)
+            if v in seen:
+                dups.append((v, seen[v], base))
+            seen[v] = base
+            out.append((v, path))
+    if dups:
+        print(f"ERROR: {len(dups)} duplicate migration version(s) found:")
+        for v, f1, f2 in dups:
+            print(f"  Version {v} used by both {f1} and {f2}")
+        sys.exit(1)
     return out
 
 
