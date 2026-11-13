@@ -170,14 +170,14 @@ export default function MerchantMarketplaceApi() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <span className="text-[11px] font-bold text-primary flex items-center gap-1">
+                    <span className="text-xs font-bold text-primary flex items-center gap-1">
                       <Store className="h-3.5 w-3.5" /> {item.merchantName}
                     </span>
                     <h4 className="text-sm font-bold text-foreground mt-1">
                       {item.name}
                     </h4>
                   </div>
-                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold text-emerald-500">
+                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-500">
                     {item.inStockQuantity.toLocaleString()} {item.unit}s in
                     stock
                   </span>

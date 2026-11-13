@@ -229,7 +229,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           animationDelay: "900ms",
         }}
       >
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400/80 sm:text-xs">
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400/80 sm:text-xs">
           {t("Construction intelligence, built for real projects.")}
         </p>
       </footer>

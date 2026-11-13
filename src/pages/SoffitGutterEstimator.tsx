@@ -218,7 +218,7 @@ export default function SoffitGutterEstimator() {
           {envelopeNote && (
             <p
               role="status"
-              className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+              className="rounded-md border border-border bg-muted/30 p-2 text-xs leading-relaxed text-muted-foreground"
             >
               {envelopeNote}
             </p>

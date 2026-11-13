@@ -88,7 +88,7 @@ function ToolPanel({
                 className="flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/40 sm:px-5"
               >
                 <span
-                  className="mt-0.5 w-5 shrink-0 text-[11px] font-semibold tabular-nums text-primary/70"
+                  className="mt-0.5 w-5 shrink-0 text-xs font-semibold tabular-nums text-primary/70"
                   aria-hidden="true"
                 >
                   {String(index + 1).padStart(2, "0")}

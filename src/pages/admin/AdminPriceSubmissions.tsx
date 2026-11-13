@@ -268,12 +268,12 @@ export default function AdminPriceSubmissions() {
                 </span>
               )}
               {r.material_slug && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                   {r.material_slug}
                 </span>
               )}
               {r.applied_price != null && (
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   {t("book")} {Number(r.applied_price).toLocaleString()}
                 </span>
               )}
@@ -282,17 +282,17 @@ export default function AdminPriceSubmissions() {
                   href={r.source_url}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-[11px] text-primary underline-offset-2 hover:underline"
+                  className="text-xs text-primary underline-offset-2 hover:underline"
                 >
                   {t("source")}
                 </a>
               )}
               {r.status === "community_verified" && (
-                <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   {t("Consensus")}
                 </span>
               )}
-              <span className="ml-auto text-[11px] text-muted-foreground">
+              <span className="ml-auto text-xs text-muted-foreground">
                 {new Date(r.created_at).toLocaleString()}
               </span>
             </div>

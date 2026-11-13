@@ -141,7 +141,7 @@ export function CaseStudyCard({ view }: { view: CaseStudyView }) {
     >
       <div className="grid grid-cols-2">
         <figure className="relative aspect-[4/3] overflow-hidden bg-muted">
-          <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+          <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
             {t("Before")}
           </span>
           {beforeImage ? (
@@ -158,7 +158,7 @@ export function CaseStudyCard({ view }: { view: CaseStudyView }) {
           )}
         </figure>
         <figure className="relative aspect-[4/3] overflow-hidden bg-muted">
-          <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+          <span className="absolute left-2 top-2 z-10 rounded bg-black/60 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-white">
             {t("After")}
           </span>
           {afterImage ? (

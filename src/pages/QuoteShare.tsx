@@ -161,7 +161,7 @@ export default function QuoteShare() {
             <span className="text-sm font-extrabold tracking-tight text-brand-purple">
               FRELUX
             </span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-purple/70">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-purple/70">
               Smart Calc
             </span>
           </div>

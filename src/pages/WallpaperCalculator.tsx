@@ -1168,7 +1168,7 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                           >
                             {wall.label}
                             {wall.fullHeightOpeningM2 > 0 && (
-                              <span className="block text-[11px] text-muted-foreground">
+                              <span className="block text-xs text-muted-foreground">
                                 Floor-to-ceiling opening frees{" "}
                                 {areaDisplay(
                                   wall.fullHeightOpeningM2,
@@ -1192,7 +1192,7 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                   </table>
                 </div>
                 {pattern === "drop" && patternRepeat > 0 && (
-                  <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                     Half-drop match: every second drop is cut half a repeat
                     longer ({toDisplay(patternRepeat / 2, unit).toFixed(2)}{" "}
                     {unit} more) so the pattern lines up across strips.
@@ -1350,7 +1350,7 @@ function NumberField({
 function ResultMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 bg-background p-3 text-center">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 truncate text-sm font-semibold text-foreground">
         {value}
       </p>

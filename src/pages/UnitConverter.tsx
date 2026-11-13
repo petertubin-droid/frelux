@@ -479,7 +479,7 @@ function UniversalPanel() {
           {DIMENSION_ORDER.map((dimension) => (
             <span
               key={dimension}
-              className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:border-white/10"
+              className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground dark:border-white/10"
             >
               {UNIVERSAL_DIMENSION_LABELS[dimension]} ·{" "}
               {
@@ -488,7 +488,7 @@ function UniversalPanel() {
               }
             </span>
           ))}
-          <span className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground dark:border-white/10">
+          <span className="rounded-full border border-border/60 bg-card px-2.5 py-1 text-xs font-semibold text-foreground dark:border-white/10">
             {UNIVERSAL_UNITS.length} units
           </span>
         </div>
@@ -687,7 +687,7 @@ function UniversalPanel() {
           written above the answer, never hidden.
         </Assumption>
         <div className="mt-5 rounded-xl border border-border/60 bg-card/60 p-3 dark:border-white/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Common equivalents
           </p>
           <div className="mt-2 space-y-0.5">
@@ -732,7 +732,7 @@ function UniversalPanel() {
               );
             })}
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             Tap a row to load it above. The 50 kg bag is the common cement bag,
             not a standard for every material.
           </p>

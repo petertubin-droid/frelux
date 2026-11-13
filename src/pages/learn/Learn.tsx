@@ -232,7 +232,7 @@ export default function Learn() {
           />
           <div className="relative grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)] lg:gap-14">
             <div className="max-w-2xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-white/70 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-purple shadow-sm dark:bg-white/5">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-white/70 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-brand-purple shadow-sm dark:bg-white/5">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
                 {t("FRELUX Field Notes")}
               </div>
@@ -304,7 +304,7 @@ export default function Learn() {
                   )}
                 </div>
               )}
-              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
                 <span>{t("Materials")}</span>
                 <span className="text-primary/60">/</span>
                 <span>{t("Methods")}</span>
@@ -327,7 +327,7 @@ export default function Learn() {
                 <Globe2 className="h-11 w-11" strokeWidth={1.35} />
               </div>
               <div className="absolute bottom-[4%] right-0 rounded-2xl border border-white/80 bg-white/85 px-4 py-3 shadow-lg backdrop-blur dark:border-white/10 dark:bg-slate-900/85">
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
                   {t("A wider lens")}
                 </p>
                 <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
@@ -459,7 +459,7 @@ export default function Learn() {
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-accent-orange shadow-sm backdrop-blur-sm">
+                      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold uppercase tracking-widest text-accent-orange shadow-sm backdrop-blur-sm">
                         <Award className="h-3 w-3" /> {t("Featured")}
                       </span>
                     </div>
@@ -467,7 +467,7 @@ export default function Learn() {
                     <div
                       className={`relative flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_70%_25%,rgba(255,255,255,0.9),transparent_20%),linear-gradient(135deg,hsl(var(--primary)/.12),hsl(var(--muted)))] dark:bg-[radial-gradient(circle_at_70%_25%,rgba(255,255,255,0.12),transparent_20%),linear-gradient(135deg,hsl(var(--primary)/.2),hsl(var(--muted)))] ${index === 0 ? "aspect-[16/8]" : "aspect-[16/10]"}`}
                     >
-                      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-accent-orange shadow-sm">
+                      <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold uppercase tracking-widest text-accent-orange shadow-sm">
                         <Award className="h-3 w-3" /> {t("Featured")}
                       </span>
                     </div>
@@ -475,7 +475,7 @@ export default function Learn() {
                   <div
                     className={`flex flex-1 flex-col ${index === 0 ? "p-6 sm:p-7" : "p-5"}`}
                   >
-                    <span className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-purple">
+                    <span className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-brand-purple">
                       {article.category_slug.replace(/-/g, " ")}
                     </span>
                     <h3

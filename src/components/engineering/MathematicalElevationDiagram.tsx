@@ -1157,7 +1157,7 @@ export function MathematicalElevationDiagram({
             <span className="text-xs font-bold uppercase tracking-wider text-brand-purple font-mono">
               {levelHUDInfo.title}
             </span>
-            <Badge variant="outline" className="text-[11px] bg-background">
+            <Badge variant="outline" className="text-xs bg-background">
               Step {activeLevel} of 5
             </Badge>
           </div>
@@ -1262,7 +1262,7 @@ export function MathematicalElevationDiagram({
                 onChange={(e) => setYawDeg(Number(e.target.value))}
                 className="w-20 h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
               />
-              <span className="font-mono text-[11px] w-7">{yawDeg}°</span>
+              <span className="font-mono text-xs w-7">{yawDeg}°</span>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-muted-foreground font-mono">
@@ -1276,7 +1276,7 @@ export function MathematicalElevationDiagram({
                 onChange={(e) => setPitchDeg(Number(e.target.value))}
                 className="w-16 h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
               />
-              <span className="font-mono text-[11px] w-6">{pitchDeg}°</span>
+              <span className="font-mono text-xs w-6">{pitchDeg}°</span>
             </div>
           </div>
         )}

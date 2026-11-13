@@ -250,7 +250,7 @@ function AdBadge({ className = "" }: { className?: string }) {
   return (
     <span
       title={t("Ads by Heartsyncx · Sponsored")}
-      className={`inline-flex items-center gap-0.5 cursor-help rounded bg-[#f1f3f4] px-1 py-px text-[11px] font-bold leading-none text-[#5f6368] dark:bg-[#3c4043] dark:text-[#9aa0a6] ${className}`}
+      className={`inline-flex items-center gap-0.5 cursor-help rounded bg-[#f1f3f4] px-1 py-px text-xs font-bold leading-none text-[#5f6368] dark:bg-[#3c4043] dark:text-[#9aa0a6] ${className}`}
     >
       {t("Ad")}
       <Info aria-hidden="true" className="h-2 w-2" />
@@ -317,7 +317,7 @@ function DisplayAd({
   return (
     <div className={`my-6 overflow-hidden ${AD_CONTAINER}`}>
       <div className="flex items-center justify-center gap-1.5 pt-2 pb-1.5">
-        <span className="text-[11px] font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
           {t("Advertisement")}
         </span>
         <AdChoices />
@@ -357,7 +357,7 @@ function DisplayAd({
           >
             {d.label}
           </button>
-          <span className={`text-[11px] ${DISPLAY_URL}`}>{d.domain}</span>
+          <span className={`text-xs ${DISPLAY_URL}`}>{d.domain}</span>
           <p className={`mt-0.5 line-clamp-2 text-xs ${AD_BODY}`}>{d.blurb}</p>
         </div>
         <CtaButton dest={d} source={source} />
@@ -397,7 +397,7 @@ function Banner({
             {featured.site === "sister" &&
               ": relationship insight that hits home"}
           </button>
-          <span className={`text-[11px] ${DISPLAY_URL}`}>
+          <span className={`text-xs ${DISPLAY_URL}`}>
             {featured.domain}
             {featured.site === "sister" ? featured.path : ""}
           </span>
@@ -421,7 +421,7 @@ function Banner({
             <span className={`block truncate text-xs font-bold ${HEADLINE}`}>
               {d.label}
             </span>
-            <span className={`block truncate text-[11px] ${DISPLAY_URL}`}>
+            <span className={`block truncate text-xs ${DISPLAY_URL}`}>
               {d.domain}
             </span>
           </button>
@@ -456,7 +456,7 @@ function NativeUnit({
           aria-hidden="true"
           className="absolute inset-0 m-auto h-8 w-8 text-white/90"
         />
-        <span className="absolute bottom-1 left-1.5 text-[11px] font-black uppercase tracking-widest text-white/80">
+        <span className="absolute bottom-1 left-1.5 text-xs font-black uppercase tracking-widest text-white/80">
           {d.site === "sister" ? "Heartsyncx" : d.owner.slice(0, 12)}
         </span>
         <AdBadge className="absolute right-1 top-1 !bg-black/30 !text-white" />
@@ -473,7 +473,7 @@ function NativeUnit({
           <AdChoices className="-mt-0.5" />
         </div>
         <p
-          className={`mt-1 line-clamp-2 text-[11px] leading-relaxed ${AD_BODY}`}
+          className={`mt-1 line-clamp-2 text-xs leading-relaxed ${AD_BODY}`}
         >
           {d.site === "sister"
             ? "Articles, AI-powered insights and interactive tools for love, healing and communication."
@@ -483,14 +483,14 @@ function NativeUnit({
           <button
             type="button"
             onClick={() => go(d, source)}
-            className={`cursor-pointer truncate text-[11px] font-bold hover:underline ${DISPLAY_URL}`}
+            className={`cursor-pointer truncate text-xs font-bold hover:underline ${DISPLAY_URL}`}
           >
             {d.domain}
           </button>
           <button
             type="button"
             onClick={() => go(d, source)}
-            className="ml-auto cursor-pointer text-[11px] font-bold text-[#1a73e8] hover:underline dark:text-[#8ab4f8]"
+            className="ml-auto cursor-pointer text-xs font-bold text-[#1a73e8] hover:underline dark:text-[#8ab4f8]"
           >
             Read more »
           </button>
@@ -547,11 +547,11 @@ function RecCard({
                   {d.label}
                 </span>
                 <span
-                  className={`mt-1 block truncate text-[11px] ${DISPLAY_URL}`}
+                  className={`mt-1 block truncate text-xs ${DISPLAY_URL}`}
                 >
                   {d.domain}
                 </span>
-                <span className="mt-0.5 block text-[11px] text-[#5f6368] dark:text-[#9aa0a6]">
+                <span className="mt-0.5 block text-xs text-[#5f6368] dark:text-[#9aa0a6]">
                   {t("Sponsored")}
                 </span>
               </span>
@@ -601,7 +601,7 @@ function Interstitial({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 pt-2">
-          <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
+          <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
             {t("Advertisement")} <AdBadge />
           </span>
           <div className="flex items-center gap-1">
@@ -649,7 +649,7 @@ function Interstitial({
                   >
                     {d.label}
                   </span>
-                  <span className={`block truncate text-[11px] ${DISPLAY_URL}`}>
+                  <span className={`block truncate text-xs ${DISPLAY_URL}`}>
                     {d.domain}
                     {d.site === "sister" ? d.path : ""}
                   </span>

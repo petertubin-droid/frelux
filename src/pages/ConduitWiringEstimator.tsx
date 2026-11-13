@@ -453,7 +453,7 @@ export default function ConduitWiringEstimator() {
                     <Route className="h-4 w-4 text-primary" /> Visual Floorplan
                     & Glowing Wall Runs
                   </span>
-                  <Badge variant="outline" className="text-[11px] font-mono">
+                  <Badge variant="outline" className="text-xs font-mono">
                     {routerPoints.length} Points · {roomWidth}{" "}
                     {unitShortLabel(routerUnit)} × {roomLength}{" "}
                     {unitShortLabel(routerUnit)}
@@ -555,7 +555,7 @@ export default function ConduitWiringEstimator() {
                   </svg>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-muted-foreground">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-red-500" /> Main DB
                   </span>
@@ -610,13 +610,13 @@ export default function ConduitWiringEstimator() {
                       className="flex items-center justify-between p-2 rounded-lg bg-muted/40 text-xs border border-border/40"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] text-muted-foreground">
+                        <span className="font-mono text-xs text-muted-foreground">
                           #{i + 1}
                         </span>
                         <span className="font-medium text-foreground">
                           {p.label}
                         </span>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           ({p.x}m, {p.y}m)
                         </span>
                       </div>
@@ -648,50 +648,50 @@ export default function ConduitWiringEstimator() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground block">
                       Conduit PVC Pipes
                     </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.conduitPvcPipes20mmPieces} Lengths
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {routingResult.totalConduitLengthM}m total @ 2.9m/pipe
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground block">
                       Horizontal + Vertical
                     </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.totalHorizontalLengthM}m +{" "}
                       {routingResult.totalVerticalLengthM}m
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       Wall perimeter & drops
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground block">
                       1.5mm Lighting Wire
                     </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.lightingWireCoils1_5mm} Coil(s)
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       100m bundles
                     </span>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-card border border-border">
-                    <span className="text-[11px] text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground block">
                       2.5mm Socket Wire
                     </span>
                     <span className="text-base font-bold text-foreground font-mono">
                       {routingResult.socketWireCoils2_5mm} Coil(s)
                     </span>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       100m ring/radial
                     </span>
                   </div>

@@ -301,7 +301,7 @@ export default function ErrorAnalysis() {
                     <div className="flex items-center gap-2">
                       <span
                         className={classNames(
-                          "rounded px-1.5 py-0.5 text-[11px] font-medium border",
+                          "rounded px-1.5 py-0.5 text-xs font-medium border",
                           SEVERITY_STYLES[e.severity],
                         )}
                       >
@@ -341,7 +341,7 @@ export default function ErrorAnalysis() {
                   <div className="flex items-start gap-3">
                     <span
                       className={classNames(
-                        "rounded px-2 py-0.5 text-[11px] font-medium border",
+                        "rounded px-2 py-0.5 text-xs font-medium border",
                         SEVERITY_STYLES[selectedError.severity],
                       )}
                     >
@@ -466,7 +466,7 @@ export default function ErrorAnalysis() {
                           </span>
                           <span
                             className={classNames(
-                              "rounded px-2 py-0.5 text-[11px] font-medium",
+                              "rounded px-2 py-0.5 text-xs font-medium",
                               diagnosis.risk_level === "critical"
                                 ? "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
                                 : diagnosis.risk_level === "high"
@@ -594,7 +594,7 @@ export default function ErrorAnalysis() {
                               </span>
                               <span
                                 className={classNames(
-                                  "rounded px-2 py-0.5 text-[11px] font-medium",
+                                  "rounded px-2 py-0.5 text-xs font-medium",
                                   fix.risk_level === "high"
                                     ? "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400"
                                     : fix.risk_level === "medium"
@@ -645,7 +645,7 @@ export default function ErrorAnalysis() {
                         >
                           <span
                             className={classNames(
-                              "rounded px-2 py-0.5 text-[11px] font-medium",
+                              "rounded px-2 py-0.5 text-xs font-medium",
                               STATUS_STYLES[h.status] ??
                                 "bg-muted text-muted-foreground",
                             )}
@@ -703,7 +703,7 @@ export default function ErrorAnalysis() {
                       <td className="py-2 pr-3">
                         <span
                           className={classNames(
-                            "rounded px-2 py-0.5 text-[11px] font-medium",
+                            "rounded px-2 py-0.5 text-xs font-medium",
                             STATUS_STYLES[h.status] ??
                               "bg-muted text-muted-foreground",
                           )}
@@ -718,7 +718,7 @@ export default function ErrorAnalysis() {
                         {h.error_severity && (
                           <span
                             className={classNames(
-                              "rounded px-1.5 py-0.5 text-[11px] font-medium border",
+                              "rounded px-1.5 py-0.5 text-xs font-medium border",
                               SEVERITY_STYLES[h.error_severity] ?? "",
                             )}
                           >

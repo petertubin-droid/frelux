@@ -92,7 +92,7 @@ export function ArticleInsertBlock({
     >
       <div className="flex items-center gap-2">
         <span
-          className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[11px] font-bold uppercase tracking-wider ${meta.chip}`}
+          className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold uppercase tracking-wider ${meta.chip}`}
         >
           <Icon aria-hidden="true" className="h-3.5 w-3.5" />
           {meta.label}
@@ -176,7 +176,7 @@ export function FaqInsertBlock({
       data-faq-insert="true"
       className="mb-6 rounded-2xl border border-border/80 border-l-4 border-l-brand-orange bg-card/60 p-5 shadow-sm scroll-mt-24 dark:border-white/10 sm:p-6"
     >
-      <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-orange/10 px-2.5 text-[11px] font-bold uppercase tracking-wider text-brand-orange">
+      <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-brand-orange/10 px-2.5 text-xs font-bold uppercase tracking-wider text-brand-orange">
         Common questions
       </span>
       <dl className="mt-4 space-y-4">

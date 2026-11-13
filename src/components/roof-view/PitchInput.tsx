@@ -134,7 +134,7 @@ export function PitchInput({
                 if (mode === "unknown") onChange(null);
               }}
               disabled={disabled}
-              className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+              className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
                 inputMode === mode
                   ? "bg-foreground text-background"
                   : "bg-muted text-muted-foreground hover:bg-muted"
@@ -263,7 +263,7 @@ export function PitchInput({
 
       {/* Info: what this pitch means for surface area */}
       {hasPitch && (
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <HelpCircle aria-hidden="true" className="w-3 h-3" />
           Surface area = plan area ÷ cos({pitchDegrees!.toFixed(1)}°)
           {aiEstimated && (

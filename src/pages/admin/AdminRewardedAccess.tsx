@@ -182,7 +182,7 @@ function FeatureConfigTab() {
                     <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                       {feat.feature_name}
                     </h3>
-                    <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground dark:bg-card-foreground/90">
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground dark:bg-card-foreground/90">
                       {feat.feature_key}
                     </code>
                   </div>
@@ -452,7 +452,7 @@ function ToolConfigTab() {
                   <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {cfg.tool_label}
                   </h3>
-                  <code className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground dark:bg-card-foreground/90">
+                  <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground dark:bg-card-foreground/90">
                     {cfg.tool_key}
                   </code>
                 </div>
@@ -753,7 +753,7 @@ function AnalyticsTab() {
                     </span>
                     <div className="h-6 flex-1 overflow-hidden rounded bg-muted dark:bg-card-foreground/90">
                       <div
-                        className="flex h-full items-center rounded bg-primary/60 px-2 text-[11px] font-semibold text-primary-foreground"
+                        className="flex h-full items-center rounded bg-primary/60 px-2 text-xs font-semibold text-primary-foreground"
                         style={{ width: `${Math.max(pct, 5)}%` }}
                       >
                         {count}

@@ -76,7 +76,7 @@ function StatTile({
           <Icon className="h-5 w-5" aria-hidden="true" />
         </span>
         {failed && (
-          <span className="text-[11px] font-bold uppercase tracking-wider text-red-500">
+          <span className="text-xs font-bold uppercase tracking-wider text-red-500">
             query failed
           </span>
         )}
@@ -276,7 +276,7 @@ export default function AdminOverview() {
               <Brain className="h-5 w-5" aria-hidden="true" />
             </span>
             {aiEnabled === null ? (
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 unknown
               </span>
             ) : aiEnabled ? (

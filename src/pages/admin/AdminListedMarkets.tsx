@@ -195,7 +195,7 @@ export default function AdminListedMarkets() {
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th scope="col" className="py-2 pr-3">
                   Provider
                 </th>
@@ -219,7 +219,7 @@ export default function AdminListedMarkets() {
                   <tr key={p.slug} className="border-b border-border/60">
                     <td className="py-2 pr-3">
                       <p className="font-medium text-foreground">{p.label}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {p.slug}
                       </p>
                     </td>
@@ -353,7 +353,7 @@ export default function AdminListedMarkets() {
                     <p className="truncate text-sm text-foreground">
                       {n.headline}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {n.source_name} · {n.category} ·{" "}
                       {new Date(n.published_at).toLocaleDateString()}
                     </p>
@@ -362,7 +362,7 @@ export default function AdminListedMarkets() {
                     type="button"
                     onClick={() => void toggleNews(n.id, !n.is_published)}
                     disabled={busy === n.id}
-                    className="rounded border border-border px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+                    className="rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                   >
                     {n.is_published ? "Unpublish" : "Publish"}
                   </button>

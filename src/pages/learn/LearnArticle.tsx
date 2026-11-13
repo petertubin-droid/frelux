@@ -721,7 +721,7 @@ export default function LearnArticle() {
                       <ArrowLeft aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         Previous guide
                       </span>
                       <span className="mt-1 block text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
@@ -738,7 +738,7 @@ export default function LearnArticle() {
                     className="group flex items-center gap-3 rounded-xl border border-border/80 bg-card p-4 transition-colors hover:border-brand-purple/40 sm:p-5 dark:border-white/8"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                      <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         Next guide
                       </span>
                       <span className="mt-1 block text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">

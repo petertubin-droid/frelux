@@ -462,7 +462,7 @@ function StatTile({
       >
         {value}
       </p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
@@ -529,19 +529,19 @@ function PropertyCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-1.5">
         {profile.propertyType && (
-          <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
             {PROPERTY_TYPE_LABELS[profile.propertyType] ?? profile.propertyType}
           </span>
         )}
         {profile.constructionStatus && (
           <span
-            className={`rounded-md px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[profile.constructionStatus]}`}
+            className={`rounded-md px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[profile.constructionStatus]}`}
           >
             {profile.constructionStatus.replace(/_/g, " ")}
           </span>
         )}
         {profile.land?.size !== undefined && profile.land?.unit && (
-          <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
             {profile.land.size.toLocaleString()} {profile.land.unit}
           </span>
         )}
@@ -794,7 +794,7 @@ function DetailRow({
         <Icon className="h-4 w-4 text-muted-foreground" aria-hidden />
       </span>
       <div className="min-w-0">
-        <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </dt>
         <dd className="mt-0.5 break-words text-sm">{value}</dd>

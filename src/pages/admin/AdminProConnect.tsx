@@ -139,7 +139,7 @@ export default function AdminProConnect() {
           >
             {label}
             {key === "registrations" && newSignups > 0 && (
-              <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
+              <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-primary">
                 {newSignups}
               </span>
             )}
@@ -2066,12 +2066,12 @@ function AdminChannelsTab() {
                     {ch.name}
                   </p>
                   {ch.is_official && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-brand-purple">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
                       {t("Official")}
                     </span>
                   )}
                   {!ch.is_active && (
-                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-500">
+                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-500">
                       {t("Inactive")}
                     </span>
                   )}
@@ -2549,7 +2549,7 @@ function AdminModerationTab() {
               }
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               Messages scoring ≥ this are flagged for review.
             </span>
           </label>
@@ -2571,7 +2571,7 @@ function AdminModerationTab() {
               }
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               Messages scoring ≥ this are removed automatically.
             </span>
           </label>
@@ -2595,7 +2595,7 @@ function AdminModerationTab() {
               placeholder="e.g. scam, fraud, idiot, ..."
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               Messages containing these are instantly removed (score = 1.0).
             </span>
           </label>
@@ -2610,7 +2610,7 @@ function AdminModerationTab() {
               placeholder="e.g. \b\d{10}\b (phone number spam)"
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               Each line is a regex pattern. Matching messages are instantly
               removed.
             </span>
@@ -2639,7 +2639,7 @@ function AdminModerationTab() {
               <option value="anthropic">{t("Anthropic")}</option>
               <option value="local">{t("Local / Heuristic only")}</option>
             </AdminSelect>
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               If set to "Local", only heuristic rules apply (no API calls).
             </span>
           </label>
@@ -2655,7 +2655,7 @@ function AdminModerationTab() {
               }
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-muted-foreground">
+            <span className="mt-1 block text-xs text-muted-foreground">
               e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.
             </span>
           </label>
@@ -2675,7 +2675,7 @@ function AdminModerationTab() {
           rows={2}
           className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
-        <span className="mt-1 block text-[11px] text-muted-foreground">
+        <span className="mt-1 block text-xs text-muted-foreground">
           {t(
             "Posted as a system message in the channel when content is removed.",
           )}

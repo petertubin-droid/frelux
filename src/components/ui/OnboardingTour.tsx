@@ -228,7 +228,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
                   <h3 className="text-base font-bold text-primary-foreground">
                     {currentTour.title}
                   </h3>
-                  <p className="text-[11px] text-primary-foreground/70">
+                  <p className="text-xs text-primary-foreground/70">
                     Step {step + 1} of {TOUR_STEPS.length}
                   </p>
                 </div>

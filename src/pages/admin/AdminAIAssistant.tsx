@@ -398,7 +398,7 @@ export default function AdminAIAssistant() {
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === "assistant" && msg.engine && (
-                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary">
                           {t("SOLAS")}
                         </span>
                       )}

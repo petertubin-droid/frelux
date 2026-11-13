@@ -534,7 +534,7 @@ export default function ProConnectProfile() {
                     )}
                   </div>
                   {cred.verification_checked_at && (
-                    <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       Last checked{" "}
                       {new Date(
                         cred.verification_checked_at,

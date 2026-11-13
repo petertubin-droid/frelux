@@ -145,18 +145,18 @@ export default function AdminFeedback() {
             className="rounded-xl border border-border bg-card p-4"
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                 {KIND_LABEL[r.kind] ?? r.kind}
               </span>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {r.category}
               </span>
               {r.page_url && (
-                <span className="text-[11px] text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground/70">
                   from {r.page_url}
                 </span>
               )}
-              <span className="ml-auto text-[11px] text-muted-foreground">
+              <span className="ml-auto text-xs text-muted-foreground">
                 {new Date(r.created_at).toLocaleString()}
               </span>
             </div>

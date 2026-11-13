@@ -370,22 +370,22 @@ export default function AdminEstimationProducts() {
                                     {p.name}
                                   </h3>
                                   {p.has_quality_levels && (
-                                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">
+                                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">
                                       {t("Tiers")}
                                     </span>
                                   )}
                                   {!p.is_active && (
-                                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                                       {t("Off")}
                                     </span>
                                   )}
                                 </div>
                                 {p.description && (
-                                  <p className="mt-0.5 line-clamp-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                                  <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                     {p.description}
                                   </p>
                                 )}
-                                <div className="mt-0.5 flex flex-wrap gap-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                                <div className="mt-0.5 flex flex-wrap gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                   <span>{p.product_type}</span>
                                   <span>·</span>
                                   <span>{p.calculation_method}</span>
@@ -409,7 +409,7 @@ export default function AdminEstimationProducts() {
                                         expandedId === p.id ? null : p.id,
                                       )
                                     }
-                                    className="text-[11px] font-semibold"
+                                    className="text-xs font-semibold"
                                   >
                                     {qualityMap[p.id]?.length ?? 0} tiers
                                   </AdminButton>
@@ -466,7 +466,7 @@ export default function AdminEstimationProducts() {
                                         </span>
                                       )}
                                       {!q.is_active && (
-                                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                                           {t("Inactive")}
                                         </span>
                                       )}

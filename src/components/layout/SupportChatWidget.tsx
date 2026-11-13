@@ -206,7 +206,7 @@ export default function SupportChatWidget() {
                     <p className="text-sm font-semibold">ARCHIE · FRELUX AI</p>
                     <div className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent-green" />
-                      <p className="text-[11px] text-primary-foreground/70">
+                      <p className="text-xs text-primary-foreground/70">
                         Online · answers instantly
                       </p>
                     </div>
@@ -295,7 +295,7 @@ export default function SupportChatWidget() {
                           </div>
                           <p
                             className={classNames(
-                              "mt-1 px-1 text-[11px] text-muted-foreground/80 dark:text-muted-foreground",
+                              "mt-1 px-1 text-xs text-muted-foreground/80 dark:text-muted-foreground",
                               m.from === "user" ? "text-right" : "text-left",
                             )}
                           >
@@ -330,7 +330,7 @@ export default function SupportChatWidget() {
                     {/* Suggested questions (before first interaction) */}
                     {!hasInteracted && !loading && (
                       <div className="pt-2">
-                        <p className="mb-2 px-1 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
+                        <p className="mb-2 px-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                           Try asking:
                         </p>
                         <div className="space-y-1.5">

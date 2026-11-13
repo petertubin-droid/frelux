@@ -308,7 +308,7 @@ export function ProviderKeyCards() {
                         ? "Rotate key"
                         : "Save & activate"}
                   </Button>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="text-xs leading-relaxed text-muted-foreground">
                     {provider.consumptionNote}
                   </p>
                 </div>

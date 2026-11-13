@@ -706,7 +706,7 @@ export function Raster2DMap({
         </span>
         {notice && (
           <span
-            className="hidden md:inline-flex items-center rounded-lg border border-amber-500/30 bg-white/95 px-2.5 py-1.5 text-[11px] font-medium text-amber-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] backdrop-blur dark:bg-zinc-900/95 dark:text-amber-400"
+            className="hidden md:inline-flex items-center rounded-lg border border-amber-500/30 bg-white/95 px-2.5 py-1.5 text-xs font-medium text-amber-700 shadow-[0_2px_6px_rgba(0,0,0,0.2)] backdrop-blur dark:bg-zinc-900/95 dark:text-amber-400"
             title={notice}
           >
             {notice}
@@ -851,7 +851,7 @@ export function Raster2DMap({
               </p>
             )}
             {selected.meta && (
-              <p className="mt-2 inline-flex rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              <p className="mt-2 inline-flex rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 {selected.meta}
               </p>
             )}

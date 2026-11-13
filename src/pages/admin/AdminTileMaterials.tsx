@@ -308,13 +308,13 @@ export default function AdminTileMaterials() {
                       {s.name}
                     </p>
                     {s.is_standard && (
-                      <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
+                      <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-xs font-semibold text-brand-purple">
                         {tr("Std")}
                       </span>
                     )}
                     <span
                       className={classNames(
-                        "rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
+                        "rounded-full px-1.5 py-0.5 text-xs font-semibold",
                         s.is_active
                           ? "bg-accent-green/15 text-accent-green"
                           : "bg-muted text-muted-foreground",
@@ -323,7 +323,7 @@ export default function AdminTileMaterials() {
                       {s.is_active ? "On" : "Off"}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                     {s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box
                   </p>
                 </div>
@@ -402,7 +402,7 @@ export default function AdminTileMaterials() {
                             </p>
                             <span
                               className={classNames(
-                                "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                                "rounded-full px-2 py-0.5 text-xs font-semibold",
                                 m.is_active
                                   ? "bg-accent-green/15 text-accent-green"
                                   : "bg-muted text-muted-foreground",

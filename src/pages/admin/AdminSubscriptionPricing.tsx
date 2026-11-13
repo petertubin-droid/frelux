@@ -333,7 +333,7 @@ export default function AdminSubscriptionPricing() {
                             : " · no recorded rate"}
                           {!isChargeableCurrency(r.currency) && (
                             <span
-                              className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                              className="ml-1.5 rounded bg-muted px-1 py-0.5 text-xs font-medium uppercase tracking-wide"
                               title="No payment rail collects this currency, so customers in this market are charged the dollar price."
                             >
                               no rail

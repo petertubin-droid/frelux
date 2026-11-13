@@ -458,7 +458,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
         {canEditFinancials && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 rounded-lg bg-muted/20 border text-xs">
             <div>
-              <Label className="text-[11px] text-muted-foreground">
+              <Label className="text-xs text-muted-foreground">
                 Preliminaries (%)
               </Label>
               <NumericInput
@@ -470,7 +470,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               />
             </div>
             <div>
-              <Label className="text-[11px] text-muted-foreground">
+              <Label className="text-xs text-muted-foreground">
                 Overhead & Profit (%)
               </Label>
               <NumericInput
@@ -482,7 +482,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               />
             </div>
             <div>
-              <Label className="text-[11px] text-muted-foreground">
+              <Label className="text-xs text-muted-foreground">
                 Contingency (%)
               </Label>
               <NumericInput
@@ -494,7 +494,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
               />
             </div>
             <div>
-              <Label className="text-[11px] text-muted-foreground">
+              <Label className="text-xs text-muted-foreground">
                 Retention / Holdback (%)
               </Label>
               <NumericInput

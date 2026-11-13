@@ -127,7 +127,7 @@ export function MaterialPriceField({
           </span>
           <span
             className={cn(
-              "rounded-md px-2 py-0.5 text-[11px] font-medium",
+              "rounded-md px-2 py-0.5 text-xs font-medium",
               resolved.status === "verified" &&
                 "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
               resolved.status === "indicative" &&

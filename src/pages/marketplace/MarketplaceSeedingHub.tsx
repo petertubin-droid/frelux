@@ -260,7 +260,7 @@ export default function MarketplaceSeedingHub() {
                       </div>
                     </div>
                     <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                         t.tier === "tier_1_active"
                           ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
                           : t.tier === "tier_2_seeded"
@@ -276,7 +276,7 @@ export default function MarketplaceSeedingHub() {
                     </span>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] border-t border-border/50 pt-3">
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs border-t border-border/50 pt-3">
                     <div>
                       <div className="text-muted-foreground">
                         {tr("Density Index")}
@@ -295,7 +295,7 @@ export default function MarketplaceSeedingHub() {
                     </div>
                   </div>
 
-                  <div className="mt-3 text-[11px] text-muted-foreground truncate">
+                  <div className="mt-3 text-xs text-muted-foreground truncate">
                     Guild:{" "}
                     <strong className="text-foreground">
                       {t.partnerAcronym}
@@ -350,7 +350,7 @@ export default function MarketplaceSeedingHub() {
                   <h4 className="font-bold text-foreground text-sm">
                     {tr("Request On-Demand Concierge Sourcing")}
                   </h4>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     For developers building in areas with specific trade
                     requirements. Illustrative response target only; no
                     concierge dispatch service is connected.
@@ -435,7 +435,7 @@ export default function MarketplaceSeedingHub() {
                   <h4 className="font-bold text-foreground text-sm">
                     {tr("Nominate Family Contractor for Escrow")}
                   </h4>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Have a trusted local contractor? Fast-track their KYC and
                     onboard them into Frelux escrow clearance within 24h.
                   </p>

@@ -153,12 +153,12 @@ export default function MyListings() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
+                        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-brand-purple">
                           {PROJECT_TYPE_LABELS[listing.project_type]}
                         </span>
                         <span
                           className={classNames(
-                            "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+                            "rounded-md px-2 py-0.5 text-xs font-semibold",
                             STATUS_COLORS[listing.status] ||
                               "bg-muted text-muted-foreground",
                           )}
@@ -166,7 +166,7 @@ export default function MyListings() {
                           {LISTING_STATUS_LABELS[listing.status]}
                         </span>
                         {listing.urgency === "urgent" && (
-                          <span className="inline-flex items-center gap-0.5 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                          <span className="inline-flex items-center gap-0.5 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
                             <Clock aria-hidden="true" className="h-3 w-3" />{" "}
                             Urgent
                           </span>

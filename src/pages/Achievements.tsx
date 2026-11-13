@@ -144,7 +144,7 @@ export default function Achievements() {
                         </p>
                       </div>
                       {isUnlocked && (
-                        <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
+                        <span className="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-bold text-primary-foreground">
                           {t("DONE")}
                         </span>
                       )}

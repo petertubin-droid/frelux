@@ -49,7 +49,7 @@ export default function HowCalculatedSection({
 
           {assumptions.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("Active assumptions")}
               </p>
               {assumptions.map((a) => (
@@ -67,7 +67,7 @@ export default function HowCalculatedSection({
 
           {(priceSourceDate || priceSource) && (
             <div className="mt-3 space-y-1 border-t border-border pt-2 dark:border-white/5">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("Price information")}
               </p>
               {priceSource && (

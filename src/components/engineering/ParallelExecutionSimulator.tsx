@@ -138,7 +138,7 @@ export function ParallelExecutionSimulator({
               work days
             </span>
           </p>
-          <p className="mt-1 text-[11px] text-brand-purple font-medium">
+          <p className="mt-1 text-xs text-brand-purple font-medium">
             ~{calendarSchedule.calendarWeeks} calendar weeks (
             {calendarSchedule.calendarDays} cal days)
           </p>
@@ -153,7 +153,7 @@ export function ParallelExecutionSimulator({
             {metrics.sequentialDuration}{" "}
             <span className="text-xs font-normal">days</span>
           </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {t("Single-crew linear execution")}
           </p>
         </div>
@@ -172,7 +172,7 @@ export function ParallelExecutionSimulator({
               days ({metrics.concurrencySavingsPct}%)
             </span>
           </p>
-          <p className="mt-1 text-[11px] text-emerald-600/80">
+          <p className="mt-1 text-xs text-emerald-600/80">
             {t("Schedule compression gain")}
           </p>
         </div>
@@ -191,7 +191,7 @@ export function ParallelExecutionSimulator({
               trade gangs
             </span>
           </p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {metrics.maxConcurrency} simultaneous tasks ({metrics.wavesCount}{" "}
             waves)
           </p>
@@ -301,7 +301,7 @@ export function ParallelExecutionSimulator({
             <h4 className="text-sm font-bold text-foreground">
               {t("Interactive Parallel Execution Runner")}
             </h4>
-            <span className="rounded bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
               {t("ISO 21502 / PMBOK 7th Ed")}
             </span>
           </div>

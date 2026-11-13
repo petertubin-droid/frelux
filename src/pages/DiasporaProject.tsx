@@ -352,7 +352,7 @@ export default function DiasporaProject() {
                       >
                         {String(a.file_name)}
                       </button>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {String(a.kind)}
                         {a.gps_lat != null ? " · GPS captured" : " · no GPS"}
                       </p>
@@ -522,7 +522,7 @@ export default function DiasporaProject() {
                 >
                   <div className="flex items-center justify-between">
                     <p className="font-medium">{String(r.log_date)}</p>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {String(r.status ?? "submitted")}
                     </span>
                   </div>
@@ -684,7 +684,7 @@ export default function DiasporaProject() {
                       <td className="px-3 py-2">
                         {e.name}
                         {e.receipt_path ? (
-                          <span className="ml-2 text-[11px] text-muted-foreground">
+                          <span className="ml-2 text-xs text-muted-foreground">
                             receipt attached
                           </span>
                         ) : null}
@@ -736,7 +736,7 @@ export default function DiasporaProject() {
                             </Button>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {e.decision_note ?? "—"}
                           </span>
                         )}
@@ -899,7 +899,7 @@ export default function DiasporaProject() {
                       <tr key={String(d.id)}>
                         <td className="px-3 py-2">
                           {String(d.description)}
-                          <span className="block text-[11px] text-muted-foreground">
+                          <span className="block text-xs text-muted-foreground">
                             {String(d.delivery_date)} ·{" "}
                             {String(d.supplier ?? "supplier not stated")}
                           </span>
@@ -958,7 +958,7 @@ export default function DiasporaProject() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="font-medium">{String(s.stage_name)}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {status === "pending" ? "Not submitted" : status}
                       </p>
                     </div>
@@ -1054,7 +1054,7 @@ export default function DiasporaProject() {
                   <span className="truncate text-xs text-muted-foreground">
                     {String(m.user_id)}
                   </span>
-                  <span className="rounded-full border border-border px-2 py-0.5 text-[11px]">
+                  <span className="rounded-full border border-border px-2 py-0.5 text-xs">
                     {ROLE_LABELS[String(m.role) as ProjectRole] ??
                       String(m.role)}
                   </span>
@@ -1128,7 +1128,7 @@ export default function DiasporaProject() {
                       Share this link privately. It can be used once, by the
                       invited email address, and expires in 72 hours.
                     </p>
-                    <code className="mt-1 block overflow-x-auto rounded bg-muted p-2 text-[11px]">
+                    <code className="mt-1 block overflow-x-auto rounded bg-muted p-2 text-xs">
                       {inviteLink}
                     </code>
                   </div>

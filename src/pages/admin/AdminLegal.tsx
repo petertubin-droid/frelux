@@ -94,11 +94,11 @@ export default function AdminLegal() {
                       {item.title}
                     </h3>
                     {item.is_published ? (
-                      <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-semibold text-accent-green">
+                      <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-xs font-semibold text-accent-green">
                         {t("Published")}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-accent-yellow/20 px-2 py-0.5 text-[11px] font-semibold text-accent-yellow">
+                      <span className="rounded-full bg-accent-yellow/20 px-2 py-0.5 text-xs font-semibold text-accent-yellow">
                         {t("Draft")}
                       </span>
                     )}

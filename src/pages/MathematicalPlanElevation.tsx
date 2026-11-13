@@ -174,7 +174,7 @@ export default function MathematicalPlanElevation() {
               An illustrative footing-width estimate uses assumed line load and
               an entered bearing value:
             </p>
-            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-[11px]">
+            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-xs">
               B_illustration = (assumed line load / entered bearing value) ·
               1.15
             </div>
@@ -200,7 +200,7 @@ export default function MathematicalPlanElevation() {
               A fixed illustrative plinth datum is used in the display; it is
               not a flood or drainage recommendation:
             </p>
-            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-[11px]">
+            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-xs">
               V_concrete = (L_internal · W_internal · 0.150m) + (Perimeter ·
               0.45m · t_w)
             </div>
@@ -225,7 +225,7 @@ export default function MathematicalPlanElevation() {
               A wall height-to-thickness proportion is shown as a geometry
               indicator:
             </p>
-            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-[11px]">
+            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-xs">
               λ_screen = (0.75 · entered wall height) / entered thickness
             </div>
             <p>
@@ -248,7 +248,7 @@ export default function MathematicalPlanElevation() {
             <p>
               Parametric rafter slope and illustrative wind velocity pressure:
             </p>
-            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-[11px]">
+            <div className="p-2 rounded bg-background border border-border font-mono text-foreground text-xs">
               q = 0.613 · K_z · K_d · V² | h_ridge = (Span/2) · tan(θ)
             </div>
             <p>

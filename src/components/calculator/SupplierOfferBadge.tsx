@@ -62,7 +62,7 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
           <Store className="w-3.5 h-3.5" />
           {t("Matching-market verified supplier quote")}
         </span>
-        <span className="text-[11px] text-slate-400">
+        <span className="text-xs text-slate-400">
           Supplier quote · updated within 30 days
         </span>
       </div>
@@ -75,29 +75,29 @@ export const SupplierOfferBadge: React.FC<SupplierOfferBadgeProps> = ({
             </span>
             <Badge
               variant="outline"
-              className="text-[11px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
+              className="text-xs bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-300"
             >
               <CheckCircle2 className="w-2.5 h-2.5 mr-0.5 inline" />
               {t("Verified supplier")}
             </Badge>
-            <span className="text-[11px] text-slate-400">{bestOffer.city}</span>
+            <span className="text-xs text-slate-400">{bestOffer.city}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-1 text-xs">
             <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
               {bestOffer.unitPrice} {bestOffer.currency}
             </span>
-            <span className="text-[11px] text-slate-500">/ unit</span>
+            <span className="text-xs text-slate-500">/ unit</span>
             {bestOffer.bulkDiscountApplied && (
               <Badge
                 variant="secondary"
-                className="text-[11px] text-indigo-600 bg-indigo-50 dark:bg-indigo-950"
+                className="text-xs text-indigo-600 bg-indigo-50 dark:bg-indigo-950"
               >
                 <Percent className="w-2.5 h-2.5 mr-0.5 inline" />
                 {t("Bulk Tier Applied")}
               </Badge>
             )}
-            <span className="text-[11px] text-emerald-600 font-medium">
+            <span className="text-xs text-emerald-600 font-medium">
               {(bestOffer.stockQuantity ?? 0) > 0
                 ? `(${bestOffer.stockQuantity} in stock)`
                 : "(stock quantity not provided)"}

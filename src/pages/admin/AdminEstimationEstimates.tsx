@@ -352,13 +352,13 @@ export default function AdminEstimationEstimates() {
                       </span>
 
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${getStatusBadge(est.status)}`}
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${getStatusBadge(est.status)}`}
                       >
                         {est.status}
                       </span>
 
                       <span
-                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${getLabourBadge(est.labour_status)}`}
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${getLabourBadge(est.labour_status)}`}
                       >
                         Labour: {est.labour_status.replace(/_/g, " ")}
                       </span>
@@ -392,7 +392,7 @@ export default function AdminEstimationEstimates() {
                       <span className="text-base font-extrabold text-foreground dark:text-primary-foreground">
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
-                      <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                         {t("Total Material Cost")}
                       </p>
                     </div>
@@ -459,14 +459,14 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 font-medium text-foreground">
                                   {item.item_name}
                                   {item.notes && (
-                                    <p className="text-[11px] text-muted-foreground italic">
+                                    <p className="text-xs text-muted-foreground italic">
                                       {item.notes}
                                     </p>
                                   )}
                                 </td>
                                 <td className="p-2.5">
                                   <span
-                                    className={`inline-flex rounded border px-1.5 py-0.5 text-[11px] font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}
+                                    className={`inline-flex rounded border px-1.5 py-0.5 text-xs font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}
                                   >
                                     {item.item_type}
                                   </span>
@@ -477,7 +477,7 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 text-right font-mono font-semibold text-card-foreground dark:text-muted-foreground/60">
                                   {item.practical_purchase_qty} {item.unit}
                                   {item.pack_size && (
-                                    <span className="block text-[11px] text-muted-foreground dark:text-muted-foreground">
+                                    <span className="block text-xs text-muted-foreground dark:text-muted-foreground">
                                       Pack: {item.pack_size}
                                     </span>
                                   )}
@@ -494,10 +494,10 @@ export default function AdminEstimationEstimates() {
                                     est.currency,
                                   )}
                                 </td>
-                                <td className="p-2.5 capitalize text-muted-foreground text-[11px]">
+                                <td className="p-2.5 capitalize text-muted-foreground text-xs">
                                   {item.calculation_source}
                                   {item.adjustment_status !== "none" && (
-                                    <span className="ml-1 text-[11px] text-orange-600">
+                                    <span className="ml-1 text-xs text-orange-600">
                                       ({item.adjustment_status})
                                     </span>
                                   )}
@@ -517,11 +517,11 @@ export default function AdminEstimationEstimates() {
                       <div className="mt-3 grid gap-3 sm:grid-cols-2 text-xs">
                         {est.warnings && est.warnings.length > 0 && (
                           <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-amber-800">
-                            <span className="font-bold flex items-center gap-1 mb-1 text-[11px]">
+                            <span className="font-bold flex items-center gap-1 mb-1 text-xs">
                               <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />{" "}
                               Warnings
                             </span>
-                            <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
+                            <ul className="list-disc pl-4 space-y-0.5 text-xs">
                               {est.warnings.map((w, idx) => (
                                 <li key={idx}>
                                   {typeof w === "string"
@@ -536,11 +536,11 @@ export default function AdminEstimationEstimates() {
                         {est.recommendations &&
                           est.recommendations.length > 0 && (
                             <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-blue-800">
-                              <span className="font-bold flex items-center gap-1 mb-1 text-[11px]">
+                              <span className="font-bold flex items-center gap-1 mb-1 text-xs">
                                 <Lightbulb className="h-3.5 w-3.5 text-blue-600" />{" "}
                                 Recommendations
                               </span>
-                              <ul className="list-disc pl-4 space-y-0.5 text-[11px]">
+                              <ul className="list-disc pl-4 space-y-0.5 text-xs">
                                 {est.recommendations.map((r, idx) => (
                                   <li key={idx}>
                                     {typeof r === "string"
@@ -554,10 +554,10 @@ export default function AdminEstimationEstimates() {
 
                         {est.notes && (
                           <div className="rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-2.5 text-card-foreground sm:col-span-2">
-                            <span className="font-bold block mb-1 text-[11px]">
+                            <span className="font-bold block mb-1 text-xs">
                               {t("Notes")}
                             </span>
-                            <p className="text-[11px]">{est.notes}</p>
+                            <p className="text-xs">{est.notes}</p>
                           </div>
                         )}
                       </div>

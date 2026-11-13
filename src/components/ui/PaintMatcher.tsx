@@ -242,7 +242,7 @@ export function PaintMatcher() {
                     </p>
                   </div>
                   {i === 0 && (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                       BEST MATCH
                     </span>
                   )}

@@ -235,7 +235,7 @@ export default function AdminSuppliers() {
             <p className="mt-1 text-2xl font-semibold text-slate-900">
               {tile.value}
             </p>
-            <p className="text-[11px] text-slate-500">{tile.hint}</p>
+            <p className="text-xs text-slate-500">{tile.hint}</p>
           </div>
         ))}
       </section>
@@ -269,7 +269,7 @@ export default function AdminSuppliers() {
                           {verificationDefinition(event.requested_level).label}
                         </span>
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         Current:{" "}
                         {
                           verificationDefinition(supplier?.verification_level)
@@ -349,7 +349,7 @@ export default function AdminSuppliers() {
                       <p className="text-sm font-medium text-slate-900">
                         {listing.product_name}
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         {supplier?.company_name} ·{" "}
                         {formatByCode(
                           Number(listing.unit_price),
@@ -437,7 +437,7 @@ export default function AdminSuppliers() {
                       <p className="mt-0.5 text-xs text-slate-600">
                         {report.description}
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         {report.status} ·{" "}
                         {new Date(report.created_at).toLocaleDateString()}
                       </p>
@@ -517,7 +517,7 @@ export default function AdminSuppliers() {
                     >
                       {supplier.company_name}
                     </Link>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-xs text-slate-500">
                       {supplier.city ?? "no city"}
                     </p>
                   </td>
@@ -531,7 +531,7 @@ export default function AdminSuppliers() {
                           ? "outline"
                           : "secondary"
                       }
-                      className="text-[11px]"
+                      className="text-xs"
                     >
                       {
                         verificationDefinition(supplier.verification_level)
@@ -564,7 +564,7 @@ export default function AdminSuppliers() {
                     {plans.find(
                       (plan) => plan.code === supplier.subscription_plan,
                     )?.monthly_price ? (
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         {formatByCode(
                           plans.find(
                             (plan) => plan.code === supplier.subscription_plan,
@@ -579,11 +579,11 @@ export default function AdminSuppliers() {
                   </td>
                   <td className="px-3 py-2">
                     {supplier.is_featured ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700">
                         <Star className="h-3.5 w-3.5" /> Paid placement
                       </span>
                     ) : (
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-xs text-slate-500">
                         Organic only
                       </span>
                     )}
@@ -617,7 +617,7 @@ export default function AdminSuppliers() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-[11px] text-slate-500">
+        <p className="mt-2 text-xs text-slate-500">
           Plans:{" "}
           {plans
             .map(

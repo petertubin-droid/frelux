@@ -205,7 +205,7 @@ export function LocalePrompt() {
           <p className="text-sm font-semibold leading-snug text-card-foreground dark:text-primary-foreground">
             {copy.question}
           </p>
-          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+          <p className="mt-1 text-xs leading-snug text-muted-foreground">
             You appear to be browsing from {copy.country}. View Frelux in{" "}
             {meta.label}?
           </p>
@@ -231,7 +231,7 @@ export function LocalePrompt() {
           {copy.decline}
         </Button>
       </div>
-      <p className="mt-2 flex items-center gap-1 text-[11px] leading-snug text-muted-foreground/70">
+      <p className="mt-2 flex items-center gap-1 text-xs leading-snug text-muted-foreground/70">
         <Globe aria-hidden="true" className="h-3 w-3 shrink-0" />
         Detected locally from your timezone and browser settings. Never shared.
       </p>

@@ -307,7 +307,7 @@ export default function MaterialPrices() {
           supplier, so treat this as a planning reference and confirm with your
           own supplier before buying.
         </p>
-        <p className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+        <p className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
           <span className="font-semibold">Labels:</span>
           <span>Verified: a supplier price we have checked</span>
           <span>Reported: collected, not independently verified</span>
@@ -402,7 +402,7 @@ export default function MaterialPrices() {
                               </td>
                               <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
                                 {money(r.price, r.currency)}
-                                <span className="ml-1 text-[11px] font-normal text-muted-foreground">
+                                <span className="ml-1 text-xs font-normal text-muted-foreground">
                                   {r.currency}
                                 </span>
                               </td>
@@ -413,7 +413,7 @@ export default function MaterialPrices() {
                                 <span className="mt-1 flex flex-wrap items-center gap-1.5">
                                   <span
                                     title={EVIDENCE_NOTE[r.evidence]}
-                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${
                                       r.evidence === "supplier_verified"
                                         ? "border-accent-green/40 text-accent-green dark:text-accent-green-light"
                                         : r.evidence === "supplier_reported"
@@ -423,7 +423,7 @@ export default function MaterialPrices() {
                                   >
                                     {EVIDENCE_LABEL[r.evidence]}
                                   </span>
-                                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                  <span className="text-xs uppercase tracking-wide text-muted-foreground">
                                     {r.market}
                                   </span>
                                 </span>

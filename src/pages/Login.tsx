@@ -407,7 +407,7 @@ export default function Login() {
                     >
                       {t("Client")}
                     </p>
-                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {t("Estimate and save projects")}
                     </p>
                   </div>
@@ -442,7 +442,7 @@ export default function Login() {
                     >
                       {t("Worker")}
                     </p>
-                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {t("Offer your services")}
                     </p>
                   </div>

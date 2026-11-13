@@ -199,7 +199,7 @@ export default function ExploreMap() {
                 role="listbox"
                 aria-label={t("Places worldwide")}
               >
-                <p className="flex items-center gap-1.5 border-b border-border/50 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:border-white/5">
+                <p className="flex items-center gap-1.5 border-b border-border/50 px-3 py-2 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:border-white/5">
                   <Globe2 className="h-3 w-3" aria-hidden="true" />
                   {t("Places worldwide")}
                 </p>
@@ -234,7 +234,7 @@ export default function ExploreMap() {
                       <span className="block truncate text-xs font-semibold text-foreground">
                         {place.name}
                       </span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
+                      <span className="block truncate text-xs text-muted-foreground">
                         {place.label}
                       </span>
                     </span>
@@ -281,7 +281,7 @@ export default function ExploreMap() {
             emptyTitle={t(error ? "Map data unavailable" : "No pins here yet")}
             emptyHint={error ?? meta.empty}
           />
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             {t(
               "Drag to spin the globe, search any city to fly there, or use your own location for distances.",
             )}{" "}
@@ -296,7 +296,7 @@ export default function ExploreMap() {
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
               {meta.blurb}
             </p>
-            <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
+            <p className="mt-2 text-xs font-semibold text-muted-foreground">
               {loading
                 ? t("Loading records")
                 : `${filtered.length} ${t("plotted")}`}
@@ -339,7 +339,7 @@ export default function ExploreMap() {
                           {point.subtitle}
                         </span>
                       )}
-                      <span className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                         {point.meta && <span>{point.meta}</span>}
                         {viewerPoint && (
                           <span>
@@ -359,7 +359,7 @@ export default function ExploreMap() {
                     {point.href && (
                       <Link
                         to={point.href}
-                        className="shrink-0 self-center rounded-md px-2 py-1 text-[11px] font-semibold text-primary hover:underline"
+                        className="shrink-0 self-center rounded-md px-2 py-1 text-xs font-semibold text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Open

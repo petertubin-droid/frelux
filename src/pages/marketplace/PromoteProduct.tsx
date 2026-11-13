@@ -216,7 +216,7 @@ export default function PromoteProduct() {
                       <p className="text-lg font-bold text-brand-purple">
                         {formatByCode(minor / 100, currency)}
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {pack.days} {t("days")}
                       </p>
                     </div>

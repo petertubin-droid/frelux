@@ -40,12 +40,12 @@ export default function ConvertedTotal({ amount }: { amount: number }) {
         ≈ {formatMoney(conversion.result, to)}{" "}
         <span className="text-xs font-normal text-muted-foreground">{to}</span>
       </p>
-      <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
         {describeConversion(conversion)}. Shown for comparison only: this is an
         exchange-rate view of the estimate, not the price of materials in {to}.
       </p>
       {saved && (
-        <p className="mt-1 text-[11px] text-amber-500">
+        <p className="mt-1 text-xs text-amber-500">
           Live rates were unavailable, so this uses a saved rate from{" "}
           {conversion.rateTimestamp
             ? conversion.rateTimestamp.slice(0, 10)

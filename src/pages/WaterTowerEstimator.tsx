@@ -280,7 +280,7 @@ export default function WaterTowerEstimator() {
                     >
                       <Layers className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Structural Steel</span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         H-Beams + Angle Braces
                       </span>
                     </button>
@@ -295,7 +295,7 @@ export default function WaterTowerEstimator() {
                     >
                       <Building2 className="h-5 w-5 mb-1 text-primary" />
                       <span className="text-xs">Reinforced Concrete</span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         4x 230mm Columns
                       </span>
                     </button>
@@ -356,7 +356,7 @@ export default function WaterTowerEstimator() {
                 <span className="text-xl font-bold text-foreground mt-1 block">
                   {(result.deadLoadTotalKg / 1000).toFixed(2)} t
                 </span>
-                <span className="text-[11px] text-muted-foreground font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   {result.deadLoadTotalKg.toLocaleString()} kg
                 </span>
               </Card>
@@ -374,7 +374,7 @@ export default function WaterTowerEstimator() {
                 >
                   {result.overturningSafetyFactor}
                 </span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {result.windForceKn} kN wind, 1.5 required
                 </span>
               </Card>
@@ -386,7 +386,7 @@ export default function WaterTowerEstimator() {
                 <span className="text-xl font-bold text-primary mt-1 block">
                   {result.designLoadKn} kN
                 </span>
-                <span className="text-[11px] text-muted-foreground font-mono">
+                <span className="text-xs text-muted-foreground font-mono">
                   {result.footing.serviceLoadPerLegKn} kN worst leg
                 </span>
               </Card>
@@ -427,10 +427,10 @@ export default function WaterTowerEstimator() {
                     {(result.legDesign.utilisation * 100).toFixed(0)}%
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground pt-1">
+                <p className="text-xs text-muted-foreground pt-1">
                   Governing check: {result.legDesign.governingCheck}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Base {result.baseSizeMeters} m square, tank{" "}
                   {result.tankDiameterMeters} m diameter, deck weight{" "}
                   {result.deckWeightKg} kg.
@@ -552,7 +552,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.structuralHBeamsMeters} m
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           4 lengths @ {height}m
                         </div>
                       </div>
@@ -571,7 +571,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.angleIronBracingMeters} m
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Across {Math.max(1, Math.round(height / 3))} tiers
                         </div>
                       </div>
@@ -590,7 +590,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.timberPlatform2x6Pieces} Pieces
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Even weight distribution
                         </div>
                       </div>
@@ -611,7 +611,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.concreteVolumeM3} m³
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Cast-in-place columns
                         </div>
                       </div>
@@ -619,35 +619,35 @@ export default function WaterTowerEstimator() {
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">
+                        <span className="text-xs text-muted-foreground block">
                           Cement
                         </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.cementBags50kg} Bags
                         </span>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           50kg bags
                         </span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">
+                        <span className="text-xs text-muted-foreground block">
                           Sharp Sand
                         </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.sandCubicMeters} m³
                         </span>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           Clean washed
                         </span>
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">
-                        <span className="text-[11px] text-muted-foreground block">
+                        <span className="text-xs text-muted-foreground block">
                           Granite
                         </span>
                         <span className="text-sm font-bold text-foreground font-mono">
                           {result.structuralBOM.gravelCubicMeters} m³
                         </span>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           3/4" aggregate
                         </span>
                       </div>
@@ -666,7 +666,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.verticalRebarY16Lengths} Lengths
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Standard 12m commercial bars
                         </div>
                       </div>
@@ -685,7 +685,7 @@ export default function WaterTowerEstimator() {
                         <div className="text-base font-bold text-foreground font-mono">
                           {result.structuralBOM.stirrupsRebarY8Lengths} Lengths
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Standard 12m commercial bars
                         </div>
                       </div>
@@ -705,7 +705,7 @@ export default function WaterTowerEstimator() {
                           {result.structuralBOM.timberPlatform2x6PiecesConcrete}{" "}
                           Pieces
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           Tank platform base
                         </div>
                       </div>

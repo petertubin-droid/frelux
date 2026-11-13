@@ -403,7 +403,7 @@ export default function AdminBranding() {
 
         {/* Live preview, clickable headline */}
         <div className="mt-4 rounded-xl border border-border bg-gradient-to-br from-background to-card p-6 dark:border-white/10">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/30">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/30">
             {t("Live preview, click words to toggle highlight")}
           </p>
           <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-3xl">

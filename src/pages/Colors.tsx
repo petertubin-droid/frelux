@@ -308,7 +308,7 @@ export default function Colors() {
                           title={f.name}
                         >
                           <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
+                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-xs font-bold text-primary-foreground">
                               {f.name}
                             </span>
                           </div>
@@ -617,16 +617,16 @@ export default function Colors() {
                         {c.description}
                       </p>
                       <div className="mt-3 flex items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
                           {c.style}
                         </span>
                         {c.is_trending && (
-                          <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-[11px] font-semibold text-accent-orange">
+                          <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-xs font-semibold text-accent-orange">
                             {t("Trending")}
                           </span>
                         )}
                         {c.is_featured && (
-                          <span className="rounded-full bg-accent-green/10 px-2.5 py-1 text-[11px] font-semibold text-accent-green">
+                          <span className="rounded-full bg-accent-green/10 px-2.5 py-1 text-xs font-semibold text-accent-green">
                             {t("Featured")}
                           </span>
                         )}

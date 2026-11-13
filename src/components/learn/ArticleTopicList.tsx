@@ -28,7 +28,7 @@ export function ArticleTopicList({
           >
             <span className="min-w-0 flex-1">
               {a.category_slug ? (
-                <span className="block text-[11px] font-semibold uppercase tracking-wider text-brand-purple">
+                <span className="block text-xs font-semibold uppercase tracking-wider text-brand-purple">
                   {a.category_slug.replace(/-/g, " ")}
                 </span>
               ) : null}

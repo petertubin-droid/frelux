@@ -80,7 +80,7 @@ export default function MarketNews() {
           <ul className="space-y-3">
             {state.data.map((n) => (
               <li key={n.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className="rounded bg-muted px-1.5 py-0.5 capitalize">{n.category}</span>
                   {n.symbol ? <span className="rounded bg-muted px-1.5 py-0.5">{n.symbol}</span> : null}
                   {n.market_code ? <span className="rounded bg-muted px-1.5 py-0.5">{n.market_code}</span> : null}
@@ -90,7 +90,7 @@ export default function MarketNews() {
                   {n.headline}
                 </a>
                 {n.summary ? <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{n.summary}</p> : null}
-                <p className="mt-2 text-[11px] text-muted-foreground">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Source:{" "}
                   {n.source_url ? (
                     <a href={n.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">{n.source_name}</a>

@@ -776,7 +776,7 @@ function SidebarContent({
             <span className="block font-display text-sm font-bold leading-tight tracking-tight text-foreground">
               {t("FRELUX Admin")}
             </span>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {t("Platform management")}
             </p>
           </div>

@@ -135,7 +135,7 @@ export default function AdminPartnershipInquiries() {
                     </h3>
                     <span
                       className={classNames(
-                        "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
+                        "rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
                         STATUS_STYLES[item.status] ?? STATUS_STYLES.new,
                       )}
                     >

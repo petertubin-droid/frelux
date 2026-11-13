@@ -184,7 +184,7 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
               </span>
               <span
                 className={classNames(
-                  "rounded-full border px-2 py-0.5 text-[11px]",
+                  "rounded-full border px-2 py-0.5 text-xs",
                   row.supplies_prices
                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                     : "border-rose-500/30 bg-rose-500/10 text-rose-500",
@@ -262,7 +262,7 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
               </div>
               <span
                 className={classNames(
-                  "rounded-full border px-2 py-0.5 text-[11px]",
+                  "rounded-full border px-2 py-0.5 text-xs",
                   STATUS_TONE[row.match_status] ?? STATUS_TONE.unmapped,
                 )}
               >

@@ -176,7 +176,7 @@ export default function IndustryTrends() {
               />
               <table className="w-full min-w-[760px] border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <th scope="col" className="py-2 pr-2">
                       Series
                     </th>
@@ -245,7 +245,7 @@ export default function IndustryTrends() {
                 />
                 <table className="w-full min-w-[680px] border-collapse text-sm">
                   <thead>
-                    <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                       <th scope="col" className="py-2 pr-2">
                         Market
                       </th>
@@ -292,7 +292,7 @@ export default function IndustryTrends() {
                             (r.source_name ?? "—")
                           )}
                           {r.confidence ? (
-                            <span className="ml-1 rounded bg-muted px-1 text-[11px]">
+                            <span className="ml-1 rounded bg-muted px-1 text-xs">
                               {r.confidence}
                             </span>
                           ) : null}

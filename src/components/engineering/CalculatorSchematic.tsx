@@ -79,7 +79,7 @@ export type CalculatorSchematicProps =
   | RetainingWallDiagram
   | GutterDiagram;
 
-const labelClass = "fill-current text-[11px]";
+const labelClass = "fill-current text-xs";
 /**
  * The extent a foundation schematic prints beside its section. The entered
  * lengths are in the user's own unit, so the label must carry that unit: a
@@ -178,7 +178,7 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
             {description}
           </p>
         </div>
-        <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-primary">
+        <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-primary">
           Schematic · not to scale
         </span>
       </figcaption>
@@ -926,10 +926,10 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
       {props.kind === "plumbing" && (
         <div className="grid gap-3 border-t border-border/70 px-4 py-3 sm:grid-cols-2 sm:px-5">
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Fixture counts
             </p>
-            <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-foreground">
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-foreground">
               {props.counts.map((item) => (
                 <li key={item.label} className="flex justify-between gap-2">
                   <span className="text-muted-foreground">{item.label}</span>
@@ -939,10 +939,10 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
             </ul>
           </div>
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Measured pipe runs
             </p>
-            <ul className="space-y-1 text-[11px] text-foreground">
+            <ul className="space-y-1 text-xs text-foreground">
               {props.runs.map((item) => (
                 <li key={item.label} className="flex justify-between gap-2">
                   <span className="text-muted-foreground">{item.label}</span>
@@ -954,7 +954,7 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               Blank runs remain unsized; this schematic never derives or invents
               pipe lengths.
             </p>
@@ -962,7 +962,7 @@ export function CalculatorSchematic(props: CalculatorSchematicProps) {
         </div>
       )}
       {props.kind !== "electrical" && (
-        <p className="border-t border-border/70 px-4 py-2 text-[11px] text-muted-foreground sm:px-5">
+        <p className="border-t border-border/70 px-4 py-2 text-xs text-muted-foreground sm:px-5">
           Geometry is illustrative and not to scale. Use the calculator results
           and disclosed assumptions; this graphic is not a design or
           construction drawing.

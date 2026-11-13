@@ -128,13 +128,13 @@ export function AdminEngineReconciliation() {
                     {registersFor(engine).map((register) => (
                       <span
                         key={register}
-                        className="rounded border bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                        className="rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
                       >
                         {REGISTER_LABEL[register]}
                       </span>
                     ))}
                     {registersFor(engine).length < 3 && (
-                      <span className="rounded border border-amber-300 px-1.5 py-0.5 text-[11px] text-amber-700 dark:border-amber-800 dark:text-amber-400">
+                      <span className="rounded border border-amber-300 px-1.5 py-0.5 text-xs text-amber-700 dark:border-amber-800 dark:text-amber-400">
                         {3 - registersFor(engine).length} missing
                       </span>
                     )}

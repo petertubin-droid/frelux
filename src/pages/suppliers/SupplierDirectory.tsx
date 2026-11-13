@@ -97,7 +97,7 @@ function SupplierCard({
                     ? "secondary"
                     : "outline"
               }
-              className="shrink-0 text-[11px]"
+              className="shrink-0 text-xs"
               title={definition.meaning}
             >
               {badge.label}
@@ -155,7 +155,7 @@ function SupplierCard({
         {result.supplier.product_categories.slice(0, 5).map((slug) => (
           <span
             key={slug}
-            className="rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600"
+            className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600"
           >
             {categoryLabel(slug)}
           </span>
@@ -490,7 +490,7 @@ export default function SupplierDirectory() {
                       <h2 className="text-sm font-semibold text-slate-900">
                         Featured suppliers
                       </h2>
-                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-800">
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
                         Paid placement
                       </span>
                     </div>
@@ -579,7 +579,7 @@ export default function SupplierDirectory() {
                   );
                 })}
               </ul>
-              <p className="mt-2 flex gap-1.5 text-[11px] text-slate-500">
+              <p className="mt-2 flex gap-1.5 text-xs text-slate-500">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 No level is a warranty. Agree specifications, quantities and
                 delivery terms in writing before you pay.

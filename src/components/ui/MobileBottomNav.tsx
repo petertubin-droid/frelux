@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
               to={item.to}
               aria-current={active ? "page" : undefined}
               className={classNames(
-                "relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-0.5 py-1 text-[11px] font-semibold leading-tight transition-colors",
+                "relative flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-0.5 py-1 text-xs font-semibold leading-tight transition-colors",
                 active
                   ? "text-brand-purple dark:text-brand-purple-lighter"
                   : "text-muted-foreground dark:text-muted-foreground",
@@ -67,7 +67,7 @@ export default function MobileBottomNav() {
                   )}
                 />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-amber-400 px-1 text-[11px] font-bold text-primary-foreground">
+                  <span className="absolute -right-1 -top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-amber-400 px-1 text-xs font-bold text-primary-foreground">
                     {item.badge}
                   </span>
                 )}

@@ -678,7 +678,7 @@
     @apply bg-muted/40 border border-border/50 rounded-xl dark:bg-white/[0.03] dark:border-white/5;
   }
   .admin-eyebrow {
-    @apply text-[11px] font-bold uppercase tracking-[0.18em] text-primary/80;
+    @apply text-xs font-bold uppercase tracking-[0.18em] text-primary/80;
   }
   .admin-divider {
     @apply h-px w-full bg-gradient-to-r from-transparent via-border to-transparent dark:via-white/10;
@@ -2849,8 +2849,8 @@ html[data-frelux-wide-view="true"]
    grid are below legible size on a phone, so they are lifted to 12px there and
    left alone on wide screens, where the extra density is the point. */
 @media (max-width: 767px) {
-  #root [class*="text-[10px]"],
-  #root [class*="text-[11px]"] {
+  #root [class*="text-xs"],
+  #root [class*="text-xs"] {
     font-size: 0.75rem;
     line-height: 1.05rem;
   }

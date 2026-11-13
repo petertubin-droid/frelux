@@ -174,7 +174,7 @@ export default function BoreholeWaterSystemAnimation({
               setIsPlaying(false);
               setActiveStep(idx);
             }}
-            className={`rounded px-1.5 py-1.5 text-[11px] font-medium transition-all ${
+            className={`rounded px-1.5 py-1.5 text-xs font-medium transition-all ${
               activeStep === idx
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : activeStep > idx
@@ -204,7 +204,7 @@ export default function BoreholeWaterSystemAnimation({
               {currentStep.detail}
             </p>
             {currentStep.check && (
-              <p className="mt-1.5 flex items-start gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              <p className="mt-1.5 flex items-start gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                 <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>QA Gate: {currentStep.check}</span>
               </p>
@@ -1249,7 +1249,7 @@ export default function BoreholeWaterSystemAnimation({
             {currentStep.detail}
           </p>
           {currentStep.check && (
-            <div className="mt-1.5 flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <div className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>QA Gate: {currentStep.check}</span>
             </div>

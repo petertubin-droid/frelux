@@ -409,7 +409,7 @@ export default function RoofFramingEstimator() {
                 {envelopeNote && (
                   <p
                     role="status"
-                    className="mt-2 rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+                    className="mt-2 rounded-md border border-border bg-muted/30 p-2 text-xs leading-relaxed text-muted-foreground"
                   >
                     {envelopeNote}
                   </p>

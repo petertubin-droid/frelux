@@ -113,7 +113,7 @@ export default function AdminPaintTypes() {
                     {item.name}
                   </h3>
                   {!item.is_active && (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                       {t("Inactive")}
                     </span>
                   )}

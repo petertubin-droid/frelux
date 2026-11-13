@@ -81,7 +81,7 @@ export default function CandleChart({ candles, label, currency, height = 260 }: 
           </g>
         ))}
       </svg>
-      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+      <div className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{new Date(candles[0].ts).toLocaleDateString()}</span>
         <span>{new Date(candles[candles.length - 1].ts).toLocaleDateString()}</span>
       </div>

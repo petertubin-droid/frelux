@@ -169,7 +169,7 @@ export const ProfileCreditsWallet: React.FC = () => {
 
         <div className="bg-primary/10 border border-primary/20 px-4 py-2.5 rounded-xl flex items-center gap-3">
           <div>
-            <div className="text-[11px] uppercase font-semibold text-primary tracking-wider">
+            <div className="text-xs uppercase font-semibold text-primary tracking-wider">
               {t("Available Balance")}
             </div>
             {walletLoading ? (
@@ -203,7 +203,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-foreground mt-0.5">
             {AI_CREDIT_COST} {t("Credits")}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-xs text-muted-foreground mt-0.5">
             {t("Uniform across all tools")}
           </div>
         </div>
@@ -214,7 +214,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
             +{CREDITS_PER_AD} {t("Credits")}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-xs text-muted-foreground mt-0.5">
             Max {MAX_ADS_PER_DAY} ads daily ({todayAdCount}/{MAX_ADS_PER_DAY}{" "}
             watched)
           </div>
@@ -226,7 +226,7 @@ export const ProfileCreditsWallet: React.FC = () => {
           <div className="text-base font-bold text-primary mt-0.5">
             {t("Standard AI Included")}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-xs text-muted-foreground mt-0.5">
             {t("Standard tools exempt from credit deductions")}
           </div>
         </div>
@@ -242,7 +242,7 @@ export const ProfileCreditsWallet: React.FC = () => {
               <h3 className="font-semibold text-sm text-foreground">
                 {t("Watch Partner Ad to Earn Credits")}
               </h3>
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {todayAdCount} / {MAX_ADS_PER_DAY} {t("watched today")}
               </span>
             </div>
@@ -330,7 +330,7 @@ export const ProfileCreditsWallet: React.FC = () => {
                     <div className="text-xs font-semibold text-foreground">
                       {task.title}
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       {task.description}
                     </div>
                   </div>
@@ -433,7 +433,7 @@ export const ProfileCreditsWallet: React.FC = () => {
                           <div className="font-medium text-foreground">
                             {tx.reason}
                           </div>
-                          <div className="text-[11px] text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {new Date(tx.created_at).toLocaleDateString(
                               undefined,
                               {

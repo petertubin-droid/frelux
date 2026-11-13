@@ -546,7 +546,7 @@ export default function AnimatedBuildSequence({
             />
           </svg>
           {caption && (
-            <p className="text-[11px] text-muted-foreground text-center mt-1">
+            <p className="text-xs text-muted-foreground text-center mt-1">
               {caption}
             </p>
           )}
@@ -573,7 +573,7 @@ export default function AnimatedBuildSequence({
                       {i + 1}. {step.title}
                     </span>
                     {step.quantity && (
-                      <span className="font-mono text-[11px] text-muted-foreground shrink-0">
+                      <span className="font-mono text-xs text-muted-foreground shrink-0">
                         {step.quantity}
                       </span>
                     )}
@@ -591,7 +591,7 @@ export default function AnimatedBuildSequence({
                         {step.detail}
                       </span>
                       {step.check && (
-                        <span className="block text-[11px] text-muted-foreground">
+                        <span className="block text-xs text-muted-foreground">
                           Check first: {step.check}
                         </span>
                       )}

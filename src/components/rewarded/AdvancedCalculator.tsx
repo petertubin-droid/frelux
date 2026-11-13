@@ -717,7 +717,7 @@ function CostsTab({
           value={costAdjust.taxPercentage}
           onChange={(v) => update("taxPercentage", v)}
         />
-        <p className="col-span-full -mt-2 text-[11px] leading-snug text-muted-foreground">
+        <p className="col-span-full -mt-2 text-xs leading-snug text-muted-foreground">
           Enter your applicable local rate. FRELUX does not assume a
           jurisdiction tax rate; 0% keeps the estimate pre-tax.
         </p>

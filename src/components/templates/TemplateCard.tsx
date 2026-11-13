@@ -229,7 +229,7 @@ function TemplateInputSummary({
       {parts.map((p, i) => (
         <span
           key={i}
-          className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground"
+          className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground"
         >
           {p}
         </span>

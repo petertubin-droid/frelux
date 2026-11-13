@@ -113,7 +113,7 @@ export function AchievementBadges({ compact = false }: Props) {
               >
                 {isUnlocked ? ach.title : "???"}
               </span>
-              <span className="text-[11px] text-muted-foreground leading-tight">
+              <span className="text-xs text-muted-foreground leading-tight">
                 {isUnlocked ? ach.description : `Unlock: ${ach.description}`}
               </span>
               {!isUnlocked && (
@@ -142,7 +142,7 @@ function StatTile({
         {value}
         {icon}
       </p>
-      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -178,7 +178,7 @@ export function AchievementToast({
             <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
               {ach.title}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {ach.description}
             </p>
           </div>

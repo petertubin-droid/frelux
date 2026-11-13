@@ -74,7 +74,7 @@ function SwitchRow({
           <span className="block text-[13px] font-semibold leading-5 text-foreground">
             {label}
           </span>
-          <span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground">
+          <span className="mt-0.5 block text-xs leading-4 text-muted-foreground">
             {description}
           </span>
         </span>
@@ -267,7 +267,7 @@ export default function DisplaySettings() {
                 <h2 className="text-[13px] font-semibold leading-5 tracking-tight text-foreground">
                   Display
                 </h2>
-                <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+                <p className="mt-0.5 text-xs leading-4 text-muted-foreground">
                   Preview instantly · saved on this device
                 </p>
               </div>
@@ -286,11 +286,11 @@ export default function DisplaySettings() {
               <div className="flex items-baseline justify-between gap-2">
                 <label
                   htmlFor="frelux-display-scale"
-                  className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+                  className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
                 >
                   Zoom
                 </label>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {scale === 100 ? "Original layout" : `${scale}% of original`}
                 </span>
               </div>
@@ -364,14 +364,14 @@ export default function DisplaySettings() {
 
             <footer className="border-t border-border/60 px-3 py-2.5 dark:border-white/10">
               <div className="flex items-center justify-between gap-2">
-                <p className="min-w-0 text-[11px] leading-4 text-muted-foreground">
+                <p className="min-w-0 text-xs leading-4 text-muted-foreground">
                   Display only. Browser zoom and calculations are untouched.
                 </p>
                 <button
                   type="button"
                   onClick={reset}
                   disabled={isDefault}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
                 >
                   <RotateCcw className="h-3 w-3" aria-hidden="true" />
                   Reset

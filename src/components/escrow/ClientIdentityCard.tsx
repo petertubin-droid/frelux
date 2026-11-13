@@ -127,7 +127,7 @@ export default function ClientIdentityCard({ className }: Props) {
         </h2>
         <span
           className={classNames(
-            "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
+            "rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
             verified
               ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
               : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
@@ -142,7 +142,7 @@ export default function ClientIdentityCard({ className }: Props) {
       </p>
 
       {typeof record.score === "number" && record.status !== "none" && (
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           Name match score {record.score.toFixed(3)}
           {record.matched_name ? ` against "${record.matched_name}"` : ""}
           {record.method === "bank_resolve" ? " (confirmed by your bank)" : ""}
@@ -152,7 +152,7 @@ export default function ClientIdentityCard({ className }: Props) {
       {!verified && (
         <form className="mt-3 space-y-2" onSubmit={handleSubmit}>
           <div className="grid gap-2 sm:grid-cols-2">
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Full name on your ID
               <input
                 required
@@ -169,7 +169,7 @@ export default function ClientIdentityCard({ className }: Props) {
                 placeholder="As printed on the document"
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Document
               <select
                 value={form.id_type}
@@ -188,7 +188,7 @@ export default function ClientIdentityCard({ className }: Props) {
                 <option value="intl_passport">International passport</option>
               </select>
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Last four characters of the ID
               <input
                 required
@@ -202,7 +202,7 @@ export default function ClientIdentityCard({ className }: Props) {
                 placeholder="1234"
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Bank you will pay from
               <select
                 value={form.bank_code}
@@ -221,7 +221,7 @@ export default function ClientIdentityCard({ className }: Props) {
                 ))}
               </select>
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Account number
               <input
                 required
@@ -240,23 +240,23 @@ export default function ClientIdentityCard({ className }: Props) {
             </label>
           </div>
 
-          <label className="block text-[11px] font-medium text-muted-foreground">
+          <label className="block text-xs font-medium text-muted-foreground">
             Photo of the document (private, only you and an admin can open it)
             <input
               type="file"
               accept="image/*,application/pdf"
               onChange={(event) => setDocFile(event.target.files?.[0] ?? null)}
-              className="mt-1 block w-full text-[11px] text-muted-foreground"
+              className="mt-1 block w-full text-xs text-muted-foreground"
             />
           </label>
 
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             We ask your bank for the name on that account and compare it to your
             ID. Only the last four digits and the account name are kept.
           </p>
 
           {error && (
-            <p className="rounded-md bg-destructive/10 px-2 py-1.5 text-[11px] text-destructive">
+            <p className="rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
               {error}
             </p>
           )}

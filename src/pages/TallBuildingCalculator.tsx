@@ -1110,7 +1110,7 @@ export default function TallBuildingCalculator() {
             key={tile.label}
             className="rounded-xl border border-border bg-card p-4"
           >
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {tile.label}
             </p>
             <p className="mt-1 text-lg font-semibold text-foreground">
@@ -1167,17 +1167,17 @@ export default function TallBuildingCalculator() {
                     <span className="font-semibold text-foreground">
                       {check.title}
                     </span>
-                    <Badge variant="outline" className="text-[11px] uppercase">
+                    <Badge variant="outline" className="text-xs uppercase">
                       {check.severity}
                     </Badge>
                   </div>
-                  <p className="font-mono text-[11px]">
+                  <p className="font-mono text-xs">
                     Observed {check.observed} · Threshold {check.threshold}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {check.basis}
                   </p>
-                  <p className="text-[11px] font-medium text-foreground">
+                  <p className="text-xs font-medium text-foreground">
                     Action: {check.action}
                   </p>
                 </div>
@@ -1227,7 +1227,7 @@ export default function TallBuildingCalculator() {
               </div>
             ))}
           </dl>
-          <ul className="space-y-1 border-t border-border pt-3 text-[11px] text-muted-foreground">
+          <ul className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
             {wind.proof.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -1268,7 +1268,7 @@ export default function TallBuildingCalculator() {
               </div>
             ))}
           </dl>
-          <ul className="space-y-1 border-t border-border pt-3 text-[11px] text-muted-foreground">
+          <ul className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
             {seismic.proof.map((line) => (
               <li key={line}>{line}</li>
             ))}
@@ -1285,7 +1285,7 @@ export default function TallBuildingCalculator() {
           <h2 className="text-sm font-semibold text-foreground">
             Foundation sizing
           </h2>
-          <Badge variant="outline" className="text-[11px]">
+          <Badge variant="outline" className="text-xs">
             {foundation.foundation_label}
           </Badge>
         </div>
@@ -1318,7 +1318,7 @@ export default function TallBuildingCalculator() {
             </div>
           ))}
         </dl>
-        <ul className="space-y-1 border-t border-border pt-3 text-[11px] text-muted-foreground">
+        <ul className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
           {foundation.proof.map((line) => (
             <li key={line}>{line}</li>
           ))}
@@ -1402,7 +1402,7 @@ export default function TallBuildingCalculator() {
               </div>
             ))}
           </dl>
-          <p className="border-t border-border pt-3 text-[11px] text-muted-foreground">
+          <p className="border-t border-border pt-3 text-xs text-muted-foreground">
             A five day structural cycle is typical for a well supplied concrete
             tower; three to four days per floor is achievable with a climbing
             formwork system and a two day cycle has been recorded on repeatable
@@ -1423,7 +1423,7 @@ export default function TallBuildingCalculator() {
           <h2 className="text-sm font-semibold text-foreground">
             Architectural mathematics
           </h2>
-          <Badge variant="outline" className="text-[11px]">
+          <Badge variant="outline" className="text-xs">
             {params.occupancy}
           </Badge>
         </div>
@@ -1473,12 +1473,12 @@ export default function TallBuildingCalculator() {
             </div>
           ))}
         </dl>
-        <ul className="space-y-1 border-t border-border pt-3 text-[11px] text-muted-foreground">
+        <ul className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
           {architecture.proof.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Lift traffic uses the round trip form with probable stops S = N (1 -
           (1 - 1/N)^P), a seven second stop and 1.2 seconds per passenger.
           Egress width follows IBC 1005.3.2 at 5 mm per occupant with a 1,120 mm

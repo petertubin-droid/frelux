@@ -273,14 +273,14 @@ export default function IotTelemetry() {
               <li key={p.id} className="rounded-xl border border-border p-3">
                 <p className="text-sm font-semibold">
                   {p.name}
-                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium uppercase text-muted-foreground">
+                  <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium uppercase text-muted-foreground">
                     {p.deviceType.replace(/_/g, " ")}
                   </span>
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {p.capabilities}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Verified {p.verifiedDate} from{" "}
                   <a
                     className="underline"

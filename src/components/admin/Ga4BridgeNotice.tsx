@@ -89,7 +89,7 @@ export default function Ga4BridgeNotice({
         </ol>
       ) : null}
       {status.serviceAccount ? (
-        <p className="mt-2 break-all text-[11px] text-muted-foreground">
+        <p className="mt-2 break-all text-xs text-muted-foreground">
           {t("Service account")}: {status.serviceAccount}
         </p>
       ) : null}

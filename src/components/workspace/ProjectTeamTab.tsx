@@ -88,7 +88,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
                 {roleConfig.description}
               </p>
 
-              <div className="pt-2 border-t grid grid-cols-2 gap-1 text-[11px] text-muted-foreground">
+              <div className="pt-2 border-t grid grid-cols-2 gap-1 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   {roleConfig.canEditFinancials ? (
                     <Check className="h-3 w-3 text-emerald-500" />
@@ -137,7 +137,7 @@ export const ProjectTeamTab: React.FC<Props> = ({ project }) => {
           {Object.values(WORKSPACE_ROLES).map((r) => (
             <div key={r.key} className="p-2.5 rounded-lg border bg-card/60">
               <span className="font-semibold block">{r.label}</span>
-              <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                 {r.description}
               </p>
             </div>

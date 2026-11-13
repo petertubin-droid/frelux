@@ -808,7 +808,7 @@ function JobsTab(props: {
                       listing.project_type}
                   </span>
                   {listing.is_featured && (
-                    <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-purple">
+                    <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-brand-purple">
                       Featured
                     </span>
                   )}
@@ -1152,7 +1152,7 @@ function ProductsTab(props: {
                         </div>
                       )}
                       {discount && (
-                        <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                        <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-xs font-bold text-primary-foreground">
                           -{discount}%
                         </span>
                       )}

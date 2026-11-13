@@ -996,7 +996,7 @@ export function GlobeMap({
               </p>
             )}
             {selected.meta && (
-              <p className="mt-2 inline-flex rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              <p className="mt-2 inline-flex rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                 {selected.meta}
               </p>
             )}

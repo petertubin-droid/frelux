@@ -75,7 +75,7 @@ export default function WorkerSafetyNotice({
       <ol className="mt-3 space-y-3">
         {SAFETY_RULES.map((rule, index) => (
           <li key={rule.id} className="flex gap-2.5">
-            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-purple/10 text-[11px] font-bold text-brand-purple dark:bg-brand-purple/20">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-purple/10 text-xs font-bold text-brand-purple dark:bg-brand-purple/20">
               {index + 1}
             </span>
             <div className="min-w-0">
@@ -93,7 +93,7 @@ export default function WorkerSafetyNotice({
         ))}
       </ol>
 
-      <p className="mt-3 rounded-md bg-muted/60 p-2 text-[11px] leading-relaxed text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+      <p className="mt-3 rounded-md bg-muted/60 p-2 text-xs leading-relaxed text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
         {SAFETY_SUMMARY}
       </p>
     </section>

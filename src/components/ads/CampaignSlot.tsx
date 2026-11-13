@@ -175,7 +175,7 @@ export function CampaignSlot({
         ref={frameRef}
         className={`overflow-hidden rounded-2xl border border-dashed bg-card/60 px-4 py-2.5 text-sm ${className}`}
       >
-        <span className="mr-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        <span className="mr-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {badge}
         </span>
         <Destination
@@ -211,7 +211,7 @@ export function CampaignSlot({
           </div>
           <div className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {badge}
               </p>
               <p className="mt-0.5 text-sm font-semibold leading-snug sm:text-base">
@@ -251,7 +251,7 @@ export function CampaignSlot({
           />
         ) : null}
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {badge}
             {campaign.advertiser_name && campaign.is_sponsored
               ? ` · ${campaign.advertiser_name}`

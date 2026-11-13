@@ -371,7 +371,7 @@ export default function TemplateDetail() {
           <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
             {inputSummary.map((item) => (
               <div key={item.label} className="flex flex-col">
-                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                   {item.label}
                 </dt>
                 <dd className="text-sm text-foreground dark:text-primary-foreground">

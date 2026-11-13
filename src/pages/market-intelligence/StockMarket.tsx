@@ -290,7 +290,7 @@ export default function StockMarket() {
               Listed construction companies with the latest available quote
             </caption>
             <thead>
-              <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th scope="col" className="py-2 pr-2">
                   Company
                 </th>
@@ -332,7 +332,7 @@ export default function StockMarket() {
                       <span className="ml-2 text-xs text-muted-foreground">
                         {c.name}
                       </span>
-                      <span className="ml-2 rounded bg-muted px-1 text-[11px] uppercase text-muted-foreground">
+                      <span className="ml-2 rounded bg-muted px-1 text-xs uppercase text-muted-foreground">
                         {c.exchange}
                       </span>
                     </td>
@@ -357,7 +357,7 @@ export default function StockMarket() {
                       <button
                         type="button"
                         onClick={() => toggleCompare(c.symbol)}
-                        className={`mr-2 rounded border px-1.5 py-0.5 text-[11px] ${compare.includes(c.symbol) ? "border-brand-purple text-brand-purple" : "border-border text-muted-foreground"}`}
+                        className={`mr-2 rounded border px-1.5 py-0.5 text-xs ${compare.includes(c.symbol) ? "border-brand-purple text-brand-purple" : "border-border text-muted-foreground"}`}
                         aria-label={`Compare ${c.symbol}`}
                       >
                         vs
@@ -383,7 +383,7 @@ export default function StockMarket() {
               No company matches that search.
             </p>
           ) : null}
-          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
             A dash means no figure is available from a configured provider.
             Company reference data is maintained by FRELUX and is not a
             recommendation to buy or sell any security.

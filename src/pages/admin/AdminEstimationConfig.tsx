@@ -255,7 +255,7 @@ function UnitsTab() {
                           {item.symbol}
                         </span>
                         {!item.is_active && (
-                          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                             {tx("Inactive")}
                           </span>
                         )}
@@ -614,7 +614,7 @@ function PackSizesTab() {
                       {refName}
                     </h3>
                     {!item.is_active && (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                         {tx("Inactive")}
                       </span>
                     )}
@@ -1090,7 +1090,7 @@ function CalcRulesTab() {
                     {rule.calculator_type ?? "Global"}
                   </span>
                   {!rule.is_active && (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                       {tx("Inactive")}
                     </span>
                   )}
@@ -1103,7 +1103,7 @@ function CalcRulesTab() {
                 )}
 
                 <div className="mt-2 rounded-lg bg-muted/50 dark:bg-white/5 p-2.5 border border-border">
-                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                     {tx("Rule Value (JSON)")}
                   </span>
                   <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-foreground">
@@ -1423,7 +1423,7 @@ function CalcVersionsTab() {
                     {ver.version_label ? `(${ver.version_label})` : ""}
                   </h3>
                   {!ver.is_active && (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                       {tx("Inactive")}
                     </span>
                   )}

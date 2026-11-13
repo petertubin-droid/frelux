@@ -300,7 +300,7 @@ export default function PriceSubmissionForm() {
               <option key={c.slug} value={c.name} />
             ))}
           </datalist>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {materialSlug
               ? t(
                   "Matched to the price book. Agreeing reports here update the published price automatically.",
@@ -415,7 +415,7 @@ export default function PriceSubmissionForm() {
                 </span>
                 <span
                   className={
-                    "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium " +
+                    "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium " +
                     (m.status === "approved" ||
                     m.status === "community_verified"
                       ? "bg-primary/10 text-primary"

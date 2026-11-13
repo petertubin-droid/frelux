@@ -24,7 +24,7 @@ import { NumericInput } from "@/components/ui/NumericInput";
 const FIELD =
   "w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 const LABEL =
-  "block text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1";
+  "block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1";
 
 export default function AdminBoqTemplates() {
   useSeo({

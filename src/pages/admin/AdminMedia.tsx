@@ -272,11 +272,11 @@ export default function AdminMedia() {
                       </div>
                     )}
                     {item.alt_text && editingAlt !== item.id && (
-                      <p className="mt-0.5 truncate text-[11px] text-muted-foreground dark:text-muted-foreground">
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground dark:text-muted-foreground">
                         {item.alt_text}
                       </p>
                     )}
-                    <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                       {(item.size_bytes / 1024).toFixed(0)} KB
                     </p>
                   </div>

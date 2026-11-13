@@ -495,7 +495,7 @@ export default function AdminIntegrations() {
                           exact AdSlot name and numeric AdSlot ID in Admin → Ads
                           → ayeT Studios. Set the ayeT video callback URL to:
                         </p>
-                        <code className="mt-2 block break-all rounded bg-background p-2 text-[11px] text-foreground">
+                        <code className="mt-2 block break-all rounded bg-background p-2 text-xs text-foreground">
                           {SUPABASE_FUNCTIONS_URL}
                           /ayet-rewarded-callback?transaction_id=
                           {"{transaction_id}"}&amp;external_identifier=
@@ -540,7 +540,7 @@ export default function AdminIntegrations() {
                               className="h-9"
                             />
                             {FIELD_HELP[integration.integration_key]?.[key] && (
-                              <p className="mt-1 text-[11px] text-muted-foreground/70 leading-relaxed">
+                              <p className="mt-1 text-xs text-muted-foreground/70 leading-relaxed">
                                 {FIELD_HELP[integration.integration_key][key]}
                               </p>
                             )}

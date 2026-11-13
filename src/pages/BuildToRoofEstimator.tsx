@@ -900,7 +900,7 @@ export default function BuildToRoofEstimator({
                     }`}
                   >
                     <div
-                      className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
+                      className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold ${
                         isActive
                           ? "bg-primary-foreground text-primary"
                           : isDone
@@ -936,7 +936,7 @@ export default function BuildToRoofEstimator({
                     : "Auto-saving draft..."}
                 </span>
                 {lastSavedAt && (
-                  <span className="text-[11px] text-muted-foreground/70 hidden sm:inline">
+                  <span className="text-xs text-muted-foreground/70 hidden sm:inline">
                     (last saved{" "}
                     {new Date(lastSavedAt).toLocaleTimeString([], {
                       hour: "2-digit",
@@ -1012,7 +1012,7 @@ export default function BuildToRoofEstimator({
                     setPhase(1);
                   }
                 }}
-                className="text-[11px] font-medium text-muted-foreground hover:text-brand-purple hover:underline"
+                className="text-xs font-medium text-muted-foreground hover:text-brand-purple hover:underline"
               >
                 {t("Start fresh")}
               </button>
@@ -1453,7 +1453,7 @@ export default function BuildToRoofEstimator({
                               </span>
                             </div>
                             <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                                 includedStages.foundation
                                   ? "bg-brand-purple text-primary-foreground"
                                   : "bg-muted text-muted-foreground"
@@ -1501,7 +1501,7 @@ export default function BuildToRoofEstimator({
                               </span>
                             </div>
                             <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                                 includedStages.walls
                                   ? "bg-brand-purple text-primary-foreground"
                                   : "bg-muted text-muted-foreground"
@@ -1547,7 +1547,7 @@ export default function BuildToRoofEstimator({
                               </span>
                             </div>
                             <span
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                                 includedStages.roof
                                   ? "bg-brand-purple text-primary-foreground"
                                   : "bg-muted text-muted-foreground"

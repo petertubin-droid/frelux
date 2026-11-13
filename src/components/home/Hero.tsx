@@ -301,14 +301,14 @@ export default function Hero() {
                 </p>
                 <span
                   id="hero-image-caption"
-                  className="text-[11px] font-mono font-medium text-primary-foreground/70 shrink-0"
+                  className="text-xs font-mono font-medium text-primary-foreground/70 shrink-0"
                 />
               </div>
             </div>
 
             {/* Floating swatch card, derived from branding config */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-card dark:bg-card p-4 shadow-premium-lg animate-float">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_image_label || "FRELUX Tools"}
               </p>
               <div className="mt-2.5 flex gap-1.5">
@@ -333,20 +333,20 @@ export default function Hero() {
 
             {/* Floating estimate chip, uses hero content */}
             <div className="absolute -right-5 top-8 rounded-xl bg-card dark:bg-card px-4 py-3 shadow-premium-lg animate-float-delayed">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_chip_label || "Plan & Estimate"}
               </p>
               <p className="mt-1 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {branding?.hero_chip_value || "Free"}
               </p>
-              <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_chip_subtext || hero.ctaPrimaryLabel}
               </p>
             </div>
 
             {/* Floating badge, uses branding config */}
             <div className="absolute -top-4 right-12 rounded-xl bg-primary px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
                 {branding?.hero_badge_label || "Platform"}
               </p>
               <p className="font-display text-sm font-bold text-primary-foreground">

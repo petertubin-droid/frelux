@@ -255,7 +255,7 @@ export default function AdminRegistrationsTab() {
                             pro.business_name ||
                             "Unnamed profile"}
                           {isNew(pro.created_at) && (
-                            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                            <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                               New
                             </span>
                           )}
@@ -320,7 +320,7 @@ export default function AdminRegistrationsTab() {
                       <p className="text-sm text-foreground">
                         {client.email || "no email on file"}
                         {isNew(client.created_at) && (
-                          <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                          <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                             New
                           </span>
                         )}

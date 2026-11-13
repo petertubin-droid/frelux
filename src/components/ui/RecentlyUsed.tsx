@@ -42,7 +42,7 @@ export function RecentlyUsed() {
               </span>
               <div>
                 <p className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">{tool.label}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {new Date(tool.visitedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>

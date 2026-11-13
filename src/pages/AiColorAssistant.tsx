@@ -1268,7 +1268,7 @@ function ResultPanel({
                   <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                     {pc.name}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {pc.hex_code}
                   </p>
                 </div>
@@ -1307,7 +1307,7 @@ function ColorSwatch({
         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/10"
         style={{ background: hex, color: textColor }}
       >
-        <span className="text-[11px] font-bold">{valid ? "Aa" : "!"}</span>
+        <span className="text-xs font-bold">{valid ? "Aa" : "!"}</span>
       </div>
       <div className="flex-1">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">

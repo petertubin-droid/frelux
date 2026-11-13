@@ -155,7 +155,7 @@ export default function Footer() {
               <Suspense fallback={null}>
                 <NewsletterSignup source="footer" />
               </Suspense>
-              <p className="mt-1 text-[11px] text-muted-foreground/80">
+              <p className="mt-1 text-xs text-muted-foreground/80">
                 Industry intelligence & quarterly material rate reports. No
                 spam.
               </p>
@@ -170,7 +170,7 @@ export default function Footer() {
                 <Mail className="h-3.5 w-3.5" />
                 {siteConfig.email}
               </a>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Mon–Fri 8am–6pm (WAT) · Replies within 1 business day
               </span>
             </div>
@@ -186,7 +186,7 @@ export default function Footer() {
             </p>
 
             {/* Google Publisher & E-E-A-T Quality Indicators */}
-            <div className="mt-3 hidden sm:flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground/85 border-t border-border/40 pt-2.5 dark:border-white/5">
+            <div className="mt-3 hidden sm:flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground/85 border-t border-border/40 pt-2.5 dark:border-white/5">
               <span className="inline-flex items-center gap-1">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>256-Bit TLS Security</span>
@@ -209,7 +209,7 @@ export default function Footer() {
               © {new Date().getFullYear()} {siteConfig.name}. All rights
               reserved.
             </p>
-            <p className="text-[11px] leading-snug text-muted-foreground sm:text-xs">
+            <p className="text-xs leading-snug text-muted-foreground sm:text-xs">
               Estimates are for guidance only and not a guarantee of final cost
               or quantity.
             </p>
@@ -246,7 +246,7 @@ function FooterColumn({
   const { t } = useLanguage();
   return (
     <nav aria-label={t(title)}>
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
         {t(title)}
       </h3>
       <ul

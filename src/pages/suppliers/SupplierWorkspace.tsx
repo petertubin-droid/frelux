@@ -465,7 +465,7 @@ export default function SupplierWorkspace() {
               >
                 <Icon className="h-4 w-4" /> {entry.label}
                 {entry.key === "requests" && pendingRequests.length > 0 ? (
-                  <span className="rounded bg-sky-100 px-1.5 text-[11px] text-sky-800">
+                  <span className="rounded bg-sky-100 px-1.5 text-xs text-sky-800">
                     {pendingRequests.length}
                   </span>
                 ) : null}
@@ -540,7 +540,7 @@ export default function SupplierWorkspace() {
                       ).shortLabel
                     }
                   </Button>
-                  <p className="mt-1 text-[11px] text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     FRELUX reviews the request, then approves or rejects it.
                     Levels are granted one step at a time.
                   </p>
@@ -582,7 +582,7 @@ export default function SupplierWorkspace() {
                   ))}
                 </ul>
               )}
-              <p className="mt-3 text-[11px] text-slate-500">
+              <p className="mt-3 text-xs text-slate-500">
                 Requestable now:{" "}
                 {requestableLevels(supplier.verification_level)
                   .map((level) => verificationDefinition(level).shortLabel)
@@ -791,7 +791,7 @@ function CatalogueTab({
                     <p className="truncate text-sm font-medium text-slate-900">
                       {listing.product_name}
                     </p>
-                    <p className="text-[11px] text-slate-500">
+                    <p className="text-xs text-slate-500">
                       {categoryLabel(listing.material_category)} ·{" "}
                       {listing.brand ?? "no brand"} · updated{" "}
                       {new Date(listing.price_updated_at).toLocaleDateString()}
@@ -802,7 +802,7 @@ function CatalogueTab({
                     /{listing.unit}
                   </span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                   <Badge
                     variant={
                       listing.listing_status === "active"
@@ -811,7 +811,7 @@ function CatalogueTab({
                           ? "secondary"
                           : "outline"
                     }
-                    className="text-[11px]"
+                    className="text-xs"
                   >
                     {listing.listing_status === "active"
                       ? "Live"
@@ -909,7 +909,7 @@ function CatalogueTab({
             ) : null}
             Add listing
           </Button>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-xs text-slate-500">
             New listings are reviewed before they appear publicly. Price updates
             keep their own timestamp.
           </p>
@@ -1053,7 +1053,7 @@ function RequestsTab({
                   <p className="mt-1 text-xs text-slate-600">{request.notes}</p>
                 ) : null}
               </div>
-              <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700">
+              <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
                 {request.status}
               </span>
             </div>

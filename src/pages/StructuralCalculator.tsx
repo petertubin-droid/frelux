@@ -1902,12 +1902,12 @@ function MeasuredSpanPicker({
             </option>
           ))}
         </select>
-        <span className="text-[11px] text-muted-foreground">{t(hint)}</span>
+        <span className="text-xs text-muted-foreground">{t(hint)}</span>
       </div>
       {note && (
         <p
           role="status"
-          className="mt-1 text-[11px] leading-snug text-muted-foreground"
+          className="mt-1 text-xs leading-snug text-muted-foreground"
         >
           {note}
         </p>

@@ -39,7 +39,7 @@ function StatusChip({ status }: { status: "verified" | "verify-locally" }) {
   return (
     <span
       className={classNames(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide",
         status === "verified"
           ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
           : "bg-amber-500/10 text-amber-700 dark:text-amber-400",
@@ -314,7 +314,7 @@ export default function CodeReference() {
         <section className="mt-6 card-elevated p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Applicable code
               </p>
               <h2 className="mt-1 text-lg font-bold text-foreground">
@@ -412,12 +412,12 @@ export default function CodeReference() {
                     {domain.label}
                   </h3>
                   {domain.status === "unsupported" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-destructive">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-destructive">
                       <CircleSlash aria-hidden="true" className="h-3 w-3" />
                       Not codified
                     </span>
                   ) : (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary">
                       {domain.references.length} reference
                       {domain.references.length === 1 ? "" : "s"}
                     </span>
@@ -531,7 +531,7 @@ export default function CodeReference() {
                   reference has been substituted.
                 </li>
               </ul>
-              <p className="mt-3 text-[11px] text-muted-foreground">
+              <p className="mt-3 text-xs text-muted-foreground">
                 Registry version {report.registryVersion} · library v
                 {REGISTRY_VERSION}
               </p>

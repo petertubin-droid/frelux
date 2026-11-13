@@ -253,7 +253,7 @@ export default function BimIfcImport() {
                 ))}
               </ul>
             )}
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               Structural presence checks only: no IFC schema certification is
               claimed, and no quantity is ever invented.
             </p>
@@ -377,7 +377,7 @@ export default function BimIfcImport() {
                   </p>
                 </div>
               </div>
-              <p className="mt-2 text-[11px] text-muted-foreground">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Unsupported entity types are retained in the portable JSON
                 review record.
               </p>
@@ -619,7 +619,7 @@ function Bim5dSection({
 
         <div data-testid="bim-boq-table" className="overflow-x-auto">
           <table className="w-full text-xs">
-            <thead className="text-[11px] uppercase text-muted-foreground">
+            <thead className="text-xs uppercase text-muted-foreground">
               <tr>
                 <th className="py-2 text-left">{t("Bill of Quantities")}</th>
                 <th className="py-2 text-right">{t("Qty")}</th>

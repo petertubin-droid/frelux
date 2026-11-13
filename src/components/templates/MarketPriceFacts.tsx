@@ -146,7 +146,7 @@ export default function MarketPriceFacts({
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-border/60 text-[11px] uppercase tracking-wider text-muted-foreground dark:border-white/10">
+                <tr className="border-b border-border/60 text-xs uppercase tracking-wider text-muted-foreground dark:border-white/10">
                   <th scope="col" className="py-1.5 pr-3 font-medium">
                     {t("Material")}
                   </th>
@@ -208,7 +208,7 @@ export default function MarketPriceFacts({
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-border/60 text-[11px] uppercase tracking-wider text-muted-foreground dark:border-white/10">
+                <tr className="border-b border-border/60 text-xs uppercase tracking-wider text-muted-foreground dark:border-white/10">
                   <th scope="col" className="py-1.5 pr-3 font-medium">
                     {t("Material")}
                   </th>

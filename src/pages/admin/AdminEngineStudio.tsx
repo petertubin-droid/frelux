@@ -162,7 +162,7 @@ export default function AdminEngineStudio() {
                     </span>
                     <span
                       className={classNames(
-                        "shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
+                        "shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold",
                         STATUS_STYLE[status],
                       )}
                     >

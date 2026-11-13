@@ -346,7 +346,7 @@ export default function AdminEstimationPricing() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <span
-                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}
+                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}
                       >
                         {item.price_type}
                       </span>
@@ -356,12 +356,12 @@ export default function AdminEstimationPricing() {
                           : `Ref: ${item.ref_id.slice(0, 8)}...`}
                       </h3>
                       {!item.is_active && (
-                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                           {t("Off")}
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                       {packSizeVal && <span>Pack: {packSizeVal}</span>}
                       <span className="inline-flex items-center gap-0.5">
                         <Calendar aria-hidden="true" className="h-2.5 w-2.5" />
@@ -369,7 +369,7 @@ export default function AdminEstimationPricing() {
                       </span>
                     </div>
                     {item.notes && (
-                      <p className="mt-0.5 line-clamp-1 text-[11px] italic text-muted-foreground">
+                      <p className="mt-0.5 line-clamp-1 text-xs italic text-muted-foreground">
                         {item.notes}
                       </p>
                     )}
@@ -380,7 +380,7 @@ export default function AdminEstimationPricing() {
                     <span className="text-sm font-extrabold text-foreground dark:text-primary-foreground">
                       {formatCurrency(item.price, item.currency)}
                     </span>
-                    <span className="text-[11px] uppercase text-muted-foreground">
+                    <span className="text-xs uppercase text-muted-foreground">
                       {item.currency}
                     </span>
                   </div>
@@ -821,7 +821,7 @@ function PriceHistoryModal({
                 )}
 
                 {h.changed_by && (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground font-mono">
+                  <p className="mt-0.5 text-xs text-muted-foreground font-mono">
                     Changed by: {h.changed_by}
                   </p>
                 )}

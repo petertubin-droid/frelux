@@ -281,7 +281,7 @@ export default function SevenCountryCoverage() {
               <div className="text-sm font-medium text-foreground">
                 {s.publisher}
               </div>
-              <span className="rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-muted-foreground">
+              <span className="rounded-full border border-white/15 px-2 py-0.5 text-xs text-muted-foreground">
                 {ACCESS_LABEL[s.access_status ?? ""] ??
                   s.access_status ??
                   "unknown"}

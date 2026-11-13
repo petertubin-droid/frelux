@@ -262,7 +262,7 @@ export default function AdminQuotationSettings() {
                 }
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-border border-border dark:bg-card-foreground/90 dark:text-muted-foreground/60"
               />
-              <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">
+              <span className="mt-1 block text-xs leading-snug text-muted-foreground">
                 Leave empty to mark tax as not determined. No rate is assumed
                 for any market; this value is an editable manual assumption, not
                 verified tax law.

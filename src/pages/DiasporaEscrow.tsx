@@ -259,7 +259,7 @@ export default function DiasporaEscrow() {
                     contract.sourceCurrency,
                   )}
                 </span>
-                <span className="text-[11px] text-muted-foreground block mt-1">
+                <span className="text-xs text-muted-foreground block mt-1">
                   Escrowed foreign currency
                 </span>
               </div>
@@ -274,7 +274,7 @@ export default function DiasporaEscrow() {
                     contract.localCurrency,
                   )}
                 </span>
-                <span className="text-[11px] text-emerald-500 font-medium block mt-1">
+                <span className="text-xs text-emerald-500 font-medium block mt-1">
                   Guaranteed local conversion
                 </span>
               </div>
@@ -286,7 +286,7 @@ export default function DiasporaEscrow() {
                 <span className="text-xl font-bold font-mono text-foreground">
                   {summary.releasedCount} of {summary.milestoneCount} Released
                 </span>
-                <span className="text-[11px] text-muted-foreground block mt-1">
+                <span className="text-xs text-muted-foreground block mt-1">
                   {summary.completionPercentage}% verified project completion
                 </span>
               </div>
@@ -329,7 +329,7 @@ export default function DiasporaEscrow() {
                       <p className="text-xs font-medium text-foreground line-clamp-1">
                         {photo.caption}
                       </p>
-                      <span className="text-[11px] text-muted-foreground block">
+                      <span className="text-xs text-muted-foreground block">
                         {m.phaseName} · GPS cleared
                       </span>
                     </div>
@@ -373,17 +373,17 @@ export default function DiasporaEscrow() {
                           Phase {idx + 1}
                         </span>
                         {isReleased && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                             <Check className="h-3 w-3" /> {t("Released")}
                           </span>
                         )}
                         {isPending && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
                             <Clock className="h-3 w-3" /> {t("Action Needed")}
                           </span>
                         )}
                         {milestone.status === "funded_locked" && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
                             <Lock className="h-3 w-3" /> {t("Locked")}
                           </span>
                         )}
@@ -492,7 +492,7 @@ export default function DiasporaEscrow() {
                             <p className="text-xs font-medium text-foreground line-clamp-1">
                               {photo.caption}
                             </p>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               Foreman verified · GPS cleared
                             </span>
                           </div>

@@ -670,7 +670,7 @@ export default function StandaloneTakeoffPage({
               >
                 <span className="block">{item.label}</span>
                 <span
-                  className={`mt-0.5 block text-[11px] ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                  className={`mt-0.5 block text-xs ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}
                 >
                   {item.subtitle}
                 </span>

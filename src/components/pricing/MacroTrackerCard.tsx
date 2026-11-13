@@ -138,7 +138,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                       </div>
                       <Badge
                         variant="secondary"
-                        className={`text-[11px] px-1.5 py-0 flex items-center gap-0.5 ${
+                        className={`text-xs px-1.5 py-0 flex items-center gap-0.5 ${
                           isSpike
                             ? isPositive
                               ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300"
@@ -156,9 +156,9 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                       </Badge>
                     </div>
 
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
+                    <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
                       <span>Index: {ind.current_index_value}</span>
-                      <span className="truncate max-w-[140px] text-[11px] text-slate-400">
+                      <span className="truncate max-w-[140px] text-xs text-slate-400">
                         {ind.source_name}
                       </span>
                     </div>
@@ -174,7 +174,7 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
             <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {t("Active Elasticity Filter Rules")}
             </h4>
-            <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
+            <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-1">
               <ShieldCheck className="w-3 h-3" />
               {t("Automated Passthrough")}
             </span>
@@ -190,11 +190,11 @@ export const MacroTrackerCard: React.FC<MacroTrackerCardProps> = ({
                   <span className="font-medium capitalize text-slate-900 dark:text-slate-100">
                     {rule.material_category}
                   </span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-xs text-slate-400">
                     tied to {rule.commodity_trigger}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-[11px]">
+                <div className="flex items-center gap-2 text-xs">
                   <span className="font-mono bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                     {rule.elasticity_multiplier}x
                   </span>

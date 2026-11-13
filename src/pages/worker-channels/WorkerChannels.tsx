@@ -1015,7 +1015,7 @@ function MessageBubble({
 
         <div
           className={classNames(
-            "mt-1 text-[11px]",
+            "mt-1 text-xs",
             isOwn ? "text-primary-foreground/60" : "text-muted-foreground",
           )}
         >

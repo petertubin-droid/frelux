@@ -81,11 +81,11 @@ function SpotlightCard({
           className="h-4 w-4 text-muted-foreground"
           aria-hidden="true"
         />
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           Tool answers
         </span>
         {categoryLabel && (
-          <span className="rounded-full border border-border/70 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+          <span className="rounded-full border border-border/70 px-2 py-0.5 text-xs font-medium text-muted-foreground">
             {categoryLabel}
           </span>
         )}

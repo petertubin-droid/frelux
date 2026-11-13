@@ -533,17 +533,17 @@ export const ProjectSiteLogsTab: React.FC<Props> = ({ project }) => {
                           {log.shift} shift
                         </span>
                         {isApproved && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                             <CheckCircle className="h-3 w-3" /> {t("Approved")}
                           </span>
                         )}
                         {isRejected && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
                             <XCircle className="h-3 w-3" /> {t("Rejected")}
                           </span>
                         )}
                         {!isApproved && !isRejected && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                          <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
                             {t("Submitted (Pending Review)")}
                           </span>
                         )}

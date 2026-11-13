@@ -92,7 +92,7 @@ function ToolCard({ tool, marketCode }: { tool: Tool; marketCode: string }) {
           <Icon className="h-5 w-5" aria-hidden="true" />
         </span>
         {tool.featured && (
-          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-purple">
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-brand-purple">
             {t("Popular")}
           </span>
         )}

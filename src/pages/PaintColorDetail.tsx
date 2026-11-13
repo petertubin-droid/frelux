@@ -594,14 +594,14 @@ function ColorRelationships({
                       <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                         {c.name}
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {c.hex_code}
                       </p>
                     </div>
                   </Link>
                 ))}
                 {overrideMap.has(s.type) && (
-                  <span className="text-[11px] font-semibold text-brand-purple">
+                  <span className="text-xs font-semibold text-brand-purple">
                     {t("Admin curated")}
                   </span>
                 )}

@@ -84,12 +84,12 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
                 {t("Closed-Loop Price Sharing")}
                 <Badge
                   variant="outline"
-                  className="text-[11px] text-blue-600 border-blue-200"
+                  className="text-xs text-blue-600 border-blue-200"
                 >
                   {t("Self-Healing Data")}
                 </Badge>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-xs text-slate-500">
                 Anonymously share your actual receipt to update local market
                 averages.
               </p>
@@ -99,7 +99,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
           <div className="flex items-center gap-2">
             <label
               htmlFor="crowdsource-opt-in"
-              className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+              className="text-xs font-medium text-slate-600 dark:text-slate-300"
             >
               {optIn ? "Opted In" : "Off"}
             </label>
@@ -125,7 +125,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-slate-500">
+            <div className="flex items-center justify-between text-xs text-slate-500">
               <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                 <CheckCircle2 className="w-3 h-3" />
                 {benchmark.sample_size} verified contractor submissions this
@@ -153,7 +153,7 @@ export const ExpenseCrowdsourceCard: React.FC<ExpenseCrowdsourceCardProps> = ({
         )}
 
         {/* Privacy Note */}
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400">
           <ShieldCheck className="w-3 h-3 text-slate-400" />
           <span>
             100% Anonymized. Your contractor identity, client details, and

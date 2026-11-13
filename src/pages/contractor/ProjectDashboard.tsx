@@ -2763,7 +2763,7 @@ function QuotationTab(props: QuotationTabProps) {
               onChange={(e) => setQuotTax(e.target.value)}
               className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
-            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+            <p className="mt-1 text-xs leading-snug text-muted-foreground">
               Leave empty if your local rate is not determined. No rate is
               assumed; the quote stays a clearly marked pre-tax estimate.
             </p>

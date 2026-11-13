@@ -130,7 +130,7 @@ export function ShareEstimateButton({
           className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-accent-green/10 px-2 py-1 text-center transition-all hover:bg-accent-green/20"
         >
           <MessageCircle className="h-4 w-4 text-accent-green" />
-          <span className="text-[11px] font-semibold text-accent-green">
+          <span className="text-xs font-semibold text-accent-green">
             {t("WhatsApp")}
           </span>
         </Button>
@@ -146,7 +146,7 @@ export function ShareEstimateButton({
           ) : (
             <FileText className="h-4 w-4 text-brand-purple" />
           )}
-          <span className="text-[11px] font-semibold text-brand-purple">
+          <span className="text-xs font-semibold text-brand-purple">
             {t("Save PDF")}
           </span>
         </Button>
@@ -161,7 +161,7 @@ export function ShareEstimateButton({
           ) : (
             <Copy className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="text-[11px] font-semibold text-muted-foreground">
+          <span className="text-xs font-semibold text-muted-foreground">
             {copied ? "Copied!" : "Copy text"}
           </span>
         </Button>

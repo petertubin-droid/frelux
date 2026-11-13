@@ -722,7 +722,7 @@ export function MoneyTab(props: MoneyTabProps) {
             </div>
           ) : (
             <div key={card.label} className="rounded-xl border bg-card p-3">
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {tr(card.label)}
               </dt>
               <dd

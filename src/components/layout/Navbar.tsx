@@ -387,7 +387,7 @@ export default function Navbar() {
                                     {/* Section label */}
                                     {group.section && (
                                       <div className="px-3 pb-0.5 pt-2">
-                                        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
+                                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
                                           {t(group.section)}
                                         </p>
                                       </div>
@@ -422,7 +422,7 @@ export default function Navbar() {
                                             )}
                                           </p>
                                           {child.description && (
-                                            <p className="mt-0 text-[11px] leading-snug text-muted-foreground dark:text-muted-foreground">
+                                            <p className="mt-0 text-xs leading-snug text-muted-foreground dark:text-muted-foreground">
                                               {child.description}
                                             </p>
                                           )}
@@ -486,7 +486,7 @@ export default function Navbar() {
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search</span>
-              <kbd className="rounded border border-border px-1 text-[11px] font-medium dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-xs font-medium dark:border-white/10">
                 ⌘K
               </kbd>
             </Button>

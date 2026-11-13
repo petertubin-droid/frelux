@@ -81,7 +81,7 @@ function ConfidenceChip({ level }: { level: string }) {
   };
   return (
     <span
-      className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${styles[level] ?? styles.unknown}`}
+      className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${styles[level] ?? styles.unknown}`}
     >
       {labels[level] ?? level}
     </span>
@@ -169,10 +169,10 @@ function ScreeningRow({
         {value ?? "No data for this location"}
       </p>
       {source && (
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{source}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{source}</p>
       )}
       {limitation && (
-        <p className="mt-1 text-[11px] text-muted-foreground">{limitation}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{limitation}</p>
       )}
     </div>
   );
@@ -626,7 +626,7 @@ export default function SiteIntelligence() {
               <p className="mt-2 text-muted-foreground">
                 {selectedClass.implication}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 {selectedClass.dewatering_flag && (
                   <span className="rounded-full border border-border px-2 py-0.5">
                     Dewatering may be needed
@@ -661,7 +661,7 @@ export default function SiteIntelligence() {
           )}
           {screening && (
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 In plain terms
               </p>
               <p className="mt-1 text-sm leading-relaxed text-foreground">
@@ -1099,7 +1099,7 @@ export default function SiteIntelligence() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${
                         r.verification_status === "verified"
                           ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                           : r.verification_status === "rejected"

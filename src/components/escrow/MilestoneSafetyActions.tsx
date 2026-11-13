@@ -120,7 +120,7 @@ export default function MilestoneSafetyActions({
               type="button"
               disabled={busy}
               onClick={() => fileInput.current?.click()}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-brand-purple disabled:opacity-60 dark:border-white/10"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-muted-foreground hover:text-brand-purple disabled:opacity-60 dark:border-white/10"
             >
               {busy ? (
                 <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
@@ -137,7 +137,7 @@ export default function MilestoneSafetyActions({
             type="button"
             disabled={busy}
             onClick={() => setObjecting((open) => !open)}
-            className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 px-2 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
+            className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 px-2 py-1 text-xs font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
           >
             <ShieldAlert className="h-3 w-3" aria-hidden="true" />
             Report a problem
@@ -153,13 +153,13 @@ export default function MilestoneSafetyActions({
             rows={2}
             maxLength={500}
             placeholder="What is wrong with this stage?"
-            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-[11px] text-foreground"
+            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs text-foreground"
           />
           <button
             type="button"
             disabled={busy}
             onClick={reportProblem}
-            className="rounded-md bg-amber-600 px-2 py-1 text-[11px] font-semibold text-white disabled:opacity-60"
+            className="rounded-md bg-amber-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-60"
           >
             Stop the payout clock
           </button>
@@ -167,13 +167,13 @@ export default function MilestoneSafetyActions({
       )}
 
       {dueAt && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Proof received. If nothing is raised by{" "}
           {new Date(dueAt).toLocaleString()}, escrow pays automatically.
         </p>
       )}
 
-      {error && <p className="text-[11px] text-destructive">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

@@ -740,7 +740,7 @@ export default function WallFinishEstimator() {
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {(["lengthM", "widthM", "heightM"] as const).map((f) => (
                   <label key={f} className="space-y-1">
-                    <span className="text-[11px] uppercase text-muted-foreground">
+                    <span className="text-xs uppercase text-muted-foreground">
                       {f === "lengthM"
                         ? `Length (${unitShortLabel(unit)})`
                         : f === "widthM"
@@ -759,7 +759,7 @@ export default function WallFinishEstimator() {
                   </label>
                 ))}
                 <label className="space-y-1">
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-xs uppercase text-muted-foreground">
                     {t("Doors")}
                   </span>
                   <input
@@ -773,7 +773,7 @@ export default function WallFinishEstimator() {
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-xs uppercase text-muted-foreground">
                     {t("Windows")}
                   </span>
                   <input
@@ -787,7 +787,7 @@ export default function WallFinishEstimator() {
                   />
                 </label>
                 <label className="space-y-1">
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-xs uppercase text-muted-foreground">
                     {t("Exterior walls")}
                   </span>
                   <select
@@ -822,7 +822,7 @@ export default function WallFinishEstimator() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {r.assemblies.map((a, wi) => (
                   <label key={wi} className="space-y-1">
-                    <span className="text-[11px] uppercase text-muted-foreground">
+                    <span className="text-xs uppercase text-muted-foreground">
                       Wall {String.fromCharCode(65 + wi)} finish
                     </span>
                     <select
@@ -958,13 +958,13 @@ export default function WallFinishEstimator() {
                             <td className="py-2.5 pr-3">
                               <p className="font-medium">{layer.layerName}</p>
                               {layer.overridden.length > 0 && (
-                                <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+                                <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
                                   edited: {layer.overridden.join(", ")}
                                 </p>
                               )}
                               <button
                                 type="button"
-                                className="mt-1 text-[11px] text-muted-foreground underline"
+                                className="mt-1 text-xs text-muted-foreground underline"
                                 onClick={() =>
                                   setStepsFor({
                                     title: `${layer.layerName}: how this was calculated`,
@@ -977,7 +977,7 @@ export default function WallFinishEstimator() {
                               {" · "}
                               <button
                                 type="button"
-                                className="text-[11px] text-muted-foreground underline"
+                                className="text-xs text-muted-foreground underline"
                                 onClick={() => {
                                   if (
                                     window.confirm(
@@ -996,7 +996,7 @@ export default function WallFinishEstimator() {
                               {" · "}
                               <button
                                 type="button"
-                                className="text-[11px] text-muted-foreground underline"
+                                className="text-xs text-muted-foreground underline"
                                 aria-label={`Move ${layer.layerName} up`}
                                 onClick={() =>
                                   moveLayer(
@@ -1011,7 +1011,7 @@ export default function WallFinishEstimator() {
                               {" · "}
                               <button
                                 type="button"
-                                className="text-[11px] text-muted-foreground underline"
+                                className="text-xs text-muted-foreground underline"
                                 aria-label={`Move ${layer.layerName} down`}
                                 onClick={() =>
                                   moveLayer(
@@ -1026,7 +1026,7 @@ export default function WallFinishEstimator() {
                               {" · "}
                               <button
                                 type="button"
-                                className="text-[11px] text-muted-foreground underline"
+                                className="text-xs text-muted-foreground underline"
                                 onClick={() => {
                                   const v = window.prompt(
                                     `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "N/A"}):`,
@@ -1054,7 +1054,7 @@ export default function WallFinishEstimator() {
                                 {fmt(layer.purchaseQuantity)}{" "}
                                 {layer.purchaseUnit}
                               </p>
-                              <p className="text-[11px] text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 incl. {layer.wastePercent}% waste
                               </p>
                             </td>

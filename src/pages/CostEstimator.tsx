@@ -708,7 +708,7 @@ export default function CostEstimator({
                       </div>
                     </div>
                     {input.paintableArea > 0 && (
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatAreaDual(input.paintableArea)}
                       </p>
                     )}

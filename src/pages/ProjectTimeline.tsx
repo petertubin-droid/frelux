@@ -443,7 +443,7 @@ export default function ProjectTimeline() {
                             <CloudRain className="h-4 w-4" />
                             <span>{alert.alertMessage}</span>
                           </div>
-                          <p className="text-[11px] text-muted-foreground ml-5">
+                          <p className="text-xs text-muted-foreground ml-5">
                             <strong className="text-foreground">
                               Advisory:
                             </strong>{" "}

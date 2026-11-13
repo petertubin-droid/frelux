@@ -427,7 +427,7 @@ export default function PostProduct() {
                         </div>
                       </div>
                       {idx === 0 && (
-                        <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
+                        <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-xs font-bold text-primary-foreground">
                           {tr("COVER")}
                         </span>
                       )}

@@ -163,7 +163,7 @@ export default function ProcurementHome() {
                           : "date flexible"}
                       </p>
                     </div>
-                    <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] text-slate-700">
+                    <span className="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
                       {requestStatusLabel(request.status)}
                     </span>
                   </div>
@@ -200,7 +200,7 @@ export default function ProcurementHome() {
                         {order.payment_status}
                       </p>
                       {order.delivered_at ? (
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-500">
                           Delivered{" "}
                           {new Date(order.delivered_at).toLocaleDateString()}
                           {order.delivery_confirmed_by

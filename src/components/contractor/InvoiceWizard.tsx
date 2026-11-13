@@ -223,7 +223,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
     <div className="rounded-2xl border border-violet-200/60 bg-card p-4 shadow-sm sm:p-6 dark:border-violet-500/20">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {tr("Guided invoice")}
           </p>
           <h4
@@ -259,7 +259,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
           />
         </div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-violet-600/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
+          <span className="rounded-full bg-violet-600/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
             {tr("Step")} {stepIndex + 1} {tr("of")} {STEPS.length}
           </span>
         </div>

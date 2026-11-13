@@ -327,7 +327,7 @@ export function ArtifactCard({
             <span className="text-xs text-muted-foreground">{type}</span>
             <span
               className={cn(
-                "rounded-full px-1.5 py-0.5 text-[11px] font-semibold capitalize",
+                "rounded-full px-1.5 py-0.5 text-xs font-semibold capitalize",
                 statusColors[status] ?? statusColors.draft,
               )}
             >

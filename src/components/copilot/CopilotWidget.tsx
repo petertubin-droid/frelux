@@ -250,7 +250,7 @@ export default function CopilotWidget({
             <p className="bg-gradient-to-r from-brand-purple to-cyan-500 bg-clip-text text-sm font-bold leading-none text-transparent">
               FRELUX Copilot
             </p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 text-xs text-muted-foreground">
               Interprets your request · FRELUX engines calculate
             </p>
           </div>
@@ -422,14 +422,14 @@ function ReviewPanel({
                 {String(fact.value)}
                 {fact.unit ? ` ${fact.unit}` : ""}
                 {fact.evidence && (
-                  <span className="block text-[11px] text-muted-foreground">
+                  <span className="block text-xs text-muted-foreground">
                     {fact.evidence}
                   </span>
                 )}
               </span>
               <span
                 className={classNames(
-                  "shrink-0 rounded-full px-2 py-0.5 text-[11px]",
+                  "shrink-0 rounded-full px-2 py-0.5 text-xs",
                   badgeClass(fact),
                 )}
               >
@@ -522,7 +522,7 @@ function ResultPanel({
         <p className="mt-1 text-2xl font-bold">
           {result.costs ? fmt(result.costs.total) : "-"}
         </p>
-        <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
           Calculated by:{" "}
           {outcome.plan.steps
@@ -531,7 +531,7 @@ function ResultPanel({
             "an authoritative FRELUX engine"}
         </p>
         {result.costs && !result.costs.regionalDataAvailable && (
-          <p className="mt-1 text-[11px] text-amber-600">
+          <p className="mt-1 text-xs text-amber-600">
             Pricing basis is older than 30 days, verify current prices before
             decisions.
           </p>

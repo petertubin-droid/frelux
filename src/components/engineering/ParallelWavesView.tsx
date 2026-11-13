@@ -72,7 +72,7 @@ export function ParallelWavesView({
                         ? "Single-Trade Focus Milestone"
                         : `${wave.nodes.length} Concurrent Work Streams`}
                     </h4>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Cumulative: Work Day{" "}
                       {Math.max(0, wave.cumulativeDuration - wave.waveDuration)}{" "}
                       → Day {wave.cumulativeDuration} (~Week{" "}
@@ -100,7 +100,7 @@ export function ParallelWavesView({
                 {wave.activeTrades.map((t) => (
                   <span
                     key={t}
-                    className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-foreground"
+                    className="rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-xs font-medium text-foreground"
                   >
                     {formatTradeName(t)}
                   </span>
@@ -121,15 +121,15 @@ export function ParallelWavesView({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
                           {node.stage}
                         </span>
                         {node.isCritical ? (
-                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-bold text-amber-600">
+                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs font-bold text-amber-600">
                             {t("Critical (0d float)")}
                           </span>
                         ) : (
-                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-xs text-emerald-700 dark:text-emerald-400 font-medium">
                             TF: {node.totalFloat}d · FF: {node.freeFloat}d
                           </span>
                         )}
@@ -139,11 +139,11 @@ export function ParallelWavesView({
                         {node.name}
                       </p>
 
-                      <p className="mt-1 text-[11px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {formatTradeName(node.trade)}
                       </p>
 
-                      <div className="mt-2.5 flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 pt-2 font-mono text-[11px]">
+                      <div className="mt-2.5 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-2 font-mono text-xs">
                         <span className="inline-flex items-center gap-1 font-medium text-foreground">
                           <Clock className="h-3 w-3 text-brand-purple" />{" "}
                           {node.duration}d

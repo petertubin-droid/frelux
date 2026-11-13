@@ -207,7 +207,7 @@ export default function RecommendedProducts({
               key={product.id}
               className="rounded-lg border border-border bg-card p-4"
             >
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {product.brand ?? "Verified product"}
               </p>
               <p className="mt-0.5 text-sm font-semibold text-card-foreground">
@@ -227,11 +227,11 @@ export default function RecommendedProducts({
                 {price ?? "Pack price not published"}
               </p>
               {product.priceNote && (
-                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                   {product.priceNote}
                 </p>
               )}
-              <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-muted-foreground">
+              <p className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
                 <span>{product.source.label}</span>
                 {product.source.retrieved && <span aria-hidden="true">·</span>}
                 {product.source.retrieved && (
@@ -254,7 +254,7 @@ export default function RecommendedProducts({
         })}
       </ul>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
         These are buying recommendations. Your estimate is still calculated by
         FRELUX's deterministic engine from its own verified {noun} prices, so a
         product price shown here does not change what the quote charges.

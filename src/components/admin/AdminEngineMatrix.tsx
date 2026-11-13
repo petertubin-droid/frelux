@@ -306,7 +306,7 @@ export const AdminEngineMatrix: React.FC = () => {
                         <div className="font-semibold text-zinc-200">
                           {engine.name}
                         </div>
-                        <div className="text-[11px] text-zinc-500">
+                        <div className="text-xs text-zinc-500">
                           {engine.id}
                         </div>
                       </td>
@@ -391,7 +391,7 @@ function MarketPill({
   return (
     <span
       title={`${market}: ${c.label} - ${notes}`}
-      className={`px-1.5 py-0.5 rounded text-[11px] border ${c.bg} ${c.text}`}
+      className={`px-1.5 py-0.5 rounded text-xs border ${c.bg} ${c.text}`}
     >
       {market}
     </span>
@@ -416,7 +416,7 @@ function MarketDetail({
         <Icon className="w-3.5 h-3.5" />
         {c.label}
       </span>
-      <span className="text-zinc-500 text-[11px] truncate max-w-xs">
+      <span className="text-zinc-500 text-xs truncate max-w-xs">
         {notes}
       </span>
     </div>
@@ -472,7 +472,7 @@ function Detail({
 }) {
   return (
     <div>
-      <div className="font-semibold text-zinc-400 uppercase text-[11px]">
+      <div className="font-semibold text-zinc-400 uppercase text-xs">
         {title}
       </div>
       <div className={`text-zinc-300 mt-1 ${mono ? "font-mono" : ""}`}>

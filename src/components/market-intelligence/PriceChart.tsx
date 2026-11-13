@@ -82,7 +82,7 @@ export default function PriceChart({
           <button
             type="button"
             onClick={downloadCsv}
-            className="rounded border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple"
+            className="rounded border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple"
           >
             CSV
           </button>
@@ -126,7 +126,7 @@ export default function PriceChart({
         </svg>
       </div>
 
-      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+      <div className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{new Date(series[0].ts).toLocaleDateString()}</span>
         <span>low {fmt(scale.min)} · high {fmt(scale.max)}</span>
         <span>{new Date(series[series.length - 1].ts).toLocaleDateString()}</span>

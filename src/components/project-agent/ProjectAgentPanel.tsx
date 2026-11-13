@@ -675,7 +675,7 @@ export default function ProjectAgentPanel({
               <summary className="cursor-pointer text-xs text-muted-foreground">
                 Engine output ({toolResult.inputsUsed.length} recorded inputs)
               </summary>
-              <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-background p-2 text-[11px] leading-relaxed">
+              <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-background p-2 text-xs leading-relaxed">
                 {JSON.stringify(toolResult.result, null, 2)}
               </pre>
             </details>
@@ -707,11 +707,11 @@ export default function ProjectAgentPanel({
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className={`rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase ${SEVERITY_STYLES[rec.severity]}`}
+                    className={`rounded-full border px-2 py-0.5 text-xs font-medium uppercase ${SEVERITY_STYLES[rec.severity]}`}
                   >
                     {rec.severity}
                   </span>
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-xs uppercase text-muted-foreground">
                     {rec.dataFreshness} data
                   </span>
                 </div>
@@ -926,11 +926,11 @@ export default function ProjectAgentPanel({
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span
-                    className={`rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase ${SEVERITY_STYLES.medium}`}
+                    className={`rounded-full border px-2 py-0.5 text-xs font-medium uppercase ${SEVERITY_STYLES.medium}`}
                   >
                     {action.state}
                   </span>
-                  <span className="text-[11px] uppercase text-muted-foreground">
+                  <span className="text-xs uppercase text-muted-foreground">
                     approval: {action.permission}
                   </span>
                 </div>
@@ -1076,12 +1076,12 @@ export default function ProjectAgentPanel({
                   key={`${e.at}-${i}`}
                   className="flex items-start gap-2 text-sm"
                 >
-                  <span className="mt-0.5 shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] uppercase text-muted-foreground">
+                  <span className="mt-0.5 shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs uppercase text-muted-foreground">
                     {e.kind}
                   </span>
                   <div>
                     <p>{e.summary}</p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(e.at).toLocaleString()}
                     </p>
                   </div>

@@ -62,7 +62,7 @@ export function AccessibilityToggle({
             <Accessibility className="h-4 w-4" />
             Accessibility
             {activeCount > 0 && (
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {activeCount}
               </span>
             )}
@@ -143,7 +143,7 @@ export function AccessibilityToggle({
       >
         <Accessibility className={compact ? "h-4 w-4" : "h-[18px] w-[18px]"} />
         {activeCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
             {activeCount}
           </span>
         )}

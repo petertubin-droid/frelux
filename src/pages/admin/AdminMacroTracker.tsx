@@ -202,7 +202,7 @@ export default function AdminMacroTracker() {
                         {ind.headline_name}
                         <Badge
                           variant="outline"
-                          className="text-[11px] uppercase font-mono"
+                          className="text-xs uppercase font-mono"
                         >
                           {ind.indicator_type}
                         </Badge>
@@ -225,7 +225,7 @@ export default function AdminMacroTracker() {
                         {ind.pct_change_30d > 0 ? "+" : ""}
                         {ind.pct_change_30d}%
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-xs text-slate-400">
                         30-day shift
                       </div>
                     </div>
@@ -250,7 +250,7 @@ export default function AdminMacroTracker() {
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left">
-                  <thead className="text-[11px] text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <thead className="text-xs text-slate-400 uppercase border-b border-slate-200 dark:border-slate-800 pb-2">
                     <tr>
                       <th className="py-2 font-medium">
                         {t("Material Category")}
@@ -369,7 +369,7 @@ export default function AdminMacroTracker() {
 
               {/* Simulation Result Items */}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                <div className="text-[11px] font-semibold uppercase text-slate-500">
+                <div className="text-xs font-semibold uppercase text-slate-500">
                   {t("Calculated Estimate Adjustments")}
                 </div>
                 {simResults.map((res, i) => (
@@ -381,7 +381,7 @@ export default function AdminMacroTracker() {
                       <div className="font-medium text-slate-900 dark:text-slate-100">
                         {res.name}
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-xs text-slate-400">
                         Base: {res.basePrice} {currentMarketMeta.currency}
                       </div>
                     </div>
@@ -389,7 +389,7 @@ export default function AdminMacroTracker() {
                       <div className="font-bold text-slate-900 dark:text-slate-100">
                         {res.adjustedPrice} {currentMarketMeta.currency}
                       </div>
-                      <div className="text-[11px] text-amber-600 font-semibold">
+                      <div className="text-xs text-amber-600 font-semibold">
                         {res.pct > 0 ? `+${res.pct}%` : "0% (Gate active)"}
                       </div>
                     </div>

@@ -716,7 +716,7 @@ export default function AdminMarketPrices() {
                               <td className="px-3 py-2.5">
                                 <span
                                   className={classNames(
-                                    "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                    "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
                                     row.last_scanned_at
                                       ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
                                       : "bg-muted text-muted-foreground",

@@ -159,7 +159,7 @@ export default function GermanFloorCalculator() {
                       className={chip(preset === key)}
                     >
                       {t(PLOT_PRESETS[key].label)}
-                      <span className="mt-0.5 block text-[11px] font-normal text-muted-foreground">
+                      <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                         {PLOT_PRESETS[key].idiom}
                       </span>
                     </button>

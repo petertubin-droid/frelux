@@ -242,7 +242,7 @@ export default function StockDetail() {
                 Company website
               </a>
             ) : null}
-            <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground">
+            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
               Company reference data is maintained by FRELUX. Quotes are
               provider data, may be delayed, and are shown for information only.
               Nothing here is investment advice or an offer to trade.

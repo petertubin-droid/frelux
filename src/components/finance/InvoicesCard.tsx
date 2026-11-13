@@ -235,7 +235,7 @@ export function InvoicesCard({
                   </p>
                 </div>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                     STATUS_STYLES[derivedStatus] ?? ""
                   }`}
                 >
@@ -268,7 +268,7 @@ export function InvoicesCard({
                     type="button"
                     onClick={() => changeStatus(invoice.id, "issued")}
                     disabled={busy}
-                    className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50 disabled:opacity-50"
+                    className="rounded border border-border px-2 py-1 text-xs font-medium transition-colors hover:bg-muted/50 disabled:opacity-50"
                   >
                     {t("Issue")}
                   </button>
@@ -278,7 +278,7 @@ export function InvoicesCard({
                     type="button"
                     onClick={() => changeStatus(invoice.id, "cancelled")}
                     disabled={busy}
-                    className="rounded border border-border px-2 py-1 text-[11px] font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                    className="rounded border border-border px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
                   >
                     {t("Cancel invoice")}
                   </button>
@@ -293,7 +293,7 @@ export function InvoicesCard({
                       payments,
                     } as InvoiceWithState)
                   }
-                  className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50"
+                  className="rounded border border-border px-2 py-1 text-xs font-medium transition-colors hover:bg-muted/50"
                 >
                   {t("Print")}
                 </button>
@@ -302,7 +302,7 @@ export function InvoicesCard({
                   onClick={() =>
                     setPayOpenFor(payOpenFor === invoice.id ? null : invoice.id)
                   }
-                  className="rounded border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-muted/50"
+                  className="rounded border border-border px-2 py-1 text-xs font-medium transition-colors hover:bg-muted/50"
                 >
                   {t("Record payment")}
                 </button>
@@ -310,7 +310,7 @@ export function InvoicesCard({
 
               {payOpenFor === invoice.id && (
                 <div className="mt-2 flex flex-wrap items-center gap-2 rounded bg-muted/40 p-2">
-                  <label className="text-[11px] text-muted-foreground">
+                  <label className="text-xs text-muted-foreground">
                     {t("Amount")}
                     <input
                       type="number"
@@ -321,7 +321,7 @@ export function InvoicesCard({
                       className="ml-1 w-28 rounded border border-border bg-card px-2 py-1 text-xs"
                     />
                   </label>
-                  <label className="text-[11px] text-muted-foreground">
+                  <label className="text-xs text-muted-foreground">
                     {t("Method")}
                     <select
                       value={payMethod}
@@ -337,7 +337,7 @@ export function InvoicesCard({
                       ))}
                     </select>
                   </label>
-                  <label className="text-[11px] text-muted-foreground">
+                  <label className="text-xs text-muted-foreground">
                     {t("Reference")}
                     <input
                       type="text"
@@ -351,7 +351,7 @@ export function InvoicesCard({
                     type="button"
                     onClick={() => recordPayment(invoice.id)}
                     disabled={busy}
-                    className="rounded bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground disabled:opacity-50"
+                    className="rounded bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground disabled:opacity-50"
                   >
                     {t("Save payment")}
                   </button>

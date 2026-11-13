@@ -411,7 +411,7 @@ export default function SupplierPortal() {
                         ? "Verified supplier listing"
                         : "Verification pending"}
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-xs text-slate-400">
                       {t(
                         "Quotes are shown only when account and market data qualify",
                       )}
@@ -453,7 +453,7 @@ export default function SupplierPortal() {
                   className="p-4 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-5 gap-3 items-end"
                 >
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">
                       {t("Product Name")}
                     </label>
                     <Input
@@ -466,7 +466,7 @@ export default function SupplierPortal() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">
                       {t("Category")}
                     </label>
                     <select
@@ -485,7 +485,7 @@ export default function SupplierPortal() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">
                       {t("Unit")}
                     </label>
                     <Input
@@ -498,7 +498,7 @@ export default function SupplierPortal() {
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1">
                       Price ({currency})
                     </label>
                     <Input
@@ -528,7 +528,7 @@ export default function SupplierPortal() {
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs text-left">
-                    <thead className="bg-slate-50 dark:bg-slate-900 text-[11px] text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+                    <thead className="bg-slate-50 dark:bg-slate-900 text-xs text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
                       <tr>
                         <th className="py-3 px-4 font-semibold">
                           {t("Material / Product")}
@@ -560,14 +560,14 @@ export default function SupplierPortal() {
                             <div className="font-semibold text-slate-900 dark:text-slate-100">
                               {item.product_name}
                             </div>
-                            <div className="text-[11px] text-slate-400 font-mono">
+                            <div className="text-xs text-slate-400 font-mono">
                               SKU: {item.sku || "CUSTOM-SUPPLIER"} • {item.unit}
                             </div>
                           </td>
                           <td className="py-3 px-3">
                             <Badge
                               variant="outline"
-                              className="text-[11px] capitalize"
+                              className="text-xs capitalize"
                             >
                               {item.category || item.material_category}
                             </Badge>
@@ -589,7 +589,7 @@ export default function SupplierPortal() {
                           <td className="py-3 px-3">
                             <button
                               onClick={() => handleStockToggle(item.id)}
-                              className={`px-2 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 ${
+                              className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 ${
                                 item.in_stock
                                   ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
                                   : "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
@@ -603,13 +603,13 @@ export default function SupplierPortal() {
                           </td>
                           <td className="py-3 px-3 text-slate-500">
                             {item.bulk_discount_pct ? (
-                              <span className="text-[11px] text-indigo-600 font-medium flex items-center gap-1">
+                              <span className="text-xs text-indigo-600 font-medium flex items-center gap-1">
                                 <Percent className="w-3 h-3" />
                                 {item.bulk_discount_pct}% off ≥{" "}
                                 {item.bulk_discount_threshold} units
                               </span>
                             ) : (
-                              <span className="text-[11px] text-slate-400">
+                              <span className="text-xs text-slate-400">
                                 {t("None")}
                               </span>
                             )}

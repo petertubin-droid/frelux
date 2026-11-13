@@ -80,7 +80,7 @@ export default function AdminMarketIntelligence() {
         eyebrow={t("Price engine")}
         title={t("Market Intelligence")}
         actions={
-          <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {t("PRICE ENGINE")}
           </span>
         }
@@ -370,7 +370,7 @@ function ApprovedTab() {
                 </div>
                 <span
                   className={classNames(
-                    "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+                    "rounded-md px-1.5 py-0.5 text-xs font-semibold",
                     p.freshness === "fresh"
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                       : p.freshness === "recent"
@@ -527,14 +527,14 @@ function SourcesTab() {
                       <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {s.source_name}
                       </span>
-                      <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
+                      <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-brand-purple">
                         {SOURCE_TYPE_LABELS[s.source_type]}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         Tier {s.reliability_tier}
                       </span>
                       {s.is_verified && (
-                        <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:bg-emerald-500/10">
+                        <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/10">
                           {t("Verified")}
                         </span>
                       )}
@@ -1002,16 +1002,16 @@ function ProvidersTab() {
                   <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {p.provider_name}
                   </span>
-                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-brand-purple">
                     {PROVIDER_TYPE_LABELS[p.provider_type]}
                   </span>
                   {p.is_free && (
-                    <span className="text-[11px] font-semibold text-emerald-600">
+                    <span className="text-xs font-semibold text-emerald-600">
                       {t("FREE")}
                     </span>
                   )}
                   {p.is_fallback && (
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       fallback
                     </span>
                   )}
@@ -1118,7 +1118,7 @@ function AnomaliesTab() {
                 </div>
                 <span
                   className={classNames(
-                    "rounded-md px-2 py-0.5 text-[11px] font-semibold",
+                    "rounded-md px-2 py-0.5 text-xs font-semibold",
                     a.resolution === "open"
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10"
                       : a.resolution === "resolved"
@@ -1207,7 +1207,7 @@ function LogsTab() {
             >
               {new Date(log.created_at).toLocaleString()}
             </div>
-            <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-brand-purple">
+            <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-brand-purple">
               {log.event_type}
             </span>
             <span className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -1430,7 +1430,7 @@ function ConfidenceBadge({ confidence }: { confidence: MatchConfidence }) {
   return (
     <span
       className={classNames(
-        "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+        "rounded-md px-1.5 py-0.5 text-xs font-semibold",
         colors[confidence],
       )}
     >
@@ -1456,7 +1456,7 @@ function StatusBadge({ status }: { status: ValidationStatus }) {
   return (
     <span
       className={classNames(
-        "rounded-md px-1.5 py-0.5 text-[11px] font-semibold",
+        "rounded-md px-1.5 py-0.5 text-xs font-semibold",
         colors[status],
       )}
     >

@@ -328,7 +328,7 @@ export default function WaterTowerInstallationSequence({
                       <span className="block text-foreground">
                         {step.detail}
                       </span>
-                      <span className="block text-[11px] text-muted-foreground">
+                      <span className="block text-xs text-muted-foreground">
                         Check before moving on: {step.check}
                       </span>
                     </span>
@@ -409,7 +409,7 @@ export default function WaterTowerInstallationSequence({
           Step {index + 1} of {steps.length}
         </span>
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Sequence shown for a {material} frame at {heightMeters} m. The order
         does not change with size: footings carry the load, bracing resists the
         wind, and the tank is landed empty.

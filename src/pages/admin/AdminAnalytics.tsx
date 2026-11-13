@@ -111,7 +111,7 @@ function StatTile({
           {label}
         </p>
         {live && (
-          <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-accent-green">
+          <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-accent-green">
             <span
               aria-hidden="true"
               className="h-1.5 w-1.5 rounded-full bg-accent-green"
@@ -172,7 +172,7 @@ function TrafficTrend({ report }: { report: TrafficReport }) {
                 className="w-full rounded-sm bg-primary/80 transition-colors group-hover:bg-primary"
                 style={{ height: `${height}%` }}
               />
-              <span className="h-4 text-center text-[11px] text-muted-foreground">
+              <span className="h-4 text-center text-xs text-muted-foreground">
                 {showLabel ? point.date.slice(5) : ""}
               </span>
             </div>
@@ -466,7 +466,7 @@ export default function AdminAnalytics() {
                               key={String(label)}
                               className="rounded-lg border border-border p-3"
                             >
-                              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                                 {label}
                               </p>
                               <p className="mt-0.5 text-lg font-semibold text-foreground">

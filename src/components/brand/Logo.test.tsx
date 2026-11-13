@@ -62,7 +62,7 @@ describe("Logo", () => {
     }
   });
 
-  it("keeps the descriptor at or above eleven pixels", () => {
+  it("keeps the descriptor at or above twelve pixels", () => {
     for (const size of ["sm", "md", "lg"] as const) {
       const { container } = render(<Logo size={size} />);
       const descriptor = container.querySelector(
@@ -70,9 +70,9 @@ describe("Logo", () => {
       ) as HTMLElement | null;
       expect(descriptor, size).toBeTruthy();
       const className = descriptor!.className;
-      // 10px small caps were below the size where the label stays readable.
-      expect(className, size).not.toMatch(/text-\[(?:[0-9]|10)px\]/);
-      expect(className, size).toMatch(/text-\[1[1-9]px\]/);
+      // Nothing in the interface sits below 12px, small caps included.
+      expect(className, size).not.toMatch(/text-\[(?:[0-9]|1[01])px\]/);
+      expect(className, size).toMatch(/text-\[1[2-9]px\]|text-xs/);
     }
   });
 

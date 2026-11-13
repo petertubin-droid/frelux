@@ -261,7 +261,7 @@ export function WeatherLocationSelect({
                       {option.name}
                     </span>
                     {option.country && (
-                      <span className="block truncate text-[11px] text-muted-foreground">
+                      <span className="block truncate text-xs text-muted-foreground">
                         {option.country}
                       </span>
                     )}
@@ -278,7 +278,7 @@ export function WeatherLocationSelect({
           </div>
 
           {subtitle && (
-            <p className="border-t border-border/60 px-3 py-2 text-[11px] text-muted-foreground dark:border-white/10">
+            <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground dark:border-white/10">
               Showing the feed for {location.name}, {subtitle}
             </p>
           )}

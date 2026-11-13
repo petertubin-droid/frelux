@@ -247,7 +247,7 @@ export default function ProcurementRequestDetail() {
             {formatByCode(order.delivery_fee, order.currency)} delivery) ·
             payment {order.payment_status}
           </p>
-          <p className="mt-1 text-[11px] text-slate-500">
+          <p className="mt-1 text-xs text-slate-500">
             Payment is arranged directly with the supplier in this phase. FRELUX
             stores no card details; when card payments are enabled they will run
             through a payment provider that returns only a reference.
@@ -340,7 +340,7 @@ export default function ProcurementRequestDetail() {
                         {String(supplier.company_name ?? "Supplier")}
                       </p>
                       <p className="text-xs text-slate-500">
-                        <Badge variant="outline" className="mr-2 text-[11px]">
+                        <Badge variant="outline" className="mr-2 text-xs">
                           {badge.label}
                         </Badge>
                         {[supplier.neighbourhood, supplier.city]
@@ -358,7 +358,7 @@ export default function ProcurementRequestDetail() {
                       <p className="text-base font-semibold text-slate-900">
                         {formatByCode(quote.total, quote.currency)}
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         {formatByCode(quote.subtotal, quote.currency)} +{" "}
                         {formatByCode(quote.delivery_fee, quote.currency)}{" "}
                         delivery

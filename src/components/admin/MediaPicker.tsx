@@ -242,7 +242,7 @@ export function MediaPicker({
                             loading="lazy"
                           />
                         </div>
-                        <div className="truncate p-1.5 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground/80">
+                        <div className="truncate p-1.5 text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                           {item.file_name}
                         </div>
                       </Button>

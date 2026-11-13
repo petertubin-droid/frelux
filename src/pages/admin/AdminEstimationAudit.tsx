@@ -228,7 +228,7 @@ export default function AdminEstimationAudit() {
                       </span>
 
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${getActionBadge(
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${getActionBadge(
                           entry.action,
                         )}`}
                       >
@@ -275,12 +275,12 @@ export default function AdminEstimationAudit() {
                   <div className="mt-4 border-t border-border pt-4 text-xs">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-xs">
                           {t("Old Value")}
                         </h4>
                         {entry.old_value !== null &&
                         entry.old_value !== undefined ? (
-                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-red-300">
+                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-xs text-red-300">
                             {JSON.stringify(entry.old_value, null, 2)}
                           </pre>
                         ) : (
@@ -291,12 +291,12 @@ export default function AdminEstimationAudit() {
                       </div>
 
                       <div>
-                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-xs">
                           {t("New Value")}
                         </h4>
                         {entry.new_value !== null &&
                         entry.new_value !== undefined ? (
-                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-emerald-300">
+                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-xs text-emerald-300">
                             {JSON.stringify(entry.new_value, null, 2)}
                           </pre>
                         ) : (

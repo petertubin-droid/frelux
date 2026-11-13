@@ -218,7 +218,7 @@ export default function CompareColors() {
                   <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                     {c.name}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {c.hex_code}
                   </p>
                 </div>

@@ -160,7 +160,7 @@ export default function ColorDetail() {
               {colorCats.map((cat) => (
                 <span
                   key={cat.id}
-                  className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple"
+                  className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-brand-purple"
                 >
                   {cat.name}
                 </span>

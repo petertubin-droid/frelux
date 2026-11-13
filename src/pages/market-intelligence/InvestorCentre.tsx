@@ -152,7 +152,7 @@ export default function InvestorCentre() {
         title="FRELUX operating snapshot"
         subtitle={`Generated ${new Date(metrics.generated_at).toLocaleString()} from live FRELUX tables.`}
         actions={
-          <span className="rounded-full border border-border px-3 py-1 text-[11px] text-muted-foreground">
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
             Authorised access
           </span>
         }

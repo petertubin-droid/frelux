@@ -90,7 +90,7 @@ export function ElevationGlance({ result, unitSystem }: ElevationGlanceProps) {
               <dd className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground tabular-nums">
                 {card.value}
               </dd>
-              <dd className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {card.note}
               </dd>
             </div>

@@ -87,7 +87,7 @@ export default function PriceCoveragePanel({
                 <td className="py-2">
                   <span
                     className={classNames(
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium",
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
                       row.status === "local" &&
                         "bg-primary/10 text-brand-purple dark:text-brand-purple-lighter",
                       row.status === "partial" &&

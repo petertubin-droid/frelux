@@ -174,8 +174,8 @@ export default function SupplierCompare() {
                   <span
                     className={
                       group.comparable
-                        ? "rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700"
-                        : "rounded bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800"
+                        ? "rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                        : "rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800"
                     }
                   >
                     {group.comparable ? "Like for like" : "Not like for like"}
@@ -228,10 +228,10 @@ export default function SupplierCompare() {
                                     .filter(Boolean)
                                     .join(", ")}
                                 </span>
-                                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                                   <Badge
                                     variant="outline"
-                                    className="text-[11px]"
+                                    className="text-xs"
                                   >
                                     {badge.label}
                                   </Badge>
@@ -260,7 +260,7 @@ export default function SupplierCompare() {
                                     /{entry.listing.unit}
                                   </span>
                                 </p>
-                                <p className="text-[11px] text-slate-500">
+                                <p className="text-xs text-slate-500">
                                   {entry.landedUnitPrice !== null
                                     ? `landed ${formatByCode(entry.landedUnitPrice, entry.listing.currency)}/unit`
                                     : "delivery quoted: landed price unknown"}

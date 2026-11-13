@@ -257,7 +257,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
           <MapPin className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">{t("Site location")}</h3>
           {site && (
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
               {site.source_crs}
             </span>
           )}
@@ -324,7 +324,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
               </p>
             </div>
             {site.accuracy_note && (
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {site.accuracy_note}
               </p>
             )}
@@ -389,7 +389,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
             {t("Imagery license records")}
           </h3>
           {satelliteCheck.usable && (
-            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
               {t("Satellite licensed")}
             </span>
           )}
@@ -413,15 +413,15 @@ export function SiteTab({ projectId }: { projectId: string }) {
                   <div className="min-w-0">
                     <p className="text-sm font-medium">
                       {r.name}
-                      <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-secondary-foreground">
+                      <span className="ml-2 rounded bg-secondary px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-secondary-foreground">
                         {r.provider_id}
                       </span>
                     </p>
-                    <p className="mt-0.5 break-words text-[11px] leading-snug text-muted-foreground">
+                    <p className="mt-0.5 break-words text-xs leading-snug text-muted-foreground">
                       {imageryRecordDisclosure(r)}
                     </p>
                     {!check.usable && (
-                      <p className="mt-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                      <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
                         {check.reason}
                       </p>
                     )}

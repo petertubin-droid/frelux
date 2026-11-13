@@ -64,7 +64,7 @@ function FactorTile({
     <div className="card-elevated p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon aria-hidden="true" className="h-4 w-4" />
-        <p className="text-[11px] font-semibold uppercase tracking-wide">
+        <p className="text-xs font-semibold uppercase tracking-wide">
           {label}
         </p>
       </div>
@@ -81,7 +81,7 @@ function AdviceCard({ advice }: { advice: CategoryAdvice }) {
     <article className="card-elevated p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {advice.category}
           </p>
           <h3 className="mt-1 text-lg font-bold text-foreground">
@@ -90,7 +90,7 @@ function AdviceCard({ advice }: { advice: CategoryAdvice }) {
         </div>
         <span
           className={classNames(
-            "rounded-full px-2.5 py-1 text-[11px] font-semibold",
+            "rounded-full px-2.5 py-1 text-xs font-semibold",
             advice.confidence === "climate-matched"
               ? "bg-primary/10 text-primary"
               : "bg-muted text-muted-foreground",

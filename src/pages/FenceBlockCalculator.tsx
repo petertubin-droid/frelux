@@ -338,7 +338,7 @@ export default function FenceBlockCalculator() {
                         }
                       >
                         {t(option.label)}
-                        <span className="mt-0.5 block text-[11px] font-normal text-muted-foreground">
+                        <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                           {option.idiom}
                         </span>
                       </button>

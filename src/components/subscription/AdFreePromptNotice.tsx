@@ -170,14 +170,14 @@ export default function AdFreePromptNotice({
           </span>
           <div className="min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-2">
             <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <span className="inline-block rounded-full bg-accent-green/15 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-accent-green">
+              <span className="inline-block rounded-full bg-accent-green/15 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-accent-green">
                 {t("Ad-Free")}
               </span>
               <span className="whitespace-nowrap">
                 {t("Tired of advertisements?")}
               </span>
             </span>
-            <span className="text-[11px] text-muted-foreground hidden md:inline truncate">
+            <span className="text-xs text-muted-foreground hidden md:inline truncate">
               {t(
                 "Subscribe to FRELUX Pro for zero ads, priority speed, and unlimited engineering calculations.",
               )}

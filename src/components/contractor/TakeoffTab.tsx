@@ -757,7 +757,7 @@ export function TakeoffTab({ projectId, projectName }: TakeoffTabProps) {
                             <span className="text-muted-foreground">
                               {candidate.length} × {candidate.width} m
                             </span>
-                            <span className="ml-2 rounded bg-muted px-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                            <span className="ml-2 rounded bg-muted px-1 text-xs uppercase tracking-wide text-muted-foreground">
                               {candidate.confidence}
                             </span>
                             <span className="mt-1 block text-xs text-muted-foreground">
@@ -1220,7 +1220,7 @@ export function TakeoffTab({ projectId, projectName }: TakeoffTabProps) {
                             <span className="flex flex-wrap items-center gap-1">
                               {line.description}
                               {line.assumed ? (
-                                <span className="rounded bg-amber-100 px-1 text-[11px] font-medium uppercase text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
+                                <span className="rounded bg-amber-100 px-1 text-xs font-medium uppercase text-amber-800 dark:bg-amber-500/20 dark:text-amber-200">
                                   assumed
                                 </span>
                               ) : null}

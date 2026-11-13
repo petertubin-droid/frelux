@@ -77,7 +77,7 @@ export default function AdsterraDirectLink() {
         href={unit.url}
         target="_blank"
         rel="sponsored noopener noreferrer"
-        className="text-[11px] text-muted-foreground/70 underline underline-offset-2 hover:text-foreground transition-colors"
+        className="text-xs text-muted-foreground/70 underline underline-offset-2 hover:text-foreground transition-colors"
       >
         {unit.label}
       </a>

@@ -356,7 +356,7 @@ function PaintColorsTab() {
                     />
                   ))}
                   {group.items.length > 6 && (
-                    <span className="ml-2 text-[11px] font-semibold text-muted-foreground">
+                    <span className="ml-2 text-xs font-semibold text-muted-foreground">
                       +{group.items.length - 6}
                     </span>
                   )}
@@ -372,7 +372,7 @@ function PaintColorsTab() {
                         style={{ background: item.hex_code }}
                       >
                         <span
-                          className="text-[11px] font-bold"
+                          className="text-xs font-bold"
                           style={{ color: readableTextColor(item.hex_code) }}
                         >
                           {item.hex_code}
@@ -384,7 +384,7 @@ function PaintColorsTab() {
                             {item.name}
                           </h3>
                           {!item.is_active && (
-                            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                            <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                               {t("Off")}
                             </span>
                           )}
@@ -398,7 +398,7 @@ function PaintColorsTab() {
                             />
                           )}
                         </div>
-                        <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           {item.is_interior ? "Int" : ""}
                           {item.is_interior && item.is_exterior ? "/" : ""}
                           {item.is_exterior ? "Ext" : ""}
@@ -500,7 +500,7 @@ function ToggleChip({
       type="button"
       onClick={onClick}
       className={classNames(
-        "rounded-md border px-2 py-1 text-[11px] font-semibold transition-all",
+        "rounded-md border px-2 py-1 text-xs font-semibold transition-all",
         active
           ? "border-brand-purple bg-primary text-primary-foreground"
           : "border-border text-muted-foreground hover:border-border",
@@ -1448,11 +1448,11 @@ function CombinationsTab() {
                   />
                   <div className="absolute right-2 top-2">
                     {!item.is_published ? (
-                      <span className="rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                      <span className="rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-primary-foreground">
                         {t("Draft")}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-accent-green/90 px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                      <span className="rounded-full bg-accent-green/90 px-2 py-0.5 text-xs font-semibold text-primary-foreground">
                         {t("Published")}
                       </span>
                     )}
@@ -1466,7 +1466,7 @@ function CombinationsTab() {
                     {item.description}
                   </p>
                   {cats.length > 0 && (
-                    <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       {cats.map((c) => c.name).join(" · ")}
                     </p>
                   )}

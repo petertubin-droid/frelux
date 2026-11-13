@@ -107,7 +107,7 @@ function Stat({
 }) {
   return (
     <div className="rounded-lg border bg-card p-4">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
@@ -645,7 +645,7 @@ export default function AdManager() {
                     {value}
                   </label>
                 ))}
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Leave all unticked to run the campaign across every
                   calculator.
                 </p>
@@ -690,7 +690,7 @@ export default function AdManager() {
                   </label>
                 ))}
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Targeting follows the market the visitor selected, never their
                 IP address alone.
               </p>
@@ -702,7 +702,7 @@ export default function AdManager() {
               <Eye className="h-3.5 w-3.5" /> Preview
             </p>
             <div className="rounded-xl border bg-card p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {draft.is_sponsored
                   ? `Sponsored · ${draft.advertiser_name || "Advertiser"}`
                   : "Promoted"}
@@ -771,7 +771,7 @@ export default function AdManager() {
                       <td className="px-3 py-2">
                         <span className="font-medium">{campaign.name}</span>
                         {campaign.is_sponsored ? (
-                          <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                          <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
                             sponsored
                           </span>
                         ) : null}

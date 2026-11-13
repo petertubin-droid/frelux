@@ -163,7 +163,7 @@ export default function SiteMap({
           <div className="h-3.5 w-3.5 rounded-full border-2 border-white bg-red-600 shadow-md" />
         </div>
         {/* License-required attribution, always visible on the map */}
-        <p className="absolute bottom-1 left-1 max-w-[85%] rounded bg-background/80 px-1.5 py-0.5 text-[11px] leading-tight text-foreground/80 backdrop-blur-sm">
+        <p className="absolute bottom-1 left-1 max-w-[85%] rounded bg-background/80 px-1.5 py-0.5 text-xs leading-tight text-foreground/80 backdrop-blur-sm">
           {attribution}
         </p>
         <div className="absolute bottom-2 right-2 flex gap-1">
@@ -187,7 +187,7 @@ export default function SiteMap({
           </button>
         </div>
       </div>
-      <p className="text-[11px] leading-snug text-muted-foreground">
+      <p className="text-xs leading-snug text-muted-foreground">
         {disclosure}
       </p>
     </div>

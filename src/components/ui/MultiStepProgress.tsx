@@ -45,7 +45,7 @@ export default function MultiStepProgress({
                 </div>
                 <span
                   className={classNames(
-                    "hidden text-[11px] font-medium sm:block sm:text-xs transition-colors",
+                    "hidden text-xs font-medium sm:block sm:text-xs transition-colors",
                     isCurrent
                       ? "text-brand-purple"
                       : isComplete
@@ -57,7 +57,7 @@ export default function MultiStepProgress({
                 </span>
                 <span
                   className={classNames(
-                    "block text-[11px] font-medium sm:hidden transition-colors",
+                    "block text-xs font-medium sm:hidden transition-colors",
                     isCurrent ? "text-brand-purple" : "text-muted-foreground",
                   )}
                 >

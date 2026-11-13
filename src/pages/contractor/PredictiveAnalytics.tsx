@@ -53,7 +53,7 @@ const VERDICT_STYLES: Record<string, string> = {
 function VerdictChip({ verdict }: { verdict: string }) {
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${VERDICT_STYLES[verdict] ?? VERDICT_STYLES.insufficient_data}`}
+      className={`rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${VERDICT_STYLES[verdict] ?? VERDICT_STYLES.insufficient_data}`}
     >
       {verdict.replace("_", " ")}
     </span>
@@ -278,7 +278,7 @@ export default function PredictiveAnalytics() {
 
         {showForm && (
           <div className="mt-3 grid gap-2 rounded-md border border-border bg-background/60 p-3 sm:grid-cols-2">
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Market")}
               <select
                 className={field}
@@ -294,7 +294,7 @@ export default function PredictiveAnalytics() {
                 ))}
               </select>
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Project type *
               <input
                 className={field}
@@ -305,7 +305,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Planned end date")}
               <input
                 type="date"
@@ -316,7 +316,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               Actual end date *
               <input
                 type="date"
@@ -327,7 +327,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Budgeted amount")}
               <input
                 type="number"
@@ -339,7 +339,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Budget currency (ISO)")}
               <input
                 className={field}
@@ -353,7 +353,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Final amount")}
               <input
                 type="number"
@@ -365,7 +365,7 @@ export default function PredictiveAnalytics() {
                 }
               />
             </label>
-            <label className="text-[11px] font-medium text-muted-foreground">
+            <label className="text-xs font-medium text-muted-foreground">
               {t("Safety incidents")}
               <input
                 type="number"
@@ -418,7 +418,7 @@ export default function PredictiveAnalytics() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold">{market}</span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {reports[0].sample_size} records
                   </span>
                 </div>
@@ -426,7 +426,7 @@ export default function PredictiveAnalytics() {
                   {reports.map((r) => (
                     <div
                       key={r.label}
-                      className="flex items-center justify-between gap-2 text-[11px]"
+                      className="flex items-center justify-between gap-2 text-xs"
                     >
                       <span className="text-muted-foreground">
                         {r.label.replace(/_/g, " ")}
@@ -436,7 +436,7 @@ export default function PredictiveAnalytics() {
                   ))}
                 </div>
                 {reports.some((r) => r.verdict !== "adequate") && (
-                  <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                  <p className="mt-2 text-xs leading-snug text-muted-foreground">
                     {reports.find((r) => r.verdict !== "adequate")!.disclosure}
                   </p>
                 )}
@@ -473,7 +473,7 @@ export default function PredictiveAnalytics() {
                 />
               </div>
               {bt.status === "ok" ? (
-                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   <dt className="text-muted-foreground">{t("Scored")}</dt>
                   <dd>{bt.scored.length}</dd>
                   <dt className="text-muted-foreground">{t("MAE")}</dt>
@@ -494,11 +494,11 @@ export default function PredictiveAnalytics() {
                   ))}
                 </dl>
               ) : (
-                <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                <p className="mt-2 text-xs leading-snug text-muted-foreground">
                   {bt.reason}
                 </p>
               )}
-              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+              <p className="mt-2 text-xs leading-snug text-muted-foreground">
                 {bt.disclosure}
               </p>
             </div>
@@ -514,11 +514,11 @@ export default function PredictiveAnalytics() {
             Safety risk — decision support only
           </h3>
           {safetyAssessment.validation ? (
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
               independently validated
             </span>
           ) : (
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
               pending independent validation
             </span>
           )}
@@ -527,7 +527,7 @@ export default function PredictiveAnalytics() {
           {safetyAssessment.disclosure}
         </p>
         {safetyAssessment.validation && (
-          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+          <p className="mt-1 text-xs leading-snug text-muted-foreground">
             Limitations: {safetyAssessment.validation.limitations}
           </p>
         )}

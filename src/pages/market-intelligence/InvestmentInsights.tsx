@@ -84,9 +84,9 @@ export default function InvestmentInsights() {
       <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Object.entries(bySector).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([sector, count]) => (
           <div key={sector} className="rounded-xl border border-border bg-card p-4">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{sector}</p>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{sector}</p>
             <p className="mt-1 text-lg font-semibold text-foreground">{count}</p>
-            <p className="text-[11px] text-muted-foreground">listed companies tracked</p>
+            <p className="text-xs text-muted-foreground">listed companies tracked</p>
           </div>
         ))}
       </section>
@@ -106,7 +106,7 @@ export default function InvestmentInsights() {
         <SectionHeading title={configured ? "Largest by reported market capitalisation" : "Companies tracked"} description={configured ? "Market capitalisation as reported by the configured provider." : "No provider is configured, so scale figures are unavailable. The list is alphabetical by our sort order instead."} />
         <table className="w-full min-w-[680px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
               <th scope="col" className="py-2 pr-2">Company</th>
               <th scope="col" className="py-2 pr-2">Country</th>
               <th scope="col" className="py-2 pr-2">Sector</th>
@@ -155,7 +155,7 @@ export default function InvestmentInsights() {
         )}
       </section>
 
-      <p className="mt-10 rounded-xl border border-border bg-muted/40 p-4 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="mt-10 rounded-xl border border-border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
         <strong className="text-foreground">Important:</strong> this page is information, not investment advice,
         research or a recommendation. Prices may be delayed, company reference data is maintained by FRELUX, and past
         movements do not indicate future performance. Take regulated advice before investing.

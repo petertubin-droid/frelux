@@ -197,7 +197,7 @@ export default function DataResidencyCenter() {
                       <div className="text-xs text-muted-foreground mt-1">
                         {ep.governingLaw}
                       </div>
-                      <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {ep.edgeLatencyMs}ms
                           edge

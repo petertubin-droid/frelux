@@ -480,7 +480,7 @@ function ProvidersTab() {
                         {prov.name}
                       </h3>
                     </div>
-                    <p className="text-[11px] text-muted-foreground capitalize">
+                    <p className="text-xs text-muted-foreground capitalize">
                       {prov.provider_type} · /{prov.slug}
                     </p>
                   </div>
@@ -488,7 +488,7 @@ function ProvidersTab() {
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span
                     className={classNames(
-                      "rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
+                      "rounded-full px-1.5 py-0.5 text-xs font-semibold",
                       prov.is_active
                         ? "bg-accent-green/15 text-accent-green"
                         : "bg-muted text-muted-foreground",
@@ -498,7 +498,7 @@ function ProvidersTab() {
                   </span>
                   {prov.is_active &&
                     prov.settings?.display_ads_enabled === false && (
-                      <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                      <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
                         {t("Ads hidden")}
                       </span>
                     )}
@@ -507,10 +507,10 @@ function ProvidersTab() {
               {prov.is_active && prov.provider_type !== "rewarded" && (
                 <div className="mt-2 flex items-center justify-between gap-2 rounded-md bg-muted/50 px-2 py-1.5 dark:bg-white/5">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-foreground dark:text-primary-foreground">
+                    <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {t("Display ads")}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">
+                    <p className="truncate text-xs text-muted-foreground">
                       {prov.settings?.display_ads_enabled === false
                         ? "Hidden, impressions still logged, no visual ads served"
                         : "Visual ads served on placements"}
@@ -829,7 +829,7 @@ function ProviderForm({
             ads.txt entries, then set this exact callback URL on the website
             placement:
           </p>
-          <code className="mt-2 block break-all rounded bg-background p-2 text-[11px]">{`${import.meta.env.VITE_SUPABASE_URL ?? "<your-supabase-project-url>"}/functions/v1/ayet-rewarded-callback?transaction_id={transaction_id}&external_identifier={external_identifier}&adslot_id={adslot_id}`}</code>
+          <code className="mt-2 block break-all rounded bg-background p-2 text-xs">{`${import.meta.env.VITE_SUPABASE_URL ?? "<your-supabase-project-url>"}/functions/v1/ayet-rewarded-callback?transaction_id={transaction_id}&external_identifier={external_identifier}&adslot_id={adslot_id}`}</code>
           <p className="mt-2 text-xs text-muted-foreground">
             The callback must include ayeT’s{" "}
             <code>{t("X-Ayetstudios-Security-Hash")}</code> header. The
@@ -1288,7 +1288,7 @@ function PlacementsTab() {
                     <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                       {pl.placement_name}
                     </h3>
-                    <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {PLACEMENT_TYPE_LABELS[pl.placement_type] ??
                         pl.placement_type}{" "}
                       · /{pl.placement_key}
@@ -1297,7 +1297,7 @@ function PlacementsTab() {
                 </div>
                 <span
                   className={classNames(
-                    "rounded-full px-1.5 py-0.5 text-[11px] font-semibold",
+                    "rounded-full px-1.5 py-0.5 text-xs font-semibold",
                     pl.is_active
                       ? "bg-accent-green/15 text-accent-green"
                       : "bg-muted text-muted-foreground",
@@ -1307,12 +1307,12 @@ function PlacementsTab() {
                 </span>
               </div>
               {assignedProviders.length > 0 && (
-                <p className="mt-1.5 text-[11px] text-brand-purple">
+                <p className="mt-1.5 text-xs text-brand-purple">
                   {assignedProviders.map((p) => p.name).join(" → ")}
                 </p>
               )}
               {pl.is_active && isDeadSlot(pl, providers) && (
-                <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                   <AlertTriangle className="h-3 w-3 shrink-0" />
                   {t("No fillable ad unit, slot renders nothing")}
                 </p>
@@ -1320,7 +1320,7 @@ function PlacementsTab() {
               {pl.is_active &&
                 !isDeadSlot(pl, providers) &&
                 providersMissingUnit(pl, providers).length > 0 && (
-                  <p className="mt-1 text-[11px] text-muted-foreground dark:text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                     {providersMissingUnit(pl, providers)
                       .map((p) => `${p.name} unit not set, falls back`)
                       .join(" · ")}
@@ -1482,7 +1482,7 @@ function PageMapPanel({
                   return (
                     <div
                       key={i}
-                      className="rounded-md bg-muted/70 px-2 py-1.5 text-[11px] text-muted-foreground dark:bg-white/5"
+                      className="rounded-md bg-muted/70 px-2 py-1.5 text-xs text-muted-foreground dark:bg-white/5"
                     >
                       {s.label}
                     </div>
@@ -1500,7 +1500,7 @@ function PageMapPanel({
                         : "border-border/60 bg-muted/40 dark:border-white/10 dark:bg-white/5",
                     )}
                   >
-                    <span className="min-w-0 truncate text-[11px] font-semibold text-brand-purple">
+                    <span className="min-w-0 truncate text-xs font-semibold text-brand-purple">
                       {s.slot}
                       <span className="ml-1 font-normal text-muted-foreground">
                         ({s.native ? "native" : "banner"})
@@ -1508,7 +1508,7 @@ function PageMapPanel({
                     </span>
                     <span
                       className={classNames(
-                        "shrink-0 text-[11px] font-semibold",
+                        "shrink-0 text-xs font-semibold",
                         !pl
                           ? "text-red-500"
                           : on

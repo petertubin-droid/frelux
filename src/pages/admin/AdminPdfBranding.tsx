@@ -851,7 +851,7 @@ export default function AdminPdfBranding() {
               {auditLogs.slice(0, 10).map((log) => (
                 <div
                   key={log.id}
-                  className="text-[11px] text-muted-foreground flex justify-between border-b border-border/40 pb-1"
+                  className="text-xs text-muted-foreground flex justify-between border-b border-border/40 pb-1"
                 >
                   <span>
                     {tr("Plan")} <strong>{log.plan}</strong> updated (

@@ -451,7 +451,7 @@ export default function Pricing() {
               )}
             >
               {t("Yearly")}
-              <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-bold text-accent-green">
+              <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-xs font-bold text-accent-green">
                 {t("Save up to")} {MAX_YEARLY_SAVING}%
               </span>
             </Button>
@@ -527,7 +527,7 @@ export default function Pricing() {
                 {plan.badge && (
                   <span
                     className={classNames(
-                      "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide",
+                      "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide",
                       plan.highlight
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80",

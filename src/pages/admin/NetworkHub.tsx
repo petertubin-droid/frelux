@@ -720,13 +720,13 @@ export default function NetworkHub() {
               <p className="text-xs font-semibold text-muted-foreground">
                 ads.txt and app-ads.txt records
               </p>
-              <pre className="mt-1 overflow-x-auto rounded-md border border-border bg-muted/40 p-3 text-[11px] leading-relaxed text-foreground">
+              <pre className="mt-1 overflow-x-auto rounded-md border border-border bg-muted/40 p-3 text-xs leading-relaxed text-foreground">
                 {adsTxtRecords(
                   state.adsense.publisherId,
                   parsePublisherList(state.adsense.additionalPublisherIds),
                 ).join("\n") || "# Add a publisher ID above to see the records"}
               </pre>
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 These are the lines published in public/ads.txt. Both accounts
                 stay authorised: adding one never withdraws the other.
               </p>
@@ -916,7 +916,7 @@ export default function NetworkHub() {
                 {tr("Reset to official tag")}
               </AdminButton>
             </div>
-            <pre className="rounded-lg border border-border bg-muted/40 p-3 text-[11px] font-mono overflow-x-auto">
+            <pre className="rounded-lg border border-border bg-muted/40 p-3 text-xs font-mono overflow-x-auto">
               {monetagTagPreview(state.monetag.zoneId) ||
                 "// Enter a Zone ID above to derive the display tag"}
             </pre>
@@ -1115,7 +1115,7 @@ export default function NetworkHub() {
               >
                 <span>
                   {label}
-                  <span className="block text-[11px] font-mono text-muted-foreground">
+                  <span className="block text-xs font-mono text-muted-foreground">
                     {placementKey}
                   </span>
                 </span>
@@ -1282,7 +1282,7 @@ export default function NetworkHub() {
                       }
                       className="h-4 w-4 rounded"
                     />
-                    <span className="text-[11px] font-bold uppercase text-muted-foreground">
+                    <span className="text-xs font-bold uppercase text-muted-foreground">
                       {tr("On")}
                     </span>
                   </label>
@@ -1616,7 +1616,7 @@ function SlotConnectivity({
     return (
       <span
         className={classNames(
-          "rounded-full px-2 py-0.5 text-[11px] font-bold font-mono whitespace-nowrap",
+          "rounded-full px-2 py-0.5 text-xs font-bold font-mono whitespace-nowrap",
           map[c.status],
         )}
       >
@@ -1636,7 +1636,7 @@ function SlotConnectivity({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Slot-to-provider connectivity (chain: AdSense → Adsterra → Monetag →
           reserved)
         </p>
@@ -1653,19 +1653,19 @@ function SlotConnectivity({
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-muted/50 text-muted-foreground text-left">
-              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-xs">
                 {tr("Slot")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-xs">
                 {tr("Placement key")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-xs">
                 {tr("Serving provider")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-xs">
                 {tr("Reachability")}
               </th>
-              <th className="p-2 font-bold uppercase tracking-wider text-[11px]">
+              <th className="p-2 font-bold uppercase tracking-wider text-xs">
                 {tr("Detail")}
               </th>
             </tr>
@@ -1707,7 +1707,7 @@ function SlotConnectivity({
           </tbody>
         </table>
       </div>
-      <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Radio className="h-3 w-3" /> Live checks run from your browser:
         Adsterra invoke.js is fetched directly (200 = serving, 403 = unit
         refused), Monetag's tag is probed opaquely. AdSense approval status

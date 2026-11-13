@@ -82,7 +82,7 @@ export const WorkspaceSwitcher: React.FC<{ className?: string }> = ({
                   {activeWorkspace?.name || "Select Workspace"}
                 </span>
                 {roleInfo && (
-                  <span className="text-[11px] text-muted-foreground truncate leading-tight">
+                  <span className="text-xs text-muted-foreground truncate leading-tight">
                     {roleInfo.label}
                   </span>
                 )}

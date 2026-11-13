@@ -346,11 +346,11 @@ export function DagNodeCanvas({
                   <span className="text-xs font-bold uppercase tracking-wider text-brand-purple">
                     Wave {wave.waveIndex + 1}
                   </span>
-                  <span className="rounded bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-purple">
+                  <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-brand-purple">
                     ~{wave.waveDuration}d window
                   </span>
                 </div>
-                <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+                <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                   <span>
                     {wave.nodes.length}{" "}
                     {wave.nodes.length === 1 ? "task" : "parallel tasks"}
@@ -404,27 +404,27 @@ export function DagNodeCanvas({
                     >
                       {/* Status indicator & Float badge */}
                       <div className="mb-2 flex items-center justify-between gap-1">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground truncate max-w-[120px]">
                           {node.stage}
                         </span>
                         {status === "in_progress" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[11px] font-bold text-brand-purple animate-pulse">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple animate-pulse">
                             <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
                             {t("Executing")}
                           </span>
                         )}
                         {status === "completed" && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600">
                             <CheckCircle2 className="h-3 w-3" /> {t("Done")}
                           </span>
                         )}
                         {status === "pending" && node.isCritical && (
-                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-bold text-amber-600">
+                          <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs font-bold text-amber-600">
                             {t("Critical (0d float)")}
                           </span>
                         )}
                         {status === "pending" && !node.isCritical && (
-                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                          <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-xs text-emerald-700 dark:text-emerald-400 font-medium">
                             TF: {node.totalFloat}d
                           </span>
                         )}
@@ -434,16 +434,16 @@ export function DagNodeCanvas({
                         {node.name}
                       </h5>
 
-                      <p className="mt-1 text-[11px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {formatTradeName(node.trade)}
                       </p>
 
-                      <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-[11px] text-muted-foreground">
+                      <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1 font-medium text-foreground">
                           <Clock className="h-3 w-3 text-brand-purple" />
                           {node.duration}d
                         </span>
-                        <span className="font-mono text-[11px]">
+                        <span className="font-mono text-xs">
                           ES:{node.earlyStart} · EF:{node.earlyFinish}
                         </span>
                       </div>
@@ -501,7 +501,7 @@ export function DagNodeCanvas({
 
           <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/40 p-3 text-xs sm:grid-cols-6">
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Duration")}
               </span>
               <strong className="text-sm text-foreground">
@@ -509,7 +509,7 @@ export function DagNodeCanvas({
               </strong>
             </div>
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Early Start (ES)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
@@ -517,7 +517,7 @@ export function DagNodeCanvas({
               </strong>
             </div>
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Early Finish (EF)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
@@ -525,7 +525,7 @@ export function DagNodeCanvas({
               </strong>
             </div>
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Late Start (LS)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
@@ -533,7 +533,7 @@ export function DagNodeCanvas({
               </strong>
             </div>
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Late Finish (LF)")}
               </span>
               <strong className="text-sm text-foreground font-mono">
@@ -541,7 +541,7 @@ export function DagNodeCanvas({
               </strong>
             </div>
             <div>
-              <span className="block text-[11px] text-muted-foreground">
+              <span className="block text-xs text-muted-foreground">
                 {t("Total Float / Free Float")}
               </span>
               <strong className="text-sm text-foreground font-mono">

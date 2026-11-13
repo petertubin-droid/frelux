@@ -241,7 +241,7 @@ export function ElevationQuickStart({
                 {unitLabel}
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground">{field.hint}</p>
+            <p className="text-xs text-muted-foreground">{field.hint}</p>
           </div>
         ))}
 
@@ -267,7 +267,7 @@ export function ElevationQuickStart({
               </button>
             ))}
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Ground floor counts as one
           </p>
         </div>
@@ -301,7 +301,7 @@ export function ElevationQuickStart({
                 <span className="block text-sm font-semibold text-foreground">
                   {choice.label}
                 </span>
-                <span className="block text-[11px] text-muted-foreground">
+                <span className="block text-xs text-muted-foreground">
                   {choice.note}
                 </span>
               </button>

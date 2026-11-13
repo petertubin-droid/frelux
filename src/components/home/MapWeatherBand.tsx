@@ -44,7 +44,7 @@ const DEFAULT_PAIR: Record<Dimension, [string, string]> = {
 const FIELD =
   "w-full rounded-xl border border-border/70 bg-background px-3 py-2.5 text-sm font-medium text-foreground outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5";
 const LABEL =
-  "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground";
+  "mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground";
 
 /**
  * The two live surfaces that are easiest to undersell in a feature list: the
@@ -238,7 +238,7 @@ export default function MapWeatherBand() {
                 />
               )}
             </Suspense>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {loading
                 ? t("Loading mapped records")
                 : `${points.length} ${t("plotted")}`}{" "}

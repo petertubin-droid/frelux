@@ -97,7 +97,7 @@ export const CalculatorInput = React.forwardRef<
             {unit && (
               <span
                 data-testid="input-unit-badge"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none select-none inline-flex items-center rounded-md border border-border/70 bg-muted/80 px-2 py-0.5 text-[11px] font-mono font-medium text-muted-foreground shadow-xs dark:bg-muted/40 dark:border-white/10"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none select-none inline-flex items-center rounded-md border border-border/70 bg-muted/80 px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground shadow-xs dark:bg-muted/40 dark:border-white/10"
                 aria-hidden="true"
               >
                 {unit}

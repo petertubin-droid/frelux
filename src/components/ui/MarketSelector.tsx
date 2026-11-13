@@ -124,7 +124,7 @@ export function MarketSelector({
       ) : (
         groupedMarkets.map((group) => (
           <section key={group.name} role="group" aria-label={group.name}>
-            <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               {group.name}
             </p>
             {group.markets.map((m) => (
@@ -151,7 +151,7 @@ export function MarketSelector({
                       : `${m.currency_symbol} ${m.currency_code}`}
                   </span>
                   {m.status === "coming_soon" && (
-                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground/70">
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground/70">
                       Soon
                     </span>
                   )}

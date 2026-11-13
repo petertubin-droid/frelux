@@ -28,7 +28,7 @@ function Card({
 }) {
   return (
     <div className="rounded-lg border bg-card p-4">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>

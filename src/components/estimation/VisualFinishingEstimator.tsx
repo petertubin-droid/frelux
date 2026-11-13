@@ -620,7 +620,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-xs">
             1
           </span>
           {t("Media Input")}
@@ -634,7 +634,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-xs">
             2
           </span>
           {t("Surfaces & Dimensions")}
@@ -648,7 +648,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-xs">
             3
           </span>
           {t("Specification")}
@@ -662,7 +662,7 @@ export function VisualFinishingEstimator({
               : "border-border text-muted-foreground"
           }`}
         >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-[11px]">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/20 text-xs">
             4
           </span>
           {t("Takeoff & Provenance")}
@@ -872,10 +872,10 @@ export function VisualFinishingEstimator({
                 )}
                 {/* Visual landmark indicators */}
                 <div className="absolute inset-0 p-4 pointer-events-none flex flex-col justify-between">
-                  <div className="rounded bg-black/60 px-2 py-1 text-[11px] text-white w-fit backdrop-blur-sm">
+                  <div className="rounded bg-black/60 px-2 py-1 text-xs text-white w-fit backdrop-blur-sm">
                     {surfaces.length} candidate surfaces detected
                   </div>
-                  <div className="rounded bg-black/60 px-2 py-1 text-[11px] text-amber-300 w-fit backdrop-blur-sm">
+                  <div className="rounded bg-black/60 px-2 py-1 text-xs text-amber-300 w-fit backdrop-blur-sm">
                     Status: Uncalibrated observations
                   </div>
                 </div>
@@ -1097,7 +1097,7 @@ export function VisualFinishingEstimator({
                       }
                       className="text-xs"
                     />
-                    <p className="mt-1 text-[11px] text-muted-foreground">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       Percentage of the image axis occupied by the reference
                       object (e.g. 5% = 0.05 normalized).
                     </p>
@@ -1279,38 +1279,38 @@ export function VisualFinishingEstimator({
                     {getCountryCurrency(marketCode)})
                   </span>
                   {isLoadingMarketRates ? (
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Loader2 className="h-3 w-3 animate-spin" />{" "}
                       {t("Querying DB")}
                     </span>
                   ) : marketRates?.source === "verified_db" ? (
                     <Badge
                       variant="outline"
-                      className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-[11px]"
+                      className="border-emerald-500 text-emerald-600 bg-emerald-500/10 text-xs"
                     >
                       {t("Verified DB Rates")}
                     </Badge>
                   ) : (
                     <Badge
                       variant="outline"
-                      className="border-amber-500 text-amber-600 bg-amber-500/10 text-[11px]"
+                      className="border-amber-500 text-amber-600 bg-amber-500/10 text-xs"
                     >
                       {t("Price Unavailable")}
                     </Badge>
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {marketRates?.provenanceNote ??
                     "No verified database prices for this market. Enter your supplier rate below."}
                 </p>
                 {marketRates?.paintBucketPrice && (
-                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                     Verified Paint: {marketRates.currencySymbol}
                     {marketRates.paintBucketPrice.toLocaleString()} / bucket
                   </p>
                 )}
                 {marketRates?.tileBoxPrice && (
-                  <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                     Verified Tile: {marketRates.currencySymbol}
                     {marketRates.tileBoxPrice.toLocaleString()} / box
                   </p>
@@ -1336,7 +1336,7 @@ export function VisualFinishingEstimator({
                   onChange={(e) => setCustomUnitPrice(e.target.value)}
                   className="mt-1"
                 />
-                <p className="mt-1 text-[11px] text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   Overrides database rates. If no database or manual rate is
                   provided, cost displays honestly as price unavailable.
                 </p>
@@ -1441,7 +1441,7 @@ export function VisualFinishingEstimator({
                                 ? "outline"
                                 : "secondary"
                           }
-                          className="text-[11px]"
+                          className="text-xs"
                         >
                           {m.priceStatus}
                         </Badge>
@@ -1553,11 +1553,11 @@ export function VisualFinishingEstimator({
 
             {result.auditSteps.length > 0 && (
               <div className="mt-2 space-y-1 border-t border-border/60 pt-2">
-                <span className="text-[11px] font-semibold text-muted-foreground">
+                <span className="text-xs font-semibold text-muted-foreground">
                   Calculation Steps:
                 </span>
                 {result.auditSteps.map((st, i) => (
-                  <div key={i} className="text-[11px] text-muted-foreground">
+                  <div key={i} className="text-xs text-muted-foreground">
                     <strong className="text-foreground">{st.label}:</strong>{" "}
                     {st.detail}
                   </div>

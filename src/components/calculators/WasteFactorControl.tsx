@@ -81,7 +81,7 @@ export function WasteFactorControl({
             <p className="text-sm font-semibold text-foreground">
               Waste allowance
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {settings.enabled
                 ? `${presetLabel(effectivePercent)} · ${effectivePercent}% added to base quantities`
                 : "Off. Base quantities are used exactly as calculated."}
@@ -175,7 +175,7 @@ export function WasteFactorControl({
                   setMaterialPercent(effectiveMaterial, preset.percent)
                 }
                 className={classNames(
-                  "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                  "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                   effectivePercent === preset.percent
                     ? "border-primary/40 bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
                     : "border-border/60 text-muted-foreground hover:bg-muted",
@@ -187,7 +187,7 @@ export function WasteFactorControl({
           </div>
         )}
 
-        <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
+        <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
           <Info className="mt-0.5 h-3 w-3 shrink-0" />
           {wasteMaterial(effectiveMaterial).reason}.
         </p>
@@ -196,7 +196,7 @@ export function WasteFactorControl({
           <dl className="grid grid-cols-2 gap-2 rounded-xl bg-muted/40 p-3 text-xs dark:bg-white/[0.04]">
             {preview.rows.map((row) => (
               <div key={row.label}>
-                <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                <dt className="text-xs uppercase tracking-wide text-muted-foreground">
                   {row.label}
                 </dt>
                 <dd className="font-semibold text-foreground">{row.value}</dd>
@@ -206,7 +206,7 @@ export function WasteFactorControl({
         )}
 
         {preview?.breakdown.packages ? (
-          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Package className="h-3 w-3" />
             Rounded up to whole packages of {packageSize} {unit}.
           </p>
@@ -215,7 +215,7 @@ export function WasteFactorControl({
         <button
           type="button"
           onClick={reset}
-          className="text-[11px] font-medium text-muted-foreground underline-offset-2 hover:underline"
+          className="text-xs font-medium text-muted-foreground underline-offset-2 hover:underline"
         >
           Reset to material defaults
         </button>

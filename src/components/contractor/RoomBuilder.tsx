@@ -541,7 +541,7 @@ function RoomCard({
         {/* Drag handle (visual only) */}
         <div className="flex flex-col items-center gap-0.5 pt-1">
           <GripVertical className="h-5 w-5 cursor-grab text-muted-foreground/80" />
-          <span className="text-[11px] font-bold text-muted-foreground dark:text-muted-foreground">
+          <span className="text-xs font-bold text-muted-foreground dark:text-muted-foreground">
             {index + 1}
           </span>
         </div>
@@ -637,7 +637,7 @@ function RoomCard({
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Condition
                 </p>
                 <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
@@ -645,7 +645,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Surface Type
                 </p>
                 <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
@@ -653,7 +653,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Smoothness
                 </p>
                 <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
@@ -661,7 +661,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Porosity
                 </p>
                 <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
@@ -746,7 +746,7 @@ function RoomCard({
                 </h5>
                 <div className="mt-2 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
-                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Material Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
@@ -755,7 +755,7 @@ function RoomCard({
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
-                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Labour Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
@@ -764,7 +764,7 @@ function RoomCard({
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
-                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Room Total
                     </p>
                     <p className="text-lg font-bold text-brand-purple">

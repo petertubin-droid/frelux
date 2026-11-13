@@ -583,7 +583,7 @@ export default function AdminLearn() {
                     </p>
                     <span
                       className={classNames(
-                        "rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize",
+                        "rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
                         article.status === "published"
                           ? "bg-accent-green/15 text-accent-green"
                           : "bg-muted text-muted-foreground",
@@ -592,7 +592,7 @@ export default function AdminLearn() {
                       {article.status}
                     </span>
                     {article.is_featured && (
-                      <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-[11px] font-semibold text-accent-orange">
+                      <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-xs font-semibold text-accent-orange">
                         {t("Featured")}
                       </span>
                     )}
@@ -742,7 +742,7 @@ export default function AdminLearn() {
                     </div>
                     <span
                       className={classNames(
-                        "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                        "rounded-full px-2 py-0.5 text-xs font-semibold",
                         article.status === "published"
                           ? "bg-accent-green/15 text-accent-green"
                           : "bg-muted text-muted-foreground",
@@ -936,7 +936,7 @@ export default function AdminLearn() {
                   </div>
                   <span
                     className={classNames(
-                      "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                      "rounded-full px-2 py-0.5 text-xs font-semibold",
                       article.status === "published"
                         ? "bg-accent-green/15 text-accent-green"
                         : "bg-muted text-muted-foreground",
@@ -981,7 +981,7 @@ export default function AdminLearn() {
                                 {ins.body.split("\n")[0].slice(0, 140)}
                                 {ins.body.length > 140 ? "…" : ""}
                               </p>
-                              <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                              <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
                                 {ins.position_type === "after_heading"
                                   ? `after "${ins.position_heading_id}"`
                                   : ins.position_type}
@@ -1216,7 +1216,7 @@ function InsertEditor({
           {t("Cancel")}
         </AdminButton>
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         AI Draft is optional assistance, review and edit the generated text
         before saving. Nothing is stored until you press Save Insert.
       </p>

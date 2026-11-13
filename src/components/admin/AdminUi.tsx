@@ -242,7 +242,7 @@ export function CollapsibleGroup({
           <span className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
             {title}
           </span>
-          <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
+          <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
             {count}
           </span>
         </div>
@@ -515,7 +515,7 @@ export function StatusBadge({
   return (
     <span
       className={
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] " +
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-[0.08em] " +
         statusTone(norm) +
         (className ? " " + className : "")
       }

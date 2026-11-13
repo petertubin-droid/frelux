@@ -540,7 +540,7 @@ export default function TvConsoleCalculator() {
                     }}
                     label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
                   />
-                  <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[11px] backdrop-blur">
+                  <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs backdrop-blur">
                     Calculated elevation
                   </span>
                   {selectedId === item.id && (
@@ -775,7 +775,7 @@ export default function TvConsoleCalculator() {
                         label={`Front elevation of the current configuration, ${tvInches ? `with a ${tvInches} inch screen, ` : ""}${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
                       />
                     </div>
-                    <figcaption className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                    <figcaption className="mt-2 text-xs leading-snug text-muted-foreground">
                       Drawn to scale from the values above, using the same
                       thicknesses as the panel schedule. Depth is captioned
                       because an elevation cannot show it.

@@ -157,7 +157,7 @@ export default function MaterialsMarket() {
                     {change == null ? "—" : `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {last.country_name ?? last.market} · {label(last.category)} · {rows.length} periods
                 </p>
                 <div className="mt-2">
@@ -187,7 +187,7 @@ export default function MaterialsMarket() {
         ) : (
           <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+              <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th scope="col" className="py-2 pr-2">Product</th>
                 <th scope="col" className="py-2 pr-2">Market</th>
                 <th scope="col" className="py-2 pr-2">Retailer</th>
@@ -214,7 +214,7 @@ export default function MaterialsMarket() {
             </tbody>
           </table>
         )}
-        <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           Retailer prices are captured under each source's published terms. They are observations for comparison, not
           quotations: confirm the current price with the supplier before ordering.
         </p>

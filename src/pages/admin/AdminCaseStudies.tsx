@@ -277,11 +277,11 @@ function Thumb({
           decoding="async"
         />
       ) : (
-        <div className="flex h-full items-center justify-center text-[11px] text-muted-foreground">
+        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
           {label}
         </div>
       )}
-      <span className="absolute bottom-0 right-0 bg-black/60 px-1 text-[11px] font-bold uppercase text-white">
+      <span className="absolute bottom-0 right-0 bg-black/60 px-1 text-xs font-bold uppercase text-white">
         {label}
       </span>
     </div>

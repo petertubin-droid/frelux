@@ -77,10 +77,10 @@ export default function EngineerReviewBadge({
         {scope ? (
           <div className="mt-3 space-y-1.5 border-t border-border/50 pt-2.5">
             <div>
-              <p className="text-[11px] font-semibold text-foreground/90">
+              <p className="text-xs font-semibold text-foreground/90">
                 Governing Code Reference:
               </p>
-              <p className="text-[11px] leading-relaxed text-muted-foreground">
+              <p className="text-xs leading-relaxed text-muted-foreground">
                 {scope.framework}
               </p>
             </div>
@@ -96,7 +96,7 @@ export default function EngineerReviewBadge({
               </a>
             </div>
             {scope.localScope && (
-              <p className="text-[11px] leading-relaxed text-muted-foreground/80">
+              <p className="text-xs leading-relaxed text-muted-foreground/80">
                 {scope.localScope}
               </p>
             )}

@@ -347,11 +347,11 @@ function HeaderImageCard({
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-background/10" />
-        <span className="absolute left-2 top-2 rounded-full bg-background/80 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
+        <span className="absolute left-2 top-2 rounded-full bg-background/80 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
           {entry.group}
         </span>
         {overridden && (
-          <span className="absolute right-2 top-2 rounded-full bg-primary/90 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary-foreground">
+          <span className="absolute right-2 top-2 rounded-full bg-primary/90 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary-foreground">
             {t("Custom")}
           </span>
         )}

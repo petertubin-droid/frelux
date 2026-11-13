@@ -142,7 +142,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
               {today.dayName} {today.condition}
             </span>
             {source === "estimated" && (
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-1 ring-inset ring-border">
+              <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground ring-1 ring-inset ring-border">
                 Estimated
               </span>
             )}
@@ -220,7 +220,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                   key={day.date}
                   className="flex flex-col items-center gap-1.5 rounded-xl bg-white/70 p-2.5 text-center shadow-sm dark:bg-white/5"
                 >
-                  <p className="text-[11px] font-semibold text-muted-foreground dark:text-muted-foreground/80">
+                  <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
                     {day.dayName}
                   </p>
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-white/5">
@@ -230,10 +230,10 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                     )}
                   </div>
                   <r.Icon className={classNames("h-3.5 w-3.5", r.color)} />
-                  <p className="text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
+                  <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                     {Math.round(day.tempMax)}°
                   </p>
-                  <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     {day.humidity}%
                   </p>
                 </div>

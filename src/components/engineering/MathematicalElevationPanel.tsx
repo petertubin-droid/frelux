@@ -311,7 +311,7 @@ export function MathematicalElevationPanel({
       <PlanImportPanel onApply={handlePlanApply} />
 
       {planOrigin && (
-        <p className="px-1 text-[11px] text-muted-foreground">
+        <p className="px-1 text-xs text-muted-foreground">
           {planOrigin === "derived"
             ? "Dimensions derived from the room schedule. Adjust any field; every figure recalculates from the engine's own maths."
             : "Dimensions read from the uploaded drawing. Adjust any field; every figure recalculates from the engine's own maths."}
@@ -359,7 +359,7 @@ export function MathematicalElevationPanel({
               className="h-auto flex-col items-start gap-0.5 rounded-xl px-3 py-2 text-left text-xs"
             >
               <span className="font-semibold">{exit.label}</span>
-              <span className="text-[11px] font-normal text-muted-foreground">
+              <span className="text-xs font-normal text-muted-foreground">
                 {exit.carries}
               </span>
             </Button>
@@ -367,7 +367,7 @@ export function MathematicalElevationPanel({
         </div>
       </section>
 
-      <p className="text-[11px] text-muted-foreground px-1">
+      <p className="text-xs text-muted-foreground px-1">
         The schematic and its dimension callouts are drawn in metres regardless
         of the unit choice. Fields, the schedule cards, the summary and the CSV
         export follow the unit you select, and every figure is computed in SI
@@ -428,14 +428,14 @@ export function MathematicalElevationPanel({
                 }`}
               >
                 <span className="flex items-baseline gap-2">
-                  <span className="text-[11px] font-mono text-brand-purple">
+                  <span className="text-xs font-mono text-brand-purple">
                     {item.step}
                   </span>
                   <span className="text-xs font-semibold text-foreground">
                     {item.label}
                   </span>
                 </span>
-                <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                <span className="mt-0.5 block text-xs text-muted-foreground">
                   {item.detail}
                 </span>
               </button>
@@ -523,7 +523,7 @@ export function MathematicalElevationPanel({
                       </span>
                       <Badge
                         variant="outline"
-                        className={`text-[11px] font-mono uppercase ${
+                        className={`text-xs font-mono uppercase ${
                           disc.severity === "critical"
                             ? "border-red-500/40 text-red-500"
                             : "border-amber-500/40 text-amber-500"
@@ -535,7 +535,7 @@ export function MathematicalElevationPanel({
                     <p className="text-muted-foreground text-xs leading-relaxed">
                       {disc.mathematical_proof}
                     </p>
-                    <div className="flex flex-wrap 4 text-[11px] pt-1 font-mono">
+                    <div className="flex flex-wrap 4 text-xs pt-1 font-mono">
                       <span>
                         Observed: <strong>{disc.detected_value}</strong>
                       </span>
@@ -543,7 +543,7 @@ export function MathematicalElevationPanel({
                         Required: <strong>{disc.permissible_threshold}</strong>
                       </span>
                     </div>
-                    <p className="text-[11px] text-foreground font-medium pt-0.5">
+                    <p className="text-xs text-foreground font-medium pt-0.5">
                       → Recommendation: {disc.recommended_fix}
                     </p>
                   </div>
@@ -579,7 +579,7 @@ export function MathematicalElevationPanel({
                       variant={unitSystem === system ? "default" : "ghost"}
                       aria-pressed={unitSystem === system}
                       onClick={() => setUnitSystem(system)}
-                      className={`h-6 px-2 text-[11px] ${unitSystem === system ? "bg-brand-purple hover:bg-brand-purple-dark text-white" : "text-muted-foreground"}`}
+                      className={`h-6 px-2 text-xs ${unitSystem === system ? "bg-brand-purple hover:bg-brand-purple-dark text-white" : "text-muted-foreground"}`}
                     >
                       {system === "metric" ? "Metric" : "Imperial"}
                     </Button>
@@ -618,7 +618,7 @@ export function MathematicalElevationPanel({
 
           {detailStageOpen && (
             <>
-              <p className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground">
+              <p className="rounded-md border border-border bg-muted/30 p-2 text-xs leading-relaxed text-muted-foreground">
                 Calculator normalization limits (SI): length and width ≥ 3 m;
                 floor height ≥ 2.1 m; 1–60 storeys; wall thickness 0.12–0.40 m;
                 pitch 5–60°; overhang 0.20–1.50 m. Any entered value changed by
@@ -635,7 +635,7 @@ export function MathematicalElevationPanel({
                   <Ruler className="mr-1.5 h-3.5 w-3.5" />
                   Use measured building
                 </Button>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Fills length, width and storey height from the building
                   schedule. Storeys, pitch and openings stay as entered.
                 </p>
@@ -643,7 +643,7 @@ export function MathematicalElevationPanel({
               {envelopeNote && (
                 <p
                   role="status"
-                  className="rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-relaxed text-muted-foreground"
+                  className="rounded-md border border-border bg-muted/30 p-2 text-xs leading-relaxed text-muted-foreground"
                 >
                   {envelopeNote}
                 </p>
@@ -787,7 +787,7 @@ export function MathematicalElevationPanel({
                   <Label className="text-xs text-muted-foreground">
                     Soil bearing capacity
                   </Label>
-                  <p className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[11px] leading-relaxed text-muted-foreground">
+                  <p className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-xs leading-relaxed text-muted-foreground">
                     Not estimated from soil type. This tool does not perform a
                     bearing check. Obtain a site-specific value and footing
                     geometry from the geotechnical and structural design.
@@ -1094,7 +1094,7 @@ export function MathematicalElevationPanel({
 
           <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">Concrete</dt>
+              <dt className="text-xs text-muted-foreground">Concrete</dt>
               <dd className="font-mono font-semibold text-foreground">
                 {measure(
                   elevationResult.five_d_bim.total_concrete_volume_m3,
@@ -1103,7 +1103,7 @@ export function MathematicalElevationPanel({
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">
+              <dt className="text-xs text-muted-foreground">
                 Cement (50 kg bags)
               </dt>
               <dd className="font-mono font-semibold text-foreground">
@@ -1113,7 +1113,7 @@ export function MathematicalElevationPanel({
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">Blocks</dt>
+              <dt className="text-xs text-muted-foreground">Blocks</dt>
               <dd className="font-mono font-semibold text-foreground">
                 {elevationResult.five_d_bim.total_blocks_units === null
                   ? "Not assessed"
@@ -1121,7 +1121,7 @@ export function MathematicalElevationPanel({
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">
+              <dt className="text-xs text-muted-foreground">
                 Structural reinforcement total
               </dt>
               <dd className="font-mono font-semibold text-foreground">
@@ -1129,23 +1129,23 @@ export function MathematicalElevationPanel({
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">Sand</dt>
+              <dt className="text-xs text-muted-foreground">Sand</dt>
               <dd className="font-mono font-semibold text-foreground">
                 {measure(elevationResult.five_d_bim.total_sand_m3, "m3")}
               </dd>
             </div>
             <div className="rounded-lg border border-border bg-muted/20 p-2.5">
-              <dt className="text-[11px] text-muted-foreground">Programme</dt>
+              <dt className="text-xs text-muted-foreground">Programme</dt>
               <dd className="font-mono font-semibold text-foreground">
                 Not estimated
               </dd>
-              <dd className="text-[11px] text-muted-foreground">
+              <dd className="text-xs text-muted-foreground">
                 Requires project sequencing and resource inputs
               </dd>
             </div>
           </dl>
 
-          <div className="rounded-lg border border-border bg-muted/20 p-3 text-[11px] text-muted-foreground leading-relaxed">
+          <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground leading-relaxed">
             <p className="font-semibold text-foreground">
               Assumptions behind these figures
             </p>
@@ -1167,17 +1167,17 @@ export function MathematicalElevationPanel({
           {/* L1 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
             <div className="flex flex-wrap ify-between">
-              <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
+              <span className="text-xs font-bold text-brand-purple font-mono uppercase">
                 L1: Foundation
               </span>
-              <Badge variant="outline" className="text-[11px]">
+              <Badge variant="outline" className="text-xs">
                 Not designed
               </Badge>
             </div>
             <p className="text-xs font-semibold text-foreground">
               Foundation geometry not assessed
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Footing and excavation quantities require project-specific design.
             </p>
           </div>
@@ -1185,10 +1185,10 @@ export function MathematicalElevationPanel({
           {/* L2 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
             <div className="flex flex-wrap ify-between">
-              <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
+              <span className="text-xs font-bold text-brand-purple font-mono uppercase">
                 L2: Ground Slab
               </span>
-              <Badge variant="outline" className="text-[11px]">
+              <Badge variant="outline" className="text-xs">
                 +
                 {measure(
                   levels.level_2_ground_slab.plinth_height_above_ground_m,
@@ -1199,7 +1199,7 @@ export function MathematicalElevationPanel({
             <p className="text-xs font-semibold text-foreground">
               {measure(levels.level_2_ground_slab.slab_area_m2, "m2")} slab
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Conc:{" "}
               {measure(
                 levels.level_2_ground_slab.slab_concrete_volume_m3,
@@ -1212,10 +1212,10 @@ export function MathematicalElevationPanel({
           {/* L3 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
             <div className="flex flex-wrap ify-between">
-              <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
+              <span className="text-xs font-bold text-brand-purple font-mono uppercase">
                 L3: Walls
               </span>
-              <Badge variant="outline" className="text-[11px]">
+              <Badge variant="outline" className="text-xs">
                 Geometry ratio:{" "}
                 {levels.level_3_superstructure.slenderness_ratio}
               </Badge>
@@ -1226,7 +1226,7 @@ export function MathematicalElevationPanel({
               ).toLocaleString()}{" "}
               blocks
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Net wall area:{" "}
               {measure(levels.level_3_superstructure.net_masonry_area_m2, "m2")}
             </p>
@@ -1235,10 +1235,10 @@ export function MathematicalElevationPanel({
           {/* L4 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
             <div className="flex flex-wrap ify-between">
-              <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
+              <span className="text-xs font-bold text-brand-purple font-mono uppercase">
                 L4: Ring Beam
               </span>
-              <Badge variant="outline" className="text-[11px]">
+              <Badge variant="outline" className="text-xs">
                 Not designed
               </Badge>
             </div>
@@ -1246,7 +1246,7 @@ export function MathematicalElevationPanel({
               {measure(levels.level_4_ring_beam.total_beam_length_m, "m")}{" "}
               perimeter
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Reinforcement: not assessed
             </p>
           </div>
@@ -1254,17 +1254,17 @@ export function MathematicalElevationPanel({
           {/* L5 */}
           <div className="p-3.5 rounded-xl border border-border bg-card space-y-1">
             <div className="flex flex-wrap ify-between">
-              <span className="text-[11px] font-bold text-brand-purple font-mono uppercase">
+              <span className="text-xs font-bold text-brand-purple font-mono uppercase">
                 L5: Roof Pitch
               </span>
-              <Badge variant="outline" className="text-[11px]">
+              <Badge variant="outline" className="text-xs">
                 {params.roof_pitch_deg}° Pitch
               </Badge>
             </div>
             <p className="text-xs font-semibold text-foreground">
               Rise: {measure(levels.level_5_roof.ridge_rise_m, "m")}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Approx. area proxy:{" "}
               {measure(
                 levels.level_5_roof.approximate_roof_covering_area_m2,

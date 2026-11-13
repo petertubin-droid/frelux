@@ -87,7 +87,7 @@ function ListingRow({
               /{listing.unit}
             </span>
           </p>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-xs text-slate-500">
             {listing.in_stock ? "In stock" : "Out of stock"}
             {listing.delivery_fee !== null
               ? ` · delivery ${formatByCode(Number(listing.delivery_fee), listing.delivery_fee_currency ?? listing.currency)}`
@@ -97,7 +97,7 @@ function ListingRow({
           </p>
         </div>
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
         <span>
           Price updated{" "}
           {new Date(listing.price_updated_at).toLocaleDateString()}

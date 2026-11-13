@@ -57,7 +57,7 @@ function confidenceBadge(confidence: number | null) {
     return (
       <Badge
         variant="outline"
-        className="border-border text-[11px] text-muted-foreground"
+        className="border-border text-xs text-muted-foreground"
       >
         stated
       </Badge>
@@ -71,7 +71,7 @@ function confidenceBadge(confidence: number | null) {
         ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
         : "border-destructive/30 bg-destructive/10 text-destructive";
   return (
-    <Badge variant="outline" className={`text-[11px] ${tone}`}>
+    <Badge variant="outline" className={`text-xs ${tone}`}>
       {pct}% read
     </Badge>
   );
@@ -225,7 +225,7 @@ export default function PlanImportPanel({
         </div>
         <Badge
           variant="outline"
-          className="border-brand-purple/25 bg-brand-purple/10 text-brand-purple text-[11px]"
+          className="border-brand-purple/25 bg-brand-purple/10 text-brand-purple text-xs"
         >
           Vision read, maths applied
         </Badge>
@@ -260,7 +260,7 @@ export default function PlanImportPanel({
           className="max-w-md"
           disabled={!user || stage === "reading"}
         />
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           JPG, PNG, WEBP or PDF up to 10 MB. The drawing is read once and is not
           stored on your account.
         </p>
@@ -275,7 +275,7 @@ export default function PlanImportPanel({
             loading="lazy"
             decoding="async"
           />
-          <figcaption className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+          <figcaption className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span className="truncate">{file.name}</span>
             <span aria-hidden="true">·</span>
             <span>{(file.size / 1024).toFixed(0)} KB</span>
@@ -384,7 +384,7 @@ export default function PlanImportPanel({
               <p className="text-xs font-semibold text-foreground">
                 Not on this drawing
               </p>
-              <ul className="mt-1 space-y-1 text-[11px] text-muted-foreground">
+              <ul className="mt-1 space-y-1 text-xs text-muted-foreground">
                 {analysis.missing.map((item) => (
                   <li key={String(item.key)}>
                     <span className="font-medium text-foreground">
@@ -413,7 +413,7 @@ export default function PlanImportPanel({
                   <span className="text-muted-foreground">
                     ({footprint.lengthM} × {footprint.widthM} m)
                   </span>
-                  <span className="mt-1 block text-[11px] text-muted-foreground">
+                  <span className="mt-1 block text-xs text-muted-foreground">
                     {footprint.method}. Change any figure afterwards; the engine
                     recalculates immediately.
                   </span>
@@ -440,7 +440,7 @@ export default function PlanImportPanel({
               Start over
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Nothing from the drawing is used until you press this. The
             calculation, quantities and diagram all come from the engine's own
             maths, not from the model.

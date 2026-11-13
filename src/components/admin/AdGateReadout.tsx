@@ -50,7 +50,7 @@ export default function AdGateReadout() {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             <Activity className="h-3 w-3" aria-hidden="true" />
             Live ad gate
           </p>
@@ -64,7 +64,7 @@ export default function AdGateReadout() {
           </p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${tone(shown)}`}
+          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${tone(shown)}`}
         >
           {shown.replace(/-/g, " ")}
         </span>
@@ -91,7 +91,7 @@ export default function AdGateReadout() {
         </div>
       </dl>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
         Open a public page on this device, then come back: the reason recorded
         there is the one shown here. Visitors who answer the banner are served
         after the next page load.

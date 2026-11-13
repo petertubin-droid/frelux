@@ -54,9 +54,9 @@ export function StatTile({
     : "text-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`mt-1 text-lg font-semibold tabular-nums ${toneClass}`}>{value}</p>
-      {hint ? <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -103,7 +103,7 @@ export function Attribution({
   note?: string;
 }) {
   return (
-    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
       Source:{" "}
       {url ? (
         <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">

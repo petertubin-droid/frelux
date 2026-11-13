@@ -139,7 +139,7 @@ export default function DisplayPreferencesBar({
       </div>
 
       {!compact && (
-        <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+        <p className="mt-2 text-xs leading-snug text-muted-foreground">
           An estimate is always priced in its own currency. Choosing another one
           adds a converted figure beside it, at a dated exchange rate, and never
           replaces what was priced.

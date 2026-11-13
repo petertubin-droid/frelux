@@ -161,7 +161,7 @@ export default function DiasporaTracker() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-medium">{p.name}</p>
                     {p.role && (
-                      <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                      <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
                         {ROLE_LABELS[p.role]}
                       </span>
                     )}

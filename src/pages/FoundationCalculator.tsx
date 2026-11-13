@@ -423,7 +423,7 @@ export default function FoundationCalculator() {
                 {footprintNote && (
                   <span
                     role="status"
-                    className="text-[11px] leading-snug text-muted-foreground"
+                    className="text-xs leading-snug text-muted-foreground"
                   >
                     {footprintNote}
                   </span>

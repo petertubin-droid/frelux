@@ -921,7 +921,7 @@ export default function BoqGenerator() {
                   className="relative rounded-lg border border-primary/40 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
                 >
                   Export Bank BOQ
-                  <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary-foreground">
+                  <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-foreground">
                     Pro
                   </span>
                 </button>
@@ -1304,7 +1304,7 @@ export default function BoqGenerator() {
                         Revision v{rev.version}
                       </span>
                       {rev.version === revision && (
-                        <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+                        <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
                           Current
                         </span>
                       )}

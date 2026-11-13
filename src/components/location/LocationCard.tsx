@@ -143,7 +143,7 @@ export default function LocationCard({
     if (!regional) return null;
     if (regional.status === "available") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
           <CheckCircle2 className="h-3 w-3" />
           Regional data available · {regional.country_name}
         </span>
@@ -151,14 +151,14 @@ export default function LocationCard({
     }
     if (regional.status === "unavailable") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
           <AlertTriangle className="h-3 w-3" />
           {tx("Regional data unavailable")}
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
         <Globe2 className="h-3 w-3" />
         {tx("Country needs confirmation")}
       </span>
@@ -187,7 +187,7 @@ export default function LocationCard({
             <h3 className="text-sm font-semibold leading-tight">
               {tx("Project Location")}
             </h3>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {tx("Sets regional context, currency, units, terminology")}
             </p>
           </div>
@@ -233,7 +233,7 @@ export default function LocationCard({
                 {tx("Search Location")}
               </Button>
             </div>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-xs leading-relaxed text-muted-foreground">
               FRELUX only accesses your device location when you ask it to,
               never automatically. Location services are free; no map
               subscription required.
@@ -363,14 +363,14 @@ export default function LocationCard({
                   <p className="truncate text-sm font-semibold">
                     {formatLocationLabel(loc.location)}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {SOURCE_LABELS[loc.location.source]} ·{" "}
                     {formatCapturedAt(loc.location)}
                     {loc.state === "saved" ? " · saved to project" : ""}
                   </p>
                   {marketNote && (
                     <p
-                      className="mt-1 text-[11px] font-medium text-primary"
+                      className="mt-1 text-xs font-medium text-primary"
                       data-testid="market-switch-note"
                     >
                       {marketNote}
@@ -380,7 +380,7 @@ export default function LocationCard({
               </div>
 
               {/* Coordinates + accuracy, always shown when present */}
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 {formatCoordinates(loc.location) && (
                   <div className="rounded-lg bg-muted px-2.5 py-1.5">
                     <span className="block text-muted-foreground">
@@ -408,7 +408,7 @@ export default function LocationCard({
                 loc.reverseGeocode.attempted &&
                 !loc.reverseGeocode.ok && (
                   <p
-                    className="text-[11px] leading-relaxed text-muted-foreground"
+                    className="text-xs leading-relaxed text-muted-foreground"
                     data-testid="reverse-unavailable"
                   >
                     Address lookup unavailable, coordinates shown exactly as
@@ -417,7 +417,7 @@ export default function LocationCard({
                 )}
               {loc.reverseGeocode.message && loc.reverseGeocode.ok && (
                 <p
-                  className="text-[11px] text-muted-foreground"
+                  className="text-xs text-muted-foreground"
                   data-testid="reverse-ok"
                 >
                   {loc.reverseGeocode.message}
@@ -430,7 +430,7 @@ export default function LocationCard({
                 data-testid="regional-panel"
               >
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {tx("Regional intelligence")}
                   </span>
                   {regionalBadge}
@@ -444,19 +444,19 @@ export default function LocationCard({
                 {!regionalLoading && regional?.status === "available" && (
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-3">
                     <div>
-                      <span className="block text-[11px] text-muted-foreground">
+                      <span className="block text-xs text-muted-foreground">
                         {tx("Country")}
                       </span>
                       {regional.country_name}
                     </div>
                     <div>
-                      <span className="block text-[11px] text-muted-foreground">
+                      <span className="block text-xs text-muted-foreground">
                         {tx("Currency")}
                       </span>
                       {regional.currency_code} ({regional.currency_symbol})
                     </div>
                     <div>
-                      <span className="block text-[11px] text-muted-foreground">
+                      <span className="block text-xs text-muted-foreground">
                         {tx("Measurement")}
                       </span>
                       {regional.measurement_system}
@@ -478,7 +478,7 @@ export default function LocationCard({
 
               {/* Privacy note */}
               {!compact && (
-                <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
                   <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" />
                   Only you can see this project's location. FRELUX never shares
                   location between users and never tracks you continuously.
@@ -554,7 +554,7 @@ export default function LocationCard({
                 </form>
                 {loc.searchError && (
                   <p
-                    className="text-[11px] text-muted-foreground"
+                    className="text-xs text-muted-foreground"
                     data-testid="search-error"
                   >
                     {loc.searchError}
@@ -581,7 +581,7 @@ export default function LocationCard({
                               {c.formatted_address}
                             </span>
                             {c.country && (
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-xs text-muted-foreground">
                                 {c.country}
                               </span>
                             )}
@@ -593,7 +593,7 @@ export default function LocationCard({
                 )}
               </div>
             ) : (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Location search is unavailable, no geocoding provider
                 configured.
               </p>
@@ -608,7 +608,7 @@ export default function LocationCard({
                 {tx("Map provider configured, pin selection renders here.")}
               </div>
             ) : (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {tx(
                   "Map pin selection is unavailable, no map provider configured.",
                 )}
@@ -692,7 +692,7 @@ function ManualEntry({
 
   return (
     <div className="space-y-2 rounded-lg border p-3" data-testid="manual-entry">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {tx("Enter location manually")}
       </p>
       <div className="grid grid-cols-2 gap-2">
@@ -756,7 +756,7 @@ function ManualEntry({
           data-testid="manual-postcode"
         />
       </div>
-      {err && <p className="text-[11px] text-destructive">{err}</p>}
+      {err && <p className="text-xs text-destructive">{err}</p>}
       <div className="flex gap-2">
         <Button size="sm" onClick={submit} data-testid="manual-submit">
           {tx("Set location")}
@@ -765,7 +765,7 @@ function ManualEntry({
           {tx("Cancel")}
         </Button>
       </div>
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-xs leading-relaxed text-muted-foreground">
         Manual entries are never verified against a map service, you confirm
         them, FRELUX stores exactly what you typed.
       </p>

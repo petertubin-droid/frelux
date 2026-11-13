@@ -179,7 +179,7 @@ export default function RetainingWallEstimator() {
                     Geotechnical Stability Check (BS 8002 / Eurocode 7)
                   </span>
                   <span
-                    className={`rounded px-2 py-0.5 text-[11px] font-medium ${
+                    className={`rounded px-2 py-0.5 text-xs font-medium ${
                       preview.stability.overturning_pass &&
                       preview.stability.sliding_pass
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"

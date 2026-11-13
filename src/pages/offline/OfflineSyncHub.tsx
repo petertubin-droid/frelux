@@ -315,7 +315,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Record Measurement")}</span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {t("Laser beam capture")}
                 </span>
               </Button>
@@ -326,7 +326,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Edit BOQ Quantities")}</span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {t("Concurrent line update")}
                 </span>
               </Button>
@@ -337,7 +337,7 @@ export default function OfflineSyncHub() {
                 className="text-xs font-medium h-auto py-2.5 flex flex-col gap-1 text-center"
               >
                 <span>{t("Log Escrow Proof")}</span>
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {t("Milestone clearance")}
                 </span>
               </Button>
@@ -350,7 +350,7 @@ export default function OfflineSyncHub() {
                   Pending Mutation Queue ({mutations.length})
                 </h4>
                 {mutations.length > 0 && (
-                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                  <span className="text-xs text-amber-600 dark:text-amber-400 font-medium">
                     {t("Buffered in IndexedDB/Storage")}
                   </span>
                 )}
@@ -373,16 +373,16 @@ export default function OfflineSyncHub() {
                         <span>
                           {m.entityType} ({m.action})
                         </span>
-                        <span className="text-[11px] px-2 py-0.5 rounded bg-primary/10 text-primary">
+                        <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
                           Clock #{m.lamportClock}
                         </span>
                       </div>
-                      <div className="text-muted-foreground text-[11px] truncate">
+                      <div className="text-muted-foreground text-xs truncate">
                         ID: {m.entityId} • {m.clientTimestamp.substring(11, 19)}{" "}
                         UTC
                       </div>
                       {m.conflictAudit && (
-                        <div className="text-[11px] text-emerald-600 mt-1 font-sans">
+                        <div className="text-xs text-emerald-600 mt-1 font-sans">
                           ✓ {m.conflictAudit.notes}
                         </div>
                       )}
@@ -445,7 +445,7 @@ export default function OfflineSyncHub() {
                       key={mat}
                       className="p-2 rounded bg-card border border-border/50"
                     >
-                      <div className="text-muted-foreground text-[11px] capitalize">
+                      <div className="text-muted-foreground text-xs capitalize">
                         {mat.replace(/_/g, " ")}
                       </div>
                       <div className="font-bold text-foreground">
