@@ -52,6 +52,8 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { AdminCard, StateMessage } from "@/components/admin/AdminUi";
+import { supabase } from "@/lib/supabase";
 import { useEscapeKey } from "@/lib/use-escape-key";
 import {
   consistencySummary,
@@ -63,6 +65,7 @@ import {
 } from "@/lib/international/price-role-coverage";
 
 type Tab =
+  | "readiness"
   | "profiles"
   | "rules"
   | "calculators"
@@ -94,6 +97,7 @@ export default function AdminMarkets() {
       <div className="mb-6 flex gap-1 border-b border-border dark:border-white/10">
         {(
           [
+            ["readiness", "Readiness", ShieldCheck],
             ["profiles", "Market Profiles", Globe],
             ["rules", "Material Rules", FileText],
             ["calculators", "Calculator Availability", CalcIcon],
@@ -118,6 +122,7 @@ export default function AdminMarkets() {
         ))}
       </div>
 
+      {tab === "readiness" && <ReadinessTab />}
       {tab === "profiles" && <ProfilesTab />}
       {tab === "rules" && selectedMarket && (
         <RulesTab marketCode={selectedMarket} />
@@ -174,6 +179,165 @@ function MarketSelector({
         </option>
       ))}
     </select>
+  );
+}
+
+// ============================================================
+// READINESS TAB
+//
+// "Active" is a configuration claim; this is the evidence behind it.
+// ============================================================
+interface MarketReadinessRow {
+  market_code: string;
+  country_name: string;
+  currency: string;
+  status: string;
+  ui_locale: string;
+  translation_pending: boolean;
+  priced_rows: number;
+  rate_age_days: number | null;
+  local_currency_chargeable: boolean;
+  tax_rules: number;
+  material_rows: number;
+  estimation_rows: number;
+  readiness: "ready" | "limited" | "blocked";
+  reasons: string[];
+}
+
+function ReadinessTab() {
+  const [rows, setRows] = useState<MarketReadinessRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error: rpcError } = await supabase.rpc(
+        "admin_market_readiness",
+      );
+      if (!alive) return;
+      if (rpcError) setError(rpcError.message);
+      else setRows((data ?? []) as MarketReadinessRow[]);
+      setLoading(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <StateMessage
+        type="loading"
+        title="Reading markets"
+        message="Reading market readiness…"
+      />
+    );
+  }
+  if (error)
+    return (
+      <StateMessage
+        type="error"
+        title="Could not read markets"
+        message={error}
+      />
+    );
+
+  const tally = rows.reduce<Record<string, number>>((acc, r) => {
+    acc[r.readiness] = (acc[r.readiness] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <AdminCard>
+      <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
+        <span className="rounded-lg bg-emerald-50 px-3 py-1.5 font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+          {tally.ready ?? 0} ready
+        </span>
+        <span className="rounded-lg bg-amber-50 px-3 py-1.5 font-medium text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+          {tally.limited ?? 0} limited
+        </span>
+        <span className="rounded-lg bg-red-50 px-3 py-1.5 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+          {tally.blocked ?? 0} blocked
+        </span>
+        <span className="text-xs text-muted-foreground">
+          A market is limited when it serves people but something is missing:
+          tax rules, a collectable currency, or a price book.
+        </span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[900px] text-sm">
+          <thead>
+            <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-2 font-medium">Market</th>
+              <th className="px-3 py-2 font-medium">Readiness</th>
+              <th className="px-3 py-2 font-medium">Prices</th>
+              <th className="px-3 py-2 font-medium">Rate age</th>
+              <th className="px-3 py-2 font-medium">Collected in</th>
+              <th className="px-3 py-2 font-medium">Tax rules</th>
+              <th className="px-3 py-2 font-medium">Price books</th>
+              <th className="px-3 py-2 font-medium">Interface</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.market_code} className="border-t border-border/40">
+                <td className="px-3 py-2">
+                  <div className="font-medium text-foreground">
+                    {r.market_code} · {r.country_name}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {r.status} · {r.currency}
+                  </div>
+                </td>
+                <td className="px-3 py-2">
+                  <span
+                    className={classNames(
+                      "rounded px-2 py-0.5 text-xs font-medium capitalize",
+                      r.readiness === "ready"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                        : r.readiness === "limited"
+                          ? "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+                          : "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400",
+                    )}
+                  >
+                    {r.readiness}
+                  </span>
+                  {r.reasons.length > 0 && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {r.reasons.join(" · ")}
+                    </div>
+                  )}
+                </td>
+                <td className="px-3 py-2 tabular-nums">{r.priced_rows}</td>
+                <td className="px-3 py-2 tabular-nums">
+                  {r.currency === "USD"
+                    ? "base"
+                    : r.rate_age_days === null
+                      ? "none"
+                      : `${r.rate_age_days}d`}
+                </td>
+                <td className="px-3 py-2">
+                  {r.local_currency_chargeable ? r.currency : "USD"}
+                </td>
+                <td className="px-3 py-2 tabular-nums">{r.tax_rules}</td>
+                <td className="px-3 py-2 tabular-nums">
+                  {r.material_rows} / {r.estimation_rows}
+                </td>
+                <td className="px-3 py-2">
+                  {r.ui_locale}
+                  {r.translation_pending && (
+                    <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                      en only
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </AdminCard>
   );
 }
 

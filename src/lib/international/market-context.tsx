@@ -33,6 +33,34 @@ import type {
 
 export const DEFAULT_MARKET_CODE = "NG";
 export const MARKET_STORAGE_KEY = "frelux_market";
+/**
+ * Locales the interface actually renders. Every market's own language is
+ * recorded separately, but claiming a language we cannot render is worse than
+ * saying English: a Thai market declaring Thai while shipping English is a
+ * false claim to a reader and to a crawler.
+ */
+export const UI_LOCALES = [
+  "ar",
+  "de",
+  "es",
+  "fr",
+  "hi",
+  "id",
+  "ja",
+  "nl",
+  "pt",
+  "ru",
+  "sw",
+  "zh",
+] as const;
+
+export function uiLocaleFor(language?: string | null): string {
+  const base = String(language ?? "")
+    .toLowerCase()
+    .split("-")[0];
+  return (UI_LOCALES as readonly string[]).includes(base) ? base : "en";
+}
+
 export const LENGTH_UNIT_STORAGE_KEY = "frelux_length_unit";
 export const AREA_UNIT_STORAGE_KEY = "frelux_area_unit";
 

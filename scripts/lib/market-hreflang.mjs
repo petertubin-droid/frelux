@@ -42,8 +42,18 @@ export const MARKET_LANGUAGE = Object.freeze({
   ZA: "en",
 });
 
+// Languages the interface actually renders (see UI_LOCALES in
+// src/lib/international/market-context.tsx). A market whose language is not
+// here is served in English, and hreflang has to say so: declaring th-TH for an
+// English page tells Google the page is Thai and gets the cluster discarded.
+export const RENDERED_LANGUAGES = Object.freeze(
+  new Set(["ar", "de", "en", "es", "fr", "hi", "id", "ja", "nl", "pt", "ru", "sw", "zh"]),
+);
+
 /** Valid language-REGION hreflang for a market, e.g. "en-US". */
 export function marketHreflang(countryCode) {
   const upper = String(countryCode || "").toUpperCase();
-  return `${MARKET_LANGUAGE[upper] ?? "en"}-${upper}`;
+  const declared = MARKET_LANGUAGE[upper] ?? "en";
+  const rendered = RENDERED_LANGUAGES.has(declared) ? declared : "en";
+  return `${rendered}-${upper}`;
 }

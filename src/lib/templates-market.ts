@@ -23,7 +23,10 @@ import type {
   PreferredLengthUnit,
   ResolvedMarketContext,
 } from "@/types/international";
-import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
+import {
+  BUILTIN_MARKET_PROFILES,
+  uiLocaleFor,
+} from "@/lib/international/market-context";
 import { SITE_URL } from "@/lib/seo";
 
 export interface TemplateSeoSource {
@@ -74,6 +77,7 @@ export function resolveTemplateMarketContext(
       profile.supported_length_units as PreferredLengthUnit[],
     supportedAreaUnits: profile.supported_area_units as PreferredAreaUnit[],
     defaultLanguage: profile.default_language,
+    uiLocale: uiLocaleFor(profile.default_language),
     localTerminology: profile.local_terminology,
     status: profile.status,
     profileVersion: profile.profile_version,

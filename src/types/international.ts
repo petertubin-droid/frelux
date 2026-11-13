@@ -222,6 +222,8 @@ export interface ResolvedMarketContext {
   supportedLengthUnits: PreferredLengthUnit[];
   supportedAreaUnits: PreferredAreaUnit[];
   defaultLanguage: string;
+  /** Locale the interface renders for this market; "en" when untranslated. */
+  uiLocale?: string;
   localTerminology: Record<string, string>;
   status: MarketStatus;
   profileVersion: string;
