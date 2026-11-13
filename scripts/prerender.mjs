@@ -25,8 +25,10 @@ import { marketLandingDescription } from "./lib/market-description.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import {
   fetchAll,
+  hasCategoryPrices,
   hasVerifiedPrices,
   loadMarketPriceFacts,
+  renderCategoryPrices,
   renderPriceFacts,
 } from "./lib/market-price-facts.mjs";
 import {
@@ -4822,13 +4824,13 @@ for (const m of marketLandingRoutes) {
   const marketPublished = hasFullBook(marketBookDepth, m.code);
   // A hub is only worth indexing when its children are: a list of withheld
   // pages is not a page a searcher wants to land on.
+  const pageHasLocalPrices = (t) =>
+    t.type === "tile"
+      ? hasTilePrices(tileMaterialFacts, m.code)
+      : hasVerifiedPrices(marketPriceFacts, m.code, t.type) ||
+        hasCategoryPrices(marketPriceFacts, m.code, t.type);
   const indexableChildren = TEMPLATE_CATALOG.filter((t) =>
-    isTemplatePageIndexable({
-      hasLocalPrices:
-        t.type === "tile"
-          ? hasTilePrices(tileMaterialFacts, m.code)
-          : hasVerifiedPrices(marketPriceFacts, m.code, t.type),
-    }),
+    isTemplatePageIndexable({ hasLocalPrices: pageHasLocalPrices(t) }),
   ).length;
   const hubIndexable = isHubIndexable(indexableChildren);
   if (hubIndexable) indexedMarketHubs += 1;
@@ -4861,13 +4863,7 @@ for (const m of marketLandingRoutes) {
       `<p>These templates pre-fill a whole job: room sizes, ceiling heights, openings and coats for the common ${m.countryName} painting, screeding, POP ceiling and tiling scopes. Pick one, adjust what differs on site, and the estimate runs in ${m.currency} (${m.currencySymbol}) with ${m.countryName} material prices.</p>` +
       `<h2>What is priced in ${m.countryName} today</h2>` +
       `<p>${indexableChildren} of the ${TEMPLATE_CATALOG.length} templates below carry verified ${m.countryName} material prices right now: ${TEMPLATE_CATALOG.filter(
-        (t) =>
-          isTemplatePageIndexable({
-            hasLocalPrices:
-              t.type === "tile"
-                ? hasTilePrices(tileMaterialFacts, m.code)
-                : hasVerifiedPrices(marketPriceFacts, m.code, t.type),
-          }),
+        (t) => isTemplatePageIndexable({ hasLocalPrices: pageHasLocalPrices(t) }),
       )
         .map((t) => t.name)
         .join(", ")}. The rest run with your own entered prices, clearly marked, rather than borrowing another country's rate.</p>` +
@@ -4918,10 +4914,11 @@ for (const m of marketLandingRoutes) {
   for (const t of TEMPLATE_CATALOG) {
     const path = `${hubPath}/${t.slug}`;
     const priceSection = templatePriceSection(m, t);
-    const hasLocalPrices =
+    const hasLocalPrices = pageHasLocalPrices(t);
+    const categorySection =
       t.type === "tile"
-        ? hasTilePrices(tileMaterialFacts, m.code)
-        : hasVerifiedPrices(marketPriceFacts, m.code, t.type);
+        ? ""
+        : renderCategoryPrices(marketPriceFacts, m.code, t.type, m.countryName);
     // The page's own evidence decides: a verified local price for a material
     // this template consumes makes the page local, and it is indexed with its
     // own price table. Without one it is the canonical template wearing a
@@ -4962,6 +4959,7 @@ for (const m of marketLandingRoutes) {
         `<h2>${m.countryName} units and pricing</h2><p>Quantities follow ${m.countryName} practice - ${m.blockName.toLowerCase()}, ${m.cementBagKg} kg cement bags, ${m.electricalStandard} wiring at ${m.electricalVoltage} - and costs are shown in ${m.currency} (${m.currencySymbol}). Where the price book holds a verified local material price it is used directly; otherwise the line is marked as a reference rate.</p>` +
         `<p>On site, that means measuring in the units ${m.countryName} trades use and checking the material specification against what your supplier actually stocks, because a block or a bag that matches the label but not the size changes the quantity.</p>` +
         priceSection +
+        categorySection +
         `<h2>What moves the number in ${m.countryName}</h2>` +
         `<p>Three things decide this estimate: how much surface the ${t.type} scope actually covers once openings are deducted, how many coats the spec calls for, and whether your supplier's ${m.currency} price is the one stored in the book today. Waste allowance is added from the template, not guessed at the till.</p>` +
         `<p>Costs stay in ${m.currency} (${m.currencySymbol}) end to end, so the figure you read here is the figure the estimate uses, with no conversion step between the page and the total.</p>` +

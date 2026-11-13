@@ -108,7 +108,7 @@ export async function loadMarketPriceFacts() {
       "market_material_roles",
       "select=market,role,material_slug,display_name,unit_label,is_active,sort_order&is_active=eq.true&limit=1000",
     ),
-    fetchAll("estimation_materials", "select=id,slug,name&limit=2000"),
+    fetchAll("estimation_materials", "select=id,slug,name,category&limit=2000"),
     fetchAll(
       "estimation_prices",
       "select=market,ref_id,price,currency,price_source,effective_date,verification_status,supplier_name,is_active&is_active=eq.true&limit=4000",
@@ -172,7 +172,7 @@ export async function loadMarketPriceFacts() {
     }
   }
 
-  return { byMarket, markets: [...byMarket.keys()] };
+  return { byMarket, materialsByMarket: priceByMarketSlug, markets: [...byMarket.keys()] };
 }
 
 /**
@@ -281,3 +281,75 @@ export function renderPriceFacts(
 }
 
 export { ROLES_BY_TYPE, ROLE_LABELS };
+
+/**
+ * Categories a template family actually consumes. Used for markets whose book
+ * is priced by pack (a 25 kg cement bag, a 10 L pail) rather than by the bulk
+ * unit the estimator works in: those markets have no engine role mapping, so
+ * the page shows their own pack prices, each with the pack the price belongs
+ * to, instead of claiming a per-m3 rate the market does not store.
+ */
+const CATEGORIES_BY_TYPE = Object.freeze({
+  paint: ["paint", "filler", "prep"],
+  screeding: ["cement", "aggregate"],
+  pop: ["cement", "aggregate"],
+  tile: [],
+});
+
+/** The market's own priced materials in the categories this template consumes. */
+export function marketMaterialsFor(facts, marketCode, templateType) {
+  const categories = CATEGORIES_BY_TYPE[templateType] ?? [];
+  if (categories.length === 0) return [];
+  const priced = facts.materialsByMarket?.get(String(marketCode).toUpperCase());
+  if (!priced) return [];
+  const rows = [];
+  for (const row of priced.values()) {
+    const category = row.material?.category;
+    if (!category || !categories.includes(category)) continue;
+    rows.push({
+      name: row.material.name,
+      slug: row.material.slug,
+      category,
+      price: row.price,
+      currency: row.currency,
+      source: row.price_source,
+      supplier: row.supplier_name,
+      date: row.effective_date,
+      status: row.verification_status,
+    });
+  }
+  return rows.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+}
+
+/** Downgraded check: does this market store any price this template consumes? */
+export function hasCategoryPrices(facts, marketCode, templateType) {
+  return marketMaterialsFor(facts, marketCode, templateType).length > 0;
+}
+
+/** Body HTML listing the market's own pack prices for this template family. */
+export function renderCategoryPrices(facts, marketCode, templateType, countryName) {
+  const rows = marketMaterialsFor(facts, marketCode, templateType);
+  if (rows.length === 0) return "";
+  const body = rows
+    .map((row) => {
+      const amount = Number(row.price);
+      const money = Number.isFinite(amount)
+        ? `${row.currency || ""} ${amount.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+        : "Not stored";
+      const source = row.source || row.supplier || "Stored market row";
+      return (
+        `<tr><th scope="row">${escapeHtml(row.name)}</th>` +
+        `<td>${escapeHtml(money)}</td>` +
+        `<td>${escapeHtml(source)}${row.date ? ` (${escapeHtml(row.date)})` : ""}</td></tr>`
+      );
+    })
+    .join("");
+  return (
+    `<h2>${escapeHtml(countryName)} price book entries for these materials</h2>` +
+    `<p>These are the ${escapeHtml(countryName)} rows FRELUX stores for this kind of work, each at the pack it was captured at. Where a row is a 25 kg bag or a 10 L pail, that is the unit shown: the page will not restate it as a per-cubic-metre rate the market has not published.</p>` +
+    `<table><caption>Stored ${escapeHtml(countryName)} prices</caption>` +
+    `<thead><tr><th scope="col">Material</th><th scope="col">Stored price</th><th scope="col">Source</th></tr></thead>` +
+    `<tbody>${body}</tbody></table>` +
+    `<p>Enter your own supplier's figure in the calculator when it differs; the estimate uses what you enter for lines this market has not priced.</p>`
+  );
+}
