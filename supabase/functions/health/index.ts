@@ -75,10 +75,13 @@ serveWithCors(async (req: Request) => {
     // database being down. Say "unknown" rather than fail a healthy project.
     const headers = resolveProbeHeaders();
     if (supabaseUrl && headers) {
-      const res = await fetch(`${supabaseUrl}/rest/v1/`, {
-        headers,
-        signal: AbortSignal.timeout(3000),
-      });
+      // A real row read, not the REST root: the root answers 401 for keys that
+      // are perfectly valid on tables, which made this probe report a healthy
+      // database as down. One row from a tiny public table is the honest check.
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/market_material_prices?select=id&limit=1`,
+        { headers, signal: AbortSignal.timeout(3000) },
+      );
       checks.database = res.ok ? "up" : "down";
       if (!res.ok) overallStatus = "degraded";
     }

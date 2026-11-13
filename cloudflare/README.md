@@ -49,3 +49,25 @@ npx vitest run --project cloudflare
 `presignR2Url` is checked against a signature produced by mhart/aws4 for the same
 request, which proves the canonical request, key derivation and encoding rather
 than merely re-running its own output.
+
+## Deploy
+
+The Worker deploys with a token that has Workers Scripts: Edit, Account Settings:
+Read, and Workers Routes: Edit scoped to freluxtools.com. Deploys are blocked
+without the account id, because the membership lookup rejects account-scoped
+tokens:
+
+```bash
+cd cloudflare
+CLOUDFLARE_API_TOKEN=<token> CLOUDFLARE_ACCOUNT_ID=2c2be9df09ee40a053f73d13d7479c8a npx wrangler deploy
+```
+
+## Edge read cache
+
+`/api/fn/:name` passes through to Supabase, which still costs one invocation per
+request, so it only helps by giving the browser a single origin. Names listed in
+`CACHEABLE_READS` (cloudflare/src/api.ts) are answered from the edge cache on a
+GET with no Authorization header, which costs no Supabase invocation at all.
+A response carries `x-frelux-cache: hit` or `miss` so an edge hit is visible in
+devtools. Add a name only when its GET response is public and slow-changing;
+per-user responses must never join that map.

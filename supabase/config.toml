@@ -1,3 +1,9 @@
+# Uptime probe. It reports only a status, a timestamp and which keys are
+# configured, so it is safe public, and a 401 from the platform gateway made it
+# useless for the job it exists to do: checking the project from outside.
+[functions.health]
+verify_jwt = false
+
 # Counter-Vision photo counting — anonymous visitors allowed;
 # the function accepts an optional user token for logging and
 # rate limiting but never requires login.
