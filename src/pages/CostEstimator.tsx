@@ -47,7 +47,6 @@ import {
   generateCostEstimateShoppingList,
   type ShoppingListItem,
 } from "@/lib/shopping-list";
-import { exportPdfQuote } from "@/lib/pdf-export";
 import { saveLocalProject } from "@/lib/local-projects";
 import { ShoppingListModal } from "@/components/ui/ShoppingListModal";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
@@ -480,25 +479,26 @@ export default function CostEstimator({
     // Paid subscribers bypass the gate
     if (isPaid || pdfUnlocked) {
       try {
-        await exportPdfQuote({
+        // One export engine site-wide: the shared quote document every other
+        // calculator prints, so a FRELUX PDF always looks the same.
+        exportCostQuote({
           result,
-          input,
-          paintTypeName:
-            passed.paintTypeName ?? input.paintProductName ?? "Paint",
-          company: settings
-            ? {
-                name: settings.site_name,
-                phone: settings.whatsapp_number,
-                email: settings.contact_email,
-                address: undefined,
-              }
-            : undefined,
+          includes: {
+            primer: input.includePrimer,
+            filler: input.includeFiller,
+            putty: input.includePutty,
+            sandpaper: input.includeSandpaper,
+            brushes: input.includeBrushes,
+            rollers: input.includeRollers,
+            other: input.includeOther,
+          },
+          currencySymbol,
         });
         // Session-scoped: reset unlock after use
         setPdfUnlocked(false);
       } catch (error) {
-        // A failed seal saves nothing, so say so rather than leave the user
-        // waiting for a file that will never arrive.
+        // A failed export saves nothing, so say so rather than leave the user
+        // waiting for a document that will never arrive.
         toast({
           title: "The quotation could not be exported",
           message:
@@ -1222,28 +1222,6 @@ export default function CostEstimator({
                     </Button>
                   </div>
                   <div className="mt-3 flex justify-center">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        result &&
-                        exportCostQuote({
-                          result,
-                          includes: {
-                            primer: input.includePrimer,
-                            filler: input.includeFiller,
-                            putty: input.includePutty,
-                            sandpaper: input.includeSandpaper,
-                            brushes: input.includeBrushes,
-                            rollers: input.includeRollers,
-                            other: input.includeOther,
-                          },
-                          currencySymbol,
-                        })
-                      }
-                      className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
-                    >
-                      {t("Export quote (PDF)")}
-                    </button>
                     <SaveToProjectButton
                       calculatorType="cost"
                       calculatorSlug="cost-estimator"

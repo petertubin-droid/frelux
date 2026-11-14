@@ -21,7 +21,6 @@ const COVERED = [
   "shareEstimateOnWhatsApp",
   "downloadEstimatePdf",
   "estimate-sharing",
-  "@/lib/pdf-export",
 ];
 
 const pages = readdirSync(PAGES)
