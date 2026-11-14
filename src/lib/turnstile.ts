@@ -15,12 +15,26 @@ import { supabase } from "@/lib/supabase";
 export const TURNSTILE_SCRIPT_URL =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
-/** Public site key, baked in at build time. */
-export const TURNSTILE_SITE_KEY = (
-  (import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY as string | undefined) ??
-  (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ??
-  ""
-).trim();
+/**
+ * Public site key, baked in at build time.
+ *
+ * Production's Netlify variable is spelled VITE_CLOUDFL_TURNSTILE_SITE_KEY
+ * (missing "LARE"), and a site key that nothing reads means no widget and no
+ * check at all — the exact silent failure this module exists to prevent — so
+ * every spelling in use is accepted instead of only the documented one.
+ */
+const siteKeyCandidates: unknown[] = [
+  import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY,
+  import.meta.env.VITE_TURNSTILE_SITE_KEY,
+  import.meta.env.VITE_CLOUDFL_TURNSTILE_SITE_KEY,
+];
+
+export const TURNSTILE_SITE_KEY =
+  siteKeyCandidates
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    // First non-empty wins: a defined-but-empty var must not stop the search,
+    // which is how an unset canonical name would otherwise hide a set alias.
+    .find((value) => value.length > 0) ?? "";
 
 export const turnstileConfigured = TURNSTILE_SITE_KEY.length > 0;
 

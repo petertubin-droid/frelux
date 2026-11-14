@@ -59,9 +59,21 @@ describe("verifyTurnstileToken", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
+  it("reads the shortened variable name production actually defines", async () => {
+    // Netlify holds the key as VITE_CLOUDFL_TURNSTILE_SITE_KEY; reading only
+    // the documented spelling silently disables the widget.
+    vi.stubEnv("VITE_CLOUDFLARE_TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("VITE_TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("VITE_CLOUDFL_TURNSTILE_SITE_KEY", "0x4AAAAAAA_shortened");
+    const { TURNSTILE_SITE_KEY, turnstileConfigured } = await loadModule();
+    expect(turnstileConfigured).toBe(true);
+    expect(TURNSTILE_SITE_KEY).toBe("0x4AAAAAAA_shortened");
+  });
+
   it("fails open with not-configured when no site key is configured", async () => {
     vi.stubEnv("VITE_CLOUDFLARE_TURNSTILE_SITE_KEY", "");
     vi.stubEnv("VITE_TURNSTILE_SITE_KEY", "");
+    vi.stubEnv("VITE_CLOUDFL_TURNSTILE_SITE_KEY", "");
     const { verifyTurnstileToken } = await loadModule();
     await expect(verifyTurnstileToken("token", "contact")).resolves.toEqual({
       ok: true,
