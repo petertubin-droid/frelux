@@ -20,7 +20,6 @@ import {
   Share2,
   ArrowRight,
   MapPin,
-  Briefcase,
   Smartphone,
   Cloud,
   HardHat,
@@ -78,6 +77,7 @@ import {
 } from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { AdaptiveCalibrationPanel } from "@/components/calculators/AdaptiveCalibrationPanel";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
 type ProjectSubFilter = "all" | "contractor" | "estimates" | "device";
@@ -931,6 +931,7 @@ export default function MyProjects() {
                                   {lp.type.replace(/_/g, " ")} • Saved{" "}
                                   {new Date(lp.createdAt).toLocaleDateString()}
                                 </p>
+                                <AdaptiveCalibrationPanel project={lp} />
                               </div>
                             </div>
                             <div className="flex items-center gap-2 self-end sm:self-center">
