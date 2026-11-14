@@ -16,6 +16,10 @@ import { AccessibilityProvider } from "@/lib/accessibility";
 import { DisplayPreferencesProvider } from "@/lib/display-preferences";
 import { Toaster } from "@/components/ui/shadcn/toast";
 import { initErrorMonitor } from "@/lib/errorMonitor";
+import { installChunkReloadHandler } from "@/lib/chunk-reload";
+
+// Catch stale chunk 404s after fresh deployment and reload cleanly once
+installChunkReloadHandler();
 import { shouldUnregisterWorker } from "@/lib/sw-cleanup";
 import "./index.css";
 

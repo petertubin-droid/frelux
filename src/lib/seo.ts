@@ -1,3 +1,23 @@
+/**
+ * Determines whether a hostname is a staging, deploy preview, or non-canonical domain.
+ * Production canonical host is freluxtools.com. Local hosts (localhost, 127.0.0.1) are excluded.
+ * All *.netlify.app domains and staging environments must never be indexed.
+ */
+export function isStagingHostname(hostname?: string): boolean {
+  if (!hostname) return false;
+  const h = hostname.toLowerCase().split(":")[0];
+  if (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h.endsWith(".localhost") ||
+    h === "freluxtools.com" ||
+    h === "www.freluxtools.com"
+  ) {
+    return false;
+  }
+  return true;
+}
+
 import { isLocalePathIndexable } from "@/lib/translation-index";
 import { SITE_URL } from "@/lib/site-config";
 import { useEffect } from "react";
@@ -166,7 +186,10 @@ export function useSeo(meta: SeoMeta | null) {
     const localeIsIndexable =
       !seoLocale || isLocalePathIndexable(seoLocale, window.location.pathname);
 
-    if (meta.noIndex || !localeIsIndexable) {
+    const isStaging =
+      typeof window !== "undefined" && isStagingHostname(window.location.hostname);
+
+    if (meta.noIndex || !localeIsIndexable || isStaging) {
       setMeta("name", "robots", "noindex, nofollow");
     } else {
       setMeta(

@@ -46,6 +46,23 @@
 [context.deploy-preview.environment]
   VITE_SENTRY_ENVIRONMENT = "staging"
 
+[[context.deploy-preview.headers]]
+  for = "/*"
+  [context.deploy-preview.headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[context.branch-deploy]
+  command = "npm run build"
+  publish = "dist"
+
+[context.branch-deploy.environment]
+  VITE_SENTRY_ENVIRONMENT = "staging"
+
+[[context.branch-deploy.headers]]
+  for = "/*"
+  [context.branch-deploy.headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 
 # 301 the legacy *.netlify.app host onto the custom domain.
 # robots.txt on the old host must be served, not redirected. Google treats a

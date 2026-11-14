@@ -48,10 +48,13 @@ import { useMarket } from "@/lib/international/market-context";
 import { isCalculatorPath } from "@/lib/market-notice";
 import { hideAdContainers, purgeInjectedAdTags } from "@/lib/ad-entitlement";
 import { useLanguage } from "@/lib/i18n";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { lazyWithRetry } from "@/lib/lazy-retry";
 
 // Lazy-loaded below-the-fold components, not visible on first paint
-const SupportChatWidget = lazy(
+const SupportChatWidget = lazyWithRetry(
   () => import("@/components/layout/SupportChatWidget"),
+  "SupportChatWidget",
 );
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
 const BottomAdSlot = lazy(() => import("@/components/ads/BottomAdSlot"));
@@ -734,31 +737,43 @@ export default function Layout() {
       <div className="lg:pl-[var(--rail-w)]">
         <Footer />
       </div>
-      <Suspense fallback={null}>
-        <OfflineIndicator />
-      </Suspense>
-      <Suspense fallback={null}>
-        <SupportChatWidget />
-      </Suspense>
-      <Suspense fallback={null}>
-        <ConversionDock />
-        <MobileBottomNav />
-        <BottomAdSlot />
-      </Suspense>
-      <Suspense fallback={null}>
-        <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
-      </Suspense>
-      {showOnboarding && (
+      <ErrorBoundary boundaryName="offline-indicator" silent>
         <Suspense fallback={null}>
-          <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+          <OfflineIndicator />
         </Suspense>
+      </ErrorBoundary>
+      <ErrorBoundary boundaryName="support-chat" silent>
+        <Suspense fallback={null}>
+          <SupportChatWidget />
+        </Suspense>
+      </ErrorBoundary>
+      <ErrorBoundary boundaryName="dock-and-nav" silent>
+        <Suspense fallback={null}>
+          <ConversionDock />
+          <MobileBottomNav />
+          <BottomAdSlot />
+        </Suspense>
+      </ErrorBoundary>
+      <ErrorBoundary boundaryName="command-palette" silent>
+        <Suspense fallback={null}>
+          <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+        </Suspense>
+      </ErrorBoundary>
+      {showOnboarding && (
+        <ErrorBoundary boundaryName="onboarding-tour" silent>
+          <Suspense fallback={null}>
+            <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+          </Suspense>
+        </ErrorBoundary>
       )}
-      <Suspense fallback={null}>
-        <AchievementToast
-          achievements={newAchievements}
-          onDismiss={() => setNewAchievements([])}
-        />
-      </Suspense>
+      <ErrorBoundary boundaryName="achievement-toast" silent>
+        <Suspense fallback={null}>
+          <AchievementToast
+            achievements={newAchievements}
+            onDismiss={() => setNewAchievements([])}
+          />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

@@ -23,6 +23,49 @@ if(touch&&w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(s
 var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);window.addEventListener('orientationchange',apply);window.addEventListener('resize',apply);})();
     </script>
     <meta charset="UTF-8" />
+    <!-- Staging / Netlify preview indexing guard:
+         When accessed via *.netlify.app or non-canonical staging host,
+         enforce noindex, nofollow so search engines only index freluxtools.com. -->
+    <script>
+      (function(){
+        try {
+          var h = window.location.hostname;
+          if (h && (h.indexOf("netlify.app") !== -1 || (h !== "freluxtools.com" && h !== "www.freluxtools.com" && h !== "localhost" && h !== "127.0.0.1" && !h.endsWith(".localhost")))) {
+            var m = document.querySelector("meta[name="robots"]");
+            if (!m) {
+              m = document.createElement("meta");
+              m.setAttribute("name", "robots");
+              document.head.appendChild(m);
+            }
+            m.setAttribute("content", "noindex, nofollow");
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <!-- Early chunk recovery:
+         If a dynamic chunk or asset is missing after a fresh deployment,
+         reload once to fetch the latest document and asset hashes. -->
+    <script>
+      (function(){
+        try {
+          var KEY = "frelux_chunk_reload_ts";
+          var reloadOnce = function(err) {
+            var msg = (err && (err.message || err.toString())) || "";
+            if (/dynamically imported module|loading chunk|chunkloaderror|failed to fetch/i.test(msg)) {
+              var now = Date.now();
+              var last = parseInt(sessionStorage.getItem(KEY) || "0", 10);
+              if (now - last > 20000) {
+                sessionStorage.setItem(KEY, String(now));
+                window.location.reload();
+              }
+            }
+          };
+          window.addEventListener("vite:preloadError", function(e){ reloadOnce(e.payload || e.detail || e); });
+          window.addEventListener("error", function(e){ reloadOnce(e.error || e.message); });
+          window.addEventListener("unhandledrejection", function(e){ reloadOnce(e.reason); });
+        } catch(e) {}
+      })();
+    </script>
     <!-- Google AdSense (Auto ads). The tag sits in the served source so AdSense
          can verify the site and attach automatic ads. Requests start paused and
          are only unpaused for a visitor who answered the cookie banner and is

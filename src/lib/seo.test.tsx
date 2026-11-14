@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useSeo, SITE_URL } from "./seo";
+import { useSeo, SITE_URL, isStagingHostname } from "./seo";
 
 const DEFAULT_OG_IMAGE = `${SITE_URL}/social-cover.png`;
 
@@ -340,6 +340,45 @@ describe("useSeo", () => {
       expect(getLink("canonical")).not.toBeNull();
       expect(getMeta("name", "robots")).not.toBeNull();
       expect(document.head.querySelectorAll("meta").length).toBe(beforeCount);
+    });
+  });
+
+  describe("isStagingHostname & staging robots guard", () => {
+    it("correctly classifies staging and production hostnames", () => {
+      expect(isStagingHostname("freluxtools.netlify.app")).toBe(true);
+      expect(isStagingHostname("deploy-preview-42--freluxtools.netlify.app")).toBe(true);
+      expect(isStagingHostname("staging.freluxtools.com")).toBe(true);
+
+      // Production & local development
+      expect(isStagingHostname("freluxtools.com")).toBe(false);
+      expect(isStagingHostname("www.freluxtools.com")).toBe(false);
+      expect(isStagingHostname("localhost")).toBe(false);
+      expect(isStagingHostname("127.0.0.1")).toBe(false);
+      expect(isStagingHostname("dev.localhost")).toBe(false);
+    });
+
+    it("enforces noindex, nofollow on Netlify staging host", () => {
+      const origLocation = window.location;
+      try {
+        // @ts-expect-error test mock
+        delete window.location;
+        // @ts-expect-error test mock
+        window.location = new URL("https://freluxtools.netlify.app/paint-calculator/");
+
+        renderSeo({
+          title: "Paint Calculator",
+          description: "Estimate paint",
+          canonicalPath: "/paint-calculator",
+        });
+
+        expect(getMetaContent("name", "robots")).toBe("noindex, nofollow");
+        // Canonical still strictly points to production canonical freluxtools.com
+        expect(getLink("canonical")!.getAttribute("href")).toBe(
+          `${SITE_URL}/paint-calculator/`,
+        );
+      } finally {
+        window.location = origLocation;
+      }
     });
   });
 });

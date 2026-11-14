@@ -35,7 +35,6 @@ describe("ErrorBoundary", () => {
         <ThrowComponent shouldThrow />
       </ErrorBoundary>,
     );
-    // In dev mode (which tests run in), shows "Error in <boundary>"
     expect(screen.getByText(/Error in/)).toBeTruthy();
     expect(screen.getByText(/my-section/)).toBeTruthy();
     spy.mockRestore();
@@ -77,6 +76,30 @@ describe("ErrorBoundary", () => {
     spy.mockRestore();
   });
 
+  it("renders null silently when silent prop is true", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { container } = render(
+      <ErrorBoundary boundaryName="support-chat" silent>
+        <ThrowComponent shouldThrow />
+      </ErrorBoundary>,
+    );
+    expect(container.firstChild).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    spy.mockRestore();
+  });
+
+  it("renders null silently when fallback is explicitly null", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { container } = render(
+      <ErrorBoundary boundaryName="support-chat" fallback={null}>
+        <ThrowComponent shouldThrow />
+      </ErrorBoundary>,
+    );
+    expect(container.firstChild).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+    spy.mockRestore();
+  });
+
   it("Try Again resets error state", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     render(
@@ -86,8 +109,6 @@ describe("ErrorBoundary", () => {
     );
     expect(screen.getByText(/Error in/)).toBeTruthy();
     fireEvent.click(screen.getByText("Try again"));
-    // After reset, the ThrowComponent renders again and throws again
-    // So the error boundary catches it again
     expect(screen.getByRole("alert")).toBeTruthy();
     spy.mockRestore();
   });

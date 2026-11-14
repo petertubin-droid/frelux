@@ -1,10 +1,13 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { reportError } from "@/lib/errorMonitor";
 import { Button } from "@/components/ui/shadcn/button";
+import { handleChunkLoadError, isChunkLoadError } from "@/lib/chunk-reload";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
+  /** When true, silently renders null on error without showing any fallback UI */
+  silent?: boolean;
   /** Where the error boundary is placed (for error context) */
   boundaryName?: string;
 }
@@ -21,6 +24,10 @@ interface ErrorBoundaryState {
  * In production, shows a user-friendly error page with a "try again"
  * button that reloads the route. In development, shows the full
  * error stack for debugging.
+ *
+ * Can be made silent (silent=true or fallback={null}) for peripheral
+ * components like chat widgets or docks to prevent non-critical errors from
+ * crashing the primary page interface.
  */
 export default class ErrorBoundary extends Component<
   ErrorBoundaryProps,
@@ -38,13 +45,21 @@ export default class ErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const boundary = this.props.boundaryName ?? "unknown";
 
+    // If this error is a stale chunk or dynamic module load failure,
+    // trigger a controlled page reload to refresh asset hashes.
+    if (isChunkLoadError(error)) {
+      handleChunkLoadError(error);
+    }
+
     // Report to the FRELUX error monitoring system
     reportError({
       error_type: "react",
       message: error.message,
       stack_trace: error.stack ?? null,
       feature: boundary,
+      severity: this.props.silent ? "low" : undefined,
       metadata: {
+        silent: this.props.silent,
         componentStack: import.meta.env.DEV
           ? errorInfo.componentStack
           : undefined,
@@ -68,8 +83,11 @@ export default class ErrorBoundary extends Component<
   render(): ReactNode {
     if (!this.state.hasError) return this.props.children;
 
-    // Custom fallback
-    if (this.props.fallback) return this.props.fallback;
+    // Silent mode: secondary widgets never show an error box
+    if (this.props.silent) return null;
+
+    // Explicit custom fallback (check !== undefined so fallback={null} works as intended)
+    if (this.props.fallback !== undefined) return this.props.fallback;
 
     if (import.meta.env.DEV) {
       return (
