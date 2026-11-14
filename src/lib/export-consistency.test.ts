@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   buildQuoteHtml,
@@ -24,6 +24,55 @@ const PDF_LABELS = [
   "Export as PDF",
   "Save PDF",
 ];
+
+/**
+ * A calculator counts as exporting when its own source prints a quote, offers a
+ * PDF label, uses the specialty shell, or opts the share bar into its PDF. The
+ * share bar files are skipped while walking imports: they always contain the
+ * word showPdf, which says nothing about whether a page asks for it.
+ */
+const EXPORT_SIGNAL =
+  /printQuote\(|"Export PDF"|Export quote \(PDF\)|Download PDF|>\s*Export PDF\s*<|SpecialtyCalculatorShell|<(?:ShareEstimateButton|QuoteShareButton)[^>]*showPdf/;
+
+function resolveImport(spec: string, fromFile: string): string[] {
+  const base = spec.startsWith("@/")
+    ? join(process.cwd(), "src", spec.slice(2))
+    : spec.startsWith(".")
+      ? join(fromFile, "..", spec)
+      : null;
+  if (!base) return [];
+  return ["", ".tsx", ".ts", "/index.tsx"]
+    .map((ext) => base + ext)
+    .filter((p) => existsSync(p) && statSync(p).isFile());
+}
+
+function canExport(file: string, depth = 0, seen = new Set<string>()): boolean {
+  if (seen.has(file) || depth > 2) return false;
+  seen.add(file);
+  const source = readFileSync(file, "utf8");
+  if (EXPORT_SIGNAL.test(source)) return true;
+  for (const match of source.matchAll(/import[^;]*?from\s+"([^"]+)"/g)) {
+    for (const target of resolveImport(match[1], file)) {
+      if (!/[\\/]src[\\/](pages|components)[\\/]/.test(target)) continue;
+      if (/(ShareEstimateButton|QuoteShareButton)\.tsx$/.test(target)) continue;
+      if (canExport(target, depth + 1, seen)) return true;
+    }
+  }
+  return false;
+}
+
+function calculatorPages(): string[] {
+  return (
+    readdirSync(PAGES_DIR)
+      .filter((name) => name.endsWith(".tsx") && !name.includes(".test."))
+      .filter((name) =>
+        /(Calculator|Estimator|Takeoff|Counter|Planner)/.test(name),
+      )
+      // a hub only links to calculators, so it holds no result to export
+      .filter((name) => !/Hub\.tsx$/.test(name))
+      .map((name) => join(PAGES_DIR, name))
+  );
+}
 
 function pageFiles(): { name: string; source: string }[] {
   return readdirSync(PAGES_DIR, { withFileTypes: true })
@@ -117,5 +166,30 @@ describe("PDF export consistency", () => {
     // Section headings are upper-cased by the stylesheet, as in the printed
     // document a visitor keeps.
     expect(html).toContain("text-transform: uppercase");
+  });
+
+  it("gives every calculator an export control", () => {
+    const missing = calculatorPages()
+      .filter((file) => !canExport(file))
+      .map((file) => file.split("/").pop());
+    expect(missing).toEqual([]);
+  });
+
+  it("never shows a page export and the share PDF together", () => {
+    const doubled: string[] = [];
+    for (const { name, source } of pageFiles()) {
+      const ownExport = PDF_LABELS.some((label) =>
+        source.includes(`"${label}"`),
+      );
+      if (!ownExport) continue;
+      for (const tag of source.matchAll(
+        /<(?:ShareEstimateButton|QuoteShareButton)\b[^>]*>/g,
+      )) {
+        const enabled =
+          /showPdf/.test(tag[0]) && !/showPdf=\{false\}/.test(tag[0]);
+        if (enabled) doubled.push(name);
+      }
+    }
+    expect(doubled).toEqual([]);
   });
 });

@@ -508,6 +508,7 @@ export default function MarginCalculator() {
       </div>
       <div className="mt-6 space-y-3">
         <QuoteShareButton
+          showPdf
           build={buildQuote}
           kind="Profit Margin Estimate"
           link="/margin-calculator"

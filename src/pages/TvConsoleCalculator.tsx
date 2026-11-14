@@ -963,6 +963,7 @@ Wall panel area and LED metres are priced separately at the rates you enter, and
                       ]}
                     />
                     <ShareEstimateButton
+                      showPdf
                       estimate={{
                         kind: "TV Console Estimate",
                         summaryLines: [

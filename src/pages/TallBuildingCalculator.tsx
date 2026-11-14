@@ -613,6 +613,7 @@ export default function TallBuildingCalculator() {
           methodologyText={methodologyText("tall-building")}
         />
         <ShareEstimateButton
+          showPdf
           estimate={{
             kind: "High Rise Screening",
             title: params.project_name || "High rise screening",

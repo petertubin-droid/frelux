@@ -1454,6 +1454,7 @@ export function VisualFinishingEstimator({
 
             <div className="border-t border-border bg-muted/20 px-4 py-3">
               <ShareEstimateButton
+                showPdf
                 estimate={{
                   kind: "Visual Finishing Takeoff",
                   summaryLines: [

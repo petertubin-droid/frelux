@@ -476,6 +476,7 @@ export default function WaterTowerEstimator() {
                   methodologyText={methodologyText("water-tower")}
                 />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: "Overhead Tank Staging Takeoff",
                     title: `${tankVolume} L tank at ${height} m`,

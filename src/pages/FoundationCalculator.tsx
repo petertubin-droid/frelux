@@ -507,6 +507,7 @@ export default function FoundationCalculator() {
                 methodologyText={methodologyText("foundation")}
               />
               <ShareEstimateButton
+                showPdf
                 estimate={{
                   kind: "Foundation Design",
                   title: `${result.shape} footing at ${formatPressure(result.bearing_capacity, loadSystem)}`,

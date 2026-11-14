@@ -957,6 +957,7 @@ function SavedTab({
           </div>
           <div className="flex items-center gap-1">
             <ShareEstimateButton
+              showPdf
               estimate={{
                 kind: "Saved Estimate",
                 title: e.title,

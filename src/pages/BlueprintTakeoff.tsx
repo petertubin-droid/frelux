@@ -967,6 +967,7 @@ export default function BlueprintTakeoff() {
                     methodologyText={methodologyText("blueprint-takeoff")}
                   />
                   <ShareEstimateButton
+                    showPdf
                     estimate={{
                       kind: "Blueprint Takeoff",
                       summaryLines: [

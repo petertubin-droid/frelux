@@ -334,6 +334,7 @@ export default function GermanFloorCalculator() {
               <div className="mt-4 space-y-5">
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: "German Floor Takeoff",
                     title: `${display(result.areaM2)} m² floor at ${result.layers.slab.thicknessMm} mm`,

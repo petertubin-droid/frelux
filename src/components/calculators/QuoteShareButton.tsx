@@ -20,6 +20,12 @@ interface QuoteShareButtonProps {
   kind: string;
   link: string;
   compact?: boolean;
+  /**
+   * Offer the PDF export here. On for pages whose only way to export is this
+   * bar; left off where the calculator already has its own export button, so a
+   * page never shows two controls for one document.
+   */
+  showPdf?: boolean;
 }
 
 export function QuoteShareButton({
@@ -27,6 +33,7 @@ export function QuoteShareButton({
   kind,
   link,
   compact = true,
+  showPdf = false,
 }: QuoteShareButtonProps) {
   const location = useLocation();
   const access = useEngineAccess(location.pathname);
@@ -42,7 +49,13 @@ export function QuoteShareButton({
   if (!access.canExport && access.engine) {
     return <EnginePreviewLock engine={access.engine} hiddenLines={0} />;
   }
-  return <ShareEstimateButton estimate={estimate} compact={compact} />;
+  return (
+    <ShareEstimateButton
+      estimate={estimate}
+      compact={compact}
+      showPdf={showPdf}
+    />
+  );
 }
 
 export default QuoteShareButton;

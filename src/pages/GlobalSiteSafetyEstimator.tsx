@@ -561,6 +561,7 @@ export default function GlobalSiteSafetyEstimator() {
                       methodologyText={methodologyText("site-safety")}
                     />
                     <ShareEstimateButton
+                      showPdf
                       estimate={{
                         kind: "Site Safety Inventory",
                         title: "Planned PPE and site safety allocation",

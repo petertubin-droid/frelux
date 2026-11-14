@@ -428,6 +428,7 @@ export default function ConversationalEstimator() {
 
       <div className="mt-6 space-y-3">
         <QuoteShareButton
+          showPdf
           build={buildQuote}
           kind="Conversational Estimate"
           link="/conversational-estimator"

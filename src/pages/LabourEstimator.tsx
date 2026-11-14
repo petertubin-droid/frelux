@@ -262,6 +262,7 @@ export default function LabourEstimator() {
                   methodologyText={methodologyText("labour")}
                 />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: "Labour Duration",
                     title: result.task_label,

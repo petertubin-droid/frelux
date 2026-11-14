@@ -425,6 +425,7 @@ export default function ScreedingCalculator({
             </div>
 
             <ShareEstimateButton
+              showPdf
               estimate={
                 screedingResult
                   ? {

@@ -505,6 +505,7 @@ export default function BoreholeWaterSystemEstimator() {
           <CalculatorResetButton onReset={resetInputs} className="mb-4" />
           <HowCalculatedSection methodologyText={methodologyText("borehole")} />
           <ShareEstimateButton
+            showPdf
             estimate={
               engineAccess.canExport
                 ? {

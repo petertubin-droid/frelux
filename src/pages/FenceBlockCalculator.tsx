@@ -574,6 +574,7 @@ export default function FenceBlockCalculator() {
                   methodologyText={methodologyText("fence-block")}
                 />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: "Fence Block Takeoff",
                     title: `${display(result.wall.coaches)} ${t(vocab.coachWordPlural)} ${t("high")}`,

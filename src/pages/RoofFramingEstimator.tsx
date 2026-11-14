@@ -653,6 +653,7 @@ export default function RoofFramingEstimator() {
                         methodologyText={methodologyText("roof-framing")}
                       />
                       <ShareEstimateButton
+                        showPdf
                         estimate={{
                           kind: "Roof Framing Schedule",
                           summaryLines: [

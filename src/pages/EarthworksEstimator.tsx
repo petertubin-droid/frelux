@@ -475,6 +475,7 @@ The soil description is recorded for the job record. It does not change the quan
                     ]}
                   />
                   <ShareEstimateButton
+                    showPdf
                     estimate={{
                       kind: "Earthworks Quantity Report",
                       title: "Cut and fill volumes",

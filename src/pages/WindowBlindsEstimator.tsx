@@ -842,6 +842,7 @@ export default function WindowBlindsEstimator() {
                   methodologyText={methodologyText("window-blinds")}
                 />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: "Window Blinds Estimate",
                     summaryLines: [

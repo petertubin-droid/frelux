@@ -321,6 +321,7 @@ export default function SmartCalculator() {
 
         <div className="mt-6 space-y-3">
           <QuoteShareButton
+            showPdf
             build={buildShareQuote}
             kind="Smart Calculator Reading"
             link="/smart-calculator"

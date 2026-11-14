@@ -1032,6 +1032,7 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                   ]}
                 />
                 <ShareEstimateButton
+                  showPdf
                   estimate={{
                     kind: isPanelFormat
                       ? "Wallpaper Mural Estimate"
