@@ -3072,9 +3072,11 @@ function EstimateResult({
         unit: m.unit,
         unit_price: "included",
         line_total: formatCurrency(m.total_cost),
-        // A trip-priced load still prints the volume it stands for.
-        detail:
-          m.volume_m3 != null
+        // The quote carries the ordering advice, so the yard knows which trips
+        // to send rather than a volume to interpret.
+        detail: m.order_label
+          ? `${stage.stage_label} · Buy sand: ${m.order_label}`
+          : m.volume_m3 != null
             ? `${stage.stage_label} · ${formatNumber(m.volume_m3)} m³`
             : stage.stage_label,
       })),
@@ -3556,16 +3558,20 @@ function EstimateResult({
                         <tr key={j} className="border-b border-border/50">
                           <td className="py-2 text-card-foreground">
                             {m.label}
-                            {m.volume_m3 != null && (
-                              // A load bought by the trip still states the
-                              // volume and weight it stands for.
+                            {m.order_label ? (
+                              // The same sentence the blockwork and plastering
+                              // takeoffs print: which trips to order.
+                              <span className="block text-xs text-muted-foreground">
+                                Buy sand: {m.order_label}
+                              </span>
+                            ) : m.volume_m3 != null ? (
                               <span className="block text-xs text-muted-foreground">
                                 {formatNumber(m.volume_m3)} m³
                                 {m.weight_tonnes != null
                                   ? ` · ${formatNumber(m.weight_tonnes)} t`
                                   : ""}
                               </span>
-                            )}
+                            ) : null}
                           </td>
                           <td className="py-2 text-right text-muted-foreground">
                             {formatNumber(m.final_quantity)}

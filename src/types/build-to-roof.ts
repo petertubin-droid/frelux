@@ -194,9 +194,9 @@ export interface PriceConfig {
   cement_per_bag: number; // ₦ per 50kg bag
   block_per_piece: number; // ₦ per block
   sand_per_m3: number; // ₦ per cubic meter
-  sand_per_trip: number; // ₦ per trip (1 trip = 3.13 m³, the 5-tonne tipper at 1,600 kg/m³)
+  sand_per_trip: number; // ₦ per 5-tonne trip (3.13 m³ at 1,600 kg/m³)
   granite_per_m3: number; // ₦ per cubic meter
-  granite_per_trip: number; // ₦ per trip (1 trip = 3.13 m³, the 5-tonne tipper basis)
+  granite_per_trip: number; // ₦ per 5-tonne trip (3.13 m³ basis)
   hardcore_per_m3: number; // ₦ per cubic meter (hardcore stone/laterite)
   reinforcement_per_tonne: number; // ₦ per tonne (bulk fallback)
   // Per-diameter rebar prices (Nigerian market sells by diameter × length)
@@ -317,6 +317,8 @@ export interface MaterialLine {
   volume_m3?: number;
   /** Weight of that volume at the sand/granite bulk densities the takeoff uses. */
   weight_tonnes?: number;
+  /** Which trips to order: the same sentence every Frelux calculator gives. */
+  order_label?: string;
 }
 
 export interface LabourLine {

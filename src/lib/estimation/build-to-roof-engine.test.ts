@@ -30,7 +30,7 @@ import {
   DEFAULT_LABOUR,
   DEFAULT_WASTAGE,
 } from "@/lib/estimation/build-to-roof-engine";
-import { tripCubicMetres } from "@/lib/materials/sand-units";
+import { sandPurchaseLabel, tripCubicMetres } from "@/lib/materials/sand-units";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 
 describe("constants", () => {
@@ -488,23 +488,22 @@ describe("calculateBuildToRoof (audit regression)", () => {
       .flatMap((s) => s.materials)
       .filter((m) => /sand \(.*filling\)/i.test(m.label));
     expect(sandFillLines).toHaveLength(1);
-    // Footprint 80 m² x 50 mm = 4 m³ (+10% sand wastage → 4.4 m³ → 2 trips)
-    expect(sandFillLines[0].final_quantity).toBe(2);
+    // Footprint 80 m² x 50 mm = 4 m³ (+10% sand wastage → 4.4 m³)
+    expect(sandFillLines[0].volume_m3).toBeCloseTo(4.4, 2);
+    expect(sandFillLines[0].unit).toBe("m³");
   });
 
-  it("states the volume behind every trip-priced load", () => {
+  it("gives every sand load the same ordering advice as the takeoffs", () => {
     const result = calculateBuildToRoof(makeValidInput());
-    const tripLines = result.stages
+    const sandLines = result.stages
       .flatMap((s) => s.materials)
-      .filter((m) => m.unit === "trips");
-    expect(tripLines.length).toBeGreaterThan(0);
-    for (const line of tripLines) {
-      // The trip count is the volume over the one trip size, rounded up, so the
-      // two figures on the line can never disagree.
-      expect(line.volume_m3).toBeGreaterThan(0);
-      expect(line.final_quantity).toBe(
-        Math.ceil(line.volume_m3! / M3_PER_TRIP),
-      );
+      .filter((m) => /sand/i.test(m.label) && (m.volume_m3 ?? 0) > 0);
+    expect(sandLines.length).toBeGreaterThan(0);
+    for (const line of sandLines) {
+      // One sentence site-wide: the blockwork takeoff, the plastering takeoff
+      // and this estimator all speak through sandPurchaseLabel.
+      expect(line.order_label).toBe(sandPurchaseLabel(line.volume_m3!, "NG"));
+      expect(line.final_quantity).toBe(line.volume_m3);
     }
   });
 
@@ -512,7 +511,7 @@ describe("calculateBuildToRoof (audit regression)", () => {
     const result = calculateBuildToRoof(makeValidInput());
     const lines = result.stages.flatMap((s) => s.materials);
     const sand = lines.filter(
-      (m) => /sand/i.test(m.label) && m.unit === "trips",
+      (m) => /sand/i.test(m.label) && (m.volume_m3 ?? 0) > 0,
     );
     expect(sand.length).toBeGreaterThan(0);
     for (const line of sand) {

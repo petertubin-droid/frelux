@@ -23,7 +23,11 @@
 // 12. Compaction labour added for hardcore/filling
 // =========================================================
 
-import { sandTonnes, tripCubicMetres } from "@/lib/materials/sand-units";
+import {
+  sandPurchaseLabel,
+  sandTonnes,
+  tripCubicMetres,
+} from "@/lib/materials/sand-units";
 import type {
   BuildToRoofInput,
   BuildToRoofResult,
@@ -158,8 +162,9 @@ function m3ToTripCeil(m3: number): number {
   return Math.ceil(m3 / M3_PER_TRIP);
 }
 
-// Material line that shows trips (primary) but calculates from m³ volume
-// Uses trip-based pricing when available, falls back to per-m³
+// Material line for a load sold by the trip: the quantity is the measured
+// volume, the money is that volume at the confirmed trip rate, and the trip
+// plan beside it is the same recommendation every other calculator gives.
 function matLineTrips(
   label: string,
   volumeM3: number,
@@ -169,39 +174,32 @@ function matLineTrips(
   priceSource: string,
 ): MaterialLine {
   const finalM3 = applyWastage(volumeM3, wastagePercent);
-  const trips = m3ToTripCeil(finalM3);
   // Only sand has a confirmed bulk density here; a granite load states its
   // volume without a tonnage we would have to guess.
   const isSand = /sand/i.test(label);
-  // Use trip pricing (cheaper per m³ when bought in bulk)
-  // but if volume is very small (< 0.5 trip), use per-m³ for accuracy
-  if (finalM3 < M3_PER_TRIP * 0.5 && pricePerM3 > 0) {
-    return {
-      label,
-      unit: "m³",
-      base_quantity: round(volumeM3),
-      wastage_percent: wastagePercent,
-      final_quantity: round(finalM3),
-      unit_price: pricePerM3,
-      total_cost: round(finalM3 * pricePerM3),
-      price_source: priceSource,
-      volume_m3: round(finalM3),
-      weight_tonnes: isSand ? sandTonnes(finalM3, "NG") : undefined,
-    };
-  }
+  const cleanLabel = label.replace(/ \(m³\)/, "").trim();
+
+  // A trip price is quoted for the 5-tonne tipper, so the per-m³ rate it implies
+  // is what the buyer actually pays; larger trips are a loading decision, not a
+  // price we have confirmed. Fall back to the reference per-m³ price when no
+  // trip price is given.
+  const ratePerM3 =
+    pricePerTrip > 0 ? pricePerTrip / M3_PER_TRIP : Math.max(0, pricePerM3);
+
+  const orderLabel = isSand ? sandPurchaseLabel(finalM3, "NG") : null;
+
   return {
-    label: label.replace(/ \(m³\)/, "").trim(),
-    unit: "trips",
-    base_quantity: round((volumeM3 / M3_PER_TRIP) * 10) / 10, // show base trips (decimal)
+    label: cleanLabel,
+    unit: "m³",
+    base_quantity: round(volumeM3),
     wastage_percent: wastagePercent,
-    final_quantity: trips, // ceil to full trips
-    unit_price: pricePerTrip,
-    total_cost: round(trips * pricePerTrip),
+    final_quantity: round(finalM3),
+    unit_price: round(ratePerM3),
+    total_cost: round(finalM3 * ratePerM3),
     price_source: priceSource,
-    // The volume and weight the trips stand for, so the line reads in both the
-    // units the takeoff measured and the units the depot sells.
     volume_m3: round(finalM3),
     weight_tonnes: isSand ? sandTonnes(finalM3, "NG") : undefined,
+    order_label: orderLabel ?? undefined,
   };
 }
 
@@ -2774,9 +2772,9 @@ export const DEFAULT_PRICES = {
   cement_per_bag: 12500, // Dangote/BUA 50kg, N12,000-15,000 range
   block_per_piece: 800, // 9-inch vibrated hollow block
   sand_per_m3: 21000, // sharp sand per m³ (reference only)
-  sand_per_trip: 65000, // per trip (3.5 m³, 5-tonne tipper), PRIMARY
+  sand_per_trip: 65000, // per 5-tonne trip = 3.13 m³ at 1,600 kg/m³, PRIMARY
   granite_per_m3: 30000, // 3/4" granite per m³ (reference only)
-  granite_per_trip: 95000, // per trip (3.5 m³), PRIMARY
+  granite_per_trip: 95000, // per 5-tonne trip = 3.13 m³, PRIMARY
   hardcore_per_m3: 18000, // hardcore stone/laterite
   reinforcement_per_tonne: 950000, // bulk steel per tonne (fallback)
   // Per-diameter rebar prices (₦ per 12m standard length)

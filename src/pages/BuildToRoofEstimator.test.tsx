@@ -164,7 +164,7 @@ describe("BuildToRoofEstimator 4-Phase UI", () => {
     });
   });
 
-  it("shows the volume and weight behind a trip-priced sand load", async () => {
+  it("shows the trip order behind a sand load", async () => {
     render(
       <MemoryRouter>
         <BuildToRoofEstimator />
@@ -175,14 +175,14 @@ describe("BuildToRoofEstimator 4-Phase UI", () => {
       screen.getByRole("button", { name: /Generate Summary BOQ/i }),
     );
 
-    // "4.4 m³ · 7.04 t" under a line sold in trips: the buyer sees both the
-    // measured volume and the tonnage behind the load.
+    // The row carries the same trip advice the takeoffs print, so a builder
+    // reading two calculators never gets two different orders.
     await waitFor(() => {
       const captions = screen
-        .getAllByText(/^[\d.,]+ m³ · [\d.,]+ t$/)
+        .getAllByText(/^Buy sand: /)
         .map((el) => el.textContent ?? "");
       expect(captions.length).toBeGreaterThan(0);
-      expect(captions[0]).toMatch(/m³ · .* t/);
+      expect(captions[0]).toMatch(/tonne trip|top-up/);
     });
   });
 
