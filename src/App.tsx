@@ -2132,7 +2132,7 @@ export default function App() {
                           element={<CodeReference />}
                         />
                       </Route>
-                      <Route>
+                      <Route element={<Layout />}>
                         <Route
                           path="/planning-approvals"
                           element={<PlanningApprovals />}
