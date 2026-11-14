@@ -1,0 +1,12 @@
+import { chromium } from "playwright";
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+const page = await ctx.newPage();
+await page.goto("https://www.netlify.com/", { waitUntil: "domcontentloaded", timeout: 60000 });
+await page.waitForTimeout(2000);
+const before = await page.evaluate(() => ({ y: window.scrollY, overflow: getComputedStyle(document.body).overflow, html: getComputedStyle(document.documentElement).overflow }));
+await page.getByRole("button", { name: /Platform/i }).first().click();
+await page.waitForTimeout(700);
+const during = await page.evaluate(() => ({ y: window.scrollY, overflow: getComputedStyle(document.body).overflow, html: getComputedStyle(document.documentElement).overflow, paddingRight: getComputedStyle(document.body).paddingRight }));
+console.log(JSON.stringify({ before, during }, null, 1));
+await browser.close();

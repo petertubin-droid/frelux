@@ -38,7 +38,7 @@ const desktopBlock = (css.match(
 
 const EXPANDED_PX = remToPx(
   // The value inside the >=1024 media query, i.e. the desktop width.
-  (desktopBlock.match(/--rail-w:\s*([\d.]+rem)/) ?? ["", "15.5rem"])[1],
+  (desktopBlock.match(/--rail-w:\s*([\d.]+rem)/) ?? ["", "18rem"])[1],
 );
 const COLLAPSED_PX = remToPx(
   (collapsedBlock.match(/--rail-w:\s*([\d.]+rem)/) ?? ["", "4.5rem"])[1],
@@ -48,16 +48,16 @@ describe("desktop rail geometry", () => {
   it("reserves no offset below the lg breakpoint", () => {
     expect(railVarFrom(baseBlock)).toBe("0px");
     // The rail itself is desktop-only, so tablets keep their own navigation.
-    expect(railSource).toContain("hidden h-[100svh] flex-col");
+    expect(railSource).toContain("hidden h-[100svh]");
     expect(railSource).toContain("lg:flex");
   });
 
   it("pins the rail's rendered width to the same variable the content uses", () => {
     // A mismatch here is the classic bug: content padded 15.5rem while the
     // rail draws 14rem, leaving a strip of page visible underneath it.
-    expect(railSource).toContain("w-[15.5rem]");
+    expect(railSource).toContain("w-[18rem]");
     expect(railSource).toContain("w-[4.5rem]");
-    expect(EXPANDED_PX).toBe(15.5 * 16);
+    expect(EXPANDED_PX).toBe(18 * 16);
     expect(COLLAPSED_PX).toBe(4.5 * 16);
   });
 
@@ -84,21 +84,19 @@ describe("desktop rail geometry", () => {
     expect(content).toBeGreaterThanOrEqual(720);
   });
 
-  it("fits the flyout panel beside the rail at every desktop width", () => {
-    const gutter = 12; // px, matches openFlyoutFor
-    const panelMax = 480;
+  it("gives the labelled column the space the flyout used to float over", () => {
+    // Rail 4.5rem of icons plus a column that fills the rest of the offset.
+    const RAIL_PX = 4.5 * 16;
+    const COLUMN_PX = EXPANDED_PX - RAIL_PX;
+    expect(COLUMN_PX).toBe(216);
 
-    for (const viewport of [1024, 1280, 1440, 1920]) {
-      for (const railWidth of [EXPANDED_PX, COLLAPSED_PX]) {
-        const left = railWidth + 8; // ml-2 equivalent
-        const width = Math.max(
-          280,
-          Math.min(panelMax, viewport - left - gutter * 2),
-        );
-        expect(left + width).toBeLessThanOrEqual(viewport);
-        // Never collapsed to an unusable sliver on a small desktop.
-        expect(width).toBeGreaterThanOrEqual(280);
-      }
-    }
+    // The column is a real layout column: it scrolls on its own and cannot
+    // overflow the shell, which is what replaced the portalled flyout.
+    expect(railSource).toContain("w-[4.5rem] shrink-0 flex-col");
+    expect(railSource).toContain("flex min-w-0 flex-1 flex-col");
+    expect(railSource).toContain("overflow-y-auto overscroll-contain");
+    expect(railSource).not.toContain("createPortal");
+    // Collapsed, the column is not rendered at all, so the offset matches.
+    expect(railSource).toContain('collapsed ? "w-[4.5rem]" : "w-[18rem]"');
   });
 });

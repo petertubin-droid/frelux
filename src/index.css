@@ -50,7 +50,7 @@
 
 @media (min-width: 1024px) {
   :root {
-    --rail-w: 15.5rem;
+    --rail-w: 18rem;
   }
   html[data-rail="collapsed"] {
     --rail-w: 4.5rem;

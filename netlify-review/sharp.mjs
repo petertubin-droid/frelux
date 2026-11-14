@@ -1,0 +1,10 @@
+import { chromium } from "playwright";
+const browser = await chromium.launch();
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+await page.goto("https://www.netlify.com/", { waitUntil: "domcontentloaded", timeout: 60000 });
+await page.waitForTimeout(2200);
+await page.getByRole("button", { name: /Platform/i }).first().click();
+await page.waitForTimeout(900);
+await page.screenshot({ path: "netlify-review/08-menu-open-2x.png", clip: { x: 200, y: 60, width: 880, height: 300 } });
+await browser.close();

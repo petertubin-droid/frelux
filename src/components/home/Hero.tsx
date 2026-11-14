@@ -67,13 +67,6 @@ export default function Hero() {
   const { branding } = useBranding();
   const { t } = useLanguage();
 
-  // ── Derive image metadata from branding with local premium active-site fallback ──
-  const heroImageUrl =
-    branding?.hero_image_url || "/assets/construction-site.jpg";
-  const heroImageAlt =
-    branding?.hero_image_alt ||
-    "Active multistory construction site at dusk with engineers, tower crane, and illuminated framework";
-
   return (
     <section
       data-tour="hero"
@@ -111,9 +104,10 @@ export default function Hero() {
         <div className="hero-shimmer-line absolute inset-0 opacity-60" />
       </div>
 
-      <Container className="relative grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-2 lg:gap-20 lg:py-36">
-        {/* Left: Content */}
-        <div className="animate-fade-in-up">
+      <Container className="relative grid items-center gap-10 py-20 sm:py-24 lg:py-28">
+        {/* Content. The illustrated panel that used to sit beside this read as a
+            toy next to the calculators, so the hero is one measured column. */}
+        <div className="animate-fade-in-up lg:max-w-3xl">
           {/* Eyebrow badge */}
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-primary-foreground/70 backdrop-blur-md transition-colors hover:border-white/20 hover:text-primary-foreground/90">
             <Gem className="h-3 w-3 text-brand-purple-light" />
@@ -242,116 +236,6 @@ export default function Hero() {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Visual composition */}
-        <div
-          className="relative hidden lg:block animate-fade-in-up"
-          style={{ animationDelay: "0.15s" }}
-        >
-          {/* Ambient twilight glow inspired by FRELUX brand twilight/amber palette */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -inset-6 -z-10 rounded-3xl opacity-75 blur-2xl transition-opacity"
-            style={{
-              background:
-                "radial-gradient(circle at 75% 25%, rgba(109, 40, 217, 0.45), transparent 60%), radial-gradient(circle at 25% 85%, rgba(249, 115, 22, 0.35), transparent 55%)",
-            }}
-          />
-          <div className="relative mx-auto max-w-md">
-            {/* Main image */}
-            <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/15 transition-transform duration-500 hover:scale-[1.02] bg-slate-950/60">
-              <img
-                src={
-                  branding?.hero_image_url
-                    ? heroImageUrl
-                    : "/assets/construction-site-900.webp"
-                }
-                srcSet={
-                  branding?.hero_image_url
-                    ? undefined
-                    : "/assets/construction-site-900.webp 900w, /assets/construction-site-1400.webp 1400w"
-                }
-                sizes="(max-width: 640px) 100vw, 520px"
-                alt={heroImageAlt}
-                className="aspect-[4/5] w-full object-cover"
-                loading="eager"
-                {...({ fetchpriority: "high" } as Record<string, string>)}
-                decoding="async"
-                width={960}
-                height={1200}
-                onLoad={(e) => {
-                  const img = e.currentTarget;
-                  const caption = document.getElementById("hero-image-caption");
-                  if (caption && img.naturalWidth > 0) {
-                    caption.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
-                  }
-                }}
-              />
-              {/* Top & bottom twilight gradients for seamless hero blend */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/20 pointer-events-none" />
-              {/* Subtle amber light reflection across the base */}
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-amber-500/10 via-purple-900/10 to-transparent pointer-events-none" />
-              {/* Image caption overlay */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/40 px-3 py-2 backdrop-blur-md ring-1 ring-white/10">
-                <p className="text-xs font-medium text-primary-foreground/90 truncate mr-2">
-                  {heroImageAlt}
-                </p>
-                <span
-                  id="hero-image-caption"
-                  className="text-xs font-mono font-medium text-primary-foreground/70 shrink-0"
-                />
-              </div>
-            </div>
-
-            {/* Floating swatch card, derived from branding config */}
-            <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-card dark:bg-card p-4 shadow-premium-lg animate-float">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
-                {branding?.hero_image_label || "FRELUX Tools"}
-              </p>
-              <div className="mt-2.5 flex gap-1.5">
-                {(
-                  branding?.hero_swatch_colors ?? [
-                    "#F5F1E8",
-                    "#D9D2C5",
-                    "#7B9EA8",
-                  ]
-                ).map((color, idx) => (
-                  <div
-                    key={idx}
-                    className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105"
-                    style={{ background: color }}
-                  />
-                ))}
-              </div>
-              <p className="mt-2.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground">
-                {branding?.hero_swatch_name || "Curated Palette"}
-              </p>
-            </div>
-
-            {/* Floating estimate chip, uses hero content */}
-            <div className="absolute -right-5 top-8 rounded-xl bg-card dark:bg-card px-4 py-3 shadow-premium-lg animate-float-delayed">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
-                {branding?.hero_chip_label || "Plan & Estimate"}
-              </p>
-              <p className="mt-1 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-                {branding?.hero_chip_value || "Free"}
-              </p>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                {branding?.hero_chip_subtext || hero.ctaPrimaryLabel}
-              </p>
-            </div>
-
-            {/* Floating badge, uses branding config */}
-            <div className="absolute -top-4 right-12 rounded-xl bg-primary px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
-                {branding?.hero_badge_label || "Platform"}
-              </p>
-              <p className="font-display text-sm font-bold text-primary-foreground">
-                {branding?.hero_badge_value || "FRELUX"}
-              </p>
             </div>
           </div>
         </div>

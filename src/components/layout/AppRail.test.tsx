@@ -74,20 +74,29 @@ describe("AppRail", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens a grouped flyout and closes it with Escape", async () => {
-    renderRail();
-    const trigger = screen.getByRole("button", { name: "Construction Tools" });
-    fireEvent.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-    // A real tool from the Construction Tools registry proves the grouped
-    // children rendered, and its section heading proves the grouping held.
-    expect(await screen.findByText("Paint Calculator")).toBeInTheDocument();
-    expect(await screen.findByText("Materials & Finishes")).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: "Escape" });
-    await waitFor(() => {
-      expect(trigger).toHaveAttribute("aria-expanded", "false");
+  it("shows the current workspace's destinations inline, without a overlay", async () => {
+    renderRail("/paint-calculator");
+    // The labelled column belongs to the workspace the visitor is in.
+    const column = screen.getByRole("navigation", {
+      name: "Construction Tools",
     });
+    expect(column).toBeInTheDocument();
+    expect(within(column).getByText("Paint Calculator")).toBeInTheDocument();
+    expect(
+      within(column).getByText("Materials & Finishes"),
+    ).toBeInTheDocument();
+    // Nothing floats: the old bug came from a portalled panel over the page.
+    expect(document.querySelector('[id^="rail-flyout-"]')).toBeNull();
+    expect(document.querySelector(".fixed.inset-0")).toBeNull();
+  });
+
+  it("scrolls the column on its own, inside a fixed shell", async () => {
+    renderRail("/paint-calculator");
+    const column = screen.getByRole("navigation", {
+      name: "Construction Tools",
+    });
+    expect(column.className).toContain("overflow-y-auto");
+    expect(column.className).toContain("overscroll-contain");
   });
 
   it("asks the command palette to open instead of owning search", () => {
@@ -101,12 +110,11 @@ describe("AppRail", () => {
     expect(dispatched).toContain("k");
   });
 
-  it("exposes every workspace and every tool, so no destination is orphaned", async () => {
+  it("exposes every workspace, and every tool of the workspace you are in", async () => {
     renderRail();
     const workspaces = screen.getByRole("navigation", {
       name: "Site sections",
     });
-    // Every top-level workspace is reachable from the rail.
     for (const label of [
       "Home",
       "Convert & Explore",
@@ -122,18 +130,32 @@ describe("AppRail", () => {
       ).toBeGreaterThanOrEqual(1);
     }
 
-    // The biggest flyout holds all 46 tools; opening it must show every one.
-    fireEvent.click(
-      within(workspaces).getByRole("button", { name: "Construction Tools" }),
-    );
+    // Every destination of the current workspace is listed, not a subset.
     const { navWorkspaces } = await import("@/config/site");
     const tools =
       navWorkspaces.find((entry) => entry.label === "Construction Tools")
         ?.children ?? [];
     expect(tools.length).toBe(46);
+    renderRail("/paint-calculator");
     for (const tool of tools) {
       expect(screen.getAllByText(tool.label).length).toBeGreaterThanOrEqual(1);
     }
+  });
+
+  it("switches the column when another workspace is chosen", async () => {
+    renderRail("/paint-calculator");
+    expect(
+      screen.getByRole("navigation", { name: "Construction Tools" }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Market Intelligence"));
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("navigation", { name: "Construction Tools" }),
+      ).toBeNull();
+      expect(
+        screen.getByRole("navigation", { name: "Market Intelligence" }),
+      ).toBeInTheDocument();
+    });
   });
 
   it("keeps the desktop-only contract the layouts depend on", () => {
@@ -165,55 +187,5 @@ describe("AppRail", () => {
     );
     window.removeEventListener("frelux:open-menu", opened);
     expect(opened).toHaveBeenCalledTimes(1);
-  });
-
-  // Regression: the panel used to close on any scroll because the listener ran
-  // in the capture phase and caught scrolls inside the panel itself, so the
-  // moment a visitor scrolled the tool list it vanished.
-  it("survives scrolling its own list, and still closes when the page scrolls", async () => {
-    renderRail();
-    const trigger = screen.getByRole("button", { name: "Construction Tools" });
-    fireEvent.click(trigger);
-    const heading = await screen.findByText("Materials & Finishes");
-    const scroller = heading.closest(".overflow-y-auto");
-    expect(scroller).not.toBeNull();
-
-    fireEvent.scroll(scroller!);
-    expect(screen.getByText("Materials & Finishes")).toBeInTheDocument();
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-
-    fireEvent.scroll(window);
-    await waitFor(() => {
-      expect(
-        screen.queryByText("Materials & Finishes"),
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  // Regression: a full-viewport click-away layer sat over the rail, so the next
-  // workspace never received the hover and the panel looked stuck.
-  it("closes on a press outside the panel and stays on a press inside", async () => {
-    renderRail();
-    const trigger = screen.getByRole("button", { name: "Construction Tools" });
-    fireEvent.click(trigger);
-    const heading = await screen.findByText("Materials & Finishes");
-
-    fireEvent.pointerDown(heading);
-    expect(heading).toBeInTheDocument();
-
-    fireEvent.pointerDown(document.body);
-    await waitFor(() => {
-      expect(
-        screen.queryByText("Materials & Finishes"),
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  it("does not put a full-screen layer over the rail while open", async () => {
-    renderRail();
-    fireEvent.click(screen.getByRole("button", { name: "Construction Tools" }));
-    await screen.findByText("Materials & Finishes");
-    const covering = document.querySelector(".fixed.inset-0");
-    expect(covering).toBeNull();
   });
 });
