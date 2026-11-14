@@ -1,4 +1,5 @@
 /** Paving material takeoff. Rates are user-editable planning assumptions, not design specifications. */
+import { SAND_DENSITY_KG_M3 } from "@/lib/materials/sand-units";
 export interface PavingCalculationInput {
   marketCode: string;
   areaM2: number;
@@ -60,7 +61,8 @@ export function calculatePavingTakeoff(
     beddingSandVolumeM3: Number(beddingVolume.toFixed(3)),
     beddingSandTonnes: Number(
       (
-        beddingVolume * Math.max(0, input.sandBulkDensityTonnesM3 ?? 1.6)
+        beddingVolume *
+        Math.max(0, input.sandBulkDensityTonnesM3 ?? SAND_DENSITY_KG_M3 / 1000)
       ).toFixed(2),
     ),
     compactedSubbaseVolumeM3: Number(compactedSubbase.toFixed(3)),

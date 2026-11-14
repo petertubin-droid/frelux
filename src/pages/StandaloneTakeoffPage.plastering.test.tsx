@@ -89,7 +89,12 @@ describe("plastering calculator summary", () => {
     calculate();
 
     expect(screen.getByText("Cement bags required")).toBeInTheDocument();
-    expect(screen.getByText("Sand volume (m³)")).toBeInTheDocument();
     expect(screen.getByText("Wet Mortar Volume M3")).toBeInTheDocument();
+    // The sand row now states the volume and the weight it means, because a
+    // plaster job is bought in tonnes and trips, not cubic metres.
+    const sand = screen.getByText("Sand volume");
+    expect(sand.nextElementSibling?.textContent).toMatch(
+      /^[\d.,]+ m³ · [\d.,]+ t$/,
+    );
   });
 });

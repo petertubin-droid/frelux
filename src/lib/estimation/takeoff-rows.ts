@@ -45,7 +45,8 @@ function isContainer(value: unknown): boolean {
   if (Array.isArray(value)) return true;
   if (typeof value !== "object" || value === null) return false;
   return Object.values(value).some(
-    (member) => Array.isArray(member) || (typeof member === "object" && member !== null),
+    (member) =>
+      Array.isArray(member) || (typeof member === "object" && member !== null),
   );
 }
 
@@ -74,16 +75,36 @@ export function summariseResultValue(value: unknown): string | null {
 }
 
 /**
+ * A replacement for how one result key is shown: usually two rows where the
+ * engine returned one number (a volume and the purchase units it means), and an
+ * empty array where another key's rows already say it.
+ */
+export type RowOverride = (value: unknown) => SummaryRow[] | null;
+
+/**
  * The rows to render, in the engine's own key order, with marketCode hidden
  * (the panel already says "Calculated for NG") and empty values skipped.
+ *
+ * `overrides` lets a caller restate specific keys without the engine knowing
+ * anything about display: the sand volume becomes "6.69 m³ · 10.7 t" plus a
+ * trip plan, and the separate weight row is absorbed rather than repeated.
  */
 export function buildSummaryRows(
   result: Record<string, unknown>,
   labels: Record<string, string> = {},
+  overrides: Record<string, RowOverride> = {},
 ): SummaryRow[] {
   const rows: SummaryRow[] = [];
   for (const [key, value] of Object.entries(result)) {
     if (key === "marketCode") continue;
+    const override = overrides[key];
+    if (override) {
+      const replaced = override(value);
+      if (replaced) {
+        rows.push(...replaced);
+        continue;
+      }
+    }
     const value_ = summariseResultValue(value);
     if (value_ === null) continue;
     rows.push({ label: labels[key] ?? humaniseResultKey(key), value: value_ });

@@ -44,6 +44,11 @@ import {
   buildSummaryRows,
   humaniseResultKey,
 } from "@/lib/estimation/takeoff-rows";
+import {
+  sandPurchaseLabel,
+  sandRowOverrides,
+  sandVolumeLabel,
+} from "@/lib/materials/sand-units";
 import { useLanguage } from "@/lib/i18n";
 import {
   calculateMasonryTakeoff,
@@ -597,6 +602,7 @@ export default function StandaloneTakeoffPage({
     ? buildSummaryRows(
         result as unknown as Record<string, unknown>,
         RESULT_LABELS,
+        sandRowOverrides(marketCode),
       )
     : [];
   const buildTakeoffQuote = (): QuoteOptions | null => {
@@ -613,10 +619,21 @@ export default function StandaloneTakeoffPage({
         return value !== "" && value !== null;
       })
       .slice(0, 24)
-      .map(([key, value]) => ({
-        label: prettify(key),
-        quantity: String(value),
-      }));
+      .flatMap(([key, value]) => {
+        if (/^sand(VolumeM3|_volume_m3|M3)$/.test(key)) {
+          const volume = Number(value);
+          const purchase = sandPurchaseLabel(volume, marketCode);
+          return [
+            {
+              label: "Sand volume",
+              quantity: sandVolumeLabel(volume, marketCode),
+            },
+            ...(purchase ? [{ label: "Buy sand", quantity: purchase }] : []),
+          ];
+        }
+        if (/^sand(WeightTonnes|_weight_tonnes)$/.test(key)) return [];
+        return [{ label: prettify(key), quantity: String(value) }];
+      });
     const warnings = [
       ...(Array.isArray(record.warnings) ? (record.warnings as string[]) : []),
       ...(Array.isArray(record.assumptions)

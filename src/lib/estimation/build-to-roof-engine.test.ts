@@ -30,13 +30,17 @@ import {
   DEFAULT_LABOUR,
   DEFAULT_WASTAGE,
 } from "@/lib/estimation/build-to-roof-engine";
+import { tripCubicMetres } from "@/lib/materials/sand-units";
 import type { BuildToRoofInput } from "@/types/build-to-roof";
 
 describe("constants", () => {
   it("CEMENT_VOLUME_PER_BAG is 50 kg over the 1440 kg/m³ bulk density", () => {
     // 0.03472 m³ per bag; the old literal 0.0347 was this value truncated.
     expect(CEMENT_VOLUME_PER_BAG).toBeCloseTo(0.0347, 4);
-    expect(CEMENT_VOLUME_PER_BAG).toBeCloseTo(CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3, 12);
+    expect(CEMENT_VOLUME_PER_BAG).toBeCloseTo(
+      CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3,
+      12,
+    );
   });
   it("DRY_WET_RATIO = 1.54", () => expect(DRY_WET_RATIO).toBe(1.54));
   it("MORTAR_DRY_WET_RATIO = 1.33", () =>
@@ -45,7 +49,12 @@ describe("constants", () => {
   it("PURLIN_ROWS_PER_SLOPE = 4", () => expect(PURLIN_ROWS_PER_SLOPE).toBe(4));
   it("RAFTER_SPACING = 0.9", () => expect(RAFTER_SPACING).toBe(0.9));
   it("M_PER_FT = 0.3048", () => expect(M_PER_FT).toBe(0.3048));
-  it("M3_PER_TRIP = 3.5", () => expect(M3_PER_TRIP).toBe(3.5));
+  it("M3_PER_TRIP is the 5-tonne tipper at 1,600 kg/m³", () => {
+    // 3.13 m³, not 3.5: the old figure implied 1,430 kg/m³ and made the same
+    // sand volume read as fewer trips here than in the blockwork takeoff.
+    expect(M3_PER_TRIP).toBe(3.13);
+    expect(M3_PER_TRIP).toBe(tripCubicMetres(5, "NG"));
+  });
   it("SHEET_COVERAGE has all materials", () => {
     expect(SHEET_COVERAGE.long_span_aluminium).toBe(1.5);
     expect(SHEET_COVERAGE.stone_coated).toBe(0.53);
@@ -56,7 +65,7 @@ describe("constants", () => {
 });
 
 describe("m3ToTrips", () => {
-  it("converts m³ to trips", () => expect(m3ToTrips(7)).toBeCloseTo(2, 5));
+  it("converts m³ to trips", () => expect(m3ToTrips(6.26)).toBeCloseTo(2, 5));
   it("returns 0 for 0", () => expect(m3ToTrips(0)).toBe(0));
 });
 
@@ -71,7 +80,10 @@ describe("concreteToMaterials", () => {
   it("calculates 1:2:4 mix correctly", () => {
     const r = concreteToMaterials(1, 1, 2, 4);
     const dryVol = 1 * 1.54;
-    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG, 4);
+    expect(r.cement_bags).toBeCloseTo(
+      (dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG,
+      4,
+    );
     expect(r.sand_m3).toBeCloseTo(dryVol * (2 / 7), 4);
     expect(r.granite_m3).toBeCloseTo(dryVol * (4 / 7), 4);
   });
@@ -97,7 +109,10 @@ describe("mortarToMaterials", () => {
   it("calculates 1:6 mix correctly", () => {
     const r = mortarToMaterials(1, 1, 6);
     const dryVol = 1 * 1.33;
-    expect(r.cement_bags).toBeCloseTo((dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG, 4);
+    expect(r.cement_bags).toBeCloseTo(
+      (dryVol * (1 / 7)) / CEMENT_VOLUME_PER_BAG,
+      4,
+    );
     expect(r.sand_m3).toBeCloseTo(dryVol * (6 / 7), 4);
   });
   it("mass balance holds", () => {
@@ -475,6 +490,37 @@ describe("calculateBuildToRoof (audit regression)", () => {
     expect(sandFillLines).toHaveLength(1);
     // Footprint 80 m² x 50 mm = 4 m³ (+10% sand wastage → 4.4 m³ → 2 trips)
     expect(sandFillLines[0].final_quantity).toBe(2);
+  });
+
+  it("states the volume behind every trip-priced load", () => {
+    const result = calculateBuildToRoof(makeValidInput());
+    const tripLines = result.stages
+      .flatMap((s) => s.materials)
+      .filter((m) => m.unit === "trips");
+    expect(tripLines.length).toBeGreaterThan(0);
+    for (const line of tripLines) {
+      // The trip count is the volume over the one trip size, rounded up, so the
+      // two figures on the line can never disagree.
+      expect(line.volume_m3).toBeGreaterThan(0);
+      expect(line.final_quantity).toBe(
+        Math.ceil(line.volume_m3! / M3_PER_TRIP),
+      );
+    }
+  });
+
+  it("gives sand its weight at 1,600 kg/m³ and leaves granite unweighed", () => {
+    const result = calculateBuildToRoof(makeValidInput());
+    const lines = result.stages.flatMap((s) => s.materials);
+    const sand = lines.filter(
+      (m) => /sand/i.test(m.label) && m.unit === "trips",
+    );
+    expect(sand.length).toBeGreaterThan(0);
+    for (const line of sand) {
+      expect(line.weight_tonnes).toBeCloseTo(line.volume_m3! * 1.6, 1);
+    }
+    const granite = lines.filter((m) => /granite/i.test(m.label));
+    expect(granite.length).toBeGreaterThan(0);
+    for (const line of granite) expect(line.weight_tonnes).toBeUndefined();
   });
 
   it("backfill excludes the full-footprint blinding (trench holds only the footing)", () => {

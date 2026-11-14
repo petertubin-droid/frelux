@@ -127,3 +127,53 @@ describe("Chinese masonry calculator", () => {
     ).toBeInTheDocument();
   });
 });
+
+// Nigeria buys sand by the trip, not by the cubic metre, so the blockwork
+// takeoff has to say both: the measured volume with the weight it means, and
+// the tippers that volume becomes at the depot.
+describe("Nigerian sand quantities", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    marketState.code = "NG";
+  });
+
+  async function calculateBlockwork(length = "20", height = "3") {
+    renderPage();
+    fireEvent.change(screen.getByLabelText(/Wall length/i), {
+      target: { value: length },
+    });
+    fireEvent.change(screen.getByLabelText(/Wall height/i), {
+      target: { value: height },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Calculate/i }));
+  }
+
+  it("shows the sand volume in m³ and the tonnes it weighs", async () => {
+    await calculateBlockwork();
+    const row = screen.getByText("Sand volume").nextElementSibling;
+    const text = row?.textContent ?? "";
+    const match = /^([\d.,]+) m³ · ([\d.,]+) t$/.exec(text);
+    expect(match).not.toBeNull();
+    const m3 = Number(match![1].replace(/,/g, ""));
+    const tonnes = Number(match![2].replace(/,/g, ""));
+    // 1,600 kg/m³ is the density the takeoff assumes, so the pair must agree.
+    expect(tonnes).toBeCloseTo((m3 * 1600) / 1000, 1);
+  });
+
+  it("turns a multi-block job into the trips a Nigerian site orders", async () => {
+    // 60 m of 9-inch wall over 3 m needs more sand than a depot sells in bags,
+    // so the plan names the tipper.
+    await calculateBlockwork("60", "3");
+    const row = screen.getByText("Buy sand").nextElementSibling;
+    expect(row?.textContent).toMatch(/tonne trip/);
+  });
+
+  it("says top-up, not a whole trip, for a job smaller than a tipper", async () => {
+    // 20 m x 3 m needs about 1.4 m³: ordering a 5-tonne trip for that would
+    // overbuy three cubic metres of sand.
+    await calculateBlockwork("20", "3");
+    const row = screen.getByText("Buy sand").nextElementSibling;
+    expect(row?.textContent).toMatch(/m³ top-up/);
+    expect(row?.textContent).not.toMatch(/tonne trip/);
+  });
+});

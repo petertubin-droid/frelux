@@ -1,3 +1,4 @@
+import { sandTonnes } from "@/lib/materials/sand-units";
 import { getPackagingEvidence } from "./market-packaging-verification";
 
 /**
@@ -1858,7 +1859,7 @@ export function calculateMasonryTakeoff(
   }
   const cementBagsRequired = Math.ceil(cementKg / cementBagWeight);
 
-  const sandWeightTonnes = Number((sandVolM3 * 1.6).toFixed(2));
+  const sandWeightTonnes = sandTonnes(sandVolM3, config.marketCode);
   const waterLiters = Math.round(cementKg * 0.55); // W/C ratio 0.55
 
   // Labor Estimation (based on RSMeans & SMM7 historical rates)

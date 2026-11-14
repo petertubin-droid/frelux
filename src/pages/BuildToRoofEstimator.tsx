@@ -3072,7 +3072,11 @@ function EstimateResult({
         unit: m.unit,
         unit_price: "included",
         line_total: formatCurrency(m.total_cost),
-        detail: stage.stage_label,
+        // A trip-priced load still prints the volume it stands for.
+        detail:
+          m.volume_m3 != null
+            ? `${stage.stage_label} · ${formatNumber(m.volume_m3)} m³`
+            : stage.stage_label,
       })),
     );
     const labourLines = result.stages.flatMap((stage) =>
@@ -3552,6 +3556,16 @@ function EstimateResult({
                         <tr key={j} className="border-b border-border/50">
                           <td className="py-2 text-card-foreground">
                             {m.label}
+                            {m.volume_m3 != null && (
+                              // A load bought by the trip still states the
+                              // volume and weight it stands for.
+                              <span className="block text-xs text-muted-foreground">
+                                {formatNumber(m.volume_m3)} m³
+                                {m.weight_tonnes != null
+                                  ? ` · ${formatNumber(m.weight_tonnes)} t`
+                                  : ""}
+                              </span>
+                            )}
                           </td>
                           <td className="py-2 text-right text-muted-foreground">
                             {formatNumber(m.final_quantity)}

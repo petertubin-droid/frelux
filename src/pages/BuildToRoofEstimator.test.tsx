@@ -164,6 +164,28 @@ describe("BuildToRoofEstimator 4-Phase UI", () => {
     });
   });
 
+  it("shows the volume and weight behind a trip-priced sand load", async () => {
+    render(
+      <MemoryRouter>
+        <BuildToRoofEstimator />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Rates & Pricing/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Generate Summary BOQ/i }),
+    );
+
+    // "4.4 m³ · 7.04 t" under a line sold in trips: the buyer sees both the
+    // measured volume and the tonnage behind the load.
+    await waitFor(() => {
+      const captions = screen
+        .getAllByText(/^[\d.,]+ m³ · [\d.,]+ t$/)
+        .map((el) => el.textContent ?? "");
+      expect(captions.length).toBeGreaterThan(0);
+      expect(captions[0]).toMatch(/m³ · .* t/);
+    });
+  });
+
   it("handles Start fresh button with confirmation", () => {
     render(
       <MemoryRouter>

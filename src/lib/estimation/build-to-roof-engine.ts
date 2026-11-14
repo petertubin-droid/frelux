@@ -23,6 +23,7 @@
 // 12. Compaction labour added for hardcore/filling
 // =========================================================
 
+import { sandTonnes, tripCubicMetres } from "@/lib/materials/sand-units";
 import type {
   BuildToRoofInput,
   BuildToRoofResult,
@@ -134,8 +135,11 @@ export const FOUNDATION_COURSES = 4;
 // Feet to meters conversion
 export const M_PER_FT = 0.3048;
 
-// 1 trip of sand/granite = ~3.5 m³ (standard 5-tonne tipper truck in Nigeria)
-export const M3_PER_TRIP = 3.5;
+// One trip is the standard 5-tonne tipper, measured with the same dry loose
+// bulk density (1,600 kg/m³) the mortar and render takeoffs use, so the same
+// sand volume never converts to two different trip counts in two calculators.
+// 5 t / 1.6 t per m³ = 3.13 m³, not the 3.5 m³ that implied 1,430 kg/m³.
+export const M3_PER_TRIP = tripCubicMetres(5, "NG");
 
 // ── Helpers ──
 
@@ -166,6 +170,9 @@ function matLineTrips(
 ): MaterialLine {
   const finalM3 = applyWastage(volumeM3, wastagePercent);
   const trips = m3ToTripCeil(finalM3);
+  // Only sand has a confirmed bulk density here; a granite load states its
+  // volume without a tonnage we would have to guess.
+  const isSand = /sand/i.test(label);
   // Use trip pricing (cheaper per m³ when bought in bulk)
   // but if volume is very small (< 0.5 trip), use per-m³ for accuracy
   if (finalM3 < M3_PER_TRIP * 0.5 && pricePerM3 > 0) {
@@ -178,6 +185,8 @@ function matLineTrips(
       unit_price: pricePerM3,
       total_cost: round(finalM3 * pricePerM3),
       price_source: priceSource,
+      volume_m3: round(finalM3),
+      weight_tonnes: isSand ? sandTonnes(finalM3, "NG") : undefined,
     };
   }
   return {
@@ -189,6 +198,10 @@ function matLineTrips(
     unit_price: pricePerTrip,
     total_cost: round(trips * pricePerTrip),
     price_source: priceSource,
+    // The volume and weight the trips stand for, so the line reads in both the
+    // units the takeoff measured and the units the depot sells.
+    volume_m3: round(finalM3),
+    weight_tonnes: isSand ? sandTonnes(finalM3, "NG") : undefined,
   };
 }
 
@@ -691,16 +704,25 @@ export function summariseTimberFraming(
   roofType: string,
 ): TimberFramingSummary {
   const totalM = estimateTimberMeters(
-    roofAreaM2, buildingLength, buildingWidth, pitchDegrees, overhang, roofType,
+    roofAreaM2,
+    buildingLength,
+    buildingWidth,
+    pitchDegrees,
+    overhang,
+    roofType,
   );
   const pitchRad = (pitchDegrees * Math.PI) / 180;
   const eaveLength = buildingLength + 2 * overhang;
   const eaveWidth = buildingWidth + 2 * overhang;
   if (roofType === "flat") {
     return {
-      totalM, rafterSpacingM: RAFTER_SPACING,
-      rafterRuns: 0, rafterLengthM: 0,
-      purlinRowsPerPlane: 0, purlinPlanes: 0, purlinLengthM: 0,
+      totalM,
+      rafterSpacingM: RAFTER_SPACING,
+      rafterRuns: 0,
+      rafterLengthM: 0,
+      purlinRowsPerPlane: 0,
+      purlinPlanes: 0,
+      purlinLengthM: 0,
     };
   }
   if (roofType === "mono_pitch") {
@@ -708,30 +730,45 @@ export function summariseTimberFraming(
     const runs = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     const rows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
     return {
-      totalM, rafterSpacingM: RAFTER_SPACING,
-      rafterRuns: runs, rafterLengthM: round(runs * slopeLength),
-      purlinRowsPerPlane: rows, purlinPlanes: 1,
+      totalM,
+      rafterSpacingM: RAFTER_SPACING,
+      rafterRuns: runs,
+      rafterLengthM: round(runs * slopeLength),
+      purlinRowsPerPlane: rows,
+      purlinPlanes: 1,
       purlinLengthM: round(rows * eaveLength),
     };
   }
   const slopeLength = eaveWidth / 2 / Math.cos(pitchRad);
   const rowsGable = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
   if (roofType === "hip") {
-    const commons = Math.max(1, Math.ceil((eaveLength - eaveWidth) / RAFTER_SPACING) + 1);
+    const commons = Math.max(
+      1,
+      Math.ceil((eaveLength - eaveWidth) / RAFTER_SPACING) + 1,
+    );
     const jacks = Math.ceil(eaveWidth / RAFTER_SPACING) + 1;
     return {
-      totalM, rafterSpacingM: RAFTER_SPACING,
+      totalM,
+      rafterSpacingM: RAFTER_SPACING,
       rafterRuns: commons * 2 + jacks * 2,
-      rafterLengthM: round(commons * 2 * slopeLength + jacks * 2 * (slopeLength / 2)),
-      purlinRowsPerPlane: rowsGable, purlinPlanes: 4,
-      purlinLengthM: round(rowsGable * 2 * eaveLength + rowsGable * 2 * (eaveWidth / 2)),
+      rafterLengthM: round(
+        commons * 2 * slopeLength + jacks * 2 * (slopeLength / 2),
+      ),
+      purlinRowsPerPlane: rowsGable,
+      purlinPlanes: 4,
+      purlinLengthM: round(
+        rowsGable * 2 * eaveLength + rowsGable * 2 * (eaveWidth / 2),
+      ),
     };
   }
   const runs = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
   return {
-    totalM, rafterSpacingM: RAFTER_SPACING,
-    rafterRuns: runs * 2, rafterLengthM: round(runs * 2 * slopeLength),
-    purlinRowsPerPlane: rowsGable, purlinPlanes: 2,
+    totalM,
+    rafterSpacingM: RAFTER_SPACING,
+    rafterRuns: runs * 2,
+    rafterLengthM: round(runs * 2 * slopeLength),
+    purlinRowsPerPlane: rowsGable,
+    purlinPlanes: 2,
     purlinLengthM: round(rowsGable * 2 * eaveLength),
   };
 }
@@ -791,10 +828,12 @@ export function estimateTimberMeters(
     // The row count follows the slope like the gable branch. A fixed four rows
     // is what left a 6 m slope with rows 2.06 m apart, which the sheet support
     // rule exists to prevent, so it cannot be right on a hip either.
-    const hipPurlinRows = Math.max(2, Math.ceil(slopeLength / PURLIN_SPACING_M));
+    const hipPurlinRows = Math.max(
+      2,
+      Math.ceil(slopeLength / PURLIN_SPACING_M),
+    );
     purlinTotalM =
-      hipPurlinRows * 2 * eaveLength +
-      hipPurlinRows * 2 * (eaveWidth / 2);
+      hipPurlinRows * 2 * eaveLength + hipPurlinRows * 2 * (eaveWidth / 2);
   } else {
     // Gable (and custom): 2 planes, rafters at spacing along the eave length
     const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
@@ -2120,7 +2159,11 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
       timber.rafterRuns > 0
         ? `Rafters at ${timber.rafterSpacingM} m centres (${timber.rafterRuns} rafter runs, ${timber.rafterLengthM} m) + purlins at ${PURLIN_SPACING_M} m along the slope (${timber.purlinRowsPerPlane} rows on ${timber.purlinPlanes} plane(s), ${timber.purlinLengthM} m)`
         : "Minimal timber allowance for a flat roof",
-      { roof_area: roofArea, rafter_spacing_m: timber.rafterSpacingM, purlin_rows: timber.purlinRowsPerPlane },
+      {
+        roof_area: roofArea,
+        rafter_spacing_m: timber.rafterSpacingM,
+        purlin_rows: timber.purlinRowsPerPlane,
+      },
       timberM,
       "m",
       input.wastage.timber,
