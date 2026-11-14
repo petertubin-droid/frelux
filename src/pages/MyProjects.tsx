@@ -839,6 +839,17 @@ export default function MyProjects() {
                                     </>
                                   )}
                                 </p>
+                                <AdaptiveCalibrationPanel
+                                  project={{
+                                    id: p.id,
+                                    name: p.name,
+                                    data: (
+                                      p as {
+                                        data?: Record<string, unknown>;
+                                      }
+                                    ).data,
+                                  }}
+                                />
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5 self-end sm:self-center">
