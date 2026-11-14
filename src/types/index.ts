@@ -320,6 +320,12 @@ export interface PopCalcInput {
   wasteMargin: number;
   includeDecorative: boolean;
   includeOptional: boolean;
+  /**
+   * Fitters on site. Materials measured "per_worker" (the MDF plywood a crew
+   * stands on) scale with this instead of the ceiling area. Defaults to 1 so
+   * a solo fitter still gets a complete, priced estimate.
+   */
+  workers?: number;
 }
 
 export interface PopMaterialResult {

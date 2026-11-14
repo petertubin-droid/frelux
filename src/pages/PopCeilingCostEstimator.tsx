@@ -203,6 +203,7 @@ export default function PopCeilingCostEstimator({
     wasteMargin: sharedWaste.value,
     includeDecorative: true,
     includeOptional: false,
+    workers: 1,
   });
 
   const openingInput = useRef(input);
@@ -440,7 +441,9 @@ export default function PopCeilingCostEstimator({
                   className="input-field dark:bg-card dark:border-white/10"
                 >
                   <option value="nigeria">
-                    {t("Nigeria (POP cement, fibre, surface board)")}
+                    {t(
+                      "Nigeria (POP cement, fibre, MDF plywood work platform)",
+                    )}
                   </option>
                   <option value="international">
                     {t("International (gypsum board, framework)")}
@@ -472,6 +475,31 @@ export default function PopCeilingCostEstimator({
                     className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />
+                </Field>
+                <Field
+                  label="Workers on site"
+                  hint="Each fitter uses half an MDF plywood board"
+                >
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    step={1}
+                    value={input.workers ?? 1}
+                    onChange={(e) =>
+                      update(
+                        "workers",
+                        Math.max(1, Math.floor(Number(e.target.value) || 1)),
+                      )
+                    }
+                    className="input-field dark:bg-card dark:border-white/10"
+                    aria-label="Workers on site"
+                    aria-describedby="pop-workers-hint"
+                  />
+                  <span id="pop-workers-hint" className="sr-only">
+                    Two fitters share one MDF plywood board, so one worker needs
+                    half a board and three need one and a half.
+                  </span>
                 </Field>
                 <Field label="Room width" suffix={unitShortLabel(input.unit)}>
                   <input

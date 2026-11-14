@@ -29,6 +29,7 @@ export function calculatePopCeiling(
   const widthM = toSqm(input.roomWidth, input.unit);
   const ceilingArea = lengthM * widthM;
 
+  const workers = Math.max(1, Math.floor(input.workers ?? 1));
   const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
   const wasteMultiplier = 1 + wastePct / 100;
   const adjustedArea = ceilingArea * wasteMultiplier;
@@ -53,7 +54,15 @@ export function calculatePopCeiling(
     if (mat.category === "labour") {
       // Labour not included, negotiated separately
     } else {
-      if (coverage > 0 && adjustedArea > 0) {
+      const isPerWorker = mat.quantity_basis === "per_worker";
+      const perWorkerRate = Number(mat.per_worker_rate ?? 0);
+      if (isPerWorker) {
+        if (perWorkerRate <= 0) {
+          calcWarnings.push(
+            `Per-worker rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until it is configured.`,
+          );
+        }
+      } else if (coverage > 0 && adjustedArea > 0) {
         // ok, configurable coverage present
       } else if (adjustedArea > 0) {
         calcWarnings.push(
@@ -67,10 +76,27 @@ export function calculatePopCeiling(
           `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`,
         );
       }
-      const quantity = coverage > 0 ? adjustedArea / coverage : 0;
+      // Crew equipment scales with the number of fitters; waste allowance is a
+      // material loss on measured area, so it does not apply to a platform.
+      const quantity = isPerWorker
+        ? workers * perWorkerRate
+        : coverage > 0
+          ? adjustedArea / coverage
+          : 0;
       const packagesNeeded =
         pkgSize > 0 ? ceilUnits(quantity / pkgSize) : ceilUnits(quantity);
-      const cost = packagesNeeded * unitPrice;
+      // A crew item is bought as whole boards plus, when the count ends in a
+      // half, one board cut in two at the supplier's half price (₦13,000 for a
+      // ₦25,000 sheet). Charging whole boards would overbill a one-worker job;
+      // halving the price would charge ₦12,500 for a cut the shop prices at
+      // ₦13,000. Without a configured half price it falls back to whole boards.
+      const splitPrice = Number(mat.split_unit_price ?? 0);
+      const wholeBoards = Math.floor(quantity + 1e-9);
+      const hasHalf = quantity - wholeBoards > 1e-9;
+      const cost =
+        isPerWorker && splitPrice > 0
+          ? wholeBoards * unitPrice + (hasHalf ? splitPrice : 0)
+          : packagesNeeded * unitPrice;
       materialCost += cost;
       materialResults.push({
         name: mat.name,
@@ -79,7 +105,9 @@ export function calculatePopCeiling(
         // inflated the figure (20.41 m² shown as 20.5 m²) even though the
         // package count already carried the rounding up.
         quantity: Math.round(quantity * 100) / 100,
-        unit: mat.coverage_unit,
+        // A per-worker row is counted in whole boards, so that is what it
+        // reports; area rows keep their coverage unit.
+        unit: isPerWorker ? mat.package_unit : mat.coverage_unit,
         packagesNeeded,
         cost,
         isOptional: mat.is_optional,
@@ -161,9 +189,10 @@ export function calculateTile(
   }
 
   const unitAreaM2 = toSqm(1, input.unit) ** 2;
-  const requestedOpeningArea = input.surfaceType === "wall" && Number.isFinite(input.openingArea)
-    ? Math.max(0, input.openingArea ?? 0) * unitAreaM2
-    : 0;
+  const requestedOpeningArea =
+    input.surfaceType === "wall" && Number.isFinite(input.openingArea)
+      ? Math.max(0, input.openingArea ?? 0) * unitAreaM2
+      : 0;
   const openingArea = Math.min(surfaceArea, requestedOpeningArea);
   const netSurfaceArea = Math.max(0, surfaceArea - openingArea);
   const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
@@ -174,7 +203,9 @@ export function calculateTile(
   const tileAreaM2 = (input.tileWidthMm / 1000) * (input.tileHeightMm / 1000);
   const tilesNeeded = tileAreaM2 > 0 ? ceilUnits(adjustedArea / tileAreaM2) : 0;
   const boxesNeeded =
-    input.tilesPerBox > 0 ? ceilUnits(tilesNeeded / input.tilesPerBox) : tilesNeeded;
+    input.tilesPerBox > 0
+      ? ceilUnits(tilesNeeded / input.tilesPerBox)
+      : tilesNeeded;
   const tileCost = boxesNeeded * input.tilePricePerBox;
 
   // --- Adhesive (only when method === 'adhesive') ---
@@ -251,7 +282,8 @@ export function calculateTile(
     // and whole packs are bought.
     const cementPkgSize =
       input.cementPackageSize > 1 ? input.cementPackageSize : 1;
-    const packs = cementPkgSize > 1 ? ceilUnits(bagsRequired / cementPkgSize) : null;
+    const packs =
+      cementPkgSize > 1 ? ceilUnits(bagsRequired / cementPkgSize) : null;
     cementNeeded = packs !== null ? packs * cementPkgSize : bagsRequired;
     cementCost = cementNeeded * input.cementPricePerBag;
   }
@@ -333,7 +365,9 @@ export function calculateTile(
     );
   }
   if (input.surfaceType !== "wall" && (input.openingArea ?? 0) > 0) {
-    tileWarnings.push("Opening deductions were ignored because the selected surface is not a wall.");
+    tileWarnings.push(
+      "Opening deductions were ignored because the selected surface is not a wall.",
+    );
   }
   if (surfaceArea > 0) {
     if (

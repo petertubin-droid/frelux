@@ -9055,13 +9055,21 @@ export const BUNDLED_POP_MATERIALS = [
     id: "4f02e61c-c11b-4b12-a78f-29042270fc54",
     workflow: "nigeria",
     category: "primary",
-    name: "Surface Board",
+    // A sheet a fitter stands on while working the ceiling, not cladding.
+    // Two fitters share one sheet, so the count tracks the crew, not the area:
+    // 1 worker = ½ board, 2 = 1 board, 3 = 1½ boards. Boards are sold whole,
+    // so the purchase rounds up to the next sheet.
+    name: "MDF Plywood (work platform)",
     unit: "board",
-    coverageRate: 2.5,
-    coverageUnit: "m²",
+    coverageRate: 0,
+    coverageUnit: "board",
+    quantityBasis: "per_worker",
+    perWorkerRate: 0.5,
+    // A whole sheet is ₦25,000; a supplier cuts one in two for ₦13,000.
+    splitUnitPrice: 13000,
     packageSize: 1,
     packageUnit: "board",
-    unitPrice: 2500,
+    unitPrice: 25000,
     labourPerSqm: 0,
     isOptional: false,
     currency: "NGN",

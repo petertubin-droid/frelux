@@ -2132,7 +2132,7 @@ export default function App() {
                           element={<CodeReference />}
                         />
                       </Route>
-                      <Route>
+                      <Route element={<Layout />}>
                         <Route
                           path="/planning-approvals"
                           element={<PlanningApprovals />}
@@ -2825,50 +2825,55 @@ export default function App() {
                         </Route>
                       </Route>
 
-                      <Route
-                        path="/credits"
-                        element={
-                          <Suspense fallback={<PageLoader />}>
-                            <CreditsPage />
-                          </Suspense>
-                        }
-                      />
-                      {/* Project intelligence routes */}
-                      <Route path="/gallery" element={<Gallery />} />
-                      <Route path="/case-studies" element={<CaseStudies />} />
-                      <Route
-                        path="/learn/build-in-nigeria-from-abroad"
-                        element={<BuildInNigeriaFromAbroad />}
-                      />
-                      <Route
-                        path="/case-studies/:id"
-                        element={<CaseStudyDetail />}
-                      />
-                      <Route
-                        path="/properties"
-                        element={<PropertiesDashboard />}
-                      />
-                      <Route path="/gallery/new" element={<GalleryUpload />} />
-                      <Route
-                        path="/project-workspace"
-                        element={<ProjectWorkspace />}
-                      />
-                      <Route
-                        path="/project-workspace/:id"
-                        element={<ProjectDetail />}
-                      />
-                      <Route
-                        path="/project-workspace/:id/client-estimate/new"
-                        element={<ClientEstimateEditor />}
-                      />
-                      <Route
-                        path="/project-workspace/:id/client-estimate/:estimateId/edit"
-                        element={<ClientEstimateEditor />}
-                      />
-                      <Route
-                        path="/workspace-settings"
-                        element={<WorkspaceSettings />}
-                      />
+                      <Route element={<Layout />}>
+                        <Route
+                          path="/credits"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <CreditsPage />
+                            </Suspense>
+                          }
+                        />
+                        {/* Project intelligence routes */}
+                        <Route path="/gallery" element={<Gallery />} />
+                        <Route path="/case-studies" element={<CaseStudies />} />
+                        <Route
+                          path="/learn/build-in-nigeria-from-abroad"
+                          element={<BuildInNigeriaFromAbroad />}
+                        />
+                        <Route
+                          path="/case-studies/:id"
+                          element={<CaseStudyDetail />}
+                        />
+                        <Route
+                          path="/properties"
+                          element={<PropertiesDashboard />}
+                        />
+                        <Route
+                          path="/gallery/new"
+                          element={<GalleryUpload />}
+                        />
+                        <Route
+                          path="/project-workspace"
+                          element={<ProjectWorkspace />}
+                        />
+                        <Route
+                          path="/project-workspace/:id"
+                          element={<ProjectDetail />}
+                        />
+                        <Route
+                          path="/project-workspace/:id/client-estimate/new"
+                          element={<ClientEstimateEditor />}
+                        />
+                        <Route
+                          path="/project-workspace/:id/client-estimate/:estimateId/edit"
+                          element={<ClientEstimateEditor />}
+                        />
+                        <Route
+                          path="/workspace-settings"
+                          element={<WorkspaceSettings />}
+                        />
+                      </Route>
                       <Route
                         path="/invite/:token"
                         element={<AcceptInvitation />}

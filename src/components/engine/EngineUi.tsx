@@ -75,7 +75,10 @@ export function EngineWasteSelector({
       <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         {t("Waste Allowance")}
       </label>
-      <div className="flex gap-2">
+      {/* flex-wrap, not a rigid row: "System Recommended" plus two more
+          buttons is wider than a 320px phone's card, and squeezing them made
+          the labels spill past the card edge. Wrapping keeps every label whole. */}
+      <div className="flex flex-wrap gap-2">
         {(
           [
             ["system", "System Recommended"],
@@ -88,7 +91,7 @@ export function EngineWasteSelector({
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              "shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               mode === key
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground",
@@ -440,7 +443,7 @@ export function EngineMaterialSummaryCard({
               <th className="pb-2 pr-3 font-medium text-muted-foreground">
                 {t("Unit")}
               </th>
-              <th className="pb-2 font-medium text-muted-foreground">
+              <th className="hidden pb-2 font-medium text-muted-foreground sm:table-cell">
                 {t("Sources")}
               </th>
             </tr>
@@ -453,8 +456,10 @@ export function EngineMaterialSummaryCard({
               >
                 <td className="py-2 pr-3 font-medium">{entry.productName}</td>
                 <td className="py-2 pr-3">{entry.totalQuantity}</td>
-                <td className="py-2 pr-3">{entry.quantityUnit}</td>
-                <td className="py-2 text-muted-foreground">
+                <td className="whitespace-nowrap py-2 pr-3">
+                  {entry.quantityUnit}
+                </td>
+                <td className="hidden py-2 text-muted-foreground sm:table-cell">
                   {entry.spaceIds.length}
                 </td>
               </tr>
