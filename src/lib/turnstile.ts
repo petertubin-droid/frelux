@@ -87,6 +87,9 @@ export type TurnstileCheck = { ok: boolean; reason?: string };
  * first keeps a form submission off the Supabase functions hot path; the function
  * stays as the fallback so a Worker outage cannot lock anyone out.
  */
+/** How long the file Worker gets before the edge function takes over. */
+const EDGE_VERIFY_TIMEOUT_MS = 4000;
+
 const EDGE_VERIFY_URL = (
   (import.meta.env.VITE_R2_WORKER_URL as string | undefined) ?? ""
 )
@@ -104,11 +107,18 @@ async function verifyAtEdge(
   action: string,
 ): Promise<TurnstileCheck | null> {
   if (!EDGE_VERIFY_URL) return null;
+  // The Worker is a fallback-preferring faster path, not the only verifier.
+  // Without a deadline a Worker that hangs (dead custom domain, cold DNS)
+  // would stall the form for as long as the browser waits, so give it a
+  // short budget and hand the token to the function instead.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), EDGE_VERIFY_TIMEOUT_MS);
   try {
     const response = await fetch(`${EDGE_VERIFY_URL}/api/turnstile`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ token, action }),
+      signal: controller.signal,
     });
     if (response.status === 503) return null;
     if (response.status === 502) return { ok: false, reason: "network" };
@@ -125,6 +135,8 @@ async function verifyAtEdge(
     return { ok: false, reason: "rejected" };
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

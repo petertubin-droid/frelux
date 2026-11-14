@@ -129,6 +129,25 @@ describe("verifyTurnstileToken at the edge", () => {
     expect(invoke).not.toHaveBeenCalled();
   });
 
+  it("gives the Worker a deadline and hands the token to the function after it", async () => {
+    // A Worker whose custom domain no longer answers would otherwise hold the
+    // form open until the browser gave up on its own.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        expect(init.signal).toBeInstanceOf(AbortSignal);
+        throw new DOMException("aborted", "AbortError");
+      }),
+    );
+    invoke.mockResolvedValue({ data: { ok: true }, error: null });
+    const { verifyTurnstileToken } = await loadWithEdge();
+
+    await expect(verifyTurnstileToken("token", "contact")).resolves.toEqual({
+      ok: true,
+    });
+    expect(invoke).toHaveBeenCalledTimes(1);
+  });
+
   it("falls back to the function when the edge is not configured there", async () => {
     vi.stubGlobal(
       "fetch",
