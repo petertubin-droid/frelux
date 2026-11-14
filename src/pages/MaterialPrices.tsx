@@ -16,6 +16,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { formatByCode } from "@/lib/international/currency-format";
+import { resolvePriceCurrency } from "@/lib/international/price-currency";
 import { useLanguage } from "@/lib/i18n";
 import {
   classifyEvidence,
@@ -32,7 +33,11 @@ interface PriceRow {
   currency: string;
   effective_date: string | null;
   price_source: string | null;
-  /** Market this row belongs to, so two markets never look like duplicates. */
+  /**
+   * Market this row belongs to, so two markets never look like duplicates.
+   * Empty when the price row records no market: it is then shown as stated
+   * rather than being labelled with a market nobody confirmed.
+   */
   market: string;
   /** What kind of evidence the row carries, judged from its own fields. */
   evidence: EvidenceClass;
@@ -101,6 +106,8 @@ export default function MaterialPrices() {
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
   const [currencyFilter, setCurrencyFilter] = useState<string>("all");
+  /** Prices held back because neither the row nor its market states a currency. */
+  const [withoutCurrency, setWithoutCurrency] = useState(0);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -139,28 +146,37 @@ export default function MaterialPrices() {
             }[]
           ).map((m) => [m.id, m]),
         );
-        const built: PriceRow[] = (pricesRes.data ?? [])
-          .filter((p) => materialsById.has(p.ref_id))
-          .map((p) => {
-            const m = materialsById.get(p.ref_id)!;
-            return {
-              name: m.name,
-              category: m.category ?? null,
-              pack_size: m.pack_size ?? null,
-              price: Number(p.price),
-              currency: p.currency ?? "NGN",
-              effective_date: p.effective_date ?? null,
+        const built: PriceRow[] = [];
+        let withoutCurrency = 0;
+        for (const p of pricesRes.data ?? []) {
+          const m = materialsById.get(p.ref_id);
+          if (!m) continue;
+          const price = Number(p.price);
+          if (!Number.isFinite(price) || price <= 0) continue;
+          const market = (p.market ?? "").trim().toUpperCase();
+          const currency = resolvePriceCurrency(p.currency, market);
+          if (!currency) {
+            withoutCurrency += 1;
+            continue;
+          }
+          built.push({
+            name: m.name,
+            category: m.category ?? null,
+            pack_size: m.pack_size ?? null,
+            price,
+            currency,
+            effective_date: p.effective_date ?? null,
+            price_source: p.price_source ?? null,
+            market,
+            evidence: classifyEvidence({
               price_source: p.price_source ?? null,
-              market: p.market ?? "NG",
-              evidence: classifyEvidence({
-                price_source: p.price_source ?? null,
-                supplier_name: p.supplier_name ?? null,
-                verification_status: p.verification_status ?? null,
-              }),
-            };
-          })
-          .filter((r) => Number.isFinite(r.price) && r.price > 0)
-          .sort((a, b) => a.name.localeCompare(b.name));
+              supplier_name: p.supplier_name ?? null,
+              verification_status: p.verification_status ?? null,
+            }),
+          });
+        }
+        built.sort((a, b) => a.name.localeCompare(b.name));
+        setWithoutCurrency(withoutCurrency);
 
         // Latest recorded movement per material (if any exist yet).
         const byName: Record<string, Movement> = {};
@@ -317,6 +333,15 @@ export default function MaterialPrices() {
           <span>Baseline: seeded figure with no live source</span>
         </p>
 
+        {withoutCurrency > 0 && (
+          <p className="mb-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-700 dark:text-amber-300">
+            {withoutCurrency} price{" "}
+            {withoutCurrency === 1 ? "row is" : "rows are"} held back because
+            neither the row nor its market states a currency. A figure with no
+            currency cannot be compared across markets, so it is not shown.
+          </p>
+        )}
+
         {grouped.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-16 text-center dark:border-white/10 dark:bg-white/5">
             <p className="text-sm text-muted-foreground">
@@ -424,7 +449,7 @@ export default function MaterialPrices() {
                                     {EVIDENCE_LABEL[r.evidence]}
                                   </span>
                                   <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                                    {r.market}
+                                    {r.market || "Market not stated"}
                                   </span>
                                 </span>
                               </td>

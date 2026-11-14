@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-config";
+import { formatNumber } from "@/lib/convert/units";
 import {
   calculateSiteSafety,
   type SafetyFramework,
@@ -686,7 +687,7 @@ export default function GlobalSiteSafetyEstimator() {
                     </div>
                     <p className="text-xs text-muted-foreground">{label}</p>
                     <p className="mt-1 text-xl font-semibold tabular-nums">
-                      {value.toLocaleString()}{" "}
+                      {formatNumber(value, 2)}{" "}
                       <span className="text-xs font-normal text-muted-foreground">
                         {unit}
                       </span>

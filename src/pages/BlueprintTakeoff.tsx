@@ -25,6 +25,12 @@ import { Button } from "@/components/ui/shadcn/button";
 import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
 import {
+  CALIBRATION_UNITS,
+  calibrationMetres,
+  pixelsPerMetre,
+  type CalibrationUnit,
+} from "@/lib/estimation/plan-scale";
+import {
   buildWorksheetBridgeUrl,
   createTakeoffProjectExport,
   parseTakeoffProjectExport,
@@ -85,6 +91,7 @@ export default function BlueprintTakeoff() {
     setMode("calibrate");
     setLabelInput("");
     setCalibrationLength("1");
+    setCalibrationUnit("m");
   };
   const { marketCode } = useMarket();
   useSeo({
@@ -119,6 +126,9 @@ export default function BlueprintTakeoff() {
     useState<TakeoffCategory>("general");
   const [labelInput, setLabelInput] = useState("");
   const [calibrationLength, setCalibrationLength] = useState("1");
+  // Drawings arrive in metres, millimetres, feet or inches; the engine only
+  // ever sees metres, so the visitor states the unit their dimension is in.
+  const [calibrationUnit, setCalibrationUnit] = useState<CalibrationUnit>("m");
   const [zoom, setZoom] = useState(1);
   const [fileName, setFileName] = useState("");
   const [message, setMessage] = useState(
@@ -509,19 +519,25 @@ export default function BlueprintTakeoff() {
         return;
       }
       const pixels = Math.hypot(point.x - draft[0].x, point.y - draft[0].y);
-      const length = Number(calibrationLength);
-      if (!Number.isFinite(length) || length <= 0 || pixels <= 0) {
+      const entered = Number(calibrationLength);
+      const metres = calibrationMetres(calibrationLength, calibrationUnit);
+      const nextScale = pixelsPerMetre(pixels, metres);
+      if (metres === null || nextScale === null) {
         setDraft([]);
         setMessage(
           "Enter a positive known length and select two different points.",
         );
         return;
       }
-      setScale(pixels / length);
+      setScale(nextScale);
       setDraft([]);
       setMode("select");
+      const stated =
+        calibrationUnit === "m"
+          ? `${metres.toFixed(3)} m`
+          : `${entered} ${calibrationUnit} (${metres.toFixed(3)} m)`;
       setMessage(
-        `Scale calibrated: ${length} m across the selected line. Measurements are estimates; verify drawing scale.`,
+        `Scale calibrated: ${stated} across the selected line. Measurements are estimates; verify drawing scale.`,
       );
       return;
     }
@@ -710,17 +726,30 @@ export default function BlueprintTakeoff() {
               }}
             />
           </label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-sm font-medium">
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="min-w-[9rem] flex-1 text-sm font-medium">
               Known dimension
-              <select
+              <input
                 className="mt-2 w-full rounded-lg border border-border bg-background p-2"
                 value={calibrationLength}
                 onChange={(event) => setCalibrationLength(event.target.value)}
+                inputMode="decimal"
+                aria-label="Known dimension value"
+              />
+            </label>
+            <label className="min-w-[8rem] flex-1 text-sm font-medium">
+              Unit
+              <select
+                className="mt-2 w-full rounded-lg border border-border bg-background p-2"
+                value={calibrationUnit}
+                onChange={(event) =>
+                  setCalibrationUnit(event.target.value as CalibrationUnit)
+                }
+                aria-label="Known dimension unit"
               >
-                {["0.5", "1", "2", "3", "5", "10", "20"].map((v) => (
-                  <option key={v} value={v}>
-                    {v} m
+                {CALIBRATION_UNITS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
                   </option>
                 ))}
               </select>
@@ -728,7 +757,7 @@ export default function BlueprintTakeoff() {
             <div className="flex items-end">
               <Button
                 type="button"
-                className="w-full"
+                className="w-full whitespace-nowrap"
                 onClick={() => {
                   setMode("calibrate");
                   setDraft([]);
