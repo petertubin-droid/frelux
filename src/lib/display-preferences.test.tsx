@@ -13,6 +13,24 @@ import {
   readDisplayPreferences,
   useDisplayPreferences,
 } from "./display-preferences";
+import { DEVICE_SHORT_EDGE_KEY, deviceCssShortEdge } from "./display-viewport";
+
+/**
+ * The inline display script, found by what it does rather than by position:
+ * index.html carries several inline scripts and only one touches display keys.
+ */
+function displayScript(html: string): string {
+  const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(
+    (match) => match[1],
+  );
+  const script = blocks.find(
+    (block) =>
+      block.includes("frelux_display_preferences_v1") &&
+      block.includes("var apply="),
+  );
+  expect(script, "pre-paint display script present").toBeTruthy();
+  return script!;
+}
 
 function Readout() {
   const { scale, compact, wideView, setScale, setCompact, reset } =
@@ -66,13 +84,19 @@ describe("display preferences", () => {
       scale: 75,
       compact: false,
       wideView: true,
+      chosen: true,
     });
   });
 
   it("rehydrates saved preferences when the provider mounts again", () => {
     localStorage.setItem(
       DISPLAY_PREFERENCE_KEY,
-      JSON.stringify({ scale: 90, compact: false, wideView: true }),
+      JSON.stringify({
+        scale: 90,
+        compact: false,
+        wideView: true,
+        chosen: true,
+      }),
     );
     const first = render(
       <DisplayPreferencesProvider>
@@ -92,7 +116,12 @@ describe("display preferences", () => {
   it("restores all defaults", () => {
     localStorage.setItem(
       DISPLAY_PREFERENCE_KEY,
-      JSON.stringify({ scale: 125, compact: false, wideView: false }),
+      JSON.stringify({
+        scale: 125,
+        compact: false,
+        wideView: false,
+        chosen: true,
+      }),
     );
     render(
       <DisplayPreferencesProvider>
@@ -129,13 +158,7 @@ describe("pre-paint script parity", () => {
   it("computes the same viewport as the module, so first paint matches React", () => {
     // Run the real inline script against several phones and scales and compare it
     // to viewportContent(): they are two copies of one formula.
-    const block = html.match(
-      /<script>\s*\(function\(\)\{var apply=[\s\S]*?<\/script>/,
-    );
-    expect(block, "pre-paint display script present").not.toBeNull();
-    const script = block![0]
-      .replace(/^<script>/, "")
-      .replace(/<\/script>$/, "");
+    const script = displayScript(html);
 
     // Triples are [screenWidth, screenHeight, scale]: portrait and landscape
     // phones, a desktop, and 100%.
@@ -156,7 +179,7 @@ describe("pre-paint script parity", () => {
       });
       localStorage.setItem(
         DISPLAY_PREFERENCE_KEY,
-        JSON.stringify({ scale, compact: true, wideView: true }),
+        JSON.stringify({ scale, compact: true, wideView: true, chosen: true }),
       );
       document.head.innerHTML =
         '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
@@ -246,7 +269,12 @@ describe("phone vs desktop defaults", () => {
 
     localStorage.setItem(
       DISPLAY_PREFERENCE_KEY,
-      JSON.stringify({ scale: 60, compact: true, wideView: true }),
+      JSON.stringify({
+        scale: 60,
+        compact: true,
+        wideView: true,
+        chosen: true,
+      }),
     );
     expect(readDisplayPreferences().scale).toBe(60);
   });
@@ -266,13 +294,7 @@ describe("phone vs desktop defaults", () => {
 
   it("gives a phone 80% before React mounts, and a desktop 50%", () => {
     const html = readFileSync("index.html", "utf8");
-    const block = html.match(
-      /<script>\s*\(function\(\)\{var apply=[\s\S]*?<\/script>/,
-    );
-    expect(block, "pre-paint display script present").not.toBeNull();
-    const script = block![0]
-      .replace(/^<script>/, "")
-      .replace(/<\/script>$/, "");
+    const script = displayScript(html);
 
     for (const [w, h, touch, expected] of [
       [412, 915, 5, DEFAULT_MOBILE_SCALE],
@@ -311,7 +333,12 @@ describe("external changes", () => {
     // Another tab writes the preference and the browser announces it here.
     localStorage.setItem(
       DISPLAY_PREFERENCE_KEY,
-      JSON.stringify({ scale: 90, compact: false, wideView: false }),
+      JSON.stringify({
+        scale: 90,
+        compact: false,
+        wideView: false,
+        chosen: true,
+      }),
     );
     fireEvent(window, new Event("storage"));
 
@@ -326,7 +353,12 @@ describe("external changes", () => {
     );
     localStorage.setItem(
       DISPLAY_PREFERENCE_KEY,
-      JSON.stringify({ scale: 70, compact: true, wideView: true }),
+      JSON.stringify({
+        scale: 70,
+        compact: true,
+        wideView: true,
+        chosen: true,
+      }),
     );
     fireEvent(window, new Event("pageshow"));
     expect(screen.getByTestId("readout").textContent).toBe("70/true/true");
@@ -347,5 +379,108 @@ describe("without a provider", () => {
     render(<Readout />);
     fireEvent.click(screen.getByRole("button", { name: "Use 75" }));
     expect(screen.getByTestId("readout").textContent).toBe("50/true/true");
+  });
+});
+
+describe("a phone after signing in", () => {
+  // The reported bug: signing in with Google reloads the page, and the phone
+  // came back in the desktop layout. A reload is exactly when a widened
+  // viewport is already on the document, so the device was being measured from
+  // our own scaling and then saved as if the visitor had chosen it.
+  function setDevice(width: number, height: number, touch = 5) {
+    Object.defineProperty(window, "screen", {
+      configurable: true,
+      value: {
+        width,
+        height,
+        orientation: {
+          type: width > height ? "landscape-primary" : "portrait-primary",
+        },
+      },
+    });
+    Object.defineProperty(window.navigator, "maxTouchPoints", {
+      configurable: true,
+      value: touch,
+    });
+  }
+
+  it("keeps the phone layout when the reload reports a widened screen", () => {
+    localStorage.setItem(DEVICE_SHORT_EDGE_KEY, "390");
+    document.head.innerHTML =
+      '<meta name="viewport" content="width=780, initial-scale=0.8, viewport-fit=cover">';
+    setDevice(780, 1690);
+
+    expect(deviceCssShortEdge()).toBe(390);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
+  });
+
+  it("never stores a device guess as a choice", () => {
+    setDevice(412, 915);
+    render(
+      <DisplayPreferencesProvider>
+        <Readout />
+      </DisplayPreferencesProvider>,
+    );
+    expect(screen.getByTestId("readout").textContent).toBe(
+      `${DEFAULT_MOBILE_SCALE}/true/true`,
+    );
+    expect(localStorage.getItem(DISPLAY_PREFERENCE_KEY)).toBeNull();
+  });
+
+  it("ignores an unmarked desktop record on a phone", () => {
+    setDevice(412, 915);
+    localStorage.setItem(
+      DISPLAY_PREFERENCE_KEY,
+      JSON.stringify({
+        scale: DEFAULT_DESKTOP_SCALE,
+        compact: true,
+        wideView: true,
+      }),
+    );
+    render(
+      <DisplayPreferencesProvider>
+        <Readout />
+      </DisplayPreferencesProvider>,
+    );
+    expect(screen.getByTestId("readout").textContent).toBe(
+      `${DEFAULT_MOBILE_SCALE}/true/true`,
+    );
+  });
+
+  it("still honours a marked choice on the same phone", () => {
+    setDevice(412, 915);
+    localStorage.setItem(
+      DISPLAY_PREFERENCE_KEY,
+      JSON.stringify({
+        scale: 90,
+        compact: true,
+        wideView: true,
+        chosen: true,
+      }),
+    );
+    render(
+      <DisplayPreferencesProvider>
+        <Readout />
+      </DisplayPreferencesProvider>,
+    );
+    expect(screen.getByTestId("readout").textContent).toBe("90/true/true");
+  });
+  it("gives the same phone 80% at first paint after that reload", () => {
+    const html = readFileSync("index.html", "utf8");
+    const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1])
+      .find((body) => body.includes("frelux_display_preferences_v1"));
+    expect(inline, "pre-paint display script").toBeTruthy();
+
+    localStorage.setItem(DEVICE_SHORT_EDGE_KEY, "390");
+    localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+    document.head.innerHTML =
+      '<meta name="viewport" content="width=780, initial-scale=0.8, viewport-fit=cover">';
+    setDevice(780, 1690);
+    new Function(inline!)();
+
+    expect(document.documentElement.dataset.freluxScale).toBe(
+      String(DEFAULT_MOBILE_SCALE),
+    );
   });
 });

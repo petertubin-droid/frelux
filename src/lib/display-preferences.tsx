@@ -12,6 +12,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -26,6 +27,14 @@ export interface DisplayPreferences {
   scale: DisplayScale;
   compact: boolean;
   wideView: boolean;
+  /**
+   * True only once the visitor has changed something themselves.
+   *
+   * Device defaults are computed per load and never stored, so a phone cannot
+   * inherit a desktop default just because one load judged it wrongly. Records
+   * without this marker are treated as guesses, not choices, and are ignored.
+   */
+  chosen?: boolean;
 }
 
 /**
@@ -74,18 +83,19 @@ function parsePreferences(
 ): DisplayPreferences {
   if (!value || typeof value !== "object") return fallback;
   const input = value as Partial<DisplayPreferences>;
+  // A stored record with no choice marker is a device guess from an older
+  // build. It cannot be distinguished from a desktop default that a phone was
+  // handed by mistake, so the device's own default wins.
+  if (input.chosen !== true) return fallback;
   return {
+    chosen: true,
     scale: DISPLAY_SCALE_OPTIONS.includes(input.scale as DisplayScale)
       ? (input.scale as DisplayScale)
       : fallback.scale,
     compact:
-      typeof input.compact === "boolean"
-        ? input.compact
-        : fallback.compact,
+      typeof input.compact === "boolean" ? input.compact : fallback.compact,
     wideView:
-      typeof input.wideView === "boolean"
-        ? input.wideView
-        : fallback.wideView,
+      typeof input.wideView === "boolean" ? input.wideView : fallback.wideView,
   };
 }
 
@@ -142,12 +152,6 @@ export function DisplayPreferencesProvider({
 
   useEffect(() => {
     applyDisplayPreferences(preferences);
-    try {
-      localStorage.setItem(DISPLAY_PREFERENCE_KEY, JSON.stringify(preferences));
-    } catch {
-      // Private browsing or a storage policy can disable persistence; the
-      // current tab still honors the preference in React state and on <html>.
-    }
   }, [preferences]);
 
   // The layout width is derived from the device's width, so rotating the phone
@@ -192,21 +196,49 @@ export function DisplayPreferencesProvider({
     };
   }, []);
 
-  const setScale = useCallback((scale: DisplayScale) => {
-    setPreferences((current) => ({ ...current, scale }));
+  // The latest value, for the setters: they persist immediately and cannot wait
+  // for a render, or two quick presses would write the older of the two.
+  const latest = useRef(preferences);
+  latest.current = preferences;
+
+  /** Records an explicit choice. The only path that writes to storage. */
+  const choose = useCallback((patch: Partial<DisplayPreferences>) => {
+    const next = { ...latest.current, ...patch, chosen: true };
+    latest.current = next;
+    try {
+      localStorage.setItem(DISPLAY_PREFERENCE_KEY, JSON.stringify(next));
+    } catch {
+      // Private browsing or a storage policy can disable persistence; the
+      // current tab still honors the preference in React state and on <html>.
+    }
+    setPreferences(next);
   }, []);
-  const setCompact = useCallback((compact: boolean) => {
-    setPreferences((current) => ({ ...current, compact }));
-  }, []);
-  const setWideView = useCallback((wideView: boolean) => {
-    setPreferences((current) => ({ ...current, wideView }));
-  }, []);
-  // Reset returns to this device's own starting point, not to a desktop number
-  // a phone could never read.
-  const reset = useCallback(
-    () => setPreferences(defaultPreferencesForDevice()),
-    [],
+
+  const setScale = useCallback(
+    (scale: DisplayScale) => choose({ scale }),
+    [choose],
   );
+  const setCompact = useCallback(
+    (compact: boolean) => choose({ compact }),
+    [choose],
+  );
+  const setWideView = useCallback(
+    (wideView: boolean) => choose({ wideView }),
+    [choose],
+  );
+  // Reset returns to this device's own starting point, not to a desktop number
+  // a phone could never read, and forgets the stored choice so the defaults
+  // keep following the device.
+  const reset = useCallback(() => {
+    try {
+      localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+    } catch {
+      // Nothing to clear when storage is unavailable.
+    }
+    const next = defaultPreferencesForDevice();
+    latest.current = next;
+    setPreferences(next);
+  }, []);
 
   const value = useMemo(
     () => ({ ...preferences, setScale, setCompact, setWideView, reset }),

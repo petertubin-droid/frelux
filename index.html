@@ -9,18 +9,35 @@
     <!-- Apply saved FRELUX display preferences before paint. The scale is the viewport
          width (what a browser's page zoom changes), so it must be set before layout. -->
     <script>
-      (function(){var apply=function(){var d=document.documentElement,scale=50,compact=true,wide=true;
-// Phones start at 80%, not 50%: 50% is readable on a desktop and unreadable on a phone. A saved choice below still wins.
-var sc=window.screen||{},sw0=sc.width||0,sh0=sc.height||0,short0=Math.min(sw0,sh0)||window.innerWidth;var touch0=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);if(touch0&&short0>0&&short0<=600)scale=80;
-try{var p=JSON.parse(localStorage.getItem('frelux_display_preferences_v1')||'null');var valid=[50,60,70,75,80,90,100,110,125];if(p&&valid.indexOf(p.scale)!==-1)scale=p.scale;if(p&&typeof p.compact==='boolean')compact=p.compact;if(p&&typeof p.wideView==='boolean')wide=p.wideView;}catch(e){}
-d.style.setProperty('--frelux-display-scale',String(scale/100));d.dataset.freluxScale=String(scale);d.dataset.freluxCompact=String(compact);d.dataset.freluxWideView=String(wide);
-// Phones are recognised by their SHORT edge, so rotating does not switch scaling off.
-var s=window.screen||{},sw=s.width||0,sh=s.height||0,short=Math.min(sw,sh)||window.innerWidth,o=(s.orientation&&s.orientation.type)||'';
-var w=(o.indexOf('landscape')===0?Math.max(sw,sh):short)||window.innerWidth;
-var c='width=device-width, initial-scale=1.0, viewport-fit=cover';
-var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);
-if(touch&&w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
-var m=document.querySelector('meta[name="viewport"]');if(m&&m.content!==c)m.content=c;};apply();window.addEventListener('pageshow',apply);window.addEventListener('orientationchange',apply);window.addEventListener('resize',apply);})();
+      (function(){
+        var KEY='frelux_display_preferences_v1',EDGE='frelux_device_short_edge_v1';
+        var apply=function(){
+          var d=document.documentElement,scale=50,compact=true,wide=true;
+          var m=document.querySelector('meta[name="viewport"]');
+          var neutral=!m||m.content===''||m.content.indexOf('width=device-width')===0;
+          var sc=window.screen||{},sw=sc.width||0,sh=sc.height||0,short=Math.min(sw,sh)||window.innerWidth;
+          // Only trust a measurement taken before this script widened anything.
+          var stored=0;try{stored=Number(localStorage.getItem(EDGE))||0;}catch(e){}
+          if(neutral){try{localStorage.setItem(EDGE,String(Math.round(short)));}catch(e){}}
+          else if(stored>0){short=stored;}
+          var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);
+          var phone=touch&&short>0&&short<=600;
+          if(phone)scale=80;
+          // Saved values only win when the visitor chose them. A record without
+          // the marker is a device guess from an older build and is ignored.
+          try{var p=JSON.parse(localStorage.getItem(KEY)||'null');var valid=[50,60,70,75,80,90,100,110,125];if(p&&p.chosen===true){if(valid.indexOf(p.scale)!==-1)scale=p.scale;if(typeof p.compact==='boolean')compact=p.compact;if(typeof p.wideView==='boolean')wide=p.wideView;}}catch(e){}
+          d.style.setProperty('--frelux-display-scale',String(scale/100));d.dataset.freluxScale=String(scale);d.dataset.freluxCompact=String(compact);d.dataset.freluxWideView=String(wide);
+          var o=(sc.orientation&&sc.orientation.type)||'';
+          var w=(o.indexOf('landscape')===0?Math.max(sw,sh):short)||window.innerWidth;
+          var c='width=device-width, initial-scale=1.0, viewport-fit=cover';
+          if(touch&&w>0&&short<=600&&scale!==100){var lw=Math.round(Math.min(Math.max(w/(scale/100),320),1280));var is=Math.round(w/lw*10000)/10000;c='width='+lw+', initial-scale='+is+', minimum-scale='+(Math.round(Math.min(is,1)*0.5*10000)/10000)+', viewport-fit=cover';}
+          if(m&&m.content!==c)m.content=c;
+        };
+        apply();
+        window.addEventListener('pageshow',apply);
+        window.addEventListener('orientationchange',apply);
+        window.addEventListener('resize',apply);
+      })();
     </script>
     <meta charset="UTF-8" />
     <!-- Staging / Netlify preview indexing guard:

@@ -166,4 +166,54 @@ describe("AppRail", () => {
     window.removeEventListener("frelux:open-menu", opened);
     expect(opened).toHaveBeenCalledTimes(1);
   });
+
+  // Regression: the panel used to close on any scroll because the listener ran
+  // in the capture phase and caught scrolls inside the panel itself, so the
+  // moment a visitor scrolled the tool list it vanished.
+  it("survives scrolling its own list, and still closes when the page scrolls", async () => {
+    renderRail();
+    const trigger = screen.getByRole("button", { name: "Construction Tools" });
+    fireEvent.click(trigger);
+    const heading = await screen.findByText("Materials & Finishes");
+    const scroller = heading.closest(".overflow-y-auto");
+    expect(scroller).not.toBeNull();
+
+    fireEvent.scroll(scroller!);
+    expect(screen.getByText("Materials & Finishes")).toBeInTheDocument();
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    fireEvent.scroll(window);
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Materials & Finishes"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  // Regression: a full-viewport click-away layer sat over the rail, so the next
+  // workspace never received the hover and the panel looked stuck.
+  it("closes on a press outside the panel and stays on a press inside", async () => {
+    renderRail();
+    const trigger = screen.getByRole("button", { name: "Construction Tools" });
+    fireEvent.click(trigger);
+    const heading = await screen.findByText("Materials & Finishes");
+
+    fireEvent.pointerDown(heading);
+    expect(heading).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Materials & Finishes"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("does not put a full-screen layer over the rail while open", async () => {
+    renderRail();
+    fireEvent.click(screen.getByRole("button", { name: "Construction Tools" }));
+    await screen.findByText("Materials & Finishes");
+    const covering = document.querySelector(".fixed.inset-0");
+    expect(covering).toBeNull();
+  });
 });

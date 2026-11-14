@@ -127,7 +127,9 @@ export function isPhoneDevice(input: {
   touch?: boolean;
 }): boolean {
   const { deviceShortEdge = 0, touch = false } = input;
-  return touch && deviceShortEdge > 0 && deviceShortEdge <= PHONE_MAX_SHORT_EDGE;
+  return (
+    touch && deviceShortEdge > 0 && deviceShortEdge <= PHONE_MAX_SHORT_EDGE
+  );
 }
 
 /**
@@ -140,12 +142,59 @@ export function deviceTakesTouch(win: Window = window): boolean {
   return win.matchMedia?.("(pointer: coarse)")?.matches ?? false;
 }
 
+/**
+ * The device short edge, measured while the viewport is still untouched.
+ *
+ * This site widens its own layout viewport to scale the page, and some mobile
+ * browsers then report the widened width back through window.screen. Measuring
+ * on a load that already carries our widened meta therefore says "desktop"
+ * about a phone, and the next load agrees with it. So the measurement is only
+ * taken against the neutral meta, and remembered for the loads that come after
+ * it, which are exactly the loads our own scaling could confuse.
+ */
+export const DEVICE_SHORT_EDGE_KEY = "frelux_device_short_edge_v1";
+
+function readStoredShortEdge(win: Window = window): number {
+  try {
+    const raw = win.localStorage?.getItem(DEVICE_SHORT_EDGE_KEY);
+    const value = raw ? Number(raw) : 0;
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberShortEdge(value: number, win: Window = window): void {
+  try {
+    if (value > 0)
+      win.localStorage?.setItem(
+        DEVICE_SHORT_EDGE_KEY,
+        String(Math.round(value)),
+      );
+  } catch {
+    // Storage can be unavailable; the live measurement still works this load.
+  }
+}
+
+/** True while the document still carries the viewport the page shipped with. */
+function viewportIsUntouched(doc: Document = document): boolean {
+  const meta = doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  if (!meta) return true;
+  return meta.content === NEUTRAL_VIEWPORT || meta.content === "";
+}
+
 /** The device's short edge: the phone's own width when held upright. */
 export function deviceCssShortEdge(win: Window = window): number {
   const screenWidth = win.screen?.width ?? 0;
   const screenHeight = win.screen?.height ?? 0;
   const short = Math.min(screenWidth, screenHeight);
-  return short > 0 ? short : win.innerWidth;
+  const measured = short > 0 ? short : win.innerWidth;
+
+  if (viewportIsUntouched(win.document)) {
+    rememberShortEdge(measured, win);
+    return measured;
+  }
+  return readStoredShortEdge(win) || measured;
 }
 
 /** The width to lay out for at 100%, in the current orientation. */
