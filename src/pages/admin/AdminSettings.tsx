@@ -140,7 +140,6 @@ export default function AdminSettings() {
     setBannerSaved(false);
     setError(null);
 
-    let saveFailed = false;
     const { error: bannerError } = await supabase
       .from("site_settings")
       .update({
@@ -162,7 +161,6 @@ export default function AdminSettings() {
     }
 
     setBannerSaving(false);
-    if (saveFailed) return;
 
     update("maintenance_banner_message", message);
     update("maintenance_banner_enabled", enabled);
