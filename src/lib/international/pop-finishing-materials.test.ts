@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BUNDLED_POP_MATERIALS } from "@/lib/international/bundled-price-books";
-import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import { calculatePopCeiling, formatPackageLine } from "@/lib/pop-tile-calc";
 import type { DbPopMaterial } from "@/types/database";
 
 /**
@@ -9,55 +9,75 @@ import type { DbPopMaterial } from "@/types/database";
  * 20 L bucket of ceiling paint. Primer and the old screeding compound are no
  * longer part of it.
  */
-const nigeriaFinishing = BUNDLED_POP_MATERIALS.filter(
-  (m) => m.workflow === "nigeria" && m.category === "finishing",
-);
+// A Nigerian user can switch the POP page to the International workflow, and
+// the prices there are the same Nigerian ones, so both lists must agree.
+const finishingFor = (workflow: string) =>
+  BUNDLED_POP_MATERIALS.filter(
+    (m) =>
+      m.workflow === workflow &&
+      m.category === "finishing" &&
+      m.market === "NG",
+  );
 
-function row(name: string) {
-  return nigeriaFinishing.find((m) => m.name === name);
+const nigeriaFinishing = finishingFor("nigeria");
+
+function row(name: string, workflow = "nigeria") {
+  return finishingFor(workflow).find((m) => m.name === name);
 }
 
 describe("Nigerian POP finishing materials", () => {
-  it("carries exactly the three materials a finisher buys", () => {
-    expect(nigeriaFinishing.map((m) => m.name).sort()).toEqual([
-      "Ceiling Paint",
-      "Sandpaper",
-      "Screeding Putty",
-    ]);
-  });
+  it.each(["nigeria", "international"])(
+    "carries exactly the three materials a finisher buys (%s workflow)",
+    (workflow) => {
+      expect(
+        finishingFor(workflow)
+          .map((m) => m.name)
+          .sort(),
+      ).toEqual(["Ceiling Paint", "Sandpaper", "Screeding Putty"]);
+    },
+  );
 
-  it("prices screeding putty as one 20 kg bucket at 13,500 covering 30 m²", () => {
-    const putty = row("Screeding Putty");
-    // 30 m² per 20 kg bucket, so 1.5 m² per kg.
-    expect(putty).toMatchObject({
-      packageSize: 20,
-      packageUnit: "kg",
-      unitPrice: 13500,
-      coverageRate: 1.5,
-      coverageUnit: "m²",
-    });
-  });
+  it.each(["nigeria", "international"])(
+    "prices screeding putty as one 20 kg bucket at 13,500 covering 30 m² (%s workflow)",
+    (workflow) => {
+      const putty = row("Screeding Putty", workflow);
+      // 30 m² per 20 kg bucket, so 1.5 m² per kg.
+      expect(putty).toMatchObject({
+        packageSize: 20,
+        packageUnit: "kg",
+        unitPrice: 13500,
+        coverageRate: 1.5,
+        coverageUnit: "m²",
+      });
+    },
+  );
 
-  it("sells sandpaper by the yard at 600 and paint by the 20 L bucket at 17,000", () => {
-    expect(row("Sandpaper")).toMatchObject({
-      unit: "yard",
-      packageSize: 1,
-      packageUnit: "yard",
-      unitPrice: 600,
-      coverageRate: 5,
-    });
-    expect(row("Ceiling Paint")).toMatchObject({
-      unit: "litre",
-      packageSize: 20,
-      packageUnit: "litre",
-      unitPrice: 17000,
-    });
-  });
+  it.each(["nigeria", "international"])(
+    "sells sandpaper by the yard at 600 and paint by the 20 L bucket at 17,000 (%s workflow)",
+    (workflow) => {
+      expect(row("Sandpaper", workflow)).toMatchObject({
+        unit: "yard",
+        packageSize: 1,
+        packageUnit: "yard",
+        unitPrice: 600,
+        coverageRate: 5,
+      });
+      expect(row("Ceiling Paint", workflow)).toMatchObject({
+        unit: "litre",
+        packageSize: 20,
+        packageUnit: "litre",
+        unitPrice: 17000,
+      });
+    },
+  );
 
-  it("has no primer and no screeding compound left", () => {
-    expect(row("Primer")).toBeUndefined();
-    expect(row("Screeding Compound")).toBeUndefined();
-  });
+  it.each(["nigeria", "international"])(
+    "has no primer and no screeding compound left (%s workflow)",
+    (workflow) => {
+      expect(row("Primer", workflow)).toBeUndefined();
+      expect(row("Screeding Compound", workflow)).toBeUndefined();
+    },
+  );
 
   it("bills a 144 m² ceiling in whole buckets, yards and tins", () => {
     const materials = nigeriaFinishing.map(
@@ -110,5 +130,18 @@ describe("Nigerian POP finishing materials", () => {
     expect(billed["Sandpaper"].packagesNeeded).toBe(32); // 32 × 600
     expect(billed["Ceiling Paint"].packagesNeeded).toBe(1); // 1 × 17,000
     expect(result.materialCost).toBe(117200);
+  });
+
+  it("names packs only when a purchase unit holds more than one unit", () => {
+    // 20 kg putty buckets and 20 L paint buckets: the pack is worth naming.
+    expect(formatPackageLine(105.6, "kg", 6, 20)).toBe(
+      "105.6 kg · 6 × 20 kg packs",
+    );
+    expect(formatPackageLine(13.2, "litre", 1, 20)).toBe(
+      "13.2 litre · 1 × 20 litre pack",
+    );
+    // Sandpaper by the yard is bought a yard at a time, so "32 packages" said
+    // nothing the quantity did not already say.
+    expect(formatPackageLine(31.68, "yard", 32, 1)).toBe("31.68 yard");
   });
 });

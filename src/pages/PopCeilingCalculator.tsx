@@ -27,7 +27,7 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
-import { calculatePopCeiling } from "@/lib/pop-tile-calc";
+import { calculatePopCeiling, formatPackageLine } from "@/lib/pop-tile-calc";
 import PolystyreneCeilingPanel from "@/components/calculators/PolystyreneCeilingPanel";
 import { track } from "@/lib/analytics";
 import {
@@ -841,8 +841,12 @@ function PopResultCard({
                       {m.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded}{" "}
-                      package(s)
+                      {formatPackageLine(
+                        m.quantity,
+                        m.unit,
+                        m.packagesNeeded,
+                        m.packageSize,
+                      )}
                     </p>
                   </div>
                   <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
@@ -890,7 +894,12 @@ function PopResultCard({
               lineItems: [
                 ...result.materials.map((m) => ({
                   description: m.name,
-                  quantity: `${formatNumber(m.quantity)} ${m.unit} · ${m.packagesNeeded} package(s)`,
+                  quantity: formatPackageLine(
+                    m.quantity,
+                    m.unit,
+                    m.packagesNeeded,
+                    m.packageSize,
+                  ),
                   amount: formatCurrency(m.cost, currencySymbol),
                 })),
                 {

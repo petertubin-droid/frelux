@@ -9,7 +9,7 @@ import type {
 } from "@/types";
 import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
 
-import { unitToMeters } from "@/lib/utils";
+import { formatNumber, unitToMeters } from "@/lib/utils";
 
 function toSqm(value: number, unit: Unit): number {
   return unitToMeters(value, unit);
@@ -85,6 +85,9 @@ export function calculatePopCeiling(
           quantity: Math.round(hireQuantity * 100) / 100,
           unit: mat.package_unit,
           packagesNeeded: Math.round(hireQuantity * 100) / 100,
+          // Hire units are the purchase unit itself (one trestle, one day),
+          // so nothing is packed inside and the line never names packs.
+          packageSize: 1,
           cost: hireCost,
           isOptional: mat.is_optional,
         });
@@ -144,6 +147,7 @@ export function calculatePopCeiling(
         // instead labelled 31.68 kg of putty as "31.68 m²".
         unit: mat.package_unit,
         packagesNeeded,
+        packageSize: pkgSize,
         cost,
         isOptional: mat.is_optional,
       });
@@ -164,6 +168,30 @@ export function calculatePopCeiling(
     currencySymbol,
     warnings: calcWarnings,
   };
+}
+
+/**
+ * How a material line reads on the results card and in the exported quote.
+ *
+ * The quantity is what the job consumes ("105.6 kg"), and the purchase count is
+ * only worth naming when one purchase unit holds more than one of them
+ * ("6 × 20 kg packs"). A yard of sandpaper is bought one yard at a time, so its
+ * quantity already is the purchase count and "32 packages" only confused it.
+ */
+export function formatPackageLine(
+  quantity: number,
+  unit: string,
+  packagesNeeded: number,
+  packageSize: number,
+): string {
+  const measured = `${formatNumber(quantity)} ${unit}`;
+  const size = Number(packageSize);
+  const packs = Number(packagesNeeded);
+  if (!Number.isFinite(size) || size <= 1 || !Number.isFinite(packs)) {
+    return measured;
+  }
+  const whole = Math.max(1, Math.ceil(packs));
+  return `${measured} · ${whole} × ${size} ${unit} ${whole === 1 ? "pack" : "packs"}`;
 }
 
 export function calculatePopEstimate(

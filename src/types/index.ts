@@ -340,6 +340,12 @@ export interface PopMaterialResult {
   quantity: number;
   unit: string;
   packagesNeeded: number;
+  /**
+   * How many of `unit` come in one purchase unit. A 20 kg bucket of putty is
+   * 20 kg per package; a yard of sandpaper is bought a yard at a time. The
+   * quote only names packages when more than one unit is inside.
+   */
+  packageSize: number;
   cost: number;
   isOptional: boolean;
 }
