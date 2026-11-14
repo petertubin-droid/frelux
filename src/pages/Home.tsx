@@ -194,11 +194,6 @@ export default function Home() {
           container so a first-time visitor gets no empty band here. */}
       <RecentlyUsed />
 
-      {/* Map and converter, immediately after the first choice the visitor
-          makes. Both are working tools, so they belong above the storytelling
-          sections rather than below them. */}
-      <MapWeatherBand />
-
       {/* Proof, not promises: live demo with the real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />

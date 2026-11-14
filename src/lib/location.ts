@@ -21,10 +21,13 @@ export interface UserLocation {
 }
 
 const SESSION_KEY = "frelux_user_location";
+const LOCAL_CACHE_KEY = "frelux_user_location_cache";
 
 function loadFromSession(): UserLocation | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw =
+      sessionStorage.getItem(SESSION_KEY) ||
+      localStorage.getItem(LOCAL_CACHE_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as UserLocation;
   } catch {
@@ -34,7 +37,9 @@ function loadFromSession(): UserLocation | null {
 
 function saveToSession(loc: UserLocation) {
   try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(loc));
+    const serialized = JSON.stringify(loc);
+    sessionStorage.setItem(SESSION_KEY, serialized);
+    localStorage.setItem(LOCAL_CACHE_KEY, serialized);
   } catch {
     /* non-critical */
   }
@@ -43,6 +48,7 @@ function saveToSession(loc: UserLocation) {
 function clearSession() {
   try {
     sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(LOCAL_CACHE_KEY);
   } catch {
     /* non-critical */
   }
@@ -85,11 +91,7 @@ export function useLocation() {
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
 
-  // Load from session on mount
-  useEffect(() => {
-    const saved = loadFromSession();
-    if (saved) setLocation(saved);
-  }, []);
+
 
   const detect = useCallback(async () => {
     if (!("geolocation" in navigator)) {
@@ -102,54 +104,106 @@ export function useLocation() {
     setLoading(true);
     setError(null);
 
-    // Use getCurrentPosition, one-time request, no continuous tracking
+    const applyPos = (pos: GeolocationPosition) => {
+      const { latitude, longitude, accuracy } = pos.coords;
+
+      const userLoc: UserLocation = {
+        latitude,
+        longitude,
+        source: "gps",
+        accuracy,
+      };
+
+      setLocation(userLoc);
+      saveToSession(userLoc);
+      setLoading(false);
+
+      // Reverse geocode asynchronously without blocking coordinate availability
+      reverseGeocode(latitude, longitude)
+        .then((geo) => {
+          if (geo.city || geo.state || geo.label) {
+            setLocation((prev) => {
+              if (
+                !prev ||
+                prev.latitude !== latitude ||
+                prev.longitude !== longitude
+              )
+                return prev;
+              const enriched: UserLocation = {
+                ...prev,
+                city: geo.city,
+                state: geo.state,
+                label: geo.label,
+              };
+              saveToSession(enriched);
+              return enriched;
+            });
+          }
+        })
+        .catch(() => {});
+    };
+
+    // Fast pass: cached or network triangulation (returns in ~150ms)
     navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
-
-        // Reverse geocode for human-readable label
-        const geo = await reverseGeocode(latitude, longitude);
-
-        const userLoc: UserLocation = {
-          latitude,
-          longitude,
-          source: "gps",
-          accuracy,
-          city: geo.city,
-          state: geo.state,
-          label: geo.label,
-        };
-
-        setLocation(userLoc);
-        saveToSession(userLoc);
-        setLoading(false);
+      (pos) => {
+        applyPos(pos);
+        // Follow up with high-accuracy GPS refinement in the background
+        navigator.geolocation.getCurrentPosition(
+          applyPos,
+          () => {},
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 },
+        );
       },
-      (err) => {
-        setLoading(false);
-        if (err.code === err.PERMISSION_DENIED) {
-          setPermissionDenied(true);
-          setError(
-            "Location permission denied. You can select your location manually instead.",
-          );
-        } else if (err.code === err.POSITION_UNAVAILABLE) {
-          setError(
-            "Location unavailable. Please select your location manually.",
-          );
-        } else if (err.code === err.TIMEOUT) {
-          setError(
-            "Location request timed out. Please try again or select manually.",
-          );
-        } else {
-          setError("Could not detect your location. Please select manually.");
-        }
+      () => {
+        // Fallback retry
+        navigator.geolocation.getCurrentPosition(
+          applyPos,
+          (err) => {
+            setLoading(false);
+            if (err.code === err.PERMISSION_DENIED) {
+              setPermissionDenied(true);
+              setError(
+                "Location permission denied. You can select your location manually instead.",
+              );
+            } else if (err.code === err.POSITION_UNAVAILABLE) {
+              setError(
+                "Location unavailable. Please select your location manually.",
+              );
+            } else if (err.code === err.TIMEOUT) {
+              setError(
+                "Location request timed out. Please try again or select manually.",
+              );
+            } else {
+              setError("Could not detect your location. Please select manually.");
+            }
+          },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 0 },
+        );
       },
       {
-        enableHighAccuracy: false, // approximate location only
-        timeout: 10000,
-        maximumAge: 300000, // accept cached position up to 5 min old
+        enableHighAccuracy: false,
+        timeout: 4000,
+        maximumAge: 300000, // accept cached position up to 5 min old for instant return
       },
     );
   }, []);
+
+  // Load from session on mount, and fast-detect if permission is already granted
+  useEffect(() => {
+    const saved = loadFromSession();
+    if (saved) setLocation(saved);
+
+    if (typeof navigator !== "undefined" && "permissions" in navigator) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((status) => {
+          if (status.state === "granted" && !saved) {
+            detect();
+          }
+        })
+        .catch(() => {});
+    }
+  }, [detect]);
 
   const setManual = useCallback((loc: Omit<UserLocation, "source">) => {
     const userLoc: UserLocation = { ...loc, source: "manual" };

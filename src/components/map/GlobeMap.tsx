@@ -121,6 +121,103 @@ const LAYER_NOUN: Record<MapPoint["kind"], string> = {
  * a themed record card. Pins are built from real records only; when nothing
  * is plotted the map says so rather than inventing a location.
  */
+/**
+ * Ensures cities, towns, villages, and neighbourhoods expand smoothly on zoom.
+ * In OpenFreeMap bright vector styles, place label layers have icon-image step expressions
+ * that resolve to empty string ("") at zoom >= 9/10 with icon-optional: false.
+ * When icon-optional is false, MapLibre hides the text label whenever the icon is missing,
+ * causing cities and towns to vanish when zoomed in.
+ * Setting icon-optional: true, optimizing collision padding, and scaling text sizes
+ * ensures places expand clearly as you zoom into any region.
+ */
+export function enhanceMapLabelsAndZoom(map: MapLibreMap) {
+  try {
+    const style = map.getStyle();
+    if (!style || !style.layers) return;
+
+    for (const layer of style.layers) {
+      if (layer.type === "symbol") {
+        try {
+          map.setLayoutProperty(layer.id, "icon-optional", true);
+        } catch {
+          /* ignore */
+        }
+
+        const isPlace =
+          layer.id.startsWith("label_") ||
+          (layer as unknown as { [key: string]: unknown })["source-layer"] === "place";
+
+        if (isPlace) {
+          try {
+            map.setLayoutProperty(layer.id, "text-optional", true);
+            map.setLayoutProperty(layer.id, "text-padding", 2);
+          } catch {
+            /* ignore */
+          }
+
+          try {
+            if (layer.id === "label_city" || layer.id === "label_city_capital") {
+              map.setLayoutProperty(layer.id, "text-size", [
+                "interpolate",
+                ["exponential", 1.2],
+                ["zoom"],
+                3, 11,
+                7, 13,
+                10, 16,
+                14, 20,
+              ]);
+            } else if (layer.id === "label_town") {
+              map.setLayoutProperty(layer.id, "text-size", [
+                "interpolate",
+                ["exponential", 1.2],
+                ["zoom"],
+                5, 10,
+                8, 12,
+                11, 15,
+                14, 18,
+              ]);
+            } else if (layer.id === "label_village") {
+              map.setLayoutProperty(layer.id, "text-size", [
+                "interpolate",
+                ["exponential", 1.2],
+                ["zoom"],
+                7, 10,
+                10, 12,
+                13, 15,
+                16, 17,
+              ]);
+            } else if (layer.id === "label_other") {
+              map.setLayoutProperty(layer.id, "text-size", [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                8, 9,
+                11, 11,
+                13, 13,
+                16, 15,
+              ]);
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+
+        try {
+          if (layer.id === "highway-name-major") {
+            map.setLayerZoomRange(layer.id, 10.5, 24);
+          } else if (layer.id === "highway-name-minor") {
+            map.setLayerZoomRange(layer.id, 12.5, 24);
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  } catch {
+    /* Style enhancement is resilient */
+  }
+}
+
 export function GlobeMap({
   points,
   center,
@@ -185,12 +282,20 @@ export function GlobeMap({
           });
         }
         if (!map.getLayer(SATELLITE_LAYER)) {
-          map.addLayer({
-            id: SATELLITE_LAYER,
-            type: "raster",
-            source: SATELLITE_SOURCE,
-            paint: { "raster-opacity": 1 },
-          });
+          const style = map.getStyle();
+          const firstSymbolId = style?.layers?.find(
+            (l) => l.type === "symbol" || l.id.startsWith("label_"),
+          )?.id;
+
+          map.addLayer(
+            {
+              id: SATELLITE_LAYER,
+              type: "raster",
+              source: SATELLITE_SOURCE,
+              paint: { "raster-opacity": 1 },
+            },
+            firstSymbolId,
+          );
         }
         map.setLayoutProperty(SATELLITE_LAYER, "visibility", "visible");
       } else if (map.getLayer(SATELLITE_LAYER)) {
@@ -222,6 +327,8 @@ export function GlobeMap({
     y: number;
     above: boolean;
   } | null>(null);
+  const hasFittedBoundsRef = useRef(false);
+  const prevPointsCountRef = useRef(0);
 
   const selectedRef = useRef<MapPoint | null>(null);
   selectedRef.current = selected;
@@ -376,6 +483,7 @@ export function GlobeMap({
             }
           }
           if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+          enhanceMapLabelsAndZoom(map);
           setReady(true);
           syncChrome();
         });
@@ -443,6 +551,7 @@ export function GlobeMap({
               // Terrain is an enhancement; the globe still works without it.
             }
           }
+          enhanceMapLabelsAndZoom(map);
           if (map.loaded()) {
             mapLoadedRef.current = true;
             setReady(true);
@@ -580,22 +689,31 @@ export function GlobeMap({
         markersRef.current.push(marker);
       }
 
-      if (points.length > 1) {
-        const lons = points.map((p) => p.lon);
-        const lats = points.map((p) => p.lat);
-        map.fitBounds(
-          [
-            [Math.min(...lons), Math.min(...lats)],
-            [Math.max(...lons), Math.max(...lats)],
-          ],
-          { padding: 88, maxZoom: 11, duration: 700 },
-        );
-      } else if (points.length === 1) {
-        map.flyTo({
-          center: [points[0].lon, points[0].lat],
-          zoom: 9,
-          duration: 700,
-        });
+      if (Math.abs(points.length - prevPointsCountRef.current) > 0 && prevPointsCountRef.current === 0) {
+        hasFittedBoundsRef.current = false;
+      }
+      prevPointsCountRef.current = points.length;
+
+      const hasExplicitCamera = Boolean(center || youProp || userPin || focus);
+      if (!hasFittedBoundsRef.current && !hasExplicitCamera) {
+        hasFittedBoundsRef.current = true;
+        if (points.length > 1) {
+          const lons = points.map((p) => p.lon);
+          const lats = points.map((p) => p.lat);
+          map.fitBounds(
+            [
+              [Math.min(...lons), Math.min(...lats)],
+              [Math.max(...lons), Math.max(...lats)],
+            ],
+            { padding: 88, maxZoom: 11, duration: 700 },
+          );
+        } else if (points.length === 1) {
+          map.flyTo({
+            center: [points[0].lon, points[0].lat],
+            zoom: 9,
+            duration: 700,
+          });
+        }
       }
     })();
 
@@ -689,40 +807,121 @@ export function GlobeMap({
     [view.bearing],
   );
 
-  // Ask the browser for the visitor's position, then plot it as a pin. The
-  // request only runs on a tap, so opening a page never prompts for location.
+  // Ask the browser for the visitor's position, then plot it as a pin.
+  // Fast two-phase detection: network/cached position returns in ~150ms,
+  // followed by high-accuracy GPS refinement in the background.
   const locate = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setLocateState("denied");
       return;
     }
     setLocateState("locating");
+
+    const applyPosition = (position: GeolocationPosition) => {
+      const pin: MapPoint = {
+        id: "you",
+        kind: "you",
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+        title: t("Your location"),
+        meta: `±${Math.round(position.coords.accuracy)} m`,
+      };
+      setUserPin(pin);
+      setUserAccuracy(position.coords.accuracy);
+      setLocateState("ready");
+
+      try {
+        const payload = JSON.stringify({
+          latitude: pin.lat,
+          longitude: pin.lon,
+          source: "gps",
+          accuracy: position.coords.accuracy,
+        });
+        sessionStorage.setItem("frelux_user_location", payload);
+        localStorage.setItem("frelux_user_location_cache", payload);
+      } catch {
+        /* non-critical */
+      }
+
+      const map = mapRef.current;
+      if (map) {
+        map.flyTo({
+          center: [pin.lon, pin.lat],
+          zoom: Math.max(map.getZoom(), 13.5),
+          duration: 700,
+          essential: true,
+        });
+      }
+    };
+
+    // Fast pass: get cached/network location right away
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const pin: MapPoint = {
-          id: "you",
-          kind: "you",
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-          title: "Your location",
-          meta: `±${Math.round(position.coords.accuracy)} m`,
-        };
-        setUserPin(pin);
-        setUserAccuracy(position.coords.accuracy);
-        setLocateState("ready");
-        const map = mapRef.current;
-        if (map) {
-          map.flyTo({
-            center: [pin.lon, pin.lat],
-            zoom: Math.max(map.getZoom(), 13),
-            duration: 900,
-          });
-        }
+      (pos) => {
+        applyPosition(pos);
+        // Refine with GPS satellites if high-accuracy hardware is available
+        navigator.geolocation.getCurrentPosition(
+          applyPosition,
+          () => {},
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 },
+        );
       },
-      () => setLocateState("denied"),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+      () => {
+        // Fallback retry with standard accuracy
+        navigator.geolocation.getCurrentPosition(
+          applyPosition,
+          () => setLocateState("denied"),
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 0 },
+        );
+      },
+      { enableHighAccuracy: false, timeout: 4000, maximumAge: 300000 },
     );
-  }, []);
+  }, [t]);
+
+  // Fast restore of saved location from session or local cache
+  useEffect(() => {
+    try {
+      const raw =
+        sessionStorage.getItem("frelux_user_location") ||
+        localStorage.getItem("frelux_user_location_cache");
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (
+          saved &&
+          Number.isFinite(saved.latitude) &&
+          Number.isFinite(saved.longitude)
+        ) {
+          setUserPin({
+            id: "you",
+            kind: "you",
+            lat: saved.latitude,
+            lon: saved.longitude,
+            title: t("Your location"),
+            meta: saved.accuracy
+              ? `±${Math.round(saved.accuracy)} m`
+              : undefined,
+          });
+          setUserAccuracy(saved.accuracy ?? null);
+          setLocateState("ready");
+        }
+      }
+    } catch {
+      /* non-critical */
+    }
+  }, [t]);
+
+  // Fast auto-locate if browser permission was already granted
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "permissions" in navigator) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((status) => {
+          if (status.state === "granted" && !userPin) {
+            locate();
+          }
+        })
+        .catch(() => {});
+    }
+  }, [locate, userPin]);
 
   const resetNorth = () => {
     mapRef.current?.easeTo({

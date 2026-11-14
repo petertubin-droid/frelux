@@ -63,3 +63,53 @@ describe("GlobeMap", () => {
     expect(screen.queryByText(/needs WebGL/i)).toBeNull();
   });
 });
+
+describe("enhanceMapLabelsAndZoom", () => {
+  it("enables icon-optional and expands text size across place layers", async () => {
+    const { enhanceMapLabelsAndZoom } = await import("@/components/map/GlobeMap");
+
+    const layers = [
+      { id: "label_city", type: "symbol", "source-layer": "place" },
+      { id: "label_town", type: "symbol", "source-layer": "place" },
+      { id: "label_village", type: "symbol", "source-layer": "place" },
+      { id: "label_other", type: "symbol", "source-layer": "place" },
+      { id: "highway-name-major", type: "symbol" },
+      { id: "water", type: "fill" },
+    ];
+
+    const layoutProps: Record<string, Record<string, unknown>> = {};
+    const zoomRanges: Record<string, [number, number]> = {};
+
+    const mockMap = {
+      getStyle: () => ({ layers }),
+      setLayoutProperty: vi.fn((layerId: string, prop: string, val: unknown) => {
+        if (!layoutProps[layerId]) layoutProps[layerId] = {};
+        layoutProps[layerId][prop] = val;
+      }),
+      setLayerZoomRange: vi.fn((layerId: string, min: number, max: number) => {
+        zoomRanges[layerId] = [min, max];
+      }),
+    };
+
+    enhanceMapLabelsAndZoom(mockMap as any);
+
+    // icon-optional must be true on all symbol layers so text does not disappear when icon-image is ""
+    expect(layoutProps["label_city"]["icon-optional"]).toBe(true);
+    expect(layoutProps["label_town"]["icon-optional"]).toBe(true);
+    expect(layoutProps["label_village"]["icon-optional"]).toBe(true);
+    expect(layoutProps["label_other"]["icon-optional"]).toBe(true);
+
+    // text-optional and padding for place expansion
+    expect(layoutProps["label_city"]["text-optional"]).toBe(true);
+    expect(layoutProps["label_city"]["text-padding"]).toBe(2);
+
+    // text-size interpolation should be set for zoom expansion
+    expect(layoutProps["label_city"]["text-size"]).toBeDefined();
+    expect(layoutProps["label_town"]["text-size"]).toBeDefined();
+    expect(layoutProps["label_village"]["text-size"]).toBeDefined();
+    expect(layoutProps["label_other"]["text-size"]).toBeDefined();
+
+    // highway zoom ranges adjusted
+    expect(zoomRanges["highway-name-major"]).toEqual([10.5, 24]);
+  });
+});
