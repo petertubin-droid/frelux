@@ -85,7 +85,20 @@ export default function MapWeatherBand() {
   }, []);
 
   const [layer, setLayer] = useState<MapLayer>("pros");
-  const { location: viewer } = useLocation();
+  const { location: viewer, detect: detectLocation } = useLocation();
+
+  useEffect(() => {
+    if (!viewer && typeof navigator !== "undefined" && "permissions" in navigator) {
+      navigator.permissions
+        .query({ name: "geolocation" as PermissionName })
+        .then((status) => {
+          if (status.state === "granted") {
+            detectLocation();
+          }
+        })
+        .catch(() => {});
+    }
+  }, [viewer, detectLocation]);
 
   const viewerPoint = useMemo(
     () =>

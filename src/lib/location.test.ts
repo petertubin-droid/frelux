@@ -1,4 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { useLocation } from "@/lib/location";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { DISTANCE_FILTERS, haversineKm, formatDistance } from "@/lib/location";
 
 describe("DISTANCE_FILTERS", () => {
@@ -61,5 +63,76 @@ describe("formatDistance", () => {
   });
   it("formats 0 as meters", () => {
     expect(formatDistance(0)).toBe("0 m");
+  });
+});
+
+
+describe("useLocation hook fast detection and caching", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+  });
+
+  it("loads cached location immediately from localStorage fallback", () => {
+    localStorage.setItem(
+      "frelux_user_location_cache",
+      JSON.stringify({
+        latitude: 6.5244,
+        longitude: 3.3792,
+        source: "gps",
+        city: "Lagos",
+      }),
+    );
+
+    const { result } = renderHook(() => useLocation());
+    expect(result.current.location).toEqual({
+      latitude: 6.5244,
+      longitude: 3.3792,
+      source: "gps",
+      city: "Lagos",
+    });
+  });
+
+  it("detects coordinates immediately on geolocation callback without waiting for reverse geocode", async () => {
+    let geoCallback: ((pos: GeolocationPosition) => void) | null = null;
+    const mockGeolocation = {
+      getCurrentPosition: vi.fn((success: PositionCallback) => {
+        geoCallback = success;
+      }),
+    };
+
+    Object.defineProperty(global.navigator, "geolocation", {
+      value: mockGeolocation,
+      configurable: true,
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useLocation());
+
+    act(() => {
+      result.current.detect();
+    });
+
+    expect(result.current.loading).toBe(true);
+
+    act(() => {
+      geoCallback?.({
+        coords: {
+          latitude: 51.5074,
+          longitude: -0.1278,
+          accuracy: 25,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      } as GeolocationPosition);
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.location?.latitude).toBe(51.5074);
+    expect(result.current.location?.longitude).toBe(-0.1278);
+    expect(result.current.location?.source).toBe("gps");
   });
 });
