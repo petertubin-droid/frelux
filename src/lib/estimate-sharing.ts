@@ -20,18 +20,14 @@
  *     layer never re-rates or converts.
  */
 
-import QRCode from "qrcode";
 import { trackShare } from "@/lib/achievements";
 import { SITE_URL } from "@/lib/seo";
+import {
+  printShareableQuote,
+  type QuoteOptions,
+} from "@/lib/estimation/quote-export";
 import type { ResolvedBranding } from "@/lib/brand-studio";
 import { SAFE_FALLBACK_BRANDING } from "@/lib/brand-studio";
-import {
-  applyJspdfWatermark,
-  applyJspdfHeader,
-  applyJspdfFooter,
-} from "@/lib/pdf-branding";
-import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
-import { saveSealedPdf, sealPdf } from "@/lib/pdf-seal";
 
 // ─────────────────────────────────────────────
 // Shareable estimate model
@@ -158,295 +154,28 @@ export async function copyEstimateSummary(
 // Branded PDF
 // ─────────────────────────────────────────────
 
-export interface EstimatePdfOptions {
-  branding?: ResolvedBranding;
-  /** File name without extension. */
-  fileName?: string;
-}
-
-function estimateFileName(estimate: ShareableEstimate): string {
+/**
+ * Export the estimate.
+ *
+ * This used to build a second PDF document of its own, which meant a calculator
+ * using this button produced a differently laid out quote from one using the
+ * shared engine. It now prints the one Frelux quote document, so every
+ * calculator's export is the same page.
+ */
+export async function downloadEstimatePdf(
+  estimate: ShareableEstimate,
+): Promise<void> {
   const slug = estimate.kind
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  const stamp = (
-    estimate.generatedAt ? new Date(estimate.generatedAt) : new Date()
-  )
-    .toISOString()
-    .slice(0, 10);
-  return `Frelux_${slug || "Estimate"}_${stamp}`;
-}
-
-/**
- * Build the branded estimate PDF. Returns the jsPDF instance so
- * callers can save it, open it, or attach it to an email.
- */
-export async function buildEstimatePdfDoc(
-  estimate: ShareableEstimate,
-  options: EstimatePdfOptions = {},
-): Promise<import("jspdf").jsPDF> {
-  const { jsPDF } = await import("jspdf");
-  const branding = options.branding ?? SAFE_FALLBACK_BRANDING;
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 14;
-  const ink = (r: number, g: number, b: number) => doc.setTextColor(r, g, b);
-  const inkHex = (hex: string) => {
-    const m = /^#?([0-9a-f]{6})$/i.exec(hex ?? "");
-    if (!m) return;
-    ink(
-      parseInt(m[1].slice(0, 2), 16),
-      parseInt(m[1].slice(2, 4), 16),
-      parseInt(m[1].slice(4, 6), 16),
-    );
-  };
-
-  const paintWatermark = () => {
-    if (branding.watermark.enabled) {
-      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-    } else {
-      drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
-    }
-  };
-  paintWatermark();
-  let y = applyJspdfHeader(doc, branding, null, pageWidth, margin, 10);
-  if (!branding.logoUrl) {
-    drawFreluxMark(doc, { pageWidth, margin, heightMm: 9, top: 4 });
-  }
-
-  // ── Title block ──
-  ink(24, 24, 27);
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text(estimate.kind, margin, y);
-  y += 6;
-
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  ink(110, 110, 115);
-  const generated = estimate.generatedAt
-    ? new Date(estimate.generatedAt).toLocaleString("en-GB", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      })
-    : new Date().toLocaleString("en-GB", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      });
-  doc.text(`Generated ${generated}`, margin, y);
-  if (estimate.reference) {
-    doc.text(`Ref: ${estimate.reference}`, pageWidth - margin, y, {
-      align: "right",
-    });
-  }
-  y += 8;
-
-  if (estimate.title) {
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    ink(24, 24, 27);
-    doc.text(estimate.title, margin, y);
-    y += 8;
-  }
-
-  // ── Input summary ──
-  if (estimate.summaryLines.length > 0) {
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    ink(24, 24, 27);
-    doc.text("Project inputs", margin, y);
-    y += 5;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    for (const s of estimate.summaryLines) {
-      if (y > pageHeight - 60) {
-        applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-        doc.addPage();
-        paintWatermark();
-        applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-        y = 20;
-      }
-      ink(110, 110, 115);
-      doc.text(`${s.label}:`, margin, y);
-      ink(24, 24, 27);
-      doc.text(String(s.value), margin + 55, y);
-      y += 5;
-    }
-    y += 4;
-  }
-
-  // ── Line items ──
-  const items = estimate.lineItems.filter((i) => i.description?.trim());
-  if (items.length > 0) {
-    if (y > pageHeight - 70) {
-      applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-      doc.addPage();
-      paintWatermark();
-      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-      y = 20;
-    }
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    ink(24, 24, 27);
-    doc.text("Items", margin, y);
-    y += 6;
-
-    let currentSection = "";
-    for (const item of items) {
-      if (y > pageHeight - 45) {
-        applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-        doc.addPage();
-        paintWatermark();
-        applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-        y = 20;
-      }
-      if (item.section && item.section !== currentSection) {
-        currentSection = item.section;
-        doc.setFont("helvetica", "bolditalic");
-        doc.setFontSize(9);
-        inkHex(branding.primaryColor);
-        doc.text(currentSection, margin, y);
-        y += 5;
-      }
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      ink(24, 24, 27);
-      const qty = item.quantity ? `  (${item.quantity})` : "";
-      const desc = `${item.description}${qty}`;
-      const descLines = doc.splitTextToSize(desc, pageWidth - margin * 2 - 42);
-      doc.text(descLines, margin, y);
-      if (item.amount) {
-        doc.text(item.amount, pageWidth - margin, y, { align: "right" });
-      }
-      y += descLines.length * 4.5 + 2.5;
-    }
-    y += 4;
-  }
-
-  // ── Totals ──
-  if (estimate.totals.length > 0) {
-    if (y > pageHeight - 70) {
-      applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-      doc.addPage();
-      paintWatermark();
-      applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-      y = 20;
-    }
-    const boxY = y;
-    const boxH = estimate.totals.length * 7 + 8;
-    doc.setFillColor(248, 248, 250);
-    doc.setDrawColor(branding.primaryColor);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(margin, boxY, pageWidth - margin * 2, boxH, 2, 2, "FD");
-    y = boxY + 7;
-    for (const t of estimate.totals) {
-      doc.setFont("helvetica", t.emphasized ? "bold" : "normal");
-      doc.setFontSize(t.emphasized ? 12 : 10);
-      ink(24, 24, 27);
-      doc.text(t.label, margin + 5, y);
-      doc.text(t.value, pageWidth - margin - 5, y, { align: "right" });
-      y += t.emphasized ? 8 : 6;
-    }
-    y += 6;
-  }
-
-  // ── Notes / disclaimer ──
-  const disclaimers = [
-    ...(estimate.notes ?? []),
-    "Estimate only. Actual amounts may vary by surface, location and market prices.",
-  ];
-  if (y > pageHeight - 60) {
-    applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-    doc.addPage();
-    paintWatermark();
-    applyJspdfWatermark(doc, branding, pageWidth, pageHeight);
-    y = 20;
-  }
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(8);
-  ink(120, 120, 125);
-  for (const note of disclaimers) {
-    const wrapped = doc.splitTextToSize(note, pageWidth - margin * 2 - 30);
-    doc.text(wrapped, margin, y);
-    y += wrapped.length * 4 + 1;
-  }
-
-  // ── QR code back to the calculator ──
-  try {
-    const link = estimate.link.startsWith("http")
-      ? estimate.link
-      : `${SITE_URL}${estimate.link}`;
-    const qrDataUrl = await QRCode.toDataURL(link, { width: 160, margin: 1 });
-    doc.addImage(
-      qrDataUrl,
-      "PNG",
-      pageWidth - margin - 22,
-      pageHeight - 42,
-      22,
-      22,
-    );
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7);
-    ink(150, 150, 150);
-    doc.text("Open calculator", pageWidth - margin - 11, pageHeight - 17, {
-      align: "center",
-    });
-  } catch {
-    /* QR is a nicety: the estimate ships without it rather than failing the export. */
-  }
-
-  applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
-  return doc;
-}
-
-/** Build and immediately download the estimate PDF. */
-export async function downloadEstimatePdf(
-  estimate: ShareableEstimate,
-  options: EstimatePdfOptions = {},
-): Promise<void> {
-  const doc = await buildEstimatePdfDoc(estimate, options);
-  const name = options.fileName ?? estimateFileName(estimate);
-  await saveSealedPdf(doc, `${name}.pdf`, {
-    title: estimate.title || name,
-    subject: estimate.kind,
-    reference: name,
-  });
-}
-
-/** Build the PDF and open it in a new tab (for print/preview). */
-export async function openEstimatePdf(
-  estimate: ShareableEstimate,
-  options: EstimatePdfOptions = {},
-): Promise<void> {
-  const doc = await buildEstimatePdfDoc(estimate, options);
-  const name = options.fileName ?? estimateFileName(estimate);
-  // The preview is the same sealed file the download produces, so what a user
-  // sees before sharing is exactly what the recipient receives.
-  const sealed = await sealPdf(new Uint8Array(doc.output("arraybuffer")), {
-    title: estimate.title || name,
-    subject: estimate.kind,
-    reference: name,
-  });
-  const url = URL.createObjectURL(
-    new Blob([sealed as BlobPart], { type: "application/pdf" }),
+    .replace(/^-+|-+$/g, "");
+  printShareableQuote(
+    estimate,
+    `frelux-${slug || "estimate"}.html`,
+    estimate.notes?.length ? estimate.notes.join(" ") : undefined,
   );
-  window.open(url, "_blank", "noopener,noreferrer");
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-// ─────────────────────────────────────────────
-// QuoteOptions adapter (shared with printQuote)
-// ─────────────────────────────────────────────
-
-import type { QuoteOptions } from "@/lib/estimation/quote-export";
-
-/**
- * Convert a printQuote payload into a ShareableEstimate, so every
- * page that already exports a professional quote gets WhatsApp +
- * PDF sharing from the same data. Money strings pass through
- * exactly as formatted for the visitor's market.
- */
 export function quoteToShareable(
   opts: QuoteOptions,
   link: string,

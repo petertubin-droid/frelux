@@ -137,112 +137,112 @@ export default function FaqArticle() {
 
       <Container className="pb-16 pt-6">
         <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[minmax(0,1fr)_200px]">
-        <article>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {categoryLabel && (
-              <span className="rounded-full border border-border/70 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {categoryLabel}
-              </span>
-            )}
-            <Link
-              to={group.route}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
-              <Calculator className="h-4 w-4" aria-hidden="true" />
-              Open the tool
-            </Link>
-          </div>
+          <article>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {categoryLabel && (
+                <span className="rounded-full border border-border/70 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                  {categoryLabel}
+                </span>
+              )}
+              <Link
+                to={group.route}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+              >
+                <Calculator className="h-4 w-4" aria-hidden="true" />
+                Open the tool
+              </Link>
+            </div>
 
-          <p className="article-body mt-6 border-l-2 border-border pl-4">
-            {group.name} works in any supported market. Bag sizes, tin sizes,
-            coverage rates, currencies and codes come from the market you
-            select, and where a market has no verified figure the tool asks for
-            one instead of falling back to a default.
-          </p>
+            <p className="article-body mt-6 border-l-2 border-border pl-4">
+              {group.name} works in any supported market. Bag sizes, tin sizes,
+              coverage rates, currencies and codes come from the market you
+              select, and where a market has no verified figure the tool asks
+              for one instead of falling back to a default.
+            </p>
 
-          <div className="mt-9 space-y-9">
-            {sections.map((section, index) => {
-              const value =
-                section.key === "worked"
-                  ? (longForm?.worked ?? "")
-                  : article[section.key];
-              return (
-                <section
-                  key={section.key}
-                  aria-labelledby={`${section.key}-heading`}
-                  className="grid gap-2 sm:grid-cols-[auto_1fr] sm:gap-x-5"
-                >
-                  <span aria-hidden="true" className="faq-marker pt-1.5">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h2
-                      id={`${section.key}-heading`}
-                      className="article-heading"
+            <div className="mt-9 space-y-9">
+              {sections.map((section, index) => {
+                const value =
+                  section.key === "worked"
+                    ? (longForm?.worked ?? "")
+                    : article[section.key];
+                return (
+                  <section
+                    key={section.key}
+                    aria-labelledby={`${section.key}-heading`}
+                    className="grid gap-2 sm:grid-cols-[auto_1fr] sm:gap-x-5"
+                  >
+                    <span aria-hidden="true" className="faq-marker pt-1.5">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <h2
+                        id={`${section.key}-heading`}
+                        className="article-heading"
+                      >
+                        {section.heading}
+                      </h2>
+                      {typeof value === "string" ? (
+                        value.split("\n\n").map((paragraph) => (
+                          <p
+                            key={paragraph.slice(0, 24)}
+                            className="article-body mt-2.5"
+                          >
+                            {paragraph}
+                          </p>
+                        ))
+                      ) : (
+                        <ul className="mt-3 space-y-2.5">
+                          {value.map((item) => (
+                            <li key={item} className="article-body flex gap-3">
+                              <span
+                                aria-hidden="true"
+                                className="mt-[0.55rem] h-1 w-3 shrink-0 rounded-full bg-primary/50"
+                              />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </article>
+
+          <aside className="hidden lg:block" aria-label="On this page">
+            <div className="sticky top-24 rounded-2xl border border-border/70 bg-card p-4 dark:border-white/8">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                On this page
+              </p>
+              <ol className="mt-3 space-y-2 text-sm">
+                {sections.map((section, index) => (
+                  <li key={section.key} className="flex gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="text-xs font-medium text-muted-foreground/70"
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <a
+                      href={`#${section.key}-heading`}
+                      className="text-muted-foreground transition-colors hover:text-primary"
                     >
                       {section.heading}
-                    </h2>
-                    {typeof value === "string" ? (
-                      value.split("\n\n").map((paragraph) => (
-                        <p
-                          key={paragraph.slice(0, 24)}
-                          className="article-body mt-2.5"
-                        >
-                          {paragraph}
-                        </p>
-                      ))
-                    ) : (
-                      <ul className="mt-3 space-y-2.5">
-                        {value.map((item) => (
-                          <li key={item} className="article-body flex gap-3">
-                            <span
-                              aria-hidden="true"
-                              className="mt-[0.55rem] h-1 w-3 shrink-0 rounded-full bg-primary/50"
-                            />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        </article>
-
-        <aside className="hidden lg:block" aria-label="On this page">
-          <div className="sticky top-24 rounded-2xl border border-border/70 bg-card p-4 dark:border-white/8">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-              On this page
-            </p>
-            <ol className="mt-3 space-y-2 text-sm">
-              {sections.map((section, index) => (
-                <li key={section.key} className="flex gap-2">
-                  <span
-                    aria-hidden="true"
-                    className="text-xs font-medium text-muted-foreground/70"
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <a
-                    href={`#${section.key}-heading`}
-                    className="text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {section.heading}
-                  </a>
-                </li>
-              ))}
-            </ol>
-            <a
-              href="#questions"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
-              The questions
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-          </div>
-        </aside>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+              <a
+                href="#questions"
+                className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline"
+              >
+                The questions
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          </aside>
         </div>
 
         <div id="questions" className="mx-auto max-w-3xl scroll-mt-24">

@@ -958,6 +958,7 @@ export default function TileCostEstimator({
                             methodologyText={methodologyText("tile-cost")}
                           />
                           <ShareEstimateButton
+                            showPdf={false}
                             estimate={quoteToShareable(
                               tileQuoteOptions(result, result.method),
                               "/tile-cost-estimator",

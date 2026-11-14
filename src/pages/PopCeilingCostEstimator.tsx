@@ -750,6 +750,7 @@ export default function PopCeilingCostEstimator({
                           methodologyText={methodologyText("pop-ceiling")}
                         />
                         <ShareEstimateButton
+                          showPdf={false}
                           estimate={quoteToShareable(
                             popQuoteOptions(result),
                             "/pop-ceiling-cost-estimator",

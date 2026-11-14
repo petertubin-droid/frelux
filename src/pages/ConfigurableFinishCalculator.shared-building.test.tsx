@@ -6,7 +6,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
-import { draftsToSchedule, scheduleTotals } from "@/lib/measurement/building-schedule";
+import {
+  draftsToSchedule,
+  scheduleTotals,
+} from "@/lib/measurement/building-schedule";
 import type { RoomDraft } from "@/lib/measurement/building-presets";
 
 vi.mock("@/lib/international/market-context", () => ({
@@ -26,7 +29,10 @@ vi.mock("@/lib/i18n", async (importOriginal) => {
       >,
   };
 });
-vi.mock("@/lib/seo", () => ({ useSeo: () => {}, useBreadcrumbJsonLd: () => {} }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: () => {},
+  useBreadcrumbJsonLd: () => {},
+}));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 import ConfigurableFinishCalculator from "./ConfigurableFinishCalculator";
@@ -84,14 +90,18 @@ describe("finish calculator taking the shared building", () => {
   it("offers the walls and the floors of the stored building", () => {
     storeBuilding();
     renderTool();
-    expect(screen.getByRole("button", { name: /walls after openings/i })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /walls after openings/i }),
+    ).toBeTruthy();
     expect(screen.getByRole("button", { name: /floors/i })).toBeTruthy();
   });
 
   it("offers the wall area after openings, not the gross face", () => {
     storeBuilding();
     renderTool();
-    const button = screen.getByRole("button", { name: /walls after openings/i });
+    const button = screen.getByRole("button", {
+      name: /walls after openings/i,
+    });
     // 2 x (4 + 3.5) x 2.7 = 40.5 gross, less one door 1.89 and one window 1.8.
     expect(button.textContent).toContain("36.81 m²");
   });
@@ -105,7 +115,9 @@ describe("finish calculator taking the shared building", () => {
 
   it("offers nothing when no building is stored", () => {
     renderTool();
-    expect(screen.queryByRole("button", { name: /walls after openings/i })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /walls after openings/i }),
+    ).toBeNull();
     expect(screen.queryByRole("button", { name: /floors/i })).toBeNull();
   });
 });

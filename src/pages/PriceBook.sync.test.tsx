@@ -1,10 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/lib/seo", () => ({ useSeo: vi.fn(), useBreadcrumbJsonLd: vi.fn() }));
 vi.mock("@/components/ui/Container", () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 vi.mock("@/lib/international/currency-context", () => ({
   useDisplayCurrency: () => ({ code: "NGN", symbol: "₦" }),
@@ -18,7 +26,10 @@ type Outcome =
 const sync = {
   fetched: { status: "signed-out", entries: [] } as Outcome,
   saves: [] as unknown[],
-  saveResult: { ok: false, reason: "not signed in" } as { ok: boolean; reason?: string },
+  saveResult: { ok: false, reason: "not signed in" } as {
+    ok: boolean;
+    reason?: string;
+  },
   deletes: [] as string[],
 };
 
@@ -76,7 +87,9 @@ describe("price book account sync on the page", () => {
     await waitFor(() => {
       expect(screen.getByRole("list")).toBeDefined();
     });
-    expect(within(screen.getByRole("list")).getByText("gutter-per-meter")).toBeDefined();
+    expect(
+      within(screen.getByRole("list")).getByText("gutter-per-meter"),
+    ).toBeDefined();
     expect(screen.getByTestId("price-book-storage")).toHaveTextContent(
       /saved to your account and to this browser/i,
     );
@@ -135,7 +148,9 @@ describe("price book account sync on the page", () => {
     renderPage();
     await waitFor(() => expect(screen.getByRole("list")).toBeDefined());
 
-    fireEvent.click(screen.getByRole("button", { name: "Remove gutter-per-meter" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Remove gutter-per-meter" }),
+    );
     await waitFor(() => expect(sync.deletes).toEqual(["gutter-per-meter"]));
     expect(screen.queryByRole("list")).toBeNull();
   });

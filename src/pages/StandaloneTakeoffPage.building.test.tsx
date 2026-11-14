@@ -74,7 +74,9 @@ describe("building template inside the masonry calculator", () => {
       .map((item) => item.textContent ?? "")
       .find((text) => text.startsWith("Measured from "));
     expect(note).toBeTruthy();
-    expect(note).toMatch(/[0-9]+ rooms?, [0-9.]+ m of wall run, [0-9.]+ m² of openings deducted/);
+    expect(note).toMatch(
+      /[0-9]+ rooms?, [0-9.]+ m of wall run, [0-9.]+ m² of openings deducted/,
+    );
   });
 });
 

@@ -16,7 +16,8 @@ import { acceptInvitation } from "@/lib/diaspora/queries";
 export default function DiasporaInvite() {
   useSeo({
     title: "Project invitation | FRELUX Diaspora Site Tracker",
-    description: "Accept an invitation to monitor a FRELUX construction project.",
+    description:
+      "Accept an invitation to monitor a FRELUX construction project.",
     canonicalPath: "/diaspora-tracker/invite",
     noIndex: true,
   });
@@ -24,7 +25,9 @@ export default function DiasporaInvite() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get("token") ?? "";
-  const [state, setState] = useState<"ready" | "busy" | "error" | "done">("ready");
+  const [state, setState] = useState<"ready" | "busy" | "error" | "done">(
+    "ready",
+  );
   const [error, setError] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
 
@@ -62,9 +65,9 @@ export default function DiasporaInvite() {
         {state === "ready" && (
           <div className="space-y-4 rounded-xl border border-border/70 bg-card p-6">
             <p className="text-sm">
-              You have been invited to a project. Accepting adds you as a participant with the
-              role the owner chose, and gives you access to its reports, evidence and financial
-              record.
+              You have been invited to a project. Accepting adds you as a
+              participant with the role the owner chose, and gives you access to
+              its reports, evidence and financial record.
             </p>
             <Button onClick={accept}>Accept invitation</Button>
           </div>
@@ -72,14 +75,16 @@ export default function DiasporaInvite() {
 
         {state === "busy" && (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Checking the invitation…
+            <Loader2 className="h-4 w-4 animate-spin" /> Checking the
+            invitation…
           </p>
         )}
 
         {state === "done" && (
           <div className="space-y-4 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-6">
             <p className="flex items-center gap-2 text-sm font-medium">
-              <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Invitation accepted.
+              <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Invitation
+              accepted.
             </p>
             <Button onClick={() => navigate(`/diaspora-tracker/${projectId}`)}>
               Open the project

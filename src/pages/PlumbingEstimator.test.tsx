@@ -75,7 +75,9 @@ describe("PlumbingEstimator", () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText(/restored your previous plumbing calculation draft/i),
+        screen.queryByText(
+          /restored your previous plumbing calculation draft/i,
+        ),
       ).toBeNull();
     });
   });

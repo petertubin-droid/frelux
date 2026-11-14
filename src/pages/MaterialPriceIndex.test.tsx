@@ -17,9 +17,9 @@ const queries = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/price-index/queries", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/price-index/queries")>(
-    "@/lib/price-index/queries",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/lib/price-index/queries")
+  >("@/lib/price-index/queries");
   return { ...actual, ...queries };
 });
 

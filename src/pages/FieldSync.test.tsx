@@ -99,7 +99,9 @@ describe("FieldSync page", () => {
     );
     // The banner states offline twice by design (status line + auto-sync
     // refusal), so query all matches (house convention for by-design dups)
-    expect(screen.getAllByText(/you are offline/i).length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText(/you are offline/i).length,
+    ).toBeGreaterThanOrEqual(1);
     fillCapture(
       "Ikeja duplex: room 2",
       "Walls measured 4.2 x 3.1 m, two coats done",
@@ -144,7 +146,9 @@ describe("FieldSync page", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/auto-sync: auto-sync is disabled/i),
+      ).toBeInTheDocument();
     });
     fillCapture("Lekki site", "Used 12 litres of satin in the sitting room");
     expect(screen.getAllByTestId("queued-capture").length).toBe(1);
@@ -194,7 +198,9 @@ describe("FieldSync page", () => {
     fillCapture("Enugu bungalow", "Cured slab wetted twice");
     await waitFor(() => {
       expect(
-        screen.getByText(/auto-sync: you are offline; queued captures stay on this device/i),
+        screen.getByText(
+          /auto-sync: you are offline; queued captures stay on this device/i,
+        ),
       ).toBeInTheDocument();
     });
     expect(insertMock).not.toHaveBeenCalled();
@@ -211,7 +217,9 @@ describe("FieldSync page", () => {
     );
     fillCapture("Warri depot", "Crack noted in column 3");
     await waitFor(() => {
-      expect(screen.getByText(/1 failed and still queued/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/1 failed and still queued/i),
+      ).toBeInTheDocument();
     });
     // The honest backoff note appears: next attempt is ~1 minute away
     await waitFor(() => {
@@ -233,7 +241,9 @@ describe("FieldSync page", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/auto-sync: auto-sync is disabled/i),
+      ).toBeInTheDocument();
     });
     fillCapture("Abuja flat", "Second coat done in bedroom");
     fireEvent.click(screen.getByRole("button", { name: /^sync now$/i }));
@@ -258,7 +268,9 @@ describe("FieldSync page", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByText(/auto-sync: auto-sync is disabled/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/auto-sync: auto-sync is disabled/i),
+      ).toBeInTheDocument();
     });
     fillCapture("Kano depot", "Delivered 20 bags of cement");
     fireEvent.click(screen.getByRole("button", { name: /^sync now$/i }));

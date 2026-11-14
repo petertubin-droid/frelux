@@ -65,7 +65,9 @@ describe("ElectricalEstimator", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/restored your previous electrical calculation draft/i),
+        screen.getByText(
+          /restored your previous electrical calculation draft/i,
+        ),
       ).toBeDefined();
     });
 
@@ -75,7 +77,9 @@ describe("ElectricalEstimator", () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText(/restored your previous electrical calculation draft/i),
+        screen.queryByText(
+          /restored your previous electrical calculation draft/i,
+        ),
       ).toBeNull();
     });
   });

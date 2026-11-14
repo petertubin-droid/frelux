@@ -1246,6 +1246,7 @@ export default function CostEstimator({
                     className="mb-4"
                   />
                   <ShareEstimateButton
+                    showPdf={false}
                     estimate={
                       result
                         ? {

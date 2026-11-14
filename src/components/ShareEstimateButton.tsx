@@ -13,8 +13,11 @@
  *     }}
  *   />
  *
- * Renders three actions on one row: WhatsApp share, Save PDF,
- * Copy summary. All values are the caller's pre-formatted display
+ * Renders WhatsApp share and copy summary, plus an optional Export PDF that is
+ * off by default because the calculator page already exports through the shared
+ * quote engine. The PDF action prints the one Frelux quote document, and a
+ * page that already offers its own export button passes `showPdf={false}` so a
+ * visitor never sees two PDF controls for one estimate. All values are the caller's pre-formatted display
  * strings; the component never recomputes an estimate.
  */
 import { useState } from "react";
@@ -33,12 +36,19 @@ interface ShareEstimateButtonProps {
   estimate: ShareableEstimate | null;
   /** Compact label variant for tight layouts. */
   compact?: boolean;
+  /**
+   * The PDF action, off by default: every calculator now has its own export
+   * button, and a page must not offer two controls for one document. Turn it
+   * on only where this button is the page's sole way to export.
+   */
+  showPdf?: boolean;
   className?: string;
 }
 
 export function ShareEstimateButton({
   estimate,
   compact = false,
+  showPdf = false,
   className = "",
 }: ShareEstimateButtonProps) {
   const { t } = useLanguage();
@@ -84,21 +94,23 @@ export function ShareEstimateButton({
           <MessageCircle className="h-3.5 w-3.5" />
           {t("WhatsApp")}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handlePdf}
-          disabled={pdfBusy}
-          className={ACTION_BTN}
-        >
-          {pdfBusy ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <FileText className="h-3.5 w-3.5" />
-          )}
-          Save PDF
-        </Button>
+        {showPdf && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePdf}
+            disabled={pdfBusy}
+            className={ACTION_BTN}
+          >
+            {pdfBusy ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <FileText className="h-3.5 w-3.5" />
+            )}
+            Export PDF
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
@@ -134,22 +146,24 @@ export function ShareEstimateButton({
             {t("WhatsApp")}
           </span>
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={handlePdf}
-          disabled={pdfBusy}
-          className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary/10 px-2 py-1 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
-        >
-          {pdfBusy ? (
-            <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
-          ) : (
-            <FileText className="h-4 w-4 text-brand-purple" />
-          )}
-          <span className="text-xs font-semibold text-brand-purple">
-            {t("Save PDF")}
-          </span>
-        </Button>
+        {showPdf && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handlePdf}
+            disabled={pdfBusy}
+            className="flex h-9 flex-col items-center justify-center gap-0.5 rounded-lg bg-primary/10 px-2 py-1 text-center transition-all hover:bg-primary/20 disabled:opacity-60"
+          >
+            {pdfBusy ? (
+              <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+            ) : (
+              <FileText className="h-4 w-4 text-brand-purple" />
+            )}
+            <span className="text-xs font-semibold text-brand-purple">
+              {t("Export PDF")}
+            </span>
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"

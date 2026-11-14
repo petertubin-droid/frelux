@@ -20,12 +20,21 @@ describe("ConcreteTakeoffCalculator", () => {
       "Additional concrete allowance (%)": "0",
       "Cement bag size (kg)": "50",
     };
-    for (const label of ["Slab length (m)", "Slab width (m)", "Slab thickness (m)"]) {
-      fireEvent.change(screen.getByRole("textbox", { name: label.replace(" (m)", "") }), { target: { value: inputs[label] } });
+    for (const label of [
+      "Slab length (m)",
+      "Slab width (m)",
+      "Slab thickness (m)",
+    ]) {
+      fireEvent.change(
+        screen.getByRole("textbox", { name: label.replace(" (m)", "") }),
+        { target: { value: inputs[label] } },
+      );
     }
     for (const [label, value] of Object.entries(inputs)) {
       if (label.endsWith(" (m)")) continue;
-      fireEvent.change(screen.getByRole("spinbutton", { name: label }), { target: { value } });
+      fireEvent.change(screen.getByRole("spinbutton", { name: label }), {
+        target: { value },
+      });
     }
     fireEvent.click(
       screen.getByRole("button", { name: /Calculate concrete takeoff/i }),

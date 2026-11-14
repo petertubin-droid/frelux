@@ -36,7 +36,13 @@ vi.mock("@/lib/measurement/building-size-context", async () => {
   const actual = await vi.importActual<
     typeof import("@/lib/measurement/building-size-context")
   >("@/lib/measurement/building-size-context");
-  return { ...actual, useBuildingSize: () => ({ building: seeded.current, setBuilding: () => {} }) };
+  return {
+    ...actual,
+    useBuildingSize: () => ({
+      building: seeded.current,
+      setBuilding: () => {},
+    }),
+  };
 });
 vi.mock("@/lib/pricing/price-book-context", () => ({
   usePriceBook: () => ({
@@ -48,7 +54,10 @@ vi.mock("@/lib/pricing/price-book-context", () => ({
 }));
 
 import SoffitGutterEstimator from "@/pages/SoffitGutterEstimator";
-import { draftsToSchedule, scheduleTotals } from "@/lib/measurement/building-schedule";
+import {
+  draftsToSchedule,
+  scheduleTotals,
+} from "@/lib/measurement/building-schedule";
 
 const seeded: { current: unknown } = { current: null };
 
@@ -87,9 +96,13 @@ describe("Soffit, fascia and gutter page", () => {
     seedBuilding([room()]);
     renderPage();
     fireEvent.click(
-      screen.getByRole("button", { name: /Use the measured building footprint/i }),
+      screen.getByRole("button", {
+        name: /Use the measured building footprint/i,
+      }),
     );
-    const length = screen.getByLabelText(/Building length/i) as HTMLInputElement;
+    const length = screen.getByLabelText(
+      /Building length/i,
+    ) as HTMLInputElement;
     const width = screen.getByLabelText(/Building width/i) as HTMLInputElement;
     expect(length.value).toBe("10.00");
     expect(width.value).toBe("8.00");
@@ -99,10 +112,15 @@ describe("Soffit, fascia and gutter page", () => {
   });
 
   it("refuses a multi-room footprint instead of averaging it", () => {
-    seedBuilding([room(), room({ id: "r2", label: "Room 2", length: 4, width: 3 })]);
+    seedBuilding([
+      room(),
+      room({ id: "r2", label: "Room 2", length: 4, width: 3 }),
+    ]);
     renderPage();
     fireEvent.click(
-      screen.getByRole("button", { name: /Use the measured building footprint/i }),
+      screen.getByRole("button", {
+        name: /Use the measured building footprint/i,
+      }),
     );
     expect(screen.getByRole("status").textContent ?? "").toMatch(/2 rooms/);
     // The footprint fields stay closed, so nothing can be typed into a shape the

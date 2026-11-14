@@ -494,6 +494,81 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
 }
 
 /**
+ * A shareable estimate, structurally. Declared here rather than imported so
+ * this module stays free of the PDF pipeline it replaced.
+ */
+export interface ShareableEstimateLike {
+  kind: string;
+  title?: string | null;
+  reference?: string | null;
+  summaryLines: Array<{ label: string; value: string }>;
+  lineItems: Array<{
+    section?: string;
+    description: string;
+    quantity?: string | null;
+    amount?: string | null;
+  }>;
+  totals: Array<{ label: string; value: string; emphasized?: boolean }>;
+  notes?: string[];
+  generatedAt?: string;
+}
+
+/**
+ * One quote layout for every calculator.
+ *
+ * Calculators used to hand their results to a second jsPDF renderer that drew
+ * its own document, so the same estimate looked different depending on which
+ * page produced it. Everything now speaks these options, and therefore the one
+ * printed quote.
+ */
+export function quoteOptionsFromShareable(
+  estimate: ShareableEstimateLike,
+  footer?: string,
+): QuoteOptions {
+  const context = [estimate.title, estimate.reference]
+    .filter((v): v is string => Boolean(v && v.trim()))
+    .join(" · ");
+  return {
+    title: `FRELUX ${estimate.kind}`,
+    subtitle:
+      context ||
+      `Generated ${new Date(
+        estimate.generatedAt ?? Date.now(),
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })}`,
+    metaRows: estimate.summaryLines.map((line) => [line.label, line.value]),
+    lines: estimate.lineItems.map((item) => ({
+      label: item.section
+        ? `${item.section} · ${item.description}`
+        : item.description,
+      quantity: item.quantity || "",
+      unit: "",
+      unit_price: "",
+      line_total: item.amount || "",
+    })),
+    totals: estimate.totals.map((total) => ({
+      label: total.label,
+      value: total.value,
+      strong: Boolean(total.emphasized),
+    })),
+    warnings: estimate.notes,
+    footer,
+  };
+}
+
+/** Print the shareable estimate as the one Frelux quote document. */
+export function printShareableQuote(
+  estimate: ShareableEstimateLike,
+  downloadName = "frelux-estimate.html",
+  footer?: string,
+): void {
+  printQuote(quoteOptionsFromShareable(estimate, footer), downloadName);
+}
+
+/**
  * Open the browser print dialog with the quote. If popups are
  * blocked, download a printable HTML file instead.
  */

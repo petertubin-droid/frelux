@@ -56,7 +56,9 @@ describe("ReinforcementEstimator", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/restored your previous reinforcement calculation draft/i),
+        screen.getByText(
+          /restored your previous reinforcement calculation draft/i,
+        ),
       ).toBeDefined();
     });
 
@@ -66,7 +68,9 @@ describe("ReinforcementEstimator", () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText(/restored your previous reinforcement calculation draft/i),
+        screen.queryByText(
+          /restored your previous reinforcement calculation draft/i,
+        ),
       ).toBeNull();
     });
   });

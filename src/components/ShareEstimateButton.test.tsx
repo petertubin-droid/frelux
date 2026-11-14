@@ -17,7 +17,9 @@ import type { ShareableEstimate } from "@/lib/estimate-sharing";
 const estimate: ShareableEstimate = {
   kind: "Tile Cost Estimate",
   summaryLines: [{ label: "Area", value: "42 m²" }],
-  lineItems: [{ description: "Ceramic tiles", quantity: "14 packs", amount: "₦210,000" }],
+  lineItems: [
+    { description: "Ceramic tiles", quantity: "14 packs", amount: "₦210,000" },
+  ],
   totals: [{ label: "Grand total", value: "₦254,500", emphasized: true }],
   link: "/tile-cost-estimator",
 };
@@ -33,35 +35,48 @@ describe("ShareEstimateButton", () => {
   });
 
   it("offers WhatsApp, PDF and copy actions", () => {
-    render(<ShareEstimateButton estimate={estimate} />);
+    render(<ShareEstimateButton estimate={estimate} showPdf />);
     expect(screen.getByText("WhatsApp")).toBeTruthy();
-    expect(screen.getByText("Save PDF")).toBeTruthy();
+    expect(screen.getByText("Export PDF")).toBeTruthy();
     expect(screen.getByText("Copy text")).toBeTruthy();
   });
 
   it("shares on WhatsApp using the estimate", () => {
-    render(<ShareEstimateButton estimate={estimate} />);
+    render(<ShareEstimateButton estimate={estimate} showPdf />);
     fireEvent.click(screen.getByText("WhatsApp"));
     expect(shareEstimateOnWhatsApp).toHaveBeenCalledWith(estimate);
   });
 
-  it("generates the PDF on demand", async () => {
+  it("keeps one export control per page by hiding its PDF by default", () => {
     render(<ShareEstimateButton estimate={estimate} />);
-    fireEvent.click(screen.getByText("Save PDF"));
-    await waitFor(() => expect(downloadEstimatePdf).toHaveBeenCalledWith(estimate));
+    expect(screen.queryByText("Export PDF")).toBeNull();
+    // The share and copy actions survive: only the duplicate export goes.
+    expect(screen.getByText("WhatsApp")).toBeTruthy();
+  });
+
+  it("generates the PDF on demand", async () => {
+    render(<ShareEstimateButton estimate={estimate} showPdf />);
+    fireEvent.click(screen.getByText("Export PDF"));
+    await waitFor(() =>
+      expect(downloadEstimatePdf).toHaveBeenCalledWith(estimate),
+    );
   });
 
   it("copies the summary and confirms", async () => {
-    render(<ShareEstimateButton estimate={estimate} />);
+    render(<ShareEstimateButton estimate={estimate} showPdf />);
     fireEvent.click(screen.getByText("Copy text"));
-    await waitFor(() => expect(copyEstimateSummary).toHaveBeenCalledWith(estimate));
+    await waitFor(() =>
+      expect(copyEstimateSummary).toHaveBeenCalledWith(estimate),
+    );
     await waitFor(() => expect(screen.getByText("Copied!")).toBeTruthy());
   });
 
   it("reports a PDF failure honestly instead of pretending it saved", async () => {
-    (downloadEstimatePdf as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("x"));
-    render(<ShareEstimateButton estimate={estimate} />);
-    fireEvent.click(screen.getByText("Save PDF"));
+    (downloadEstimatePdf as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("x"),
+    );
+    render(<ShareEstimateButton estimate={estimate} showPdf />);
+    fireEvent.click(screen.getByText("Export PDF"));
     await waitFor(() =>
       expect(screen.getByText(/PDF could not be generated/)).toBeTruthy(),
     );

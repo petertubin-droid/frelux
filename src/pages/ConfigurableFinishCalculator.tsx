@@ -852,6 +852,7 @@ export default function ConfigurableFinishCalculator({
                           )}
                         />
                         <ShareEstimateButton
+                          showPdf={false}
                           estimate={{
                             kind: "Finish Material Estimate",
                             title: `${result.product_name}${result.brand ? ` (${result.brand})` : ""}`,

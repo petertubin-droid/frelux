@@ -620,6 +620,7 @@ Prices come from the market book for your selected market. Anything you type ove
                 ]}
               />
               <ShareEstimateButton
+                showPdf={false}
                 estimate={{
                   kind: "Increte Flooring Estimate",
                   summaryLines: [

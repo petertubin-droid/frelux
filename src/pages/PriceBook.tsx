@@ -83,8 +83,8 @@ export default function PriceBook() {
             <p className="text-sm text-muted-foreground">
               Use the material slug the calculator names, for example
               <span className="font-mono"> fascia-per-meter</span>. Calculators
-              apply the rate only in the currency it was quoted in, and your rate
-              takes precedence over the market price.
+              apply the rate only in the currency it was quoted in, and your
+              rate takes precedence over the market price.
             </p>
 
             <p className="text-sm" data-testid="price-book-storage">
@@ -99,7 +99,10 @@ export default function PriceBook() {
 
             <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1">
-                <label htmlFor="price-book-slug" className="text-sm font-medium">
+                <label
+                  htmlFor="price-book-slug"
+                  className="text-sm font-medium"
+                >
                   Material slug
                 </label>
                 <input
@@ -113,7 +116,10 @@ export default function PriceBook() {
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="price-book-rate" className="text-sm font-medium">
+                <label
+                  htmlFor="price-book-rate"
+                  className="text-sm font-medium"
+                >
                   Rate per unit
                 </label>
                 <input
@@ -137,14 +143,19 @@ export default function PriceBook() {
                 <input
                   id="price-book-currency"
                   value={currency}
-                  onChange={(event) => setCurrency(event.target.value.toUpperCase())}
+                  onChange={(event) =>
+                    setCurrency(event.target.value.toUpperCase())
+                  }
                   maxLength={3}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm uppercase"
                 />
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="price-book-unit" className="text-sm font-medium">
+                <label
+                  htmlFor="price-book-unit"
+                  className="text-sm font-medium"
+                >
                   Measure (optional)
                 </label>
                 <input
@@ -157,7 +168,10 @@ export default function PriceBook() {
               </div>
 
               <div className="space-y-1 sm:col-span-2">
-                <label htmlFor="price-book-note" className="text-sm font-medium">
+                <label
+                  htmlFor="price-book-note"
+                  className="text-sm font-medium"
+                >
                   Note (optional)
                 </label>
                 <input
@@ -219,7 +233,9 @@ export default function PriceBook() {
                         className="flex flex-wrap items-start justify-between gap-3 px-4 py-3"
                       >
                         <div className="min-w-0 space-y-1">
-                          <p className="font-mono text-sm break-all">{entry.slug}</p>
+                          <p className="font-mono text-sm break-all">
+                            {entry.slug}
+                          </p>
                           <p className="text-sm">
                             {entry.rate.toLocaleString()} {entry.currency}
                             {entry.unit ? ` ${entry.unit}` : ""}

@@ -39,8 +39,12 @@ vi.mock("@/lib/credits", () => ({
   AI_CREDIT_COST: 10,
   CREDITS_PER_AD: 5,
   MAX_ADS_PER_DAY: 4,
-  getCreditWallet: vi.fn().mockImplementation(() => Promise.resolve(mockWallet)),
-  getActivityStreak: vi.fn().mockImplementation(() => Promise.resolve(mockStreak)),
+  getCreditWallet: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(mockWallet)),
+  getActivityStreak: vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(mockStreak)),
   recordActivity: vi.fn().mockResolvedValue(true),
   getCreditTasks: vi.fn().mockResolvedValue([
     {
@@ -147,8 +151,12 @@ describe("Profile Page", () => {
     mockAuthState.loading = true;
     renderComponent();
 
-    expect(screen.getByRole("status", { name: /Loading profile/i })).toBeInTheDocument();
-    expect(screen.queryByText(/Please sign in to view and edit your profile/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: /Loading profile/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Please sign in to view and edit your profile/i),
+    ).not.toBeInTheDocument();
   });
 
   it("renders authenticated profile details, marketplace ID, and active status", async () => {
@@ -178,10 +186,9 @@ describe("Profile Page", () => {
 
     // Verify marketplace messaging is updated and links to marketplace
     expect(screen.getByText(/Marketplace & Pro Identity/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Explore Marketplace/i })).toHaveAttribute(
-      "href",
-      "/marketplace",
-    );
+    expect(
+      screen.getByRole("link", { name: /Explore Marketplace/i }),
+    ).toHaveAttribute("href", "/marketplace");
 
     // Verify member since date
     expect(screen.getByText(/January 15, 2026/i)).toBeInTheDocument();
@@ -199,7 +206,9 @@ describe("Profile Page", () => {
     };
 
     renderComponent();
-    expect(screen.getByText(/Registration date unavailable/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Registration date unavailable/i),
+    ).toBeInTheDocument();
   });
 
   it("tracks dirty state and validates name and phone input", async () => {
@@ -228,7 +237,9 @@ describe("Profile Page", () => {
     // Enter single character (invalid name length < 2)
     fireEvent.change(nameInput, { target: { value: "A" } });
     fireEvent.blur(nameInput);
-    expect(await screen.findByText(/Full name must be at least 2 characters/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Full name must be at least 2 characters/i),
+    ).toBeInTheDocument();
     expect(saveButton).toBeDisabled();
 
     // Restore valid name
@@ -275,12 +286,16 @@ describe("Profile Page", () => {
 
     renderComponent();
 
-    const copyBtn = screen.getByRole("button", { name: /Copy Marketplace ID/i });
+    const copyBtn = screen.getByRole("button", {
+      name: /Copy Marketplace ID/i,
+    });
     fireEvent.click(copyBtn);
 
     await waitFor(() => {
       expect(writeTextMock).toHaveBeenCalledWith("MKP-VAL-456");
-      expect(screen.getByRole("button", { name: /Marketplace ID copied/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Marketplace ID copied/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -293,7 +308,9 @@ describe("Profile Page", () => {
     const fileInput = screen.getByLabelText(/Profile photo upload/i);
 
     // Unsupported MIME (PDF)
-    const pdfFile = new File(["dummy content"], "doc.pdf", { type: "application/pdf" });
+    const pdfFile = new File(["dummy content"], "doc.pdf", {
+      type: "application/pdf",
+    });
     fireEvent.change(fileInput, { target: { files: [pdfFile] } });
 
     await waitFor(() => {
@@ -327,7 +344,9 @@ describe("Profile Page", () => {
     ).toHaveAttribute("href", "/rewards/");
 
     // Centralized wallet header & balance
-    expect(screen.getByText(/AI Credits & Rewards Wallet/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/AI Credits & Rewards Wallet/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument();
 
     // Dynamic credit constants (10, +5, 4)

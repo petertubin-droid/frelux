@@ -62,6 +62,16 @@ describe("PDF export consistency", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("keeps the share button from adding a second export control", () => {
+    // Every calculator exports through its own button, so the share button's
+    // PDF action must stay off unless a page opts in as its only export.
+    const source = readFileSync(
+      join(process.cwd(), "src/components/ShareEstimateButton.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("showPdf = false,");
+  });
+
   it("quotes every estimate through the one shared engine", () => {
     const offenders = pageFiles()
       .filter((p) => p.source.includes("@/lib/pdf-export"))

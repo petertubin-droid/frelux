@@ -4,7 +4,9 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/lib/seo", () => ({ useSeo: vi.fn(), useBreadcrumbJsonLd: vi.fn() }));
 vi.mock("@/components/ui/Container", () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 vi.mock("@/lib/international/currency-context", () => ({
   useDisplayCurrency: () => ({ code: "NGN", symbol: "₦" }),
@@ -57,7 +59,9 @@ describe("My price book page", () => {
     const list = screen.getByRole("list");
     expect(within(list).getByText("fascia-per-meter")).toBeDefined();
     expect(within(list).getByText(/Applied in NGN calculators/i)).toBeDefined();
-    expect(screen.getByText(/1 of 1 rates apply in NGN calculators/i)).toBeDefined();
+    expect(
+      screen.getByText(/1 of 1 rates apply in NGN calculators/i),
+    ).toBeDefined();
 
     const stored = JSON.parse(
       window.localStorage.getItem(PRICE_BOOK_STORAGE_KEY) ?? "{}",
@@ -77,9 +81,7 @@ describe("My price book page", () => {
     renderPage();
     addRate({ slug: "gutter-per-meter", rate: "9.5", currency: "GBP" });
 
-    expect(
-      screen.getByText(/Kept, not applied: quoted in GBP/i),
-    ).toBeDefined();
+    expect(screen.getByText(/Kept, not applied: quoted in GBP/i)).toBeDefined();
     expect(
       screen.getByText(/None of these rates are quoted in NGN/i),
     ).toBeDefined();
@@ -90,15 +92,17 @@ describe("My price book page", () => {
     addRate({ slug: "downpipe-per-piece", rate: "-5" });
 
     expect(screen.getByText("A rate cannot be negative.")).toBeDefined();
-    expect(window.localStorage.getItem(PRICE_BOOK_STORAGE_KEY) ?? "").not.toContain(
-      "downpipe-per-piece",
-    );
+    expect(
+      window.localStorage.getItem(PRICE_BOOK_STORAGE_KEY) ?? "",
+    ).not.toContain("downpipe-per-piece");
   });
 
   it("removes a saved rate", () => {
     renderPage();
     addRate({ slug: "fascia-per-meter", rate: "4200" });
-    fireEvent.click(screen.getByRole("button", { name: "Remove fascia-per-meter" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Remove fascia-per-meter" }),
+    );
 
     expect(screen.queryByRole("list")).toBeNull();
     expect(

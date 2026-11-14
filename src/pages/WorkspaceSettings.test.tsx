@@ -15,7 +15,10 @@ const refreshMembers = vi.fn().mockResolvedValue({ data: [] });
 const can = vi.fn(() => true);
 
 vi.mock("@/lib/auth", () => ({
-  useAuth: () => ({ user: { id: "u1", email: "me@frelux.test" }, loading: false }),
+  useAuth: () => ({
+    user: { id: "u1", email: "me@frelux.test" },
+    loading: false,
+  }),
 }));
 vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
 vi.mock("@/contexts/WorkspaceContext", () => ({

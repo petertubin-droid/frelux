@@ -3776,6 +3776,7 @@ function EstimateResult({
             methodologyText={methodologyText("build-to-roof")}
           />
           <ShareEstimateButton
+            showPdf={false}
             estimate={quoteToShareable(
               quoteOptions(),
               "/build-to-roof-estimator",

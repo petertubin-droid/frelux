@@ -18,22 +18,18 @@ vi.mock("@/lib/queries", () => ({
   fetchPaintColors: vi.fn().mockResolvedValue([]),
 }));
 vi.mock("@/lib/ai-access", () => ({
-  checkAiAccess: vi
-    .fn()
-    .mockResolvedValue({
-      allowed: true,
-      reason: null,
-      usage: { creditsRemaining: 100, creditsUsed: 0 },
-    }),
+  checkAiAccess: vi.fn().mockResolvedValue({
+    allowed: true,
+    reason: null,
+    usage: { creditsRemaining: 100, creditsUsed: 0 },
+  }),
   requestRewardedAccess: vi.fn().mockResolvedValue({ success: true }),
   fetchAiAccessConfig: vi.fn().mockResolvedValue({ data: null, error: null }),
-  getAiUsageStatus: vi
-    .fn()
-    .mockResolvedValue({
-      creditsRemaining: 100,
-      creditsUsed: 0,
-      isUnlimited: false,
-    }),
+  getAiUsageStatus: vi.fn().mockResolvedValue({
+    creditsRemaining: 100,
+    creditsUsed: 0,
+    isUnlimited: false,
+  }),
 }));
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));

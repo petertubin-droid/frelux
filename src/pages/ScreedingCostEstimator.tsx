@@ -863,6 +863,7 @@ export default function ScreedingCostEstimator({
                             methodologyText={methodologyText("screeding")}
                           />
                           <ShareEstimateButton
+                            showPdf={false}
                             estimate={quoteToShareable(
                               screedingQuoteOptions({
                                 result,

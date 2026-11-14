@@ -777,6 +777,7 @@ export default function FinishEstimator({
                 </button>
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <ShareEstimateButton
+                  showPdf={false}
                   estimate={quoteToShareable(
                     finishQuoteOptions({
                       finishLabel: getFinishTypeLabel(selectedFinish),

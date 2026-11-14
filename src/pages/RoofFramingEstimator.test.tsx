@@ -159,53 +159,59 @@ it("shows sourced Nigerian roof live-load references separately from total desig
       name: /Total downward load per plan area/i,
     }),
   ).toHaveValue(null);
-  });
+});
 
-  it("fills plan dimensions from the measured building", () => {
-    const drafts = [
-      {
-        id: "r1",
-        spaceType: "living_room" as const,
-        label: "Room 1",
-        length: 10,
-        width: 8,
-        height: 3,
-        quantity: 1,
-        doors: 1,
-        windows: 1,
-      },
-    ];
-    window.localStorage.setItem(
-      BUILDING_SIZE_STORAGE_KEY,
-      JSON.stringify({
-        schedule: draftsToSchedule(drafts, "meters"),
-        totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
-        label: "One room",
-        unit: "meters",
-        drafts,
-      }),
-    );
-    render(
-      <MemoryRouter>
-        <BuildingSizeProvider>
-          <RoofFramingEstimator />
-        </BuildingSizeProvider>
-      </MemoryRouter>,
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Use the measured building/i }),
-    );
-    expect(
-      (screen.getByRole("spinbutton", { name: "Building length (m)" }) as HTMLInputElement)
-        .value,
-    ).toBe("10.00");
-    expect(
-      (screen.getByRole("spinbutton", { name: "Building width (m)" }) as HTMLInputElement)
-        .value,
-    ).toBe("8.00");
-    expect(screen.getByRole("status")).toHaveTextContent(/10.00 m x 8.00 m/);
-    window.localStorage.clear();
-  });
+it("fills plan dimensions from the measured building", () => {
+  const drafts = [
+    {
+      id: "r1",
+      spaceType: "living_room" as const,
+      label: "Room 1",
+      length: 10,
+      width: 8,
+      height: 3,
+      quantity: 1,
+      doors: 1,
+      windows: 1,
+    },
+  ];
+  window.localStorage.setItem(
+    BUILDING_SIZE_STORAGE_KEY,
+    JSON.stringify({
+      schedule: draftsToSchedule(drafts, "meters"),
+      totals: scheduleTotals(draftsToSchedule(drafts, "meters")),
+      label: "One room",
+      unit: "meters",
+      drafts,
+    }),
+  );
+  render(
+    <MemoryRouter>
+      <BuildingSizeProvider>
+        <RoofFramingEstimator />
+      </BuildingSizeProvider>
+    </MemoryRouter>,
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: /Use the measured building/i }),
+  );
+  expect(
+    (
+      screen.getByRole("spinbutton", {
+        name: "Building length (m)",
+      }) as HTMLInputElement
+    ).value,
+  ).toBe("10.00");
+  expect(
+    (
+      screen.getByRole("spinbutton", {
+        name: "Building width (m)",
+      }) as HTMLInputElement
+    ).value,
+  ).toBe("8.00");
+  expect(screen.getByRole("status")).toHaveTextContent(/10.00 m x 8.00 m/);
+  window.localStorage.clear();
+});
 
 describe("RoofFramingEstimator reading a roof plan", () => {
   const roofFixture = {
@@ -230,38 +236,70 @@ describe("RoofFramingEstimator reading a roof plan", () => {
     );
 
   it("fills length, width, pitch, overhang and shape from the measured roof", () => {
-    window.localStorage.setItem("frelux.plan-roof.v1", JSON.stringify(roofFixture));
+    window.localStorage.setItem(
+      "frelux.plan-roof.v1",
+      JSON.stringify(roofFixture),
+    );
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Use the measured roof/i }),
+    );
 
-    expect(screen.getByRole("spinbutton", { name: "Building length (m)" })).toHaveValue(18);
-    expect(screen.getByRole("spinbutton", { name: "Building width (m)" })).toHaveValue(12);
-    expect(screen.getByRole("spinbutton", { name: "Roof pitch (rise per 12 horizontal)" })).toHaveValue(6.93);
-    expect(screen.getByRole("spinbutton", { name: "Eave overhang (m)" })).toHaveValue(0.45);
-    expect(screen.getByRole("status")).toHaveTextContent(/pitch 30\.00 degrees \(6\.93 rise per 12\)/);
+    expect(
+      screen.getByRole("spinbutton", { name: "Building length (m)" }),
+    ).toHaveValue(18);
+    expect(
+      screen.getByRole("spinbutton", { name: "Building width (m)" }),
+    ).toHaveValue(12);
+    expect(
+      screen.getByRole("spinbutton", {
+        name: "Roof pitch (rise per 12 horizontal)",
+      }),
+    ).toHaveValue(6.93);
+    expect(
+      screen.getByRole("spinbutton", { name: "Eave overhang (m)" }),
+    ).toHaveValue(0.45);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /pitch 30\.00 degrees \(6\.93 rise per 12\)/,
+    );
     window.localStorage.clear();
   });
 
   it("refuses a shape this calculator does not frame and says so", () => {
     window.localStorage.setItem(
       "frelux.plan-roof.v1",
-      JSON.stringify({ ...roofFixture, shape: "flat", pitchDegrees: 0, risePer12: 0 }),
+      JSON.stringify({
+        ...roofFixture,
+        shape: "flat",
+        pitchDegrees: 0,
+        risePer12: 0,
+      }),
     );
     renderPage();
 
-    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Use the measured roof/i }),
+    );
 
-    expect(screen.getByRole("status")).toHaveTextContent(/frames gable and hip roofs/i);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /frames gable and hip roofs/i,
+    );
     // The geometry still reaches the form; the shape stays the user's choice.
-    expect(screen.getByRole("spinbutton", { name: "Building length (m)" })).toHaveValue(18);
+    expect(
+      screen.getByRole("spinbutton", { name: "Building length (m)" }),
+    ).toHaveValue(18);
     window.localStorage.clear();
   });
 
   it("says plainly when no roof has been read", () => {
     window.localStorage.clear();
     renderPage();
-    fireEvent.click(screen.getByRole("button", { name: /Use the measured roof/i }));
-    expect(screen.getByRole("status")).toHaveTextContent(/No roof has been read from a plan yet/i);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Use the measured roof/i }),
+    );
+    expect(screen.getByRole("status")).toHaveTextContent(
+      /No roof has been read from a plan yet/i,
+    );
   });
 });

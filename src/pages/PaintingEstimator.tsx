@@ -2368,6 +2368,7 @@ function EstimateResult({
               methodologyText={methodologyText("painting")}
             />
             <ShareEstimateButton
+              showPdf={false}
               estimate={quoteToShareable(
                 paintingQuoteOptions({
                   rooms: result.rooms.length,

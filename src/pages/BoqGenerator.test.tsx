@@ -255,15 +255,12 @@ describe("BoqGenerator — Wave 1.2 (revisions, tax naming, bank BOQ gate)", () 
     });
     // Free user (isPaid false in the default mock)
     fireEvent.click(bankBtn);
-    expect(
-      await screen.findByText(/Frelux Pro feature/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Frelux Pro feature/i)).toBeInTheDocument();
   });
 
   it("saves revision v1 and snapshots it to the revision history", async () => {
-    const { saveBoqRevision, fetchBoqRevisions } = await import(
-      "@/lib/estimation/queries"
-    );
+    const { saveBoqRevision, fetchBoqRevisions } =
+      await import("@/lib/estimation/queries");
     const mockedSnapshot = vi.mocked(saveBoqRevision);
     const mockedFetchRevs = vi.mocked(fetchBoqRevisions);
     mockedFetchRevs.mockResolvedValue({ data: [], error: null } as never);
@@ -275,9 +272,7 @@ describe("BoqGenerator — Wave 1.2 (revisions, tax naming, bank BOQ gate)", () 
     } as never);
 
     renderPage();
-    fireEvent.click(
-      await screen.findByRole("button", { name: /PNT-ABC123/i }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /PNT-ABC123/i }));
     fireEvent.change(screen.getByLabelText(/Quote title \*/i), {
       target: { value: "Versioned quote" },
     });
@@ -294,8 +289,6 @@ describe("BoqGenerator — Wave 1.2 (revisions, tax naming, bank BOQ gate)", () 
         expect.objectContaining({ version: 1, quote_id: "q1" }),
       );
     });
-    expect(
-      await screen.findByText(/revision v1/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/revision v1/i)).toBeInTheDocument();
   });
 });

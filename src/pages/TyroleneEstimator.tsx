@@ -1737,6 +1737,7 @@ export default function TyroleneEstimator({
                         className="mb-4"
                       />
                       <ShareEstimateButton
+                        showPdf={false}
                         estimate={{
                           kind: "Tyrolene Estimate",
                           summaryLines: [
