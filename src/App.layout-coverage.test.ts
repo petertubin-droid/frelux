@@ -85,6 +85,36 @@ describe("site layout coverage", () => {
     }
   });
 
+  it("wraps the other public pages in the layout", () => {
+    // These were found outside the shell too: public content that rendered with
+    // no way back to the rest of the site.
+    const publicPages = [
+      "/credits",
+      "/gallery",
+      "/gallery/new",
+      "/case-studies",
+      "/case-studies/:id",
+      "/learn/build-in-nigeria-from-abroad",
+      "/properties",
+      "/project-workspace",
+      "/project-workspace/:id",
+      "/workspace-settings",
+    ];
+    for (const path of publicPages) {
+      expect(
+        isInsideLayout(path),
+        `${path} renders outside the site layout`,
+      ).toBe(true);
+    }
+  });
+
+  it("leaves the shared token links outside the layout", () => {
+    // A client opening an estimate or an invitation gets a single focused
+    // page, not the site navigation.
+    expect(isInsideLayout("/estimate/:token")).toBe(false);
+    expect(isInsideLayout("/invite/:token")).toBe(false);
+  });
+
   it("leaves the auth and admin routes outside the public layout", () => {
     // These carry their own shells by design; wrapping them would double the
     // chrome. The check above must not be "fixed" by wrapping everything.
