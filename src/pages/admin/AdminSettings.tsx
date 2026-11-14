@@ -25,11 +25,16 @@ import {
 } from "@/components/ui/BrandedLoader";
 import type { LoaderConfig } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
+import {
+  SITE_SETTINGS_COLUMNS_WITHOUT_BANNER,
+  isMissingMaintenanceBannerColumn,
+} from "@/lib/siteSettingsColumns";
 
 export default function AdminSettings() {
   const { t } = useLanguage();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [bannerSaving, setBannerSaving] = useState(false);
+  const [bannerSupported, setBannerSupported] = useState(true);
   const [bannerSaved, setBannerSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,12 +49,37 @@ export default function AdminSettings() {
     async function load() {
       setLoading(true);
       setError(null);
-      const { data, error } = await supabase
+      // Ask for the whole row first. A database that has not run the banner
+      // migration cannot answer `*`, so retry without those two columns rather
+      // than losing the entire page to one missing field.
+      const first = await supabase
         .from("site_settings")
         .select("*")
         .limit(1)
         .maybeSingle();
-      if (error) setError(error.message);
+
+      let data: unknown = first.data;
+      let bannerAvailable = true;
+
+      if (first.error) {
+        if (!isMissingMaintenanceBannerColumn(first.error)) {
+          setError(first.error.message);
+        } else {
+          const fallback = await supabase
+            .from("site_settings")
+            .select(SITE_SETTINGS_COLUMNS_WITHOUT_BANNER)
+            .limit(1)
+            .maybeSingle();
+          if (fallback.error) {
+            setError(fallback.error.message);
+          } else {
+            data = fallback.data;
+            bannerAvailable = false;
+          }
+        }
+      }
+
+      setBannerSupported(bannerAvailable);
       const raw = data as DbSiteSettings | null;
       if (raw) {
         const bannerEnabled = raw.maintenance_banner_enabled ?? false;
@@ -556,6 +586,21 @@ export default function AdminSettings() {
 
           {/* Ticker: informs without closing the site. */}
           <div className="mt-6 border-t border-border/60 pt-6 dark:border-white/10">
+            {!bannerSupported && (
+              <div
+                role="status"
+                className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/70 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  The maintenance ticker isn't available in this database yet:
+                  the two columns it saves to are missing, so a message can't be
+                  stored or shown. Apply the latest Supabase migrations
+                  (20261114040000 adds them), then reload this page. Everything
+                  else here still loads and saves.
+                </span>
+              </div>
+            )}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
@@ -574,6 +619,7 @@ export default function AdminSettings() {
                 <Toggle
                   srLabel="Maintenance ticker"
                   checked={settings.maintenance_banner_enabled}
+                  disabled={!bannerSupported}
                   onChange={(next) => saveBanner({ enabled: next })}
                 />
               </div>
@@ -588,6 +634,7 @@ export default function AdminSettings() {
                   rows={3}
                   maxLength={240}
                   value={settings.maintenance_banner_message ?? ""}
+                  disabled={!bannerSupported}
                   onChange={(event) =>
                     update("maintenance_banner_message", event.target.value)
                   }
@@ -606,7 +653,7 @@ export default function AdminSettings() {
                   )}
                   <AdminButton
                     onClick={() => saveBanner({})}
-                    disabled={bannerSaving}
+                    disabled={bannerSaving || !bannerSupported}
                   >
                     <Save className="h-4 w-4" />
                     Publish message

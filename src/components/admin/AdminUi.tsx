@@ -146,19 +146,28 @@ export function Toggle({
   onChange,
   label,
   srLabel,
+  disabled,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label?: string;
   /** Screen-reader name for switches whose meaning comes from the surrounding row. */
   srLabel?: string;
+  /** Use when the setting cannot be saved in this environment. */
+  disabled?: boolean;
 }) {
   return (
-    <div className="inline-flex items-center gap-2">
+    <div
+      className={classNames(
+        "inline-flex items-center gap-2",
+        disabled && "opacity-50",
+      )}
+    >
       <Switch
         checked={checked}
         onCheckedChange={onChange}
         aria-label={srLabel ?? label}
+        disabled={disabled}
       />
       {label && <span className="text-sm text-muted-foreground">{label}</span>}
     </div>
