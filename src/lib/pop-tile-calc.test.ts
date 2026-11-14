@@ -432,7 +432,8 @@ describe("calculateTile — identical surfaces (multi-unit)", () => {
     // 3 surfaces beats 3 × 5 = 15 per-surface rounding).
     expect(triple.adhesiveNeeded).toBe(
       Math.ceil(
-        (single.surfaceArea * 3 * wasteMult) / baseTileInput.adhesiveCoverageRate,
+        (single.surfaceArea * 3 * wasteMult) /
+          baseTileInput.adhesiveCoverageRate,
       ),
     );
     expect(triple.adhesiveNeeded).toBeLessThanOrEqual(
@@ -448,7 +449,8 @@ describe("calculateTile — identical surfaces (multi-unit)", () => {
   it("defaults to one surface and floors bad values safely", () => {
     const one = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
     expect(
-      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦").surfaceArea,
+      calculateTile({ ...baseTileInput }, tileMaterials, "NGN", "₦")
+        .surfaceArea,
     ).toBe(one.surfaceArea);
     expect(
       calculateTile(
@@ -520,14 +522,22 @@ describe("calculateTile", () => {
 
   it("caps invalid over-gross wall deductions and returns an explicit warning", () => {
     const result = calculateTile(
-      { ...baseTileInput, surfaceType: "wall", length: 2, height: 2, openingArea: 5 },
+      {
+        ...baseTileInput,
+        surfaceType: "wall",
+        length: 2,
+        height: 2,
+        openingArea: 5,
+      },
       tileMaterials,
       "NGN",
       "₦",
     );
     expect(result.openingArea).toBeCloseTo(result.surfaceArea, 10);
     expect(result.netSurfaceArea).toBe(0);
-    expect((result.warnings ?? []).join(" ")).toMatch(/exceed.*gross wall area/i);
+    expect((result.warnings ?? []).join(" ")).toMatch(
+      /exceed.*gross wall area/i,
+    );
   });
 
   it("applies waste margin to compute wasteAmount", () => {
@@ -1037,5 +1047,115 @@ describe("audit fix F6 — tile grout joint-volume formula & adhesive notch tabl
     // And the cost follows the bags, not the kilograms: three bags, not 51.
     expect(standard.adhesiveCost / standard.adhesiveNeeded).toBeGreaterThan(0);
     expect(standard.adhesiveCost).toBeLessThan(51 * 1000);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Work platform: an MDF plywood sheet is what a fitter stands on, so its count
+// follows the crew rather than the ceiling. Two fitters share one sheet:
+// 1 worker = half a board, 2 = one board, 3 = one and a half. Boards are sold
+// whole, so the purchase rounds up to the next sheet.
+// ---------------------------------------------------------------------------
+describe("MDF plywood work platform", () => {
+  const platform = makePopMaterial({
+    id: "pop-platform",
+    category: "primary",
+    name: "MDF Plywood (work platform)",
+    coverage_rate: 0,
+    coverage_unit: "board",
+    quantity_basis: "per_worker",
+    per_worker_rate: 0.5,
+    split_unit_price: 13000,
+    package_size: 1,
+    package_unit: "board",
+    unit_price: 25000,
+    sort_order: 1,
+  });
+
+  const input = (workers?: number): PopCalcInput => ({
+    workflow: "nigeria",
+    roomLength: 4,
+    roomWidth: 5,
+    unit: "meters", // 20 m², matching the unit the rest of this suite uses
+    wasteMargin: 0,
+    includeDecorative: false,
+    includeOptional: false,
+    workers,
+  });
+
+  it("scales the board with the crew, not the ceiling area", () => {
+    // The room is 20 m² throughout: only the crew changes.
+    const one = calculatePopCeiling(input(1), [platform], "NGN", "₦");
+    const two = calculatePopCeiling(input(2), [platform], "NGN", "₦");
+    const three = calculatePopCeiling(input(3), [platform], "NGN", "₦");
+
+    expect(one.materials[0].quantity).toBe(0.5);
+    expect(two.materials[0].quantity).toBe(1);
+    expect(three.materials[0].quantity).toBe(1.5);
+  });
+
+  it("prices a whole board at 25,000 and a cut half at 13,000", () => {
+    // The shop's own prices, not arithmetic halves: a board is 25,000 and a
+    // board cut in two is 13,000, because the cut is what the buyer pays for.
+    const one = calculatePopCeiling(input(1), [platform], "NGN", "₦");
+    const two = calculatePopCeiling(input(2), [platform], "NGN", "₦");
+    const three = calculatePopCeiling(input(3), [platform], "NGN", "₦");
+    const four = calculatePopCeiling(input(4), [platform], "NGN", "₦");
+
+    expect(one.materialCost).toBe(13000); // ½ board
+    expect(two.materialCost).toBe(25000); // 1 board
+    expect(three.materialCost).toBe(38000); // 1 board + a cut half
+    expect(four.materialCost).toBe(50000); // 2 boards
+  });
+
+  it("still reports the boards the shop actually cuts", () => {
+    const one = calculatePopCeiling(input(1), [platform], "NGN", "₦");
+    const two = calculatePopCeiling(input(2), [platform], "NGN", "₦");
+    const three = calculatePopCeiling(input(3), [platform], "NGN", "₦");
+
+    // A half board still means one physical sheet leaves the shop.
+    expect(one.materials[0].packagesNeeded).toBe(1);
+    expect(two.materials[0].packagesNeeded).toBe(1);
+    expect(three.materials[0].packagesNeeded).toBe(2);
+  });
+
+  it("defaults to one worker and cannot price a free job", () => {
+    const noCrew = calculatePopCeiling(
+      input(undefined),
+      [platform],
+      "NGN",
+      "₦",
+    );
+    expect(noCrew.materials[0].quantity).toBe(0.5);
+    expect(noCrew.materialCost).toBe(13000);
+
+    for (const bad of [0, -3, 0.4]) {
+      const result = calculatePopCeiling(input(bad), [platform], "NGN", "₦");
+      expect(result.materialCost).toBe(13000);
+    }
+  });
+
+  it("falls back to whole boards when no half price is configured", () => {
+    const noSplit = makePopMaterial({
+      ...platform,
+      id: "pop-platform-no-split",
+      split_unit_price: null,
+    });
+    const one = calculatePopCeiling(input(1), [noSplit], "NGN", "₦");
+    // No half price configured: buying the whole board is the safe quote.
+    expect(one.materialCost).toBe(25000);
+  });
+
+  it("reports the board unit, not a square-metre coverage", () => {
+    const result = calculatePopCeiling(input(2), [platform], "NGN", "₦");
+    expect(result.materials[0].unit).toBe("board");
+  });
+
+  it("leaves area-based materials untouched by the crew size", () => {
+    const cement = popMaterials[0];
+    const one = calculatePopCeiling(input(1), [cement], "NGN", "₦");
+    const four = calculatePopCeiling(input(4), [cement], "NGN", "₦");
+    expect(one.materials[0].quantity).toBe(2); // 20 m² / 10 m² per bag
+    expect(four.materials[0].quantity).toBe(2);
   });
 });

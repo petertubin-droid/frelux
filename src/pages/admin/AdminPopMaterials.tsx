@@ -69,11 +69,29 @@ export default function AdminPopMaterials() {
     if (saving) return;
     // Validate numeric fields before saving
     const validated = { ...mat };
-    if ("coverage_rate" in validated)
+    const perWorker = validated.quantity_basis === "per_worker";
+    if ("coverage_rate" in validated && !perWorker)
       validated.coverage_rate = Math.max(
         0.1,
         Number(validated.coverage_rate) || 0.1,
       );
+    if (perWorker) {
+      // A crew item is priced by rate per worker, so keep area coverage at
+      // zero rather than inventing one, and never a negative rate.
+      validated.coverage_rate = 0;
+      validated.per_worker_rate = Math.max(
+        0,
+        Number(validated.per_worker_rate) || 0,
+      );
+      // The cut half carries its own price; never let a save blank it, or the
+      // engine falls back to charging whole boards for a one-worker job.
+      if (validated.split_unit_price !== undefined) {
+        validated.split_unit_price = Math.max(
+          0,
+          Number(validated.split_unit_price) || 0,
+        );
+      }
+    }
     if ("package_size" in validated)
       validated.package_size = Math.max(1, Number(validated.package_size) || 1);
     if ("unit_price" in validated)
@@ -268,9 +286,21 @@ export default function AdminPopMaterials() {
                               )}
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                              {mat.coverage_rate} {mat.coverage_unit} ·{" "}
-                              {mat.package_size}
-                              {mat.package_unit} · ₦{mat.unit_price}
+                              {mat.quantity_basis === "per_worker" ? (
+                                <>
+                                  {mat.per_worker_rate ?? 0} {mat.package_unit}{" "}
+                                  per worker · ₦{mat.unit_price}
+                                  {mat.split_unit_price
+                                    ? ` (half ₦${mat.split_unit_price})`
+                                    : ""}
+                                </>
+                              ) : (
+                                <>
+                                  {mat.coverage_rate} {mat.coverage_unit} ·{" "}
+                                  {mat.package_size}
+                                  {mat.package_unit} · ₦{mat.unit_price}
+                                </>
+                              )}
                             </p>
                           </div>
                           <span

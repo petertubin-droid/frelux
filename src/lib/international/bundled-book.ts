@@ -83,6 +83,58 @@ async function loadBook(): Promise<BundledBook> {
   return bookPromise;
 }
 
+/** A bundled POP material as authored in bundled-price-books.ts. */
+type BundledPopRow = {
+  id: string;
+  workflow: string;
+  category: string;
+  name: string;
+  description?: string | null;
+  unit: string;
+  coverageRate: number;
+  coverageUnit: string;
+  quantityBasis?: "area" | "per_worker" | null;
+  perWorkerRate?: number | null;
+  splitUnitPrice?: number | null;
+  packageSize: number;
+  packageUnit: string;
+  unitPrice: number;
+  labourPerSqm?: number;
+  isOptional?: boolean;
+  currency: string;
+  sortOrder?: number;
+  market: string;
+};
+
+/** Bundled camelCase row → the snake_case row the engines expect. */
+function toDbPopMaterial(row: BundledPopRow): DbPopMaterial {
+  const stamp = "1970-01-01T00:00:00.000Z";
+  return {
+    id: row.id,
+    market: row.market,
+    workflow: row.workflow as DbPopMaterial["workflow"],
+    category: row.category as DbPopMaterial["category"],
+    name: row.name,
+    description: row.description ?? null,
+    unit: row.unit,
+    coverage_rate: row.coverageRate,
+    coverage_unit: row.coverageUnit,
+    quantity_basis: row.quantityBasis ?? "area",
+    per_worker_rate: row.perWorkerRate ?? null,
+    split_unit_price: row.splitUnitPrice ?? null,
+    package_size: row.packageSize,
+    package_unit: row.packageUnit,
+    unit_price: row.unitPrice,
+    labour_rate_per_sqm: row.labourPerSqm ?? 0,
+    is_optional: row.isOptional ?? false,
+    currency: row.currency,
+    is_active: true,
+    sort_order: row.sortOrder ?? 0,
+    created_at: stamp,
+    updated_at: stamp,
+  };
+}
+
 /**
  * Resolve a material's price for a market from the bundled book.
  * Returns DB-shaped rows so existing consumers are unchanged.
@@ -166,7 +218,13 @@ export async function bundledPopMaterials(
   marketConfigured: boolean;
 }> {
   const book = await loadBook();
-  const all = book.BUNDLED_POP_MATERIALS as unknown as DbPopMaterial[];
+  // The bundled book is authored in camelCase; the database and the engines
+  // read snake_case. Casting without this mapping handed the POP engine rows
+  // whose coverage_rate was undefined, so every offline estimate priced zero
+  // materials and warned that coverage was unconfigured.
+  const all = (book.BUNDLED_POP_MATERIALS as unknown as BundledPopRow[]).map(
+    toDbPopMaterial,
+  );
   const run = (mkt: string) =>
     all
       .filter((m) => m.market === mkt)

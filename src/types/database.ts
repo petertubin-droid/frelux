@@ -743,6 +743,8 @@ export type TileMaterialCategory =
   | "labour"
   | "other";
 
+export type PopQuantityBasis = "area" | "per_worker";
+
 export interface DbPopMaterial {
   id: string;
   /** Market code this material set applies to (NG reference or local system) */
@@ -754,6 +756,21 @@ export interface DbPopMaterial {
   unit: string;
   coverage_rate: number;
   coverage_unit: string;
+  /**
+   * How quantity is derived.
+   * - "area": ceiling area ÷ coverage_rate, the default for every consumable.
+   * - "per_worker": workers × per_worker_rate. The MDF plywood sheet is a
+   *   platform a fitter stands on, so it scales with the crew, not the area.
+   */
+  quantity_basis?: PopQuantityBasis | null;
+  /** Boards (or sheets) per worker when quantity_basis is "per_worker". */
+  per_worker_rate?: number | null;
+  /**
+   * Price of the final half unit when a per-worker quantity is not whole.
+   * A supplier cuts a board and charges a fixed half price (₦13,000 for a
+   * ₦25,000 MDF sheet), which is not half of the board price.
+   */
+  split_unit_price?: number | null;
   package_size: number;
   package_unit: string;
   unit_price: number;
