@@ -7,6 +7,7 @@ import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MaintenanceTicker from "@/components/layout/MaintenanceTicker";
+import AppRail from "@/components/layout/AppRail";
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import { AdPushWorkerGate } from "@/components/ads/AdPushWorkerGate";
@@ -615,6 +616,7 @@ export default function Layout() {
       >
         {t("Skip to main content")}
       </a>
+      <AppRail variant="public" />
       <Navbar />
       {/* Site-wide neon viewport frame: illuminates ALL screen edges,
           completing the header and bottom-nav edge lights. Decorative,
@@ -627,7 +629,7 @@ export default function Layout() {
       <main
         id="main-content"
         data-calculator-page={String(isCalculatorPath(location.pathname))}
-        className="w-full flex-1 min-h-[calc(100svh-4rem)] pt-16 pb-36 md:pb-0"
+        className="w-full flex-1 min-h-[calc(100svh-4rem)] pt-16 pb-36 md:pb-0 lg:pl-[var(--rail-w)]"
         role="main"
       >
         {maintenanceBanner.enabled && (
@@ -703,7 +705,11 @@ export default function Layout() {
           aria-label={t("Advertisement")}
         />
       )}
-      <Footer />
+      {/* The footer lives outside <main>, so it needs the same desktop rail
+          offset or its left edge slides under the rail. */}
+      <div className="lg:pl-[var(--rail-w)]">
+        <Footer />
+      </div>
       <Suspense fallback={null}>
         <OfflineIndicator />
       </Suspense>

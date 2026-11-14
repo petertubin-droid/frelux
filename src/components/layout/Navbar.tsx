@@ -56,6 +56,14 @@ import DisplaySettings from "@/components/layout/DisplaySettings";
 export default function Navbar() {
   const { t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // The desktop rail has no hamburger, so its settings button asks for this
+  // drawer through a window event. One drawer, one set of controls.
+  useEffect(() => {
+    const openMenu = () => setMobileOpen(true);
+    window.addEventListener("frelux:open-menu", openMenu);
+    return () => window.removeEventListener("frelux:open-menu", openMenu);
+  }, []);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
@@ -271,7 +279,7 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,backdrop-filter,border-radius] duration-500",
+          "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,backdrop-filter,border-radius] duration-500 lg:left-[var(--rail-w)] lg:w-[calc(100%-var(--rail-w))]",
           scrolled
             ? "nav-glass border-border/40 shadow-[0_18px_44px_-34px_rgba(16,12,40,0.8)] dark:border-white/10"
             : "border-transparent bg-transparent backdrop-blur-none",
@@ -279,10 +287,11 @@ export default function Navbar() {
       >
         <nav
           ref={navRef}
-          className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-16 lg:px-8"
+          className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-16 lg:justify-end lg:px-6"
         >
-          {/* Logo, left */}
-          <div className="flex items-center gap-3">
+          {/* Logo and drawer trigger: below lg only. On desktop the rail
+              carries the brand and every destination. */}
+          <div className="flex items-center gap-3 lg:hidden">
             <Button
               variant="ghost"
               type="button"
@@ -303,8 +312,9 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop nav with premium grouped dropdowns */}
-          <div className="hidden items-center gap-1 lg:flex">
+          {/* Grouped dropdowns: tablet and below. On desktop the rail is the
+              single source of navigation. */}
+          <div className="hidden items-center gap-1">
             {navWorkspaces.map((workspace) => (
               <div key={t(workspace.label)} className="relative">
                 {workspace.children ? (

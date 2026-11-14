@@ -42,6 +42,19 @@
   --input: 33 18% 88%;
   --ring: 258 74% 48%; /* brand-purple */
   --radius: 0.75rem;
+  /* Desktop rail offset. The rail writes data-rail on <html> before paint, so
+     content, header and footer all shift by the same amount on the first
+     frame. Below lg the rail is not rendered and the offset is zero. */
+  --rail-w: 0px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --rail-w: 15.5rem;
+  }
+  html[data-rail="collapsed"] {
+    --rail-w: 4.5rem;
+  }
 }
 
 .dark {

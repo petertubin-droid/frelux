@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AppRail from "@/components/layout/AppRail";
 import { NavLink, Outlet, Link } from "react-router-dom";
 import { ArrowLeft, Menu, X, Code, Activity } from "lucide-react";
 import { classNames } from "@/lib/utils";
@@ -37,7 +38,10 @@ export default function StudioLayout() {
         </Button>
       </div>
 
-      <div className="flex">
+      {/* Shared desktop rail: the outer level of the two-rail arrangement,
+          with this section sidebar as the inner level. */}
+      <AppRail variant="app" />
+      <div className="flex lg:pl-[var(--rail-w)]">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border dark:border-white/5 bg-card dark:bg-card lg:flex">
           <SidebarContent />

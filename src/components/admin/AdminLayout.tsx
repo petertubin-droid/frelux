@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import AppRail from "@/components/layout/AppRail";
 import {
   NavLink,
   Outlet,
@@ -616,7 +617,10 @@ function AdminLayoutInner() {
         </div>
       </div>
 
-      <div className="flex">
+      {/* Shared desktop rail: the outer level of the two-rail arrangement,
+          with this section sidebar as the inner level. */}
+      <AppRail variant="app" />
+      <div className="flex lg:pl-[var(--rail-w)]">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-card/70 backdrop-blur-xl dark:border-white/10 dark:bg-background/80 lg:flex">
           <SidebarContent
