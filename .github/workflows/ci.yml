@@ -52,6 +52,11 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          # CI compiles the app; it never serves traffic and holds no real
+          # credentials, so the production-target guard would reject the
+          # placeholder URL below. Deploys still run unguarded-by-exception:
+          # Netlify builds without this flag.
+          ALLOW_NON_PRODUCTION_SUPABASE: "1"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
           VITE_CLOUDFLARE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY || '' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
