@@ -1,3 +1,12 @@
+import {
+  deleteCalibrationFeedback,
+  getAuditEvents,
+  getCalibrationFeedback,
+  pruneFeedbackRecords,
+  recordAuditEvent,
+  saveCalibrationFeedback,
+  updateCalibrationFeedback,
+} from "../calibration-storage";
 import { describe, expect, it } from "vitest";
 import {
   autoApproveVerifiedCandidate,
@@ -352,5 +361,355 @@ describe("adaptive calibration and autonomous triple-check verification", () => 
     expect(csv).toContain("03 30 00");
     expect(csv).toContain("Test slab");
     expect(csv).toContain("1000");
+  });
+
+  it("hardens storage and validation against malformed or corrupted localStorage rows", () => {
+    // Calling validation on empty or non-object row returns errors instead of throwing
+    const emptyRowErrors = validateCalibrationFeedback({} as any);
+    expect(emptyRowErrors).toContain("missing_id");
+    expect(emptyRowErrors).toContain("missing_project_id");
+    expect(emptyRowErrors).toContain("missing_market");
+
+    // Null or undefined object handling
+    expect(validateCalibrationFeedback(null as any)).toContain("invalid_row_object");
+
+    // Memory storage with invalid JSON items
+    const mockStore: Storage = {
+      getItem: () => JSON.stringify([{}, { id: "corrupt" }, null, "garbage"]),
+      setItem: () => {},
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
+      length: 1,
+    };
+    const loaded = getCalibrationFeedback(mockStore);
+    expect(loaded).toEqual([]);
+  });
+
+  it("isolates candidates by unit of measure preventing cross-unit mixing", () => {
+    const mixedUnitRows: CalibrationFeedback[] = [
+      {
+        id: "r1",
+        projectId: "p1",
+        marketCode: "NG",
+        materialKey: "sand",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 12,
+        unit: "bag",
+        evidence: "verified_project",
+        evidenceReference: "PO-12345",
+        reviewerId: "rev1",
+        reviewedAt: "2026-01-01T00:00:00Z",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+      {
+        id: "r2",
+        projectId: "p2",
+        marketCode: "NG",
+        materialKey: "sand",
+        measure: "material",
+        estimatedQuantity: 1000,
+        actualQuantity: 1100,
+        unit: "kg",
+        evidence: "verified_project",
+        evidenceReference: "PO-67890",
+        reviewerId: "rev1",
+        reviewedAt: "2026-01-02T00:00:00Z",
+        recordedAt: "2026-01-02T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+    ];
+
+    const bagCandidate = buildCalibrationCandidate(mixedUnitRows, "NG", "sand", "material", "bag");
+    expect(bagCandidate.unit).toBe("bag");
+    expect(bagCandidate.observationCount).toBe(1);
+
+    const kgCandidate = buildCalibrationCandidate(mixedUnitRows, "NG", "sand", "material", "kg");
+    expect(kgCandidate.unit).toBe("kg");
+    expect(kgCandidate.observationCount).toBe(1);
+
+    expect(calibrationCandidateKey(bagCandidate)).not.toBe(calibrationCandidateKey(kgCandidate));
+  });
+
+  it("rejects invalid or unassigned market codes", () => {
+    const invalidMarketCandidate = buildCalibrationCandidate(
+      [],
+      "UNKNOWN",
+      "paint",
+      "material",
+    );
+    expect(invalidMarketCandidate.eligible).toBe(false);
+    expect(invalidMarketCandidate.blockers).toContain("invalid_or_unassigned_market");
+
+    const currencyCandidate = buildCalibrationCandidate(
+      [],
+      "NGN",
+      "paint",
+      "material",
+    );
+    expect(currencyCandidate.eligible).toBe(false);
+    expect(currencyCandidate.blockers).toContain("invalid_or_unassigned_market");
+  });
+
+  it("revokes accepted review status when actual quantities or units are modified", () => {
+    let state: CalibrationFeedback[] = [
+      {
+        id: "rec1",
+        projectId: "p1",
+        marketCode: "NG",
+        materialKey: "paint",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 11,
+        unit: "ltr",
+        evidence: "verified_project",
+        evidenceReference: "REF-001",
+        reviewerId: "auditor_1",
+        reviewedAt: "2026-01-01T00:00:00Z",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+    ];
+
+    const mockStore: Storage = {
+      getItem: () => JSON.stringify(state),
+      setItem: (_, val) => {
+        state = JSON.parse(val);
+      },
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
+      length: 1,
+    };
+
+    // Update quantity
+    updateCalibrationFeedback("rec1", { actualQuantity: 20 }, mockStore);
+    expect(state[0].status).toBe("pending_review");
+    expect(state[0].reviewerId).toBeUndefined();
+    expect(state[0].reviewedAt).toBeUndefined();
+  });
+
+  it("prunes rejected rows before accepted or verified evidence when cap is reached", () => {
+    const records: CalibrationFeedback[] = [
+      {
+        id: "rej1",
+        projectId: "p1",
+        marketCode: "NG",
+        materialKey: "cement",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 10,
+        unit: "bag",
+        evidence: "user_reported",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "rejected",
+      },
+      {
+        id: "ver1",
+        projectId: "p2",
+        marketCode: "NG",
+        materialKey: "cement",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 11,
+        unit: "bag",
+        evidence: "verified_project",
+        evidenceReference: "PO-7777",
+        reviewerId: "admin",
+        reviewedAt: "2026-01-01T00:00:00Z",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+    ];
+
+    const pruned = pruneFeedbackRecords(records, 1);
+    expect(pruned.length).toBe(1);
+    expect(pruned[0].id).toBe("ver1");
+  });
+
+  it("neutralizes CSV formula injection and prepends UTF-8 BOM", () => {
+    const dangerousRows = [
+      {
+        costCode: "01 00 00",
+        costCodeDescription: '=HYPERLINK("http://attacker.com","click")',
+        costType: "M",
+        description: "+SUM(1,2)",
+        uom: "@unit",
+        quantity: 10,
+        unitCost: null,
+        amount: null,
+        currency: "-USD",
+        marketCode: "US",
+        sourceStatus: "user_entered" as const,
+      },
+    ];
+
+    const csv = exportBudgetCsv(dangerousRows);
+    expect(csv.startsWith("﻿")).toBe(true);
+    expect(csv).toContain("'=HYPERLINK");
+    expect(csv).toContain("'+SUM(1,2)");
+    expect(csv).toContain("'@unit");
+    expect(csv).toContain("'-USD");
+  });
+
+  it("scores cost code classification with specificity (steel door -> openings, concrete block -> masonry)", () => {
+    const steelDoor = resolveGlobalClassification("steel door", "US");
+    expect(steelDoor).not.toBeNull();
+    expect(steelDoor?.category).toBe("openings");
+    expect(steelDoor?.masterFormat.code).toBe("08 00 00");
+
+    const concreteBlock = resolveGlobalClassification("concrete block", "US");
+    expect(concreteBlock).not.toBeNull();
+    expect(concreteBlock?.category).toBe("masonry");
+    expect(concreteBlock?.masterFormat.code).toBe("04 20 00");
+
+    const readyMix = resolveGlobalClassification("ready mix concrete", "US");
+    expect(readyMix?.category).toBe("concrete");
+    expect(readyMix?.masterFormat.code).toBe("03 30 00");
+  });
+
+  it("clamps shadow estimates according to calibration policy limits", () => {
+    const policy = {
+      minObservations: 3,
+      minDistinctProjects: 2,
+      minVerifiedObservations: 2,
+      minVerifiedShare: 0.5,
+      maxAdjustmentFraction: 0.15, // max 1.15
+      emaAlpha: 0.25,
+    };
+
+    const shadow = compareShadowEstimate(100, 1.5, policy);
+    expect(shadow.shadow).toBe(115); // clamped to 1 + 0.15 = 1.15
+    expect(shadow.delta).toBe(15);
+  });
+
+  it("guarantees empirical confidence range requires minimum observations and clamps outliers", () => {
+    // Single observation returns null
+    const singleRow: CalibrationFeedback[] = [
+      {
+        id: "s1",
+        projectId: "p1",
+        marketCode: "NG",
+        materialKey: "tile",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 50, // 5x outlier
+        unit: "m2",
+        evidence: "verified_project",
+        evidenceReference: "PO-123",
+        reviewerId: "rev",
+        reviewedAt: "2026-01-01T00:00:00Z",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+    ];
+
+    const rangeOne = empiricalConfidenceRange(10, singleRow, "NG", "tile", "material", "m2");
+    expect(rangeOne).toBeNull();
+
+    // 3 rows with outlier clamped to max adjustment (1.25)
+    const threeRows: CalibrationFeedback[] = [
+      ...singleRow,
+      {
+        id: "s2",
+        projectId: "p2",
+        marketCode: "NG",
+        materialKey: "tile",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 10,
+        unit: "m2",
+        evidence: "verified_project",
+        evidenceReference: "PO-124",
+        reviewerId: "rev",
+        reviewedAt: "2026-01-02T00:00:00Z",
+        recordedAt: "2026-01-02T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+      {
+        id: "s3",
+        projectId: "p3",
+        marketCode: "NG",
+        materialKey: "tile",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 11,
+        unit: "m2",
+        evidence: "verified_project",
+        evidenceReference: "PO-125",
+        reviewerId: "rev",
+        reviewedAt: "2026-01-03T00:00:00Z",
+        recordedAt: "2026-01-03T00:00:00Z",
+        context: "takeoff",
+        status: "accepted",
+      },
+    ];
+
+    const rangeThree = empiricalConfidenceRange(10, threeRows, "NG", "tile", "material", "m2");
+    expect(rangeThree).not.toBeNull();
+    // High should be bounded by policy clamp (12.5), not 5x (50)
+    expect(rangeThree!.high).toBeLessThanOrEqual(12.5);
+  });
+
+  it("supports record deletion and audit trail tracking", () => {
+    let state: CalibrationFeedback[] = [
+      {
+        id: "del1",
+        projectId: "p1",
+        marketCode: "NG",
+        materialKey: "paint",
+        measure: "material",
+        estimatedQuantity: 10,
+        actualQuantity: 11,
+        unit: "ltr",
+        evidence: "user_reported",
+        recordedAt: "2026-01-01T00:00:00Z",
+        context: "takeoff",
+        status: "pending_review",
+      },
+    ];
+
+    let auditState: any[] = [];
+
+    const mockStore: Storage = {
+      getItem: (key) => (key.includes("audit") ? JSON.stringify(auditState) : JSON.stringify(state)),
+      setItem: (key, val) => {
+        if (key.includes("audit")) {
+          auditState = JSON.parse(val);
+        } else {
+          state = JSON.parse(val);
+        }
+      },
+      removeItem: () => {},
+      clear: () => {},
+      key: () => null,
+      length: 2,
+    };
+
+    deleteCalibrationFeedback("del1", mockStore);
+    expect(state.length).toBe(0);
+
+    recordAuditEvent(
+      {
+        eventType: "approval_revoked",
+        candidateKey: "NG:paint:material:ltr",
+        actorId: "test_actor",
+        details: { reason: "quantity edited" },
+      },
+      mockStore,
+    );
+
+    const events = getAuditEvents(mockStore);
+    expect(events.length).toBe(1);
+    expect(events[0].eventType).toBe("approval_revoked");
   });
 });

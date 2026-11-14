@@ -1,3 +1,9 @@
+export const VALID_MARKET_CODES = new Set<string>([
+  "NG", "US", "GB", "CA", "AU", "DE", "IN", "GH", "KE", "ZA", "JP", "FR",
+  "BR", "SA", "AE", "CN", "ID", "MX", "KR", "IT", "ET", "EG", "TZ", "CI",
+  "ES", "NL", "PL", "SE", "CH", "SG", "TR", "NZ",
+]);
+
 /**
  * Evidence-based estimator calibration, autonomous triple-check multiplier verification,
  * and multi-standard international cost coding beyond Procore.
@@ -182,6 +188,7 @@ export interface CalibrationCandidate {
   marketCode: string;
   materialKey: string;
   measure: CalibrationMeasure;
+  unit: string;
   observationCount: number;
   distinctProjectCount: number;
   verifiedObservationCount: number;
@@ -281,25 +288,36 @@ export function validateCalibrationFeedback(
   row: CalibrationFeedback,
 ): string[] {
   const errors: string[] = [];
-  if (!row.id.trim()) errors.push("missing_id");
-  if (!row.projectId.trim()) errors.push("missing_project_id");
-  if (!row.marketCode.trim()) errors.push("missing_market");
-  if (!row.materialKey.trim()) errors.push("missing_material");
-  if (!row.unit.trim()) errors.push("missing_unit");
-  if (!finitePositive(row.estimatedQuantity))
+  if (!row || typeof row !== "object") {
+    return ["invalid_row_object"];
+  }
+  if (!row.id || typeof row.id !== "string" || !row.id.trim())
+    errors.push("missing_id");
+  if (!row.projectId || typeof row.projectId !== "string" || !row.projectId.trim())
+    errors.push("missing_project_id");
+  if (!row.marketCode || typeof row.marketCode !== "string" || !row.marketCode.trim())
+    errors.push("missing_market");
+  if (!row.materialKey || typeof row.materialKey !== "string" || !row.materialKey.trim())
+    errors.push("missing_material");
+  if (!row.unit || typeof row.unit !== "string" || !row.unit.trim())
+    errors.push("missing_unit");
+  if (typeof row.estimatedQuantity !== "number" || !finitePositive(row.estimatedQuantity))
     errors.push("invalid_estimated_quantity");
-  if (!finitePositive(row.actualQuantity))
+  if (typeof row.actualQuantity !== "number" || !finitePositive(row.actualQuantity))
     errors.push("invalid_actual_quantity");
   if (row.context !== "takeoff") errors.push("safety_sensitive_context");
   if (row.status !== "accepted") errors.push("not_accepted");
-  if (row.evidence === "verified_project" && !row.evidenceReference?.trim())
-    errors.push("missing_evidence_reference");
-  if (
-    row.evidence === "verified_project" &&
-    (!row.reviewerId?.trim() || !row.reviewedAt)
-  )
-    errors.push("missing_review_record");
-  if (Number.isNaN(Date.parse(row.recordedAt)))
+  if (row.evidence === "verified_project") {
+    if (!row.evidenceReference || typeof row.evidenceReference !== "string" || !row.evidenceReference.trim()) {
+      errors.push("missing_evidence_reference");
+    } else if (row.evidenceReference.trim().length < 3) {
+      errors.push("invalid_evidence_reference_too_short");
+    }
+    if (!row.reviewerId || typeof row.reviewerId !== "string" || !row.reviewerId.trim() || !row.reviewedAt) {
+      errors.push("missing_review_record");
+    }
+  }
+  if (!row.recordedAt || typeof row.recordedAt !== "string" || Number.isNaN(Date.parse(row.recordedAt)))
     errors.push("invalid_recorded_at");
   return errors;
 }
@@ -722,23 +740,65 @@ export function verifyTripleCheckConsensus(
  * Calculates a candidate from accepted, comparable feedback.
  * Automatically runs the Triple-Check Verification Engine.
  */
+export function computeCandidateFingerprint(
+  candidate: Pick<CalibrationCandidate, "marketCode" | "materialKey" | "measure"> & {
+    unit?: string;
+    observationCount?: number;
+    medianMultiplier?: number | null;
+    proposedMultiplier?: number | null;
+    tripleCheck?: TripleCheckResult;
+  },
+  eligibleRows: CalibrationFeedback[],
+): string {
+  const sortedIds = eligibleRows.map((r) => r.id).sort().join(",");
+  const mult =
+    candidate.tripleCheck?.consensusMultiplier ??
+    candidate.medianMultiplier ??
+    candidate.proposedMultiplier ??
+    1.0;
+  const unit = candidate.unit || "unit";
+  const obs = candidate.observationCount ?? eligibleRows.length;
+  const raw = `${candidate.marketCode.toUpperCase()}:${candidate.materialKey.toLowerCase()}:${candidate.measure}:${unit.toLowerCase()}:${mult}:${obs}:${sortedIds}`;
+  return calculateDeterministicFingerprint(raw);
+}
+
 export function buildCalibrationCandidate(
   rows: CalibrationFeedback[],
   marketCode: string,
   materialKey: string,
   measure: CalibrationMeasure,
-  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
+  unitOrPolicy?: string | CalibrationPolicy,
+  maybePolicy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
 ): CalibrationCandidate {
-  const eligibleRows = rows
-    .filter(
-      (r) =>
-        r.marketCode.toUpperCase() === marketCode.toUpperCase() &&
-        r.materialKey.toLowerCase() === materialKey.toLowerCase() &&
-        r.measure === measure &&
-        validateCalibrationFeedback(r).length === 0,
-    )
+  let unitFilter: string | undefined = undefined;
+  let policy: CalibrationPolicy = maybePolicy;
+
+  if (typeof unitOrPolicy === "string") {
+    unitFilter = unitOrPolicy.trim().toLowerCase();
+  } else if (unitOrPolicy && typeof unitOrPolicy === "object") {
+    policy = unitOrPolicy;
+  }
+
+  const normMarket = typeof marketCode === "string" ? marketCode.toUpperCase().trim() : "";
+  const normMaterial = typeof materialKey === "string" ? materialKey.toLowerCase().trim() : "";
+
+  const eligibleRows = (Array.isArray(rows) ? rows : [])
+    .filter((r) => {
+      if (!r || typeof r !== "object") return false;
+      if (typeof r.marketCode !== "string" || r.marketCode.toUpperCase().trim() !== normMarket) return false;
+      if (typeof r.materialKey !== "string" || r.materialKey.toLowerCase().trim() !== normMaterial) return false;
+      if (r.measure !== measure) return false;
+      if (unitFilter && typeof r.unit === "string" && r.unit.toLowerCase().trim() !== unitFilter) return false;
+      return validateCalibrationFeedback(r).length === 0;
+    })
     .filter((r, i, all) => all.findIndex((other) => other.id === r.id) === i)
-    .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+    .sort((a, b) => {
+      const tA = Date.parse(a.recordedAt);
+      const tB = Date.parse(b.recordedAt);
+      const diff = (Number.isNaN(tA) ? 0 : tA) - (Number.isNaN(tB) ? 0 : tB);
+      if (diff !== 0) return diff;
+      return String(a.id).localeCompare(String(b.id));
+    });
 
   const ratios = eligibleRows.map(
     (r) => r.actualQuantity / r.estimatedQuantity,
@@ -761,6 +821,12 @@ export function buildCalibrationCandidate(
     : 0;
   const projects = new Set(eligibleRows.map((r) => r.projectId));
   const blockers: string[] = [];
+
+  // Check valid market
+  if (!normMarket || normMarket === "UNKNOWN" || normMarket === "UNASSIGNED" || !VALID_MARKET_CODES.has(normMarket)) {
+    blockers.push("invalid_or_unassigned_market");
+  }
+
   if (eligibleRows.length < policy.minObservations)
     blockers.push("insufficient_observations");
   if (projects.size < policy.minDistinctProjects)
@@ -769,21 +835,6 @@ export function buildCalibrationCandidate(
     blockers.push("insufficient_verified_observations");
   if (verifiedShare < policy.minVerifiedShare)
     blockers.push("verified_share_too_low");
-
-  // EMA is included as a stable shadow metric
-  let ema: number | null = null;
-  for (const ratio of ratios) {
-    const bounded = clamp(
-      ratio,
-      1 - policy.maxAdjustmentFraction,
-      1 + policy.maxAdjustmentFraction,
-    );
-    ema =
-      ema === null
-        ? bounded
-        : policy.emaAlpha * bounded + (1 - policy.emaAlpha) * ema;
-  }
-  const proposed = ema === null ? null : Math.round(ema * 10000) / 10000;
 
   // Run autonomous triple-check verification
   const triplePolicy: TripleCheckPolicy = {
@@ -808,24 +859,31 @@ export function buildCalibrationCandidate(
 
   const tripleCheck = verifyTripleCheckConsensus(
     eligibleRows,
-    marketCode,
-    materialKey,
+    normMarket,
+    normMaterial,
     measure,
     triplePolicy,
   );
 
+  const candidateUnit = unitFilter || (eligibleRows[0]?.unit ? eligibleRows[0].unit.trim() : "unit");
+
+  const primaryMultiplier =
+    tripleCheck.passed && tripleCheck.consensusMultiplier !== null
+      ? tripleCheck.consensusMultiplier
+      : boundedMedian !== null
+        ? Math.round(boundedMedian * 10000) / 10000
+        : null;
+
   return {
-    marketCode: marketCode.toUpperCase(),
-    materialKey: materialKey.toLowerCase(),
+    marketCode: normMarket,
+    materialKey: normMaterial,
     measure,
+    unit: candidateUnit,
     observationCount: eligibleRows.length,
     distinctProjectCount: projects.size,
     verifiedObservationCount: verifiedCount,
     verifiedShare: Math.round(verifiedShare * 10000) / 10000,
-    proposedMultiplier:
-      tripleCheck.passed && tripleCheck.consensusMultiplier !== null
-        ? tripleCheck.consensusMultiplier
-        : proposed,
+    proposedMultiplier: primaryMultiplier,
     medianMultiplier:
       boundedMedian === null ? null : Math.round(boundedMedian * 10000) / 10000,
     eligible: blockers.length === 0,
@@ -848,16 +906,30 @@ export function autoApproveVerifiedCandidate(
   rows: CalibrationFeedback[],
   policy: TripleCheckPolicy = DEFAULT_TRIPLE_CHECK_POLICY,
 ): { candidate: CalibrationCandidate; approval: CalibrationApproval | null } {
-  const eligibleRows = rows
+  const normMarket = candidate.marketCode.toUpperCase();
+  const normMaterial = candidate.materialKey.toLowerCase();
+  const normUnit = candidate.unit ? candidate.unit.toLowerCase().trim() : undefined;
+
+  const eligibleRows = (Array.isArray(rows) ? rows : [])
     .filter(
       (r) =>
-        r.marketCode.toUpperCase() === candidate.marketCode.toUpperCase() &&
-        r.materialKey.toLowerCase() === candidate.materialKey.toLowerCase() &&
+        r &&
+        typeof r.marketCode === "string" &&
+        r.marketCode.toUpperCase() === normMarket &&
+        typeof r.materialKey === "string" &&
+        r.materialKey.toLowerCase() === normMaterial &&
         r.measure === candidate.measure &&
+        (!normUnit || (typeof r.unit === "string" && r.unit.toLowerCase().trim() === normUnit)) &&
         validateCalibrationFeedback(r).length === 0,
     )
     .filter((r, i, all) => all.findIndex((other) => other.id === r.id) === i)
-    .sort((a, b) => a.recordedAt.localeCompare(b.recordedAt));
+    .sort((a, b) => {
+      const tA = Date.parse(a.recordedAt);
+      const tB = Date.parse(b.recordedAt);
+      const diff = (Number.isNaN(tA) ? 0 : tA) - (Number.isNaN(tB) ? 0 : tB);
+      if (diff !== 0) return diff;
+      return a.id.localeCompare(b.id);
+    });
 
   const result = verifyTripleCheckConsensus(
     eligibleRows,
@@ -867,9 +939,30 @@ export function autoApproveVerifiedCandidate(
     policy,
   );
 
+  const fingerprint = computeCandidateFingerprint(
+    { ...candidate, tripleCheck: result },
+    eligibleRows,
+  );
+
+  let approval: CalibrationApproval | null = null;
+  if (result.passed && result.consensusMultiplier !== null) {
+    approval = {
+      candidateKey: calibrationCandidateKey(candidate),
+      decision: "approved",
+      reviewerId: "triple_check_consensus_engine",
+      reviewedAt: new Date().toISOString(),
+      reason: `Consensus verified across EMA (${result.estimators.ema}), Hodges-Lehmann (${result.estimators.hodgesLehmann}), and Trimmed Mean (${result.estimators.trimmedMean}) with spread ${(result.estimators.maxPairwiseDelta ?? 0) * 100}%`,
+      candidateFingerprint: fingerprint,
+    };
+  }
+
   const updatedCandidate: CalibrationCandidate = {
     ...candidate,
-    tripleCheck: result,
+    tripleCheck: {
+      ...result,
+      fingerprint,
+      approval: approval ?? null,
+    },
     verifiedAndApproved: result.passed,
     proposedMultiplier:
       result.passed && result.consensusMultiplier !== null
@@ -879,7 +972,7 @@ export function autoApproveVerifiedCandidate(
 
   return {
     candidate: updatedCandidate,
-    approval: result.approval,
+    approval,
   };
 }
 
@@ -891,19 +984,39 @@ export function empiricalConfidenceRange(
   materialKey: string,
   measure: CalibrationMeasure,
   unit: string,
+  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
 ): ConfidenceRange | null {
-  if (!finitePositive(baseQuantity) || !unit.trim()) return null;
-  const ratios = rows
+  if (!finitePositive(baseQuantity) || !unit || typeof unit !== "string" || !unit.trim()) return null;
+  const normMarket = typeof marketCode === "string" ? marketCode.toUpperCase().trim() : "";
+  const normMaterial = typeof materialKey === "string" ? materialKey.toLowerCase().trim() : "";
+  const normUnit = unit.trim().toLowerCase();
+
+  const eligibleRows = (Array.isArray(rows) ? rows : [])
     .filter(
       (r) =>
-        r.marketCode.toUpperCase() === marketCode.toUpperCase() &&
-        r.materialKey.toLowerCase() === materialKey.toLowerCase() &&
+        r &&
+        typeof r.marketCode === "string" &&
+        r.marketCode.toUpperCase().trim() === normMarket &&
+        typeof r.materialKey === "string" &&
+        r.materialKey.toLowerCase().trim() === normMaterial &&
         r.measure === measure &&
+        typeof r.unit === "string" &&
+        r.unit.trim().toLowerCase() === normUnit &&
         validateCalibrationFeedback(r).length === 0,
     )
-    .map((r) => r.actualQuantity / r.estimatedQuantity)
+    .filter((r, i, all) => all.findIndex((other) => other.id === r.id) === i);
+
+  // Require minimum observations (at least 3)
+  const minObs = Math.min(3, policy.minObservations);
+  if (eligibleRows.length < minObs) return null;
+
+  // Clamp ratios to policy bounds (winsorizing extreme anomalies)
+  const minBound = 1 - policy.maxAdjustmentFraction;
+  const maxBound = 1 + policy.maxAdjustmentFraction;
+  const ratios = eligibleRows
+    .map((r) => clamp(r.actualQuantity / r.estimatedQuantity, minBound, maxBound))
     .sort((a, b) => a - b);
-  if (!ratios.length) return null;
+
   return {
     low: Math.round(baseQuantity * quantile(ratios, 0.1) * 1000) / 1000,
     likely: Math.round(baseQuantity * quantile(ratios, 0.5) * 1000) / 1000,
@@ -924,22 +1037,29 @@ export function resolveApprovedMultiplier(
     return null;
   if (approval.candidateKey !== calibrationCandidateKey(candidate)) return null;
   if (approval.candidateFingerprint !== candidateFingerprint) return null;
-  return candidate.proposedMultiplier;
+  if (candidate.tripleCheck?.passed && candidate.tripleCheck.consensusMultiplier !== null) {
+    return candidate.tripleCheck.consensusMultiplier;
+  }
+  return candidate.medianMultiplier ?? candidate.proposedMultiplier;
 }
 
 export function calibrationCandidateKey(
   candidate: Pick<
     CalibrationCandidate,
     "marketCode" | "materialKey" | "measure"
-  >,
+  > & { unit?: string },
 ): string {
-  return `${candidate.marketCode.toUpperCase()}:${candidate.materialKey.toLowerCase()}:${candidate.measure}`;
+  const normMarket = typeof candidate.marketCode === "string" ? candidate.marketCode.toUpperCase().trim() : "";
+  const normMaterial = typeof candidate.materialKey === "string" ? candidate.materialKey.toLowerCase().trim() : "";
+  const unitPart = candidate.unit ? `:${candidate.unit.toLowerCase().trim()}` : "";
+  return `${normMarket}:${normMaterial}:${candidate.measure}${unitPart}`;
 }
 
 /** Deterministic current-vs-shadow comparison for canary evaluation. */
 export function compareShadowEstimate(
   baseQuantity: number,
   proposedMultiplier: number | null,
+  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
 ): {
   baseline: number;
   shadow: number;
@@ -948,9 +1068,11 @@ export function compareShadowEstimate(
 } {
   const baseline =
     Number.isFinite(baseQuantity) && baseQuantity > 0 ? baseQuantity : 0;
+  const minClamp = Math.max(0.1, 1 - policy.maxAdjustmentFraction);
+  const maxClamp = 1 + policy.maxAdjustmentFraction;
   const multiplier =
     proposedMultiplier !== null && Number.isFinite(proposedMultiplier)
-      ? clamp(proposedMultiplier, 0.7, 1.4)
+      ? clamp(proposedMultiplier, minClamp, maxClamp)
       : 1;
   const shadow = Math.round(baseline * multiplier * 1000) / 1000;
   return {
@@ -981,13 +1103,75 @@ interface GlobalClassificationEntry {
 const GLOBAL_CLASSIFICATION_CATALOG: GlobalClassificationEntry[] = [
   {
     terms: [
+      "concrete block",
+      "sandcrete block",
+      "cinder block",
+      "hollow block",
+      "block",
+      "brick",
+      "masonry",
+      "sandcrete",
+      "mortar",
+    ],
+    category: "masonry",
+    masterFormat: {
+      code: "04 20 00",
+      title: "Unit Masonry",
+      division: "04",
+    },
+    uniFormat: { code: "B2010", title: "Exterior Walls" },
+    uniclass2015: {
+      code: "Ss_25_10_30_50",
+      title: "Masonry wall structure systems",
+    },
+    nrm2: { code: "Section 14", title: "Masonry" },
+    din276: { code: "331.1", title: "Mauerwerk Außenwände" },
+    natspec: { code: "0331", title: "Brick and block masonry" },
+    sans1200: { code: "1200 JS", title: "Masonry" },
+  },
+  {
+    terms: [
+      "steel door",
+      "metal door",
+      "timber door",
+      "glass door",
+      "fire door",
+      "sliding door",
+      "aluminum window",
+      "door",
+      "window",
+      "glazing",
+      "frame",
+      "shutter",
+    ],
+    category: "openings",
+    masterFormat: {
+      code: "08 00 00",
+      title: "Openings",
+      division: "08",
+    },
+    uniFormat: { code: "B2020", title: "Exterior Windows / Doors" },
+    uniclass2015: {
+      code: "Ss_25_30_95",
+      title: "Window and glazed screen systems",
+    },
+    nrm2: { code: "Section 24", title: "Windows, screens and lights" },
+    din276: { code: "334", title: "Außentüren und -fenster" },
+    natspec: { code: "0451", title: "Windows and glazed doors" },
+    sans1200: { code: "1200 ME", title: "Joinery & ironmongery" },
+  },
+  {
+    terms: [
+      "ready mix concrete",
+      "in-situ concrete",
+      "stamped concrete",
+      "concrete slab",
       "concrete",
       "slab",
       "cement",
       "rebar",
       "reinforcement",
       "increte",
-      "stamped concrete",
       "footing",
     ],
     category: "concrete",
@@ -1007,25 +1191,16 @@ const GLOBAL_CLASSIFICATION_CATALOG: GlobalClassificationEntry[] = [
     sans1200: { code: "1200 G", title: "Concrete (structural)" },
   },
   {
-    terms: ["block", "brick", "masonry", "sandcrete", "mortar"],
-    category: "masonry",
-    masterFormat: {
-      code: "04 20 00",
-      title: "Unit Masonry",
-      division: "04",
-    },
-    uniFormat: { code: "B2010", title: "Exterior Walls" },
-    uniclass2015: {
-      code: "Ss_25_10_30_50",
-      title: "Masonry wall structure systems",
-    },
-    nrm2: { code: "Section 14", title: "Masonry" },
-    din276: { code: "331.1", title: "Mauerwerk Außenwände" },
-    natspec: { code: "0331", title: "Brick and block masonry" },
-    sans1200: { code: "1200 JS", title: "Masonry" },
-  },
-  {
-    terms: ["steel", "metal", "beam", "truss", "framing"],
+    terms: [
+      "structural steel",
+      "steel framing",
+      "steel beam",
+      "steel",
+      "metal",
+      "beam",
+      "truss",
+      "framing",
+    ],
     category: "steel",
     masterFormat: {
       code: "05 12 00",
@@ -1061,25 +1236,13 @@ const GLOBAL_CLASSIFICATION_CATALOG: GlobalClassificationEntry[] = [
     sans1200: { code: "1200 HB", title: "Waterproofing" },
   },
   {
-    terms: ["door", "window", "glazing", "frame", "shutter"],
-    category: "openings",
-    masterFormat: {
-      code: "08 00 00",
-      title: "Openings",
-      division: "08",
-    },
-    uniFormat: { code: "B2020", title: "Exterior Windows / Doors" },
-    uniclass2015: {
-      code: "Ss_25_30_95",
-      title: "Window and glazed screen systems",
-    },
-    nrm2: { code: "Section 24", title: "Windows, screens and lights" },
-    din276: { code: "334", title: "Außentüren und -fenster" },
-    natspec: { code: "0451", title: "Windows and glazed doors" },
-    sans1200: { code: "1200 ME", title: "Joinery & ironmongery" },
-  },
-  {
     terms: [
+      "floor tile",
+      "wall tile",
+      "ceramic tile",
+      "porcelain tile",
+      "pop ceiling",
+      "plaster of paris",
       "paint",
       "tile",
       "screed",
@@ -1168,7 +1331,7 @@ export function getPrimaryClassificationForMarket(marketCode: string): {
   standard: string;
   description: string;
 } {
-  const code = marketCode.toUpperCase();
+  const code = (marketCode || "").toUpperCase().trim();
   switch (code) {
     case "GB":
       return {
@@ -1226,54 +1389,85 @@ export function getPrimaryClassificationForMarket(marketCode: string): {
 }
 
 /**
- * Resolves comprehensive global classification codes for a trade or material.
+ * Resolves comprehensive global classification codes with specificity scoring
+ * to eliminate substring false-positives (e.g. steel door -> openings; concrete block -> masonry).
  */
 export function resolveGlobalClassification(
   tradeOrItem: string,
   marketCode: string,
 ): GlobalClassification | null {
-  const normalized = tradeOrItem.toLowerCase().trim();
+  const normalized = (tradeOrItem || "").toLowerCase().trim();
   if (!normalized) return null;
-  const match = GLOBAL_CLASSIFICATION_CATALOG.find((entry) =>
-    entry.terms.some((term) => normalized.includes(term)),
-  );
-  if (!match) return null;
+  const queryWords = normalized.split(/\s+/);
+  const headWord = queryWords[queryWords.length - 1];
+
+  let bestEntry: GlobalClassificationEntry | null = null;
+  let bestScore = 0;
+
+  for (const entry of GLOBAL_CLASSIFICATION_CATALOG) {
+    let score = 0;
+    for (const term of entry.terms) {
+      const termLower = term.toLowerCase().trim();
+      const termWords = termLower.split(/\s+/);
+      if (termWords.length > 1) {
+        if (normalized === termLower) {
+          score += 100 + termLower.length;
+        } else if (normalized.includes(termLower)) {
+          score += 60 + termLower.length;
+        }
+      } else {
+        if (headWord === termLower || headWord.startsWith(termLower)) {
+          score += 35;
+        } else if (queryWords.some((w) => w === termLower || w.startsWith(termLower) || (termLower.length >= 4 && w.includes(termLower)))) {
+          score += 20;
+        } else if (normalized.includes(termLower)) {
+          score += 10;
+        }
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      bestEntry = entry;
+    }
+  }
+
+  if (!bestEntry || bestScore <= 0) return null;
 
   const marketStandard = getPrimaryClassificationForMarket(marketCode);
-  let primaryCode = match.masterFormat.code;
-  let primaryDescription = match.masterFormat.title;
+  let primaryCode = bestEntry.masterFormat.code;
+  let primaryDescription = bestEntry.masterFormat.title;
 
-  const codeUpper = marketCode.toUpperCase();
+  const codeUpper = (marketCode || "").toUpperCase().trim();
   if (codeUpper === "GB" || codeUpper === "SG") {
-    primaryCode = match.uniclass2015.code;
-    primaryDescription = match.uniclass2015.title;
+    primaryCode = bestEntry.uniclass2015.code;
+    primaryDescription = bestEntry.uniclass2015.title;
   } else if (codeUpper === "DE") {
-    primaryCode = match.din276.code;
-    primaryDescription = match.din276.title;
-  } else if (codeUpper === "AU" && match.natspec) {
-    primaryCode = match.natspec.code;
-    primaryDescription = match.natspec.title;
-  } else if ((codeUpper === "AE" || codeUpper === "SA") && match.nrm2) {
-    primaryCode = match.nrm2.code;
-    primaryDescription = match.nrm2.title;
-  } else if (codeUpper === "ZA" && match.sans1200) {
-    primaryCode = match.sans1200.code;
-    primaryDescription = match.sans1200.title;
+    primaryCode = bestEntry.din276.code;
+    primaryDescription = bestEntry.din276.title;
+  } else if (codeUpper === "AU" && bestEntry.natspec) {
+    primaryCode = bestEntry.natspec.code;
+    primaryDescription = bestEntry.natspec.title;
+  } else if ((codeUpper === "AE" || codeUpper === "SA") && bestEntry.nrm2) {
+    primaryCode = bestEntry.nrm2.code;
+    primaryDescription = bestEntry.nrm2.title;
+  } else if (codeUpper === "ZA" && bestEntry.sans1200) {
+    primaryCode = bestEntry.sans1200.code;
+    primaryDescription = bestEntry.sans1200.title;
   }
 
   return {
     tradeOrItem,
-    category: match.category,
+    category: bestEntry.category,
     primaryStandardName: marketStandard.standard,
     primaryCode,
     primaryDescription,
-    masterFormat: match.masterFormat,
-    uniFormat: match.uniFormat,
-    uniclass2015: match.uniclass2015,
-    nrm2: match.nrm2,
-    din276: match.din276,
-    natspec: match.natspec,
-    sans1200: match.sans1200,
+    masterFormat: bestEntry.masterFormat,
+    uniFormat: bestEntry.uniFormat,
+    uniclass2015: bestEntry.uniclass2015,
+    nrm2: bestEntry.nrm2,
+    din276: bestEntry.din276,
+    natspec: bestEntry.natspec,
+    sans1200: bestEntry.sans1200,
   };
 }
 
@@ -1283,7 +1477,7 @@ export function suggestCostCode(
   costType: string,
   marketCode = "US",
 ): CostCodeDefinition | null {
-  const normalized = tradeOrItem.toLowerCase().trim();
+  const normalized = (tradeOrItem || "").toLowerCase().trim();
   if (!normalized || !costType.trim()) return null;
   const global = resolveGlobalClassification(tradeOrItem, marketCode);
   if (!global) return null;
@@ -1327,7 +1521,7 @@ export interface GlobalBudgetRow extends ProcoreBudgetRow {
     "verified_triple_check" | "manual_approved" | "uncalibrated";
 }
 
-/** Export useful WBS columns with proper CSV escaping */
+/** Export useful WBS columns with proper CSV formula injection protection & UTF-8 BOM */
 export function exportBudgetCsv(rows: ProcoreBudgetRow[]): string {
   const headers = [
     "Cost Code",
@@ -1343,7 +1537,11 @@ export function exportBudgetCsv(rows: ProcoreBudgetRow[]): string {
     "Price Status",
   ];
   const esc = (value: string | number | null | undefined) => {
-    const s = value === null || value === undefined ? "" : String(value);
+    let s = value === null || value === undefined ? "" : String(value);
+    // Formula injection mitigation: prefix dangerous Excel leading characters
+    if (/^[=+\-@\t\r]/.test(s)) {
+      s = `'${s}`;
+    }
     return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const content = rows.map((r) =>
@@ -1363,11 +1561,12 @@ export function exportBudgetCsv(rows: ProcoreBudgetRow[]): string {
       .map(esc)
       .join(","),
   );
-  return [headers.join(","), ...content].join("\r\n");
+  return "\uFEFF" + [headers.join(","), ...content].join("\r\n");
 }
 
 /**
- * Exports comprehensive global multi-standard WBS budget CSV (Procore + Uniclass + NRM2 + DIN276).
+ * Exports comprehensive global multi-standard WBS budget CSV (Procore + Uniclass + NRM2 + DIN276)
+ * with formula injection protection & UTF-8 BOM.
  */
 export function exportGlobalBudgetCsv(rows: GlobalBudgetRow[]): string {
   const headers = [
@@ -1392,7 +1591,11 @@ export function exportGlobalBudgetCsv(rows: GlobalBudgetRow[]): string {
     "Price Status",
   ];
   const esc = (value: string | number | null | undefined) => {
-    const s = value === null || value === undefined ? "" : String(value);
+    let s = value === null || value === undefined ? "" : String(value);
+    // Formula injection mitigation
+    if (/^[=+\-@\t\r]/.test(s)) {
+      s = `'${s}`;
+    }
     return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const content = rows.map((r) =>
@@ -1420,5 +1623,5 @@ export function exportGlobalBudgetCsv(rows: GlobalBudgetRow[]): string {
       .map(esc)
       .join(","),
   );
-  return [headers.join(","), ...content].join("\r\n");
+  return "\uFEFF" + [headers.join(","), ...content].join("\r\n");
 }

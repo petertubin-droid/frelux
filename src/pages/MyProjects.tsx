@@ -839,6 +839,7 @@ export default function MyProjects() {
                                     </>
                                   )}
                                 </p>
+                                <AdaptiveCalibrationPanel project={p} />
                               </div>
                             </div>
                             <div className="flex items-center gap-1.5 self-end sm:self-center">

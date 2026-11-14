@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import React, { Component, useEffect, useId, useMemo, useState } from "react";
 import {
   Activity,
   CheckCircle2,
   Download,
   Globe,
+  RefreshCw,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import {
   autoApproveVerifiedCandidate,
@@ -19,32 +21,119 @@ import {
   resolveApprovedMultiplier,
   resolveGlobalClassification,
   suggestCostCode,
+  VALID_MARKET_CODES,
   type CalibrationFeedback,
   type GlobalBudgetRow,
+  type ProcoreBudgetRow,
 } from "@/lib/estimation/adaptive-calibration";
 import {
+  CALIBRATION_STORAGE_KEY,
+  CALIBRATION_UPDATED_EVENT,
+  deleteCalibrationFeedback,
   getApprovalForCandidate,
   getCalibrationFeedback,
   saveCalibrationApproval,
   saveCalibrationFeedback,
   updateCalibrationFeedback,
 } from "@/lib/estimation/calibration-storage";
-import type { LocalProject } from "@/lib/local-projects";
+import { Button } from "@/components/ui/shadcn/button";
+import { Input } from "@/components/ui/shadcn/input";
 
-function marketFromProject(project: LocalProject): string {
-  const data = project.data as Record<string, unknown>;
-  const candidates = [data.marketCode, data.market, data.countryCode];
-  const market = candidates.find(
-    (value) => typeof value === "string" && /^[A-Za-z]{2,3}$/.test(value),
-  );
-  return typeof market === "string" ? market.toUpperCase() : "US";
+export interface CalibrationProjectTarget {
+  id: string;
+  name: string;
+  data?: Record<string, unknown> | null;
+  project_data?: Record<string, unknown> | null;
+  marketCode?: string;
+  currency?: string;
 }
 
-export function AdaptiveCalibrationPanel({
+class CalibrationErrorBoundary extends Component<
+  { children: React.ReactNode; onReset?: () => void },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode; onReset?: () => void }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Calibration panel error caught by boundary:", error, errorInfo);
+  }
+
+  handleClearCorrupted = () => {
+    try {
+      localStorage.removeItem(CALIBRATION_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    this.setState({ hasError: false, error: null });
+    this.props.onReset?.();
+  };
+
+  override render() {
+    if (this.state.hasError) {
+      return (
+        <div className="mt-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+          <p className="font-semibold">Unable to display calibration panel</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            A corrupted feedback entry was detected in local storage.
+          </p>
+          <button
+            type="button"
+            onClick={this.handleClearCorrupted}
+            className="mt-2 inline-flex items-center gap-1 rounded bg-destructive px-2 py-1 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90"
+          >
+            <RefreshCw className="h-3 w-3" /> Clear corrupted records & reset
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function resolveProjectMarket(project: CalibrationProjectTarget): string {
+  const data = (project.data || project.project_data || {}) as Record<string, unknown>;
+  const candidates = [
+    project.marketCode,
+    data.marketCode,
+    data.market,
+    data.countryCode,
+    data.country,
+  ];
+  for (const c of candidates) {
+    if (typeof c === "string") {
+      const upper = c.trim().toUpperCase();
+      if (VALID_MARKET_CODES.has(upper)) {
+        return upper;
+      }
+    }
+  }
+  return "US";
+}
+
+function resolveProjectCurrency(project: CalibrationProjectTarget): string {
+  const data = (project.data || project.project_data || {}) as Record<string, unknown>;
+  if (typeof project.currency === "string" && project.currency.trim()) {
+    return project.currency.trim().toUpperCase();
+  }
+  if (typeof data.currency === "string" && data.currency.trim()) {
+    return data.currency.trim().toUpperCase();
+  }
+  return "USD";
+}
+
+function AdaptiveCalibrationPanelContent({
   project,
 }: {
-  project: LocalProject;
+  project: CalibrationProjectTarget;
 }) {
+  const panelId = useId();
   const [open, setOpen] = useState(false);
   const [material, setMaterial] = useState("");
   const [measure, setMeasure] = useState<"material" | "labour">("material");
@@ -52,31 +141,68 @@ export function AdaptiveCalibrationPanel({
   const [actual, setActual] = useState("");
   const [unit, setUnit] = useState("unit");
   const [evidenceReference, setEvidenceReference] = useState("");
-  const [feedbackRows, setFeedbackRows] = useState<CalibrationFeedback[]>(() =>
-    getCalibrationFeedback(),
-  );
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
-  const [activeApprovalKey, setActiveApprovalKey] = useState<string | null>(
-    null,
+  const [activeApprovalKey, setActiveApprovalKey] = useState<string | null>(null);
+
+  const initialMarket = useMemo(() => resolveProjectMarket(project), [project]);
+  const [selectedMarket, setSelectedMarket] = useState<string>(initialMarket);
+
+  // Lazy loading: only fetch records from storage when panel is opened
+  const [feedbackRows, setFeedbackRows] = useState<CalibrationFeedback[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    setFeedbackRows(getCalibrationFeedback());
+
+    const handleStorageChange = () => {
+      setFeedbackRows(getCalibrationFeedback());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener(CALIBRATION_UPDATED_EVENT, handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener(CALIBRATION_UPDATED_EVENT, handleStorageChange);
+    };
+  }, [open]);
+
+  const currency = useMemo(() => resolveProjectCurrency(project), [project]);
+  const primaryStandard = useMemo(
+    () => getPrimaryClassificationForMarket(selectedMarket),
+    [selectedMarket],
   );
 
-  const marketCode = marketFromProject(project);
-  const primaryStandard = getPrimaryClassificationForMarket(marketCode);
-
-  const pending = feedbackRows.filter(
-    (row) => row.projectId === project.id && row.status === "pending_review",
+  const pending = useMemo(
+    () =>
+      feedbackRows.filter(
+        (row) => row.projectId === project.id && row.status === "pending_review",
+      ),
+    [feedbackRows, project.id],
   );
 
   const candidate = useMemo(
     () =>
-      buildCalibrationCandidate(feedbackRows, marketCode, material, measure),
-    [feedbackRows, marketCode, material, measure],
+      buildCalibrationCandidate(
+        feedbackRows,
+        selectedMarket,
+        material,
+        measure,
+        unit.trim() || undefined,
+      ),
+    [feedbackRows, selectedMarket, material, measure, unit],
   );
 
   const candidateKey = useMemo(
     () =>
-      calibrationCandidateKey({ marketCode, materialKey: material, measure }),
-    [marketCode, material, measure],
+      calibrationCandidateKey({
+        marketCode: selectedMarket,
+        materialKey: material,
+        measure,
+        unit: unit.trim() || undefined,
+      }),
+    [selectedMarket, material, measure, unit],
   );
 
   const storedApproval = useMemo(() => {
@@ -85,7 +211,7 @@ export function AdaptiveCalibrationPanel({
   }, [candidateKey, activeApprovalKey]);
 
   const verifiedMultiplier = useMemo(() => {
-    if (storedApproval && candidate.tripleCheck) {
+    if (storedApproval) {
       return resolveApprovedMultiplier(
         candidate,
         storedApproval,
@@ -102,28 +228,35 @@ export function AdaptiveCalibrationPanel({
   }, [candidate, storedApproval]);
 
   const activeMultiplier = verifiedMultiplier ?? candidate.proposedMultiplier;
-
   const shadow = compareShadowEstimate(Number(estimate), activeMultiplier);
 
   const globalClass = useMemo(
     () =>
       material.trim()
-        ? resolveGlobalClassification(material, marketCode)
+        ? resolveGlobalClassification(material, selectedMarket)
         : null,
-    [material, marketCode],
+    [material, selectedMarket],
   );
 
-  const costCode = suggestCostCode(
-    material,
-    measure === "material" ? "M" : "L",
-    marketCode,
+  const costCode = useMemo(
+    () =>
+      suggestCostCode(
+        material,
+        measure === "material" ? "M" : "L",
+        selectedMarket,
+      ),
+    [material, measure, selectedMarket],
   );
 
-  function saveActual() {
+  function handleSaveActual() {
+    setError("");
     const estimatedQuantity = Number(estimate);
     const actualQuantity = Number(actual);
-    if (!material.trim()) {
-      setError("Enter the material or trade being measured.");
+    const trimmedMaterial = material.trim().toLowerCase();
+    const trimmedUnit = unit.trim().toLowerCase();
+
+    if (!trimmedMaterial) {
+      setError("Please enter the material or trade being measured.");
       return;
     }
     if (
@@ -131,38 +264,49 @@ export function AdaptiveCalibrationPanel({
       estimatedQuantity <= 0 ||
       !Number.isFinite(actualQuantity) ||
       actualQuantity <= 0 ||
-      !unit.trim()
+      !trimmedUnit
     ) {
-      setError("Enter positive estimated and actual quantities, plus a unit.");
+      setError("Enter positive estimated and actual quantities, and specify a unit.");
       return;
     }
-    const row: CalibrationFeedback = {
-      id: `feedback_${project.id}_${Date.now()}`,
-      projectId: project.id,
-      marketCode,
-      materialKey: material.trim().toLowerCase(),
-      measure,
-      estimatedQuantity,
-      actualQuantity,
-      unit: unit.trim(),
-      evidence: evidenceReference.trim() ? "verified_project" : "user_reported",
-      evidenceReference: evidenceReference.trim() || undefined,
-      recordedAt: new Date().toISOString(),
-      context: "takeoff",
-      status: "pending_review",
-    };
-    const result = saveCalibrationFeedback(row);
-    if (!result) {
-      setError(
-        "Could not save this record on the device. Check storage space and try again.",
-      );
+
+    const ref = evidenceReference.trim();
+    if (ref && ref.length < 3) {
+      setError("Evidence reference must be at least 3 characters (e.g. PO number, ticket or delivery note).");
       return;
     }
-    setEstimate("");
-    setActual("");
-    setEvidenceReference("");
-    setError("");
-    setFeedbackRows(getCalibrationFeedback());
+
+    setIsSaving(true);
+    try {
+      const row: CalibrationFeedback = {
+        id: `feedback_${project.id}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        projectId: project.id,
+        marketCode: selectedMarket,
+        materialKey: trimmedMaterial,
+        measure,
+        estimatedQuantity,
+        actualQuantity,
+        unit: trimmedUnit,
+        evidence: ref ? "verified_project" : "user_reported",
+        evidenceReference: ref || undefined,
+        recordedAt: new Date().toISOString(),
+        context: "takeoff",
+        status: "pending_review",
+      };
+
+      const success = saveCalibrationFeedback(row);
+      if (!success) {
+        setError("Unable to save feedback to local storage. Check available storage space.");
+        return;
+      }
+
+      setEstimate("");
+      setActual("");
+      setEvidenceReference("");
+      setFeedbackRows(getCalibrationFeedback());
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function handleAutoApprove() {
@@ -171,14 +315,15 @@ export function AdaptiveCalibrationPanel({
     if (approval) {
       saveCalibrationApproval(approval);
       setActiveApprovalKey(approval.candidateFingerprint);
+      setFeedbackRows(getCalibrationFeedback());
     }
   }
 
   function downloadGlobalWbsCsv() {
-    const data = project.data as Record<string, unknown>;
-    const currency = typeof data.currency === "string" ? data.currency : "USD";
-    const baseQty = Number(estimate) || 0;
-    const calibratedQty = shadow.shadow || baseQty;
+    const projectSavedRows = feedbackRows.filter(
+      (r) => r.projectId === project.id && r.status === "accepted",
+    );
+
     const multStatus =
       verifiedMultiplier !== null
         ? "verified_triple_check"
@@ -186,34 +331,69 @@ export function AdaptiveCalibrationPanel({
           ? "manual_approved"
           : "uncalibrated";
 
-    const row: GlobalBudgetRow = {
-      costCode:
-        globalClass?.masterFormat.code ?? costCode?.costCode ?? "00 00 00",
-      costCodeDescription:
-        globalClass?.masterFormat.title ??
-        costCode?.description ??
-        "General Takeoff",
-      costType: measure === "material" ? "M" : "L",
-      description: `${material || "Material"} actuals for ${project.name}`,
-      uom: unit,
-      quantity: calibratedQty,
-      baseQuantity: baseQty,
-      multiplier: activeMultiplier,
-      multiplierStatus: multStatus,
-      unitCost: null,
-      amount: null,
-      currency,
-      marketCode,
-      sourceStatus: "verified",
-      primaryStandard:
-        globalClass?.primaryStandardName ?? primaryStandard.standard,
-      uniFormat: globalClass?.uniFormat.code ?? "B1010",
-      uniclass2015: globalClass?.uniclass2015.code ?? "Ss_20_10",
-      nrm2: globalClass?.nrm2.code ?? "Section 11",
-      din276: globalClass?.din276.code ?? "330",
-    };
+    let rowsToExport: GlobalBudgetRow[] = [];
 
-    const csv = exportGlobalBudgetCsv([row]);
+    if (projectSavedRows.length > 0) {
+      rowsToExport = projectSavedRows.map((r) => {
+        const itemClass = resolveGlobalClassification(r.materialKey, selectedMarket);
+        const itemCostCode = suggestCostCode(
+          r.materialKey,
+          r.measure === "material" ? "M" : "L",
+          selectedMarket,
+        );
+        const cal = compareShadowEstimate(r.estimatedQuantity, activeMultiplier);
+        return {
+          costCode: itemClass?.masterFormat.code ?? itemCostCode?.costCode ?? "01 00 00",
+          costCodeDescription: itemClass?.masterFormat.title ?? itemCostCode?.description ?? r.materialKey,
+          costType: r.measure === "material" ? "M" : "L",
+          description: `${r.materialKey} takeoff for ${project.name}`,
+          uom: r.unit,
+          quantity: r.actualQuantity,
+          baseQuantity: r.estimatedQuantity,
+          multiplier: activeMultiplier,
+          multiplierStatus: multStatus,
+          unitCost: null,
+          amount: null,
+          currency,
+          marketCode: selectedMarket,
+          sourceStatus: r.evidence === "verified_project" ? "verified" : "user_entered",
+          primaryStandard: itemClass?.primaryStandardName ?? primaryStandard.standard,
+          uniFormat: itemClass?.uniFormat.code ?? "B1010",
+          uniclass2015: itemClass?.uniclass2015.code ?? "Ss_20_10",
+          nrm2: itemClass?.nrm2.code ?? "Section 11",
+          din276: itemClass?.din276.code ?? "330",
+        };
+      });
+    } else {
+      const baseQty = Number(estimate) || 0;
+      const calQty = shadow.shadow || baseQty;
+      rowsToExport = [
+        {
+          costCode: globalClass?.masterFormat.code ?? costCode?.costCode ?? "01 00 00",
+          costCodeDescription:
+            globalClass?.masterFormat.title ?? costCode?.description ?? (material || "General Takeoff"),
+          costType: measure === "material" ? "M" : "L",
+          description: `${material || "Material"} actuals for ${project.name}`,
+          uom: unit || "unit",
+          quantity: calQty,
+          baseQuantity: baseQty,
+          multiplier: activeMultiplier,
+          multiplierStatus: multStatus,
+          unitCost: null,
+          amount: null,
+          currency,
+          marketCode: selectedMarket,
+          sourceStatus: evidenceReference.trim() ? "verified" : "user_entered",
+          primaryStandard: globalClass?.primaryStandardName ?? primaryStandard.standard,
+          uniFormat: globalClass?.uniFormat.code ?? "B1010",
+          uniclass2015: globalClass?.uniclass2015.code ?? "Ss_20_10",
+          nrm2: globalClass?.nrm2.code ?? "Section 11",
+          din276: globalClass?.din276.code ?? "330",
+        },
+      ];
+    }
+
+    const csv = exportGlobalBudgetCsv(rowsToExport);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -224,24 +404,52 @@ export function AdaptiveCalibrationPanel({
   }
 
   function downloadStandardCostCodedCsv() {
-    const suggestedCode = costCode?.costCode ?? "";
-    const data = project.data as Record<string, unknown>;
-    const currency = typeof data.currency === "string" ? data.currency : "";
-    const csv = exportBudgetCsv([
-      {
-        costCode: suggestedCode,
-        costCodeDescription: costCode?.description ?? "Unclassified",
-        costType: measure === "material" ? "M" : "L",
-        description: `${material} actuals for ${project.name}`,
-        uom: unit,
-        quantity: Number(actual) || 0,
-        unitCost: null,
-        amount: null,
-        currency,
-        marketCode,
-        sourceStatus: "user_entered",
-      },
-    ]);
+    const projectSavedRows = feedbackRows.filter(
+      (r) => r.projectId === project.id && r.status === "accepted",
+    );
+
+    let rowsToExport: ProcoreBudgetRow[] = [];
+
+    if (projectSavedRows.length > 0) {
+      rowsToExport = projectSavedRows.map((r) => {
+        const itemCostCode = suggestCostCode(
+          r.materialKey,
+          r.measure === "material" ? "M" : "L",
+          selectedMarket,
+        );
+        return {
+          costCode: itemCostCode?.costCode ?? "01 00 00",
+          costCodeDescription: itemCostCode?.description ?? r.materialKey,
+          costType: r.measure === "material" ? "M" : "L",
+          description: `${r.materialKey} actuals for ${project.name}`,
+          uom: r.unit,
+          quantity: r.actualQuantity,
+          unitCost: null,
+          amount: null,
+          currency,
+          marketCode: selectedMarket,
+          sourceStatus: r.evidence === "verified_project" ? "verified" : "user_entered",
+        };
+      });
+    } else {
+      rowsToExport = [
+        {
+          costCode: costCode?.costCode ?? "01 00 00",
+          costCodeDescription: costCode?.description ?? (material || "Unclassified"),
+          costType: measure === "material" ? "M" : "L",
+          description: `${material || "Takeoff"} actuals for ${project.name}`,
+          uom: unit || "unit",
+          quantity: Number(actual) || Number(estimate) || 0,
+          unitCost: null,
+          amount: null,
+          currency,
+          marketCode: selectedMarket,
+          sourceStatus: "user_entered",
+        },
+      ];
+    }
+
+    const csv = exportBudgetCsv(rowsToExport);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -255,17 +463,22 @@ export function AdaptiveCalibrationPanel({
 
   return (
     <div className="mt-2">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
         aria-expanded={open}
+        aria-controls={panelId}
       >
         <Activity className="h-3.5 w-3.5" /> Log actuals & global WBS coding
-      </button>
+      </Button>
+
       {open && (
         <section
-          className="mt-3 rounded-xl border border-border bg-background p-4"
+          id={panelId}
+          className="mt-3 rounded-xl border border-border bg-card p-4 shadow-sm"
           aria-label="Adaptive calibration, triple-check verification and global cost coding"
         >
           <div className="flex items-start justify-between gap-2 border-b border-border pb-3">
@@ -284,108 +497,127 @@ export function AdaptiveCalibrationPanel({
             <div className="flex items-center gap-1 rounded-md border border-border bg-muted/60 px-2 py-1 text-[11px] font-medium text-muted-foreground">
               <Globe className="h-3 w-3" />
               <span>
-                {marketCode}: {primaryStandard.standard}
+                {selectedMarket}: {primaryStandard.standard}
               </span>
             </div>
           </div>
 
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <label className="text-xs">
+            <label className="text-xs font-medium text-foreground">
               Market
-              <input
-                value={marketCode}
-                readOnly
-                className="mt-1 w-full rounded-md border border-border bg-muted px-2 py-1.5"
-              />
+              <select
+                value={selectedMarket}
+                onChange={(e) => setSelectedMarket(e.target.value)}
+                className="mt-1 w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {Array.from(VALID_MARKET_CODES).sort().map((code) => (
+                  <option key={code} value={code}>
+                    {code} ({getPrimaryClassificationForMarket(code).standard})
+                  </option>
+                ))}
+              </select>
             </label>
-            <label className="text-xs">
+
+            <label className="text-xs font-medium text-foreground">
               Material / trade
-              <input
+              <Input
                 value={material}
                 onChange={(e) => setMaterial(e.target.value)}
-                placeholder="e.g. concrete, paint, tile, block"
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                placeholder="e.g. concrete, paint, tile, block, steel door"
+                className="mt-1 text-xs"
               />
             </label>
-            <label className="text-xs">
+
+            <label className="text-xs font-medium text-foreground">
               Measure
               <select
                 value={measure}
                 onChange={(e) =>
                   setMeasure(e.target.value as "material" | "labour")
                 }
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                className="mt-1 w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="material">Material Takeoff</option>
                 <option value="labour">Labour Productivity</option>
               </select>
             </label>
-            <label className="text-xs">
-              Unit
-              <input
+
+            <label className="text-xs font-medium text-foreground">
+              Unit of Measure
+              <Input
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                placeholder="e.g. m3, bag, kg, m2, ltr"
+                className="mt-1 text-xs"
               />
             </label>
-            <label className="text-xs">
+
+            <label className="text-xs font-medium text-foreground">
               Estimated quantity
-              <input
+              <Input
                 type="number"
                 min="0"
                 step="any"
                 value={estimate}
                 onChange={(e) => setEstimate(e.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                placeholder="0.00"
+                className="mt-1 text-xs"
               />
             </label>
-            <label className="text-xs">
+
+            <label className="text-xs font-medium text-foreground">
               Actual quantity
-              <input
+              <Input
                 type="number"
                 min="0"
                 step="any"
                 value={actual}
                 onChange={(e) => setActual(e.target.value)}
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                placeholder="0.00"
+                className="mt-1 text-xs"
               />
             </label>
-            <label className="text-xs sm:col-span-2">
-              Evidence reference (verified receipt, delivery note, close-out
-              sign-off)
-              <input
+
+            <label className="text-xs font-medium text-foreground sm:col-span-2">
+              Evidence reference (verified invoice, delivery ticket, site close-out note)
+              <Input
                 value={evidenceReference}
                 onChange={(e) => setEvidenceReference(e.target.value)}
                 placeholder="Required for verified status (e.g. PO-84920, Site closeout sign-off)"
-                className="mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5"
+                className="mt-1 text-xs"
               />
+              <span className="mt-1 block text-[11px] text-muted-foreground">
+                Self-entered records with delivery tickets are local owner reviews unless verified by independent third-party auditor.
+              </span>
             </label>
           </div>
 
           {error && (
-            <p role="alert" className="mt-2 text-xs text-destructive">
+            <p role="alert" className="mt-2 text-xs font-medium text-destructive">
               {error}
             </p>
           )}
 
           {pending.length > 0 && (
-            <div className="mt-3 rounded-lg border border-border p-3">
-              <p className="text-xs font-semibold">
+            <div className="mt-3 rounded-lg border border-border bg-muted/20 p-3">
+              <p className="text-xs font-semibold text-foreground">
                 Pending local review ({pending.length})
               </p>
               <div className="mt-2 space-y-2">
                 {pending.map((row) => (
                   <div
                     key={row.id}
-                    className="flex flex-wrap items-center justify-between gap-2 text-xs"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded border border-border/80 bg-background/80 p-2 text-xs"
                   >
                     <span>
-                      {row.materialKey}: {row.estimatedQuantity} →{" "}
+                      <strong className="text-foreground">{row.materialKey}</strong>: {row.estimatedQuantity} →{" "}
                       {row.actualQuantity} {row.unit} ({row.evidence})
                     </span>
-                    <div className="flex gap-1">
-                      <button
+                    <div className="flex items-center gap-1.5">
+                      <Button
                         type="button"
+                        variant="outline"
+                        size="sm"
                         onClick={() => {
                           updateCalibrationFeedback(row.id, {
                             status: "accepted",
@@ -394,12 +626,14 @@ export function AdaptiveCalibrationPanel({
                           });
                           setFeedbackRows(getCalibrationFeedback());
                         }}
-                        className="rounded border border-border px-2 py-1 hover:bg-muted"
+                        className="h-7 text-xs"
                       >
                         Accept
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
+                        variant="outline"
+                        size="sm"
                         onClick={() => {
                           updateCalibrationFeedback(row.id, {
                             status: "rejected",
@@ -408,10 +642,23 @@ export function AdaptiveCalibrationPanel({
                           });
                           setFeedbackRows(getCalibrationFeedback());
                         }}
-                        className="rounded border border-border px-2 py-1 hover:bg-muted"
+                        className="h-7 text-xs"
                       >
                         Reject
-                      </button>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          deleteCalibrationFeedback(row.id);
+                          setFeedbackRows(getCalibrationFeedback());
+                        }}
+                        className="h-7 px-1.5 text-xs text-destructive hover:bg-destructive/10"
+                        title="Delete mistake"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -420,28 +667,33 @@ export function AdaptiveCalibrationPanel({
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
-            <button
+            <Button
               type="button"
-              onClick={saveActual}
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+              onClick={handleSaveActual}
+              disabled={isSaving}
+              size="sm"
+              className="text-xs font-semibold"
             >
               Save actuals for review
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={downloadGlobalWbsCsv}
-              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted"
+              className="inline-flex items-center gap-1 text-xs"
             >
               <Download className="h-3.5 w-3.5" /> Export Global WBS CSV
-              (Procore + Uniclass + DIN276)
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={downloadStandardCostCodedCsv}
-              className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground"
             >
               <Download className="h-3.5 w-3.5" /> Export Standard CSV
-            </button>
+            </Button>
           </div>
 
           {/* Autonomous Triple-Check Multiplier Verification Status */}
@@ -452,13 +704,11 @@ export function AdaptiveCalibrationPanel({
               </span>
               {candidate.tripleCheck?.passed ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 className="h-3 w-3" /> Consensus Verified &
-                  Certified
+                  <CheckCircle2 className="h-3 w-3" /> Consensus Verified & Certified
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                  <ShieldAlert className="h-3 w-3" /> Verification In Progress /
-                  Awaiting Consensus
+                  <ShieldAlert className="h-3 w-3" /> Verification In Progress / Awaiting Consensus
                 </span>
               )}
             </div>
@@ -487,13 +737,11 @@ export function AdaptiveCalibrationPanel({
                   2. Cross-Project Dispersion
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  HHI: {candidate.tripleCheck?.dispersion.hhi ?? "—"} (Limit ≤
-                  0.380)
+                  HHI: {candidate.tripleCheck?.dispersion.hhi ?? "—"} (Limit ≤ 0.380)
                 </p>
                 <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
                   Inter-Site CV:{" "}
-                  {candidate.tripleCheck?.dispersion.interProjectCV !==
-                  undefined
+                  {candidate.tripleCheck?.dispersion.interProjectCV !== undefined
                     ? `${(candidate.tripleCheck.dispersion.interProjectCV * 100).toFixed(1)}%`
                     : "—"}{" "}
                   (Limit ≤ 15.0%)
@@ -505,10 +753,10 @@ export function AdaptiveCalibrationPanel({
                   3. Domain Physics Bounds
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">
-                  Rule: {candidate.tripleCheck?.physics.category ?? "default"}
+                  Category: {candidate.tripleCheck?.physics.category ?? "default"}
                 </p>
                 <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
-                  Limits: [{candidate.tripleCheck?.physics.bounds[0] ?? 0.8},{" "}
+                  Allowed: [{candidate.tripleCheck?.physics.bounds[0] ?? 0.8},{" "}
                   {candidate.tripleCheck?.physics.bounds[1] ?? 1.25}]
                 </p>
               </div>
@@ -527,28 +775,30 @@ export function AdaptiveCalibrationPanel({
                     Fingerprint: {candidate.tripleCheck.fingerprint}
                   </p>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={handleAutoApprove}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
+                  size="sm"
+                  className="bg-emerald-600 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700"
                 >
                   <Sparkles className="h-3 w-3" /> Activate Certified Multiplier
-                </button>
+                </Button>
               </div>
             )}
 
-            {candidate.tripleCheck?.blockers &&
-              candidate.tripleCheck.blockers.length > 0 && (
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  Verification criteria pending:{" "}
-                  {candidate.tripleCheck.blockers.join(", ")}
-                </p>
-              )}
+            {candidate.blockers && candidate.blockers.length > 0 && (
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Verification criteria pending: {candidate.blockers.join(", ")}
+              </p>
+            )}
 
             <div className="mt-2 text-[11px] text-muted-foreground">
               Current estimate: {shadow.baseline || "—"} {unit} → Calibrated:{" "}
               {shadow.shadow || "—"} {unit} (Δ{" "}
               {shadow.delta > 0 ? `+${shadow.delta}` : shadow.delta} {unit})
+              {candidate.medianMultiplier && (
+                <> · Robust median: {candidate.medianMultiplier}x</>
+              )}
             </div>
           </div>
 
@@ -565,8 +815,7 @@ export function AdaptiveCalibrationPanel({
                     CSI MasterFormat (US/CA):
                   </span>{" "}
                   <span className="text-muted-foreground">
-                    {globalClass.masterFormat.code} ·{" "}
-                    {globalClass.masterFormat.title}
+                    {globalClass.masterFormat.code} · {globalClass.masterFormat.title}
                   </span>
                 </div>
                 <div>
@@ -582,8 +831,7 @@ export function AdaptiveCalibrationPanel({
                     Uniclass 2015 (UK/SG/BIM):
                   </span>{" "}
                   <span className="text-muted-foreground">
-                    {globalClass.uniclass2015.code} ·{" "}
-                    {globalClass.uniclass2015.title}
+                    {globalClass.uniclass2015.code} · {globalClass.uniclass2015.title}
                   </span>
                 </div>
                 <div>
@@ -628,5 +876,17 @@ export function AdaptiveCalibrationPanel({
         </section>
       )}
     </div>
+  );
+}
+
+export function AdaptiveCalibrationPanel({
+  project,
+}: {
+  project: CalibrationProjectTarget;
+}) {
+  return (
+    <CalibrationErrorBoundary>
+      <AdaptiveCalibrationPanelContent project={project} />
+    </CalibrationErrorBoundary>
   );
 }
