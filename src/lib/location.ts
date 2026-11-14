@@ -94,7 +94,9 @@ export function useLocation() {
 
 
   const detect = useCallback(async () => {
-    if (!("geolocation" in navigator)) {
+    const geolocation =
+      typeof navigator !== "undefined" ? navigator.geolocation : undefined;
+    if (!geolocation || typeof geolocation.getCurrentPosition !== "function") {
       setError(
         "Geolocation is not supported by your browser. Please select your location manually.",
       );
@@ -106,57 +108,66 @@ export function useLocation() {
 
     const applyPos = (pos: GeolocationPosition) => {
       const { latitude, longitude, accuracy } = pos.coords;
-
       const userLoc: UserLocation = {
         latitude,
         longitude,
         source: "gps",
         accuracy,
       };
-
       setLocation(userLoc);
       saveToSession(userLoc);
       setLoading(false);
 
-      // Reverse geocode asynchronously without blocking coordinate availability
-      reverseGeocode(latitude, longitude)
-        .then((geo) => {
-          if (geo.city || geo.state || geo.label) {
-            setLocation((prev) => {
-              if (
-                !prev ||
-                prev.latitude !== latitude ||
-                prev.longitude !== longitude
-              )
-                return prev;
-              const enriched: UserLocation = {
-                ...prev,
-                city: geo.city,
-                state: geo.state,
-                label: geo.label,
-              };
-              saveToSession(enriched);
-              return enriched;
-            });
-          }
-        })
-        .catch(() => {});
+      // Reverse geocode asynchronously without blocking coordinate availability.
+      void reverseGeocode(latitude, longitude).then((geo) => {
+        if (geo.city || geo.state || geo.label) {
+          setLocation((prev) => {
+            if (
+              !prev ||
+              prev.latitude !== latitude ||
+              prev.longitude !== longitude
+            ) {
+              return prev;
+            }
+            const enriched: UserLocation = {
+              ...prev,
+              city: geo.city,
+              state: geo.state,
+              label: geo.label,
+            };
+            saveToSession(enriched);
+            return enriched;
+          });
+        }
+      });
     };
 
-    // Fast pass: cached or network triangulation (returns in ~150ms)
-    navigator.geolocation.getCurrentPosition(
+    const safeGetCurrentPosition = (
+      success: PositionCallback,
+      failure: PositionErrorCallback,
+      options: PositionOptions,
+    ) => {
+      try {
+        geolocation.getCurrentPosition(success, failure, options);
+      } catch {
+        setLoading(false);
+        setError("Could not access geolocation. Please select your location manually.");
+      }
+    };
+
+    // Fast pass: cached or network triangulation; refine accuracy in background.
+    safeGetCurrentPosition(
       (pos) => {
         applyPos(pos);
-        // Follow up with high-accuracy GPS refinement in the background
-        navigator.geolocation.getCurrentPosition(
+        safeGetCurrentPosition(
           applyPos,
           () => {},
           { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 },
         );
       },
       () => {
-        // Fallback retry
-        navigator.geolocation.getCurrentPosition(
+        // Fallback retry after the fast cached/network lookup fails.
+        safeGetCurrentPosition(
           applyPos,
           (err) => {
             setLoading(false);
@@ -183,7 +194,7 @@ export function useLocation() {
       {
         enableHighAccuracy: false,
         timeout: 4000,
-        maximumAge: 300000, // accept cached position up to 5 min old for instant return
+        maximumAge: 300000,
       },
     );
   }, []);
@@ -193,11 +204,19 @@ export function useLocation() {
     const saved = loadFromSession();
     if (saved) setLocation(saved);
 
-    if (typeof navigator !== "undefined" && "permissions" in navigator) {
+    if (
+      typeof navigator !== "undefined" &&
+      "permissions" in navigator &&
+      navigator.permissions?.query
+    ) {
       navigator.permissions
         .query({ name: "geolocation" as PermissionName })
         .then((status) => {
-          if (status.state === "granted" && !saved) {
+          if (
+            status.state === "granted" &&
+            !saved &&
+            Boolean(navigator.geolocation?.getCurrentPosition)
+          ) {
             detect();
           }
         })

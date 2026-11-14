@@ -448,10 +448,11 @@ export default function Layout() {
       Awaited<ReturnType<typeof getSupabase>>["channel"]
     > | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
+    let active = true;
 
     // Defer to idle callback so it doesn't compete with initial paint/hydration
     const ric = (cb: () => void) => {
-      if ("requestIdleCallback" in window) {
+      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
         (
           window as unknown as {
             requestIdleCallback: (cb: () => void) => number;
@@ -463,81 +464,104 @@ export default function Layout() {
     };
 
     async function checkMaintenance() {
-      const supabase = await getSupabase();
-      // Always check admin status first (independent of maintenance state)
-      const { data: session } = await supabase.auth.getSession();
-      let admin = false;
-      if (session.session) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.session.user.id)
+      try {
+        const supabase = await getSupabase();
+        if (!active) return;
+        const { data: session } = await supabase.auth.getSession();
+        let admin = false;
+        if (session.session) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.session.user.id)
+            .maybeSingle();
+          admin = profile?.role === "admin";
+        }
+        if (!active) return;
+        setIsAdmin(admin);
+
+        const { data, error } = await supabase
+          .from("site_settings")
+          .select(
+            "maintenance_mode, maintenance_banner_enabled, maintenance_banner_message",
+          )
+          .limit(1)
           .maybeSingle();
-        admin = profile?.role === "admin";
+
+        if (error) {
+          const missingBannerColumns =
+            error.code === "PGRST204" ||
+            error.message?.includes("maintenance_banner_enabled") ||
+            error.message?.includes("schema cache");
+          if (!missingBannerColumns) {
+            console.warn(
+              "[maintenance] Failed to check site_settings:",
+              error.message,
+            );
+            return;
+          }
+
+          // Continue checking maintenance mode on older DB schemas while the
+          // banner-column migration is being applied.
+          const legacy = await supabase
+            .from("site_settings")
+            .select("maintenance_mode")
+            .limit(1)
+            .maybeSingle();
+          if (!active) return;
+          setMaintenance(!!legacy.data?.maintenance_mode);
+          setMaintenanceBanner({ enabled: false, message: "" });
+          return;
+        }
+
+        if (!active) return;
+        setMaintenance(!!data?.maintenance_mode);
+        setMaintenanceBanner({
+          enabled: !!data?.maintenance_banner_enabled,
+          message: data?.maintenance_banner_message ?? "",
+        });
+      } catch (error) {
+        if (active) console.warn("[maintenance] Check failed:", error);
       }
-      setIsAdmin(admin);
-
-      // Then check maintenance mode
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select(
-          "maintenance_mode, maintenance_banner_enabled, maintenance_banner_message",
-        )
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        console.warn(
-          "[maintenance] Failed to check site_settings:",
-          error.message,
-        );
-        return;
-      }
-
-      setMaintenance(!!data?.maintenance_mode);
-      setMaintenanceBanner({
-        enabled: !!data?.maintenance_banner_enabled,
-        message: data?.maintenance_banner_message ?? "",
-      });
     }
 
-    ric(() => checkMaintenance());
+    ric(() => void checkMaintenance());
 
-    // Real-time subscription: detect maintenance_mode changes immediately
-    // Get supabase for the real-time subscription (reuses cached client from checkMaintenance)
+    // Real-time subscription: detect maintenance changes immediately.
     getSupabase().then((sb) => {
-      if (!mountedRef.current) return;
+      if (!active) return;
       channel = sb
         .channel("site_settings_maintenance")
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "site_settings" },
           (payload) => {
+            if (!active) return;
             const row = payload.new as Record<string, unknown> | null;
             setMaintenance(!!row?.maintenance_mode);
-            setMaintenanceBanner((current) => ({
-              enabled:
-                row?.maintenance_banner_enabled === undefined
-                  ? current.enabled
-                  : !!row.maintenance_banner_enabled,
+            setMaintenanceBanner({
+              enabled: !!row?.maintenance_banner_enabled,
               message:
                 typeof row?.maintenance_banner_message === "string"
                   ? row.maintenance_banner_message
-                  : current.message,
-            }));
+                  : "",
+            });
           },
         )
         .subscribe();
+    }).catch((error) => {
+      if (active) console.warn("[maintenance] Realtime setup failed:", error);
     });
 
-    // Polling fallback: check every 30 seconds in case real-time misses
-    pollTimer = setInterval(checkMaintenance, 30_000);
+    // Polling fallback: check every 30 seconds in case realtime misses.
+    pollTimer = setInterval(() => void checkMaintenance(), 30_000);
 
     return () => {
+      active = false;
       if (channel) {
-        getSupabase().then((sb) =>
+        void getSupabase().then((sb) =>
           sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]),
-        );
+        ).catch(() => {});
       }
       if (pollTimer) clearInterval(pollTimer);
     };
