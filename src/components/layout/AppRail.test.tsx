@@ -26,6 +26,13 @@ const renderRail = (path = "/") =>
     </MemoryRouter>,
   );
 
+/** Open the labelled column, which a first visit deliberately leaves closed. */
+const openColumn = (path = "/") => {
+  const view = renderRail(path);
+  fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
+  return view;
+};
+
 describe("AppRail", () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -56,26 +63,32 @@ describe("AppRail", () => {
     expect(link).toBeDefined();
   });
 
-  it("starts expanded and remembers a collapsed choice", async () => {
+  it("arrives as a quiet icon rail and opens with the book control", async () => {
     renderRail();
-    const toggle = screen.getByRole("button", {
-      name: "Collapse navigation",
+    // First paint is the icon rail: the section list is not thrown at you.
+    expect(document.documentElement.dataset.rail).toBe("collapsed");
+    expect(
+      screen.queryByRole("navigation", { name: "Home" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
+
+    await waitFor(() => {
+      expect(document.documentElement.dataset.rail).toBe("expanded");
     });
-    expect(document.documentElement.dataset.rail).toBe("expanded");
+    expect(screen.getByRole("navigation", { name: "Home" })).toBeInTheDocument();
+    expect(window.localStorage.getItem("frelux.rail.collapsed")).toBe("0");
 
-    fireEvent.click(toggle);
-
+    // The same control sends it back in.
+    fireEvent.click(screen.getByRole("button", { name: "Close navigation" }));
     await waitFor(() => {
       expect(document.documentElement.dataset.rail).toBe("collapsed");
     });
     expect(window.localStorage.getItem("frelux.rail.collapsed")).toBe("1");
-    expect(
-      screen.getByRole("button", { name: "Expand navigation" }),
-    ).toBeInTheDocument();
   });
 
   it("shows the current workspace's destinations inline, without a overlay", async () => {
-    renderRail("/paint-calculator");
+    openColumn("/paint-calculator");
     // The labelled column belongs to the workspace the visitor is in.
     const column = screen.getByRole("navigation", {
       name: "Construction Tools",
@@ -91,7 +104,7 @@ describe("AppRail", () => {
   });
 
   it("scrolls the column on its own, inside a fixed shell", async () => {
-    renderRail("/paint-calculator");
+    openColumn("/paint-calculator");
     const column = screen.getByRole("navigation", {
       name: "Construction Tools",
     });
@@ -111,7 +124,7 @@ describe("AppRail", () => {
   });
 
   it("exposes every workspace, and every tool of the workspace you are in", async () => {
-    renderRail();
+    openColumn("/paint-calculator");
     const workspaces = screen.getByRole("navigation", {
       name: "Site sections",
     });
@@ -136,14 +149,13 @@ describe("AppRail", () => {
       navWorkspaces.find((entry) => entry.label === "Construction Tools")
         ?.children ?? [];
     expect(tools.length).toBe(46);
-    renderRail("/paint-calculator");
     for (const tool of tools) {
       expect(screen.getAllByText(tool.label).length).toBeGreaterThanOrEqual(1);
     }
   });
 
   it("switches the column when another workspace is chosen", async () => {
-    renderRail("/paint-calculator");
+    openColumn("/paint-calculator");
     expect(
       screen.getByRole("navigation", { name: "Construction Tools" }),
     ).toBeInTheDocument();
@@ -166,8 +178,9 @@ describe("AppRail", () => {
     expect(classes).toContain("hidden");
     expect(classes).toContain("lg:flex");
     expect(classes).toContain("fixed");
-    // The offset variable is the single source of layout truth.
-    expect(rail?.getAttribute("data-collapsed")).toBe("false");
+    // The offset variable is the single source of layout truth, and a first
+    // visit is the icon rail: the section list is opened, never pushed at you.
+    expect(rail?.getAttribute("data-collapsed")).toBe("true");
   });
 
   it("exposes the rail brand as the site home link", () => {

@@ -6,9 +6,8 @@ import {
   FolderKanban,
   Home,
   LogIn,
+  Book,
   Palette,
-  PanelLeftClose,
-  PanelLeftOpen,
   Ruler,
   Search,
   Settings2,
@@ -53,11 +52,12 @@ const WORKSPACE_ICONS: Record<string, typeof Home> = {
 /** Read the stored preference and apply it before the first paint. */
 function applyStoredRailState() {
   if (typeof document === "undefined") return;
-  let collapsed = false;
+  let collapsed = true;
   try {
-    collapsed = window.localStorage.getItem(STORAGE_KEY) === "1";
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    collapsed = stored === null ? true : stored === "1";
   } catch {
-    // Storage disabled: default to the expanded shell.
+    // Storage disabled: the quiet default still applies.
   }
   document.documentElement.dataset.rail = collapsed ? "collapsed" : "expanded";
 }
@@ -94,7 +94,8 @@ export default function AppRail({
   const { user, profile } = useAuth();
   const [collapsed, setCollapsed] = useState(() => {
     try {
-      return window.localStorage.getItem(STORAGE_KEY) === "1";
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      return stored === null ? true : stored === "1";
     } catch {
       return false;
     }
@@ -276,21 +277,23 @@ export default function AppRail({
                 onClick={() => setCollapsed((value) => !value)}
                 aria-expanded={!collapsed}
                 aria-label={
-                  collapsed ? t("Expand navigation") : t("Collapse navigation")
+                  collapsed ? t("Open navigation") : t("Close navigation")
                 }
                 title={
-                  collapsed ? t("Expand navigation") : t("Collapse navigation")
+                  collapsed
+                    ? t("Open the section list")
+                    : t("Close the section list")
                 }
                 className={railItem(false)}
               >
                 {collapsed ? (
-                  <PanelLeftOpen
+                  <Book
                     className="h-[20px] w-[20px]"
                     strokeWidth={1.7}
                     aria-hidden="true"
                   />
                 ) : (
-                  <PanelLeftClose
+                  <BookOpen
                     className="h-[20px] w-[20px]"
                     strokeWidth={1.7}
                     aria-hidden="true"
