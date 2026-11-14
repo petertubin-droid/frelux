@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AppRail from "./AppRail";
 
@@ -93,6 +99,53 @@ describe("AppRail", () => {
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
     document.removeEventListener("keydown", listener);
     expect(dispatched).toContain("k");
+  });
+
+  it("exposes every workspace and every tool, so no destination is orphaned", async () => {
+    renderRail();
+    const workspaces = screen.getByRole("navigation", {
+      name: "Site sections",
+    });
+    // Every top-level workspace is reachable from the rail.
+    for (const label of [
+      "Home",
+      "Convert & Explore",
+      "Construction Tools",
+      "Market Intelligence",
+      "Colors & Design",
+      "Services",
+      "Projects",
+      "Learn",
+    ]) {
+      expect(
+        within(workspaces).getAllByLabelText(label).length,
+      ).toBeGreaterThanOrEqual(1);
+    }
+
+    // The biggest flyout holds all 46 tools; opening it must show every one.
+    fireEvent.click(
+      within(workspaces).getByRole("button", { name: "Construction Tools" }),
+    );
+    const { navWorkspaces } = await import("@/config/site");
+    const tools =
+      navWorkspaces.find((entry) => entry.label === "Construction Tools")
+        ?.children ?? [];
+    expect(tools.length).toBe(46);
+    for (const tool of tools) {
+      expect(screen.getAllByText(tool.label).length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("keeps the desktop-only contract the layouts depend on", () => {
+    const { container } = renderRail();
+    const rail = container.querySelector("aside");
+    // Hidden below lg, flex at lg and up: tablets and phones keep the drawer.
+    const classes = rail?.className ?? "";
+    expect(classes).toContain("hidden");
+    expect(classes).toContain("lg:flex");
+    expect(classes).toContain("fixed");
+    // The offset variable is the single source of layout truth.
+    expect(rail?.getAttribute("data-collapsed")).toBe("false");
   });
 
   it("routes the settings button to the single drawer", () => {
