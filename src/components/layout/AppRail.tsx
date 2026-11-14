@@ -38,6 +38,18 @@ import { classNames } from "@/lib/utils";
 
 const STORAGE_KEY = "frelux.rail.collapsed";
 
+/** Hover/focus label for the icon rail while the labels are hidden. */
+function RailTip({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 hidden -translate-y-1/2 whitespace-nowrap rounded-lg border border-border/60 bg-popover px-2.5 py-1.5 text-xs font-semibold text-popover-foreground shadow-lg group-hover:block group-focus-visible:block dark:border-white/10"
+    >
+      {children}
+    </span>
+  );
+}
+
 const WORKSPACE_ICONS: Record<string, typeof Home> = {
   Home: Home,
   "Convert & Explore": Ruler,
@@ -117,7 +129,11 @@ export default function AppRail({
       ? location.pathname === "/"
       : location.pathname === path || location.pathname.startsWith(`${path}/`);
 
-  const isActive = (workspace: NavWorkspace) => pathMatches(workspace.path);
+  // A workspace is current when you are on it or anywhere inside it, so the
+  // icon for the section you are reading is lit while you read one of its tools.
+  const isActive = (workspace: NavWorkspace) =>
+    pathMatches(workspace.path) ||
+    (workspace.children?.some((child) => pathMatches(child.path)) ?? false);
 
   const grouped = groupWorkspaces(navWorkspaces);
   // The column follows the page. A tool path belongs to the workspace that
@@ -171,6 +187,37 @@ export default function AppRail({
           </span>
         </Link>
 
+        <div className="px-2 pb-2">
+          <button
+                type="button"
+                onClick={() => setCollapsed((value) => !value)}
+                aria-expanded={!collapsed}
+                aria-label={
+                  collapsed ? t("Open navigation") : t("Close navigation")
+                }
+                title={
+                  collapsed
+                    ? t("Open the section list")
+                    : t("Close the section list")
+                }
+                className={classNames(railItem(false), "mx-auto")}
+              >
+                {collapsed ? (
+                  <Book
+                    className="h-[20px] w-[20px]"
+                    strokeWidth={1.7}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <BookOpen
+                    className="h-[20px] w-[20px]"
+                    strokeWidth={1.7}
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+        </div>
+
         <nav
           aria-label={t("Site sections")}
           className="flex-1 overflow-y-auto overscroll-contain px-2 pb-2 pt-1 [scrollbar-width:none]"
@@ -191,6 +238,11 @@ export default function AppRail({
                         aria-label={t(workspace.label)}
                         aria-current={active ? "page" : undefined}
                         title={t(workspace.label)}
+                        onClick={(event) => {
+                          if (!active || !collapsed) return;
+                          event.preventDefault();
+                          setCollapsed(false);
+                        }}
                         className={railItem(active)}
                       >
                         <Icon
@@ -204,6 +256,7 @@ export default function AppRail({
                             className="absolute -left-2 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
                           />
                         )}
+                        {collapsed && <RailTip>{t(workspace.label)}</RailTip>}
                       </Link>
                     </li>
                   );
@@ -270,36 +323,6 @@ export default function AppRail({
                   />
                 )}
               </Link>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={() => setCollapsed((value) => !value)}
-                aria-expanded={!collapsed}
-                aria-label={
-                  collapsed ? t("Open navigation") : t("Close navigation")
-                }
-                title={
-                  collapsed
-                    ? t("Open the section list")
-                    : t("Close the section list")
-                }
-                className={railItem(false)}
-              >
-                {collapsed ? (
-                  <Book
-                    className="h-[20px] w-[20px]"
-                    strokeWidth={1.7}
-                    aria-hidden="true"
-                  />
-                ) : (
-                  <BookOpen
-                    className="h-[20px] w-[20px]"
-                    strokeWidth={1.7}
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
             </li>
           </ul>
         </div>

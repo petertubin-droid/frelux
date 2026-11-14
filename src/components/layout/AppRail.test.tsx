@@ -201,4 +201,28 @@ describe("AppRail", () => {
     window.removeEventListener("frelux:open-menu", opened);
     expect(opened).toHaveBeenCalledTimes(1);
   });
+
+  it("opens the column from the current workspace icon instead of reloading the page", async () => {
+    renderRail("/paint-calculator");
+    expect(
+      screen.queryByRole("navigation", { name: "Construction Tools" }),
+    ).toBeNull();
+
+    // The icon you are already on is the shortest way to the section list.
+    fireEvent.click(screen.getByLabelText("Construction Tools"));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("navigation", { name: "Construction Tools" }),
+      ).toBeInTheDocument(),
+    );
+  });
+
+  it("names each icon on hover while the labels are hidden", () => {
+    renderRail();
+    // The tip is inside the link, so a collapsed rail is never anonymous.
+    expect(screen.getByLabelText("Home").textContent).toContain("Home");
+    expect(screen.getByLabelText("Construction Tools").textContent).toContain(
+      "Construction Tools",
+    );
+  });
 });
