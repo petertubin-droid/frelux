@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -8,109 +9,87 @@ vi.mock("@/lib/auth", () => ({
 }));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
   getActivityStreak: vi.fn().mockResolvedValue(null),
   recordActivity: vi.fn().mockResolvedValue(true),
   REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
 }));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
-  };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
-  ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
-      })),
-    },
-  };
-  return { supabase };
-});
+
+// --- Table-aware, chainable Supabase mock ---------------------------
+type Row = Record<string, unknown>;
+
+const equipmentRow: Row = {
+  id: "pop-tower",
+  market: "NG",
+  workflow: "nigeria",
+  category: "equipment",
+  name: "Scaffold tower hire",
+  description: null,
+  unit: "day",
+  coverage_rate: 0,
+  coverage_unit: "day",
+  quantity_basis: "per_day",
+  per_worker_rate: null,
+  per_day_rate: 1,
+  split_unit_price: null,
+  package_size: 1,
+  package_unit: "day",
+  unit_price: 15000,
+  labour_rate_per_sqm: 0,
+  is_optional: false,
+  currency: "NGN",
+  is_active: true,
+  sort_order: 1,
+  created_at: "",
+  updated_at: "",
+};
+
+// A consumable row, so the list has both kinds and the editor opens on the
+// area basis for it.
+const cementRow: Row = {
+  ...equipmentRow,
+  id: "pop-cement",
+  category: "primary",
+  name: "POP Cement",
+  unit: "bag",
+  coverage_rate: 10,
+  coverage_unit: "m²",
+  quantity_basis: "area",
+  per_day_rate: null,
+  package_unit: "bag",
+  unit_price: 3500,
+  sort_order: 2,
+};
+
+function tableData(table: string): Row[] {
+  if (table === "pop_materials") return [equipmentRow, cementRow];
+  return [];
+}
+
+const eqResults = vi.fn().mockResolvedValue({ error: null });
+
+function buildChain(table: string) {
+  const chain: Record<string, unknown> = {};
+  chain.select = vi.fn(() => chain);
+  chain.order = vi.fn(() => chain);
+  chain.eq = vi.fn(() => chain);
+  chain.limit = vi.fn(() => chain);
+  chain.maybeSingle = vi.fn(() =>
+    Promise.resolve({ data: tableData(table)[0] ?? null, error: null }),
+  );
+  chain.then = (resolve: (v: unknown) => unknown) =>
+    resolve({ data: tableData(table), error: null });
+  chain.update = vi.fn(() => chain);
+  chain.delete = vi.fn(() => ({ eq: eqResults }));
+  chain.insert = vi.fn().mockResolvedValue({ error: null });
+  chain.upsert = vi.fn().mockResolvedValue({ error: null });
+  return chain;
+}
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn((table: string) => buildChain(table)),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -127,9 +106,60 @@ async function renderPage() {
   );
 }
 
-describe("AdminPopMaterials", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+describe("AdminPopMaterials equipment lines", () => {
+  it("shows hire as a day rate, so an admin sees what is billed", async () => {
+    await renderPage();
+    // The list summary has to read as hire, not as a coverage figure: a
+    // day rate mislabelled as coverage would be entered as one.
+    expect(await screen.findByText(/per\s+day/)).toBeInTheDocument();
+    expect(screen.getByText(/a day/)).toBeInTheDocument();
+  });
+
+  it("swaps coverage for hire units when the basis is per day", async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    // The list groups by category, so target the hire row by name rather
+    // than by position.
+    await user.click(
+      await screen.findByRole("button", { name: "Edit Scaffold tower hire" }),
+    );
+
+    // Anchor to the start of the accessible name: the field hints are part of
+    // that name, and an unanchored match on "coverage" binds to the wrong
+    // control.
+    const basis = await screen.findByRole("combobox", {
+      name: /^Quantity basis/,
+    });
+    expect(basis).toHaveValue("per_day");
+    expect(screen.getByLabelText(/^Hire units per day/)).toHaveValue(1);
+    // Coverage has no meaning for hire, so it must not be offered.
+    expect(screen.queryByLabelText(/^Coverage Rate/)).not.toBeInTheDocument();
+
+    // Switching to area brings coverage back and hides the hire units.
+    await user.selectOptions(basis, "area");
+    await waitFor(() =>
+      expect(screen.getByLabelText(/^Coverage Rate/)).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByLabelText(/^Hire units per day/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers equipment as a category", async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: "Edit Scaffold tower hire" }),
+    );
+
+    const category = await screen.findByRole("combobox", {
+      name: /^Category/,
+    });
+    expect(
+      screen.getByRole("option", { name: "equipment" }),
+    ).toBeInTheDocument();
+    expect(category).toHaveValue("equipment");
   });
 });

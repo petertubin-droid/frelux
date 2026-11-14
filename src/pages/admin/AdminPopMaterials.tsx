@@ -17,6 +17,7 @@ import type {
   DbPopMaterial,
   PopWorkflowType,
   PopMaterialCategory,
+  PopQuantityBasis,
 } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
 
@@ -29,6 +30,7 @@ const categories: PopMaterialCategory[] = [
   "framework",
   "ceiling_boards",
   "fasteners",
+  "equipment",
   "labour",
 ];
 const workflows: PopWorkflowType[] = ["nigeria", "international"];
@@ -70,7 +72,14 @@ export default function AdminPopMaterials() {
     // Validate numeric fields before saving
     const validated = { ...mat };
     const perWorker = validated.quantity_basis === "per_worker";
-    if ("coverage_rate" in validated && !perWorker)
+    const perDay = validated.quantity_basis === "per_day";
+    if (perDay) {
+      // Hire is days × units × day rate. Coverage has no meaning here, so a
+      // save must not leave a stray area figure the engine would ignore anyway.
+      validated.coverage_rate = 0;
+      validated.per_day_rate = Math.max(0, Number(validated.per_day_rate) || 0);
+    }
+    if ("coverage_rate" in validated && !perWorker && !perDay)
       validated.coverage_rate = Math.max(
         0.1,
         Number(validated.coverage_rate) || 0.1,
@@ -286,7 +295,12 @@ export default function AdminPopMaterials() {
                               )}
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                              {mat.quantity_basis === "per_worker" ? (
+                              {mat.quantity_basis === "per_day" ? (
+                                <>
+                                  {mat.per_day_rate ?? 0} {mat.package_unit} per
+                                  day · ₦{mat.unit_price} a day
+                                </>
+                              ) : mat.quantity_basis === "per_worker" ? (
                                 <>
                                   {mat.per_worker_rate ?? 0} {mat.package_unit}{" "}
                                   per worker · ₦{mat.unit_price}
@@ -386,6 +400,10 @@ function MaterialEditor({
     unit: material?.unit ?? "bag",
     coverage_rate: material?.coverage_rate ?? 1,
     coverage_unit: material?.coverage_unit ?? "m²",
+    quantity_basis: (material?.quantity_basis ?? "area") as PopQuantityBasis,
+    per_worker_rate: material?.per_worker_rate ?? 0,
+    split_unit_price: material?.split_unit_price ?? 0,
+    per_day_rate: material?.per_day_rate ?? 0,
     package_size: material?.package_size ?? 1,
     package_unit: material?.package_unit ?? "unit",
     unit_price: material?.unit_price ?? 0,
@@ -458,16 +476,62 @@ function MaterialEditor({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Coverage Rate">
-          <AdminInput
-            type="number"
-            step="0.1"
-            value={form.coverage_rate}
-            onChange={(e) =>
-              setForm({ ...form, coverage_rate: Number(e.target.value) })
-            }
-          />
+        <AdminField
+          label="Quantity basis"
+          hint={
+            form.quantity_basis === "per_day"
+              ? "Days on site × hire units, at the day rate"
+              : form.quantity_basis === "per_worker"
+                ? "Workers × units per worker"
+                : "Ceiling area ÷ coverage rate"
+          }
+        >
+          <AdminSelect
+            value={form.quantity_basis ?? "area"}
+            onChange={(e) => {
+              const basis = e.target.value as PopQuantityBasis;
+              setForm({
+                ...form,
+                quantity_basis: basis,
+                // A hire line reads as days, so default the unit with it.
+                package_unit:
+                  basis === "per_day" && !form.package_unit.trim()
+                    ? "day"
+                    : form.package_unit,
+              });
+            }}
+          >
+            <option value="area">Area</option>
+            <option value="per_worker">Per worker</option>
+            <option value="per_day">Per day (hire)</option>
+          </AdminSelect>
         </AdminField>
+        {form.quantity_basis === "per_day" ? (
+          <AdminField
+            label="Hire units per day"
+            hint="One tower, one mixer. Price below is the day rate."
+          >
+            <AdminInput
+              type="number"
+              step="0.1"
+              value={form.per_day_rate ?? 0}
+              onChange={(e) =>
+                setForm({ ...form, per_day_rate: Number(e.target.value) })
+              }
+            />
+          </AdminField>
+        ) : (
+          <AdminField label="Coverage Rate">
+            <AdminInput
+              type="number"
+              step="0.1"
+              value={form.coverage_rate}
+              onChange={(e) =>
+                setForm({ ...form, coverage_rate: Number(e.target.value) })
+              }
+            />
+          </AdminField>
+        )}
         <AdminField label="Coverage Unit">
           <AdminInput
             value={form.coverage_unit}

@@ -30,6 +30,7 @@ export function calculatePopCeiling(
   const ceilingArea = lengthM * widthM;
 
   const workers = Math.max(1, Math.floor(input.workers ?? 1));
+  const days = Math.max(1, Math.floor(input.days ?? 1));
   const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
   const wasteMultiplier = 1 + wastePct / 100;
   const adjustedArea = ceilingArea * wasteMultiplier;
@@ -37,6 +38,7 @@ export function calculatePopCeiling(
   const materialResults: PopMaterialResult[] = [];
   const calcWarnings: string[] = [];
   let materialCost = 0;
+  let equipmentCost = 0;
 
   const filtered = materials
     .filter((m) => m.workflow === input.workflow && m.is_active)
@@ -54,8 +56,40 @@ export function calculatePopCeiling(
     if (mat.category === "labour") {
       // Labour not included, negotiated separately
     } else {
+      const isPerDay = mat.quantity_basis === "per_day";
       const isPerWorker = mat.quantity_basis === "per_worker";
       const perWorkerRate = Number(mat.per_worker_rate ?? 0);
+      const perDayRate = Number(mat.per_day_rate ?? 0);
+
+      if (isPerDay) {
+        // Hire, not consumption: days × hire units × the day rate. A part-day
+        // is billed as a day, and hire is not rounded to packages, because two
+        // tower sections are two day rates, not a pack.
+        if (perDayRate <= 0) {
+          calcWarnings.push(
+            `Daily hire units are not configured for '${mat.name}'. Its quantity and cost are excluded from the total until it is configured.`,
+          );
+        }
+        if (unitPrice <= 0) {
+          calcWarnings.push(
+            `Day rate is not configured for '${mat.name}'. Its cost is excluded from the total until it is configured.`,
+          );
+        }
+        const hireQuantity =
+          perDayRate > 0 && unitPrice > 0 ? days * perDayRate : 0;
+        const hireCost = Math.round(hireQuantity * unitPrice * 100) / 100;
+        equipmentCost += hireCost;
+        materialResults.push({
+          name: mat.name,
+          category: mat.category,
+          quantity: Math.round(hireQuantity * 100) / 100,
+          unit: mat.package_unit,
+          packagesNeeded: Math.round(hireQuantity * 100) / 100,
+          cost: hireCost,
+          isOptional: mat.is_optional,
+        });
+        continue;
+      }
       if (isPerWorker) {
         if (perWorkerRate <= 0) {
           calcWarnings.push(
@@ -115,12 +149,13 @@ export function calculatePopCeiling(
     }
   }
 
-  const grandTotal = materialCost; // Labour not included
+  const grandTotal = materialCost + equipmentCost; // Labour not included
 
   return {
     ceilingArea,
     materials: materialResults,
     materialCost,
+    equipmentCost,
     labourCost: 0,
     wasteAmount: adjustedArea - ceilingArea,
     grandTotal,

@@ -326,6 +326,12 @@ export interface PopCalcInput {
    * a solo fitter still gets a complete, priced estimate.
    */
   workers?: number;
+  /**
+   * Days the crew is on site. Equipment measured "per_day" (a scaffold tower,
+   * a mixer, a grinder) is hired by the day, so it scales with this instead of
+   * the ceiling area or the crew size. Defaults to 1.
+   */
+  days?: number;
 }
 
 export interface PopMaterialResult {
@@ -342,6 +348,11 @@ export interface PopCalcResult {
   ceilingArea: number;
   materials: PopMaterialResult[];
   materialCost: number;
+  /**
+   * Plant and tool hire, kept apart from consumables so a bid can show the
+   * client what is hired rather than bought. Already inside grandTotal.
+   */
+  equipmentCost: number;
   labourCost: number;
   wasteAmount: number;
   grandTotal: number;

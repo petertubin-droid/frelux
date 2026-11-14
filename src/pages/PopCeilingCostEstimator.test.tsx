@@ -106,4 +106,18 @@ describe("PopCeilingCostEstimator", () => {
     fireEvent.change(workers, { target: { value: "3" } });
     await waitFor(() => expect(workers).toHaveValue(3));
   });
+
+  it("asks for the days on site, because hire is billed by the day", async () => {
+    await renderPage();
+    const days = await screen.findByLabelText("Days on site");
+    // One day is the shortest real job, so it starts there and cannot fall to
+    // zero: a hire that costs nothing is not a hire.
+    expect(days).toHaveValue(1);
+
+    fireEvent.change(days, { target: { value: "0" } });
+    await waitFor(() => expect(days).toHaveValue(1));
+
+    fireEvent.change(days, { target: { value: "5" } });
+    await waitFor(() => expect(days).toHaveValue(5));
+  });
 });

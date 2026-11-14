@@ -1159,3 +1159,130 @@ describe("MDF plywood work platform", () => {
     expect(four.materials[0].quantity).toBe(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Equipment hire: a scaffold tower or a mixer is not consumed by area and not
+// owned by the crew. It is hired by the day, so days × units × day rate, and it
+// is reported apart from consumables so a bid can show what was hired.
+// ---------------------------------------------------------------------------
+describe("equipment hire", () => {
+  const tower = makePopMaterial({
+    id: "pop-tower",
+    category: "equipment",
+    name: "Scaffold tower hire",
+    coverage_rate: 0,
+    coverage_unit: "day",
+    quantity_basis: "per_day",
+    per_day_rate: 1,
+    package_size: 1,
+    package_unit: "day",
+    unit_price: 15000,
+    sort_order: 1,
+  });
+
+  const input = (days?: number): PopCalcInput => ({
+    workflow: "nigeria",
+    roomLength: 4,
+    roomWidth: 5,
+    unit: "meters",
+    wasteMargin: 0,
+    includeDecorative: false,
+    includeOptional: false,
+    days,
+  });
+
+  it("charges the day rate for each day on site", () => {
+    const one = calculatePopCeiling(input(1), [tower], "NGN", "₦");
+    const three = calculatePopCeiling(input(3), [tower], "NGN", "₦");
+
+    expect(one.equipmentCost).toBe(15000);
+    expect(three.equipmentCost).toBe(45000);
+  });
+
+  it("keeps hire out of the material cost but inside the grand total", () => {
+    const result = calculatePopCeiling(input(2), [tower], "NGN", "₦");
+
+    expect(result.materialCost).toBe(0);
+    expect(result.equipmentCost).toBe(30000);
+    expect(result.grandTotal).toBe(30000);
+  });
+
+  it("scales with hire units, not ceiling area", () => {
+    const twoTowers = { ...tower, per_day_rate: 2 };
+    const small = calculatePopCeiling(input(2), [twoTowers], "NGN", "₦");
+    const bigRoom = calculatePopCeiling(
+      { ...input(2), roomLength: 40, roomWidth: 50 },
+      [twoTowers],
+      "NGN",
+      "₦",
+    );
+
+    // Same days, same crew, wildly different room: hire must not move.
+    expect(small.equipmentCost).toBe(60000);
+    expect(bigRoom.equipmentCost).toBe(60000);
+  });
+
+  it("ignores the waste margin, which is a material loss", () => {
+    const result = calculatePopCeiling(
+      { ...input(1), wasteMargin: 25 },
+      [tower],
+      "NGN",
+      "₦",
+    );
+
+    expect(result.equipmentCost).toBe(15000);
+  });
+
+  it("defaults to one day", () => {
+    const result = calculatePopCeiling(input(undefined), [tower], "NGN", "₦");
+    expect(result.equipmentCost).toBe(15000);
+  });
+
+  it("refuses to price a hire line with no day rate or no units", () => {
+    const noRate = { ...tower, per_day_rate: 0 };
+    const noPrice = { ...tower, unit_price: 0 };
+
+    const a = calculatePopCeiling(input(2), [noRate], "NGN", "₦");
+    const b = calculatePopCeiling(input(2), [noPrice], "NGN", "₦");
+
+    expect(a.equipmentCost).toBe(0);
+    expect(b.equipmentCost).toBe(0);
+    expect(a.warnings?.join(" ")).toMatch(
+      /Daily hire units are not configured/,
+    );
+    expect(b.warnings?.join(" ")).toMatch(/Day rate is not configured/);
+  });
+
+  it("reports hire in days so the line reads as a hire, not a purchase", () => {
+    const result = calculatePopCeiling(input(3), [tower], "NGN", "₦");
+
+    expect(result.materials[0].category).toBe("equipment");
+    expect(result.materials[0].unit).toBe("day");
+    expect(result.materials[0].quantity).toBe(3);
+  });
+
+  it("adds hire alongside consumables and per-worker boards", () => {
+    const board = makePopMaterial({
+      id: "pop-board",
+      category: "primary",
+      name: "MDF Plywood (work platform)",
+      coverage_rate: 0,
+      coverage_unit: "board",
+      quantity_basis: "per_worker",
+      per_worker_rate: 0.5,
+      split_unit_price: 13000,
+      package_unit: "board",
+      unit_price: 25000,
+    });
+    const result = calculatePopCeiling(
+      { ...input(2), workers: 2 },
+      [board, tower],
+      "NGN",
+      "₦",
+    );
+
+    expect(result.materialCost).toBe(25000); // one board, two fitters
+    expect(result.equipmentCost).toBe(30000); // one tower, two days
+    expect(result.grandTotal).toBe(55000);
+  });
+});

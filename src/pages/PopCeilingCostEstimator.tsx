@@ -73,12 +73,14 @@ function popQuoteOptions(result: {
   ceilingArea: number;
   wasteAmount: number;
   materialCost: number;
+  equipmentCost: number;
   labourCost: number;
   grandTotal: number;
   currencySymbol: string;
   materials: {
     name: string;
     unit: string;
+    category?: string;
     packagesNeeded: number;
     cost: number;
     quantity: number;
@@ -99,13 +101,27 @@ function popQuoteOptions(result: {
       unit: m.unit,
       unit_price: "included",
       line_total: formatCurrency(m.cost, result.currencySymbol),
-      detail: `${formatNumber(m.quantity)} needed incl. waste`,
+      detail:
+        m.category === "equipment"
+          ? `${formatNumber(m.quantity)} ${m.unit} of hire`
+          : `${formatNumber(m.quantity)} needed incl. waste`,
     })),
     totals: [
       {
         label: "Material cost",
         value: formatCurrency(result.materialCost, result.currencySymbol),
       },
+      ...(result.equipmentCost > 0
+        ? [
+            {
+              label: "Equipment hire",
+              value: formatCurrency(
+                result.equipmentCost,
+                result.currencySymbol,
+              ),
+            },
+          ]
+        : []),
       {
         label: "Labour",
         value: formatCurrency(result.labourCost, result.currencySymbol),
@@ -280,7 +296,8 @@ export default function PopCeilingCostEstimator({
       const r: PopCalcResult = {
         ...rawResult,
         labourCost,
-        grandTotal: rawResult.materialCost + labourCost,
+        grandTotal:
+          rawResult.materialCost + rawResult.equipmentCost + labourCost,
       };
       setResult(r);
       track("pop_ceiling_estimate_generated", {
@@ -293,7 +310,7 @@ export default function PopCeilingCostEstimator({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passed.ceilingArea, materials, labourConfig]);
+  }, [passed.ceilingArea, materials, labourConfig, input.workers, input.days]);
 
   function update<K extends keyof PopCalcInput>(
     key: K,
@@ -311,7 +328,7 @@ export default function PopCeilingCostEstimator({
     const r: PopCalcResult = {
       ...rawResult,
       labourCost,
-      grandTotal: rawResult.materialCost + labourCost,
+      grandTotal: rawResult.materialCost + rawResult.equipmentCost + labourCost,
     };
     setResult(r);
     track("pop_ceiling_estimate_generated", {
@@ -501,6 +518,31 @@ export default function PopCeilingCostEstimator({
                     half a board and three need one and a half.
                   </span>
                 </Field>
+                <Field
+                  label="Days on site"
+                  hint="Plant and tools are hired by the day"
+                >
+                  <input
+                    type="number"
+                    min={1}
+                    max={365}
+                    step={1}
+                    value={input.days ?? 1}
+                    onChange={(e) =>
+                      update(
+                        "days",
+                        Math.max(1, Math.floor(Number(e.target.value) || 1)),
+                      )
+                    }
+                    className="input-field dark:bg-card dark:border-white/10"
+                    aria-label="Days on site"
+                    aria-describedby="pop-days-hint"
+                  />
+                  <span id="pop-days-hint" className="sr-only">
+                    Days the crew is on site. Equipment hired per day, such as a
+                    scaffold tower or a mixer, is priced from this number.
+                  </span>
+                </Field>
                 <Field label="Room width" suffix={unitShortLabel(input.unit)}>
                   <input
                     type="number"
@@ -620,6 +662,15 @@ export default function PopCeilingCostEstimator({
                         currencySymbol,
                       )}
                     />
+                    {result.equipmentCost > 0 && (
+                      <Row
+                        label="Equipment hire"
+                        value={formatCurrency(
+                          result.equipmentCost,
+                          currencySymbol,
+                        )}
+                      />
+                    )}
                     {labourConfig.includeLabour && (
                       <Row
                         label="Labour cost"

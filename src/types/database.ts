@@ -732,6 +732,7 @@ export type PopMaterialCategory =
   | "framework"
   | "ceiling_boards"
   | "fasteners"
+  | "equipment"
   | "labour";
 export type TileMaterialCategory =
   | "tile"
@@ -743,7 +744,13 @@ export type TileMaterialCategory =
   | "labour"
   | "other";
 
-export type PopQuantityBasis = "area" | "per_worker";
+/**
+ * How a POP line's quantity is derived:
+ * - "area": ceiling area ÷ coverage_rate, the default for every consumable.
+ * - "per_worker": workers × per_worker_rate (the board a fitter stands on).
+ * - "per_day": days on site × per_day_rate, for plant and tool hire.
+ */
+export type PopQuantityBasis = "area" | "per_worker" | "per_day";
 
 export interface DbPopMaterial {
   id: string;
@@ -765,6 +772,11 @@ export interface DbPopMaterial {
   quantity_basis?: PopQuantityBasis | null;
   /** Boards (or sheets) per worker when quantity_basis is "per_worker". */
   per_worker_rate?: number | null;
+  /**
+   * Hire units per day when quantity_basis is "per_day": one scaffold tower,
+   * one mixer. Priced by unit_price, which is the day rate for that unit.
+   */
+  per_day_rate?: number | null;
   /**
    * Price of the final half unit when a per-worker quantity is not whole.
    * A supplier cuts a board and charges a fixed half price (₦13,000 for a
