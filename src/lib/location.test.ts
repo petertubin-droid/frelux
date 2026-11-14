@@ -135,4 +135,47 @@ describe("useLocation hook fast detection and caching", () => {
     expect(result.current.location?.longitude).toBe(-0.1278);
     expect(result.current.location?.source).toBe("gps");
   });
+  it("handles missing geolocation safely on server-like environments", () => {
+    const original = Object.getOwnPropertyDescriptor(global.navigator, "geolocation");
+    Object.defineProperty(global.navigator, "geolocation", {
+      value: null,
+      configurable: true,
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useLocation());
+    act(() => {
+      result.current.detect();
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toContain("Geolocation is not supported");
+
+    if (original) {
+      Object.defineProperty(global.navigator, "geolocation", original);
+    } else {
+      Reflect.deleteProperty(global.navigator, "geolocation");
+    }
+  });
+
+  it("handles geolocation APIs that throw synchronously", () => {
+    Object.defineProperty(global.navigator, "geolocation", {
+      value: {
+        getCurrentPosition: vi.fn(() => {
+          throw new TypeError("geolocation unavailable");
+        }),
+      },
+      configurable: true,
+      writable: true,
+    });
+
+    const { result } = renderHook(() => useLocation());
+    act(() => {
+      result.current.detect();
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toContain("Could not access geolocation");
+  });
+
 });

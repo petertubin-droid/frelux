@@ -50,12 +50,22 @@ export default function AdminSettings() {
         .limit(1)
         .maybeSingle();
       if (error) setError(error.message);
-      setSettings(data as DbSiteSettings | null);
-      setBucketSizesInput(
-        (data as DbSiteSettings | null)?.manual_paint_bucket_sizes?.join(
-          ", ",
-        ) ?? "20, 4",
-      );
+      const raw = data as DbSiteSettings | null;
+      if (raw) {
+        const bannerEnabled = raw.maintenance_banner_enabled ?? false;
+        const bannerMessage = raw.maintenance_banner_message ?? "";
+
+        setSettings({
+          ...raw,
+          maintenance_banner_enabled: bannerEnabled,
+          maintenance_banner_message: bannerMessage,
+        });
+        setBucketSizesInput(
+          raw.manual_paint_bucket_sizes?.join(", ") ?? "20, 4",
+        );
+      } else {
+        setSettings(null);
+      }
       setLoading(false);
     }
     load();
@@ -99,6 +109,8 @@ export default function AdminSettings() {
     setBannerSaving(true);
     setBannerSaved(false);
     setError(null);
+
+    let saveFailed = false;
     const { error: bannerError } = await supabase
       .from("site_settings")
       .update({
@@ -106,11 +118,22 @@ export default function AdminSettings() {
         maintenance_banner_enabled: enabled,
       })
       .eq("id", settings.id);
-    setBannerSaving(false);
+
     if (bannerError) {
-      setError(bannerError.message);
+      setError(
+        bannerError.message?.includes("maintenance_banner_enabled") ||
+          bannerError.code === "PGRST204" ||
+          bannerError.message?.includes("schema cache")
+          ? "The maintenance banner database update is not available yet. Apply the latest Supabase migrations, then reload this page."
+          : bannerError.message,
+      );
+      setBannerSaving(false);
       return;
     }
+
+    setBannerSaving(false);
+    if (saveFailed) return;
+
     update("maintenance_banner_message", message);
     update("maintenance_banner_enabled", enabled);
     setBannerSaved(true);
@@ -180,7 +203,7 @@ export default function AdminSettings() {
         />
       </>
     );
-  if (error || !settings)
+  if (!settings)
     return (
       <>
         <AdminHeader
