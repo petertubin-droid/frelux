@@ -415,7 +415,7 @@ export async function searchProfessionals(
       "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",
       { count: "exact" },
     )
-    .eq("is_listed", true)
+    .or("is_listed.eq.true,is_listed.is.null")
     .neq("verification_status", "suspended");
 
   if (params.country) {
@@ -476,15 +476,88 @@ export async function searchProfessionals(
     .order("id", { ascending: true }) // stable paging when the ranks tie
     .range(offset, offset + pageSize - 1);
 
-  const { data, error, count } = await query;
+  let { data, error, count } = await query;
 
   if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] searchProfessionals:", error.message);
-    return { profiles: [], total: 0, hasMore: false };
+      console.warn(
+        "[pro-connect] searchProfessionals primary query error, retrying with resilient fallback:",
+        error.message,
+      );
+
+    let fallbackQuery = supabase
+      .from("pro_profiles")
+      .select(
+        "id, user_id, category_id, business_name, display_name, slug, country, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable",
+        { count: "exact" },
+      )
+      .or("is_listed.eq.true,is_listed.is.null")
+      .neq("verification_status", "suspended");
+
+    if (params.country) {
+      fallbackQuery = fallbackQuery.eq("country", params.country.toUpperCase());
+    }
+    if (candidateProfileIds) {
+      fallbackQuery = fallbackQuery.in("id", [...candidateProfileIds]);
+    }
+    if (params.categoryId) {
+      fallbackQuery = fallbackQuery.eq("category_id", params.categoryId);
+    }
+    if (params.categoryIds?.length) {
+      fallbackQuery = fallbackQuery.in("category_id", params.categoryIds);
+    }
+    if (params.availability) {
+      fallbackQuery = fallbackQuery.eq("availability", params.availability);
+    }
+    if (params.minRating) {
+      fallbackQuery = fallbackQuery.gte("rating_avg", params.minRating);
+    }
+    if (params.verifiedOnly) {
+      fallbackQuery = fallbackQuery.eq("verification_status", "verified");
+    }
+    if (searchTerm) {
+      fallbackQuery = fallbackQuery.or(
+        `display_name.ilike.%${searchTerm}%,business_name.ilike.%${searchTerm}%,bio.ilike.%${searchTerm}%`,
+      );
+    }
+    fallbackQuery = fallbackQuery
+      .order("rating_avg", { ascending: false })
+      .order("is_profile_complete", { ascending: false })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize - 1);
+
+    const fallbackRes = await fallbackQuery;
+    if (fallbackRes.error) {
+      if (import.meta.env.DEV)
+        console.error(
+          "[pro-connect] searchProfessionals fallback error:",
+          fallbackRes.error.message,
+        );
+      return { profiles: [], total: 0, hasMore: false };
+    }
+    data = fallbackRes.data as unknown as typeof data;
+    count = fallbackRes.count;
+    error = null;
   }
 
-  const profiles = (data || []) as DbProProfile[];
+  const rankWeight = (status: string | null) => {
+    switch (status) {
+      case "verified":
+        return 3;
+      case "pending":
+        return 2;
+      case "suspended":
+        return 1;
+      default:
+        return 0;
+    }
+  };
+  const profiles = ((data || []) as DbProProfile[]).sort((a, b) => {
+    const rDiff =
+      rankWeight(b.verification_status) - rankWeight(a.verification_status);
+    if (rDiff !== 0) return rDiff;
+    return (b.rating_avg || 0) - (a.rating_avg || 0);
+  });
   const total = count || 0;
   return {
     profiles,
@@ -525,6 +598,8 @@ export async function createProProfile(profile: {
       contact_phone: profile.contact_phone || null,
       contact_phone_public: profile.contact_phone_public ?? false,
       website_url: profile.website_url || null,
+      is_listed: true,
+      is_profile_complete: true,
     })
     .select(
       "id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude",

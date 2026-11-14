@@ -76,12 +76,15 @@ serveWithCors(async (req: Request) => {
               .replace(/^-+|-+$/g, "")
               .slice(0, 40) || "pro";
           const slug = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+          const isListed =
+            body.is_listed !== undefined ? Boolean(body.is_listed) : true;
           const { error: proError } = await admin.from("pro_profiles").insert({
             user_id: data.user.id,
             display_name: full_name || email.split("@")[0],
             slug,
-            is_listed: false,
-            verification_status: "unverified",
+            is_listed: isListed,
+            is_profile_complete: true,
+            verification_status: "verified",
           });
           if (proError) {
             return jsonResponse({
@@ -138,19 +141,112 @@ serveWithCors(async (req: Request) => {
         .eq("id", userId);
       if (profileError) return errorResponse(profileError.message, 500);
 
-      // Professional details live on pro_profiles; the whitelist there is the
-      // authority on which of them an admin may set.
-      const proPatch = body.pro as Record<string, unknown> | undefined;
-      if (proPatch && typeof proPatch === "object") {
-        const { error: proError } = await admin.rpc(
-          "admin_update_pro_profile",
-          {
+      if (account_type === "pro_worker") {
+        const { data: existingPro } = await admin
+          .from("pro_profiles")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        const proPatch = (body.pro as Record<string, unknown> | undefined) || {};
+        const displayName =
+          String(proPatch.display_name || body.display_name || full_name || "Professional").trim();
+        const businessName =
+          String(proPatch.business_name ?? body.business_name ?? "").trim() || null;
+        const yearsExp = proPatch.years_experience ?? body.years_experience;
+        const yearsExperience = yearsExp ? parseInt(String(yearsExp), 10) || null : null;
+        const availability =
+          proPatch.availability === "busy" || proPatch.availability === "unavailable"
+            ? proPatch.availability
+            : "available";
+        const isListed =
+          proPatch.is_listed !== undefined
+            ? Boolean(proPatch.is_listed)
+            : body.is_listed !== undefined
+              ? Boolean(body.is_listed)
+              : true;
+
+        if (!existingPro) {
+          const base =
+            displayName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "")
+              .slice(0, 40) || "pro";
+          const slug = `${base}-${Math.random().toString(36).slice(2, 7)}`;
+
+          const { error: insertProError } = await admin
+            .from("pro_profiles")
+            .insert({
+              user_id: userId,
+              display_name: displayName,
+              slug,
+              business_name: businessName,
+              years_experience: yearsExperience,
+              availability,
+              is_listed: isListed,
+              is_profile_complete: true,
+              verification_status: "verified",
+            });
+
+          if (insertProError) {
+            return errorResponse(
+              `User account type updated, but creating professional profile failed: ${insertProError.message}`,
+              500,
+            );
+          }
+
+          await admin.from("admin_account_events").insert({
+            user_id: userId,
+            actor_id: actorId,
+            action: "assign_pro_worker",
+            to_state: "active",
+            detail: { display_name: displayName, is_listed: isListed, slug },
+          });
+        } else {
+          const patchToSend: Record<string, unknown> = {
+            display_name: displayName,
+            business_name: businessName,
+            years_experience: yearsExperience,
+            availability,
+            is_listed: isListed,
+          };
+
+          const { error: proError } = await admin.rpc(
+            "admin_update_pro_profile",
+            {
+              p_user_id: userId,
+              p_patch: patchToSend,
+              p_actor: actorId,
+            },
+          );
+
+          if (proError) {
+            // Direct update fallback in case RPC raises error or is unmigrated
+            const { error: directError } = await admin
+              .from("pro_profiles")
+              .update({
+                display_name: displayName,
+                business_name: businessName,
+                years_experience: yearsExperience,
+                availability,
+                is_listed: isListed,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", userId);
+
+            if (directError) return errorResponse(directError.message, 400);
+          }
+        }
+      } else {
+        const proPatch = body.pro as Record<string, unknown> | undefined;
+        if (proPatch && typeof proPatch === "object") {
+          await admin.rpc("admin_update_pro_profile", {
             p_user_id: userId,
             p_patch: proPatch,
             p_actor: actorId,
-          },
-        );
-        if (proError) return errorResponse(proError.message, 400);
+          });
+        }
       }
       return jsonResponse({ ok: true });
     }

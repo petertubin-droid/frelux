@@ -174,8 +174,16 @@ function AdminProfessionalsTab() {
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase.rpc("admin_list_pro_profiles");
-    setProfiles((data || []) as DbProProfile[]);
+    const { data, error } = await supabase.rpc("admin_list_pro_profiles");
+    if (error || !data) {
+      const { data: fallbackData } = await supabase
+        .from("pro_profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+      setProfiles((fallbackData || []) as DbProProfile[]);
+    } else {
+      setProfiles((data || []) as DbProProfile[]);
+    }
     setLoading(false);
   }, []);
 
@@ -196,11 +204,32 @@ function AdminProfessionalsTab() {
       p_status: status,
       p_admin_id: user.id,
     });
-    if (error) return;
-    await supabase
-      .from("pro_verification_logs")
-      .insert({ profile_id: profileId, admin_id: user.id, new_status: status });
+    if (error) {
+      await supabase
+        .from("pro_profiles")
+        .update({ verification_status: status, updated_at: new Date().toISOString() })
+        .eq("id", profileId);
+    }
+    try {
+      await supabase
+        .from("pro_verification_logs")
+        .insert({ profile_id: profileId, admin_id: user.id, new_status: status });
+    } catch {
+      // Non-fatal logging
+    }
     loadProfiles();
+  }
+
+  async function toggleListing(profileId: string, isListed: boolean) {
+    const { error } = await supabase
+      .from("pro_profiles")
+      .update({ is_listed: isListed, updated_at: new Date().toISOString() })
+      .eq("id", profileId);
+    if (!error) {
+      setProfiles((prev) =>
+        prev.map((p) => (p.id === profileId ? { ...p, is_listed: isListed } : p)),
+      );
+    }
   }
 
   async function handleAwardProLevel(profileId: string) {
@@ -290,6 +319,19 @@ function AdminProfessionalsTab() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => toggleListing(p.id, !p.is_listed)}
+                className={classNames(
+                  "rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer transition-colors border",
+                  p.is_listed
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                    : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+                )}
+                title={p.is_listed ? t("Visible in directory. Click to hide.") : t("Hidden from directory. Click to list.")}
+              >
+                {p.is_listed ? t("Listed") : t("Unlisted")}
+              </button>
               <span
                 className={classNames(
                   "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",

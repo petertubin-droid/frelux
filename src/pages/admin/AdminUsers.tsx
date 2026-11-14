@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, type FormEvent } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import {
   AdminHeader,
   AdminCard,
@@ -229,12 +229,12 @@ export default function AdminUsers() {
       business_name: "",
       years_experience: "",
       availability: "available",
-      is_listed: false,
+      is_listed: true,
     });
     setEditorOpen(true);
   }
 
-  function openEdit(user: UserWithPaid) {
+  async function openEdit(user: UserWithPaid) {
     setEditingUser(user);
     setForm({
       email: user.email ?? "",
@@ -245,9 +245,33 @@ export default function AdminUsers() {
       business_name: "",
       years_experience: "",
       availability: "available",
-      is_listed: false,
+      is_listed: true,
     });
     setEditorOpen(true);
+
+    try {
+      const { data: pro } = await supabase
+        .from("pro_profiles")
+        .select(
+          "display_name, business_name, years_experience, availability, is_listed",
+        )
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (pro) {
+        setForm((prev) => ({
+          ...prev,
+          display_name: pro.display_name || prev.display_name,
+          business_name: pro.business_name || "",
+          years_experience:
+            pro.years_experience != null ? String(pro.years_experience) : "",
+          availability: pro.availability || "available",
+          is_listed: pro.is_listed ?? true,
+        }));
+      }
+    } catch {
+      // Non-fatal
+    }
   }
 
   async function saveUser(event: FormEvent) {
@@ -278,7 +302,10 @@ export default function AdminUsers() {
     );
     setActionBusy(false);
     if (fnError || data?.error) {
-      setError(data?.error || fnError?.message || "Could not save user.");
+      const msg = fnError
+        ? await getFunctionErrorMessage(fnError)
+        : data?.error;
+      setError(msg || "Could not save user.");
       return;
     }
     setEditorOpen(false);
@@ -333,9 +360,10 @@ export default function AdminUsers() {
     );
     setActionBusy(false);
     if (fnError || data?.error) {
-      setError(
-        data?.error || fnError?.message || "Could not change the state.",
-      );
+      const msg = fnError
+        ? await getFunctionErrorMessage(fnError)
+        : data?.error;
+      setError(msg || "Could not change the state.");
       return;
     }
     if (data?.warning) setError(data.warning);
