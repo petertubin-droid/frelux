@@ -80,6 +80,23 @@ describe("EngineWasteSelector", () => {
     expect(onChange).toHaveBeenCalledWith(0);
   });
 
+  it("keeps every option's label readable, not only the active one", () => {
+    render(
+      <EngineWasteSelector
+        resolution={{ wastePercent: 10, source: "global", isOverride: false }}
+        userWaste={undefined}
+        onUserWasteChange={() => {}}
+      />,
+    );
+    const selected = screen.getByText("System Recommended").closest("button");
+    const inactive = screen.getByText("No Waste").closest("button");
+    expect(selected?.className).toContain("bg-primary");
+    // Muted text on a muted fill (near-white on grey in dark mode) left the
+    // inactive names unreadable on a phone.
+    expect(inactive?.className).toContain("text-foreground");
+    expect(inactive?.className).not.toContain("text-muted-foreground");
+  });
+
   it("calls onUserWasteChange(undefined) when switching to system", () => {
     const onChange = vi.fn();
     render(

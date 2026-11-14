@@ -44,6 +44,43 @@ function makePopMaterial(
   };
 }
 
+describe("reported units", () => {
+  it("labels a coverage-based quantity in the package unit, not the coverage unit", () => {
+    // 144 m² of ceiling at 5 m² per kg of putty is 31.68 kg, and the screen
+    // used to print "31.68 m²" because it echoed coverage_unit.
+    const putty = makePopMaterial({
+      name: "Screeding Putty",
+      category: "finishing",
+      coverage_rate: 5,
+      coverage_unit: "m²",
+      package_size: 20,
+      package_unit: "kg",
+      unit_price: 13500,
+    });
+
+    const result = calculatePopEstimate(
+      {
+        workflow: "nigeria",
+        roomLength: 12,
+        roomWidth: 12,
+        unit: "meters",
+        wasteMargin: 0,
+        includeDecorative: true,
+        includeOptional: true,
+      },
+      [putty],
+      "NGN",
+      "₦",
+    );
+
+    const row = (result as PopEstimateResult).materials.find(
+      (m) => m.name === "Screeding Putty",
+    );
+    expect(row?.unit).toBe("kg");
+    expect(row?.quantity).toBeCloseTo(28.8, 2);
+  });
+});
+
 const popMaterials: DbPopMaterial[] = [
   makePopMaterial({
     id: "pop-cement",

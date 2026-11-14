@@ -72,7 +72,7 @@ export function EngineWasteSelector({
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
-      <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+      <label className="mb-2 block text-sm font-semibold text-card-foreground">
         {t("Waste Allowance")}
       </label>
       {/* flex-wrap, not a rigid row: "System Recommended" plus two more
@@ -91,10 +91,13 @@ export function EngineWasteSelector({
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
-              "shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              // Every option must be readable, not just the active one: on a
+              // phone the inactive two were muted-on-muted (and near-white on
+              // grey in dark mode), so the choices had no visible names.
+              "shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               mode === key
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground",
+                ? "border border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border border-border bg-background text-foreground hover:bg-muted hover:text-foreground",
             )}
           >
             {label}

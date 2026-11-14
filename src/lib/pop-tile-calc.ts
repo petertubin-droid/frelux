@@ -139,9 +139,10 @@ export function calculatePopCeiling(
         // inflated the figure (20.41 m² shown as 20.5 m²) even though the
         // package count already carried the rounding up.
         quantity: Math.round(quantity * 100) / 100,
-        // A per-worker row is counted in whole boards, so that is what it
-        // reports; area rows keep their coverage unit.
-        unit: isPerWorker ? mat.package_unit : mat.coverage_unit,
+        // The figure is area ÷ coverage, so it is already counted in the
+        // package unit (kg, litre, sheet, board). Reporting the coverage unit
+        // instead labelled 31.68 kg of putty as "31.68 m²".
+        unit: mat.package_unit,
         packagesNeeded,
         cost,
         isOptional: mat.is_optional,
