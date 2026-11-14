@@ -44,8 +44,19 @@ describe("country data integrity", () => {
     const flat = COUNTRY_OPTIONS.flatMap((g) => g.countries);
     for (const c of flat) expect(COUNTRY_CURRENCY[c.code]).toBe(c.currency);
   });
-  it("getCountryCurrency returns a string for unknown codes", () => {
-    expect(typeof getCountryCurrency("XX")).toBe("string");
+  it("prices an unknown market in dollars, never in naira", () => {
+    // The site is global: an unlisted market must not inherit Nigeria's
+    // currency, which would misprice its figures by orders of magnitude.
+    expect(getCountryCurrency("XX")).toBe("USD");
+    expect(getCountryCurrency("")).toBe("USD");
+    expect(getCountryCurrency(null)).toBe("USD");
+    expect(getCountryCurrency(undefined)).toBe("USD");
+  });
+
+  it("ignores the case and padding of a market code", () => {
+    expect(getCountryCurrency("ng")).toBe("NGN");
+    expect(getCountryCurrency(" us ")).toBe("USD");
+    expect(getCountryCurrency("Gb")).toBe("GBP");
   });
   it("every group has a name and at least one country", () => {
     for (const g of COUNTRY_OPTIONS) {

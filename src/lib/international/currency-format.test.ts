@@ -69,9 +69,12 @@ describe("formatWithSymbol (caller-supplied symbol, tight join)", () => {
     expect(formatWithSymbol(1234.5, "$")).toBe("$1,235");
   });
 
-  it("defaults to naira with a zero symbol fallback", () => {
-    expect(formatWithSymbol(1234.5)).toBe("₦1,235");
-    expect(formatWithSymbol(1234.5, "")).toBe("₦1,235");
+  it("defaults to the dollar, never naira, when no currency is supplied", () => {
+    // The site is global: an unspecified currency is USD, the neutral unit.
+    expect(formatWithSymbol(1234.5)).toBe("$1,235");
+    expect(formatWithSymbol(1234.5, "")).toBe("$1,235");
+    // An explicit naira symbol still renders exactly as before.
+    expect(formatWithSymbol(1234.5, "₦")).toBe("₦1,235");
   });
 
   it("supports decimal modes and treats invalid input as zero", () => {

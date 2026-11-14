@@ -132,9 +132,13 @@ export function formatByCode(
  */
 export function formatWithSymbol(
   amount: number,
-  symbol: string = "₦",
+  // No market default: an unspecified currency renders as the US dollar,
+  // which is the neutral international unit, never as naira.
+  symbol: string = "$",
   options: CurrencyFormatOptions = {},
 ): string {
+  // Zero decimals by default, as before: call sites that want minor units ask
+  // for them. Only the fallback symbol changed, not the number.
   const { min, max } = decimalDigits(options.decimals ?? 0, "NGN");
   const formatted = safeAmount(amount).toLocaleString(
     displayLocale(options.locale),
@@ -143,5 +147,5 @@ export function formatWithSymbol(
       maximumFractionDigits: max,
     },
   );
-  return `${symbol || "₦"}${formatted}`;
+  return `${symbol || "$"}${formatted}`;
 }

@@ -89,7 +89,15 @@ export const COUNTRY_CURRENCY: Record<string, string> = Object.fromEntries(
   ),
 );
 
-/** Local currency for a market code; NGN fallback for unlisted ones. */
-export function getCountryCurrency(code: string): string {
-  return COUNTRY_CURRENCY[code] ?? "NGN";
+/**
+ * Local currency for a market code.
+ *
+ * Codes are matched case-insensitively, because "us" and "US" name the same
+ * market. A code this registry does not list returns USD: the site is global,
+ * and a market nobody confirmed must not be silently priced in naira.
+ */
+export function getCountryCurrency(code: string | null | undefined): string {
+  const normalised = (code ?? "").trim().toUpperCase();
+  if (!normalised) return "USD";
+  return COUNTRY_CURRENCY[normalised] ?? "USD";
 }
