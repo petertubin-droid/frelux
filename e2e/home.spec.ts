@@ -10,8 +10,11 @@ test.describe("Home page", () => {
     await dismissCookieBanner(page);
     await page.goto("/");
     await expect(page).toHaveTitle(/FRELUX/);
+    // The brand home link lives in the header below lg and in the rail at lg
+    // and up, so the check is the visible one at whatever width this runs at.
+    await expect(page.getByRole("banner")).toBeVisible();
     await expect(
-      page.getByRole("banner").getByRole("link", { name: "FRELUX home" }),
+      page.locator('a[aria-label="FRELUX home"]:visible').first(),
     ).toBeVisible();
   });
 

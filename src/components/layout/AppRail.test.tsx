@@ -148,6 +148,14 @@ describe("AppRail", () => {
     expect(rail?.getAttribute("data-collapsed")).toBe("false");
   });
 
+  it("exposes the rail brand as the site home link", () => {
+    // Desktop hides the header brand, so this link is the only way home that
+    // a desktop visitor or screen reader gets.
+    renderRail();
+    const brand = screen.getByRole("link", { name: "FRELUX home" });
+    expect(brand).toHaveAttribute("href", "/");
+  });
+
   it("routes the settings button to the single drawer", () => {
     renderRail();
     const opened = vi.fn();
