@@ -20,6 +20,7 @@ export type MethodologyKey =
   | "doors-windows"
   | "electrical"
   | "fence-block"
+  | "renovation"
   | "flooring"
   | "foundation"
   | "foundation-estimator"
@@ -48,6 +49,10 @@ export type MethodologyKey =
   | "window-blinds";
 
 const METHODOLOGY: Record<MethodologyKey, string> = {
+  renovation: `The property brief is measured room by room: each room's length, width and height are converted to metres once, at the boundary, and every surface is derived from them rather than typed in.
+Strip out follows what is actually there, so removing tiles carries a thicker allowance than removing paint, and paint removal produces a prepare and seal line with no mortar in it.
+Quantities are stated net with the waste allowance beside them, so a price cannot be applied to waste twice, and every line states the arithmetic it came from.
+Anything not measured is named: statutory fees, asbestos removal and service connections are flagged, never priced, and tax stays undetermined until a market rate is loaded.`,
   "smart-calc": `The reading happens on the page, before any paid step. The description is scanned for the words that identify a trade and the numbers that size it, and that decides which calculator the project belongs in.
 Anything recognised is quoted back as a summary line, and every dimension the description did not give is listed as not stated rather than filled with a default, because an invented room size produces a confident wrong total.
 The page then hands you the calculator that owns that trade, where the deterministic engine does the measuring and the pricing. This page routes the job, it does not price it.`,

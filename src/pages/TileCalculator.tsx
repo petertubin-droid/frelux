@@ -971,7 +971,7 @@ export default function TileCalculator({
                           Math.max(1, Math.round(input.quantity ?? 1))
                         }
                         step="0.01"
-                        value={input.openingArea ?? 0}
+                        value={input.openingArea || ""}
                         aria-invalid={Boolean(errors.openingArea)}
                         onChange={(e) =>
                           update(
@@ -1951,7 +1951,10 @@ function TileResultCard({
           dimensionsSummary: `${input.length} × ${input.width} m`,
         }}
         siteModifiers={{
-          layoutComplexity: input.surfaceType === "floor" ? "Standard Floor Layout" : "Wall Layout",
+          layoutComplexity:
+            input.surfaceType === "floor"
+              ? "Standard Floor Layout"
+              : "Wall Layout",
           cuttingWastePercent: input.wasteMargin,
         }}
         packagingDetails={{
@@ -1959,7 +1962,10 @@ function TileResultCard({
           practicalPurchaseAmount: result.boxesNeeded,
           unitLabel: "tiles",
           packSizeLabel: `boxes (${input.tilesPerBox} tiles/box)`,
-          surplusQuantity: Math.max(0, result.boxesNeeded * input.tilesPerBox - result.tilesNeeded),
+          surplusQuantity: Math.max(
+            0,
+            result.boxesNeeded * input.tilesPerBox - result.tilesNeeded,
+          ),
         }}
         assumptions={[
           { label: "Surface type", value: input.surfaceType },

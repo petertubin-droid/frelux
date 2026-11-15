@@ -635,7 +635,7 @@ export default function TileCostEstimator({
                         Math.max(1, Math.round(input.quantity ?? 1))
                       }
                       step="0.01"
-                      value={input.openingArea ?? 0}
+                      value={input.openingArea || ""}
                       aria-invalid={Boolean(openingError)}
                       aria-describedby={
                         openingError ? "tile-opening-error" : undefined

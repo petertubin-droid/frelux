@@ -2082,6 +2082,7 @@ function BeamCalculator() {
             value={supportWidth}
             onChange={setSupportWidth}
             step="25"
+            emptyWhenZero
           />
           <SelectInput
             label="Design code"
@@ -3075,11 +3076,14 @@ function NumInput({
   value,
   onChange,
   step,
+  emptyWhenZero,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   step?: string;
+  /** Optional figures show empty rather than a zero the reader did not enter. */
+  emptyWhenZero?: boolean;
 }) {
   const fieldId = useId();
   return (
@@ -3094,6 +3098,7 @@ function NumInput({
         id={fieldId}
         value={value}
         step={step}
+        emptyWhenZero={emptyWhenZero}
         onValueChange={onChange}
         className="input-field"
       />

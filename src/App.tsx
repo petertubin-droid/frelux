@@ -606,6 +606,7 @@ const FoundationEstimator = lazy(() => import("@/pages/FoundationEstimator"));
 const DoorsWindowsEstimator = lazy(
   () => import("@/pages/DoorsWindowsEstimator"),
 );
+const RenovationEstimator = lazy(() => import("@/pages/RenovationEstimator"));
 const RetainingWallEstimator = lazy(
   () => import("@/pages/RetainingWallEstimator"),
 );
@@ -2279,6 +2280,14 @@ export default function App() {
                         />
                         <Route path="/faq" element={<Faq />} />
                         <Route path="/faq/:slug" element={<FaqArticle />} />
+                        <Route
+                          path="/renovation-estimator"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <RenovationEstimator />
+                            </Suspense>
+                          }
+                        />
                         <Route
                           path="/retaining-wall-calculator"
                           element={<RetainingWallEstimator />}
