@@ -48,7 +48,7 @@
         try {
           var h = window.location.hostname;
           if (h && (h.indexOf("netlify.app") !== -1 || (h !== "freluxtools.com" && h !== "www.freluxtools.com" && h !== "localhost" && h !== "127.0.0.1" && !h.endsWith(".localhost")))) {
-            var m = document.querySelector("meta[name="robots"]");
+            var m = document.querySelector('meta[name="robots"]');
             if (!m) {
               m = document.createElement("meta");
               m.setAttribute("name", "robots");

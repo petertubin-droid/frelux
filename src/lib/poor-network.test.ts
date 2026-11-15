@@ -24,11 +24,22 @@ describe("poor network behaviour", () => {
     );
   });
 
-  it("serves the hero as a srcset of WebP candidates", () => {
+  it("keeps the hero free of a render-blocking illustration", () => {
     const hero = read("src/components/home/Hero.tsx");
-    expect(hero).toContain("construction-site-900.webp 900w");
-    expect(hero).toContain("construction-site-1400.webp 1400w");
-    expect(hero).toContain("sizes=");
+    // The illustrated hero was removed deliberately: on the first screen it
+    // cost a large raster download for decoration. If art ever returns, it has
+    // to come back as a responsive WebP srcset so a phone never fetches the
+    // desktop file. Both halves of that rule are asserted here.
+    const image =
+      hero.match(/<img[^>]*>/)?.[0] ??
+      hero.match(/<picture[\s\S]*?<\/picture>/)?.[0];
+    if (image) {
+      expect(image).toMatch(/\.webp/);
+      expect(image).toContain("srcset");
+      expect(image).toContain("sizes=");
+    } else {
+      expect(hero).not.toMatch(/<img\b/);
+    }
   });
 
   it("paints navigations from cache and revalidates in the background", () => {
