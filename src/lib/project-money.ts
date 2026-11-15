@@ -7,20 +7,12 @@
  */
 
 /**
- * Rounds to the cent the reader can type.
- *
- * `Math.round((value + Number.EPSILON) * 100)` looks right and is not: EPSILON
- * is relative to 1, so it repairs 1.005 while leaving 8.165 and 10.075 short of
- * their half cent and rounding them down. A cent-scale tolerance is applied
- * instead, in the magnitude, so a half cent rounds away from zero on both
- * sides: 8.165 becomes 8.17 and -8.165 becomes -8.17.
+ * The cent rule lives in one place for the whole product: see
+ * src/lib/money/round.ts. It is re-exported here so invoice code keeps its
+ * existing import.
  */
-export const roundMoney = (value: number): number => {
-  if (!Number.isFinite(value)) return 0;
-  const scaled = Math.abs(value) * 100;
-  const rounded = Math.round(scaled + 1e-6);
-  return (value < 0 ? -rounded : rounded) / 100;
-};
+export { roundMoney } from "@/lib/money/round";
+import { roundMoney } from "@/lib/money/round";
 
 export interface InvoiceTotals {
   subtotal: number;

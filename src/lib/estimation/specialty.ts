@@ -54,12 +54,16 @@ export interface SpecialtyResult {
   tax_status: TaxStatus;
 }
 
+import { roundMoney } from "@/lib/money/round";
+
 export type SpecialtyPriceMap = Record<string, number | null>;
 
 export const TAX_NOT_DETERMINED: TaxStatus = "tax_not_determined";
 
 export function money(v: number): number {
-  return Math.round(v * 100) / 100;
+  // One cent rule for the whole product (src/lib/money/round.ts): a half cent
+  // used to round down for 8.165 and up for 1.005, depending on the figures.
+  return roundMoney(v);
 }
 
 /** Quantities are whole units unless the line says otherwise. */
@@ -93,7 +97,16 @@ export function priceLines(
       missing.push(`${line.label} (quantity missing)`);
       return { ...line, unit_price: null, line_total: null };
     }
-    const unit_price = prices[line.material_slug] ?? null;
+    const raw = prices[line.material_slug];
+    // An unreadable or negative entry is not a price: NaN times a quantity is a
+    // NaN line total that still renders as a figure.
+    const unit_price =
+      raw === null ||
+      raw === undefined ||
+      !Number.isFinite(raw) ||
+      raw < 0
+        ? null
+        : raw;
     if (unit_price === null) {
       complete = false;
       missing.push(line.label);

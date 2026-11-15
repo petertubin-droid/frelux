@@ -118,3 +118,40 @@ describe("conduit and wiring takeoff", () => {
     );
   });
 });
+
+describe("rule values that cannot price a line", () => {
+  const input = { floor_area_m2: 100, lighting_points: 10, socket_points: 8 };
+
+  it("refuses a negative junction allowance instead of pricing a credit", () => {
+    const r = calculateConduitWiring(
+      input,
+      { ...DEFAULT_CONDUIT_WIRING_RULES, junction_per_point: -1.15 },
+      prices,
+    );
+    expect(r.ok).toBe(false);
+    expect(r.errors.join(" ")).toContain("Junction boxes per point");
+    expect(r.lines).toHaveLength(0);
+  });
+
+  it("refuses a cable allowance that is not a number", () => {
+    const r = calculateConduitWiring(
+      input,
+      { ...DEFAULT_CONDUIT_WIRING_RULES, lighting_cable_per_point_m: Number.NaN },
+      prices,
+    );
+    expect(r.ok).toBe(false);
+    expect(r.errors.join(" ")).toContain("Lighting cable per point");
+  });
+
+  it("does not turn an unreadable price into a total", () => {
+    const r = calculateConduitWiring(input, DEFAULT_CONDUIT_WIRING_RULES, {
+      ...prices,
+      "elec-conduit": Number.NaN,
+    });
+    const conduit = r.lines.find((l) => l.key === "conduit");
+    expect(conduit?.quantity).toBeGreaterThan(0);
+    expect(conduit?.unit_price).toBeNull();
+    expect(r.material_subtotal).toBeNull();
+    expect(r.missing.join(" ")).toContain("PVC conduit");
+  });
+});

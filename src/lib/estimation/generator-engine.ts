@@ -27,6 +27,7 @@
 
 import type { CalcRuleRow } from "./count-vision-engine";
 import { ceilU } from "./shared/purchase-rounding";
+import { roundMoney } from "@/lib/money/round";
 
 // ─────────────────────────────────────────────
 // Rules
@@ -59,6 +60,25 @@ export function parseGeneratorRules(rows: CalcRuleRow[]): GeneratorRules {
 // ─────────────────────────────────────────────
 
 export type GeneratorSize = "10kva" | "20kva" | "30kva" | "50kva";
+
+/**
+ * Planning multiplier on continuous rating for motor starting. It is an
+ * allowance, not a property of the set: a motor can pull several times its
+ * running current as it starts, and whether a given alternator rides through
+ * that is in its data sheet.
+ */
+const SURGE_MULTIPLIER = 1.5;
+
+/**
+ * A price is money. A missing or unreadable entry in the shared material
+ * database is reported as not configured, because NaN multiplied by a quantity
+ * is a NaN total that still reads as a figure on screen.
+ */
+function priceFor(prices: GeneratorPriceMap, slug: string): number | null {
+  const price = prices[slug];
+  if (price === null || price === undefined) return null;
+  return Number.isFinite(price) && price >= 0 ? price : null;
+}
 
 export const GENERATOR_SIZE_SLUGS: Record<GeneratorSize, string> = {
   "10kva": "gen-unit-10kva",
@@ -120,9 +140,8 @@ export type GeneratorPriceMap = Record<string, number | null>;
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+// Shared cent rule (src/lib/money/round.ts).
+const money = roundMoney;
 
 
 
@@ -179,13 +198,13 @@ export function calculateGenerator(
 
   // ── 1. Generator units (user's chosen bracket) ──
   const slug = GENERATOR_SIZE_SLUGS[input.size];
-  const price = prices[slug] ?? null;
+  const price = priceFor(prices, slug);
   const kvaNum = Number(input.size.replace(/[^0-9]/g, "")) || 10;
   const continuousKw = kvaNum * 0.8;
-  const peakSurgeKw = continuousKw * 1.5;
+  const peakSurgeKw = continuousKw * SURGE_MULTIPLIER;
   steps.push({
     label: "Generator unit",
-    detail: `${input.units} × ${input.size} unit(s): the size bracket is YOUR choice from your load assessment; provides ~${continuousKw.toFixed(0)} kW continuous (0.8 PF) with ~${peakSurgeKw.toFixed(0)} kW inductive inrush capacity.`,
+    detail: `${input.units} × ${input.size} unit(s): the size bracket is YOUR choice from your load assessment; about ${continuousKw.toFixed(0)} kW continuous at 0.8 power factor, and a ${SURGE_MULTIPLIER}× planning multiplier gives ${peakSurgeKw.toFixed(0)} kW for motor starting. The alternator data sheet governs motor starting, not this multiplier.`,
   });
   lines.push({
     key: "generator",
@@ -201,21 +220,26 @@ export function calculateGenerator(
 
   // ── 2. ATS (labelled user decision) ──
   if (input.include_ats) {
-    const atsPrice = prices["gen-ats"] ?? null;
+    const atsPrice = priceFor(prices, "gen-ats");
+    // One changeover switch per installation, not one per set. A second ATS
+    // belongs to a second distribution board or a second independent supply,
+    // which is a different installation, so multiplying by the number of sets
+    // bought a switch the site does not have where to mount.
     steps.push({
       label: "Automatic transfer switch",
-      detail: `${input.units} × ATS: your decision, one per generator set (labelled assumption).`,
+      detail:
+        "1 × ATS for the installation: your decision. A second board on the same set needs its own changeover, which this engine does not add.",
     });
     lines.push({
       key: "ats",
       label: "Automatic transfer switch (ATS)",
       material_slug: "gen-ats",
-      quantity: input.units,
+      quantity: 1,
       quantity_source: "rule_derived",
       unit: "units",
-      detail: `${input.units} set(s): one per generator (labelled assumption)`,
+      detail: "one per installation (labelled assumption)",
       unit_price: atsPrice,
-      line_total: atsPrice !== null ? money(input.units * atsPrice) : null,
+      line_total: atsPrice !== null ? money(atsPrice) : null,
     });
   }
 
@@ -232,14 +256,14 @@ export function calculateGenerator(
       quantity_source: "missing",
       unit: "m",
       detail: "Waiting for your measured run.",
-      unit_price: prices["gen-cable-per-m"] ?? null,
+      unit_price: priceFor(prices, "gen-cable-per-m"),
       line_total: null,
     });
   } else if (input.cable_run_m > 0) {
     const factor = 1 + rules.gen_cable_waste_pct / 100;
     const withWaste = input.cable_run_m * factor;
     const qty = ceilU(withWaste);
-    const cPrice = prices["gen-cable-per-m"] ?? null;
+    const cPrice = priceFor(prices, "gen-cable-per-m");
     steps.push({
       label: "Generator-to-panel cable",
       detail: `${input.cable_run_m} m × ${factor.toFixed(2)} (waste/route ${rules.gen_cable_waste_pct}%) = ${roundTo(withWaste, 2)} m → ${qty} m (whole metres, up).`,
@@ -265,7 +289,7 @@ export function calculateGenerator(
 
   // ── 4. Battery (labelled assumption, one per set) ──
   if (input.include_battery) {
-    const bPrice = prices["gen-battery"] ?? null;
+    const bPrice = priceFor(prices, "gen-battery");
     steps.push({
       label: "Battery",
       detail: `${input.units} × starting battery: one per set (labelled assumption; electric-start sets need it).`,

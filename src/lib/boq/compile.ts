@@ -114,11 +114,28 @@ function nextItemNumber(
   return candidate;
 }
 
+/**
+ * Date the manual tax position belongs to.
+ *
+ * A document prepared in March and re-exported in December must not claim its
+ * tax rate took effect in December: the provenance dates describe the document,
+ * so the preparation date is used when it is a readable date, and today only
+ * when the document has none.
+ */
+function documentTaxDate(preparedDate: string): string {
+  const candidate = (preparedDate || "").slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(candidate) &&
+    !Number.isNaN(Date.parse(candidate))
+    ? candidate
+    : new Date().toISOString().slice(0, 10);
+}
+
 function taxResultFor(
   rate: number | null,
   net: number,
   marketCode: string,
   taxCode: string,
+  effectiveDate: string,
 ): TaxCalculationResult | null {
   if (rate === null || !Number.isFinite(rate)) return null;
   const tax = round2((net * rate) / 100);
@@ -134,10 +151,10 @@ function taxResultFor(
         marketCode,
         jurisdictionCode: null,
         rate,
-        effectiveFrom: new Date().toISOString().slice(0, 10),
+        effectiveFrom: effectiveDate,
         effectiveTo: null,
         sourceUrl: "manual-entry",
-        reviewedAt: new Date().toISOString().slice(0, 10),
+        reviewedAt: effectiveDate,
         reviewerId: "manual-entry",
       },
     ],
@@ -485,6 +502,7 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
     preTax.summary.subtotalBeforeTax,
     document.market_code,
     taxLabelFor(document.market_code),
+    documentTaxDate(document.prepared_date),
   );
   if (taxPct !== null && taxResult) {
     standard = assembleStandardBoq({

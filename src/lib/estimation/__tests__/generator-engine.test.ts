@@ -150,9 +150,12 @@ describe("material lines", () => {
     expect(zero.incomplete).toBe(false);
   });
 
-  it("ATS and battery are labelled, one per set, absent when excluded", () => {
+  it("counts one changeover per installation and one battery per set", () => {
     const r = calculateGenerator(makeInput({ units: 2 }), rules, FULL_PRICES);
-    expect(r.lines.find((l) => l.key === "ats")?.quantity).toBe(2);
+    // A changeover switch transfers the installation to the set; two sets on one
+    // board still need one switch, so the quantity does not follow the units.
+    expect(r.lines.find((l) => l.key === "ats")?.quantity).toBe(1);
+    // A starting battery belongs to each electric-start set.
     expect(r.lines.find((l) => l.key === "battery")?.quantity).toBe(2);
     const bare = calculateGenerator(
       makeInput({ include_ats: false, include_battery: false }),
@@ -213,5 +216,39 @@ describe("determinism", () => {
     const a = calculateGenerator(makeInput(), rules, FULL_PRICES);
     const b = calculateGenerator(makeInput(), rules, FULL_PRICES);
     expect(a).toEqual(b);
+  });
+});
+
+describe("planning multipliers and unreadable prices", () => {
+  it("states the surge multiplier as an allowance, not as the set's capacity", () => {
+    const r = calculateGenerator(makeInput(), rules, FULL_PRICES);
+    const unitStep = r.steps.find((s) => s.label === "Generator unit");
+    expect(unitStep?.detail).toContain("1.5× planning multiplier");
+    expect(unitStep?.detail).toContain("alternator data sheet");
+    expect(unitStep?.detail).not.toContain("inductive inrush capacity");
+  });
+
+  it("treats an unreadable or negative price as not configured", () => {
+    for (const price of [Number.NaN, -1]) {
+      const r = calculateGenerator(makeInput({ include_ats: false }), rules, {
+        ...FULL_PRICES,
+        "gen-unit-20kva": price,
+      });
+      const unit = r.lines.find((l) => l.key === "generator");
+      expect(unit?.unit_price).toBeNull();
+      expect(unit?.line_total).toBeNull();
+      expect(r.material_subtotal).toBeNull();
+      expect(r.warnings.join(" ")).toContain("PRICE NOT CONFIGURED");
+    }
+  });
+
+  it("rounds a half-cent amount up at the cent", () => {
+    const r = calculateGenerator(
+      makeInput({ include_ats: false, include_battery: false, cable_run_m: 0 }),
+      rules,
+      { ...FULL_PRICES, "gen-unit-20kva": 8.165 },
+    );
+    const unit = r.lines.find((l) => l.key === "generator");
+    expect(unit?.line_total).toBe(8.17);
   });
 });

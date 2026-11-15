@@ -99,9 +99,27 @@ export function calculateConduitWiring(
       "Conduit allowance per m² (conduit_per_m2) must be greater than zero: check the calculation rule.",
     );
   }
-  if (rules.lighting_cable_per_point_m < 0 || rules.socket_cable_per_point_m < 0) {
+  // The cable allowances are multiplied by the points, so a NaN or a negative
+  // one produced a NaN coil count (ceilQty of NaN is NaN) that `complete` still
+  // read as priced. Both must be readable and non-negative.
+  for (const [label, value] of [
+    ["Lighting cable per point", rules.lighting_cable_per_point_m],
+    ["Socket cable per point", rules.socket_cable_per_point_m],
+  ] as const) {
+    if (!Number.isFinite(value) || value < 0) {
+      errors.push(
+        `${label} must be a number, zero or more: check the calculation rules.`,
+      );
+    }
+  }
+  // Junction boxes are multiplied by the points too, and the same rule rows can
+  // carry a negative. A negative allowance priced a credit against the works.
+  if (
+    !Number.isFinite(rules.junction_per_point) ||
+    rules.junction_per_point < 0
+  ) {
     errors.push(
-      "Cable allowance per point cannot be negative: check the calculation rules.",
+      "Junction boxes per point must be a number, zero or more: check the calculation rules.",
     );
   }
   if (errors.length > 0) return emptyResult(errors);

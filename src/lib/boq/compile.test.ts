@@ -391,4 +391,30 @@ describe("sign and numbering discipline", () => {
     expect(compiled.document.client.name).toBe("");
     expect(compiled.document.review.status).toBe("unreviewed");
   });
+
+  it("dates a manual tax rate to the document, not to the compile", () => {
+    const prepared = baseDoc({
+      prepared_date: "2026-03-01",
+      commercials: {
+        preliminaries_pct: 0,
+        overhead_profit_pct: 0,
+        contingency_pct: 0,
+        retention_pct: 0,
+        waste_allowance_pct: 0,
+        tax_pct: 7.5,
+      },
+    });
+    const provenance =
+      compileBoq(prepared).standard.commercials.taxResult?.provenance[0];
+    expect(provenance?.effectiveFrom).toBe("2026-03-01");
+    expect(provenance?.reviewedAt).toBe("2026-03-01");
+
+    // A document with no readable date falls back to today.
+    const undated = { ...prepared, prepared_date: "not a date" };
+    const fallback =
+      compileBoq(undated).standard.commercials.taxResult?.provenance[0]
+        ?.effectiveFrom;
+    expect(fallback).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(fallback).toBe(new Date().toISOString().slice(0, 10));
+  });
 });
