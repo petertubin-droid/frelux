@@ -13,6 +13,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const TileCalculator = lazy(() => import("@/pages/TileCalculator"));
 const TileCostEstimator = lazy(() => import("@/pages/TileCostEstimator"));
@@ -206,6 +207,9 @@ export default function TileCalculatorHub() {
         </div>
 
         <FaqItemsWithSchema faqs={FAQS} />
+        <div className="mt-8">
+          <ToolFaqs slug="tile-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

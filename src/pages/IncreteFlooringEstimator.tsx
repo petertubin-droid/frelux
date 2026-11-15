@@ -24,6 +24,7 @@ import {
 } from "@/lib/estimation/increte-engine";
 import { useLanguage } from "@/lib/i18n";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const SYSTEMS: Array<{ value: IncreteSystem; label: string }> = [
   { value: "stamped-concrete", label: "Stamped concrete" },
@@ -687,6 +688,9 @@ Prices come from the market book for your selected market. Anything you type ove
         </p>
       </div>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="increte-flooring-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.tileCalc,

@@ -355,6 +355,7 @@ vi.mock("@/components/calculators/SaveToProjectButton", () => ({
   default: () => null,
 }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));

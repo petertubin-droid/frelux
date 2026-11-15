@@ -34,6 +34,7 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -270,6 +271,9 @@ export default function DefectDiagnosis() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="defect-diagnosis" />
+      </div>
     </Container>
   );
 }

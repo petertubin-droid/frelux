@@ -131,6 +131,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
 import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -2328,6 +2329,9 @@ function BeamCalculator() {
           </div>
         </ResultCard>
       )}
+      <div className="mt-8">
+        <ToolFaqs slug="structural-calculator" />
+      </div>
       <RelatedTools
         links={[
           CALC_LINKS.foundationCalc,

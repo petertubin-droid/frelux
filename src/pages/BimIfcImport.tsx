@@ -26,6 +26,7 @@ import { serializeIfcTakeoffExport } from "@/lib/estimation/ifc-takeoff-export";
 import { Button } from "@/components/ui/shadcn/button";
 import { Download } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   parseIfcModel,
   type IfcModelParseResult,
@@ -525,6 +526,9 @@ export default function BimIfcImport() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="bim-ifc-import" />
+      </div>
     </Container>
   );
 }

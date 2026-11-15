@@ -13,6 +13,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const PopCeilingCalculator = lazy(() => import("@/pages/PopCeilingCalculator"));
 const PopCeilingCostEstimator = lazy(
@@ -211,6 +212,9 @@ export default function PopCeilingCalculatorHub() {
         </div>
 
         <FaqItemsWithSchema faqs={FAQS} />
+        <div className="mt-8">
+          <ToolFaqs slug="pop-ceiling-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

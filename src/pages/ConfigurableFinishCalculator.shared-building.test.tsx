@@ -30,6 +30,7 @@ vi.mock("@/lib/i18n", async (importOriginal) => {
   };
 });
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: () => {},
   useBreadcrumbJsonLd: () => {},
 }));

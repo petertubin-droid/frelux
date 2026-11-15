@@ -32,6 +32,7 @@ import {
 import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstallationSequence";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { useLengthUnit } from "@/lib/use-length-unit";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function WaterTowerEstimator() {
   const resetInputs = () => {
@@ -721,6 +722,15 @@ export default function WaterTowerEstimator() {
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="retaining-wall-calculator" />
+        </div>
+        <div className="mt-8">
+          <ToolFaqs slug="soffit-gutter-cost-estimator" />
+        </div>
+        <div className="mt-8">
+          <ToolFaqs slug="conduit-wiring-estimator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.structuralCalc,

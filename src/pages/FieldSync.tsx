@@ -52,6 +52,7 @@ import {
 } from "@/lib/estimation/offline-field-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const KIND_LABEL: Record<FieldCaptureKind, string> = {
   measurement: "Measurement",
@@ -562,6 +563,9 @@ export default function FieldSync() {
           </li>
         </ul>
       </section>
+      <div className="mt-8">
+        <ToolFaqs slug="field-sync" />
+      </div>
     </Container>
   );
 }

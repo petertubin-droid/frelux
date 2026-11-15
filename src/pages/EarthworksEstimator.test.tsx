@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import EarthworksEstimator from "./EarthworksEstimator";
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 // Ad slots in the page call useAuth, which needs the app provider at runtime.
 const downloadCsv = vi.fn();
 vi.mock("@/lib/export-utils", () => ({

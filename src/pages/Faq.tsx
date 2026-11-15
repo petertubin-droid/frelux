@@ -23,6 +23,7 @@ import {
   type FaqCategoryId,
 } from "@/config/tool-faqs";
 import { useSeo, useBreadcrumbJsonLd, useFaqJsonLd } from "@/lib/seo";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   ArrowRight,
   BookOpen,
@@ -383,6 +384,9 @@ export default function Faq() {
             </Link>
           </div>
         </section>
+        <div className="mt-8">
+          <ToolFaqs slug="doors-windows" />
+        </div>
       </Container>
     </>
   );

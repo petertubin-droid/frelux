@@ -32,6 +32,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 // Worldwide-currency money formatting via the site-wide layer.
 const money = (v: number) => formatCurrency(v);
@@ -519,6 +520,9 @@ export default function MarginCalculator() {
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="margin-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.smartCalc,

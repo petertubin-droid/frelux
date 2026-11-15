@@ -29,6 +29,7 @@ import {
 import type { CarbonFactor, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 interface LineForm {
   category: string;
@@ -377,6 +378,9 @@ export default function CarbonFootprint() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="carbon-footprint" />
+      </div>
     </Container>
   );
 }

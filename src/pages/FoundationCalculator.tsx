@@ -65,6 +65,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { NumericInput } from "@/components/ui/NumericInput";
 
 import { Link } from "react-router-dom";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 export default function FoundationCalculator() {
   const resetInputs = () => {
     setShape("strip");
@@ -520,9 +521,18 @@ export default function FoundationCalculator() {
                 }}
                 assumptions={[
                   { label: "Design footing shape", value: result.shape },
-                  { label: "Concrete volume", value: `${result.concrete_volume.toFixed(2)} m³` },
-                  { label: "Excavation volume", value: `${result.excavation_volume.toFixed(2)} m³` },
-                  { label: "Blinding volume", value: `${result.blinding_volume.toFixed(2)} m³` },
+                  {
+                    label: "Concrete volume",
+                    value: `${result.concrete_volume.toFixed(2)} m³`,
+                  },
+                  {
+                    label: "Excavation volume",
+                    value: `${result.excavation_volume.toFixed(2)} m³`,
+                  },
+                  {
+                    label: "Blinding volume",
+                    value: `${result.blinding_volume.toFixed(2)} m³`,
+                  },
                 ]}
               />
               <ShareEstimateButton
@@ -860,6 +870,9 @@ export default function FoundationCalculator() {
       {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
+      <div className="mt-8">
+        <ToolFaqs slug="foundation-designer" />
+      </div>
       <RelatedTools
         links={[
           CALC_LINKS.structuralCalc,

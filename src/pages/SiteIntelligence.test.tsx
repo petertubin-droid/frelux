@@ -34,7 +34,10 @@ const foundation = vi.hoisted(() => {
 });
 vi.mock("@/lib/site-intelligence/foundation", () => foundation);
 
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 vi.mock("@/lib/international/market-context", () => ({
   useMarket: () => ({ marketCode: "NG" }),
 }));

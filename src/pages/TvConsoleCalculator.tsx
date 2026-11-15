@@ -43,6 +43,7 @@ import type {
   WallTreatment,
 } from "@/lib/tv-console/media-context";
 import { calculateConsoleEstimate } from "@/lib/tv-console/calculator";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const number = (v: string, fallback: number) =>
   v === "" ? fallback : Number(v);
@@ -1262,6 +1263,9 @@ Wall panel area and LED metres are priced separately at the rates you enter, and
         title="TV console calculator: frequently asked questions"
       />
       <EstimateDisclaimer />
+      <div className="mt-8">
+        <ToolFaqs slug="mathematical-plan-elevation" />
+      </div>
       <RelatedToolsLinks />
     </main>
   );

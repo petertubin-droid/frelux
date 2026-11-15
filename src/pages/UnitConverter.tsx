@@ -20,6 +20,7 @@ import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   AREA_LABELS,
   LENGTH_LABELS,
@@ -348,6 +349,9 @@ export default function UnitConverter() {
             ]}
           />
         </section>
+        <div className="mt-8">
+          <ToolFaqs slug="measurement-converter" />
+        </div>
       </Container>
     </div>
   );

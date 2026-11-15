@@ -15,6 +15,7 @@ import { SITE_URL } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const ScreedingCalculator = lazy(() => import("@/pages/ScreedingCalculator"));
 const ScreedingCostEstimator = lazy(
@@ -220,6 +221,9 @@ export default function ScreedingCalculatorHub() {
         </div>
 
         <FaqItemsWithSchema faqs={faqs} />
+        <div className="mt-8">
+          <ToolFaqs slug="screeding-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

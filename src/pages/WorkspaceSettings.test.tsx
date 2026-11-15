@@ -20,7 +20,10 @@ vi.mock("@/lib/auth", () => ({
     loading: false,
   }),
 }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 vi.mock("@/contexts/WorkspaceContext", () => ({
   useWorkspace: () => ({
     activeWorkspace: { id: "w1", name: "Frelux HQ" },

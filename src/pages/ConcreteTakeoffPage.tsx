@@ -10,6 +10,7 @@ import {
 } from "@/lib/build-sequence-seo";
 import { ConcreteTakeoffCalculator } from "@/pages/StructuralCalculator";
 import AdSlot from "@/components/ui/AdSlot";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function ConcreteTakeoffPage() {
   useSeo({
@@ -60,6 +61,12 @@ export default function ConcreteTakeoffPage() {
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="window-blinds" />
+        </div>
+        <div className="mt-8">
+          <ToolFaqs slug="concrete-takeoff-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.structuralCalc,

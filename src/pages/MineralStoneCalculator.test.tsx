@@ -80,6 +80,7 @@ vi.mock("@/lib/smart-defaults", () => ({
   trackRecentTool: vi.fn(),
 }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));

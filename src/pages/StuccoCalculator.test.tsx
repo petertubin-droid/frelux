@@ -73,6 +73,7 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/achievements", () => ({ trackCalculation: vi.fn() }));
 vi.mock("@/lib/smart-defaults", () => ({ trackRecentTool: vi.fn() }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));

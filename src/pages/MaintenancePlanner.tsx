@@ -36,6 +36,7 @@ import type { MaintenanceProfile } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function MaintenancePlanner({
   embedded = false,
@@ -452,6 +453,9 @@ export default function MaintenancePlanner({
       {body}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="maintenance-planner" />
+      </div>
     </Container>
   );
 }

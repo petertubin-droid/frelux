@@ -52,6 +52,7 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/achievements", () => ({ trackCalculation: vi.fn() }));
 vi.mock("@/lib/smart-defaults", () => ({ trackRecentTool: vi.fn() }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));
@@ -88,7 +89,7 @@ const choose = async (label: RegExp, value: string) => {
 
 /** The Plan button is disabled while loading and until a category is set. */
 const clickPlan = async () => {
-  const button = screen.getByRole("button", { name: /Plan Maintenance/i });
+  const button = screen.getByRole("button", { name: "Plan Maintenance" });
   await waitFor(() => expect(button).toBeEnabled());
   fireEvent.click(button);
 };
@@ -171,11 +172,11 @@ describe("MaintenancePlanner", () => {
     await clickPlan();
     await waitFor(() =>
       expect(
-        screen.getByRole("button", { name: /Export PDF/i }),
+        screen.getByRole("button", { name: /^Export PDF/i }),
       ).toBeInTheDocument(),
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Save Plan/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Save Plan/i }));
     await waitFor(() => {
       expect(mockedSave).toHaveBeenCalledTimes(1);
     });

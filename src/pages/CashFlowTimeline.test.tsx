@@ -66,6 +66,7 @@ vi.mock("@/lib/estimation/queries", () => ({
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));
@@ -102,9 +103,12 @@ describe("CashFlowTimeline page", () => {
     fireEvent.change(screen.getByPlaceholderText("e.g. 2500000"), {
       target: { value: "1000000" },
     });
-    fireEvent.change(screen.getByLabelText(/Start date/i), {
-      target: { value: "2026-01-15" },
-    });
+    fireEvent.change(
+      screen.getByLabelText(/Start date/i, { selector: "input" }),
+      {
+        target: { value: "2026-01-15" },
+      },
+    );
     fireEvent.click(screen.getByRole("button", { name: /Generate Schedule/i }));
 
     // 40% = 400,000 due 2026-01-15; 35% = 350,000 due 2026-03-15; 25% = 250,000 due 2026-05-15

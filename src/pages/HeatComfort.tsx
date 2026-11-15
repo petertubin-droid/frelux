@@ -33,6 +33,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function HeatComfort() {
   const { t } = useLanguage();
@@ -321,6 +322,9 @@ export default function HeatComfort() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="heat-comfort" />
+      </div>
     </Container>
   );
 }

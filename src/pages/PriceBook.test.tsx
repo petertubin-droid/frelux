@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn(), useBreadcrumbJsonLd: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(),
+}));
 vi.mock("@/components/ui/Container", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>

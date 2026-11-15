@@ -29,6 +29,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 const fmt = (v: number) => formatCurrency(v || 0);
 
 export default function MaterialPriceTracker() {
@@ -533,6 +534,9 @@ function StatCard({
       <Icon className={`h-5 w-5 mb-2 ${color}`} />
       <p className="text-xl font-bold">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="mt-8">
+        <ToolFaqs slug="material-prices" />
+      </div>
     </div>
   );
 }

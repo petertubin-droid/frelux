@@ -32,6 +32,7 @@ vi.mock("@/lib/i18n", async (importOriginal) => {
   };
 });
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: () => {},
   useBreadcrumbJsonLd: () => {},
 }));
@@ -116,7 +117,7 @@ describe("Chinese masonry calculator", () => {
       (screen.getByLabelText(/Wall build-up/i) as HTMLSelectElement).value,
     ).toBe("1");
     // Switching to China moves it to the 240 mm wall the market builds.
-    fireEvent.change(screen.getByLabelText(/Market/i), {
+    fireEvent.change(screen.getByLabelText(/Market/i, { selector: "select" }), {
       target: { value: "CN" },
     });
     expect(

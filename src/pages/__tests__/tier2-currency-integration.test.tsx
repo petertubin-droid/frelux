@@ -30,6 +30,7 @@ vi.mock("@/lib/credits", () => ({
   REWARD_EVENTS: {},
 }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(),
 }));

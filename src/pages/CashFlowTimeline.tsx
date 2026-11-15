@@ -31,6 +31,7 @@ import type { CashFlowTemplate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 // Market-currency aware via the site-wide FX layer.
 const money = (v: number) => formatCurrency(v);
@@ -261,6 +262,9 @@ export default function CashFlowTimeline() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="cash-flow-timeline" />
+      </div>
     </Container>
   );
 }

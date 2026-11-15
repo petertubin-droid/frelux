@@ -36,6 +36,7 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function CircularReuse() {
   const { t } = useLanguage();
@@ -311,6 +312,9 @@ export default function CircularReuse() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="circular-reuse" />
+      </div>
     </Container>
   );
 }

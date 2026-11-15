@@ -19,6 +19,7 @@ import { missingField } from "@/lib/forms/missing-fields";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NumericInput } from "@/components/ui/NumericInput";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   evaluateStageWeatherRisk,
   type WeatherRiskAlert,
@@ -618,6 +619,9 @@ function SummaryCard({
           </span>
         )}
       </p>
+      <div className="mt-8">
+        <ToolFaqs slug="project-timeline" />
+      </div>
     </div>
   );
 }

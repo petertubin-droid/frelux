@@ -62,6 +62,7 @@ import {
   plasteringTakeoffFromSchedule,
 } from "@/lib/estimation/building-schedule-takeoff";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   BuildingSchedulePanel,
   type AppliedBuilding,
@@ -109,6 +110,23 @@ type Engine =
   | "insulation"
   | "demolition"
   | "septic";
+/**
+ * One question set per engine, so the page answers for the tool in front of the
+ * visitor instead of stacking nine sets of questions about trades they are not
+ * looking at.
+ */
+const FAQ_BY_ENGINE: Record<Engine, string> = {
+  masonry: "masonry-calculator",
+  plastering: "plastering-calculator",
+  drywall: "drywall-calculator",
+  paving: "paving-calculator",
+  drainage: "drainage-calculator",
+  "temporary-works": "temporary-works-calculator",
+  insulation: "insulation-calculator",
+  demolition: "demolition-calculator",
+  septic: "septic-sizing-calculator",
+};
+
 type Result =
   | MasonryCalculationResult
   | PlasteringCalculationResult
@@ -1108,6 +1126,11 @@ export default function StandaloneTakeoffPage({
         )}
       </Container>
       <div className="mt-10">
+        {FAQ_BY_ENGINE[engine] ? (
+          <div className="mt-8">
+            <ToolFaqs slug={FAQ_BY_ENGINE[engine]} />
+          </div>
+        ) : null}
         <RelatedTools
           links={[
             CALC_LINKS.smartCalc,

@@ -67,6 +67,7 @@ import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
 import StandardsCitationsCard from "@/components/regulatory/StandardsCitationsCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import type { InvoiceSnapshotTotals } from "@/lib/finance/invoice-engine";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 /** Display names for the 20 Frelux markets. */
 const MARKET_NAMES: Record<string, string> = {
@@ -1343,6 +1344,9 @@ export default function BoqGenerator() {
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="boq-generator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.smartCalc,

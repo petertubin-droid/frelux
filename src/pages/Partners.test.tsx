@@ -13,6 +13,7 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
 }));
 

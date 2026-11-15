@@ -35,6 +35,7 @@ import {
 import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function LabourEstimator() {
   // Clears the job description only: the crew rates are the loaded book.
@@ -345,6 +346,9 @@ export default function LabourEstimator() {
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="labour-estimator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.smartCalc,

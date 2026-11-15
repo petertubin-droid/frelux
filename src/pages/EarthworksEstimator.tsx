@@ -24,6 +24,7 @@ import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useAreaUnit } from "@/lib/use-area-unit";
 import { useLengthUnit } from "@/lib/use-length-unit";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -579,6 +580,9 @@ The soil description is recorded for the job record. It does not change the quan
         <EstimateDisclaimer />
       </Container>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="earthworks-cut-fill" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.buildToRoof,

@@ -24,6 +24,7 @@ import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   CALIBRATION_UNITS,
   calibrationMetres,
@@ -1179,6 +1180,12 @@ export default function BlueprintTakeoff() {
         <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
       </Container>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="insulation-calculator" />
+        </div>
+        <div className="mt-8">
+          <ToolFaqs slug="demolition-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.imageEstimator,

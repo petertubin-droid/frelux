@@ -113,7 +113,10 @@ const snapshot = {
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({ user: { id: "u1" }, loading: false }),
 }));
-vi.mock("@/lib/seo", () => ({ useSeo: () => undefined }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: () => undefined,
+}));
 vi.mock("@/lib/intelligence/queries", () => ({
   loadIntelligence: vi.fn(async () => ({ snapshot, error: null })),
   savePreferences: vi.fn(async () => ({ error: null })),

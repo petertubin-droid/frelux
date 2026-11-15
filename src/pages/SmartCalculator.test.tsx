@@ -17,6 +17,7 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(() => null),
   useBreadcrumbJsonLd: vi.fn(() => null),
 }));

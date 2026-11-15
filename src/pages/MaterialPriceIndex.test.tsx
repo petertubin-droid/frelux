@@ -28,7 +28,10 @@ vi.mock("@/lib/supabase", () => ({
   supabase: { functions: { invoke } },
 }));
 
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 vi.mock("@/components/ui/PageHeader", () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
 }));

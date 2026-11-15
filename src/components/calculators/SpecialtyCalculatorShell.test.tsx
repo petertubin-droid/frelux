@@ -24,6 +24,7 @@ vi.mock("@/lib/international/currency-context", () => ({
   useDisplayCurrency: () => ({ symbol: "₦" }),
 }));
 vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
   useSeo: () => undefined,
   useBreadcrumbJsonLd: () => undefined,
 }));

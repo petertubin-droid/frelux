@@ -82,6 +82,7 @@ import type { QuotePayloadLike } from "@/lib/estimate-share-adapter";
 import { useLanguage } from "@/lib/i18n";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 /* ── helpers ─────────────────────────────────────────────── */
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -1309,6 +1310,12 @@ export default function WallFinishEstimator() {
         </div>
       )}
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="waterproofing" />
+        </div>
+        <div className="mt-8">
+          <ToolFaqs slug="wall-finish-estimator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.finishEstimator,

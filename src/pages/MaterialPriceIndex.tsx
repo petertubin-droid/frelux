@@ -30,6 +30,7 @@ import {
   type Sample,
 } from "@/lib/price-index/stats";
 import { groupByMaterial, toSamples } from "@/lib/price-index/resolver";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   PRICE_KIND_LABELS,
   VERIFICATION_LABELS,
@@ -920,6 +921,9 @@ function SubmissionForm({
         {message ? (
           <p className="mt-2 text-xs text-muted-foreground">{message}</p>
         ) : null}
+      </div>
+      <div className="mt-8">
+        <ToolFaqs slug="material-price-index" />
       </div>
     </div>
   );

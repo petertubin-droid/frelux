@@ -38,6 +38,7 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "N/A";
@@ -422,6 +423,9 @@ export default function WarrantyCertificate() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
+      <div className="mt-8">
+        <ToolFaqs slug="warranty-certificate" />
+      </div>
     </Container>
   );
 }

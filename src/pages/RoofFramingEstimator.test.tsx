@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import RoofFramingEstimator from "./RoofFramingEstimator";
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 // Ad slots in the page call useAuth, which needs the app provider at runtime.
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false, isPaid: false })),

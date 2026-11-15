@@ -34,6 +34,7 @@ import {
 } from "@/lib/estimation/roof-member-design";
 import { lookupNigeriaRoofLiveLoad } from "@/lib/estimation/roof-load-reference";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   calculateRoofFraming,
   type RoofFramingInput,
@@ -1204,6 +1205,9 @@ export default function RoofFramingEstimator() {
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
       <div className="mt-10">
+        <div className="mt-8">
+          <ToolFaqs slug="roof-framing-calculator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.buildToRoof,

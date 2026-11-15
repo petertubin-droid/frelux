@@ -3,7 +3,10 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import WindowBlindsEstimator from "@/pages/WindowBlindsEstimator";
 
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useFaqJsonLd: vi.fn(),
+  useSeo: vi.fn(),
+}));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 const renderPage = () =>

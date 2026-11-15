@@ -24,6 +24,7 @@ import {
   type StatusOverlay,
 } from "@/lib/codes/resolver";
 import { fetchStatusOverlay } from "@/lib/codes/status-store";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   BUILDING_TYPES,
   JURISDICTIONS,
@@ -538,6 +539,9 @@ export default function CodeReference() {
             </div>
           </div>
         </section>
+      </div>
+      <div className="mt-8">
+        <ToolFaqs slug="code-reference" />
       </div>
     </div>
   );

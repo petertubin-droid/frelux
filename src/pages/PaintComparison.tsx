@@ -19,6 +19,7 @@ import type { DbPaintComparison } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function PaintComparison() {
   const { t } = useLanguage();
@@ -343,6 +344,9 @@ export default function PaintComparison() {
       </div>
 
       <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      <div className="mt-8">
+        <ToolFaqs slug="paint-comparison" />
+      </div>
     </div>
   );
 }

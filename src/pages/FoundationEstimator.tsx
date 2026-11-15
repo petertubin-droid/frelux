@@ -67,6 +67,7 @@ import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import VolumeUnitToggle from "@/components/measurement/VolumeUnitToggle";
 import { useAreaUnit, useVolumeUnit } from "@/lib/use-area-unit";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 type Field =
   | "concrete_volume_m3"
@@ -844,6 +845,15 @@ export default function FoundationEstimator() {
         </ul>
       </section>
       <EstimateDisclaimer />
+      <div className="mt-8">
+        <ToolFaqs slug="increte-flooring-calculator" />
+      </div>
+      <div className="mt-8">
+        <ToolFaqs slug="foundation-calculator" />
+      </div>
+      <div className="mt-8">
+        <ToolFaqs slug="reinforcement" />
+      </div>
     </Container>
   );
 }

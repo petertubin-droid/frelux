@@ -12,6 +12,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const FinishEstimator = lazy(() => import("@/pages/FinishEstimator"));
 const TyroleneEstimator = lazy(() => import("@/pages/TyroleneEstimator"));
@@ -221,6 +222,9 @@ export default function FinishingCalculatorHub() {
         </div>
 
         <FaqItemsWithSchema faqs={FAQS} />
+        <div className="mt-8">
+          <ToolFaqs slug="finish-estimator" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.paintCalculator,

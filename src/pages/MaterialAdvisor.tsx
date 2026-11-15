@@ -25,6 +25,7 @@ import { classNames } from "@/lib/utils";
 import { useLocation as useGeoLocation } from "@/lib/location";
 import { searchPlaces, type PlaceResult } from "@/lib/map/geocode";
 import type { MapPoint } from "@/lib/map/geo";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   fetchEnvironmentalData,
   clearEnvironmentalCache,
@@ -783,6 +784,9 @@ export default function MaterialAdvisor() {
             ))}
           </div>
         </section>
+      </div>
+      <div className="mt-8">
+        <ToolFaqs slug="material-advisor" />
       </div>
     </div>
   );

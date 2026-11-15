@@ -38,6 +38,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export type SequenceViewMode = "dag" | "waves" | "list";
 
@@ -302,6 +303,9 @@ export default function ConstructionSequence() {
         )}
 
         {/* Related calculators */}
+        <div className="mt-8">
+          <ToolFaqs slug="construction-sequence" />
+        </div>
         <RelatedTools
           links={[
             CALC_LINKS.buildToRoof,
