@@ -442,6 +442,20 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardMixRatio: "1:4",
         sourceStandard: "DIN V 106",
       },
+      {
+        // 8 DF Kalksandstein plan block, the German 24 cm external wall unit,
+        // laid in thin bed adhesive rather than cement mortar.
+        id: "de-kalksandstein-8df",
+        name: "Kalksandstein Planblock 8 DF (248x240x238mm)",
+        category: "clay_block",
+        lengthMm: 248,
+        heightMm: 238,
+        widthMm: 240,
+        isHollow: false,
+        standardJointMm: 2,
+        standardMixRatio: "1:4",
+        sourceStandard: "DIN EN 771-2 / DIN 106 (Kalksandsteine)",
+      },
     ],
     regulatoryNote:
       "DIN EN 1996 (Eurocode 6) & DIN 20000-401 (Mauerwerk nach nationalen Regeln).",
@@ -1192,6 +1206,20 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardMixRatio: "1:3",
         sourceStandard: "NEN-EN 771-2",
       },
+      {
+        // Dutch coarse concrete block; the Netherlands follows the European
+        // masonry unit standard rather than carrying a national block size.
+        id: "nl-betonblok-200",
+        name: "Betonblok (400x200x200mm), 200mm wall",
+        category: "cmu",
+        lengthMm: 400,
+        heightMm: 200,
+        widthMm: 200,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:4",
+        sourceStandard: "NEN-EN 771-3 (Concrete masonry units)",
+      },
     ],
     regulatoryNote:
       "Besluit bouwwerken leefomgeving (Bbl) & NEN-EN 1996 (Eurocode 6).",
@@ -1475,6 +1503,19 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardMixRatio: "1:4",
         sourceStandard: "KS F 4004",
       },
+      {
+        // Korean walls are built from 190 mm concrete blocks (KS F 4002).
+        id: "kr-concrete-block-190",
+        name: "Concrete Block (390x190x190mm), 190mm wall",
+        category: "cmu",
+        lengthMm: 390,
+        heightMm: 190,
+        widthMm: 190,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:5",
+        sourceStandard: "KS F 4002 (Concrete masonry units)",
+      },
     ],
     regulatoryNote:
       "Korean Building Code (KBC 2016) Chapter 05 Masonry & MOLIT KCS 41 34 00.",
@@ -1565,6 +1606,20 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardMixRatio: "1:3",
         sourceStandard: "SNI 03-6886-2002",
       },
+      {
+        // Bata ringan, the autoclaved aerated block that has replaced brick for
+        // Indonesian walls, bonded with a thin bed rather than cement mortar.
+        id: "id-bata-ringan-200",
+        name: "Bata Ringan AAC (600x200x200mm), 200mm wall",
+        category: "aac",
+        lengthMm: 600,
+        heightMm: 200,
+        widthMm: 200,
+        isHollow: false,
+        standardJointMm: 3,
+        standardMixRatio: "1:4",
+        sourceStandard: "SNI 8640 (Bata ringan / AAC)",
+      },
     ],
     regulatoryNote:
       "SNI 2847 & SNI 1726 (Tata Cara Perencanaan Struktur Tahan Gempa).",
@@ -1610,6 +1665,21 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardJointMm: 10,
         standardMixRatio: "1:4",
         sourceStandard: "ABNT NBR 6136",
+      },
+      {
+        // The 14 x 19 x 39 cm nominal block, the ordinary Brazilian wall unit
+        // (ABNT NBR 6136). Brazilian practice quotes it as 14x19x39 with the
+        // joint included, so 19 cm is the wall thickness.
+        id: "br-bloco-concreto-190",
+        name: "Bloco de Concreto (390x190x190mm), 190mm wall",
+        category: "cmu",
+        lengthMm: 390,
+        heightMm: 190,
+        widthMm: 190,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:5",
+        sourceStandard: "ABNT NBR 6136 (Blocos vazados de concreto simples)",
       },
     ],
     regulatoryNote: "ABNT NBR 16868 (Alvenaria estrutural) & NBR 15270.",

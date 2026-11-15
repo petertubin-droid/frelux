@@ -18,7 +18,7 @@ import {
 const MARKETS = Object.keys(MASONRY_MARKET_REGISTRY);
 
 /** Markets whose catalogue carries a single wall thickness today. */
-const SINGLE_WIDTH_MARKETS = ["BR", "DE", "ID", "KR", "NL"];
+const SINGLE_WIDTH_MARKETS: string[] = [];
 
 describe("every market the masonry engine claims", () => {
   it("has a maintained profile rather than the generic placeholder", () => {
@@ -80,10 +80,9 @@ describe("every market the masonry engine claims", () => {
       );
       return widths.size < 2;
     });
-    // Debt, stated rather than hidden. Each of these four can only price one
-    // wall thickness today, so a user there on a two thickness job must enter
-    // the second unit by hand. Adding their ordinary external wall is the next
-    // registry task; this assertion makes that debt impossible to grow quietly.
+    // Every market now prices both a partition and an ordinary wall. An empty
+    // list here is the assertion: no market may fall back to a single wall
+    // thickness without this test failing first.
     expect(singleWidth.sort()).toEqual([...SINGLE_WIDTH_MARKETS].sort());
   });
 
