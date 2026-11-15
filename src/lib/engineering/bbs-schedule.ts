@@ -444,22 +444,44 @@ export function ec2AnchorageLength(
   const asRatio = Math.min(Math.max(input.asRatio ?? 1, 0), 1);
   if (!(db > 0)) throw new Error("Bar diameter must be positive (mm).");
   if (!(fck > 0)) throw new Error("fck must be positive (MPa).");
-  // 3.1.6: fctd = fctk,0.05 / gamma_c, fctk,0.05 = 0.21 fck^(2/3), gamma_c = 1.5
-  const fctd = (0.21 * Math.pow(fck, 2 / 3)) / 1.5;
-  const fbd = 2.25 * eta1 * fctd;
+  // EN 1992-1-1 3.1.6 / Table 3.1: fctm = 0.30 fck^(2/3) up to C50/60, and
+  // 2.12 ln(1 + fcm/10) above it, where fcm = fck + 8. The single power law
+  // OVERSTATES tensile strength above C50/60, and an overstated fbd shortens
+  // anchorage, which is the unsafe direction: at C60 it gives fctd 2.146 MPa
+  // against the code's 2.032 (5.6 per cent high), and 2.599 against 2.258 at
+  // C80 (15.1 per cent high).
+  const fctm =
+    fck <= 50
+      ? 0.30 * Math.pow(fck, 2 / 3)
+      : 2.12 * Math.log(1 + (fck + 8) / 10);
+  const fctk = 0.7 * fctm;
+  const fctd = fctk / 1.5;
+  // 8.4.2: eta2 = 1.0 for bars up to 32 mm, (132 - db)/100 above it.
+  const eta2 = db <= 32 ? 1.0 : Math.max((132 - db) / 100, 0);
+  const fbd = 2.25 * eta1 * eta2 * fctd;
   const sigmaSd = fyk / 1.15; // full yield design stress
   const lbRqd = (db / 4) * (sigmaSd / fbd);
-  const lbd = Math.max(lbRqd * asRatio, 10 * db);
   const isCompression = input.member === "compression";
+  // 8.4.4(6): lb,min = max(0.3 lb,rqd, 10db, 100 mm) in tension and
+  // max(0.6 lb,rqd, 10db, 100 mm) in compression. The 100 mm absolute floor
+  // was missing, so a heavily reduced anchorage could land below it: an 8 mm
+  // bar in C40 with As,req/As,prov = 0.3 gives lb,min 100 mm against the
+  // 80 mm that 10db alone allowed.
   const lbMin = isCompression
-    ? Math.max(10 * db, 0.6 * lbRqd)
-    : Math.max(10 * db, 0.3 * lbRqd);
-  const lbdFinal = Math.max(lbd, lbMin);
+    ? Math.max(0.6 * lbRqd, 10 * db, 100)
+    : Math.max(0.3 * lbRqd, 10 * db, 100);
+  // 8.4.4(2): lbd = alpha1..alpha5 lb,rqd (all 1.0 for straight ribbed bars)
+  // reduced by As,req/As,prov, and never below lb,min.
+  const lbd = Math.max(lbRqd * asRatio, lbMin);
+  const fctmNote =
+    fck <= 50
+      ? `fctm = 0.30 x ${fck}^(2/3) = ${fctm.toFixed(3)} MPa`
+      : `fctm = 2.12 ln(1 + fcm/10) = ${fctm.toFixed(3)} MPa`;
   return {
-    lbd: lbdFinal,
+    lbd,
     fbd,
     lbRqd,
-    formula: `fctd = 0.21 x fck^(2/3) / 1.5 = ${fctd.toFixed(3)} MPa; fbd = 2.25 x ${eta1 === 1 ? "1.0 (good bond)" : "0.7 (poor bond)"} x fctd = ${fbd.toFixed(3)} MPa; lb,rqd = (db/4)(sigma_sd/fbd) = (${db}/4)(${sigmaSd.toFixed(1)}/${fbd.toFixed(3)}) = ${lbRqd.toFixed(0)} mm; lbd = ${lbdFinal.toFixed(0)} mm (EN 1992-1-1 8.4.4, straight ribbed bars, alpha factors = 1.0, As ratio = ${asRatio.toFixed(2)}; lb,min per 8.4.4(6))`,
+    formula: `${fctmNote}; fctk,0.05 = 0.7 fctm = ${fctk.toFixed(3)} MPa; fctd = fctk,0.05/1.5 = ${fctd.toFixed(3)} MPa; fbd = 2.25 x ${eta1.toFixed(2)} x eta2 ${eta2.toFixed(2)} x fctd = ${fbd.toFixed(3)} MPa; lb,rqd = (db/4)(sigma_sd/fbd) = (${db}/4)(${sigmaSd.toFixed(1)}/${fbd.toFixed(3)}) = ${lbRqd.toFixed(0)} mm; lb,min = max(${(isCompression ? 0.6 : 0.3).toFixed(1)} x ${lbRqd.toFixed(0)}, 10 x ${db}, 100) = ${lbMin.toFixed(0)} mm; lbd = ${lbd.toFixed(0)} mm (EN 1992-1-1 8.4.4, straight ribbed bars, alpha factors = 1.0, As,req/As,prov = ${asRatio.toFixed(2)})`,
   };
 }
 

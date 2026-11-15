@@ -234,6 +234,42 @@ describe("EN 1992-1-1 anchorage and laps by bond condition", () => {
     expect(r.lbd).toBeGreaterThanOrEqual(0.6 * r.lbRqd);
   });
 
+  it("applies the 100 mm absolute lb,min floor from 8.4.4(6)", () => {
+    // A heavily reduced anchorage on a small bar: 8 mm in C40 with
+    // As,req/As,prov = 0.3 gives lb,rqd 236 mm, so 0.3 lb,rqd is 70.8 mm and
+    // 10db is 80 mm. The code floor is 100 mm; the old code returned 80.
+    const tension = ec2AnchorageLength({ db: 8, fck: 40, asRatio: 0.3 });
+    expect(tension.lbRqd).toBeCloseTo(236, 0);
+    expect(tension.lbd).toBe(100);
+    // Compression floor is 0.6 lb,rqd = 141.6 mm here, above 10db and 100 mm.
+    const compression = ec2AnchorageLength({
+      db: 8,
+      fck: 40,
+      asRatio: 0.3,
+      member: "compression",
+    });
+    expect(compression.lbd).toBeCloseTo(141.6, 0);
+  });
+
+  it("uses the Table 3.1 fctm above C50/60 instead of the power law", () => {
+    // C60: fcm 68, fctm = 2.12 ln(7.8) = 4.353, fctk,0.05 = 3.047,
+    // fctd = 2.031, fbd = 4.571. The power law gave fctd 2.146 (5.6% high),
+    // which shortens anchorage in the unsafe direction.
+    const c60 = ec2AnchorageLength({ db: 16, fck: 60 });
+    expect(c60.fbd).toBeCloseTo(2.25 * (0.7 * 2.12 * Math.log(7.8)) / 1.5, 3);
+    expect(c60.fbd).toBeLessThan(2.25 * ((0.21 * Math.pow(60, 2 / 3)) / 1.5));
+    // C50 and below are unchanged by the branch.
+    const c50 = ec2AnchorageLength({ db: 16, fck: 50 });
+    expect(c50.fbd).toBeCloseTo((2.25 * (0.21 * Math.pow(50, 2 / 3))) / 1.5, 3);
+  });
+
+  it("reduces bond strength for bars above 32 mm with eta2", () => {
+    const small = ec2AnchorageLength({ db: 32, fck: 30 });
+    const large = ec2AnchorageLength({ db: 40, fck: 30 });
+    // eta2 = (132 - 40)/100 = 0.92
+    expect(large.fbd).toBeCloseTo(0.92 * small.fbd, 3);
+  });
+
   it("lap length applies alpha6 = sqrt(percent/25) capped at 1.5", () => {
     const quarter = ec2LapLength({ db: 16, fck: 30, percentLapped: 25 });
     expect(quarter.alpha6).toBeCloseTo(1.0, 3);

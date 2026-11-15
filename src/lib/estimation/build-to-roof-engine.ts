@@ -1358,6 +1358,20 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     );
     quantities.push(
       qtyLine(
+        "Internal wall footing blinding",
+        "Internal wall length × (Internal footing width + 2 × 100 mm projection) × Blinding thickness",
+        {
+          internal_length: input.internal_wall_length,
+          blinding_width: round(internalFootingWidth + 2 * BLINDING_PROJECTION_M),
+          blinding_thickness: input.blinding_thickness,
+        },
+        internalBlindingVol,
+        "m³",
+        input.wastage.cement,
+      ),
+    );
+    quantities.push(
+      qtyLine(
         "Internal wall footing concrete",
         "Internal wall length × Internal footing width × Footing thickness",
         {
@@ -1412,14 +1426,64 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
         input.prices.price_source,
       ),
     );
+    // Labour follows the operation that is actually being paid for. The old
+    // single line charged the concrete volume at the excavation rate and left
+    // the blinding unpriced.
     labour.push(
       labLine(
-        "Internal footing labour",
+        "Internal footing excavation labour",
         "m³",
-        internalExcavationVol + internalFoundationConcreteVol,
+        internalExcavationVol,
         input.labour.excavation_per_m3,
       ),
     );
+    labour.push(
+      labLine(
+        "Internal footing blinding labour",
+        "m³",
+        internalBlindingVol,
+        input.labour.blinding_per_m3,
+      ),
+    );
+    labour.push(
+      labLine(
+        "Internal footing concrete labour",
+        "m³",
+        internalFoundationConcreteVol,
+        input.labour.concrete_per_m3,
+      ),
+    );
+    // The internal trench is excavated and then refilled around the footing and
+    // blinding. External backfill is computed above from the external trench
+    // only, so without this the internal refill was never ordered or paid for.
+    const internalBackfillVol = Math.max(
+      0,
+      internalExcavationVol - internalFoundationConcreteVol - internalBlindingVol,
+    );
+    if (internalBackfillVol > 0) {
+      quantities.push(
+        qtyLine(
+          "Internal wall backfilling volume",
+          "Internal excavation − Internal footing concrete − Internal blinding",
+          {
+            excavation: round(internalExcavationVol),
+            concrete: round(internalFoundationConcreteVol),
+            blinding: round(internalBlindingVol),
+          },
+          internalBackfillVol,
+          "m³",
+          0,
+        ),
+      );
+      labour.push(
+        labLine(
+          "Internal footing backfilling labour",
+          "m³",
+          internalBackfillVol,
+          input.labour.backfilling_per_m3,
+        ),
+      );
+    }
   }
 
   // 10. Foundation blockwork (up to DPC), FIX: includes mortar joints in height

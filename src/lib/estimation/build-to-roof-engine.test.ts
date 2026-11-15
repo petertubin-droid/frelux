@@ -366,6 +366,65 @@ function makeValidInput(
   } as BuildToRoofInput;
 }
 
+describe("internal load-bearing wall footings (10a)", () => {
+  // Fixture: 10 x 8 m, perimeter 36 m, internal run 12 m, internal wall 0.15 m,
+  // footing width 0.6 m, depth 0.9 m, footing 0.225 m, blinding 0.05 m.
+  // internalFootingWidth = min(0.6, max(0.45, 0.15 + 0.3)) = 0.45 m
+  // excavation = 12 x 0.45 x 0.9        = 4.86 m3
+  // blinding   = 12 x 0.65 x 0.05       = 0.39 m3
+  // concrete   = 12 x 0.45 x 0.225      = 1.215 m3
+  // backfill   = 4.86 - 1.215 - 0.39    = 3.255 m3
+  // Foundation work sits in the "site_preparation" stage of the result.
+  const foundationStage = (r: ReturnType<typeof calculateBuildToRoof>) =>
+    r.stages.find((st) => st.stage === "site_preparation") ?? r.stages[0];
+  const qty = (r: ReturnType<typeof calculateBuildToRoof>, label: string) =>
+    foundationStage(r).quantities.find((q) => q.label === label);
+  const lab = (r: ReturnType<typeof calculateBuildToRoof>, label: string) =>
+    foundationStage(r).labour.find((l) => l.label === label);
+
+  it("prices the internal blinding as its own quantity line", () => {
+    const r = calculateBuildToRoof(makeValidInput());
+    const blinding = qty(r, "Internal wall footing blinding");
+    expect(blinding).toBeDefined();
+    expect(blinding?.base_quantity).toBeCloseTo(0.39, 3);
+  });
+
+  it("charges each internal operation at its own labour rate", () => {
+    const r = calculateBuildToRoof(makeValidInput());
+    const excavation = lab(r, "Internal footing excavation labour");
+    const blinding = lab(r, "Internal footing blinding labour");
+    const concrete = lab(r, "Internal footing concrete labour");
+    expect(excavation?.quantity).toBeCloseTo(4.86, 3);
+    expect(excavation?.rate).toBe(DEFAULT_LABOUR.excavation_per_m3);
+    expect(blinding?.quantity).toBeCloseTo(0.39, 3);
+    expect(blinding?.rate).toBe(DEFAULT_LABOUR.blinding_per_m3);
+    // Published to 2 dp by the engine: 1.215 rounds to 1.22.
+    expect(concrete?.quantity).toBeCloseTo(1.22, 2);
+    expect(concrete?.rate).toBe(DEFAULT_LABOUR.concrete_per_m3);
+    // The old single line charged concrete volume at the excavation rate.
+    expect(concrete?.rate).not.toBe(DEFAULT_LABOUR.excavation_per_m3);
+  });
+
+  it("orders the backfill that refills the internal trench", () => {
+    const r = calculateBuildToRoof(makeValidInput());
+    const backfill = qty(r, "Internal wall backfilling volume");
+    // Published to 2 dp: 3.255 rounds to 3.26.
+    expect(backfill?.base_quantity).toBeCloseTo(3.26, 2);
+    const backfillLabour = lab(r, "Internal footing backfilling labour");
+    expect(backfillLabour?.quantity).toBeCloseTo(3.26, 2);
+    expect(backfillLabour?.rate).toBe(DEFAULT_LABOUR.backfilling_per_m3);
+  });
+
+  it("drops all internal foundation scope when the switch is off", () => {
+    const r = calculateBuildToRoof(
+      makeValidInput({ include_internal_footings: false }),
+    );
+    expect(qty(r, "Internal wall footing blinding")).toBeUndefined();
+    expect(qty(r, "Internal wall backfilling volume")).toBeUndefined();
+    expect(lab(r, "Internal footing concrete labour")).toBeUndefined();
+  });
+});
+
 describe("validateBuildToRoofInput", () => {
   it("accepts a valid input", () => {
     expect(validateBuildToRoofInput(makeValidInput())).toEqual([]);
