@@ -3017,5 +3017,269 @@ export const faqSchemaByPath = {
       "q": "Can I price blinds outside Nigeria?",
       "a": "Yes, and the rules do not change. The measurement, the waste allowance, the minimum charge and the fitting are universal; what changes is the rate, so the calculator opens in any market and asks for the local rate where it has no verified band, then prices the schedule with the same arithmetic. What it leaves out is a site survey, a colour and fabric decision, a motor figure, and tax. It also leaves out the awkward openings: a bay, a sloping head, a door with a handle to clear. Those need a person with a tape and a sample book, and the calculator is honest about stopping where measurement stops."
     }
+  ],
+  "/faq/renovation-estimator": [
+    {
+      "q": "How does the renovation estimator measure a whole house?",
+      "a": "By treating each room as its own measurement. The room's length, width and height produce the perimeter, the floor area and the ceiling area, and the openings you declare are deducted from the wall area. Every trade is then applied against those surfaces only where that room's scope says it applies, so a bedroom that is not being tiled cannot produce a tiling line. At the end the totals are sums of the room lines, not a figure computed from a separate whole house model, which is why a single wrong room does not quietly corrupt everything else."
+    },
+    {
+      "q": "Can I use feet instead of metres?",
+      "a": "Yes, and the conversion happens once, at the boundary. A room entered in feet is converted to metres, measured there, and reported back in the unit it was entered in. Switching the unit while rooms are on screen converts the numbers already shown, so a room does not silently change size. This matters because most of the arithmetic errors in refurbishment estimates come from mixing a tape reading in one unit with a supplier price in another, and the tool refuses to hold two systems at once internally."
+    },
+    {
+      "q": "Why does the total stay blank until I enter prices?",
+      "a": "Because a total made of guessed rates is worse than no total at all. Each line is a quantity with a unit, and until you enter a price the line is listed as unpriced instead of shown as zero. Zero reads as free, and free is how a line disappears from a quote. When every line has a price the grand total appears, and the material and labour subtotals are reported separately so you can see which part of the job is driving the number."
+    },
+    {
+      "q": "Does the estimate include tax?",
+      "a": "It is returned as not determined, never as a default percentage. Tax sits between the estimate and the invoice, and it differs by country, by item and sometimes by the status of the buyer. A tool that applies one rate everywhere produces a number that looks authoritative and is wrong in most markets. Load the rate that applies to your jurisdiction, apply it to the priced subtotal, and keep the estimate honest about what it did and did not include."
+    },
+    {
+      "q": "What does it refuse to estimate?",
+      "a": "Statutory fees and approvals, structural design, asbestos removal, service connections, testing and certification, and any work it cannot measure from what you entered. Those appear as blockers or warnings attached to the relevant room or to the whole job, so they are visible while the estimate is being read. Naming a gap is more useful than an allowance, because the allowance is the line that gets cut and the gap is the line that gets paid for later."
+    }
+  ],
+  "/renovation-estimator": [
+    {
+      "q": "How is renovation waste measured?",
+      "a": "As a loose volume derived from the finishes you remove, with a bulking factor applied because stripped material occupies more space than it did in place. Tiles, screed, plaster and timber each produce a different volume for the same surface area, because each has a different thickness. The volumes are summed and reported, and only then converted to containers, so the count follows the work instead of an assumption about how big a refurbishment skip usually is."
+    },
+    {
+      "q": "Why does bulking matter?",
+      "a": "Because a container is priced by the space the material takes, not the space it occupied in the wall. Loose rubble, plaster and tile sit with air between the pieces, so the volume grows by a factor that depends on the material and how finely it was broken. Ignoring bulking is how a container that looked generous is full by lunchtime, and how a second container is ordered at short notice and at a worse rate than the first."
+    },
+    {
+      "q": "What waste cannot go in a general container?",
+      "a": "Asbestos containing material, lead painted items, aerosols, solvents, some sealants and anything contaminated with oil or fuel. Those need separate handling and, in most countries, a licensed carrier and documented disposal. The tool names them so they are not counted into a general container, because a carrier who finds them in a mixed load can refuse the load or charge to sort it, and both outcomes cost more than handling it properly from the start."
+    },
+    {
+      "q": "Does the tool include the carrier's charges?",
+      "a": "It reports volume and container loads. Disposal charges, permits, weight limits and landfill taxes differ by council, by country and by the class of waste, and they change. Inventing a figure would make the estimate look complete and be wrong. Enter the real charge from a real quote and the total becomes meaningful, in the currency and the market you are actually working in."
+    },
+    {
+      "q": "Can I reduce the volume?",
+      "a": "Sometimes. Segregating timber, metal and rubble allows some of it to be recycled or sold, and on a large job crushing rubble on site can cut the number of loads. Clean plasterboard and clean timber are easier to divert than a mixed container. That is a site plan decision, and the tool leaves the volume and the container count visible so the saving from a better plan can actually be measured instead of asserted."
+    }
+  ],
+  "/faq/renovation-strip-out": [
+    {
+      "q": "How much debris does stripping a room actually produce?",
+      "a": "From the finish, the area and a thickness. The tool measures the surface you are stripping, applies a thickness for that particular finish, and converts the result to a volume. Tiles carry their bedding, screed carries its full depth, plaster carries its coat, and timber carries its section. The volumes are then summed and bulked. That is why two rooms with the same floor area can produce very different arisings, and why the finish you declare is the most important input on the line."
+    },
+    {
+      "q": "Why does the tool ask what the existing finish is?",
+      "a": "Because a container is priced by the space the material takes up, not by the space it occupied in the wall. Loose rubble, plaster and tile sit with air between them, so the volume grows by a factor that depends on the material and how it was broken up. Ignoring bulking is how a skip that looked generous is full by lunchtime and a second one is ordered at short notice, usually at a worse rate than the first."
+    },
+    {
+      "q": "What happens if the building predates 2000?",
+      "a": "Asbestos containing materials were used in floor tiles, ceiling tiles, pipe lagging, cement sheet, textured coatings and gaskets, and they were still being installed into the 1980s and in some places later. They are only identified by survey and laboratory testing, and disturbing them is a health risk and a legal matter in most countries. The tool raises the survey as a warning for older buildings because pricing removal without a survey would be inventing both the quantity and the method."
+    },
+    {
+      "q": "Is demolition of a partition included?",
+      "a": "Only when you state it. Removing a wall is not one line: there is the debris, the making good to the floor and ceiling where it met, the adjoining surfaces that were finished up to it, and usually a structural question about what is carrying the load above. The tool measures the debris and the making good it can see from your inputs, and it flags the structural question instead of deciding that the wall is safe to remove."
+    },
+    {
+      "q": "How are skip or container loads worked out?",
+      "a": "You state the container size, because sizes differ by market and by supplier, and a guessed size would produce a confident wrong count. The loose volume is divided by that size and rounded up, since a partly full container is still a container. If you leave the size empty the tool reports the volume only, which is the honest answer when the local skip is measured in cubic yards, in cubic metres, or by weight instead of volume."
+    }
+  ],
+  "/faq/renovation-plastering": [
+    {
+      "q": "How thick is plaster, and why does it matter?",
+      "a": "Internal plaster is usually a backing coat and a thin finish coat, around twelve to fifteen millimetres in total, and render on an external wall is often thicker. The thickness sets the mortar volume, which sets the cement and sand order, and it also changes the finished level of the wall against adjoining surfaces. That last part matters in a refurbishment: a patch that is noticeably proud of the surrounding wall is a making good problem that costs more to fix than the plaster did."
+    },
+    {
+      "q": "Does the tool deduct doors and windows from plaster area?",
+      "a": "They are deducted from the wall area, and the tool reports the opening perimeters separately because openings also create trim work. A room with a wide window and a full height door loses several square metres of plaster, which on a small job is a real bag of cement. The deduction uses the openings you declare, so a survey that measures the actual reveals gives a better answer than a guess from a photograph."
+    },
+    {
+      "q": "Can I plaster straight over paint or tiles?",
+      "a": "Not without preparation. Glossy paint needs a key or a bonding agent, distemper and some older coatings need removal, and tiles normally come off before plaster goes on. This is why the strip out lines exist as their own measured work instead of being assumed free inside the plaster line. A plasterer who arrives at a wall that has not been prepared will either refuse the job or charge for the preparation at a worse rate than a planned strip out would have cost."
+    },
+    {
+      "q": "How long does new plaster take to dry?",
+      "a": "Roughly a day per millimetre of thickness for the moisture to leave, and longer in cool, humid weather without ventilation. Dehumidifiers help on a refurbishment but they cost to run and they need the building to be closed. Painting too early traps that moisture and produces blistering, patchy sheen and, in the worst cases, a finish that peels. The tool reports the plaster quantity and warns when a paint line follows new plaster, so the programme decision is made with the drying time in view."
+    },
+    {
+      "q": "What about corners, beads and reveals?",
+      "a": "They are linear work, not area. The tool reports the skirting run for each room and the perimeters of the openings it deducted, which is the figure trim, corner beads, stop beads and reveals are priced against. Pricing them as a percentage of the wall area is guesswork that hides the difference between a room with two doors and a run of plain wall, and the difference is what a tradesman actually charges for."
+    }
+  ],
+  "/faq/renovation-screed": [
+    {
+      "q": "How is screed quantity calculated?",
+      "a": "Floor area times the thickness you state, with the cement and sand expanded from that volume at the ratio in use. The tool shows the area it measured and the thickness it applied, so the volume can be checked by hand. Because screed is bought as sand and cement instead of as a ready product in most of the markets FRELUX serves, the mix ratio matters as much as the volume, and both are stated instead of assumed."
+    },
+    {
+      "q": "Bonded, unbonded or floating screed?",
+      "a": "Bonded screed is thin and bonded to a prepared slab, unbonded sits on a separation layer and is thicker, and a floating screed sits over insulation and is thicker again. The tool measures the volume you ask for and states the thickness it used. It does not choose the type, because that depends on the substrate, the build up, the insulation and whether there is underfloor heating, and those are decisions for whoever is building the floor."
+    },
+    {
+      "q": "How long before I can lay tiles or flooring?",
+      "a": "Traditional sand and cement screed dries slowly, on the order of a millimetre a day, and a 50 millimetre screed is therefore weeks instead of days, longer in a cool building without ventilation. Laying a floor finish over damp screed traps moisture under an impermeable layer and produces lifting, swelling and adhesive failure. The tool warns when a flooring line follows a new screed so the programme can be planned around drying instead of discovering it after the floor is laid."
+    },
+    {
+      "q": "Do wet rooms need falls?",
+      "a": "Yes, and a level screed is the wrong answer in a shower or wet room. Falls to a drain are a designed gradient, and the thickness varies across the floor as a result, which is a different calculation from a flat slab with an average depth. The tool flags wet areas as needing a laid to fall detail instead of pretending to measure one, because the fall depends on the drain position and the shower type."
+    },
+    {
+      "q": "Can screed replace the old floor build up?",
+      "a": "Only within limits. Screed is heavy, and on an upper floor that weight has to be carried by the slab and the structure below. The tool reports volume and thickness so the load is visible to whoever is checking the structure, and it flags the structural question. It does not decide whether a floor can take an extra 50 millimetres, and neither should an estimate."
+    }
+  ],
+  "/faq/renovation-tiling": [
+    {
+      "q": "How much tile waste should I allow?",
+      "a": "It depends on the pattern and the shape of the room, not on habit. A straight lay in a simple room wastes least, a diagonal or herringbone lay wastes more, and a small room with many cuts wastes more than a large open floor. The tool states the layout waste it applied and reports the net area beside the buy area, so you can see the difference and price the tile on the quantity you will actually pay for instead of the area you measured."
+    },
+    {
+      "q": "Does the tool count adhesive and grout?",
+      "a": "Adhesive against the bought tile area, using a coverage for the notch size in use, and grout against the joint width, tile size and thickness. They are separate lines because they are bought separately and they run out at different times. A deep notch for a large format tile uses noticeably more adhesive than a shallow one for a mosaic, and that difference is invisible if adhesive is priced as a percentage of the tile cost."
+    },
+    {
+      "q": "Why does substrate flatness matter so much?",
+      "a": "Because tile and adhesive tolerances are tight. Standards for wall and floor tiling allow only a few millimetres of deviation under a two metre straightedge, and a wavy substrate cannot be tiled within that tolerance by using more adhesive. It needs levelling compound or preparation first, which is measured work. The tool names levelling as a separate item because folding it into the tiling rate makes the tiling look expensive and the levelling look free, which is the wrong way round."
+    },
+    {
+      "q": "Are wet areas treated differently?",
+      "a": "Yes. Shower and wet room floors need a waterproofing layer under the tile, and the wall junctions and upstands need detailing instead of a bead of sealant. The tool flags unmeasured waterproofing in wet areas instead of including a token allowance, because tanking area depends on the shower type, the tray and the wall build up, and a guess here produces either a leak or a wasted roll of membrane."
+    },
+    {
+      "q": "How do I price tiles I have already chosen?",
+      "a": "Enter the price per square metre or per box against the tile line, and apply it to the bought area the tool reports so the order matches what you pay for. Pricing the net area leaves you short of the waste you still have to buy, and it is the single most common reason a tiling order arrives one box light. The same logic applies to adhesive and grout: price them from their own lines, which were computed from the bought area."
+    }
+  ],
+  "/faq/renovation-flooring": [
+    {
+      "q": "Does the estimator measure each room for flooring?",
+      "a": "Yes, room by room, and it does not merge them into one area. Separate rooms mean separate cuts, separate thresholds and separate offcuts, which is why a house measured as one big rectangle comes up short on the order. The tool reports each room's area and a total, so a supplier order can be checked against the rooms you measured and a shortfall can be traced to the room that caused it."
+    },
+    {
+      "q": "What allowance does it make for fitting?",
+      "a": "It applies a layout waste to the floor finish so the buy quantity covers cuts and edges, and it reports the skirting run so the trim can be priced from a length. Underlay, gripper, adhesive, beading and thresholds are separate decisions and are not invented, because their quantities depend on the product you choose and the way it is fixed, not on the area alone."
+    },
+    {
+      "q": "Does the subfloor have to be dry?",
+      "a": "For most finishes, yes, and this is the failure that shows up first. Timber expands with moisture, vinyl adhesive releases, and laminate joints swell. The tool warns when a new floor finish sits over a new screed, because that sequence is the commonest cause of a floor failing in its first year, and it is the warning that saves the most money on a refurbishment programme."
+    },
+    {
+      "q": "How are imperial rooms handled?",
+      "a": "Rooms entered in feet are converted to metres once, measured there, and reported back in the unit you used. The area you see is the area you measured, so a room of twelve by ten feet does not silently become a metric figure you cannot check with a tape. This matters more than it sounds, because a flooring order is placed from the numbers on the screen, and a mismatch between what was measured and what was ordered is a costly argument."
+    },
+    {
+      "q": "Is the old floor removed as part of the estimate?",
+      "a": "Only if you tick strip out for that room and state what is there. Taking up carpet is not the same job as taking up tiles on a mortar bed, and the tool measures arisings from the finish you declare instead of from an average. That distinction also decides the container count, because a tile bed produces several times the volume of a carpet and underlay."
+    }
+  ],
+  "/faq/renovation-ceilings": [
+    {
+      "q": "How is ceiling area calculated?",
+      "a": "It is the room's plan area, length times width, with no deduction for light fittings or for the space above a unit. Ceiling work is measured flat because that is how it is boarded, taped and painted, and the area does not change when the ceiling is dropped. The tool reports the area per room and a total, so a boarding order and a paint quantity are built on the same measurement."
+    },
+    {
+      "q": "Which board should I use in a bathroom?",
+      "a": "A moisture resistant board, and in some cases a cement based board. Standard plasterboard softens and sags in a wet environment, and the failure usually appears at a joint above a shower. The tool asks for the ceiling type and reports the area; the board choice changes the price and the specification, not the quantity, which is why it is your decision and not a silent default."
+    },
+    {
+      "q": "Does a new ceiling mean I can hide cables and pipes?",
+      "a": "It gives you the opportunity, and it is the cheapest moment to take it. Dropped ceilings hide cables, pipes and ductwork, but they also lose headroom and they need access hatches at valves, junctions and controls. The tool will measure the ceiling area; it will not design the void, and a service running through a void still needs support, access and, in the case of drainage, a fall."
+    },
+    {
+      "q": "What about downlights and fire ratings?",
+      "a": "A hole in a fire rated ceiling weakens it unless the fitting is rated for that ceiling and installed the way the rating requires. That is a specification question, not a quantity question. The tool names the fire rating as a decision to resolve before the lighting layout is fixed, because discovering it after the holes are cut means replacing the ceiling or accepting a non compliant detail."
+    },
+    {
+      "q": "Are old ceilings removed?",
+      "a": "When you tick strip out for that room, and it is measured as its own line with its own arisings. Old lath and plaster ceilings are heavy, messy and slow to remove, and some older boards and textured coatings contain asbestos. That is why a survey warning appears for buildings from before 2000, and why removal is not folded into the price of a new ceiling."
+    }
+  ],
+  "/faq/renovation-repaint": [
+    {
+      "q": "Why does new plaster need less paint than a repaint?",
+      "a": "Because absorption and texture change how much paint the wall takes. Fresh plaster is porous and pulls the first coat in, which is why a sealing mist coat is used before the finish coats. A previously painted wall that is sound and sealed absorbs much less, so the same area needs fewer litres. Textured finishes, bare render and repaired patches take more again. The tool applies a factor per surface and states which surface it applied, so the difference between two quotes for the same room becomes explainable."
+    },
+    {
+      "q": "How many coats should I allow?",
+      "a": "Two is normal over a prepared surface, three over a strong colour change or a heavily repaired wall. You state the coats and the tool multiplies by them. It also warns when a coat count looks implausible for the work described, because a single coat over a colour change is a specification that will fail, and a number that quiet in an estimate becomes an argument on site."
+    },
+    {
+      "q": "Does it include filling and sanding?",
+      "a": "They are preparation, and preparation follows from strip out and making good, which are their own measured lines. Painting over filler dust or a glossy patch fails, so the sanding and the spot priming belong to the making good work instead of to the paint volume. The tool measures paint and names the gap; if filling and sanding need pricing, they should be measured as work, not assumed inside a rate."
+    },
+    {
+      "q": "Are ceilings and walls priced the same?",
+      "a": "They are measured separately because they are different surfaces with different access. A ceiling is worked overhead, which is slower and harder on the body, and in a small room the ceiling area is often close to the floor area instead of a fraction of the wall. Reporting them separately lets a decorator price the two positions honestly instead of blending them into one rate."
+    },
+    {
+      "q": "What about doors, trim and skirting?",
+      "a": "They are linear and unit work, not wall area. The tool reports the skirting run it measured and the door count for each room, so trim, frames and door faces can be priced against a length and a number. Pricing them as a percentage of the wall is guesswork that hides the difference between a room with one door and a hall with six."
+    }
+  ],
+  "/faq/renovation-electrical-points": [
+    {
+      "q": "How are electrical points counted?",
+      "a": "As points, one by one, per room. A socket, a switch, a light and a data outlet are each a point with its own box, its own cable and its own termination. Counting points is honest and it is checkable against a plan. Counting rooms as a lump hides the difference between a bedroom with two sockets and a kitchen with eight, which is most of the labour on a rewire."
+    },
+    {
+      "q": "Does the tool design the circuit?",
+      "a": "No. It measures the points you ask for, and that is where it stops. Cable sizing, circuit arrangement, protective device ratings, earthing and the earthing system itself are design decisions that belong to a competent electrician working to the wiring regulations in force where the building is. Those decisions are also certified, and a certification is not something an estimate can produce from a room dimension."
+    },
+    {
+      "q": "First fix or second fix?",
+      "a": "Both are needed and they happen at different times. First fix is chasing, boxes, cable and containment, done before the walls are closed and before the plaster and paint. Second fix is the fittings, done after decoration. The tool measures from the point count and the stage you are working at, and the split matters because doing second fix work early means taking it off again to decorate."
+    },
+    {
+      "q": "Are chases and making good included?",
+      "a": "Chasing into plaster or block produces dust, debris and a channel that has to be filled and made good before plaster and paint. The tool names chase patching as unmeasured instead of burying it in the point price, because the length of chase depends on the route and the route depends on the building. Naming it lets it be priced deliberately, and it is a line a cheap electrical quote always leaves out."
+    },
+    {
+      "q": "Is testing and certification included?",
+      "a": "It is named as a requirement, not priced. A completion certificate with test results is part of the job, and it is the electrician's responsibility. Nothing in a material estimate substitutes for it, and a refurbishment that closes up walls without a test on the wiring is a liability that surfaces at the next inspection or at the next sale."
+    }
+  ],
+  "/faq/renovation-plumbing-points": [
+    {
+      "q": "What counts as a plumbing point?",
+      "a": "A fitting that needs a water supply or a waste connection. A basin, a WC, a bath, a shower, a sink, a washing machine point and an outside tap all count, and each is counted separately because each has its own supply, its own waste and its own isolation. Counting them this way makes a bathroom refit comparable between quotes, because the point count can be read against the drawing."
+    },
+    {
+      "q": "Does the estimate include pipe runs and falls?",
+      "a": "It counts points and states that runs are not measured. A waste run needs a fall, and a fall needs a length, and the length depends on where the stack sits in your building. That is a site measurement and often a structural one, since a new run may need a floor lifted or a ceiling dropped. The tool flags it instead of guessing a pipe length from a room size, because a guessed length is a made up price."
+    },
+    {
+      "q": "Why does moving a bathroom cost more than refitting one?",
+      "a": "Because moving a point moves the supply, the waste and often the falls. A refit keeps the positions and changes the fittings, so the work is mainly second fix. A move turns a fitting job into a drainage job, and drainage is where the cost, the risk and the making good sit. The tool separates the two by measuring points and flagging runs, so the difference is visible before the quote is agreed instead of during the work."
+    },
+    {
+      "q": "Are waterproofing and tanking included?",
+      "a": "They are flagged in wet areas, not measured, because the area depends on the shower type, the tray, the floor build up and the wall finishes. Tanking is cheap when it is done during strip out and expensive when it is done after a leak, which is why it is named at the point in the sequence where it belongs. The tool does not add a token allowance, because a token allowance is the line that gets cut."
+    },
+    {
+      "q": "Is pressure testing and commissioning included?",
+      "a": "It is named as a requirement. A renovated system needs to be proved before it is closed up, and the proof is a test with a recorded result. That is not a quantity the tool can derive from room sizes, and it is not optional work that can be dropped from a quote to make the number look better. The same applies to commissioning any new boiler, cylinder or pump."
+    }
+  ],
+  "/faq/renovation-waste": [
+    {
+      "q": "How is renovation waste measured?",
+      "a": "As a loose volume derived from the finishes you remove, with a bulking factor applied because stripped material occupies more space than it did in place. Tiles, screed, plaster and timber each produce a different volume for the same surface area, because each has a different thickness. The volumes are summed and reported, and only then converted to containers, so the count follows the work instead of an assumption about how big a refurbishment skip usually is."
+    },
+    {
+      "q": "Why does bulking matter?",
+      "a": "Because a container is priced by the space the material takes, not the space it occupied in the wall. Loose rubble, plaster and tile sit with air between the pieces, so the volume grows by a factor that depends on the material and how finely it was broken. Ignoring bulking is how a container that looked generous is full by lunchtime, and how a second container is ordered at short notice and at a worse rate than the first."
+    },
+    {
+      "q": "What waste cannot go in a general container?",
+      "a": "Asbestos containing material, lead painted items, aerosols, solvents, some sealants and anything contaminated with oil or fuel. Those need separate handling and, in most countries, a licensed carrier and documented disposal. The tool names them so they are not counted into a general container, because a carrier who finds them in a mixed load can refuse the load or charge to sort it, and both outcomes cost more than handling it properly from the start."
+    },
+    {
+      "q": "Does the tool include the carrier's charges?",
+      "a": "It reports volume and container loads. Disposal charges, permits, weight limits and landfill taxes differ by council, by country and by the class of waste, and they change. Inventing a figure would make the estimate look complete and be wrong. Enter the real charge from a real quote and the total becomes meaningful, in the currency and the market you are actually working in."
+    },
+    {
+      "q": "Can I reduce the volume?",
+      "a": "Sometimes. Segregating timber, metal and rubble allows some of it to be recycled or sold, and on a large job crushing rubble on site can cut the number of loads. Clean plasterboard and clean timber are easier to divert than a mixed container. That is a site plan decision, and the tool leaves the volume and the container count visible so the saving from a better plan can actually be measured instead of asserted."
+    }
   ]
 };

@@ -21,7 +21,11 @@ import { isLocalePrefixed } from "./lib/locale-paths.mjs";
  * the moment it ships without a second list to maintain.
  */
 function faqArticleRoutes() {
-  const files = ["src/config/tool-faqs.ts", "src/config/engine-faqs.ts"];
+  const files = [
+    "src/config/tool-faqs.ts",
+    "src/config/engine-faqs.ts",
+    "src/config/faq-renovation.ts",
+  ];
   const slugs = new Set();
   for (const file of files) {
     let source = "";
@@ -422,6 +426,11 @@ const routes = [
   { path: "/flooring", priority: "0.9", changefreq: "monthly" },
   { path: "/reinforcement", priority: "0.9", changefreq: "monthly" },
   { path: "/foundation", priority: "0.9", changefreq: "monthly" },
+  {
+    path: "/renovation-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
   {
     path: "/retaining-wall-calculator",
     priority: "0.9",

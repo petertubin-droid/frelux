@@ -30,6 +30,7 @@ export interface ToolFaqGroup {
 }
 
 import { ENGINE_FAQ_GROUPS } from "@/config/engine-faqs";
+import { RENOVATION_FAQ_GROUPS } from "@/config/faq-renovation";
 
 export type FaqCategoryId =
   | "finishes"
@@ -656,6 +657,7 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
+  ...RENOVATION_FAQ_GROUPS,
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

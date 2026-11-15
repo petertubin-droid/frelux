@@ -923,6 +923,7 @@ export default function RenovationEstimator() {
       seoTitle="Renovation Cost Estimator: Room by Room Quantities | FRELUX"
       seoDescription="Measure a renovation room by room in metres or feet: strip out, plaster, screed, tiling, ceilings, paint, power and plumbing points. Load a property template or build a custom room list, then price the takeoff at your own rates."
       breadcrumbName="Renovation Estimator"
+      faqSlug="renovation-estimator"
       routePath="/renovation-estimator"
       limitations={[
         "This is a measured takeoff, not a fixed price. It measures the work stated, and nothing for work that was not stated.",

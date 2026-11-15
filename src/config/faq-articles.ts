@@ -12,6 +12,7 @@
  */
 
 import { ENGINE_FAQ_ARTICLES } from "@/config/engine-faqs";
+import { RENOVATION_FAQ_ARTICLES } from "@/config/faq-renovation";
 
 export interface FaqArticle {
   /** One sentence standfirst under the page title. */
@@ -484,6 +485,7 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
 export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
   ...FAQ_ARTICLES,
   ...ENGINE_FAQ_ARTICLES,
+  ...RENOVATION_FAQ_ARTICLES,
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {

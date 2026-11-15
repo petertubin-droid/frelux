@@ -483,6 +483,21 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
   },
   {
+    slug: "renovation-estimator",
+    title: "Renovation Cost Estimator",
+    category: "project",
+    icon: Hammer,
+    does: "Measure a refurbishment room by room: strip out and its arisings, plaster, screed, tiling, flooring, ceilings, paint, power points and plumbing points, then price the takeoff at your own supplier rates.",
+    enters:
+      "The rooms and their length, width and height in metres or feet, the existing wall and floor finish in each room, the work to be done there, the point counts, whether the property is occupied and the year it was completed.",
+    gets: "Net quantities with the waste allowance stated beside them, container loads for the arisings, every line unpriced until you enter a price, and tax left as not determined rather than assumed.",
+    to: "/renovation-estimator",
+    benefit: "Room by room · Strip out · Repaint",
+    seoTitle: "Renovation Cost Estimator: Room by Room Takeoff | FRELUX",
+    seoDescription:
+      "Estimate a renovation room by room in metres or feet. Strip out, plaster, screed, tiling, flooring, ceilings, paint and services, measured from your dimensions and priced at your own rates.",
+  },
+  {
     slug: "temporary-works-calculator",
     title: "Formwork & Temporary Works",
     category: "structure",

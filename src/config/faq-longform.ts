@@ -34,6 +34,8 @@ import { SAFETY_LONGFORM } from "@/config/faq-longform/safety";
 import { WATER_LONGFORM } from "@/config/faq-longform/water";
 import { BLINDS_LONGFORM } from "@/config/faq-longform/blinds";
 import { INTERIORS_LONGFORM } from "@/config/faq-longform/interiors";
+import { RENOVATION_LONGFORM } from "@/config/faq-longform/renovation";
+import { RENOVATION2_LONGFORM } from "@/config/faq-longform/renovation2";
 
 export interface LongFormArticle {
   /** Introduction, with a blank line between paragraphs. */
@@ -67,6 +69,8 @@ export const LONG_FORM_ARTICLES: Record<string, LongFormArticle> = {
   ...WATER_LONGFORM,
   ...BLINDS_LONGFORM,
   ...INTERIORS_LONGFORM,
+  ...RENOVATION_LONGFORM,
+  ...RENOVATION2_LONGFORM,
 };
 
 export function longFormFor(slug: string): LongFormArticle | null {
