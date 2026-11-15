@@ -32,6 +32,16 @@
 import type { MixComponent } from "@/types/wallfinishing";
 import { mixComponentQuantity } from "@/lib/wallfinishing/quantity-engine";
 import { calculateDemolitionTakeoff } from "@/lib/estimation/demolition-standalone-engine";
+import { LITRES_PER_US_GALLON } from "@/lib/estimation/paint-engine";
+import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
+import {
+  FT_TO_M,
+  fromMeters,
+  fromSqMeters,
+  toMeters,
+  toSqMeters,
+  type AreaUnit,
+} from "@/lib/measurement/units";
 import {
   MORTAR_DRY_VOLUME_FACTOR,
   PAINT_SURFACE_FACTORS,
@@ -92,7 +102,10 @@ export function resolveRenovationPaintSurface(surface?: string | null): {
 }
 
 /** One imperial foot in metres. Rooms may be entered in either system. */
-export const FEET_TO_METRES = 0.3048;
+export const FEET_TO_METRES = FT_TO_M;
+
+/** Exact cubic conversion, derived from the one foot factor. */
+export const CUBIC_METRES_TO_CUBIC_FEET = 1 / FT_TO_M ** 3;
 
 /** A standard internal door leaf, used when deducting skirting at openings. */
 export const DOOR_LEAF_WIDTH_M = 0.9;
@@ -223,7 +236,11 @@ export interface RenovationRoomInput {
   height: number;
   /** Entry units. Everything is measured in metres internally. */
   unit?: "m" | "ft";
+  /** Opening area in square metres. Always metric, whatever the room unit. */
   openingAreaM2?: number;
+  /** Opening area stated in `openingAreaUnit`; imperial rooms usually say sqft. */
+  openingArea?: number;
+  openingAreaUnit?: AreaUnit;
   doorCount?: number;
   windowCount?: number;
   layout?: LayoutComplexityKey;
@@ -248,6 +265,7 @@ export interface RenovationRoomInput {
           ceiling?: boolean;
           coats?: number;
           surface?: RenovationPaintSurface;
+          ceilingSurface?: RenovationPaintSurface;
         };
     screed?: boolean | { thicknessMm?: number };
     tiling?: {
@@ -261,8 +279,14 @@ export interface RenovationRoomInput {
     };
     flooring?: boolean | { material?: string };
     ceiling?: boolean | { type?: "pop" | "plasterboard" | "pvc" };
+    demolishPartitions?: {
+      areaM2: number;
+      thicknessMm?: number;
+      loadBearing?: boolean;
+    };
     joinery?: {
       doors?: number;
+      windows?: number;
       wardrobeRunM?: number;
       kitchenRunM?: number;
     };
@@ -334,6 +358,8 @@ export interface RenovationRoomMetrics {
 
 export interface RenovationLabourFactor {
   factor: number;
+  /** Penalties are for labour only. Quantities are never scaled by them. */
+  appliesTo: "labour_only";
   reasons: string[];
   clamped: boolean;
   /** Inputs that could not be resolved and therefore were not charged. */
@@ -381,7 +407,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function toMetres(value: number, unit: "m" | "ft" | undefined): number {
-  return unit === "ft" ? value * FEET_TO_METRES : value;
+  return toMeters(value, unit === "ft" ? "feet" : "meters");
 }
 
 function tileArea(row: {
@@ -431,7 +457,13 @@ export function roomMetrics(room: RenovationRoomInput): RenovationRoomMetrics {
   const floorAreaM2 = lengthM * widthM;
   const perimeterM = 2 * (lengthM + widthM);
   const wallAreaGrossM2 = perimeterM * heightM;
-  const requestedOpening = positive(room.openingAreaM2);
+  const requestedOpening =
+    room.openingArea !== undefined && Number.isFinite(Number(room.openingArea))
+      ? toSqMeters(
+          positive(room.openingArea),
+          room.openingAreaUnit ?? (unit === "ft" ? "sqft" : "sqm"),
+        )
+      : positive(room.openingAreaM2);
   const openingAreaM2 = Math.min(requestedOpening, wallAreaGrossM2);
   const wallAreaNetM2 = Math.max(0, wallAreaGrossM2 - openingAreaM2);
   const doorCount = Math.max(0, Math.round(positive(room.doorCount)));
@@ -504,6 +536,7 @@ export function renovationLabourFactor(input: {
   );
   return {
     factor: round(clampedFactor, 3),
+    appliesTo: "labour_only",
     reasons,
     clamped: clampedFactor !== round(factor, 3),
     unknowns,
@@ -524,6 +557,21 @@ export function calculateRenovation(
   if (!marketCode || marketCode.length !== 2) {
     blockers.push(
       "A two letter market code is required before anything is measured.",
+    );
+  } else if (!(ALL_MARKET_CODES as readonly string[]).includes(marketCode)) {
+    // Quantities are still measurable, but nothing downstream can price or tax
+    // a market the registry does not hold. Say so instead of letting it through.
+    warnings.push(
+      `Market ${marketCode} is not in the FRELUX market registry, so pricing, tax and cost codes cannot be resolved for it. The quantities below are still valid.`,
+    );
+    flags.add("market_not_in_registry");
+  }
+
+  const rawCurrency = (input.currencyCode ?? "").trim().toUpperCase();
+  const currencyCode = rawCurrency || null;
+  if (rawCurrency && !/^[A-Z]{3}$/.test(rawCurrency)) {
+    warnings.push(
+      `Currency "${input.currencyCode}" is not a three letter ISO 4217 code. It has been carried through for display only and no conversion has been applied.`,
     );
   }
 
@@ -556,8 +604,22 @@ export function calculateRenovation(
     quantity?: number;
   }> = [];
 
+  const usedRoomIds = new Set<string>();
   for (const room of roomInputs) {
     const metrics = roomMetrics(room);
+    if (usedRoomIds.has(metrics.id)) {
+      let suffix = 2;
+      let candidate = `${metrics.id}#${suffix}`;
+      while (usedRoomIds.has(candidate)) {
+        suffix += 1;
+        candidate = `${metrics.id}#${suffix}`;
+      }
+      warnings.push(
+        `Room id "${metrics.id}" was used more than once and has been treated as "${candidate}" so its lines stay unique.`,
+      );
+      metrics.id = candidate;
+    }
+    usedRoomIds.add(metrics.id);
     rooms.push(metrics);
     const unit = room.unit ?? "m";
     if (metrics.floorAreaM2 <= 0 || metrics.wallAreaGrossM2 <= 0) {
@@ -598,7 +660,10 @@ export function calculateRenovation(
       existing.ceilingFinish &&
       existing.ceilingFinish !== "none";
 
-    let strippedWallAreaM2 = 0;
+    /** Area that needs new backing plaster because the finish took it with it. */
+    let strippedNeedsRenderM2 = 0;
+    /** Area that only needs surface preparation: paint and paper come off clean. */
+    let strippedNeedsPrepM2 = 0;
 
     if (stripOut.wallFinish === true && !existing.wallFinish) {
       warnings.push(
@@ -608,7 +673,12 @@ export function calculateRenovation(
 
     if (stripWall) {
       const areaM2 = metrics.wallAreaNetM2;
-      strippedWallAreaM2 += areaM2;
+      // Tiles and render come off with the backing; paint and paper do not.
+      if (existing.wallFinish === "tiles" || existing.wallFinish === "render") {
+        strippedNeedsRenderM2 += areaM2;
+      } else {
+        strippedNeedsPrepM2 += areaM2;
+      }
       if (existing.wallFinish === "tiles") {
         lines.push(
           line({
@@ -756,7 +826,29 @@ export function calculateRenovation(
     }
 
     // --- making good ----------------------------------------------------
-    if (strippedWallAreaM2 > 0) {
+    // Paint and paper come off clean: the wall needs preparation, not render.
+    // Tiles and render take the backing with them, so that area is re-rendered.
+    if (strippedNeedsPrepM2 > 0) {
+      lines.push(
+        line({
+          id: `${metrics.id}-make-good-prep`,
+          trade: "making_good",
+          roomId: metrics.id,
+          roomName,
+          description: "Prepare stripped wall surface to receive new finish",
+          quantity: round(strippedNeedsPrepM2, 2),
+          unit: "m2",
+          basis: `${round(strippedNeedsPrepM2, 2)} m2 of existing paint or paper removed, filled, abraded and sealed. No render is measured because the backing is untouched.`,
+          costClass: "labour",
+          taxClass: "works",
+          provenance: "derived_convention",
+          flags: ["verify_substrate_condition"],
+        }),
+      );
+    }
+
+    if (strippedNeedsRenderM2 > 0) {
+      const strippedWallAreaM2 = strippedNeedsRenderM2;
       const thicknessM = plasterThicknessMm / 1000;
       const wetVolumeM3 = strippedWallAreaM2 * thicknessM;
       const dryVolumeM3 = wetVolumeM3 * MORTAR_DRY_VOLUME_FACTOR;
@@ -810,6 +902,46 @@ export function calculateRenovation(
             taxClass: "materials",
             provenance: "measured",
           }),
+        );
+      }
+    }
+
+    // --- partition removal ----------------------------------------------
+    if (work.demolishPartitions) {
+      const partitions = work.demolishPartitions;
+      const partArea = positive(partitions.areaM2);
+      const thicknessMm = positive(partitions.thicknessMm) || 100;
+      if (partArea > 0) {
+        lines.push(
+          line({
+            id: `${metrics.id}-partition-removal`,
+            trade: "strip_out",
+            roomId: metrics.id,
+            roomName,
+            description: "Remove non load bearing partition",
+            quantity: round(partArea, 2),
+            unit: "m2",
+            basis: `${round(partArea, 2)} m2 of partition stated by the user at ${thicknessMm} mm for debris volume.`,
+            costClass: "labour",
+            taxClass: "works",
+            provenance: "user_provided",
+            flags: ["confirm_partition_is_non_loadbearing", "debris_arising"],
+          }),
+        );
+        debrisItems.push({
+          type: "wall",
+          lengthM: partArea,
+          widthM: 1,
+          thicknessM: thicknessMm / 1000,
+        });
+        if (partitions.loadBearing !== false) {
+          warnings.push(
+            `Room ${roomName}: partition removal has not been confirmed as non load bearing. A structural check and any beam or pier are not included.`,
+          );
+        }
+      } else {
+        warnings.push(
+          `Room ${roomName}: partition removal was requested without an area.`,
         );
       }
     }
@@ -1047,7 +1179,9 @@ export function calculateRenovation(
         }
 
         if (adhesiveCoverage > 0) {
-          const bags = Math.ceil(surface.areaM2 / adhesiveCoverage);
+          // Adhesive is laid on the tiles bought, not on the measured area,
+          // so the cutting waste is carried into the bag count.
+          const bags = Math.ceil(areaToBuy / adhesiveCoverage);
           lines.push(
             line({
               id: `${metrics.id}-tile-${surface.key}-adhesive`,
@@ -1057,7 +1191,7 @@ export function calculateRenovation(
               description: "Tile adhesive",
               quantity: bags,
               unit: "bag",
-              basis: `${surface.areaM2} m2 ÷ ${adhesiveCoverage} m2 per bag = ${bags} bags, rounded up.`,
+              basis: `${round(areaToBuy, 2)} m2 to buy ÷ ${adhesiveCoverage} m2 per bag = ${bags} bags, rounded up.`,
               costClass: "material",
               taxClass: "materials",
               provenance: "measured",
@@ -1135,9 +1269,16 @@ export function calculateRenovation(
         1,
         Math.round(positive(paintSpec.coats) || paintCoats),
       );
+      // A wall that has just been plastered or had its tiles hacked off behaves
+      // like bare plaster, whatever it used to be. Using the old surface
+      // description there would under order paint by about a third of a coat.
+      const wallsResurfaced =
+        Boolean(work.plaster) || strippedNeedsRenderM2 > 0;
+      const ceilingResurfaced =
+        Boolean(work.ceiling) ||
+        (stripOut.ceiling === true && Boolean(existing.ceilingFinish));
       const statedSurface = paintSpec.surface ?? existing.wallCondition;
       const resolvedSurface = resolveRenovationPaintSurface(statedSurface);
-      const porosityFactor = resolvedSurface.factor;
       if (!resolvedSurface.recognised) {
         warnings.push(
           `Room ${roomName}: the wall surface "${statedSurface}" is not a known surface, so no absorption factor was applied. Choose new plaster, screeded, smooth, textured or rough.`,
@@ -1161,6 +1302,21 @@ export function calculateRenovation(
       }
 
       for (const surfaceRow of surfaces) {
+        const isCeiling = surfaceRow.key === "ceiling";
+        const resurfaced = isCeiling ? ceilingResurfaced : wallsResurfaced;
+        const stated =
+          (isCeiling
+            ? (paintSpec.ceilingSurface ?? undefined)
+            : statedSurface) ?? undefined;
+        const effectiveSurface =
+          stated ?? (resurfaced ? "new_plaster" : undefined);
+        const surfaceFactor =
+          resolveRenovationPaintSurface(effectiveSurface).factor;
+        if (!stated && resurfaced) {
+          assumptions.push(
+            `Room ${roomName}: the ${isCeiling ? "ceiling" : "walls"} are newly finished, so the fresh plaster coverage factor has been applied rather than a repaint rate.`,
+          );
+        }
         const paintedArea = surfaceRow.areaM2 * coats;
         lines.push(
           line({
@@ -1185,7 +1341,7 @@ export function calculateRenovation(
           // plaster one litre covers 0.75 of what it covers on a sealed wall,
           // so the same area needs more paint. Dividing by the factor is what
           // makes fresh plaster cost more than a repaint.
-          const effectiveCoverage = coverage * porosityFactor;
+          const effectiveCoverage = coverage * surfaceFactor;
           const litres =
             (paintedArea / effectiveCoverage) * (1 + paintWaste / 100);
           lines.push(
@@ -1197,16 +1353,14 @@ export function calculateRenovation(
               description: `${surfaceRow.label} paint quantity`,
               quantity: round(litres, 1),
               unit: "L",
-              basis: `${round(paintedArea, 2)} m2 ÷ (${coverage} m2 per litre x ${porosityFactor} surface factor) x ${1 + paintWaste / 100} waste = ${round(litres, 1)} L.`,
+              basis: `${round(paintedArea, 2)} m2 ÷ (${coverage} m2 per litre x ${surfaceFactor} surface factor) x ${1 + paintWaste / 100} waste = ${round(litres, 1)} L.`,
               wastePercent: paintWaste,
               wasteReason:
                 "Roller and tray loss, plus touching up (10 percent).",
               costClass: "material",
               taxClass: "materials",
               provenance: "measured",
-              flags: resolvedSurface.key
-                ? [`surface_${resolvedSurface.key}`]
-                : [],
+              flags: effectiveSurface ? [`surface_${effectiveSurface}`] : [],
             }),
           );
         } else {
@@ -1274,6 +1428,7 @@ export function calculateRenovation(
     if (work.joinery) {
       const joinery = work.joinery;
       const doors = Math.max(0, Math.round(positive(joinery.doors)));
+      const windows = Math.max(0, Math.round(positive(joinery.windows)));
       const wardrobe = positive(joinery.wardrobeRunM);
       const kitchen = positive(joinery.kitchenRunM);
       if (doors > 0) {
@@ -1290,6 +1445,24 @@ export function calculateRenovation(
             costClass: "material",
             taxClass: "materials",
             provenance: "user_provided",
+          }),
+        );
+      }
+      if (windows > 0) {
+        lines.push(
+          line({
+            id: `${metrics.id}-joinery-windows`,
+            trade: "joinery",
+            roomId: metrics.id,
+            roomName,
+            description: "Replace window, frame and glazing",
+            quantity: windows,
+            unit: "nr",
+            basis: `${windows} window(s) stated. Size, glazing specification and any structural opening work are confirmed at survey.`,
+            costClass: "material",
+            taxClass: "materials",
+            provenance: "user_provided",
+            flags: ["verify_window_schedule"],
           }),
         );
       }
@@ -1434,6 +1607,26 @@ export function calculateRenovation(
           }),
         );
       }
+    }
+
+    // First fix leaves chases, boxes and pipe runs to be made good, and that
+    // is work nobody measures until it is discovered. Name it rather than
+    // quietly leave it out.
+    const servicesPoints =
+      positive(work.electrical?.lightPoints) +
+      positive(work.electrical?.socketPoints) +
+      positive(work.electrical?.switchPoints) +
+      positive(work.electrical?.circuits) +
+      positive(work.plumbing?.wcPoints) +
+      positive(work.plumbing?.basinPoints) +
+      positive(work.plumbing?.showerPoints) +
+      positive(work.plumbing?.sinkPoints) +
+      positive(work.plumbing?.appliancePoints);
+    if (servicesPoints > 0) {
+      flags.add("service_chases_patching_not_measured");
+      assumptions.push(
+        `Room ${roomName}: making good to chases, boxes and pipe runs for ${servicesPoints} service point(s) is not measured. It depends on the route taken on site.`,
+      );
     }
 
     if (
@@ -1668,7 +1861,7 @@ export function calculateRenovation(
 
   return {
     marketCode,
-    currencyCode: input.currencyCode ?? null,
+    currencyCode,
     measurementSystem: input.measurementSystem ?? "metric",
     rooms,
     lines,
@@ -1698,8 +1891,12 @@ export function calculateRenovation(
  * tax are resolved downstream, so a CSV can never imply a price that was not
  * verified.
  */
-export function renovationScopeRegister(result: RenovationEngineResult): Array<{
+export function renovationScopeRegister(
+  result: RenovationEngineResult,
+  options: { system?: "metric" | "imperial" } = {},
+): Array<{
   trade: RenovationTrade;
+  tradeLabel: string;
   room: string;
   description: string;
   quantity: number | null;
@@ -1708,16 +1905,25 @@ export function renovationScopeRegister(result: RenovationEngineResult): Array<{
   wastePercent: number;
   provenance: RenovationProvenance;
 }> {
-  return result.lines.map((row) => ({
-    trade: row.trade,
-    room: row.roomName ?? "Whole project",
-    description: row.description,
-    quantity: row.quantity,
-    unit: row.unit,
-    basis: row.basis,
-    wastePercent: row.wastePercent,
-    provenance: row.provenance,
-  }));
+  const system = options.system ?? "metric";
+  return result.lines.map((row) => {
+    const shown =
+      row.quantity === null
+        ? { quantity: null, unit: row.unit }
+        : convertRenovationQuantity(row.quantity, row.unit, system);
+    return {
+      trade: row.trade,
+      tradeLabel: RENOVATION_TRADE_LABELS[row.trade],
+      room: row.roomName ?? "Whole project",
+      description: row.description,
+      quantity: shown.quantity,
+      unit: shown.unit,
+      // The arithmetic stays metric so the register can always be checked.
+      basis: row.basis,
+      wastePercent: row.wastePercent,
+      provenance: row.provenance,
+    };
+  });
 }
 
 /** Trade order for presentation and for a BOQ that reads like a bill. */
@@ -1777,4 +1983,76 @@ export function groupRenovationByTrade(
     });
   }
   return groups;
+}
+
+/** One label per trade, so a page, a schedule and a translation share a key. */
+export const RENOVATION_TRADE_LABELS: Readonly<
+  Record<RenovationTrade, string>
+> = Object.freeze({
+  preliminaries: "Preliminaries",
+  statutory: "Statutory approvals",
+  strip_out: "Strip out and demolition",
+  making_good: "Making good",
+  plaster_render: "Plaster and render",
+  screed: "Screed",
+  tiling: "Tiling",
+  flooring: "Flooring",
+  ceiling: "Ceilings",
+  joinery: "Joinery",
+  painting: "Painting and decorating",
+  electrical: "Electrical",
+  plumbing: "Plumbing",
+  contingency: "Contingency",
+});
+
+/**
+ * Converts a measured quantity for display in an imperial market. Conversion
+ * happens at presentation only: the engine, and every downstream calculation,
+ * stays metric so two users never get different totals from rounding.
+ */
+export function convertRenovationQuantity(
+  quantity: number,
+  unit: string,
+  system: "metric" | "imperial",
+): { quantity: number; unit: string } {
+  if (system === "metric" || !Number.isFinite(quantity))
+    return { quantity, unit };
+  switch (unit) {
+    case "m2":
+      return {
+        quantity: round(fromSqMeters(quantity, "sqft"), 2),
+        unit: "sq ft",
+      };
+    case "m3":
+      return {
+        quantity: round(quantity * CUBIC_METRES_TO_CUBIC_FEET, 3),
+        unit: "cu ft",
+      };
+    case "m":
+      return { quantity: round(fromMeters(quantity, "feet"), 2), unit: "ft" };
+    case "L":
+      return {
+        quantity: round(quantity / LITRES_PER_US_GALLON, 2),
+        unit: "US gal",
+      };
+    default:
+      return { quantity, unit };
+  }
+}
+
+/** Quantities per unit, optionally shown in imperial units. */
+export function renovationTotalsByUnit(
+  result: RenovationEngineResult,
+  system: "metric" | "imperial" = "metric",
+): Array<{ unit: string; quantity: number }> {
+  const totals = new Map<string, number>();
+  for (const row of result.lines) {
+    if (row.quantity === null || !Number.isFinite(row.quantity)) continue;
+    const shown = convertRenovationQuantity(row.quantity, row.unit, system);
+    totals.set(shown.unit, (totals.get(shown.unit) ?? 0) + shown.quantity);
+  }
+  return [...totals.entries()].map(([unit, quantity]) => ({
+    unit,
+    quantity: round(quantity, 3),
+  }));
 }

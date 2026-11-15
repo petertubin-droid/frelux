@@ -18,7 +18,10 @@ import {
   resolvePaintSurfaceFactor,
 } from "@/lib/estimation/site-conditions";
 import {
+  RENOVATION_TRADE_LABELS,
   RENOVATION_TRADE_ORDER,
+  convertRenovationQuantity,
+  renovationTotalsByUnit,
   groupRenovationByTrade,
   resolveRenovationPaintSurface,
 } from "@/lib/estimation/renovation-engine";
@@ -561,6 +564,7 @@ describe("honesty of the output", () => {
           "quantity",
           "room",
           "trade",
+          "tradeLabel",
           "unit",
           "wastePercent",
         ].sort(),
@@ -694,5 +698,289 @@ describe("paint surface resolution", () => {
       ],
     });
     expect(result.warnings.join(" ")).toMatch(/is not a known surface/i);
+  });
+});
+
+describe("global input handling", () => {
+  it("converts an imperial opening area instead of treating it as square metres", () => {
+    // 10 ft x 10 ft room, 8 ft high, 20 sq ft of openings entered in sq ft.
+    const metrics = roomMetrics({
+      id: "us-room",
+      use: "living",
+      length: 10,
+      width: 10,
+      height: 8,
+      unit: "ft",
+      openingArea: 20,
+    });
+    const openingM2 = 20 * FEET_TO_METRES * FEET_TO_METRES;
+    expect(metrics.openingAreaM2).toBeCloseTo(openingM2, 3);
+    expect(metrics.wallAreaNetM2).toBeCloseTo(
+      metrics.wallAreaGrossM2 - openingM2,
+      2,
+    );
+  });
+
+  it("still reads a legacy opening area stated in square metres", () => {
+    const metrics = roomMetrics({
+      id: "us-room",
+      use: "living",
+      length: 10,
+      width: 10,
+      height: 8,
+      unit: "ft",
+      openingAreaM2: 2,
+    });
+    expect(metrics.openingAreaM2).toBe(2);
+  });
+
+  it("keeps line ids unique when a room id is repeated", () => {
+    const result = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [
+          baseRoom({ work: { paint: { walls: true } } }),
+          baseRoom({ work: { paint: { walls: true } } }),
+        ],
+      }),
+    );
+    const ids = result.lines.map((row) => row.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.some((id) => id.startsWith("living#2-"))).toBe(true);
+    expect(result.warnings.join(" ")).toMatch(/used more than once/i);
+  });
+
+  it("warns when the market is not in the registry but still measures", () => {
+    const unknown = calculateRenovation(
+      baseProject({ marketCode: "zz", approvals: { required: false } }),
+    );
+    expect(unknown.marketCode).toBe("ZZ");
+    expect(unknown.warnings.join(" ")).toMatch(
+      /not in the FRELUX market registry/i,
+    );
+    expect(unknown.flags).toContain("market_not_in_registry");
+
+    const known = calculateRenovation(
+      baseProject({ marketCode: "ng", approvals: { required: false } }),
+    );
+    expect(known.warnings.join(" ")).not.toMatch(/market registry/i);
+  });
+
+  it("normalises currency and rejects a non ISO code honestly", () => {
+    const good = calculateRenovation(
+      baseProject({ currencyCode: "ngn", approvals: { required: false } }),
+    );
+    expect(good.currencyCode).toBe("NGN");
+    expect(good.warnings.join(" ")).not.toMatch(/ISO 4217/i);
+
+    const bad = calculateRenovation(
+      baseProject({ currencyCode: "Naira", approvals: { required: false } }),
+    );
+    expect(bad.warnings.join(" ")).toMatch(/ISO 4217/i);
+  });
+});
+
+describe("making good is not one thing", () => {
+  it("renders behind hacked tiles but only prepares a stripped painted wall", () => {
+    const tiles = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [
+          baseRoom({
+            existing: { wallFinish: "tiles" },
+            work: { stripOut: { wallFinish: true } },
+          }),
+        ],
+      }),
+    );
+    expect(
+      tiles.lines.some((row) => row.id === "living-make-good-mortar"),
+    ).toBe(true);
+    expect(tiles.lines.some((row) => row.id === "living-make-good-prep")).toBe(
+      false,
+    );
+
+    const painted = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [
+          baseRoom({
+            existing: { wallFinish: "paint" },
+            work: { stripOut: { wallFinish: true } },
+          }),
+        ],
+      }),
+    );
+    expect(
+      painted.lines.some((row) => row.id === "living-make-good-prep"),
+    ).toBe(true);
+    expect(
+      painted.lines.some((row) => row.id === "living-make-good-mortar"),
+    ).toBe(false);
+    expect(
+      painted.lines.some((row) => row.id === "living-make-good-concrete-mix"),
+    ).toBe(false);
+  });
+});
+
+describe("tiles, partitions and windows", () => {
+  it("buys adhesive for the area actually bought, waste included", () => {
+    const result = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [
+          baseRoom({
+            work: {
+              tiling: { floor: true, adhesiveCoverageM2PerBag: 5 },
+            },
+          }),
+        ],
+      }),
+    );
+    const area = findLine(result, "living-tile-floor").quantity ?? 0;
+    const bags = findLine(result, "living-tile-floor-adhesive").quantity ?? 0;
+    expect(bags).toBe(Math.ceil(area / 5));
+    expect(bags).toBeGreaterThan(4); // 20 m2 of floor is 22 m2 bought
+  });
+
+  it("adds partition debris and asks for the structural check", () => {
+    const result = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [
+          baseRoom({
+            work: { demolishPartitions: { areaM2: 6, thicknessMm: 100 } },
+          }),
+        ],
+      }),
+    );
+    const row = findLine(result, "living-partition-removal");
+    expect(row.quantity).toBe(6);
+    expect(row.flags).toContain("confirm_partition_is_non_loadbearing");
+    expect(result.debris.inPlaceVolumeM3).toBeCloseTo(0.6, 3);
+    expect(result.warnings.join(" ")).toMatch(/non load bearing/i);
+  });
+
+  it("counts window replacements", () => {
+    const result = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [baseRoom({ work: { joinery: { windows: 2 } } })],
+      }),
+    );
+    const row = findLine(result, "living-joinery-windows");
+    expect(row.quantity).toBe(2);
+    expect(row.flags).toContain("verify_window_schedule");
+  });
+
+  it("says that patching after first fix is not measured", () => {
+    const result = calculateRenovation(
+      baseProject({
+        approvals: { required: false },
+        rooms: [baseRoom({ work: { electrical: { socketPoints: 4 } } })],
+      }),
+    );
+    expect(result.flags).toContain("service_chases_patching_not_measured");
+    expect(result.assumptions.join(" ")).toMatch(/not measured/i);
+  });
+});
+
+describe("paint surface follows the work, not the old wall", () => {
+  it("prices freshly plastered walls at the bare plaster rate", () => {
+    const painted = (surface?: "smooth") =>
+      calculateRenovation(
+        baseProject({
+          approvals: { required: false },
+          defaults: { coverageM2PerLitre: 10 },
+          rooms: [
+            baseRoom({
+              existing: { wallFinish: "tiles" },
+              work: {
+                stripOut: { wallFinish: true },
+                paint: surface ? { walls: true, surface } : { walls: true },
+              },
+            }),
+          ],
+        }),
+      );
+
+    const auto = painted();
+    const asRepaint = painted("smooth");
+    const autoLitres =
+      findLine(auto, "living-paint-walls-litres").quantity ?? 0;
+    const repaintLitres =
+      findLine(asRepaint, "living-paint-walls-litres").quantity ?? 0;
+
+    expect(autoLitres).toBeGreaterThan(repaintLitres);
+    expect(autoLitres / repaintLitres).toBeCloseTo(
+      resolvePaintSurfaceFactor("smooth") /
+        resolvePaintSurfaceFactor("new_plaster"),
+      1,
+    );
+    expect(findLine(auto, "living-paint-walls-litres").flags).toContain(
+      "surface_new_plaster",
+    );
+    expect(auto.assumptions.join(" ")).toMatch(
+      /fresh plaster coverage factor/i,
+    );
+  });
+});
+
+describe("imperial presentation", () => {
+  it("converts quantities for display without touching the measurement", () => {
+    expect(convertRenovationQuantity(20, "m2", "imperial")).toEqual({
+      quantity: 215.28,
+      unit: "sq ft",
+    });
+    expect(convertRenovationQuantity(18, "m", "imperial")).toEqual({
+      quantity: 59.06,
+      unit: "ft",
+    });
+    expect(convertRenovationQuantity(1, "m3", "imperial").unit).toBe("cu ft");
+    expect(convertRenovationQuantity(10, "L", "imperial").unit).toBe("US gal");
+    expect(convertRenovationQuantity(4, "nr", "imperial")).toEqual({
+      quantity: 4,
+      unit: "nr",
+    });
+    expect(convertRenovationQuantity(20, "m2", "metric")).toEqual({
+      quantity: 20,
+      unit: "m2",
+    });
+  });
+
+  it("offers the register in either system with the same arithmetic", () => {
+    const result = calculateRenovation(
+      baseProject({ approvals: { required: false } }),
+    );
+    const metric = renovationScopeRegister(result);
+    const imperial = renovationScopeRegister(result, { system: "imperial" });
+    expect(imperial).toHaveLength(metric.length);
+    for (let i = 0; i < metric.length; i += 1) {
+      expect(imperial[i].basis).toBe(metric[i].basis);
+      expect(imperial[i].tradeLabel).toBe(
+        RENOVATION_TRADE_LABELS[metric[i].trade],
+      );
+    }
+    const metricArea = metric.find((row) => row.unit === "m2");
+    const imperialArea = imperial.find((row) => row.unit === "sq ft");
+    if (metricArea && imperialArea && metricArea.quantity !== null) {
+      expect(imperialArea.quantity).toBeGreaterThan(metricArea.quantity);
+    }
+  });
+
+  it("totals by unit in the requested system", () => {
+    const result = calculateRenovation(
+      baseProject({ approvals: { required: false } }),
+    );
+    const metric = renovationTotalsByUnit(result);
+    const imperial = renovationTotalsByUnit(result, "imperial");
+    expect(metric.some((row) => row.unit === "m2")).toBe(true);
+    expect(imperial.some((row) => row.unit === "sq ft")).toBe(true);
+    expect(imperial.some((row) => row.unit === "m2")).toBe(false);
+  });
+
+  it("states that the labour factor never scales a quantity", () => {
+    const factor = renovationLabourFactor({ occupied: true, floorLevel: 4 });
+    expect(factor.appliesTo).toBe("labour_only");
   });
 });
