@@ -27,6 +27,7 @@
 import type { CalcRuleRow } from "./count-vision-engine";
 import { ec2AnchorageLength, ec2LapLength } from "@/lib/engineering/bbs-schedule";
 import { ceilU } from "./shared/purchase-rounding";
+import { rebarMassPerM } from "./shared/rebar-mass";
 
 // ─────────────────────────────────────────────
 // Rules
@@ -650,6 +651,31 @@ export function calculateLapLength(
 }
 
 /**
+ * Stock bars consumed by one cut bar.
+ *
+ * A stock bar yields floor(stock / cut) pieces, and the offcut is bought but not
+ * used. Counting ceil(total length / stock) instead assumed a zero-waste cut:
+ * 100 bars of 4.5 m from 12 m stock is 450 m of steel, which reads as 38 stock
+ * bars but needs 50, because each 12 m bar gives two 4.5 m pieces and a 3 m
+ * offcut. A bar longer than the stock is spliced, so it consumes ceil(cut /
+ * stock) lengths.
+ */
+export function stockBarsPerCutBar(
+  cutLengthM: number,
+  stockLengthM: number,
+): number {
+  if (!(cutLengthM > 0) || !(stockLengthM > 0)) return 0;
+  if (cutLengthM <= stockLengthM) {
+    // Fractional on purpose: one 4.5 m bar is half a 12 m stock bar, and the
+    // fraction is what lets two cuts share one purchase. The count is rounded
+    // up once per diameter, after the whole schedule is summed.
+    const piecesPerStock = Math.floor(stockLengthM / cutLengthM + 1e-9);
+    return 1 / Math.max(1, piecesPerStock);
+  }
+  return Math.ceil(cutLengthM / stockLengthM - 1e-9);
+}
+
+/**
  * Generates an automated, fully audited Bar Bending Schedule (BBS) with total tonnage and stock cuts.
  */
 export function generateBarBendingSchedule(
@@ -672,8 +698,7 @@ export function generateBarBendingSchedule(
     );
     const totalLengthM = Math.round(totalBars * cutLengthM * 100) / 100;
     const unitWeight =
-      NOMINAL_MASS_MAP[item.diameterMm] ??
-      (item.diameterMm * item.diameterMm) / 162;
+      NOMINAL_MASS_MAP[item.diameterMm] ?? rebarMassPerM(item.diameterMm);
     const totalMassKg = Math.round(totalLengthM * unitWeight * 10) / 10;
 
     totalTonnageKg += totalMassKg;
@@ -687,6 +712,8 @@ export function generateBarBendingSchedule(
     }
     summaryByDiameter[item.diameterMm].totalLengthM += totalLengthM;
     summaryByDiameter[item.diameterMm].totalMassKg += totalMassKg;
+    summaryByDiameter[item.diameterMm].totalPiecesStock +=
+      totalBars * stockBarsPerCutBar(cutLengthM, stockLengthM);
 
     items.push({
       ...item,
@@ -698,11 +725,12 @@ export function generateBarBendingSchedule(
     });
   }
 
-  // Stock length pieces calculation per diameter
+  // Stock is bought in whole bars per diameter, so the summed fractional need
+  // rounds up once here rather than on every schedule row.
   for (const d of Object.keys(summaryByDiameter)) {
     const diam = Number(d);
     summaryByDiameter[diam].totalPiecesStock = Math.ceil(
-      summaryByDiameter[diam].totalLengthM / stockLengthM,
+      summaryByDiameter[diam].totalPiecesStock,
     );
   }
 
@@ -1003,7 +1031,7 @@ export function bs8666CutLength(params: {
 
 /** BS 4449 nominal mass per metre, kg/m (0.006165 d²). */
 export function rebarKgPerMetre(diameterMm: number): number {
-  return roundTo(0.006165 * diameterMm * diameterMm, 4);
+  return roundTo(rebarMassPerM(diameterMm), 4);
 }
 
 export interface BbsBarInput {

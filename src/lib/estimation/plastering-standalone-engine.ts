@@ -8,6 +8,7 @@
  * dry volume bulking/shrinkage factors, and trade labor norms.
  */
 
+import { CEMENT_BAG_KG } from "@/config/masonry-units";
 import { sandTonnes } from "@/lib/materials/sand-units";
 import { getPackagingEvidence } from "./market-packaging-verification";
 
@@ -62,40 +63,15 @@ export interface PlasteringCalculationResult {
   packagingEvidence: ReturnType<typeof getPackagingEvidence>;
 }
 
-export const CEMENT_BAG_WEIGHT_BY_MARKET: Record<string, number> = {
-  NG: 50,
-  US: 42.6, // 94 lb bag
-  GB: 25,
-  CA: 40,
-  AU: 20, // Standard retail bag in Australia
-  NZ: 40,
-  DE: 25,
-  FR: 25,
-  IT: 25,
-  ES: 25,
-  NL: 25,
-  PL: 25,
-  SE: 25,
-  CH: 25,
-  IN: 50,
-  ZA: 50,
-  KE: 50,
-  GH: 50,
-  TZ: 50,
-  CI: 50,
-  ET: 50,
-  EG: 50,
-  SA: 50,
-  AE: 50,
-  TR: 50,
-  JP: 25,
-  KR: 40,
-  CN: 50,
-  ID: 40,
-  BR: 50,
-  MX: 50,
-  SG: 50,
-};
+/**
+ * Package mass per market. This is the canonical table in
+ * @/config/masonry-units, re-exported so every consumer of the plastering
+ * engine reads the same bag. The local copy had drifted: France was 25 kg here
+ * against 35 kg in the canonical table, New Zealand 40 against 20, and the US
+ * 94 lb bag was rounded to 42.6 kg instead of 42.64 kg, so the same market got
+ * different bag counts depending on which calculator was open.
+ */
+export const CEMENT_BAG_WEIGHT_BY_MARKET: Record<string, number> = CEMENT_BAG_KG;
 
 export const PLASTER_MIX_PARTS: Record<
   string,

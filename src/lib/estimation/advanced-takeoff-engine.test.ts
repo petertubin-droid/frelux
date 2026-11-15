@@ -20,7 +20,8 @@ describe("measured concrete slab takeoff", () => {
     });
     expect(result.ok).toBe(true);
     expect(result.data?.concreteVolumeM3).toBeCloseTo(3);
-    expect(result.data?.cementBagsRaw).toBeCloseTo((3 * 1.54) / 7 / 0.0347);
+    // 4.62 m3 dry / 7 = 0.66 m3 cement, at 50 kg / 1440 kg per m3 = 19.009 bags.
+    expect(result.data?.cementBagsRaw).toBeCloseTo((3 * 1.54) / 7 / (50 / 1440));
     expect(result.data?.cementBagsToBuy).toBe(20);
     expect(result.data?.sandM3).toBeCloseTo((3 * 1.54 * 2) / 7);
     expect(result.data?.aggregateM3).toBeCloseTo((3 * 1.54 * 4) / 7);
@@ -40,7 +41,8 @@ describe("measured concrete slab takeoff", () => {
         { label: "Bottom bars X", diameterMm: 12, count: 10, lengthM: 4 },
       ],
     });
-    expect(valid.data?.rebarWeightKg).toBeCloseTo((10 * 4 * 12 ** 2) / 162);
+    // 40 m of 12 mm bar at the BS 4449 nominal 0.006165 d2 = 35.51 kg.
+    expect(valid.data?.rebarWeightKg).toBeCloseTo(40 * 0.006165 * 12 ** 2);
     expect(
       calculateConcreteTakeoff({
         elementType: "slab",

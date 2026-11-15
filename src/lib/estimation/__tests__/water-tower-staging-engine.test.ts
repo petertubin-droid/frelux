@@ -112,4 +112,27 @@ describe("Water Tower Staging Estimator Engine", () => {
     expect(TANK_SIZE_PRESETS.length).toBeGreaterThanOrEqual(4);
     expect(TANK_SIZE_PRESETS[0].value).toBe(1000);
   });
+
+  it("orders the tower concrete mix from the shared constants and never rounds down", () => {
+    const res = calculateWaterTowerStaging({
+      tankVolumeLiters: 5000,
+      towerHeightMeters: 6,
+      constructionMaterial: "concrete",
+    });
+    // NaN if the engine ever stops reporting a volume, so the arithmetic below
+    // fails loudly rather than passing on an absent field.
+    const volume = res.structuralBOM.concreteVolumeM3 ?? Number.NaN;
+    const dry = volume * 1.54;
+    // Sand and gravel are purchased whole and rounded up, so a pour is never
+    // short-ordered: 2.4 m3 of sand used to be bought as 2.
+    expect(res.structuralBOM.sandCubicMeters).toBe(Math.ceil((dry * 2) / 7));
+    expect(res.structuralBOM.gravelCubicMeters).toBe(Math.ceil((dry * 4) / 7));
+    // 50 kg bag at 1440 kg/m3 = 0.034722 m3, the platform bag volume.
+    expect(res.structuralBOM.cementBags50kg).toBe(
+      Math.ceil(dry / 7 / (50 / 1440)),
+    );
+    expect(res.structuralBOM.sandCubicMeters).toBeGreaterThanOrEqual(
+      (dry * 2) / 7,
+    );
+  });
 });

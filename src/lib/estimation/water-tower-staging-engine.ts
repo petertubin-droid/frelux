@@ -147,10 +147,38 @@ const MIN_SLIDING_FOS = 1.5;
  * Passive resistance in front of the pads is ignored: it needs undisturbed
  * ground that cannot be guaranteed on a site this small.
  */
+import { cementBagVolumeM3 } from "@/config/masonry-units";
+import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
+
 const BASE_FRICTION_COEFFICIENT = 0.5;
 const DEFAULT_BEARING_KPA = 150;
 const DEFAULT_WIND_MS = 30;
 const PAD_CONCRETE_GRADE_MPA = 25; // 1:2:4
+/** Trade pack for the tower concrete: a 50 kg cement bag. */
+const CEMENT_BAG_KG_TOWER = 50;
+
+/**
+ * Concrete materials for the tower legs and pads.
+ *
+ * The mix is the declared 1:2:4, the dry factor is the platform constant, and
+ * the bag volume is derived from a 50 kg bag at the 1440 kg/m³ bulk density.
+ *
+ * Sand and gravel used to round to the nearest whole cubic metre, so 2.4 m³ of
+ * sand was ordered as 2 m³ and the pour came up short. Purchased bulk materials
+ * round up here, as every other concrete engine on the platform orders them.
+ */
+function towerConcreteMix(volumeM3: number): {
+  cementBags: number;
+  sandM3: number;
+  gravelM3: number;
+} {
+  const dryVol = volumeM3 * CONCRETE_DRY_VOLUME_FACTOR;
+  return {
+    cementBags: Math.ceil(dryVol / 7 / cementBagVolumeM3(CEMENT_BAG_KG_TOWER)),
+    sandM3: Math.ceil((dryVol * 2) / 7),
+    gravelM3: Math.ceil((dryVol * 4) / 7),
+  };
+}
 const COLUMN_FCU_MPA = 25;
 const STEEL_FY_MPA = 275; // S275 SHS
 
@@ -516,12 +544,10 @@ export function calculateWaterTowerStaging(
     const columnVolume = section * towerHeightMeters * legs;
     concreteVolumeM3 = round(columnVolume + padsConcrete, 2);
 
-    // 1:2:4: dry factor 1.54, 1 part cement, 2 sand, 4 granite
-    const dryVol = concreteVolumeM3 * 1.54;
-    const cementKg = (dryVol / 7) * 1440;
-    cementBags50kg = Math.ceil(cementKg / 50);
-    sandCubicMeters = round((dryVol * 2) / 7);
-    gravelCubicMeters = round((dryVol * 4) / 7);
+    const mix = towerConcreteMix(concreteVolumeM3);
+    cementBags50kg = mix.cementBags;
+    sandCubicMeters = mix.sandM3;
+    gravelCubicMeters = mix.gravelM3;
 
     // Column bars: 4 per column, lapped 40d at the pad and the top. Laps are
     // added as 0.6 m per bar rather than ignored.
@@ -591,10 +617,10 @@ export function calculateWaterTowerStaging(
       0,
     );
     concreteVolumeM3 = round(padsConcrete, 2);
-    const dryVol = concreteVolumeM3 * 1.54;
-    cementBags50kg = Math.ceil(((dryVol / 7) * 1440) / 50);
-    sandCubicMeters = round((dryVol * 2) / 7);
-    gravelCubicMeters = round((dryVol * 4) / 7);
+    const mix = towerConcreteMix(concreteVolumeM3);
+    cementBags50kg = mix.cementBags;
+    sandCubicMeters = mix.sandM3;
+    gravelCubicMeters = mix.gravelM3;
     if (!legDesign.pass) {
       warnings.push(
         `No standard section in the range carries ${axialPerLegKn} kN over a ${round(tierHeight, 2)} m tier with the wind moment. Reduce the tier height, widen the base or get an engineer to design the frame.`,

@@ -45,6 +45,7 @@ import type {
   LabourConfig,
   WastageConfig,
 } from "@/types/build-to-roof";
+import { rebarMassPerM } from "./shared/rebar-mass";
 
 // ── Constants ──
 
@@ -844,9 +845,9 @@ export function estimateTimberMeters(
 }
 
 // ── Reinforcement ──
-// Steel weight per meter: kg/m = d² / 162  [d in mm]
-// Derives from: weight = π × d²/4 × 7850 kg/m³ / 10⁶ = d²/162.3 ≈ d²/162
-// (verified: 16mm → 1.580 kg/m vs exact 1.578 kg/m, 0.1% off, standard formula)
+// Steel weight per meter comes from @/lib/estimation/shared/rebar-mass: the
+// BS 4449 nominal mass 0.006165 d² kg/m. The local d²/162 approximation ran
+// 0.13 per cent heavy against the published bar masses.
 // ── Reinforcement breakdown by bar diameter ──
 
 interface RebarAggregate {
@@ -873,9 +874,7 @@ function getRebarPriceForDiameter(
       return prices.rebar_25mm_per_length;
     default: {
       // For non-standard diameters, estimate from per-tonne price
-      // weight per 12m length = d²/162 × 12
-      const weightPerLength =
-        ((diameter_mm * diameter_mm) / 162) * REBAR_STANDARD_LENGTH;
+      const weightPerLength = rebarMassPerM(diameter_mm) * REBAR_STANDARD_LENGTH;
       return Math.round(
         (prices.reinforcement_per_tonne / 1000) * weightPerLength,
       );
@@ -897,7 +896,7 @@ export function buildReinforcementBreakdown(
       const mainBarLength = member.bar_length_main ?? member.length;
       const totalLength =
         member.bar_count_main * mainBarLength * member.quantity;
-      const weightPerM = Math.pow(member.bar_diameter_mm, 2) / 162;
+      const weightPerM = rebarMassPerM(member.bar_diameter_mm);
       const weight = totalLength * weightPerM;
 
       const existing = aggregates.get(key);
@@ -925,7 +924,7 @@ export function buildReinforcementBreakdown(
       const linksTotal =
         member.bar_count_links * member.length * member.quantity;
       const totalLength = linksTotal * linkTotalLength;
-      const weightPerM = Math.pow(member.link_diameter_mm, 2) / 162;
+      const weightPerM = rebarMassPerM(member.link_diameter_mm);
       const weight = totalLength * weightPerM;
 
       const existing = aggregates.get(key);

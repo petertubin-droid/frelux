@@ -8,8 +8,8 @@
  *         volume (m³), formwork area (m²).
  *   RULES: concrete mix ratio (cement:sand:granite parts, default
  *         1:2:4), concrete waste %, blocks per m². The dry-volume
- *         factor (1.54) and bag volume (0.0347 m³ per 50 kg bag)
- *         are standard mix-math constants, shown in the breakdown.
+ *         factor (1.54) and the bag volume derived from the bag mass and the
+ *         1440 kg/m³ bulk density, shown in the breakdown.
  *
  * Honesty contract:
  *  - Volumes and areas are NEVER assumed. A missing one leaves
@@ -30,15 +30,20 @@ import type { CalcRuleRow } from "./count-vision-engine";
 import { CEMENT_BAG_WEIGHT_BY_MARKET } from "./plastering-standalone-engine";
 import { ceilU } from "./shared/purchase-rounding";
 import { MORTAR_JOINT_THICKNESS, blocksPerM2 } from "./build-to-roof-engine";
+import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
+import { cementBagVolumeM3 } from "@/config/masonry-units";
 
 
 // ─────────────────────────────────────────────
 // Standard mix-math constants (shown in the breakdown)
 // ─────────────────────────────────────────────
 
-const DRY_VOLUME_FACTOR = 1.54;
-/** Loose bulk density of Portland cement, kg/m³. */
-const CEMENT_BULK_DENSITY_KG_M3 = 1440;
+/**
+ * One dry-volume factor for concrete across the platform, held in
+ * site-conditions. The engine used to carry its own 1.54 literal, which is how
+ * two engines end up disagreeing about the same mix.
+ */
+const DRY_VOLUME_FACTOR = CONCRETE_DRY_VOLUME_FACTOR;
 
 // ─────────────────────────────────────────────
 // Rules
@@ -320,11 +325,9 @@ export function calculateFoundation(
         (market && CEMENT_BAG_WEIGHT_BY_MARKET[market]
           ? CEMENT_BAG_WEIGHT_BY_MARKET[market]
           : 50);
-      // Bulk density of loose Portland cement is standard 1440 kg/m³
-      // One derivation for every market: a bag is its mass divided by the bulk
-      // density. The old 50 kg special case carried a second literal that could
-      // drift from the density it claimed to come from.
-      const bagVolumeM3 = bagWeightKg / CEMENT_BULK_DENSITY_KG_M3;
+      // A bag is its mass divided by the loose bulk density, derived once in
+      // @/config/masonry-units so every engine divides by the same figure.
+      const bagVolumeM3 = cementBagVolumeM3(bagWeightKg);
 
       const cementBags = ceilU(((cement / parts) * dry) / bagVolumeM3);
       const sandM3 = ceilU((sand / parts) * dry);

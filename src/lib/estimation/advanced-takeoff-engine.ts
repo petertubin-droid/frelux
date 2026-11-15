@@ -3,6 +3,8 @@
  */
 
 import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
+import { cementBagVolumeM3 } from "@/config/masonry-units";
+import { rebarMassPerM } from "./shared/rebar-mass";
 
 export interface EngineResult<T> {
   ok: boolean;
@@ -55,8 +57,9 @@ export interface ConcreteTakeoffResult {
   assumptions: string[];
 }
 
-/** The dry-volume multiplier comes from site-conditions, and 0.0347 m3 per
- * 50 kg bag is the same explicitly disclosed convention used by the estimator.
+/** The dry-volume multiplier comes from site-conditions, and the cement bag
+ * volume from @/config/masonry-units, so the estimator and the takeoff divide
+ * by one figure rather than two literals that drift apart.
  */
 export function calculateConcreteTakeoff(
   input: ConcreteTakeoffInput,
@@ -114,10 +117,9 @@ export function calculateConcreteTakeoff(
   const volumeWithWasteM3 = concreteVolumeM3 * (1 + input.wastePercent / 100);
   const dryVolume = volumeWithWasteM3 * CONCRETE_DRY_VOLUME_FACTOR;
   const totalParts = input.cementParts + input.sandParts + input.aggregateParts;
+  const bagVolumeM3 = cementBagVolumeM3(input.cementBagMassKg);
   const cementBagsRaw =
-    (dryVolume * input.cementParts) /
-    totalParts /
-    ((0.0347 * input.cementBagMassKg) / 50);
+    (dryVolume * input.cementParts) / totalParts / bagVolumeM3;
   const rebarGroups = (input.rebarGroups ?? [])
     .filter((group) => group.count > 0)
     .map((group) => {
@@ -125,7 +127,7 @@ export function calculateConcreteTakeoff(
       return {
         ...group,
         totalLengthM,
-        weightKg: (totalLengthM * group.diameterMm ** 2) / 162,
+        weightKg: totalLengthM * rebarMassPerM(group.diameterMm),
       };
     });
   if (
@@ -161,8 +163,8 @@ export function calculateConcreteTakeoff(
     assumptions: [
       `Rectangular ${input.elementType} volume = measured length × width × depth; openings, haunches, and irregular geometry are not deducted or added.`,
       `Concrete dry-volume allowance: ${CONCRETE_DRY_VOLUME_FACTOR} × wet volume; user-entered additional allowance: ${input.wastePercent}%.`,
-      `Cement bag-volume convention: 0.0347 m³ per 50 kg bag, scaled to the entered ${input.cementBagMassKg} kg bag size; procurement count rounds up to whole bags.`,
-      "Rebar weight uses the entered bar schedule and d²/162 kg/m; it is not a reinforcement design or cutting schedule.",
+      `Cement bag volume: ${bagVolumeM3.toFixed(5)} m³ for the entered ${input.cementBagMassKg} kg bag, from the 1440 kg/m³ loose bulk density; procurement count rounds up to whole bags.`,
+      "Rebar weight uses the entered bar schedule and the BS 4449 nominal mass 0.006165 d² kg/m; it is not a reinforcement design or cutting schedule.",
     ],
   });
 }

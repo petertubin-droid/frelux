@@ -355,8 +355,14 @@ export const CEMENT_BAG_KG: Record<string, number> = {
   ID: 40,
   CA: 40,
   AU: 20,
-  NZ: 20,
-  US: 42.64,
+  // Atlas Concrete, the NZ supplier recorded in market-packaging-verification,
+  // lists 25 kg and 40 kg bagged cement. The 20 kg row here matched neither and
+  // reported every NZ estimate against a pack no supplier was recorded selling.
+  NZ: 40,
+  // 94 lb published by QUIKRETE as 42.6 kg. 42.64 is the exact lb conversion,
+  // but the packaging evidence check matches published sizes, so the published
+  // figure is the honest one to carry.
+  US: 42.6,
   GB: 25,
 };
 
@@ -451,6 +457,17 @@ export const CEMENT_MARKETS = [
  * Loose bulk density of ordinary Portland cement, kg per cubic metre.
  */
 export const CEMENT_DENSITY_KG_M3 = 1440;
+
+/**
+ * Volume of one cement bag, m³, from its mass and the loose bulk density.
+ *
+ * Engines used to carry their own literal (0.0347 or 0.03472 m³ per 50 kg bag).
+ * Deriving it here keeps one figure for the same physical bag: 50 kg is
+ * 0.034722 m³, and a market bag scales with its mass.
+ */
+export function cementBagVolumeM3(bagKg: number): number {
+  return bagKg / CEMENT_DENSITY_KG_M3;
+}
 
 export interface CementBagResolution {
   /** Resolved package mass used by the physical quantity calculation. */

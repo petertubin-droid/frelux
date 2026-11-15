@@ -94,6 +94,7 @@ describe("Plastering & Rendering Standalone Engine", () => {
     });
 
     expect(res.totalAreaM2).toBe(60);
+    // Published 94 lb (42.6 kg) QUIKRETE size, from the canonical market table.
     expect(res.cementBagWeightKg).toBe(42.6);
     expect(res.packagingEvidence.status).toBe("source_observed");
     expect(res.packagingEvidence.guidance).toContain(

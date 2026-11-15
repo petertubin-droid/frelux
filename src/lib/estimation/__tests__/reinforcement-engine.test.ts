@@ -17,6 +17,8 @@ import {
   DEFAULT_REINFORCEMENT_RULES,
   parseReinforcementRules,
   calculateReinforcement,
+  generateBarBendingSchedule,
+  stockBarsPerCutBar,
   type ReinforcementInput,
   type ReinforcementRules,
 } from "../reinforcement-engine";
@@ -225,5 +227,58 @@ describe("determinism", () => {
     const a = calculateReinforcement(makeInput(), rules, FULL_PRICES);
     const b = calculateReinforcement(makeInput(), rules, FULL_PRICES);
     expect(a).toEqual(b);
+  });
+
+  describe("stock bar count follows the yield of a cut", () => {
+    it("counts the offcut a stock bar cannot use", () => {
+      // 100 bars of 4.5 m from 12 m stock. Each stock bar yields two pieces and
+      // a 3 m offcut, so 50 stock bars are needed. Total length over stock
+      // length would say 38.
+      const res = generateBarBendingSchedule(
+        [
+          {
+            barMark: "01",
+            memberType: "beam",
+            diameterMm: 12,
+            shapeCode: "00",
+            dimensions: { A: 4500 },
+            numberOfMembers: 10,
+            barsPerMember: 10,
+          },
+        ] as never,
+        12,
+      );
+      const summary = res.summaryByDiameter[12];
+      expect(summary.totalLengthM).toBe(450);
+      expect(summary.totalPiecesStock).toBe(50);
+    });
+
+    it("still counts exactly six for 12 bars cut at half a stock length", () => {
+      const res = generateBarBendingSchedule(
+        [
+          {
+            barMark: "02",
+            memberType: "beam",
+            diameterMm: 16,
+            shapeCode: "00",
+            dimensions: { A: 6000 },
+            numberOfMembers: 6,
+            barsPerMember: 2,
+          },
+        ] as never,
+        12,
+      );
+      expect(res.summaryByDiameter[16].totalLengthM).toBe(72);
+      expect(res.summaryByDiameter[16].totalPiecesStock).toBe(6);
+    });
+
+    it("gives a bar longer than the stock the pieces it must be spliced from", () => {
+      expect(stockBarsPerCutBar(13, 12)).toBe(2);
+      expect(stockBarsPerCutBar(24, 12)).toBe(2);
+      expect(stockBarsPerCutBar(25, 12)).toBe(3);
+      // Half a stock bar each, so two cuts share one purchase.
+      expect(stockBarsPerCutBar(4.5, 12)).toBe(0.5);
+      expect(stockBarsPerCutBar(0, 12)).toBe(0);
+    });
   });
 });
