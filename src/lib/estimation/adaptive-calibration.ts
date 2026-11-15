@@ -31,6 +31,15 @@ export type CalibrationContext = "takeoff" | "structural" | "compliance";
 
 export type CalibrationSource = "device" | "cloud";
 
+export type ContributorRole =
+  | "anonymous"
+  | "homeowner"
+  | "contractor"
+  | "quantity_surveyor"
+  | "civil_engineer"
+  | "verified_pro"
+  | "admin";
+
 export interface CalibrationFeedback {
   id: string;
   projectId: string;
@@ -55,6 +64,7 @@ export interface CalibrationFeedback {
   reviewerId?: string;
   reviewerRole?: "owner" | "admin";
   reviewedAt?: string;
+  contributorRole?: ContributorRole;
 }
 
 export interface CalibrationPolicy {
@@ -67,6 +77,12 @@ export interface CalibrationPolicy {
   minRangeObservations: number;
   maxAdjustmentFraction: number;
   emaAlpha: number;
+  /** Whether to apply IQR outlier rejection to user actuals. Defaults to true. */
+  enableIqrOutlierFilter?: boolean;
+  /** Whether to enforce trade-specific physical material bounds. Defaults to true. */
+  enablePhysicalBounds?: boolean;
+  /** Whether to weight Quantity Surveyors & Engineers 3x higher. Defaults to true. */
+  enableRoleWeighting?: boolean;
 }
 
 export const DEFAULT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
@@ -79,6 +95,28 @@ export const DEFAULT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
     minRangeObservations: 3,
     maxAdjustmentFraction: 0.25,
     emaAlpha: 0.25,
+    enableIqrOutlierFilter: true,
+    enablePhysicalBounds: true,
+    enableRoleWeighting: true,
+  });
+
+/**
+ * Production-strict policy: requires 15 verified observations across 5 projects,
+ * tight 20% max adjustment fraction, IQR outlier filtering and physical bounds.
+ */
+export const STRICT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
+  Object.freeze({
+    version: "2026-11-15.strict",
+    minObservations: 15,
+    minDistinctProjects: 5,
+    minVerifiedObservations: 10,
+    minVerifiedShare: 0.7,
+    minRangeObservations: 5,
+    maxAdjustmentFraction: 0.2,
+    emaAlpha: 0.2,
+    enableIqrOutlierFilter: true,
+    enablePhysicalBounds: true,
+    enableRoleWeighting: true,
   });
 
 export type CalibrationBlocker =
@@ -113,6 +151,14 @@ export interface CalibrationCandidate {
   policyVersion: string;
   /** Stable identity of this snapshot. Approval and audit compare against it. */
   fingerprint: string;
+  /** Number of extreme outlier entries discarded by IQR fence. */
+  outlierCount?: number;
+  /** Specific outlier ratios rejected from the series. */
+  outlierRatios?: number[];
+  /** Trade-specific physical bounds applied to clamp multipliers. */
+  physicalBoundsApplied?: { min: number; max: number };
+  /** Unweighted median before trusted pro weighting is applied. */
+  unweightedMultiplier?: number | null;
 }
 
 export interface ConfidenceRange {
@@ -171,6 +217,187 @@ export interface AuditEvent {
   reason: string;
   before?: unknown;
   after?: unknown;
+}
+
+/* ------------------------------------------------------------------ */
+/* Physical Trade Bounds & Outlier Rejection                          */
+/* ------------------------------------------------------------------ */
+
+export interface PhysicalMaterialBounds {
+  minMultiplier: number;
+  maxMultiplier: number;
+  description: string;
+}
+
+/**
+ * Hard physical bounds for site materials and trades.
+ * Even if user actuals skew wildly, these hard clamps refuse to break physics.
+ */
+export const PHYSICAL_MATERIAL_BOUNDS: Readonly<Record<string, PhysicalMaterialBounds>> =
+  Object.freeze({
+    paint: {
+      minMultiplier: 0.8,
+      maxMultiplier: 1.3,
+      description: "Paint absorption and site wastage bounds [0.80, 1.30]",
+    },
+    cement: {
+      minMultiplier: 0.85,
+      maxMultiplier: 1.25,
+      description: "Cement mix density and bag handling bounds [0.85, 1.25]",
+    },
+    sand: {
+      minMultiplier: 0.85,
+      maxMultiplier: 1.35,
+      description: "Sand compaction, moisture bulking and site loss [0.85, 1.35]",
+    },
+    granite: {
+      minMultiplier: 0.88,
+      maxMultiplier: 1.25,
+      description: "Granite/aggregate compaction and handling bounds [0.88, 1.25]",
+    },
+    block: {
+      minMultiplier: 0.85,
+      maxMultiplier: 1.25,
+      description: "Sandcrete block cutting and offloading breakage [0.85, 1.25]",
+    },
+    tile: {
+      minMultiplier: 0.88,
+      maxMultiplier: 1.25,
+      description: "Tile cutting, diagonal waste and site breakage [0.88, 1.25]",
+    },
+    reinforcement: {
+      minMultiplier: 0.92,
+      maxMultiplier: 1.2,
+      description: "Rebar cutting, bending and lap length limits [0.92, 1.20]",
+    },
+    plaster: {
+      minMultiplier: 0.85,
+      maxMultiplier: 1.3,
+      description: "Plaster rebound and substrate roughness limits [0.85, 1.30]",
+    },
+    "roof-sheet": {
+      minMultiplier: 0.92,
+      maxMultiplier: 1.18,
+      description: "Roofing sheet end and side laps limits [0.92, 1.18]",
+    },
+    timber: {
+      minMultiplier: 0.9,
+      maxMultiplier: 1.2,
+      description: "Timber cross-cutting and off-cut waste [0.90, 1.20]",
+    },
+    "pop-ceiling": {
+      minMultiplier: 0.85,
+      maxMultiplier: 1.25,
+      description: "POP casting plaster moulding and frame waste [0.85, 1.25]",
+    },
+    labour: {
+      minMultiplier: 0.7,
+      maxMultiplier: 1.4,
+      description: "Gang productivity and site speed variance [0.70, 1.40]",
+    },
+  });
+
+export function getPhysicalBounds(
+  materialKey: string,
+  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
+): { min: number; max: number } {
+  const window = policy.maxAdjustmentFraction;
+  const policyMin = 1 - window;
+  const policyMax = 1 + window;
+  if (policy.enablePhysicalBounds === false) {
+    return { min: policyMin, max: policyMax };
+  }
+  const spec = PHYSICAL_MATERIAL_BOUNDS[normaliseMaterialKey(materialKey)];
+  if (!spec) {
+    return { min: policyMin, max: policyMax };
+  }
+  return {
+    min: Math.max(policyMin, spec.minMultiplier),
+    max: Math.min(policyMax, spec.maxMultiplier),
+  };
+}
+
+export const ROLE_WEIGHTS: Readonly<Record<ContributorRole, number>> = Object.freeze({
+  quantity_surveyor: 3,
+  civil_engineer: 3,
+  verified_pro: 3,
+  admin: 3,
+  contractor: 2,
+  homeowner: 1,
+  anonymous: 1,
+});
+
+export function getRoleWeight(role?: string | null): number {
+  if (!role) return 1;
+  const key = role.toLowerCase().trim() as ContributorRole;
+  return ROLE_WEIGHTS[key] ?? 1;
+}
+
+export function weightedMedian(items: Array<{ value: number; weight: number }>): number {
+  if (!items.length) return 0;
+  const sorted = [...items].sort((a, b) => a.value - b.value);
+  const totalWeight = sorted.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight <= 0) return sorted[0].value;
+  const halfWeight = totalWeight / 2;
+  let running = 0;
+  for (const item of sorted) {
+    running += item.weight;
+    if (running >= halfWeight) {
+      return item.value;
+    }
+  }
+  return sorted[sorted.length - 1].value;
+}
+
+export interface OutlierFilteringResult<T> {
+  clean: T[];
+  outliers: T[];
+  lowerFence: number;
+  upperFence: number;
+}
+
+/**
+ * Interquartile Range (IQR) outlier rejection filter.
+ * Discards extreme user edits before updating averages or medians so typos
+ * (e.g. typing 150 liters instead of 15 liters) cannot skew regional baselines.
+ */
+export function filterOutliersIQR(
+  entries: PreparedRow[],
+): OutlierFilteringResult<PreparedRow> {
+  if (entries.length < 4) {
+    const clean: PreparedRow[] = [];
+    const outliers: PreparedRow[] = [];
+    for (const e of entries) {
+      if (e.ratio < 0.25 || e.ratio > 3.0) {
+        outliers.push(e);
+      } else {
+        clean.push(e);
+      }
+    }
+    return { clean, outliers, lowerFence: 0.25, upperFence: 3.0 };
+  }
+
+  const sortedRatios = entries.map((e) => e.ratio).sort((a, b) => a - b);
+  const q1 = quantile(sortedRatios, 0.25);
+  const q3 = quantile(sortedRatios, 0.75);
+  const iqr = q3 - q1;
+  const median = quantile(sortedRatios, 0.5);
+
+  const effectiveIQR = Math.max(iqr, median * 0.1);
+  const lowerFence = Math.max(0.1, q1 - 1.5 * effectiveIQR);
+  const upperFence = q3 + 1.5 * effectiveIQR;
+
+  const clean: PreparedRow[] = [];
+  const outliers: PreparedRow[] = [];
+  for (const e of entries) {
+    if (e.ratio < lowerFence || e.ratio > upperFence) {
+      outliers.push(e);
+    } else {
+      clean.push(e);
+    }
+  }
+
+  return { clean, outliers, lowerFence: round(lowerFence), upperFence: round(upperFence) };
 }
 
 /* ------------------------------------------------------------------ */
@@ -489,6 +716,17 @@ export function sanitiseCalibrationFeedback(
   const reviewedAt = Number.isNaN(Date.parse(reviewedAtRaw))
     ? undefined
     : new Date(reviewedAtRaw).toISOString();
+  const contributorRoleRaw = text(row.contributorRole ?? row.contributor_role).toLowerCase();
+  const contributorRole: ContributorRole | undefined =
+    contributorRoleRaw === "quantity_surveyor" ||
+    contributorRoleRaw === "civil_engineer" ||
+    contributorRoleRaw === "verified_pro" ||
+    contributorRoleRaw === "admin" ||
+    contributorRoleRaw === "contractor" ||
+    contributorRoleRaw === "homeowner" ||
+    contributorRoleRaw === "anonymous"
+      ? (contributorRoleRaw as ContributorRole)
+      : undefined;
   return {
     id,
     projectId,
@@ -507,6 +745,7 @@ export function sanitiseCalibrationFeedback(
     reviewerId,
     reviewerRole,
     reviewedAt,
+    contributorRole,
   };
 }
 
@@ -677,26 +916,47 @@ export function buildCalibrationCandidate(
   },
   policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
 ): CalibrationCandidate {
-  const prepared = prepare(rows, scope);
-  const ratios = prepared.map((entry) => entry.ratio);
-  const window = policy.maxAdjustmentFraction;
-  const bounded = ratios.map((ratio) => clamp(ratio, 1 - window, 1 + window));
-  const sorted = [...bounded].sort((a, b) => a - b);
-  const proposed = sorted.length ? round(quantile(sorted, 0.5)) : null;
+  const rawPrepared = prepare(rows, scope);
+  const { clean: prepared, outliers } =
+    policy.enableIqrOutlierFilter !== false
+      ? filterOutliersIQR(rawPrepared)
+      : { clean: rawPrepared, outliers: [] };
+
+  const physicalBounds = getPhysicalBounds(scope.materialKey, policy);
+  const bounded = prepared.map((entry) => ({
+    entry,
+    ratio: clamp(entry.ratio, physicalBounds.min, physicalBounds.max),
+  }));
+
+  const sortedValues = bounded.map((b) => b.ratio).sort((a, b) => a - b);
+  const unweightedMedianValue = sortedValues.length ? round(quantile(sortedValues, 0.5)) : null;
+
+  const weightedItems = bounded.map((b) => ({
+    value: b.ratio,
+    weight:
+      policy.enableRoleWeighting !== false
+        ? getRoleWeight(
+            b.entry.row.contributorRole ??
+              (b.entry.row.evidence === "admin_verified" ? "verified_pro" : undefined),
+          )
+        : 1,
+  }));
+
+  const proposed = bounded.length ? round(weightedMedian(weightedItems)) : null;
   const spread =
-    sorted.length > 1
+    sortedValues.length > 1
       ? {
-          p25: round(quantile(sorted, 0.25)),
-          p75: round(quantile(sorted, 0.75)),
+          p25: round(quantile(sortedValues, 0.25)),
+          p75: round(quantile(sortedValues, 0.75)),
         }
       : null;
 
   let trend: number | null = null;
-  for (const ratio of bounded) {
+  for (const item of bounded) {
     trend =
       trend === null
-        ? ratio
-        : policy.emaAlpha * ratio + (1 - policy.emaAlpha) * trend;
+        ? item.ratio
+        : policy.emaAlpha * item.ratio + (1 - policy.emaAlpha) * trend;
   }
 
   const verified = prepared.filter(
@@ -737,6 +997,10 @@ export function buildCalibrationCandidate(
       : null,
     policyVersion: policy.version,
     fingerprint: "",
+    outlierCount: outliers.length,
+    outlierRatios: outliers.map((o) => round(o.ratio, 3)),
+    physicalBoundsApplied: physicalBounds,
+    unweightedMultiplier: unweightedMedianValue,
   };
   candidate.fingerprint = calibrationCandidateFingerprint(candidate, policy);
   return candidate;
@@ -799,9 +1063,9 @@ export function empiricalConfidenceRange(
   if (!unit) return null;
   const prepared = prepare(rows, scope);
   if (prepared.length < policy.minRangeObservations) return null;
-  const window = policy.maxAdjustmentFraction;
+  const physicalBounds = getPhysicalBounds(scope.materialKey, policy);
   const sorted = prepared
-    .map((entry) => clamp(entry.ratio, 1 - window, 1 + window))
+    .map((entry) => clamp(entry.ratio, physicalBounds.min, physicalBounds.max))
     .sort((a, b) => a - b);
   return {
     low: round(baseQuantity * quantile(sorted, 0.1), 3),

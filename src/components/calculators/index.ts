@@ -6,3 +6,5 @@ export {
   CopyResultsButton,
   default as CopyResultsButtonDefault,
 } from "./CopyResultsButton";
+export { default as CalculationBreakdownDrawer } from "./CalculationBreakdownDrawer";
+export type { CalculationBreakdownProps } from "./CalculationBreakdownDrawer";

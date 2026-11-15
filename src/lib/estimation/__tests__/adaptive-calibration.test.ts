@@ -341,4 +341,42 @@ describe("adaptive calibration", () => {
       createAuditEvent({ ...input, reason: "Other" }).id,
     );
   });
+
+  it("clamps candidates strictly to physical material bounds", () => {
+    // Block physical bounds are [0.85, 1.25]. A wild 2.0x ratio cannot break physics.
+    const wildRatios = [1.8, 1.9, 2.0, 1.85, 1.95];
+    const candidate = buildCalibrationCandidate(series(wildRatios), scope);
+    expect(candidate.proposedMultiplier).toBeLessThanOrEqual(1.25);
+    expect(candidate.physicalBoundsApplied?.max).toBe(1.25);
+  });
+
+  it("discards extreme outliers using IQR filtering so typos do not corrupt baseline", () => {
+    // 5 normal observations around 1.05 and 1 extreme 10x typo entry
+    const normalRows = series([1.02, 1.04, 1.05, 1.06, 1.05]);
+    const typoRow = row({
+      projectId: "p4",
+      actualQuantity: 1000, // 10x typo (1000 instead of 100)
+    });
+    const candidate = buildCalibrationCandidate([...normalRows, typoRow], scope);
+    expect(candidate.outlierCount).toBe(1);
+    expect(candidate.outlierRatios).toContain(10);
+    // Proposed multiplier should be uncorrupted by the 10x typo
+    expect(candidate.proposedMultiplier).toBeCloseTo(1.05, 2);
+  });
+
+  it("weights Quantity Surveyors and Civil Engineers 3x higher than anonymous users", () => {
+    // 3 anonymous rows at 1.00 and 1 QS row at 1.15
+    const rows = [
+      row({ id: "a1", projectId: "p1", actualQuantity: 100, contributorRole: "anonymous" }),
+      row({ id: "a2", projectId: "p2", actualQuantity: 100, contributorRole: "anonymous" }),
+      row({ id: "a3", projectId: "p3", actualQuantity: 100, contributorRole: "anonymous" }),
+      row({ id: "qs1", projectId: "p1", actualQuantity: 115, contributorRole: "quantity_surveyor" }),
+      row({ id: "a4", projectId: "p2", actualQuantity: 102, contributorRole: "anonymous" }),
+    ];
+    const candidate = buildCalibrationCandidate(rows, scope);
+    // QS weight = 3x, anonymous = 1x.
+    // Values: 1.00 (w=1), 1.00 (w=1), 1.00 (w=1), 1.02 (w=1), 1.15 (w=3). Total weight = 7. Half weight = 3.5.
+    // Cum weight: 1.00 (3) -> 1.02 (4 >= 3.5) -> median is 1.02, shifted towards the QS observation.
+    expect(candidate.proposedMultiplier).toBe(1.02);
+  });
 });
