@@ -327,10 +327,66 @@ export const ROLE_WEIGHTS: Readonly<Record<ContributorRole, number>> = Object.fr
   anonymous: 1,
 });
 
+export function isTrustedVerification(
+  row: Pick<CalibrationFeedback, "evidence" | "reviewerId">,
+): boolean {
+  return row.evidence === "admin_verified";
+}
+
 export function getRoleWeight(role?: string | null): number {
   if (!role) return 1;
   const key = role.toLowerCase().trim() as ContributorRole;
   return ROLE_WEIGHTS[key] ?? 1;
+}
+
+export function getEffectiveRoleWeight(
+  row: Pick<CalibrationFeedback, "contributorRole" | "evidence" | "reviewerId">,
+): number {
+  const role = row.contributorRole;
+  if (!role) {
+    return row.evidence === "admin_verified" ? ROLE_WEIGHTS.verified_pro : 1;
+  }
+  const normalized = role.toLowerCase().trim() as ContributorRole;
+  const rawWeight = ROLE_WEIGHTS[normalized] ?? 1;
+
+  // Professional roles (QS, civil engineer, admin, verified pro) require verified evidence
+  // to receive elevated 3x weighting. Unverified / self-attested claims fall back to 1.0.
+  if (rawWeight > 1 && !isTrustedVerification(row)) {
+    return 1;
+  }
+  return rawWeight;
+}
+
+export function resolveVerifiedContributorRole(params: {
+  isAdmin?: boolean;
+  proCredentials?: Array<{ status: string; trade?: string; credentialType?: string }>;
+  accountType?: string;
+}): ContributorRole {
+  if (params.isAdmin) return "admin";
+  if (params.proCredentials && params.proCredentials.length > 0) {
+    const verifiedCreds = params.proCredentials.filter(
+      (c) =>
+        c.status === "verified_by_source" ||
+        c.status === "verified_by_reviewer" ||
+        c.status === "verified",
+    );
+    for (const cred of verifiedCreds) {
+      const type = (cred.credentialType || cred.trade || "").toLowerCase();
+      if (type.includes("quantity") || type.includes("surveyor") || type.includes("qs")) {
+        return "quantity_surveyor";
+      }
+      if (type.includes("civil") || type.includes("engineer") || type.includes("structural")) {
+        return "civil_engineer";
+      }
+    }
+    if (verifiedCreds.length > 0) {
+      return "verified_pro";
+    }
+  }
+  if (params.accountType === "pro_worker" || params.accountType === "contractor") {
+    return "contractor";
+  }
+  return "homeowner";
 }
 
 export function weightedMedian(items: Array<{ value: number; weight: number }>): number {
@@ -935,10 +991,7 @@ export function buildCalibrationCandidate(
     value: b.ratio,
     weight:
       policy.enableRoleWeighting !== false
-        ? getRoleWeight(
-            b.entry.row.contributorRole ??
-              (b.entry.row.evidence === "admin_verified" ? "verified_pro" : undefined),
-          )
+        ? getEffectiveRoleWeight(b.entry.row)
         : 1,
   }));
 

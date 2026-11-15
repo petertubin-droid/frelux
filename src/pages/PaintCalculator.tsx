@@ -2782,6 +2782,23 @@ function ResultCard({
       <div className="px-6 pb-2 sm:px-8">
         <HowCalculatedSection
           methodologyText={(calcDefaults.howCalculatedText as string) || ""}
+          geometryBreakdown={{
+            grossAreaM2: result.wallArea + result.ceilingArea,
+            deductionsM2: result.doorArea + result.windowArea,
+            netAreaM2: result.paintableArea,
+            dimensionsSummary: `${input.length} × ${input.width} × ${input.wallHeight} ${input.unit === "meters" ? "m" : "ft"}`,
+          }}
+          siteModifiers={{
+            surfacePorosity: SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label,
+            porosityMultiplier: SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.factor,
+          }}
+          packagingDetails={{
+            theoreticalAmount: result.paintRequiredLiters,
+            practicalPurchaseAmount: result.totalRecommendedLiters,
+            unitLabel: "litres",
+            packSizeLabel: "assorted drums",
+            surplusQuantity: result.leftoverLiters,
+          }}
           assumptions={[
             {
               label: "Base coverage",

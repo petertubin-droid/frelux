@@ -1944,6 +1944,23 @@ function TileResultCard({
 
       <HowCalculatedSection
         methodologyText={calcDefaults.howCalculatedText}
+        geometryBreakdown={{
+          grossAreaM2: result.surfaceArea,
+          deductionsM2: result.openingArea,
+          netAreaM2: result.netSurfaceArea,
+          dimensionsSummary: `${input.length} × ${input.width} m`,
+        }}
+        siteModifiers={{
+          layoutComplexity: input.surfaceType === "floor" ? "Standard Floor Layout" : "Wall Layout",
+          cuttingWastePercent: input.wasteMargin,
+        }}
+        packagingDetails={{
+          theoreticalAmount: result.tilesNeeded,
+          practicalPurchaseAmount: result.boxesNeeded,
+          unitLabel: "tiles",
+          packSizeLabel: `boxes (${input.tilesPerBox} tiles/box)`,
+          surplusQuantity: Math.max(0, result.boxesNeeded * input.tilesPerBox - result.tilesNeeded),
+        }}
         assumptions={[
           { label: "Surface type", value: input.surfaceType },
           {

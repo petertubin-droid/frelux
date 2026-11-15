@@ -572,6 +572,26 @@ export default function FenceBlockCalculator() {
                 <CalculatorResetButton onReset={resetInputs} className="mb-4" />
                 <HowCalculatedSection
                   methodologyText={methodologyText("fence-block")}
+                  geometryBreakdown={{
+                    grossAreaM2: result.wall.grossAreaM2,
+                    deductionsM2: result.gate.deductedAreaM2,
+                    netAreaM2: result.wall.areaM2,
+                    dimensionsSummary: `${result.site.perimeterM.toFixed(1)}m perimeter × ${result.wall.coaches} courses high`,
+                  }}
+                  physicalFactors={{
+                    mortarDryFactor: 1.33,
+                  }}
+                  packagingDetails={{
+                    theoreticalAmount: result.blocks.net,
+                    practicalPurchaseAmount: result.blocks.total,
+                    unitLabel: "blocks",
+                    packSizeLabel: `${market} standard blocks`,
+                  }}
+                  assumptions={[
+                    { label: "Gate deduction", value: `${result.gate.widthM}m wide` },
+                    { label: "Dry mortar volume", value: `${result.mortar.dryM3.toFixed(2)} m³` },
+                    { label: "Mortar mix ratio", value: `1:${result.mortar.ratio}` },
+                  ]}
                 />
                 <ShareEstimateButton
                   showPdf

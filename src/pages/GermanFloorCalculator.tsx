@@ -559,6 +559,30 @@ export default function GermanFloorCalculator() {
       </div>
 
       <HowCalculatedSection
+        geometryBreakdown={
+          result
+            ? {
+                grossAreaM2: result.areaM2,
+                volumeM3: result.layers.slab.cubicMetres,
+                dimensionsSummary: `${result.site.lengthM}m × ${result.site.widthM}m (${slabMm}mm slab)`,
+              }
+            : undefined
+        }
+        physicalFactors={{
+          dryVolumeBulkingFactor: 1.54,
+          looseHardcoreBulking: 1.25,
+          mixRatio: mixKey,
+        }}
+        packagingDetails={
+          result
+            ? {
+                theoreticalAmount: result.cement.bags,
+                practicalPurchaseAmount: result.cement.bags,
+                unitLabel: "bags",
+                packSizeLabel: `${result.cement.bagKg} kg cement bags`,
+              }
+            : undefined
+        }
         methodologyText={`Floor area comes from the plot preset you pick or your own length x width. Each layer is then priced separately, because each is a separate purchase.
 
 Hardcore: area x hardcore depth, then multiplied by 1.25 loose bulking. Hardcore is bought loose and compacts down, so a cubic metre in the ground is more than a cubic metre on the lorry.

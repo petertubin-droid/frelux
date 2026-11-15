@@ -505,6 +505,25 @@ export default function FoundationCalculator() {
               <CalculatorResetButton onReset={resetInputs} className="mb-4" />
               <HowCalculatedSection
                 methodologyText={methodologyText("foundation")}
+                geometryBreakdown={{
+                  volumeM3: result.concrete_volume,
+                  dimensionsSummary: `${result.shape} footing`,
+                }}
+                physicalFactors={{
+                  dryVolumeBulkingFactor: 1.54,
+                }}
+                packagingDetails={{
+                  theoreticalAmount: result.concrete_volume,
+                  practicalPurchaseAmount: result.concrete_volume,
+                  unitLabel: "m³",
+                  packSizeLabel: "Ready-mix / in-situ batch m³",
+                }}
+                assumptions={[
+                  { label: "Design footing shape", value: result.shape },
+                  { label: "Concrete volume", value: `${result.concrete_volume.toFixed(2)} m³` },
+                  { label: "Excavation volume", value: `${result.excavation_volume.toFixed(2)} m³` },
+                  { label: "Blinding volume", value: `${result.blinding_volume.toFixed(2)} m³` },
+                ]}
               />
               <ShareEstimateButton
                 showPdf

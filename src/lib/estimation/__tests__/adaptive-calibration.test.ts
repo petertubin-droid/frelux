@@ -7,6 +7,7 @@ import {
   calibrationCandidateKey,
   compareShadowEstimate,
   createAuditEvent,
+  getEffectiveRoleWeight,
   empiricalConfidenceRange,
   exportBudgetCsv,
   normaliseMarketCode,
@@ -378,5 +379,25 @@ describe("adaptive calibration", () => {
     // Values: 1.00 (w=1), 1.00 (w=1), 1.00 (w=1), 1.02 (w=1), 1.15 (w=3). Total weight = 7. Half weight = 3.5.
     // Cum weight: 1.00 (3) -> 1.02 (4 >= 3.5) -> median is 1.02, shifted towards the QS observation.
     expect(candidate.proposedMultiplier).toBe(1.02);
+  });
+
+  it("refuses elevated weights for self-attested claims without trusted verification", () => {
+    const unverifiedQSRow = row({
+      id: "unverified-qs",
+      contributorRole: "quantity_surveyor",
+      evidence: "self_attested",
+      reviewerId: undefined,
+      reviewerRole: undefined,
+    });
+    expect(getEffectiveRoleWeight(unverifiedQSRow)).toBe(1);
+
+    const verifiedQSRow = row({
+      id: "verified-qs",
+      contributorRole: "quantity_surveyor",
+      evidence: "admin_verified",
+      reviewerId: "admin-1",
+      reviewerRole: "admin",
+    });
+    expect(getEffectiveRoleWeight(verifiedQSRow)).toBe(3);
   });
 });

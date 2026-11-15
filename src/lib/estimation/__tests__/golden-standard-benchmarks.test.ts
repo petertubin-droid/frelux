@@ -1,3 +1,14 @@
+/**
+ * Multi-Trade Takeoff & Packaging Benchmark Test Suite
+ *
+ * Deterministic engineering benchmark suite verifying cross-trade takeoff consistency,
+ * packaging unit roundups, dry-volume bulking factors, and regression boundaries
+ * across 12 standardized reference scenarios (Nigeria, UK, US, South Africa, etc.).
+ *
+ * Note: These tests verify mathematical consistency and boundary enforcement
+ * against textbook quantity surveying formulas and published standards; they do
+ * not represent scanned physical paper receipts or audited external contractor BOQs.
+ */
 import { describe, expect, it } from "vitest";
 import { calculateFenceBlockwork } from "../fence-blockwork";
 import { calculateGermanFloor } from "../german-floor";
@@ -48,11 +59,11 @@ import {
   resolveLayoutWastePercent,
 } from "../site-conditions";
 
-describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", () => {
+describe("Standardized Trade Benchmark Test Suite (Multi-Trade Takeoff & Boundary Validation)", () => {
   // --------------------------------------------------------------------------
   // Benchmark 1: Standard Full-Plot Perimeter Fence (9-inch blocks)
   // --------------------------------------------------------------------------
-  it("Golden Case 1: matches QS BOQ for a 100ft x 50ft perimeter fence (9-inch sandcrete blocks)", () => {
+  it("Benchmark Scenario 1: matches QS BOQ for a 100ft x 50ft perimeter fence (9-inch sandcrete blocks)", () => {
     // 100 ft x 50 ft plot (30.48m x 15.24m) = 91.44 m perimeter.
     // 10 coaches of 9" sandcrete blockwork, 1 gate opening (3.6m wide).
     const takeoff = calculateFenceBlockwork({
@@ -85,7 +96,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 2: Half-Plot Perimeter Fence (6-inch blocks)
   // --------------------------------------------------------------------------
-  it("Golden Case 2: matches BOQ for half-plot fence (50ft x 50ft, 8 courses of 6-inch blocks)", () => {
+  it("Benchmark Scenario 2: matches BOQ for half-plot fence (50ft x 50ft, 8 courses of 6-inch blocks)", () => {
     // Half plot (15.24m x 15.24m) = 60.96m perimeter.
     const takeoff = calculateFenceBlockwork({
       market: "NG",
@@ -109,7 +120,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 3: 120 m2 Residential German Floor Slab (3-Bedroom Bungalow)
   // --------------------------------------------------------------------------
-  it("Golden Case 3: matches structural concrete takeoff for a 120 m² German floor slab (150mm concrete)", () => {
+  it("Benchmark Scenario 3: matches structural concrete takeoff for a 120 m² German floor slab (150mm concrete)", () => {
     // Custom dimensions 12m x 10m = 120 m² slab at 150mm thickness (1:2:4 mix).
     const takeoff = calculateGermanFloor({
       market: "NG",
@@ -142,7 +153,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 4: 48 m2 Commercial Shop Slab
   // --------------------------------------------------------------------------
-  it("Golden Case 4: matches hardcore fill and concrete takeoff for 48 m² shop slab (100mm)", () => {
+  it("Benchmark Scenario 4: matches hardcore fill and concrete takeoff for 48 m² shop slab (100mm)", () => {
     const takeoff = calculateGermanFloor({
       market: "NG",
       lengthM: 8.0,
@@ -170,7 +181,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 5: Internal Bedroom Wall Plastering Takeoff
   // --------------------------------------------------------------------------
-  it("Golden Case 5: matches QS plastering takeoff for a standard 4m x 3.5m x 3m bedroom (12mm plaster, 1:5 mix)", () => {
+  it("Benchmark Scenario 5: matches QS plastering takeoff for a standard 4m x 3.5m x 3m bedroom (12mm plaster, 1:5 mix)", () => {
     // Net plastering area = 40.0 m².
     const netArea = 40.0;
     const takeoff = calculatePlasteringTakeoff({
@@ -198,7 +209,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 6: External Waterproof Wall Rendering (145 m2, 20mm 2-coat, 1:4 mix)
   // --------------------------------------------------------------------------
-  it("Golden Case 6: matches external rendering receipt for 145 m² at 20mm thickness (1:4 mix)", () => {
+  it("Benchmark Scenario 6: matches external rendering receipt for 145 m² at 20mm thickness (1:4 mix)", () => {
     const takeoff = calculatePlasteringTakeoff({
       marketCode: "NG",
       surfaceAreaM2: 145.0,
@@ -221,7 +232,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 7: 4m x 5m POP Suspended Ceiling Takeoff
   // --------------------------------------------------------------------------
-  it("Golden Case 7: matches material takeoff for a 4m x 5m suspended POP ceiling", () => {
+  it("Benchmark Scenario 7: matches material takeoff for a 4m x 5m suspended POP ceiling", () => {
     const result = calculatePopCeiling(
       {
         workflow: "nigeria",
@@ -250,7 +261,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 8: Living Room Floor Tiling (6m x 8m, 600x600mm straight grid)
   // --------------------------------------------------------------------------
-  it("Golden Case 8: matches contractor receipt for 48 m² floor tiling (600x600mm straight grid)", () => {
+  it("Benchmark Scenario 8: matches contractor receipt for 48 m² floor tiling (600x600mm straight grid)", () => {
     // 6m x 8m = 48 m² floor area.
     // Tile size: 600mm x 600mm = 0.36 m² per tile.
     // 4 tiles per box = 1.44 m² per box.
@@ -290,7 +301,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 9: Complex Diagonal Bathroom Tiling (14% cutting waste)
   // --------------------------------------------------------------------------
-  it("Golden Case 9: matches tile receipt for complex diagonal bathroom tiling (14% waste)", () => {
+  it("Benchmark Scenario 9: matches tile receipt for complex diagonal bathroom tiling (14% waste)", () => {
     const wastePercent = resolveLayoutWastePercent("complex_diagonal");
     expect(wastePercent).toBe(14);
 
@@ -324,7 +335,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 10: Raw Plaster Paint Suction Modifier
   // --------------------------------------------------------------------------
-  it("Golden Case 10: correctly accounts for raw cement plaster suction (0.75x spread rate)", () => {
+  it("Benchmark Scenario 10: correctly accounts for raw cement plaster suction (0.75x spread rate)", () => {
     const rawPlaster = resolveSurfacePorosity("raw_plaster");
     expect(rawPlaster.coverageMultiplier).toBe(0.75);
     expect(rawPlaster.primerRecommended).toBe(true);
@@ -347,7 +358,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 11: Repaint Surface Modifier (Sealed substrate)
   // --------------------------------------------------------------------------
-  it("Golden Case 11: accounts for higher coverage on sound repaints (1.15x spread rate)", () => {
+  it("Benchmark Scenario 11: accounts for higher coverage on sound repaints (1.15x spread rate)", () => {
     const repaint = resolveSurfacePorosity("repaint");
     expect(repaint.coverageMultiplier).toBe(1.15);
     expect(repaint.primerRecommended).toBe(false);
@@ -368,7 +379,7 @@ describe("Golden Standard Real Project Benchmarks (BOQ & Receipt Validation)", (
   // --------------------------------------------------------------------------
   // Benchmark 12: End-to-End Drift Guard (Strict ±3% to ±5% Tolerance)
   // --------------------------------------------------------------------------
-  it("Golden Case 12: asserts calculation outputs stay strictly within ±3% of verified quantity surveying rules", () => {
+  it("Benchmark Scenario 12: asserts calculation outputs stay strictly within ±3% of verified quantity surveying rules", () => {
     // Test geometry: 4.5m x 3.2m x 2.7m room
     const wallArea = calculateWallArea(4.5, 3.2, 2.7);
     expect(wallArea).toBeCloseTo(41.58, 2);

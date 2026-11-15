@@ -5,8 +5,14 @@
  * - Bulking and shrinkage factors (dry vs wet volume conversion).
  * - Substrate porosity modifiers (paint/screed absorption).
  * - Cutting and layout geometry complexity factors (tile and floor cutting waste).
+ *
+ * Reference & Standards Note:
+ * - 1.54 concrete dry volume factor: standard empirical factor (e.g. BS 8110 / IS 456 / textbook mix design)
+ *   accounting for sand filling aggregate voids and water cement paste reduction.
+ * - 1.33 mortar bulking factor: empirical factor accounting for dry volume shrinkage when mixing mortar.
+ * - 1.25 hardcore bulking factor: loose-to-compacted stone conversion.
+ * Specific site aggregates and moisture conditions can vary; these factors represent transparent baseline defaults.
  */
-
 // ============================================================================
 // 1. Dry Volume vs Wet Volume Bulking & Shrinkage Factors
 // ============================================================================

@@ -1,13 +1,28 @@
 import { useState } from "react";
-import { ChevronDown, Info } from "lucide-react";
+import {
+  ChevronDown,
+  Info,
+  Ruler,
+  Layers,
+  Sliders,
+  Package,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import type { CalculationBreakdownProps } from "./CalculationBreakdownDrawer";
 
-interface HowCalculatedSectionProps {
+export interface HowCalculatedSectionProps {
   methodologyText: string;
   assumptions?: { label: string; value: string }[];
   priceSourceDate?: string;
   priceSource?: string;
+  breakdown?: CalculationBreakdownProps;
+  geometryBreakdown?: CalculationBreakdownProps["geometryBreakdown"];
+  physicalFactors?: CalculationBreakdownProps["physicalFactors"];
+  siteModifiers?: CalculationBreakdownProps["siteModifiers"];
+  packagingDetails?: CalculationBreakdownProps["packagingDetails"];
+  calibrationEvidence?: CalculationBreakdownProps["calibrationEvidence"];
 }
 
 export default function HowCalculatedSection({
@@ -15,11 +30,27 @@ export default function HowCalculatedSection({
   assumptions = [],
   priceSourceDate,
   priceSource,
+  breakdown,
+  geometryBreakdown: propGeometry,
+  physicalFactors: propPhysical,
+  siteModifiers: propModifiers,
+  packagingDetails: propPackaging,
+  calibrationEvidence: propCalibration,
 }: HowCalculatedSectionProps) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
-  if (!methodologyText && assumptions.length === 0) return null;
+  const geometry = propGeometry ?? breakdown?.geometryBreakdown;
+  const physical = propPhysical ?? breakdown?.physicalFactors;
+  const modifiers = propModifiers ?? breakdown?.siteModifiers;
+  const packaging = propPackaging ?? breakdown?.packagingDetails;
+  const calibration = propCalibration ?? breakdown?.calibrationEvidence;
+
+  const hasBreakdown = Boolean(
+    geometry || physical || modifiers || packaging || calibration,
+  );
+
+  if (!methodologyText && assumptions.length === 0 && !hasBreakdown) return null;
 
   return (
     <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
@@ -35,20 +66,219 @@ export default function HowCalculatedSection({
           {t("How this estimate is calculated")}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
+            expanded ? "rotate-180" : ""
+          }`}
         />
       </Button>
 
       {expanded && (
-        <div className="animate-content-reveal border-t border-border px-4 py-3 dark:border-white/5">
+        <div className="animate-content-reveal space-y-3.5 border-t border-border px-4 py-3 dark:border-white/5">
           {methodologyText && (
             <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
               {methodologyText}
             </pre>
           )}
 
+          {/* Section: Geometric Takeoff */}
+          {geometry && (
+            <div className="space-y-1.5 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Ruler className="h-3.5 w-3.5 text-brand-purple" />
+                <span>{t("Geometric Takeoff")}</span>
+              </div>
+              {geometry.dimensionsSummary && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Input Dimensions")}</span>
+                  <span className="font-mono text-foreground">
+                    {geometry.dimensionsSummary}
+                  </span>
+                </div>
+              )}
+              {geometry.grossAreaM2 !== undefined && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Gross Face Area")}</span>
+                  <span className="font-mono text-foreground">
+                    {geometry.grossAreaM2.toFixed(2)} m²
+                  </span>
+                </div>
+              )}
+              {geometry.deductionsM2 !== undefined && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Openings Deducted")}</span>
+                  <span className="font-mono text-foreground">
+                    -{geometry.deductionsM2.toFixed(2)} m²
+                  </span>
+                </div>
+              )}
+              {geometry.netAreaM2 !== undefined && (
+                <div className="flex justify-between border-t border-border/40 pt-1 font-medium text-foreground">
+                  <span>{t("Net Work Area")}</span>
+                  <span className="font-mono">
+                    {geometry.netAreaM2.toFixed(2)} m²
+                  </span>
+                </div>
+              )}
+              {geometry.volumeM3 !== undefined && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Finished Wet Volume")}</span>
+                  <span className="font-mono text-foreground">
+                    {geometry.volumeM3.toFixed(3)} m³
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Section: Physical Bulking & Shrinkage Factors */}
+          {physical && (
+            <div className="space-y-1.5 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Layers className="h-3.5 w-3.5 text-blue-500" />
+                <span>{t("Physical Bulking & Shrinkage Factors")}</span>
+              </div>
+              {physical.mixRatio && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Design Mix Ratio")}</span>
+                  <span className="font-mono text-foreground">
+                    {physical.mixRatio}
+                  </span>
+                </div>
+              )}
+              {physical.dryVolumeBulkingFactor && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Concrete Dry Volume Factor")}</span>
+                  <span className="font-mono text-foreground">
+                    {physical.dryVolumeBulkingFactor}× (dry batch allowance)
+                  </span>
+                </div>
+              )}
+              {physical.mortarDryFactor && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Mortar Shrinkage Factor")}</span>
+                  <span className="font-mono text-foreground">
+                    {physical.mortarDryFactor}× (wet-to-dry conversion)
+                  </span>
+                </div>
+              )}
+              {physical.looseHardcoreBulking && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Hardcore Loose Bulking")}</span>
+                  <span className="font-mono text-foreground">
+                    {physical.looseHardcoreBulking}× (loose fill to compacted)
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Section: Site Variables & Substrate Conditions */}
+          {modifiers && (
+            <div className="space-y-1.5 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Sliders className="h-3.5 w-3.5 text-amber-500" />
+                <span>{t("Site Variables & Substrate Conditions")}</span>
+              </div>
+              {modifiers.surfacePorosity && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Substrate Condition")}</span>
+                  <span className="font-medium text-foreground">
+                    {modifiers.surfacePorosity}
+                    {modifiers.porosityMultiplier &&
+                      ` (${modifiers.porosityMultiplier}× spread rate)`}
+                  </span>
+                </div>
+              )}
+              {modifiers.layoutComplexity && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Pattern & Layout Waste")}</span>
+                  <span className="font-medium text-foreground">
+                    {modifiers.layoutComplexity}
+                    {modifiers.cuttingWastePercent !== undefined &&
+                      ` (+${modifiers.cuttingWastePercent}% waste)`}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Section: Packaging & Purchase Rounding */}
+          {packaging && (
+            <div className="space-y-1.5 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Package className="h-3.5 w-3.5 text-emerald-500" />
+                <span>{t("Packaging & Purchase Rounding")}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>{t("Theoretical Quantity")}</span>
+                <span className="font-mono text-foreground">
+                  {packaging.theoreticalAmount.toFixed(2)} {packaging.unitLabel}
+                </span>
+              </div>
+              <div className="flex justify-between font-medium text-foreground">
+                <span>{t("Practical Purchase")}</span>
+                <span className="font-mono">
+                  {packaging.practicalPurchaseAmount}{" "}
+                  {packaging.packSizeLabel || packaging.unitLabel}
+                </span>
+              </div>
+              {packaging.surplusQuantity !== undefined &&
+                packaging.surplusQuantity > 0 && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>{t("Estimated Leftover / Surplus")}</span>
+                    <span className="font-mono text-foreground">
+                      {packaging.surplusQuantity.toFixed(2)} {packaging.unitLabel}
+                    </span>
+                  </div>
+                )}
+            </div>
+          )}
+
+          {/* Section: Calibration Engine Guardrails */}
+          {calibration && (
+            <div className="space-y-1.5 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-brand-purple" />
+                <span>{t("Adaptive Calibration & Guardrails")}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>{t("Status")}</span>
+                <span className="font-medium text-foreground">
+                  {calibration.approvedDecision === "approved"
+                    ? t("Admin Approved Multiplier Active")
+                    : t("Deterministic Baseline Active (Shadow Review)")}
+                </span>
+              </div>
+              {calibration.shadowMultiplier && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Shadow Calibrated Multiplier")}</span>
+                  <span className="font-mono text-foreground">
+                    {calibration.shadowMultiplier.toFixed(3)}×
+                  </span>
+                </div>
+              )}
+              {calibration.confidenceInterval && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("Empirical Quantile Range (P10 - P90)")}</span>
+                  <span className="font-mono text-foreground">
+                    {calibration.confidenceInterval.low.toFixed(1)} –{" "}
+                    {calibration.confidenceInterval.high.toFixed(1)}
+                  </span>
+                </div>
+              )}
+              {calibration.outliersFilteredCount !== undefined && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>{t("IQR Outliers Discarded")}</span>
+                  <span className="font-mono text-foreground">
+                    {calibration.outliersFilteredCount} {t("records")}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
           {assumptions.length > 0 && (
-            <div className="mt-3 space-y-1">
+            <div className="mt-3 space-y-1 border-t border-border/40 pt-2">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("Active assumptions")}
               </p>
