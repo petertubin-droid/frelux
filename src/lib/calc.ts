@@ -93,9 +93,9 @@ const STANDARD_HEIGHT_M = 2.4384;
 export function getSurfaceConditionFactor(
   condition: SurfaceCondition | undefined,
 ): { factor: number; label: string; description: string } {
-  if (!condition) return SURFACE_CONDITION_FACTORS.smooth;
+  if (!condition) return SURFACE_CONDITION_FACTORS.screeded;
   return (
-    SURFACE_CONDITION_FACTORS[condition] ?? SURFACE_CONDITION_FACTORS.smooth
+    SURFACE_CONDITION_FACTORS[condition] ?? SURFACE_CONDITION_FACTORS.screeded
   );
 }
 
@@ -121,8 +121,9 @@ export function getColorConditionInfo(condition: ColorCondition | undefined): {
 // silently applied.
 // ─────────────────────────────────────────────────────────
 
-/** Maximum meaningful coverage factor (smooth = full rate). */
-const MAX_SURFACE_FACTOR = 1.0;
+/** Maximum meaningful coverage factor: a sealed, previously painted surface
+ * (the repaint profile) needs 15% less paint than a bare screed. */
+const MAX_SURFACE_FACTOR = 1.15;
 
 /** Resolve the coverage adjustment factor for a surface condition. */
 export function resolveSurfaceFactor(
@@ -435,7 +436,7 @@ export function calculatePaint(
   // ── Surface condition adjustment ──
   // Rough/textured surfaces reduce effective coverage, apply factor to base rate.
   // Use DB-driven override if provided, otherwise fall back to hardcoded factor.
-  const surfaceCondition = input.surfaceCondition ?? "smooth";
+  const surfaceCondition = input.surfaceCondition ?? "screeded";
   const surfaceFactor = resolveSurfaceFactor(surfaceCondition, config);
   const adjustedCoverageRate = round(baseCoverageRate * surfaceFactor);
 

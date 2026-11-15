@@ -714,6 +714,15 @@ function findCalibrationMatch(
   return null;
 }
 
+/** Wording for the surface coverage step, honest in both directions. */
+export function describeSurfaceAdjustment(factor: number): string {
+  if (factor === 1) return "No coverage adjustment.";
+  if (factor < 1) {
+    return `Coverage adjustment: ×${factor} (${Math.round((1 - factor) * 100)}% more paint needed)`;
+  }
+  return `Coverage adjustment: ×${factor} (${Math.round((factor - 1) * 100)}% less paint needed)`;
+}
+
 // =========================================================
 // Single Room Calculation
 // =========================================================
@@ -862,10 +871,7 @@ export function calculateRoom(
     steps.push({
       label: "Surface Condition",
       value: surfaceCondition.name,
-      detail:
-        surfaceFactor !== 1.0
-          ? `Coverage adjustment: ×${surfaceFactor} (${Math.round((1 - surfaceFactor) * 100)}% more paint needed)`
-          : "No coverage adjustment.",
+      detail: describeSurfaceAdjustment(surfaceFactor),
     });
     if (surfaceCondition.primer_recommended) {
       primerRecommended = true;

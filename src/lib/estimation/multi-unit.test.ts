@@ -29,7 +29,7 @@ function baseInput(overrides: Partial<CalculatorInput> = {}): CalculatorInput {
     unit: "meters",
     includeCeiling: false,
     wasteMargin: 5,
-    surfaceCondition: "smooth",
+    surfaceCondition: "screeded",
     colorCondition: "same_or_light",
     includePrimer: false,
     ...overrides,
@@ -80,9 +80,33 @@ describe("expandEngineRooms — house mode", () => {
     wallHeight: 3,
     includeCeiling: true,
     houseRooms: [
-      { id: "r1", label: "Master Bedroom", length: 3.7, width: 3.5, quantity: 1, doors: 1, windows: 1 },
-      { id: "r2", label: "Bedroom", length: 3.7, width: 3.5, quantity: 2, doors: 1, windows: 1 },
-      { id: "r3", label: "Parlour", length: 4.9, width: 4.3, quantity: 1, doors: 1, windows: 2 },
+      {
+        id: "r1",
+        label: "Master Bedroom",
+        length: 3.7,
+        width: 3.5,
+        quantity: 1,
+        doors: 1,
+        windows: 1,
+      },
+      {
+        id: "r2",
+        label: "Bedroom",
+        length: 3.7,
+        width: 3.5,
+        quantity: 2,
+        doors: 1,
+        windows: 1,
+      },
+      {
+        id: "r3",
+        label: "Parlour",
+        length: 4.9,
+        width: 4.3,
+        quantity: 1,
+        doors: 1,
+        windows: 2,
+      },
     ],
   });
 
@@ -101,7 +125,9 @@ describe("expandEngineRooms — house mode", () => {
   });
 
   it("returns empty for a house with no rooms", () => {
-    expect(expandEngineRooms(baseInput({ projectType: "house" }))).toHaveLength(0);
+    expect(expandEngineRooms(baseInput({ projectType: "house" }))).toHaveLength(
+      0,
+    );
   });
 });
 
@@ -110,7 +136,15 @@ describe("expandEngineRooms — exterior and fence modes", () => {
     const runs = baseInput({
       projectType: "exterior",
       surfaceRuns: [
-        { id: "w1", label: "Front Wall", length: 10, height: 3, quantity: 1, doors: 1, windows: 2 },
+        {
+          id: "w1",
+          label: "Front Wall",
+          length: 10,
+          height: 3,
+          quantity: 1,
+          doors: 1,
+          windows: 2,
+        },
       ],
     });
     const rooms = expandEngineRooms(runs);
@@ -125,7 +159,15 @@ describe("expandEngineRooms — exterior and fence modes", () => {
     const runs = baseInput({
       projectType: "fence",
       surfaceRuns: [
-        { id: "f1", label: "Fence Section 1", length: 8, height: 2, quantity: 3, doors: 0, windows: 0 },
+        {
+          id: "f1",
+          label: "Fence Section 1",
+          length: 8,
+          height: 2,
+          quantity: 3,
+          doors: 0,
+          windows: 0,
+        },
       ],
     });
     const rooms = expandEngineRooms(runs);
@@ -140,7 +182,15 @@ describe("expandLegacyInputs", () => {
       baseInput({
         projectType: "exterior",
         surfaceRuns: [
-          { id: "w1", label: "Front Wall", length: 10, height: 3, quantity: 1, doors: 1, windows: 0 },
+          {
+            id: "w1",
+            label: "Front Wall",
+            length: 10,
+            height: 3,
+            quantity: 1,
+            doors: 1,
+            windows: 0,
+          },
         ],
       }),
     );
@@ -156,7 +206,15 @@ describe("expandLegacyInputs", () => {
       baseInput({
         projectType: "house",
         houseRooms: [
-          { id: "r1", label: "Bedroom", length: 3.7, width: 3.5, quantity: 3, doors: 1, windows: 1 },
+          {
+            id: "r1",
+            label: "Bedroom",
+            length: 3.7,
+            width: 3.5,
+            quantity: 3,
+            doors: 1,
+            windows: 1,
+          },
         ],
       }),
     );
@@ -172,7 +230,9 @@ describe("expandLegacyInputs", () => {
 
 // ── Engine result fixtures ──
 
-function engineResult(over: Partial<PaintEngineRoomResult> = {}): PaintEngineRoomResult {
+function engineResult(
+  over: Partial<PaintEngineRoomResult> = {},
+): PaintEngineRoomResult {
   return {
     room_id: "r1",
     room_name: "Room",
@@ -239,7 +299,14 @@ describe("aggregateEngineRooms", () => {
   it("sums areas across units and rounds buckets ONCE on the total", () => {
     // Two identical rooms: each needs 6.894 L wall paint.
     const t = aggregateEngineRooms(
-      [engineResult({ room_id: "a" }), engineResult({ room_id: "b", ceiling_area_m2: 0, theoretical_ceiling_litres: 0 })],
+      [
+        engineResult({ room_id: "a" }),
+        engineResult({
+          room_id: "b",
+          ceiling_area_m2: 0,
+          theoretical_ceiling_litres: 0,
+        }),
+      ],
       null,
     );
     expect(t.unitCount).toBe(2);
@@ -271,7 +338,10 @@ describe("aggregateEngineRooms", () => {
   it("collects unique warnings and the first height warning", () => {
     const t = aggregateEngineRooms(
       [
-        engineResult({ warnings: ["Tall wall"], height_warning: "Above standard height" }),
+        engineResult({
+          warnings: ["Tall wall"],
+          height_warning: "Above standard height",
+        }),
         engineResult({ warnings: ["Tall wall", "Dark colour"], room_id: "b" }),
       ],
       null,
@@ -282,7 +352,9 @@ describe("aggregateEngineRooms", () => {
 });
 
 describe("aggregateCalculatorResults", () => {
-  const legacyResult = (over: Partial<CalculatorResult> = {}): CalculatorResult => ({
+  const legacyResult = (
+    over: Partial<CalculatorResult> = {},
+  ): CalculatorResult => ({
     projectType: "room",
     unit: "meters",
     wallArea: 37.8,
@@ -303,7 +375,7 @@ describe("aggregateCalculatorResults", () => {
     primerContainers: [],
     primerTotalLiters: 0,
     baseCoverageRate: 10,
-    surfaceCondition: "smooth",
+    surfaceCondition: "screeded",
     surfaceConditionFactor: 1,
     heightWarning: null,
     colorWarning: null,
@@ -329,8 +401,17 @@ describe("aggregateCalculatorResults", () => {
 
   it("keeps primer aggregation sane", () => {
     const r = aggregateCalculatorResults([
-      legacyResult({ primerLiters: 5, primerContainers: [{ size: 20, count: 1 }], primerTotalLiters: 20, primerRecommended: true }),
-      legacyResult({ primerLiters: 5, primerContainers: [{ size: 20, count: 1 }], primerTotalLiters: 20 }),
+      legacyResult({
+        primerLiters: 5,
+        primerContainers: [{ size: 20, count: 1 }],
+        primerTotalLiters: 20,
+        primerRecommended: true,
+      }),
+      legacyResult({
+        primerLiters: 5,
+        primerContainers: [{ size: 20, count: 1 }],
+        primerTotalLiters: 20,
+      }),
     ])!;
     expect(r.primerLiters).toBe(10);
     expect(r.primerContainers).toEqual([{ size: 20, count: 1 }]);
@@ -364,9 +445,33 @@ describe("houseRowsFromPreset", () => {
 
 describe("houseFloorAreaM2 — whole-house tiling", () => {
   const rows = [
-    { id: "r1", label: "Bedroom", length: 4, width: 3.5, quantity: 2, doors: 0, windows: 0 },
-    { id: "r2", label: "Living", length: 5, width: 4, quantity: 1, doors: 0, windows: 0 },
-    { id: "r3", label: "Kitchen", length: 3, width: 2.5, quantity: 1, doors: 0, windows: 0 },
+    {
+      id: "r1",
+      label: "Bedroom",
+      length: 4,
+      width: 3.5,
+      quantity: 2,
+      doors: 0,
+      windows: 0,
+    },
+    {
+      id: "r2",
+      label: "Living",
+      length: 5,
+      width: 4,
+      quantity: 1,
+      doors: 0,
+      windows: 0,
+    },
+    {
+      id: "r3",
+      label: "Kitchen",
+      length: 3,
+      width: 2.5,
+      quantity: 1,
+      doors: 0,
+      windows: 0,
+    },
   ];
 
   it("sums every room floor × identical quantity in metres", () => {

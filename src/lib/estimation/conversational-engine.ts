@@ -710,7 +710,7 @@ export function buildConversationalEstimate(
       unit,
       includeCeiling: true,
       wasteMargin: 0,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
       colorCondition: "same_or_light",
       includePrimer: false,
     };

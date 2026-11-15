@@ -205,7 +205,7 @@ export default function PaintCalculator({
       unit: roomUnit,
       includeCeiling: false,
       wasteMargin: sharedWaste.value,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
       colorCondition: "same_or_light",
       includePrimer: false,
     });
@@ -309,7 +309,7 @@ export default function PaintCalculator({
     unit: roomUnit,
     includeCeiling: false,
     wasteMargin: sharedWaste.value,
-    surfaceCondition: "smooth",
+    surfaceCondition: "screeded",
     colorCondition: "same_or_light",
     includePrimer: false,
   });
@@ -463,7 +463,7 @@ export default function PaintCalculator({
     if (dbMatch?.coverage_adjustment_factor != null)
       return dbMatch.coverage_adjustment_factor;
     return (
-      SURFACE_CONDITION_FACTORS[input.surfaceCondition ?? "smooth"]?.factor ??
+      SURFACE_CONDITION_FACTORS[input.surfaceCondition ?? "screeded"]?.factor ??
       1.0
     );
   }, [dbSurfaceConditions, input.surfaceCondition]);
@@ -566,15 +566,19 @@ export default function PaintCalculator({
         });
       }
     }
-    // Always ensure smooth is available as fallback
-    if (!options.find((o) => o.key === "smooth")) {
-      options.unshift({
-        key: "smooth",
-        label: SURFACE_CONDITION_FACTORS.smooth.label,
-        factor: SURFACE_CONDITION_FACTORS.smooth.factor,
-        description: SURFACE_CONDITION_FACTORS.smooth.description,
-        primerRecommended: false,
-      });
+    // No configuration rows: fall back to the documented table so the
+    // calculator still works offline. A configured list is never padded with a
+    // duplicate of an option it already carries.
+    if (options.length === 0) {
+      for (const [key, entry] of Object.entries(SURFACE_CONDITION_FACTORS)) {
+        options.push({
+          key: key as SurfaceCondition,
+          label: entry.label,
+          factor: entry.factor,
+          description: entry.description,
+          primerRecommended: key === "new_plaster",
+        });
+      }
     }
     return options;
   }, [dbSurfaceConditions]);
@@ -1018,7 +1022,7 @@ export default function PaintCalculator({
       unit: roomUnit,
       includeCeiling: false,
       wasteMargin: 0,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
       colorCondition: "same_or_light",
       includePrimer: false,
       // Multi-unit state resets with the calculator.
@@ -2765,7 +2769,8 @@ function ResultCard({
         <br />
         Base coverage {area(result.baseCoverageRate)} per litre → adjusted{" "}
         {area(result.coverageRate)} per litre (
-        {SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? "Smooth"}
+        {SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ??
+          "Screeded"}
         ). {result.coats} coat(s). Final amounts vary by surface texture,
         application method, and product.
       </div>
@@ -2789,8 +2794,10 @@ function ResultCard({
             dimensionsSummary: `${input.length} × ${input.width} × ${input.wallHeight} ${input.unit === "meters" ? "m" : "ft"}`,
           }}
           siteModifiers={{
-            surfacePorosity: SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label,
-            porosityMultiplier: SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.factor,
+            surfacePorosity:
+              SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label,
+            porosityMultiplier:
+              SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.factor,
           }}
           packagingDetails={{
             theoreticalAmount: result.paintRequiredLiters,

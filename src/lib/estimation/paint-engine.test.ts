@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  describeSurfaceAdjustment,
   normalizeCoverage,
   getCoverageUnitLabel,
   getPackSizeLitres,
@@ -311,5 +312,21 @@ describe("audit fix F5 — trade-practice opening deductions", () => {
     expect(getRevealDepthMm(null)).toBe(230);
     expect(getRevealDepthMm(rule("trade_practice", 150))).toBe(150);
     expect(getRevealDepthMm(rule("trade_practice", 0))).toBe(230); // invalid → default
+  });
+});
+
+describe("surface adjustment wording", () => {
+  it("says less paint for a sealed surface instead of a negative figure", () => {
+    const detail = describeSurfaceAdjustment(1.15);
+    expect(detail).toContain("15% less paint needed");
+    expect(detail).not.toContain("-15");
+  });
+
+  it("keeps the more-paint wording for an absorptive surface", () => {
+    expect(describeSurfaceAdjustment(0.75)).toContain("25% more paint needed");
+  });
+
+  it("says nothing when there is no adjustment", () => {
+    expect(describeSurfaceAdjustment(1)).toBe("No coverage adjustment.");
   });
 });

@@ -203,10 +203,17 @@ export function resolveLayoutWastePercent(key?: string | null): number {
  * the same physics and are the reference for any future recalibration.
  */
 export const PAINT_SURFACE_FACTORS = Object.freeze({
-  smooth: {
+  screeded: {
     factor: 1.0,
-    label: "Smooth / Previously Painted",
-    description: "Sound, smooth surface, standard coverage applies.",
+    label: "Screeded / prepared plaster",
+    description:
+      "Sound prepared plaster, unpainted: the standard coverage baseline.",
+  },
+  smooth: {
+    factor: 1.15,
+    label: "Previously painted / sealed",
+    description:
+      "Sealed, sound surface: about 15% less paint than a bare screed.",
   },
   textured: {
     factor: 0.85,
@@ -219,10 +226,10 @@ export const PAINT_SURFACE_FACTORS = Object.freeze({
     description: "Rough surface, about 25% more paint absorbed.",
   },
   new_plaster: {
-    factor: 0.8,
+    factor: 0.75,
     label: "New / Bare Plaster",
     description:
-      "New plaster is porous, about 20% more paint absorbed. Primer strongly recommended.",
+      "Unsealed fresh plaster absorbs binder: about 33% more paint on the first coat. Primer strongly recommended.",
   },
 } as const);
 
@@ -230,9 +237,13 @@ export const PAINT_SURFACE_FACTORS = Object.freeze({
 export const PAINT_SURFACE_TO_POROSITY: Readonly<
   Record<string, SurfacePorosityKey>
 > = Object.freeze({
+  screeded: "screeded",
   smooth: "repaint",
+  // Texture is a geometry effect (more area per square metre), not extra
+  // absorption: the profile stays screeded while the coverage factor carries
+  // the 15% area penalty.
   textured: "screeded",
-  rough: "unrendered_block",
+  rough: "raw_plaster",
   new_plaster: "raw_plaster",
 });
 

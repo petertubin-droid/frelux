@@ -567,7 +567,7 @@ describe("surface condition factors", () => {
       unit: "meters",
       includeCeiling: false,
       wasteMargin: 0,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
     };
     const result = calculatePaint(input, { coverageRate: 10 });
     expect(result.coverageRate).toBe(10);
@@ -713,7 +713,7 @@ describe("primer calculation", () => {
       includeCeiling: false,
       wasteMargin: 0,
       includePrimer: false,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
       colorCondition: "same_or_light",
     };
     const result = calculatePaint(input, { coverageRate: 10 });
@@ -825,7 +825,7 @@ describe("leftover paint calculation", () => {
       unit: "meters",
       includeCeiling: false,
       wasteMargin: 0,
-      surfaceCondition: "smooth",
+      surfaceCondition: "screeded",
       colorCondition: "same_or_light",
       includePrimer: false,
     };
@@ -897,7 +897,7 @@ describe("configurable surface factor resolution", () => {
   it("uses the documented default with no config", () => {
     expect(resolveSurfaceFactor("textured")).toBe(0.85);
     expect(resolveSurfaceFactor("rough")).toBe(0.75);
-    expect(resolveSurfaceFactor("new_plaster")).toBe(0.8);
+    expect(resolveSurfaceFactor("new_plaster")).toBe(0.75);
     expect(resolveSurfaceFactor(undefined)).toBe(1.0);
   });
 
