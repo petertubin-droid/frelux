@@ -578,9 +578,16 @@ export const ENGINE_CAPABILITIES: readonly EngineCapability[] = [
   // ---- Source-audit reconciliation 2026-10-13 ----
   // These 20 engines exist as real source modules and were recorded in the
   // comprehensive_engine_inventory (54 engines) but were missing from this
-  // canonical registry (34). They are implemented and NG-tested; non-NG
-  // support is NOT claimed until per-market currency, tax, typology, unit
-  // and price-basis evidence is verified (see TODO-AGENT-HANDOFF P0).
+  // canonical registry (34). They are implemented and NG-tested.
+  //
+  // The 2026-10-13 note here claimed nothing outside Nigeria until per-market
+  // currency, tax, typology, unit and price-basis evidence existed, and carried
+  // a TODO-AGENT-HANDOFF P0 marker. That marker is stale: on 2026-10-24 the
+  // owner directed full-market verification, and FINISHING_VERIFIED_MARKETS was
+  // set to ALL_MARKET_CODES for every engine. What remains open is not a code
+  // gap but an evidence question: whether each market's price basis has been
+  // measured, which per-engine `unverifiedReason` records. Do not read this
+  // block as a claim that per-market prices were measured.
   {
     id: "regional_cost",
     name: "Regional Cost Engine",
