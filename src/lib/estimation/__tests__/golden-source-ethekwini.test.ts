@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { calculateRenovation } from "@/lib/estimation/renovation-engine";
 import {
   ETHEKWINI_1H_36601_LINES,
   ETHEKWINI_1H_36601_PER_UNIT,
@@ -110,5 +111,78 @@ describe("eThekwini 1H-36601 measured bill of quantities", () => {
     // receipts, so this fixture must never carry a price or a coverage rate.
     const text = JSON.stringify(ETHEKWINI_1H_36601_LINES);
     expect(text).not.toMatch(/price|rate|cost|coverage|litre per|bags? per/i);
+  });
+});
+
+/**
+ * The one comparison with the source that is not circular.
+ *
+ * A bill measures skirting in metres and internal wall plaster in square
+ * metres, and both describe the same walls. So the project fixes the ratio
+ * between them: 1,724 m of skirting against 2,898 m2 of internal plaster, or
+ * 0.595 m of skirting for every square metre of plastered wall. Our engine
+ * derives both from room dimensions, so comparing its own ratio with the
+ * published one tests the derivation, not a number we chose.
+ *
+ * The band is wide on purpose. The source is 28 units of small one and two
+ * bedroom flats, which run denser in small rooms than a roomy three bedroom,
+ * so the floor is set below the source and the ceiling above it.
+ */
+describe("the engine's skirting against the measured project", () => {
+  const SKIRTING_PER_PLASTERED_M2 = 1724 / 2898;
+
+  const flat = () =>
+    [
+      { id: "living", use: "living", length: 4, width: 3 },
+      { id: "bed1", use: "bedroom", length: 3.5, width: 3 },
+      { id: "bed2", use: "bedroom", length: 3, width: 2.8 },
+      { id: "kitchen", use: "kitchen", length: 3, width: 2.4 },
+      { id: "bath", use: "bathroom", length: 2.2, width: 1.8 },
+      { id: "passage", use: "hallway", length: 3, width: 1.2 },
+    ].map((room) => ({
+      ...room,
+      height: 2.6,
+      use: room.use as never,
+      work: { plaster: true, tiling: { walls: true, skirting: true } },
+    }));
+
+  it("states the source ratio to three decimals", () => {
+    expect(SKIRTING_PER_PLASTERED_M2).toBeCloseTo(0.595, 3);
+  });
+
+  it("derives skirting per square metre of plastered wall inside the measured band", () => {
+    const result = calculateRenovation({
+      marketCode: "NG",
+      rooms: flat(),
+    } as never);
+    const skirting = result.rooms.reduce(
+      (total, room) => total + room.skirtingLengthM,
+      0,
+    );
+    const plastered = result.lines
+      .filter((row) => /-plaster$/.test(row.id) && row.quantity !== null)
+      .reduce((total, row) => total + (row.quantity as number), 0);
+
+    expect(plastered).toBeGreaterThan(150);
+    const ratio = skirting / plastered;
+    expect(ratio).toBeGreaterThan(0.25);
+    expect(ratio).toBeLessThan(0.85);
+    // A roomy flat sits below the dense small units in the source, never above.
+    expect(ratio).toBeLessThan(SKIRTING_PER_PLASTERED_M2 * 1.25);
+  });
+
+  it("sums the skirting room by room rather than repeating one room", () => {
+    const result = calculateRenovation({
+      marketCode: "NG",
+      rooms: flat(),
+    } as never);
+    const perRoom = result.rooms.map((room) => room.skirtingLengthM);
+    expect(new Set(perRoom).size).toBeGreaterThan(3);
+    const total = perRoom.reduce((a, b) => a + b, 0);
+    const fromLines = result.lines
+      .filter((row) => /-skirting$/.test(row.id))
+      .reduce((sum, row) => sum + (row.quantity ?? 0), 0);
+    expect(fromLines).toBeGreaterThan(0);
+    expect(total).toBeGreaterThan(fromLines * 0.5);
   });
 });
