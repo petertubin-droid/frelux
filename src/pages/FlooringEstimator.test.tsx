@@ -157,4 +157,53 @@ describe("FlooringEstimator", () => {
     );
     expect(metresArea).toBeCloseTo(feetArea / 10.7639, 1);
   });
+
+  it("renders through the shared shell and reprices a line from the buyer's own rate", async () => {
+    const { default: Page } = await import("@/pages/FlooringEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+
+    // One header, one measurement panel: the shell owns the page frame now.
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByText(/your measurements/i).length).toBeGreaterThan(0);
+
+    fireEvent.change(screen.getByLabelText(/floor area/i), {
+      target: { value: "20" },
+    });
+    fireEvent.change(screen.getByLabelText(/skirting run/i), {
+      target: { value: "15" },
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: /calculate materials/i }),
+    );
+
+    // The shopping list, the working and the totals are the shell's own, not
+    // the page's private copy of them.
+    expect(await screen.findByText(/shopping list/i)).toBeTruthy();
+    expect(screen.getByText(/how this was worked out/i)).toBeTruthy();
+
+    const pricedSoFar = () => {
+      const label = screen.getByText(/priced so far/i);
+      return label.parentElement?.textContent ?? "";
+    };
+    expect(pricedSoFar()).toMatch(/0(\.00)?$/);
+
+    // No price book is loaded in this test, so every line asks the buyer for a
+    // supplier price instead of showing a zero.
+    const priceBoxes = await screen.findAllByLabelText(/your price per/i);
+    expect(priceBoxes.length).toBeGreaterThan(0);
+    fireEvent.change(priceBoxes[0], { target: { value: "9000" } });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /calculate materials/i }),
+    );
+
+    // The typed rate must reach the engine on the next run.
+    const repriced = pricedSoFar();
+    const amount = Number(repriced.replace(/[^0-9.]/g, ""));
+    expect(amount).toBeGreaterThan(0);
+  });
 });

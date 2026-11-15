@@ -13,7 +13,12 @@
  * tax-inclusive figure.
  */
 
-export type QuantitySource = "user_provided" | "rule_derived" | "missing";
+export type QuantitySource =
+  | "user_provided"
+  | "rule_derived"
+  /** Computed from the user's own measurements rather than a fixed rule. */
+  | "user_derived"
+  | "missing";
 
 export interface SpecialtyLine {
   key: string;

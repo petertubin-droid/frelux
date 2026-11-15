@@ -73,6 +73,14 @@ export interface SpecialtyCalculatorShellProps {
   onReset?: () => void;
   /** Registry key for the "how this is calculated" note. */
   methodology?: MethodologyKey;
+  /**
+   * Tool specific actions that belong next to printing: saving the estimate,
+   * sending it to the document studio. Living here rather than in each page
+   * keeps one place where the buttons of a result live.
+   */
+  extraActions?: ReactNode;
+  /** Extra panels below the result, such as products matched to the takeoff. */
+  afterResults?: ReactNode;
 }
 
 function fmt(v: number | null, symbol: string): string {
@@ -104,6 +112,8 @@ export function SpecialtyCalculatorShell({
   quoteTitle,
   quoteFooter,
   methodology,
+  extraActions,
+  afterResults,
 }: SpecialtyCalculatorShellProps) {
   const { market, marketCode } = useMarket();
   const access = useEngineAccess(routePath);
@@ -417,6 +427,14 @@ export function SpecialtyCalculatorShell({
                           : fmt(result.material_subtotal, symbol)}
                       </span>
                     </div>
+                    {result.labour_total > 0 ? (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Labour</span>
+                        <span className="tabular-nums">
+                          {fmt(result.labour_total, symbol)}
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
                         Tax ({currencyCode})
@@ -426,7 +444,13 @@ export function SpecialtyCalculatorShell({
                       </span>
                     </div>
                     <div className="flex justify-between border-t pt-2 font-semibold">
-                      <span>Estimated material cost</span>
+                      {/* A tool that carries labour must not label the sum of
+                          material and labour as a material cost. */}
+                      <span>
+                        {result.labour_total > 0
+                          ? "Estimated total"
+                          : "Estimated material cost"}
+                      </span>
                       <span className="tabular-nums">
                         {result.grand_total === null
                           ? "Not priced"
@@ -434,6 +458,12 @@ export function SpecialtyCalculatorShell({
                       </span>
                     </div>
                   </div>
+
+                  {extraActions ? (
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      {extraActions}
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <ShareEstimateButton
@@ -519,6 +549,8 @@ export function SpecialtyCalculatorShell({
                     ))}
                   </dl>
                 </div>
+
+                {afterResults}
 
                 {result.warnings.length > 0 ? (
                   <div
