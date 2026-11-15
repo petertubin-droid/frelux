@@ -191,3 +191,157 @@ describe("BOQ export disclosure", () => {
     expect(html).not.toContain("OFFICIAL BILL OF QUANTITIES");
   });
 });
+
+describe("rates, numbering and retention base", () => {
+  const oneLine = (over: Record<string, unknown> = {}) =>
+    assembleStandardBoq({
+      metadata: {
+        title: "Rate fidelity",
+        projectRef: "REF-1",
+        clientName: "Client",
+        marketCode: "NG",
+        currency: "NGN",
+        preparedBy: "QS",
+        date: "2026-11-16",
+        revision: "R1",
+        standard: "Commercial",
+      },
+      commercials: {},
+      sections: [
+        {
+          code: "05",
+          title: "Concrete",
+          subSections: [
+            {
+              code: "05",
+              title: "Concrete",
+              items: [
+                {
+                  itemNumber: "05.01",
+                  description: "Line",
+                  quantity: 7,
+                  unit: "item",
+                  materialRate: 0.335,
+                  ...over,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+  it("publishes a unit rate that multiplies back to the amount", () => {
+    const doc = oneLine();
+    const line = doc.sections[0].subSections[0].items[0];
+    expect(line.unitRate).toBe(0.34);
+    expect(line.totalCost).toBe(2.38);
+    expect(Math.round(line.quantity * line.unitRate * 100) / 100).toBe(
+      line.totalCost,
+    );
+  });
+
+  it("holds retention on the value of work done, not on the tax", () => {
+    const doc = assembleStandardBoq({
+      metadata: {
+        title: "Retention base",
+        projectRef: "REF-2",
+        clientName: "Client",
+        marketCode: "NG",
+        currency: "NGN",
+        preparedBy: "QS",
+        date: "2026-11-16",
+        revision: "R1",
+        standard: "Commercial",
+      },
+      commercials: {
+        retentionPercent: 5,
+        taxResult: {
+          status: "calculated",
+          lineResults: [],
+          warnings: [],
+          totals: { net: 1000, tax: 75, gross: 1075 },
+          provenance: [
+            {
+              rateId: "r1",
+              taxCode: "VAT",
+              marketCode: "NG",
+              jurisdictionCode: null,
+              rate: 7.5,
+              effectiveFrom: "2026-01-01",
+              effectiveTo: null,
+              sourceUrl: "manual-entry",
+              reviewedAt: "2026-01-01",
+              reviewerId: "manual-entry",
+            },
+          ],
+        },
+      },
+      sections: [
+        {
+          code: "05",
+          title: "Concrete",
+          subSections: [
+            {
+              code: "05",
+              title: "Concrete",
+              items: [
+                {
+                  itemNumber: "05.01",
+                  description: "Line",
+                  quantity: 1,
+                  unit: "item",
+                  materialRate: 1000,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(doc.summary.subtotalBeforeTax).toBe(1000);
+    expect(doc.summary.grossTotal).toBe(1075);
+    // 5 per cent of 1,000, not of 1,075.
+    expect(doc.summary.retentionAmount).toBe(50);
+    expect(doc.summary.netPayableTotal).toBe(1025);
+  });
+
+  it("gives an unnumbered item a unique number without repeating the code", () => {
+    const doc = assembleStandardBoq({
+      metadata: {
+        title: "Numbering",
+        projectRef: "REF-3",
+        clientName: "Client",
+        marketCode: "NG",
+        currency: "NGN",
+        preparedBy: "QS",
+        date: "2026-11-16",
+        revision: "R1",
+        standard: "Commercial",
+      },
+      commercials: {},
+      sections: [
+        {
+          code: "03",
+          title: "Earthworks",
+          subSections: [
+            {
+              code: "03",
+              title: "Earthworks",
+              items: [
+                {
+                  itemNumber: "",
+                  description: "Excavate",
+                  quantity: 1,
+                  unit: "m3",
+                  materialRate: 10,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(doc.sections[0].subSections[0].items[0].itemNumber).toBe("03.01");
+  });
+});

@@ -213,14 +213,20 @@ export function assembleStandardBoq(params: {
         const mat = it.materialRate || 0;
         const lab = it.laborRate || 0;
         const plt = it.plantRate || 0;
-        const unitRate = mat + lab + plt;
+        // The rate is money and is published to the cent, so it is rounded
+        // before it is multiplied. Carrying an unrounded rate meant the printed
+        // rate and the printed amount disagreed: a 0.335 rate on 7 units
+        // printed 0.34 and priced 2.35, which no reader can reproduce.
+        const unitRate = Math.round((mat + lab + plt) * 100) / 100;
         const totalCost = Math.round(it.quantity * unitRate * 100) / 100;
 
         subTotal += totalCost;
 
         return {
           id: `item-${secIdx}-${subIdx}-${itIdx}`,
-          itemNumber: it.itemNumber || `${sec.code}.${sub.code}.${itIdx + 1}`,
+          itemNumber:
+            it.itemNumber ||
+            `${sec.code}.${String(itIdx + 1).padStart(2, "0")}`,
           description: it.description,
           quantity: it.quantity,
           unit: it.unit,
@@ -287,9 +293,16 @@ export function assembleStandardBoq(params: {
 
   const grossTotal = Math.round((subtotalBeforeTax + taxAmount) * 100) / 100;
 
-  // Statutory retention / holdback
+  // Statutory retention / holdback.
+  //
+  // Retention secures the value of work done, so it is held on the pre-tax
+  // subtotal. Holding it on the tax-inclusive total withheld retention on money
+  // the contractor owes the revenue authority and never receives: at 5 per cent
+  // retention and 7.5 per cent VAT that is 0.375 per cent of the gross, taken
+  // from the cash that has to be remitted as tax.
   const retentionRate = (commercials.retentionPercent || 0) / 100;
-  const retentionAmount = Math.round(grossTotal * retentionRate * 100) / 100;
+  const retentionAmount =
+    Math.round(subtotalBeforeTax * retentionRate * 100) / 100;
   const netPayableTotal =
     Math.round((grossTotal - retentionAmount) * 100) / 100;
 

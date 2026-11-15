@@ -75,10 +75,43 @@ export function itemAmount(item: BoqStudioItem): number {
   return round2((Number(item.quantity) || 0) * itemUnitRate(item));
 }
 
-/** Section code lookups tolerate "03", "Class F" or custom codes. */
-function nextItemNumber(section: BoqStudioSection, index: number): string {
-  const prefix = section.code.trim() || String(index + 1).padStart(2, "0");
-  return `${prefix}.${String(index + 1).padStart(2, "0")}`;
+const asText = (value: unknown, fallback = ""): string =>
+  value === null || value === undefined
+    ? fallback
+    : typeof value === "string"
+      ? value
+      : String(value);
+
+/**
+ * Numbers keep their sign. A negative quantity or rate is a sign error in a
+ * bill, and normalising it away here would hide it, so the compiler blocks the
+ * export and names the item. A value that is not a number at all has nothing to
+ * show and becomes zero.
+ */
+const asNumber = (value: unknown): number => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+/**
+ * Section code lookups tolerate "03", "Class F" or custom codes. A generated
+ * number must not collide with one already typed in the same section: the old
+ * generator counted items from one, so a blank number after "03.01" became
+ * "03.02" whether or not that number was already in use.
+ */
+function nextItemNumber(
+  prefix: string,
+  index: number,
+  taken: Set<string>,
+): string {
+  let position = index + 1;
+  let candidate = `${prefix}.${String(position).padStart(2, "0")}`;
+  while (taken.has(candidate)) {
+    position += 1;
+    candidate = `${prefix}.${String(position).padStart(2, "0")}`;
+  }
+  taken.add(candidate);
+  return candidate;
 }
 
 function taxResultFor(
@@ -154,33 +187,123 @@ export function taxLabelFor(marketCode: string): string {
   return codes[(marketCode || "").toUpperCase()] ?? "VAT";
 }
 
-function normaliseDocument(doc: BoqStudioDocument): BoqStudioDocument {
-  return {
-    ...doc,
-    mode: doc.mode === "market_survey" ? "market_survey" : "priced",
-    survey: {
-      market_city: doc.survey?.market_city ?? "",
-      survey_date: doc.survey?.survey_date ?? "",
-      surveyed_by: doc.survey?.surveyed_by ?? "",
-      notes: doc.survey?.notes ?? "",
+export interface NormalisedBoqDocument {
+  document: BoqStudioDocument;
+  /** Item values that would price a credit or cannot be read as a number. */
+  invalid_items: string[];
+  /** Item numbers used more than once in the document. */
+  duplicate_numbers: string[];
+}
+
+/**
+ * A stored document is data, not a trusted object: after a bad import or an
+ * older schema, any field can be missing or mistyped. Every field the compiler
+ * reads is defaulted here, so a malformed document is reported rather than
+ * throwing while the studio draws its own totals.
+ */
+function normaliseDocument(doc: BoqStudioDocument): NormalisedBoqDocument {
+  const invalid: string[] = [];
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  const party = (value: unknown): BoqStudioDocument["client"] => {
+    const raw = (value ?? {}) as Record<string, unknown>;
+    return {
+      ...raw,
+      name: asText(raw.name),
+      address: asText(raw.address),
+    } as BoqStudioDocument["client"];
+  };
+
+  const reviewRaw = (doc.review ?? {}) as unknown as Record<string, unknown>;
+  const reviewStatus =
+    reviewRaw.status === "reviewed" || reviewRaw.status === "rejected"
+      ? reviewRaw.status
+      : "unreviewed";
+
+  const sections = (Array.isArray(doc.sections) ? doc.sections : []).map(
+    (section, sIdx) => {
+      const code =
+        asText(section?.code).trim() || String(sIdx + 1).padStart(2, "0");
+      const items = Array.isArray(section?.items) ? section.items : [];
+      const taken = new Set(
+        items.map((item) => asText(item?.item_number).trim()).filter(Boolean),
+      );
+      const normalisedItems = items.map((item, iIdx) => {
+        const itemNumber =
+          asText(item?.item_number).trim() || nextItemNumber(code, iIdx, taken);
+        if (seen.has(itemNumber)) duplicates.add(itemNumber);
+        seen.add(itemNumber);
+
+        const readings: Array<[string, unknown, number]> = [
+          ["quantity", item?.quantity, asNumber(item?.quantity)],
+          ["material rate", item?.material_rate, asNumber(item?.material_rate)],
+          ["labour rate", item?.labour_rate, asNumber(item?.labour_rate)],
+          ["plant rate", item?.plant_rate, asNumber(item?.plant_rate)],
+        ];
+        for (const [name, raw, value] of readings) {
+          if (value < 0) invalid.push(`${itemNumber} negative ${name}`);
+          const readable =
+            raw === null ||
+            raw === undefined ||
+            raw === "" ||
+            Number.isFinite(Number(raw));
+          if (!readable) invalid.push(`${itemNumber} unreadable ${name}`);
+        }
+
+        return {
+          ...item,
+          item_number: itemNumber,
+          quantity: readings[0][2],
+          material_rate: readings[1][2],
+          labour_rate: readings[2][2],
+          plant_rate: readings[3][2],
+        };
+      });
+      return { ...section, code, items: normalisedItems };
     },
-    sections: doc.sections.map((section, sIdx) => ({
-      ...section,
-      code: section.code?.trim() || String(sIdx + 1).padStart(2, "0"),
-      items: section.items.map((item, iIdx) => ({
-        ...item,
-        item_number: item.item_number?.trim() || nextItemNumber(section, iIdx),
-        quantity: Number(item.quantity) || 0,
-        material_rate: Number(item.material_rate) || 0,
-        labour_rate: Number(item.labour_rate) || 0,
-        plant_rate: Number(item.plant_rate) || 0,
-      })),
-    })),
+  );
+
+  const document: BoqStudioDocument = {
+    ...doc,
+    title: asText(doc.title),
+    reference: asText(doc.reference),
+    description: asText(doc.description),
+    market_code: asText(doc.market_code),
+    currency: asText(doc.currency),
+    prepared_by: asText(doc.prepared_by),
+    prepared_date: asText(doc.prepared_date),
+    template_slug: asText(doc.template_slug),
+    updated_at: asText(doc.updated_at),
+    revision: Number.isFinite(Number(doc.revision)) ? Number(doc.revision) : 1,
+    mode: doc.mode === "market_survey" ? "market_survey" : "priced",
+    client: party(doc.client),
+    contractor: party(doc.contractor),
+    survey: {
+      market_city: asText(doc.survey?.market_city),
+      survey_date: asText(doc.survey?.survey_date),
+      surveyed_by: asText(doc.survey?.surveyed_by),
+      notes: asText(doc.survey?.notes),
+    },
+    review: {
+      ...reviewRaw,
+      status: reviewStatus,
+      reviewer_name: asText(reviewRaw.reviewer_name) || undefined,
+      reviewer_qualification:
+        asText(reviewRaw.reviewer_qualification) || undefined,
+    },
+    sections,
+  };
+
+  return {
+    document,
+    invalid_items: invalid,
+    duplicate_numbers: [...duplicates],
   };
 }
 
 export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
-  const document = normaliseDocument(doc);
+  const { document, invalid_items, duplicate_numbers } = normaliseDocument(doc);
   const isSurvey = document.mode === "market_survey";
   const blocking: string[] = [];
   const advisory: string[] = [];
@@ -189,6 +312,21 @@ export function compileBoq(doc: BoqStudioDocument): CompiledBoq {
   if (items.length === 0)
     blocking.push("Add at least one measured item before exporting.");
   if (!document.title.trim()) blocking.push("A project title is required.");
+  if (invalid_items.length > 0) {
+    const shown = invalid_items.slice(0, 5).join("; ");
+    const rest =
+      invalid_items.length > 5 ? ` and ${invalid_items.length - 5} more` : "";
+    blocking.push(
+      `${invalid_items.length} item value${invalid_items.length === 1 ? "" : "s"} cannot be priced (${shown}${rest}). ` +
+        "A bill cannot carry a negative or unreadable quantity or rate: correct the sign or the value before exporting.",
+    );
+  }
+  if (duplicate_numbers.length > 0) {
+    blocking.push(
+      `Item number${duplicate_numbers.length === 1 ? "" : "s"} ${duplicate_numbers.join(", ")} appear more than once. ` +
+        "Each item needs its own number or a client cannot certify a payment against it.",
+    );
+  }
   if (!document.reference.trim())
     advisory.push("No BOQ reference set; exports will show a blank reference.");
 

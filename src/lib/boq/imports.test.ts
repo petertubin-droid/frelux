@@ -122,6 +122,39 @@ describe("previewImport", () => {
   });
 });
 
+describe("sign discipline on import", () => {
+  it("drops a negative quantity and says why", () => {
+    const preview = previewImport(
+      calcRecord({
+        materials: [
+          { name: "Cement", unit: "bags", quantity: -5, rate: 9000 },
+        ],
+      }),
+    );
+    expect(preview.lines).toHaveLength(0);
+    expect(preview.warnings.join(" ")).toMatch(/negative quantity/i);
+  });
+
+  it("counts a bare negative number in the payload as rejected", () => {
+    const preview = previewImport(
+      calcRecord({ materials: { spoil_removal: -3 } }),
+    );
+    expect(preview.lines).toHaveLength(0);
+    expect(preview.warnings.join(" ")).toMatch(/negative quantity/i);
+  });
+
+  it("imports a negative rate unpriced rather than as a credit", () => {
+    const preview = previewImport(
+      calcRecord({
+        materials: [{ name: "Reinforcement Y12", unit: "kg", quantity: 10, rate: -50 }],
+      }),
+    );
+    expect(preview.lines).toHaveLength(1);
+    expect(preview.lines[0].material_rate).toBeNull();
+    expect(preview.warnings.join(" ")).toMatch(/no recorded rate/i);
+  });
+});
+
 describe("mergeImportedLines", () => {
   const sections: BoqStudioSection[] = [
     { id: "sec-05", code: "05", title: "Concrete Works", notes: "", items: [] },

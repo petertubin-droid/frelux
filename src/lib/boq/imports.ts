@@ -224,9 +224,14 @@ interface QuantityRow {
 }
 
 /** Reads whatever shape the calculator saved, without inventing entries. */
-function extractRows(payload: unknown): QuantityRow[] {
-  if (!payload) return [];
+function extractRows(payload: unknown): {
+  rows: QuantityRow[];
+  rejected: number;
+} {
+  if (!payload) return { rows: [], rejected: 0 };
   const rows: QuantityRow[] = [];
+
+  let rejectedQuantities = 0;
 
   const pushObject = (obj: Record<string, unknown>, keyHint?: string) => {
     const name = String(
@@ -240,13 +245,24 @@ function extractRows(payload: unknown): QuantityRow[] {
     ).trim();
     const quantity = Number(obj.quantity ?? obj.qty ?? obj.value ?? obj.amount);
     if (!name || !Number.isFinite(quantity) || quantity === 0) return;
+    // A measured quantity is a positive figure. A negative one is a sign error
+    // in the source, and importing it would turn a bill line into a credit, so
+    // it is left out and counted for the warning below.
+    if (quantity < 0) {
+      rejectedQuantities += 1;
+      return;
+    }
     const rateRaw = obj.rate ?? obj.unit_price ?? obj.price ?? obj.unit_cost;
+    const rateAbsent =
+      rateRaw === null || rateRaw === undefined || rateRaw === "";
     const rate = Number(rateRaw);
     rows.push({
       name,
       unit: String(obj.unit ?? obj.uom ?? "nr"),
       quantity,
-      rate: Number.isFinite(rate) ? rate : null,
+      // An absent rate and a negative rate are both "not a price": the line
+      // imports unpriced so it cannot silently reduce the bill.
+      rate: !rateAbsent && Number.isFinite(rate) && rate >= 0 ? rate : null,
     });
   };
 
@@ -274,6 +290,10 @@ function extractRows(payload: unknown): QuantityRow[] {
       Number.isFinite(node) &&
       node !== 0
     ) {
+      if (node < 0) {
+        rejectedQuantities += 1;
+        return;
+      }
       rows.push({
         name: keyHint.replace(/_/g, " "),
         unit: "nr",
@@ -284,7 +304,7 @@ function extractRows(payload: unknown): QuantityRow[] {
   };
 
   walk(payload);
-  return rows;
+  return { rows, rejected: rejectedQuantities };
 }
 
 export function previewImport(record: RawSourceRecord): ImportPreview {
@@ -301,7 +321,9 @@ export function previewImport(record: RawSourceRecord): ImportPreview {
     record.estimate_data ??
     null;
 
-  const rawRows = extractRows(payload);
+  const extracted = extractRows(payload);
+  const rawRows = extracted.rows;
+  const rejectedQuantities = extracted.rejected;
   const lines: ImportedLine[] = rawRows
     .filter((r) => Number.isFinite(r.quantity) && r.quantity !== 0)
     .map((r) => ({
@@ -326,6 +348,11 @@ export function previewImport(record: RawSourceRecord): ImportPreview {
   if (lines.length === 0) {
     warnings.push(
       "This saved calculation recorded no itemised quantities, so there is nothing to import.",
+    );
+  }
+  if (rejectedQuantities > 0) {
+    warnings.push(
+      `${rejectedQuantities} line(s) carried a negative quantity and were left out: a measured quantity is a positive figure, so the source has a sign error.`,
     );
   }
   if (lines.some((l) => l.material_rate === null)) {

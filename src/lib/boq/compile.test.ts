@@ -305,3 +305,90 @@ describe("compileBoq: market survey quote", () => {
     expect(compiled.standard.summary.taxAmount).toBeGreaterThan(0);
   });
 });
+
+describe("sign and numbering discipline", () => {
+  it("blocks an item that would price a credit instead of exporting it", () => {
+    const doc = baseDoc({
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "Concrete Works",
+          notes: "",
+          items: [item({ material_rate: -90000 })],
+        },
+      ],
+    });
+    const compiled = compileBoq(doc);
+    const blocking = compiled.warnings.blocking.join(" ");
+    expect(blocking).toContain("cannot be priced");
+    expect(blocking).toContain("negative material rate");
+  });
+
+  it("blocks duplicate item numbers, typed or generated", () => {
+    const typed = baseDoc({
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "Concrete Works",
+          notes: "",
+          items: [
+            item({ item_number: "05.01" }),
+            item({ item_number: "05.01", description: "Second line" }),
+          ],
+        },
+      ],
+    });
+    expect(compileBoq(typed).warnings.blocking.join(" ")).toContain(
+      "05.01 appear more than once",
+    );
+
+    // A blank number between two numbered items used to be generated as the
+    // number of the item below it.
+    const mixed = baseDoc({
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "Concrete Works",
+          notes: "",
+          items: [
+            item({ item_number: "05.01" }),
+            item({ item_number: "", description: "Blank line" }),
+            item({ item_number: "05.02", description: "Third line" }),
+          ],
+        },
+      ],
+    });
+    const compiled = compileBoq(mixed);
+    const numbers = compiled.document.sections[0].items.map(
+      (i) => i.item_number,
+    );
+    expect(numbers).toEqual(["05.01", "05.03", "05.02"]);
+    expect(new Set(numbers).size).toBe(3);
+    expect(compiled.warnings.blocking.join(" ")).not.toContain(
+      "appear more than once",
+    );
+  });
+
+  it("survives a stored document with missing fields instead of throwing", () => {
+    const broken = {
+      ...baseDoc(),
+      title: undefined,
+      reference: undefined,
+      client: undefined,
+      contractor: undefined,
+      review: undefined,
+      prepared_by: undefined,
+      survey: undefined,
+    } as unknown as BoqStudioDocument;
+    const compiled = compileBoq(broken);
+    expect(compiled.warnings.blocking.join(" ")).toContain(
+      "A project title is required",
+    );
+    expect(compiled.is_preliminary).toBe(true);
+    expect(compiled.document.client.name).toBe("");
+    expect(compiled.document.review.status).toBe("unreviewed");
+  });
+});
