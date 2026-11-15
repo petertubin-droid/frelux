@@ -31,15 +31,6 @@ export type CalibrationContext = "takeoff" | "structural" | "compliance";
 
 export type CalibrationSource = "device" | "cloud";
 
-export type ContributorRole =
-  | "anonymous"
-  | "homeowner"
-  | "contractor"
-  | "quantity_surveyor"
-  | "civil_engineer"
-  | "verified_pro"
-  | "admin";
-
 export interface CalibrationFeedback {
   id: string;
   projectId: string;
@@ -64,6 +55,7 @@ export interface CalibrationFeedback {
   reviewerId?: string;
   reviewerRole?: "owner" | "admin";
   reviewedAt?: string;
+  /** Who supplied the number. Professional roles carry more weight. */
   contributorRole?: ContributorRole;
 }
 
@@ -77,17 +69,15 @@ export interface CalibrationPolicy {
   minRangeObservations: number;
   maxAdjustmentFraction: number;
   emaAlpha: number;
-  /** Whether to apply IQR outlier rejection to user actuals. Defaults to true. */
-  enableIqrOutlierFilter?: boolean;
-  /** Whether to enforce trade-specific physical material bounds. Defaults to true. */
+  /** Physical material bounds tighten the policy window where physics allows. */
   enablePhysicalBounds?: boolean;
-  /** Whether to weight Quantity Surveyors & Engineers 3x higher. Defaults to true. */
-  enableRoleWeighting?: boolean;
+  consensusTolerance: number;
+  minConsensusShare: number;
 }
 
 export const DEFAULT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
   Object.freeze({
-    version: "2026-11-14.1",
+    version: "2026-11-15.1",
     minObservations: 5,
     minDistinctProjects: 3,
     minVerifiedObservations: 3,
@@ -95,29 +85,131 @@ export const DEFAULT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
     minRangeObservations: 3,
     maxAdjustmentFraction: 0.25,
     emaAlpha: 0.25,
-    enableIqrOutlierFilter: true,
     enablePhysicalBounds: true,
-    enableRoleWeighting: true,
+    /** How far a single project may sit from the median and still agree. */
+    consensusTolerance: 0.15,
+    /** Share of observations that must sit inside the tolerance band. */
+    minConsensusShare: 0.6,
   });
 
-/**
- * Production-strict policy: requires 15 verified observations across 5 projects,
- * tight 20% max adjustment fraction, IQR outlier filtering and physical bounds.
- */
-export const STRICT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
+export type ContributorRole =
+  | "quantity_surveyor"
+  | "civil_engineer"
+  | "verified_pro"
+  | "admin"
+  | "contractor"
+  | "homeowner"
+  | "anonymous";
+
+export const ROLE_WEIGHTS: Readonly<Record<ContributorRole, number>> =
   Object.freeze({
-    version: "2026-11-15.strict",
-    minObservations: 15,
-    minDistinctProjects: 5,
-    minVerifiedObservations: 10,
-    minVerifiedShare: 0.7,
-    minRangeObservations: 5,
-    maxAdjustmentFraction: 0.2,
-    emaAlpha: 0.2,
-    enableIqrOutlierFilter: true,
-    enablePhysicalBounds: true,
-    enableRoleWeighting: true,
+    quantity_surveyor: 3,
+    civil_engineer: 3,
+    verified_pro: 3,
+    admin: 3,
+    contractor: 2,
+    homeowner: 1,
+    anonymous: 1,
   });
+
+export function getRoleWeight(role?: string | null): number {
+  if (!role) return 1;
+  const key = role.toLowerCase().trim() as ContributorRole;
+  return ROLE_WEIGHTS[key] ?? 1;
+}
+
+function weightedMedian(
+  items: Array<{ value: number; weight: number }>,
+): number {
+  if (!items.length) return 0;
+  const sorted = [...items].sort((a, b) => a.value - b.value);
+  const total = sorted.reduce((sum, item) => sum + item.weight, 0);
+  if (total <= 0) return sorted[0].value;
+  let running = 0;
+  for (const item of sorted) {
+    running += item.weight;
+    if (running >= total / 2) return item.value;
+  }
+  return sorted[sorted.length - 1].value;
+}
+
+export interface PhysicalMaterialBounds {
+  minMultiplier: number;
+  maxMultiplier: number;
+  description: string;
+}
+
+export const PHYSICAL_MATERIAL_BOUNDS: Readonly<
+  Record<string, PhysicalMaterialBounds>
+> = Object.freeze({
+  paint: { minMultiplier: 0.8, maxMultiplier: 1.3, description: "Paint absorption [0.80, 1.30]" },
+  cement: { minMultiplier: 0.85, maxMultiplier: 1.25, description: "Cement handling [0.85, 1.25]" },
+  sand: { minMultiplier: 0.85, maxMultiplier: 1.35, description: "Sand bulking [0.85, 1.35]" },
+  granite: { minMultiplier: 0.88, maxMultiplier: 1.25, description: "Granite compaction [0.88, 1.25]" },
+  block: { minMultiplier: 0.85, maxMultiplier: 1.25, description: "Block breakage [0.85, 1.25]" },
+  tile: { minMultiplier: 0.88, maxMultiplier: 1.25, description: "Tile cutting [0.88, 1.25]" },
+  reinforcement: { minMultiplier: 0.92, maxMultiplier: 1.2, description: "Rebar laps [0.92, 1.20]" },
+  plaster: { minMultiplier: 0.85, maxMultiplier: 1.3, description: "Plaster rebound [0.85, 1.30]" },
+  "roof-sheet": { minMultiplier: 0.92, maxMultiplier: 1.18, description: "Roof laps [0.92, 1.18]" },
+  timber: { minMultiplier: 0.9, maxMultiplier: 1.2, description: "Timber off-cuts [0.90, 1.20]" },
+  "pop-ceiling": { minMultiplier: 0.85, maxMultiplier: 1.25, description: "POP waste [0.85, 1.25]" },
+  labour: { minMultiplier: 0.7, maxMultiplier: 1.4, description: "Gang productivity [0.70, 1.40]" },
+});
+
+export function getPhysicalBounds(
+  materialKey: string,
+  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
+): { min: number; max: number } {
+  const window = policy.maxAdjustmentFraction;
+  const policyMin = 1 - window;
+  const policyMax = 1 + window;
+  if (policy.enablePhysicalBounds === false) return { min: policyMin, max: policyMax };
+  const spec = PHYSICAL_MATERIAL_BOUNDS[normaliseMaterialKey(materialKey)];
+  if (!spec) return { min: policyMin, max: policyMax };
+  return {
+    min: round(Math.max(policyMin, spec.minMultiplier)),
+    max: round(Math.min(policyMax, spec.maxMultiplier)),
+  };
+}
+
+export interface OutlierFilteringResult<T> {
+  clean: T[];
+  outliers: T[];
+  lowerFence: number;
+  upperFence: number;
+}
+
+export function filterOutliersIQR<T extends { ratio: number }>(
+  entries: T[],
+): OutlierFilteringResult<T> {
+  if (entries.length < 4) {
+    const clean: T[] = [];
+    const outliers: T[] = [];
+    for (const entry of entries) {
+      if (entry.ratio < 0.25 || entry.ratio > 3) outliers.push(entry);
+      else clean.push(entry);
+    }
+    return { clean, outliers, lowerFence: 0.25, upperFence: 3 };
+  }
+  const ratios = entries.map((entry) => entry.ratio).sort((a, b) => a - b);
+  const q1 = quantile(ratios, 0.25);
+  const q3 = quantile(ratios, 0.75);
+  const iqr = Math.max(q3 - q1, quantile(ratios, 0.5) * 0.1);
+  const lowerFence = Math.max(0.1, q1 - 1.5 * iqr);
+  const upperFence = q3 + 1.5 * iqr;
+  const clean: T[] = [];
+  const outliers: T[] = [];
+  for (const entry of entries) {
+    if (entry.ratio < lowerFence || entry.ratio > upperFence) outliers.push(entry);
+    else clean.push(entry);
+  }
+  return {
+    clean,
+    outliers,
+    lowerFence: round(lowerFence),
+    upperFence: round(upperFence),
+  };
+}
 
 export type CalibrationBlocker =
   | "insufficient_observations"
@@ -125,7 +217,8 @@ export type CalibrationBlocker =
   | "insufficient_verified_observations"
   | "verified_share_too_low"
   | "unsupported_market"
-  | "unsupported_unit";
+  | "unsupported_unit"
+  | "insufficient_consensus";
 
 export interface CalibrationCandidate {
   marketCode: string;
@@ -145,20 +238,30 @@ export interface CalibrationCandidate {
   trendMultiplier: number | null;
   /** Interquartile spread of the observations, after winsorising. */
   spread: { p25: number; p75: number } | null;
+  /**
+   * Three independent gates: enough sample, projects that agree, and evidence
+   * good enough to trust. All three must pass before an approval can release a
+   * multiplier. This is the triple check, and it is deterministic.
+   */
+  checks: { sample: boolean; consensus: boolean; provenance: boolean };
+  /** Dispersion across distinct projects, in ratio space. */
+  consensus: {
+    tolerance: number;
+    within: number;
+    share: number;
+    mad: number;
+  } | null;
   eligible: boolean;
   blockers: CalibrationBlocker[];
   observedAt: string | null;
   policyVersion: string;
+  /** Physical clamp actually applied, tighter of policy and material. */
+  physicalBoundsApplied: { min: number; max: number };
+  /** Observations rejected as typos, and the ratios that were rejected. */
+  outlierCount: number;
+  outlierRatios: number[];
   /** Stable identity of this snapshot. Approval and audit compare against it. */
   fingerprint: string;
-  /** Number of extreme outlier entries discarded by IQR fence. */
-  outlierCount?: number;
-  /** Specific outlier ratios rejected from the series. */
-  outlierRatios?: number[];
-  /** Trade-specific physical bounds applied to clamp multipliers. */
-  physicalBoundsApplied?: { min: number; max: number };
-  /** Unweighted median before trusted pro weighting is applied. */
-  unweightedMultiplier?: number | null;
 }
 
 export interface ConfidenceRange {
@@ -180,7 +283,10 @@ export interface CostCodeDefinition {
   division: string;
   uniFormat?: string;
   /** The classification standard the code comes from. */
-  standard: "csi_masterformat";
+  standard: CostCodeStandard;
+  standardLabel: string;
+  /** Trade group the item belongs to, always present. */
+  group: CostCodeGroup;
   /**
    * False when the project's market does not normally adopt this standard, so
    * the UI can say "map this to your own WBS" instead of implying a local code.
@@ -217,243 +323,6 @@ export interface AuditEvent {
   reason: string;
   before?: unknown;
   after?: unknown;
-}
-
-/* ------------------------------------------------------------------ */
-/* Physical Trade Bounds & Outlier Rejection                          */
-/* ------------------------------------------------------------------ */
-
-export interface PhysicalMaterialBounds {
-  minMultiplier: number;
-  maxMultiplier: number;
-  description: string;
-}
-
-/**
- * Hard physical bounds for site materials and trades.
- * Even if user actuals skew wildly, these hard clamps refuse to break physics.
- */
-export const PHYSICAL_MATERIAL_BOUNDS: Readonly<Record<string, PhysicalMaterialBounds>> =
-  Object.freeze({
-    paint: {
-      minMultiplier: 0.8,
-      maxMultiplier: 1.3,
-      description: "Paint absorption and site wastage bounds [0.80, 1.30]",
-    },
-    cement: {
-      minMultiplier: 0.85,
-      maxMultiplier: 1.25,
-      description: "Cement mix density and bag handling bounds [0.85, 1.25]",
-    },
-    sand: {
-      minMultiplier: 0.85,
-      maxMultiplier: 1.35,
-      description: "Sand compaction, moisture bulking and site loss [0.85, 1.35]",
-    },
-    granite: {
-      minMultiplier: 0.88,
-      maxMultiplier: 1.25,
-      description: "Granite/aggregate compaction and handling bounds [0.88, 1.25]",
-    },
-    block: {
-      minMultiplier: 0.85,
-      maxMultiplier: 1.25,
-      description: "Sandcrete block cutting and offloading breakage [0.85, 1.25]",
-    },
-    tile: {
-      minMultiplier: 0.88,
-      maxMultiplier: 1.25,
-      description: "Tile cutting, diagonal waste and site breakage [0.88, 1.25]",
-    },
-    reinforcement: {
-      minMultiplier: 0.92,
-      maxMultiplier: 1.2,
-      description: "Rebar cutting, bending and lap length limits [0.92, 1.20]",
-    },
-    plaster: {
-      minMultiplier: 0.85,
-      maxMultiplier: 1.3,
-      description: "Plaster rebound and substrate roughness limits [0.85, 1.30]",
-    },
-    "roof-sheet": {
-      minMultiplier: 0.92,
-      maxMultiplier: 1.18,
-      description: "Roofing sheet end and side laps limits [0.92, 1.18]",
-    },
-    timber: {
-      minMultiplier: 0.9,
-      maxMultiplier: 1.2,
-      description: "Timber cross-cutting and off-cut waste [0.90, 1.20]",
-    },
-    "pop-ceiling": {
-      minMultiplier: 0.85,
-      maxMultiplier: 1.25,
-      description: "POP casting plaster moulding and frame waste [0.85, 1.25]",
-    },
-    labour: {
-      minMultiplier: 0.7,
-      maxMultiplier: 1.4,
-      description: "Gang productivity and site speed variance [0.70, 1.40]",
-    },
-  });
-
-export function getPhysicalBounds(
-  materialKey: string,
-  policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
-): { min: number; max: number } {
-  const window = policy.maxAdjustmentFraction;
-  const policyMin = 1 - window;
-  const policyMax = 1 + window;
-  if (policy.enablePhysicalBounds === false) {
-    return { min: policyMin, max: policyMax };
-  }
-  const spec = PHYSICAL_MATERIAL_BOUNDS[normaliseMaterialKey(materialKey)];
-  if (!spec) {
-    return { min: policyMin, max: policyMax };
-  }
-  return {
-    min: Math.max(policyMin, spec.minMultiplier),
-    max: Math.min(policyMax, spec.maxMultiplier),
-  };
-}
-
-export const ROLE_WEIGHTS: Readonly<Record<ContributorRole, number>> = Object.freeze({
-  quantity_surveyor: 3,
-  civil_engineer: 3,
-  verified_pro: 3,
-  admin: 3,
-  contractor: 2,
-  homeowner: 1,
-  anonymous: 1,
-});
-
-export function isTrustedVerification(
-  row: Pick<CalibrationFeedback, "evidence" | "reviewerId">,
-): boolean {
-  return row.evidence === "admin_verified";
-}
-
-export function getRoleWeight(role?: string | null): number {
-  if (!role) return 1;
-  const key = role.toLowerCase().trim() as ContributorRole;
-  return ROLE_WEIGHTS[key] ?? 1;
-}
-
-export function getEffectiveRoleWeight(
-  row: Pick<CalibrationFeedback, "contributorRole" | "evidence" | "reviewerId">,
-): number {
-  const role = row.contributorRole;
-  if (!role) {
-    return row.evidence === "admin_verified" ? ROLE_WEIGHTS.verified_pro : 1;
-  }
-  const normalized = role.toLowerCase().trim() as ContributorRole;
-  const rawWeight = ROLE_WEIGHTS[normalized] ?? 1;
-
-  // Professional roles (QS, civil engineer, admin, verified pro) require verified evidence
-  // to receive elevated 3x weighting. Unverified / self-attested claims fall back to 1.0.
-  if (rawWeight > 1 && !isTrustedVerification(row)) {
-    return 1;
-  }
-  return rawWeight;
-}
-
-export function resolveVerifiedContributorRole(params: {
-  isAdmin?: boolean;
-  proCredentials?: Array<{ status: string; trade?: string; credentialType?: string }>;
-  accountType?: string;
-}): ContributorRole {
-  if (params.isAdmin) return "admin";
-  if (params.proCredentials && params.proCredentials.length > 0) {
-    const verifiedCreds = params.proCredentials.filter(
-      (c) =>
-        c.status === "verified_by_source" ||
-        c.status === "verified_by_reviewer" ||
-        c.status === "verified",
-    );
-    for (const cred of verifiedCreds) {
-      const type = (cred.credentialType || cred.trade || "").toLowerCase();
-      if (type.includes("quantity") || type.includes("surveyor") || type.includes("qs")) {
-        return "quantity_surveyor";
-      }
-      if (type.includes("civil") || type.includes("engineer") || type.includes("structural")) {
-        return "civil_engineer";
-      }
-    }
-    if (verifiedCreds.length > 0) {
-      return "verified_pro";
-    }
-  }
-  if (params.accountType === "pro_worker" || params.accountType === "contractor") {
-    return "contractor";
-  }
-  return "homeowner";
-}
-
-export function weightedMedian(items: Array<{ value: number; weight: number }>): number {
-  if (!items.length) return 0;
-  const sorted = [...items].sort((a, b) => a.value - b.value);
-  const totalWeight = sorted.reduce((sum, item) => sum + item.weight, 0);
-  if (totalWeight <= 0) return sorted[0].value;
-  const halfWeight = totalWeight / 2;
-  let running = 0;
-  for (const item of sorted) {
-    running += item.weight;
-    if (running >= halfWeight) {
-      return item.value;
-    }
-  }
-  return sorted[sorted.length - 1].value;
-}
-
-export interface OutlierFilteringResult<T> {
-  clean: T[];
-  outliers: T[];
-  lowerFence: number;
-  upperFence: number;
-}
-
-/**
- * Interquartile Range (IQR) outlier rejection filter.
- * Discards extreme user edits before updating averages or medians so typos
- * (e.g. typing 150 liters instead of 15 liters) cannot skew regional baselines.
- */
-export function filterOutliersIQR(
-  entries: PreparedRow[],
-): OutlierFilteringResult<PreparedRow> {
-  if (entries.length < 4) {
-    const clean: PreparedRow[] = [];
-    const outliers: PreparedRow[] = [];
-    for (const e of entries) {
-      if (e.ratio < 0.25 || e.ratio > 3.0) {
-        outliers.push(e);
-      } else {
-        clean.push(e);
-      }
-    }
-    return { clean, outliers, lowerFence: 0.25, upperFence: 3.0 };
-  }
-
-  const sortedRatios = entries.map((e) => e.ratio).sort((a, b) => a - b);
-  const q1 = quantile(sortedRatios, 0.25);
-  const q3 = quantile(sortedRatios, 0.75);
-  const iqr = q3 - q1;
-  const median = quantile(sortedRatios, 0.5);
-
-  const effectiveIQR = Math.max(iqr, median * 0.1);
-  const lowerFence = Math.max(0.1, q1 - 1.5 * effectiveIQR);
-  const upperFence = q3 + 1.5 * effectiveIQR;
-
-  const clean: PreparedRow[] = [];
-  const outliers: PreparedRow[] = [];
-  for (const e of entries) {
-    if (e.ratio < lowerFence || e.ratio > upperFence) {
-      outliers.push(e);
-    } else {
-      clean.push(e);
-    }
-  }
-
-  return { clean, outliers, lowerFence: round(lowerFence), upperFence: round(upperFence) };
 }
 
 /* ------------------------------------------------------------------ */
@@ -526,6 +395,32 @@ const UNIT_ALIASES: Record<string, string> = {
   set: "set",
   unit: "unit",
   units: "unit",
+  brass: "brass",
+  cft: "cft",
+  "cu ft": "cft",
+  "cubic foot": "cft",
+  "cubic feet": "cft",
+  sqft: "sqft",
+  "sq ft": "sqft",
+  "square foot": "sqft",
+  "square feet": "sqft",
+  "sq yd": "sqyd",
+  sqyd: "sqyd",
+  gal: "gallon",
+  gallon: "gallon",
+  gallons: "gallon",
+  lb: "pound",
+  lbs: "pound",
+  pound: "pound",
+  pounds: "pound",
+  length: "length",
+  lengths: "length",
+  load: "load",
+  loads: "load",
+  pallet: "pallet",
+  pallets: "pallet",
+  crate: "crate",
+  crates: "crate",
 };
 
 function slug(raw: string): string {
@@ -768,21 +663,16 @@ export function sanitiseCalibrationFeedback(
     reviewerRoleRaw === "admin" || reviewerRoleRaw === "owner"
       ? reviewerRoleRaw
       : undefined;
+  const roleRaw = text(row.contributorRole ?? row.contributor_role);
+  const contributorRole = (
+    Object.keys(ROLE_WEIGHTS) as ContributorRole[]
+  ).includes(roleRaw as ContributorRole)
+    ? (roleRaw as ContributorRole)
+    : undefined;
   const reviewedAtRaw = text(row.reviewedAt ?? row.reviewed_at);
   const reviewedAt = Number.isNaN(Date.parse(reviewedAtRaw))
     ? undefined
     : new Date(reviewedAtRaw).toISOString();
-  const contributorRoleRaw = text(row.contributorRole ?? row.contributor_role).toLowerCase();
-  const contributorRole: ContributorRole | undefined =
-    contributorRoleRaw === "quantity_surveyor" ||
-    contributorRoleRaw === "civil_engineer" ||
-    contributorRoleRaw === "verified_pro" ||
-    contributorRoleRaw === "admin" ||
-    contributorRoleRaw === "contractor" ||
-    contributorRoleRaw === "homeowner" ||
-    contributorRoleRaw === "anonymous"
-      ? (contributorRoleRaw as ContributorRole)
-      : undefined;
   return {
     id,
     projectId,
@@ -894,6 +784,9 @@ export function calibrationCandidateFingerprint(
     candidate.distinctProjectCount,
     candidate.verifiedObservationCount,
     candidate.proposedMultiplier ?? "none",
+    candidate.outlierCount,
+    candidate.physicalBoundsApplied.min,
+    candidate.physicalBoundsApplied.max,
     policy.version,
     policy.minObservations,
     policy.minDistinctProjects,
@@ -901,6 +794,13 @@ export function calibrationCandidateFingerprint(
     policy.minVerifiedShare,
     policy.maxAdjustmentFraction,
     policy.emaAlpha,
+    policy.consensusTolerance,
+    policy.minConsensusShare,
+    candidate.consensus?.within ?? "none",
+    candidate.consensus?.share ?? "none",
+    candidate.checks.sample ? "s1" : "s0",
+    candidate.checks.consensus ? "c1" : "c0",
+    candidate.checks.provenance ? "p1" : "p0",
   ].join("|");
   return fenwick(material, 2166136261) + fenwick(material, 16777619);
 }
@@ -963,6 +863,63 @@ function prepare(rows: unknown[], scope: CalibrationScope): PreparedRow[] {
  * Rows that are invalid, rejected, duplicated or from another series are
  * excluded before any arithmetic runs.
  */
+export function isTrustedVerification(
+  row: Pick<CalibrationFeedback, "evidence" | "reviewerId">,
+): boolean {
+  return row.evidence === "admin_verified";
+}
+
+
+export function getEffectiveRoleWeight(
+  row: Pick<CalibrationFeedback, "contributorRole" | "evidence" | "reviewerId">,
+): number {
+  const role = row.contributorRole;
+  if (!role) {
+    return row.evidence === "admin_verified" ? ROLE_WEIGHTS.verified_pro : 1;
+  }
+  const normalized = role.toLowerCase().trim() as ContributorRole;
+  const rawWeight = ROLE_WEIGHTS[normalized] ?? 1;
+
+  // Professional roles (QS, civil engineer, admin, verified pro) require verified evidence
+  // to receive elevated 3x weighting. Unverified / self-attested claims fall back to 1.0.
+  if (rawWeight > 1 && !isTrustedVerification(row)) {
+    return 1;
+  }
+  return rawWeight;
+}
+
+export function resolveVerifiedContributorRole(params: {
+  isAdmin?: boolean;
+  proCredentials?: Array<{ status: string; trade?: string; credentialType?: string }>;
+  accountType?: string;
+}): ContributorRole {
+  if (params.isAdmin) return "admin";
+  if (params.proCredentials && params.proCredentials.length > 0) {
+    const verifiedCreds = params.proCredentials.filter(
+      (c) =>
+        c.status === "verified_by_source" ||
+        c.status === "verified_by_reviewer" ||
+        c.status === "verified",
+    );
+    for (const cred of verifiedCreds) {
+      const type = (cred.credentialType || cred.trade || "").toLowerCase();
+      if (type.includes("quantity") || type.includes("surveyor") || type.includes("qs")) {
+        return "quantity_surveyor";
+      }
+      if (type.includes("civil") || type.includes("engineer") || type.includes("structural")) {
+        return "civil_engineer";
+      }
+    }
+    if (verifiedCreds.length > 0) {
+      return "verified_pro";
+    }
+  }
+  if (params.accountType === "pro_worker" || params.accountType === "contractor") {
+    return "contractor";
+  }
+  return "homeowner";
+}
+
 export function buildCalibrationCandidate(
   rows: unknown[],
   scope: CalibrationScope & {
@@ -972,44 +929,40 @@ export function buildCalibrationCandidate(
   },
   policy: CalibrationPolicy = DEFAULT_CALIBRATION_POLICY,
 ): CalibrationCandidate {
-  const rawPrepared = prepare(rows, scope);
-  const { clean: prepared, outliers } =
-    policy.enableIqrOutlierFilter !== false
-      ? filterOutliersIQR(rawPrepared)
-      : { clean: rawPrepared, outliers: [] };
+  const prepared = prepare(rows, scope);
+  const materialKey = normaliseMaterialKey(scope.materialKey);
+  const bounds = getPhysicalBounds(materialKey, policy);
 
-  const physicalBounds = getPhysicalBounds(scope.materialKey, policy);
-  const bounded = prepared.map((entry) => ({
-    entry,
-    ratio: clamp(entry.ratio, physicalBounds.min, physicalBounds.max),
-  }));
-
-  const sortedValues = bounded.map((b) => b.ratio).sort((a, b) => a - b);
-  const unweightedMedianValue = sortedValues.length ? round(quantile(sortedValues, 0.5)) : null;
-
-  const weightedItems = bounded.map((b) => ({
-    value: b.ratio,
-    weight:
-      policy.enableRoleWeighting !== false
-        ? getEffectiveRoleWeight(b.entry.row)
-        : 1,
-  }));
-
-  const proposed = bounded.length ? round(weightedMedian(weightedItems)) : null;
+  // A typo is dropped and reported before any statistic runs.
+  const filtered = filterOutliersIQR(prepared);
+  const clean = filtered.clean;
+  const cleanRatios = clean.map((entry) => entry.ratio);
+  const bounded = cleanRatios.map((ratio) => clamp(ratio, bounds.min, bounds.max));
+  const weighted = bounded.length
+    ? weightedMedian(
+        bounded.map((value, index) => ({
+          value,
+          weight: getEffectiveRoleWeight(clean[index].row),
+        })),
+      )
+    : null;
+  const proposed =
+    weighted === null ? null : round(clamp(weighted, bounds.min, bounds.max));
+  const sorted = [...bounded].sort((a, b) => a - b);
   const spread =
-    sortedValues.length > 1
+    sorted.length > 1
       ? {
-          p25: round(quantile(sortedValues, 0.25)),
-          p75: round(quantile(sortedValues, 0.75)),
+          p25: round(quantile(sorted, 0.25)),
+          p75: round(quantile(sorted, 0.75)),
         }
       : null;
 
   let trend: number | null = null;
-  for (const item of bounded) {
+  for (const ratio of bounded) {
     trend =
       trend === null
-        ? item.ratio
-        : policy.emaAlpha * item.ratio + (1 - policy.emaAlpha) * trend;
+        ? ratio
+        : policy.emaAlpha * ratio + (1 - policy.emaAlpha) * trend;
   }
 
   const verified = prepared.filter(
@@ -1022,7 +975,7 @@ export function buildCalibrationCandidate(
   const market = normaliseMarketCode(scope.marketCode);
   if (!market) blockers.push("unsupported_market");
   if (!normaliseUnit(scope.unit)) blockers.push("unsupported_unit");
-  if (prepared.length < policy.minObservations)
+  if (clean.length < policy.minObservations)
     blockers.push("insufficient_observations");
   if (projects.size < policy.minDistinctProjects)
     blockers.push("insufficient_distinct_projects");
@@ -1031,7 +984,43 @@ export function buildCalibrationCandidate(
   if (verifiedShare < policy.minVerifiedShare)
     blockers.push("verified_share_too_low");
 
+  const tolerance = policy.consensusTolerance;
+  // Agreement is measured between projects, around their own median, so the
+  // policy clamp cannot make a tight cluster look like a scattered one.
+  const centre = cleanRatios.length
+    ? quantile([...cleanRatios].sort((a, b) => a - b), 0.5)
+    : 1;
+  const deviations = cleanRatios
+    .map((ratio) => Math.abs(ratio - centre))
+    .sort((a, b) => a - b);
+  const within = deviations.filter((value) => value <= tolerance).length;
+  const consensusShare = cleanRatios.length ? within / cleanRatios.length : 0;
+  const consensus =
+    cleanRatios.length > 0
+      ? {
+          tolerance,
+          within,
+          share: round(consensusShare),
+          mad: round(quantile(deviations, 0.5)),
+        }
+      : null;
+  if (consensus && consensusShare < policy.minConsensusShare)
+    blockers.push("insufficient_consensus");
+
+  const checks = {
+    sample:
+      clean.length >= policy.minObservations &&
+      projects.size >= policy.minDistinctProjects,
+    consensus: consensus !== null && consensusShare >= policy.minConsensusShare,
+    provenance:
+      verified >= policy.minVerifiedObservations &&
+      verifiedShare >= policy.minVerifiedShare,
+  };
+
   const candidate: CalibrationCandidate = {
+    physicalBoundsApplied: bounds,
+    outlierCount: filtered.outliers.length,
+    outlierRatios: filtered.outliers.map((entry) => round(entry.ratio)),
     marketCode: market || normaliseMarketCode(scope.marketCode, ""),
     materialKey: normaliseMaterialKey(scope.materialKey),
     measure: scope.measure,
@@ -1043,6 +1032,8 @@ export function buildCalibrationCandidate(
     proposedMultiplier: proposed,
     trendMultiplier: trend === null ? null : round(trend),
     spread,
+    checks,
+    consensus,
     eligible: blockers.length === 0,
     blockers,
     observedAt: prepared.length
@@ -1050,10 +1041,6 @@ export function buildCalibrationCandidate(
       : null,
     policyVersion: policy.version,
     fingerprint: "",
-    outlierCount: outliers.length,
-    outlierRatios: outliers.map((o) => round(o.ratio, 3)),
-    physicalBoundsApplied: physicalBounds,
-    unweightedMultiplier: unweightedMedianValue,
   };
   candidate.fingerprint = calibrationCandidateFingerprint(candidate, policy);
   return candidate;
@@ -1116,9 +1103,9 @@ export function empiricalConfidenceRange(
   if (!unit) return null;
   const prepared = prepare(rows, scope);
   if (prepared.length < policy.minRangeObservations) return null;
-  const physicalBounds = getPhysicalBounds(scope.materialKey, policy);
+  const window = policy.maxAdjustmentFraction;
   const sorted = prepared
-    .map((entry) => clamp(entry.ratio, physicalBounds.min, physicalBounds.max))
+    .map((entry) => clamp(entry.ratio, 1 - window, 1 + window))
     .sort((a, b) => a - b);
   return {
     low: round(baseQuantity * quantile(sorted, 0.1), 3),
@@ -1202,196 +1189,456 @@ export function createAuditEvent(
 /* Cost coding                                                         */
 /* ------------------------------------------------------------------ */
 
-interface CostCodeHint {
-  terms: string[];
+export type CostCodeStandard =
+  | "csi_masterformat"
+  | "nrm"
+  | "is_1200"
+  | "generic";
+
+export type CostCodeGroup =
+  | "earthwork"
+  | "concrete"
+  | "masonry"
+  | "steel"
+  | "envelope"
+  | "openings"
+  | "finishes"
+  | "plumbing"
+  | "electrical";
+
+interface TradeHint {
+  group: CostCodeGroup;
+  priority: number;
+  terms: readonly string[];
+}
+
+/**
+ * Trade hints in plain language. A match is scored by priority and then by how
+ * specific the term is, so "steel door" is an opening rather than structural
+ * steel, and order in this table never decides a classification.
+ */
+const TRADE_HINTS: readonly TradeHint[] = [
+  {
+    group: "openings",
+    priority: 9,
+    terms: [
+      "door",
+      "doors",
+      "window",
+      "windows",
+      "glazing",
+      "curtain wall",
+      "ironmongery",
+      "lock",
+      "hinge",
+      "frame",
+      "shutter",
+    ],
+  },
+  {
+    group: "envelope",
+    priority: 9,
+    terms: [
+      "roof tile",
+      "tile roof",
+      "roof",
+      "roofing",
+      "waterproof",
+      "waterproofing",
+      "damp proof",
+      "insulation",
+      "cladding",
+      "flashing",
+      "gutter",
+    ],
+  },
+  {
+    group: "finishes",
+    priority: 8,
+    terms: [
+      "paint",
+      "painting",
+      "emulsion",
+      "gloss",
+      "tile",
+      "tiles",
+      "tiling",
+      "screed",
+      "screeding",
+      "plaster",
+      "plastering",
+      "render",
+      "rendering",
+      "ceiling",
+      "pop",
+      "skim",
+      "terrazzo",
+      "wallpaper",
+    ],
+  },
+  {
+    group: "plumbing",
+    priority: 8,
+    terms: [
+      "plumb",
+      "plumbing",
+      "pipe",
+      "pipes",
+      "valve",
+      "drain",
+      "drainage",
+      "sanitary",
+      "water tank",
+      "borehole",
+      "pump",
+      "septic",
+    ],
+  },
+  {
+    group: "electrical",
+    priority: 8,
+    terms: [
+      "electrical",
+      "electric",
+      "wiring",
+      "wire",
+      "conduit",
+      "solar",
+      "inverter",
+      "cable",
+      "lighting",
+      "socket",
+      "distribution board",
+      "earth rod",
+    ],
+  },
+  {
+    group: "masonry",
+    priority: 8,
+    terms: [
+      "block",
+      "blocks",
+      "blockwork",
+      "brick",
+      "bricks",
+      "brickwork",
+      "masonry",
+      "sandcrete",
+    ],
+  },
+  {
+    group: "concrete",
+    priority: 7,
+    terms: [
+      "concrete",
+      "cement",
+      "rebar",
+      "reinforcement",
+      "formwork",
+      "shuttering",
+      "blinding",
+      "slab",
+      "beam",
+      "column",
+      "pad footing",
+      "raft",
+    ],
+  },
+  {
+    group: "earthwork",
+    priority: 7,
+    terms: [
+      "earth",
+      "earthwork",
+      "excavation",
+      "excavate",
+      "fill",
+      "filling",
+      "hardcore",
+      "subbase",
+      "sub base",
+      "levelling",
+      "compaction",
+      "dewatering",
+    ],
+  },
+  {
+    group: "steel",
+    priority: 6,
+    terms: ["steel", "metal", "purlin", "truss", "angle", "channel", "plate"],
+  },
+];
+
+interface StandardCode {
   code: string;
   description: string;
   division: string;
   uniFormat?: string;
-  /** Higher wins. Explicit priority makes matching order independent. */
-  priority: number;
 }
 
-/**
- * Compact CSI MasterFormat hints. Matching is on whole words and phrases, with
- * an explicit priority, so "steel door" lands in Openings instead of Structural
- * Steel. These are suggestions: an administrator maps them to the project WBS.
- */
-const COST_CODE_HINTS: readonly CostCodeHint[] = [
-  {
-    terms: [
-      "tile roof",
-      "roof tile",
-      "roofing sheet",
-      "roof sheet",
-      "roof",
-      "waterproofing",
-      "insulation",
-    ],
-    code: "07 00 00",
-    description: "Thermal and Moisture Protection",
-    division: "07",
-    uniFormat: "B3010",
-    priority: 8,
-  },
-  {
-    terms: [
-      "steel door",
-      "door frame",
-      "door",
-      "window",
-      "glazing",
-      "glass",
-      "ironmongery",
-    ],
-    code: "08 00 00",
-    description: "Openings",
-    division: "08",
-    uniFormat: "B2020",
-    priority: 9,
-  },
-  {
-    terms: [
-      "floor tile",
-      "wall tile",
-      "tile",
-      "paint",
-      "emulsion",
-      "gloss",
-      "screed",
-      "plaster",
-      "rendering",
-      "pop ceiling",
-      "ceiling",
-      "finish",
-    ],
-    code: "09 00 00",
-    description: "Finishes",
-    division: "09",
-    uniFormat: "C3020",
-    priority: 8,
-  },
-  {
-    terms: ["block", "blocks", "brick", "masonry", "sandcrete"],
-    code: "04 20 00",
-    description: "Unit Masonry",
-    division: "04",
-    uniFormat: "B2010",
-    priority: 8,
-  },
-  {
-    terms: [
-      "concrete",
-      "slab",
-      "cement",
-      "rebar",
-      "reinforcement",
-      "binding wire",
-      "formwork",
-      "blinding",
-    ],
-    code: "03 30 00",
-    description: "Cast-in-Place Concrete",
-    division: "03",
-    uniFormat: "B1010",
-    priority: 6,
-  },
-  {
-    terms: ["structural steel", "steel", "metal", "roof truss", "purlin"],
-    code: "05 12 00",
-    description: "Structural Steel Framing",
-    division: "05",
-    uniFormat: "B1010",
-    priority: 5,
-  },
-  {
-    terms: [
-      "plumbing",
-      "pipe",
-      "pvc",
-      "valve",
-      "drain",
-      "water tank",
-      "pump",
-      "borehole",
-    ],
-    code: "22 00 00",
-    description: "Plumbing",
-    division: "22",
-    uniFormat: "D20",
-    priority: 7,
-  },
-  {
-    terms: [
-      "electrical",
-      "wiring",
-      "conduit",
-      "solar",
-      "inverter",
-      "battery",
-      "lighting",
-    ],
-    code: "26 00 00",
-    description: "Electrical",
-    division: "26",
-    uniFormat: "D50",
-    priority: 7,
-  },
-  {
-    terms: [
-      "excavation",
-      "earthwork",
-      "hardcore",
-      "laterite",
-      "filling",
-      "foundation",
-    ],
+const CSI_CODES: Record<CostCodeGroup, StandardCode> = {
+  earthwork: {
     code: "31 00 00",
     description: "Earthwork",
     division: "31",
     uniFormat: "G1030",
-    priority: 6,
   },
-];
+  concrete: {
+    code: "03 30 00",
+    description: "Cast-in-Place Concrete",
+    division: "03",
+    uniFormat: "B1010",
+  },
+  masonry: {
+    code: "04 20 00",
+    description: "Unit Masonry",
+    division: "04",
+    uniFormat: "B2010",
+  },
+  steel: {
+    code: "05 12 00",
+    description: "Structural Steel Framing",
+    division: "05",
+    uniFormat: "B1010",
+  },
+  envelope: {
+    code: "07 00 00",
+    description: "Thermal and Moisture Protection",
+    division: "07",
+    uniFormat: "B3010",
+  },
+  openings: {
+    code: "08 00 00",
+    description: "Openings",
+    division: "08",
+    uniFormat: "B2020",
+  },
+  finishes: {
+    code: "09 00 00",
+    description: "Finishes",
+    division: "09",
+    uniFormat: "C3020",
+  },
+  plumbing: {
+    code: "22 00 00",
+    description: "Plumbing",
+    division: "22",
+    uniFormat: "D20",
+  },
+  electrical: {
+    code: "26 00 00",
+    description: "Electrical",
+    division: "26",
+    uniFormat: "D50",
+  },
+};
 
-/** Markets that natively use CSI MasterFormat. Everything else maps to its own WBS. */
-const CSI_MARKETS = new Set(["US", "CA", "PR", "PH"]);
+const NRM_CODES: Record<CostCodeGroup, StandardCode> = {
+  earthwork: {
+    code: "1.1",
+    description: "Works below ground: excavation and filling",
+    division: "1",
+  },
+  concrete: {
+    code: "2.1",
+    description: "Superstructure: in situ concrete",
+    division: "2",
+  },
+  steel: {
+    code: "2.2",
+    description: "Superstructure: steel frame",
+    division: "2",
+  },
+  masonry: {
+    code: "2.3",
+    description: "Superstructure: brickwork and blockwork",
+    division: "2",
+  },
+  envelope: {
+    code: "2.4",
+    description: "Superstructure: roofing and waterproofing",
+    division: "2",
+  },
+  openings: {
+    code: "2.5",
+    description: "Superstructure: windows and doors",
+    division: "2",
+  },
+  finishes: { code: "3.1", description: "Finishes", division: "3" },
+  plumbing: {
+    code: "4.1",
+    description: "Services: water installations",
+    division: "4",
+  },
+  electrical: {
+    code: "5.1",
+    description: "Services: electrical installations",
+    division: "5",
+  },
+};
 
-function hasTerm(haystack: string, term: string): boolean {
+const IS_1200_CODES: Record<CostCodeGroup, StandardCode> = {
+  earthwork: {
+    code: "2.8",
+    description: "Earthwork in excavation and filling",
+    division: "2",
+  },
+  concrete: {
+    code: "5.1",
+    description: "Plain and reinforced concrete",
+    division: "5",
+  },
+  masonry: { code: "6.1", description: "Brickwork and blockwork", division: "6" },
+  steel: {
+    code: "10.1",
+    description: "Structural steel and metalwork",
+    division: "10",
+  },
+  envelope: {
+    code: "13.1",
+    description: "Roofing and waterproofing",
+    division: "13",
+  },
+  openings: {
+    code: "14.1",
+    description: "Doors, windows and glazing",
+    division: "14",
+  },
+  finishes: { code: "15.1", description: "Finishing", division: "15" },
+  plumbing: {
+    code: "18.1",
+    description: "Water supply, plumbing and drainage",
+    division: "18",
+  },
+  electrical: {
+    code: "19.1",
+    description: "Electrical installations",
+    division: "19",
+  },
+};
+
+const STANDARD_LABELS: Record<CostCodeStandard, string> = {
+  csi_masterformat: "CSI MasterFormat",
+  nrm: "RICS NRM",
+  is_1200: "IS 1200 / CPWD",
+  generic: "Trade group",
+};
+
+/**
+ * Where each standard is the local convention. A market that is not listed gets
+ * the trade group instead of a borrowed foreign code.
+ */
+const MARKET_STANDARDS: Record<string, CostCodeStandard> = {
+  US: "csi_masterformat",
+  CA: "csi_masterformat",
+  PR: "csi_masterformat",
+  PH: "csi_masterformat",
+  MX: "csi_masterformat",
+  GB: "nrm",
+  IE: "nrm",
+  NG: "nrm",
+  GH: "nrm",
+  KE: "nrm",
+  ZA: "nrm",
+  AU: "nrm",
+  NZ: "nrm",
+  AE: "nrm",
+  SA: "nrm",
+  QA: "nrm",
+  UG: "nrm",
+  TZ: "nrm",
+  RW: "nrm",
+  ZM: "nrm",
+  BW: "nrm",
+  NA: "nrm",
+  MW: "nrm",
+  SL: "nrm",
+  IN: "is_1200",
+  PK: "is_1200",
+  BD: "is_1200",
+  LK: "is_1200",
+  NP: "is_1200",
+};
+
+const GROUP_TITLES: Record<CostCodeGroup, string> = {
+  earthwork: "Earthwork",
+  concrete: "Concrete",
+  masonry: "Masonry",
+  steel: "Structural steel",
+  envelope: "Roofing and waterproofing",
+  openings: "Doors and windows",
+  finishes: "Finishes",
+  plumbing: "Plumbing",
+  electrical: "Electrical",
+};
+
+export function costCodeStandardForMarket(
+  marketCode?: string | null,
+): CostCodeStandard {
+  return MARKET_STANDARDS[normaliseMarketCode(marketCode)] ?? "generic";
+}
+
+function matchesTerm(text: string, term: string): boolean {
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i").test(haystack);
+  return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i").test(text);
 }
 
 /**
- * Suggests a classification for a material or trade. Returns null when nothing
- * matches safely, because a wrong code is worse than no code.
+ * Classify a line item into the cost standard the project's market actually
+ * uses. Returns null rather than inventing a code when nothing matches.
  */
 export function suggestCostCode(
-  tradeOrItem: string,
+  item: string,
   costType: string,
-  marketCode?: string,
+  marketCode?: string | null,
 ): CostCodeDefinition | null {
-  const text = tradeOrItem.trim().toLowerCase();
-  const type = costType.trim().toUpperCase().slice(0, 8);
+  const text = (item ?? "").trim().toLowerCase();
+  const type = (costType ?? "").trim().toUpperCase();
   if (!text || !type) return null;
-  let best: { hint: CostCodeHint; score: number } | null = null;
-  for (const hint of COST_CODE_HINTS) {
+
+  let best: { hint: TradeHint; score: number } | null = null;
+  for (const hint of TRADE_HINTS) {
     for (const term of hint.terms) {
-      if (!hasTerm(text, term)) continue;
+      if (!matchesTerm(text, term)) continue;
       const score = hint.priority * 100 + term.length;
       if (!best || score > best.score) best = { hint, score };
     }
   }
   if (!best) return null;
-  const market = normaliseMarketCode(marketCode, "");
+
+  const market = normaliseMarketCode(marketCode);
+  const standard = costCodeStandardForMarket(marketCode);
+  const group = best.hint.group;
+  if (standard === "generic") {
+    return {
+      costCode: "",
+      description: GROUP_TITLES[group],
+      costType: type,
+      division: "",
+      standard,
+      standardLabel: STANDARD_LABELS.generic,
+      group,
+      applicableToMarket: true,
+      marketCode: market || null,
+    };
+  }
+  const table =
+    standard === "csi_masterformat"
+      ? CSI_CODES
+      : standard === "nrm"
+        ? NRM_CODES
+        : IS_1200_CODES;
+  const entry = table[group];
   return {
-    costCode: best.hint.code,
-    description: best.hint.description,
+    costCode: entry.code,
+    description: entry.description,
     costType: type,
-    division: best.hint.division,
-    uniFormat: best.hint.uniFormat,
-    standard: "csi_masterformat",
-    applicableToMarket: market ? CSI_MARKETS.has(market) : false,
+    division: entry.division,
+    uniFormat: entry.uniFormat,
+    standard,
+    standardLabel: STANDARD_LABELS[standard],
+    group,
+    applicableToMarket: true,
     marketCode: market || null,
   };
 }

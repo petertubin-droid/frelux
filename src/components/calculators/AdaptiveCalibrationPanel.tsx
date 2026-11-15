@@ -241,7 +241,7 @@ export function AdaptiveCalibrationPanel({
         marketCode: row.marketCode,
         sourceStatus:
           row.evidence === "admin_verified" ? "verified" : "user_entered",
-        classificationStandard: costCode?.standard ?? "",
+        classificationStandard: costCode?.standardLabel ?? "",
       },
     ]);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -571,6 +571,17 @@ export function AdaptiveCalibrationPanel({
                         ? t("ready for administrator approval")
                         : candidate.blockers.join(", ")}
                     </span>
+                    <span className="block text-[11px] text-muted-foreground">
+                      {t("Checks")}: {t("sample")}{" "}
+                      {candidate.checks.sample ? t("pass") : t("fail")} ·{" "}
+                      {t("agreement")}{" "}
+                      {candidate.checks.consensus ? t("pass") : t("fail")}
+                      {candidate.consensus
+                        ? ` (${Math.round(candidate.consensus.share * 100)}% ${t("within")} ${candidate.consensus.tolerance})`
+                        : ""}{" "}
+                      · {t("provenance")}{" "}
+                      {candidate.checks.provenance ? t("pass") : t("fail")}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -596,7 +607,8 @@ export function AdaptiveCalibrationPanel({
                 if (!code) return null;
                 return (
                   <p className="mt-1 text-muted-foreground">
-                    {t("Suggested classification")}: {code.costCode} ·{" "}
+                    {t("Suggested classification")}:{" "}
+                    {code.costCode || code.description} ({code.standardLabel}) ·{" "}
                     {code.description} ({code.standard}).{" "}
                     {code.applicableToMarket
                       ? t("Common in this market.")

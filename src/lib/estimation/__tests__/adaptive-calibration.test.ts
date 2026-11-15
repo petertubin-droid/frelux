@@ -13,6 +13,7 @@ import {
   normaliseMarketCode,
   normaliseMaterialKey,
   normaliseUnit,
+  costCodeStandardForMarket,
   resolveApprovedMultiplier,
   sanitiseCalibrationFeedback,
   suggestCostCode,
@@ -283,20 +284,26 @@ describe("adaptive calibration", () => {
   });
 
   it("classifies with whole words and an explicit priority", () => {
-    expect(suggestCostCode("steel door", "M", "NG")?.costCode).toBe("08 00 00");
-    expect(suggestCostCode("steel", "M", "NG")?.costCode).toBe("05 12 00");
-    expect(suggestCostCode("tile roof", "M", "NG")?.costCode).toBe("07 00 00");
-    expect(suggestCostCode("concrete block", "M", "NG")?.division).toBe("04");
-    expect(suggestCostCode("emulsion paint", "M", "NG")?.division).toBe("09");
-    expect(suggestCostCode("quantum flux", "M", "NG")).toBeNull();
-    expect(suggestCostCode("", "M", "NG")).toBeNull();
-    expect(suggestCostCode("tile", "  ", "NG")).toBeNull();
+    // Priority and specificity decide, not the order of the hint table.
+    expect(suggestCostCode("steel door", "M", "US")?.costCode).toBe("08 00 00");
+    expect(suggestCostCode("steel", "M", "US")?.costCode).toBe("05 12 00");
+    expect(suggestCostCode("tile roof", "M", "US")?.costCode).toBe("07 00 00");
+    expect(suggestCostCode("concrete block", "M", "US")?.division).toBe("04");
+    expect(suggestCostCode("emulsion paint", "M", "US")?.division).toBe("09");
+    expect(suggestCostCode("quantum flux", "M", "US")).toBeNull();
+    expect(suggestCostCode("", "M", "US")).toBeNull();
+    expect(suggestCostCode("tile", "  ", "US")).toBeNull();
   });
 
-  it("says whether a classification standard applies to the market", () => {
-    expect(suggestCostCode("tile", "M", "NG")?.applicableToMarket).toBe(false);
-    expect(suggestCostCode("tile", "M", "US")?.applicableToMarket).toBe(true);
-    expect(suggestCostCode("tile", "M")?.applicableToMarket).toBe(false);
+  it("never borrows a foreign code for a market that has its own", () => {
+    // The standard follows the market, so a Nigerian project is never handed a
+    // US division number as if it were local.
+    expect(suggestCostCode("tile", "M", "NG")?.standard).toBe("nrm");
+    expect(suggestCostCode("tile", "M", "US")?.standard).toBe("csi_masterformat");
+    expect(suggestCostCode("tile", "M", "IN")?.standard).toBe("is_1200");
+    // No market at all: a trade group, still applicable, never a fake code.
+    expect(suggestCostCode("tile", "M")?.standard).toBe("generic");
+    expect(suggestCostCode("tile", "M")?.costCode).toBe("");
   });
 
   it("exports WBS data that a spreadsheet cannot execute", () => {
@@ -343,42 +350,124 @@ describe("adaptive calibration", () => {
     );
   });
 
-  it("clamps candidates strictly to physical material bounds", () => {
-    // Block physical bounds are [0.85, 1.25]. A wild 2.0x ratio cannot break physics.
-    const wildRatios = [1.8, 1.9, 2.0, 1.85, 1.95];
-    const candidate = buildCalibrationCandidate(series(wildRatios), scope);
-    expect(candidate.proposedMultiplier).toBeLessThanOrEqual(1.25);
-    expect(candidate.physicalBoundsApplied?.max).toBe(1.25);
+  it("classifies into the standard the project's market actually uses", () => {
+    const us = suggestCostCode("reinforcement", "M", "US");
+    expect(us?.standard).toBe("csi_masterformat");
+    expect(us?.costCode).toBe("03 30 00");
+
+    const uk = suggestCostCode("reinforcement", "M", "GB");
+    expect(uk?.standard).toBe("nrm");
+    expect(uk?.costCode).toBe("2.1");
+
+    const ng = suggestCostCode("reinforcement", "M", "NG");
+    expect(ng?.standard).toBe("nrm");
+    expect(ng?.standardLabel).toBe("RICS NRM");
+
+    const india = suggestCostCode("reinforcement", "M", "IN");
+    expect(india?.standard).toBe("is_1200");
+    expect(india?.costCode).toBe("5.1");
+
+    // A market with no registered convention gets a trade group, not a
+    // borrowed foreign code.
+    const unknown = suggestCostCode("reinforcement", "M", "ZZ");
+    expect(unknown?.standard).toBe("generic");
+    expect(unknown?.costCode).toBe("");
+    expect(unknown?.description).toBe("Concrete");
+    expect(costCodeStandardForMarket("ZZ")).toBe("generic");
   });
 
-  it("discards extreme outliers using IQR filtering so typos do not corrupt baseline", () => {
-    // 5 normal observations around 1.05 and 1 extreme 10x typo entry
-    const normalRows = series([1.02, 1.04, 1.05, 1.06, 1.05]);
-    const typoRow = row({
-      projectId: "p4",
-      actualQuantity: 1000, // 10x typo (1000 instead of 100)
+  it("refuses a candidate whose projects disagree, even with enough of them", () => {
+    // Four tight observations and one project reporting four times the work.
+    const rows = [
+      row({ projectId: "a", actualQuantity: 104 }),
+      row({ projectId: "b", actualQuantity: 100 }),
+      row({ projectId: "c", actualQuantity: 102 }),
+      row({ projectId: "d", actualQuantity: 400 }),
+      row({ projectId: "e", actualQuantity: 20 }),
+      row({ projectId: "f", actualQuantity: 500 }),
+    ];
+    const candidate = buildCalibrationCandidate(rows, scope);
+    expect(candidate.observationCount).toBe(6);
+    expect(candidate.distinctProjectCount).toBe(6);
+    expect(candidate.checks.consensus).toBe(false);
+    expect(candidate.blockers).toContain("insufficient_consensus");
+    expect(candidate.eligible).toBe(false);
+    // The median still holds, which is why it is the activation statistic.
+    expect(candidate.proposedMultiplier).toBeGreaterThan(0.99);
+    expect(candidate.proposedMultiplier).toBeLessThan(1.07);
+  });
+
+  it("passes all three gates only when sample, agreement and provenance hold", () => {
+    const candidate = buildCalibrationCandidate(
+      [1.1, 1.2, 1.05, 0.95, 1.0].map((ratio, index) =>
+        row({ projectId: `p${index % 3}`, actualQuantity: 100 * ratio }),
+      ),
+      scope,
+    );
+    expect(candidate.checks).toEqual({
+      sample: true,
+      consensus: true,
+      provenance: true,
     });
-    const candidate = buildCalibrationCandidate([...normalRows, typoRow], scope);
+    expect(candidate.consensus?.within).toBe(5);
+    expect(candidate.consensus?.share).toBe(1);
+  });
+
+  it("groups international site units without merging them", () => {
+    expect(normaliseUnit("brass")).toBe("brass");
+    expect(normaliseUnit("Cu Ft")).toBe("cft");
+    expect(normaliseUnit("sq ft")).toBe("sqft");
+    expect(normaliseUnit("lbs")).toBe("pound");
+    const rows = [
+      row({ unit: "brass" }),
+      row({ unit: "cft" }),
+      row({ unit: "sqft" }),
+    ];
+    expect(buildCalibrationCandidates(rows, { marketCode: "NG" })).toHaveLength(
+      3,
+    );
+  });
+
+  it("clamps candidates to physical material bounds, not only the policy window", () => {
+    const id = (n: string) => row({ id: n, projectId: `p-${n}`, actualQuantity: 160 });
+    const candidate = buildCalibrationCandidate(
+      [id("a"), id("b"), id("c"), id("d"), id("e")],
+      scope,
+    );
+    expect(candidate.proposedMultiplier).toBe(1.25);
+    expect(candidate.physicalBoundsApplied.max).toBe(1.25);
+    expect(candidate.physicalBoundsApplied.max).toBeLessThanOrEqual(
+      1 + DEFAULT_CALIBRATION_POLICY.maxAdjustmentFraction,
+    );
+  });
+
+  it("drops a typed-in outlier before it can move the statistic", () => {
+    const candidate = buildCalibrationCandidate(
+      [
+        row({ id: "a", projectId: "p1", actualQuantity: 100 }),
+        row({ id: "b", projectId: "p2", actualQuantity: 105 }),
+        row({ id: "c", projectId: "p3", actualQuantity: 110 }),
+        row({ id: "d", projectId: "p4", actualQuantity: 1000 }),
+      ],
+      scope,
+    );
     expect(candidate.outlierCount).toBe(1);
     expect(candidate.outlierRatios).toContain(10);
-    // Proposed multiplier should be uncorrupted by the 10x typo
     expect(candidate.proposedMultiplier).toBeCloseTo(1.05, 2);
   });
 
-  it("weights Quantity Surveyors and Civil Engineers 3x higher than anonymous users", () => {
-    // 3 anonymous rows at 1.00 and 1 QS row at 1.15
-    const rows = [
-      row({ id: "a1", projectId: "p1", actualQuantity: 100, contributorRole: "anonymous" }),
-      row({ id: "a2", projectId: "p2", actualQuantity: 100, contributorRole: "anonymous" }),
-      row({ id: "a3", projectId: "p3", actualQuantity: 100, contributorRole: "anonymous" }),
-      row({ id: "qs1", projectId: "p1", actualQuantity: 115, contributorRole: "quantity_surveyor" }),
-      row({ id: "a4", projectId: "p2", actualQuantity: 102, contributorRole: "anonymous" }),
-    ];
-    const candidate = buildCalibrationCandidate(rows, scope);
-    // QS weight = 3x, anonymous = 1x.
-    // Values: 1.00 (w=1), 1.00 (w=1), 1.00 (w=1), 1.02 (w=1), 1.15 (w=3). Total weight = 7. Half weight = 3.5.
-    // Cum weight: 1.00 (3) -> 1.02 (4 >= 3.5) -> median is 1.02, shifted towards the QS observation.
-    expect(candidate.proposedMultiplier).toBe(1.02);
+  it("weights a quantity surveyor above an anonymous report", () => {
+    const candidate = buildCalibrationCandidate(
+      [
+        row({ id: "a", projectId: "p1", actualQuantity: 100, contributorRole: "quantity_surveyor" }),
+        row({ id: "b", projectId: "p2", actualQuantity: 100, contributorRole: "quantity_surveyor" }),
+        row({ id: "c", projectId: "p3", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
+        row({ id: "d", projectId: "p4", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
+        row({ id: "e", projectId: "p5", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
+      ],
+      scope,
+    );
+    expect(candidate.proposedMultiplier).toBe(1);
   });
 
   it("refuses elevated weights for self-attested claims without trusted verification", () => {
