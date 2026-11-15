@@ -99,8 +99,10 @@ describe("paint", () => {
     expect(area.unit).toBe("m2");
 
     const litres = findLine(result, "living-paint-walls-litres");
-    const expected = (82.4 / 10) * (1 + PAINT_WASTAGE_PERCENT / 100);
-    expect(litres.quantity).toBeCloseTo(Math.round(expected * 10) / 10, 1);
+    // Quantities are net; the loss is stated as waste and repeated alongside.
+    expect(litres.quantity).toBeCloseTo(Math.round((82.4 / 10) * 10) / 10, 1);
+    expect(litres.wastePercent).toBe(PAINT_WASTAGE_PERCENT);
+    expect(litres.quantityWithWaste).toBeCloseTo(8.24 * 1.1, 2);
     expect(litres.unit).toBe("L");
   });
 
@@ -172,8 +174,10 @@ describe("tiling", () => {
     const waste = resolveLayoutWastePercent("complex_diagonal");
     expect(waste).toBe(14);
     const row = findLine(result, "living-tile-floor");
-    expect(row.quantity).toBe(22.8); // 20 m2 x 1.14
+    expect(row.quantity).toBe(20); // measured net
     expect(row.wastePercent).toBe(waste);
+    expect(row.quantityWithWaste).toBe(22.8); // 20 m2 x 1.14
+    expect(row.basis).toMatch(/buy 22\.8 m2/);
   });
 
   it("rounds tiles and boxes up once from the area to buy", () => {
@@ -193,7 +197,7 @@ describe("tiling", () => {
         ],
       }),
     );
-    const area = findLine(result, "living-tile-floor").quantity ?? 0;
+    const area = findLine(result, "living-tile-floor").quantityWithWaste ?? 0;
     const tileArea = 0.6 * 0.6;
     const tiles = findLine(result, "living-tile-floor-count").quantity ?? 0;
     const boxes = findLine(result, "living-tile-floor-boxes").quantity ?? 0;
@@ -562,6 +566,7 @@ describe("honesty of the output", () => {
           "description",
           "provenance",
           "quantity",
+          "quantityWithWaste",
           "room",
           "trade",
           "tradeLabel",
@@ -837,10 +842,10 @@ describe("tiles, partitions and windows", () => {
         ],
       }),
     );
-    const area = findLine(result, "living-tile-floor").quantity ?? 0;
+    const area = findLine(result, "living-tile-floor").quantityWithWaste ?? 0;
     const bags = findLine(result, "living-tile-floor-adhesive").quantity ?? 0;
     expect(bags).toBe(Math.ceil(area / 5));
-    expect(bags).toBeGreaterThan(4); // 20 m2 of floor is 22 m2 bought
+    expect(bags).toBe(5); // 22 m2 bought at 5 m2 per bag
   });
 
   it("adds partition debris and asks for the structural check", () => {

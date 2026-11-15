@@ -38,9 +38,11 @@ import {
   FT_TO_M,
   fromMeters,
   fromSqMeters,
+  lengthUnitSystem,
   toMeters,
   toSqMeters,
   type AreaUnit,
+  type LengthUnit,
 } from "@/lib/measurement/units";
 import {
   MORTAR_DRY_VOLUME_FACTOR,
@@ -216,6 +218,12 @@ export interface RenovationScopeLine {
   description: string;
   /** Null when the quantity cannot be derived from what was supplied. */
   quantity: number | null;
+  /**
+   * The net quantity plus this line's own waste allowance, to three places.
+   * Net plus a stated percentage is stated twice so no pricing layer has to
+   * guess whether a quantity already includes waste.
+   */
+  quantityWithWaste: number | null;
   unit: string;
   /** The arithmetic in words, for the calculation drawer. */
   basis: string;
@@ -227,6 +235,9 @@ export interface RenovationScopeLine {
   flags: string[];
 }
 
+/** Length units accepted for room dimensions. */
+export type RenovationLengthUnit = LengthUnit | "m" | "ft";
+
 export interface RenovationRoomInput {
   id: string;
   name?: string;
@@ -235,7 +246,8 @@ export interface RenovationRoomInput {
   width: number;
   height: number;
   /** Entry units. Everything is measured in metres internally. */
-  unit?: "m" | "ft";
+  /** Any length unit the app supports: metres, feet, inches, yards and so on. */
+  unit?: RenovationLengthUnit;
   /** Opening area in square metres. Always metric, whatever the room unit. */
   openingAreaM2?: number;
   /** Opening area stated in `openingAreaUnit`; imperial rooms usually say sqft. */
@@ -354,6 +366,8 @@ export interface RenovationRoomMetrics {
   wallAreaNetM2: number;
   ceilingAreaM2: number;
   skirtingLengthM: number;
+  /** The unit the dimensions were entered in, so a page can label its inputs. */
+  unit: RenovationLengthUnit | null;
 }
 
 export interface RenovationLabourFactor {
@@ -402,12 +416,40 @@ function positive(value: unknown): number {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
+/**
+ * Neutralises a leading character that a spreadsheet would evaluate. Free text
+ * from a user reaches descriptions and basis strings, so it is defused once,
+ * here, rather than at every export.
+ */
+function spreadsheetSafe(text: string): string {
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+}
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-function toMetres(value: number, unit: "m" | "ft" | undefined): number {
-  return toMeters(value, unit === "ft" ? "feet" : "meters");
+/**
+ * Every length unit the app supports, plus the two letters this engine has
+ * always accepted. Normalised through the shared measurement system, so a foot
+ * is 0.3048 m here for the same reason it is everywhere else.
+ */
+function resolveLengthUnit(unit?: RenovationLengthUnit | null): LengthUnit {
+  if (!unit) return "meters";
+  if (unit === "m") return "meters";
+  if (unit === "ft") return "feet";
+  return unit;
+}
+
+function isImperialUnit(unit?: RenovationLengthUnit | null): boolean {
+  return lengthUnitSystem(resolveLengthUnit(unit)) === "imperial";
+}
+
+function toMetres(
+  value: number,
+  unit: RenovationLengthUnit | null | undefined,
+): number {
+  return toMeters(value, resolveLengthUnit(unit));
 }
 
 function tileArea(row: {
@@ -420,17 +462,40 @@ function tileArea(row: {
 }
 
 function line(
-  partial: Omit<RenovationScopeLine, "wastePercent" | "wasteReason" | "flags"> &
+  partial: Omit<
+    RenovationScopeLine,
+    "wastePercent" | "wasteReason" | "flags" | "quantityWithWaste"
+  > &
     Partial<
       Pick<RenovationScopeLine, "wastePercent" | "wasteReason" | "flags">
-    >,
+    > & {
+      /** The unrounded figure, so the buy quantity is not built on a rounding. */
+      exactQuantity?: number | null;
+    },
 ): RenovationScopeLine {
-  return {
-    wastePercent: partial.wastePercent ?? 0,
-    wasteReason: partial.wasteReason ?? null,
-    flags: partial.flags ?? [],
-    ...partial,
+  const { exactQuantity, ...rest } = partial;
+  const merged: RenovationScopeLine = {
+    wastePercent: rest.wastePercent ?? 0,
+    wasteReason: rest.wasteReason ?? null,
+    flags: rest.flags ?? [],
+    quantityWithWaste: null,
+    ...rest,
   };
+  // Every quantity is net. The buy or allow figure is stated beside it, so a
+  // consumer can never apply waste twice, and it is derived from the exact
+  // figure rather than from the rounded display value.
+  const basis = exactQuantity ?? merged.quantity;
+  merged.quantityWithWaste =
+    basis === null || basis === undefined
+      ? null
+      : // Never below the figure shown: a tiny net quantity can round up past
+        // its own buy figure, and a line that buys less than it measures reads
+        // as an error on a page.
+        Math.max(
+          round(basis * (1 + merged.wastePercent / 100), 3),
+          merged.quantity ?? 0,
+        );
+  return merged;
 }
 
 /** Debris thickness for an existing finish, or null when it has none. */
@@ -461,7 +526,7 @@ export function roomMetrics(room: RenovationRoomInput): RenovationRoomMetrics {
     room.openingArea !== undefined && Number.isFinite(Number(room.openingArea))
       ? toSqMeters(
           positive(room.openingArea),
-          room.openingAreaUnit ?? (unit === "ft" ? "sqft" : "sqm"),
+          room.openingAreaUnit ?? (isImperialUnit(unit) ? "sqft" : "sqm"),
         )
       : positive(room.openingAreaM2);
   const openingAreaM2 = Math.min(requestedOpening, wallAreaGrossM2);
@@ -482,6 +547,7 @@ export function roomMetrics(room: RenovationRoomInput): RenovationRoomMetrics {
     wallAreaNetM2: round(wallAreaNetM2),
     ceilingAreaM2: round(floorAreaM2),
     skirtingLengthM: round(skirtingLengthM),
+    unit: room.unit ?? null,
   };
 }
 
@@ -628,7 +694,7 @@ export function calculateRenovation(
       );
       continue;
     }
-    if (unit === "ft") {
+    if (isImperialUnit(unit)) {
       assumptions.push(
         `Room ${metrics.name} was entered in feet and converted at ${FEET_TO_METRES} m per foot.`,
       );
@@ -968,7 +1034,7 @@ export function calculateRenovation(
           unit: "m2",
           basis: `${metrics.wallAreaNetM2} m2 net wall area at ${thicknessMm} mm${patchesOnly ? ", measured as a patch allowance over the whole wall" : ""}.`,
           wastePercent: PLASTER_WASTAGE_PERCENT,
-          wasteReason: "Site loss on mortar (5 percent).",
+          wasteReason: `Site loss on mortar (${PLASTER_WASTAGE_PERCENT} percent).`,
           costClass: "labour",
           taxClass: "works",
           provenance: patchesOnly ? "derived_convention" : "measured",
@@ -1114,6 +1180,8 @@ export function calculateRenovation(
       }
 
       for (const surface of surfaces) {
+        // Net area is the measured quantity; the buy figure is carried as
+        // waste plus rounding, never folded into the quantity.
         const areaToBuy = surface.areaM2 * (1 + layoutWaste / 100);
         lines.push(
           line({
@@ -1121,10 +1189,11 @@ export function calculateRenovation(
             trade: "tiling",
             roomId: metrics.id,
             roomName,
-            description: `${surface.label} including cutting waste`,
-            quantity: round(areaToBuy, 2),
+            description: surface.label,
+            quantity: round(surface.areaM2, 2),
+            exactQuantity: surface.areaM2,
             unit: "m2",
-            basis: `${surface.areaM2} m2 measured, plus ${layoutWaste} percent cutting waste for ${room.layout ?? "standard_residential"} layout = ${round(areaToBuy, 2)} m2 to buy.`,
+            basis: `${surface.areaM2} m2 measured net. With ${layoutWaste} percent cutting waste for ${room.layout ?? "standard_residential"} layout, buy ${round(areaToBuy, 2)} m2.`,
             wastePercent: layoutWaste,
             wasteReason: `Cutting and breakage for ${room.layout ?? "standard_residential"} layout.`,
             costClass: "material",
@@ -1232,10 +1301,13 @@ export function calculateRenovation(
           trade: "flooring",
           roomId: metrics.id,
           roomName,
-          description: `${flooringSpec.material ? flooringSpec.material : "New floor finish"} including waste`,
-          quantity: round(metrics.floorAreaM2 * (1 + layoutWaste / 100), 2),
+          description: flooringSpec.material
+            ? flooringSpec.material
+            : "New floor finish",
+          quantity: round(metrics.floorAreaM2, 2),
+          exactQuantity: metrics.floorAreaM2,
           unit: "m2",
-          basis: `${metrics.floorAreaM2} m2 plus ${layoutWaste} percent waste for the stated layout.`,
+          basis: `${metrics.floorAreaM2} m2 measured net. With ${layoutWaste} percent waste for the stated layout, buy ${round(metrics.floorAreaM2 * (1 + layoutWaste / 100), 2)} m2.`,
           wastePercent: layoutWaste,
           wasteReason: "Cutting and setting out waste.",
           costClass: "material",
@@ -1265,10 +1337,13 @@ export function calculateRenovation(
     // --- painting --------------------------------------------------------
     if (work.paint) {
       const paintSpec = typeof work.paint === "object" ? work.paint : {};
-      const coats = Math.max(
-        1,
-        Math.round(positive(paintSpec.coats) || paintCoats),
-      );
+      const statedCoats = positive(paintSpec.coats);
+      const coats = Math.max(1, Math.round(statedCoats || paintCoats));
+      if (statedCoats > 4) {
+        warnings.push(
+          `Room ${roomName}: ${statedCoats} coats were stated. Four is the practical maximum for a renovation, so check the number rather than ordering against it.`,
+        );
+      }
       // A wall that has just been plastered or had its tiles hacked off behaves
       // like bare plaster, whatever it used to be. Using the old surface
       // description there would under order paint by about a third of a coat.
@@ -1329,7 +1404,7 @@ export function calculateRenovation(
             unit: "m2",
             basis: `${surfaceRow.areaM2} m2 x ${coats} coats = ${round(paintedArea, 2)} m2 of paint application.`,
             wastePercent: paintWaste,
-            wasteReason: "Roller and tray loss, plus touching up (10 percent).",
+            wasteReason: `Roller and tray loss, plus touching up (${paintWaste} percent).`,
             costClass: "labour",
             taxClass: "works",
             provenance: "measured",
@@ -1342,8 +1417,9 @@ export function calculateRenovation(
           // so the same area needs more paint. Dividing by the factor is what
           // makes fresh plaster cost more than a repaint.
           const effectiveCoverage = coverage * surfaceFactor;
-          const litres =
-            (paintedArea / effectiveCoverage) * (1 + paintWaste / 100);
+          // Litres are net; the ten percent loss is carried as the line's
+          // own waste allowance and repeated in quantityWithWaste.
+          const litres = paintedArea / effectiveCoverage;
           lines.push(
             line({
               id: `${metrics.id}-paint-${surfaceRow.key}-litres`,
@@ -1352,11 +1428,11 @@ export function calculateRenovation(
               roomName,
               description: `${surfaceRow.label} paint quantity`,
               quantity: round(litres, 1),
+              exactQuantity: litres,
               unit: "L",
-              basis: `${round(paintedArea, 2)} m2 ÷ (${coverage} m2 per litre x ${surfaceFactor} surface factor) x ${1 + paintWaste / 100} waste = ${round(litres, 1)} L.`,
+              basis: `${round(paintedArea, 2)} m2 ÷ (${coverage} m2 per litre x ${surfaceFactor} surface factor) = ${round(litres, 1)} L net, plus ${paintWaste} percent loss = ${round(litres * (1 + paintWaste / 100), 1)} L to buy.`,
               wastePercent: paintWaste,
-              wasteReason:
-                "Roller and tray loss, plus touching up (10 percent).",
+              wasteReason: `Roller and tray loss, plus touching up (${paintWaste} percent).`,
               costClass: "material",
               taxClass: "materials",
               provenance: "measured",
@@ -1805,6 +1881,14 @@ export function calculateRenovation(
 
   // Contingency: only when the user sets it.
   const contingencyPercent = Number(input.contingencyPercent);
+  if (
+    Number.isFinite(contingencyPercent) &&
+    (contingencyPercent < 0 || contingencyPercent > 25)
+  ) {
+    warnings.push(
+      `A contingency of ${round(contingencyPercent, 2)} percent is outside the normal range for a renovation. It has been carried as stated because it is the user's number, and it is applied by the estimating layer.`,
+    );
+  }
   if (Number.isFinite(contingencyPercent) && contingencyPercent > 0) {
     lines.push(
       line({
@@ -1813,7 +1897,7 @@ export function calculateRenovation(
         roomId: null,
         roomName: null,
         description: "Contingency for unknown conditions",
-        quantity: round(clamp(contingencyPercent, 0, 100), 2),
+        quantity: round(contingencyPercent, 2),
         unit: "%",
         basis: `${round(contingencyPercent, 2)} percent stated by the user, applied to the priced works by the estimating layer.`,
         costClass: "allowance",
@@ -1862,7 +1946,9 @@ export function calculateRenovation(
   return {
     marketCode,
     currencyCode,
-    measurementSystem: input.measurementSystem ?? "metric",
+    measurementSystem:
+      input.measurementSystem ??
+      (rooms.some((room) => isImperialUnit(room.unit)) ? "imperial" : "metric"),
     rooms,
     lines,
     labourFactor,
@@ -1879,8 +1965,8 @@ export function calculateRenovation(
       containerCapacityM3,
     },
     quantitiesByUnit,
-    assumptions,
-    warnings,
+    assumptions: [...new Set(assumptions)],
+    warnings: [...new Set(warnings)],
     flags: [...flags],
     readiness: { status, blockers },
   };
@@ -1900,6 +1986,7 @@ export function renovationScopeRegister(
   room: string;
   description: string;
   quantity: number | null;
+  quantityWithWaste: number | null;
   unit: string;
   basis: string;
   wastePercent: number;
@@ -1911,15 +1998,22 @@ export function renovationScopeRegister(
       row.quantity === null
         ? { quantity: null, unit: row.unit }
         : convertRenovationQuantity(row.quantity, row.unit, system);
+    const withWaste =
+      row.quantityWithWaste === null
+        ? { quantity: null, unit: row.unit }
+        : convertRenovationQuantity(row.quantityWithWaste, row.unit, system);
     return {
       trade: row.trade,
       tradeLabel: RENOVATION_TRADE_LABELS[row.trade],
-      room: row.roomName ?? "Whole project",
-      description: row.description,
+      // User supplied wording can land in a cell, so anything a spreadsheet
+      // would run as a formula is defused before it leaves the engine.
+      room: spreadsheetSafe(row.roomName ?? "Whole project"),
+      description: spreadsheetSafe(row.description),
       quantity: shown.quantity,
+      quantityWithWaste: withWaste.quantity,
       unit: shown.unit,
       // The arithmetic stays metric so the register can always be checked.
-      basis: row.basis,
+      basis: spreadsheetSafe(row.basis),
       wastePercent: row.wastePercent,
       provenance: row.provenance,
     };
@@ -2044,11 +2138,13 @@ export function convertRenovationQuantity(
 export function renovationTotalsByUnit(
   result: RenovationEngineResult,
   system: "metric" | "imperial" = "metric",
+  options: { includeWaste?: boolean } = {},
 ): Array<{ unit: string; quantity: number }> {
   const totals = new Map<string, number>();
   for (const row of result.lines) {
-    if (row.quantity === null || !Number.isFinite(row.quantity)) continue;
-    const shown = convertRenovationQuantity(row.quantity, row.unit, system);
+    const value = options.includeWaste ? row.quantityWithWaste : row.quantity;
+    if (value === null || !Number.isFinite(value)) continue;
+    const shown = convertRenovationQuantity(value, row.unit, system);
     totals.set(shown.unit, (totals.get(shown.unit) ?? 0) + shown.quantity);
   }
   return [...totals.entries()].map(([unit, quantity]) => ({
