@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
@@ -209,6 +210,12 @@ export default function StandaloneTakeoffPage({
   const [bridgeProvenance, setBridgeProvenance] = useState("");
   const [engine, setEngine] = useState<Engine>(initialEngine);
   const [marketCode, setMarketCode] = useState(market.marketCode);
+  // Imperial markets measure walls in feet, so the wall fields and the engine
+  // have to agree on the unit. The engine converts; the label states the unit.
+  const wallLengthUnit: "m" | "ft" =
+    resolveMarketRoomUnit({ ...market, marketCode }, "meters") === "feet"
+      ? "ft"
+      : "m";
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
   // The building sized in the shared bar is the default here, so a user who has
@@ -408,6 +415,7 @@ export default function StandaloneTakeoffPage({
             selectedUnitId: unitId || undefined,
             wastePercent: number("waste", 5),
             leafCount: selectedLeaves,
+            lengthUnit: wallLengthUnit,
           });
           next = measured.result;
           // Trace the total back to the rooms, and quote the openings the engine
@@ -828,8 +836,8 @@ export default function StandaloneTakeoffPage({
               )}
               {engine === "masonry" && (
                 <>
-                  {field("length", "Wall length")}{" "}
-                  {field("height", "Wall height")}{" "}
+                  {field("length", "Wall length", wallLengthUnit)}{" "}
+                  {field("height", "Wall height", wallLengthUnit)}{" "}
                   {field("count", "Number of similar walls", "walls", 1)}{" "}
                   {field("waste", "Cut/breakage allowance", "%")}
                 </>

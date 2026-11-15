@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { calculateRenovation } from "@/lib/estimation/renovation-engine";
 import {
+  MASONRY_MARKET_REGISTRY,
+  calculateMasonryTakeoff,
+} from "@/lib/estimation/masonry-standalone-engine";
+import {
   ETHEKWINI_1H_36601_LINES,
   ETHEKWINI_1H_36601_PER_UNIT,
   ETHEKWINI_1H_36601_SOURCE,
@@ -184,5 +188,134 @@ describe("the engine's skirting against the measured project", () => {
       .reduce((sum, row) => sum + (row.quantity ?? 0), 0);
     expect(fromLines).toBeGreaterThan(0);
     expect(total).toBeGreaterThan(fromLines * 0.5);
+  });
+});
+
+/**
+ * The masonry engine, checked against the walls this project actually paid for.
+ *
+ * The bill states 1,451 m2 of 190 mm superstructure blockwork in M200 blocks
+ * and 788 m2 of 90 mm in M100 blocks, both laid in 390 x 190 units with 10 mm
+ * joints, which is the ordinary South African module. That fixes the block
+ * count per square metre and the relative cement between the two thicknesses,
+ * so both can be tested without inventing an expectation.
+ */
+describe("the masonry engine against the measured walls", () => {
+  const area = (m2: number) => ({
+    wallLengthM: m2,
+    wallHeightM: 1,
+    wallCount: 1,
+  });
+
+  it("offers the 190 mm and 90 mm units this project uses", () => {
+    const za = MASONRY_MARKET_REGISTRY.ZA;
+    const ids = za.availableUnits.map((unit) => unit.id);
+    expect(ids).toContain("za-concrete-block-190");
+    expect(ids).toContain("za-concrete-block-90");
+    const thick = za.availableUnits.find(
+      (unit) => unit.id === "za-concrete-block-190",
+    );
+    expect(thick?.lengthMm).toBe(390);
+    expect(thick?.heightMm).toBe(190);
+    expect(thick?.widthMm).toBe(190);
+    expect(thick?.standardJointMm).toBe(10);
+  });
+
+  it("counts twelve and a half blocks to the square metre", () => {
+    const result = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(100),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    // 1 / (0.40 x 0.20) with the 10 mm joint in both directions.
+    expect(result.unitsPerM2).toBeCloseTo(12.5, 2);
+    expect(result.unitsRequiredNet).toBe(1250);
+    expect(result.unitsRequiredGross).toBe(1313); // 1250 + 5 percent, rounded up
+  });
+
+  it("carries the 190 mm superstructure area to a block order", () => {
+    const result = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(1451),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    expect(result.unitsRequiredNet).toBe(18138); // 1451 x 12.5
+    expect(result.unitsRequiredGross).toBe(19045);
+    expect(result.leafCount).toBe(1);
+  });
+
+  it("keeps mortar inside the published allowance for a hollow 190 mm wall", () => {
+    const result = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(1),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    // Industry allowance for hollow block is 0.012 to 0.022 m3 of wet mortar
+    // per square metre of 200 mm wall; a 190 mm unit scales below that ceiling.
+    expect(result.mortarVolumeM3Net).toBeGreaterThan(0.012);
+    expect(result.mortarVolumeM3Net).toBeLessThan(0.022);
+  });
+
+  it("spends cement in proportion to the wall thickness", () => {
+    const thick = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(100),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    const thin = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(100),
+      selectedUnitId: "za-concrete-block-90",
+    });
+    // Same face count, so the 90 mm block takes 90/190 of the mortar.
+    const ratio = thin.mortarVolumeM3Net / thick.mortarVolumeM3Net;
+    expect(ratio).toBeCloseTo(90 / 190, 2);
+    // Both walls still need the same number of blocks per square metre.
+    expect(thin.unitsRequiredNet).toBe(thick.unitsRequiredNet);
+  });
+
+  it("reaches the project total for all 2,414 m2 of blockwork", () => {
+    const total = ETHEKWINI_1H_36601_TOTALS.blockworkAreaM2;
+    const result = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(total),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    expect(result.netWallAreaM2).toBe(total);
+    expect(result.unitsRequiredNet).toBe(Math.round(total * 12.5));
+  });
+
+  it("deducts the openings the bill had already deducted", () => {
+    const gross = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(100),
+      selectedUnitId: "za-concrete-block-190",
+    });
+    const withOpenings = calculateMasonryTakeoff({
+      marketCode: "ZA",
+      ...area(100),
+      selectedUnitId: "za-concrete-block-190",
+      openings: [
+        {
+          id: "w",
+          description: "windows",
+          widthM: 1.2,
+          heightM: 1.5,
+          quantity: 2,
+        },
+        {
+          id: "d",
+          description: "door",
+          widthM: 0.9,
+          heightM: 2.1,
+          quantity: 1,
+        },
+      ] as never,
+    });
+    expect(withOpenings.openingsAreaM2).toBeCloseTo(5.49, 2);
+    expect(withOpenings.netWallAreaM2).toBeCloseTo(94.51, 2);
+    expect(withOpenings.unitsRequiredGross).toBeLessThan(
+      gross.unitsRequiredGross,
+    );
   });
 });

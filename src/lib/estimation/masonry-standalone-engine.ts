@@ -1,4 +1,5 @@
 import { sandTonnes } from "@/lib/materials/sand-units";
+import { lengthToM, type LengthUnit } from "./units";
 import { getPackagingEvidence } from "./market-packaging-verification";
 
 /**
@@ -611,6 +612,34 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardJointMm: 10,
         standardMixRatio: "1:4",
         sourceStandard: "SANS 1215 (Concrete masonry units)",
+      },
+      {
+        // The ordinary South African internal and external wall block. A live
+        // housing contract at Bluff, Durban (eThekwini 1H-36601) bills its
+        // superstructure in exactly this unit, so the registry needs it to
+        // price a local job without the user hand-entering dimensions.
+        id: "za-concrete-block-190",
+        name: "Hollow Concrete Block (390x190x190mm), 190mm wall",
+        category: "cmu",
+        lengthMm: 390,
+        heightMm: 190,
+        widthMm: 190,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:5",
+        sourceStandard: "SANS 1215 (Concrete masonry units), 7 MPa class",
+      },
+      {
+        id: "za-concrete-block-90",
+        name: "Hollow Concrete Block (390x90x190mm), 90mm wall",
+        category: "cmu",
+        lengthMm: 390,
+        heightMm: 190,
+        widthMm: 90,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:5",
+        sourceStandard: "SANS 1215 (Concrete masonry units), 3.5 MPa class",
       },
     ],
     regulatoryNote:
@@ -1285,6 +1314,32 @@ export const MASONRY_MARKET_REGISTRY: Record<string, MarketMasonryConfig> = {
         standardMixRatio: "1:4",
         sourceStandard: "SIA 266",
       },
+      {
+        // A single unit profile left Switzerland unable to price anything but a
+        // 150 mm wall. Partitions and external walls are the two ordinary cases.
+        id: "ch-modulbackstein-100",
+        name: "Swiss Modul Backstein (290x150x100mm), 100mm partition",
+        category: "clay_block",
+        lengthMm: 290,
+        heightMm: 140,
+        widthMm: 100,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:4",
+        sourceStandard: "SIA 266 (Mauerwerk), 100 mm partition",
+      },
+      {
+        id: "ch-kalksandstein-200",
+        name: "Kalksandstein Block (290x150x200mm), 200mm wall",
+        category: "clay_block",
+        lengthMm: 290,
+        heightMm: 140,
+        widthMm: 200,
+        isHollow: true,
+        standardJointMm: 10,
+        standardMixRatio: "1:4",
+        sourceStandard: "SIA 266 (Mauerwerk), 200 mm external wall",
+      },
     ],
     regulatoryNote:
       "Schweizerischer Ingenieur- und Architektenverein Norm SIA 266 (Mauerwerk).",
@@ -1667,6 +1722,13 @@ export interface MasonryCalculationInput {
   mortarMixRatio?: "1:3" | "1:4" | "1:5" | "1:6";
   wastePercent?: number; // default 5%
   /**
+   * The unit the wall length and height are entered in. Feet are as ordinary as
+   * metres in this app, and a wall typed in feet must be read as feet rather
+   * than as a very small metric wall. Defaults to metres, so every existing
+   * caller keeps its behaviour.
+   */
+  lengthUnit?: LengthUnit;
+  /**
    * How many leaves the entered wall area represents. The area is always read
    * as ONE leaf's face, so a UK cavity wall (two leaves) or a Chinese 240 mm
    * wall (a 115 mm face repeated through the thickness) needs 2. Left unset it
@@ -1682,6 +1744,8 @@ export interface MasonryCalculationResult {
   openingsAreaM2: number;
   netWallAreaM2: number;
   unit: MasonryUnitProfile;
+  /** The unit the caller entered the wall in, echoed back for the UI. */
+  lengthUnit: LengthUnit;
   unitsPerM2: number;
   /** Units per square metre of the entered face, i.e. per leaf. */
   unitsPerM2Effective: number;
@@ -1744,8 +1808,17 @@ export function calculateMasonryTakeoff(
 ): MasonryCalculationResult {
   const config = resolveMarketMasonryConfig(input.marketCode);
   const wallCount = Math.max(1, input.wallCount ?? 1);
-  const wallLength = Math.max(0, Number(input.wallLengthM) || 0);
-  const wallHeight = Math.max(0, Number(input.wallHeightM) || 0);
+  const entryUnit: LengthUnit = input.lengthUnit ?? "m";
+  // Convert on the way in. A null conversion means the unit is not one we
+  // maintain, so the dimension is treated as unread rather than guessed.
+  const wallLength = Math.max(
+    0,
+    lengthToM(Number(input.wallLengthM) || 0, entryUnit) ?? 0,
+  );
+  const wallHeight = Math.max(
+    0,
+    lengthToM(Number(input.wallHeightM) || 0, entryUnit) ?? 0,
+  );
   const wastePercent = Math.max(0, Number(input.wastePercent ?? 5) || 0);
 
   let activeUnit: MasonryUnitProfile = config.defaultUnit;
@@ -1787,10 +1860,13 @@ export function calculateMasonryTakeoff(
   let openingsAreaM2 = 0;
   if (input.openings && input.openings.length > 0) {
     for (const op of input.openings) {
+      // Openings are entered in the same unit as the wall they sit in.
+      const openingWidthM =
+        lengthToM(Math.max(0, Number(op.widthM) || 0), entryUnit) ?? 0;
+      const openingHeightM =
+        lengthToM(Math.max(0, Number(op.heightM) || 0), entryUnit) ?? 0;
       openingsAreaM2 +=
-        Math.max(0, Number(op.widthM) || 0) *
-        Math.max(0, Number(op.heightM) || 0) *
-        Math.max(1, Number(op.quantity) || 1);
+        openingWidthM * openingHeightM * Math.max(1, Number(op.quantity) || 1);
     }
   }
   const netWallAreaM2 = Math.max(0, grossWallAreaM2 - openingsAreaM2);
@@ -1802,7 +1878,14 @@ export function calculateMasonryTakeoff(
   const unitWidthM = activeUnit.widthMm / 1000.0;
   const jointM = jointMm / 1000.0;
 
-  const faceAreaWithJoint = (unitLengthM + jointM) * (unitHeightM + jointM);
+  // Round the module before dividing. In binary floating point a 390 mm unit
+  // with a 10 mm joint lands on 0.08000000000000002 m², so 1,451 m² of wall
+  // computed 12.4999 blocks per square metre and ordered one block short of
+  // the 18,137.5 the arithmetic asks for. A module is an exact decimal area;
+  // rounding at nine places keeps it one.
+  const faceAreaWithJoint = Number(
+    ((unitLengthM + jointM) * (unitHeightM + jointM)).toFixed(9),
+  );
   const unitsPerM2 = faceAreaWithJoint > 0 ? 1.0 / faceAreaWithJoint : 0;
   // Every leaf carries the same face count and the same mortar, so the whole
   // take-off scales with the leaf count rather than silently billing one.
@@ -1874,6 +1957,7 @@ export function calculateMasonryTakeoff(
     openingsAreaM2: Number(openingsAreaM2.toFixed(2)),
     netWallAreaM2: Number(netWallAreaM2.toFixed(2)),
     unit: activeUnit,
+    lengthUnit: entryUnit,
     unitsPerM2: Number(unitsPerM2.toFixed(2)),
     unitsPerM2Effective: Number(unitsPerM2Effective.toFixed(2)),
     leafCount,
