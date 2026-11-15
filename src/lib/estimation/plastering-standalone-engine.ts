@@ -48,6 +48,10 @@ export interface PlasteringCalculationResult {
   sandVolumeM3: number;
   sandWeightTonnes: number;
   sandWheelbarrows?: number;
+  /** Substrate roughness allowance applied to the wet volume, as a percentage. */
+  roughnessAllowancePercent: number;
+  /** Waste allowance applied to the dry batch, as entered by the user. */
+  wastePercentApplied: number;
   bondingAgentLiters?: number;
   waterLiters: number;
   estimatedLaborHours: {
@@ -218,13 +222,17 @@ export function calculatePlasteringTakeoff(
     sandVolumeM3: Number(sandVolM3.toFixed(2)),
     sandWeightTonnes,
     sandWheelbarrows,
+    roughnessAllowancePercent: Number((roughnessAllowance * 100).toFixed(2)),
+    wastePercentApplied: wastePercent,
     bondingAgentLiters,
     waterLiters,
     estimatedLaborHours: {
       plastererHours,
       tenderHours,
     },
-    marketNotes: `${packagingEvidence.guidance} Dry batch factor 1.33 is an estimate, not a local code requirement.`,
+    marketNotes: `${packagingEvidence.guidance} Two allowances are applied and are not the same thing: a ${Number(
+      (roughnessAllowance * 100).toFixed(2),
+    )} percent substrate roughness allowance, which is already inside the wet volume, and a ${wastePercent} percent waste allowance on the dry batch. Dry batch factor 1.33 is an estimate, not a local code requirement.`,
     packagingEvidence,
   };
 }
