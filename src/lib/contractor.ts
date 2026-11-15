@@ -5,6 +5,11 @@
  * waste factor intelligence, surface assessment, material recommendations.
  */
 import { supabase } from "@/lib/supabase";
+import {
+  checkInvoiceFigures,
+  checkPaymentLink,
+  roundMoney,
+} from "@/lib/project-money";
 import { computeQuoteTax, resolveQuoteTax } from "@/lib/tax/quote-tax";
 import { resolveSettlementFx } from "@/lib/fx/settlement-fx";
 import { fetchTaxValidationState } from "@/lib/tax/fixture-validation";
@@ -2346,9 +2351,12 @@ export async function createProjectInvoice(
 ): Promise<DbProjectInvoice> {
   if (!currency)
     throw new Error("Project currency is required to raise an invoice");
-  if (!Number.isFinite(input.total) || input.total < 0) {
-    throw new Error("Invoice total must be zero or more");
-  }
+  const figures = checkInvoiceFigures({
+    subtotal: Number(input.subtotal),
+    tax_amount: Number(input.tax_amount ?? 0),
+    total: Number(input.total),
+  });
+  if (!figures.ok) throw new Error(figures.message ?? "Invalid invoice figures");
 
   const { data, error } = await supabase
     .from("project_invoices")
@@ -2358,10 +2366,10 @@ export async function createProjectInvoice(
       title: input.title?.trim() || null,
       issued_at: input.issued_at,
       due_at: input.due_at || null,
-      subtotal: input.subtotal,
+      subtotal: roundMoney(Number(input.subtotal)),
       tax_rate: input.tax_rate ?? 0,
-      tax_amount: input.tax_amount ?? 0,
-      total: input.total,
+      tax_amount: roundMoney(Number(input.tax_amount ?? 0)),
+      total: roundMoney(Number(input.total)),
       status: input.status ?? "sent",
       notes: input.notes?.trim() || null,
     })
@@ -2389,6 +2397,45 @@ export async function updateProjectInvoice(
     >
   >,
 ): Promise<void> {
+  // A partial update can still store money values, and it used to write them
+  // unchecked: a NaN or negative total reached the row and every total derived
+  // from it afterwards. Any figure supplied must be a usable amount, and the row
+  // is re-read so subtotal plus tax can be compared with the total the update
+  // would produce.
+  const supplied = (["subtotal", "tax_amount", "total"] as const).filter(
+    (key) => updates[key] !== undefined,
+  );
+  for (const key of supplied) {
+    const value = Number(updates[key]);
+    if (!Number.isFinite(value) || value < 0) {
+      throw new Error(
+        `Invoice ${key.replace("_", " ")} must be zero or more`,
+      );
+    }
+  }
+
+  if (supplied.length > 0) {
+    const { data: current, error: readError } = await supabase
+      .from("project_invoices")
+      .select("subtotal, tax_amount, total")
+      .eq("id", id)
+      .maybeSingle();
+    if (readError) throw new Error(`Failed to read invoice: ${readError.message}`);
+
+    const existing = current as {
+      subtotal: number;
+      tax_amount: number;
+      total: number;
+    } | null;
+    const figures = checkInvoiceFigures({
+      subtotal: Number(updates.subtotal ?? existing?.subtotal ?? 0),
+      tax_amount: Number(updates.tax_amount ?? existing?.tax_amount ?? 0),
+      total: Number(updates.total ?? existing?.total ?? 0),
+    });
+    if (!figures.ok)
+      throw new Error(figures.message ?? "Invalid invoice figures");
+  }
+
   const { error } = await supabase
     .from("project_invoices")
     .update(updates)
@@ -2397,6 +2444,23 @@ export async function updateProjectInvoice(
 }
 
 export async function deleteProjectInvoice(id: string): Promise<void> {
+  // Payments reference the invoice with ON DELETE SET NULL, so deleting an
+  // invoice that has been paid turned those payments into unallocated cash,
+  // which the ledger then applies to the oldest open bill. That rewrites
+  // history: money the client paid here quietly settles an invoice they never
+  // paid. A paid invoice is voided instead, which keeps both records.
+  const { count, error: countError } = await supabase
+    .from("project_payments")
+    .select("id", { count: "exact", head: true })
+    .eq("invoice_id", id);
+  if (countError)
+    throw new Error(`Failed to check invoice payments: ${countError.message}`);
+  if ((count ?? 0) > 0) {
+    throw new Error(
+      `This invoice has ${count} payment(s) recorded. Void it instead of deleting, so the payments stay attached to the bill they settled.`,
+    );
+  }
+
   const { error } = await supabase
     .from("project_invoices")
     .delete()
@@ -2438,13 +2502,35 @@ export async function createProjectPayment(
     throw new Error("Payment amount must be more than zero");
   }
 
+  // A payment names an invoice of this project or none at all. Linking to
+  // another project's invoice made that ledger read the bill as settled while
+  // this project held the cash as credit.
+  if (input.invoice_id) {
+    const { data: linked, error: linkError } = await supabase
+      .from("project_invoices")
+      .select("project_id, currency")
+      .eq("id", input.invoice_id)
+      .maybeSingle();
+    if (linkError)
+      throw new Error(`Failed to check the invoice: ${linkError.message}`);
+    const link = checkPaymentLink({
+      projectId,
+      paymentCurrency: currency,
+      invoice: (linked as {
+        project_id: string;
+        currency: string;
+      } | null) ?? null,
+    });
+    if (!link.ok) throw new Error(link.message ?? "Invalid invoice");
+  }
+
   const { data, error } = await supabase
     .from("project_payments")
     .insert({
       project_id: projectId,
       invoice_id: input.invoice_id || null,
       currency,
-      amount: input.amount,
+      amount: roundMoney(input.amount),
       method: input.method,
       reference: input.reference?.trim() || null,
       paid_at: input.paid_at,

@@ -259,4 +259,50 @@ describe("daysBetween", () => {
     expect(daysBetween("2026-11-05T23:30:00Z", "2026-11-06T00:15:00Z")).toBe(1);
     expect(daysBetween("2026-11-12", "2026-11-05")).toBe(-7);
   });
+
+  it("keeps a ledger readable when the project has no currency", () => {
+    const summary = summariseLedger({
+      invoices: [invoice({ currency: "" })],
+      payments: [payment({ amount: 400, currency: "" })],
+      expenses: [],
+      currency: "",
+      today: "2026-11-10",
+    });
+    expect(summary.invoicedTotal).toBe(1000);
+    expect(summary.paidTotal).toBe(400);
+    expect(summary.outstandingTotal).toBe(600);
+    expect(summary.currencyMismatch).toBeNull();
+    expect(summary.currency).toBeNull();
+  });
+
+  it("measures settlement from cash applied to bills, not from cash held", () => {
+    const summary = summariseLedger({
+      invoices: [
+        invoice({ id: "inv-1", total: 1000 }),
+        invoice({ id: "inv-2", number: "INV-0002", total: 500, status: "draft" }),
+      ],
+      payments: [
+        // Paid against the draft invoice: held on account, not settlement.
+        payment({ id: "pay-1", invoice_id: "inv-2", amount: 1200 }),
+      ],
+      expenses: [],
+      currency: "NGN",
+      today: "2026-11-10",
+    });
+    expect(summary.invoicedTotal).toBe(1000);
+    expect(summary.credit).toBe(1200);
+    expect(summary.outstandingTotal).toBe(1000);
+    // All cash received divided by billed value would read 120.
+    expect(summary.collectionRate).toBe(0);
+  });
+
+  it("rounds invoice balances through the shared cent rule", () => {
+    const [row] = allocatePayments(
+      [invoice({ total: 8.165 })],
+      [],
+      "2026-11-10",
+    );
+    expect(row.total).toBe(8.17);
+    expect(row.balance).toBe(8.17);
+  });
 });

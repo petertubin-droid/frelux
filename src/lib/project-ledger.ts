@@ -17,6 +17,8 @@
  *   silently added, because 500 USD plus 500 GBP is not 1000 of anything.
  */
 
+import { roundMoney } from "./project-money";
+
 export type InvoiceStatus = "unpaid" | "part_paid" | "paid" | "overdue";
 
 export interface LedgerInvoice {
@@ -63,14 +65,19 @@ export interface LedgerSummary {
   projectedMargin: number;
   /** Cash received less recorded spend. */
   cashPosition: number;
-  /** Cash received as a share of billed value, 0 to 100, null when nothing is billed. */
+  /**
+   * Cash applied to billed invoices as a share of billed value, 0 to 100, null
+   * when nothing is billed. Money held on account is excluded.
+   */
   collectionRate: number | null;
   /** Set when rows carry another currency and totals could not include them. */
   currencyMismatch: { currencies: string[]; ignoredRows: number } | null;
 }
 
-const round2 = (value: number) =>
-  Math.round((value + Number.EPSILON) * 100) / 100;
+// Balances, invoices and printed documents round through the same function, so
+// a cent cannot appear or vanish between the summary and the invoice it came
+// from.
+const round2 = roundMoney;
 const EPSILON = 0.004;
 const dayMs = 24 * 60 * 60 * 1000;
 
@@ -214,8 +221,14 @@ export function summariseLedger(input: LedgerInput): LedgerSummary {
   const currencies = new Set<string>();
   let ignoredRows = 0;
 
+  /**
+   * Rows are compared with the project currency only when the project has one.
+   * An unset project currency used to make every row look foreign, so the whole
+   * ledger read zero and the mismatch notice named an empty currency.
+   */
   const inProjectCurrency = (code: string) => {
     const normalised = (code || "").toUpperCase();
+    if (!projectCurrency) return true;
     if (normalised && normalised !== projectCurrency) {
       currencies.add(normalised);
       ignoredRows += 1;
@@ -275,8 +288,17 @@ export function summariseLedger(input: LedgerInput): LedgerSummary {
     expensesMissingReceipt: expenses.length - expensesWithReceipts,
     projectedMargin: round2(invoicedTotal - expenseTotal),
     cashPosition: round2(paidTotal - expenseTotal),
+    // Cash applied to billable invoices, as a share of billed value. Money held
+    // on account is not settlement of a bill, and dividing all cash received by
+    // the billed total let this exceed 100 when a payment named a draft invoice.
     collectionRate:
-      invoicedTotal > 0 ? Math.round((paidTotal / invoicedTotal) * 100) : null,
+      invoicedTotal > 0
+        ? Math.round(
+            (balances.reduce((sum, invoice) => sum + invoice.paid, 0) /
+              invoicedTotal) *
+              100,
+          )
+        : null,
     currencyMismatch:
       currencies.size > 0
         ? { currencies: mismatchCurrencies, ignoredRows }
