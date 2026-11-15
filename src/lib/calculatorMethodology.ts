@@ -199,11 +199,13 @@ Lengths include the hooks, bends and laps for the bar size and the concrete grad
 
 The schedule is grouped by diameter so the page reports the tonnage you order per size, which is how reinforcement is actually bought.`,
 
-  "roof-framing": `The roof is set by the span, the pitch and the overhang. Rafter length is the half span plus the overhang, divided by the cosine of the pitch, so pitch changes the member length before it changes the count.
+  "roof-framing": `The roof is set by the span, the pitch and the overhang. A common rafter runs from the eave to the ridge, so its length is half the eave width plus the overhang, divided by the cosine of the pitch. Pitch therefore changes the member length before it changes the count.
 
-Rafter spacing sets the number of members across the roof, and purlin spacing sets the number of lines up the slope, which is why members are counted in both directions.
+Rafter spacing sets the number of positions along each eave, and every position is rounded up to a spacing no wider than the one you asked for, which is why the page prints the actual spacing it used.
 
-The ridge, hips and valleys are measured as lengths along their own run, and bracing and binders are added from the span and the roof form you select.`,
+A gable roof counts one ridge along the full extended length and common rafters on both slopes. A hip roof counts a shorter ridge, four hip rafters on the diagonals at half span times the square root of two plus the tangent of the pitch squared, common rafters where they reach the ridge, and jack rafters that stop on a hip.
+
+Purlins, bracing, binders, ties and any valley members are not calculated here: they depend on the sheet or tile you are fixing and on the engineer's bracing layout, so they are entered as measured rows under Additional members. A roof with intersecting planes or valleys is refused rather than approximated.`,
 
   screeding: `Screed volume is the area times the thickness you set, and the area comes from the room dimensions with any openings deducted.
 

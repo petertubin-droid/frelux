@@ -135,10 +135,23 @@ export function calculateHeatComfort(
     MAX_DP,
     Math.max(0, Math.trunc(ruleNumber(input.rules, "rounding_decimals") ?? 2)),
   );
-  const irradiance = ruleNumber(
+  // A vertical wall does not receive the horizontal-plane daily irradiation the
+  // roof rule carries, so a wall comparison reads its own rule when one is
+  // configured. Without it the engine states which figure it used and that the
+  // wall benefit shown is therefore an upper bound, rather than quietly
+  // applying roof insolation to a wall.
+  const horizontalIrradiance = ruleNumber(
     input.rules,
     "solar_irradiance_kwh_per_sqm_day",
   );
+  const wallIrradiance = ruleNumber(
+    input.rules,
+    "wall_solar_irradiance_kwh_per_sqm_day",
+  );
+  const irradiance =
+    st === "wall" && wallIrradiance !== null && wallIrradiance > 0
+      ? wallIrradiance
+      : horizontalIrradiance;
   const threshold = ruleNumber(input.rules, "meaningful_reduction_threshold");
 
   if (irradiance === null || irradiance <= 0) {
@@ -146,6 +159,12 @@ export function calculateHeatComfort(
       "No valid solar_irradiance_kwh_per_sqm_day rule is configured: the reflectance comparison cannot be converted into energy. FRELUX never invents a climate.",
     );
     return result;
+  }
+
+  if (st === "wall" && (wallIrradiance === null || wallIrradiance <= 0)) {
+    result.warnings.push(
+      `No wall_solar_irradiance_kwh_per_sqm_day rule is configured, so the horizontal-plane figure of ${irradiance} kWh/m²/day is being applied to a vertical wall. A vertical surface receives considerably less solar energy than a roof, so the cooling or warming figure below is an upper bound. Configure the wall figure for the site's wall exposure.`,
+    );
   }
 
   // ── 1. Look up both albedos - configured factors only, never assumed ──
@@ -219,10 +238,18 @@ export function calculateHeatComfort(
   }
 
   // ── 5. Direction and the meaningfulness threshold ──
-  if (Math.abs(propAlbedo - curAlbedo) < 0.005) {
+  // The label follows the figure that is actually printed. A fixed 0.005 albedo
+  // deadband used to label a change "no change" while the same result still
+  // reported a non-zero daily delta, so the sentence and the number disagreed.
+  if (deltaKwh === 0) {
     result.direction = "no_change";
+    if (propAlbedo !== curAlbedo) {
+      result.warnings.push(
+        `The albedo changes by ${Math.abs(propAlbedo - curAlbedo)}, which at ${decimals} decimal place(s) rounds the daily energy delta to 0 kWh/day, so the comparison is reported as no change at the displayed precision.`,
+      );
+    }
   } else {
-    result.direction = propAlbedo > curAlbedo ? "cooler" : "warmer";
+    result.direction = deltaKwh > 0 ? "cooler" : "warmer";
   }
 
   if (propAlbedo < curAlbedo) {

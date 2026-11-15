@@ -132,6 +132,10 @@ export interface RetainingWallInput {
 
 export interface RetainingWallGeometry {
   recommended_footing_width_m: number;
+  /** Width from the configured rule scaled for the soil type */
+  rule_based_width_m: number;
+  /** Width from the geotechnical proportion of the retained height */
+  height_based_width_m: number;
   footing_width_m: number;
   footing_factor: number;
   footing_overridden: boolean;
@@ -183,7 +187,10 @@ export function computeRetainingWallStability(
   // Geometry: typical toe projection is ~0.33 of base width
   const b_toe = Math.min(B * 0.33, Math.max(0.1, B - ts));
   const b_heel = Math.max(0, B - b_toe - ts);
-  const stem_height = Math.max(0, H - tf);
+  // The stem holds back the full retained height H and is priced on the same H.
+  // Reducing the stem to H - tf here made a 1.8 m wall a 1.6 m stem retaining
+  // 1.8 m of soil, and understated the stem weight in the stability check.
+  const stem_height = H;
 
   const gamma_concrete = 24; // kN/m³
   const gamma_masonry = 21; // kN/m³
@@ -257,13 +264,27 @@ export function retainingWallGeometry(
     lateritic: 0.6,
   };
   const heightRatio = soilRatios[input.soil_type] ?? 0.55;
-  const recommended = money(rules.footing_width_m * factor);
+  // The base width has to satisfy both the configured minimum (scaled for the
+  // soil) and the geotechnical proportion of the retained height. The height
+  // term was computed here and then dropped, so a 3 m wall was recommended the
+  // same 0.6 m base as a 1 m wall while the step text said the width was
+  // "scaled for ... wall height". It now governs whenever it is larger.
+  const ruleBasedWidth = rules.footing_width_m * factor;
+  const heightBasedWidth = heightRatio * input.height_m;
+  const recommended = money(Math.max(ruleBasedWidth, heightBasedWidth));
 
   const override = input.footing_width_override_m;
   const width =
     override !== null && override !== undefined && override > 0
       ? override
       : recommended;
+  // Rounded like the recommendation, so typing the recommended figure back in
+  // is not reported as an override.
+  const footingOverridden =
+    override !== null &&
+    override !== undefined &&
+    override > 0 &&
+    Math.abs(money(width) - recommended) > 1e-9;
 
   const footingThickness = rules.footing_thickness_m;
 
@@ -284,9 +305,11 @@ export function retainingWallGeometry(
 
   return {
     recommended_footing_width_m: recommended,
+    rule_based_width_m: money(ruleBasedWidth),
+    height_based_width_m: money(heightBasedWidth),
     footing_width_m: money(width),
     footing_factor: factor,
-    footing_overridden: width !== recommended,
+    footing_overridden: footingOverridden,
     footing_thickness_m: footingThickness,
     stability,
     excavation_m3: money(
@@ -321,7 +344,7 @@ export function calculateRetainingWall(
   const steps: SpecialtyStep[] = [
     {
       label: "Recommended footing width",
-      detail: `${rules.footing_width_m} m base (rule) scaled for ${input.height_m} m wall height & ${input.soil_type.replace("_", " ")} = ${geo.recommended_footing_width_m} m`,
+      detail: `the larger of the configured ${rules.footing_width_m} m base scaled for ${input.soil_type.replace("_", " ")} soil (${geo.rule_based_width_m} m) and the geotechnical proportion of the ${input.height_m} m retained height (${geo.height_based_width_m} m) = ${geo.recommended_footing_width_m} m`,
     },
     {
       label: "Footing width used",
@@ -407,7 +430,11 @@ export function calculateRetainingWall(
   }
 
   const bars = Math.ceil(input.length_m / rules.bar_spacing_m) + 1;
-  const barLength = money(bars * (input.height_m + 0.3));
+  // A block stem takes one line of bars in the block cores. A poured stem has a
+  // face each side, so it takes two layers; counting one understated the steel
+  // by half for every concrete-stem wall.
+  const stemLayers = input.stem_type === "concrete" ? 2 : 1;
+  const barLength = money(bars * stemLayers * (input.height_m + 0.3));
   const barLengths = Math.ceil(barLength / 12);
   lines.push({
     key: "rebar",
@@ -416,7 +443,7 @@ export function calculateRetainingWall(
     quantity: barLengths,
     quantity_source: "rule_derived",
     unit: "lengths",
-    detail: `${bars} vertical bars at ${rules.bar_spacing_m} m centres, ${input.height_m} m + 0.3 m lap = ${barLength} m`,
+    detail: `${bars} vertical bar positions at ${rules.bar_spacing_m} m centres × ${stemLayers} ${stemLayers === 1 ? "layer (block cores)" : "layers (both stem faces)"}, each ${input.height_m} m + 0.3 m lap = ${barLength} m`,
     unit_price: null,
     line_total: null,
   });
@@ -437,6 +464,12 @@ export function calculateRetainingWall(
   const priced = priceLines(lines, prices);
 
   const warnings: string[] = [...unpricedWarnings(priced.missing)];
+  warnings.push(
+    "Only the stem's vertical bars and the weep holes are counted. Bottom reinforcement in the footing, horizontal stem bars, and the drainage aggregate behind the wall are not: they follow the engineer's design.",
+  );
+  warnings.push(
+    "This takeoff does not size the wall. Rankine stability is a preliminary check against the soil properties printed above, not a substitute for an engineer's design.",
+  );
   if (input.height_m > 2.5) {
     warnings.push(
       "Walls above 2.5 m are engineering work: a structural engineer must confirm the footing and stem before you build.",

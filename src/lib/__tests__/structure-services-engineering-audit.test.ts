@@ -28,7 +28,9 @@ describe("Building Structure & Services Mathematical Audit Suite", () => {
         },
         DEFAULT_RETAINING_WALL_RULES,
       );
-      expect(geoStable.recommended_footing_width_m).toBe(0.6); // base rule
+      // The geotechnical term governs: stable ratio 0.55 x 1.8 m = 0.99 m,
+      // wider than the 0.60 m configured rule.
+      expect(geoStable.recommended_footing_width_m).toBe(0.99);
       expect(geoStable.stability).toBeDefined();
 
       // 1.8 m wall in wet clay (soil factor 1.3 -> 0.78 m)
@@ -41,7 +43,8 @@ describe("Building Structure & Services Mathematical Audit Suite", () => {
         },
         DEFAULT_RETAINING_WALL_RULES,
       );
-      expect(geoClay.recommended_footing_width_m).toBe(0.78);
+      // Wet clay ratio 0.75 x 1.8 m = 1.35 m, wider than the 0.78 m rule.
+      expect(geoClay.recommended_footing_width_m).toBe(1.35);
       expect(geoClay.footing_factor).toBe(1.3);
       expect(geoClay.stability.ka).toBeGreaterThan(0.4);
     });

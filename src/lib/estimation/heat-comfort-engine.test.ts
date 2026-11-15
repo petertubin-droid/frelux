@@ -110,6 +110,54 @@ describe("calculateHeatComfort", () => {
     expect(r.meaningful_benefit).toBe(false);
   });
 
+  it("scores a wall with its own irradiance rule when one is configured", () => {
+    // Wall exposure 2.5 kWh/m2/day against the 5.5 horizontal figure:
+    // 100 x 2.5 x (0.70 - 0.25) = 112.5 kWh/day, not the 247.5 a roof figure
+    // would report for the same albedo change.
+    const r = calculateHeatComfort(
+      input({
+        surface_type: "wall",
+        current_category: "dark_paint",
+        proposed_category: "white_emulsion",
+        rules: [...baseRules(), rule("wall_solar_irradiance_kwh_per_sqm_day", 2.5)],
+      }),
+    );
+    expect(r.daily_energy_delta_kwh).toBe(112.5);
+    expect(r.warnings.join(" ")).not.toContain("upper bound");
+  });
+
+  it("labels a wall scored with the horizontal figure as an upper bound", () => {
+    const r = calculateHeatComfort(
+      input({
+        surface_type: "wall",
+        current_category: "dark_paint",
+        proposed_category: "white_emulsion",
+      }),
+    );
+    expect(r.ok).toBe(true);
+    expect(r.daily_energy_delta_kwh).toBe(247.5);
+    expect(r.warnings.join(" ")).toContain("upper bound");
+    expect(r.warnings.join(" ")).toContain("wall_solar_irradiance_kwh_per_sqm_day");
+  });
+
+  it("labels a change that rounds the daily delta to zero as no change", () => {
+    // 1 m2 x 5.5 x 0.0001 = 0.00055 kWh/day, which rounds to 0 at 2 dp. The
+    // direction must follow the printed figure, not a fixed albedo deadband.
+    const r = calculateHeatComfort(
+      input({
+        area_sqm: 1,
+        proposed_category: "almost_dark_membrane",
+        factors: {
+          ...factors(),
+          "roof:almost_dark_membrane": { solar_reflectance: 0.2001 },
+        },
+      }),
+    );
+    expect(r.daily_energy_delta_kwh).toBe(0);
+    expect(r.direction).toBe("no_change");
+    expect(r.warnings.join(" ")).toContain("displayed precision");
+  });
+
   it("refuses a finish without a configured factor: never assumes an albedo", () => {
     const r = calculateHeatComfort(
       input({ proposed_category: "unobtainium_coating" }),
