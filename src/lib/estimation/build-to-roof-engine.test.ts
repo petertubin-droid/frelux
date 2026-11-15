@@ -820,3 +820,111 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
     ]);
   });
 });
+
+describe("formwork, membrane and concrete allowances", () => {
+  function stageOf(result: ReturnType<typeof calculateBuildToRoof>, id: string) {
+    const stage = result.stages.find((entry) => entry.stage === id);
+    if (!stage) throw new Error(`stage ${id} missing`);
+    return stage;
+  }
+
+  it("measures a beam's two sides and soffit, not its open top", () => {
+    const result = calculateBuildToRoof(
+      makeValidInput({
+        structural_members: [
+          {
+            id: "b1",
+            type: "suspended_beam",
+            label: "Beam",
+            length: 4,
+            width: 0.23,
+            depth: 0.45,
+            quantity: 1,
+          },
+        ],
+      }),
+    );
+    const frame = stageOf(result, "structural_frame");
+    // 4 m of 230 x 450: soffit 0.23 + two sides 0.9 = 1.13 m2/m, 4.52 m2 total.
+    // Counting the perimeter instead gives 2 x (0.23 + 0.45) = 1.36 m2/m, 5.44.
+    const formwork = frame.materials.find((m) => m.label === "Formwork");
+    expect(formwork?.base_quantity).toBeCloseTo(4.52, 6);
+    const line = frame.quantities.find((q) => q.label === "Beam, formwork");
+    expect(line?.base_quantity).toBeCloseTo(4.52, 6);
+    expect(line?.final_quantity).toBeCloseTo(4.52, 6);
+  });
+
+  it("still measures four sides on a column and the soffit alone on a slab", () => {
+    const result = calculateBuildToRoof(
+      makeValidInput({
+        structural_members: [
+          {
+            id: "c1",
+            type: "column",
+            label: "Column",
+            length: 3,
+            width: 0.225,
+            depth: 0.225,
+            quantity: 2,
+          },
+          {
+            id: "s1",
+            type: "slab",
+            label: "Suspended slab",
+            length: 5,
+            width: 4,
+            depth: 0.15,
+            quantity: 1,
+          },
+        ],
+      }),
+    );
+    const frame = stageOf(result, "structural_frame");
+    // Column: 3 x 2 x (0.225 + 0.225) x 2 = 5.4 m2. Slab soffit: 20 m2.
+    const formwork = frame.materials.find((m) => m.label === "Formwork");
+    expect(formwork?.base_quantity).toBeCloseTo(25.4, 6);
+  });
+
+  it("applies the concrete allowance to structural concrete volume", () => {
+    const result = calculateBuildToRoof(
+      makeValidInput({
+        wastage: { ...DEFAULT_WASTAGE, cement: 5, concrete: 9 },
+        structural_members: [
+          {
+            id: "b1",
+            type: "suspended_beam",
+            label: "Beam",
+            length: 4,
+            width: 0.23,
+            depth: 0.45,
+            quantity: 1,
+          },
+        ],
+      }),
+    );
+    const frame = stageOf(result, "structural_frame");
+    const line = frame.quantities.find((q) => q.label === "Beam, concrete");
+    // 0.414 m3 at the concrete allowance, not the cement allowance. Stage
+    // quantity lines publish two decimals.
+    expect(line?.base_quantity).toBeCloseTo(0.41, 2);
+    expect(line?.final_quantity).toBeCloseTo(0.45, 2);
+  });
+
+  it("validates the concrete allowance like every other wastage field", () => {
+    expect(() =>
+      calculateBuildToRoof(
+        makeValidInput({ wastage: { ...DEFAULT_WASTAGE, concrete: -1 } }),
+      ),
+    ).toThrow(/concrete/i);
+  });
+
+  it("prices the damp-proof membrane whenever there is a slab", () => {
+    const result = calculateBuildToRoof(makeValidInput({ dpc_length: 0 }));
+    const ground = stageOf(result, "ground_floor");
+    const membrane = ground.materials.find((m) => m.label === "DPM membrane");
+    expect(membrane).toBeDefined();
+    // 10 x 8 footprint with the 5 per cent lap allowance.
+    expect(membrane?.base_quantity).toBeCloseTo(80, 6);
+    expect(membrane?.final_quantity).toBeCloseTo(84, 6);
+  });
+});

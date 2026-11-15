@@ -227,9 +227,15 @@ export function hasUsableDimensions(analysis: AiAnalysis): boolean {
   return (length !== null && length > 0) || (width !== null && width > 0);
 }
 
+// Mirrors WastageConfig in src/types/build-to-roof.ts. The concrete allowance
+// was missing here while the engine priced ground floor volume against it, so
+// every AI-generated estimate carried an undefined allowance on its concrete
+// line. The engine's validator now rejects a missing or out-of-range value,
+// which is what surfaced the omission.
 const DEFAULT_WASTAGE = {
   blocks: 5,
   cement: 5,
+  concrete: 5,
   sand: 10,
   granite: 10,
   reinforcement: 3,

@@ -131,6 +131,13 @@ export const PURLIN_ROWS_PER_SLOPE = 4;
 // Rafter spacing (m)
 export const RAFTER_SPACING = 0.9;
 
+/**
+ * Lap and turn-up allowance on damp-proof membrane, per cent. Polythene is laid
+ * with 150 mm laps and turned up at the edges; it is a physical overlap rather
+ * than material waste, so it is a named constant and not a wastage setting.
+ */
+const MEMBRANE_LAP_PERCENT = 5;
+
 // Ground floor slab thickness when the user does not enter one (m).
 export const DEFAULT_SLAB_THICKNESS_M = 0.1;
 
@@ -1643,14 +1650,17 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
     ),
   );
 
-  // DPM under slab, FIX: uses dpm_per_m2 (not dpc_per_meter)
-  if (input.dpc_length > 0) {
+  // DPM under the slab. Its quantity is the slab footprint, so its presence
+  // follows the slab: gating it on the DPC length meant a plan that left the
+  // wall DPC blank lost the under-slab membrane entirely, while a plan with a
+  // DPC in the walls got one whether or not concrete was being poured.
+  if (slabVol > 0) {
     materials.push(
       matLine(
         "DPM membrane",
         "m²",
         footprintArea,
-        5,
+        MEMBRANE_LAP_PERCENT,
         input.prices.dpm_per_m2,
         input.prices.price_source,
       ),
@@ -1852,21 +1862,46 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     const vol = member.length * member.width * member.depth * member.quantity;
     totalConcreteVol += vol;
 
-    // Formwork area (sides + soffit for beams, sides for columns, soffit for slabs)
+    // Formwork area, measured on the faces that are actually shuttered.
+    //
+    // A beam is 2 sides of depth plus one soffit of width, so its girth is
+    // width + 2 × depth. The old figure was 2 × (width + depth), the full
+    // perimeter of the section: it shuttered the open top of the beam, over-
+    // stating a 230 × 450 beam by 0.23 m² for every metre of span (1.36 m²/m
+    // against 1.13 m²/m, 20 per cent high).
     let formwork: number;
+    let formworkBasis: string;
     if (member.type === "column") {
-      // Column: 4 sides (perimeter × height)
+      // Four sides, so the perimeter by the height.
       formwork =
         member.length * 2 * (member.width + member.depth) * member.quantity;
+      formworkBasis = `${member.length} × 2 × (${member.width} + ${member.depth}) × ${member.quantity}`;
     } else if (member.type === "slab") {
-      // Slab: soffit only (bottom face)
+      // Soffit only.
       formwork = member.length * member.width * member.quantity;
+      formworkBasis = `${member.length} × ${member.width} × ${member.quantity}`;
     } else {
-      // Beams, lintels, ring beams: sides + soffit
+      // Two sides and the soffit; the top is open.
       formwork =
-        member.length * 2 * (member.width + member.depth) * member.quantity;
+        member.length * (member.width + 2 * member.depth) * member.quantity;
+      formworkBasis = `${member.length} × (${member.width} + 2 × ${member.depth}) × ${member.quantity}`;
     }
     totalFormworkArea += formwork;
+    quantities.push(
+      qtyLine(
+        `${member.label}, formwork`,
+        formworkBasis,
+        {
+          length: member.length,
+          width: member.width,
+          depth: member.depth,
+          quantity: member.quantity,
+        },
+        formwork,
+        "m²",
+        0,
+      ),
+    );
 
     quantities.push(
       qtyLine(
@@ -1880,7 +1915,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
         },
         vol,
         "m³",
-        input.wastage.cement,
+        input.wastage.concrete,
       ),
     );
   }
@@ -2588,6 +2623,7 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
     "timber",
     "roofing_sheets",
     "hardcore",
+    "concrete",
   ] as const) {
     const v = input.wastage[w];
     if (!Number.isFinite(v) || v < 0 || v > 100)

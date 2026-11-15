@@ -113,8 +113,17 @@ export function calculateSteelBeam(
   if (!Number.isInteger(input.beam_count) || input.beam_count < 1) {
     errors.push("Number of beams must be a whole number, one or more.");
   }
+  if (
+    input.price_per_tonne !== null &&
+    (!Number.isFinite(input.price_per_tonne) || input.price_per_tonne < 0)
+  ) {
+    errors.push(
+      "Enter a steel rate per tonne as zero or more, or leave it empty to price later.",
+    );
+  }
   if (errors.length > 0 || !profile) return emptyResult(errors);
 
+  const cutLengthM = input.span_m + BEARING_ALLOWANCE_M;
   const mass = steelMassKg(input) ?? 0;
   // Tonnes keep four decimals: a per tonne rate multiplies straight into the
   // total, so rounding the quantity to two places would move real money.
@@ -125,11 +134,11 @@ export function calculateSteelBeam(
   const steps: SpecialtyStep[] = [
     {
       label: "Mass per beam",
-      detail: `${input.span_m} m × ${profile.kg_per_m} kg/m (${profile.label}) = ${money(input.span_m * profile.kg_per_m)} kg`,
+      detail: `${input.span_m} m span + ${BEARING_ALLOWANCE_M} m bearing allowance = ${money(cutLengthM)} m cut, × ${profile.kg_per_m} kg/m (${profile.label}) = ${money(cutLengthM * profile.kg_per_m)} kg`,
     },
     {
       label: "Total mass",
-      detail: `${input.span_m} m × ${input.beam_count} beam(s) × ${profile.kg_per_m} kg/m = ${mass} kg (${tonnes} tonnes)`,
+      detail: `${money(cutLengthM)} m cut × ${input.beam_count} beam(s) × ${profile.kg_per_m} kg/m = ${mass} kg (${tonnes} tonnes)`,
     },
     {
       label: "Rate used",
@@ -148,7 +157,7 @@ export function calculateSteelBeam(
       quantity: tonnes,
       quantity_source: "rule_derived",
       unit: "tonnes",
-      detail: `${input.beam_count} × ${input.span_m} m at ${profile.kg_per_m} kg/m = ${mass} kg`,
+      detail: `${input.beam_count} × ${money(cutLengthM)} m cut (${input.span_m} m span) at ${profile.kg_per_m} kg/m = ${mass} kg`,
       unit_price: rate,
       line_total: rate === null ? null : money(tonnes * rate),
     },

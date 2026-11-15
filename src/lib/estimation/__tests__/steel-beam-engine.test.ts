@@ -92,4 +92,28 @@ describe("steel cost", () => {
     expect(calculateSteelBeam({ ...base, span_m: 0 }, {}).ok).toBe(false);
     expect(calculateSteelBeam({ ...base, beam_count: 0 }, {}).ok).toBe(false);
   });
+
+  it("shows the cut length the mass is derived from, not the clear span", () => {
+    const r = calculateSteelBeam(
+      { ...base, span_m: 5, beam_count: 1, profile: "ipe_150" },
+      {},
+    );
+    const cut = 5 + BEARING_ALLOWANCE_M;
+    // 5.3 m at 14 kg/m is 74.2 kg, and the per-beam step must say so: it
+    // showed 70 kg, the clear-span figure, under a total of 74.2.
+    expect(r.steps[0].detail).toContain("5.3 m cut");
+    expect(r.steps[0].detail).toContain("74.2 kg");
+    expect(r.steps[1].detail).toContain("5.3 m cut");
+    expect(r.lines[0].detail).toContain("5.3 m cut");
+    expect(r.lines[0].quantity).toBe(0.0742);
+  });
+
+  it("refuses a rate that is not a usable number instead of showing NaN", () => {
+    const nan = calculateSteelBeam({ ...base, price_per_tonne: Number.NaN }, {});
+    expect(nan.ok).toBe(false);
+    expect(nan.errors.join(" ")).toContain("steel rate");
+    const negative = calculateSteelBeam({ ...base, price_per_tonne: -5000 }, {});
+    expect(negative.ok).toBe(false);
+    expect(negative.errors.join(" ")).toContain("steel rate");
+  });
 });
