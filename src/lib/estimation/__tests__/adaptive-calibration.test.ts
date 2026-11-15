@@ -53,11 +53,13 @@ const scope = {
 };
 
 /** Five observations spread over three projects, with the given ratios. */
-const series = (ratios: number[]) =>
-  ratios.map((ratio, index) =>
+// The eligibility floor is 20 observations across 6 projects, so a series
+// repeats the supplied pattern until it reaches that sample size.
+const series = (ratios: number[], total = 20) =>
+  Array.from({ length: total }, (_, index) =>
     row({
-      projectId: `p${(index % 3) + 1}`,
-      actualQuantity: 100 * ratio,
+      projectId: `p${(index % 6) + 1}`,
+      actualQuantity: 100 * ratios[index % ratios.length],
     }),
   );
 
@@ -84,16 +86,27 @@ describe("adaptive calibration", () => {
     );
     expect(candidate.eligible).toBe(true);
     expect(candidate.blockers).toEqual([]);
-    expect(candidate.observationCount).toBe(5);
-    expect(candidate.distinctProjectCount).toBe(3);
-    expect(candidate.verifiedObservationCount).toBe(5);
+    expect(candidate.observationCount).toBe(20);
+    expect(candidate.distinctProjectCount).toBe(6);
+    expect(candidate.verifiedObservationCount).toBe(20);
     expect(candidate.proposedMultiplier).toBeCloseTo(1.05, 4);
     expect(candidate.policyVersion).toBe(DEFAULT_CALIBRATION_POLICY.version);
     expect(candidate.fingerprint).toHaveLength(16);
   });
 
   it("states every reason a series is not yet usable", () => {
-    const candidate = buildCalibrationCandidate(series([1.1, 0.9]), scope);
+    const thin = [
+      row({ projectId: "p1" }),
+      row({ projectId: "p1" }),
+      row({
+        projectId: "p2",
+        evidence: "self_attested",
+        reviewerId: undefined,
+        reviewerRole: "owner",
+        evidenceReference: undefined,
+      }),
+    ];
+    const candidate = buildCalibrationCandidate(thin, scope);
     expect(candidate.eligible).toBe(false);
     expect(candidate.blockers).toContain("insufficient_observations");
     expect(candidate.blockers).toContain("insufficient_distinct_projects");
@@ -219,7 +232,13 @@ describe("adaptive calibration", () => {
   });
 
   it("gives a range the same minimum, clamp and dedupe as a candidate", () => {
-    expect(empiricalConfidenceRange(100, series([1, 1.1]), scope)).toBeNull();
+    expect(
+      empiricalConfidenceRange(
+        100,
+        [row({ id: "m1" }), row({ id: "m2" })],
+        scope,
+      ),
+    ).toBeNull();
     expect(
       empiricalConfidenceRange(
         100,
@@ -299,7 +318,9 @@ describe("adaptive calibration", () => {
     // The standard follows the market, so a Nigerian project is never handed a
     // US division number as if it were local.
     expect(suggestCostCode("tile", "M", "NG")?.standard).toBe("nrm");
-    expect(suggestCostCode("tile", "M", "US")?.standard).toBe("csi_masterformat");
+    expect(suggestCostCode("tile", "M", "US")?.standard).toBe(
+      "csi_masterformat",
+    );
     expect(suggestCostCode("tile", "M", "IN")?.standard).toBe("is_1200");
     // No market at all: a trade group, still applicable, never a fake code.
     expect(suggestCostCode("tile", "M")?.standard).toBe("generic");
@@ -399,9 +420,7 @@ describe("adaptive calibration", () => {
 
   it("passes all three gates only when sample, agreement and provenance hold", () => {
     const candidate = buildCalibrationCandidate(
-      [1.1, 1.2, 1.05, 0.95, 1.0].map((ratio, index) =>
-        row({ projectId: `p${index % 3}`, actualQuantity: 100 * ratio }),
-      ),
+      series([1.1, 1.2, 1.05, 0.95, 1.0]),
       scope,
     );
     expect(candidate.checks).toEqual({
@@ -409,7 +428,7 @@ describe("adaptive calibration", () => {
       consensus: true,
       provenance: true,
     });
-    expect(candidate.consensus?.within).toBe(5);
+    expect(candidate.consensus?.within).toBe(20);
     expect(candidate.consensus?.share).toBe(1);
   });
 
@@ -429,7 +448,8 @@ describe("adaptive calibration", () => {
   });
 
   it("clamps candidates to physical material bounds, not only the policy window", () => {
-    const id = (n: string) => row({ id: n, projectId: `p-${n}`, actualQuantity: 160 });
+    const id = (n: string) =>
+      row({ id: n, projectId: `p-${n}`, actualQuantity: 160 });
     const candidate = buildCalibrationCandidate(
       [id("a"), id("b"), id("c"), id("d"), id("e")],
       scope,
@@ -459,11 +479,45 @@ describe("adaptive calibration", () => {
   it("weights a quantity surveyor above an anonymous report", () => {
     const candidate = buildCalibrationCandidate(
       [
-        row({ id: "a", projectId: "p1", actualQuantity: 100, contributorRole: "quantity_surveyor" }),
-        row({ id: "b", projectId: "p2", actualQuantity: 100, contributorRole: "quantity_surveyor" }),
-        row({ id: "c", projectId: "p3", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
-        row({ id: "d", projectId: "p4", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
-        row({ id: "e", projectId: "p5", actualQuantity: 140, evidence: "self_attested", reviewerId: undefined, reviewerRole: "owner", evidenceReference: undefined }),
+        row({
+          id: "a",
+          projectId: "p1",
+          actualQuantity: 100,
+          contributorRole: "quantity_surveyor",
+        }),
+        row({
+          id: "b",
+          projectId: "p2",
+          actualQuantity: 100,
+          contributorRole: "quantity_surveyor",
+        }),
+        row({
+          id: "c",
+          projectId: "p3",
+          actualQuantity: 140,
+          evidence: "self_attested",
+          reviewerId: undefined,
+          reviewerRole: "owner",
+          evidenceReference: undefined,
+        }),
+        row({
+          id: "d",
+          projectId: "p4",
+          actualQuantity: 140,
+          evidence: "self_attested",
+          reviewerId: undefined,
+          reviewerRole: "owner",
+          evidenceReference: undefined,
+        }),
+        row({
+          id: "e",
+          projectId: "p5",
+          actualQuantity: 140,
+          evidence: "self_attested",
+          reviewerId: undefined,
+          reviewerRole: "owner",
+          evidenceReference: undefined,
+        }),
       ],
       scope,
     );

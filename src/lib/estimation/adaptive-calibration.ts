@@ -78,9 +78,9 @@ export interface CalibrationPolicy {
 export const DEFAULT_CALIBRATION_POLICY: Readonly<CalibrationPolicy> =
   Object.freeze({
     version: "2026-11-15.1",
-    minObservations: 5,
-    minDistinctProjects: 3,
-    minVerifiedObservations: 3,
+    minObservations: 20,
+    minDistinctProjects: 6,
+    minVerifiedObservations: 15,
     minVerifiedShare: 0.6,
     minRangeObservations: 3,
     maxAdjustmentFraction: 0.25,
@@ -142,18 +142,66 @@ export interface PhysicalMaterialBounds {
 export const PHYSICAL_MATERIAL_BOUNDS: Readonly<
   Record<string, PhysicalMaterialBounds>
 > = Object.freeze({
-  paint: { minMultiplier: 0.8, maxMultiplier: 1.3, description: "Paint absorption [0.80, 1.30]" },
-  cement: { minMultiplier: 0.85, maxMultiplier: 1.25, description: "Cement handling [0.85, 1.25]" },
-  sand: { minMultiplier: 0.85, maxMultiplier: 1.35, description: "Sand bulking [0.85, 1.35]" },
-  granite: { minMultiplier: 0.88, maxMultiplier: 1.25, description: "Granite compaction [0.88, 1.25]" },
-  block: { minMultiplier: 0.85, maxMultiplier: 1.25, description: "Block breakage [0.85, 1.25]" },
-  tile: { minMultiplier: 0.88, maxMultiplier: 1.25, description: "Tile cutting [0.88, 1.25]" },
-  reinforcement: { minMultiplier: 0.92, maxMultiplier: 1.2, description: "Rebar laps [0.92, 1.20]" },
-  plaster: { minMultiplier: 0.85, maxMultiplier: 1.3, description: "Plaster rebound [0.85, 1.30]" },
-  "roof-sheet": { minMultiplier: 0.92, maxMultiplier: 1.18, description: "Roof laps [0.92, 1.18]" },
-  timber: { minMultiplier: 0.9, maxMultiplier: 1.2, description: "Timber off-cuts [0.90, 1.20]" },
-  "pop-ceiling": { minMultiplier: 0.85, maxMultiplier: 1.25, description: "POP waste [0.85, 1.25]" },
-  labour: { minMultiplier: 0.7, maxMultiplier: 1.4, description: "Gang productivity [0.70, 1.40]" },
+  paint: {
+    minMultiplier: 0.8,
+    maxMultiplier: 1.3,
+    description: "Paint absorption [0.80, 1.30]",
+  },
+  cement: {
+    minMultiplier: 0.85,
+    maxMultiplier: 1.25,
+    description: "Cement handling [0.85, 1.25]",
+  },
+  sand: {
+    minMultiplier: 0.85,
+    maxMultiplier: 1.35,
+    description: "Sand bulking [0.85, 1.35]",
+  },
+  granite: {
+    minMultiplier: 0.88,
+    maxMultiplier: 1.25,
+    description: "Granite compaction [0.88, 1.25]",
+  },
+  block: {
+    minMultiplier: 0.85,
+    maxMultiplier: 1.25,
+    description: "Block breakage [0.85, 1.25]",
+  },
+  tile: {
+    minMultiplier: 0.88,
+    maxMultiplier: 1.25,
+    description: "Tile cutting [0.88, 1.25]",
+  },
+  reinforcement: {
+    minMultiplier: 0.92,
+    maxMultiplier: 1.2,
+    description: "Rebar laps [0.92, 1.20]",
+  },
+  plaster: {
+    minMultiplier: 0.85,
+    maxMultiplier: 1.3,
+    description: "Plaster rebound [0.85, 1.30]",
+  },
+  "roof-sheet": {
+    minMultiplier: 0.92,
+    maxMultiplier: 1.18,
+    description: "Roof laps [0.92, 1.18]",
+  },
+  timber: {
+    minMultiplier: 0.9,
+    maxMultiplier: 1.2,
+    description: "Timber off-cuts [0.90, 1.20]",
+  },
+  "pop-ceiling": {
+    minMultiplier: 0.85,
+    maxMultiplier: 1.25,
+    description: "POP waste [0.85, 1.25]",
+  },
+  labour: {
+    minMultiplier: 0.7,
+    maxMultiplier: 1.4,
+    description: "Gang productivity [0.70, 1.40]",
+  },
 });
 
 export function getPhysicalBounds(
@@ -163,7 +211,8 @@ export function getPhysicalBounds(
   const window = policy.maxAdjustmentFraction;
   const policyMin = 1 - window;
   const policyMax = 1 + window;
-  if (policy.enablePhysicalBounds === false) return { min: policyMin, max: policyMax };
+  if (policy.enablePhysicalBounds === false)
+    return { min: policyMin, max: policyMax };
   const spec = PHYSICAL_MATERIAL_BOUNDS[normaliseMaterialKey(materialKey)];
   if (!spec) return { min: policyMin, max: policyMax };
   return {
@@ -200,7 +249,8 @@ export function filterOutliersIQR<T extends { ratio: number }>(
   const clean: T[] = [];
   const outliers: T[] = [];
   for (const entry of entries) {
-    if (entry.ratio < lowerFence || entry.ratio > upperFence) outliers.push(entry);
+    if (entry.ratio < lowerFence || entry.ratio > upperFence)
+      outliers.push(entry);
     else clean.push(entry);
   }
   return {
@@ -869,7 +919,6 @@ export function isTrustedVerification(
   return row.evidence === "admin_verified";
 }
 
-
 export function getEffectiveRoleWeight(
   row: Pick<CalibrationFeedback, "contributorRole" | "evidence" | "reviewerId">,
 ): number {
@@ -890,7 +939,11 @@ export function getEffectiveRoleWeight(
 
 export function resolveVerifiedContributorRole(params: {
   isAdmin?: boolean;
-  proCredentials?: Array<{ status: string; trade?: string; credentialType?: string }>;
+  proCredentials?: Array<{
+    status: string;
+    trade?: string;
+    credentialType?: string;
+  }>;
   accountType?: string;
 }): ContributorRole {
   if (params.isAdmin) return "admin";
@@ -903,10 +956,18 @@ export function resolveVerifiedContributorRole(params: {
     );
     for (const cred of verifiedCreds) {
       const type = (cred.credentialType || cred.trade || "").toLowerCase();
-      if (type.includes("quantity") || type.includes("surveyor") || type.includes("qs")) {
+      if (
+        type.includes("quantity") ||
+        type.includes("surveyor") ||
+        type.includes("qs")
+      ) {
         return "quantity_surveyor";
       }
-      if (type.includes("civil") || type.includes("engineer") || type.includes("structural")) {
+      if (
+        type.includes("civil") ||
+        type.includes("engineer") ||
+        type.includes("structural")
+      ) {
         return "civil_engineer";
       }
     }
@@ -914,7 +975,10 @@ export function resolveVerifiedContributorRole(params: {
       return "verified_pro";
     }
   }
-  if (params.accountType === "pro_worker" || params.accountType === "contractor") {
+  if (
+    params.accountType === "pro_worker" ||
+    params.accountType === "contractor"
+  ) {
     return "contractor";
   }
   return "homeowner";
@@ -937,7 +1001,9 @@ export function buildCalibrationCandidate(
   const filtered = filterOutliersIQR(prepared);
   const clean = filtered.clean;
   const cleanRatios = clean.map((entry) => entry.ratio);
-  const bounded = cleanRatios.map((ratio) => clamp(ratio, bounds.min, bounds.max));
+  const bounded = cleanRatios.map((ratio) =>
+    clamp(ratio, bounds.min, bounds.max),
+  );
   const weighted = bounded.length
     ? weightedMedian(
         bounded.map((value, index) => ({
@@ -988,7 +1054,10 @@ export function buildCalibrationCandidate(
   // Agreement is measured between projects, around their own median, so the
   // policy clamp cannot make a tight cluster look like a scattered one.
   const centre = cleanRatios.length
-    ? quantile([...cleanRatios].sort((a, b) => a - b), 0.5)
+    ? quantile(
+        [...cleanRatios].sort((a, b) => a - b),
+        0.5,
+      )
     : 1;
   const deviations = cleanRatios
     .map((ratio) => Math.abs(ratio - centre))
@@ -1190,10 +1259,7 @@ export function createAuditEvent(
 /* ------------------------------------------------------------------ */
 
 export type CostCodeStandard =
-  | "csi_masterformat"
-  | "nrm"
-  | "is_1200"
-  | "generic";
+  "csi_masterformat" | "nrm" | "is_1200" | "generic";
 
 export type CostCodeGroup =
   | "earthwork"
@@ -1488,7 +1554,11 @@ const IS_1200_CODES: Record<CostCodeGroup, StandardCode> = {
     description: "Plain and reinforced concrete",
     division: "5",
   },
-  masonry: { code: "6.1", description: "Brickwork and blockwork", division: "6" },
+  masonry: {
+    code: "6.1",
+    description: "Brickwork and blockwork",
+    division: "6",
+  },
   steel: {
     code: "10.1",
     description: "Structural steel and metalwork",

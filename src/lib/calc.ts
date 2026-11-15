@@ -1,3 +1,4 @@
+import { PAINT_SURFACE_FACTORS } from "@/lib/estimation/site-conditions";
 import type {
   CalculatorInput,
   CalculatorResult,
@@ -16,7 +17,6 @@ import type {
   Unit,
 } from "@/types";
 import {
-  feetToMeters,
   DEFAULT_DOOR_WIDTH_M,
   DEFAULT_DOOR_HEIGHT_M,
   DEFAULT_WINDOW_WIDTH_M,
@@ -51,31 +51,10 @@ export const DEFAULT_WINDOW_DIMS: OpeningDimensions = {
 export const SURFACE_CONDITION_FACTORS: Record<
   SurfaceCondition,
   { factor: number; label: string; description: string }
-> = {
-  smooth: {
-    factor: 1.0,
-    label: "Smooth / Previously Painted",
-    description: "Sound, smooth surface, standard coverage applies.",
-  },
-  textured: {
-    factor: 0.85,
-    label: "Textured",
-    description:
-      "Textured surface, ~15% more paint absorbed due to surface profile.",
-  },
-  rough: {
-    factor: 0.75,
-    label: "Rough",
-    description:
-      "Rough surface, ~25% more paint absorbed. Consider surface preparation.",
-  },
-  new_plaster: {
-    factor: 0.8,
-    label: "New / Bare Plaster",
-    description:
-      "New plaster is porous, ~20% more paint absorbed on first coat. Primer strongly recommended.",
-  },
-};
+> = PAINT_SURFACE_FACTORS as Record<
+  SurfaceCondition,
+  { factor: number; label: string; description: string }
+>;
 
 // ─────────────────────────────────────────────────────────
 // Color condition logic

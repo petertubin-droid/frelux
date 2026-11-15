@@ -35,6 +35,14 @@ const row = (over: Partial<CalibrationFeedback> = {}): CalibrationFeedback => ({
   ...over,
 });
 
+const series = (ratios: number[], total = 20) =>
+  Array.from({ length: total }, (_, index) =>
+    row({
+      projectId: `p${(index % 6) + 1}`,
+      actualQuantity: 100 * ratios[index % ratios.length],
+    }),
+  );
+
 const scope = {
   marketCode: "NG",
   materialKey: "block",
@@ -43,12 +51,7 @@ const scope = {
 };
 
 const candidate = () =>
-  buildCalibrationCandidate(
-    [1.1, 1.2, 1.05, 0.95, 1.0].map((ratio) =>
-      row({ actualQuantity: 100 * ratio }),
-    ),
-    scope,
-  );
+  buildCalibrationCandidate(series([1.1, 1.2, 1.05, 0.95, 1.0]), scope);
 
 const approval = (): CalibrationApproval => {
   const built = candidate();
@@ -117,9 +120,7 @@ describe("calibration activation", () => {
     const stale = approval();
     const grown = buildCalibrationCandidate(
       [
-        ...[1.1, 1.2, 1.05, 0.95, 1.0].map((ratio) =>
-          row({ actualQuantity: 100 * ratio }),
-        ),
+        ...series([1.1, 1.2, 1.05, 0.95, 1.0]),
         row({ projectId: "p9", actualQuantity: 108 }),
       ],
       scope,
@@ -155,9 +156,7 @@ describe("calibration activation", () => {
       maxAdjustmentFraction: 0.05,
     };
     const built = buildCalibrationCandidate(
-      [1.4, 1.5, 1.6, 1.5, 1.45].map((ratio) =>
-        row({ actualQuantity: 100 * ratio }),
-      ),
+      series([1.4, 1.5, 1.6, 1.5, 1.45]),
       scope,
       strict,
     );

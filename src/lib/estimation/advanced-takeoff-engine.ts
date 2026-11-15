@@ -2,6 +2,8 @@
  * These are estimating methods, not structural design or geotechnical advice.
  */
 
+import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
+
 export interface EngineResult<T> {
   ok: boolean;
   errors: string[];
@@ -53,8 +55,8 @@ export interface ConcreteTakeoffResult {
   assumptions: string[];
 }
 
-/** 1.54 dry-volume multiplier and 0.0347 m³/50 kg bag are the same
- * explicitly disclosed estimating conventions used by the existing estimator.
+/** The dry-volume multiplier comes from site-conditions, and 0.0347 m3 per
+ * 50 kg bag is the same explicitly disclosed convention used by the estimator.
  */
 export function calculateConcreteTakeoff(
   input: ConcreteTakeoffInput,
@@ -110,7 +112,7 @@ export function calculateConcreteTakeoff(
 
   const concreteVolumeM3 = input.lengthM * input.widthM * input.depthM;
   const volumeWithWasteM3 = concreteVolumeM3 * (1 + input.wastePercent / 100);
-  const dryVolume = volumeWithWasteM3 * 1.54;
+  const dryVolume = volumeWithWasteM3 * CONCRETE_DRY_VOLUME_FACTOR;
   const totalParts = input.cementParts + input.sandParts + input.aggregateParts;
   const cementBagsRaw =
     (dryVolume * input.cementParts) /
@@ -158,7 +160,7 @@ export function calculateConcreteTakeoff(
       : null,
     assumptions: [
       `Rectangular ${input.elementType} volume = measured length × width × depth; openings, haunches, and irregular geometry are not deducted or added.`,
-      `Concrete dry-volume allowance: 1.54 × wet volume; user-entered additional allowance: ${input.wastePercent}%.`,
+      `Concrete dry-volume allowance: ${CONCRETE_DRY_VOLUME_FACTOR} × wet volume; user-entered additional allowance: ${input.wastePercent}%.`,
       `Cement bag-volume convention: 0.0347 m³ per 50 kg bag, scaled to the entered ${input.cementBagMassKg} kg bag size; procurement count rounds up to whole bags.`,
       "Rebar weight uses the entered bar schedule and d²/162 kg/m; it is not a reinforcement design or cutting schedule.",
     ],
@@ -512,7 +514,7 @@ export function calculateRoofFraming(
         );
       }
     }
-    for (const [key, group] of jackGroups) {
+    for (const group of jackGroups.values()) {
       const section =
         group.role === "Common rafters"
           ? input.sections.common
