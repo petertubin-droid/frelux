@@ -1,7 +1,6 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import {
   useCallback,
   useEffect,
@@ -12,11 +11,9 @@ import {
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
-import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
 import {
   MASONRY_COURSE_SEQUENCE,
@@ -24,11 +21,6 @@ import {
   PAVING_SEQUENCE,
 } from "@/lib/estimation/build-sequence";
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
-import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
-import {
-  toolSeoDescription,
-  toolSeoTitle,
-} from "../../scripts/lib/tool-seo.mjs";
 import { Button } from "@/components/ui/shadcn/button";
 import {
   BrickWall,
@@ -63,7 +55,7 @@ import {
   plasteringTakeoffFromSchedule,
 } from "@/lib/estimation/building-schedule-takeoff";
 import { useBuildingSize } from "@/lib/measurement/building-size-context";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   BuildingSchedulePanel,
   type AppliedBuilding,
@@ -111,22 +103,6 @@ type Engine =
   | "insulation"
   | "demolition"
   | "septic";
-/**
- * One question set per engine, so the page answers for the tool in front of the
- * visitor instead of stacking nine sets of questions about trades they are not
- * looking at.
- */
-const FAQ_BY_ENGINE: Record<Engine, string> = {
-  masonry: "masonry-calculator",
-  plastering: "plastering-calculator",
-  drywall: "drywall-calculator",
-  paving: "paving-calculator",
-  drainage: "drainage-calculator",
-  "temporary-works": "temporary-works-calculator",
-  insulation: "insulation-calculator",
-  demolition: "demolition-calculator",
-  septic: "septic-sizing-calculator",
-};
 
 type Result =
   | MasonryCalculationResult
@@ -312,56 +288,39 @@ export default function StandaloneTakeoffPage({
     setError("");
   }, [initialEngine]);
 
-  // One composer for the listing copy, shared with the prerenderer so the
-  // static HTML and this hydrated page never advertise different things.
-  const seoTool = CONSTRUCTION_TOOLS.find(
-    (tool) => tool.to.replace(/\/+$/, "") === currentPath,
-  );
-  useSeo({
-    title: seoTool ? toolSeoTitle(seoTool) : `${title} Calculator | FRELUX`,
-    description: seoTool
-      ? toolSeoDescription(seoTool)
-      : `${title} construction quantity takeoff calculator with editable measurements and market profile.`,
-    canonicalPath: currentPath,
-    structuredData:
-      engine === "masonry"
+  const howToMarkup =
+    engine === "masonry"
+      ? buildSequenceHowTo({
+          name: "Build a sandcrete block wall",
+          description:
+            "Set out, build off a level foundation, bed each course on a full mortar joint, stagger the courses, form openings, then cure.",
+          steps: MASONRY_COURSE_SEQUENCE,
+          path: currentPath,
+          totalTime: "P3D",
+          supply: ["Sandcrete blocks", "Cement and sharp sand for mortar"],
+          tool: ["Spirit level", "String line", "Bricklayer's trowel"],
+        })
+      : engine === "paving"
         ? buildSequenceHowTo({
-            name: "Build a sandcrete block wall",
+            name: "Lay block paving",
             description:
-              "Set out, build off a level foundation, bed each course on a full mortar joint, stagger the courses, form openings, then cure.",
-            steps: MASONRY_COURSE_SEQUENCE,
+              "Compact the subgrade, lay and compact the sub-base, screed the bedding sand, lay the pavers, then brush in jointing sand.",
+            steps: PAVING_SEQUENCE,
             path: currentPath,
-            totalTime: "P3D",
-            supply: ["Sandcrete blocks", "Cement and sharp sand for mortar"],
-            tool: ["Spirit level", "String line", "Bricklayer's trowel"],
+            totalTime: "P2D",
+            supply: [
+              "Pavers",
+              "Sub-base material",
+              "Bedding and jointing sand",
+            ],
+            tool: [
+              "Plate compactor",
+              "Rubber mallet",
+              "String line",
+              "Screed rail",
+            ],
           })
-        : engine === "paving"
-          ? buildSequenceHowTo({
-              name: "Lay block paving",
-              description:
-                "Compact the subgrade, lay and compact the sub-base, screed the bedding sand, lay the pavers, then brush in jointing sand.",
-              steps: PAVING_SEQUENCE,
-              path: currentPath,
-              totalTime: "P2D",
-              supply: [
-                "Pavers",
-                "Sub-base material",
-                "Bedding and jointing sand",
-              ],
-              tool: [
-                "Plate compactor",
-                "Rubber mallet",
-                "String line",
-                "Screed rail",
-              ],
-            })
-          : undefined,
-  });
-  useBreadcrumbJsonLd([
-    { name: "Home", path: "/" },
-    { name: "Construction Tools", path: "/construction-tools" },
-    { name: `${title} Calculator`, path: currentPath },
-  ]);
+        : undefined;
   const number = (key: string, fallback = 0) =>
     Number.isFinite(Number(values[key])) ? Number(values[key]) : fallback;
   const update = (key: string, value: string) =>
@@ -686,467 +645,451 @@ export default function StandaloneTakeoffPage({
     printQuote(quote, `frelux-${engine}-takeoff.html`);
   };
   return (
-    <div className="min-h-screen bg-background pb-16">
-      <PageHeader
-        variant="tool"
-        eyebrow="Construction quantity tools"
-        title={`${title} Calculator`}
-        subtitle="Transparent material takeoffs with editable assumptions. Quantities are estimates, not structural or code-compliance designs."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: `${title} Takeoff` },
-        ]}
-        backTo="/construction-tools"
-        backLabel="All tools"
-      />
-      <Container as="main" className="space-y-6 py-6 sm:py-8">
-        <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-            {ENGINES.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => selectEngine(item.id)}
-                aria-current={engine === item.id ? "page" : undefined}
-                className={`shrink-0 rounded-xl px-3.5 py-2 text-left text-xs font-medium transition ${engine === item.id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-              >
-                <span className="block">{item.label}</span>
-                <span
-                  className={`mt-0.5 block text-xs ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+    <ToolShell route={currentPath} structuredData={howToMarkup}>
+      <div className="min-h-screen bg-background pb-16">
+        <Container as="main" className="space-y-6 py-6 sm:py-8">
+          <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {ENGINES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => selectEngine(item.id)}
+                  aria-current={engine === item.id ? "page" : undefined}
+                  className={`shrink-0 rounded-xl px-3.5 py-2 text-left text-xs font-medium transition ${engine === item.id ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                 >
-                  {item.subtitle}
-                </span>
-              </button>
-            ))}
+                  <span className="block">{item.label}</span>
+                  <span
+                    className={`mt-0.5 block text-xs ${engine === item.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                  >
+                    {item.subtitle}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        {bridgeProvenance && (
-          <div
-            role="status"
-            className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm"
-          >
-            <strong>{t("Imported measured quantity for review")}</strong>
-            <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
-          </div>
-        )}
-        {(engine === "masonry" || engine === "plastering") && (
-          <div className="mb-6 space-y-3">
-            <BuildingSchedulePanel
-              marketCode={marketCode}
-              onChange={applyBuilding}
-              onClear={() => {
-                setBuilding(null);
-                setBuildingNotes([]);
-              }}
-            />
-            {engine === "plastering" && building && (
-              <label className="block max-w-xs text-sm font-medium text-foreground">
-                {t("Faces to plaster")}
-                <select
-                  className={INPUT_CLASS}
-                  value={String(plasterFaces)}
-                  onChange={(event) =>
-                    setPlasterFaces(event.target.value === "1" ? 1 : 2)
-                  }
-                >
-                  <option value="1">{t("One face, an external render")}</option>
-                  <option value="2">{t("Both faces, an internal wall")}</option>
-                </select>
-              </label>
-            )}
-            {building && (
-              <p role="status" className="text-xs text-muted-foreground">
-                {t("Measuring")} {building.label}: {building.totals.roomCount}{" "}
-                {t("rooms, run")} {building.totals.wallRunM.toFixed(1)} m,{" "}
-                {building.totals.netWallAreaM2.toFixed(2)} m²{" "}
-                {t(
-                  "of wall after openings. Run the calculation to price these rooms.",
-                )}
-              </p>
-            )}
-          </div>
-        )}
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
-          <form
-            onSubmit={runCalculation}
-            className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
-          >
-            <div className="mb-6 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {t("Project measurements")}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+          {bridgeProvenance && (
+            <div
+              role="status"
+              className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm"
+            >
+              <strong>{t("Imported measured quantity for review")}</strong>
+              <p className="mt-1 text-muted-foreground">{bridgeProvenance}</p>
+            </div>
+          )}
+          {(engine === "masonry" || engine === "plastering") && (
+            <div className="mb-6 space-y-3">
+              <BuildingSchedulePanel
+                marketCode={marketCode}
+                onChange={applyBuilding}
+                onClear={() => {
+                  setBuilding(null);
+                  setBuildingNotes([]);
+                }}
+              />
+              {engine === "plastering" && building && (
+                <label className="block max-w-xs text-sm font-medium text-foreground">
+                  {t("Faces to plaster")}
+                  <select
+                    className={INPUT_CLASS}
+                    value={String(plasterFaces)}
+                    onChange={(event) =>
+                      setPlasterFaces(event.target.value === "1" ? 1 : 2)
+                    }
+                  >
+                    <option value="1">
+                      {t("One face, an external render")}
+                    </option>
+                    <option value="2">
+                      {t("Both faces, an internal wall")}
+                    </option>
+                  </select>
+                </label>
+              )}
+              {building && (
+                <p role="status" className="text-xs text-muted-foreground">
+                  {t("Measuring")} {building.label}: {building.totals.roomCount}{" "}
+                  {t("rooms, run")} {building.totals.wallRunM.toFixed(1)} m,{" "}
+                  {building.totals.netWallAreaM2.toFixed(2)} m²{" "}
                   {t(
-                    "Choose the working market, then enter measured dimensions.",
+                    "of wall after openings. Run the calculation to price these rooms.",
                   )}
                 </p>
-              </div>
-              <Ruler className="h-5 w-5 text-primary" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {select(
-                "Market",
-                marketCode,
-                (code) => {
-                  setMarketCode(code);
-                  setUnitId("");
-                  // A market change also resets the wall build-up, because the
-                  // normal wall differs: China 240 mm, UK cavity, others single
-                  // leaf.
-                  setValues((current) => ({ ...current, leaves: "" }));
-                },
-                availableMarkets.map((entry) => ({
-                  value: entry.country_code,
-                  label: entry.country_name,
-                })),
-              )}
-              {engine === "masonry" &&
-                select(
-                  "Masonry unit",
-                  unitId || masonryConfig.defaultUnit.id,
-                  setUnitId,
-                  masonryConfig.availableUnits.map((unit) => ({
-                    value: unit.id,
-                    label: unit.name,
-                  })),
-                )}
-              {engine === "masonry" &&
-                select(
-                  "Wall build-up",
-                  String(selectedLeaves),
-                  (value) => update("leaves", value),
-                  [1, 2, 3].map((count) => ({
-                    value: String(count),
-                    label: `${count} ${count === 1 ? "leaf" : "leaves"} (${wallThicknessForLeaves(
-                      activeMasonryUnit.widthMm,
-                      activeMasonryUnit.standardJointMm,
-                      count,
-                    ).toFixed(0)} mm)`,
-                  })),
-                )}
-              {engine === "masonry" && (
-                <p className="text-xs text-muted-foreground md:col-span-2">
-                  Each leaf carries its own units, mortar and cement, and the
-                  joints between leaves are counted in the thickness shown.
-                  Leave the unit set to the local brick and the default build-up
-                  gives the wall that market actually lays.
-                </p>
-              )}
-              {engine === "masonry" && (
-                <>
-                  {field("length", "Wall length", wallLengthUnit)}{" "}
-                  {field("height", "Wall height", wallLengthUnit)}{" "}
-                  {field("count", "Number of similar walls", "walls", 1)}{" "}
-                  {field("waste", "Cut/breakage allowance", "%")}
-                </>
-              )}
-              {engine === "plastering" && (
-                <>
-                  {field("area", "Surface area", "m²")}{" "}
-                  {field("thickness", "Total coat thickness", "mm")}{" "}
-                  {field("waste", "Material allowance", "%")}
-                </>
-              )}
-              {engine === "drywall" && (
-                <>
-                  {field("length", "Partition run length")}{" "}
-                  {field("height", "Partition height")}{" "}
-                  {field("count", "Number of similar runs", "walls", 1)}{" "}
-                  {field("spacing", "Stud spacing", "mm", 100)}{" "}
-                  {field("waste", "Board allowance", "%")}
-                </>
-              )}
-              {engine === "paving" && (
-                <>
-                  {field("area", "Paved area", "m²")}{" "}
-                  {field("paverLength", "Paver length", "mm")}{" "}
-                  {field("paverWidth", "Paver width", "mm")}{" "}
-                  {field("waste", "Cutting allowance", "%")}
-                </>
-              )}
-              {engine === "drainage" && (
-                <>
-                  {field("runLength", "Drain run length")}{" "}
-                  {field("diameter", "Pipe diameter", "mm")}{" "}
-                  {field("fall", "Specified fall", "mm/m")}{" "}
-                  {field("trenchWidth", "Trench width")}{" "}
-                  {field("trenchDepth", "Trench depth")}
-                </>
-              )}
-              {engine === "septic" && (
-                <>
-                  {field("occupants", "Design population", "people", 1)}{" "}
-                  {field(
-                    "dailyFlow",
-                    "Approved daily flow per person",
-                    "L/person/day",
-                    1,
-                  )}{" "}
-                  {field("retentionDays", "Required retention", "days", 0)}{" "}
-                  {field(
-                    "storageDays",
-                    "Additional storage allowance",
-                    "days",
-                    0,
-                  )}{" "}
-                  {field("freeboard", "Freeboard allowance", "%", 0)}{" "}
-                  {field(
-                    "soilLoading",
-                    "Accepted soil loading rate (optional)",
-                    "L/m²/day",
-                    0,
-                  )}{" "}
-                  {field(
-                    "soakawayDepth",
-                    "Soakaway effective depth (optional)",
-                    "m",
-                    0,
-                  )}
-                </>
-              )}
-              {engine === "temporary-works" && (
-                <>
-                  {field("elementLength", "Slab length")}{" "}
-                  {field("elementWidth", "Slab width")}{" "}
-                  {field("elementDepth", "Slab thickness")}{" "}
-                  {field("scaffoldLength", "Scaffold run")}{" "}
-                  {field("scaffoldHeight", "Working height")}
-                </>
-              )}
-              {engine === "insulation" && (
-                <>
-                  {field("area", "Insulated area", "m²")}{" "}
-                  {field("thickness", "Insulation thickness", "mm")}{" "}
-                  {field("layers", "Number of layers", "layers", 1)}{" "}
-                  {field(
-                    "packCoverage",
-                    "Product pack coverage",
-                    "m² per pack",
-                  )}{" "}
-                  {field("waste", "Cutting allowance", "%")}
-                </>
-              )}
-              {engine === "demolition" && (
-                <>
-                  {field("elementLength", "Element length")}{" "}
-                  {field("elementWidth", "Element height/width")}{" "}
-                  {field("elementDepth", "Element thickness")}{" "}
-                  {field("bulking", "Debris bulking factor", "factor", 1)}{" "}
-                  {field("skipCapacity", "Skip capacity", "m³")}
-                </>
               )}
             </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button type="submit" className="rounded-xl">
-                {t("Calculate quantities")}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-xl"
-                onClick={() => setResult(null)}
-              >
-                <RotateCcw className="mr-2 h-4 w-4" />
-                {t("Clear results")}
-              </Button>
-            </div>
-            {error && (
-              <p role="alert" className="mt-4 text-sm text-destructive">
-                {error}
-              </p>
-            )}
-            {buildingNotes.length > 0 && (
-              <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
-                {buildingNotes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            )}
-          </form>
-          <section
-            className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
-            aria-live="polite"
-          >
-            <div className="mb-5 flex items-start gap-3">
-              <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                <BrickWall className="h-5 w-5" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {t("Quantity summary")}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {result
-                    ? `Calculated for ${marketCode}`
-                    : "Your results will appear here."}
-                </p>
-              </div>
-            </div>
-            {result ? (
-              <>
-                <div className="divide-y divide-border">
-                  {(engineAccess.limited
-                    ? rows.slice(0, engineAccess.visibleLines)
-                    : rows
-                  ).map((row) => (
-                    <div
-                      key={row.label}
-                      className="flex min-w-0 items-start justify-between gap-4 py-3"
-                    >
-                      <span className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                        {row.label}
-                      </span>
-                      <span className="min-w-0 max-w-[60%] text-right text-sm font-semibold [overflow-wrap:anywhere]">
-                        {row.value}
-                      </span>
-                    </div>
-                  ))}
+          )}
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
+            <form
+              onSubmit={runCalculation}
+              className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
+            >
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold">
+                    {t("Project measurements")}
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t(
+                      "Choose the working market, then enter measured dimensions.",
+                    )}
+                  </p>
                 </div>
-                {engineAccess.limited && engineAccess.engine && (
-                  <div className="mt-5">
-                    <EnginePreviewLock
-                      engine={engineAccess.engine}
-                      hiddenLines={engineAccess.hiddenLines(rows.length)}
+                <Ruler className="h-5 w-5 text-primary" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {select(
+                  "Market",
+                  marketCode,
+                  (code) => {
+                    setMarketCode(code);
+                    setUnitId("");
+                    // A market change also resets the wall build-up, because the
+                    // normal wall differs: China 240 mm, UK cavity, others single
+                    // leaf.
+                    setValues((current) => ({ ...current, leaves: "" }));
+                  },
+                  availableMarkets.map((entry) => ({
+                    value: entry.country_code,
+                    label: entry.country_name,
+                  })),
+                )}
+                {engine === "masonry" &&
+                  select(
+                    "Masonry unit",
+                    unitId || masonryConfig.defaultUnit.id,
+                    setUnitId,
+                    masonryConfig.availableUnits.map((unit) => ({
+                      value: unit.id,
+                      label: unit.name,
+                    })),
+                  )}
+                {engine === "masonry" &&
+                  select(
+                    "Wall build-up",
+                    String(selectedLeaves),
+                    (value) => update("leaves", value),
+                    [1, 2, 3].map((count) => ({
+                      value: String(count),
+                      label: `${count} ${count === 1 ? "leaf" : "leaves"} (${wallThicknessForLeaves(
+                        activeMasonryUnit.widthMm,
+                        activeMasonryUnit.standardJointMm,
+                        count,
+                      ).toFixed(0)} mm)`,
+                    })),
+                  )}
+                {engine === "masonry" && (
+                  <p className="text-xs text-muted-foreground md:col-span-2">
+                    Each leaf carries its own units, mortar and cement, and the
+                    joints between leaves are counted in the thickness shown.
+                    Leave the unit set to the local brick and the default
+                    build-up gives the wall that market actually lays.
+                  </p>
+                )}
+                {engine === "masonry" && (
+                  <>
+                    {field("length", "Wall length", wallLengthUnit)}{" "}
+                    {field("height", "Wall height", wallLengthUnit)}{" "}
+                    {field("count", "Number of similar walls", "walls", 1)}{" "}
+                    {field("waste", "Cut/breakage allowance", "%")}
+                  </>
+                )}
+                {engine === "plastering" && (
+                  <>
+                    {field("area", "Surface area", "m²")}{" "}
+                    {field("thickness", "Total coat thickness", "mm")}{" "}
+                    {field("waste", "Material allowance", "%")}
+                  </>
+                )}
+                {engine === "drywall" && (
+                  <>
+                    {field("length", "Partition run length")}{" "}
+                    {field("height", "Partition height")}{" "}
+                    {field("count", "Number of similar runs", "walls", 1)}{" "}
+                    {field("spacing", "Stud spacing", "mm", 100)}{" "}
+                    {field("waste", "Board allowance", "%")}
+                  </>
+                )}
+                {engine === "paving" && (
+                  <>
+                    {field("area", "Paved area", "m²")}{" "}
+                    {field("paverLength", "Paver length", "mm")}{" "}
+                    {field("paverWidth", "Paver width", "mm")}{" "}
+                    {field("waste", "Cutting allowance", "%")}
+                  </>
+                )}
+                {engine === "drainage" && (
+                  <>
+                    {field("runLength", "Drain run length")}{" "}
+                    {field("diameter", "Pipe diameter", "mm")}{" "}
+                    {field("fall", "Specified fall", "mm/m")}{" "}
+                    {field("trenchWidth", "Trench width")}{" "}
+                    {field("trenchDepth", "Trench depth")}
+                  </>
+                )}
+                {engine === "septic" && (
+                  <>
+                    {field("occupants", "Design population", "people", 1)}{" "}
+                    {field(
+                      "dailyFlow",
+                      "Approved daily flow per person",
+                      "L/person/day",
+                      1,
+                    )}{" "}
+                    {field("retentionDays", "Required retention", "days", 0)}{" "}
+                    {field(
+                      "storageDays",
+                      "Additional storage allowance",
+                      "days",
+                      0,
+                    )}{" "}
+                    {field("freeboard", "Freeboard allowance", "%", 0)}{" "}
+                    {field(
+                      "soilLoading",
+                      "Accepted soil loading rate (optional)",
+                      "L/m²/day",
+                      0,
+                    )}{" "}
+                    {field(
+                      "soakawayDepth",
+                      "Soakaway effective depth (optional)",
+                      "m",
+                      0,
+                    )}
+                  </>
+                )}
+                {engine === "temporary-works" && (
+                  <>
+                    {field("elementLength", "Slab length")}{" "}
+                    {field("elementWidth", "Slab width")}{" "}
+                    {field("elementDepth", "Slab thickness")}{" "}
+                    {field("scaffoldLength", "Scaffold run")}{" "}
+                    {field("scaffoldHeight", "Working height")}
+                  </>
+                )}
+                {engine === "insulation" && (
+                  <>
+                    {field("area", "Insulated area", "m²")}{" "}
+                    {field("thickness", "Insulation thickness", "mm")}{" "}
+                    {field("layers", "Number of layers", "layers", 1)}{" "}
+                    {field(
+                      "packCoverage",
+                      "Product pack coverage",
+                      "m² per pack",
+                    )}{" "}
+                    {field("waste", "Cutting allowance", "%")}
+                  </>
+                )}
+                {engine === "demolition" && (
+                  <>
+                    {field("elementLength", "Element length")}{" "}
+                    {field("elementWidth", "Element height/width")}{" "}
+                    {field("elementDepth", "Element thickness")}{" "}
+                    {field("bulking", "Debris bulking factor", "factor", 1)}{" "}
+                    {field("skipCapacity", "Skip capacity", "m³")}
+                  </>
+                )}
+              </div>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button type="submit" className="rounded-xl">
+                  {t("Calculate quantities")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl"
+                  onClick={() => setResult(null)}
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  {t("Clear results")}
+                </Button>
+              </div>
+              {error && (
+                <p role="alert" className="mt-4 text-sm text-destructive">
+                  {error}
+                </p>
+              )}
+              {buildingNotes.length > 0 && (
+                <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
+                  {buildingNotes.map((note) => (
+                    <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              )}
+            </form>
+            <section
+              className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7 dark:border-white/5"
+              aria-live="polite"
+            >
+              <div className="mb-5 flex items-start gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                  <BrickWall className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">
+                    {t("Quantity summary")}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {result
+                      ? `Calculated for ${marketCode}`
+                      : "Your results will appear here."}
+                  </p>
+                </div>
+              </div>
+              {result ? (
+                <>
+                  <div className="divide-y divide-border">
+                    {(engineAccess.limited
+                      ? rows.slice(0, engineAccess.visibleLines)
+                      : rows
+                    ).map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex min-w-0 items-start justify-between gap-4 py-3"
+                      >
+                        <span className="min-w-0 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                          {row.label}
+                        </span>
+                        <span className="min-w-0 max-w-[60%] text-right text-sm font-semibold [overflow-wrap:anywhere]">
+                          {row.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {engineAccess.limited && engineAccess.engine && (
+                    <div className="mt-5">
+                      <EnginePreviewLock
+                        engine={engineAccess.engine}
+                        hiddenLines={engineAccess.hiddenLines(rows.length)}
+                      />
+                    </div>
+                  )}
+                  {"packagingEvidence" in result &&
+                    result.packagingEvidence && (
+                      <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
+                        <div className="font-semibold">
+                          {result.packagingEvidence.label}
+                        </div>
+                        <p className="mt-1 text-muted-foreground">
+                          {result.packagingEvidence.guidance}
+                        </p>
+                        {result.packagingEvidence.sources.length > 0 && (
+                          <ul className="mt-3 space-y-1 border-t border-border pt-3">
+                            {result.packagingEvidence.sources.map((source) => (
+                              <li key={source.url}>
+                                <a
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-medium text-primary underline underline-offset-2"
+                                >
+                                  {source.publisher} source ↗
+                                </a>
+                                <span className="text-muted-foreground">
+                                  {" "}
+                                  · {source.scopeNote}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  <EstimateDisclaimer text="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs." />
+                  <div className="mt-5 flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl"
+                      onClick={exportTakeoffPdf}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      {t("Export PDF")}
+                    </Button>
+                    <CalculatorResetButton
+                      onReset={resetInputs}
+                      className="mb-4"
+                    />
+                    <HowCalculatedSection
+                      methodologyText={methodologyText("standalone-takeoff")}
+                    />
+                    <QuoteShareButton
+                      build={buildTakeoffQuote}
+                      kind={`${title} Takeoff`}
+                      link={currentPath}
                     />
                   </div>
-                )}
-                {"packagingEvidence" in result && result.packagingEvidence && (
-                  <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
-                    <div className="font-semibold">
-                      {result.packagingEvidence.label}
-                    </div>
-                    <p className="mt-1 text-muted-foreground">
-                      {result.packagingEvidence.guidance}
-                    </p>
-                    {result.packagingEvidence.sources.length > 0 && (
-                      <ul className="mt-3 space-y-1 border-t border-border pt-3">
-                        {result.packagingEvidence.sources.map((source) => (
-                          <li key={source.url}>
-                            <a
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-medium text-primary underline underline-offset-2"
-                            >
-                              {source.publisher} source ↗
-                            </a>
-                            <span className="text-muted-foreground">
-                              {" "}
-                              · {source.scopeNote}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
-                <EstimateDisclaimer text="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs." />
-                <div className="mt-5 flex flex-wrap items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-xl"
-                    onClick={exportTakeoffPdf}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    {t("Export PDF")}
-                  </Button>
-                  <CalculatorResetButton
-                    onReset={resetInputs}
-                    className="mb-4"
-                  />
-                  <HowCalculatedSection
-                    methodologyText={methodologyText("standalone-takeoff")}
-                  />
-                  <QuoteShareButton
-                    build={buildTakeoffQuote}
-                    kind={`${title} Takeoff`}
-                    link={currentPath}
-                  />
+                  <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                    Calculation assumptions and output are shown for review;
+                    results are not a safety certification.
+                  </p>
+                </>
+              ) : (
+                <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-border text-center">
+                  <Ruler className="mb-3 h-7 w-7 text-muted-foreground/60" />
+                  <p className="text-sm font-medium">
+                    {t("Ready when you are")}
+                  </p>
+                  <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+                    Enter the measured quantities and run the estimate to see a
+                    material breakdown.
+                  </p>
                 </div>
-                <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-                  Calculation assumptions and output are shown for review;
-                  results are not a safety certification.
-                </p>
-              </>
-            ) : (
-              <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-border text-center">
-                <Ruler className="mb-3 h-7 w-7 text-muted-foreground/60" />
-                <p className="text-sm font-medium">{t("Ready when you are")}</p>
-                <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-                  Enter the measured quantities and run the estimate to see a
-                  material breakdown.
-                </p>
-              </div>
-            )}
-          </section>
-        </div>
-        <AdSlot slotKey="calculator_mid" className="mt-8" />
-        {/* Native banner slot, placement "calculator_native" */}
-        <AdSlot slotKey="calculator_native" className="mt-8" />
-
-        {engine === "masonry" && (
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
-            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-              Build sequence
-            </p>
-            <h2 className="mt-2 text-lg font-semibold">How the wall goes up</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Each course is staggered against the one below, so vertical joints
-              never line up. Tap a step to see what happens on site and what to
-              check before moving on.
-            </p>
-            <div className="mt-4">
-              <AnimatedBuildSequence
-                steps={MASONRY_COURSE_SEQUENCE}
-                kind="courses"
-                title="Blockwork build sequence"
-                caption="Running bond: every course offset half a block, bed joint in mortar."
-              />
-            </div>
-          </section>
-        )}
-        {engine === "paving" && (
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
-            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-              Build sequence
-            </p>
-            <h2 className="mt-2 text-lg font-semibold">
-              How paving is laid, layer by layer
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              The bedding layer levels the pavers. It is never used to correct a
-              sub-base that was not compacted.
-            </p>
-            <div className="mt-4">
-              <AnimatedBuildSequence
-                steps={PAVING_SEQUENCE}
-                kind="layers"
-                layers={PAVING_LAYERS}
-                title="Paving layer build-up"
-                caption="Subgrade, sub-base, bedding sand, pavers, jointing sand."
-              />
-            </div>
-          </section>
-        )}
-      </Container>
-      <div className="mt-10">
-        {FAQ_BY_ENGINE[engine] ? (
-          <div className="mt-8">
-            <ToolFaqs slug={FAQ_BY_ENGINE[engine]} />
+              )}
+            </section>
           </div>
-        ) : null}
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
+          <AdSlot slotKey="calculator_mid" className="mt-8" />
+          {/* Native banner slot, placement "calculator_native" */}
+          <AdSlot slotKey="calculator_native" className="mt-8" />
+
+          {engine === "masonry" && (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                Build sequence
+              </p>
+              <h2 className="mt-2 text-lg font-semibold">
+                How the wall goes up
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Each course is staggered against the one below, so vertical
+                joints never line up. Tap a step to see what happens on site and
+                what to check before moving on.
+              </p>
+              <div className="mt-4">
+                <AnimatedBuildSequence
+                  steps={MASONRY_COURSE_SEQUENCE}
+                  kind="courses"
+                  title="Blockwork build sequence"
+                  caption="Running bond: every course offset half a block, bed joint in mortar."
+                />
+              </div>
+            </section>
+          )}
+          {engine === "paving" && (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
+              <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
+                Build sequence
+              </p>
+              <h2 className="mt-2 text-lg font-semibold">
+                How paving is laid, layer by layer
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                The bedding layer levels the pavers. It is never used to correct
+                a sub-base that was not compacted.
+              </p>
+              <div className="mt-4">
+                <AnimatedBuildSequence
+                  steps={PAVING_SEQUENCE}
+                  kind="layers"
+                  layers={PAVING_LAYERS}
+                  title="Paving layer build-up"
+                  caption="Subgrade, sub-base, bedding sand, pavers, jointing sand."
+                />
+              </div>
+            </section>
+          )}
+        </Container>
       </div>
-    </div>
+    </ToolShell>
   );
 }

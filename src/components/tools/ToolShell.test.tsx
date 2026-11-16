@@ -99,18 +99,37 @@ describe("tool shell", () => {
     expect(migrated.length).toBeGreaterThan(0);
     for (const file of migrated) {
       const src = readFileSync(file, "utf8");
-      const declared = src.match(/<ToolShell[\s\S]{0,400}?route="([^"]+)"/);
-      expect(declared, `${file} must state its catalogue route`).toBeTruthy();
-      const route = declared![1];
-      expect(
-        findToolByRoute(route),
-        `${route} must be catalogued`,
-      ).toBeDefined();
       const served = servedAt.get(file.replace(/\.tsx$/, ""));
       expect(served, `${file} must be routed in App.tsx`).toBeTruthy();
-      expect([...served!], `${file} served at a different address`).toContain(
-        route,
+      const declared = src.match(/<ToolShell[\s\S]{0,400}?route="([^"]+)"/);
+      if (declared) {
+        const route = declared[1];
+        expect(
+          findToolByRoute(route),
+          `${route} must be catalogued`,
+        ).toBeDefined();
+        expect([...served!], `${file} served at a different address`).toContain(
+          route,
+        );
+        continue;
+      }
+      // One page can serve several tools and name its route from the engine, as
+      // the shared takeoff page does. Then every address it answers at has to be
+      // catalogued, and it has to answer at more than one, or the page would be
+      // guessing its own address.
+      expect(src, `${file} must state a route`).toMatch(
+        /<ToolShell[\s\S]{0,400}?route=\{/,
       );
+      expect(
+        served!.size,
+        `${file} serves a single address, so name it`,
+      ).toBeGreaterThan(1);
+      for (const route of served!) {
+        expect(
+          findToolByRoute(route),
+          `${route} answers from ${file} but is not catalogued`,
+        ).toBeDefined();
+      }
     }
   });
 
