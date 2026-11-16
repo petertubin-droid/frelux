@@ -116,11 +116,11 @@ describe("fence blockwork engine", () => {
       widthM: 15.24,
     }).result!;
     expect(ng.cement.bagKg).toBe(50);
-    // The market table is the one authority for bag mass: 94 lb converts to
-    // 42.64 kg and the table holds it to one decimal, so every engine reads
-    // the same figure instead of each rounding 94 lb its own way.
+    // The market table is the one authority for bag mass: it carries the
+    // published 42.6 kg for a 94 lb bag, so every engine reads the same figure
+    // instead of each converting 94 lb its own way.
     expect(us.cement.bagKg).toBe(MASONRY_MARKET_REGISTRY.US.cementBagWeightKg);
-    expect(us.cement.bagKg).toBeCloseTo(42.64, 1);
+    expect(us.cement.bagKg).toBe(42.6);
     expect(us.cement.bags).toBeGreaterThan(0);
   });
 

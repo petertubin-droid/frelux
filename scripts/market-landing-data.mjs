@@ -221,7 +221,10 @@ export const marketLandingRoutes = [
     blockLengthMm: 500,
     blockHeightMm: 200,
     blockWidthMm: 200,
-    cementBagKg: 25.0,
+    // France sells a 35 kg bag of cement; this page carried 25.0 while the
+    // canonical market table carried 35, so the landing page and every
+    // calculator disagreed about the same market.
+    cementBagKg: 35.0,
     electricalStandard:
       "Norme NF C 15-100 (Installations électriques à basse tension)",
     electricalVoltage: "230V single-phase / 400V three-phase",

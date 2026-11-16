@@ -211,12 +211,12 @@ describe("Audit Findings & Fixes Verification Suite", () => {
       {},
     );
 
-    expect(
-      genRes.steps.some((s) => s.detail.includes("continuous (0.8 PF)")),
-    ).toBe(true);
-    expect(genRes.steps.some((s) => s.detail.includes("inrush capacity"))).toBe(
-      true,
-    );
+    // The step now states the continuous rating as "continuous at 0.8 power
+    // factor" and names motor starting rather than "inrush capacity", so the
+    // assertion follows the wording the engine actually produces.
+    const unitStep = genRes.steps.find((s) => s.label === "Generator unit");
+    expect(unitStep?.detail).toMatch(/continuous at 0\.8 power factor/);
+    expect(unitStep?.detail).toMatch(/motor starting/);
   });
 
   // Finding 8: Solar PV battery usable Depth-of-Discharge (DoD)

@@ -62,7 +62,10 @@ const VECTORS: GoldenVector[] = [
   {
     market: "US",
     masonryKey: "us-cmu",
-    bagKg: 42.64,
+    // 94 lb is 42.6377 kg, and the market table carries the published
+    // QUIKRETE figure of 42.6 so every engine reads the same pack. This vector
+    // had 42.64, the bare conversion, and failed against the table.
+    bagKg: 42.6,
     timberKey: "us-2x12",
     timberDepthMm: 286,
     voltage: "120V / 240V split-phase",
