@@ -23,6 +23,7 @@ import {
   calculateHipLength,
   calculateFasciaLength,
   estimateTimberMeters,
+  TRIM_WASTAGE_PERCENT,
   validateBuildToRoofInput,
   convertBuildToRoofUnits,
   calculateBuildToRoof,
@@ -263,9 +264,13 @@ describe("calculateFasciaLength", () => {
 });
 
 describe("estimateTimberMeters", () => {
-  it("returns minimal timber for flat roof", () => {
+  it("derives flat-roof timber from joists instead of a rate per m²", () => {
+    // A flat roof is framed too: joists at rafter centres spanning the eave
+    // width, one at each end. 10 m + 2 x 0.6 m eave / 0.9 m centres = 13 bays,
+    // 14 joists, each (8 + 1.2) = 9.2 m long. The old answer was area x 2 m,
+    // which ignored span, spacing and the overhang.
     const result = estimateTimberMeters(100, 10, 8, 0, 0.6, "flat");
-    expect(result).toBe(200);
+    expect(result).toBeCloseTo(14 * 9.2, 2);
   });
   it("calculates rafters + purlins for gable on the eave rectangle", () => {
     const result = estimateTimberMeters(100, 10, 8, 30, 0.6, "gable");
@@ -612,12 +617,16 @@ describe("calculateBuildToRoof (audit regression)", () => {
       .flatMap((s) => s.materials)
       .find((m) => m.label === "Roofing sheets");
     expect(sheets?.final_quantity).toBe(28);
-    // Cost follows the area actually ordered: 28 sheets x 0.9 m cover x
-    // 5.3116 m slope = 133.85 m², priced per m² from the panel price.
-    const slopeLen = 9.2 / 2 / Math.cos((30 * Math.PI) / 180);
+    // A long-span length is one piece at the price the user typed for a piece.
+    // Converting the piece price through a 1.5 m² panel reference multiplied it
+    // by the length's area ratio (0.9 m cover x 5.31 m slope / 1.5 = 3.19) and
+    // overcharged the largest line on the roof.
     expect(sheets?.total_cost).toBeCloseTo(
-      28 * 0.9 * slopeLen * (DEFAULT_PRICES.roofing_sheet_per_piece / 1.5),
+      28 * DEFAULT_PRICES.roofing_sheet_per_piece,
       0,
+    );
+    expect(sheets?.unit_price).toBe(
+      Math.round(DEFAULT_PRICES.roofing_sheet_per_piece),
     );
   });
 
@@ -926,5 +935,73 @@ describe("formwork, membrane and concrete allowances", () => {
     // 10 x 8 footprint with the 5 per cent lap allowance.
     expect(membrane?.base_quantity).toBeCloseTo(80, 6);
     expect(membrane?.final_quantity).toBeCloseTo(84, 6);
+  });
+});
+
+// ─────────────────────────────────────────────
+// Roofing lines: pieces, fixings and printed money
+// ─────────────────────────────────────────────
+
+describe("roofing lines reproduce themselves", () => {
+  const roofStage = (material: string, roofType = "gable") => {
+    const result = calculateBuildToRoof(
+      makeValidInput({ roofing_material: material, roof_type: roofType } as never),
+    );
+    return result.stages.find((s) => /roof/i.test(s.stage))!;
+  };
+
+  it("prices every material line at the quantity it prints", () => {
+    for (const material of ["gi_sheet", "long_span_aluminium", "stone_coated"]) {
+      for (const line of roofStage(material).materials) {
+        expect(line.total_cost, `${material} ${line.label}`).toBeCloseTo(
+          line.final_quantity * line.unit_price,
+          2,
+        );
+      }
+    }
+  });
+
+  it("gives a long-span length the fixings its area needs", () => {
+    const screws = roofStage("long_span_aluminium").materials.find(
+      (m) => m.label === "Roofing screws",
+    )!;
+    const sheets = roofStage("long_span_aluminium").materials.find(
+      (m) => m.label === "Roofing sheets",
+    )!;
+    // Ten fixings per 1.52 m² panel is a density, 6.58/m². A 0.9 m cover x
+    // 5.31 m slope length covers 4.78 m², so it needs about 31 fixings, not 10.
+    const perSheet = screws.final_quantity / sheets.final_quantity;
+    expect(perSheet).toBeGreaterThan(10);
+  });
+
+  it("keeps the ten-fixings-per-panel rule for panels", () => {
+    const screws = roofStage("gi_sheet").materials.find(
+      (m) => m.label === "Roofing screws",
+    )!;
+    const sheets = roofStage("gi_sheet").materials.find(
+      (m) => m.label === "Roofing sheets",
+    )!;
+    // Ten fixings per panel, before the fixings' own 5% allowance.
+    expect(screws.base_quantity).toBe(Math.ceil(sheets.final_quantity * 10));
+  });
+
+  it("orders the trim wastage the quantity line reports", () => {
+    const stage = roofStage("gi_sheet", "hip");
+    for (const label of ["Ridge caps", "Hip accessories"]) {
+      const trim = stage.materials.find((m) => m.label === label)!;
+      const qty = stage.quantities.find((q) => q.label.startsWith(label.split(" ")[0]))!;
+      expect(trim.wastage_percent, label).toBe(qty.wastage_percent);
+      expect(trim.final_quantity, label).toBeCloseTo(
+        qty.base_quantity * (1 + TRIM_WASTAGE_PERCENT / 100),
+        1,
+      );
+    }
+  });
+
+  it("never returns a negative or blank sheet count", () => {
+    expect(roofingSheetsCount(-50, 1.52)).toBe(0);
+    expect(roofingSheetsCount(Number.NaN, 1.52)).toBe(0);
+    expect(roofingSheetsCount(93.11, 0)).toBe(0);
+    expect(roofingSheetsCount(93.11, 1.52)).toBe(62);
   });
 });

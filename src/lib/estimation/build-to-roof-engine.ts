@@ -119,10 +119,26 @@ export const LONG_SPAN_COVER_WIDTH_M = 0.9;
 // Roofing screws per sheet (approximate)
 export const SCREWS_PER_SHEET = 10;
 
+/** Area the ten-fixing rule was written for: one 0.83 m x 1.83 m GI sheet. */
+export const SCREW_REFERENCE_PANEL_M2 = 1.52;
+
+/**
+ * Fixings per square metre implied by that rule (6.58/m2). Applying the density
+ * rather than a flat ten per piece keeps panels where they were and gives a
+ * long-span length the fixings its area needs.
+ */
+export const SCREW_DENSITY_PER_M2 = SCREWS_PER_SHEET / SCREW_REFERENCE_PANEL_M2;
+
 // Purlin spacing along the slope (m). A 0.5 mm long-span sheet needs support
 // at about 1.0 m, so a fixed four rows over a 6 m slope (2.06 m apart) left the
 // sheets unsupported.
 export const PURLIN_SPACING_M = 1.0;
+
+/**
+ * Wastage on ridge caps and hip accessories: short trim lengths cut from
+ * longer stock, so it is a cutting allowance rather than a coverage allowance.
+ */
+export const TRIM_WASTAGE_PERCENT = 5;
 
 // Purlin rows per roof slope when no slope length is known (kept for callers
 // that only want a nominal count).
@@ -246,14 +262,18 @@ function matLine(
   // Discrete pieces (blocks, sheets, screws) are bought whole, one
   // purchase rounding at the end. Continuous materials keep 2 dp.
   const finalQty = unit === "pcs" ? Math.ceil(withWastage) : withWastage;
+  const printedQty = round(finalQty);
   return {
     label,
     unit,
     base_quantity: round(baseQty),
     wastage_percent: wastagePercent,
-    final_quantity: round(finalQty),
+    final_quantity: printedQty,
     unit_price: unitPrice,
-    total_cost: round(finalQty * unitPrice),
+    // Round the quantity to what is actually bought before pricing it, so the
+    // figure on the line reproduces the money on the line (251.229 m of timber
+    // printed as 251.23 m used to be priced as 251.229 m).
+    total_cost: round(printedQty * unitPrice),
     price_source: priceSource,
   };
 }
@@ -603,7 +623,11 @@ export function roofingSheetsCount(
   roofAreaM2: number,
   sheetCoverageM2: number,
 ): number {
-  if (sheetCoverageM2 <= 0) return 0;
+  // Nothing to cover is zero sheets. A negative or unreadable area is not a
+  // negative order: it used to return minus thirty-two sheets for minus fifty
+  // square metres, which reads as a credit against the roof.
+  if (!Number.isFinite(roofAreaM2) || roofAreaM2 <= 0) return 0;
+  if (!Number.isFinite(sheetCoverageM2) || sheetCoverageM2 <= 0) return 0;
   return Math.ceil(roofAreaM2 / sheetCoverageM2);
 }
 
@@ -721,11 +745,14 @@ export function summariseTimberFraming(
   const eaveLength = buildingLength + 2 * overhang;
   const eaveWidth = buildingWidth + 2 * overhang;
   if (roofType === "flat") {
+    // Joists at rafter centres spanning the eave width, reported the same way
+    // rafters are so the line states its count instead of "minimal allowance".
+    const joists = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
     return {
       totalM,
       rafterSpacingM: RAFTER_SPACING,
-      rafterRuns: 0,
-      rafterLengthM: 0,
+      rafterRuns: joists,
+      rafterLengthM: round(joists * eaveWidth),
       purlinRowsPerPlane: 0,
       purlinPlanes: 0,
       purlinLengthM: 0,
@@ -788,7 +815,14 @@ export function estimateTimberMeters(
   roofType: string,
 ): number {
   if (roofType === "flat") {
-    return Math.ceil(roofAreaM2 * 2); // minimal timber for flat roof
+    // A flat roof is still framed: joists at the same centres as rafters,
+    // spanning the eave width, with one at each end. It used to be charged two
+    // metres of timber per square metre of area, a rate with no derivation
+    // behind it that ignored span, spacing and every input except area.
+    const flatLength = buildingLength + 2 * overhang;
+    const flatWidth = buildingWidth + 2 * overhang;
+    const joists = Math.ceil(flatLength / RAFTER_SPACING) + 1;
+    return round(joists * flatWidth);
   }
 
   const pitchRad = (pitchDegrees * Math.PI) / 180;
@@ -2147,12 +2181,11 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
     : Math.ceil(
         applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage,
       );
-  // The sheet price is quoted per piece for a known sheet area, so it is
-  // converted to a price per m² of sheet and applied to the area actually
-  // ordered. That keeps a user-entered sheet price meaningful whether the
-  // sheets are 1.5 m² panels or 6 m long-span lengths.
-  const referenceSheetArea = getSheetCoverage(roofingMaterial);
-  const pricePerM2 = input.prices.roofing_sheet_per_piece / referenceSheetArea;
+  // The price the user enters is per PIECE, and a piece is whatever that
+  // material is sold as: a fixed panel, or a long-span length cut to the slope.
+  // Converting it through a reference panel area and back out again multiplied
+  // a long-span length by its area ratio (0.9 m cover x 4.16 m slope against a
+  // 1.5 m2 panel, so 2.49 times) and overcharged the largest line on the roof.
   const purchasedArea = purchaseSheets * sheetCoverage;
   materials.push({
     label: "Roofing sheets",
@@ -2160,12 +2193,8 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
     base_quantity: round(sheetCount),
     wastage_percent: input.wastage.roofing_sheets,
     final_quantity: purchaseSheets,
-    unit_price: round(
-      purchasedArea / purchaseSheets > 0
-        ? (purchasedArea * pricePerM2) / purchaseSheets
-        : input.prices.roofing_sheet_per_piece,
-    ),
-    total_cost: round(purchasedArea * pricePerM2),
+    unit_price: round(input.prices.roofing_sheet_per_piece),
+    total_cost: round(purchaseSheets * input.prices.roofing_sheet_per_piece),
     price_source: input.prices.price_source,
   });
 
@@ -2188,7 +2217,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
       },
       ridgeLength,
       "m",
-      0,
+      TRIM_WASTAGE_PERCENT,
     ),
   );
   if (ridgeLength > 0) {
@@ -2197,7 +2226,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
         "Ridge caps",
         "m",
         ridgeLength,
-        5,
+        TRIM_WASTAGE_PERCENT,
         input.prices.ridge_cap_per_meter,
         input.prices.price_source,
       ),
@@ -2224,7 +2253,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
         },
         hipLength,
         "m",
-        0,
+        TRIM_WASTAGE_PERCENT,
       ),
     );
     materials.push(
@@ -2232,7 +2261,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
         "Hip accessories",
         "m",
         hipLength,
-        5,
+        TRIM_WASTAGE_PERCENT,
         input.prices.ridge_cap_per_meter,
         input.prices.price_source,
       ),
@@ -2254,7 +2283,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
       "Timber (rafters + purlins)",
       timber.rafterRuns > 0
         ? `Rafters at ${timber.rafterSpacingM} m centres (${timber.rafterRuns} rafter runs, ${timber.rafterLengthM} m) + purlins at ${PURLIN_SPACING_M} m along the slope (${timber.purlinRowsPerPlane} rows on ${timber.purlinPlanes} plane(s), ${timber.purlinLengthM} m)`
-        : "Minimal timber allowance for a flat roof",
+        : `Joists at ${timber.rafterSpacingM} m centres (${timber.rafterRuns} joists, ${timber.rafterLengthM} m)`,
       {
         roof_area: roofArea,
         rafter_spacing_m: timber.rafterSpacingM,
@@ -2276,8 +2305,11 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
     ),
   );
 
-  // Roofing screws (10 per sheet, sized to the purchase quantity)
-  const screwCount = purchaseSheets * SCREWS_PER_SHEET;
+  // Roofing screws. The documented rule is ten fixings for a 1.52 m2 GI panel,
+  // which is a density rather than a piece count. A long-span length covers
+  // 3.7 m2 and was still given ten fixings, a quarter of what the same roof
+  // needs; the density is applied to the area actually ordered instead.
+  const screwCount = Math.ceil(purchasedArea * SCREW_DENSITY_PER_M2);
   materials.push(
     matLine(
       "Roofing screws",
