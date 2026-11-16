@@ -46,7 +46,6 @@ export default function AdminCodeRegistry() {
   const [overlay, setOverlay] = useState<StatusOverlay>({});
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [familyId, setFamilyId] = useState(FAMILY_ORDER[0]);
 
   const [selectedKey, setSelectedKey] = useState<string>("");
@@ -58,7 +57,6 @@ export default function AdminCodeRegistry() {
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
 
   const load = useCallback(async () => {
-    setLoading(true);
     const [statusResult, historyResult] = await Promise.all([
       fetchStatusOverlay(),
       fetchStatusHistory(40),
@@ -66,7 +64,6 @@ export default function AdminCodeRegistry() {
     setOverlay(statusResult.overlay);
     setHistory(historyResult.rows);
     setLoadError(statusResult.error ?? historyResult.error ?? null);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -268,10 +265,11 @@ export default function AdminCodeRegistry() {
           </AdminField>
 
           <div className="mt-3 flex items-center gap-3">
-            <AdminButton
-              onClick={handleSave}
-              disabled={save.kind === "saving" || loading}
-            >
+            {/* Only a save in flight disables this. Tying it to the page's
+                load made the button ignored for the whole fetch, and the rows
+                render from the static family table before that resolves, so a
+                click could land on a disabled control with no feedback. */}
+            <AdminButton onClick={handleSave} disabled={save.kind === "saving"}>
               <Save aria-hidden="true" className="mr-2 h-4 w-4" />
               {save.kind === "saving" ? "Saving…" : "Save status"}
             </AdminButton>
