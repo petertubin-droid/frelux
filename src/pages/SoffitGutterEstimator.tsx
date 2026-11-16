@@ -137,12 +137,6 @@ export default function SoffitGutterEstimator() {
       methodology="soffit-gutter"
       onReset={resetInputs}
       calculatorType="soffit_gutter"
-      title="Soffit, Fascia & Gutter Estimator"
-      subtitle="Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, ready to price."
-      seoTitle="Soffit, Fascia and Rainwater Gutter Cost Estimator | FRELUX"
-      seoDescription="Estimate fascia board, rainwater gutter, soffit panels, downpipes and brackets from the roof perimeter and eaves overhang, with a 5% cutting allowance and downpipes every 12 m."
-      breadcrumbName="Soffit and Gutter Estimator"
-      faqSlug="soffit-gutter-cost-estimator"
       routePath="/rainwater-gutter-soffit-cost-estimator"
       limitations={[
         "This sizes materials from the eaves perimeter you supply. It does not measure a roof or verify the perimeter against the building.",
@@ -237,6 +231,7 @@ export default function SoffitGutterEstimator() {
                 },
               ]}
             />
+            <UnitToggle value={unit} onChange={setUnit} />
             {mode === "perimeter" ? (
               <NumberField
                 label="Roof perimeter at the eaves"

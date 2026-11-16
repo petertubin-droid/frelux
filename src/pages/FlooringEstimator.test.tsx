@@ -26,10 +26,14 @@ vi.mock("@/components/ui/AdSlot", () => ({
     <div data-testid={`ad-${slotKey}`} />
   ),
 }));
-vi.mock("@/components/seo/SeoSections", () => ({
-  RelatedTools: () => null,
-  CALC_LINKS: { paintCalculator: {}, tileCalc: {}, finishEstimator: {} },
-}));
+// The page now renders through the shared shell, which draws its own neighbour
+// row, questions and calculator markup from the same module, so the doubles are
+// kept whole and only the pieces that fetch or draw are replaced.
+vi.mock("@/components/seo/SeoSections", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/components/seo/SeoSections")>();
+  return { ...actual, RelatedTools: () => null };
+});
 vi.mock("@/components/ui/PageHeader", () => ({
   default: ({ title }: { title: string }) => (
     <header>

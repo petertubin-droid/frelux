@@ -398,11 +398,6 @@ export default function FlooringEstimator() {
   return (
     <SpecialtyCalculatorShell
       calculatorType="flooring"
-      title={t("Flooring Estimator")}
-      subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the visible coverage, pack-size and waste rules. Estimation only: not a flooring specification."
-      seoTitle="Flooring Estimator: Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX"
-      seoDescription="Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only: not a flooring specification."
-      breadcrumbName="Flooring Estimator"
       routePath="/flooring"
       methodology="flooring"
       limitations={[

@@ -11,11 +11,9 @@ import { useId, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Calculator, Info, Printer } from "lucide-react";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -26,7 +24,6 @@ import { useMarket } from "@/lib/international/market-context";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -46,11 +43,6 @@ export interface SpecialtyCrossLink {
 
 export interface SpecialtyCalculatorShellProps {
   calculatorType: string;
-  title: string;
-  subtitle: string;
-  seoTitle: string;
-  seoDescription: string;
-  breadcrumbName: string;
   /** Canonical route, used for the breadcrumb trail and structured data. */
   routePath: string;
   /** What this tool deliberately does not cover, shown at the foot of the page. */
@@ -64,8 +56,6 @@ export interface SpecialtyCalculatorShellProps {
   onPriceOverride: (slug: string, value: string) => void;
   bookSummary?: PriceBookSummary | null;
   crossLinks: SpecialtyCrossLink[];
-  /** Registry slug in src/config/tool-faqs.ts; renders the tool's questions. */
-  faqSlug?: string;
   proCallout?: { title: string; body: string; cta: string; to: string };
   quoteTitle: string;
   quoteFooter: string;
@@ -90,11 +80,6 @@ function fmt(v: number | null, symbol: string): string {
 
 export function SpecialtyCalculatorShell({
   calculatorType,
-  title,
-  subtitle,
-  seoTitle,
-  seoDescription,
-  breadcrumbName,
   routePath,
   limitations,
   inputs,
@@ -107,7 +92,6 @@ export function SpecialtyCalculatorShell({
   bookSummary,
   crossLinks,
   onReset,
-  faqSlug,
   proCallout,
   quoteTitle,
   quoteFooter,
@@ -130,12 +114,6 @@ export function SpecialtyCalculatorShell({
   const totalsId = useId();
   const { fieldsRef, resultsRef, missing, handleCalculate } =
     useCalculatorFeedback();
-
-  useSeo({ title: seoTitle, description: seoDescription });
-  useBreadcrumbJsonLd([
-    { name: "Construction Tools", path: "/construction-tools" },
-    { name: breadcrumbName, path: routePath },
-  ]);
 
   const exportQuote = () => {
     if (!result?.ok) return;
@@ -184,19 +162,10 @@ export function SpecialtyCalculatorShell({
   };
 
   return (
-    <>
-      <PageHeader
-        variant="tool"
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: breadcrumbName, path: routePath },
-        ]}
-        title={title}
-        subtitle={subtitle}
-        methodologyLink={Boolean(methodology && result?.ok)}
-      />
-
+    <ToolShell
+      route={routePath}
+      methodologyLink={Boolean(methodology && result?.ok)}
+    >
       <Container className="pb-16 pt-6">
         <div className="mb-6">
           <MarketScopeNotice />
@@ -584,16 +553,6 @@ export function SpecialtyCalculatorShell({
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
 
-        <div className="mt-10">
-          <RelatedTools
-            links={[
-              CALC_LINKS.buildToRoof,
-              CALC_LINKS.structuralCalc,
-              CALC_LINKS.smartCalc,
-            ]}
-          />
-        </div>
-
         {proCallout ? (
           <div className="mt-8 rounded-xl border bg-card p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
             <div>
@@ -628,8 +587,6 @@ export function SpecialtyCalculatorShell({
           </div>
         ) : null}
 
-        {faqSlug ? <ToolFaqs slug={faqSlug} /> : null}
-
         <section
           aria-labelledby={`${calculatorType}-limits`}
           className="mt-8 rounded-xl border bg-card p-5"
@@ -656,7 +613,7 @@ export function SpecialtyCalculatorShell({
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
-    </>
+    </ToolShell>
   );
 }
 

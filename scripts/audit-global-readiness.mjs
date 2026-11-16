@@ -97,6 +97,20 @@ const sitemapPaths = new Set(
 );
 const inSitemap = (route) => sitemapPaths.has(route.replace(/\/$/, ""));
 
+/**
+ * A specialty takeoff page renders through SpecialtyCalculatorShell, which mounts
+ * the shared tool shell with the page's own routePath. One hop from the page is
+ * therefore enough evidence that the route's questions and header render, but
+ * only while that shell really does mount the tool shell.
+ */
+const specialtyChrome =
+  "src/components/calculators/SpecialtyCalculatorShell.tsx";
+const specialtySource = existsSync(join(root, specialtyChrome))
+  ? read(specialtyChrome)
+  : "";
+const specialtyCarriesShell =
+  /<ToolShell\b/.test(specialtySource) && /route=\{routePath\}/.test(specialtySource);
+
 const rows = tools.map((tool) => {
   const component = appRoutes.get(tool.route) ?? null;
   const file =
@@ -120,7 +134,10 @@ const rows = tools.map((tool) => {
       /faqSlug=/.test(source) ||
       /<ToolFaqs\b/.test(source) ||
       /<ToolShell\b/.test(source) ||
-      groups.some((slug) => source.includes(`"${slug}"`)),
+      groups.some((slug) => source.includes(`"${slug}"`)) ||
+      (specialtyCarriesShell &&
+        /<SpecialtyCalculatorShell\b/.test(source) &&
+        source.includes(`routePath="${tool.route}"`)),
     universalLayout:
       /<Container|<PageHeader|<ToolShell\b|SpecialtyCalculatorShell|CalculatorShell/.test(source),
     sharedPrimitives:

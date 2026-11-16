@@ -56,12 +56,7 @@ function renderShell(onRun = vi.fn()) {
     <MemoryRouter>
       <SpecialtyCalculatorShell
         calculatorType="test_takeoff"
-        title="Test takeoff"
-        subtitle="A takeoff for the shell tests"
-        seoTitle="Test takeoff"
-        seoDescription="Test takeoff"
-        breadcrumbName="Test takeoff"
-        routePath="/test-takeoff"
+        routePath="/structural-steel-i-beam-calculator"
         limitations={["Nothing outside the tests."]}
         inputs={<HarnessInputs />}
         result={null}

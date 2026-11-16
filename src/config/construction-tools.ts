@@ -415,6 +415,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Compare and calculate laminate, vinyl and other flooring options.",
     enters: "Room area and flooring type.",
     gets: "Material packs, underlay and installation cost.",
+    heading: "Flooring Estimator",
+    lede: "Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the visible coverage, pack-size and waste rules. Estimation only: not a flooring specification.",
+    seoTitle:
+      "Flooring Estimator: Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX",
+    seoDescription:
+      "Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only: not a flooring specification.",
     to: "/flooring",
     navVisible: false,
   },
@@ -568,11 +574,13 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "The rooms and their length, width and height in metres or feet, the existing wall and floor finish in each room, the work to be done there, the point counts, whether the property is occupied and the year it was completed.",
     gets: "Net quantities with the waste allowance stated beside them, container loads for the arisings, every line unpriced until you enter a price, and tax left as not determined rather than assumed.",
+    heading: "Renovation Estimator",
+    lede: "Measure a refurbishment room by room, then price it at your own supplier rates. Every quantity states its arithmetic and what is left out.",
+    seoTitle: "Renovation Cost Estimator: Room by Room Quantities | FRELUX",
+    seoDescription:
+      "Measure a renovation room by room in metres or feet: strip out, plaster, screed, tiling, ceilings, paint, power and plumbing points. Load a property template or build a custom room list, then price the takeoff at your own rates.",
     to: "/renovation-estimator",
     benefit: "Room by room · Strip out · Repaint",
-    seoTitle: "Renovation Cost Estimator: Room by Room Takeoff | FRELUX",
-    seoDescription:
-      "Estimate a renovation room by room in metres or feet. Strip out, plaster, screed, tiling, flooring, ceilings, paint and services, measured from your dimensions and priced at your own rates.",
   },
   {
     slug: "temporary-works-calculator",
@@ -763,6 +771,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Size a retaining wall footing, stem, reinforcement and drainage.",
     enters: "Wall length and height, soil type and stem construction.",
     gets: "Footing concrete, blocks, rebar and weep holes with the rule behind each quantity.",
+    heading: "Retaining Wall Material Calculator",
+    lede: "Size the footing, stem, reinforcement and drainage for a retaining wall, then cost the materials at your own prices.",
+    seoTitle: "Retaining Wall Material & Cost Calculator | FRELUX",
+    seoDescription:
+      "Work out footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type. Soil type widens the recommended footing, and every quantity shows the rule behind it.",
     to: "/retaining-wall-calculator",
     navVisible: false,
   },
@@ -775,6 +788,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Roof perimeter or building footprint, eaves overhang and soffit material.",
     gets: "Fascia and gutter runs, soffit area, downpipes and brackets.",
+    heading: "Soffit, Fascia & Gutter Estimator",
+    lede: "Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, ready to price.",
+    seoTitle: "Soffit, Fascia and Rainwater Gutter Cost Estimator | FRELUX",
+    seoDescription:
+      "Estimate fascia board, rainwater gutter, soffit panels, downpipes and brackets from the roof perimeter and eaves overhang, with a 5% cutting allowance and downpipes every 12 m.",
     to: "/rainwater-gutter-soffit-cost-estimator",
     navVisible: false,
   },
@@ -822,6 +840,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Convert floor area and point counts into conduit, cable and accessory quantities.",
     enters: "Floor area, lighting points and socket points.",
     gets: "Conduit lengths, 1.5 mm and 2.5 mm cable coils, boxes, switches and sockets.",
+    heading: "Electrical Conduit & Wiring Estimator",
+    lede: "Convert floor area or Manhattan wall-routed device layouts into conduit lengths, cable coils, boxes, switches and sockets.",
+    seoTitle: "Electrical Conduit and Wiring Material Estimator | FRELUX",
+    seoDescription:
+      "Estimate PVC conduit, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and your lighting and socket point counts.",
     to: "/electrical-conduit-wiring-estimator",
     navVisible: false,
   },
@@ -834,6 +857,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Profile, span length, number of beams and your merchant rate per tonne.",
     gets: "Total mass in kg and tonnes with a cost at your own rate.",
+    heading: "Structural Steel I-Beam Weight & Cost Calculator",
+    lede: "Convert span and profile into kilograms, then tonnes, then a cost at your own merchant rate.",
+    seoTitle: "Structural Steel I-Beam Weight and Cost Calculator | FRELUX",
+    seoDescription:
+      "Calculate the mass of IPE and universal beam sections from span length and nominal weight per metre, and cost them at your steel merchant's rate per tonne.",
     to: "/structural-steel-i-beam-calculator",
     navVisible: false,
   },

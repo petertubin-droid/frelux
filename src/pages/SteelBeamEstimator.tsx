@@ -123,12 +123,6 @@ export default function SteelBeamEstimator() {
     <SpecialtyCalculatorShell
       onReset={resetInputs}
       calculatorType="steel_beam"
-      title="Structural Steel I-Beam Weight & Cost Calculator"
-      subtitle="Convert span and profile into kilograms, then tonnes, then a cost at your own merchant rate."
-      seoTitle="Structural Steel I-Beam Weight and Cost Calculator | FRELUX"
-      seoDescription="Calculate the mass of IPE and universal beam sections from span length and nominal weight per metre, and cost them at your steel merchant's rate per tonne."
-      breadcrumbName="Steel Beam Calculator"
-      faqSlug="steel-beam-calculator"
       routePath="/structural-steel-i-beam-calculator"
       limitations={[
         "This converts a span and a profile into mass and cost. It does not confirm the section is adequate: an engineer sizes steel members.",

@@ -107,8 +107,15 @@ describe("specialty calculator wiring", () => {
     const shell = await read(
       "src/components/calculators/SpecialtyCalculatorShell.tsx",
     );
-    expect(shell).toContain("<PageHeader");
-    expect(shell).toContain('variant="tool"');
+    // The page chrome, its search copy and its questions come from the shared
+    // tool shell, resolved from the catalogue by the route the page states. The
+    // specialty shell keeps only what is particular to a priced takeoff.
+    expect(shell).toContain("<ToolShell");
+    expect(shell).toContain("route={routePath}");
+    expect(shell).not.toContain("<PageHeader");
+    expect(shell).not.toContain("useSeo(");
+    expect(shell).not.toContain("<ToolFaqs");
+    expect(shell).not.toContain("<RelatedTools");
     expect(shell).toContain("<MarketScopeNotice");
     expect(shell).toContain("<Container");
     expect(shell).toContain('slotKey="calculator_mid"');

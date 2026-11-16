@@ -13,6 +13,7 @@ import {
   TOOL_FAQS,
   allToolFaqQuestions,
   getToolFaqGroup,
+  getToolFaqGroupByRoute,
   toolFaqGroupsByCategory,
 } from "./tool-faqs";
 
@@ -140,26 +141,59 @@ describe("FAQ wiring", () => {
     expect(component).toContain("<FaqSection");
   });
 
-  it("wires a real registry slug into every specialty calculator page", () => {
-    const pages: [string, string][] = [
-      ["src/pages/RetainingWallEstimator.tsx", "retaining-wall-calculator"],
-      ["src/pages/SoffitGutterEstimator.tsx", "soffit-gutter-cost-estimator"],
-      ["src/pages/ConduitWiringEstimator.tsx", "conduit-wiring-estimator"],
-      ["src/pages/SteelBeamEstimator.tsx", "steel-beam-calculator"],
+  it("resolves a real question set for every specialty calculator page", () => {
+    // The specialty pages no longer name a slug. They state the address they are
+    // served at, the shared shell looks that address up in the registry, and the
+    // shell is what renders the set. Checked here as one chain, because a page
+    // wired to another tool's questions is the fault this guards against.
+    const pages: [string, string, string][] = [
+      [
+        "src/pages/RetainingWallEstimator.tsx",
+        "/retaining-wall-calculator",
+        "retaining-wall-calculator",
+      ],
+      [
+        "src/pages/SoffitGutterEstimator.tsx",
+        "/rainwater-gutter-soffit-cost-estimator",
+        "soffit-gutter-cost-estimator",
+      ],
+      [
+        "src/pages/ConduitWiringEstimator.tsx",
+        "/electrical-conduit-wiring-estimator",
+        "conduit-wiring-estimator",
+      ],
+      [
+        "src/pages/SteelBeamEstimator.tsx",
+        "/structural-steel-i-beam-calculator",
+        "steel-beam-calculator",
+      ],
     ];
-    for (const [path, slug] of pages) {
+    for (const [path, route, slug] of pages) {
       const source = read(path);
-      expect(source, `${path} must pass its FAQ slug`).toContain(
-        `faqSlug="${slug}"`,
+      expect(source, `${path} must state the address it answers`).toContain(
+        `routePath="${route}"`,
       );
+      expect(
+        source,
+        `${path} must render through the specialty shell`,
+      ).toContain("<SpecialtyCalculatorShell");
+      const group = getToolFaqGroupByRoute(route);
+      expect(group, `${route} has no question set`).toBeDefined();
+      expect(
+        group!.slug,
+        `${route} answers with another tool's questions`,
+      ).toBe(slug);
       expect(
         getToolFaqGroup(slug),
         `${slug} missing from the registry`,
       ).toBeDefined();
     }
-    expect(
-      read("src/components/calculators/SpecialtyCalculatorShell.tsx"),
-    ).toContain("<ToolFaqs slug={faqSlug} />");
+    const specialtyShell = read(
+      "src/components/calculators/SpecialtyCalculatorShell.tsx",
+    );
+    expect(specialtyShell).toContain("<ToolShell");
+    expect(specialtyShell).toContain("route={routePath}");
+    expect(specialtyShell).not.toContain("<ToolFaqs");
   });
 });
 
