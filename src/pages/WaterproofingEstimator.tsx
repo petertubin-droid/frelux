@@ -13,7 +13,6 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useMarket } from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -21,11 +20,10 @@ import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -57,7 +55,6 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useAreaUnit } from "@/lib/use-area-unit";
@@ -748,16 +745,6 @@ export default function WaterproofingEstimator() {
             </li>
           </ul>
         </section>
-        <div className="mt-10">
-          <RelatedTools
-            links={[
-              CALC_LINKS.finishEstimator,
-              CALC_LINKS.buildToRoof,
-              CALC_LINKS.smartCalc,
-            ]}
-          />
-        </div>
-        <EstimateDisclaimer />
       </Container>{" "}
     </ToolShell>
   );

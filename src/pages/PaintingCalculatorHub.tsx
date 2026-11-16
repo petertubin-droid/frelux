@@ -2,21 +2,10 @@ import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
-import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
-import { useSeo } from "@/lib/seo";
-import {
-  useLocalTerm,
-  useSeoOfferCurrency,
-} from "@/lib/international/market-context";
+import {} from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
-import { EstimateDisclaimer } from "@/components/calculators";
-import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 import ToolShell from "@/components/tools/ToolShell";
 
 const PaintCalculator = lazy(() => import("@/pages/PaintCalculator"));
@@ -29,41 +18,6 @@ const TABS = [
   { id: "room-estimate", label: "Project Estimate" },
 ];
 
-const FAQS = [
-  // Painting, bucket-specific
-  {
-    question: "How does FRELUX calculate paint buckets?",
-    answer:
-      "FRELUX estimates the paint buckets required for your project based on your selected room, project conditions, paint type, and FRELUX calculation rules. The engine calculates paintable wall area, applies product-specific coverage rates, accounts for coats, ceiling, doors, and windows, then rounds up to whole paint buckets.",
-  },
-  {
-    question: "Why are paint results shown in buckets?",
-    answer:
-      "Paint is commonly sold in buckets (typically 20-litre containers) in many markets. FRELUX expresses the final paint requirement in buckets so you know exactly what to purchase. Internal litre calculations are used for accuracy but the purchase recommendation is always in whole buckets.",
-  },
-  {
-    question: "Can I calculate a single room?",
-    answer:
-      "Yes. The Paint Calculator supports a single room, whole house, exterior, or fence/gate project types. Enter your room dimensions and the calculator determines the required paint buckets.",
-  },
-  {
-    question: "How are ceilings handled?",
-    answer:
-      "Ceilings use a separate configurable coverage rate from walls. When you include a ceiling, FRELUX calculates ceiling paint buckets independently so wall and ceiling paint are not mixed. The ceiling coverage is product-specific and set by FRELUX.",
-  },
-  {
-    question: "What can affect the number of buckets required?",
-    answer:
-      "Surface condition (rough, smooth, porous), colour condition (dark over light needs more coats), wall height above the FRELUX standard of 8 ft, number of doors and windows, and the waste margin you select all affect the final bucket count.",
-  },
-  {
-    question:
-      "What is the difference between Paint Calculator, Cost Estimator, and Painting Estimator?",
-    answer:
-      "Paint Calculator answers: how many paint buckets do I need? Cost Estimator answers: how much will my paint materials cost? Painting Estimator gives a complete project overview with paint buckets, material costs, finishes, and assumptions across multiple rooms.",
-  },
-];
-
 /**
  * Market-aware FAQ copy: non-NG markets see their curated pack term
  * (e.g. "1 gal / 5 gal pail") instead of the Nigerian "bucket" phrasing.
@@ -72,45 +26,18 @@ const FAQS = [
  * visitor sees. The canonical NG wording stays in src/config/tool-faqs.ts for
  * the /faq index and for pages that do not localise.
  */
-function localizeFaqs(
-  faqs: { question: string; answer: string }[],
-  packTerm: string,
-) {
-  if (!packTerm) return faqs;
-  return faqs.map((f) => ({
-    question: f.question
-      .split("paint buckets")
-      .join("paint containers")
-      .split("shown in buckets")
-      .join("shown in containers"),
-    answer: f.answer
-      .split("buckets (typically 20-litre containers) in many markets")
-      .join(`${packTerm} in your market`)
-      .split("paint buckets")
-      .join(`paint containers (${packTerm})`)
-      .split(" in buckets")
-      .join(" in containers")
-      .split("whole buckets")
-      .join("whole containers"),
-  }));
-}
 
 export default function PaintingCalculatorHub() {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
-  const localTerm = useLocalTerm();
-  const paintPackTerm = localTerm("paint_bucket", "");
-  const displayFaqs = localizeFaqs(FAQS, paintPackTerm);
 
   // Sync URL ?mode= changes to active tab (fixes calculator-to-calculator navigation)
   useEffect(() => {
     const mode = searchParams.get("mode") || "quantity";
     if (mode !== activeTab) setActiveTab(mode);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const seoOfferCurrency = useSeoOfferCurrency();
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -201,27 +128,10 @@ export default function PaintingCalculatorHub() {
             </p>
           </div>
 
-          <FaqItemsWithSchema faqs={displayFaqs} />
-          <div className="mt-8">
-            <ToolFaqs slug="paint-calculator" />
-          </div>
-          <RelatedTools
-            links={[
-              CALC_LINKS.screedingCalc,
-              CALC_LINKS.popCeilingCalc,
-              CALC_LINKS.tileCalc,
-              CALC_LINKS.finishEstimator,
-              CALC_LINKS.buildToRoof,
-              CALC_LINKS.aiColor,
-            ]}
-          />
-          <RelatedToolsLinks />
-
           {/* Ad slot, placement "calculator_hub_mid" */}
           <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
           {/* Native banner slot, placement "calculator_hub_native" */}
           <AdSlot slotKey="calculator_hub_native" className="mt-8" />
-          <EstimateDisclaimer />
         </section>
       </>{" "}
     </ToolShell>

@@ -1,15 +1,11 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Layers, Package, Truck, Shield } from "lucide-react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
-import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
-import { useSeo } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 import {
   CEMENT_MARKETS,
@@ -536,15 +532,6 @@ export default function GermanFloorCalculator() {
             </p>
           </section>
         </Container>
-        <div className="mt-10">
-          <RelatedTools
-            links={[
-              CALC_LINKS.foundationCalc,
-              CALC_LINKS.structuralCalc,
-              CALC_LINKS.buildToRoof,
-            ]}
-          />
-        </div>
 
         <HowCalculatedSection
           geometryBreakdown={
@@ -589,7 +576,6 @@ Prices come from the market book for your country. Labour and any rate you type 
             { label: "Slab wastage", value: "5%" },
           ]}
         />
-        <EstimateDisclaimer />
       </>{" "}
     </ToolShell>
   );

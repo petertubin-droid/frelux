@@ -18,11 +18,9 @@ import CalculatorResetButton from "@/components/calculators/CalculatorResetButto
 import { useEffect, useState, useCallback } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
-import { shareableFromQuote } from "@/lib/estimate-share-adapter";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import type { QuoteLine } from "@/lib/estimation/quote-export";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { EstimateDisclaimer } from "@/components/calculators";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -333,11 +331,12 @@ export default function SolarPvEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
-    <ToolShell route="/solar-pv-estimator">
+    <ToolShell
+      route="/solar-pv-estimator"
+      disclaimerText="Estimates are indicative and not a formal quote."
+    >
       <Container>
         <div className="space-y-6">
-
-
           {loadError && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
               {loadError}
@@ -598,8 +597,9 @@ export default function SolarPvEstimator() {
                         {formatCurrency(result.total_of_priced_lines_naira)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        total of priced lines only: some components are unpriced,
-                        so the complete total is withheld rather than invented
+                        total of priced lines only: some components are
+                        unpriced, so the complete total is withheld rather than
+                        invented
                       </p>
                     </>
                   )}
@@ -710,8 +710,6 @@ export default function SolarPvEstimator() {
                   </span>
                 )}
               </div>
-
-              <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
             </div>
           )}
         </div>
@@ -720,7 +718,6 @@ export default function SolarPvEstimator() {
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         <AdSlot slotKey="calculator_native" className="mt-8" />
-
       </Container>
     </ToolShell>
   );

@@ -13,7 +13,6 @@ import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AnimatedBuildSequence from "@/components/tools/AnimatedBuildSequence";
 import {
   MASONRY_COURSE_SEQUENCE,
@@ -645,7 +644,11 @@ export default function StandaloneTakeoffPage({
     printQuote(quote, `frelux-${engine}-takeoff.html`);
   };
   return (
-    <ToolShell route={currentPath} structuredData={howToMarkup}>
+    <ToolShell
+      route={currentPath}
+      structuredData={howToMarkup}
+      disclaimerText="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs."
+    >
       <div className="min-h-screen bg-background pb-16">
         <Container as="main" className="space-y-6 py-6 sm:py-8">
           <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
@@ -994,7 +997,6 @@ export default function StandaloneTakeoffPage({
                         )}
                       </div>
                     )}
-                  <EstimateDisclaimer text="Confirm product datasheets, site measurements, local requirements, soil conditions, and waste assumptions with the responsible professional. Drainage, sanitation, and temporary-works quantities are planning takeoffs, not engineered designs." />
                   <div className="mt-5 flex flex-wrap items-center gap-2">
                     <Button
                       type="button"

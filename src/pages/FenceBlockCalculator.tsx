@@ -1,16 +1,12 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Ruler, Layers, BrickWall, Truck } from "lucide-react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
-import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
-import { useSeo } from "@/lib/seo";
 import { downloadCsv } from "@/lib/export-utils";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -792,8 +788,6 @@ export default function FenceBlockCalculator() {
 
           <AdSlot slotKey="calculator_mid" />
 
-          <EstimateDisclaimer />
-
           <section aria-labelledby="fence-faq" className="space-y-4">
             <h2
               id="fence-faq"
@@ -848,15 +842,6 @@ export default function FenceBlockCalculator() {
             </p>
           </section>
         </Container>
-        <div className="mt-10">
-          <RelatedTools
-            links={[
-              CALC_LINKS.structuralCalc,
-              CALC_LINKS.foundationCalc,
-              CALC_LINKS.buildToRoof,
-            ]}
-          />
-        </div>
       </>{" "}
     </ToolShell>
   );

@@ -1,7 +1,6 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import Container from "@/components/ui/Container";
 import ToolShell from "@/components/tools/ToolShell";
@@ -1626,7 +1625,6 @@ function ParamField({
           </option>
         ))}
       </select>
-      <EstimateDisclaimer />
     </div>
   );
 }

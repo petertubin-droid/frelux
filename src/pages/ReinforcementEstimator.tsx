@@ -64,7 +64,6 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { unitShortLabel } from "@/lib/utils";
 import { useLengthUnit } from "@/lib/use-length-unit";
@@ -869,7 +868,6 @@ export default function ReinforcementEstimator() {
           </ul>
         </section>
         <BarBendingSchedulePanel />
-        <EstimateDisclaimer />
       </Container>
     </ToolShell>
   );
