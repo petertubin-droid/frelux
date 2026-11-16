@@ -201,6 +201,7 @@ export async function deleteInvoicePayment(
  */
 export async function fetchInvoices(
   userId: string,
+  opts: { now?: Date } = {},
 ): Promise<{ data: InvoiceWithState[]; error: string | null }> {
   try {
     const { data: invoices, error } = await supabase
@@ -224,7 +225,7 @@ export async function fetchInvoices(
       byInvoice.set(p.invoice_id, list);
     }
 
-    const now = new Date();
+    const now = opts.now ?? new Date();
     return {
       data: (invoices as InvoiceRecord[]).map((invoice) => {
         const paymentsList = byInvoice.get(invoice.id) ?? [];

@@ -90,6 +90,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+const PINNED_NOW = new Date("2026-11-15T10:00:00Z");
+
+
 describe("createInvoiceFromQuote", () => {
   it("reserves the number via the atomic RPC and stores a draft snapshot", async () => {
     supabaseMock.rpc.mockResolvedValueOnce({ data: 1, error: null });
@@ -211,14 +214,23 @@ describe("fetchInvoices", () => {
       [invoiceRow],
       [{ id: "p1", invoice_id: "i1", amount: 100, method: "cash", paid_at: "2026-10-20T09:00:00Z", reference: null }],
     );
-    const { data } = await fetchInvoices("u1");
+    const { data } = await fetchInvoices("u1", { now: PINNED_NOW });
     expect(data[0].derivedStatus).toBe("partially_paid");
   });
 
   it("reports issued with no payments as issued, not paid", async () => {
     wireFetch([invoiceRow], []);
-    const { data } = await fetchInvoices("u1");
+    const { data } = await fetchInvoices("u1", { now: PINNED_NOW });
     expect(data[0].derivedStatus).toBe("issued");
+    expect(data[0].paidTotal).toBe(0);
+  });
+
+  it("reads overdue once the pinned clock passes the due date", async () => {
+    wireFetch([invoiceRow], []);
+    const { data } = await fetchInvoices("u1", {
+      now: new Date("2026-11-16T09:00:00Z"),
+    });
+    expect(data[0].derivedStatus).toBe("overdue");
     expect(data[0].paidTotal).toBe(0);
   });
 
@@ -227,7 +239,7 @@ describe("fetchInvoices", () => {
       [invoiceRow, { ...invoiceRow, id: "i2" }],
       [{ id: "p1", invoice_id: "i2", amount: 500, method: "cash", paid_at: "2026-10-20T09:00:00Z", reference: null }],
     );
-    const { data } = await fetchInvoices("u1");
+    const { data } = await fetchInvoices("u1", { now: PINNED_NOW });
     expect(data.find((x) => x.invoice.id === "i1")?.paidTotal).toBe(0);
     expect(data.find((x) => x.invoice.id === "i2")?.paidTotal).toBe(500);
   });

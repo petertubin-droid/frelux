@@ -25,6 +25,8 @@ const approval = (over: Partial<TravelApproval> = {}): TravelApproval => ({
   ...over,
 });
 
+const PINNED_NOW = new Date("2026-11-13T08:00:00Z");
+
 describe("cross state travel approvals", () => {
   it("matches an approval to the professional, client and state", () => {
     expect(approvalForOrder(order, "pro-user-1", [approval()])?.id).toBe("a1");
@@ -60,17 +62,20 @@ describe("cross state travel approvals", () => {
   });
 
   it("reads an expired approval as not covering the job", () => {
-    const state = travelState(approval({ expires_at: "2026-11-01T08:00:00Z" }));
+    const state = travelState(
+      approval({ expires_at: "2026-11-01T08:00:00Z" }),
+      PINNED_NOW,
+    );
     expect(state).toBe("expired");
     expect(travelLabel(state)).toContain("Expired");
   });
 
   it("never reports an order without a professional as approved", () => {
     expect(approvalForOrder(order, null, [approval()])).toBeNull();
-    expect(travelState(null)).toBe("missing");
+    expect(travelState(null, PINNED_NOW)).toBe("missing");
   });
 
   it("treats an approval with no expiry as standing", () => {
-    expect(travelState(approval({ expires_at: null }))).toBe("approved");
+    expect(travelState(approval({ expires_at: null }), PINNED_NOW)).toBe("approved");
   });
 });

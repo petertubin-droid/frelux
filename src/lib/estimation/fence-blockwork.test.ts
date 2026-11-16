@@ -3,6 +3,7 @@ import {
   DEFAULT_BLOCK_WASTAGE,
   calculateFenceBlockwork,
 } from "./fence-blockwork";
+import { MASONRY_MARKET_REGISTRY } from "./masonry-standalone-engine";
 import {
   MASONRY_UNITS,
   PLOT_PRESETS,
@@ -115,7 +116,11 @@ describe("fence blockwork engine", () => {
       widthM: 15.24,
     }).result!;
     expect(ng.cement.bagKg).toBe(50);
-    expect(us.cement.bagKg).toBeCloseTo(42.64, 2);
+    // The market table is the one authority for bag mass: 94 lb converts to
+    // 42.64 kg and the table holds it to one decimal, so every engine reads
+    // the same figure instead of each rounding 94 lb its own way.
+    expect(us.cement.bagKg).toBe(MASONRY_MARKET_REGISTRY.US.cementBagWeightKg);
+    expect(us.cement.bagKg).toBeCloseTo(42.64, 1);
     expect(us.cement.bags).toBeGreaterThan(0);
   });
 
