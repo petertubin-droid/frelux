@@ -396,7 +396,7 @@ describe("SolarPvEstimator page", () => {
     // feet, so the test asks for metric before typing.
     fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     fireEvent.click(screen.getByRole("button", { name: "Metres" }));
-    fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
+    fireEvent.change(screen.getByLabelText(/Usable roof area/i, { selector: "input" }), {
       target: { value: "60" },
     });
     fireEvent.change(screen.getByLabelText(/Cable run, array to inverter/i), {
@@ -456,7 +456,7 @@ describe("SolarPvEstimator page", () => {
     // feet, so the test asks for metric before typing.
     fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     fireEvent.click(screen.getByRole("button", { name: "Metres" }));
-    fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
+    fireEvent.change(screen.getByLabelText(/Usable roof area/i, { selector: "input" }), {
       target: { value: "2" },
     });
     fireEvent.change(screen.getByLabelText(/Cable run, array to inverter/i), {
@@ -491,7 +491,7 @@ describe("SolarPvEstimator page", () => {
     // feet, so the test asks for metric before typing.
     fireEvent.click(screen.getByRole("button", { name: "Square metres" }));
     fireEvent.click(screen.getByRole("button", { name: "Metres" }));
-    fireEvent.change(screen.getByLabelText(/Usable roof area/i), {
+    fireEvent.change(screen.getByLabelText(/Usable roof area/i, { selector: "input" }), {
       target: { value: "60" },
     });
     expect(btn).not.toBeDisabled();

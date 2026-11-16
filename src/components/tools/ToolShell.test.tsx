@@ -138,7 +138,12 @@ describe("tool shell", () => {
     const names = trails[0].itemListElement.map(
       (item: { name: string }) => item.name,
     );
-    expect(names).toEqual(["Home", "Construction Tools", "Profit Margin Calculator"]);
+    expect(names).toEqual([
+      "Home",
+      "Construction Tools",
+      "Project & Cost",
+      "Profit Margin Calculator",
+    ]);
     // The page itself is text in the crumbs, not a link back to itself.
     const nav = screen.getByRole("navigation", { hidden: true });
     expect(nav.textContent).toContain("Profit Margin Calculator");

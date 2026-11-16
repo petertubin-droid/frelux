@@ -10,11 +10,10 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   fetchDefects,
   fetchDefectCauses,
@@ -34,7 +33,6 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -44,15 +42,6 @@ const severityColor: Record<string, string> = {
 
 export default function DefectDiagnosis() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Defect Diagnosis", path: "/defect-diagnosis" },
-  ]);
-  useSeo({
-    title: "Defect Diagnosis: FRELUX",
-    description:
-      "Map a paint or finish defect to its root cause and get the fix, with quantities: from a deterministic, verified knowledge base.",
-  });
 
   const [defects, setDefects] = useState<Defect[]>([]);
   const [allCauses, setAllCauses] = useState<DefectCause[]>([]);
@@ -104,176 +93,167 @@ export default function DefectDiagnosis() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Defect Diagnosis" },
-          ]}
-          title={t("Defect Diagnosis")}
-          subtitle="Pick the symptom you're seeing and get its root causes with fixes: ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area."
-        />
+    <ToolShell route="/defect-diagnosis" hideDisclaimer>
+      <Container>
+        <div className="space-y-6">
 
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
 
-        <div
-          ref={fieldsRef}
-          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
-        >
-          {defects.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No defect symptoms configured yet. The knowledge base is entered
-              by FRELUX team: FRELUX never publishes guessed diagnoses.
-            </p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-3">
-              <label className="grid gap-1 text-sm font-medium sm:col-span-2">
-                {t("Symptom")}
-                <select
-                  id="defect-symptom"
-                  aria-label={t("Symptom")}
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={symptomKey}
-                  onChange={(e) => {
-                    setSymptomKey(e.target.value);
-                    setResult(null);
-                  }}
-                >
-                  <option value="">{t("Select what you're seeing")}</option>
-                  {defects.map((d) => (
-                    <option key={d.id} value={d.symptom_key}>
-                      {d.symptom_label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Affected area (sqm, optional)")}
-                <input
-                  type="number"
-                  min="1"
-                  step="any"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  placeholder="e.g. 120"
-                />
-              </label>
-              <div className="sm:col-span-3">
-                <MissingFieldsNotice fields={missing} />
-                <button
-                  type="button"
-                  onClick={() => handleCalculate(run)}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                >
-                  {t("Diagnose")}
-                </button>
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          )}
+
+          <div
+            ref={fieldsRef}
+            className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+          >
+            {defects.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No defect symptoms configured yet. The knowledge base is entered
+                by FRELUX team: FRELUX never publishes guessed diagnoses.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="grid gap-1 text-sm font-medium sm:col-span-2">
+                  {t("Symptom")}
+                  <select
+                    id="defect-symptom"
+                    aria-label={t("Symptom")}
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={symptomKey}
+                    onChange={(e) => {
+                      setSymptomKey(e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    <option value="">{t("Select what you're seeing")}</option>
+                    {defects.map((d) => (
+                      <option key={d.id} value={d.symptom_key}>
+                        {d.symptom_label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-sm font-medium">
+                  {t("Affected area (sqm, optional)")}
+                  <input
+                    type="number"
+                    min="1"
+                    step="any"
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    placeholder="e.g. 120"
+                  />
+                </label>
+                <div className="sm:col-span-3">
+                  <MissingFieldsNotice fields={missing} />
+                  <button
+                    type="button"
+                    onClick={() => handleCalculate(run)}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  >
+                    {t("Diagnose")}
+                  </button>
+                </div>
               </div>
+            )}
+          </div>
+
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {result?.ok && (
+            <div ref={resultsRef} className="space-y-4">
+              {result.warnings.map((w, i) => (
+                <p
+                  key={i}
+                  className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
+                >
+                  {w}
+                </p>
+              ))}
+              <p className="text-sm text-muted-foreground">
+                {result.causes.length} likely cause
+                {result.causes.length === 1 ? "" : "s"}, listed in the configured
+                likelihood order
+                {result.affected_area_sqm !== null &&
+                  ` for ${result.affected_area_sqm} sqm`}
+                .
+              </p>
+              <div className="space-y-3">
+                {result.causes.map((c) => (
+                  <div
+                    key={c.cause_key}
+                    className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="font-semibold">{c.cause_label}</p>
+                      <p
+                        className={`text-xs font-semibold uppercase ${severityColor[c.severity] ?? ""}`}
+                      >
+                        {c.severity} severity
+                      </p>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {c.root_cause}
+                    </p>
+                    <p className="mt-2 text-sm">
+                      <span className="font-medium">Fix: </span>
+                      <span className="text-muted-foreground">
+                        {c.fix_summary}
+                      </span>
+                    </p>
+                    {c.fix_quantity !== null ? (
+                      <p className="mt-2 rounded-lg border border-border bg-muted/40 p-2 text-sm">
+                        <span className="font-medium">
+                          {c.fix_quantity} {c.fix_unit}
+                        </span>{" "}
+                        of {c.fix_material ?? "fix material"}
+                        {result.affected_area_sqm !== null && (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            for {result.affected_area_sqm} sqm
+                          </span>
+                        )}
+                      </p>
+                    ) : (
+                      c.quantity_note && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          {c.quantity_note}
+                        </p>
+                      )
+                    )}
+                  </div>
+                ))}
+              </div>
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("How this was determined")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
           )}
         </div>
-
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {result?.ok && (
-          <div ref={resultsRef} className="space-y-4">
-            {result.warnings.map((w, i) => (
-              <p
-                key={i}
-                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
-              >
-                {w}
-              </p>
-            ))}
-            <p className="text-sm text-muted-foreground">
-              {result.causes.length} likely cause
-              {result.causes.length === 1 ? "" : "s"}, listed in the configured
-              likelihood order
-              {result.affected_area_sqm !== null &&
-                ` for ${result.affected_area_sqm} sqm`}
-              .
-            </p>
-            <div className="space-y-3">
-              {result.causes.map((c) => (
-                <div
-                  key={c.cause_key}
-                  className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
-                >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-semibold">{c.cause_label}</p>
-                    <p
-                      className={`text-xs font-semibold uppercase ${severityColor[c.severity] ?? ""}`}
-                    >
-                      {c.severity} severity
-                    </p>
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {c.root_cause}
-                  </p>
-                  <p className="mt-2 text-sm">
-                    <span className="font-medium">Fix: </span>
-                    <span className="text-muted-foreground">
-                      {c.fix_summary}
-                    </span>
-                  </p>
-                  {c.fix_quantity !== null ? (
-                    <p className="mt-2 rounded-lg border border-border bg-muted/40 p-2 text-sm">
-                      <span className="font-medium">
-                        {c.fix_quantity} {c.fix_unit}
-                      </span>{" "}
-                      of {c.fix_material ?? "fix material"}
-                      {result.affected_area_sqm !== null && (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          for {result.affected_area_sqm} sqm
-                        </span>
-                      )}
-                    </p>
-                  ) : (
-                    c.quantity_note && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {c.quantity_note}
-                      </p>
-                    )
-                  )}
-                </div>
-              ))}
-            </div>
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("How this was determined")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-        )}
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-8">
-        <ToolFaqs slug="defect-diagnosis" />
-      </div>
-    </Container>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

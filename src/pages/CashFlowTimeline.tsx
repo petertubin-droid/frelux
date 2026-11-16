@@ -14,11 +14,10 @@ import { useEffect, useState } from "react";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   fetchCashFlowTemplates,
   fetchCalcRules,
@@ -31,22 +30,12 @@ import type { CashFlowTemplate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 // Market-currency aware via the site-wide FX layer.
 const money = (v: number) => formatCurrency(v);
 
 export default function CashFlowTimeline() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Cash-Flow Timeline", path: "/cash-flow-timeline" },
-  ]);
-  useSeo({
-    title: "Cash-Flow Timeline: FRELUX",
-    description:
-      "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
-  });
 
   const { fieldsRef, resultsRef, missing, handleCalculate, reportMissing } =
     useCalculatorFeedback<HTMLDivElement>();
@@ -105,166 +94,157 @@ export default function CashFlowTimeline() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Cash-Flow Timeline" },
-          ]}
-          title={t("Cash-Flow Timeline")}
-          subtitle="Phased payment schedule for an estimate total, from verified milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan."
-        />
+    <ToolShell route="/cash-flow-timeline" hideDisclaimer>
+      <Container>
+        <div className="space-y-6">
 
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
 
-        <div
-          ref={fieldsRef}
-          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
-        >
-          {templates.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No cash-flow templates configured yet. The admin team defines
-              payment milestone structures (e.g. mobilization, mid-project,
-              completion): FRELUX never publishes guessed payment plans.
-            </p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-3">
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Template")}
-                <select
-                  id="cash-template"
-                  aria-label={t("Template")}
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={templateId}
-                  onChange={(e) => {
-                    setTemplateId(e.target.value);
-                    setResult(null);
-                  }}
-                >
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Estimate total (your market currency)")}
-                <input
-                  id="cash-total"
-                  aria-label={t("Estimate total (your market currency)")}
-                  type="number"
-                  min="1"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={total}
-                  onChange={(e) => setTotal(e.target.value)}
-                  placeholder="e.g. 2500000"
-                />
-              </label>
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Start date")}
-                <input
-                  id="cash-start"
-                  aria-label={t("Start date")}
-                  type="date"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </label>
-              <div className="sm:col-span-3">
-                <MissingFieldsNotice fields={missing} />
-                <button
-                  type="button"
-                  onClick={() => handleCalculate(run)}
-                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
-                >
-                  {t("Generate Schedule")}
-                </button>
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          )}
+
+          <div
+            ref={fieldsRef}
+            className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+          >
+            {templates.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No cash-flow templates configured yet. The admin team defines
+                payment milestone structures (e.g. mobilization, mid-project,
+                completion): FRELUX never publishes guessed payment plans.
+              </p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-3">
+                <label className="grid gap-1 text-sm font-medium">
+                  {t("Template")}
+                  <select
+                    id="cash-template"
+                    aria-label={t("Template")}
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={templateId}
+                    onChange={(e) => {
+                      setTemplateId(e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    {templates.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1 text-sm font-medium">
+                  {t("Estimate total (your market currency)")}
+                  <input
+                    id="cash-total"
+                    aria-label={t("Estimate total (your market currency)")}
+                    type="number"
+                    min="1"
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={total}
+                    onChange={(e) => setTotal(e.target.value)}
+                    placeholder="e.g. 2500000"
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-medium">
+                  {t("Start date")}
+                  <input
+                    id="cash-start"
+                    aria-label={t("Start date")}
+                    type="date"
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </label>
+                <div className="sm:col-span-3">
+                  <MissingFieldsNotice fields={missing} />
+                  <button
+                    type="button"
+                    onClick={() => handleCalculate(run)}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
+                  >
+                    {t("Generate Schedule")}
+                  </button>
+                </div>
               </div>
+            )}
+          </div>
+
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {result?.ok && (
+            <div ref={resultsRef} className="space-y-4">
+              {result.warnings.map((w, i) => (
+                <p
+                  key={i}
+                  className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
+                >
+                  {w}
+                </p>
+              ))}
+              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                <p className="text-sm text-muted-foreground">
+                  {result.payments.length} payments for{" "}
+                  {money(result.total_amount!)} starting {result.start_date}
+                </p>
+                <p className="mt-1 text-3xl font-bold">
+                  {money(result.scheduled_total)} scheduled
+                </p>
+                <div className="mt-4 space-y-2">
+                  {result.payments.map((p, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">
+                          {p.label} · {p.percent}% · {p.date}
+                        </span>
+                        <span>
+                          {money(p.amount)}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            (cumulative {money(p.cumulative_amount)})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${p.percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("Calculation breakdown")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </div>
           )}
         </div>
-
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {result?.ok && (
-          <div ref={resultsRef} className="space-y-4">
-            {result.warnings.map((w, i) => (
-              <p
-                key={i}
-                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-muted-foreground"
-              >
-                {w}
-              </p>
-            ))}
-            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <p className="text-sm text-muted-foreground">
-                {result.payments.length} payments for{" "}
-                {money(result.total_amount!)} starting {result.start_date}
-              </p>
-              <p className="mt-1 text-3xl font-bold">
-                {money(result.scheduled_total)} scheduled
-              </p>
-              <div className="mt-4 space-y-2">
-                {result.payments.map((p, i) => (
-                  <div key={i} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">
-                        {p.label} · {p.percent}% · {p.date}
-                      </span>
-                      <span>
-                        {money(p.amount)}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          (cumulative {money(p.cumulative_amount)})
-                        </span>
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-primary"
-                        style={{ width: `${p.percent}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("Calculation breakdown")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-        )}
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-8">
-        <ToolFaqs slug="cash-flow-timeline" />
-      </div>
-    </Container>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

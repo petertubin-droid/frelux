@@ -105,27 +105,28 @@ export default function ToolShell({
     : undefined;
 
   const heading = tool ? t(title ?? tool.heading ?? tool.title) : "";
-  const crumbLabels = tool
-    ? ["Home", "Construction Tools", heading]
-    : [];
+  const categoryPath = tool ? `/tools/${tool.category}` : "";
 
   // One crumb trail, and the structured data describes that same trail. Pages
   // used to pass their own heading crumbs and a different JSON-LD trail, so the
   // markup could disagree with the page it described. The last crumb is the
   // page itself: shown as text, and given its own address only in the markup.
-  const crumbs = crumbLabels.map((label, i) =>
-    i === crumbLabels.length - 1
-      ? { label }
-      : { label, path: i === 0 ? "/" : "/construction-tools" },
-  );
-  // The hook supplies Home itself, so the trail continues from the index.
+  // The category crumb is kept because it is the only route back up to the
+  // neighbouring tools from a page this deep in the catalogue.
+  const trail = tool
+    ? [
+        { label: t("Home"), path: "/" },
+        { label: t("Construction Tools"), path: "/construction-tools" },
+        { label: t(categoryLabel ?? ""), path: categoryPath },
+        { label: heading },
+      ]
+    : [];
+  const crumbs = trail.map(({ label, path }) => (path ? { label, path } : { label }));
+  // The hook supplies Home itself, so the marked-up trail continues from there.
   useBreadcrumbJsonLd(
-    tool
-      ? [
-          { name: crumbLabels[1], path: "/construction-tools" },
-          { name: crumbLabels[2], path: tool.to },
-        ]
-      : [],
+    trail
+      .slice(1)
+      .map((c) => ({ name: c.label, path: c.path ?? tool!.to })),
   );
 
   return (

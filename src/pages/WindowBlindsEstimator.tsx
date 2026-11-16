@@ -15,15 +15,12 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Blinds, Info, Plus, Ruler, Trash2, Wrench } from "lucide-react";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
-import { useSeo } from "@/lib/seo";
+import ToolShell from "@/components/tools/ToolShell";
 import { formatCurrency } from "@/lib/utils";
 import {
   BLIND_EXTRAS,
@@ -153,12 +150,6 @@ export default function WindowBlindsEstimator() {
     setManualMinimum("");
     setTaxRate("");
   };
-  useSeo({
-    title:
-      "Window Blind Calculator: Cost per Window and per Square Metre | FRELUX",
-    description:
-      "Price a whole schedule of roller, zebra, day and night, vertical, venetian, roman, faux wood and wooden blinds from the measured openings, with waste, minimum charge per window, grade and fitting.",
-  });
 
   const [market, setMarket] = useState("NG");
   const [unit, setUnit] = useState<LengthUnit>("ft");
@@ -385,772 +376,753 @@ export default function WindowBlindsEstimator() {
   };
 
   return (
-    <div className="bg-background">
-      <Container className="py-8 md:py-12">
-        <PageHeader
-          variant="tool"
-          eyebrow="Home Decor"
-          title="Window blind estimator"
-          subtitle="List every opening, pick the type and grade, and see the price per window and for the whole job before a shop quotes you."
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
-            { label: "Home Decor", path: "/tools/interiors" },
-            { label: "Window blinds" },
-          ]}
-        />
+    <ToolShell route="/window-blind-calculator">
+      <div className="bg-background">
+        <Container className="py-8 md:py-12">
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
-          <section className="space-y-6">
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className={labelClass} htmlFor="blind-market">
-                    Market
+
+          <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
+            <section className="space-y-6">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label className={labelClass} htmlFor="blind-market">
+                      Market
+                    </label>
+                    <select
+                      id="blind-market"
+                      className={fieldClass}
+                      value={market}
+                      onChange={(e) => switchMarket(e.target.value)}
+                    >
+                      {BLIND_MARKETS.map((m) => (
+                        <option key={m.code} value={m.code}>
+                          {m.name}
+                          {m.priced ? "" : " (rate needed)"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <span className={labelClass}>Measure in</span>
+                    <div className="flex gap-2">
+                      {(["ft", "m"] as LengthUnit[]).map((u) => (
+                        <button
+                          key={u}
+                          type="button"
+                          onClick={() => switchUnit(u)}
+                          className={
+                            unit === u
+                              ? "flex-1 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                              : "flex-1 rounded-xl border border-border px-3 py-2 text-sm"
+                          }
+                        >
+                          {u === "ft" ? "Feet" : "Metres"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <span className={labelClass}>Grade</span>
+                    <div className="flex gap-2">
+                      {BLIND_GRADES.map((g) => (
+                        <button
+                          key={g.key}
+                          type="button"
+                          onClick={() => setGrade(g.key)}
+                          title={g.note}
+                          className={
+                            grade === g.key
+                              ? "flex-1 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                              : "flex-1 rounded-xl border border-border px-3 py-2 text-sm"
+                          }
+                        >
+                          {g.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 self-end pb-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={install}
+                      onChange={(e) => setInstall(e.target.checked)}
+                    />
+                    Include fitting
                   </label>
-                  <select
-                    id="blind-market"
-                    className={fieldClass}
-                    value={market}
-                    onChange={(e) => switchMarket(e.target.value)}
-                  >
-                    {BLIND_MARKETS.map((m) => (
-                      <option key={m.code} value={m.code}>
-                        {m.name}
-                        {m.priced ? "" : " (rate needed)"}
-                      </option>
-                    ))}
-                  </select>
                 </div>
 
-                <div className="space-y-1.5">
-                  <span className={labelClass}>Measure in</span>
-                  <div className="flex gap-2">
-                    {(["ft", "m"] as LengthUnit[]).map((u) => (
+                <div className="mt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Quick sizes, applied to the opening you last edited
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {SAMPLE_SIZES.map((sample) => (
                       <button
-                        key={u}
+                        key={sample.label}
                         type="button"
-                        onClick={() => switchUnit(u)}
-                        className={
-                          unit === u
-                            ? "flex-1 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-                            : "flex-1 rounded-xl border border-border px-3 py-2 text-sm"
-                        }
+                        onClick={() => applySample(sample)}
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted"
                       >
-                        {u === "ft" ? "Feet" : "Metres"}
+                        {sample.label}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                <div className="space-y-1.5">
-                  <span className={labelClass}>Grade</span>
-                  <div className="flex gap-2">
-                    {BLIND_GRADES.map((g) => (
-                      <button
-                        key={g.key}
-                        type="button"
-                        onClick={() => setGrade(g.key)}
-                        title={g.note}
-                        className={
-                          grade === g.key
-                            ? "flex-1 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-                            : "flex-1 rounded-xl border border-border px-3 py-2 text-sm"
-                        }
-                      >
-                        {g.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <label className="flex items-center gap-2 self-end pb-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={install}
-                    onChange={(e) => setInstall(e.target.checked)}
-                  />
-                  Include fitting
-                </label>
               </div>
 
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground">
-                  Quick sizes, applied to the opening you last edited
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <h2 className="text-sm font-medium text-foreground">
+                  Start with a typical home
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Tap the closest match. It replaces the openings below with a
+                  full schedule, then you change only the windows that differ.
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {SAMPLE_SIZES.map((sample) => (
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {HOME_PRESETS.map((preset) => (
                     <button
-                      key={sample.label}
+                      key={preset.key}
                       type="button"
-                      onClick={() => applySample(sample)}
-                      className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted"
+                      onClick={() => applyHomePreset(preset)}
+                      className="rounded-xl border border-border px-3 py-2 text-left hover:bg-muted"
                     >
-                      {sample.label}
+                      <span className="block text-sm font-medium text-foreground">
+                        {preset.label}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {preset.note}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
-            </div>
 
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <h2 className="text-sm font-medium text-foreground">
-                Start with a typical home
-              </h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Tap the closest match. It replaces the openings below with a
-                full schedule, then you change only the windows that differ.
-              </p>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {HOME_PRESETS.map((preset) => (
-                  <button
-                    key={preset.key}
-                    type="button"
-                    onClick={() => applyHomePreset(preset)}
-                    className="rounded-xl border border-border px-3 py-2 text-left hover:bg-muted"
-                  >
-                    <span className="block text-sm font-medium text-foreground">
-                      {preset.label}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {preset.note}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <Blinds className="h-4 w-4 text-primary" />
-                  <h2 className="text-sm font-medium text-foreground">
-                    Openings
-                  </h2>
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Blinds className="h-4 w-4 text-primary" />
+                    <h2 className="text-sm font-medium text-foreground">
+                      Openings
+                    </h2>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {result.geometry.windowCount} window
+                    {result.geometry.windowCount === 1 ? "" : "s"}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {result.geometry.windowCount} window
-                  {result.geometry.windowCount === 1 ? "" : "s"}
-                </span>
-              </div>
 
-              <div className="mt-3 space-y-3">
-                {openings.map((row) => (
-                  <div
-                    key={row.id}
-                    onFocus={() => setActiveRow(row.id)}
-                    className="rounded-xl border border-border p-3"
-                  >
-                    <div className="grid gap-2 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-                      <input
-                        aria-label="Opening name"
-                        placeholder="Living room"
-                        className={fieldClass}
-                        value={row.label}
-                        onChange={(e) =>
-                          patch(row.id, { label: e.target.value })
-                        }
-                      />
-                      <select
-                        aria-label="Blind type"
-                        className={fieldClass}
-                        value={row.typeKey}
-                        onChange={(e) =>
-                          patch(row.id, {
-                            typeKey: e.target.value as BlindTypeKey,
-                          })
-                        }
-                      >
-                        {BLIND_TYPES.map((type) => (
-                          <option key={type.key} value={type.key}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${row.label || "opening"}`}
-                        onClick={() =>
-                          setOpenings((rows) =>
-                            rows.filter((r) => r.id !== row.id),
-                          )
-                        }
-                        className="justify-self-end rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      <label className="space-y-1 text-xs">
-                        <span className="text-muted-foreground">
-                          Width ({unit})
-                        </span>
-                        <NumericInput
-                          value={row.width}
-                          inputMode="decimal"
-                          onValueChange={(n) =>
-                            patch(row.id, {
-                              width: n,
-                            })
-                          }
-                          className={fieldClass}
-                        />
-                      </label>
-                      <label className="space-y-1 text-xs">
-                        <span className="text-muted-foreground">
-                          Drop ({unit})
-                        </span>
-                        <NumericInput
-                          value={row.height}
-                          inputMode="decimal"
-                          onValueChange={(n) =>
-                            patch(row.id, {
-                              height: n,
-                            })
-                          }
-                          className={fieldClass}
-                        />
-                      </label>
-                      <label className="space-y-1 text-xs">
-                        <span className="text-muted-foreground">How many</span>
+                <div className="mt-3 space-y-3">
+                  {openings.map((row) => (
+                    <div
+                      key={row.id}
+                      onFocus={() => setActiveRow(row.id)}
+                      className="rounded-xl border border-border p-3"
+                    >
+                      <div className="grid gap-2 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
                         <input
-                          aria-label="Drop ()
-                        
-                        
-                            patch(row.id, )
-                          }
-                          className=
-                        />"
+                          aria-label="Opening name"
+                          placeholder="Living room"
                           className={fieldClass}
-                          inputMode="numeric"
-                          value={row.quantity}
+                          value={row.label}
+                          onChange={(e) =>
+                            patch(row.id, { label: e.target.value })
+                          }
+                        />
+                        <select
+                          aria-label="Blind type"
+                          className={fieldClass}
+                          value={row.typeKey}
                           onChange={(e) =>
                             patch(row.id, {
-                              quantity: Number(e.target.value) || 1,
+                              typeKey: e.target.value as BlindTypeKey,
                             })
                           }
-                        />
-                      </label>
-                      <div className="flex flex-wrap items-end gap-3 pb-2 text-xs">
-                        <label className="flex items-center gap-2">
+                        >
+                          {BLIND_TYPES.map((type) => (
+                            <option key={type.key} value={type.key}>
+                              {type.label}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${row.label || "opening"}`}
+                          onClick={() =>
+                            setOpenings((rows) =>
+                              rows.filter((r) => r.id !== row.id),
+                            )
+                          }
+                          className="justify-self-end rounded-lg border border-border p-2 text-muted-foreground hover:bg-muted"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        <label className="space-y-1 text-xs">
+                          <span className="text-muted-foreground">
+                            Width ({unit})
+                          </span>
+                          <NumericInput
+                            value={row.width}
+                            inputMode="decimal"
+                            onValueChange={(n) =>
+                              patch(row.id, {
+                                width: n,
+                              })
+                            }
+                            className={fieldClass}
+                          />
+                        </label>
+                        <label className="space-y-1 text-xs">
+                          <span className="text-muted-foreground">
+                            Drop ({unit})
+                          </span>
+                          <NumericInput
+                            value={row.height}
+                            inputMode="decimal"
+                            onValueChange={(n) =>
+                              patch(row.id, {
+                                height: n,
+                              })
+                            }
+                            className={fieldClass}
+                          />
+                        </label>
+                        <label className="space-y-1 text-xs">
+                          <span className="text-muted-foreground">How many</span>
                           <input
-                            type="checkbox"
-                            checked={Boolean(row.motorised)}
+                            aria-label="Drop ()
+
+
+                              patch(row.id, )
+                            }
+                            className=
+                          />"
+                            className={fieldClass}
+                            inputMode="numeric"
+                            value={row.quantity}
                             onChange={(e) =>
-                              patch(row.id, { motorised: e.target.checked })
+                              patch(row.id, {
+                                quantity: Number(e.target.value) || 1,
+                              })
                             }
                           />
-                          Motorised
                         </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(row.cassette)}
-                            onChange={(e) =>
-                              patch(row.id, { cassette: e.target.checked })
-                            }
-                          />
-                          Cassette
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(row.removeOld)}
-                            onChange={(e) =>
-                              patch(row.id, { removeOld: e.target.checked })
-                            }
-                          />
-                          Remove old
-                        </label>
+                        <div className="flex flex-wrap items-end gap-3 pb-2 text-xs">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(row.motorised)}
+                              onChange={(e) =>
+                                patch(row.id, { motorised: e.target.checked })
+                              }
+                            />
+                            Motorised
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(row.cassette)}
+                              onChange={(e) =>
+                                patch(row.id, { cassette: e.target.checked })
+                              }
+                            />
+                            Cassette
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(row.removeOld)}
+                              onChange={(e) =>
+                                patch(row.id, { removeOld: e.target.checked })
+                              }
+                            />
+                            Remove old
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenings((rows) => [...rows, newOpening({ label: "" })])
+                  }
+                  className="mt-3 inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"
+                >
+                  <Plus className="h-4 w-4" /> Add opening
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() =>
-                  setOpenings((rows) => [...rows, newOpening({ label: "" })])
-                }
-                className="mt-3 inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"
-              >
-                <Plus className="h-4 w-4" /> Add opening
-              </button>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <div className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-medium text-foreground">
-                  Extras, priced by you
-                </h2>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                A motor, a cassette headrail and taking down old blinds vary too
-                much by supplier for a made up figure. Enter what you were
-                quoted and the estimator adds it.
-              </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="space-y-1 text-xs">
-                  <span className="text-muted-foreground">
-                    Tax percent (optional)
-                  </span>
-                  <input
-                    className={fieldClass}
-                    inputMode="decimal"
-                    placeholder="VAT or sales tax"
-                    value={taxRate}
-                    onChange={(e) => setTaxRate(e.target.value)}
-                  />
-                </label>
-                {BLIND_EXTRAS.map((extra) => (
-                  <label key={extra.key} className="space-y-1 text-xs">
-                    <span className="text-muted-foreground">
-                      {extra.label} ({marketOption.currencySymbol})
-                    </span>
-                    <input
-                      className={fieldClass}
-                      inputMode="decimal"
-                      placeholder={extra.detail}
-                      value={extras[extra.key] ?? ""}
-                      onChange={(e) =>
-                        setExtras((current) => ({
-                          ...current,
-                          [extra.key]: e.target.value,
-                        }))
-                      }
-                    />
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {result.missing.length > 0 && (
-              <div className="rounded-xl border border-dashed border-border bg-card p-4 md:p-5">
-                <h2 className="text-sm font-medium text-foreground">
-                  This needs a local rate
-                </h2>
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <div className="flex items-center gap-2">
+                  <Wrench className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-medium text-foreground">
+                    Extras, priced by you
+                  </h2>
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {marketOption.priced
-                    ? "One of these openings has no verified local rate yet. Enter the rate a shop quoted."
-                    : `There is no verified blind price book for ${marketOption.name}. Enter what a local shop quoted and the estimator does the rest.`}
+                  A motor, a cassette headrail and taking down old blinds vary too
+                  much by supplier for a made up figure. Enter what you were
+                  quoted and the estimator adds it.
                 </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <label className="space-y-1 text-xs">
                     <span className="text-muted-foreground">
-                      Rate per m2 ({marketOption.currencySymbol})
+                      Tax percent (optional)
                     </span>
                     <input
                       className={fieldClass}
                       inputMode="decimal"
-                      value={manualRate}
-                      onChange={(e) => setManualRate(e.target.value)}
+                      placeholder="VAT or sales tax"
+                      value={taxRate}
+                      onChange={(e) => setTaxRate(e.target.value)}
                     />
                   </label>
-                  <label className="space-y-1 text-xs">
-                    <span className="text-muted-foreground">
-                      Minimum per window (optional)
-                    </span>
-                    <input
-                      className={fieldClass}
-                      inputMode="decimal"
-                      value={manualMinimum}
-                      onChange={(e) => setManualMinimum(e.target.value)}
-                    />
-                  </label>
+                  {BLIND_EXTRAS.map((extra) => (
+                    <label key={extra.key} className="space-y-1 text-xs">
+                      <span className="text-muted-foreground">
+                        {extra.label} ({marketOption.currencySymbol})
+                      </span>
+                      <input
+                        className={fieldClass}
+                        inputMode="decimal"
+                        placeholder={extra.detail}
+                        value={extras[extra.key] ?? ""}
+                        onChange={(e) =>
+                          setExtras((current) => ({
+                            ...current,
+                            [extra.key]: e.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {result.missing.length > 0 && (
+                <div className="rounded-xl border border-dashed border-border bg-card p-4 md:p-5">
+                  <h2 className="text-sm font-medium text-foreground">
+                    This needs a local rate
+                  </h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {marketOption.priced
+                      ? "One of these openings has no verified local rate yet. Enter the rate a shop quoted."
+                      : `There is no verified blind price book for ${marketOption.name}. Enter what a local shop quoted and the estimator does the rest.`}
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <label className="space-y-1 text-xs">
+                      <span className="text-muted-foreground">
+                        Rate per m2 ({marketOption.currencySymbol})
+                      </span>
+                      <input
+                        className={fieldClass}
+                        inputMode="decimal"
+                        value={manualRate}
+                        onChange={(e) => setManualRate(e.target.value)}
+                      />
+                    </label>
+                    <label className="space-y-1 text-xs">
+                      <span className="text-muted-foreground">
+                        Minimum per window (optional)
+                      </span>
+                      <input
+                        className={fieldClass}
+                        inputMode="decimal"
+                        value={manualMinimum}
+                        onChange={(e) => setManualMinimum(e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <aside className="space-y-4">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <h2 className="text-sm font-medium text-foreground">
+                  Job estimate
+                </h2>
+                <p className="mt-1 text-sm text-foreground" aria-live="polite">
+                  {plainSummary}
+                </p>
+                <dl className="mt-3 space-y-2 text-sm">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-muted-foreground">Charged area</dt>
+                    <dd>{result.geometry.totalChargeableAreaM2} m2</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-muted-foreground">Blended rate</dt>
+                    <dd>
+                      {result.geometry.blendedRatePerM2 === null
+                        ? "manual"
+                        : formatCurrency(
+                            result.geometry.blendedRatePerM2,
+                            result.currencySymbol ?? marketOption.currencySymbol,
+                          )}
+                      <span className="text-muted-foreground"> /m2</span>
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-muted-foreground">Blinds</dt>
+                    <dd>{money(result.totals.blinds)}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="text-muted-foreground">Extras</dt>
+                    <dd>{money(result.totals.extras)}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <dt className="flex items-center gap-1 text-muted-foreground">
+                      <Wrench className="h-3.5 w-3.5" /> Fitting
+                    </dt>
+                    <dd>{money(result.totals.installation)}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-3 border-t border-border pt-2">
+                    <dt className="font-medium">Total before tax</dt>
+                    <dd className="text-lg font-semibold">
+                      {money(result.totals.total)}
+                    </dd>
+                  </div>
+                  {result.taxRatePct !== null && (
+                    <>
+                      <div
+                        className="flex items-baseline justify-between gap-3"
+                        data-testid="tax-line"
+                      >
+                        <dt className="text-muted-foreground">
+                          Tax at {result.taxRatePct} percent
+                        </dt>
+                        <dd>{money(result.totals.tax)}</dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <dt className="font-medium">Total including tax</dt>
+                        <dd className="text-lg font-semibold">
+                          {money(result.totals.totalInclTax)}
+                        </dd>
+                      </div>
+                    </>
+                  )}
+                </dl>
+                <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                  <Ruler className="h-3.5 w-3.5" />
+                  {result.taxRatePct === null
+                    ? "Tax is not applied until you enter a rate"
+                    : "Tax is the rate you entered, not a local assumption"}
+                </p>
+                <div className="mt-4">
+                  <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                  <HowCalculatedSection
+                    methodologyText={methodologyText("window-blinds")}
+                  />
+                  <ShareEstimateButton
+                    showPdf
+                    estimate={{
+                      kind: "Window Blinds Estimate",
+                      summaryLines: [
+                        {
+                          label: "Windows",
+                          value: String(result.geometry.windowCount),
+                        },
+                        {
+                          label: "Blinds",
+                          value:
+                            result.totals.blinds === null
+                              ? "manual"
+                              : money(result.totals.blinds),
+                        },
+                        {
+                          label: "Extras",
+                          value:
+                            result.totals.extras === null
+                              ? "manual"
+                              : money(result.totals.extras),
+                        },
+                        {
+                          label: "Fitting",
+                          value:
+                            result.totals.installation === null
+                              ? "manual"
+                              : money(result.totals.installation),
+                        },
+                      ],
+                      lineItems: result.rows.map((row) => ({
+                        description: row.label,
+                        quantity: `${row.quantity} × ${row.cassette ?? row.typeLabel}`,
+                        amount:
+                          row.blindsTotal === null
+                            ? null
+                            : money(row.blindsTotal),
+                      })),
+                      totals: [
+                        {
+                          label: "Subtotal",
+                          value:
+                            result.totals.total === null
+                              ? "manual"
+                              : money(result.totals.total),
+                        },
+                        ...(result.totals.tax !== null
+                          ? [
+                              {
+                                label: "Tax",
+                                value: money(result.totals.tax),
+                              },
+                            ]
+                          : []),
+                        ...(jobTotal !== null
+                          ? [
+                              {
+                                label: "Total",
+                                value: money(jobTotal),
+                                emphasized: true,
+                              },
+                            ]
+                          : []),
+                      ],
+                      link: "/window-blind-calculator",
+                    }}
+                    compact
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={downloadCsv}
+                  className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
+                >
+                  Download schedule (CSV)
+                </button>
+              </div>
+
+              <div className="overflow-hidden rounded-xl border border-border bg-card">
+                <h2 className="border-b border-border p-4 text-sm font-medium text-foreground">
+                  Schedule
+                </h2>
+                <div className="divide-y divide-border">
+                  {result.rows.map((row) => (
+                    <div
+                      key={row.id}
+                      className="flex items-start justify-between gap-3 p-3 text-sm"
+                    >
+                      <div>
+                        <div className="font-medium text-foreground">
+                          {row.label || row.typeLabel}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {row.typeLabel} · {row.widthM} x {row.heightM} m ·{" "}
+                          {row.quantity} off
+                          {row.panels > 1
+                            ? ` · ${row.panels} panels of ${row.panelWidthM} m`
+                            : ""}
+                          {row.motorised ? " · motorised" : ""}
+                          {row.cassette ? " · cassette" : ""}
+                          {row.removeOld ? " · removal" : ""}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div>
+                          {row.blindsTotal === null
+                            ? "manual"
+                            : money(row.blindsTotal)}
+                        </div>
+                        {row.extrasTotal ? (
+                          <div className="text-xs text-muted-foreground">
+                            + {money(row.extrasTotal)} extras
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-4 md:p-5">
+                <h2 className="text-sm font-medium text-foreground">
+                  How this was worked out
+                </h2>
+                <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
+                  {result.assumptions.map((assumption) => (
+                    <li key={assumption} className="flex gap-2">
+                      <span
+                        aria-hidden
+                        className="mt-1 h-1 w-1 shrink-0 rounded-full bg-muted-foreground"
+                      />
+                      <span>{assumption}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+                  Source: {result.provenance.source}
+                </p>
+              </div>
+
+              <p className="flex items-start gap-2 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                Sizes are the finished opening. Blinds need 10 to 20 mm clearance
+                inside a reveal, which the waste allowance already covers.
+              </p>
+            </aside>
+          </div>
+
+          <section aria-labelledby="blind-steps" className="mt-10 space-y-4">
+            <h2
+              id="blind-steps"
+              className="text-lg font-semibold text-foreground"
+            >
+              How this estimate is built
+            </h2>
+            <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  n: "1",
+                  title: "Measure the opening",
+                  body: "Width across the reveal and the drop from head to sill, in feet or metres. Both are converted to metres before any rate is applied.",
+                },
+                {
+                  n: "2",
+                  title: "Charge the area",
+                  body: "The measured area is multiplied by the waste allowance for that blind type, because folded fabric is cut with more spare than a rigid slat.",
+                },
+                {
+                  n: "3",
+                  title: "Apply rate and minimum",
+                  body: "The area is priced at the market rate, then lifted to the minimum charge per window whenever the opening prices below it.",
+                },
+                {
+                  n: "4",
+                  title: "Scale and finish",
+                  body: "Count, grade, extras and fitting are added, giving a price per window and a total for the schedule before tax.",
+                },
+              ].map((step) => (
+                <li
+                  key={step.n}
+                  className="rounded-xl border border-border bg-card p-4"
+                >
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Step {step.n}
+                  </span>
+                  <h3 className="mt-1 text-sm font-medium text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {step.body}
+                  </p>
+                </li>
+              ))}
+            </ol>
           </section>
 
-          <aside className="space-y-4">
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <h2 className="text-sm font-medium text-foreground">
-                Job estimate
-              </h2>
-              <p className="mt-1 text-sm text-foreground" aria-live="polite">
-                {plainSummary}
-              </p>
-              <dl className="mt-3 space-y-2 text-sm">
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Charged area</dt>
-                  <dd>{result.geometry.totalChargeableAreaM2} m2</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Blended rate</dt>
-                  <dd>
-                    {result.geometry.blendedRatePerM2 === null
-                      ? "manual"
-                      : formatCurrency(
-                          result.geometry.blendedRatePerM2,
-                          result.currencySymbol ?? marketOption.currencySymbol,
-                        )}
-                    <span className="text-muted-foreground"> /m2</span>
-                  </dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Blinds</dt>
-                  <dd>{money(result.totals.blinds)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="text-muted-foreground">Extras</dt>
-                  <dd>{money(result.totals.extras)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <dt className="flex items-center gap-1 text-muted-foreground">
-                    <Wrench className="h-3.5 w-3.5" /> Fitting
-                  </dt>
-                  <dd>{money(result.totals.installation)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-3 border-t border-border pt-2">
-                  <dt className="font-medium">Total before tax</dt>
-                  <dd className="text-lg font-semibold">
-                    {money(result.totals.total)}
-                  </dd>
-                </div>
-                {result.taxRatePct !== null && (
-                  <>
-                    <div
-                      className="flex items-baseline justify-between gap-3"
-                      data-testid="tax-line"
-                    >
-                      <dt className="text-muted-foreground">
-                        Tax at {result.taxRatePct} percent
-                      </dt>
-                      <dd>{money(result.totals.tax)}</dd>
-                    </div>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="font-medium">Total including tax</dt>
-                      <dd className="text-lg font-semibold">
-                        {money(result.totals.totalInclTax)}
-                      </dd>
-                    </div>
-                  </>
-                )}
-              </dl>
-              <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                <Ruler className="h-3.5 w-3.5" />
-                {result.taxRatePct === null
-                  ? "Tax is not applied until you enter a rate"
-                  : "Tax is the rate you entered, not a local assumption"}
-              </p>
-              <div className="mt-4">
-                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-                <HowCalculatedSection
-                  methodologyText={methodologyText("window-blinds")}
-                />
-                <ShareEstimateButton
-                  showPdf
-                  estimate={{
-                    kind: "Window Blinds Estimate",
-                    summaryLines: [
-                      {
-                        label: "Windows",
-                        value: String(result.geometry.windowCount),
-                      },
-                      {
-                        label: "Blinds",
-                        value:
-                          result.totals.blinds === null
-                            ? "manual"
-                            : money(result.totals.blinds),
-                      },
-                      {
-                        label: "Extras",
-                        value:
-                          result.totals.extras === null
-                            ? "manual"
-                            : money(result.totals.extras),
-                      },
-                      {
-                        label: "Fitting",
-                        value:
-                          result.totals.installation === null
-                            ? "manual"
-                            : money(result.totals.installation),
-                      },
-                    ],
-                    lineItems: result.rows.map((row) => ({
-                      description: row.label,
-                      quantity: `${row.quantity} × ${row.cassette ?? row.typeLabel}`,
-                      amount:
-                        row.blindsTotal === null
-                          ? null
-                          : money(row.blindsTotal),
-                    })),
-                    totals: [
-                      {
-                        label: "Subtotal",
-                        value:
-                          result.totals.total === null
-                            ? "manual"
-                            : money(result.totals.total),
-                      },
-                      ...(result.totals.tax !== null
-                        ? [
-                            {
-                              label: "Tax",
-                              value: money(result.totals.tax),
-                            },
-                          ]
-                        : []),
-                      ...(jobTotal !== null
-                        ? [
-                            {
-                              label: "Total",
-                              value: money(jobTotal),
-                              emphasized: true,
-                            },
-                          ]
-                        : []),
-                    ],
-                    link: "/window-blind-calculator",
-                  }}
-                  compact
-                />
-              </div>
-              <button
-                type="button"
-                onClick={downloadCsv}
-                className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
-              >
-                Download schedule (CSV)
-              </button>
-            </div>
-
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
-              <h2 className="border-b border-border p-4 text-sm font-medium text-foreground">
-                Schedule
-              </h2>
-              <div className="divide-y divide-border">
-                {result.rows.map((row) => (
-                  <div
-                    key={row.id}
-                    className="flex items-start justify-between gap-3 p-3 text-sm"
-                  >
-                    <div>
-                      <div className="font-medium text-foreground">
-                        {row.label || row.typeLabel}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {row.typeLabel} · {row.widthM} x {row.heightM} m ·{" "}
-                        {row.quantity} off
-                        {row.panels > 1
-                          ? ` · ${row.panels} panels of ${row.panelWidthM} m`
-                          : ""}
-                        {row.motorised ? " · motorised" : ""}
-                        {row.cassette ? " · cassette" : ""}
-                        {row.removeOld ? " · removal" : ""}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div>
-                        {row.blindsTotal === null
-                          ? "manual"
-                          : money(row.blindsTotal)}
-                      </div>
-                      {row.extrasTotal ? (
-                        <div className="text-xs text-muted-foreground">
-                          + {money(row.extrasTotal)} extras
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-4 md:p-5">
-              <h2 className="text-sm font-medium text-foreground">
-                How this was worked out
-              </h2>
-              <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
-                {result.assumptions.map((assumption) => (
-                  <li key={assumption} className="flex gap-2">
-                    <span
-                      aria-hidden
-                      className="mt-1 h-1 w-1 shrink-0 rounded-full bg-muted-foreground"
-                    />
-                    <span>{assumption}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                Source: {result.provenance.source}
-              </p>
-            </div>
-
-            <p className="flex items-start gap-2 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Sizes are the finished opening. Blinds need 10 to 20 mm clearance
-              inside a reveal, which the waste allowance already covers.
-            </p>
-          </aside>
-        </div>
-
-        <section aria-labelledby="blind-steps" className="mt-10 space-y-4">
-          <h2
-            id="blind-steps"
-            className="text-lg font-semibold text-foreground"
-          >
-            How this estimate is built
-          </h2>
-          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                n: "1",
-                title: "Measure the opening",
-                body: "Width across the reveal and the drop from head to sill, in feet or metres. Both are converted to metres before any rate is applied.",
-              },
-              {
-                n: "2",
-                title: "Charge the area",
-                body: "The measured area is multiplied by the waste allowance for that blind type, because folded fabric is cut with more spare than a rigid slat.",
-              },
-              {
-                n: "3",
-                title: "Apply rate and minimum",
-                body: "The area is priced at the market rate, then lifted to the minimum charge per window whenever the opening prices below it.",
-              },
-              {
-                n: "4",
-                title: "Scale and finish",
-                body: "Count, grade, extras and fitting are added, giving a price per window and a total for the schedule before tax.",
-              },
-            ].map((step) => (
-              <li
-                key={step.n}
-                className="rounded-xl border border-border bg-card p-4"
-              >
-                <span className="text-xs font-medium text-muted-foreground">
-                  Step {step.n}
-                </span>
-                <h3 className="mt-1 text-sm font-medium text-foreground">
-                  {step.title}
-                </h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {step.body}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section aria-labelledby="blind-types" className="mt-10 space-y-4">
-          <h2
-            id="blind-types"
-            className="text-lg font-semibold text-foreground"
-          >
-            Blind types and what they cost
-          </h2>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Every band below is the top of what the Nigerian market actually
-            quotes, from vendor price lists and marketplace listings scanned in
-            November 2026. The estimator prices at the top of the band, because
-            under quoting a blind costs the installer money.
-          </p>
-          <div className="overflow-x-auto rounded-xl border border-border bg-card">
-            <table className="w-full min-w-[520px] text-left text-sm">
-              <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th scope="col" className="p-3 font-medium">
-                    Type
-                  </th>
-                  <th scope="col" className="p-3 font-medium">
-                    Made of
-                  </th>
-                  <th scope="col" className="p-3 font-medium">
-                    Local band
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {BLIND_TYPES.map((type) => (
-                  <tr key={type.key}>
-                    <th scope="row" className="p-3 font-medium text-foreground">
-                      {type.label}
-                    </th>
-                    <td className="p-3 text-muted-foreground">{type.family}</td>
-                    <td className="p-3 text-muted-foreground">
-                      {type.observedBand}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section aria-labelledby="blind-next" className="mt-10 space-y-3">
-          <h2 id="blind-next" className="text-lg font-semibold text-foreground">
-            Next in the job
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              {
-                to: "/fence-block-calculator",
-                label: "Fence and coach blocks",
-                note: "Perimeter wall, blocks, cement and sand.",
-              },
-              {
-                to: "/german-floor-calculator",
-                label: "German floor",
-                note: "Laterite, slab and mix for a ground floor.",
-              },
-              {
-                to: "/construction-tools",
-                label: "All construction tools",
-                note: "Every calculator in the FRELUX set.",
-              },
-            ].map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="rounded-xl border border-border bg-card p-4 hover:bg-muted"
-              >
-                <span className="block text-sm font-medium text-foreground">
-                  {link.label}
-                </span>
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {link.note}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <AdSlot slotKey="estimator_mid" className="mt-8" />
-
-        <section aria-labelledby="blind-faq" className="mt-10 space-y-4">
-          <h2 id="blind-faq" className="text-lg font-semibold text-foreground">
-            Blind pricing questions
-          </h2>
-          {(getToolFaqGroup("window-blinds")?.questions ?? []).map((item) => (
-            <details
-              key={item.q}
-              className="rounded-xl border border-border bg-card p-4 md:p-5"
+          <section aria-labelledby="blind-types" className="mt-10 space-y-4">
+            <h2
+              id="blind-types"
+              className="text-lg font-semibold text-foreground"
             >
-              <summary className="cursor-pointer text-sm font-medium text-foreground">
-                {item.q}
-              </summary>
-              <p className="mt-2 text-sm text-muted-foreground">{item.a}</p>
-            </details>
-          ))}
-        </section>
-      </Container>
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.finishEstimator,
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
-      </div>
+              Blind types and what they cost
+            </h2>
+            <p className="max-w-3xl text-sm text-muted-foreground">
+              Every band below is the top of what the Nigerian market actually
+              quotes, from vendor price lists and marketplace listings scanned in
+              November 2026. The estimator prices at the top of the band, because
+              under quoting a blind costs the installer money.
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+              <table className="w-full min-w-[520px] text-left text-sm">
+                <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th scope="col" className="p-3 font-medium">
+                      Type
+                    </th>
+                    <th scope="col" className="p-3 font-medium">
+                      Made of
+                    </th>
+                    <th scope="col" className="p-3 font-medium">
+                      Local band
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {BLIND_TYPES.map((type) => (
+                    <tr key={type.key}>
+                      <th scope="row" className="p-3 font-medium text-foreground">
+                        {type.label}
+                      </th>
+                      <td className="p-3 text-muted-foreground">{type.family}</td>
+                      <td className="p-3 text-muted-foreground">
+                        {type.observedBand}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-      <EstimateDisclaimer />
-    </div>
+          <section aria-labelledby="blind-next" className="mt-10 space-y-3">
+            <h2 id="blind-next" className="text-lg font-semibold text-foreground">
+              Next in the job
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  to: "/fence-block-calculator",
+                  label: "Fence and coach blocks",
+                  note: "Perimeter wall, blocks, cement and sand.",
+                },
+                {
+                  to: "/german-floor-calculator",
+                  label: "German floor",
+                  note: "Laterite, slab and mix for a ground floor.",
+                },
+                {
+                  to: "/construction-tools",
+                  label: "All construction tools",
+                  note: "Every calculator in the FRELUX set.",
+                },
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="rounded-xl border border-border bg-card p-4 hover:bg-muted"
+                >
+                  <span className="block text-sm font-medium text-foreground">
+                    {link.label}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    {link.note}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <AdSlot slotKey="estimator_mid" className="mt-8" />
+
+          <section aria-labelledby="blind-faq" className="mt-10 space-y-4">
+            <h2 id="blind-faq" className="text-lg font-semibold text-foreground">
+              Blind pricing questions
+            </h2>
+            {(getToolFaqGroup("window-blinds")?.questions ?? []).map((item) => (
+              <details
+                key={item.q}
+                className="rounded-xl border border-border bg-card p-4 md:p-5"
+              >
+                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                  {item.q}
+                </summary>
+                <p className="mt-2 text-sm text-muted-foreground">{item.a}</p>
+              </details>
+            ))}
+          </section>
+        </Container>
+
+      </div>
+    </ToolShell>
   );
 }

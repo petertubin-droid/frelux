@@ -15,9 +15,7 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useCallback } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
@@ -28,10 +26,10 @@ import { EstimateDisclaimer } from "@/components/calculators";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import ToolShell from "@/components/tools/ToolShell";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import {
   fetchSolarPanelModels,
@@ -47,7 +45,6 @@ import {
 import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
-import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
@@ -68,15 +65,6 @@ export default function SolarPvEstimator() {
     setResult(null);
   };
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Solar/PV Roofing Estimator", path: "/solar-pv-estimator" },
-  ]);
-  useSeo({
-    title: "Solar/PV Roofing Estimator: Full Material Takeoff | FRELUX",
-    description:
-      "Plan a complete solar installation: panels that fit your roof or sized for your energy target, daily energy yield, inverter and strings, and every material quantity: rails, clamps, connectors, cabling, breakers, surge protection, earthing, batteries: with sourced prices. Nothing is guessed.",
-  });
 
   const [models, setModels] = useState<SolarPanelModel[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
@@ -345,409 +333,395 @@ export default function SolarPvEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Solar/PV Roofing Estimator" },
-          ]}
-          title={t("Solar/PV Roofing Estimator")}
-          subtitle="A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity: rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries: with configured prices. Nothing is guessed, and unpriced components are reported honestly."
-        />
+    <ToolShell route="/solar-pv-estimator">
+      <Container>
+        <div className="space-y-6">
 
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
 
-        <div
-          ref={fieldsRef}
-          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
-        >
-          <div className="mb-3">
-            <MeasurementTip what="roof or array measurement and units" />
-          </div>
-          <div className="grid gap-3">
-            <div className="flex gap-2 text-sm">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("roof_area");
-                  setResult(null);
-                }}
-                className={`rounded-lg px-3 py-1.5 font-medium ${mode === "roof_area" ? "bg-primary text-primary-foreground" : "border border-border"}`}
-              >
-                {t("Fit to my roof")}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("energy_target");
-                  setResult(null);
-                }}
-                className={`rounded-lg px-3 py-1.5 font-medium ${mode === "energy_target" ? "bg-primary text-primary-foreground" : "border border-border"}`}
-              >
-                {t("Size for my energy target")}
-              </button>
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
             </div>
+          )}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="grid gap-1 text-sm font-medium">
-                {t("Panel model")}
-                <select
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={modelId}
-                  onChange={(e) => {
-                    setModelId(e.target.value);
+          <div
+            ref={fieldsRef}
+            className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
+          >
+            <div className="mb-3">
+              <MeasurementTip what="roof or array measurement and units" />
+            </div>
+            <div className="grid gap-3">
+              <div className="flex gap-2 text-sm">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("roof_area");
                     setResult(null);
                   }}
+                  className={`rounded-lg px-3 py-1.5 font-medium ${mode === "roof_area" ? "bg-primary text-primary-foreground" : "border border-border"}`}
                 >
-                  <option value="">
-                    {t("Select a configured panel model")}
-                  </option>
-                  {models.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.model_name}: {m.watt_peak} Wp
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  {t("Fit to my roof")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("energy_target");
+                    setResult(null);
+                  }}
+                  className={`rounded-lg px-3 py-1.5 font-medium ${mode === "energy_target" ? "bg-primary text-primary-foreground" : "border border-border"}`}
+                >
+                  {t("Size for my energy target")}
+                </button>
+              </div>
 
-              {mode === "roof_area" ? (
-                <div className="grid gap-1 text-sm font-medium">
-                  <label className="grid gap-1">
-                    Usable roof area ({areaLabel})
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm font-medium">
+                  {t("Panel model")}
+                  <select
+                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={modelId}
+                    onChange={(e) => {
+                      setModelId(e.target.value);
+                      setResult(null);
+                    }}
+                  >
+                    <option value="">
+                      {t("Select a configured panel model")}
+                    </option>
+                    {models.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.model_name}: {m.watt_peak} Wp
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {mode === "roof_area" ? (
+                  <div className="grid gap-1 text-sm font-medium">
+                    <label className="grid gap-1">
+                      Usable roof area ({areaLabel})
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.1"
+                        className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                        value={roofArea}
+                        onChange={(e) => setRoofArea(e.target.value)}
+                      />
+                    </label>
+                    <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+                  </div>
+                ) : (
+                  <label className="grid gap-1 text-sm font-medium">
+                    {t("Target daily energy (kWh/day)")}
                     <input
                       type="number"
                       min="1"
                       step="0.1"
                       className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                      value={roofArea}
-                      onChange={(e) => setRoofArea(e.target.value)}
+                      value={energyTarget}
+                      onChange={(e) => setEnergyTarget(e.target.value)}
                     />
                   </label>
-                  <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+                )}
+
+                <div className="grid gap-1 text-sm font-medium">
+                  <label className="grid gap-1">
+                    {`${t("Cable run, array to inverter")} (${unitShortLabel(cableUnit)})`}
+                    <input
+                      type="number"
+                      min="1"
+                      step="0.1"
+                      className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                      value={cableRun}
+                      onChange={(e) => setCableRun(e.target.value)}
+                    />
+                  </label>
+                  <UnitToggle value={cableUnit} onChange={setCableUnit} />
                 </div>
-              ) : (
+
                 <label className="grid gap-1 text-sm font-medium">
-                  {t("Target daily energy (kWh/day)")}
+                  Battery storage wanted (kWh: leave blank for none)
                   <input
                     type="number"
                     min="1"
                     step="0.1"
                     className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                    value={energyTarget}
-                    onChange={(e) => setEnergyTarget(e.target.value)}
+                    value={storage}
+                    onChange={(e) => setStorage(e.target.value)}
                   />
                 </label>
-              )}
-
-              <div className="grid gap-1 text-sm font-medium">
-                <label className="grid gap-1">
-                  {`${t("Cable run, array to inverter")} (${unitShortLabel(cableUnit)})`}
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.1"
-                    className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                    value={cableRun}
-                    onChange={(e) => setCableRun(e.target.value)}
-                  />
-                </label>
-                <UnitToggle value={cableUnit} onChange={setCableUnit} />
-              </div>
-
-              <label className="grid gap-1 text-sm font-medium">
-                Battery storage wanted (kWh: leave blank for none)
-                <input
-                  type="number"
-                  min="1"
-                  step="0.1"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={storage}
-                  onChange={(e) => setStorage(e.target.value)}
-                />
-              </label>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            disabled={!canRun}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-          >
-            {t("Estimate my installation")}
-          </button>
-        </div>
-
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-4">
-          <MissingFieldsNotice fields={missing} />
-        </div>
-
-        {result?.ok && (
-          <div ref={resultsRef} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Panels")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.panel_count}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.array_kwp} kWp array
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Daily energy")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.daily_energy_kwh} kWh
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  at configured sun hours and derate
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Inverter")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.inverter_size_kw} kW
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.string_count} string(s)
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Roof needed")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.needed_roof_area_m2} m²
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.battery_count > 0
-                    ? `${result.battery_count} battery unit(s)`
-                    : "no batteries requested"}
-                </p>
               </div>
             </div>
 
-            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="mb-2 text-sm font-semibold">
-                {t("Materials takeoff")}
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-xs uppercase text-muted-foreground">
-                    <tr>
-                      <th className="py-2 text-left">{t("Material")}</th>
-                      <th className="py-2 text-right">{t("Quantity")}</th>
-                      <th className="py-2 text-right">{t("Unit price")}</th>
-                      <th className="py-2 text-right">{t("Line cost")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.materials.map((m) => (
-                      <tr
-                        key={m.key}
-                        className="border-t border-border dark:border-white/5"
-                      >
-                        <td className="py-2">{m.label}</td>
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              disabled={!canRun}
+              className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            >
+              {t("Estimate my installation")}
+            </button>
+          </div>
+
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4">
+            <MissingFieldsNotice fields={missing} />
+          </div>
+
+          {result?.ok && (
+            <div ref={resultsRef} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Panels")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.panel_count}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.array_kwp} kWp array
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Daily energy")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.daily_energy_kwh} kWh
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    at configured sun hours and derate
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Inverter")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.inverter_size_kw} kW
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.string_count} string(s)
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Roof needed")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.needed_roof_area_m2} m²
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.battery_count > 0
+                      ? `${result.battery_count} battery unit(s)`
+                      : "no batteries requested"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                <h3 className="mb-2 text-sm font-semibold">
+                  {t("Materials takeoff")}
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs uppercase text-muted-foreground">
+                      <tr>
+                        <th className="py-2 text-left">{t("Material")}</th>
+                        <th className="py-2 text-right">{t("Quantity")}</th>
+                        <th className="py-2 text-right">{t("Unit price")}</th>
+                        <th className="py-2 text-right">{t("Line cost")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.materials.map((m) => (
+                        <tr
+                          key={m.key}
+                          className="border-t border-border dark:border-white/5"
+                        >
+                          <td className="py-2">{m.label}</td>
+                          <td className="py-2 text-right font-mono text-xs">
+                            {m.quantity.toLocaleString("en-NG")} {m.unit}
+                          </td>
+                          <td className="py-2 text-right font-mono text-xs">
+                            {m.unit_price_naira === null
+                              ? "unpriced"
+                              : formatCurrency(m.unit_price_naira)}
+                          </td>
+                          <td className="py-2 text-right font-mono text-xs">
+                            {m.line_cost_naira === null
+                              ? "N/A"
+                              : formatCurrency(m.line_cost_naira)}
+                          </td>
+                        </tr>
+                      ))}
+                      <tr className="border-t border-border dark:border-white/5">
+                        <td className="py-2">{t("Installation labour")}</td>
                         <td className="py-2 text-right font-mono text-xs">
-                          {m.quantity.toLocaleString("en-NG")} {m.unit}
+                          {result.panel_count} panels
                         </td>
                         <td className="py-2 text-right font-mono text-xs">
-                          {m.unit_price_naira === null
-                            ? "unpriced"
-                            : formatCurrency(m.unit_price_naira)}
+                          {t("N/A")}
                         </td>
                         <td className="py-2 text-right font-mono text-xs">
-                          {m.line_cost_naira === null
-                            ? "N/A"
-                            : formatCurrency(m.line_cost_naira)}
+                          {formatCurrency(result.labor_cost_naira ?? 0)}
                         </td>
                       </tr>
-                    ))}
-                    <tr className="border-t border-border dark:border-white/5">
-                      <td className="py-2">{t("Installation labour")}</td>
-                      <td className="py-2 text-right font-mono text-xs">
-                        {result.panel_count} panels
-                      </td>
-                      <td className="py-2 text-right font-mono text-xs">
-                        {t("N/A")}
-                      </td>
-                      <td className="py-2 text-right font-mono text-xs">
-                        {formatCurrency(result.labor_cost_naira ?? 0)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Total estimate")}
-                </p>
-                {result.total_cost_naira !== null ? (
-                  <p className="mt-1 text-3xl font-semibold">
-                    {formatCurrency(result.total_cost_naira)}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Total estimate")}
                   </p>
-                ) : (
-                  <>
+                  {result.total_cost_naira !== null ? (
                     <p className="mt-1 text-3xl font-semibold">
-                      {formatCurrency(result.total_of_priced_lines_naira)}
+                      {formatCurrency(result.total_cost_naira)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      total of priced lines only: some components are unpriced,
-                      so the complete total is withheld rather than invented
-                    </p>
-                  </>
-                )}
-                <p className="mt-1 text-xs text-muted-foreground">
-                  materials + labour, from configured prices
-                </p>
-              </div>
-            </div>
-
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                {result.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {w}
+                  ) : (
+                    <>
+                      <p className="mt-1 text-3xl font-semibold">
+                        {formatCurrency(result.total_of_priced_lines_naira)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        total of priced lines only: some components are unpriced,
+                        so the complete total is withheld rather than invented
+                      </p>
+                    </>
+                  )}
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    materials + labour, from configured prices
                   </p>
-                ))}
+                </div>
               </div>
-            )}
 
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("How this was determined")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={saveState === "saving" || saveState === "saved"}
-                className={ACTION_BTN_PRIMARY}
-              >
-                {saveState === "saving"
-                  ? "Saving…"
-                  : saveState === "saved"
-                    ? "Saved"
-                    : "Save estimate"}
-              </button>
-              <button
-                type="button"
-                onClick={handleExportQuote}
-                className="rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
-              >
-                {t("Export quote (PDF)")}
-              </button>
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-              <HowCalculatedSection
-                methodologyText={methodologyText("solar-pv")}
-              />
-              <QuoteShareButton
-                build={buildQuote}
-                kind="Solar/PV Installation Estimate"
-                link="/solar-pv-estimator"
-              />
-              <SaveToProjectButton
-                calculatorType="cost"
-                calculatorSlug="solar-pv-estimator"
-                calcTitle="Solar/PV Installation Estimate"
-                calcData={
-                  {
-                    mode,
-                    panel_model: modelId,
-                    cable_run_m: cableToMetres(cableRun),
-                    result: {
-                      panel_count: result.panel_count,
-                      array_kwp: result.array_kwp,
-                      daily_energy_kwh: result.daily_energy_kwh,
-                      inverter_size_kw: result.inverter_size_kw,
-                      string_count: result.string_count,
-                      needed_roof_area_m2: result.needed_roof_area_m2,
-                      battery_count: result.battery_count,
-                      total: pricedTotal,
-                      currency: "NGN",
-                    },
-                  } as unknown as Record<string, unknown>
-                }
-                resultSummary={
-                  {
-                    grandTotal: pricedTotal,
-                    panelCount: result.panel_count,
-                    arrayKwp: result.array_kwp,
-                    dailyEnergyKwh: result.daily_energy_kwh,
-                  } as unknown as Record<string, unknown>
-                }
-                materials={result.materials.map((m) => ({
-                  name: m.label,
-                  category: "material",
-                  quantity: m.quantity,
-                  unit: m.unit,
-                }))}
-                compact
-                label="Save to Project"
-              />
-              <NearbySuppliersLink material="solar panels" />
-              {saveMessage && (
-                <span
-                  className={`text-xs ${saveState === "error" ? "text-destructive" : "text-muted-foreground"}`}
-                >
-                  {saveMessage}
-                </span>
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  {result.warnings.map((w, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {w}
+                    </p>
+                  ))}
+                </div>
               )}
+
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("How this was determined")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saveState === "saving" || saveState === "saved"}
+                  className={ACTION_BTN_PRIMARY}
+                >
+                  {saveState === "saving"
+                    ? "Saving…"
+                    : saveState === "saved"
+                      ? "Saved"
+                      : "Save estimate"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportQuote}
+                  className="rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
+                >
+                  {t("Export quote (PDF)")}
+                </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("solar-pv")}
+                />
+                <QuoteShareButton
+                  build={buildQuote}
+                  kind="Solar/PV Installation Estimate"
+                  link="/solar-pv-estimator"
+                />
+                <SaveToProjectButton
+                  calculatorType="cost"
+                  calculatorSlug="solar-pv-estimator"
+                  calcTitle="Solar/PV Installation Estimate"
+                  calcData={
+                    {
+                      mode,
+                      panel_model: modelId,
+                      cable_run_m: cableToMetres(cableRun),
+                      result: {
+                        panel_count: result.panel_count,
+                        array_kwp: result.array_kwp,
+                        daily_energy_kwh: result.daily_energy_kwh,
+                        inverter_size_kw: result.inverter_size_kw,
+                        string_count: result.string_count,
+                        needed_roof_area_m2: result.needed_roof_area_m2,
+                        battery_count: result.battery_count,
+                        total: pricedTotal,
+                        currency: "NGN",
+                      },
+                    } as unknown as Record<string, unknown>
+                  }
+                  resultSummary={
+                    {
+                      grandTotal: pricedTotal,
+                      panelCount: result.panel_count,
+                      arrayKwp: result.array_kwp,
+                      dailyEnergyKwh: result.daily_energy_kwh,
+                    } as unknown as Record<string, unknown>
+                  }
+                  materials={result.materials.map((m) => ({
+                    name: m.label,
+                    category: "material",
+                    quantity: m.quantity,
+                    unit: m.unit,
+                  }))}
+                  compact
+                  label="Save to Project"
+                />
+                <NearbySuppliersLink material="solar panels" />
+                {saveMessage && (
+                  <span
+                    className={`text-xs ${saveState === "error" ? "text-destructive" : "text-muted-foreground"}`}
+                  >
+                    {saveMessage}
+                  </span>
+                )}
+              </div>
+
+              <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
             </div>
+          )}
+        </div>
+        <CalculatorAdBanner toolKey="solar" className="mt-8" />
+        <RecommendedProducts category="electrical" />
 
-            <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
-          </div>
-        )}
-      </div>
-      <CalculatorAdBanner toolKey="solar" className="mt-8" />
-      <RecommendedProducts category="electrical" />
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
 
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.foundationCalc,
-          ]}
-        />
-      </div>
-    </Container>
+      </Container>
+    </ToolShell>
   );
 }

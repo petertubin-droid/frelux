@@ -6,6 +6,7 @@ import WindowBlindsEstimator from "@/pages/WindowBlindsEstimator";
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(),
 }));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
