@@ -24,6 +24,10 @@ import {
 } from "@/lib/estimation/market-materials";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import {
+  paintPackNoun,
+  resolvePaintPackLitres,
+} from "@/lib/estimation/paint-packaging";
+import {
   resolveMarketRoomUnit,
   ROOM_DIM_DEFAULTS,
   DOOR_DIM_DEFAULTS,
@@ -250,7 +254,7 @@ export default function PaintingEstimator({
           title:
             "Painting Estimator, Complete Paint Project Estimate & Summary",
           description:
-            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions, the full project overview.",
+            "Complete painting project estimator. Get a room-by-room summary with paint quantities in the pack sizes your market sells, material costs, finishes, and assumptions, the full project overview.",
           canonicalPath: "/painting-estimator",
           ogType: "website",
           keywords:
@@ -1803,6 +1807,13 @@ function EstimateResult({
     ? `containers (${paintPackTerm})`
     : "bucket(s)";
   const bucketUnit = paintPackTerm ? "containers" : "buckets";
+  // The market's standard purchase container, so a US reader sees "cans" and
+  // a British one "tins" where Nigeria sees "buckets", matching the shelf the
+  // packs were bought from rather than a fixed phrasing.
+  const containerWord = (() => {
+    const noun = paintPackNoun(resolvePaintPackLitres(marketCode), marketCode);
+    return noun.endsWith("s") ? noun : `${noun}s`;
+  })();
 
   // Labour completion: area the painters actually cover
   const paintAreaM2 = result.rooms.reduce(
@@ -2263,15 +2274,15 @@ function EstimateResult({
           <EngineExplanationPanel
             result={engine.buildExplanation({
               subject: "Painting Estimate",
-              resultSummary: `${result.combined_practical_buckets} paint buckets needed`,
+              resultSummary: `${result.combined_practical_buckets} ${containerWord} needed`,
               steps: [
                 {
                   description: "Number of rooms",
                   value: String(result.rooms.length),
                 },
                 {
-                  description: "Total paint buckets required",
-                  value: `${result.combined_practical_buckets} bucket(s)`,
+                  description: "Total containers of paint required",
+                  value: `${result.combined_practical_buckets} ${containerWord}`,
                 },
                 {
                   description: "Total theoretical buckets",

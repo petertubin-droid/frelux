@@ -242,7 +242,7 @@ export default function PaintCalculator({
       ? {
           title: "Paint Calculator, How Much Paint Do I Need?",
           description:
-            "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
+            "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many containers of paint your project requires.",
           canonicalPath: "/paint-calculator",
           ogType: "website",
           structuredDataArray: [
@@ -251,7 +251,7 @@ export default function PaintCalculator({
               "@type": "WebApplication",
               name: "FRELUX Project Calculator",
               description:
-                "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
+                "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many containers of paint your project requires.",
               url: `${SITE_URL}/paint-calculator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
@@ -2707,7 +2707,7 @@ function ResultCard({
 
       <div className="border-t border-border/50 px-6 py-4 sm:px-8 dark:border-white/5">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Recommended paint buckets
+          Recommended containers
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {result.recommendedContainers.map((c, i) => (

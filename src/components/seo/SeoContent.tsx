@@ -14,15 +14,15 @@ export function PaintCalculatorSeo(): ReactNode {
         Calculating how much paint you need is the first step in any painting
         project. Whether you're painting a single room or an entire house, the
         FRELUX Project Calculator takes your wall dimensions, number of coats,
-        doors, and windows into account to give you the number of paint buckets
-        required for your project.
+        doors, and windows into account to give you the number of paint
+        containers required for your project.
       </p>
       <p>
         {t("FRELUX estimates paint requirements in")} <strong>buckets</strong>,
         a standard purchase unit for paint in many markets. The engine
         calculates your paintable wall area, applies coverage rates specific to
         your selected paint type and quality, accounts for the number of coats,
-        and rounds up to whole paint buckets so you know exactly what to buy.
+        and rounds up to whole containers so you know exactly what to buy.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         {t("Factors That Affect Paint Quantity")}

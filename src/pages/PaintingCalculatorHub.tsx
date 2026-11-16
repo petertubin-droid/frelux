@@ -3,7 +3,11 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
-import {} from "@/lib/international/market-context";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  resolvePaintPacks,
+  hasVerifiedPaintShelf,
+} from "@/lib/estimation/paint-packaging";
 import { track } from "@/lib/analytics";
 import { useLanguage } from "@/lib/i18n";
 import ToolShell from "@/components/tools/ToolShell";
@@ -29,6 +33,14 @@ const TABS = [
 
 export default function PaintingCalculatorHub() {
   const { t } = useLanguage();
+  // The shelf the market actually sells, so the copy does not promise a 20 L
+  // bucket to a visitor whose shops stock 5 L tins, or a bucket at all to a
+  // market that sells by the gallon.
+  const { marketCode } = useMarket();
+  const packs = resolvePaintPacks(marketCode);
+  const shelf = packs.map((pack) => pack.label).join(", ");
+  const containerNoun = packs[0].noun === "tin" ? "tins" : "containers";
+  const shelfVerified = hasVerifiedPaintShelf(marketCode);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
@@ -92,8 +104,9 @@ export default function PaintingCalculatorHub() {
             <ul>
               <li>
                 <strong>{t("Paint Quantity")}</strong>, Calculate exactly how
-                many paint buckets you need based on wall area, doors, windows,
-                and coats.
+                many {containerNoun} you need based on wall area, doors,
+                windows, and coats, in the pack sizes this market sells:
+                {shelf}.
               </li>
               <li>
                 <strong>{t("Cost Estimate")}</strong>, Get a full paint material
@@ -115,16 +128,21 @@ export default function PaintingCalculatorHub() {
               coverage rates, and waste factors specific to real construction
               environments. The engine applies admin-configured production
               rules, coverage rates, and material packaging sizes to produce
-              results expressed in paint buckets, not generic m²-per-litre
-              estimates.
+              results expressed in containers this market sells ({shelf}), not
+              generic m²-per-litre estimates.
+              {shelfVerified
+                ? ""
+                : " No retail listing has been checked for this market, so the pack sizes above are the metric shelf and may not match what your suppliers stock."}
             </p>
             <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
               {t("Construction Context")}
             </h3>
             <p className="text-muted-foreground dark:text-muted-foreground/80">
-              All calculations are tuned for real market conditions with local
-              product prices, standard room dimensions, and materials commonly
-              available from building material suppliers.
+              Calculations run against the price book configured for your market
+              where one exists, with standard room dimensions and the materials
+              building suppliers stock. Where no market price book is
+              configured, the engine defaults are used and the result says so,
+              so a figure is never presented as a local quote when it is not.
             </p>
           </div>
 
