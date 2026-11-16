@@ -72,4 +72,28 @@ describe("SteelBeamEstimator", () => {
     await screen.findAllByRole("heading");
     expect(normalise(document.body.textContent || "")).toContain("I-Beam");
   });
+
+  it("shows one related row and one disclaimer, not the page's own plus the shell's", async () => {
+    const { default: Page } = await import("@/pages/SteelBeamEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    await screen.findAllByRole("heading");
+
+    // The shell owns both. Counting by class and by link target, because the
+    // disclaimer text differs between the page's copy and the catalogue's, so
+    // matching words would miss a duplicate that differing wording hides.
+    expect(document.querySelectorAll(".disclaimer-premium")).toHaveLength(1);
+
+    const toReinforcement = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href") === "/reinforcement");
+    expect(toReinforcement).toHaveLength(1);
+
+    // The curated links still reach the page, through the shell's row.
+    expect(screen.getByText("Reinforcement estimator")).toBeTruthy();
+    expect(screen.getByText("Structural calculator")).toBeTruthy();
+  });
 });

@@ -7,7 +7,7 @@
  * own supplier price rather than a zero or a guess.
  */
 
-import { useId, type ReactNode } from "react";
+import { useId, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Calculator, Info, Printer } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -15,7 +15,6 @@ import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
@@ -111,6 +110,18 @@ export function SpecialtyCalculatorShell({
   const { symbol: displaySymbol } = useDisplayCurrency();
   const symbol = market?.currencySymbol || displaySymbol || "₦";
   const currencyCode = market?.currencyCode || "NGN";
+  // The curated cross links these calculators offer are the related row; handing
+  // them to the shell keeps one row of links instead of a grid above the shell's
+  // own list saying the same thing twice.
+  const related = useMemo(
+    () =>
+      crossLinks.map((link) => ({
+        label: link.label,
+        path: link.to,
+        description: link.description,
+      })),
+    [crossLinks],
+  );
   const totalsId = useId();
   const { fieldsRef, resultsRef, missing, handleCalculate } =
     useCalculatorFeedback();
@@ -165,6 +176,7 @@ export function SpecialtyCalculatorShell({
     <ToolShell
       route={routePath}
       methodologyLink={Boolean(methodology && result?.ok)}
+      relatedLinks={related}
     >
       <Container className="pb-16 pt-6">
         <div className="mb-6">
@@ -549,8 +561,6 @@ export function SpecialtyCalculatorShell({
           </div>
         ) : null}
 
-        <EstimateDisclaimer />
-
         <AdSlot slotKey="calculator_mid" className="mt-8" />
 
         {proCallout ? (
@@ -567,23 +577,6 @@ export function SpecialtyCalculatorShell({
             >
               {proCallout.cta}
             </Link>
-          </div>
-        ) : null}
-
-        {crossLinks.length > 0 ? (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {crossLinks.map((c) => (
-              <Link
-                key={c.to}
-                to={c.to}
-                className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
-              >
-                <p className="font-medium">{c.label}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {c.description}
-                </p>
-              </Link>
-            ))}
           </div>
         ) : null}
 
