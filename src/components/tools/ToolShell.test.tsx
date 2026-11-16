@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 import ToolShell from "@/components/tools/ToolShell";
 import { relatedToolsFor } from "@/lib/tools/related-tools";
 import { CONSTRUCTION_TOOLS, findToolByRoute } from "@/config/construction-tools";
+import { SITE_URL } from "@/lib/site-config";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 
 const renderAt = (path: string, ui = <p>calculator body</p>) =>
@@ -147,6 +148,26 @@ describe("tool shell", () => {
     // The page itself is text in the crumbs, not a link back to itself.
     const nav = screen.getByRole("navigation", { hidden: true });
     expect(nav.textContent).toContain("Profit Margin Calculator");
+  });
+
+  it("declares the tool as a free web calculator", () => {
+    const tool = findToolByRoute("/margin-calculator")!;
+    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
+    const scripts = [...document.head.querySelectorAll('script[type="application/ld+json"]')];
+    const apps = scripts
+      .map((el) => {
+        try {
+          return JSON.parse(el.textContent || "{}");
+        } catch {
+          return {};
+        }
+      })
+      .filter((data) => data["@type"] === "WebApplication");
+    expect(apps).toHaveLength(1);
+    expect(apps[0].url).toBe(`${SITE_URL}${tool.to}`);
+    expect(apps[0].name).toBe(`FRELUX ${tool.heading ?? tool.title}`);
+    expect(apps[0].offers.price).toBe("0");
+    expect(apps[0].offers.priceCurrency).toBeTruthy();
   });
 
   it("covers every catalogued route with an entry lookup that round trips", () => {

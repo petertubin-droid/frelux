@@ -13,16 +13,15 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { formatCurrency } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
 import Container from "@/components/ui/Container";
+import ToolShell from "@/components/tools/ToolShell";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
-import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchEstimates,
   fetchEstimateItems,
@@ -81,18 +80,6 @@ function asSnapshot(
 
 export default function EstimateRefresh() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    {
-      name: "Estimate Refresh: Current Cost Today",
-      path: "/estimate-refresh",
-    },
-  ]);
-  useSeo({
-    title: "Estimate Refresh: Current Cost Today | FRELUX",
-    description:
-      "Refresh a saved estimate against today's prices. Old quotes stay honest: see exactly what changed and what has no current price, never a guess.",
-  });
 
   const { user } = useAuth();
   const [estimates, setEstimates] = useState<EstimationEstimate[]>([]);
@@ -201,230 +188,224 @@ export default function EstimateRefresh() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Estimate Refresh: Current Cost Today" },
-          ]}
-          title={t("Estimate Refresh: Current Cost Today")}
-          subtitle="Inflation-proof estimating: your saved estimates snapshot the prices they were quoted at. Pick one and see what it would cost today: line by line, with every missing price flagged, never guessed."
-        />
+    <ToolShell route="/estimate-refresh" hideDisclaimer>
+      <Container>
+        <div className="space-y-6">
 
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
 
-        {!user ? (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            Sign in to refresh your saved estimates. Only your own estimates are
-            ever listed, and only their stored snapshots are used: nothing is
-            re-priced behind your back.
-          </div>
-        ) : estimates.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            You have no completed estimates yet. Run any calculator and save the
-            estimate, then come back to keep its quote honest as prices move.
-          </div>
-        ) : (
-          <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-            <label className="grid gap-1 text-sm font-medium">
-              {t("Saved estimate")}
-              <select
-                id="refresh-estimate"
-                aria-label={t("Saved estimate")}
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={selectedId}
-                onChange={(e) => {
-                  setSelectedId(e.target.value);
-                  setResult(null);
-                }}
-              >
-                <option value="">{t("Select an estimate")}</option>
-                {estimates.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.estimate_ref}: {e.calculator_type} (
-                    {new Date(e.created_at).toLocaleDateString()})
-                  </option>
-                ))}
-              </select>
-            </label>
-            <MissingFieldsNotice fields={missing} />
-            <button
-              type="button"
-              onClick={() => handleCalculate(run)}
-              disabled={refreshing}
-              className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
-            >
-              {refreshing ? "Refreshing…" : "Refresh to today's prices"}
-            </button>
-          </div>
-        )}
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          )}
 
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {result?.ok && (
-          <div ref={resultsRef} className="space-y-4">
-            {/* Summary tiles */}
-            <div className="grid gap-4 sm:grid-cols-4">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Quoted")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {money(result.total_then)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.estimate_ref} snapshot
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Current cost today")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {money(result.total_today)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.changed_count} changed · {result.unchanged_count}{" "}
-                  unchanged · {result.missing_count} held
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Delta")}
-                </p>
-                <p
-                  className={`mt-1 text-xl font-semibold ${result.delta > 0 ? "text-amber-500" : result.delta < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+          {!user ? (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              Sign in to refresh your saved estimates. Only your own estimates are
+              ever listed, and only their stored snapshots are used: nothing is
+              re-priced behind your back.
+            </div>
+          ) : estimates.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              You have no completed estimates yet. Run any calculator and save the
+              estimate, then come back to keep its quote honest as prices move.
+            </div>
+          ) : (
+            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+              <label className="grid gap-1 text-sm font-medium">
+                {t("Saved estimate")}
+                <select
+                  id="refresh-estimate"
+                  aria-label={t("Saved estimate")}
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={selectedId}
+                  onChange={(e) => {
+                    setSelectedId(e.target.value);
+                    setResult(null);
+                  }}
                 >
-                  {result.delta >= 0 ? "+" : ""}
-                  {money(result.delta)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.delta_percent !== null
-                    ? `${result.delta_percent}% since quoted`
-                    : "percentage not computable"}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Honest lines")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.lines.length}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.missing_count} held at snapshot: never guessed
-                </p>
-              </div>
-            </div>
-
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                {result.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {w}
-                  </p>
-                ))}
-              </div>
-            )}
-
-            {/* Per-line table */}
-            <div className="overflow-x-auto rounded-lg border border-border dark:border-white/5">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50 text-left">
-                  <tr>
-                    <th className="p-3">{t("Line")}</th>
-                    <th className="p-3 text-right">{t("Qty")}</th>
-                    <th className="p-3 text-right">{t("Snapshot price")}</th>
-                    <th className="p-3 text-right">{t("Today's price")}</th>
-                    <th className="p-3 text-right">{t("Line then")}</th>
-                    <th className="p-3 text-right">{t("Line today")}</th>
-                    <th className="p-3 text-right">{t("Delta")}</th>
-                    <th className="p-3">{t("Status")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.lines.map((l) => (
-                    <tr
-                      key={l.item_id}
-                      className="border-t border-border dark:border-white/5"
-                    >
-                      <td className="p-3 font-medium">{l.item_name}</td>
-                      <td className="p-3 text-right font-mono text-xs">
-                        {l.quantity} {l.unit}
-                      </td>
-                      <td className="p-3 text-right font-mono text-xs">
-                        {money(l.snapshot_unit_price)}
-                      </td>
-                      <td className="p-3 text-right font-mono text-xs">
-                        {l.current_unit_price !== null
-                          ? money(l.current_unit_price)
-                          : "N/A"}
-                      </td>
-                      <td className="p-3 text-right font-mono text-xs">
-                        {money(l.line_total_then)}
-                      </td>
-                      <td className="p-3 text-right font-mono text-xs">
-                        {money(l.line_total_today)}
-                      </td>
-                      <td
-                        className={`p-3 text-right font-mono text-xs ${l.delta > 0 ? "text-amber-500" : l.delta < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}
-                      >
-                        {l.delta >= 0 ? "+" : ""}
-                        {money(l.delta)}
-                        {l.delta_percent !== null && (
-                          <span className="ml-1 text-muted-foreground">
-                            ({l.delta_percent}%)
-                          </span>
-                        )}
-                      </td>
-                      <td
-                        className={`p-3 text-xs ${statusColor[l.price_status] ?? ""}`}
-                      >
-                        {statusLabel[l.price_status] ?? l.price_status}
-                        {l.current_effective_date && (
-                          <span className="block text-muted-foreground">
-                            effective {l.current_effective_date}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
+                  <option value="">{t("Select an estimate")}</option>
+                  {estimates.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.estimate_ref}: {e.calculator_type} (
+                      {new Date(e.created_at).toLocaleDateString()})
+                    </option>
                   ))}
-                </tbody>
-              </table>
+                </select>
+              </label>
+              <MissingFieldsNotice fields={missing} />
+              <button
+                type="button"
+                onClick={() => handleCalculate(run)}
+                disabled={refreshing}
+                className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {refreshing ? "Refreshing…" : "Refresh to today's prices"}
+              </button>
             </div>
+          )}
 
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("How this was determined")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-        )}
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-    </Container>
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {result?.ok && (
+            <div ref={resultsRef} className="space-y-4">
+              {/* Summary tiles */}
+              <div className="grid gap-4 sm:grid-cols-4">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Quoted")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {money(result.total_then)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.estimate_ref} snapshot
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Current cost today")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {money(result.total_today)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.changed_count} changed · {result.unchanged_count}{" "}
+                    unchanged · {result.missing_count} held
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Delta")}
+                  </p>
+                  <p
+                    className={`mt-1 text-xl font-semibold ${result.delta > 0 ? "text-amber-500" : result.delta < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+                  >
+                    {result.delta >= 0 ? "+" : ""}
+                    {money(result.delta)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.delta_percent !== null
+                      ? `${result.delta_percent}% since quoted`
+                      : "percentage not computable"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Honest lines")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.lines.length}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.missing_count} held at snapshot: never guessed
+                  </p>
+                </div>
+              </div>
+
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  {result.warnings.map((w, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {/* Per-line table */}
+              <div className="overflow-x-auto rounded-lg border border-border dark:border-white/5">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left">
+                    <tr>
+                      <th className="p-3">{t("Line")}</th>
+                      <th className="p-3 text-right">{t("Qty")}</th>
+                      <th className="p-3 text-right">{t("Snapshot price")}</th>
+                      <th className="p-3 text-right">{t("Today's price")}</th>
+                      <th className="p-3 text-right">{t("Line then")}</th>
+                      <th className="p-3 text-right">{t("Line today")}</th>
+                      <th className="p-3 text-right">{t("Delta")}</th>
+                      <th className="p-3">{t("Status")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.lines.map((l) => (
+                      <tr
+                        key={l.item_id}
+                        className="border-t border-border dark:border-white/5"
+                      >
+                        <td className="p-3 font-medium">{l.item_name}</td>
+                        <td className="p-3 text-right font-mono text-xs">
+                          {l.quantity} {l.unit}
+                        </td>
+                        <td className="p-3 text-right font-mono text-xs">
+                          {money(l.snapshot_unit_price)}
+                        </td>
+                        <td className="p-3 text-right font-mono text-xs">
+                          {l.current_unit_price !== null
+                            ? money(l.current_unit_price)
+                            : "N/A"}
+                        </td>
+                        <td className="p-3 text-right font-mono text-xs">
+                          {money(l.line_total_then)}
+                        </td>
+                        <td className="p-3 text-right font-mono text-xs">
+                          {money(l.line_total_today)}
+                        </td>
+                        <td
+                          className={`p-3 text-right font-mono text-xs ${l.delta > 0 ? "text-amber-500" : l.delta < 0 ? "text-emerald-600 dark:text-emerald-400" : ""}`}
+                        >
+                          {l.delta >= 0 ? "+" : ""}
+                          {money(l.delta)}
+                          {l.delta_percent !== null && (
+                            <span className="ml-1 text-muted-foreground">
+                              ({l.delta_percent}%)
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          className={`p-3 text-xs ${statusColor[l.price_status] ?? ""}`}
+                        >
+                          {statusLabel[l.price_status] ?? l.price_status}
+                          {l.current_effective_date && (
+                            <span className="block text-muted-foreground">
+                              effective {l.current_effective_date}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("How this was determined")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          )}
+        </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

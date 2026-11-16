@@ -18,7 +18,23 @@ import path from "node:path";
 
 const CATALOGUE = "src/config/construction-tools.ts";
 const ALLOWED_HEADER_PROPS = new Set(["breadcrumbs", "title", "subtitle", "eyebrow", "variant"]);
-const ALLOWED_SEO_KEYS = new Set(["title", "description", "canonicalPath"]);
+const ALLOWED_SEO_KEYS = new Set([
+  "title",
+  "description",
+  "canonicalPath",
+  "ogType",
+  "keywords",
+  "structuredData",
+  "structuredDataArray",
+]);
+
+/** Types the shell already declares for every tool, or the components it renders. */
+const SHELL_OWNED_TYPES = new Set([
+  "WebApplication",
+  "SoftwareApplication",
+  "BreadcrumbList",
+  "FAQPage",
+]);
 
 const fail = (why) => {
   throw new Error(why);
@@ -105,8 +121,47 @@ function transform(file, route) {
   const seoOpen = src.indexOf("{", src.indexOf("useSeo(", seoStart));
   const seoClose = balanced(src, seoOpen);
   const seoBody = src.slice(seoOpen + 1, seoClose);
-  const extras = seoExtras(seoBody);
+  // The shape of the markup is checked above; its internal keys are not page
+  // copy, so they leave the body before the key scan.
+  let copyBody = seoBody;
+  for (const key of ["structuredDataArray", "structuredData"]) {
+    let from = copyBody.indexOf(`${key}:`);
+    while (from >= 0) {
+      const valueAt = copyBody.indexOf("{", from) >= 0 && copyBody.indexOf("[", from) >= 0
+        ? Math.min(copyBody.indexOf("{", from), copyBody.indexOf("[", from))
+        : Math.max(copyBody.indexOf("{", from), copyBody.indexOf("[", from));
+      const open = copyBody[valueAt];
+      const end = balanced(copyBody, valueAt, open, open === "{" ? "}" : "]") + 1;
+      const afterComma = /^\s*,/.test(copyBody.slice(end)) ? end + copyBody.slice(end).indexOf(",") + 1 : end;
+      copyBody = copyBody.slice(0, from) + copyBody.slice(afterComma);
+      from = copyBody.indexOf(`${key}:`);
+    }
+  }
+  const extras = seoExtras(copyBody);
   if (extras.length > 0) fail(`search copy carries ${extras.join(", ")}`);
+  // Inline markup is dropped only when the shell already says the same thing:
+  // a calculator declaration, the trail, or the question set. Anything else is
+  // the page's own claim and moving it here would lose it.
+  // Only a block's own type is a claim; a Question inside an FAQPage is part of
+  // that question set, not a separate thing the page says it is.
+  const blockTypes = [...seoBody.matchAll(/"@type":\s*"([^"]+)"/g)].map((m) => m[1]);
+  const topLevel = [];
+  {
+    let depth = 0;
+    for (let i = 0; i < seoBody.length; i += 1) {
+      const ch = seoBody[i];
+      if (ch === "{" || ch === "[") depth += 1;
+      else if (ch === "}" || ch === "]") depth -= 1;
+      else if (ch === '"' && depth === 1) {
+        const type = /^"@type":\s*"([^"]+)"/.exec(seoBody.slice(i));
+        if (type && !topLevel.includes(type[1])) topLevel.push(type[1]);
+        const close = seoBody.indexOf('"', i + 1);
+        i = close;
+      }
+    }
+  }
+  const unowned = topLevel.filter((t) => !SHELL_OWNED_TYPES.has(t));
+  if (unowned.length > 0) fail(`search copy declares ${unowned.join(", ")}`);
   const seoTitle = readLiteral(seoBody, "title");
   const seoDescription = readLiteral(seoBody, "description");
   if (!seoTitle || !seoDescription) fail("search copy is not a set of plain strings");
@@ -165,25 +220,9 @@ function transform(file, route) {
   const before = src.slice(0, closeAt).replace(/\s*$/, "\n");
   src = `${before}    </ToolShell>\n  ` + src.slice(closeAt);
 
-  // 6. Imports that are now unused.
-  const drop = [
-    "PageHeader",
-    "ToolFaqs",
-    "EstimateDisclaimer",
-    "{ RelatedTools, CALC_LINKS }",
-    "useSeo, useBreadcrumbJsonLd",
-  ];
-  for (const name of drop) {
-    const bare = name.replace(/[{}]/g, "").split(",").map((s) => s.trim()).filter(Boolean);
-    const used = bare.some((n) => new RegExp(`\\b${n}\\b`).test(src.replace(/^import .*$/gm, "")));
-    if (used) continue;
-    src = src.replace(new RegExp(`^import .*${name.replace(/[{}]/g, "\\$&")}.*\\n`, "m"), "");
-  }
-  src = src.replace(
-    /^(import Container from "@\/components\/ui\/Container";\n)/m,
-    '$1import ToolShell from "@/components/tools/ToolShell";\n',
-  );
-  if (!src.includes('from "@/components/tools/ToolShell"')) fail("could not add the shell import");
+  // 6. Imports that are now unused. A name is dropped only when it no longer
+  // appears in the file, and an import left empty goes with it.
+  src = tidy(src);
 
   const entry = {
     heading: title,

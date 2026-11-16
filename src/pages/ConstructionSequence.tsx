@@ -1,6 +1,4 @@
 import { useState, useMemo } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
-import PageHeader from "@/components/ui/PageHeader";
 import { useMarket } from "@/lib/international/market-context";
 import {
   generateSequencePlan,
@@ -34,27 +32,15 @@ import {
   Award,
 } from "lucide-react";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 export type SequenceViewMode = "dag" | "waves" | "list";
 
 export default function ConstructionSequence() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Construction Sequence Planner", path: "/construction-sequence" },
-  ]);
-  useSeo({
-    title: "Construction Sequence & DAG Parallel Execution | FRELUX",
-    description:
-      "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves conforming to ISO 21502 and PMI PMBOK 7th Ed. Optimize build duration, trade concurrency, and critical path.",
-    keywords:
-      "construction sequence, DAG nodes, parallel execution, critical path method, CPM scheduling, ISO 21502, PMBOK, build order, construction workflow",
-  });
 
   const { market } = useMarket();
   const plan = monitoredCalc("Construction Sequence", () =>
@@ -95,17 +81,7 @@ export default function ConstructionSequence() {
 
   return (
     <SubscriptionGate feature="construction_sequence">
-      <PageHeader
-        variant="tool"
-        eyebrow="Orchestration & Planning"
-        title={t("Construction Sequence & DAG Execution")}
-        subtitle="Directed Acyclic Graph (DAG) task network, Critical Path Method (CPM), and multi-trade parallel execution waves conforming to ISO 21502 and PMI PMBOK® standards."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Construction Sequence" },
-        ]}
-      />
+      
 
       <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
@@ -303,17 +279,6 @@ export default function ConstructionSequence() {
         )}
 
         {/* Related calculators */}
-        <div className="mt-8">
-          <ToolFaqs slug="construction-sequence" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.structuralCalc,
-            CALC_LINKS.foundationCalc,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
 
         {/* Disclaimer */}
         <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20 p-4">
@@ -483,23 +448,25 @@ function Section({
   };
 
   return (
-    <div>
-      <h4
-        className={`text-xs font-semibold ${colorMap[color]} flex items-center gap-1.5 mb-2`}
-      >
-        <Icon className="w-4 h-4" /> {title}
-      </h4>
-      <ul className="space-y-1">
-        {items.map((item, i) => (
-          <li
-            key={i}
-            className="text-xs text-muted-foreground flex items-start gap-2"
-          >
-            <span className="text-muted-foreground/40 mt-0.5">•</span>
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ToolShell route="/construction-sequence" hideDisclaimer>
+      <div>
+        <h4
+          className={`text-xs font-semibold ${colorMap[color]} flex items-center gap-1.5 mb-2`}
+        >
+          <Icon className="w-4 h-4" /> {title}
+        </h4>
+        <ul className="space-y-1">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="text-xs text-muted-foreground flex items-start gap-2"
+            >
+              <span className="text-muted-foreground/40 mt-0.5">•</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </ToolShell>
   );
 }

@@ -114,12 +114,15 @@ const rows = tools.map((tool) => {
     routeRegistered: appRoutePaths.has(tool.route),
     sitemap: inSitemap(tool.route),
     faqGroups: groups,
+    // A page on the shared shell does not name its questions: the shell resolves
+    // them from the route, so the shell is the evidence that they render.
     rendersFaqs:
       /faqSlug=/.test(source) ||
       /<ToolFaqs\b/.test(source) ||
+      /<ToolShell\b/.test(source) ||
       groups.some((slug) => source.includes(`"${slug}"`)),
     universalLayout:
-      /<Container|<PageHeader|SpecialtyCalculatorShell|CalculatorShell/.test(source),
+      /<Container|<PageHeader|<ToolShell\b|SpecialtyCalculatorShell|CalculatorShell/.test(source),
     sharedPrimitives:
       /NumericInput|MarketSelector|ResultCard|EmptyState/.test(source),
   };

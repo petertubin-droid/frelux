@@ -18,6 +18,9 @@
 import { useMemo, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
+import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import { SITE_URL } from "@/lib/site-config";
+
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import ToolFaqs from "@/components/seo/ToolFaqs";
 import { RelatedTools } from "@/components/seo/SeoSections";
@@ -81,6 +84,7 @@ export default function ToolShell({
 }: ToolShellProps) {
   const { pathname } = useLocation();
   const { t } = useLanguage();
+  const offerCurrency = useSeoOfferCurrency();
   const address = route ?? stripLocaleFromPathname(pathname);
   const tool = findToolByRoute(address);
   const faqGroup = showFaq ? getToolFaqGroupByRoute(address) : undefined;
@@ -89,13 +93,39 @@ export default function ToolShell({
     [relatedLinks, tool],
   );
 
+  // Every catalogued tool is the same kind of thing: a free web calculator that
+  // answers a named question. Declaring it once here means a newly catalogued
+  // tool carries the markup without anyone remembering to write it, and no page
+  // can describe itself as something else. A page that needs a different or
+  // additional type still passes its own.
+  const toolMarkup = useMemo(
+    () =>
+      tool
+        ? {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: `FRELUX ${tool.heading ?? tool.title}`,
+            description: tool.seoDescription ?? tool.does,
+            url: `${SITE_URL}${tool.to}`,
+            applicationCategory: "CalculatorApplication",
+            operatingSystem: "Web",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: offerCurrency,
+            },
+          }
+        : undefined,
+    [tool, offerCurrency],
+  );
+
   useSeo(
     tool
       ? {
           title: tool.seoTitle ?? tool.title,
           description: tool.seoDescription ?? tool.does,
           canonicalPath: tool.to,
-          structuredData,
+          structuredData: structuredData ?? toolMarkup,
         }
       : null,
   );

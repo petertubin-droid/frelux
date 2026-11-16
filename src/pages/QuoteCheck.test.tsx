@@ -54,11 +54,14 @@ vi.mock("@/lib/estimation/market-materials", () => ({
   evidenceSentence: vi.fn(() => "Verified supplier price."),
 }));
 
+// The shell names the market currency in its calculator markup, so the double
+// has to answer the same question the real module answers.
 vi.mock("@/lib/international/market-context", () => ({
   useMarket: () => ({
     marketCode: "NG",
     market: { countryName: "Nigeria", currencyCode: "NGN" },
   }),
+  useSeoOfferCurrency: () => "NGN",
 }));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
