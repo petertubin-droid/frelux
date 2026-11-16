@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn(), useFaqJsonLd: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useFaqJsonLd: vi.fn(),
+  useBreadcrumbJsonLd: () => undefined,
+}));
 vi.mock("@/components/seo/ToolFaqs", () => ({
   default: ({ slug }: { slug: string }) => (
     <section data-testid="tool-faqs" data-slug={slug}>
@@ -20,6 +24,7 @@ vi.mock("@/components/seo/SeoSections", () => ({
   CALC_LINKS: { paintCalculator: {}, tileCalc: {}, finishEstimator: {} },
 }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     market: {
       marketCode: "NG",

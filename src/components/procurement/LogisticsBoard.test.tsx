@@ -43,6 +43,7 @@ vi.mock("@/lib/procurement/records", async (importOriginal) => {
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: () => undefined,
+  useBreadcrumbJsonLd: () => undefined,
 }));
 
 import { LogisticsBoard } from "./LogisticsBoard";

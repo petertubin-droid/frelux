@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import Roadmap from "@/pages/Roadmap";
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({ market: { countryName: "Nigeria" }, marketCode: "NG" }),
 }));
 vi.mock("@/lib/seo", () => ({

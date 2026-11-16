@@ -205,24 +205,44 @@ function transform(file, route) {
   src = src.replace(/\n\s*<RelatedTools[\s\S]*?\/>/g, "");
   if (/<ToolFaqs|<RelatedTools/.test(src)) fail("chrome remains after the row was removed");
 
-  // 5. Wrap the page body.
-  // The component's own return is the last one that hands back a JSX element;
-  // helpers above it return values, and pages may nest further returns inside.
-  let returnAt = -1;
-  for (let at = src.indexOf("\n  return ("); at >= 0; at = src.indexOf("\n  return (", at + 1)) {
-    const tail = src.slice(at, at + 200);
-    if (/^\n  return \(\s*\n\s*</.test(tail)) returnAt = at + 1;
-  }
-  if (returnAt < 0) fail("no JSX return");
-  const body = src.slice(returnAt + "  return (".length);
-  src = src.slice(0, returnAt) + `  return (\n    <ToolShell route="${route}"${quotesNothing ? " hideDisclaimer" : ""}>` + body;
-  const closeAt = src.lastIndexOf(");");
-  const before = src.slice(0, closeAt).replace(/\s*$/, "\n");
-  src = `${before}    </ToolShell>\n  ` + src.slice(closeAt);
+  // 5. Wrap the page component's own return.
+  // The shell belongs to the page, not to the first helper above it: a page may
+  // declare small components before or after its default export, and wrapping a
+  // helper's return puts a second shell inside the page.
+  const namedExport = src.match(/^export default function (\w+)\s*\(/m);
+  const renamedExport = src.match(/^const (\w+) = [\s\S]*?^export default \1;$/m);
+  const pageName = namedExport ? namedExport[1] : renamedExport ? renamedExport[1] : null;
+  if (!pageName) fail("no default exported page component");
+  const declAt = src.search(new RegExp(`function ${pageName}\\s*\\(`));
+  if (declAt < 0) fail(`page component ${pageName} not found`);
+  const declEnd = src.indexOf("\n}\n", declAt);
+  if (declEnd < 0) fail(`page component ${pageName} is not closed at top level`);
+  const pageBody = src.slice(declAt, declEnd);
+  const returnMatch = pageBody.match(/\n  return \(\n/);
+  if (!returnMatch) fail("page component has no JSX return");
+  const retStart = declAt + returnMatch.index + "\n  return (\n".length;
+  const retEnd = src.indexOf("\n  );", retStart);
+  if (retEnd < 0 || retEnd > declEnd) fail("page return does not close inside the component");
+  src =
+    src.slice(0, retStart) +
+    `<ToolShell route="${route}"${quotesNothing ? " hideDisclaimer" : ""}>\n` +
+    src.slice(retStart, retEnd) +
+    `</ToolShell>\n` +
+    src.slice(retEnd);
 
   // 6. Imports that are now unused. A name is dropped only when it no longer
   // appears in the file, and an import left empty goes with it.
   src = tidy(src);
+
+  // Referencing the shell is the point of the migration, so the import is
+  // written last and unconditionally.
+  if (!src.includes('from "@/components/tools/ToolShell"')) {
+    const lines = src.split("\n");
+    const last = lines.reduce((acc, l, i) => (/^import .*;$/.test(l) ? i : acc), -1);
+    if (last < 0) fail("no import block");
+    lines.splice(last + 1, 0, 'import ToolShell from "@/components/tools/ToolShell";');
+    src = lines.join("\n");
+  }
 
   const entry = {
     heading: title,

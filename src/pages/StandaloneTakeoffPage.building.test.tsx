@@ -7,6 +7,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     market: { marketCode: "NG", country_name: "Nigeria" },
     availableMarkets: [{ country_code: "NG", country_name: "Nigeria" }],

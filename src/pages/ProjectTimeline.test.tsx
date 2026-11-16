@@ -50,7 +50,9 @@ describe("ProjectTimeline blank dimensions", () => {
     expect(notice.textContent).toContain("Length");
     expect(screen.queryByText(/Stage-by-stage/i)).not.toBeNull();
     // The stage table must be gone rather than left over from the last press.
-    expect(container.textContent).not.toMatch(/Critical path/i);
+    // The lede and the registered questions legitimately mention the critical
+    // path, so the guard names the results heading itself.
+    expect(container.textContent).not.toMatch(/Stage-by-Stage Breakdown/i);
   });
 
   it("clears the notice once the footprint is whole again", async () => {

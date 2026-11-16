@@ -7,8 +7,7 @@ import {
   Search,
   Send,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/Toast";
@@ -30,7 +29,7 @@ import {
   type Sample,
 } from "@/lib/price-index/stats";
 import { groupByMaterial, toSamples } from "@/lib/price-index/resolver";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   PRICE_KIND_LABELS,
   VERIFICATION_LABELS,
@@ -49,13 +48,6 @@ type LoadState =
   | { kind: "error"; message: string };
 
 export default function MaterialPriceIndex() {
-  useSeo({
-    title: "Live Material Price Index | FRELUX",
-    description:
-      "Verified and reported construction material prices across Nigerian cities: cement, reinforcement bars, aggregates, blocks, roofing, tiles, paint and more, with sample sizes and last verification dates shown.",
-    canonicalPath: "/material-price-index",
-  });
-
   const { toast } = useToast();
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [city, setCity] = useState<string>(NATIONAL);
@@ -270,375 +262,373 @@ export default function MaterialPriceIndex() {
     : "";
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader
-        title="Live Material Price Index"
-        subtitle="Construction material prices across Nigerian cities, with the evidence behind every number: sample size, source, price basis and last verification date."
-      />
-
-      <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-        <div className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-          <p className="text-sm text-muted-foreground">
-            A market figure is published only when at least three independent
-            prices agree on it. Below that, the material is listed as unpriced
-            rather than estimated. Prices marked reported have a stated source
-            but have not been independently verified.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-3 text-sm">
-            <Link
-              className="text-primary hover:underline"
-              to="/material-prices"
-            >
-              Submit or review a price
-            </Link>
-            <Link
-              className="text-primary hover:underline"
-              to="/construction-tools"
-            >
-              Tools that use these prices
-            </Link>
-          </div>
-        </div>
-
-        {state.kind === "error" ? (
-          <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
-            <p className="text-sm font-medium text-foreground">
-              The price index could not be loaded
+    <ToolShell route="/material-price-index" hideDisclaimer>
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+          <div className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+            <p className="text-sm text-muted-foreground">
+              A market figure is published only when at least three independent
+              prices agree on it. Below that, the material is listed as unpriced
+              rather than estimated. Prices marked reported have a stated source
+              but have not been independently verified.
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {state.message}
-            </p>
-            <button
-              onClick={load}
-              className="mt-3 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
-            >
-              Try again
-            </button>
-          </div>
-        ) : null}
-
-        {state.kind === "loading" ? (
-          <div className="mt-8 animate-pulse space-y-3">
-            <div className="h-10 rounded-lg bg-muted" />
-            <div className="h-40 rounded-lg bg-muted" />
-          </div>
-        ) : null}
-
-        {state.kind === "ready" ? (
-          <>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <Stat
-                label="Index level"
-                value={
-                  cityIndexLevel.status === "ok"
-                    ? formatCurrency(cityIndexLevel.level, "NGN")
-                    : "Not published"
-                }
-                note={
-                  cityIndexLevel.status === "ok"
-                    ? `Median of ${cityIndexLevel.materials} materials clearing the sample gate`
-                    : cityIndexLevel.reason
-                }
-              />
-              <Stat
-                label="Materials with a figure"
-                value={String(coverage.materials)}
-                note={`${listings.length} individual price record${listings.length === 1 ? "" : "s"} collected`}
-              />
-              <Stat
-                label="Latest observation"
-                value={coverage.latest ?? "None yet"}
-                note={
-                  coverage.cities > 0
-                    ? `City-level pricing in ${coverage.cities} cit${coverage.cities === 1 ? "y" : "ies"}`
-                    : "National figures only, no city-level pricing yet"
-                }
-              />
+            <div className="mt-3 flex flex-wrap gap-3 text-sm">
+              <Link
+                className="text-primary hover:underline"
+                to="/material-prices"
+              >
+                Submit or review a price
+              </Link>
+              <Link
+                className="text-primary hover:underline"
+                to="/construction-tools"
+              >
+                Tools that use these prices
+              </Link>
             </div>
+          </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_1.4fr]">
-              <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Market city
-                </span>
-                <select
-                  value={city}
-                  onChange={(event) => setCity(event.target.value)}
-                  className="h-11 w-full rounded-lg border border-border/70 bg-card px-3 text-sm"
-                >
-                  <option value={NATIONAL}>All Nigeria (national)</option>
-                  {cities.map((entry) => (
-                    <option key={entry.slug} value={entry.slug}>
-                      {entry.name}
-                      {entry.state ? `, ${entry.state}` : ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Category
-                </span>
-                <select
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  className="h-11 w-full rounded-lg border border-border/70 bg-card px-3 text-sm"
-                >
-                  <option value="all">All categories</option>
-                  {CATEGORY_ORDER.filter((entry) =>
-                    pricedCategories.includes(entry),
-                  ).map((entry) => (
-                    <option key={entry} value={entry}>
-                      {categoryLabel(entry)}
-                    </option>
-                  ))}
-                  {pricedCategories
-                    .filter((entry) => !CATEGORY_ORDER.includes(entry))
-                    .map((entry) => (
+          {state.kind === "error" ? (
+            <div className="mt-6 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+              <p className="text-sm font-medium text-foreground">
+                The price index could not be loaded
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {state.message}
+              </p>
+              <button
+                onClick={load}
+                className="mt-3 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-muted"
+              >
+                Try again
+              </button>
+            </div>
+          ) : null}
+
+          {state.kind === "loading" ? (
+            <div className="mt-8 animate-pulse space-y-3">
+              <div className="h-10 rounded-lg bg-muted" />
+              <div className="h-40 rounded-lg bg-muted" />
+            </div>
+          ) : null}
+
+          {state.kind === "ready" ? (
+            <>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <Stat
+                  label="Index level"
+                  value={
+                    cityIndexLevel.status === "ok"
+                      ? formatCurrency(cityIndexLevel.level, "NGN")
+                      : "Not published"
+                  }
+                  note={
+                    cityIndexLevel.status === "ok"
+                      ? `Median of ${cityIndexLevel.materials} materials clearing the sample gate`
+                      : cityIndexLevel.reason
+                  }
+                />
+                <Stat
+                  label="Materials with a figure"
+                  value={String(coverage.materials)}
+                  note={`${listings.length} individual price record${listings.length === 1 ? "" : "s"} collected`}
+                />
+                <Stat
+                  label="Latest observation"
+                  value={coverage.latest ?? "None yet"}
+                  note={
+                    coverage.cities > 0
+                      ? `City-level pricing in ${coverage.cities} cit${coverage.cities === 1 ? "y" : "ies"}`
+                      : "National figures only, no city-level pricing yet"
+                  }
+                />
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_1fr_1.4fr]">
+                <label className="block">
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Market city
+                  </span>
+                  <select
+                    value={city}
+                    onChange={(event) => setCity(event.target.value)}
+                    className="h-11 w-full rounded-lg border border-border/70 bg-card px-3 text-sm"
+                  >
+                    <option value={NATIONAL}>All Nigeria (national)</option>
+                    {cities.map((entry) => (
+                      <option key={entry.slug} value={entry.slug}>
+                        {entry.name}
+                        {entry.state ? `, ${entry.state}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Category
+                  </span>
+                  <select
+                    value={category}
+                    onChange={(event) => setCategory(event.target.value)}
+                    className="h-11 w-full rounded-lg border border-border/70 bg-card px-3 text-sm"
+                  >
+                    <option value="all">All categories</option>
+                    {CATEGORY_ORDER.filter((entry) =>
+                      pricedCategories.includes(entry),
+                    ).map((entry) => (
                       <option key={entry} value={entry}>
                         {categoryLabel(entry)}
                       </option>
                     ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-medium text-muted-foreground">
-                  Search material
-                </span>
-                <div className="relative">
-                  <Search
+                    {pricedCategories
+                      .filter((entry) => !CATEGORY_ORDER.includes(entry))
+                      .map((entry) => (
+                        <option key={entry} value={entry}>
+                          {categoryLabel(entry)}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">
+                    Search material
+                  </span>
+                  <div className="relative">
+                    <Search
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                    <input
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      placeholder="Cement, 12 mm bar, sharp sand…"
+                      className="h-11 w-full rounded-lg border border-border/70 bg-card pl-9 pr-3 text-sm"
+                    />
+                  </div>
+                </label>
+              </div>
+
+              {rows.length === 0 ? (
+                <div className="mt-8 rounded-xl border border-border/70 bg-card p-6 text-center">
+                  <MapPin
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    className="mx-auto h-6 w-6 text-muted-foreground"
                   />
-                  <input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Cement, 12 mm bar, sharp sand…"
-                    className="h-11 w-full rounded-lg border border-border/70 bg-card pl-9 pr-3 text-sm"
-                  />
-                </div>
-              </label>
-            </div>
-
-            {rows.length === 0 ? (
-              <div className="mt-8 rounded-xl border border-border/70 bg-card p-6 text-center">
-                <MapPin
-                  aria-hidden="true"
-                  className="mx-auto h-6 w-6 text-muted-foreground"
-                />
-                <p className="mt-3 font-medium text-foreground">
-                  No qualifying price for this selection
-                </p>
-                <p className="mx-auto mt-1 max-w-lg text-sm text-muted-foreground">
-                  {city !== NATIONAL
-                    ? "No city-level price clears the sample gate here yet, and the national sample is also too thin to publish. Nothing is estimated in its place."
-                    : "No material in this selection has reached three independent prices yet. Nothing is estimated in its place."}
-                </p>
-                <Link
-                  to="/material-prices"
-                  className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-                >
-                  <Send aria-hidden="true" className="h-4 w-4" />
-                  Add the first price
-                </Link>
-              </div>
-            ) : (
-              <div className="mt-6 overflow-hidden rounded-xl border border-border/70 bg-card">
-                <div className="hidden grid-cols-[2.2fr_1fr_1fr_1.2fr_1fr_1fr] gap-3 border-b bg-muted/40 px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:grid">
-                  <span>Material</span>
-                  <span>Median</span>
-                  <span>Range</span>
-                  <span>Basis</span>
-                  <span>Source</span>
-                  <span>Evidence</span>
-                </div>
-                <ul className="divide-y">
-                  {rows.map((row) => (
-                    <li key={row.materialId}>
-                      <button
-                        onClick={() => setSelectedMaterial(row.materialId)}
-                        className="grid w-full grid-cols-1 gap-2 px-4 py-3 text-left hover:bg-muted/40 sm:grid-cols-[2.2fr_1fr_1fr_1.2fr_1fr_1fr] sm:items-center sm:gap-3"
-                      >
-                        <span>
-                          <span className="block text-sm font-medium text-foreground">
-                            {row.name}
-                          </span>
-                          <span className="block text-xs text-muted-foreground">
-                            {categoryLabel(row.category)}
-                            {row.saleUnit ? ` · per ${row.saleUnit}` : ""}
-                          </span>
-                        </span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {formatCurrency(
-                            row.stats.status === "ok" ? row.stats.median : 0,
-                            "NGN",
-                          )}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {row.stats.status === "ok"
-                            ? `${formatCurrency(row.stats.min, "NGN")} – ${formatCurrency(row.stats.max, "NGN")}`
-                            : "—"}
-                        </span>
-                        <span className="text-xs">
-                          <span
-                            className={
-                              row.basis === "city"
-                                ? "rounded-full bg-primary/10 px-2 py-0.5 text-primary"
-                                : "rounded-full bg-muted px-2 py-0.5 text-muted-foreground"
-                            }
-                          >
-                            {row.basis === "city"
-                              ? (cities.find((entry) => entry.slug === city)
-                                  ?.name ?? "City")
-                              : "National median"}
-                          </span>
-                          {row.kind ? (
-                            <span className="ml-1 text-muted-foreground">
-                              {PRICE_KIND_LABELS[row.kind]}
-                            </span>
-                          ) : null}
-                        </span>
-                        <span
-                          className="truncate text-xs text-muted-foreground"
-                          title={row.source ?? ""}
-                        >
-                          {row.source ?? "Source not recorded"}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {row.stats.status === "ok"
-                            ? `${row.stats.counted} price${row.stats.counted === 1 ? "" : "s"}${row.stats.excluded_outliers ? ` · ${row.stats.excluded_outliers} outlier` : ""}`
-                            : "—"}
-                          <span className="mt-0.5 block">
-                            {row.verification
-                              ? VERIFICATION_LABELS[
-                                  row.verification as keyof typeof VERIFICATION_LABELS
-                                ]
-                              : "Unverified"}
-                            {row.lastObserved ? ` · ${row.lastObserved}` : ""}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="mt-8 grid gap-4 lg:grid-cols-2">
-              <section className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-                <h2 className="text-sm font-bold text-foreground">
-                  Price history{selectedName ? `: ${selectedName}` : ""}
-                </h2>
-                {!selectedMaterial ? (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Select a material above to see its recorded price history.
+                  <p className="mt-3 font-medium text-foreground">
+                    No qualifying price for this selection
                   </p>
-                ) : historyNote ? (
+                  <p className="mx-auto mt-1 max-w-lg text-sm text-muted-foreground">
+                    {city !== NATIONAL
+                      ? "No city-level price clears the sample gate here yet, and the national sample is also too thin to publish. Nothing is estimated in its place."
+                      : "No material in this selection has reached three independent prices yet. Nothing is estimated in its place."}
+                  </p>
+                  <Link
+                    to="/material-prices"
+                    className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+                  >
+                    <Send aria-hidden="true" className="h-4 w-4" />
+                    Add the first price
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-6 overflow-hidden rounded-xl border border-border/70 bg-card">
+                  <div className="hidden grid-cols-[2.2fr_1fr_1fr_1.2fr_1fr_1fr] gap-3 border-b bg-muted/40 px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground sm:grid">
+                    <span>Material</span>
+                    <span>Median</span>
+                    <span>Range</span>
+                    <span>Basis</span>
+                    <span>Source</span>
+                    <span>Evidence</span>
+                  </div>
+                  <ul className="divide-y">
+                    {rows.map((row) => (
+                      <li key={row.materialId}>
+                        <button
+                          onClick={() => setSelectedMaterial(row.materialId)}
+                          className="grid w-full grid-cols-1 gap-2 px-4 py-3 text-left hover:bg-muted/40 sm:grid-cols-[2.2fr_1fr_1fr_1.2fr_1fr_1fr] sm:items-center sm:gap-3"
+                        >
+                          <span>
+                            <span className="block text-sm font-medium text-foreground">
+                              {row.name}
+                            </span>
+                            <span className="block text-xs text-muted-foreground">
+                              {categoryLabel(row.category)}
+                              {row.saleUnit ? ` · per ${row.saleUnit}` : ""}
+                            </span>
+                          </span>
+                          <span className="text-sm font-semibold text-foreground">
+                            {formatCurrency(
+                              row.stats.status === "ok" ? row.stats.median : 0,
+                              "NGN",
+                            )}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {row.stats.status === "ok"
+                              ? `${formatCurrency(row.stats.min, "NGN")} – ${formatCurrency(row.stats.max, "NGN")}`
+                              : "—"}
+                          </span>
+                          <span className="text-xs">
+                            <span
+                              className={
+                                row.basis === "city"
+                                  ? "rounded-full bg-primary/10 px-2 py-0.5 text-primary"
+                                  : "rounded-full bg-muted px-2 py-0.5 text-muted-foreground"
+                              }
+                            >
+                              {row.basis === "city"
+                                ? (cities.find((entry) => entry.slug === city)
+                                    ?.name ?? "City")
+                                : "National median"}
+                            </span>
+                            {row.kind ? (
+                              <span className="ml-1 text-muted-foreground">
+                                {PRICE_KIND_LABELS[row.kind]}
+                              </span>
+                            ) : null}
+                          </span>
+                          <span
+                            className="truncate text-xs text-muted-foreground"
+                            title={row.source ?? ""}
+                          >
+                            {row.source ?? "Source not recorded"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {row.stats.status === "ok"
+                              ? `${row.stats.counted} price${row.stats.counted === 1 ? "" : "s"}${row.stats.excluded_outliers ? ` · ${row.stats.excluded_outliers} outlier` : ""}`
+                              : "—"}
+                            <span className="mt-0.5 block">
+                              {row.verification
+                                ? VERIFICATION_LABELS[
+                                    row.verification as keyof typeof VERIFICATION_LABELS
+                                  ]
+                                : "Unverified"}
+                              {row.lastObserved ? ` · ${row.lastObserved}` : ""}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+                <section className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+                  <h2 className="text-sm font-bold text-foreground">
+                    Price history{selectedName ? `: ${selectedName}` : ""}
+                  </h2>
+                  {!selectedMaterial ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Select a material above to see its recorded price history.
+                    </p>
+                  ) : historyNote ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {historyNote}
+                    </p>
+                  ) : (
+                    <PriceHistoryChart points={history} />
+                  )}
+                </section>
+
+                <section className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+                  <h2 className="text-sm font-bold text-foreground">
+                    City comparison
+                  </h2>
+                  {!selectedMaterial ? (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Select a material to compare its price across cities.
+                    </p>
+                  ) : comparison && comparison.priced.length === 0 ? (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <p>
+                        No city yet has three independent prices for this
+                        material, so there is nothing to compare. Cities
+                        tracked: {comparison.unpriced.slice(0, 6).join(", ")}
+                        {comparison.unpriced.length > 6 ? " and others" : ""}.
+                      </p>
+                    </div>
+                  ) : comparison ? (
+                    <CityComparison
+                      rows={comparison.priced}
+                      unpriced={comparison.unpriced}
+                    />
+                  ) : null}
+                </section>
+              </div>
+
+              <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+                <h2 className="text-sm font-bold text-foreground">
+                  Market insights
+                </h2>
+                {movers.length === 0 ? (
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {historyNote}
+                    No seven-day movement can be published yet: that needs at
+                    least three prices at both ends of the week. Nothing is
+                    inferred from a single observation.
                   </p>
                 ) : (
-                  <PriceHistoryChart points={history} />
+                  <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {movers.map((mover) => (
+                      <li
+                        key={mover.materialId}
+                        className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
+                      >
+                        <span className="text-sm text-foreground">
+                          {mover.name}
+                        </span>
+                        <span
+                          className={
+                            mover.change >= 0
+                              ? "flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400"
+                              : "flex items-center gap-1 text-sm text-destructive"
+                          }
+                        >
+                          {mover.change >= 0 ? (
+                            <ArrowUpRight
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5"
+                            />
+                          ) : (
+                            <ArrowDownRight
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5"
+                            />
+                          )}
+                          {formatPercent(mover.change)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </section>
 
-              <section className="rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+              <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
                 <h2 className="text-sm font-bold text-foreground">
-                  City comparison
+                  Send in a price
                 </h2>
-                {!selectedMaterial ? (
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Select a material to compare its price across cities.
-                  </p>
-                ) : comparison && comparison.priced.length === 0 ? (
-                  <div className="mt-2 text-sm text-muted-foreground">
-                    <p>
-                      No city yet has three independent prices for this
-                      material, so there is nothing to compare. Cities tracked:{" "}
-                      {comparison.unpriced.slice(0, 6).join(", ")}
-                      {comparison.unpriced.length > 6 ? " and others" : ""}.
-                    </p>
-                  </div>
-                ) : comparison ? (
-                  <CityComparison
-                    rows={comparison.priced}
-                    unpriced={comparison.unpriced}
-                  />
-                ) : null}
-              </section>
-            </div>
-
-            <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-foreground">
-                Market insights
-              </h2>
-              {movers.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  No seven-day movement can be published yet: that needs at
-                  least three prices at both ends of the week. Nothing is
-                  inferred from a single observation.
+                <p className="mt-1 text-sm text-muted-foreground">
+                  A receipt, invoice, distributor list or live supplier listing
+                  is what turns a quote into evidence. Every submission is
+                  reviewed by an administrator before it can change a calculator
+                  price.
                 </p>
-              ) : (
-                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {movers.map((mover) => (
-                    <li
-                      key={mover.materialId}
-                      className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
-                    >
-                      <span className="text-sm text-foreground">
-                        {mover.name}
-                      </span>
-                      <span
-                        className={
-                          mover.change >= 0
-                            ? "flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400"
-                            : "flex items-center gap-1 text-sm text-destructive"
-                        }
-                      >
-                        {mover.change >= 0 ? (
-                          <ArrowUpRight
-                            aria-hidden="true"
-                            className="h-3.5 w-3.5"
-                          />
-                        ) : (
-                          <ArrowDownRight
-                            aria-hidden="true"
-                            className="h-3.5 w-3.5"
-                          />
-                        )}
-                        {formatPercent(mover.change)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-
-            <section className="mt-6 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
-              <h2 className="text-sm font-bold text-foreground">
-                Send in a price
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                A receipt, invoice, distributor list or live supplier listing is
-                what turns a quote into evidence. Every submission is reviewed
-                by an administrator before it can change a calculator price.
-              </p>
-              <SubmissionForm
-                cities={cities}
-                onSubmitted={() => {
-                  toast({
-                    title: "Price submitted",
-                    message:
-                      "An administrator will review it before it is used.",
-                  });
-                  load();
-                }}
-              />
-            </section>
-          </>
-        ) : null}
+                <SubmissionForm
+                  cities={cities}
+                  onSubmitted={() => {
+                    toast({
+                      title: "Price submitted",
+                      message:
+                        "An administrator will review it before it is used.",
+                    });
+                    load();
+                  }}
+                />
+              </section>
+            </>
+          ) : null}
+        </div>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 
@@ -921,9 +911,6 @@ function SubmissionForm({
         {message ? (
           <p className="mt-2 text-xs text-muted-foreground">{message}</p>
         ) : null}
-      </div>
-      <div className="mt-8">
-        <ToolFaqs slug="material-price-index" />
       </div>
     </div>
   );

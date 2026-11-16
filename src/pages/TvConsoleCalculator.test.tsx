@@ -34,7 +34,13 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useCurrencyCode: () => "NGN",
+  useMarket: () => ({
+    market: { countryName: "Nigeria", currencyCode: "NGN" },
+    marketCode: "NG",
+    isLoading: false,
+  }),
 }));
 
 vi.mock("@/components/ui/Toast", () => ({

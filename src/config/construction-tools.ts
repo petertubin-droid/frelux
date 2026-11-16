@@ -228,8 +228,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Window blind estimator",
     lede: "List every opening, pick the type and grade, and see the price per window and for the whole job before a shop quotes you.",
     eyebrow: "Home Decor",
-    seoTitle: "Window Blind Calculator: Cost per Window and per Square Metre | FRELUX",
-    seoDescription: "Price a whole schedule of roller, zebra, day and night, vertical, venetian, roman, faux wood and wooden blinds from the measured openings, with waste, minimum charge per window, grade and fitting.",
+    seoTitle:
+      "Window Blind Calculator: Cost per Window and per Square Metre | FRELUX",
+    seoDescription:
+      "Price a whole schedule of roller, zebra, day and night, vertical, venetian, roman, faux wood and wooden blinds from the measured openings, with waste, minimum charge per window, grade and fitting.",
     to: "/window-blind-calculator",
     benefit: "Per window · Per m2 · Before tax",
     navVisible: true,
@@ -243,13 +245,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "A concept, cabinet and panel dimensions, optional shelves, dividers, back and doors, sheet size, allowance, and a locally quoted sheet price.",
     gets: "A transparent rectangular-panel schedule and area-based sheet lower-bound, not a cut-optimized list or safety design.",
+    heading: "TV Console & Media Unit Calculator",
+    lede: "Choose a concept, set the carcass details, and see the panel arithmetic, the packed sheet count, edge banding, hardware and a full cost roll-up from your own rates. Planning estimate, not a cut list.",
+    eyebrow: "Home decor · panel, sheet and cost takeoff",
+    seoTitle: "TV Console Material Calculator: Panels, Sheets & Cost | FRELUX",
+    seoDescription:
+      "Calculate TV console and media unit panel areas, packed sheet counts, edge banding, hardware, workshop, finishing and installation cost, with a transparent panel-by-panel schedule.",
     to: "/tv-console-calculator",
     benefit:
       "10 editable concepts · panel-by-panel schedule · Pro image parsing",
     navVisible: true,
-    seoTitle: "TV Console Material Calculator: Panels, Sheets & Cost | FRELUX",
-    seoDescription:
-      "Calculate TV console panel areas, optional cabinet parts, theoretical sheet lower-bound and an optional subtotal from your entered local sheet price.",
   },
   {
     slug: "wallpaper",
@@ -260,13 +265,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Wall dimensions, openings, roll size, pattern repeat and your local material and labour quotes.",
     gets: "Net wall area, a full-drop roll estimate, a wall-strip diagram and a clearly itemized planning budget.",
-    to: "/wallpaper-calculator",
-    benefit: "Rolls · Pattern · Budget",
-    navVisible: true,
+    heading: "Wallpaper Calculator",
+    lede: "Plan wallpaper rolls from measured walls, real roll dimensions and pattern allowances. Add your local supplier and fitting quotes for a project budget.",
+    eyebrow: "Wall finishes · Quantity & budget",
     seoTitle:
       "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
     seoDescription:
-      "Estimate wallpaper from measured walls, openings, roll dimensions and pattern repeat. See a wall-strip diagram, material estimate and optional fitting budget.",
+      "Estimate wallpaper rolls and mural panels from global product dimensions, measured walls, pattern matches and trimming allowance. Review an accessible wall diagram, materials, adhesive and local quotes.",
+    to: "/wallpaper-calculator",
+    benefit: "Rolls · Pattern · Budget",
+    navVisible: true,
   },
   {
     slug: "paint",
@@ -293,7 +301,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Paint Comparison Tool",
     eyebrow: "Tools",
     seoTitle: "Paint Comparison Tool: Matt vs Satin vs Emulsion",
-    seoDescription: "Compare paint types side by side. See differences in finish, durability, washability, recommended use, and price range to choose the right paint for your project.",
+    seoDescription:
+      "Compare paint types side by side. See differences in finish, durability, washability, recommended use, and price range to choose the right paint for your project.",
     to: "/paint-comparison",
     navVisible: false,
   },
@@ -324,7 +333,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     lede: "Compare wall finishes and calculate Tyrolene material quantities, all in one place.",
     eyebrow: "Calculator",
     seoTitle: "Finishing Calculator, Tyrolene, Grafitex & Painting Finishes",
-    seoDescription: "Free FRELUX finishing calculator. Compare Painting, Tyrolene, and Grafitex finishes. Detailed Tyrolene estimator with partition-based material calculations.",
+    seoDescription:
+      "Free FRELUX finishing calculator. Compare Painting, Tyrolene, and Grafitex finishes. Detailed Tyrolene estimator with partition-based material calculations.",
     to: "/finish-estimator",
     benefit: "Tyrolene · Grafitex",
     navVisible: true,
@@ -340,7 +350,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "POP Ceiling Calculator",
     eyebrow: "Calculator",
     seoTitle: "POP Ceiling Calculator, Material Quantity & Cost Estimate",
-    seoDescription: "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with verified material prices.",
+    seoDescription:
+      "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with verified material prices.",
     to: "/pop-ceiling-calculator",
     benefit: "Materials & cost",
     navVisible: true,
@@ -357,7 +368,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     lede: "Calculate tile quantity, boxes, waste, adhesive, grout, and cost, all in one place.",
     eyebrow: "Calculator",
     seoTitle: "Tile Calculator, Tile Quantity, Boxes & Cost Estimate",
-    seoDescription: "Free FRELUX tile calculator. Calculate tile quantity, boxes, adhesive, grout, and full installation cost with verified material prices.",
+    seoDescription:
+      "Free FRELUX tile calculator. Calculate tile quantity, boxes, adhesive, grout, and full installation cost with verified material prices.",
     to: "/tile-calculator",
     benefit: "Boxes · Adhesive · Cost",
     navVisible: true,
@@ -374,7 +386,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Increte Flooring Calculator & Estimator",
     lede: "Build a transparent quantity and cost estimate for decorative concrete systems. Market presence is not a claim that products, rates or standards are verified.",
     seoTitle: "Increte Flooring Calculator & Estimator | FRELUX",
-    seoDescription: "Estimate decorative concrete flooring quantities using explicit product coverage, coats, waste, local prices and installation inputs. Missing market data is clearly identified.",
+    seoDescription:
+      "Estimate decorative concrete flooring quantities using explicit product coverage, coats, waste, local prices and installation inputs. Missing market data is clearly identified.",
     to: "/increte-flooring-calculator",
     benefit: "Stamped · Overlay · Sealer",
     navVisible: true,
@@ -588,11 +601,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Building dimensions, roof pitch, or an uploaded plan to read, plus optional assumed site inputs.",
     gets: "A parametric elevation, preliminary quantities, and costs only for supplier rates you enter.",
-    to: "/mathematical-plan-elevation",
-    benefit: "Reads your plan, then calculates it with its own maths",
+    heading: "Mathematical Plan Elevation Engine",
+    lede: "Upload the plan or type four measurements. You confirm what the drawing states, the engine does the arithmetic, and the height, roof area, blockwork and concrete follow immediately.",
+    eyebrow: "Plan reading with confirmed values · deterministic calculation",
     seoTitle: "Plan Elevation and Material Takeoff Calculator | FRELUX",
     seoDescription:
       "Upload a floor plan or type four measurements to get building height, roof area, blockwork, concrete volumes and a phased material schedule. You confirm every extracted value; the engine does the arithmetic and hands the areas to the painting, screeding, tiling, POP and build-to-roof estimators.",
+    to: "/mathematical-plan-elevation",
+    benefit: "Reads your plan, then calculates it with its own maths",
     navVisible: true,
   },
   {
@@ -633,7 +649,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Wet concrete volume, whole cement-bag procurement count, sand, coarse aggregate and scheduled rebar weight. Includes a step by step animated build sequence for the element.",
     to: "/concrete-takeoff-calculator",
     benefit: "Free quantity takeoff",
-    seoTitle: "Concrete Slab Quantity Calculator: Cement, Sand and Aggregate | FRELUX",
+    seoTitle:
+      "Concrete Slab Quantity Calculator: Cement, Sand and Aggregate | FRELUX",
     seoDescription:
       "Estimate measured slab concrete volume, cement bags, sand, coarse aggregate and scheduled rebar weight from your own dimensions and mix, with a step by step animated build sequence for slabs, beams, columns and footings.",
     navVisible: true,
@@ -714,6 +731,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Tank capacity, staging elevation height, tower material, and leg spread.",
     gets: "Dead load in kN, wind overturning factor, pad footing size, leg section and utilisation, steel or concrete quantities, and a step by step animated build sequence.",
+    heading: "Borehole & Overhead Water Tank Staging Estimator",
+    lede: "Structural physics dead load estimation, wind safety cross-bracing, and material Bill of Materials for elevated water towers.",
+    eyebrow: "Structural & Plumbing Engineering",
+    seoTitle: "Overhead Water Tank Staging & Tower Estimator | FRELUX",
+    seoDescription:
+      "Dead load, wind overturning factor, pad footing sizes and leg sections for elevated steel or concrete water tank towers, with a material bill of quantities and a step by step animated build sequence of the eight site steps.",
     to: "/water-tower-staging-estimator",
     navVisible: true,
   },
@@ -726,6 +749,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Foreign sponsor budget, parallel and official exchange rates, annual inflation %, timeline, and milestone costs.",
     gets: "Exchange rate gap spread, compound inflation multiplier, forward projected target budget, and variance health.",
+    heading: "Diaspora Construction Budget & Inflation Tracker",
+    lede: "Protect cross-border remittances against local currency volatility, black market exchange spreads, and compounding material inflation.",
+    eyebrow: "Diaspora Escrow Finance",
+    seoTitle: "Diaspora Construction Budget & Inflation Tracker | FRELUX",
+    seoDescription:
+      "Track overseas construction funds against local currency inflation, parallel exchange rates, and on-site material cost deviations.",
     to: "/diaspora-budget-tracker",
     navVisible: true,
   },
@@ -783,8 +812,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Screen a high rise from entered geometry: the lateral system the height calls for, ASCE 7 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and a build programme.",
     enters:
       "Floors above ground, typical and ground floor heights, plan length and width, concrete fck, the soil type, the mapped accelerations SDS and SD1, and the occupancy category.",
-    gets:
-      "The lateral system for the height, wind and seismic base shear with drift, raft thickness and the pile schedule, the concrete and reinforcement quantities, and a programme, with the method and every assumption shown. It is a deterministic screening check, not a structural design.",
+    gets: "The lateral system for the height, wind and seismic base shear with drift, raft thickness and the pile schedule, the concrete and reinforcement quantities, and a programme, with the method and every assumption shown. It is a deterministic screening check, not a structural design.",
     to: "/tall-building-structure",
     benefit: "Wind , Seismic , Piles",
     seoTitle: "Skyscraper Structure and Foundation Calculator | FRELUX",
@@ -804,8 +832,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Full electrical material list and cost.",
     heading: "Electrical Wiring Estimator",
     lede: "Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only: not professional electrical design.",
-    seoTitle: "Electrical Wiring Estimator: Cables, Conduit, Breakers & Boards | FRELUX",
-    seoDescription: "Deterministic electrical material estimation: enter your lighting points, socket points and average cable runs and get separate cable, conduit, junction box, breaker and accessory quantities with a full calculation breakdown. Estimation only: not electrical design.",
+    seoTitle:
+      "Electrical Wiring Estimator: Cables, Conduit, Breakers & Boards | FRELUX",
+    seoDescription:
+      "Deterministic electrical material estimation: enter your lighting points, socket points and average cable runs and get separate cable, conduit, junction box, breaker and accessory quantities with a full calculation breakdown. Estimation only: not electrical design.",
     to: "/electrical",
     navVisible: true,
   },
@@ -819,7 +849,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Complete plumbing material list and cost.",
     heading: "Plumbing Estimator",
     lede: "Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design.",
-    seoTitle: "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX",
+    seoTitle:
+      "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX",
     seoDescription:
       "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only: not plumbing design.",
     to: "/plumbing",
@@ -836,7 +867,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Solar/PV Roofing Estimator",
     lede: "A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity: rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries: with configured prices. Nothing is guessed, and unpriced components are reported honestly.",
     seoTitle: "Solar/PV Roofing Estimator: Full Material Takeoff | FRELUX",
-    seoDescription: "Plan a complete solar installation: panels that fit your roof or sized for your energy target, daily energy yield, inverter and strings, and every material quantity: rails, clamps, connectors, cabling, breakers, surge protection, earthing, batteries: with sourced prices. Nothing is guessed.",
+    seoDescription:
+      "Plan a complete solar installation: panels that fit your roof or sized for your energy target, daily energy yield, inverter and strings, and every material quantity: rails, clamps, connectors, cabling, breakers, surge protection, earthing, batteries: with sourced prices. Nothing is guessed.",
     to: "/solar-pv-estimator",
     benefit: "Panels · Batteries · Cost",
     featured: true,
@@ -852,7 +884,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Recommended generator size, fuel consumption and cost.",
     heading: "Generator & Power Backup Estimator",
     lede: "Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design.",
-    seoTitle: "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX",
+    seoTitle:
+      "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX",
     seoDescription:
       "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
     to: "/generator",
@@ -869,7 +902,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Heat Comfort: Finish Choice & Indoor Heat",
     lede: "Brighter finishes reflect more solar energy and keep a space cooler. Compare two finishes on a roof or wall and see the honest difference in absorbed heat: computed only from sourced reflectance factors, never a guess.",
     seoTitle: "Heat Comfort: Finish Choice & Indoor Heat | FRELUX",
-    seoDescription: "Compare how two finishes affect indoor heat comfort using configured solar reflectance data. Every number comes from a sourced factor: never a guess.",
+    seoDescription:
+      "Compare how two finishes affect indoor heat comfort using configured solar reflectance data. Every number comes from a sourced factor: never a guess.",
     to: "/heat-comfort",
     navVisible: false,
   },
@@ -881,6 +915,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Shows verified and reported construction material prices across Nigerian cities, with sample size, source and last verification date for every figure.",
     enters: "A city, a material category, and a search term.",
     gets: "Median, range and price basis per material, city-by-city comparison, recorded price history, and movement where the evidence supports one.",
+    heading: "Live Material Price Index",
+    lede: "Construction material prices across Nigerian cities, with the evidence behind every number: sample size, source, price basis and last verification date.",
+    seoTitle: "Live Material Price Index | FRELUX",
+    seoDescription:
+      "Verified and reported construction material prices across Nigerian cities: cement, reinforcement bars, aggregates, blocks, roofing, tiles, paint and more, with sample sizes and last verification dates shown.",
     to: "/material-price-index",
     navVisible: false,
   },
@@ -920,8 +959,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Frame, leaf and fitting quantities with total cost.",
     heading: "Doors & Windows Estimator",
     lede: "Enter your door and window counts per type. The engine lists leaves, frames, hinges, locksets and window units, labelling every derived count, and prices from the shared material database. Estimation only: confirm unit sizes on site.",
-    seoTitle: "Doors & Windows Estimator: Leaves, Frames, Hinges, Locksets & Units | FRELUX",
-    seoDescription: "Deterministic doors and windows material estimation: enter your counts per type and get door leaves, frames, hinges, locksets and window units with every derived count labelled. Estimation only: confirm unit sizes on site.",
+    seoTitle:
+      "Doors & Windows Estimator: Leaves, Frames, Hinges, Locksets & Units | FRELUX",
+    seoDescription:
+      "Deterministic doors and windows material estimation: enter your counts per type and get door leaves, frames, hinges, locksets and window units with every derived count labelled. Estimation only: confirm unit sizes on site.",
     to: "/doors-windows",
     navVisible: true,
   },
@@ -983,7 +1024,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     lede: "Compare a contractor or supplier quote against the FRELUX price book. Every line is judged on the market rate for its own unit, and lines with no reference price are marked instead of guessed.",
     eyebrow: "Project and cost",
     seoTitle: "Contractor Quote Check Against Market Prices | FRELUX",
-    seoDescription: "Check a contractor quote against the market price book line by line. See which lines sit above market and which have no reference price.",
+    seoDescription:
+      "Check a contractor quote against the market price book line by line. See which lines sit above market and which have no reference price.",
     to: "/quote-check",
     navVisible: false,
   },
@@ -998,7 +1040,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Cash-Flow Timeline",
     lede: "Phased payment schedule for an estimate total, from verified milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan.",
     seoTitle: "Cash-Flow Timeline: FRELUX",
-    seoDescription: "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
+    seoDescription:
+      "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
     to: "/cash-flow-timeline",
     navVisible: false,
   },
@@ -1013,7 +1056,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Regional Cost Index",
     lede: "State-by-state labour and material cost factors, verified from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you: it never guesses a multiplier.",
     seoTitle: "Regional Cost Index: FRELUX",
-    seoDescription: "Location-adjusted costing using Nigerian state and regional labour and material cost factors. Coverage is specific to available index data.",
+    seoDescription:
+      "Location-adjusted costing using Nigerian state and regional labour and material cost factors. Coverage is specific to available index data.",
     to: "/regional-cost-index",
     navVisible: false,
   },
@@ -1025,6 +1069,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Build a realistic construction schedule from foundation to finishing.",
     enters: "Project scope and start date.",
     gets: "Stage-by-stage timeline with durations and milestones.",
+    heading: "Construction Timeline Estimator",
+    lede: "How long will your project take? Stage-by-stage estimates based on practical construction benchmarks.",
+    eyebrow: "Planning Tool",
+    seoTitle: "Construction Timeline Estimator | FRELUX",
+    seoDescription:
+      "Estimate how long your construction project will take. Stage-by-stage breakdown based on practical construction benchmarks.",
     to: "/project-timeline",
     navVisible: false,
   },
@@ -1040,7 +1090,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     lede: "Directed Acyclic Graph (DAG) task network, Critical Path Method (CPM), and multi-trade parallel execution waves conforming to ISO 21502 and PMI PMBOK® standards.",
     eyebrow: "Orchestration & Planning",
     seoTitle: "Construction Sequence & DAG Parallel Execution | FRELUX",
-    seoDescription: "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves conforming to ISO 21502 and PMI PMBOK 7th Ed. Optimize build duration, trade concurrency, and critical path.",
+    seoDescription:
+      "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves conforming to ISO 21502 and PMI PMBOK 7th Ed. Optimize build duration, trade concurrency, and critical path.",
     to: "/construction-sequence",
     navVisible: false,
   },
@@ -1055,7 +1106,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Maintenance Planner",
     lede: "Plan the full life of your finish from database-verified data: inspections, re-coat cycles and full redecoration, with cost projections at years 3, 5 and 10.",
     seoTitle: "Maintenance Planner: FRELUX",
-    seoDescription: "Deterministic maintenance schedules from database-verified data: when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
+    seoDescription:
+      "Deterministic maintenance schedules from database-verified data: when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
     to: "/maintenance-planner",
     navVisible: false,
   },
@@ -1082,7 +1134,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Warranty Certificate & Dispute Verification",
     lede: "Issue a hash-verified warranty certificate for a saved estimate. The exact configuration behind your quote is frozen and replayable: if a claim or dispute ever arises, both sides verify against the same frozen record, never a reconstruction.",
     seoTitle: "Warranty Certificate & Dispute Verification | FRELUX",
-    seoDescription: "Issue a hash-verified warranty certificate for your saved estimate. Claims and disputes replay the exact frozen configuration: mismatches are flagged, never guessed.",
+    seoDescription:
+      "Issue a hash-verified warranty certificate for your saved estimate. Claims and disputes replay the exact frozen configuration: mismatches are flagged, never guessed.",
     to: "/warranty-certificate",
     navVisible: false,
   },
@@ -1097,7 +1150,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Contractor Credit Score",
     lede: "Before you commit money to a contractor, check the record: on-time delivery, estimate accuracy, verified job volume and disputes: scored deterministically from FRELUX-verified job history. Unverified history is refused, never scored zero.",
     seoTitle: "Contractor Credit Score: Verified Job History | FRELUX",
-    seoDescription: "Check a contractor's trust signal before you commit: a deterministic 0–100 score from verified job history: on-time delivery, estimate accuracy, verified volume, dispute penalty. Unverified history is refused, never scored zero.",
+    seoDescription:
+      "Check a contractor's trust signal before you commit: a deterministic 0–100 score from verified job history: on-time delivery, estimate accuracy, verified volume, dispute penalty. Unverified history is refused, never scored zero.",
     to: "/contractor-credit",
     navVisible: false,
   },
@@ -1113,7 +1167,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Embodied Carbon Estimator",
     lede: "kgCO2e per line from verified, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning: FRELUX never guesses an emission.",
     seoTitle: "Embodied Carbon Estimator: FRELUX",
-    seoDescription: "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, verified emission factors.",
+    seoDescription:
+      "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, verified emission factors.",
     to: "/carbon-footprint",
     navVisible: false,
   },
@@ -1128,7 +1183,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Circular & Reuse: Demolition Recovery",
     lede: "Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump: computed only from sourced recovery factors, never a guess.",
     seoTitle: "Circular & Reuse: Demolition Recovery Quantities | FRELUX",
-    seoDescription: "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor: never a guess.",
+    seoDescription:
+      "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor: never a guess.",
     to: "/circular-reuse",
     navVisible: false,
   },
@@ -1182,8 +1238,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "The counted quantity with confidence and a permanent log.",
     heading: "Counter-Vision",
     lede: "Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count: it never guesses a number.",
-    seoTitle: "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX",
-    seoDescription: "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so: it never guesses.",
+    seoTitle:
+      "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX",
+    seoDescription:
+      "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so: it never guesses.",
     to: "/count-vision",
     navVisible: true,
   },
@@ -1219,7 +1277,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Surface condition rating and preparation requirements.",
     heading: "Surface Condition Assessment",
     seoTitle: "Surface Condition Assessment: Wall Preparation Guide",
-    seoDescription: "Assess your wall condition before painting. Get recommendations for surface preparation based on new, painted, rough, dirty, damp, or cracked surfaces.",
+    seoDescription:
+      "Assess your wall condition before painting. Get recommendations for surface preparation based on new, painted, rough, dirty, damp, or cracked surfaces.",
     to: "/surface-assessment",
     navVisible: false,
   },
@@ -1234,7 +1293,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Estimate Refresh: Current Cost Today",
     lede: "Inflation-proof estimating: your saved estimates snapshot the prices they were quoted at. Pick one and see what it would cost today: line by line, with every missing price flagged, never guessed.",
     seoTitle: "Estimate Refresh: Current Cost Today | FRELUX",
-    seoDescription: "Refresh a saved estimate against today's prices. Old quotes stay honest: see exactly what changed and what has no current price, never a guess.",
+    seoDescription:
+      "Refresh a saved estimate against today's prices. Old quotes stay honest: see exactly what changed and what has no current price, never a guess.",
     to: "/estimate-refresh",
     navVisible: false,
   },
@@ -1251,7 +1311,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Defect Diagnosis",
     lede: "Pick the symptom you're seeing and get its root causes with fixes: ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area.",
     seoTitle: "Defect Diagnosis: FRELUX",
-    seoDescription: "Map a paint or finish defect to its root cause and get the fix, with quantities: from a deterministic, verified knowledge base.",
+    seoDescription:
+      "Map a paint or finish defect to its root cause and get the fix, with quantities: from a deterministic, verified knowledge base.",
     to: "/defect-diagnosis",
     navVisible: false,
   },
@@ -1278,7 +1339,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     heading: "Field Sync",
     lede: "Record site work with no network. Your captures queue on this device and sync when connectivity returns: honestly, one by one.",
     seoTitle: "Field Sync: Capture Site Work Offline | FRELUX",
-    seoDescription: "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online: nothing is lost, nothing is invented.",
+    seoDescription:
+      "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online: nothing is lost, nothing is invented.",
     to: "/field-sync",
     navVisible: true,
   },

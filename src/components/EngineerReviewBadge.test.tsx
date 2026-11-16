@@ -4,6 +4,7 @@ import EngineerReviewBadge from "./EngineerReviewBadge";
 
 const market = vi.hoisted(() => ({ code: "US", country: "United States" }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     marketCode: market.code,
     market: { countryName: market.country },

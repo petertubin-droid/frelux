@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useId } from "react";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import {
   estimateTimeline,
   type TimelineInput,
@@ -13,13 +13,12 @@ import { useMarket } from "@/lib/international/market-context";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { missingField } from "@/lib/forms/missing-fields";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NumericInput } from "@/components/ui/NumericInput";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   evaluateStageWeatherRisk,
   type WeatherRiskAlert,
@@ -35,12 +34,6 @@ import {
 
 export default function ProjectTimeline() {
   const { t } = useLanguage();
-  useSeo({
-    title: "Construction Timeline Estimator | FRELUX",
-    description:
-      "Estimate how long your construction project will take. Stage-by-stage breakdown based on practical construction benchmarks.",
-    keywords: "construction timeline, project duration, building schedule",
-  });
 
   const [buildingType, setBuildingType] = useState("bungalow");
   const [length, setLength] = useState(15);
@@ -169,357 +162,349 @@ export default function ProjectTimeline() {
   }, []);
 
   return (
-    <>
-      <PageHeader
-        variant="tool"
-        eyebrow="Planning Tool"
-        title={t("Construction Timeline Estimator")}
-        subtitle="How long will your project take? Stage-by-stage estimates based on practical construction benchmarks."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Project Timeline" },
-        ]}
-      />
+    <ToolShell route="/project-timeline" hideDisclaimer>
+      <>
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
+          {/* Inputs */}
+          <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <Select
+                label="Building type"
+                value={buildingType}
+                onChange={setBuildingType}
+                options={typology.typologies.map((t) => ({
+                  v: t.typeCode,
+                  l: t.label,
+                }))}
+              />
+              <Num
+                id="timeline-length"
+                onBlankChange={(blank) => markBlank("length", blank)}
+                label="Length (m)"
+                value={length}
+                onChange={setLength}
+                step="0.5"
+              />
+              <Num
+                id="timeline-width"
+                onBlankChange={(blank) => markBlank("width", blank)}
+                label="Width (m)"
+                value={width}
+                onChange={setWidth}
+                step="0.5"
+              />
+              <Num
+                id="timeline-floors"
+                onBlankChange={(blank) => markBlank("floors", blank)}
+                label="Floors"
+                value={floors}
+                onChange={(v) => setFloors(Math.floor(v))}
+              />
+              <Select
+                label="Complexity"
+                value={complexity}
+                onChange={(v) => setComplexity(v as ProjectComplexity)}
+                options={[
+                  { v: "simple", l: "Simple" },
+                  { v: "standard", l: "Standard" },
+                  { v: "complex", l: "Complex" },
+                  { v: "high_end", l: "High-End" },
+                ]}
+              />
+              <Select
+                label="Workforce size"
+                value={workforce}
+                onChange={(v) => setWorkforce(v as WorkforceSize)}
+                options={[
+                  { v: "small", l: "Small (5-10)" },
+                  { v: "medium", l: "Medium (10-20)" },
+                  { v: "large", l: "Large (20+)" },
+                ]}
+              />
+              <Select
+                label="Season"
+                value={season}
+                onChange={(v) => setSeason(v as Season)}
+                options={climate.seasons.map((sv) => ({
+                  v: sv,
+                  l: SEASON_LABELS[sv],
+                }))}
+              />
+              <Select
+                label="Foundation type"
+                value={foundationType}
+                onChange={setFoundationType}
+                options={[
+                  { v: "strip_footing", l: "Strip Footing" },
+                  { v: "pad_footing", l: "Pad Footing" },
+                  { v: "raft", l: "Raft" },
+                  { v: "pile", l: "Pile" },
+                ]}
+              />
+              <Select
+                label="Roof type"
+                value={roofType}
+                onChange={setRoofType}
+                options={[
+                  { v: "gable", l: "Gable" },
+                  { v: "hip", l: "Hip" },
+                  { v: "flat", l: "Flat" },
+                ]}
+              />
+            </div>
+            <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={hasEngineer}
+                onChange={(e) => setHasEngineer(e.target.checked)}
+              />
+              {t("Structural engineer engaged (has reinforcement schedule)")}
+            </label>
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
-        {/* Inputs */}
-        <div className="rounded-2xl border border-border bg-card shadow-card p-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <Select
-              label="Building type"
-              value={buildingType}
-              onChange={setBuildingType}
-              options={typology.typologies.map((t) => ({
-                v: t.typeCode,
-                l: t.label,
-              }))}
-            />
-            <Num
-              id="timeline-length"
-              onBlankChange={(blank) => markBlank("length", blank)}
-              label="Length (m)"
-              value={length}
-              onChange={setLength}
-              step="0.5"
-            />
-            <Num
-              id="timeline-width"
-              onBlankChange={(blank) => markBlank("width", blank)}
-              label="Width (m)"
-              value={width}
-              onChange={setWidth}
-              step="0.5"
-            />
-            <Num
-              id="timeline-floors"
-              onBlankChange={(blank) => markBlank("floors", blank)}
-              label="Floors"
-              value={floors}
-              onChange={(v) => setFloors(Math.floor(v))}
-            />
-            <Select
-              label="Complexity"
-              value={complexity}
-              onChange={(v) => setComplexity(v as ProjectComplexity)}
-              options={[
-                { v: "simple", l: "Simple" },
-                { v: "standard", l: "Standard" },
-                { v: "complex", l: "Complex" },
-                { v: "high_end", l: "High-End" },
-              ]}
-            />
-            <Select
-              label="Workforce size"
-              value={workforce}
-              onChange={(v) => setWorkforce(v as WorkforceSize)}
-              options={[
-                { v: "small", l: "Small (5-10)" },
-                { v: "medium", l: "Medium (10-20)" },
-                { v: "large", l: "Large (20+)" },
-              ]}
-            />
-            <Select
-              label="Season"
-              value={season}
-              onChange={(v) => setSeason(v as Season)}
-              options={climate.seasons.map((sv) => ({
-                v: sv,
-                l: SEASON_LABELS[sv],
-              }))}
-            />
-            <Select
-              label="Foundation type"
-              value={foundationType}
-              onChange={setFoundationType}
-              options={[
-                { v: "strip_footing", l: "Strip Footing" },
-                { v: "pad_footing", l: "Pad Footing" },
-                { v: "raft", l: "Raft" },
-                { v: "pile", l: "Pile" },
-              ]}
-            />
-            <Select
-              label="Roof type"
-              value={roofType}
-              onChange={setRoofType}
-              options={[
-                { v: "gable", l: "Gable" },
-                { v: "hip", l: "Hip" },
-                { v: "flat", l: "Flat" },
-              ]}
-            />
+            {missing.length > 0 && (
+              <MissingFieldsNotice
+                fields={missing}
+                className="mt-4 rounded-xl border border-destructive/40 bg-destructive/5 p-4"
+              />
+            )}
+
+            <Button
+              variant="default"
+              onClick={calculate}
+              className="mt-4 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold hover:bg-primary/90"
+            >
+              <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate
+              Timeline
+            </Button>
           </div>
-          <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={hasEngineer}
-              onChange={(e) => setHasEngineer(e.target.checked)}
-            />
-            {t("Structural engineer engaged (has reinforcement schedule)")}
-          </label>
 
-          {missing.length > 0 && (
-            <MissingFieldsNotice
-              fields={missing}
-              className="mt-4 rounded-xl border border-destructive/40 bg-destructive/5 p-4"
-            />
-          )}
-
-          <Button
-            variant="default"
-            onClick={calculate}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold hover:bg-primary/90"
-          >
-            <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate
-            Timeline
-          </Button>
-        </div>
-
-        <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
-          Climate profile: {climate.climatePattern}. {climate.heuristicNote}{" "}
-          Building types follow this market's standard typologies (
-          {typology.note}).
-        </p>
-        {result && (
-          <>
-            {/* Summary */}
-            <div className="grid md:grid-cols-4 gap-4">
-              <SummaryCard
-                label="Total Duration"
-                value={`${result.total_days}`}
-                unit="days"
-              />
-              <SummaryCard
-                label="Approximately"
-                value={`${result.total_weeks}`}
-                unit="weeks"
-              />
-              <SummaryCard
-                label="Estimated Start"
-                value={result.estimated_start}
-                unit=""
-              />
-              <SummaryCard
-                label="Estimated Completion"
-                value={result.estimated_end}
-                unit=""
-              />
-            </div>
-
-            {/* Milestones */}
-            <div className="rounded-2xl border border-border bg-card shadow-card p-6">
-              <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Flag className="w-5 h-5 text-brand-purple" /> Project
-                Milestones
-              </h3>
-              <div className="space-y-3">
-                {result.milestones.map((m, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
-                        {m.label}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {m.description}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-foreground">
-                        Day {m.after_days}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        ≈ {Math.ceil(m.after_days / 6)} weeks
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+            Climate profile: {climate.climatePattern}. {climate.heuristicNote}{" "}
+            Building types follow this market's standard typologies (
+            {typology.note}).
+          </p>
+          {result && (
+            <>
+              {/* Summary */}
+              <div className="grid md:grid-cols-4 gap-4">
+                <SummaryCard
+                  label="Total Duration"
+                  value={`${result.total_days}`}
+                  unit="days"
+                />
+                <SummaryCard
+                  label="Approximately"
+                  value={`${result.total_weeks}`}
+                  unit="weeks"
+                />
+                <SummaryCard
+                  label="Estimated Start"
+                  value={result.estimated_start}
+                  unit=""
+                />
+                <SummaryCard
+                  label="Estimated Completion"
+                  value={result.estimated_end}
+                  unit=""
+                />
               </div>
-            </div>
 
-            {/* Stage breakdown */}
-            <div className="rounded-2xl border border-border bg-card shadow-card p-6">
-              <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Clock
-                  aria-hidden="true"
-                  className="w-5 h-5 text-brand-purple"
-                />{" "}
-                Stage-by-Stage Breakdown
-              </h3>
-              <div className="space-y-2">
-                {result.stages.map((s, i) => (
-                  <div
-                    key={i}
-                    className="border border-border/50 rounded-lg p-3"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
-                          {i + 1}
-                        </span>
-                        <span className="text-sm font-medium text-foreground">
-                          {s.stage_label}
-                        </span>
+              {/* Milestones */}
+              <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
+                  <Flag className="w-5 h-5 text-brand-purple" /> Project
+                  Milestones
+                </h3>
+                <div className="space-y-3">
+                  {result.milestones.map((m, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                        {i + 1}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {s.min_days}-{s.max_days} days
-                        </span>
-                        <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
-                          {s.estimated_days} days
-                        </span>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">
+                          {m.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {m.description}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-foreground">
+                          Day {m.after_days}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          ≈ {Math.ceil(m.after_days / 6)} weeks
+                        </p>
                       </div>
                     </div>
-                    {s.notes && (
-                      <p className="text-xs text-amber-600 ml-8">⚠ {s.notes}</p>
-                    )}
-                    {/* Weather Risk Evaluation for Outdoor Stages */}
-                    {(() => {
-                      const lower = s.stage_label.toLowerCase();
-                      let actType: WeatherRiskAlert["activityType"] | null =
-                        null;
-                      if (
-                        lower.includes("concrete") ||
-                        lower.includes("foundation") ||
-                        lower.includes("slab")
-                      )
-                        actType = "concrete_casting";
-                      else if (
-                        lower.includes("roof") ||
-                        lower.includes("paint")
-                      )
-                        actType = "roof_painting";
-                      else if (
-                        lower.includes("excavation") ||
-                        lower.includes("earth")
-                      )
-                        actType = "excavation_earthworks";
-                      else if (
-                        lower.includes("screed") ||
-                        lower.includes("plaster")
-                      )
-                        actType = "screeding_plastering";
+                  ))}
+                </div>
+              </div>
 
-                      if (!actType) return null;
-
-                      const alert = evaluateStageWeatherRisk({
-                        stageName: s.stage_label,
-                        activityType: actType,
-                        scheduledDate: `Day ${Math.max(1, i * Math.max(1, s.estimated_days) + 1)}`,
-                        coords: projectCoords,
-                        forecastPrecipMm:
-                          season === "rainy" || season === "monsoon" ? 24 : 0,
-                        forecastTempMinC: season === "winter" ? -2 : 26,
-                        forecastWindKph: 15,
-                      });
-
-                      if (!alert) return null;
-
-                      return (
-                        <div className="ml-8 mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-600 dark:text-amber-400 space-y-1">
-                          <div className="flex items-center gap-1.5 font-bold">
-                            <CloudRain className="h-4 w-4" />
-                            <span>{alert.alertMessage}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground ml-5">
-                            <strong className="text-foreground">
-                              Advisory:
-                            </strong>{" "}
-                            {alert.recommendation}
-                          </p>
+              {/* Stage breakdown */}
+              <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
+                  <Clock
+                    aria-hidden="true"
+                    className="w-5 h-5 text-brand-purple"
+                  />{" "}
+                  Stage-by-Stage Breakdown
+                </h3>
+                <div className="space-y-2">
+                  {result.stages.map((s, i) => (
+                    <div
+                      key={i}
+                      className="border border-border/50 rounded-lg p-3"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
+                            {i + 1}
+                          </span>
+                          <span className="text-sm font-medium text-foreground">
+                            {s.stage_label}
+                          </span>
                         </div>
-                      );
-                    })()}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">
+                            {s.min_days}-{s.max_days} days
+                          </span>
+                          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
+                            {s.estimated_days} days
+                          </span>
+                        </div>
+                      </div>
+                      {s.notes && (
+                        <p className="text-xs text-amber-600 ml-8">
+                          ⚠ {s.notes}
+                        </p>
+                      )}
+                      {/* Weather Risk Evaluation for Outdoor Stages */}
+                      {(() => {
+                        const lower = s.stage_label.toLowerCase();
+                        let actType: WeatherRiskAlert["activityType"] | null =
+                          null;
+                        if (
+                          lower.includes("concrete") ||
+                          lower.includes("foundation") ||
+                          lower.includes("slab")
+                        )
+                          actType = "concrete_casting";
+                        else if (
+                          lower.includes("roof") ||
+                          lower.includes("paint")
+                        )
+                          actType = "roof_painting";
+                        else if (
+                          lower.includes("excavation") ||
+                          lower.includes("earth")
+                        )
+                          actType = "excavation_earthworks";
+                        else if (
+                          lower.includes("screed") ||
+                          lower.includes("plaster")
+                        )
+                          actType = "screeding_plastering";
 
-                    <div className="ml-8 mt-2 flex flex-wrap gap-1">
-                      {s.activities.map((a, j) => (
-                        <span
-                          key={j}
-                          className="text-xs text-muted-foreground bg-muted/50 rounded px-2 py-0.5"
-                        >
-                          {a}
-                        </span>
-                      ))}
+                        if (!actType) return null;
+
+                        const alert = evaluateStageWeatherRisk({
+                          stageName: s.stage_label,
+                          activityType: actType,
+                          scheduledDate: `Day ${Math.max(1, i * Math.max(1, s.estimated_days) + 1)}`,
+                          coords: projectCoords,
+                          forecastPrecipMm:
+                            season === "rainy" || season === "monsoon" ? 24 : 0,
+                          forecastTempMinC: season === "winter" ? -2 : 26,
+                          forecastWindKph: 15,
+                        });
+
+                        if (!alert) return null;
+
+                        return (
+                          <div className="ml-8 mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-600 dark:text-amber-400 space-y-1">
+                            <div className="flex items-center gap-1.5 font-bold">
+                              <CloudRain className="h-4 w-4" />
+                              <span>{alert.alertMessage}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground ml-5">
+                              <strong className="text-foreground">
+                                Advisory:
+                              </strong>{" "}
+                              {alert.recommendation}
+                            </p>
+                          </div>
+                        );
+                      })()}
+
+                      <div className="ml-8 mt-2 flex flex-wrap gap-1">
+                        {s.activities.map((a, j) => (
+                          <span
+                            key={j}
+                            className="text-xs text-muted-foreground bg-muted/50 rounded px-2 py-0.5"
+                          >
+                            {a}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Risks & recommendations */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-                <h3 className="font-semibold text-amber-900 flex items-center gap-2 mb-3">
-                  <AlertTriangle className="w-5 h-5" /> {t("Risks")}
-                </h3>
-                <ul className="space-y-1.5">
-                  {result.risks.map((r, i) => (
-                    <li
-                      key={i}
-                      className="text-sm text-amber-700 flex items-start gap-2"
-                    >
-                      <span className="text-amber-400">•</span> {r}
-                    </li>
                   ))}
-                </ul>
+                </div>
               </div>
-              <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
-                <h3 className="font-semibold text-green-900 flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-5 h-5" /> {t("Recommendations")}
-                </h3>
-                <ul className="space-y-1.5">
-                  {result.recommendations.map((r, i) => (
-                    <li
-                      key={i}
-                      className="text-sm text-green-700 flex items-start gap-2"
-                    >
-                      <span className="text-green-400">•</span> {r}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
 
-            {/* Assumptions */}
-            <div className="rounded-xl bg-muted/50 border border-border p-4">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Assumptions:
-              </p>
-              <div className="space-y-1">
-                {result.assumptions.map((a, i) => (
-                  <p key={i} className="text-xs text-muted-foreground">
-                    • {a}
-                  </p>
-                ))}
+              {/* Risks & recommendations */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+                  <h3 className="font-semibold text-amber-900 flex items-center gap-2 mb-3">
+                    <AlertTriangle className="w-5 h-5" /> {t("Risks")}
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {result.risks.map((r, i) => (
+                      <li
+                        key={i}
+                        className="text-sm text-amber-700 flex items-start gap-2"
+                      >
+                        <span className="text-amber-400">•</span> {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
+                  <h3 className="font-semibold text-green-900 flex items-center gap-2 mb-3">
+                    <TrendingUp className="w-5 h-5" /> {t("Recommendations")}
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {result.recommendations.map((r, i) => (
+                      <li
+                        key={i}
+                        className="text-sm text-green-700 flex items-start gap-2"
+                      >
+                        <span className="text-green-400">•</span> {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
-          </>
-        )}
-      </div>
-    </>
+
+              {/* Assumptions */}
+              <div className="rounded-xl bg-muted/50 border border-border p-4">
+                <p className="text-xs font-medium text-muted-foreground mb-2">
+                  Assumptions:
+                </p>
+                <div className="space-y-1">
+                  {result.assumptions.map((a, i) => (
+                    <p key={i} className="text-xs text-muted-foreground">
+                      • {a}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </>
+    </ToolShell>
   );
 }
 
@@ -619,9 +604,6 @@ function SummaryCard({
           </span>
         )}
       </p>
-      <div className="mt-8">
-        <ToolFaqs slug="project-timeline" />
-      </div>
     </div>
   );
 }

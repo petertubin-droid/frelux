@@ -4,6 +4,7 @@ import PriceVerificationNotice from "./PriceVerificationNotice";
 
 const mockMarket = vi.fn();
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => mockMarket(),
 }));
 

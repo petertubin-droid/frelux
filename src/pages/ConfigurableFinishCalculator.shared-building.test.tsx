@@ -13,6 +13,7 @@ import {
 import type { RoomDraft } from "@/lib/measurement/building-presets";
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     market: { marketCode: "NG", country_name: "Nigeria" },
   }),

@@ -23,6 +23,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: () => undefined,
 }));
 vi.mock("@/contexts/WorkspaceContext", () => ({
   useWorkspace: () => ({

@@ -37,8 +37,10 @@ vi.mock("@/lib/site-intelligence/foundation", () => foundation);
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: () => undefined,
 }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({ marketCode: "NG" }),
 }));
 vi.mock("@/lib/price-index/use-project-city", () => ({

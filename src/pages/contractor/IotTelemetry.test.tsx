@@ -7,6 +7,7 @@ import type { IotSafetyThresholdRow } from "@/lib/iot/safety-alerts";
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: () => undefined,
 }));
 vi.mock("@/lib/auth", () => {
   const user = { id: "u1" };

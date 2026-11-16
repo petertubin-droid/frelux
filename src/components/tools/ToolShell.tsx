@@ -26,10 +26,7 @@ import ToolFaqs from "@/components/seo/ToolFaqs";
 import { RelatedTools } from "@/components/seo/SeoSections";
 import type { RelatedLink } from "@/components/seo/SeoSections";
 import PageHeader from "@/components/ui/PageHeader";
-import {
-  TOOL_CATEGORIES,
-  findToolByRoute,
-} from "@/config/construction-tools";
+import { TOOL_CATEGORIES, findToolByRoute } from "@/config/construction-tools";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 import { relatedToolsFor } from "@/lib/tools/related-tools";
 import { stripLocaleFromPathname, useLanguage } from "@/lib/i18n";
@@ -54,6 +51,8 @@ export interface ToolShellProps {
   actions?: ReactNode;
   /** Extra SEO markup the tool owns, such as HowTo structured data. */
   structuredData?: object;
+  /** Further blocks, such as the steps of a documented procedure. */
+  structuredDataArray?: object[];
   /** Suppress the question block where the copy is not yet written. */
   showFaq?: boolean;
   /** Suppress the neighbour row where the page ends in its own navigation. */
@@ -76,6 +75,7 @@ export default function ToolShell({
   eyebrow,
   actions,
   structuredData,
+  structuredDataArray,
   showFaq = true,
   showRelated = true,
   relatedLinks,
@@ -126,6 +126,7 @@ export default function ToolShell({
           description: tool.seoDescription ?? tool.does,
           canonicalPath: tool.to,
           structuredData: structuredData ?? toolMarkup,
+          structuredDataArray,
         }
       : null,
   );
@@ -151,12 +152,12 @@ export default function ToolShell({
         { label: heading },
       ]
     : [];
-  const crumbs = trail.map(({ label, path }) => (path ? { label, path } : { label }));
+  const crumbs = trail.map(({ label, path }) =>
+    path ? { label, path } : { label },
+  );
   // The hook supplies Home itself, so the marked-up trail continues from there.
   useBreadcrumbJsonLd(
-    trail
-      .slice(1)
-      .map((c) => ({ name: c.label, path: c.path ?? tool!.to })),
+    trail.slice(1).map((c) => ({ name: c.label, path: c.path ?? tool!.to })),
   );
 
   return (

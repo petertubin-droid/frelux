@@ -7,6 +7,7 @@ const marketState = { marketCode: "NG", setMarket: vi.fn(async () => {}) };
 
 vi.mock("@/lib/auth", () => ({ useAuth: () => authState }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({ ...marketState, setMarket: marketState.setMarket }),
 }));
 vi.mock("@/lib/international/units-display", () => ({

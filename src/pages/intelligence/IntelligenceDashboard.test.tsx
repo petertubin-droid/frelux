@@ -116,6 +116,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: () => undefined,
+  useBreadcrumbJsonLd: () => undefined,
 }));
 vi.mock("@/lib/intelligence/queries", () => ({
   loadIntelligence: vi.fn(async () => ({ snapshot, error: null })),

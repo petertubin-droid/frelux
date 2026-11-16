@@ -10,6 +10,7 @@ import { MemoryRouter } from "react-router-dom";
 
 const marketState = vi.hoisted(() => ({ code: "CN" }));
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({
     market: {
       marketCode: marketState.code,

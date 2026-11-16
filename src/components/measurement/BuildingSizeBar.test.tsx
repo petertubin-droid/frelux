@@ -5,6 +5,7 @@ import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
 import { BuildingSizeBar } from "./BuildingSizeBar";
 
 vi.mock("@/lib/international/market-context", () => ({
+  useSeoOfferCurrency: () => "NGN",
   useMarket: () => ({ market: { marketCode: "NG", country_name: "Nigeria" } }),
 }));
 
@@ -25,7 +26,9 @@ describe("building size bar", () => {
 
   it("invites a building before one is set", () => {
     renderBar();
-    expect(screen.getByRole("button", { name: /set building size/i })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /set building size/i }),
+    ).toBeTruthy();
     expect(screen.getByText(/every tool will measure it/i)).toBeTruthy();
   });
 
@@ -39,8 +42,12 @@ describe("building size bar", () => {
 
     // The editor stays open after a template is applied, so the toggle still
     // offers to close it; the summary is already showing the new building.
-    fireEvent.click(screen.getByRole("button", { name: /close building size/i }));
-    expect(screen.getByRole("button", { name: /edit building size/i })).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: /close building size/i }),
+    );
+    expect(
+      screen.getByRole("button", { name: /edit building size/i }),
+    ).toBeTruthy();
     const stored = window.localStorage.getItem("frelux.building-size.v1");
     expect(JSON.parse(stored!).label).toBe(option!.text);
   });
@@ -52,7 +59,9 @@ describe("building size bar", () => {
     const option = Array.from(select.options).find((item) => item.value !== "");
     fireEvent.change(select, { target: { value: option!.value } });
     fireEvent.click(screen.getByRole("button", { name: /^clear$/i }));
-    expect(screen.getByRole("button", { name: /set building size/i })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /set building size/i }),
+    ).toBeTruthy();
     expect(window.localStorage.getItem("frelux.building-size.v1")).toBeNull();
   });
 });

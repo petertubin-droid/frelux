@@ -1,6 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -15,10 +14,8 @@ import {
   LockKeyhole,
   Ruler,
 } from "lucide-react";
-import { useSeo } from "@/lib/seo";
-import PageHeader from "@/components/ui/PageHeader";
+import {} from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { Button } from "@/components/ui/shadcn/button";
@@ -43,7 +40,7 @@ import type {
   WallTreatment,
 } from "@/lib/tv-console/media-context";
 import { calculateConsoleEstimate } from "@/lib/tv-console/calculator";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 const number = (v: string, fallback: number) =>
   v === "" ? fallback : Number(v);
@@ -294,33 +291,6 @@ export default function TvConsoleCalculator() {
     currency,
   ]);
 
-  useSeo({
-    title: "TV Console Material Calculator: Panels, Sheets & Cost | FRELUX",
-    description:
-      "Calculate TV console and media unit panel areas, packed sheet counts, edge banding, hardware, workshop, finishing and installation cost, with a transparent panel-by-panel schedule.",
-    canonicalPath: "/tv-console-calculator",
-    keywords:
-      "TV console calculator, media unit material calculator, cabinet board calculator, TV stand cut list estimate, entertainment center panels, furniture sheet calculator",
-    structuredData: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: "FRELUX TV Console & Media Unit Calculator",
-      applicationCategory: "DesignApplication",
-      operatingSystem: "Web",
-      description:
-        "Deterministic panel schedule with strip-packed sheet counts, edge banding, hardware and cost roll-up for configurable TV console concepts. Not a cut-optimized cutting list, product validation or structural design.",
-      featureList: [
-        "Ten editable concept presets",
-        "Panel-by-panel carcass area schedule",
-        "Strip packing of parts into stock boards",
-        "Separate back board material",
-        "Edge banding and hardware quantities",
-        "Workshop, finishing, installation, transport and tax lines",
-        "Pro-gated rough image dimension extraction requiring user confirmation",
-      ],
-    },
-  });
-
   const applyTemplate = (id: string) => {
     const template = TV_CONSOLE_TEMPLATES.find((t) => t.id === id)!;
     setSelectedId(id);
@@ -481,187 +451,156 @@ export default function TvConsoleCalculator() {
   ] as const;
 
   return (
-    <main className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
-      <PageHeader
-        title="TV Console & Media Unit Calculator"
-        eyebrow="Home decor · panel, sheet and cost takeoff"
-        subtitle="Choose a concept, set the carcass details, and see the panel arithmetic, the packed sheet count, edge banding, hardware and a full cost roll-up from your own rates. Planning estimate, not a cut list."
-      />
-      <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
-        <section
-          aria-labelledby="templates-title"
-          className="min-w-0 space-y-4"
-        >
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 id="templates-title" className="text-xl font-semibold">
-                Choose a design direction
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Each preset is drawn to scale from its own dimensions, drawer,
-                door and shelf counts. No stock photography is used.
-              </p>
-            </div>
-            <Badge variant="outline">
-              {TV_CONSOLE_TEMPLATES.length} editable presets
-            </Badge>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {TV_CONSOLE_TEMPLATES.slice(
-              page * PRESETS_PER_PAGE,
-              page * PRESETS_PER_PAGE + PRESETS_PER_PAGE,
-            ).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => applyTemplate(item.id)}
-                aria-pressed={selectedId === item.id}
-                className={`group overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-lg ${selectedId === item.id ? "border-primary ring-2 ring-primary/20" : "border-border"}`}
-              >
-                <div className="relative flex aspect-[2/1] items-center justify-center bg-muted/40 p-4">
-                  <ConsoleElevation
-                    layout={{
-                      widthMm: item.widthMm,
-                      heightMm: item.heightMm,
-                      thicknessMm: item.layout.thicknessMm,
-                      shelves: item.layout.shelves,
-                      dividers: item.layout.dividers,
-                      drawers: item.layout.drawers,
-                      drawerFrontHeightMm: item.layout.drawerFrontHeightMm,
-                      doors: item.layout.doors,
-                      revealMm: item.layout.revealMm,
-                    }}
-                    depthMm={item.depthMm}
-                    context={{
-                      tvInches: item.tvInches,
-                      wallTreatment: item.wallTreatment,
-                      wallPanelHeightMm: item.wallPanelHeightMm,
-                      mounting: item.mounting,
-                      ledProfileMetres: item.ledProfileMetres,
-                    }}
-                    label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
-                  />
-                  <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs backdrop-blur">
-                    Calculated elevation
-                  </span>
-                  {selectedId === item.id && (
-                    <span className="absolute left-3 top-3 rounded-full bg-primary p-1.5 text-primary-foreground">
-                      <Check className="h-3.5 w-3.5" />
-                    </span>
-                  )}
-                </div>
-                <div className="space-y-2 p-4">
-                  <h3 className="font-semibold">{item.name}</h3>
-                  <p className="line-clamp-1 text-xs text-muted-foreground">
-                    {item.material} · {item.feature}
-                  </p>
-                  <p className="text-xs font-medium tabular-nums text-foreground">
-                    {item.widthMm} × {item.heightMm} × {item.depthMm} mm
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/*
-            Pagination: twenty presets in one column of cards is a long scroll
-            past everything else on the page. Six at a time keeps the drawings
-            large enough to read the bays and drawer fronts.
-          */}
-          <nav
-            className="mt-4 flex flex-wrap items-center justify-between gap-3"
-            aria-label="Console preset pages"
+    <ToolShell route="/tv-console-calculator">
+      <main className="container mx-auto max-w-7xl space-y-8 px-4 py-8">
+        <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
+          <section
+            aria-labelledby="templates-title"
+            className="min-w-0 space-y-4"
           >
-            <p className="text-xs text-muted-foreground" aria-live="polite">
-              Page {page + 1} of{" "}
-              {Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE)} ·
-              showing {page * PRESETS_PER_PAGE + 1}–
-              {Math.min(
-                (page + 1) * PRESETS_PER_PAGE,
-                TV_CONSOLE_TEMPLATES.length,
-              )}{" "}
-              of {TV_CONSOLE_TEMPLATES.length}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                disabled={page === 0}
-              >
-                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                Previous
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPage((p) =>
-                    Math.min(
-                      p + 1,
-                      Math.ceil(
-                        TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE,
-                      ) - 1,
-                    ),
-                  )
-                }
-                disabled={
-                  page >=
-                  Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE) - 1
-                }
-              >
-                Next
-                <ChevronRight className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            </div>
-          </nav>
-        </section>
-
-        <section className="min-w-0 space-y-5">
-          <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                <Ruler className="h-5 w-5" />
-              </div>
+            <div className="flex items-end justify-between gap-3">
               <div>
-                <h2 className="font-semibold">Size and layout</h2>
-                <p className="text-xs text-muted-foreground">
-                  {selected.name} · measure in millimetres, so 1800 is 1.8 m
+                <h2 id="templates-title" className="text-xl font-semibold">
+                  Choose a design direction
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Each preset is drawn to scale from its own dimensions, drawer,
+                  door and shelf counts. No stock photography is used.
                 </p>
               </div>
+              <Badge variant="outline">
+                {TV_CONSOLE_TEMPLATES.length} editable presets
+              </Badge>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {mainSizeFields.map(([label, value, setter, min, max, step]) => (
-                <div key={label} className="min-w-0 space-y-1.5">
-                  <Label htmlFor={`console-${label}`}>{label}</Label>
-                  <NumericInput
-                    id={`console-${label}`}
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={value}
-                    onValueChange={setter}
-                  />
-                </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {TV_CONSOLE_TEMPLATES.slice(
+                page * PRESETS_PER_PAGE,
+                page * PRESETS_PER_PAGE + PRESETS_PER_PAGE,
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => applyTemplate(item.id)}
+                  aria-pressed={selectedId === item.id}
+                  className={`group overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-lg ${selectedId === item.id ? "border-primary ring-2 ring-primary/20" : "border-border"}`}
+                >
+                  <div className="relative flex aspect-[2/1] items-center justify-center bg-muted/40 p-4">
+                    <ConsoleElevation
+                      layout={{
+                        widthMm: item.widthMm,
+                        heightMm: item.heightMm,
+                        thicknessMm: item.layout.thicknessMm,
+                        shelves: item.layout.shelves,
+                        dividers: item.layout.dividers,
+                        drawers: item.layout.drawers,
+                        drawerFrontHeightMm: item.layout.drawerFrontHeightMm,
+                        doors: item.layout.doors,
+                        revealMm: item.layout.revealMm,
+                      }}
+                      depthMm={item.depthMm}
+                      context={{
+                        tvInches: item.tvInches,
+                        wallTreatment: item.wallTreatment,
+                        wallPanelHeightMm: item.wallPanelHeightMm,
+                        mounting: item.mounting,
+                        ledProfileMetres: item.ledProfileMetres,
+                      }}
+                      label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
+                    />
+                    <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs backdrop-blur">
+                      Calculated elevation
+                    </span>
+                    {selectedId === item.id && (
+                      <span className="absolute left-3 top-3 rounded-full bg-primary p-1.5 text-primary-foreground">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-2 p-4">
+                    <h3 className="font-semibold">{item.name}</h3>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">
+                      {item.material} · {item.feature}
+                    </p>
+                    <p className="text-xs font-medium tabular-nums text-foreground">
+                      {item.widthMm} × {item.heightMm} × {item.depthMm} mm
+                    </p>
+                  </div>
+                </button>
               ))}
-              <p className="col-span-3 text-xs text-muted-foreground">
-                Width is the wall you are filling, height is the top surface and
-                depth is how far it comes out from the wall.
-              </p>
             </div>
 
-            <details className="mt-4 rounded-xl border bg-muted/30 p-4">
-              <summary className="cursor-pointer text-sm font-medium">
-                Build details · defaults suit most consoles
-              </summary>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Only change these if your carpenter works to different panel
-                sizes or you want a different number of bays, drawers or doors.
+            {/*
+              Pagination: twenty presets in one column of cards is a long scroll
+              past everything else on the page. Six at a time keeps the drawings
+              large enough to read the bays and drawer fronts.
+            */}
+            <nav
+              className="mt-4 flex flex-wrap items-center justify-between gap-3"
+              aria-label="Console preset pages"
+            >
+              <p className="text-xs text-muted-foreground" aria-live="polite">
+                Page {page + 1} of{" "}
+                {Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE)} ·
+                showing {page * PRESETS_PER_PAGE + 1}–
+                {Math.min(
+                  (page + 1) * PRESETS_PER_PAGE,
+                  TV_CONSOLE_TEMPLATES.length,
+                )}{" "}
+                of {TV_CONSOLE_TEMPLATES.length}
               </p>
-              <div className="mt-3 grid grid-cols-2 gap-4">
-                {buildDetailFields.map(
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                  disabled={page === 0}
+                >
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  Previous
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPage((p) =>
+                      Math.min(
+                        p + 1,
+                        Math.ceil(
+                          TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE,
+                        ) - 1,
+                      ),
+                    )
+                  }
+                  disabled={
+                    page >=
+                    Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE) -
+                      1
+                  }
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </div>
+            </nav>
+          </section>
+
+          <section className="min-w-0 space-y-5">
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                  <Ruler className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-semibold">Size and layout</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {selected.name} · measure in millimetres, so 1800 is 1.8 m
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {mainSizeFields.map(
                   ([label, value, setter, min, max, step]) => (
                     <div key={label} className="min-w-0 space-y-1.5">
                       <Label htmlFor={`console-${label}`}>{label}</Label>
@@ -676,597 +615,632 @@ export default function TvConsoleCalculator() {
                     </div>
                   ),
                 )}
+                <p className="col-span-3 text-xs text-muted-foreground">
+                  Width is the wall you are filling, height is the top surface
+                  and depth is how far it comes out from the wall.
+                </p>
               </div>
-            </details>
 
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="min-w-0 space-y-1.5">
-                <Label htmlFor="console-currency">Currency code</Label>
-                <Input
-                  id="console-currency"
-                  maxLength={3}
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-                />
-              </div>
-              <div className="col-span-2 flex items-center gap-2 rounded-lg border p-3">
-                <Checkbox
-                  id="console-back"
-                  checked={backThickness > 0}
-                  onCheckedChange={(v) => setBackThickness(v === true ? 6 : 0)}
-                />
-                <Label htmlFor="console-back" className="cursor-pointer">
-                  Back panel fitted to the rear face (its thickness is deducted
-                  from the carcass depth)
-                </Label>
-              </div>
-            </div>
+              <details className="mt-4 rounded-xl border bg-muted/30 p-4">
+                <summary className="cursor-pointer text-sm font-medium">
+                  Build details · defaults suit most consoles
+                </summary>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Only change these if your carpenter works to different panel
+                  sizes or you want a different number of bays, drawers or
+                  doors.
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-4">
+                  {buildDetailFields.map(
+                    ([label, value, setter, min, max, step]) => (
+                      <div key={label} className="min-w-0 space-y-1.5">
+                        <Label htmlFor={`console-${label}`}>{label}</Label>
+                        <NumericInput
+                          id={`console-${label}`}
+                          min={min}
+                          max={max}
+                          step={step}
+                          value={value}
+                          onValueChange={setter}
+                        />
+                      </div>
+                    ),
+                  )}
+                </div>
+              </details>
 
-            <details className="mt-4 rounded-xl border bg-muted/30 p-4">
-              <summary className="cursor-pointer text-sm font-medium">
-                Rates (optional, in {currency})
-              </summary>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Blank means unpriced. A line with no rate is listed but never
-                added as zero.
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                {rateFields.map(([label, value, setter]) => (
-                  <div key={label} className="min-w-0 space-y-1">
-                    <Label htmlFor={`rate-${label}`} className="text-xs">
-                      {label}
-                    </Label>
-                    <Input
-                      id={`rate-${label}`}
-                      type="number"
-                      min={0}
-                      step="any"
-                      placeholder="0.00"
-                      value={value}
-                      onChange={(e) => setter(e.target.value)}
-                    />
-                  </div>
-                ))}
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="min-w-0 space-y-1.5">
+                  <Label htmlFor="console-currency">Currency code</Label>
+                  <Input
+                    id="console-currency"
+                    maxLength={3}
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value.toUpperCase())}
+                  />
+                </div>
+                <div className="col-span-2 flex items-center gap-2 rounded-lg border p-3">
+                  <Checkbox
+                    id="console-back"
+                    checked={backThickness > 0}
+                    onCheckedChange={(v) =>
+                      setBackThickness(v === true ? 6 : 0)
+                    }
+                  />
+                  <Label htmlFor="console-back" className="cursor-pointer">
+                    Back panel fitted to the rear face (its thickness is
+                    deducted from the carcass depth)
+                  </Label>
+                </div>
               </div>
-            </details>
 
-            <div className="mt-5 rounded-xl bg-muted/50 p-4">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-sm font-medium">What you need to buy</h2>
-                <Badge variant="outline">Preliminary</Badge>
-              </div>
-              {result ? (
-                <>
-                  <p className="mt-3 text-sm text-foreground">
-                    A {(width / 1000).toFixed(1)} m wide unit with{" "}
-                    {layoutPhrase} needs{" "}
-                    {result.carcassSheets.sheetsWithAllowance} board
-                    {result.carcassSheets.sheetsWithAllowance === 1
-                      ? ""
-                      : "s"}{" "}
-                    of {thickness} mm
-                    {result.backSheets.sheetsWithAllowance > 0 &&
-                      ` plus ${result.backSheets.sheetsWithAllowance} backing board${result.backSheets.sheetsWithAllowance === 1 ? "" : "s"}`}
-                    , and about {result.edgeBandingMetres.toFixed(1)} m of edge
-                    banding.
-                  </p>
-                  <figure className="mt-3 overflow-hidden rounded-xl border bg-background p-3">
-                    <div className="aspect-[2/1] w-full sm:aspect-[5/2]">
-                      <ConsoleElevation
-                        layout={{
-                          widthMm: width,
-                          heightMm: height,
-                          thicknessMm: thickness,
-                          shelves,
-                          dividers,
-                          drawers,
-                          drawerFrontHeightMm: drawerFrontHeight,
-                          doors,
-                          revealMm: reveal,
-                        }}
-                        depthMm={depth}
-                        annotate
-                        context={{
-                          tvInches,
-                          wallTreatment,
-                          wallPanelHeightMm: wallPanelHeight,
-                          mounting,
-                          ledProfileMetres: ledMetres,
-                        }}
-                        label={`Front elevation of the current configuration, ${tvInches ? `with a ${tvInches} inch screen, ` : ""}${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
+              <details className="mt-4 rounded-xl border bg-muted/30 p-4">
+                <summary className="cursor-pointer text-sm font-medium">
+                  Rates (optional, in {currency})
+                </summary>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Blank means unpriced. A line with no rate is listed but never
+                  added as zero.
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {rateFields.map(([label, value, setter]) => (
+                    <div key={label} className="min-w-0 space-y-1">
+                      <Label htmlFor={`rate-${label}`} className="text-xs">
+                        {label}
+                      </Label>
+                      <Input
+                        id={`rate-${label}`}
+                        type="number"
+                        min={0}
+                        step="any"
+                        placeholder="0.00"
+                        value={value}
+                        onChange={(e) => setter(e.target.value)}
                       />
                     </div>
-                    <figcaption className="mt-2 text-xs leading-snug text-muted-foreground">
-                      Drawn to scale from the values above, using the same
-                      thicknesses as the panel schedule. Depth is captioned
-                      because an elevation cannot show it.
-                    </figcaption>
-                  </figure>
-                  <div className="mt-3 grid grid-cols-2 gap-3">
-                    <div>
-                      <div className="text-2xl font-bold tabular-nums">
-                        {result.carcassAreaM2.toFixed(3)} m²
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        board area to cut
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold tabular-nums">
-                        {result.carcassSheets.sheetsWithAllowance} +{" "}
-                        {result.backSheets.sheetsWithAllowance}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        boards + backing
-                      </div>
-                    </div>
-                    <div className="border-t pt-3">
-                      <div className="text-lg font-semibold tabular-nums">
-                        {result.edgeBandingMetres.toFixed(1)} m
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        edge banding
-                      </div>
-                    </div>
-                    <div className="border-t pt-3">
-                      <div className="text-lg font-semibold tabular-nums">
-                        {result.clearOpeningHeightMm.toFixed(0)} mm
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        clear opening height
-                      </div>
-                    </div>
-                  </div>
+                  ))}
+                </div>
+              </details>
 
-                  <p className="mt-3 rounded-lg bg-background p-3 text-xs text-muted-foreground">
-                    Board packing: {result.carcassSheets.usedAreaM2.toFixed(2)}{" "}
-                    m² of parts cut into {result.carcassSheets.physicalSheets}{" "}
-                    board{result.carcassSheets.physicalSheets === 1 ? "" : "s"}{" "}
-                    before allowance, {result.carcassSheets.sheetsWithAllowance}{" "}
-                    with your {waste}% allowance. A plain area division would
-                    have said {result.carcassSheets.areaOnlySheets}. Carcass
-                    depth is cut at {result.carcassDepthMm} mm to keep the
-                    finished {result.finishedDepthMm} mm depth.
-                  </p>
-                  {result.carcassSheets.oversizedParts.length +
-                    result.backSheets.oversizedParts.length >
-                    0 && (
-                    <p className="mt-2 break-words rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground">
-                      Oversized:{" "}
-                      {[
-                        ...result.carcassSheets.oversizedParts,
-                        ...result.backSheets.oversizedParts,
-                      ]
-                        .map((p) => `${p.part} (${p.lengthMm} mm)`)
-                        .join(", ")}{" "}
-                      exceed the {sheetL} mm board and are excluded from the
-                      sheet count. Joint them or use a longer board.
+              <div className="mt-5 rounded-xl bg-muted/50 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-sm font-medium">What you need to buy</h2>
+                  <Badge variant="outline">Preliminary</Badge>
+                </div>
+                {result ? (
+                  <>
+                    <p className="mt-3 text-sm text-foreground">
+                      A {(width / 1000).toFixed(1)} m wide unit with{" "}
+                      {layoutPhrase} needs{" "}
+                      {result.carcassSheets.sheetsWithAllowance} board
+                      {result.carcassSheets.sheetsWithAllowance === 1
+                        ? ""
+                        : "s"}{" "}
+                      of {thickness} mm
+                      {result.backSheets.sheetsWithAllowance > 0 &&
+                        ` plus ${result.backSheets.sheetsWithAllowance} backing board${result.backSheets.sheetsWithAllowance === 1 ? "" : "s"}`}
+                      , and about {result.edgeBandingMetres.toFixed(1)} m of
+                      edge banding.
                     </p>
-                  )}
-
-                  <div className="mt-4 overflow-x-auto rounded-lg border bg-background">
-                    <table className="w-full min-w-[480px] text-left text-xs">
-                      <thead className="bg-muted/60 text-muted-foreground">
-                        <tr>
-                          <th className="px-3 py-2">Panel part</th>
-                          <th className="px-3 py-2">Board</th>
-                          <th className="px-3 py-2 text-right">Qty</th>
-                          <th className="px-3 py-2 text-right">Each (mm)</th>
-                          <th className="px-3 py-2 text-right">Area (m²)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {result.panelSchedule.map((line) => (
-                          <tr key={line.part} className="border-t">
-                            <td className="px-3 py-2 font-medium">
-                              {line.part}
-                            </td>
-                            <td className="px-3 py-2 text-muted-foreground">
-                              {line.material === "back" ? "back" : "carcass"}
-                            </td>
-                            <td className="px-3 py-2 text-right tabular-nums">
-                              {line.count}
-                            </td>
-                            <td className="px-3 py-2 text-right tabular-nums">
-                              {line.widthMm.toFixed(0)} ×{" "}
-                              {line.heightMm.toFixed(0)}
-                            </td>
-                            <td className="px-3 py-2 text-right tabular-nums">
-                              {line.areaM2.toFixed(3)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="mt-4 rounded-lg border bg-background p-3">
-                    <p className="text-xs font-medium">Hardware</p>
-                    <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-4">
-                      <span>
-                        Hinges:{" "}
-                        <strong className="text-foreground">
-                          {result.hardware.hinges}
-                        </strong>
-                      </span>
-                      <span>
-                        Shelf supports:{" "}
-                        <strong className="text-foreground">
-                          {result.hardware.shelfSupports}
-                        </strong>
-                      </span>
-                      <span>
-                        Handles:{" "}
-                        <strong className="text-foreground">
-                          {result.hardware.handles}
-                        </strong>
-                      </span>
-                      <span>
-                        Slide pairs:{" "}
-                        <strong className="text-foreground">
-                          {result.hardware.drawerSlidePairs}
-                        </strong>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 overflow-x-auto rounded-lg border bg-background">
-                    <table className="w-full min-w-[440px] text-left text-xs">
-                      <thead className="bg-muted/60 text-muted-foreground">
-                        <tr>
-                          <th className="px-3 py-2">Cost line</th>
-                          <th className="px-3 py-2 text-right">Qty</th>
-                          <th className="px-3 py-2 text-right">Rate</th>
-                          <th className="px-3 py-2 text-right">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {result.costLines.map((line) => (
-                          <tr key={line.key} className="border-t">
-                            <td className="px-3 py-2">{line.label}</td>
-                            <td className="px-3 py-2 text-right tabular-nums">
-                              {line.quantity} {line.unit}
-                            </td>
-                            <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-                              {line.rate === null
-                                ? "unpriced"
-                                : money(line.rate, currency)}
-                            </td>
-                            <td className="px-3 py-2 text-right tabular-nums">
-                              {line.amount === null
-                                ? "—"
-                                : money(line.amount, currency)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="mt-3">
-                    <CalculatorResetButton
-                      onReset={resetInputs}
-                      className="mb-4"
-                    />
-                    <HowCalculatedSection
-                      methodologyText={`The console is priced as sheet material, not as a picture.
-
-Carcass: the top, bottom, two sides and back are cut from your overall width, height and depth at the board thickness you choose. Back panel thickness is counted at its own value.
-
-Shelves, dividers and drawers each add board area. Drawer fronts are cut at your drawer front height. Doors are cut to the opening with your reveal deducted between them, so a two-door unit loses one reveal, not two.
-
-The board total is raised by your waste percentage, because a 2.4 m sheet does not cut into 1.9 m panels without offcut.
-
-Wall panel area and LED metres are priced separately at the rates you enter, and a floating mount carries its own allowance. Workshop rate is charged on the board area, finishing rate on the finished surface, and tax is added last.`}
-                      assumptions={[
-                        { label: "Carcass", value: "Cut from your dimensions" },
-                        { label: "Waste", value: "Your percentage" },
-                      ]}
-                    />
-                    <ShareEstimateButton
-                      showPdf
-                      estimate={{
-                        kind: "TV Console Estimate",
-                        summaryLines: [
-                          {
-                            label: "Priced lines",
-                            value: String(
-                              result.costLines.length -
-                                result.totals.unpricedLines.length,
-                            ),
-                          },
-                          {
-                            label: "Unpriced lines",
-                            value: String(result.totals.unpricedLines.length),
-                          },
-                        ],
-                        lineItems: result.costLines.map((line) => ({
-                          description: line.label,
-                          quantity: `${line.quantity} ${line.unit}`,
-                          amount:
-                            line.amount === null
-                              ? null
-                              : money(line.amount, currency),
-                        })),
-                        totals: [
-                          {
-                            label: "Subtotal of priced lines",
-                            value:
-                              result.totals.subtotal === null
-                                ? "No rate entered"
-                                : money(result.totals.subtotal, currency),
-                          },
-                          ...(result.totals.tax !== null
-                            ? [
-                                {
-                                  label: "Tax",
-                                  value: money(result.totals.tax, currency),
-                                },
-                              ]
-                            : []),
-                          ...(result.totals.total !== null
-                            ? [
-                                {
-                                  label: "Total",
-                                  value: money(result.totals.total, currency),
-                                  emphasized: true,
-                                },
-                              ]
-                            : []),
-                        ],
-                        notes:
-                          result.totals.unpricedLines.length > 0
-                            ? [
-                                `Excluded, no rate: ${result.totals.unpricedLines.join(", ")}.`,
-                              ]
-                            : [],
-                        link: "/tv-console-calculator",
-                      }}
-                      compact
-                    />
-                  </div>
-
-                  <div className="mt-3 space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Subtotal of priced lines</span>
-                      <strong className="tabular-nums">
-                        {result.totals.subtotal === null
-                          ? "No rate entered"
-                          : money(result.totals.subtotal, currency)}
-                      </strong>
-                    </div>
-                    {result.totals.tax !== null && (
-                      <div className="flex justify-between">
-                        <span>Tax</span>
-                        <strong className="tabular-nums">
-                          {money(result.totals.tax, currency)}
-                        </strong>
+                    <figure className="mt-3 overflow-hidden rounded-xl border bg-background p-3">
+                      <div className="aspect-[2/1] w-full sm:aspect-[5/2]">
+                        <ConsoleElevation
+                          layout={{
+                            widthMm: width,
+                            heightMm: height,
+                            thicknessMm: thickness,
+                            shelves,
+                            dividers,
+                            drawers,
+                            drawerFrontHeightMm: drawerFrontHeight,
+                            doors,
+                            revealMm: reveal,
+                          }}
+                          depthMm={depth}
+                          annotate
+                          context={{
+                            tvInches,
+                            wallTreatment,
+                            wallPanelHeightMm: wallPanelHeight,
+                            mounting,
+                            ledProfileMetres: ledMetres,
+                          }}
+                          label={`Front elevation of the current configuration, ${tvInches ? `with a ${tvInches} inch screen, ` : ""}${Math.round(width)} by ${Math.round(height)} by ${Math.round(depth)} millimetres, ${dividers + 1} bays, ${drawers} drawers, ${doors} doors, ${shelves} shelves`}
+                        />
                       </div>
-                    )}
-                    {result.totals.total !== null && (
-                      <div className="flex justify-between border-t pt-1 text-base">
-                        <span className="font-semibold">Total</span>
-                        <strong className="tabular-nums">
-                          {money(result.totals.total, currency)}
-                        </strong>
+                      <figcaption className="mt-2 text-xs leading-snug text-muted-foreground">
+                        Drawn to scale from the values above, using the same
+                        thicknesses as the panel schedule. Depth is captioned
+                        because an elevation cannot show it.
+                      </figcaption>
+                    </figure>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="text-2xl font-bold tabular-nums">
+                          {result.carcassAreaM2.toFixed(3)} m²
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          board area to cut
+                        </div>
                       </div>
-                    )}
-                    {result.totals.unpricedLines.length > 0 && (
-                      <p className="text-xs text-amber-700 dark:text-amber-400">
-                        Excluded, no rate:{" "}
-                        {result.totals.unpricedLines.join(", ")}.
+                      <div>
+                        <div className="text-2xl font-bold tabular-nums">
+                          {result.carcassSheets.sheetsWithAllowance} +{" "}
+                          {result.backSheets.sheetsWithAllowance}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          boards + backing
+                        </div>
+                      </div>
+                      <div className="border-t pt-3">
+                        <div className="text-lg font-semibold tabular-nums">
+                          {result.edgeBandingMetres.toFixed(1)} m
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          edge banding
+                        </div>
+                      </div>
+                      <div className="border-t pt-3">
+                        <div className="text-lg font-semibold tabular-nums">
+                          {result.clearOpeningHeightMm.toFixed(0)} mm
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          clear opening height
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="mt-3 rounded-lg bg-background p-3 text-xs text-muted-foreground">
+                      Board packing:{" "}
+                      {result.carcassSheets.usedAreaM2.toFixed(2)} m² of parts
+                      cut into {result.carcassSheets.physicalSheets} board
+                      {result.carcassSheets.physicalSheets === 1 ? "" : "s"}{" "}
+                      before allowance,{" "}
+                      {result.carcassSheets.sheetsWithAllowance} with your{" "}
+                      {waste}% allowance. A plain area division would have said{" "}
+                      {result.carcassSheets.areaOnlySheets}. Carcass depth is
+                      cut at {result.carcassDepthMm} mm to keep the finished{" "}
+                      {result.finishedDepthMm} mm depth.
+                    </p>
+                    {result.carcassSheets.oversizedParts.length +
+                      result.backSheets.oversizedParts.length >
+                      0 && (
+                      <p className="mt-2 break-words rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-foreground">
+                        Oversized:{" "}
+                        {[
+                          ...result.carcassSheets.oversizedParts,
+                          ...result.backSheets.oversizedParts,
+                        ]
+                          .map((p) => `${p.part} (${p.lengthMm} mm)`)
+                          .join(", ")}{" "}
+                        exceed the {sheetL} mm board and are excluded from the
+                        sheet count. Joint them or use a longer board.
                       </p>
                     )}
-                  </div>
 
-                  <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-relaxed text-muted-foreground">
-                    {result.limitations.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p
-                  className="mt-3 text-sm text-destructive"
-                  data-testid="tv-console-reason"
-                >
-                  {resultError ??
-                    "Check dimensions, panel thickness, drawer and door settings, board size, allowance and currency code."}
-                </p>
-              )}
-            </div>
-          </div>
+                    <div className="mt-4 overflow-x-auto rounded-lg border bg-background">
+                      <table className="w-full min-w-[480px] text-left text-xs">
+                        <thead className="bg-muted/60 text-muted-foreground">
+                          <tr>
+                            <th className="px-3 py-2">Panel part</th>
+                            <th className="px-3 py-2">Board</th>
+                            <th className="px-3 py-2 text-right">Qty</th>
+                            <th className="px-3 py-2 text-right">Each (mm)</th>
+                            <th className="px-3 py-2 text-right">Area (m²)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {result.panelSchedule.map((line) => (
+                            <tr key={line.part} className="border-t">
+                              <td className="px-3 py-2 font-medium">
+                                {line.part}
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">
+                                {line.material === "back" ? "back" : "carcass"}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {line.count}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {line.widthMm.toFixed(0)} ×{" "}
+                                {line.heightMm.toFixed(0)}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {line.areaM2.toFixed(3)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-          <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-5">
-            <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
-                <Camera className="h-5 w-5" />
+                    <div className="mt-4 rounded-lg border bg-background p-3">
+                      <p className="text-xs font-medium">Hardware</p>
+                      <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-4">
+                        <span>
+                          Hinges:{" "}
+                          <strong className="text-foreground">
+                            {result.hardware.hinges}
+                          </strong>
+                        </span>
+                        <span>
+                          Shelf supports:{" "}
+                          <strong className="text-foreground">
+                            {result.hardware.shelfSupports}
+                          </strong>
+                        </span>
+                        <span>
+                          Handles:{" "}
+                          <strong className="text-foreground">
+                            {result.hardware.handles}
+                          </strong>
+                        </span>
+                        <span>
+                          Slide pairs:{" "}
+                          <strong className="text-foreground">
+                            {result.hardware.drawerSlidePairs}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 overflow-x-auto rounded-lg border bg-background">
+                      <table className="w-full min-w-[440px] text-left text-xs">
+                        <thead className="bg-muted/60 text-muted-foreground">
+                          <tr>
+                            <th className="px-3 py-2">Cost line</th>
+                            <th className="px-3 py-2 text-right">Qty</th>
+                            <th className="px-3 py-2 text-right">Rate</th>
+                            <th className="px-3 py-2 text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {result.costLines.map((line) => (
+                            <tr key={line.key} className="border-t">
+                              <td className="px-3 py-2">{line.label}</td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {line.quantity} {line.unit}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
+                                {line.rate === null
+                                  ? "unpriced"
+                                  : money(line.rate, currency)}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {line.amount === null
+                                  ? "—"
+                                  : money(line.amount, currency)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-3">
+                      <CalculatorResetButton
+                        onReset={resetInputs}
+                        className="mb-4"
+                      />
+                      <HowCalculatedSection
+                        methodologyText={`The console is priced as sheet material, not as a picture.
+
+  Carcass: the top, bottom, two sides and back are cut from your overall width, height and depth at the board thickness you choose. Back panel thickness is counted at its own value.
+
+  Shelves, dividers and drawers each add board area. Drawer fronts are cut at your drawer front height. Doors are cut to the opening with your reveal deducted between them, so a two-door unit loses one reveal, not two.
+
+  The board total is raised by your waste percentage, because a 2.4 m sheet does not cut into 1.9 m panels without offcut.
+
+  Wall panel area and LED metres are priced separately at the rates you enter, and a floating mount carries its own allowance. Workshop rate is charged on the board area, finishing rate on the finished surface, and tax is added last.`}
+                        assumptions={[
+                          {
+                            label: "Carcass",
+                            value: "Cut from your dimensions",
+                          },
+                          { label: "Waste", value: "Your percentage" },
+                        ]}
+                      />
+                      <ShareEstimateButton
+                        showPdf
+                        estimate={{
+                          kind: "TV Console Estimate",
+                          summaryLines: [
+                            {
+                              label: "Priced lines",
+                              value: String(
+                                result.costLines.length -
+                                  result.totals.unpricedLines.length,
+                              ),
+                            },
+                            {
+                              label: "Unpriced lines",
+                              value: String(result.totals.unpricedLines.length),
+                            },
+                          ],
+                          lineItems: result.costLines.map((line) => ({
+                            description: line.label,
+                            quantity: `${line.quantity} ${line.unit}`,
+                            amount:
+                              line.amount === null
+                                ? null
+                                : money(line.amount, currency),
+                          })),
+                          totals: [
+                            {
+                              label: "Subtotal of priced lines",
+                              value:
+                                result.totals.subtotal === null
+                                  ? "No rate entered"
+                                  : money(result.totals.subtotal, currency),
+                            },
+                            ...(result.totals.tax !== null
+                              ? [
+                                  {
+                                    label: "Tax",
+                                    value: money(result.totals.tax, currency),
+                                  },
+                                ]
+                              : []),
+                            ...(result.totals.total !== null
+                              ? [
+                                  {
+                                    label: "Total",
+                                    value: money(result.totals.total, currency),
+                                    emphasized: true,
+                                  },
+                                ]
+                              : []),
+                          ],
+                          notes:
+                            result.totals.unpricedLines.length > 0
+                              ? [
+                                  `Excluded, no rate: ${result.totals.unpricedLines.join(", ")}.`,
+                                ]
+                              : [],
+                          link: "/tv-console-calculator",
+                        }}
+                        compact
+                      />
+                    </div>
+
+                    <div className="mt-3 space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Subtotal of priced lines</span>
+                        <strong className="tabular-nums">
+                          {result.totals.subtotal === null
+                            ? "No rate entered"
+                            : money(result.totals.subtotal, currency)}
+                        </strong>
+                      </div>
+                      {result.totals.tax !== null && (
+                        <div className="flex justify-between">
+                          <span>Tax</span>
+                          <strong className="tabular-nums">
+                            {money(result.totals.tax, currency)}
+                          </strong>
+                        </div>
+                      )}
+                      {result.totals.total !== null && (
+                        <div className="flex justify-between border-t pt-1 text-base">
+                          <span className="font-semibold">Total</span>
+                          <strong className="tabular-nums">
+                            {money(result.totals.total, currency)}
+                          </strong>
+                        </div>
+                      )}
+                      {result.totals.unpricedLines.length > 0 && (
+                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                          Excluded, no rate:{" "}
+                          {result.totals.unpricedLines.join(", ")}.
+                        </p>
+                      )}
+                    </div>
+
+                    <ul className="mt-3 list-disc space-y-1 pl-5 text-xs leading-relaxed text-muted-foreground">
+                      {result.limitations.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p
+                    className="mt-3 text-sm text-destructive"
+                    data-testid="tv-console-reason"
+                  >
+                    {resultError ??
+                      "Check dimensions, panel thickness, drawer and door settings, board size, allowance and currency code."}
+                  </p>
+                )}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-semibold">
-                    Extract rough dimensions from a photo
-                  </h2>
-                  <Badge className="gap-1">
-                    <LockKeyhole className="h-3 w-3" />
-                    Pro
-                  </Badge>
+            </div>
+
+            <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                  <Camera className="h-5 w-5" />
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  AI only proposes visible geometry. A photo without a known
-                  scale cannot provide reliable dimensions; confirm every value
-                  and measure on site before use.
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold">
+                      Extract rough dimensions from a photo
+                    </h2>
+                    <Badge className="gap-1">
+                      <LockKeyhole className="h-3 w-3" />
+                      Pro
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    AI only proposes visible geometry. A photo without a known
+                    scale cannot provide reliable dimensions; confirm every
+                    value and measure on site before use.
+                  </p>
+                </div>
               </div>
-            </div>
-            <input
-              ref={inputRef}
-              className="sr-only"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => chooseImage(e.target.files?.[0])}
-            />
-            <SubscriptionGate
-              feature="tv_console_ai_design"
-              fallback={
+              <input
+                ref={inputRef}
+                className="sr-only"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => chooseImage(e.target.files?.[0])}
+              />
+              <SubscriptionGate
+                feature="tv_console_ai_design"
+                fallback={
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => inputRef.current?.click()}
+                    >
+                      <ImagePlus className="mr-2 h-4 w-4" />
+                      Choose image
+                    </Button>
+                    <Link
+                      to="/pricing/"
+                      className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
+                    >
+                      Upgrade to Pro <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </div>
+                }
+              >
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     onClick={() => inputRef.current?.click()}
                   >
                     <ImagePlus className="mr-2 h-4 w-4" />
-                    Choose image
+                    {file ? "Change image" : "Choose image"}
                   </Button>
-                  <Link
-                    to="/pricing/"
-                    className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-                  >
-                    Upgrade to Pro <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  <Button onClick={analyze} disabled={!file || extracting}>
+                    {extracting ? "Analyzing…" : "Extract rough dimensions"}
+                  </Button>
                 </div>
-              }
-            >
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => inputRef.current?.click()}
-                >
-                  <ImagePlus className="mr-2 h-4 w-4" />
-                  {file ? "Change image" : "Choose image"}
-                </Button>
-                <Button onClick={analyze} disabled={!file || extracting}>
-                  {extracting ? "Analyzing…" : "Extract rough dimensions"}
-                </Button>
-              </div>
-              {previewUrl && (
-                <img
-                  src={previewUrl}
-                  alt="Selected console reference upload"
-                  className="mt-4 max-h-52 w-full rounded-lg object-contain bg-muted"
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-              {extraction && (
-                <div className="mt-4 space-y-3 rounded-xl border bg-background p-4">
-                  <p className="text-sm font-semibold">
-                    AI proposal · {extraction.confidence} confidence
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    This is not verified measurement. Compare against a real
-                    measurement and correct values above.
-                  </p>
-                  <div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-3 sm:gap-2">
-                    <span>
-                      Width: {extraction.widthMm ?? "not estimated"} mm
-                    </span>
-                    <span>
-                      Height: {extraction.heightMm ?? "not estimated"} mm
-                    </span>
-                    <span>
-                      Depth: {extraction.depthMm ?? "not estimated"} mm
-                    </span>
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="Selected console reference upload"
+                    className="mt-4 max-h-52 w-full rounded-lg object-contain bg-muted"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+                {extraction && (
+                  <div className="mt-4 space-y-3 rounded-xl border bg-background p-4">
+                    <p className="text-sm font-semibold">
+                      AI proposal · {extraction.confidence} confidence
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      This is not verified measurement. Compare against a real
+                      measurement and correct values above.
+                    </p>
+                    <div className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-3 sm:gap-2">
+                      <span>
+                        Width: {extraction.widthMm ?? "not estimated"} mm
+                      </span>
+                      <span>
+                        Height: {extraction.heightMm ?? "not estimated"} mm
+                      </span>
+                      <span>
+                        Depth: {extraction.depthMm ?? "not estimated"} mm
+                      </span>
+                    </div>
+                    {extraction.notes?.length > 0 && (
+                      <ul className="list-disc pl-5 text-xs text-muted-foreground">
+                        {extraction.notes.map((n, i) => (
+                          <li key={i}>{n}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <Button
+                      size="sm"
+                      onClick={applyExtracted}
+                      disabled={
+                        !extraction.widthMm &&
+                        !extraction.heightMm &&
+                        !extraction.depthMm
+                      }
+                    >
+                      I reviewed these values, apply them
+                    </Button>
                   </div>
-                  {extraction.notes?.length > 0 && (
-                    <ul className="list-disc pl-5 text-xs text-muted-foreground">
-                      {extraction.notes.map((n, i) => (
-                        <li key={i}>{n}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <Button
-                    size="sm"
-                    onClick={applyExtracted}
-                    disabled={
-                      !extraction.widthMm &&
-                      !extraction.heightMm &&
-                      !extraction.depthMm
-                    }
-                  >
-                    I reviewed these values, apply them
-                  </Button>
-                </div>
-              )}
-            </SubscriptionGate>
-          </div>
+                )}
+              </SubscriptionGate>
+            </div>
 
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">
-              Not a cutting list or safety design.
-            </strong>{" "}
-            The schedule covers only the displayed rectangular panels. Board
-            packing is a planning heuristic, not a nested cutting plan, and
-            excludes grain, book-matching, kerf and offcut reuse. Validate
-            drawings, load support, material thickness, joinery and wall fixing
-            with the cabinetmaker or engineer responsible for the installation.
-          </div>
-        </section>
-      </div>
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs leading-relaxed text-muted-foreground">
+              <strong className="text-foreground">
+                Not a cutting list or safety design.
+              </strong>{" "}
+              The schedule covers only the displayed rectangular panels. Board
+              packing is a planning heuristic, not a nested cutting plan, and
+              excludes grain, book-matching, kerf and offcut reuse. Validate
+              drawings, load support, material thickness, joinery and wall
+              fixing with the cabinetmaker or engineer responsible for the
+              installation.
+            </div>
+          </section>
+        </div>
 
-      <AdSlot slotKey="calculator_mid" className="my-6" />
-      <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
-        <div className="mb-4 flex items-center gap-3 border-b border-border pb-4">
-          <BookOpen className="h-5 w-5 text-primary" />
-          <div>
-            <h2 className="font-semibold">How the takeoff works</h2>
-            <p className="text-xs text-muted-foreground">
-              Same inputs always produce the same schedule, board count and
-              totals.
+        <AdSlot slotKey="calculator_mid" className="my-6" />
+        <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-3 border-b border-border pb-4">
+            <BookOpen className="h-5 w-5 text-primary" />
+            <div>
+              <h2 className="font-semibold">How the takeoff works</h2>
+              <p className="text-xs text-muted-foreground">
+                Same inputs always produce the same schedule, board count and
+                totals.
+              </p>
+            </div>
+          </div>
+          <div className="grid gap-4 text-sm text-muted-foreground md:grid-cols-2">
+            <p>
+              <strong className="text-foreground">Panel area:</strong> quantity
+              × width × height ÷ 1,000,000. The back is a separate material, and
+              its thickness is deducted from the carcass depth so the finished
+              unit matches the entered depth.
+            </p>
+            <p>
+              <strong className="text-foreground">Assembly:</strong> top, bottom
+              and shelves span between the sides; dividers span between top and
+              bottom. Shelf width loses the divider thickness and divider height
+              loses the shelf thickness, so intersections are not counted twice.
+            </p>
+            <p>
+              <strong className="text-foreground">Board packing:</strong> each
+              part is ripped into a lane at its depth and run along the board
+              length, in order of lane width then length. Offcuts too short for
+              the next part stay waste, which is why packed counts exceed plain
+              area division on long parts.
+            </p>
+            <p>
+              <strong className="text-foreground">Cost:</strong> board, banding,
+              hardware, workshop, finishing, installation and transport are
+              separate lines priced from your rates, with tax applied to the
+              priced subtotal only. Missing rates are named, never assumed.
             </p>
           </div>
+        </section>
+        <section className="rounded-2xl border p-5">
+          <h2 className="font-semibold">About the preset drawings</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Each preset drawing is generated from that preset's own width,
+            height, board thickness, bay, shelf, drawer and door counts, so it
+            is a scaled elevation of the unit the estimator prices rather than a
+            photograph of different furniture. It is not a shop drawing: it
+            omits joinery, fixings, wall support and grain direction. Confirm
+            local material availability and all project specifications.
+          </p>
+        </section>
+        <div className="flex items-center gap-2 rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
+          Template mode is available without sign-in. Only AI image parsing
+          requires an active Pro or higher subscription.
         </div>
-        <div className="grid gap-4 text-sm text-muted-foreground md:grid-cols-2">
-          <p>
-            <strong className="text-foreground">Panel area:</strong> quantity ×
-            width × height ÷ 1,000,000. The back is a separate material, and its
-            thickness is deducted from the carcass depth so the finished unit
-            matches the entered depth.
-          </p>
-          <p>
-            <strong className="text-foreground">Assembly:</strong> top, bottom
-            and shelves span between the sides; dividers span between top and
-            bottom. Shelf width loses the divider thickness and divider height
-            loses the shelf thickness, so intersections are not counted twice.
-          </p>
-          <p>
-            <strong className="text-foreground">Board packing:</strong> each
-            part is ripped into a lane at its depth and run along the board
-            length, in order of lane width then length. Offcuts too short for
-            the next part stay waste, which is why packed counts exceed plain
-            area division on long parts.
-          </p>
-          <p>
-            <strong className="text-foreground">Cost:</strong> board, banding,
-            hardware, workshop, finishing, installation and transport are
-            separate lines priced from your rates, with tax applied to the
-            priced subtotal only. Missing rates are named, never assumed.
-          </p>
-        </div>
-      </section>
-      <section className="rounded-2xl border p-5">
-        <h2 className="font-semibold">About the preset drawings</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Each preset drawing is generated from that preset's own width, height,
-          board thickness, bay, shelf, drawer and door counts, so it is a scaled
-          elevation of the unit the estimator prices rather than a photograph of
-          different furniture. It is not a shop drawing: it omits joinery,
-          fixings, wall support and grain direction. Confirm local material
-          availability and all project specifications.
-        </p>
-      </section>
-      <div className="flex items-center gap-2 rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-        Template mode is available without sign-in. Only AI image parsing
-        requires an active Pro or higher subscription.
-      </div>
-      <FaqItemsWithSchema
-        faqs={CONSOLE_FAQS}
-        title="TV console calculator: frequently asked questions"
-      />
-      <EstimateDisclaimer />
-      <div className="mt-8">
-        <ToolFaqs slug="mathematical-plan-elevation" />
-      </div>
-      <RelatedToolsLinks />
-    </main>
+        <FaqItemsWithSchema
+          faqs={CONSOLE_FAQS}
+          title="TV console calculator: frequently asked questions"
+        />
+      </main>
+    </ToolShell>
   );
 }

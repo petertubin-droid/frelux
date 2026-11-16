@@ -31,6 +31,7 @@ vi.mock("@/lib/supabase", () => ({
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: () => undefined,
 }));
 vi.mock("@/components/ui/PageHeader", () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
