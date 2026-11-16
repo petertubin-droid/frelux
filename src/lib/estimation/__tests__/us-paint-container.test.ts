@@ -93,7 +93,8 @@ describe("US paint container", () => {
     expect(resolvePaintPackLitres("US")).toBeCloseTo(LITRES_PER_US_GALLON, 9);
     expect(resolvePaintPackLitres("PR")).toBeCloseTo(LITRES_PER_US_GALLON, 9);
     expect(resolvePaintPackLitres("NG")).toBe(20);
-    expect(resolvePaintPackLitres("GB")).toBe(20);
+    // GB sells 5 L tins, so it is no longer a 20 L bucket market.
+    expect(resolvePaintPackLitres("GB")).toBe(5);
   });
 
   it("names it the way the shelf does", () => {
