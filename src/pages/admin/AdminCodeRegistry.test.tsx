@@ -84,8 +84,12 @@ describe("AdminCodeRegistry", () => {
     renderPage();
     await screen.findByText("EN 1992-1-1", {}, { timeout: 2000 });
     fireEvent.click(screen.getByRole("button", { name: /save status/i }));
+    // The click must reach the store, and the message must appear. A loaded CI
+    // runner has taken longer than the default wait here, so the deadline is
+    // explicit rather than left at two seconds.
+    await waitFor(() => expect(storeMock.saveStatusChange).toHaveBeenCalled());
     expect(
-      await screen.findByText(/no database connection/i),
+      await screen.findByText(/no database connection/i, {}, { timeout: 5000 }),
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/Saved with a history entry/i),
