@@ -113,3 +113,53 @@ describe("Plastering & Rendering Standalone Engine", () => {
     expect(res.marketNotes).toContain("legacy 50 kg placeholder");
   });
 });
+
+describe("Plastering takeoff input guards", () => {
+  it("does not let a NaN form field poison the whole takeoff", () => {
+    // An empty numeric input parsed as NaN used to multiply through every
+    // quantity: NaN bags, NaN sand, NaN water, presented as a finished takeoff.
+    const res = calculatePlasteringTakeoff({
+      marketCode: "NG",
+      surfaceAreaM2: Number.NaN,
+      wallLengthM: 10,
+      wallHeightM: 3,
+      wallCount: 2,
+      thicknessMm: Number.NaN,
+    });
+    expect(Number.isFinite(res.cementBagsRequired)).toBe(true);
+    expect(Number.isFinite(res.waterLiters)).toBe(true);
+    expect(Number.isFinite(res.sandVolumeM3)).toBe(true);
+    expect(res.totalAreaM2).toBe(60); // falls back to the wall dimensions
+    expect(res.thicknessMm).toBe(12); // internal plaster default
+    expect(res.warnings.join(" ")).toContain("Surface area is not a number");
+    expect(res.warnings.join(" ")).toContain("Thickness is not a number");
+  });
+
+  it("says when nothing was measured instead of returning a zero takeoff", () => {
+    const res = calculatePlasteringTakeoff({ marketCode: "NG" });
+    expect(res.totalAreaM2).toBe(0);
+    expect(res.cementBagsRequired).toBe(0);
+    expect(res.warnings.join(" ")).toContain("nothing is sized");
+  });
+
+  it("sizes 100 m² of 12 mm 1:5 plaster against the published figures", () => {
+    const res = calculatePlasteringTakeoff({
+      marketCode: "NG",
+      surfaceAreaM2: 100,
+      applicationType: "internal_plaster",
+      thicknessMm: 12,
+      mixRatio: "1:5",
+      surfaceRoughness: "smooth",
+      wastePercent: 5,
+    });
+    // 100 x 0.012 = 1.2 m³ wet; x1.05 substrate allowance = 1.26 m³.
+    expect(res.wetMortarVolumeM3).toBe(1.26);
+    // x1.33 dry factor x1.05 waste = 1.76 m³; cement is one sixth = 0.293 m³
+    // at 1440 kg/m³ = 422 kg, nine 50 kg bags. Standard estimating tables put
+    // 100 m² of 12 mm 1:5 plaster at 8 to 9 bags.
+    expect(res.cementWeightKg).toBe(422.3);
+    expect(res.cementBagsRequired).toBe(9);
+    expect(res.sandVolumeM3).toBe(1.47);
+    expect(res.warnings).toHaveLength(0);
+  });
+});

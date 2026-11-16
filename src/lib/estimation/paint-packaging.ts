@@ -49,6 +49,30 @@ export const US_PAINT_PACKS: PaintPack[] = [
 /** Markets whose decorative paint is sold by the US gallon. */
 const US_GALLON_MARKETS = new Set(["US", "PR"]);
 
+/**
+ * The UK shelf. Decorative paint is sold in litre tins and the standard retail
+ * sizes are 1 L, 2.5 L and 5 L: Dulux Trade Vinyl Matt is listed in 2.5 L and
+ * 5 L, and no UK decorator buys a 20 L bucket of wall emulsion. The engine
+ * quoted one anyway, because every non-US market fell through to the global
+ * 20 litre rule.
+ */
+export const UK_PAINT_PACKS: PaintPack[] = [
+  { litres: 1, label: "1 L", noun: "tin" },
+  { litres: 2.5, label: "2.5 L", noun: "tin" },
+  { litres: 5, label: "5 L", noun: "tin" },
+];
+
+/** Markets whose paint shelf has been checked against a real listing. */
+const UK_LITRE_MARKETS = new Set(["GB"]);
+
+export function marketSellsLitreTins(marketCode?: string | null): boolean {
+  return Boolean(marketCode) && UK_LITRE_MARKETS.has(String(marketCode).toUpperCase());
+}
+
+export function hasVerifiedPaintShelf(marketCode?: string | null): boolean {
+  return marketSellsPaintByGallon(marketCode) || marketSellsLitreTins(marketCode);
+}
+
 export function marketSellsPaintByGallon(marketCode?: string | null): boolean {
   return (
     Boolean(marketCode) &&
@@ -58,9 +82,9 @@ export function marketSellsPaintByGallon(marketCode?: string | null): boolean {
 
 /** The container ladder for a market, largest last. Display and matching only. */
 export function resolvePaintPacks(marketCode?: string | null): PaintPack[] {
-  return marketSellsPaintByGallon(marketCode)
-    ? US_PAINT_PACKS
-    : METRIC_PAINT_PACKS;
+  if (marketSellsPaintByGallon(marketCode)) return US_PAINT_PACKS;
+  if (marketSellsLitreTins(marketCode)) return UK_PAINT_PACKS;
+  return METRIC_PAINT_PACKS;
 }
 
 /**
@@ -76,6 +100,7 @@ export function resolvePaintPacks(marketCode?: string | null): PaintPack[] {
  */
 export function resolvePaintPackLitres(marketCode?: string | null): number {
   if (marketSellsPaintByGallon(marketCode)) return LITRES_PER_US_GALLON;
+  if (marketSellsLitreTins(marketCode)) return 5;
   return 20;
 }
 

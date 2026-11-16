@@ -61,6 +61,8 @@ export interface PlasteringCalculationResult {
   };
   marketNotes: string;
   packagingEvidence: ReturnType<typeof getPackagingEvidence>;
+  /** What could not be sized, and why. Empty when the takeoff is complete. */
+  warnings: string[];
 }
 
 /**
@@ -104,6 +106,21 @@ export function calculatePlasteringTakeoff(
   input: PlasteringCalculationInput,
 ): PlasteringCalculationResult {
   const market = (input.marketCode || "UNSPECIFIED").toUpperCase();
+  const warnings: string[] = [];
+  /**
+   * A number read from a form field can arrive as NaN (an empty input parsed as
+   * a number). Multiplying by it turned the whole takeoff into NaN bags and NaN
+   * water while the result still read like a finished takeoff, so anything not
+   * finite is treated as not entered and named.
+   */
+  const finiteOr = (label: string, value: number | undefined, fallback: number): number => {
+    if (value === undefined) return fallback;
+    if (!Number.isFinite(value)) {
+      warnings.push(`${label} is not a number (${value}), so it was not used.`);
+      return fallback;
+    }
+    return value;
+  };
   const configuredBagWeight = CEMENT_BAG_WEIGHT_BY_MARKET[market];
   // Preserve the legacy calculation output, but never present an unknown-market
   // 50 kg fallback as a verified local package format.
@@ -122,21 +139,36 @@ export function calculatePlasteringTakeoff(
 
   // Compute surface area
   let areaM2 = 0;
-  if (input.surfaceAreaM2 && input.surfaceAreaM2 > 0) {
-    areaM2 = input.surfaceAreaM2;
+  const surfaceArea = finiteOr("Surface area", input.surfaceAreaM2, 0);
+  if (surfaceArea > 0) {
+    areaM2 = surfaceArea;
   } else {
-    const l = Math.max(0, input.wallLengthM ?? 0);
-    const h = Math.max(0, input.wallHeightM ?? 0);
-    const count = Math.max(1, input.wallCount ?? 1);
+    const l = Math.max(0, finiteOr("Wall length", input.wallLengthM, 0));
+    const h = Math.max(0, finiteOr("Wall height", input.wallHeightM, 0));
+    const count = Math.max(1, finiteOr("Wall count", input.wallCount, 1));
     areaM2 = l * h * count;
+  }
+  if (!(areaM2 > 0)) {
+    // A takeoff of nothing is not a finished takeoff: it used to return zeros
+    // for every material without saying that no measurement had been entered.
+    warnings.push(
+      "No surface area and no wall dimensions were entered, so nothing is sized.",
+    );
   }
 
   const appType: PlasterApplicationType =
     input.applicationType || "internal_plaster";
-  const coats = input.coats ?? (appType === "external_render" ? 2 : 1);
-  const thicknessMm = input.thicknessMm ?? DEFAULT_THICKNESS_MM[appType];
+  const coats = Math.max(
+    1,
+    finiteOr("Coats", input.coats, appType === "external_render" ? 2 : 1),
+  );
+  const thicknessMm = Math.max(
+    0,
+    finiteOr("Thickness", input.thicknessMm, DEFAULT_THICKNESS_MM[appType]),
+  );
+  if (!(thicknessMm > 0)) warnings.push("Thickness is zero, so no mortar is sized.");
   const mixRatio = input.mixRatio ?? DEFAULT_MIX_RATIO[appType];
-  const wastePercent = Math.max(0, input.wastePercent ?? 5);
+  const wastePercent = Math.max(0, finiteOr("Waste percent", input.wastePercent, 5));
 
   // Roughness factor on substrate filling: smooth = 5%, medium = 12%, rough = 20%
   const roughnessAllowance =
@@ -210,5 +242,6 @@ export function calculatePlasteringTakeoff(
       (roughnessAllowance * 100).toFixed(2),
     )} percent substrate roughness allowance, which is already inside the wet volume, and a ${wastePercent} percent waste allowance on the dry batch. Dry batch factor 1.33 is an estimate, not a local code requirement.`,
     packagingEvidence,
+    warnings,
   };
 }

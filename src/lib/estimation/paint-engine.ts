@@ -29,7 +29,7 @@ import type {
   OpeningInput,
 } from "@/types/estimation";
 import {
-  marketSellsPaintByGallon,
+  hasVerifiedPaintShelf,
   resolvePaintPackLitres,
 } from "./paint-packaging";
 import type { Unit } from "@/types";
@@ -238,9 +238,12 @@ export function calculateTheoreticalLitres(
   coats: number,
   coverageM2PerLiter: number,
 ): number {
-  if (coverageM2PerLiter <= 0) return 0;
+  // A NaN coverage passed the old `<= 0` test and turned the whole room into
+  // NaN litres, which then reached the price line as a NaN cost.
+  if (!Number.isFinite(coverageM2PerLiter) || coverageM2PerLiter <= 0) return 0;
+  if (!Number.isFinite(areaM2)) return 0;
   const safeArea = Math.max(0, areaM2);
-  const safeCoats = Math.max(1, coats);
+  const safeCoats = Number.isFinite(coats) ? Math.max(1, coats) : 1;
   return Math.round(((safeArea * safeCoats) / coverageM2PerLiter) * 100) / 100;
 }
 
@@ -370,7 +373,10 @@ export function calculateCeilingArea(lengthM: number, widthM: number): number {
 
 export function calculateOpeningArea(
   openings: OpeningInput[],
-  unit: Unit = "feet",
+  // No default: a metre width read as feet understates a door opening by
+  // 10.76 and every caller was passing the room unit anyway. Making it
+  // explicit means a future caller cannot be silently misread.
+  unit: Unit,
 ): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
@@ -458,7 +464,10 @@ export function getPackSizeLitres(
   // The bucket rule is a single global row written as 20 litres, which is a
   // Nigerian shelf fact. In a market that sells gallons it must not win, or a
   // US customer is quoted a container that does not exist there.
-  if (marketSellsPaintByGallon(marketCode))
+  // A market whose shelf has been checked beats the global rule: the rule is a
+  // single row written as 20 litres, which is a Nigerian bucket and not a UK
+  // tin. The rule still applies where no shelf has been verified.
+  if (hasVerifiedPaintShelf(marketCode))
     return resolvePaintPackLitres(marketCode);
   if (packSizeRule?.rule_value) {
     const litres = (packSizeRule.rule_value as Record<string, unknown>).litres;
@@ -617,10 +626,14 @@ export function getCeilingCoverageRate(
 export function roundUpToBuckets(
   litres: number,
   packSizeLitres: number,
-  _roundingRule: string,
 ): number {
-  if (packSizeLitres <= 0) return 0;
-  // Retail cans/buckets must never round below the theoretical requirement.
+  // Retail cans and buckets are bought whole and can never be bought below the
+  // theoretical requirement, so this always rounds up. A stored "rounding rule"
+  // used to be read from configuration, passed in here and ignored, which made
+  // an admin setting that changed nothing; it is no longer accepted as an
+  // argument rather than silently discarded.
+  if (!Number.isFinite(packSizeLitres) || packSizeLitres <= 0) return 0;
+  if (!Number.isFinite(litres)) return 0;
   return Math.ceil(Math.max(0, litres) / packSizeLitres);
 }
 
@@ -1108,14 +1121,12 @@ export function calculateRoom(
   }
 
   // ── STEP 15: Practical Purchase Quantity ──
-  const roundingRule = getRoundingRule(config.roundingRule);
   const practicalWallBuckets = roundUpToBuckets(
     theoreticalWallLitres,
     packSizeLitres,
-    roundingRule,
   );
   const practicalCeilingBuckets = ceilingCoverageM2PerL
-    ? roundUpToBuckets(theoreticalCeilingLitres, packSizeLitres, roundingRule)
+    ? roundUpToBuckets(theoreticalCeilingLitres, packSizeLitres)
     : room.include_ceiling
       ? Math.ceil(theoreticalCeilingBuckets)
       : 0;
@@ -1130,7 +1141,7 @@ export function calculateRoom(
   steps.push({
     label: "Practical Purchase Quantity",
     value: `${practicalTotalBuckets} bucket(s) (${practicalTotalLitres.toFixed(2)} L)`,
-    detail: `Theoretical ${theoreticalTotalBuckets.toFixed(4)} → rounded up to ${practicalTotalBuckets} × ${packSizeLitres}-L buckets (${roundingRule} rule).`,
+    detail: `Theoretical ${theoreticalTotalBuckets.toFixed(4)} → rounded up to ${practicalTotalBuckets} × ${packSizeLitres}-L containers. Paint is bought whole and never rounded down.`,
   });
 
   if (leftoverLitres > 0) {
@@ -1182,7 +1193,7 @@ export function calculateRoom(
         : 0;
     primerBuckets =
       primerLitres > 0
-        ? roundUpToBuckets(primerLitres, packSizeLitres, roundingRule)
+        ? roundUpToBuckets(primerLitres, packSizeLitres)
         : 0;
     const primerUnitPrice = config.primer_price?.price ?? 0;
     primerCost = primerUnitPrice > 0 ? primerUnitPrice * primerBuckets : 0;

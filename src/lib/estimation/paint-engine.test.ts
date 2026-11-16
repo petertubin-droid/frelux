@@ -15,6 +15,8 @@ import {
   getCeilingCoverageRate,
   isPriceConfigured,
   roundUpToBuckets,
+  calculateTheoreticalLitres,
+  calculateOpeningArea,
 } from "@/lib/estimation/paint-engine";
 import type { EstimationCalcRule, EstimationProduct } from "@/types/estimation";
 import { calculateLineTotal } from "@/lib/estimation/pricing";
@@ -117,10 +119,10 @@ describe("paint-engine, getRoundingRule", () => {
 
 describe("paint-engine retail container rounding", () => {
   it("rounds every positive paint requirement up despite legacy floor or round settings", () => {
-    expect(roundUpToBuckets(10.1, 10, "floor")).toBe(2);
-    expect(roundUpToBuckets(14.9, 10, "round")).toBe(2);
-    expect(roundUpToBuckets(20, 10, "floor")).toBe(2);
-    expect(roundUpToBuckets(-1, 10, "ceil")).toBe(0);
+    expect(roundUpToBuckets(10.1, 10)).toBe(2);
+    expect(roundUpToBuckets(14.9, 10)).toBe(2);
+    expect(roundUpToBuckets(20, 10)).toBe(2);
+    expect(roundUpToBuckets(-1, 10)).toBe(0);
   });
 });
 
@@ -328,5 +330,32 @@ describe("surface adjustment wording", () => {
 
   it("says nothing when there is no adjustment", () => {
     expect(describeSurfaceAdjustment(1)).toBe("No coverage adjustment.");
+  });
+});
+
+// ─────────────────────────────────────────────
+// Purchase guards
+// ─────────────────────────────────────────────
+
+describe("paint-engine, purchase guards", () => {
+  it("never returns a NaN or infinite container count", () => {
+    expect(roundUpToBuckets(Number.NaN, 20)).toBe(0);
+    expect(roundUpToBuckets(Infinity, 20)).toBe(0);
+    expect(roundUpToBuckets(-5, 20)).toBe(0);
+    expect(roundUpToBuckets(7.56, 20)).toBe(1);
+  });
+
+  it("refuses a NaN coverage instead of returning NaN litres", () => {
+    expect(calculateTheoreticalLitres(37.8, 2, Number.NaN)).toBe(0);
+    expect(calculateTheoreticalLitres(Number.NaN, 2, 10)).toBe(0);
+    expect(calculateTheoreticalLitres(37.8, 2, 10)).toBe(7.56);
+  });
+
+  it("reads an opening in the room's unit, with no default", () => {
+    const door = [{ width: 0.9, height: 2.1, quantity: 1 }] as never;
+    // 0.9 x 2.1 m = 1.89 m². Read as feet it was 0.18 m², a tenth of the
+    // deduction, which left the wall area overstated by 1.71 m² per door.
+    expect(calculateOpeningArea(door, "meters")).toBe(1.89);
+    expect(calculateOpeningArea(door, "feet")).toBeCloseTo(0.18, 2);
   });
 });

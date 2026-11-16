@@ -39,7 +39,7 @@ import type {
   PaintEngineRoomInput,
   PaintEngineRoomResult,
 } from "./paint-engine";
-import { getRoundingRule, roundUpToBuckets } from "./paint-engine";
+import { roundUpToBuckets } from "./paint-engine";
 
 // =========================================================
 // Unit conversion helpers
@@ -318,7 +318,6 @@ export function aggregateEngineRooms(
   }
 
   const packSize = roomResults[0].pack_size_litres;
-  const rule = getRoundingRule(roundingRule);
 
   const sum = (f: (r: PaintEngineRoomResult) => number) =>
     roomResults.reduce((s, r) => s + f(r), 0);
@@ -328,13 +327,9 @@ export function aggregateEngineRooms(
   const theoreticalTotal = theoreticalWall + theoreticalCeiling;
 
   // Purchase rounding happens ONCE, on project totals.
-  const practicalWallBuckets = roundUpToBuckets(
-    theoreticalWall,
-    packSize,
-    rule,
-  );
+  const practicalWallBuckets = roundUpToBuckets(theoreticalWall, packSize);
   const practicalCeilingBuckets = roomResults.some((r) => r.ceiling_area_m2 > 0)
-    ? roundUpToBuckets(theoreticalCeiling, packSize, rule)
+    ? roundUpToBuckets(theoreticalCeiling, packSize)
     : 0;
   const practicalTotalBuckets = practicalWallBuckets + practicalCeilingBuckets;
   const practicalTotalLitres = practicalTotalBuckets * packSize;
@@ -344,7 +339,7 @@ export function aggregateEngineRooms(
 
   // Primer: aggregate litres, round buckets once, price at the same unit price.
   const primerLitres = sum((r) => r.primer_litres);
-  const primerBuckets = roundUpToBuckets(primerLitres, packSize, rule);
+  const primerBuckets = roundUpToBuckets(primerLitres, packSize);
   const primerUnitPrice =
     roomResults.find((r) => r.primer_buckets > 0 && r.primer_cost > 0) ?? null;
   const primerPricePerBucket = primerUnitPrice

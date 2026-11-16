@@ -25,7 +25,8 @@ const bucketRule: EstimationCalcRule = {
 
 describe("paint packaging by market", () => {
   it("buys metric markets in 20 L buckets", () => {
-    for (const market of ["NG", "GB", "CA", "AU", "ZA", null, undefined]) {
+    // GB is no longer in this list: its shelf is litre tins of 5 L.
+    for (const market of ["NG", "CA", "AU", "ZA", null, undefined]) {
       expect(marketSellsPaintByGallon(market)).toBe(false);
       expect(resolvePaintPackLitres(market)).toBe(20);
     }
@@ -64,7 +65,8 @@ describe("paint packaging by market", () => {
 describe("engine pack size resolution", () => {
   it("keeps the 20 L rule for metric markets", () => {
     expect(getPackSizeLitres(null, bucketRule, "NG")).toBe(20);
-    expect(getPackSizeLitres(null, null, "GB")).toBe(20);
+    // GB sells 5 L tins, so the global rule does not reach it.
+    expect(getPackSizeLitres(null, null, "GB")).toBe(5);
   });
 
   it("refuses to quote a 20 L bucket in a gallon market", () => {
@@ -87,5 +89,48 @@ describe("engine pack size resolution", () => {
   it("does not change behaviour when no market is supplied", () => {
     expect(getPackSizeLitres(null, bucketRule)).toBe(20);
     expect(getPackSizeLitres(null, null)).toBe(20);
+  });
+});
+
+describe("paint packaging, UK shelf", () => {
+  it("sells a UK customer litre tins, not a 20 litre bucket", () => {
+    // Dulux Trade Vinyl Matt is listed in 2.5 L and 5 L; a 20 L bucket of wall
+    // emulsion is not a UK shelf product, and every non-US market used to be
+    // quoted one.
+    expect(resolvePaintPackLitres("GB")).toBe(5);
+    expect(resolvePaintPacks("GB").map((p) => p.label)).toEqual([
+      "1 L",
+      "2.5 L",
+      "5 L",
+    ]);
+    expect(paintPackLabel(5, "GB")).toBe("5 L");
+    expect(paintPackNoun(5, "GB")).toBe("tin");
+  });
+
+  it("leaves metric and US markets as they were", () => {
+    expect(resolvePaintPackLitres("NG")).toBe(20);
+    expect(resolvePaintPackLitres("US")).toBeCloseTo(3.785411784, 9);
+    expect(resolvePaintPacks("NG").map((p) => p.label)).toEqual([
+      "1 L",
+      "4 L",
+      "20 L",
+    ]);
+  });
+
+  it("lets a verified shelf beat the global 20 litre rule", () => {
+    // The bucket rule is one global row written as 20 litres.
+    const globalRule = {
+      id: "r1",
+      rule_key: "pack_size_bucket_litres",
+      calculator_type: "paint",
+      rule_value: { litres: 20 },
+      rule_status: "verified_frelux",
+      description: null,
+      is_active: true,
+      created_at: "2026-01-01",
+      updated_at: "2026-01-01",
+    } as never;
+    expect(getPackSizeLitres(null, globalRule, "GB")).toBe(5);
+    expect(getPackSizeLitres(null, globalRule, "NG")).toBe(20);
   });
 });
