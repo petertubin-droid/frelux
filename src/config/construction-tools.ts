@@ -193,6 +193,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "The floor size or plot, the hardcore depth, the slab thickness and the concrete mix.",
     gets: "Bags of cement, sharp sand and granite in cubic metres and tipper trips, the hardcore and blinding volumes, and the membrane area.",
+    heading: "German Floor Calculator",
+    lede: "Hardcore, blinding, membrane and slab concrete for a ground floor. Quantities only, worked out from the layer thicknesses you set.",
+    eyebrow: "Concrete",
     to: "/german-floor-calculator",
     benefit: "Cement · Granite · Hardcore",
     seoTitle:
@@ -210,6 +213,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "The plot or site size, how many coaches high the wall is, and whether you are building with a 9 inch or 6 inch block.",
     gets: "Blocks with a breakage allowance, 50 kg bags of cement, and sharp sand in cubic metres, tipper trips, barrows and head pans.",
+    heading: "Fence and Coach Block Calculator",
+    lede: "Enter the plot size, how many coaches high the wall is and the block you are using. Every quantity is calculated from the wall geometry and stated with its assumptions.",
+    eyebrow: "Blockwork",
     to: "/fence-block-calculator",
     benefit: "Coaches · Trips · Blocks",
     seoTitle:
@@ -287,6 +293,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Room or wall dimensions, doors and windows, paint type, coats and surface condition.",
     gets: "Exact buckets to buy (walls and ceiling separately), material cost and a shareable estimate.",
+    heading: "Painting Calculator",
+    lede: "Calculate paint buckets, painting requirements, and estimated costs, all in one place.",
+    eyebrow: "Calculator",
+    seoTitle: "Painting Calculator: Buckets, Coats and Cost | FRELUX",
+    seoDescription:
+      "Work out paint buckets, coats, primer and cost from your measured wall and ceiling areas, with coverage and wastage stated for each coat.",
     to: "/paint-calculator",
     benefit: "Buckets · Cost · Project estimate",
     featured: true,
@@ -413,6 +425,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Calculate waterproofing membranes and coatings for roofs, bathrooms and tanks.",
     enters: "Area to waterproof and the waterproofing system.",
     gets: "Membrane rolls, coating litres and total cost.",
+    heading: "Waterproofing Estimator",
+    lede: "Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design.",
+    eyebrow: "Waterproofing",
+    seoTitle: "Waterproofing Estimator: DPC, DPM, Membrane and Tape | FRELUX",
+    seoDescription:
+      "Size DPC, DPM, liquid coating, membrane and tape from your measured run, wet areas and terrace, with coats, coverage and overlap stated.",
     to: "/waterproofing",
     navVisible: false,
   },

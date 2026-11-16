@@ -17,6 +17,7 @@ import { EstimateDisclaimer } from "@/components/calculators";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 const PaintCalculator = lazy(() => import("@/pages/PaintCalculator"));
 const CostEstimator = lazy(() => import("@/pages/CostEstimator"));
@@ -110,65 +111,6 @@ export default function PaintingCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const seoOfferCurrency = useSeoOfferCurrency();
-  useSeo({
-    title: "Painting Calculator, Paint Quantity, Cost & Room Estimate",
-    description:
-      "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with verified material prices.",
-    canonicalPath: "/paint-calculator",
-    ogType: "website",
-    keywords:
-      "paint calculator, painting estimator, paint cost estimator, paint quantity, how much paint do I need, painting cost",
-    structuredDataArray: [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        name: "FRELUX Painting Calculator",
-        description:
-          "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with verified material prices.",
-        url: `${SITE_URL}/paint-calculator`,
-        applicationCategory: "CalculatorApplication",
-        operatingSystem: "Web",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: seoOfferCurrency,
-        },
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: SITE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Calculators",
-            item: `${SITE_URL}/calculators`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: "Painting Calculator",
-            item: `${SITE_URL}/paint-calculator`,
-          },
-        ],
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: FAQS.map((f) => ({
-          "@type": "Question",
-          name: f.question,
-          acceptedAnswer: { "@type": "Answer", text: f.answer },
-        })),
-      },
-    ],
-  });
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -177,116 +119,111 @@ export default function PaintingCalculatorHub() {
   };
 
   return (
-    <>
-      <PageHeader
-        variant="tool"
-        image="https://images.pexels.com/photos/34264478/pexels-photo-34264478.jpeg?auto=compress&cs=tinysrgb&w=1600"
-        eyebrow="Calculator"
-        title={t("Painting Calculator")}
-        subtitle="Calculate paint buckets, painting requirements, and estimated costs, all in one place."
-        breadcrumbs={[
-          { label: "Calculators", path: "/calculators" },
-          { label: "Painting Calculator" },
-        ]}
-      />
-      <WorkWeatherBanner workType="painting" />
-      <CalculatorTabs
-        tabs={TABS}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        ariaLabel="Painting calculator mode"
-      />
-
-      <div
-        id={`panel-${activeTab}`}
-        role="tabpanel"
-        aria-labelledby={`tab-${activeTab}`}
-        className="pt-2"
-      >
-        <Suspense
-          fallback={
-            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
-              Loading…
-            </div>
-          }
-        >
-          {activeTab === "quantity" && <PaintCalculator embedded />}
-          {activeTab === "cost" && <CostEstimator embedded />}
-          {activeTab === "room-estimate" && <PaintingEstimator embedded />}
-        </Suspense>
-      </div>
-
-      {/* SEO Content */}
-      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <div className="prose prose-neutral max-w-none break-words prose-p:max-w-[68ch] prose-p:leading-[1.75] prose-li:leading-[1.75] prose-headings:text-balance dark:prose-invert">
-          <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {t("About the FRELUX Painting Calculator")}
-          </h2>
-          <p className="text-muted-foreground dark:text-muted-foreground/80">
-            The FRELUX Painting Calculator is a comprehensive tool for anyone
-            planning a painting project. It consolidates three essential
-            painting calculations into one unified experience:
-          </p>
-          <ul>
-            <li>
-              <strong>{t("Paint Quantity")}</strong>, Calculate exactly how many
-              paint buckets you need based on wall area, doors, windows, and
-              coats.
-            </li>
-            <li>
-              <strong>{t("Cost Estimate")}</strong>, Get a full paint material
-              cost breakdown using admin-configured material prices for paint
-              buckets, primer, and materials.
-            </li>
-            <li>
-              <strong>{t("Room Estimate")}</strong>, A detailed room-by-room
-              painting estimator using the FRELUX Phase 2 engine with production
-              rules, surface conditions, and colour conditions.
-            </li>
-          </ul>
-          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            {t("FRELUX Painting Methodology")}
-          </h3>
-          <p className="text-muted-foreground dark:text-muted-foreground/80">
-            FRELUX uses a proprietary calculation methodology that accounts for
-            wall surface conditions, colour conditions, paint type coverage
-            rates, and waste factors specific to real construction environments.
-            The engine applies admin-configured production rules, coverage
-            rates, and material packaging sizes to produce results expressed in
-            paint buckets, not generic m²-per-litre estimates.
-          </p>
-          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            {t("Construction Context")}
-          </h3>
-          <p className="text-muted-foreground dark:text-muted-foreground/80">
-            All calculations are tuned for real market conditions with local
-            product prices, standard room dimensions, and materials commonly
-            available from building material suppliers.
-          </p>
-        </div>
-
-        <FaqItemsWithSchema faqs={displayFaqs} />
-        <div className="mt-8">
-          <ToolFaqs slug="paint-calculator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.screedingCalc,
-            CALC_LINKS.popCeilingCalc,
-            CALC_LINKS.tileCalc,
-            CALC_LINKS.finishEstimator,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.aiColor,
-          ]}
+    <ToolShell
+      route="/paint-calculator"
+      image="https://images.pexels.com/photos/34264478/pexels-photo-34264478.jpeg?auto=compress&cs=tinysrgb&w=1600"
+    >
+      <>
+        <WorkWeatherBanner workType="painting" />
+        <CalculatorTabs
+          tabs={TABS}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          ariaLabel="Painting calculator mode"
         />
-        <RelatedToolsLinks />
 
-        {/* Ad slot, placement "calculator_hub_mid" */}
-        <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
-        {/* Native banner slot, placement "calculator_hub_native" */}
-        <AdSlot slotKey="calculator_hub_native" className="mt-8" />
-        <EstimateDisclaimer />
-      </section>
-    </>
+        <div
+          id={`panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${activeTab}`}
+          className="pt-2"
+        >
+          <Suspense
+            fallback={
+              <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
+                Loading…
+              </div>
+            }
+          >
+            {activeTab === "quantity" && <PaintCalculator embedded />}
+            {activeTab === "cost" && <CostEstimator embedded />}
+            {activeTab === "room-estimate" && <PaintingEstimator embedded />}
+          </Suspense>
+        </div>
+
+        {/* SEO Content */}
+        <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+          <div className="prose prose-neutral max-w-none break-words prose-p:max-w-[68ch] prose-p:leading-[1.75] prose-li:leading-[1.75] prose-headings:text-balance dark:prose-invert">
+            <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {t("About the FRELUX Painting Calculator")}
+            </h2>
+            <p className="text-muted-foreground dark:text-muted-foreground/80">
+              The FRELUX Painting Calculator is a comprehensive tool for anyone
+              planning a painting project. It consolidates three essential
+              painting calculations into one unified experience:
+            </p>
+            <ul>
+              <li>
+                <strong>{t("Paint Quantity")}</strong>, Calculate exactly how
+                many paint buckets you need based on wall area, doors, windows,
+                and coats.
+              </li>
+              <li>
+                <strong>{t("Cost Estimate")}</strong>, Get a full paint material
+                cost breakdown using admin-configured material prices for paint
+                buckets, primer, and materials.
+              </li>
+              <li>
+                <strong>{t("Room Estimate")}</strong>, A detailed room-by-room
+                painting estimator using the FRELUX Phase 2 engine with
+                production rules, surface conditions, and colour conditions.
+              </li>
+            </ul>
+            <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
+              {t("FRELUX Painting Methodology")}
+            </h3>
+            <p className="text-muted-foreground dark:text-muted-foreground/80">
+              FRELUX uses a proprietary calculation methodology that accounts
+              for wall surface conditions, colour conditions, paint type
+              coverage rates, and waste factors specific to real construction
+              environments. The engine applies admin-configured production
+              rules, coverage rates, and material packaging sizes to produce
+              results expressed in paint buckets, not generic m²-per-litre
+              estimates.
+            </p>
+            <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
+              {t("Construction Context")}
+            </h3>
+            <p className="text-muted-foreground dark:text-muted-foreground/80">
+              All calculations are tuned for real market conditions with local
+              product prices, standard room dimensions, and materials commonly
+              available from building material suppliers.
+            </p>
+          </div>
+
+          <FaqItemsWithSchema faqs={displayFaqs} />
+          <div className="mt-8">
+            <ToolFaqs slug="paint-calculator" />
+          </div>
+          <RelatedTools
+            links={[
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.popCeilingCalc,
+              CALC_LINKS.tileCalc,
+              CALC_LINKS.finishEstimator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.aiColor,
+            ]}
+          />
+          <RelatedToolsLinks />
+
+          {/* Ad slot, placement "calculator_hub_mid" */}
+          <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
+          {/* Native banner slot, placement "calculator_hub_native" */}
+          <AdSlot slotKey="calculator_hub_native" className="mt-8" />
+          <EstimateDisclaimer />
+        </section>
+      </>{" "}
+    </ToolShell>
   );
 }

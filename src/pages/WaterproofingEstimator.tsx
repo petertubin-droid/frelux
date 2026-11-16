@@ -62,6 +62,7 @@ import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useAreaUnit } from "@/lib/use-area-unit";
 import { useLengthUnit } from "@/lib/use-length-unit";
+import ToolShell from "@/components/tools/ToolShell";
 
 type AreaField =
   | "dpc_run_m"
@@ -151,12 +152,6 @@ export default function WaterproofingEstimator() {
   const [result, setResult] = useState<WaterproofingResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useSeo({
-    title: "Waterproofing Estimator: DPC, DPM, Coating & Membrane | FRELUX",
-    description:
-      "Deterministic waterproofing material estimation: enter your measured DPC run, DPM area, wet-area surfaces and terrace area and get DPC, DPM, coating, membrane and tape quantities with coats, coverage and waste shown in the breakdown. Estimation only: not waterproofing design.",
-  });
 
   const [priceMap, setPriceMap] = useState<WaterproofingPriceMap>({});
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
@@ -404,367 +399,366 @@ export default function WaterproofingEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
-    <Container>
-      <MarketScopeNotice />
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Waterproofing Estimator" },
-        ]}
-        title={t("Waterproofing Estimator")}
-        methodologyLink={Boolean(result)}
-        subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
-      />
+    <ToolShell route="/waterproofing" methodologyLink={Boolean(result)}>
+      <Container>
+        <MarketScopeNotice />
 
-      {/* Inputs */}
-      <div
-        ref={fieldsRef}
-        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-      >
-        <div className="mb-4">
-          <MeasurementTip what="measured areas, run lengths and units" />
-        </div>
-        <h3 className="mb-1 font-semibold">{t("Measured areas and runs")}</h3>
-        <p className="mb-2 text-xs text-muted-foreground">
-          The engine never assumes surfaces. Enter your measured DPC run, DPM
-          area, wet-area surfaces and terrace area. Leave a field blank when it
-          needs a decision (the estimate is marked incomplete) and enter 0 only
-          when the surface truly doesn't exist.
-        </p>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground">
-            Runs in {lengthLabel}, surfaces in {areaLabel} by default
-          </span>
-          <div className="flex flex-wrap gap-2">
-            <UnitToggle value={lengthUnit} onChange={setLengthUnit} />
-            <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {(Object.keys(FIELD_LABELS) as AreaField[]).map((k) =>
-            numberInput(
-              `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "length" ? lengthLabel : areaLabel})`,
-              areas[k],
-              (v) => setAreas((a) => ({ ...a, [k]: v })),
-            ),
-          )}
-        </div>
-
-        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
-            <select
-              value={labourMode}
-              onChange={(e) =>
-                setLabourMode(e.target.value as typeof labourMode)
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
-            >
-              <option value="none">{t("Not included")}</option>
-              <option value="per_m2">Per m² treated (rate)</option>
-              <option value="lump_sum">{t("Lump sum")}</option>
-            </select>
-          </label>
-          {labourMode !== "none" &&
-            numberInput(
-              labourMode === "per_m2"
-                ? `Rate per m² (${currencySymbol})`
-                : `Lump sum (${currencySymbol})`,
-              labourRate,
-              setLabourRate,
-            )}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Labour is always separate from material quantities and is never added
-          automatically.
-        </p>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("Calculate estimate")}
-          </button>
-          {result?.ok && (
-            <>
-              <button
-                onClick={save}
-                disabled={saving || result.lines.length === 0}
-                className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save estimate"}
-              </button>
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-              <HowCalculatedSection
-                methodologyText={methodologyText("waterproofing")}
-              />
-              <QuoteShareButton
-                build={buildQuote}
-                kind="Waterproofing Estimate"
-                link="/waterproofing"
-              />
-              <button
-                onClick={exportQuote}
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
-                {t("Export quote (PDF)")}
-              </button>
-              <SaveToProjectButton
-                calculatorType="waterproofing"
-                calculatorSlug="waterproofing-estimator"
-                calcTitle="Waterproofing estimate"
-                calcData={input as unknown as Record<string, unknown>}
-                resultSummary={{
-                  grand_total: result.grand_total,
-                  material_subtotal: result.material_subtotal,
-                  labour_total: result.labour_total,
-                  incomplete: result.incomplete,
-                }}
-                materials={result.lines
-                  .filter((l) => l.quantity !== null)
-                  .map((l) => ({
-                    name: l.label,
-                    category: "waterproofing",
-                    quantity: l.quantity ?? 0,
-                    unit: l.unit,
-                    estimated_price: l.unit_price ?? undefined,
-                  }))}
-              />
-              <NearbySuppliersLink material="waterproofing membrane" />
-            </>
-          )}
-        </div>
-        {saveState && (
-          <p
-            className="mt-3 text-sm text-muted-foreground"
-            data-testid="save-state"
-          >
-            {saveState}
-          </p>
-        )}
-      </div>
-
-      <RecommendedProducts category="waterproofing" />
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      <div className="mb-4">
-        <MissingFieldsNotice fields={missing} />
-      </div>
-
-      {/* Errors */}
-      {result && !result.ok && (
+        {/* Inputs */}
         <div
-          className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
-          role="alert"
+          ref={fieldsRef}
+          className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
         >
-          <h3 className="mb-1 font-semibold text-destructive">
-            {t("Fix these inputs first")}
-          </h3>
-          <ul className="list-disc pl-5 text-sm text-destructive">
-            {result.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Result */}
-      {result?.ok && (
-        <>
-          {/* Status banner */}
-          <div
-            ref={resultsRef}
-            className={`mb-4 rounded-lg border p-4 text-sm ${
-              result.incomplete
-                ? "border-amber-600/40 bg-amber-600/5"
-                : "border-emerald-600/40 bg-emerald-600/5"
-            }`}
-            data-testid="estimate-status"
-          >
-            {result.incomplete ? (
-              <>
-                <strong className="block">
-                  {t("This estimate is INCOMPLETE.")}
-                </strong>
-                <ul className="mt-1 list-disc pl-5">
-                  {result.missing.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                  {result.lines
-                    .filter((l) => l.unit_price === null && l.quantity !== null)
-                    .map((l) => (
-                      <li key={l.key}>
-                        {l.label}: PRICE NOT CONFIGURED in the material database
-                        : the quantity is shown, but no price was invented.
-                      </li>
-                    ))}
-                </ul>
-              </>
-            ) : (
-              <strong>
-                Complete estimate: every line sized and priced from the shared
-                material database.
-              </strong>
+          <div className="mb-4">
+            <MeasurementTip what="measured areas, run lengths and units" />
+          </div>
+          <h3 className="mb-1 font-semibold">{t("Measured areas and runs")}</h3>
+          <p className="mb-2 text-xs text-muted-foreground">
+            The engine never assumes surfaces. Enter your measured DPC run, DPM
+            area, wet-area surfaces and terrace area. Leave a field blank when
+            it needs a decision (the estimate is marked incomplete) and enter 0
+            only when the surface truly doesn't exist.
+          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">
+              Runs in {lengthLabel}, surfaces in {areaLabel} by default
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <UnitToggle value={lengthUnit} onChange={setLengthUnit} />
+              <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {(Object.keys(FIELD_LABELS) as AreaField[]).map((k) =>
+              numberInput(
+                `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "length" ? lengthLabel : areaLabel})`,
+                areas[k],
+                (v) => setAreas((a) => ({ ...a, [k]: v })),
+              ),
             )}
           </div>
 
-          {/* Materials table */}
-          <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
-            <table
-              className="w-full text-sm"
-              aria-label={t("Waterproofing material takeoff")}
+          <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">{t("Labour mode")}</span>
+              <select
+                value={labourMode}
+                onChange={(e) =>
+                  setLabourMode(e.target.value as typeof labourMode)
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
+              >
+                <option value="none">{t("Not included")}</option>
+                <option value="per_m2">Per m² treated (rate)</option>
+                <option value="lump_sum">{t("Lump sum")}</option>
+              </select>
+            </label>
+            {labourMode !== "none" &&
+              numberInput(
+                labourMode === "per_m2"
+                  ? `Rate per m² (${currencySymbol})`
+                  : `Lump sum (${currencySymbol})`,
+                labourRate,
+                setLabourRate,
+              )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Labour is always separate from material quantities and is never
+            added automatically.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
-              <thead className="border-b bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3">{t("Material")}</th>
-                  <th className="p-3">{t("Quantity")}</th>
-                  <th className="p-3">{t("Unit")}</th>
-                  <th className="p-3">{t("How it was sized")}</th>
-                  <th className="p-3">{t("Unit price")}</th>
-                  <th className="p-3">{t("Line total")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.lines.map((l) => (
-                  <tr key={l.key} className="border-b last:border-0">
-                    <td className="p-3 font-medium">{l.label}</td>
-                    <td className="p-3" data-testid={`qty-${l.key}`}>
-                      {l.quantity === null
-                        ? "(provide measurement)"
-                        : fmtN(l.quantity)}
-                    </td>
-                    <td className="p-3 text-muted-foreground">{l.unit}</td>
-                    <td className="max-w-xs p-3 text-xs text-muted-foreground">
-                      {l.detail}
-                    </td>
-                    <td className="p-3">
-                      {l.unit_price === null ? (
-                        <span className="font-medium text-amber-700 dark:text-amber-400">
-                          {t("PRICE NOT CONFIGURED")}
-                        </span>
-                      ) : (
-                        formatCurrency(l.unit_price, currencySymbol)
-                      )}
-                    </td>
-                    <td className="p-3 font-medium">
-                      {l.line_total === null
-                        ? "N/A"
-                        : formatCurrency(l.line_total, currencySymbol)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              {t("Calculate estimate")}
+            </button>
+            {result?.ok && (
+              <>
+                <button
+                  onClick={save}
+                  disabled={saving || result.lines.length === 0}
+                  className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save estimate"}
+                </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("waterproofing")}
+                />
+                <QuoteShareButton
+                  build={buildQuote}
+                  kind="Waterproofing Estimate"
+                  link="/waterproofing"
+                />
+                <button
+                  onClick={exportQuote}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {t("Export quote (PDF)")}
+                </button>
+                <SaveToProjectButton
+                  calculatorType="waterproofing"
+                  calculatorSlug="waterproofing-estimator"
+                  calcTitle="Waterproofing estimate"
+                  calcData={input as unknown as Record<string, unknown>}
+                  resultSummary={{
+                    grand_total: result.grand_total,
+                    material_subtotal: result.material_subtotal,
+                    labour_total: result.labour_total,
+                    incomplete: result.incomplete,
+                  }}
+                  materials={result.lines
+                    .filter((l) => l.quantity !== null)
+                    .map((l) => ({
+                      name: l.label,
+                      category: "waterproofing",
+                      quantity: l.quantity ?? 0,
+                      unit: l.unit,
+                      estimated_price: l.unit_price ?? undefined,
+                    }))}
+                />
+                <NearbySuppliersLink material="waterproofing membrane" />
+              </>
+            )}
           </div>
+          {saveState && (
+            <p
+              className="mt-3 text-sm text-muted-foreground"
+              data-testid="save-state"
+            >
+              {saveState}
+            </p>
+          )}
+        </div>
 
-          {/* Breakdown */}
-          <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
-            <ol className="space-y-2 text-sm">
-              {result.steps.map((s, i) => (
-                <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
-                  <span className="font-medium">{s.label}:</span>{" "}
-                  <span className="text-muted-foreground">{s.detail}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+        <RecommendedProducts category="waterproofing" />
 
-          {/* Cost summary */}
-          <div className="mb-6 grid gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Material subtotal")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.material_subtotal === null
-                  ? "(prices/inputs missing)"
-                  : formatCurrency(result.material_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Of which priced so far")}
-              </p>
-              <p className="text-xl font-semibold">
-                {formatCurrency(result.priced_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
-              <p className="text-xl font-semibold">
-                {labourMode === "none"
-                  ? "Not included"
-                  : formatCurrency(result.labour_total, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Grand total")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.grand_total === null
-                  ? "N/A"
-                  : formatCurrency(result.grand_total, currencySymbol)}
-              </p>
-            </div>
-          </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
 
-          {/* Warnings */}
-          <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
-            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              {result.warnings.map((w) => (
-                <li key={w}>{w}</li>
+        <div className="mb-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
+
+        {/* Errors */}
+        {result && !result.ok && (
+          <div
+            className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
+            role="alert"
+          >
+            <h3 className="mb-1 font-semibold text-destructive">
+              {t("Fix these inputs first")}
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-destructive">
+              {result.errors.map((e) => (
+                <li key={e}>{e}</li>
               ))}
             </ul>
           </div>
-        </>
-      )}
+        )}
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+        {/* Result */}
+        {result?.ok && (
+          <>
+            {/* Status banner */}
+            <div
+              ref={resultsRef}
+              className={`mb-4 rounded-lg border p-4 text-sm ${
+                result.incomplete
+                  ? "border-amber-600/40 bg-amber-600/5"
+                  : "border-emerald-600/40 bg-emerald-600/5"
+              }`}
+              data-testid="estimate-status"
+            >
+              {result.incomplete ? (
+                <>
+                  <strong className="block">
+                    {t("This estimate is INCOMPLETE.")}
+                  </strong>
+                  <ul className="mt-1 list-disc pl-5">
+                    {result.missing.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                    {result.lines
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
+                      .map((l) => (
+                        <li key={l.key}>
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              ) : (
+                <strong>
+                  Complete estimate: every line sized and priced from the shared
+                  material database.
+                </strong>
+              )}
+            </div>
 
-      {/* How it works */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            Quantities come from your measured runs and areas, with FRELUX's
-            visible overlap, waste, coat-count and coverage rules. The coverage
-            rule must match the product supplier prices: a bag covers what its
-            datasheet says, no more.
-          </li>
-          <li>
-            A blank measurement the project needs is reported as missing; the
-            estimate stays incomplete instead of guessing a surface.
-          </li>
-          <li>
-            DPC and DPM use the same shared material records the Price Tracker
-            manages, so one price configuration feeds this engine and every
-            other.
-          </li>
-          <li>
-            This is material ESTIMATION, not waterproofing design. Product
-            selection, primers, substrate preparation and detailing need a
-            professional specification.
-          </li>
-        </ul>
-      </section>
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.finishEstimator,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.smartCalc,
-          ]}
-        />
-      </div>
-      <EstimateDisclaimer />
-    </Container>
+            {/* Materials table */}
+            <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
+              <table
+                className="w-full text-sm"
+                aria-label={t("Waterproofing material takeoff")}
+              >
+                <thead className="border-b bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3">{t("Material")}</th>
+                    <th className="p-3">{t("Quantity")}</th>
+                    <th className="p-3">{t("Unit")}</th>
+                    <th className="p-3">{t("How it was sized")}</th>
+                    <th className="p-3">{t("Unit price")}</th>
+                    <th className="p-3">{t("Line total")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.lines.map((l) => (
+                    <tr key={l.key} className="border-b last:border-0">
+                      <td className="p-3 font-medium">{l.label}</td>
+                      <td className="p-3" data-testid={`qty-${l.key}`}>
+                        {l.quantity === null
+                          ? "(provide measurement)"
+                          : fmtN(l.quantity)}
+                      </td>
+                      <td className="p-3 text-muted-foreground">{l.unit}</td>
+                      <td className="max-w-xs p-3 text-xs text-muted-foreground">
+                        {l.detail}
+                      </td>
+                      <td className="p-3">
+                        {l.unit_price === null ? (
+                          <span className="font-medium text-amber-700 dark:text-amber-400">
+                            {t("PRICE NOT CONFIGURED")}
+                          </span>
+                        ) : (
+                          formatCurrency(l.unit_price, currencySymbol)
+                        )}
+                      </td>
+                      <td className="p-3 font-medium">
+                        {l.line_total === null
+                          ? "N/A"
+                          : formatCurrency(l.line_total, currencySymbol)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Breakdown */}
+            <div className="mb-6 rounded-lg border bg-card p-4">
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
+              <ol className="space-y-2 text-sm">
+                {result.steps.map((s, i) => (
+                  <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
+                    <span className="font-medium">{s.label}:</span>{" "}
+                    <span className="text-muted-foreground">{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Cost summary */}
+            <div className="mb-6 grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Material subtotal")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.material_subtotal === null
+                    ? "(prices/inputs missing)"
+                    : formatCurrency(result.material_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Of which priced so far")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(result.priced_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">{t("Labour")}</p>
+                <p className="text-xl font-semibold">
+                  {labourMode === "none"
+                    ? "Not included"
+                    : formatCurrency(result.labour_total, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-primary/10 p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Grand total")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.grand_total === null
+                    ? "N/A"
+                    : formatCurrency(result.grand_total, currencySymbol)}
+                </p>
+              </div>
+            </div>
+
+            {/* Warnings */}
+            <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
+              <h3 className="mb-1 font-semibold">{t("Important")}</h3>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                {result.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              Quantities come from your measured runs and areas, with FRELUX's
+              visible overlap, waste, coat-count and coverage rules. The
+              coverage rule must match the product supplier prices: a bag covers
+              what its datasheet says, no more.
+            </li>
+            <li>
+              A blank measurement the project needs is reported as missing; the
+              estimate stays incomplete instead of guessing a surface.
+            </li>
+            <li>
+              DPC and DPM use the same shared material records the Price Tracker
+              manages, so one price configuration feeds this engine and every
+              other.
+            </li>
+            <li>
+              This is material ESTIMATION, not waterproofing design. Product
+              selection, primers, substrate preparation and detailing need a
+              professional specification.
+            </li>
+          </ul>
+        </section>
+        <div className="mt-10">
+          <RelatedTools
+            links={[
+              CALC_LINKS.finishEstimator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.smartCalc,
+            ]}
+          />
+        </div>
+        <EstimateDisclaimer />
+      </Container>{" "}
+    </ToolShell>
   );
 }
