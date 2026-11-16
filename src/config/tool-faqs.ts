@@ -886,6 +886,90 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
       },
     ],
   },
+  {
+    slug: "count-vision",
+    route: "/count-vision",
+    name: "Counter-Vision",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does Counter-Vision actually return?",
+        a: "A count with a verdict, a confidence and a reason. The verdict is one of three: counted, unclear or nothing to count. A count that cannot be shown to be reliable comes back as unclear, and the reason is preserved, so a failed count is never rounded up into an order.",
+      },
+      {
+        q: "Why does a count come back as unclear instead of a low number?",
+        a: "Because a number below the confidence floor is not evidence of anything. The floor is a configured rule and the default is 0.6, and a response reporting less than that is refused as unclear. An undercount presented as an answer is how a site buys short and finds out on the last course.",
+      },
+      {
+        q: "What are the limits the tool enforces?",
+        a: "An 8 megabyte image ceiling, a count ceiling of 5,000 units, and the confidence floor. A reported count above the ceiling is treated as unreliable and the advice is to photograph a smaller section, since a stack too large to see clearly cannot be counted from one frame.",
+      },
+      {
+        q: "Is the answer checked before it is shown?",
+        a: "Yes, twice. The count is validated where it is produced, and the page runs its own check on the answer, refusing any shape it cannot read, any count that is not a positive whole number inside the range, and any confidence below the floor. The second check is there because a page that trusts a response blindly has no answer at all.",
+      },
+      {
+        q: "Does the count price the material?",
+        a: "No. Counter-Vision counts what is in the photograph and states how sure it is about that count. Pricing belongs to the calculators that hold rates for your market, and the count has to be carried across into a priced takeoff, which is a separate step you decide to take. A count on its own is a quantity, not a cost.",
+      },
+    ],
+  },
+  {
+    slug: "surface-assessment",
+    route: "/surface-assessment",
+    name: "Surface Condition Assessment",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the surface assessment produce?",
+        a: "A preparation list for the condition you select. You pick one of six conditions (new wall, previously painted, rough, dirty, damp or cracked), optionally name the room and add notes, and the page returns the preparation steps that condition needs, each with a priority of high, medium or low.",
+      },
+      {
+        q: "Does it read a photograph or use AI?",
+        a: "No. The assessment is chosen from a fixed set of conditions and the preparation steps come from a rule table keyed by that choice, so the same condition always returns the same list. There is no image analysis and no model in the path, and treating the output as a machine judgement of your wall would be wrong.",
+      },
+      {
+        q: "Why does the condition matter more than the paint?",
+        a: "Because preparation decides whether the coating stays. Damp or cracked masonry needs work that new plaster does not, and a finish applied over the wrong condition fails on the surface it was meant to protect. Naming the condition honestly is the whole input.",
+      },
+      {
+        q: "Can the assessment be saved with a project?",
+        a: "Yes, with the condition, the room and any notes, and the preparation list is stored with it. That record is what a painter or a screeder prices from, and it is what shows later whether the surface was dealt with before the finish went on.",
+      },
+      {
+        q: "Is the preparation guidance a diagnosis?",
+        a: "No. It is guidance for a condition you identified yourself. Damp needs a source investigation and a moisture reading, cracks need a structural opinion when they are more than surface deep, and neither is established by selecting a condition on a page.",
+      },
+    ],
+  },
+  {
+    slug: "estimate-refresh",
+    route: "/estimate-refresh",
+    name: "Estimate Refresh",
+    category: "project",
+    questions: [
+      {
+        q: "What does refreshing an estimate change?",
+        a: "It reprices each line of a saved snapshot at the price that is active today, using the price reference the line already carries. Every line is reported with its snapshot price, its current price, the money difference and the percentage, and the totals carry the same delta so the size of the movement is visible.",
+      },
+      {
+        q: "What happens to a line with no current price?",
+        a: "It keeps its snapshot price and is counted as missing. The tool never extrapolates a missing price, and the warning names the item, the reference and the price that was kept, so a stale line is visible instead of being quietly smoothed into the total.",
+      },
+      {
+        q: "What if a line has no price reference at all?",
+        a: "It cannot be refreshed. The line stays at its stored price and is reported with the reason, which is a statement about the snapshot instead of about today's market. The line has to be repriced by hand or rebuilt from the calculator that produced it.",
+      },
+      {
+        q: "Why is a percentage sometimes blank?",
+        a: "Because there is nothing to take a percentage of. Where the earlier line total is zero, the money difference is still reported and the percentage is null, since dividing by zero would invent a rise that did not happen.",
+      },
+      {
+        q: "Does a refresh check anything besides the price?",
+        a: "It flags a currency mismatch between the line and the price it was matched to, and it prints the effective date of each price it used. A price that is current but in the wrong currency, or one whose effective date is older than expected, is not a refresh you can rely on.",
+      },
+    ],
+  },
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

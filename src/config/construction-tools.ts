@@ -1423,8 +1423,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "ai",
     icon: ClipboardCheck,
     does: "Assess a surface condition before painting or screeding so you buy the right prep materials.",
-    enters: "Photos and details of the surface.",
-    gets: "Surface condition rating and preparation requirements.",
+    enters: "The surface condition, with an optional room name and notes.",
+    gets: "Preparation steps for that condition, each with a priority, saved with the project.",
     heading: "Surface Condition Assessment",
     seoTitle: "Surface Condition Assessment: Wall Preparation Guide",
     seoDescription:

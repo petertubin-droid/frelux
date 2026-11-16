@@ -27,6 +27,7 @@ import { QUOTES_LONGFORM } from "@/config/faq-longform/quotes";
 import { SERVICES_LONGFORM } from "@/config/faq-longform/services";
 import { SERVICES2_LONGFORM } from "@/config/faq-longform/services2";
 import { STRUCTURE_BOUNDARY_LONGFORM } from "@/config/faq-longform/structure-boundary";
+import { COUNTERS_LONGFORM } from "@/config/faq-longform/counters";
 import { DOCUMENTS_LONGFORM } from "@/config/faq-longform/documents";
 import { SURFACES_LONGFORM } from "@/config/faq-longform/surfaces";
 import { STRUCTURE_LONGFORM } from "@/config/faq-longform/structure";
@@ -55,6 +56,7 @@ export interface LongFormArticle {
 
 export const LONG_FORM_ARTICLES: Record<string, LongFormArticle> = {
   ...FINISHES_LONGFORM,
+  ...COUNTERS_LONGFORM,
   ...DOCUMENTS_LONGFORM,
   ...SURFACES_LONGFORM,
   ...STRUCTURE_BOUNDARY_LONGFORM,

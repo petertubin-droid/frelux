@@ -671,6 +671,77 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
       "The readings are an input to the engines, and the estimate inherits every assumption the engine makes about specification.",
     ],
   },
+  "count-vision": {
+    summary:
+      "Counts stacked material from a photograph, and refuses to answer when the count is not reliable.",
+    description:
+      "Counting a stack by eye is the step that decides how much material is ordered, and it is the step nobody checks. Counter-Vision reads a photograph of the stacked material and returns a count with a verdict, a confidence and a reason, under rules for image size, count range and minimum confidence. A count that cannot be supported comes back as unclear, with the reason kept, and the page runs its own check on the answer before anything is shown.",
+    functions: [
+      "Reads a photograph of stacked material and returns a count with a confidence and a reason.",
+      "Returns one of three verdicts: counted, unclear, or nothing to count.",
+      "Refuses a count below the configured confidence floor, which defaults to 0.6.",
+      "Enforces an 8 megabyte image ceiling and a count ceiling of 5,000 units, and asks for a smaller section when the stack is too large for one frame.",
+      "Validates the returned answer independently on the page, rejecting unreadable shapes and impossible values.",
+      "Keeps the answer and its diagnostics with the result, so a count can be traced to the photograph that produced it.",
+    ],
+    advantages: [
+      "The verdict separates a count from a guess, which is the difference that matters at the point of ordering.",
+      "The confidence floor is a configured rule, so the standard can be raised for expensive material without changing the page.",
+      "The reason is preserved on a failure, which tells you whether to retake the photograph or count by hand.",
+    ],
+    limits: [
+      "It counts what is visible. A partly obscured stack or material of mixed size undercounts, and the verdict may still read counted.",
+      "It does not identify the material or price it. The count is an input to a takeoff, not a quote.",
+      "A clean photograph is still not a measurement of what is in the store, and a physical count remains the authority for delivery.",
+    ],
+  },
+  "surface-assessment": {
+    summary:
+      "Turns a surface condition into a preparation list, with the priorities a painter or screeder prices from.",
+    description:
+      "Paint fails on preparation far more often than on the coating, and preparation is decided by the condition of the wall instead of by the finish chosen. This page takes the condition you select, new wall, previously painted, rough, dirty, damp or cracked, and returns the preparation steps that condition needs, each carrying a priority of high, medium or low, so the work that decides the outcome is separated from the work that is merely tidy.",
+    functions: [
+      "Returns preparation steps for the selected surface condition from a fixed rule table.",
+      "Marks each step with a priority of high, medium or low, so the order of work is visible.",
+      "Records the condition, the room name and any notes with the project.",
+      "Stores the preparation list with the assessment, so a painter or screeder can price from it.",
+      "States plainly that the guidance is not a diagnosis of the wall.",
+    ],
+    advantages: [
+      "The same condition always returns the same list, which makes the preparation a specification instead of an opinion.",
+      "Priorities separate the steps that decide whether the finish holds from the ones that only improve the look.",
+      "Saving the assessment with a project keeps the preparation tied to the surface it was written for.",
+    ],
+    limits: [
+      "It does not read a photograph or run a model. The condition is the one you selected and the list comes from a rule table.",
+      "It is not a diagnosis. Damp needs a source investigation and a moisture reading, and structural cracks need an engineer.",
+      "The list covers preparation, not products, coverage or cost, and those come from the calculators that hold your rates.",
+    ],
+  },
+  "estimate-refresh": {
+    summary:
+      "Reprices a saved estimate at today's active prices and reports what moved and what could not.",
+    description:
+      "An estimate is true on the day it was made and drifts from there. Refreshing it means repricing each line at the price that is active today through the reference the line already carries, and being explicit about the lines that have no current price. The refresh reports the movement line by line and in total, keeps stale lines at their snapshot price, and says which price it used and from when.",
+    functions: [
+      "Reprices each snapshot line at the currently active price for its reference.",
+      "Reports snapshot price, current price, money difference and percentage for every line.",
+      "Keeps the snapshot price and counts the line as missing when no price is active today.",
+      "Reports lines that carry no price reference as impossible to refresh, with the reason.",
+      "Flags a currency mismatch between a line and the price it was matched to.",
+      "Prints the effective date of each price used, so a stale price is visible instead of assumed current.",
+    ],
+    advantages: [
+      "Missing prices are named instead of extrapolated, so the total never gains a number nobody supplied.",
+      "The line by line movement shows whether a rise is concentrated in one material or spread across the estimate.",
+      "Currency and effective date checks catch the two ways a current price can still be the wrong price.",
+    ],
+    limits: [
+      "It reprices. It does not re-measure quantities, so a changed scope still needs the calculator that produced the estimate.",
+      "A line with no price reference has to be repriced by hand or rebuilt.",
+      "A refresh is only as current as the price book behind it, and an unmaintained book refreshes to the wrong number with confidence.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {

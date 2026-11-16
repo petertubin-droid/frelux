@@ -3641,5 +3641,137 @@ export const faqSchemaByPath = {
       "q": "What happens to the photograph I upload?",
       "a": "It is sent to the estimation service so the building details can be extracted, and the estimate is built from the figures you confirmed instead of from the image. The saved project keeps the estimate and its measurements, and that is what a recalculation needs later."
     }
+  ],
+  "/faq/count-vision": [
+    {
+      "q": "What does Counter-Vision actually return?",
+      "a": "A count, a verdict, a confidence and a reason. The verdict is counted, unclear or nothing to count. A count that cannot be supported comes back as unclear with the reason preserved, so a failed count is never rounded up into an order."
+    },
+    {
+      "q": "Why does a count come back as unclear instead of a low number?",
+      "a": "Because a number below the floor is not evidence of anything. The floor is a configured rule and the default is 0.6. An undercount reported as an answer is how a site buys short and discovers it on the last course of the wall, which is precisely the outcome the floor exists to prevent."
+    },
+    {
+      "q": "What are the limits the tool enforces?",
+      "a": "An 8 megabyte image ceiling, a count ceiling of 5,000 units and the confidence floor. A report above the count ceiling is treated as unreliable instead of accepted, and the advice is to photograph a smaller section, since a stack too large to resolve in one frame cannot be counted from it."
+    },
+    {
+      "q": "Is the answer checked before it is shown?",
+      "a": "Yes, twice. The count is validated where it is produced, and the page runs an independent check on the answer, refusing any shape it cannot read, any count that is not a positive whole number inside the range, and any confidence below the floor. A page that trusts a response blindly has no answer, only a number."
+    },
+    {
+      "q": "Does the count price the material?",
+      "a": "No. It counts what is in the photograph and states how sure it is of that count. Pricing belongs to the calculators that hold rates for the market, and carrying the count into a priced takeoff is a step you take deliberately. A count on its own is a quantity, and a quantity becomes a cost only when it meets a rate."
+    }
+  ],
+  "/count-vision": [
+    {
+      "q": "What does Counter-Vision actually return?",
+      "a": "A count, a verdict, a confidence and a reason. The verdict is counted, unclear or nothing to count. A count that cannot be supported comes back as unclear with the reason preserved, so a failed count is never rounded up into an order."
+    },
+    {
+      "q": "Why does a count come back as unclear instead of a low number?",
+      "a": "Because a number below the floor is not evidence of anything. The floor is a configured rule and the default is 0.6. An undercount reported as an answer is how a site buys short and discovers it on the last course of the wall, which is precisely the outcome the floor exists to prevent."
+    },
+    {
+      "q": "What are the limits the tool enforces?",
+      "a": "An 8 megabyte image ceiling, a count ceiling of 5,000 units and the confidence floor. A report above the count ceiling is treated as unreliable instead of accepted, and the advice is to photograph a smaller section, since a stack too large to resolve in one frame cannot be counted from it."
+    },
+    {
+      "q": "Is the answer checked before it is shown?",
+      "a": "Yes, twice. The count is validated where it is produced, and the page runs an independent check on the answer, refusing any shape it cannot read, any count that is not a positive whole number inside the range, and any confidence below the floor. A page that trusts a response blindly has no answer, only a number."
+    },
+    {
+      "q": "Does the count price the material?",
+      "a": "No. It counts what is in the photograph and states how sure it is of that count. Pricing belongs to the calculators that hold rates for the market, and carrying the count into a priced takeoff is a step you take deliberately. A count on its own is a quantity, and a quantity becomes a cost only when it meets a rate."
+    }
+  ],
+  "/faq/surface-assessment": [
+    {
+      "q": "What does the surface assessment produce?",
+      "a": "A preparation list for the condition you select. You pick one of six conditions, optionally name the room and add notes, and the page returns the steps that condition needs, each with a priority of high, medium or low. The list is saved with the assessment, so the person pricing the preparation and the person inspecting the finish work from the same document."
+    },
+    {
+      "q": "Does it read a photograph or use AI?",
+      "a": "No. The assessment is chosen from a fixed set of conditions and the steps come from a rule table keyed by that choice, so the same condition always returns the same list. There is no image analysis and no model, and reading the output as a machine judgement of your wall would be a mistake."
+    },
+    {
+      "q": "Why does the condition matter more than the paint?",
+      "a": "Because preparation decides whether the coating stays. Damp or cracked masonry needs work that new plaster does not, and a finish applied over the wrong condition fails on the surface it was bought to protect. Naming the condition honestly is the entire input to the tool."
+    },
+    {
+      "q": "Can the assessment be saved with a project?",
+      "a": "Yes, with the condition, the room and any notes, and the preparation list is stored with it. That record is what a painter or a screeder prices from, and later it is the evidence of what the surface was like before the finish went on."
+    },
+    {
+      "q": "Is the preparation guidance a diagnosis?",
+      "a": "No. It is guidance for a condition you identified. Damp needs its source found and its moisture measured, and a crack that is more than surface deep needs a structural opinion, and neither is established by selecting a condition on a page. Treat the list as the work to price and the condition as something you still have to confirm with your own eyes."
+    }
+  ],
+  "/surface-assessment": [
+    {
+      "q": "What does the surface assessment produce?",
+      "a": "A preparation list for the condition you select. You pick one of six conditions, optionally name the room and add notes, and the page returns the steps that condition needs, each with a priority of high, medium or low. The list is saved with the assessment, so the person pricing the preparation and the person inspecting the finish work from the same document."
+    },
+    {
+      "q": "Does it read a photograph or use AI?",
+      "a": "No. The assessment is chosen from a fixed set of conditions and the steps come from a rule table keyed by that choice, so the same condition always returns the same list. There is no image analysis and no model, and reading the output as a machine judgement of your wall would be a mistake."
+    },
+    {
+      "q": "Why does the condition matter more than the paint?",
+      "a": "Because preparation decides whether the coating stays. Damp or cracked masonry needs work that new plaster does not, and a finish applied over the wrong condition fails on the surface it was bought to protect. Naming the condition honestly is the entire input to the tool."
+    },
+    {
+      "q": "Can the assessment be saved with a project?",
+      "a": "Yes, with the condition, the room and any notes, and the preparation list is stored with it. That record is what a painter or a screeder prices from, and later it is the evidence of what the surface was like before the finish went on."
+    },
+    {
+      "q": "Is the preparation guidance a diagnosis?",
+      "a": "No. It is guidance for a condition you identified. Damp needs its source found and its moisture measured, and a crack that is more than surface deep needs a structural opinion, and neither is established by selecting a condition on a page. Treat the list as the work to price and the condition as something you still have to confirm with your own eyes."
+    }
+  ],
+  "/faq/estimate-refresh": [
+    {
+      "q": "What does refreshing an estimate change?",
+      "a": "It reprices each line of the saved snapshot at the price active today, using the reference the line already carries. Every line is reported with its snapshot price, its current price, the money difference and the percentage, and the totals carry the same delta so the size of the movement is visible."
+    },
+    {
+      "q": "What happens to a line with no current price?",
+      "a": "It keeps its snapshot price and is counted as missing. The tool never extrapolates a missing price, and the warning names the item, the reference and the price that was kept, so a stale line is visible instead of being smoothed into the total."
+    },
+    {
+      "q": "What if a line has no price reference at all?",
+      "a": "It cannot be refreshed. The line stays at its stored price and is reported with the reason, which is a statement about the snapshot instead of about the market. The line has to be repriced by hand or rebuilt from the calculator that produced it."
+    },
+    {
+      "q": "Why is a percentage sometimes blank?",
+      "a": "Because there is nothing to take a percentage of. Where the earlier line total is zero, the money difference is still reported and the percentage is null, since dividing by zero would invent a rise that did not happen. The money figure is the one to read in that case, and the blank percentage is a statement rather than a gap."
+    },
+    {
+      "q": "Does a refresh check anything besides the price?",
+      "a": "It flags a currency mismatch between a line and the price it was matched to, and it prints the effective date of every price it used. A price that is current but in the wrong currency, or one whose effective date is unexpectedly old, is not a refresh you can rely on."
+    }
+  ],
+  "/estimate-refresh": [
+    {
+      "q": "What does refreshing an estimate change?",
+      "a": "It reprices each line of the saved snapshot at the price active today, using the reference the line already carries. Every line is reported with its snapshot price, its current price, the money difference and the percentage, and the totals carry the same delta so the size of the movement is visible."
+    },
+    {
+      "q": "What happens to a line with no current price?",
+      "a": "It keeps its snapshot price and is counted as missing. The tool never extrapolates a missing price, and the warning names the item, the reference and the price that was kept, so a stale line is visible instead of being smoothed into the total."
+    },
+    {
+      "q": "What if a line has no price reference at all?",
+      "a": "It cannot be refreshed. The line stays at its stored price and is reported with the reason, which is a statement about the snapshot instead of about the market. The line has to be repriced by hand or rebuilt from the calculator that produced it."
+    },
+    {
+      "q": "Why is a percentage sometimes blank?",
+      "a": "Because there is nothing to take a percentage of. Where the earlier line total is zero, the money difference is still reported and the percentage is null, since dividing by zero would invent a rise that did not happen. The money figure is the one to read in that case, and the blank percentage is a statement rather than a gap."
+    },
+    {
+      "q": "Does a refresh check anything besides the price?",
+      "a": "It flags a currency mismatch between a line and the price it was matched to, and it prints the effective date of every price it used. A price that is current but in the wrong currency, or one whose effective date is unexpectedly old, is not a refresh you can rely on."
+    }
   ]
 };
