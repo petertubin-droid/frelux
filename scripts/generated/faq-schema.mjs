@@ -3333,5 +3333,93 @@ export const faqSchemaByPath = {
       "q": "Can I reduce the volume?",
       "a": "Sometimes. Segregating timber, metal and rubble allows some of it to be recycled or sold, and on a large job crushing rubble on site can cut the number of loads. Clean plasterboard and clean timber are easier to divert than a mixed container. That is a site plan decision, and the tool leaves the volume and the container count visible so the saving from a better plan can actually be measured instead of asserted."
     }
+  ],
+  "/faq/fence-block-calculator": [
+    {
+      "q": "How many blocks does a fence wall need?",
+      "a": "The count comes from area. The calculator derives the run from your plot dimensions, multiplies by the coaches you set to get the gross wall area, divides by the face area of the block you selected, then adds the breakage allowance. Nothing in that chain is a per metre rule, so a taller wall or a different block changes the answer in the direction it should."
+    },
+    {
+      "q": "Why does the wall height matter so much?",
+      "a": "Blocks are counted by face area, so height enters the multiplication twice: once through the wall area, and again through the number of courses that have to be laid along the whole run. A wall one coach taller needs more blocks across its entire length, more mortar for the extra course, and more cement and sand for the rendering that follows."
+    },
+    {
+      "q": "What is the cement and sand figure based on?",
+      "a": "The cement and sand figures come from the mortar for the joints and from the rendering you select, converted at the bag weight used in your market. The mix ratio and the allowance are printed with the totals, so the figure can be checked against the specification you are pricing instead of being taken on trust."
+    },
+    {
+      "q": "Does a 9 inch block change the quantities?",
+      "a": "A thicker block presents the same face to the wall, so the face area is unchanged and the block count stays close to the same figure. What rises is the mortar in a wider joint and the concrete if the cores are filled. Selecting the block you will buy keeps both the count and the mortar from being priced on the wrong unit."
+    },
+    {
+      "q": "Is this a structural design for a boundary wall?",
+      "a": "No. The engine converts your measurements into blocks, mortar, sand and cement. Pier spacing, foundation width, reinforcement and wind resistance are structural work, and a boundary wall on soft ground or in an exposed position should be designed before it is priced."
+    }
+  ],
+  "/fence-block-calculator": [
+    {
+      "q": "How many blocks does a fence wall need?",
+      "a": "The count comes from area. The calculator derives the run from your plot dimensions, multiplies by the coaches you set to get the gross wall area, divides by the face area of the block you selected, then adds the breakage allowance. Nothing in that chain is a per metre rule, so a taller wall or a different block changes the answer in the direction it should."
+    },
+    {
+      "q": "Why does the wall height matter so much?",
+      "a": "Blocks are counted by face area, so height enters the multiplication twice: once through the wall area, and again through the number of courses that have to be laid along the whole run. A wall one coach taller needs more blocks across its entire length, more mortar for the extra course, and more cement and sand for the rendering that follows."
+    },
+    {
+      "q": "What is the cement and sand figure based on?",
+      "a": "The cement and sand figures come from the mortar for the joints and from the rendering you select, converted at the bag weight used in your market. The mix ratio and the allowance are printed with the totals, so the figure can be checked against the specification you are pricing instead of being taken on trust."
+    },
+    {
+      "q": "Does a 9 inch block change the quantities?",
+      "a": "A thicker block presents the same face to the wall, so the face area is unchanged and the block count stays close to the same figure. What rises is the mortar in a wider joint and the concrete if the cores are filled. Selecting the block you will buy keeps both the count and the mortar from being priced on the wrong unit."
+    },
+    {
+      "q": "Is this a structural design for a boundary wall?",
+      "a": "No. The engine converts your measurements into blocks, mortar, sand and cement. Pier spacing, foundation width, reinforcement and wind resistance are structural work, and a boundary wall on soft ground or in an exposed position should be designed before it is priced."
+    }
+  ],
+  "/faq/german-floor-calculator": [
+    {
+      "q": "What is a German floor made of?",
+      "a": "It is a layered ground floor: hardcore or laterite fill, a blinding layer, a damp proof membrane and the concrete slab. Each layer has its own thickness and its own purchase unit, so the calculator reports four sets of quantities that add up to one floor rather than one blended figure."
+    },
+    {
+      "q": "How is the slab concrete calculated?",
+      "a": "The slab volume is the floor area multiplied by the thickness you enter. That wet volume is converted with the dry factor, divided by the mix ratio, and turned into cement bags at the bag weight for your market, with sand and granite in cubic metres. The factor and the ratio are printed with the quantities so the conversion can be checked."
+    },
+    {
+      "q": "Does a thicker hardcore add concrete?",
+      "a": "No, the layers are independent. A deeper fill adds laterite, blinding and membrane area, and leaves the slab concrete unchanged. What the fill has to deliver is a level, compacted surface, because a slab spans the ground and does not bridge a soft spot."
+    },
+    {
+      "q": "Why is a membrane included with the floor?",
+      "a": "Because the membrane keeps ground moisture out of the slab, and it is bought by area rather than by volume. It covers the floor plus the laps between rolls, which is why it is measured separately from the layers above and below and ordered at a stated percentage over the net area."
+    },
+    {
+      "q": "Can I cost a ground floor on a filled plot from this?",
+      "a": "You can price the hardcore, blinding, membrane and slab for the area and thicknesses you enter. Fill placed to raise a site, the number of compaction layers, and the structural thickness of the slab itself are engineering decisions, and the tool states that rather than deciding them for you."
+    }
+  ],
+  "/german-floor-calculator": [
+    {
+      "q": "What is a German floor made of?",
+      "a": "It is a layered ground floor: hardcore or laterite fill, a blinding layer, a damp proof membrane and the concrete slab. Each layer has its own thickness and its own purchase unit, so the calculator reports four sets of quantities that add up to one floor rather than one blended figure."
+    },
+    {
+      "q": "How is the slab concrete calculated?",
+      "a": "The slab volume is the floor area multiplied by the thickness you enter. That wet volume is converted with the dry factor, divided by the mix ratio, and turned into cement bags at the bag weight for your market, with sand and granite in cubic metres. The factor and the ratio are printed with the quantities so the conversion can be checked."
+    },
+    {
+      "q": "Does a thicker hardcore add concrete?",
+      "a": "No, the layers are independent. A deeper fill adds laterite, blinding and membrane area, and leaves the slab concrete unchanged. What the fill has to deliver is a level, compacted surface, because a slab spans the ground and does not bridge a soft spot."
+    },
+    {
+      "q": "Why is a membrane included with the floor?",
+      "a": "Because the membrane keeps ground moisture out of the slab, and it is bought by area rather than by volume. It covers the floor plus the laps between rolls, which is why it is measured separately from the layers above and below and ordered at a stated percentage over the net area."
+    },
+    {
+      "q": "Can I cost a ground floor on a filled plot from this?",
+      "a": "You can price the hardcore, blinding, membrane and slab for the area and thicknesses you enter. Fill placed to raise a site, the number of compaction layers, and the structural thickness of the slab itself are engineering decisions, and the tool states that rather than deciding them for you."
+    }
   ]
 };

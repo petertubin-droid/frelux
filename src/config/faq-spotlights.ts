@@ -43,6 +43,8 @@ export const FAQ_SPOTLIGHT_PLACEMENTS: FaqSpotlightPlacementConfig[] = [
       { slug: "foundation-calculator", questionIndexes: [0, 3] },
       { slug: "retaining-wall-calculator", questionIndexes: [0, 4] },
       { slug: "steel-beam-calculator", questionIndexes: [1, 4] },
+      { slug: "fence-block-calculator", questionIndexes: [0, 4] },
+      { slug: "german-floor-calculator", questionIndexes: [1, 4] },
       { slug: "build-to-roof-estimator", questionIndexes: [1, 3] },
       { slug: "soffit-gutter-cost-estimator", questionIndexes: [0, 1] },
       { slug: "masonry-calculator", questionIndexes: [0, 2] },

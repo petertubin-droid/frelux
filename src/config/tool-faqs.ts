@@ -690,6 +690,62 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...WATER_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
   ...RENOVATION_FAQ_GROUPS,
+  {
+    slug: "fence-block-calculator",
+    route: "/fence-block-calculator",
+    name: "Fence and Coach Block Calculator",
+    category: "structure",
+    questions: [
+      {
+        q: "How many blocks does a fence wall need?",
+        a: "The calculator derives wall length from the plot dimensions you enter, multiplies by the coaches you set and divides by the face area of the block you choose, then adds the breakage allowance. The block count therefore follows the geometry you measured instead of a per-metre guess.",
+      },
+      {
+        q: "Why does the wall height matter so much?",
+        a: "Blocks are counted by face area, so every extra coach adds a full course along the whole run. Because height also decides the pier spacing and the mortar volume, a wall entered one coach taller needs more blocks, more cement and more sand across the entire length, not just at the top.",
+      },
+      {
+        q: "What is the cement and sand figure based on?",
+        a: "Mortar for the joints and the rendering you select, converted at a stated bag weight for your market. The bags, sand, tipper trips and head pans are all printed with the mix and the allowance they were derived from, so you can check the figure against the specification you are pricing.",
+      },
+      {
+        q: "Does a 9 inch block change the quantities?",
+        a: "It changes the face area per block, so the same wall needs fewer of them than a 6 inch block, while the mortar for the thicker joint and the concrete in the filled cores increases. Selecting the block you will actually buy keeps both the count and the mortar from being priced on the wrong unit.",
+      },
+      {
+        q: "Is this a structural design for a boundary wall?",
+        a: "No. The calculator sizes blocks, mortar, sand and cement from the height and block you enter. Pier spacing, foundation width, reinforcement and resistance to wind load depend on the site and are the work of a structural engineer.",
+      },
+    ],
+  },
+  {
+    slug: "german-floor-calculator",
+    route: "/german-floor-calculator",
+    name: "German Floor Calculator",
+    category: "structure",
+    questions: [
+      {
+        q: "What is a German floor made of?",
+        a: "A layered ground floor: hardcore or laterite fill, a blinding layer, a damp proof membrane, and the concrete slab. Each layer is priced from its own thickness, so the estimate shows the hardcore volume, the blinding volume, the membrane area and the slab concrete separately.",
+      },
+      {
+        q: "How is the slab concrete calculated?",
+        a: "Floor area multiplied by the slab thickness you set, then converted to cement bags, sharp sand and granite at the mix you choose. The dry volume of the materials is higher than the wet slab, so the calculator applies a dry factor and prints it with the mix ratio.",
+      },
+      {
+        q: "Does a thicker hardcore add concrete?",
+        a: "No, the layers are independent. Deepening the fill adds laterite, blinding sand and membrane volume, but leaves the slab concrete unchanged. What the fill must achieve is a level, compacted surface, because the slab spans the ground instead of bridging soft spots.",
+      },
+      {
+        q: "Why is a membrane included with the floor?",
+        a: "Because the membrane keeps ground moisture out of the slab, and it covers the area it protects instead of the volume it fills. The calculator reports it as an area with an overlap allowance, which is why it is measured separately from the layers above and below it.",
+      },
+      {
+        q: "Can I cost a ground floor on a filled plot from this?",
+        a: "You can cost the hardcore, blinding, membrane and slab for the area and thicknesses you enter. Fill depth that exists to raise the site above flood level, compaction in layers and the structural thickness of the slab itself are engineering decisions the calculator does not make.",
+      },
+    ],
+  },
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

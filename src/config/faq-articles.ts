@@ -510,6 +510,52 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
       "The lateral system ranges describe the framing types named at the heights where practice puts them. They are not code limits.",
     ],
   },
+  "fence-block-calculator": {
+    summary:
+      "Sizes blocks, mortar, sand and cement for a boundary wall from the plot and the wall height.",
+    description:
+      "A boundary wall is priced from geometry: how long it runs, how many coaches high it stands, and which block it is built from. The calculator derives the run from the plot dimensions you enter, counts blocks by face area, and carries the same geometry through the mortar, the sand and the cement so the material order matches the wall that will be built.",
+    functions: [
+      "Derives the wall run from the plot or site dimensions you enter instead of asking for a length twice.",
+      "Counts blocks by the face area of the block you select, then adds the breakage allowance.",
+      "Sizes mortar for the joints and the rendering you choose from a stated mix and bag weight.",
+      "Reports sand in cubic metres and in the tipper trips, barrows and head pans used on site.",
+      "Carries piers and courses through the same geometry, so a taller wall costs more along its whole length.",
+    ],
+    advantages: [
+      "The block count follows the wall that is actually being built, so a change of block size or height does not need a new estimate by hand.",
+      "Sand and cement are printed with the mix and allowance they came from, which makes the figure checkable against a specification.",
+      "Quantities arrive in the units materials are delivered and carried in, not only in cubic metres.",
+    ],
+    limits: [
+      "The tool sizes materials. It does not design the wall: pier spacing, foundation width, reinforcement and wind resistance are engineering decisions.",
+      "Soil conditions and site levels are not assessed, although both decide the foundation.",
+      "Block strength class and mortar grade are taken as you enter them, not verified against the exposure.",
+    ],
+  },
+  "german-floor-calculator": {
+    summary:
+      "Prices each layer of a ground floor separately: fill, blinding, membrane and slab.",
+    description:
+      "A ground floor is built in layers, and each one is bought in a different unit. Hardcore arrives by the trip, blinding sand by the cubic metre, the membrane by the roll and the slab by cement bags, sand and granite. The calculator holds the layers apart so a deeper fill adds fill, and a thicker slab adds concrete, without either one silently changing the other.",
+    functions: [
+      "Turns the floor area and the fill depth into a hardcore volume.",
+      "Sizes the blinding layer from its own thickness and reports the sand it consumes.",
+      "Reports the damp proof membrane as an area with a lap allowance, because it covers instead of fills.",
+      "Converts slab volume to cement bags, sharp sand and granite at the mix and dry factor you set.",
+      "Prints the dry factor and the mix ratio beside the quantities so the conversion can be checked.",
+    ],
+    advantages: [
+      "Layers are independent, so deepening the fill no longer inflates the slab concrete.",
+      "The dry factor and mix are visible, which is where a hand estimate usually undercounts cement.",
+      "Deliveries are shown in the units used on site, including trips and bags.",
+    ],
+    limits: [
+      "Compaction in layers, the suitability of the fill and the level the floor must reach are site decisions the calculator does not make.",
+      "The structural thickness of the slab, and any reinforcement in it, come from the engineer, not from this tool.",
+      "Raising a site above flood level is a drainage and levels problem that a material takeoff cannot answer.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {
