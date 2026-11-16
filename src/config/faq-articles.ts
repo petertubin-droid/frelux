@@ -742,6 +742,100 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
       "A refresh is only as current as the price book behind it, and an unmaintained book refreshes to the wrong number with confidence.",
     ],
   },
+  "smart-calculator": {
+    summary:
+      "Reads a described project into the right calculator, deterministically, and explains the cost afterwards.",
+    description:
+      "Describing a job in a sentence is how people actually hold it in their heads, and the hard part is getting that sentence into a calculator without quietly changing what it said. The Smart Calculator reads the work type, the dimensions and the counted items out of the description using deterministic rules, shows what it read, and lists what it could not find. The engine for that trade then does the arithmetic. A model is asked only afterwards to explain the resulting cost in the visitor's own terms.",
+    functions: [
+      "Matches the work type from the words used and names the calculator the project belongs in.",
+      "Reads rectangles and stated floor areas, converting feet to metres and showing both figures.",
+      "Takes room, door and window counts when they are stated, and reports them as missing when they are not.",
+      "Shows each item it understood with the words that produced it, so the reading can be checked before it is priced.",
+      "Refuses to assume a unit that the description did not state.",
+      "Sends the confirmed figures to the engine that owns the trade, and asks a model only to explain the cost that comes back.",
+    ],
+    advantages: [
+      "The reading is deterministic and inspectable, so the same sentence always produces the same estimate.",
+      "Missing values are named instead of defaulted, which keeps the estimate tied to what was actually described.",
+      "The cost comes from the same engines as the calculators, so the explanation cannot contradict the numbers.",
+    ],
+    limits: [
+      "A vague description gets a vague estimate, and the tool states what it lacked instead of filling it in.",
+      "It reads a description, not a drawing. Measurements on a plan still have to be entered where they belong.",
+      "The explanation of the cost is prose about the engines' output, not a second opinion on the quantity.",
+    ],
+  },
+  "conversational-estimator": {
+    summary:
+      "Builds an estimate from a conversation, showing each fact it took and asking for what is missing.",
+    description:
+      "A project arrives as a story before it arrives as a takeoff: the rooms, what is being done in them, the size of the place. The conversational estimator reads that story in order, keeps each fact it takes with the words that produced it, and asks for the essentials it is still missing. When there is enough to work with it routes to the calculator for the trade with the figures entered.",
+    functions: [
+      "Parses the thread deterministically, so the same messages always produce the same estimate.",
+      "Shows every understood fact with the evidence that produced it.",
+      "Asks for missing critical details instead of estimating around them.",
+      "Detects the language of the thread and answers in it.",
+      "Routes to the matching calculator, and for paint runs the same quantity chain as the paint calculator: litres, container sizes, paintable area and coats.",
+      "Uses the market price book where one is configured, and states when engine defaults were used instead.",
+    ],
+    advantages: [
+      "The estimate can be checked line by line against the words that produced it.",
+      "A missing length is a question instead of an assumption, which keeps the total honest.",
+      "The routing means the visitor finishes in a calculator they can adjust, not a dead-end answer.",
+    ],
+    limits: [
+      "It is a parser, not a model, so it will not infer a size nobody mentioned.",
+      "Descriptions that mix several trades are routed one trade at a time.",
+      "Quantities come from the engine for that trade, and the estimate inherits the engine's own stated assumptions about specification.",
+    ],
+  },
+  "color-assistant": {
+    summary:
+      "Suggests paint colours and combinations from a description of a room, as inspiration instead of specification.",
+    description:
+      "Choosing a colour is a decision people make badly in a shop, under fluorescent light, holding a fan deck. The colour assistant takes a description of the room, its light, its furniture and the mood wanted, and returns suggested colours and combinations with names and codes that can be looked up in the colour library. It is a starting point for a scheme, and the page says as much: the suggestion is inspiration, and the wall is the test.",
+    functions: [
+      "Returns suggested colours and combinations from a described room, lighting, furniture and mood.",
+      "Gives each suggestion a name and code so the shade can be looked up properly in the colour library.",
+      "Meters recommendations against a daily free allowance and states when that allowance is used up.",
+      "States that the output is inspiration instead of a specification.",
+      "Hands quantities to the paint calculator, which measures the surface and applies the product coverage.",
+    ],
+    advantages: [
+      "The description carries the detail that decides a scheme: light direction, floor tone and existing furniture.",
+      "Codes make the suggestion checkable against a real shade instead of a screen approximation.",
+      "The allowance is stated plainly, so a limit is a rule instead of a surprise.",
+    ],
+    limits: [
+      "It carries no quantity, coverage or price. A colour is not an order.",
+      "A screen is not daylight, and a scheme that reads well in a description can fail on the wall.",
+      "The suggestion is generated from what you wrote, so an incomplete description produces advice built on a guess.",
+    ],
+  },
+  "color-preview": {
+    summary:
+      "Renders a room in the colours you chose, from a photograph or a description, before any paint is bought.",
+    description:
+      "Paint is the cheapest material to change and the dearest to get wrong, and the decision is usually made from a colour chip the size of a stamp. A preview puts the chosen colours onto a room you can see: upload a photograph or describe the room, add the colours, and the tool renders the result with the lighting, mood and style you selected taken into account.",
+    functions: [
+      "Renders a preview of the room with the chosen colours applied, from a photograph or a room description.",
+      "Accepts one or more colours, validated as hex values, before anything is generated.",
+      "Takes room type, lighting condition, mood and style as inputs to the render.",
+      "Returns a description of the preview alongside the image.",
+      "Keeps the page out of search indexing, because it is a working surface instead of an answer.",
+    ],
+    advantages: [
+      "A scheme can be compared against the actual room instead of a colour chip.",
+      "The lighting and mood inputs make the render respond to the space instead of to a generic sample.",
+      "Being kept out of the index means a generated preview of a private room never appears in search results.",
+    ],
+    limits: [
+      "A render is not a measurement, and it carries no quantity, coverage or price.",
+      "It cannot measure how daylight falls in the room, so a colour that looks right here can read differently on the wall.",
+      "A photograph improves the render without making it a colour match, and a sample pot on the wall remains the authority.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {

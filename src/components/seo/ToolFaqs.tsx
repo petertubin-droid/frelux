@@ -50,13 +50,15 @@ export default function ToolFaqs({
   if (!group) return null;
 
   return (
-    <section aria-labelledby={`${group.slug}-faq`}>
-      <div id={`${group.slug}-faq`}>
-        <FaqSection
-          title={title ?? `${group.name}: frequently asked questions`}
-          faqs={group.questions.map((q) => ({ question: q.q, answer: q.a }))}
-        />
-      </div>
+    // A plain wrapper, not a labelled section: FaqSection already carries the
+    // accessible name, and labelling this wrapper by its own contents named the
+    // whole accordion "frequently asked questions", which duplicated every word
+    // for a screen reader and made label queries on the page ambiguous.
+    <div id={`${group.slug}-faq`}>
+      <FaqSection
+        title={title ?? `${group.name}: frequently asked questions`}
+        faqs={group.questions.map((q) => ({ question: q.q, answer: q.a }))}
+      />
       <p className="mx-auto -mt-6 max-w-3xl px-4 pb-4 text-sm text-muted-foreground sm:px-6">
         More questions?{" "}
         <Link
@@ -74,6 +76,6 @@ export default function ToolFaqs({
         </Link>{" "}
         behind the numbers.
       </p>
-    </section>
+    </div>
   );
 }

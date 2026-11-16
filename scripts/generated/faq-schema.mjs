@@ -3773,5 +3773,181 @@ export const faqSchemaByPath = {
       "q": "Does a refresh check anything besides the price?",
       "a": "It flags a currency mismatch between a line and the price it was matched to, and it prints the effective date of every price it used. A price that is current but in the wrong currency, or one whose effective date is unexpectedly old, is not a refresh you can rely on."
     }
+  ],
+  "/faq/smart-calculator": [
+    {
+      "q": "Does the Smart Calculator use AI to work out the quantities?",
+      "a": "No. The reading that decides which calculator to open, and which numbers to put in it, is deterministic and inspectable: the same sentence produces the same reading every time. The engine that owns the trade then does the arithmetic. A model is asked afterwards only to explain the resulting cost, so it cannot alter a quantity on the way through."
+    },
+    {
+      "q": "What happens when the description is missing something?",
+      "a": "It says so. A project without a length and width, or without a floor area, comes back with that listed as missing instead of filled in, and a measurement with no unit is reported as having no unit instead of being assumed to be metres. Only values that appear in your sentence reach the calculator."
+    },
+    {
+      "q": "How is a description of a building read into a calculator?",
+      "a": "The work type is matched from the words you used, the dimensions are read as rectangles or as a stated area and converted to metres, and room, door and window counts are taken when stated. Each of those appears in a line of text you can check before an estimate is generated, which is the difference between a reading you can audit and one you have to trust."
+    },
+    {
+      "q": "Does it handle feet as well as metres?",
+      "a": "Yes. A rectangle stated in feet is converted to metres and both figures are shown, so a plan written in feet does not enter a calculator that expects metres without anyone noticing. Where the unit is absent the reading says so instead of choosing for you, because a unit guessed wrong changes the area by a factor of three."
+    },
+    {
+      "q": "What is the AI part for then?",
+      "a": "Explaining the cost once the engines have produced it, in the words of the project you described. The explanation sits on top of the numbers and cannot replace them. Keeping the reading deterministic and the explanation separate is what lets a person check the figures and still get a plain account of what the money is for."
+    }
+  ],
+  "/smart-calculator": [
+    {
+      "q": "Does the Smart Calculator use AI to work out the quantities?",
+      "a": "No. The reading that decides which calculator to open, and which numbers to put in it, is deterministic and inspectable: the same sentence produces the same reading every time. The engine that owns the trade then does the arithmetic. A model is asked afterwards only to explain the resulting cost, so it cannot alter a quantity on the way through."
+    },
+    {
+      "q": "What happens when the description is missing something?",
+      "a": "It says so. A project without a length and width, or without a floor area, comes back with that listed as missing instead of filled in, and a measurement with no unit is reported as having no unit instead of being assumed to be metres. Only values that appear in your sentence reach the calculator."
+    },
+    {
+      "q": "How is a description of a building read into a calculator?",
+      "a": "The work type is matched from the words you used, the dimensions are read as rectangles or as a stated area and converted to metres, and room, door and window counts are taken when stated. Each of those appears in a line of text you can check before an estimate is generated, which is the difference between a reading you can audit and one you have to trust."
+    },
+    {
+      "q": "Does it handle feet as well as metres?",
+      "a": "Yes. A rectangle stated in feet is converted to metres and both figures are shown, so a plan written in feet does not enter a calculator that expects metres without anyone noticing. Where the unit is absent the reading says so instead of choosing for you, because a unit guessed wrong changes the area by a factor of three."
+    },
+    {
+      "q": "What is the AI part for then?",
+      "a": "Explaining the cost once the engines have produced it, in the words of the project you described. The explanation sits on top of the numbers and cannot replace them. Keeping the reading deterministic and the explanation separate is what lets a person check the figures and still get a plain account of what the money is for."
+    }
+  ],
+  "/faq/conversational-estimator": [
+    {
+      "q": "How does the conversational estimator build an estimate?",
+      "a": "It reads the project out of your messages in order and shows each fact it has taken with the words that produced it. When something essential is still missing it asks for that instead of estimating, so the answer is never assembled from assumptions nobody made. With enough detail it routes to the calculator for the trade with the figures entered."
+    },
+    {
+      "q": "Is the conversation run by an AI model?",
+      "a": "No. The parsing is deterministic, so the same thread read twice produces the same estimate. That matters because quantities have to be defensible: an estimate that changes when the same conversation is reread cannot be checked by the person paying for the material."
+    },
+    {
+      "q": "What happens once there is enough detail?",
+      "a": "It works out which trade the project belongs to and routes to that calculator with the figures entered. For a paint job it runs the same quantity chain as the paint calculator, including litres, container sizes, paintable area and the coat count, so the conversational answer and the calculator answer agree."
+    },
+    {
+      "q": "Does it work in more than one language?",
+      "a": "Yes. The language of the thread is detected and the replies follow it, and the numbers are extracted from the same message either way. A description given in one language with an answer expected in another is a support question instead of an estimator feature."
+    },
+    {
+      "q": "Are the prices it uses mine or the defaults?",
+      "a": "It uses the price book configured for your market where one exists and says when it has fallen back to engine defaults. Container sizes and rates taken from defaults are a disclosure, not a quote, and the page states which of the two it used."
+    }
+  ],
+  "/conversational-estimator": [
+    {
+      "q": "How does the conversational estimator build an estimate?",
+      "a": "It reads the project out of your messages in order and shows each fact it has taken with the words that produced it. When something essential is still missing it asks for that instead of estimating, so the answer is never assembled from assumptions nobody made. With enough detail it routes to the calculator for the trade with the figures entered."
+    },
+    {
+      "q": "Is the conversation run by an AI model?",
+      "a": "No. The parsing is deterministic, so the same thread read twice produces the same estimate. That matters because quantities have to be defensible: an estimate that changes when the same conversation is reread cannot be checked by the person paying for the material."
+    },
+    {
+      "q": "What happens once there is enough detail?",
+      "a": "It works out which trade the project belongs to and routes to that calculator with the figures entered. For a paint job it runs the same quantity chain as the paint calculator, including litres, container sizes, paintable area and the coat count, so the conversational answer and the calculator answer agree."
+    },
+    {
+      "q": "Does it work in more than one language?",
+      "a": "Yes. The language of the thread is detected and the replies follow it, and the numbers are extracted from the same message either way. A description given in one language with an answer expected in another is a support question instead of an estimator feature."
+    },
+    {
+      "q": "Are the prices it uses mine or the defaults?",
+      "a": "It uses the price book configured for your market where one exists and says when it has fallen back to engine defaults. Container sizes and rates taken from defaults are a disclosure, not a quote, and the page states which of the two it used."
+    }
+  ],
+  "/faq/color-assistant": [
+    {
+      "q": "What does the colour assistant actually return?",
+      "a": "Suggestions in colour names and codes for a room you describe. They are inspiration for a scheme instead of a specification, and the page says so. The codes can be looked up in the colour library to see each shade properly before anything is bought, which is the difference between a suggestion and a colour match."
+    },
+    {
+      "q": "Is there a limit on how many recommendations I get?",
+      "a": "Yes. Recommendations are metered against a daily free allowance, and the page says when that allowance is used up and that it resets the next day. The limit exists because each recommendation is generated instead of looked up in a table, and a generated answer costs something to produce."
+    },
+    {
+      "q": "Can I describe lighting and furniture as well as the room?",
+      "a": "Yes, and the description is where the useful detail lives. Light direction, floor tone and the furniture already in the room change which colours work. A recommendation made without them is a guess with a confident tone, which is the worst kind of design advice."
+    },
+    {
+      "q": "Are the suggested colours guaranteed to work?",
+      "a": "No. A scheme that reads well in a description can still fail on the wall, because the description is not the room and a screen is not daylight. Buy a sample pot, put it on the actual surface, and look at it in the actual light before committing to a whole room."
+    },
+    {
+      "q": "Does the assistant tell me how much paint to buy?",
+      "a": "No. It suggests colours, and quantities come from the paint calculator, which measures the surface and applies the coverage of the product. A colour recommendation carries no quantity, no coverage and no price, so it cannot become an order without the calculator in between."
+    }
+  ],
+  "/ai-color-assistant": [
+    {
+      "q": "What does the colour assistant actually return?",
+      "a": "Suggestions in colour names and codes for a room you describe. They are inspiration for a scheme instead of a specification, and the page says so. The codes can be looked up in the colour library to see each shade properly before anything is bought, which is the difference between a suggestion and a colour match."
+    },
+    {
+      "q": "Is there a limit on how many recommendations I get?",
+      "a": "Yes. Recommendations are metered against a daily free allowance, and the page says when that allowance is used up and that it resets the next day. The limit exists because each recommendation is generated instead of looked up in a table, and a generated answer costs something to produce."
+    },
+    {
+      "q": "Can I describe lighting and furniture as well as the room?",
+      "a": "Yes, and the description is where the useful detail lives. Light direction, floor tone and the furniture already in the room change which colours work. A recommendation made without them is a guess with a confident tone, which is the worst kind of design advice."
+    },
+    {
+      "q": "Are the suggested colours guaranteed to work?",
+      "a": "No. A scheme that reads well in a description can still fail on the wall, because the description is not the room and a screen is not daylight. Buy a sample pot, put it on the actual surface, and look at it in the actual light before committing to a whole room."
+    },
+    {
+      "q": "Does the assistant tell me how much paint to buy?",
+      "a": "No. It suggests colours, and quantities come from the paint calculator, which measures the surface and applies the coverage of the product. A colour recommendation carries no quantity, no coverage and no price, so it cannot become an order without the calculator in between."
+    }
+  ],
+  "/faq/color-preview": [
+    {
+      "q": "What does the colour preview produce?",
+      "a": "A rendered preview of a room with the colours you chose applied, based on a photograph you upload or a description you give. It is a way to see a scheme before buying paint. It is not a measurement of the room, and it carries no quantity, coverage or price."
+    },
+    {
+      "q": "Why is this page kept out of search results?",
+      "a": "Because it is a working surface instead of an answer people search for. The page is marked no-index deliberately, so a generated preview of somebody's room never appears in search results. The same reasoning keeps its copy off the indexed surface of the site."
+    },
+    {
+      "q": "Do the previews take lighting into account?",
+      "a": "Only as far as the inputs describe it. The lighting condition, room type and mood steer the render, but a preview cannot measure how daylight falls in your room. A colour that looks right in the render can still read differently on the wall, which is what a sample pot is for."
+    },
+    {
+      "q": "Does it need a photograph?",
+      "a": "No. A description of the room is enough to generate a preview, and a photograph gives the render a real surface to work with. Either way at least one valid colour has to be chosen before anything is generated, since there is nothing to preview without one."
+    },
+    {
+      "q": "Can I use the preview to order paint?",
+      "a": "Not on its own. The preview shows a scheme and the quantities come from the paint calculator using the measured area. Ordering from a preview is ordering from a picture, which is how a room ends up three litres short of the colour that was matched to it."
+    }
+  ],
+  "/color-preview": [
+    {
+      "q": "What does the colour preview produce?",
+      "a": "A rendered preview of a room with the colours you chose applied, based on a photograph you upload or a description you give. It is a way to see a scheme before buying paint. It is not a measurement of the room, and it carries no quantity, coverage or price."
+    },
+    {
+      "q": "Why is this page kept out of search results?",
+      "a": "Because it is a working surface instead of an answer people search for. The page is marked no-index deliberately, so a generated preview of somebody's room never appears in search results. The same reasoning keeps its copy off the indexed surface of the site."
+    },
+    {
+      "q": "Do the previews take lighting into account?",
+      "a": "Only as far as the inputs describe it. The lighting condition, room type and mood steer the render, but a preview cannot measure how daylight falls in your room. A colour that looks right in the render can still read differently on the wall, which is what a sample pot is for."
+    },
+    {
+      "q": "Does it need a photograph?",
+      "a": "No. A description of the room is enough to generate a preview, and a photograph gives the render a real surface to work with. Either way at least one valid colour has to be chosen before anything is generated, since there is nothing to preview without one."
+    },
+    {
+      "q": "Can I use the preview to order paint?",
+      "a": "Not on its own. The preview shows a scheme and the quantities come from the paint calculator using the measured area. Ordering from a preview is ordering from a picture, which is how a room ends up three litres short of the colour that was matched to it."
+    }
   ]
 };

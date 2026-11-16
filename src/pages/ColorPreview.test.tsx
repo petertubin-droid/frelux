@@ -54,8 +54,14 @@ describe("ColorPreview", () => {
 
     // The heading comes from the catalogue entry, not from a title written in
     // the page, so the menu label and the page heading cannot drift apart.
+    // Level 1: the shell also renders a questions section whose title contains
+    // the page name, and that section is correct content rather than a second
+    // page heading.
     expect(
-      await findByRole("heading", { name: /before & after preview/i }),
+      await findByRole("heading", {
+        level: 1,
+        name: /before & after preview/i,
+      }),
     ).toBeTruthy();
 
     const page = seoCalls.find((c) => c.canonicalPath === "/color-preview");
