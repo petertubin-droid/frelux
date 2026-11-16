@@ -3421,5 +3421,137 @@ export const faqSchemaByPath = {
       "q": "Can I cost a ground floor on a filled plot from this?",
       "a": "You can price the hardcore, blinding, membrane and slab for the area and thicknesses you enter. Fill placed to raise a site, the number of compaction layers, and the structural thickness of the slab itself are engineering decisions, and the tool states that rather than deciding them for you."
     }
+  ],
+  "/faq/tv-console-calculator": [
+    {
+      "q": "How many sheets of board does a TV console need?",
+      "a": "The calculator builds a panel schedule from the concept and the carcass dimensions: two sides, a top, a bottom, the shelves and dividers you asked for, the back and any doors. Those panels are packed into the sheet size you entered, and the workshop allowance is added to the packed count. The sheet figure is what a workshop would order for that schedule, not a guess at board consumption from the picture."
+    },
+    {
+      "q": "Why is the sheet count described as a lower bound?",
+      "a": "Because the packing is done in strips and the page says so. Grain direction, book matching, saw kerf and the reuse of offcuts inside a strip are not modelled, and any of them can push a real cutting plan above the printed figure. Read the number as the order the schedule justifies, and let the workshop that cuts it confirm the final sheets."
+    },
+    {
+      "q": "What does the workshop allowance actually buy?",
+      "a": "The allowance buys spares against cutting error and defects. It is applied to the packed board count and the result is rounded up, so two packed sheets at ten percent becomes three, since a workshop cannot buy a fifth of a sheet to hold a spare panel. Setting the allowance to zero is allowed, and it will produce an order with no spare at all."
+    },
+    {
+      "q": "Are edge banding and hardware included?",
+      "a": "Edge banding is measured on the exposed edges in the schedule, and hinges are counted per door from the door height. Slides, handles and other fittings follow the concept. The cost lines are built from the rates you enter for your supplier, so the total can be shown to a client without a national average standing behind it."
+    },
+    {
+      "q": "Can the panel schedule be used as a cut list?",
+      "a": "No. The schedule is a planning estimate, and the panel sizes follow the assembly rule the page states, including the drawer clearances it lists. A cutting list that accounts for grain, kerf and the sheet goods you actually buy has to come from the workshop, and the schedule is the input to that conversation."
+    }
+  ],
+  "/tv-console-calculator": [
+    {
+      "q": "How many sheets of board does a TV console need?",
+      "a": "The calculator builds a panel schedule from the concept and the carcass dimensions: two sides, a top, a bottom, the shelves and dividers you asked for, the back and any doors. Those panels are packed into the sheet size you entered, and the workshop allowance is added to the packed count. The sheet figure is what a workshop would order for that schedule, not a guess at board consumption from the picture."
+    },
+    {
+      "q": "Why is the sheet count described as a lower bound?",
+      "a": "Because the packing is done in strips and the page says so. Grain direction, book matching, saw kerf and the reuse of offcuts inside a strip are not modelled, and any of them can push a real cutting plan above the printed figure. Read the number as the order the schedule justifies, and let the workshop that cuts it confirm the final sheets."
+    },
+    {
+      "q": "What does the workshop allowance actually buy?",
+      "a": "The allowance buys spares against cutting error and defects. It is applied to the packed board count and the result is rounded up, so two packed sheets at ten percent becomes three, since a workshop cannot buy a fifth of a sheet to hold a spare panel. Setting the allowance to zero is allowed, and it will produce an order with no spare at all."
+    },
+    {
+      "q": "Are edge banding and hardware included?",
+      "a": "Edge banding is measured on the exposed edges in the schedule, and hinges are counted per door from the door height. Slides, handles and other fittings follow the concept. The cost lines are built from the rates you enter for your supplier, so the total can be shown to a client without a national average standing behind it."
+    },
+    {
+      "q": "Can the panel schedule be used as a cut list?",
+      "a": "No. The schedule is a planning estimate, and the panel sizes follow the assembly rule the page states, including the drawer clearances it lists. A cutting list that accounts for grain, kerf and the sheet goods you actually buy has to come from the workshop, and the schedule is the input to that conversation."
+    }
+  ],
+  "/faq/water-tower-staging-estimator": [
+    {
+      "q": "How is the dead load on the staging calculated?",
+      "a": "From the capacity and the structure you describe. Water is counted at one kilogram per litre, the tank and the frame above the legs are added, and the total is reported in kilonewtons so it can be compared with what a leg section can carry. The load is printed with the assumption behind it, and that is the figure lets it be checked against a tank data sheet."
+    },
+    {
+      "q": "How does the wind check work?",
+      "a": "The calculator reports a wind overturning factor from the pressure, the height and the leg spread you enter, with the cross bracing that resists it. The factor is a ratio: below one the weight holds the tower down, above one the tower wants to go over. Because water cannot be counted as ballast, the empty tank is the case that matters, and the check prints the height and the spread it used."
+    },
+    {
+      "q": "What decides the pad footing size?",
+      "a": "The leg load and the bearing you assume for the ground, applied to the spread you set. A wider spread lowers the load each leg carries and changes the pad as a direct consequence. The bearing figure is a judgement about the soil, so it belongs in a soil report before a footing is cast, and the calculator states that instead of hiding it."
+    },
+    {
+      "q": "Does the estimate include the steel or concrete quantities?",
+      "a": "Yes, the material bill is reported for the tower material you selected, steel sections or concrete columns, with the pad footings. The leg section utilisation is stated alongside, so a section that is carrying more than it should is visible instead of buried in a tonnage figure."
+    },
+    {
+      "q": "Is this a structural design for an elevated tank?",
+      "a": "No. It is a load, stability and quantity estimate from the figures you enter. Foundation bearing, member design to a code, connection details and the tank manufacturer's loading requirements need a chartered engineer working from a soil report and the tank data sheet."
+    }
+  ],
+  "/water-tower-staging-estimator": [
+    {
+      "q": "How is the dead load on the staging calculated?",
+      "a": "From the capacity and the structure you describe. Water is counted at one kilogram per litre, the tank and the frame above the legs are added, and the total is reported in kilonewtons so it can be compared with what a leg section can carry. The load is printed with the assumption behind it, and that is the figure lets it be checked against a tank data sheet."
+    },
+    {
+      "q": "How does the wind check work?",
+      "a": "The calculator reports a wind overturning factor from the pressure, the height and the leg spread you enter, with the cross bracing that resists it. The factor is a ratio: below one the weight holds the tower down, above one the tower wants to go over. Because water cannot be counted as ballast, the empty tank is the case that matters, and the check prints the height and the spread it used."
+    },
+    {
+      "q": "What decides the pad footing size?",
+      "a": "The leg load and the bearing you assume for the ground, applied to the spread you set. A wider spread lowers the load each leg carries and changes the pad as a direct consequence. The bearing figure is a judgement about the soil, so it belongs in a soil report before a footing is cast, and the calculator states that instead of hiding it."
+    },
+    {
+      "q": "Does the estimate include the steel or concrete quantities?",
+      "a": "Yes, the material bill is reported for the tower material you selected, steel sections or concrete columns, with the pad footings. The leg section utilisation is stated alongside, so a section that is carrying more than it should is visible instead of buried in a tonnage figure."
+    },
+    {
+      "q": "Is this a structural design for an elevated tank?",
+      "a": "No. It is a load, stability and quantity estimate from the figures you enter. Foundation bearing, member design to a code, connection details and the tank manufacturer's loading requirements need a chartered engineer working from a soil report and the tank data sheet."
+    }
+  ],
+  "/faq/diaspora-budget-tracker": [
+    {
+      "q": "What is the exchange rate gap, and why does it matter?",
+      "a": "It is the difference between the official and the parallel rate you enter, expressed as a spread, and it matters because it is often the largest single swing in a diaspora budget. A remittance of the same size delivers different local money at each rate, and the gap can exceed a change of finish or a change of block."
+    },
+    {
+      "q": "How is inflation applied over the timeline?",
+      "a": "It compounds. Each year multiplies the budget by the annual rate, so a three year build at a given rate costs more than that rate taken once. The multiplier is printed, which is the figure to put in front of a sponsor who has compared a simple multiplication."
+    },
+    {
+      "q": "Why is my forward budget higher than what I sent?",
+      "a": "Because two effects are working at once: the difference between the rate money was sent at and the rate on the day a milestone is paid, and the inflation accumulated between the plan and that milestone. The projection makes the shortfall visible before a site stops work."
+    },
+    {
+      "q": "Where do the exchange rates and the inflation figure come from?",
+      "a": "From you. The tracker does not quote a rate and does not publish a forecast, so the official rate, the parallel rate and the inflation figure must be the ones you can observe in your own market. Each one carries the date it was observed, because an undated rate says nothing about when it was true."
+    },
+    {
+      "q": "What does the variance health figure mean?",
+      "a": "It compares the funds available with the projected cost at the timeline you set and reports how far apart they are. It is a planning signal: a currency move, a delay that adds a year of inflation, or a repriced milestone will all move it, and none of them are predictions the tracker makes."
+    }
+  ],
+  "/diaspora-budget-tracker": [
+    {
+      "q": "What is the exchange rate gap, and why does it matter?",
+      "a": "It is the difference between the official and the parallel rate you enter, expressed as a spread, and it matters because it is often the largest single swing in a diaspora budget. A remittance of the same size delivers different local money at each rate, and the gap can exceed a change of finish or a change of block."
+    },
+    {
+      "q": "How is inflation applied over the timeline?",
+      "a": "It compounds. Each year multiplies the budget by the annual rate, so a three year build at a given rate costs more than that rate taken once. The multiplier is printed, which is the figure to put in front of a sponsor who has compared a simple multiplication."
+    },
+    {
+      "q": "Why is my forward budget higher than what I sent?",
+      "a": "Because two effects are working at once: the difference between the rate money was sent at and the rate on the day a milestone is paid, and the inflation accumulated between the plan and that milestone. The projection makes the shortfall visible before a site stops work."
+    },
+    {
+      "q": "Where do the exchange rates and the inflation figure come from?",
+      "a": "From you. The tracker does not quote a rate and does not publish a forecast, so the official rate, the parallel rate and the inflation figure must be the ones you can observe in your own market. Each one carries the date it was observed, because an undated rate says nothing about when it was true."
+    },
+    {
+      "q": "What does the variance health figure mean?",
+      "a": "It compares the funds available with the projected cost at the timeline you set and reports how far apart they are. It is a planning signal: a currency move, a delay that adds a year of inflation, or a repriced milestone will all move it, and none of them are predictions the tracker makes."
+    }
   ]
 };

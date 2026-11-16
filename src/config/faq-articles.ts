@@ -556,6 +556,75 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
       "Raising a site above flood level is a drainage and levels problem that a material takeoff cannot answer.",
     ],
   },
+  "tv-console-calculator": {
+    summary:
+      "Turns a console concept into a panel schedule, a sheet count and a cost roll-up from your own rates.",
+    description:
+      "A media unit is a set of rectangular panels before it is a piece of furniture. The calculator expands the concept you choose into that set, packs the panels into the sheet size you buy, adds the workshop allowance and prices the board, the banding and the hardware from the rates you enter, so the furniture quote rests on a schedule a joiner can read.",
+    functions: [
+      "Expands the chosen concept into sides, top, bottom, shelves, dividers, back and doors at the dimensions you set.",
+      "Packs the panels into sheets of your size and reports the packed count before any allowance.",
+      "Applies the workshop allowance to the packed count and rounds up, so a spare panel is bought where it is needed.",
+      "Measures edge banding on the exposed edges and counts hinges per door from the door height.",
+      "Prices board, banding, hardware and labour from the rates you enter and rolls the result into one total.",
+    ],
+    advantages: [
+      "The schedule is stated in panels, so a joiner can check the arithmetic against the drawing.",
+      "The sheet count names its packing method, which keeps the figure honest about what it does not simulate.",
+      "Hardware follows the concept, so drawers, doors and open shelving are costed as the different jobs they are.",
+    ],
+    limits: [
+      "The figure is a planning estimate. Grain direction, book matching, saw kerf and offcut reuse are not simulated, so a nested cutting list will differ.",
+      "It is not a safety or fixing design. Wall anchors, stud finding and the weight the wall can carry are outside it.",
+      "Sheet prices and labour rates are yours, so the total is only as current as the rates you enter.",
+    ],
+  },
+  "water-tower-staging-estimator": {
+    summary:
+      "Sizes an overhead tank staging: dead load, wind stability, footing and the material bill.",
+    description:
+      "An elevated tank is a load path from the water down to the ground, with one load that pushes sideways and cannot be ignored. The calculator carries the tank capacity and the staging geometry through dead load, overturning, footing bearing and member quantities, and shows the build sequence the staging is assembled in.",
+    functions: [
+      "Converts tank capacity into water mass and adds the tank and frame above the legs, reported in kilonewtons.",
+      "Reports a wind overturning factor from the pressure, the height and the leg spread you enter, with the bracing that resists it.",
+      "Sizes the pad footing from the leg load and the bearing you assume.",
+      "Reports leg section utilisation and the steel or concrete quantities for the tower material you selected.",
+      "Shows the step by step build sequence from the pads through the legs to the tank.",
+    ],
+    advantages: [
+      "Dead load, stability and quantities are worked from one set of geometry, so a taller tower moves every figure together.",
+      "The empty tank case is exposed, because water is not ballast that can be relied on in a storm.",
+      "Footing and member figures come with the assumptions printed beside them, so an engineer can check the inputs.",
+    ],
+    limits: [
+      "The bearing value is an assumption about the soil, not a measurement of it.",
+      "Member design to a code, weld and bolt details, and the tank manufacturer's loading requirements are not carried out.",
+      "The result is an estimate for planning and enquiry, not a stamped structural design.",
+    ],
+  },
+  "diaspora-budget-tracker": {
+    summary:
+      "Projects a cross-border build budget through exchange spreads and compound material inflation.",
+    description:
+      "A build funded from abroad is exposed twice: to the gap between the rate money arrives at and the rate it is spent at, and to the inflation that has accumulated by the time each milestone is paid. The tracker projects the forward budget from the rates and the inflation you can observe, and reports the variance against what the sponsor has available.",
+    functions: [
+      "Reports the spread between the official and parallel rates you enter, in currency terms.",
+      "Compounds the annual inflation across the timeline and reports the multiplier it used.",
+      "Projects a forward target budget milestone by milestone, applying the rate and the accumulated inflation to each.",
+      "Compares available funds with the projection and reports variance health.",
+      "Keeps each rate dated, so a figure can be traced to the day it was observed.",
+    ],
+    advantages: [
+      "The two exposures are shown separately, so a sponsor can see whether the gap or the inflation is doing the damage.",
+      "Compounding is applied year on year instead of one year's rate multiplied by the number of years.",
+      "The projection is milestone by milestone, which is the order money is actually spent in.",
+    ],
+    limits: [
+      "No live rate is quoted and no forecast is published. The rates and the inflation figure are the ones you record.",
+      "It is a planning model, not financial or investment advice.",
+      "A delay, a currency move or a repriced milestone after the projection will change the answer.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {
