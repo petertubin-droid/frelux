@@ -830,6 +830,62 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
       },
     ],
   },
+  {
+    slug: "quote-check",
+    route: "/quote-check",
+    name: "Quote Check",
+    category: "project",
+    questions: [
+      {
+        q: "What counts as over the market on a quote?",
+        a: "A rate is compared with the price book rate for the same item, and a band of 10 percent either side counts as fair. Outside that band the line is reported as over or under, with the rate difference and the money difference both printed, so the size of the gap is visible and not only established.",
+      },
+      {
+        q: "Why can some quoted lines not be judged?",
+        a: "Because the price book holds no rate for that item, and the line is reported as having no reference. A comparison tool that invents a market rate for an item it does not know is worse than no comparison, so the line is listed separately and the advice is to confirm it directly with suppliers.",
+      },
+      {
+        q: "What happens when the quote uses a different unit?",
+        a: "The line is reported as a unit mismatch and no rate comparison is made. The check compares units as strings after trimming case and spacing, so square metres written as m2 and as sqm are not treated as the same unit. That refusal is deliberate: guessing an alias is how a comparison reports a saving that does not exist.",
+      },
+      {
+        q: "Is the comparison on the rate or on the total?",
+        a: "Both. The rate per unit is the figure compared against the band, because a total hides a short quantity, and the line amount is then calculated as quantity times the rounded reference rate so the money difference can be shown beside it.",
+      },
+      {
+        q: "Does a fair verdict mean the quote is acceptable?",
+        a: "No. A fair line means the rate sits inside the band around the market rate for that item. The check does not judge the specification, the quantity, the wastage allowed, the preliminaries, the labour rate or the terms, and a quote can pass every line and still be a poor quote.",
+      },
+    ],
+  },
+  {
+    slug: "photo-estimator",
+    route: "/image-estimator",
+    name: "AI Photo Estimator",
+    category: "commercial",
+    questions: [
+      {
+        q: "What does the estimator read from a photograph?",
+        a: "It extracts the building details the estimate needs, such as the overall dimensions, the building type and the roof type, and asks you to confirm each one. Anything the photograph does not establish is left for you to enter instead of being invented from a plausible guess.",
+      },
+      {
+        q: "Does the AI calculate the quantities and the cost?",
+        a: "No. The photograph is read into the calculator form and the FRELUX engines do the arithmetic from those confirmed figures. Extraction is separated from estimation on purpose, so a wrong reading can be corrected in the form and the same engine produces a different, defensible answer.",
+      },
+      {
+        q: "What is the review step for?",
+        a: "It is where the readings and the engine defaults are shown apart, so you can see which figures came from the photograph and which are assumptions the calculator would make anyway. You correct the readings, and the corrections are what the estimate is built from.",
+      },
+      {
+        q: "How accurate are the measurements read from a photo?",
+        a: "Only as good as the photograph. Perspective, obstruction and the absence of a scale reference all limit what can be read, and a single view of a building cannot establish depth that is hidden behind a wall. The review step exists because a site measurement is the authority and the photograph is a starting point.",
+      },
+      {
+        q: "What happens to the photograph I upload?",
+        a: "It is sent to the estimation service so the building details can be extracted from it, and the estimate is then built from the figures you confirmed instead of from the image itself. The saved project holds the estimate and its measurements, and a later recalculation starts from those figures.",
+      },
+    ],
+  },
 ];
 
 const BY_SLUG = new Map(TOOL_FAQS.map((g) => [g.slug, g]));

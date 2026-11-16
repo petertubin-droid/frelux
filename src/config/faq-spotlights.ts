@@ -48,6 +48,8 @@ export const FAQ_SPOTLIGHT_PLACEMENTS: FaqSpotlightPlacementConfig[] = [
       { slug: "water-tower-staging-estimator", questionIndexes: [1, 4] },
       { slug: "tv-console-calculator", questionIndexes: [0, 4] },
       { slug: "diaspora-budget-tracker", questionIndexes: [1, 4] },
+      { slug: "quote-check", questionIndexes: [0, 1] },
+      { slug: "photo-estimator", questionIndexes: [0, 1] },
       { slug: "build-to-roof-estimator", questionIndexes: [1, 3] },
       { slug: "soffit-gutter-cost-estimator", questionIndexes: [0, 1] },
       { slug: "masonry-calculator", questionIndexes: [0, 2] },

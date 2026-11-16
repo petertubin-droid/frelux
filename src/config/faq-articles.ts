@@ -625,6 +625,52 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
       "A delay, a currency move or a repriced milestone after the projection will change the answer.",
     ],
   },
+  "quote-check": {
+    summary:
+      "Compares each quoted line with the market rate for the same item and shows where the gaps are.",
+    description:
+      "A quote arrives as a list of rates, and the only useful question about it is which of those rates are sitting away from the market for the same item. The check compares each line against the price book rate for that item, reports the lines inside a 10 percent band as fair, names the lines above and below it, and separates the lines that cannot be judged for want of a reference price.",
+    functions: [
+      "Compares the quoted rate for each line with the price book rate for the same item.",
+      "Reports a line as fair when the rate sits within 10 percent either side of the reference rate.",
+      "Names the lines above the band and the lines below it, with the rate difference and the money difference printed.",
+      "Refuses to compare lines whose units do not match the reference unit exactly once case and spacing are removed.",
+      "Lists lines with no reference price separately, because a market rate cannot be invented for an item the price book does not hold.",
+    ],
+    advantages: [
+      "The band is stated, so a verdict can be argued with instead of taken on trust.",
+      "Money differences are printed beside rate differences, which separates a high rate from a large quantity.",
+      "Unjudged lines are counted apart from fair ones, so silence is never reported as a pass.",
+    ],
+    limits: [
+      "A fair line is a market check on the rate alone. It does not judge specification, quantity, wastage, preliminaries, labour or terms.",
+      "The reference rates are the ones in your price book for your market, so an out of date price book produces a confident wrong answer.",
+      "Lines without a reference are listed, not scored, and the comparison makes no claim about whether they are good value.",
+    ],
+  },
+  "photo-estimator": {
+    summary:
+      "Reads building details from a photograph into the calculator form, then runs the engines on the figures you confirm.",
+    description:
+      "The photograph is a fast way to get measurements into a calculator and a poor way to decide them. This surface separates the two jobs: the image is read for building details such as overall dimensions, building type and roof type, those readings are put in front of you beside the defaults the engine would otherwise assume, and the estimate is generated from the figures you confirm.",
+    functions: [
+      "Extracts overall dimensions, building type and roof type from an uploaded photograph.",
+      "Presents each reading beside the engine default, so assumptions and observations are not confused.",
+      "Records the corrections you make, which is how the readings improve over time.",
+      "Runs the FRELUX estimation engines on the confirmed figures and returns quantities and cost.",
+      "Saves the estimate to a project, where a later recalculation can pick it up.",
+    ],
+    advantages: [
+      "Extraction and arithmetic are separated, so a bad reading is corrected in the form instead of being buried in a total.",
+      "Engine defaults are shown explicitly, which is the difference between an assumption and a measurement.",
+      "Corrections are captured, so the same misreading is less likely to reach the next estimate.",
+    ],
+    limits: [
+      "What a photograph can establish is limited by perspective, obstruction and the absence of a scale reference.",
+      "A single view cannot reveal depth hidden behind a wall, and a site measurement remains the authority.",
+      "The readings are an input to the engines, and the estimate inherits every assumption the engine makes about specification.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {

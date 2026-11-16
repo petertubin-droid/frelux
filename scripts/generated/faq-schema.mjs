@@ -3553,5 +3553,93 @@ export const faqSchemaByPath = {
       "q": "What does the variance health figure mean?",
       "a": "It compares the funds available with the projected cost at the timeline you set and reports how far apart they are. It is a planning signal: a currency move, a delay that adds a year of inflation, or a repriced milestone will all move it, and none of them are predictions the tracker makes."
     }
+  ],
+  "/faq/quote-check": [
+    {
+      "q": "What counts as over the market on a quote?",
+      "a": "A rate is compared with the price book rate for the same item, and a band of 10 percent either side is treated as fair. Outside that band the line is named as over or under, and both the rate difference and the money difference are printed, so the size of the gap is visible and not only its existence."
+    },
+    {
+      "q": "Why can some quoted lines not be judged?",
+      "a": "Because the price book holds no rate for that item. The line is reported as having no reference and counted apart from the judged lines. Inventing a market rate for an item the tool does not know would make every verdict suspect, so the honest answer is that this line needs a supplier conversation."
+    },
+    {
+      "q": "What happens when the quote uses a different unit?",
+      "a": "The line is reported as a unit mismatch and no comparison is made. Units are compared as strings after trimming case and spacing, so m2 and sqm are not the same unit. Guessing aliases is how a comparison tool reports a saving that does not exist, and a refused comparison is easier to correct than a wrong verdict is to notice."
+    },
+    {
+      "q": "Is the comparison on the rate or on the total?",
+      "a": "Both. The rate is the figure compared against the band, because a total can hide a short quantity, and the line amount is then calculated as quantity multiplied by the rounded reference rate so the money difference sits beside the rate difference."
+    },
+    {
+      "q": "Does a fair verdict mean the quote is acceptable?",
+      "a": "No. The check judges the rate against the market and nothing else. The specification, the quantity measured, the wastage allowed, the preliminaries, the labour rate and the payment terms all sit outside it, and a quote can pass every line and still be a poor piece of business."
+    }
+  ],
+  "/quote-check": [
+    {
+      "q": "What counts as over the market on a quote?",
+      "a": "A rate is compared with the price book rate for the same item, and a band of 10 percent either side is treated as fair. Outside that band the line is named as over or under, and both the rate difference and the money difference are printed, so the size of the gap is visible and not only its existence."
+    },
+    {
+      "q": "Why can some quoted lines not be judged?",
+      "a": "Because the price book holds no rate for that item. The line is reported as having no reference and counted apart from the judged lines. Inventing a market rate for an item the tool does not know would make every verdict suspect, so the honest answer is that this line needs a supplier conversation."
+    },
+    {
+      "q": "What happens when the quote uses a different unit?",
+      "a": "The line is reported as a unit mismatch and no comparison is made. Units are compared as strings after trimming case and spacing, so m2 and sqm are not the same unit. Guessing aliases is how a comparison tool reports a saving that does not exist, and a refused comparison is easier to correct than a wrong verdict is to notice."
+    },
+    {
+      "q": "Is the comparison on the rate or on the total?",
+      "a": "Both. The rate is the figure compared against the band, because a total can hide a short quantity, and the line amount is then calculated as quantity multiplied by the rounded reference rate so the money difference sits beside the rate difference."
+    },
+    {
+      "q": "Does a fair verdict mean the quote is acceptable?",
+      "a": "No. The check judges the rate against the market and nothing else. The specification, the quantity measured, the wastage allowed, the preliminaries, the labour rate and the payment terms all sit outside it, and a quote can pass every line and still be a poor piece of business."
+    }
+  ],
+  "/faq/photo-estimator": [
+    {
+      "q": "What does the estimator read from a photograph?",
+      "a": "It reads the details the estimate needs, which are the overall dimensions, the building type and the roof type. Each reading is put in front of you to confirm. Anything the photograph does not establish is left for you to enter, because a plausible guess presented as a reading is worse than an empty field."
+    },
+    {
+      "q": "Does the AI calculate the quantities and the cost?",
+      "a": "No. The photograph is read into the calculator form and the engines do the arithmetic from the confirmed figures. Keeping those apart is deliberate: a wrong reading can be corrected in the form and the same engine produces a different and defensible answer, which is not true of a figure an image model invented whole."
+    },
+    {
+      "q": "What is the review step for?",
+      "a": "It separates readings from defaults. The engine would assume certain values if nothing is entered, and the review step shows those assumptions beside the readings taken from the photograph. You correct what the photograph got wrong, and the estimate is built from the corrected set."
+    },
+    {
+      "q": "How accurate are the measurements read from a photo?",
+      "a": "Only as good as the photograph. Perspective, obstruction and the lack of a scale reference all limit the reading, and one view cannot show depth hidden behind a wall. The review step exists because a tape on site is the authority and a photograph is a starting point."
+    },
+    {
+      "q": "What happens to the photograph I upload?",
+      "a": "It is sent to the estimation service so the building details can be extracted, and the estimate is built from the figures you confirmed instead of from the image. The saved project keeps the estimate and its measurements, and that is what a recalculation needs later."
+    }
+  ],
+  "/image-estimator": [
+    {
+      "q": "What does the estimator read from a photograph?",
+      "a": "It reads the details the estimate needs, which are the overall dimensions, the building type and the roof type. Each reading is put in front of you to confirm. Anything the photograph does not establish is left for you to enter, because a plausible guess presented as a reading is worse than an empty field."
+    },
+    {
+      "q": "Does the AI calculate the quantities and the cost?",
+      "a": "No. The photograph is read into the calculator form and the engines do the arithmetic from the confirmed figures. Keeping those apart is deliberate: a wrong reading can be corrected in the form and the same engine produces a different and defensible answer, which is not true of a figure an image model invented whole."
+    },
+    {
+      "q": "What is the review step for?",
+      "a": "It separates readings from defaults. The engine would assume certain values if nothing is entered, and the review step shows those assumptions beside the readings taken from the photograph. You correct what the photograph got wrong, and the estimate is built from the corrected set."
+    },
+    {
+      "q": "How accurate are the measurements read from a photo?",
+      "a": "Only as good as the photograph. Perspective, obstruction and the lack of a scale reference all limit the reading, and one view cannot show depth hidden behind a wall. The review step exists because a tape on site is the authority and a photograph is a starting point."
+    },
+    {
+      "q": "What happens to the photograph I upload?",
+      "a": "It is sent to the estimation service so the building details can be extracted, and the estimate is built from the figures you confirmed instead of from the image. The saved project keeps the estimate and its measurements, and that is what a recalculation needs later."
+    }
   ]
 };
