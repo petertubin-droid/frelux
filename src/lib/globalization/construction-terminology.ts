@@ -124,10 +124,17 @@ export interface MarketToolCopy {
   does: string;
   enters: string;
   gets: string;
+  /**
+   * The page heading where it differs from the list card. A tools list wants a
+   * short card title, a page wants what the visitor calls the thing: "Rebar
+   * Estimator" on the page, "Reinforcement / Steel" in the list.
+   */
+  heading?: string;
 }
 
 const GENERIC_FINISHING_COPY: MarketToolCopy = {
   title: "Wall Finishing",
+  heading: "Screeding Estimator",
   does: "Estimate material quantities and costs for smooth wall finishes.",
   enters: "Wall area and finish thickness, or room dimensions.",
   gets: "Estimated wall-finishing materials and costs, where market data is configured.",
@@ -158,6 +165,7 @@ const FINISHING_COPY: Readonly<
 
 const GENERIC_REINFORCEMENT_COPY: MarketToolCopy = {
   title: "Reinforcement / Steel",
+  heading: "Reinforcement Estimator",
   does: "Calculate reinforcement quantities, weights and binding wire for structural elements.",
   enters: "Element type and dimensions, bar spacing or the bar schedule.",
   gets: "Reinforcement lengths and tonnage, with cost where market prices are configured.",
@@ -179,27 +187,39 @@ export function getConstructionTerm(
   return local ?? fallback ?? NEUTRAL_TERMS[operation];
 }
 
+/**
+ * Market wording for a tool's own copy.
+ *
+ * A market is not resolved on the first render (and not in a test that mounts a
+ * page without one), so a missing market reads as the catalogue's own copy
+ * rather than throwing on the way to paint.
+ */
 export function getMarketToolCopy<T extends MarketToolCopy>(
   slug: string,
-  marketCode: string,
+  marketCode: string | null | undefined,
   base: T,
 ): T {
+  if (!marketCode) return base;
   const code = marketCode.toUpperCase();
   const isMarket = isTerminologyMarket(code);
   let localized: Partial<MarketToolCopy> | undefined;
 
   if (slug === "screeding") {
     localized = isMarket
-      ? (FINISHING_COPY[code] ?? {
-          ...GENERIC_FINISHING_COPY,
-          title: getConstructionTerm("wall_finishing", code),
-        })
+      ? {
+          ...(FINISHING_COPY[code] ?? {
+            ...GENERIC_FINISHING_COPY,
+            title: getConstructionTerm("wall_finishing", code),
+          }),
+          heading: `${getConstructionTerm("wall_finishing", code)} Estimator`,
+        }
       : GENERIC_FINISHING_COPY;
   } else if (slug === "reinforcement") {
     localized = isMarket
       ? {
           ...GENERIC_REINFORCEMENT_COPY,
           title: `${getConstructionTerm("reinforcement", code)} Estimator`,
+          heading: `${getConstructionTerm("reinforcement", code)} Estimator`,
         }
       : GENERIC_REINFORCEMENT_COPY;
   }

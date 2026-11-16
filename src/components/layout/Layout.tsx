@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
 import { PriceBookProvider } from "@/lib/pricing/price-book-context";
-import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
+import { isToolRoute } from "@/config/tool-index";
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -84,14 +84,6 @@ const AchievementToast = lazy(() =>
  * The building size control belongs on the tools, not on marketing pages: it is
  * only useful where a calculator will read the building.
  */
-function isToolRoute(pathname: string): boolean {
-  const path = pathname.replace(/\/+$/, "") || "/";
-  return CONSTRUCTION_TOOLS.some((tool) => {
-    const to = tool.to ?? (tool.slug ? `/${tool.slug}` : "");
-    if (!to) return false;
-    return to.replace(/\/+$/, "") === path;
-  });
-}
 
 export default function Layout() {
   const { t } = useLanguage();
@@ -531,30 +523,32 @@ export default function Layout() {
     ric(() => void checkMaintenance());
 
     // Real-time subscription: detect maintenance changes immediately.
-    getSupabase().then((sb) => {
-      if (!active) return;
-      channel = sb
-        .channel("site_settings_maintenance")
-        .on(
-          "postgres_changes",
-          { event: "UPDATE", schema: "public", table: "site_settings" },
-          (payload) => {
-            if (!active) return;
-            const row = payload.new as Record<string, unknown> | null;
-            setMaintenance(!!row?.maintenance_mode);
-            setMaintenanceBanner({
-              enabled: !!row?.maintenance_banner_enabled,
-              message:
-                typeof row?.maintenance_banner_message === "string"
-                  ? row.maintenance_banner_message
-                  : "",
-            });
-          },
-        )
-        .subscribe();
-    }).catch((error) => {
-      if (active) console.warn("[maintenance] Realtime setup failed:", error);
-    });
+    getSupabase()
+      .then((sb) => {
+        if (!active) return;
+        channel = sb
+          .channel("site_settings_maintenance")
+          .on(
+            "postgres_changes",
+            { event: "UPDATE", schema: "public", table: "site_settings" },
+            (payload) => {
+              if (!active) return;
+              const row = payload.new as Record<string, unknown> | null;
+              setMaintenance(!!row?.maintenance_mode);
+              setMaintenanceBanner({
+                enabled: !!row?.maintenance_banner_enabled,
+                message:
+                  typeof row?.maintenance_banner_message === "string"
+                    ? row.maintenance_banner_message
+                    : "",
+              });
+            },
+          )
+          .subscribe();
+      })
+      .catch((error) => {
+        if (active) console.warn("[maintenance] Realtime setup failed:", error);
+      });
 
     // Polling fallback: check every 30 seconds in case realtime misses.
     pollTimer = setInterval(() => void checkMaintenance(), 30_000);
@@ -562,9 +556,11 @@ export default function Layout() {
     return () => {
       active = false;
       if (channel) {
-        void getSupabase().then((sb) =>
-          sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]),
-        ).catch(() => {});
+        void getSupabase()
+          .then((sb) =>
+            sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]),
+          )
+          .catch(() => {});
       }
       if (pollTimer) clearInterval(pollTimer);
     };

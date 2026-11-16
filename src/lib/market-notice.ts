@@ -1,4 +1,4 @@
-import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
+import { TOOL_ROUTES } from "@/config/tool-index";
 import { PREMIUM_ENGINES } from "@/config/premium-engines";
 
 /**
@@ -33,9 +33,7 @@ const INFORMATION_ONLY_ROUTES: ReadonlySet<string> = new Set([
  * engines, which live in their own registry and are not all listed as tools.
  */
 export const CALCULATOR_ROUTES: ReadonlySet<string> = new Set([
-  ...CONSTRUCTION_TOOLS.map((tool) => tool.to).filter(
-    (route) => !INFORMATION_ONLY_ROUTES.has(route),
-  ),
+  ...[...TOOL_ROUTES].filter((route) => !INFORMATION_ONLY_ROUTES.has(route)),
   ...PREMIUM_ENGINES.map((engine) => engine.route),
 ]);
 

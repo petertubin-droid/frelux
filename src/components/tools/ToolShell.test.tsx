@@ -15,11 +15,41 @@ import {
 } from "@/config/construction-tools";
 import { SITE_URL } from "@/lib/site-config";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
+import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
 
 const renderAt = (path: string, ui = <p>calculator body</p>) =>
   render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 
 describe("tool shell", () => {
+  it("reads a market's own noun for the page heading", () => {
+    // The catalogue lists this tool as "Reinforcement / Steel", which is the
+    // right card title in a tools list and the wrong heading on the page: no
+    // visitor searches for that phrase. The market's own term supplies the
+    // heading, and a tool whose copy does not vary by market keeps its title.
+    const listed = findToolByRoute("/reinforcement")!;
+    expect(listed.title).toBe("Reinforcement / Steel");
+    expect(getMarketToolCopy(listed.slug, "US", listed).heading).toBe(
+      "Rebar Estimator",
+    );
+    expect(getMarketToolCopy(listed.slug, "NG", listed).heading).toBe(
+      "Iron Rods Estimator",
+    );
+
+    renderAt(
+      "/reinforcement",
+      <ToolShell route="/reinforcement">body</ToolShell>,
+    );
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Estimator",
+    );
+    expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(
+      "Reinforcement / Steel",
+    );
+
+    const steady = findToolByRoute("/concrete-takeoff-calculator")!;
+    expect(getMarketToolCopy(steady.slug, "US", steady)).toBe(steady);
+  });
+
   it("renders the catalogue title and description for the address served", () => {
     const tool = findToolByRoute("/concrete-takeoff-calculator");
     expect(tool?.title).toBe("Concrete Slab Takeoff");

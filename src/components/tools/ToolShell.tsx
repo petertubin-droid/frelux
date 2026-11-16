@@ -18,7 +18,11 @@
 import { useMemo, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useSeoOfferCurrency,
+} from "@/lib/international/market-context";
+import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
 import { SITE_URL } from "@/lib/site-config";
 
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
@@ -98,7 +102,15 @@ export default function ToolShell({
   const { t } = useLanguage();
   const offerCurrency = useSeoOfferCurrency();
   const address = route ?? stripLocaleFromPathname(pathname);
-  const tool = findToolByRoute(address);
+  const catalogued = findToolByRoute(address);
+  // A few tools change their own noun by market: rebar is reinforcement in one
+  // country and a skim coat is screeding in another. That copy already exists
+  // for the tools list, so the page heading reads it from the same place rather
+  // than a page computing a title of its own.
+  const { marketCode } = useMarket();
+  const tool = catalogued
+    ? getMarketToolCopy(catalogued.slug, marketCode, catalogued)
+    : undefined;
   const faqGroup = showFaq ? getToolFaqGroupByRoute(address) : undefined;
   const links = useMemo(
     () => relatedLinks ?? (tool ? relatedToolsFor(tool) : []),

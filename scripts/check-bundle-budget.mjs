@@ -33,24 +33,31 @@ try {
 }
 
 const gzKb = (file) => Math.round(gzipSync(readFileSync(join(js, file))).length / 1024);
-const entry = files.find((f) => /^index-[^/]*\.js$/.test(f));
-
-if (!entry) {
-  console.error('✖ No entry chunk (index-*.js) in the build.');
+// The entry is the module script the document loads. Picking it by filename
+// instead used to answer with whichever index-*.js sorted first, so a 1KB bridge
+// chunk could stand in for the app entry and report a critical path a third of
+// the real size. The document says which one it is.
+const html = readFileSync(join(DIST, "index.html"), "utf8");
+const entryMatch = html.match(/<script[^>]*type="module"[^>]*src="[^"]*\/assets\/js\/([^"]+)"[^>]*>/);
+if (!entryMatch) {
+  console.error("✖ No module entry script in dist/index.html.");
   process.exit(1);
 }
+const entry = entryMatch[1];
+
+// Everything the entry imports statically downloads before render too.
+const entrySource = readFileSync(join(js, entry), "utf8");
+const eager = [...new Set(
+  [...entrySource.matchAll(/from"\.\/([^"]+\.js)"/g)].map((m) => m[1]),
+)].filter((f) => files.includes(f));
 
 const entryKb = gzKb(entry);
 console.log(`  entry ${entryKb}KB gzip (budget ${ENTRY_BUDGET_KB}KB)`);
 if (entryKb > ENTRY_BUDGET_KB) {
-  FAIL.push(`entry chunk is ${entryKb}KB gzip, over the ${ENTRY_BUDGET_KB}KB budget`);
+  FAIL.push(`entry chunk ${entry} is ${entryKb}KB gzip, over the ${ENTRY_BUDGET_KB}KB budget`);
 }
 
-// Static module imports from the entry are downloaded before render too.
-const entrySource = readFileSync(join(js, entry), 'utf8');
-const imported = [...entrySource.matchAll(/from"\.\/([^"]+\.js)"/g)].map((m) => m[1]);
-for (const dep of imported) {
-  if (!files.includes(dep)) continue;
+for (const dep of eager) {
   const kb = gzKb(dep);
   console.log(`  eager ${dep} ${kb}KB gzip (budget ${EAGER_CHUNK_BUDGET_KB}KB)`);
   if (kb > EAGER_CHUNK_BUDGET_KB) {
@@ -58,7 +65,7 @@ for (const dep of imported) {
   }
 }
 
-const criticalTotal = entryKb + imported.reduce((sum, dep) => (files.includes(dep) ? sum + gzKb(dep) : sum), 0);
+const criticalTotal = entryKb + eager.reduce((sum, dep) => sum + gzKb(dep), 0);
 console.log(`  critical path total ${criticalTotal}KB gzip (budget ${CRITICAL_TOTAL_BUDGET_KB}KB)`);
 if (criticalTotal > CRITICAL_TOTAL_BUDGET_KB) {
   FAIL.push(`critical path is ${criticalTotal}KB gzip, over the ${CRITICAL_TOTAL_BUDGET_KB}KB budget`);
@@ -68,4 +75,6 @@ if (FAIL.length) {
   console.error(`\n✖ Bundle budget exceeded:\n   - ${FAIL.join('\n   - ')}`);
   process.exit(1);
 }
-console.log(`✓ bundle budget passed (${imported.length} eager chunk${imported.length === 1 ? '' : 's'} checked)`);
+console.log(
+  `✓ bundle budget passed (${eager.length} preloaded chunk${eager.length === 1 ? "" : "s"} checked)`,
+);

@@ -1,6 +1,6 @@
 // Central site configuration. Update values here to change brand-wide behavior.
 // Construction Tools nav is generated from the tool registry.
-import { navToolsByCategory } from "./construction-tools";
+import { NAV_TOOL_GROUPS } from "./tool-index";
 
 export const siteConfig = {
   name: "FRELUX SMART CALC",
@@ -98,11 +98,11 @@ export const navWorkspaces: NavWorkspace[] = [
   {
     label: "Construction Tools",
     path: "/construction-tools",
-    children: navToolsByCategory().flatMap(({ category, tools }) =>
+    children: NAV_TOOL_GROUPS.flatMap(({ label, tools }) =>
       tools.map((t) => ({
-        label: t.title,
+        label: t.label,
         path: t.to,
-        section: category.label,
+        section: label,
         description: t.benefit,
       })),
     ),
