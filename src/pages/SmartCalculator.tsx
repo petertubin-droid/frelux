@@ -112,19 +112,20 @@ export default function SmartCalculator() {
       backLabel={t("Back to home")}
     >
       <Container className="max-w-4xl pb-12 pt-8">
-        {/* AI-powered badge banner */}
+        {/* What the page actually does, in that order: the reading is local,
+            the model breakdown is optional and sits below the results. */}
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
             <Brain className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              {t("AI-Powered Estimation")}
+              {t("Plain-Language Estimation")}
             </p>
             <p className="text-xs text-muted-foreground">
-              Describe your project in plain English, the AI calculates material
-              quantities, costs, and recommendations automatically. Supports
-              screeding, painting, tiling, POP ceiling, and custom projects.
+              {t(
+                "Describe your project in plain English. The reading runs on your device and names the work type and measurements, then the FRELUX engines calculate quantities and cost. A model breakdown is optional and sits above the results. Covers screeding, painting, tiling, POP ceiling and custom projects.",
+              )}
             </p>
           </div>
         </div>

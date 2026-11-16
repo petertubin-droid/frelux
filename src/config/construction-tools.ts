@@ -120,7 +120,13 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   {
     id: "ai",
     label: "AI Assistants",
-    blurb: "Photo, chat and vision assistants that feed the same engines.",
+    // Only surfaces that call a model belong here. The conversational
+    // estimator, surface assessment and estimate refresh parse or calculate
+    // locally and sit with the work they do, because filing a dropdown with a
+    // rule table under "AI Assistants" told visitors they were paying for a
+    // model that never ran.
+    blurb:
+      "Assistants that read a photo, a plan or a description with a model, then hand the numbers to the same engines.",
   },
   {
     id: "pro",
@@ -1339,15 +1345,16 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     title: "Smart Calculator",
     category: "ai",
     icon: Brain,
-    does: "Describe any construction project in plain language and get an AI-assisted estimate.",
+    does: "Describe a construction project in plain words and get an estimate, with the reading done on your device and an optional model breakdown.",
     enters:
       "A sentence like: 3-bedroom bungalow in Abuja, tiling and painting.",
     gets: "Material quantities, line items and cost from the FRELUX engines.",
     eyebrow: "Describe a project",
-    lede: "Say what you are building in plain words. The assistant reads the project, names the right calculator and carries your measurements across, and every quantity still comes from the deterministic engine.",
-    seoTitle: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
+    lede: "Say what you are building in plain words. The reading happens on your device: it names the work type, the measurements and the right calculator, and every quantity comes from the FRELUX engines. A model breakdown is available above the results and is not needed to get a figure.",
+    seoTitle:
+      "Smart Calculator: Construction Estimator in Plain Language | FRELUX",
     seoDescription:
-      "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations. Free to use.",
+      "Describe a construction project in plain language and get a cost estimate with material quantities and line items, calculated by the FRELUX engines. Reading runs on your device. Free to use.",
     to: "/smart-calculator",
     benefit: "AI-powered · Free",
     featured: true,
@@ -1356,7 +1363,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   {
     slug: "conversational",
     title: "Conversational Estimator",
-    category: "ai",
+    category: "project",
     icon: MessageCircle,
     does: "Build an estimate step by step by chatting, like WhatsApp.",
     enters: "Your project details, one message at a time.",
@@ -1420,7 +1427,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   {
     slug: "surface-assessment",
     title: "Surface Assessment",
-    category: "ai",
+    category: "finishes",
     icon: ClipboardCheck,
     does: "Assess a surface condition before painting or screeding so you buy the right prep materials.",
     enters: "The surface condition, with an optional room name and notes.",
@@ -1435,7 +1442,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   {
     slug: "estimate-refresh",
     title: "Estimate Refresh",
-    category: "ai",
+    category: "project",
     icon: RefreshCw,
     does: "Bring an old estimate up to today's prices.",
     enters: "A saved FRELUX estimate.",

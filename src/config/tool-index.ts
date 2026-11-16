@@ -323,6 +323,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         label: "Labour Cost",
         benefit: "",
       },
+      {
+        to: "/conversational-estimator",
+        label: "Conversational Estimator",
+        benefit: "",
+      },
     ],
   },
   {
@@ -338,11 +343,6 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         to: "/smart-calculator",
         label: "Smart Calculator",
         benefit: "AI-powered · Free",
-      },
-      {
-        to: "/conversational-estimator",
-        label: "Conversational Estimator",
-        benefit: "",
       },
       {
         to: "/count-vision",

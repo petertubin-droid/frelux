@@ -99,10 +99,13 @@ describe("SmartCalculator page", () => {
     expect(
       screen.getByRole("heading", { name: "Smart Calculator" }),
     ).toBeInTheDocument();
+    // The lede states where the reading happens and where the model sits,
+    // because the engines do every quantity and the model is optional.
     expect(
-      screen.getByText(
-        /the assistant reads the project, names the right calculator/i,
-      ),
+      screen.getByText(/the reading happens on your device/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/a model breakdown is available/i),
     ).toBeInTheDocument();
   });
 
@@ -113,13 +116,14 @@ describe("SmartCalculator page", () => {
     expect(backLink.closest("a")).toHaveAttribute("href", "/");
   });
 
-  it("renders AI-powered badge banner", () => {
+  it("describes the reading as local and the model breakdown as optional", () => {
     renderPage();
 
-    expect(screen.getByText("AI-Powered Estimation")).toBeInTheDocument();
+    expect(screen.getByText("Plain-Language Estimation")).toBeInTheDocument();
     expect(
-      screen.getByText(/Describe your project in plain English/i),
+      screen.getByText(/The reading runs on your device/i),
     ).toBeInTheDocument();
+    expect(screen.queryByText("AI-Powered Estimation")).not.toBeInTheDocument();
   });
 
   // ── No legacy screeding config ──
@@ -255,7 +259,8 @@ describe("SmartCalculator page", () => {
 
     expect(useSeo).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
+        title:
+          "Smart Calculator: Construction Estimator in Plain Language | FRELUX",
         canonicalPath: "/smart-calculator",
       }),
     );
