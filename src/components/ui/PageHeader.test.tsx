@@ -64,6 +64,28 @@ describe("PageHeader", () => {
     expect(screen.queryByText("Back")).toBeNull();
   });
 
+  it("shows an accessible methodology link only when requested", () => {
+    const { rerender } = render(
+      <MemoryRouter initialEntries={["/paint-calculator"]}>
+        <PageHeader title="Paint Calculator" methodologyLink />
+      </MemoryRouter>,
+    );
+    const link = screen.getByRole("link", {
+      name: /jump to calculation methodology/i,
+    });
+    expect(link.getAttribute("href")).toBe(
+      "/paint-calculator#calculation-methodology",
+    );
+    rerender(
+      <MemoryRouter initialEntries={["/paint-calculator"]}>
+        <PageHeader title="Paint Calculator" />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.queryByRole("link", { name: /jump to calculation methodology/i }),
+    ).toBeNull();
+  });
+
   it("supports a compact, task-first tool header", () => {
     const { container } = renderHeader({
       title: "Paint Calculator",

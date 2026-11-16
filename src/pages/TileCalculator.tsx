@@ -673,6 +673,7 @@ export default function TileCalculator({
             <PageHeader
               eyebrow="Calculate"
               title={tx("Tile Calculator")}
+              methodologyLink={Boolean(result)}
               subtitle={tx("Calculate tile quantities, adhesive, and grout.")}
               breadcrumbs={[
                 { label: "Home", path: "/" },

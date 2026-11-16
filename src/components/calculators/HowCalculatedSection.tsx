@@ -50,10 +50,14 @@ export default function HowCalculatedSection({
     geometry || physical || modifiers || packaging || calibration,
   );
 
-  if (!methodologyText && assumptions.length === 0 && !hasBreakdown) return null;
+  if (!methodologyText && assumptions.length === 0 && !hasBreakdown)
+    return null;
 
   return (
-    <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
+    <div
+      id="calculation-methodology"
+      className="calc-card mt-4 scroll-mt-24 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5"
+    >
       <Button
         variant="ghost"
         type="button"
@@ -227,7 +231,8 @@ export default function HowCalculatedSection({
                   <div className="flex justify-between text-muted-foreground">
                     <span>{t("Estimated Leftover / Surplus")}</span>
                     <span className="font-mono text-foreground">
-                      {packaging.surplusQuantity.toFixed(2)} {packaging.unitLabel}
+                      {packaging.surplusQuantity.toFixed(2)}{" "}
+                      {packaging.unitLabel}
                     </span>
                   </div>
                 )}

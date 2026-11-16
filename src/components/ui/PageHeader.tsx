@@ -17,6 +17,7 @@ export default function PageHeader({
   breadcrumbs,
   image,
   variant = "standard",
+  methodologyLink = false,
 }: {
   eyebrow?: string;
   title: string;
@@ -32,6 +33,8 @@ export default function PageHeader({
   image?: string;
   /** Standard for content pages, compact for task-first tools, and wide for data views. */
   variant?: "standard" | "tool" | "data";
+  /** Show a link to the calculator's disclosed methodology, when present. */
+  methodologyLink?: boolean;
 }) {
   // Config-driven backdrop (owner directive 2026-10-10): unless the
   // caller passes an explicit image, every header resolves a
@@ -158,10 +161,22 @@ export default function PageHeader({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             {/* Premium title: Clash Display with a staggered word reveal */}
-            <HeroTitle
-              className={`${isTool ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"} text-foreground dark:text-primary-foreground`}
-              title={title}
-            />
+            <div className="flex flex-wrap items-center gap-3">
+              <HeroTitle
+                className={`${isTool ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"} text-foreground dark:text-primary-foreground`}
+                title={title}
+              />
+              {methodologyLink && (
+                <a
+                  href={`${pathname}#calculation-methodology`}
+                  className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-primary/25 bg-primary/5 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  aria-label="Jump to calculation methodology"
+                >
+                  <span aria-hidden="true">ⓘ</span>
+                  Methodology
+                </a>
+              )}
+            </div>
             {/* Gradient underline, scaling in after the words settle */}
             <div
               className={`${isTool ? "mt-2 w-12" : "mt-3 w-16"} h-[3px] origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:400ms]`}

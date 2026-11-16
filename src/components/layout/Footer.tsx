@@ -66,6 +66,7 @@ const marketLinks = [
 ];
 
 const resourcesLinks = [
+  { label: "Engineering & Accuracy", path: "/engineering-standards" },
   { label: "Learn Hub", path: "/learn" },
   ...marketLinks,
   { label: "Material Prices", path: "/prices" },

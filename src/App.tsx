@@ -103,6 +103,7 @@ const ConstructionTools = lazy(() => import("@/pages/ConstructionTools"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Partners = lazy(() => import("@/pages/Partners"));
+const EngineeringStandards = lazy(() => import("@/pages/EngineeringStandards"));
 const About = lazy(() => import("@/pages/legal/About"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
 const Terms = lazy(() => import("@/pages/legal/Terms"));
@@ -1629,6 +1630,15 @@ export default function App() {
                             </Suspense>
                           }
                         />
+                        <Route
+                          path="/engineering-standards"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <EngineeringStandards />
+                            </Suspense>
+                          }
+                        />
+
                         <Route
                           path="/about"
                           element={

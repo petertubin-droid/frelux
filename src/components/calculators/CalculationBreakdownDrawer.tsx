@@ -67,7 +67,8 @@ export default function CalculationBreakdownDrawer({
 
   return (
     <div
-      className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/40 shadow-sm dark:border-white/10 dark:bg-white/5"
+      id="calculation-methodology"
+      className="calc-card mt-4 scroll-mt-24 overflow-hidden rounded-xl border border-border bg-muted/40 shadow-sm dark:border-white/10 dark:bg-white/5"
       data-testid="calculation-breakdown-drawer"
     >
       <Button
@@ -166,7 +167,8 @@ export default function CalculationBreakdownDrawer({
                 <div className="flex justify-between text-muted-foreground">
                   <span>{t("Concrete Dry Volume Factor")}</span>
                   <span className="font-mono text-foreground">
-                    {physicalFactors.dryVolumeBulkingFactor}× (dry batch allowance)
+                    {physicalFactors.dryVolumeBulkingFactor}× (dry batch
+                    allowance)
                   </span>
                 </div>
               )}
@@ -182,7 +184,8 @@ export default function CalculationBreakdownDrawer({
                 <div className="flex justify-between text-muted-foreground">
                   <span>{t("Hardcore Loose Bulking")}</span>
                   <span className="font-mono text-foreground">
-                    {physicalFactors.looseHardcoreBulking}× (loose fill to compacted)
+                    {physicalFactors.looseHardcoreBulking}× (loose fill to
+                    compacted)
                   </span>
                 </div>
               )}

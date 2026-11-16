@@ -194,6 +194,7 @@ export function SpecialtyCalculatorShell({
         ]}
         title={title}
         subtitle={subtitle}
+        methodologyLink={Boolean(methodology && result?.ok)}
       />
 
       <Container className="pb-16 pt-6">

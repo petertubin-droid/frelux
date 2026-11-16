@@ -113,6 +113,61 @@ const ogImage = `${SITE_URL}/social-cover.png`;
 // ── Route metadata ──────────────────────────────────────────────────
 const routes = [
   {
+    path: "/engineering-standards",
+    title: "Engineering Methodology & Accuracy | FRELUX",
+    description:
+      "Explore how selected FRELUX construction calculators derive quantities, view disclosed assumptions, and review tool-specific engineering references. Informational only, not a certification.",
+    priority: "0.7",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Engineering Methodology & Accuracy",
+        description:
+          "Public summaries of selected FRELUX construction calculators, their calculation methods, assumptions and tool-specific references.",
+        url: `${SITE_URL}/engineering-standards/`,
+        inLanguage: "en",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${SITE_URL}/engineering-standards/#faq`,
+        url: `${SITE_URL}/engineering-standards/`,
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Do FRELUX standards references certify that an estimate complies with building codes?",
+            acceptedAnswer: { "@type": "Answer", text: "No. References describe context documented in selected tool implementations. They are not a compliance certificate, and current standards, local amendments, project specifications and professional review still apply." },
+          },
+          {
+            "@type": "Question",
+            name: "Are all FRELUX calculators verified for every market?",
+            acceptedAnswer: { "@type": "Answer", text: "No. Market availability, product data and documented calculation scope vary by tool. A configured market does not by itself prove that every input, material or local requirement has been independently validated." },
+          },
+          {
+            "@type": "Question",
+            name: "How does FRELUX calculate material quantities?",
+            acceptedAnswer: { "@type": "Answer", text: "Each selected tool uses its documented inputs and calculation method. Where a tool exposes a methodology breakdown, review the measurements, product coverage, allowances and package rounding shown there; confirm product-specific values with current manufacturer data." },
+          },
+          {
+            "@type": "Question",
+            name: "Does FRELUX provide structural or professional design approval?",
+            acceptedAnswer: { "@type": "Answer", text: "No. Quantity estimates and preliminary calculations do not replace structural design, code-compliance checks, site investigation or review by a qualified professional." },
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+          { "@type": "ListItem", position: 2, name: "Engineering & Accuracy", item: `${SITE_URL}/engineering-standards/` },
+        ],
+      },
+    ],
+  },
+  {
     path: "/learn/build-in-nigeria-from-abroad",
     title:
       "How to Estimate and Budget Construction Costs in Nigeria from the US or UK | FRELUX",

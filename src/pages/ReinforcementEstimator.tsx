@@ -417,6 +417,7 @@ export default function ReinforcementEstimator() {
           { label: pageTitle },
         ]}
         title={pageTitle}
+        methodologyLink={Boolean(result)}
         subtitle="Enter your bar schedule cutting lengths per diameter. The engine converts them to whole 12 m stock lengths with a visible lap/waste allowance, computes BS 4449 tonnage for delivery planning, and prices from the shared material database. It does NOT design reinforcement."
       />
 

@@ -40,6 +40,7 @@ describe("Footer", () => {
       "AI Photo Estimator",
       "Contact",
       "Roadmap",
+      "Engineering & Accuracy",
     ]) {
       expect(screen.getByRole("link", { name })).toBeInTheDocument();
     }

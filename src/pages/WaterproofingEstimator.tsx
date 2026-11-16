@@ -413,6 +413,7 @@ export default function WaterproofingEstimator() {
           { label: "Waterproofing Estimator" },
         ]}
         title={t("Waterproofing Estimator")}
+        methodologyLink={Boolean(result)}
         subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
       />
 

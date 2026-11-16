@@ -257,6 +257,7 @@ export default function ScreedingCalculator({
             variant="tool"
             eyebrow="Tool"
             title={`${finishTerm} Calculator`}
+            methodologyLink
             subtitle={`Calculate the wall area for ${finishTerm.toLowerCase()}. Enter room dimensions in feet or metres, and FRELUX handles the conversion.`}
             breadcrumbs={[
               { label: "Home", path: "/" },

@@ -439,6 +439,7 @@ export default function FoundationEstimator() {
           { label: "Foundation Estimator" },
         ]}
         title={t("Foundation Estimator")}
+        methodologyLink={Boolean(result)}
         subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
       />
 

@@ -182,6 +182,7 @@ export default function FoundationCalculator() {
         variant="tool"
         eyebrow="Engineering Tool"
         title={t("Foundation Design Calculator")}
+        methodologyLink={Boolean(result)}
         subtitle="Preliminary strip, pad, and raft sizing estimates using assumed or user-entered soil bearing capacity. Not a certified geotechnical or structural design or code-compliance check."
         breadcrumbs={[
           { label: "Home", path: "/" },

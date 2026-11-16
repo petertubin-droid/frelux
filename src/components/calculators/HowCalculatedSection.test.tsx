@@ -93,12 +93,25 @@ describe("HowCalculatedSection", () => {
     fireEvent.click(screen.getByRole("button"));
     expect(screen.getByText("Geometric Takeoff")).toBeTruthy();
     expect(screen.getByText("105.00 m²")).toBeTruthy();
-    expect(screen.getByText("Physical Bulking & Shrinkage Factors")).toBeTruthy();
-    expect(screen.getByText("Site Variables & Substrate Conditions")).toBeTruthy();
+    expect(
+      screen.getByText("Physical Bulking & Shrinkage Factors"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("Site Variables & Substrate Conditions"),
+    ).toBeTruthy();
     expect(screen.getByText(/Raw cement plaster/)).toBeTruthy();
     expect(screen.getByText("Packaging & Purchase Rounding")).toBeTruthy();
     expect(screen.getByText(/16 4L drums/)).toBeTruthy();
     expect(screen.getByText("Adaptive Calibration & Guardrails")).toBeTruthy();
     expect(screen.getByText(/1.050×/)).toBeTruthy();
+  });
+});
+
+describe("calculation methodology anchor", () => {
+  it("exposes a stable target for calculator-header links", () => {
+    const { container } = render(
+      <HowCalculatedSection methodologyText="Area is measured from entered dimensions." />,
+    );
+    expect(container.querySelector("#calculation-methodology")).toBeTruthy();
   });
 });
