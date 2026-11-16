@@ -21,6 +21,7 @@ import {
 } from "@/lib/finance/boq-standard";
 import type { TaxCalculationResult } from "@/lib/finance/tax-engine";
 import { formatByCode } from "@/lib/international/currency-format";
+import { roundMoney } from "@/lib/money/round";
 import type {
   BoqStudioDocument,
   BoqStudioItem,
@@ -61,7 +62,8 @@ export interface CompiledBoq {
   survey: BoqSurveyState;
 }
 
-const round2 = (v: number) => Math.round(v * 100) / 100;
+/** One cent rule for the whole product (src/lib/money/round.ts). */
+const round2 = roundMoney;
 
 export function itemUnitRate(item: BoqStudioItem): number {
   return round2(
@@ -150,7 +152,11 @@ function taxResultFor(
         taxCode,
         marketCode,
         jurisdictionCode: null,
-        rate,
+        // The tax engine records provenance rates as fractions (0.075), and the
+        // projection panel multiplies them by 100 to print a percentage. A
+        // manual BOQ rate is entered as a percentage, so it is converted here
+        // rather than stored in a different unit under the same field name.
+        rate: rate / 100,
         effectiveFrom: effectiveDate,
         effectiveTo: null,
         sourceUrl: "manual-entry",

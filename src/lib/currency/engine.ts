@@ -8,6 +8,7 @@
 //  - A converted figure is never presented as a local material price. It is an
 //    arithmetic view of the original at a dated rate.
 
+import { roundSignificant, roundTo } from "@/lib/money/round";
 import { currencyMeta } from "./catalogue";
 
 export type RateSource = "database" | "provider" | "bundled" | "manual";
@@ -64,9 +65,14 @@ export interface ConvertOptions {
 
 const PIVOT = "USD";
 
+/**
+ * Shared rounding rule (src/lib/money/round.ts). Rates are published to
+ * significant digits because eight decimal places of a rate such as 0.0000634
+ * keep only three significant digits, and the printed rate then no longer
+ * reproduces the printed amount.
+ */
 function round(value: number, dp: number): number {
-  const factor = 10 ** dp;
-  return Math.round((value + Number.EPSILON) * factor) / factor;
+  return roundTo(value, dp);
 }
 
 function quoteFor(
@@ -106,7 +112,7 @@ export function resolveRate(
     };
   }
 
-  const legOne = quoteFor(table, base, PIVOT) ?? (base === PIVOT ? null : null);
+  const legOne = quoteFor(table, base, PIVOT);
   const legTwo = quoteFor(table, PIVOT, quote);
   if (legOne && legTwo) {
     const quoteRow = {
@@ -192,9 +198,29 @@ export function convert(
     };
   }
 
-  const ageMs = Math.max(0, now - new Date(resolved.quote.fetchedAt).getTime());
-  const effectiveRate = round(resolved.rate, 8);
+  const fetched = Date.parse(resolved.quote.fetchedAt);
+  if (Number.isNaN(fetched)) {
+    // An undated rate used to read as age zero and convert as fresh: NaN
+    // compared false against every staleness threshold.
+    return {
+      ...common,
+      status: "unavailable",
+      result: null,
+      effectiveRate: null,
+      rateTimestamp: null,
+      via: resolved.via,
+      ageMs: null,
+      message: `The ${base}/${quote} rate carries no readable timestamp, so it cannot be shown to be current`,
+    };
+  }
+  const ageMs = Math.max(0, now - fetched);
+  // The amount is computed from the recorded rate and not from a shortened one:
+  // an eight-decimal rate loses about 0.001 per cent, which is money on a large
+  // estimate. The rate is published to twelve significant digits, enough for the
+  // printed rate to reproduce the printed amount to far beyond the last decimal
+  // the view shows.
   const result = round(amount * resolved.rate, 6);
+  const effectiveRate = roundSignificant(resolved.rate, 12);
   const status: ConversionStatus =
     ageMs > REFUSE_AFTER_MS && !options.allowStale
       ? "stale"
@@ -248,8 +274,11 @@ export function formatMoney(
 ): string {
   const meta = currencyMeta(code);
   const decimals = options.decimals ?? meta.decimals;
-  const negative = amount < 0;
-  const fixed = Math.abs(round(amount, decimals)).toFixed(decimals);
+  const rounded = round(amount, decimals);
+  // A figure that rounds to zero is zero: "-$0" is not an amount anyone can act
+  // on, and it appears whenever a tiny credit is displayed without decimals.
+  const negative = rounded < 0;
+  const fixed = Math.abs(rounded).toFixed(decimals);
   const [whole, fraction] = fixed.split(".");
   const thousands = options.decimalComma ? "." : ",";
   const decimalPoint = options.decimalComma ? "," : ".";

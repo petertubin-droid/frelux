@@ -8,6 +8,8 @@
  * result and never guesses.
  */
 
+import { roundMoney as roundFromMoneyModule } from "@/lib/money/round";
+
 export type TaxCategory =
   | "vat"
   | "gst"
@@ -82,20 +84,32 @@ export interface TaxCalculationResult {
   warnings: string[];
 }
 
-function roundMoney(amount: number): number {
-  return Math.round((amount + Number.EPSILON) * 100) / 100;
-}
+/** One cent rule for the whole product (src/lib/money/round.ts). */
+const roundMoney = roundFromMoneyModule;
 
-function dateOnly(isoDate: string): string {
-  return new Date(isoDate).toISOString().slice(0, 10);
+/**
+ * The calendar date of a timestamp, or null when it cannot be read.
+ *
+ * Dates were compared as strings, so a rate recorded as an ISO timestamp
+ * ("2026-01-05T00:00:00Z") sorted after the same calendar day ("2026-01-05") and
+ * a rate effective that day was treated as not yet in force. An unreadable date
+ * used to throw from toISOString and take the whole calculation with it.
+ */
+function dateOnly(isoDate: string): string | null {
+  if (!isoDate) return null;
+  const parsed = Date.parse(isoDate);
+  if (Number.isNaN(parsed)) return null;
+  return new Date(parsed).toISOString().slice(0, 10);
 }
 
 function isActiveOn(rate: VerifiedTaxRate, date: string): boolean {
   const effectiveDate = dateOnly(date);
-  return (
-    rate.effectiveFrom <= effectiveDate &&
-    (!rate.effectiveTo || rate.effectiveTo >= effectiveDate)
-  );
+  if (!effectiveDate) return false;
+  const from = dateOnly(rate.effectiveFrom);
+  const to = rate.effectiveTo ? dateOnly(rate.effectiveTo) : null;
+  if (!from) return false;
+  if (rate.effectiveTo && !to) return false;
+  return from <= effectiveDate && (!to || to >= effectiveDate);
 }
 
 function findRate(
@@ -141,6 +155,17 @@ export function calculateJurisdictionalTax(params: {
   const market = params.marketCode.trim().toUpperCase();
   const jurisdiction = params.jurisdictionCode?.trim().toUpperCase() ?? null;
   const lines = params.lines;
+  if (!dateOnly(params.valuationDate)) {
+    return {
+      status: "unavailable",
+      lineResults: [],
+      totals: { net: roundMoney(0), tax: null, gross: null },
+      provenance: [],
+      warnings: [
+        `The valuation date "${params.valuationDate}" cannot be read, so no rate can be shown to be in force.`,
+      ],
+    };
+  }
   const warnings: string[] = [];
   const provenance: TaxCalculationResult["provenance"] = [];
   const lineResults: TaxCalculationResult["lineResults"] = [];
@@ -149,11 +174,15 @@ export function calculateJurisdictionalTax(params: {
   let unavailable = false;
 
   for (const line of lines) {
-    const netAmount = roundMoney(line.netAmount);
-    netTotal += netAmount;
+    // Validation comes first. The old order rounded the amount into the total
+    // before checking it, so a NaN line made the net total NaN and a negative
+    // line quietly reduced it, in a result that already declared itself
+    // unavailable.
     if (!Number.isFinite(line.netAmount) || line.netAmount < 0) {
       unavailable = true;
-      warnings.push(`Invalid net amount for line ${line.id}.`);
+      warnings.push(
+        `Invalid net amount for line ${line.id}; the line is left out of the totals.`,
+      );
       lineResults.push({
         lineId: line.id,
         netAmount: line.netAmount,
@@ -165,6 +194,8 @@ export function calculateJurisdictionalTax(params: {
       });
       continue;
     }
+    const netAmount = roundMoney(line.netAmount);
+    netTotal += netAmount;
 
     const inputJurisdiction =
       line.jurisdictionCode?.trim().toUpperCase() ?? null;
@@ -243,7 +274,7 @@ export function calculateJurisdictionalTax(params: {
       taxRateId: rate.id,
       taxCode: rate.taxCode,
     });
-    provenance.push({
+    if (!provenance.some((entry) => entry.rateId === rate.id)) provenance.push({
       rateId: rate.id,
       taxCode: rate.taxCode,
       marketCode: rate.marketCode,

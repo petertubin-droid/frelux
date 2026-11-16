@@ -408,6 +408,9 @@ describe("sign and numbering discipline", () => {
       compileBoq(prepared).standard.commercials.taxResult?.provenance[0];
     expect(provenance?.effectiveFrom).toBe("2026-03-01");
     expect(provenance?.reviewedAt).toBe("2026-03-01");
+    // The tax engine stores provenance rates as fractions and the projection
+    // panel multiplies by 100 to print a percentage.
+    expect(provenance?.rate).toBe(0.075);
 
     // A document with no readable date falls back to today.
     const undated = { ...prepared, prepared_date: "not a date" };

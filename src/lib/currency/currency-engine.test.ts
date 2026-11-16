@@ -382,3 +382,49 @@ describe("rate cache", () => {
     expect(built.fetchedAt).toBe("2026-10-30T17:20:14Z");
   });
 });
+
+describe("dated rates and printed figures", () => {
+  const tableWith = (fetchedAt: string): RateTable => ({
+    source: "database",
+    fetchedAt,
+    quotes: [
+      {
+        base: "NGN",
+        quote: "USD",
+        rate: 0.000123456789,
+        provider: "test",
+        fetchedAt,
+      },
+    ],
+  });
+
+  it("refuses a rate with no readable timestamp", () => {
+    const result = convert(
+      1000,
+      "NGN",
+      "USD",
+      tableWith("not a date"),
+      { now: Date.parse("2026-11-16T00:00:00Z") },
+    );
+    expect(result.status).toBe("unavailable");
+    expect(result.result).toBeNull();
+    expect(result.message).toContain("no readable timestamp");
+  });
+
+  it("publishes a rate that reproduces the converted amount", () => {
+    const result = convert(
+      5_000_000,
+      "NGN",
+      "USD",
+      tableWith("2026-11-16T00:00:00Z"),
+      { now: Date.parse("2026-11-16T06:00:00Z") },
+    );
+    const reproduced = Math.round(result.amount * (result.effectiveRate ?? 0) * 100) / 100;
+    expect(reproduced).toBe(Math.round((result.result ?? 0) * 100) / 100);
+  });
+
+  it("does not print a negative zero", () => {
+    expect(formatMoney(-0.004, "USD", { decimals: 0 })).toBe("$0");
+    expect(formatMoney(-1.4, "USD", { decimals: 0 })).toBe("-$1");
+  });
+});

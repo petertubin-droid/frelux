@@ -5,6 +5,7 @@ import {
   roundMoney,
 } from "@/lib/project-money";
 import { invoiceTotals } from "@/lib/project-money";
+import { roundSignificant, roundTo } from "@/lib/money/round";
 
 describe("invoice arithmetic", () => {
   it("adds a percentage tax to the subtotal", () => {
@@ -114,5 +115,19 @@ describe("payment link", () => {
 
   it("refuses an invoice that does not exist", () => {
     expect(link({ invoice: null }).ok).toBe(false);
+  });
+});
+
+describe("shared rounding at any precision", () => {
+  it("rounds a lost half up at two decimals", () => {
+    expect(roundTo(8.165, 2)).toBe(8.17);
+    expect(roundTo(10.075, 2)).toBe(10.08);
+    expect(roundTo(8.164, 2)).toBe(8.16);
+  });
+
+  it("keeps significant digits on a small rate", () => {
+    expect(roundTo(0.0000634, 8)).toBe(0.0000634);
+    expect(roundSignificant(0.0000634, 8)).toBe(0.0000634);
+    expect(roundSignificant(1.2345678901234, 12)).toBe(1.23456789012);
   });
 });
