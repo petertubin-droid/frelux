@@ -278,3 +278,31 @@ describe("presentation", () => {
     expect(WASTE_PRESETS.map((p) => p.percent)).toEqual([0, 5, 10, 15, 20, 25]);
   });
 });
+
+describe("packages, refused quantities and printed rows", () => {
+  it("recommends no package when there is nothing to buy", () => {
+    const result = applyWaste(0, 5, { packageSize: 25 });
+    expect(result.packages).toBe(0);
+    expect(result.orderQuantity).toBe(0);
+    expect(result.roundedUp).toBe(false);
+  });
+
+  it("does not hand a negative quantity back as the amount to order", () => {
+    const result = applyWaste(-5, 5);
+    expect(result.refused).toBe("invalid-base");
+    expect(result.base).toBe(0);
+    expect(result.final).toBe(0);
+    expect(result.orderQuantity).toBe(0);
+  });
+
+  it("prints rows that add up to the order quantity", () => {
+    const rows = wasteRows(applyWaste(10.005, 5), "m2");
+    const value = (label: string) =>
+      rows.find((row) => row.label === label)?.value ?? "";
+    // Individually rounded, these printed 10.00 + 0.50 against a total of
+    // 10.51, so a buyer adding the rows came up a hundredth short.
+    expect(value("Base quantity")).toBe("10.01 m2");
+    expect(value("Additional quantity")).toBe("0.50 m2");
+    expect(value("Final quantity")).toBe("10.51 m2");
+  });
+});

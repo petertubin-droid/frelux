@@ -16,6 +16,7 @@
  *   - pack rounding ceil, because half a pack cannot be bought
  */
 
+import { roundTo } from "@/lib/money/round";
 import type { LengthUnit, Opening, QuantityUnit } from "./types";
 
 export const METRES_PER_UNIT: Record<LengthUnit, number> = {
@@ -31,10 +32,11 @@ export const METRES_PER_UNIT: Record<LengthUnit, number> = {
  */
 export const DEFAULT_OPENING_DEDUCT_ABOVE_M2 = 0.5;
 
-export const round = (value: number, places = 2): number => {
-  const factor = 10 ** places;
-  return Math.round((value + Number.EPSILON) * factor) / factor;
-};
+// One cent rule for the product (src/lib/money/round.ts). The old form added
+// Number.EPSILON before scaling, which rounds 8.165 down and 1.005 up because
+// the stored doubles sit either side of their half.
+export const round = (value: number, places = 2): number =>
+  roundTo(value, places);
 
 export const toMetres = (value: number, unit: LengthUnit = "m"): number => {
   if (!Number.isFinite(value) || value <= 0) return 0;
@@ -170,14 +172,14 @@ export interface QuantityTotal {
 export function sumByUnit(
   lines: { quantity: number; unit: QuantityUnit }[],
 ): QuantityTotal[] {
+  // Accumulate unrounded and round once: rounding after every addition lets a
+  // long schedule drift by half a unit of the last place per line.
   const totals = new Map<QuantityUnit, number>();
   for (const line of lines) {
-    totals.set(
-      line.unit,
-      round((totals.get(line.unit) ?? 0) + line.quantity, 4),
-    );
+    if (!Number.isFinite(line.quantity)) continue;
+    totals.set(line.unit, (totals.get(line.unit) ?? 0) + line.quantity);
   }
   return Array.from(totals.entries())
-    .map(([unit, quantity]) => ({ unit, quantity }))
+    .map(([unit, quantity]) => ({ unit, quantity: round(quantity, 4) }))
     .sort((a, b) => a.unit.localeCompare(b.unit));
 }

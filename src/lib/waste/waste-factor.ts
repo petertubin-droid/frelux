@@ -7,6 +7,8 @@
 //
 // Formula: final = base x (1 + percent / 100), then rounded up to whole packages
 // where the material is bought in packages.
+import { roundTo } from "@/lib/money/round";
+
 
 export const WASTE_MIN_PERCENT = 0;
 export const WASTE_MAX_PERCENT = 25;
@@ -275,9 +277,10 @@ export interface WasteBreakdown {
   refused?: "already-applied" | "invalid-base";
 }
 
+// Shared cent rule (src/lib/money/round.ts), at the six places this engine
+// works to.
 function round(value: number, dp = 6): number {
-  const factor = 10 ** dp;
-  return Math.round((value + Number.EPSILON) * factor) / factor;
+  return roundTo(value, dp);
 }
 
 export interface ApplyWasteOptions {
@@ -302,17 +305,22 @@ export function applyWaste(
   percent: number,
   options: ApplyWasteOptions = {},
 ): WasteBreakdown {
-  const empty = (refused?: WasteBreakdown["refused"]): WasteBreakdown => ({
-    applied: false,
-    base: Number.isFinite(base) ? base : 0,
-    percent: 0,
-    additional: 0,
-    final: Number.isFinite(base) ? base : 0,
-    packages: null,
-    orderQuantity: Number.isFinite(base) ? base : 0,
-    roundedUp: false,
-    refused,
-  });
+  const empty = (refused?: WasteBreakdown["refused"]): WasteBreakdown => {
+    // A negative quantity is the reason the request was refused, so it cannot
+    // also be handed back as the amount to order.
+    const shown = Number.isFinite(base) ? Math.max(0, base) : 0;
+    return {
+      applied: false,
+      base: shown,
+      percent: 0,
+      additional: 0,
+      final: shown,
+      packages: null,
+      orderQuantity: shown,
+      roundedUp: false,
+      refused,
+    };
+  };
 
   if (options.alreadyIncludesWaste) return empty("already-applied");
   if (!Number.isFinite(base) || base < 0) return empty("invalid-base");
@@ -323,6 +331,20 @@ export function applyWaste(
   const packageSize = options.packageSize;
 
   if (packageSize && Number.isFinite(packageSize) && packageSize > 0) {
+    if (final <= 0) {
+      // A zero quantity needs no package. One package for nothing is an order
+      // the buyer pays for.
+      return {
+        applied: applied > 0,
+        base,
+        percent: applied,
+        additional,
+        final,
+        packages: 0,
+        orderQuantity: 0,
+        roundedUp: false,
+      };
+    }
     const packages = Math.max(1, Math.ceil(round(final / packageSize, 9)));
     const orderQuantity = round(packages * packageSize);
     return {
@@ -365,7 +387,7 @@ export interface WasteRow {
 }
 
 function formatQuantity(value: number, unit: string): string {
-  const rounded = Math.round(value * 100) / 100;
+  const rounded = roundTo(value, 2);
   const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
   return unit ? `${text} ${unit}` : text;
 }
@@ -375,18 +397,24 @@ function formatQuantity(value: number, unit: string): string {
  * order. Unit strings come from the caller, which knows the material.
  */
 export function wasteRows(breakdown: WasteBreakdown, unit = ""): WasteRow[] {
+  // The printed quantities are derived from each other at display precision, so
+  // the rows a buyer reads always add up. Rounding base, extra and total
+  // independently left them a hundredth apart.
+  const shownBase = roundTo(breakdown.base, 2);
+  const shownFinal = roundTo(breakdown.orderQuantity, 2);
+  const shownAdditional = roundTo(shownFinal - shownBase, 2);
   const rows: WasteRow[] = [
-    { label: "Base quantity", value: formatQuantity(breakdown.base, unit) },
+    { label: "Base quantity", value: formatQuantity(shownBase, unit) },
     { label: "Waste allowance", value: `${breakdown.percent}%` },
     {
       label: "Additional quantity",
-      value: formatQuantity(breakdown.additional, unit),
+      value: formatQuantity(shownAdditional, unit),
     },
     {
       label: breakdown.packages ? "Recommended order" : "Final quantity",
       value: breakdown.packages
-        ? `${formatQuantity(breakdown.orderQuantity, unit)} (${breakdown.packages} ${breakdown.packages === 1 ? "package" : "packages"})`
-        : formatQuantity(breakdown.orderQuantity, unit),
+        ? `${formatQuantity(shownFinal, unit)} (${breakdown.packages} ${breakdown.packages === 1 ? "package" : "packages"})`
+        : formatQuantity(shownFinal, unit),
     },
   ];
   return rows;
@@ -396,10 +424,12 @@ export function wasteRows(breakdown: WasteBreakdown, unit = ""): WasteRow[] {
 export function wasteSummary(breakdown: WasteBreakdown, unit = ""): string {
   if (!breakdown.applied)
     return `No waste allowance applied. ${formatQuantity(breakdown.base, unit)} as calculated.`;
-  const extra = formatQuantity(breakdown.additional, unit);
-  const total = formatQuantity(breakdown.orderQuantity, unit);
+  const shownBase = roundTo(breakdown.base, 2);
+  const shownFinal = roundTo(breakdown.orderQuantity, 2);
+  const extra = formatQuantity(roundTo(shownFinal - shownBase, 2), unit);
+  const total = formatQuantity(shownFinal, unit);
   const packages = breakdown.packages
     ? ` (${breakdown.packages} packages)`
     : "";
-  return `Base ${formatQuantity(breakdown.base, unit)} plus ${breakdown.percent}% waste (${extra}) gives ${total}${packages}.`;
+  return `Base ${formatQuantity(shownBase, unit)} plus ${breakdown.percent}% waste (${extra}) gives ${total}${packages}.`;
 }

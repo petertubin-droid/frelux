@@ -7,6 +7,7 @@ import {
   openingAreaM2,
   packsRequired,
   perimeterM,
+  round,
   roundUpToWhole,
   sumByUnit,
   toMetres,
@@ -141,5 +142,26 @@ describe("totals", () => {
   it("gives area and perimeter the expected values", () => {
     expect(areaM2(3.6, 4.2)).toBeCloseTo(15.12, 2);
     expect(perimeterM(3.6, 4.2)).toBeCloseTo(15.6, 2);
+  });
+});
+
+describe("rounding that does not depend on how a double is stored", () => {
+  it("rounds a stored half cent away from zero", () => {
+    // 8.165 is stored a hair below its half and used to round down, while
+    // 1.005 rounded up. The cent rule is one rule now.
+    expect(round(8.165, 2)).toBe(8.17);
+    expect(round(1.005, 2)).toBe(1.01);
+    expect(round(-2.5, 0)).toBe(-3);
+  });
+
+  it("rounds a unit total once instead of after every line", () => {
+    const totals = sumByUnit([
+      { quantity: 0.00005, unit: "m2" },
+      { quantity: 0.00005, unit: "m2" },
+      { quantity: 0.00005, unit: "m2" },
+    ]);
+    // 0.00015 rounds to 0.0002 at four places. Rounding each addition first
+    // counted three lines of 0.0001 and returned 0.0003.
+    expect(totals[0].quantity).toBe(0.0002);
   });
 });

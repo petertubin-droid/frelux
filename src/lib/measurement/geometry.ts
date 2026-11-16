@@ -13,6 +13,7 @@
  * - Fence partition: partition length × height
  */
 
+import { roundTo } from "@/lib/money/round";
 import type {} from './types';
 import type { CalculationStep } from './types';
 
@@ -190,9 +191,8 @@ export function applyWasteMargin(
  * This does NOT alter the underlying calculation, it's for display only.
  */
 export function roundForDisplay(value: number, decimals: number = 2): number {
-  if (!isFinite(value) || isNaN(value)) return 0;
-  const factor = Math.pow(10, decimals);
-  return Math.round((value + Number.EPSILON) * factor) / factor;
+  // Shared cent rule (src/lib/money/round.ts).
+  return roundTo(value, decimals);
 }
 
 /**
@@ -201,7 +201,9 @@ export function roundForDisplay(value: number, decimals: number = 2): number {
  */
 export function roundUpToWholeUnit(value: number): number {
   if (value <= 0 || !isFinite(value)) return 0;
-  return Math.ceil(value);
+  // A carton count that arrives a hair above a whole number is a whole number:
+  // three coats of 1.3333 litres must not order a fourth carton.
+  return Math.ceil(value - Math.max(1e-9, Math.abs(value) * 1e-12));
 }
 
 // =========================================================
