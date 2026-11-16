@@ -16,6 +16,7 @@
  */
 
 import type { MaintenanceProfile } from "@/types/estimation";
+import { roundMoney } from "@/lib/money/round";
 
 // ─────────────────────────────────────────────
 // Input / output contracts
@@ -98,9 +99,7 @@ function addYears(isoDate: string, years: number): string {
   return target.toISOString().slice(0, 10);
 }
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 const YEAR_LABEL = (min: number, max: number) =>
   min === max ? `year ${min}` : `years ${min}–${max}`;

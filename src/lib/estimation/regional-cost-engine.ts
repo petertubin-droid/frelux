@@ -12,6 +12,7 @@
  */
 
 import type { EstimationCalcRule, RegionalCostIndex } from "@/types/estimation";
+import { roundMoney } from "@/lib/money/round";
 
 // ─────────────────────────────────────────────
 // Contracts
@@ -97,9 +98,7 @@ export function checkPriceStaleness(
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 function nationalBaseline(rules: EstimationCalcRule[]): number {
   const rule = rules.find(

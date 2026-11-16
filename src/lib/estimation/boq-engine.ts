@@ -12,6 +12,7 @@
  */
 
 import { formatByCode } from "@/lib/international/currency-format";
+import { roundMoney } from "@/lib/money/round";
 import { SITE_URL } from "@/lib/seo";
 import type { EstimationCalcRule } from "@/types/estimation";
 
@@ -93,9 +94,7 @@ export interface BoqResult {
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 function ruleRate(rules: EstimationCalcRule[], key: string): number | null {
   const rule = rules.find((r) => r.rule_key === key && r.is_active !== false);

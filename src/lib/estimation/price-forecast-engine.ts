@@ -14,6 +14,7 @@
  */
 
 import type { EstimationCalcRule } from "@/types/estimation";
+import { roundMoney } from "@/lib/money/round";
 import { ruleNumber } from "./shared/rule-value";
 
 // ─────────────────────────────────────────────
@@ -59,9 +60,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 /**
  * Least-squares linear regression over (days, price).

@@ -27,6 +27,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { roundMoney } from "@/lib/money/round";
 import { ceilM } from "./shared/purchase-rounding";
 
 // ─────────────────────────────────────────────
@@ -241,9 +242,7 @@ function isCount(v: number): boolean {
   return Number.isInteger(v) && v >= 0;
 }
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 
 

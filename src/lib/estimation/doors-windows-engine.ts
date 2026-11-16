@@ -24,6 +24,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { roundMoney } from "@/lib/money/round";
 
 // ─────────────────────────────────────────────
 // Rules
@@ -116,9 +117,7 @@ export type DoorsWindowsPriceMap = Record<string, number | null>;
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 function isCount(v: number): boolean {
   return Number.isInteger(v) && v >= 0;

@@ -25,6 +25,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { roundMoney } from "@/lib/money/round";
 import { ec2AnchorageLength, ec2LapLength } from "@/lib/engineering/bbs-schedule";
 import { ceilU } from "./shared/purchase-rounding";
 import { rebarMassPerM } from "./shared/rebar-mass";
@@ -197,9 +198,7 @@ const REBAR_SPECS: {
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;

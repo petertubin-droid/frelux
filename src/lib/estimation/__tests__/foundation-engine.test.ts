@@ -127,7 +127,9 @@ describe("concrete mix math", () => {
     // granite 0.88 m³
     expect(r.lines.find((l) => l.key === "granite")?.quantity).toBe(1);
     expect(r.steps.some((s) => /× 1\.54 dry factor/.test(s.detail))).toBe(true);
-    expect(r.steps.some((s) => /0\.0347 m³\/bag/.test(s.detail))).toBe(true);
+    // six decimals, so a reader dividing the printed wet volume by the printed
+    // bag volume lands on the printed bag count
+    expect(r.steps.some((s) => /0\.034722 m³\/bag/.test(s.detail))).toBe(true);
   });
 
   it("10 m³ with 5% waste: every constant visible", () => {
@@ -303,5 +305,75 @@ describe("determinism", () => {
     const a = calculateFoundation(makeInput(), rules, FULL_PRICES);
     const b = calculateFoundation(makeInput(), rules, FULL_PRICES);
     expect(a).toEqual(b);
+  });
+});
+
+// ─────────────────────────────────────────────
+// Bag mass and shown arithmetic
+// ─────────────────────────────────────────────
+
+describe("cement pack honesty", () => {
+  it("refuses an impossible bag mass instead of returning a NaN quantity", () => {
+    for (const bagWeightKg of [0, -50, Number.NaN]) {
+      const r = calculateFoundation(makeInput(), rules, FULL_PRICES, {
+        bagWeightKg,
+      });
+      expect(r.ok, String(bagWeightKg)).toBe(false);
+      expect(r.grand_total, String(bagWeightKg)).toBeNull();
+      expect(r.incomplete, String(bagWeightKg)).toBe(true);
+      expect(r.errors.join(" ")).toContain("Cement bag mass");
+      // No line may be sized from an impossible bag: a NaN bag count used to
+      // travel through the totals as if it were a real quantity.
+      expect(r.lines, String(bagWeightKg)).toHaveLength(0);
+    }
+  });
+
+  it("says so when the market has no published pack", () => {
+    const r = calculateFoundation(makeInput(), rules, FULL_PRICES, {
+      marketCode: "XX",
+    });
+    expect(r.warnings.join(" ")).toContain("no published pack is recorded");
+    expect(r.warnings.join(" ")).toContain("50 kg bag is assumed");
+  });
+
+  it("does not warn when the market pack is known", () => {
+    const r = calculateFoundation(makeInput(), rules, FULL_PRICES, {
+      marketCode: "NG",
+    });
+    expect(r.warnings.join(" ")).not.toContain("no published pack");
+  });
+
+  it("prints the bag volume at a precision that reproduces the bag count", () => {
+    const r = calculateFoundation(makeInput(), rules, FULL_PRICES);
+    const bags = r.steps.find((s) => s.label === "Cement bags")!.detail;
+    const [, cementVol, bagVol, quotient] =
+      bags.match(/^([\d.]+) m³ ÷ ([\d.]+) m³\/bag .* = ([\d.]+) →/) ?? [];
+    expect(Number(cementVol) / Number(bagVol)).toBeCloseTo(Number(quotient), 1);
+  });
+
+  it("prints blocks per m² at a precision that reproduces the product", () => {
+    const r = calculateFoundation(
+      makeInput({ block_wall_area_m2: 100 }),
+      { ...rules, blocks_per_m2: null },
+      FULL_PRICES,
+      { marketCode: "NG" },
+    );
+    const step = r.steps.find((s) => s.label === "Blocks to DPC")!.detail;
+    const [, area, rate, product] =
+      step.match(/^([\d.]+) m² × ([\d.]+) blocks\/m² = ([\d.]+) →/) ?? [];
+    expect(Number(area) * Number(rate)).toBeCloseTo(Number(product), 1);
+  });
+
+  it("reports per-m³ labour as unsized when no concrete volume is entered", () => {
+    const r = calculateFoundation(
+      makeInput({
+        concrete_volume_m3: null,
+        labour: { mode: "per_m3", per_m3_rate: 25000 },
+      }),
+      rules,
+      FULL_PRICES,
+    );
+    expect(r.warnings.join(" ")).toContain("labour is unsized");
+    expect(r.labour_total).toBe(0);
   });
 });

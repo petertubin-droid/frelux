@@ -27,6 +27,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { roundMoney, roundTo } from "@/lib/money/round";
 import { CEMENT_BAG_WEIGHT_BY_MARKET } from "./plastering-standalone-engine";
 import { ceilU } from "./shared/purchase-rounding";
 import { MORTAR_JOINT_THICKNESS, blocksPerM2 } from "./build-to-roof-engine";
@@ -247,16 +248,14 @@ export interface FoundationOptions {
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+/** The generic fallback pack: named once so the warning can quote it. */
+const DEFAULT_BAG_WEIGHT_KG = 50;
+
+const money = roundMoney;
 
 
 
-function roundTo(v: number, dp: number): number {
-  const f = 10 ** dp;
-  return Math.round(v * f) / f;
-}
+
 
 // ─────────────────────────────────────────────
 // Engine
@@ -289,6 +288,15 @@ export function calculateFoundation(
       );
     }
   }
+  if (
+    options?.bagWeightKg !== undefined &&
+    options?.bagWeightKg !== null &&
+    (!Number.isFinite(options.bagWeightKg) || options.bagWeightKg <= 0)
+  ) {
+    errors.push(
+      `Cement bag mass must be a positive number of kilograms: ${options.bagWeightKg} cannot size a bag.`,
+    );
+  }
   if (errors.length > 0) {
     return {
       ok: false,
@@ -320,11 +328,14 @@ export function calculateFoundation(
 
       // Resolve cement bag weight and nominal bag volume based on market or options override
       const market = options?.marketCode?.toUpperCase();
+      const marketBagKg = market ? CEMENT_BAG_WEIGHT_BY_MARKET[market] : undefined;
       const bagWeightKg =
-        options?.bagWeightKg ??
-        (market && CEMENT_BAG_WEIGHT_BY_MARKET[market]
-          ? CEMENT_BAG_WEIGHT_BY_MARKET[market]
-          : 50);
+        options?.bagWeightKg ?? marketBagKg ?? DEFAULT_BAG_WEIGHT_KG;
+      if (market && marketBagKg === undefined && options?.bagWeightKg == null) {
+        warnings.push(
+          `Cement bag mass: no published pack is recorded for market ${market}, so the ${DEFAULT_BAG_WEIGHT_KG} kg bag is assumed. Set the bag mass to the pack your supplier sells.`,
+        );
+      }
       // A bag is its mass divided by the loose bulk density, derived once in
       // @/config/masonry-units so every engine divides by the same figure.
       const bagVolumeM3 = cementBagVolumeM3(bagWeightKg);
@@ -339,7 +350,7 @@ export function calculateFoundation(
       });
       steps.push({
         label: "Cement bags",
-        detail: `${roundTo((cement / parts) * dry, 3)} m³ ÷ ${roundTo(bagVolumeM3, 4)} m³/bag (${bagWeightKg} kg) = ${roundTo(((cement / parts) * dry) / bagVolumeM3, 2)} → ${cementBags} bags (whole, up).`,
+        detail: `${roundTo((cement / parts) * dry, 3)} m³ ÷ ${roundTo(bagVolumeM3, 6)} m³/bag (${bagWeightKg} kg) = ${roundTo(((cement / parts) * dry) / bagVolumeM3, 2)} → ${cementBags} bags (whole, up).`,
       });
 
       const bagPrice = prices["cement-per-bag"] ?? null;
@@ -421,7 +432,7 @@ export function calculateFoundation(
           : `market nominal ${marketBlocks!.label} + ${Math.round(MORTAR_JOINT_THICKNESS * 1000)} mm joint — set blocks_per_m2 to override`;
       steps.push({
         label: "Blocks to DPC",
-        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 2)} blocks/m² = ${roundTo(input.block_wall_area_m2 * blocksRule, 2)} → ${blocks} blocks (whole, up). Source: ${ruleSource}.`,
+        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 4)} blocks/m² = ${roundTo(input.block_wall_area_m2 * blocksRule, 2)} → ${blocks} blocks (whole, up). Source: ${ruleSource}.`,
       });
       lines.push({
         key: "blocks",
@@ -430,7 +441,7 @@ export function calculateFoundation(
         quantity: blocks,
         quantity_source: "rule_derived",
         unit: "pieces",
-        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 2)}/m² → ${blocks} blocks (${rules.blocks_per_m2 !== null ? "configured rule" : marketBlocks!.label})`,
+        detail: `${input.block_wall_area_m2} m² × ${roundTo(blocksRule, 4)}/m² → ${blocks} blocks (${rules.blocks_per_m2 !== null ? "configured rule" : marketBlocks!.label})`,
         unit_price: price,
         line_total: price !== null ? money(blocks * price) : null,
       });
@@ -471,6 +482,14 @@ export function calculateFoundation(
       errors.push(
         "Labour: a per-m³ rate is required when labour mode is per-m³.",
       );
+    } else if (input.concrete_volume_m3 === null) {
+      warnings.push(
+        "Labour: no concrete volume is entered, so per-m³ labour is unsized and counted as 0 rather than guessed.",
+      );
+      steps.push({
+        label: "Labour",
+        detail: `Per-m³ rate ${rate} with no concrete volume: labour is unsized, not zero.`,
+      });
     } else {
       labourTotal = money(concreteM3 * rate);
       steps.push({

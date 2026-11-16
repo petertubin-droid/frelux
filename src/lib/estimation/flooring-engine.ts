@@ -24,6 +24,7 @@
  */
 
 import type { CalcRuleRow } from "./count-vision-engine";
+import { roundMoney } from "@/lib/money/round";
 import { ceilU } from "./shared/purchase-rounding";
 
 // ─────────────────────────────────────────────
@@ -139,9 +140,7 @@ export type FlooringPriceMap = Record<string, number | null>;
 // Helpers
 // ─────────────────────────────────────────────
 
-function money(v: number): number {
-  return Math.round(v * 100) / 100;
-}
+const money = roundMoney;
 
 
 
