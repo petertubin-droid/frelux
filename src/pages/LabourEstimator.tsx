@@ -12,12 +12,9 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useState } from "react";
 import { stageStudioImport } from "@/lib/document-studio";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -26,7 +23,6 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
-import PageHeader from "@/components/ui/PageHeader";
 import { fetchLabourRates, fetchCalcRules } from "@/lib/estimation/queries";
 import {
   calculateLabour,
@@ -35,7 +31,7 @@ import {
 import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 export default function LabourEstimator() {
   // Clears the job description only: the crew rates are the loaded book.
@@ -47,15 +43,6 @@ export default function LabourEstimator() {
   };
   const { t } = useLanguage();
   const { market } = useMarket();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Labour & Crew Estimator", path: "/labour-estimator" },
-  ]);
-  useSeo({
-    title: "Labour & Crew Estimator: FRELUX",
-    description:
-      "Estimate worker-days and crew duration for any finishing task from verified, verifiable productivity rates.",
-  });
 
   const [rates, setRates] = useState<LabourRate[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
@@ -93,18 +80,9 @@ export default function LabourEstimator() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Labour & Crew Estimator" },
-          ]}
-          title={t("Labour & Crew Estimator")}
-          subtitle="Worker-days and crew duration for a quantity of work, from verified productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line: never folded into the base rate: and calendar days are always whole days."
-        />
-
+    <ToolShell route="/labour-estimator">
+      <Container>
+        <div className="space-y-6">
         {loadError && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
             {loadError}
@@ -343,22 +321,9 @@ export default function LabourEstimator() {
           </div>
         )}
       </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="labour-estimator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.structuralCalc,
-          ]}
-        />
-      </div>
-
-      <EstimateDisclaimer />
-    </Container>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

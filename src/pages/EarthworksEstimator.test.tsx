@@ -5,6 +5,9 @@ import EarthworksEstimator from "./EarthworksEstimator";
 vi.mock("@/lib/seo", () => ({
   useFaqJsonLd: vi.fn(),
   useSeo: vi.fn(),
+  // The tool shell owns the breadcrumb trail now, so the page's SEO surface
+  // includes it.
+  useBreadcrumbJsonLd: vi.fn(),
 }));
 // Ad slots in the page call useAuth, which needs the app provider at runtime.
 const downloadCsv = vi.fn();

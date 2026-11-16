@@ -2,9 +2,10 @@
  * The frame every catalogued calculator is served inside.
  *
  * A tool page supplies only its form and its results. The shell takes the rest
- * from the catalogue and the FAQ registry: the title, the description used for
- * search, the heading, the question set that belongs to this address, the
- * neighbouring calculators and the estimate disclaimer.
+ * from the catalogue and the FAQ registry: the page heading, the line under it,
+ * the label above it, the title and description used for search, the question
+ * set that belongs to this address, the neighbouring calculators, the estimate
+ * disclaimer and the breadcrumb trail in both its visible and marked-up form.
  *
  * The point is not brevity. Before this, 73 of the 79 catalogued pages carried
  * their own useSeo and PageHeader, 52 carried their own ToolFaqs call and 49
@@ -19,35 +20,17 @@ import { useLocation } from "react-router-dom";
 
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import ToolFaqs from "@/components/seo/ToolFaqs";
-import { RelatedTools, type RelatedLink } from "@/components/seo/SeoSections";
+import { RelatedTools } from "@/components/seo/SeoSections";
+import type { RelatedLink } from "@/components/seo/SeoSections";
 import PageHeader from "@/components/ui/PageHeader";
 import {
-  CONSTRUCTION_TOOLS,
   TOOL_CATEGORIES,
   findToolByRoute,
-  type Tool,
 } from "@/config/construction-tools";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
-import { stripLocaleFromPathname } from "@/lib/i18n";
-import { useSeo } from "@/lib/seo";
-
-const RELATED_LIMIT = 3;
-
-/**
- * Neighbouring tools for the summary block. Same category first, because those
- * are the calculators a reader of this page is most likely to need next, then
- * the rest of the catalogue to fill the row. The tool's own address is never
- * offered back to it.
- */
-export function relatedToolsFor(tool: Tool, limit = RELATED_LIMIT): RelatedLink[] {
-  const others = CONSTRUCTION_TOOLS.filter((t) => t.to !== tool.to);
-  const sameCategory = others.filter((t) => t.category === tool.category);
-  const rest = others.filter((t) => t.category !== tool.category);
-  return [...sameCategory, ...rest].slice(0, limit).map((t) => ({
-    label: t.title,
-    path: t.to,
-  }));
-}
+import { relatedToolsFor } from "@/lib/tools/related-tools";
+import { stripLocaleFromPathname, useLanguage } from "@/lib/i18n";
+import { useBreadcrumbJsonLd, useSeo } from "@/lib/seo";
 
 export interface ToolShellProps {
   /** The page's form and its results. Everything else comes from the catalogue. */
@@ -62,6 +45,8 @@ export interface ToolShellProps {
   route?: string;
   /** Overrides the catalogue description under the heading. */
   subtitle?: string;
+  /** Overrides the catalogue title, for a page whose heading has to differ. */
+  title?: string;
   /** Buttons or links that belong beside the heading, such as share or reset. */
   actions?: ReactNode;
   /** Extra SEO markup the tool owns, such as HowTo structured data. */
@@ -76,12 +61,16 @@ export interface ToolShellProps {
   disclaimerText?: string;
   /** Hide the estimate disclaimer, for tools that quote nothing. */
   hideDisclaimer?: boolean;
+  /** Override the category label shown above the heading. */
+  eyebrow?: string;
 }
 
 export default function ToolShell({
   children,
   route,
+  title,
   subtitle,
+  eyebrow,
   actions,
   structuredData,
   showFaq = true,
@@ -91,6 +80,7 @@ export default function ToolShell({
   hideDisclaimer = false,
 }: ToolShellProps) {
   const { pathname } = useLocation();
+  const { t } = useLanguage();
   const address = route ?? stripLocaleFromPathname(pathname);
   const tool = findToolByRoute(address);
   const faqGroup = showFaq ? getToolFaqGroupByRoute(address) : undefined;
@@ -114,20 +104,40 @@ export default function ToolShell({
     ? TOOL_CATEGORIES.find((c) => c.id === tool.category)?.label
     : undefined;
 
+  const heading = tool ? t(title ?? tool.heading ?? tool.title) : "";
+  const crumbLabels = tool
+    ? ["Home", "Construction Tools", heading]
+    : [];
+
+  // One crumb trail, and the structured data describes that same trail. Pages
+  // used to pass their own heading crumbs and a different JSON-LD trail, so the
+  // markup could disagree with the page it described. The last crumb is the
+  // page itself: shown as text, and given its own address only in the markup.
+  const crumbs = crumbLabels.map((label, i) =>
+    i === crumbLabels.length - 1
+      ? { label }
+      : { label, path: i === 0 ? "/" : "/construction-tools" },
+  );
+  // The hook supplies Home itself, so the trail continues from the index.
+  useBreadcrumbJsonLd(
+    tool
+      ? [
+          { name: crumbLabels[1], path: "/construction-tools" },
+          { name: crumbLabels[2], path: tool.to },
+        ]
+      : [],
+  );
+
   return (
     <>
       {tool ? (
         <PageHeader
           variant="tool"
-          eyebrow={categoryLabel}
-          title={tool.title}
-          subtitle={subtitle ?? tool.does}
+          eyebrow={t(eyebrow ?? tool.eyebrow ?? categoryLabel ?? "")}
+          title={heading}
+          subtitle={t(subtitle ?? tool.lede ?? tool.does)}
           actions={actions}
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: tool.title },
-          ]}
+          breadcrumbs={crumbs}
         />
       ) : null}
 

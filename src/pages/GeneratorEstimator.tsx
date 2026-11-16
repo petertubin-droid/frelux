@@ -16,17 +16,15 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import ToolShell from "@/components/tools/ToolShell";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
@@ -56,7 +54,6 @@ import type {
   EstimationCalcRule,
   EstimationMaterial,
 } from "@/types/estimation";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type GenSize = "10kva" | "20kva" | "30kva" | "50kva";
 
@@ -85,10 +82,6 @@ export default function GeneratorEstimator() {
   };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Generator & Power Backup Estimator", path: "/generator" },
-  ]);
   const { user } = useAuth();
   const { marketCode, market } = useMarket();
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
@@ -105,12 +98,6 @@ export default function GeneratorEstimator() {
   const [result, setResult] = useState<GeneratorResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useSeo({
-    title: "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX",
-    description:
-      "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
-  });
 
   const [priceMap, setPriceMap] = useState<GeneratorPriceMap>({});
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
@@ -344,18 +331,9 @@ export default function GeneratorEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
+    <ToolShell route="/generator">
     <Container>
       <MarketScopeNotice />
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Generator & Power Backup Estimator" },
-        ]}
-        title={t("Generator & Power Backup Estimator")}
-        subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design."
-      />
-
       {/* Inputs */}
       <div
         ref={fieldsRef}
@@ -720,16 +698,7 @@ export default function GeneratorEstimator() {
           </li>
         </ul>
       </section>
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.structuralCalc,
-          ]}
-        />
-      </div>
-      <EstimateDisclaimer />
     </Container>
+    </ToolShell>
   );
 }

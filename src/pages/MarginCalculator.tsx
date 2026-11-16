@@ -9,18 +9,14 @@
  *   This page renders; it never computes money itself.
  */
 
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { methodologyText } from "@/lib/calculatorMethodology";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
 import { fetchMarginPresets, fetchCalcRules } from "@/lib/estimation/queries";
 import {
   calculateMargin,
@@ -32,7 +28,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 // Worldwide-currency money formatting via the site-wide layer.
 const money = (v: number) => formatCurrency(v);
@@ -40,16 +36,6 @@ const money = (v: number) => formatCurrency(v);
 export default function MarginCalculator() {
   const { t } = useLanguage();
   const { symbol: currencySymbol } = useDisplayCurrency();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Profit Margin Calculator", path: "/margin-calculator" },
-  ]);
-  useSeo({
-    title: "Profit Margin Calculator: FRELUX",
-    description:
-      "Price any base cost deterministically from verified margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
-  });
-
   const [presets, setPresets] = useState<MarginPreset[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -224,18 +210,9 @@ export default function MarginCalculator() {
     p.basis === "markup_on_cost" ? "markup on cost" : "margin on price";
 
   return (
+    <ToolShell route="/margin-calculator">
     <Container>
       <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Profit Margin Calculator" },
-          ]}
-          title={t("Profit Margin Calculator")}
-          subtitle="Build a complete bid cost from direct costs, labor hours and weekly overhead, or enter one base cost. Apply a configured profit preset and distinguish markup on cost from margin on price. VAT is added only from a configured rate, never guessed."
-        />
-
         {loadError && (
           <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
             {loadError}
@@ -519,20 +496,7 @@ export default function MarginCalculator() {
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="margin-calculator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
-      </div>
-
-      <EstimateDisclaimer />
     </Container>
+    </ToolShell>
   );
 }

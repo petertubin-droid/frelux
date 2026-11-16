@@ -13,13 +13,12 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
+import ToolShell from "@/components/tools/ToolShell";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
@@ -29,7 +28,6 @@ import {
   resolveMarketPlumbing,
   type PlumbingMarketResolution,
 } from "@/lib/estimation/structural-market";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -63,7 +61,6 @@ import type {
   EstimationMaterial,
 } from "@/types/estimation";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 
 type NumField =
   | "taps"
@@ -131,10 +128,6 @@ export default function PlumbingEstimator() {
   };
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Plumbing Estimator", path: "/plumbing" },
-  ]);
   const { user } = useAuth();
 
   const { marketCode, market } = useMarket();
@@ -177,13 +170,6 @@ export default function PlumbingEstimator() {
   const [result, setResult] = useState<PlumbingResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useSeo({
-    title:
-      "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX",
-    description:
-      "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only: not plumbing design.",
-  });
 
   const [priceMap, setPriceMap] = useState<PlumbingPriceMap>({});
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
@@ -440,18 +426,8 @@ export default function PlumbingEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
+    <ToolShell route="/plumbing">
     <Container>
-      <PageHeader
-        variant="tool"
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Plumbing Estimator" },
-        ]}
-        title={t("Plumbing Estimator")}
-        subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design."
-      />
-
       {isRestored && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
           <div className="flex items-center gap-2">
@@ -924,16 +900,7 @@ export default function PlumbingEstimator() {
           </li>
         </ul>
       </section>
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
-      </div>
-      <EstimateDisclaimer />
     </Container>
+    </ToolShell>
   );
 }

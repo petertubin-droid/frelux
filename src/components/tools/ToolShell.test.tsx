@@ -7,7 +7,8 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
-import ToolShell, { relatedToolsFor } from "@/components/tools/ToolShell";
+import ToolShell from "@/components/tools/ToolShell";
+import { relatedToolsFor } from "@/lib/tools/related-tools";
 import { CONSTRUCTION_TOOLS, findToolByRoute } from "@/config/construction-tools";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 
@@ -104,6 +105,43 @@ describe("tool shell", () => {
         route,
       );
     }
+  });
+
+  it("puts the catalogue search copy on the document", () => {
+    const tool = findToolByRoute("/margin-calculator")!;
+    expect(tool.seoTitle).toBe("Profit Margin Calculator: FRELUX");
+    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
+    expect(document.title).toBe(tool.seoTitle);
+    const description = document.head.querySelector(
+      'meta[name="description"]',
+    );
+    expect(description?.getAttribute("content")).toBe(tool.seoDescription);
+    const canonical = document.head.querySelector('link[rel="canonical"]');
+    expect(canonical?.getAttribute("href")).toContain("/margin-calculator");
+  });
+
+  it("emits one breadcrumb trail that matches the visible crumbs", () => {
+    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
+    const scripts = document.head.querySelectorAll(
+      'script[type="application/ld+json"]',
+    );
+    const trails = [...scripts]
+      .map((el) => {
+        try {
+          return JSON.parse(el.textContent || "{}");
+        } catch {
+          return {};
+        }
+      })
+      .filter((data) => data["@type"] === "BreadcrumbList");
+    expect(trails).toHaveLength(1);
+    const names = trails[0].itemListElement.map(
+      (item: { name: string }) => item.name,
+    );
+    expect(names).toEqual(["Home", "Construction Tools", "Profit Margin Calculator"]);
+    // The page itself is text in the crumbs, not a link back to itself.
+    const nav = screen.getByRole("navigation", { hidden: true });
+    expect(nav.textContent).toContain("Profit Margin Calculator");
   });
 
   it("covers every catalogued route with an entry lookup that round trips", () => {

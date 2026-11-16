@@ -140,6 +140,17 @@ export interface Tool {
   to: string;
   benefit?: string;
   featured?: boolean;
+  /**
+   * The page's own heading, where the navbar label has to stay short. The
+   * navbar reads `title`; a tool page reads `heading` and falls back to it. A
+   * crew estimator is labelled "Labour Cost" in a menu and named in full on its
+   * own page, and both are true at once.
+   */
+  heading?: string;
+  /** The line under the page heading, where `does` is written for a listing. */
+  lede?: string;
+  /** The small label above the heading, where the category label is too broad. */
+  eyebrow?: string;
   /** Visible on the navbar mega-menu (popular tools only). */
   navVisible?: boolean;
   /**
@@ -618,6 +629,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Station chainages, cut/fill areas and project-specific bulking/shrinkage factors.",
     gets: "Average-end-area cut, compacted fill, loose haul and a qualified reuse balance.",
+    heading: "Earthworks: Cut & Fill",
+    lede: "Enter cross-section areas from a survey or design and site-specific material factors. FRELUX calculates interval volumes with the average end-area method, without guessing soil behavior.",
+    eyebrow: "Measured survey takeoff",
+    seoTitle: "Earthworks Cut & Fill Estimator | FRELUX",
+    seoDescription:
+      "Calculate surveyed cut and fill quantities from cross-section areas, chainages and project-specific bulking and shrinkage factors.",
     to: "/earthworks-cut-fill",
     navVisible: true,
   },
@@ -778,6 +795,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Calculate pipes, fittings and sanitary ware for a complete plumbing installation.",
     enters: "Number of bathrooms, kitchens and water points.",
     gets: "Complete plumbing material list and cost.",
+    heading: "Plumbing Estimator",
+    lede: "Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design.",
+    seoTitle: "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX",
+    seoDescription:
+      "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only: not plumbing design.",
     to: "/plumbing",
     navVisible: true,
   },
@@ -802,6 +824,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Find the right generator size and running cost for your home or site.",
     enters: "Appliances you need to power and usage hours.",
     gets: "Recommended generator size, fuel consumption and cost.",
+    heading: "Generator & Power Backup Estimator",
+    lede: "Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design.",
+    seoTitle: "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX",
+    seoDescription:
+      "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
     to: "/generator",
     navVisible: false,
   },
@@ -886,6 +913,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters: "Project scope and region.",
     gets: "Crew sizes, days and total labour cost per trade.",
     to: "/labour-estimator",
+    heading: "Labour & Crew Estimator",
+    lede: "Worker-days and crew duration for a quantity of work, from verified productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line: never folded into the base rate: and calendar days are always whole days.",
+    seoTitle: "Labour & Crew Estimator: FRELUX",
+    seoDescription:
+      "Estimate worker-days and crew duration for any finishing task from verified, verifiable productivity rates.",
     navVisible: true,
   },
   {
@@ -896,6 +928,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Price a job correctly: add margin, VAT and profit to any cost figure.",
     enters: "Your cost figure and target margin.",
     gets: "Correct selling price and the profit you will make.",
+    heading: "Profit Margin Calculator",
+    lede: "Build a complete bid cost from direct costs, labor hours and weekly overhead, or enter one base cost. Apply a configured profit preset and distinguish markup on cost from margin on price. VAT is added only from a configured rate, never guessed.",
+    seoTitle: "Profit Margin Calculator: FRELUX",
+    seoDescription:
+      "Price any base cost deterministically from verified margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
     to: "/margin-calculator",
     navVisible: false,
   },

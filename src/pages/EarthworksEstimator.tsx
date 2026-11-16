@@ -1,6 +1,5 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useState } from "react";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
@@ -8,9 +7,7 @@ import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
-import { useSeo } from "@/lib/seo";
 import { downloadCsv } from "@/lib/export-utils";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import AdSlot from "@/components/ui/AdSlot";
@@ -19,12 +16,11 @@ import {
   calculateEarthwork,
   type EarthworkResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { useAreaUnit } from "@/lib/use-area-unit";
 import { useLengthUnit } from "@/lib/use-length-unit";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -56,11 +52,6 @@ export default function EarthworksEstimator() {
   };
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/earthworks-cut-fill");
-  useSeo({
-    title: "Earthworks Cut & Fill Estimator | FRELUX",
-    description:
-      "Calculate surveyed cut and fill quantities from cross-section areas, chainages and project-specific bulking and shrinkage factors.",
-  });
   // Chainage is typed in feet and the cross-section areas in square feet; the
   // engine takes metres and square metres, so both convert on the way in.
   const {
@@ -216,18 +207,7 @@ export default function EarthworksEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
-    <>
-      <PageHeader
-        variant="tool"
-        eyebrow="Measured survey takeoff"
-        title={t("Earthworks: Cut & Fill")}
-        subtitle="Enter cross-section areas from a survey or design and site-specific material factors. FRELUX calculates interval volumes with the average end-area method, without guessing soil behavior."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Earthworks Cut & Fill" },
-        ]}
-      />
+    <ToolShell route="/earthworks-cut-fill">
       <Container className="py-8 sm:py-10">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,.8fr)]">
           <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-7">
@@ -577,20 +557,7 @@ The soil description is recorded for the job record. It does not change the quan
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
-        <EstimateDisclaimer />
       </Container>
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="earthworks-cut-fill" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.structuralCalc,
-            CALC_LINKS.foundationCalc,
-          ]}
-        />
-      </div>
-    </>
+    </ToolShell>
   );
 }
