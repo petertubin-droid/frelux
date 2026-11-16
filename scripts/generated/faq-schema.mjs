@@ -2974,6 +2974,58 @@ export const faqSchemaByPath = {
       "a": "No. The wind figure uses the velocity pressure form from ASCE 7-22, but the coefficients illustrate a single height and a chosen exposure, and the bearing value is yours to select from a table of typical soils. Both are screening values: they show whether the geometry deserves a closer look, and they give a quantity schedule a stated basis. Foundation design, uplift connection design, masonry stability and code compliance all need information this page never asks for, including a site investigation and a licensed engineer. Treat a green result as arithmetic agreeing with itself, not as a building approved."
     }
   ],
+  "/faq/tall-building-structure": [
+    {
+      "q": "What height does this calculator cover?",
+      "a": "The page is built for towers between about eight and a hundred and forty storeys, and it names the band it is working in: a rigid frame below fifteen storeys, a shear core to about thirty five, core and outriggers to seventy, tube in tube to ninety, and a mega frame above that. Those bands describe where practice puts each system and they are not code limits, so the page also says when the height you entered sits outside the range of the system it selected, which is the case where a real engineer is needed early."
+    },
+    {
+      "q": "How is wind load calculated for a tall building?",
+      "a": "Wind base shear is the velocity pressure at the reference height multiplied by the gust effect, the pressure coefficient and the area the wind acts on. The velocity pressure itself carries the exposure and topographic factors and the height term, so the same building on an open site and in a city block does not take the same shear. The page prints the factors it applied, which means the figure can be recalculated by hand instead of being taken on trust, and it reports roof drift from that shear so the deflection, not just the force, is visible."
+    },
+    {
+      "q": "Which drift limit is applied?",
+      "a": "The page applies the drift limit it states for the lateral system it selected and reports the top deflection against it. Drift, not stress, frequently governs the lateral system of a tall building, because a frame can carry the shear and still move too far for the cladding, the lifts and the occupants. Where the reported drift exceeds the limit, the honest reading is that the framing system is too flexible for the height, which is information for the engineer rather than a number to adjust."
+    },
+    {
+      "q": "How is the foundation chosen between a raft and piles?",
+      "a": "The choice follows the demand the geometry produces and the soil you enter. A raft spreads the load over a wide area and suits a soil with usable bearing capacity; a pile group carries the load down to a stratum that can take it, and becomes the answer when the bearing near the surface cannot. The page sizes the raft thickness and the pile arrangement for the combined gravity, wind and seismic demand, and prints the bearing and capacity values it used, so the assumption behind the choice is visible."
+    },
+    {
+      "q": "How is pile capacity worked out?",
+      "a": "Pile capacity is worked from the soil values you enter, not derived from a borehole log the page has never seen. The load carried is the combined gravity, wind and seismic demand, including the overturning component the base shear produces, divided across the group. Because both the demand and the capacity are printed, a change in the assumed capacity shows immediately in the number of piles, which is the figure that moves the foundation cost."
+    },
+    {
+      "q": "Can I use the output for construction or permits?",
+      "a": "The output is a screening check and the page says so. It is enough to choose a framing direction, compare two heights, and brief a structural engineer with the numbers already in view. It is not enough to cast concrete: member design, reinforcement detailing, connection design, a site investigation and a permit submission all need a licensed engineer, and no part of this page replaces that signature."
+    }
+  ],
+  "/tall-building-structure": [
+    {
+      "q": "What height does this calculator cover?",
+      "a": "The page is built for towers between about eight and a hundred and forty storeys, and it names the band it is working in: a rigid frame below fifteen storeys, a shear core to about thirty five, core and outriggers to seventy, tube in tube to ninety, and a mega frame above that. Those bands describe where practice puts each system and they are not code limits, so the page also says when the height you entered sits outside the range of the system it selected, which is the case where a real engineer is needed early."
+    },
+    {
+      "q": "How is wind load calculated for a tall building?",
+      "a": "Wind base shear is the velocity pressure at the reference height multiplied by the gust effect, the pressure coefficient and the area the wind acts on. The velocity pressure itself carries the exposure and topographic factors and the height term, so the same building on an open site and in a city block does not take the same shear. The page prints the factors it applied, which means the figure can be recalculated by hand instead of being taken on trust, and it reports roof drift from that shear so the deflection, not just the force, is visible."
+    },
+    {
+      "q": "Which drift limit is applied?",
+      "a": "The page applies the drift limit it states for the lateral system it selected and reports the top deflection against it. Drift, not stress, frequently governs the lateral system of a tall building, because a frame can carry the shear and still move too far for the cladding, the lifts and the occupants. Where the reported drift exceeds the limit, the honest reading is that the framing system is too flexible for the height, which is information for the engineer rather than a number to adjust."
+    },
+    {
+      "q": "How is the foundation chosen between a raft and piles?",
+      "a": "The choice follows the demand the geometry produces and the soil you enter. A raft spreads the load over a wide area and suits a soil with usable bearing capacity; a pile group carries the load down to a stratum that can take it, and becomes the answer when the bearing near the surface cannot. The page sizes the raft thickness and the pile arrangement for the combined gravity, wind and seismic demand, and prints the bearing and capacity values it used, so the assumption behind the choice is visible."
+    },
+    {
+      "q": "How is pile capacity worked out?",
+      "a": "Pile capacity is worked from the soil values you enter, not derived from a borehole log the page has never seen. The load carried is the combined gravity, wind and seismic demand, including the overturning component the base shear produces, divided across the group. Because both the demand and the capacity are printed, a change in the assumed capacity shows immediately in the number of piles, which is the figure that moves the foundation cost."
+    },
+    {
+      "q": "Can I use the output for construction or permits?",
+      "a": "The output is a screening check and the page says so. It is enough to choose a framing direction, compare two heights, and brief a structural engineer with the numbers already in view. It is not enough to cast concrete: member design, reinforcement detailing, connection design, a site investigation and a permit submission all need a licensed engineer, and no part of this page replaces that signature."
+    }
+  ],
   "/faq/window-blinds": [
     {
       "q": "How is a window blind priced per window and per square metre?",

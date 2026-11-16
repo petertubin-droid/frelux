@@ -1094,9 +1094,10 @@ export default function App() {
                         <Route
                           path="/visual-finishing-estimator"
                           element={
-                            <Suspense fallback={<PageLoader />}>
-                              <VisualFinishingEstimator />
-                            </Suspense>
+                            <Navigate
+                              to="/tools/visual-finishing-estimator"
+                              replace
+                            />
                           }
                         />
                         <Route
@@ -1698,9 +1699,10 @@ export default function App() {
                         <Route
                           path="/pro-connect/escrow"
                           element={
-                            <Suspense fallback={<PageLoader />}>
-                              <DiasporaEscrow />
-                            </Suspense>
+                            <Navigate
+                              to="/escrow"
+                              replace
+                            />
                           }
                         />
                         <Route
@@ -1714,9 +1716,10 @@ export default function App() {
                         <Route
                           path="/marketplace/merchant-api"
                           element={
-                            <Suspense fallback={<PageLoader />}>
-                              <MerchantMarketplaceApi />
-                            </Suspense>
+                            <Navigate
+                              to="/developers/merchant-webhooks"
+                              replace
+                            />
                           }
                         />
                         <Route
@@ -2310,7 +2313,12 @@ export default function App() {
                         />
                         <Route
                           path="/borehole-estimator"
-                          element={<BoreholeWaterSystemEstimator />}
+                          element={
+                            <Navigate
+                              to="/borehole-water-system-estimator"
+                              replace
+                            />
+                          }
                         />
                         <Route
                           path="/global-site-safety-estimator"

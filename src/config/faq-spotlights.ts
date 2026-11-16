@@ -50,6 +50,7 @@ export const FAQ_SPOTLIGHT_PLACEMENTS: FaqSpotlightPlacementConfig[] = [
       { slug: "structural-calculator", questionIndexes: [0, 1] },
       { slug: "concrete-takeoff-calculator", questionIndexes: [0, 2] },
       { slug: "mathematical-plan-elevation", questionIndexes: [0, 4] },
+      { slug: "tall-building-structure", questionIndexes: [0, 5] },
       { slug: "earthworks-cut-fill", questionIndexes: [0, 1] },
       { slug: "roof-framing-calculator", questionIndexes: [0, 1] },
       { slug: "temporary-works-calculator", questionIndexes: [0, 1] },

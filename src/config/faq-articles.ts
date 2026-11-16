@@ -486,6 +486,30 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
   ...FAQ_ARTICLES,
   ...ENGINE_FAQ_ARTICLES,
   ...RENOVATION_FAQ_ARTICLES,
+  "tall-building-structure": {
+    summary:
+      "Screens a high rise from entered geometry: the lateral system the height calls for, the wind and seismic shear it must resist, the drift that shear causes, and the raft and piles that carry it.",
+    description:
+      "The page takes the geometry of a tower, its concrete strength, the soil it stands on and the mapped spectral accelerations for its site, then works through the structural screening checks a tall building needs before an engineer is engaged. It selects a lateral system from the entered height, applies the ASCE 7 velocity pressure form for wind base shear and roof drift, computes a seismic base shear from the spectral values supplied, sizes a raft and a pile group for the combined demand, and rolls the result into concrete and reinforcement quantities and a build programme. Each step prints the terms it used and the assumptions behind them, and the page states that the output is a screening check and not a structural design.",
+    functions: [
+      "Selects the lateral system for the entered height: rigid frame, shear core, core with outriggers, tube in tube or a mega frame, and flags a height that sits outside the range for the chosen system.",
+      "Computes wind base shear and roof drift from the velocity pressure form, printing the exposure and topographic factors so the figure can be traced term by term.",
+      "Computes seismic base shear from the SDS and SD1 values entered and the occupancy category, and reports the period it used.",
+      "Sizes a raft thickness and a pile group for the combined gravity, wind and seismic demand on the soil entered, with the bearing and capacity assumptions stated.",
+      "Converts the geometry into concrete and reinforcement quantities and a floor by floor build programme.",
+    ],
+    advantages: [
+      "The first structural conversation is cheaper: the framing system, the governing load case and the foundation type sit on one page before a consultant is booked.",
+      "Every figure shows the term it came from, so a reviewer can check the arithmetic without chasing the source document.",
+      "The same geometry can be screened at several heights to see the point where the lateral system, not the floor area, starts driving the cost.",
+    ],
+    limits: [
+      "It is a screening check. Member design, reinforcement detailing, connection design and a site investigation are outside it, and a licensed structural engineer must sign off the building.",
+      "The wind and seismic coefficients illustrate the form of the calculation for the site class and occupancy entered. They are not a site specific hazard study.",
+      "Soil bearing and pile capacity are the values you enter. The page does not derive them from a borehole log.",
+      "The lateral system ranges describe the framing types named at the heights where practice puts them. They are not code limits.",
+    ],
+  },
 };
 
 export function getFaqArticle(slug: string): FaqArticle | undefined {

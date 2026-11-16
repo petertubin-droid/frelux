@@ -13,7 +13,7 @@ import { useSeo } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
-import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
+import ToolFaqs from "@/components/seo/ToolFaqs";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
@@ -61,38 +61,7 @@ function formatNumber(value: number, places = 0): string {
   });
 }
 
-const TALL_FAQS = [
-  {
-    question: "What height does this calculator cover?",
-    answer:
-      "It is built for towers between about 8 and 140 storeys. It selects a rigid frame below 15 storeys, a shear core to about 35, core and outriggers to 70, a tube in tube to 90, and a mega frame above that. Those ranges are tall building practice rather than code limits, and the page says when the entered height sits outside the range for the chosen system.",
-  },
-  {
-    question: "How is wind load calculated for a tall building?",
-    answer:
-      "Velocity pressure uses the ASCE 7-22 exposure coefficient Kz at each storey, applied to the loaded face with a force coefficient, then summed from the base to the top. That storey by storey integration produces the base shear and the overturning moment. A single top pressure would understate both.",
-  },
-  {
-    question: "Which drift limit is applied?",
-    answer:
-      "Top drift is compared with H/500 and H/400, the serviceability limits commonly specified for occupied towers. The estimate uses virtual work on the core section with Ec equal to 4700 times the square root of fck and the ACI 318-19 cracked stiffness of 0.70. Occupant comfort and acceleration need a dynamic check, which this page does not perform.",
-  },
-  {
-    question: "How is the foundation chosen between a raft and piles?",
-    answer:
-      "The raft is checked as a rigid plate for axial load plus moment. If the contact pressure exceeds the entered allowable bearing, or the building is taller than 15 storeys, the scheme becomes a piled raft. Piles then carry the excess, and the count is set so the largest pile load, including the moment couple, fits the allowable capacity at a factor of safety of 2.5.",
-  },
-  {
-    question: "How is pile capacity worked out?",
-    answer:
-      "Shaft friction uses the alpha method in clay, where friction is a fraction of undrained strength, and the beta method in sand, where friction is a fraction of effective overburden. End bearing in sand uses the Meyerhof SPT relationship qp equal to 40 N times length over diameter, capped at 400 N, with a 30 percent reduction for bored piles because of base cleanliness.",
-  },
-  {
-    question: "Can I use the output for construction or permits?",
-    answer:
-      "No. The page is a preliminary screen built on single cantilever stiffness, elastic pile group distribution and soil and hazard inputs you supply. It does not perform a structural analysis, a geotechnical investigation or a wind tunnel study. Use it to size the scheme, then have a licensed structural engineer confirm every figure against site data and the local code.",
-  },
-];
+
 
 /**
  * Illustrative tower input presets. They are not verified designs or market
@@ -1554,7 +1523,7 @@ export default function TallBuildingCalculator() {
         </div>
       </section>
 
-      <FaqItemsWithSchema faqs={TALL_FAQS} title="Tall building questions" />
+      <ToolFaqs slug="tall-building-structure" title="Tall building questions" />
 
       <RelatedToolsLinks />
       <EstimateDisclaimer />

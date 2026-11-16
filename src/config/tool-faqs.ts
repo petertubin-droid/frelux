@@ -646,6 +646,38 @@ const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
       },
     ],
   },
+  {
+    slug: "tall-building-structure",
+    route: "/tall-building-structure",
+    name: "Tall Building Structure",
+    category: "structure",
+    questions: [
+      {
+        q: "What height does this calculator cover?",
+        a: "It is built for towers between about 8 and 140 storeys. It selects a rigid frame below 15 storeys, a shear core to about 35, core and outriggers to 70, a tube in tube to 90, and a mega frame above that. Those ranges are tall building practice and not code limits, and the page says when the entered height sits outside the range for the chosen system.",
+      },
+      {
+        q: "How is wind load calculated for a tall building?",
+        a: "Velocity pressure uses the ASCE 7-22 exposure coefficient Kz at each storey, applied to the loaded face with a force coefficient, then summed from the base to the top. That storey by storey integration produces the base shear and the overturning moment. A single top pressure would understate both.",
+      },
+      {
+        q: "Which drift limit is applied?",
+        a: "Top drift is compared with H/500 and H/400, the serviceability limits commonly specified for occupied towers. The estimate uses virtual work on the core section with Ec equal to 4700 times the square root of fck and the ACI 318-19 cracked stiffness of 0.70. Occupant comfort and acceleration need a dynamic check, which this page does not perform.",
+      },
+      {
+        q: "How is the foundation chosen between a raft and piles?",
+        a: "The raft is checked as a rigid plate for axial load plus moment. If the contact pressure exceeds the entered allowable bearing, or the building is taller than 15 storeys, the scheme becomes a piled raft. Piles then carry the excess, and the count is set so the largest pile load, including the moment couple, fits the allowable capacity at a factor of safety of 2.5.",
+      },
+      {
+        q: "How is pile capacity worked out?",
+        a: "Shaft friction uses the alpha method in clay, where friction is a fraction of undrained strength, and the beta method in sand, where friction is a fraction of effective overburden. End bearing in sand uses the Meyerhof SPT relationship qp equal to 40 N times length over diameter, capped at 400 N, with a 30 percent reduction for bored piles because of base cleanliness.",
+      },
+      {
+        q: "Can I use the output for construction or permits?",
+        a: "No. The page is a preliminary screen built on single cantilever stiffness, elastic pile group distribution and soil and hazard inputs you supply. It does not perform a structural analysis, a geotechnical investigation or a wind tunnel study. Use it to size the scheme, then have a licensed structural engineer confirm every figure against site data and the local code.",
+      },
+    ],
+  },
 ];
 
 /**

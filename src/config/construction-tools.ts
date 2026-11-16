@@ -737,6 +737,24 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: false,
   },
 
+  {
+    slug: "tall-building-structure",
+    title: "Tall Building Structure",
+    category: "structure",
+    icon: Building2,
+    does: "Screen a high rise from entered geometry: the lateral system the height calls for, ASCE 7 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and a build programme.",
+    enters:
+      "Floors above ground, typical and ground floor heights, plan length and width, concrete fck, the soil type, the mapped accelerations SDS and SD1, and the occupancy category.",
+    gets:
+      "The lateral system for the height, wind and seismic base shear with drift, raft thickness and the pile schedule, the concrete and reinforcement quantities, and a programme, with the method and every assumption shown. It is a deterministic screening check, not a structural design.",
+    to: "/tall-building-structure",
+    benefit: "Wind , Seismic , Piles",
+    seoTitle: "Skyscraper Structure and Foundation Calculator | FRELUX",
+    seoDescription:
+      "Screen a high rise from entered geometry: lateral system by height, ASCE 7 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and a build programme. Deterministic engineering arithmetic, not a structural design.",
+    navVisible: false,
+  },
+
   // ---------------------------------------------------------------- services
   {
     slug: "electrical",
