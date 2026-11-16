@@ -16,12 +16,11 @@
  */
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
 import {
   fetchOfflineFieldRules,
@@ -52,7 +51,6 @@ import {
 } from "@/lib/estimation/offline-field-engine";
 import type { EstimationCalcRule } from "@/types/estimation";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const KIND_LABEL: Record<FieldCaptureKind, string> = {
   measurement: "Measurement",
@@ -73,10 +71,6 @@ function timeAgo(iso: string): string {
 
 export default function FieldSync() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Field Sync", path: "/field-sync" },
-  ]);
   const { user } = useAuth();
 
   const [rules, setRules] = useState<FieldSyncRules>(DEFAULT_FIELD_SYNC_RULES);
@@ -114,12 +108,6 @@ export default function FieldSync() {
   const [online, setOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   );
-
-  useSeo({
-    title: "Field Sync: Capture Site Work Offline | FRELUX",
-    description:
-      "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online: nothing is lost, nothing is invented.",
-  });
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -280,292 +268,283 @@ export default function FieldSync() {
   }, [queue]);
 
   return (
-    <Container>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Field Sync" },
-        ]}
-        title={t("Field Sync")}
-        subtitle="Record site work with no network. Your captures queue on this device and sync when connectivity returns: honestly, one by one."
-      />
+    <ToolShell route="/field-sync" hideDisclaimer>
+      <Container>
 
-      {/* Connectivity truth, stated plainly */}
-      <div
-        className={`mb-6 rounded-lg border p-4 text-sm ${
-          online
-            ? "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
-            : "border-amber-600/30 bg-amber-600/10 text-amber-700 dark:text-amber-400"
-        }`}
-        role="status"
-      >
-        <p>
-          {online
-            ? "You are online. Captures sync when you tap Sync now, or automatically per the FRELUX settings."
-            : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
-        </p>
-        {autoReason && (
-          <p className="mt-1 text-xs opacity-80">Auto-sync: {autoReason}</p>
-        )}
-        {syncHistory.consecutiveFailures > 0 && queue.length > 0 && (
-          <p className="mt-1 text-xs opacity-80">
-            {describeNextAttempt(
-              syncHistory.consecutiveFailures,
-              queue[0]?.id ?? "queue",
-            )}
+
+        {/* Connectivity truth, stated plainly */}
+        <div
+          className={`mb-6 rounded-lg border p-4 text-sm ${
+            online
+              ? "border-emerald-600/30 bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
+              : "border-amber-600/30 bg-amber-600/10 text-amber-700 dark:text-amber-400"
+          }`}
+          role="status"
+        >
+          <p>
+            {online
+              ? "You are online. Captures sync when you tap Sync now, or automatically per the FRELUX settings."
+              : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
           </p>
-        )}
-      </div>
+          {autoReason && (
+            <p className="mt-1 text-xs opacity-80">Auto-sync: {autoReason}</p>
+          )}
+          {syncHistory.consecutiveFailures > 0 && queue.length > 0 && (
+            <p className="mt-1 text-xs opacity-80">
+              {describeNextAttempt(
+                syncHistory.consecutiveFailures,
+                queue[0]?.id ?? "queue",
+              )}
+            </p>
+          )}
+        </div>
 
-      {/* Capture form: works with zero connectivity */}
-      <form
-        onSubmit={submitCapture}
-        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-        aria-label={t("Capture site work")}
-      >
-        <h2 className="mb-4 text-lg font-semibold">{t("New capture")}</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium">What is it?</span>
-            <select
-              value={form.kind}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  kind: e.target.value as FieldCaptureKind,
-                }))
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
-            >
-              {FIELD_CAPTURE_KINDS.map((k) => (
-                <option key={k} value={k}>
-                  {KIND_LABEL[k]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium">
-              {t("Job label (optional)")}
-            </span>
-            <input
-              value={form.project_label}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, project_label: e.target.value }))
-              }
-              placeholder="e.g. Ikeja duplex: room 2"
+        {/* Capture form: works with zero connectivity */}
+        <form
+          onSubmit={submitCapture}
+          className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+          aria-label={t("Capture site work")}
+        >
+          <h2 className="mb-4 text-lg font-semibold">{t("New capture")}</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">What is it?</span>
+              <select
+                value={form.kind}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    kind: e.target.value as FieldCaptureKind,
+                  }))
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2"
+              >
+                {FIELD_CAPTURE_KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {KIND_LABEL[k]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">
+                {t("Job label (optional)")}
+              </span>
+              <input
+                value={form.project_label}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, project_label: e.target.value }))
+                }
+                placeholder="e.g. Ikeja duplex: room 2"
+                className="w-full rounded-md border border-input bg-background px-3 py-2"
+              />
+            </label>
+          </div>
+          <label className="mt-4 block text-sm">
+            <span className="mb-1 block font-medium">What happened on site?</span>
+            <textarea
+              value={form.detail}
+              onChange={(e) => setForm((f) => ({ ...f, detail: e.target.value }))}
+              placeholder="e.g. Room 2 walls measured 4.2 m × 3.1 m, two coats done. Used 12 litres of satin."
+              rows={3}
               className="w-full rounded-md border border-input bg-background px-3 py-2"
             />
           </label>
-        </div>
-        <label className="mt-4 block text-sm">
-          <span className="mb-1 block font-medium">What happened on site?</span>
-          <textarea
-            value={form.detail}
-            onChange={(e) => setForm((f) => ({ ...f, detail: e.target.value }))}
-            placeholder="e.g. Room 2 walls measured 4.2 m × 3.1 m, two coats done. Used 12 litres of satin."
-            rows={3}
-            className="w-full rounded-md border border-input bg-background px-3 py-2"
-          />
-        </label>
-        {formError && (
-          <p className="mt-2 text-sm text-destructive" role="alert">
-            {formError}
-          </p>
-        )}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("Save to device queue")}
-          </button>
-          <span className="text-xs text-muted-foreground">
-            Works offline · queue keeps {rules.max_queue} captures for{" "}
-            {rules.retention_days} days
-          </span>
-        </div>
-      </form>
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      {/* Sync controls + last report */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-semibold">
-            Queued captures ({queue.length})
-          </h2>
-          {summary.length > 0 && (
-            <p className="text-sm text-muted-foreground">
-              {summary
-                .map((s) => `${s.count} ${KIND_LABEL[s.kind].toLowerCase()}`)
-                .join(" · ")}
+          {formError && (
+            <p className="mt-2 text-sm text-destructive" role="alert">
+              {formError}
             </p>
           )}
-        </div>
-        <button
-          onClick={runSync}
-          disabled={syncing || queue.length === 0}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          {syncing ? "Syncing…" : "Sync now"}
-        </button>
-        <button
-          onClick={downloadBackup}
-          disabled={queue.length === 0}
-          className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-          title={t("Download the unsynced queue as a JSON file you can keep")}
-        >
-          {t("Back up unsynced captures")}
-        </button>
-      </div>
-
-      {/* Engine #11 honest disclosure: where unsynced data lives */}
-      <div className="mb-6 rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
-        <p>
-          Un-synced captures live only in this browser's storage. Reinstalling,
-          clearing browser data or losing this device loses them — sync before
-          that happens, or keep a backup file. Already-synced captures are
-          durable on the server and tied to your account.
-        </p>
-        <p className="mt-1">
-          Captures synced while signed out are not attributed to your account;
-          sign in before syncing to keep them on your record. Photos carry at
-          most {MAX_PHOTOS_PER_CAPTURE} attachments per capture.
-        </p>
-      </div>
-
-      {syncReport && (
-        <div
-          className="mb-6 rounded-lg border bg-muted/40 p-4 text-sm"
-          role="status"
-        >
-          <p className="font-medium">{t("Last sync")}</p>
-          <p>
-            {syncReport.synced} synced
-            {syncReport.duplicates > 0 &&
-              ` · ${syncReport.duplicates} already on the server (safe)`}
-            {syncReport.failed > 0 &&
-              ` · ${syncReport.failed} failed and still queued`}
-            {syncReport.remaining > 0 && ` · ${syncReport.remaining} waiting`}
-          </p>
-          {syncReport.failed > 0 && (
-            <p className="mt-1 text-muted-foreground">
-              Failed captures stay on this device with the reason recorded. They
-              will be retried on the next sync: nothing is dropped.
-            </p>
-          )}
-        </div>
-      )}
-
-      {notice && (
-        <div
-          className="mb-6 rounded-lg border border-amber-600/30 bg-amber-600/10 p-4 text-sm text-amber-700 dark:text-amber-400"
-          role="alert"
-        >
-          {notice}
-        </div>
-      )}
-
-      {/* The queue itself: every capture with its honest status */}
-      {queue.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Nothing queued. Captures you record on site appear here until they are
-          confirmed synced.
-        </p>
-      ) : (
-        <ul className="space-y-3">
-          {queue.map((capture) => (
-            <li
-              key={capture.id}
-              className="rounded-lg border bg-card p-4 shadow-sm"
-              data-testid="queued-capture"
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="font-medium">
-                    {KIND_LABEL[capture.kind]}: {capture.project_label}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Captured {timeAgo(capture.captured_at)} · on this device,
-                    not synced yet
-                  </p>
-                  {capture.last_error && (
-                    <p className="text-sm text-amber-600 dark:text-amber-400">
-                      Last sync attempt failed: kept in queue: will be retried
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-amber-600/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
-                    {t("Queued")}
-                  </span>
-                  <button
-                    onClick={() => {
-                      removeQueuedCapture(capture.id);
-                      refreshQueue();
-                    }}
-                    className="text-xs text-muted-foreground underline"
-                    aria-label={`Delete queued capture ${capture.project_label}`}
-                  >
-                    {t("Discard")}
-                  </button>
-                </div>
-              </div>
-              <p className="mt-2 text-sm">
-                {typeof capture.payload.detail === "string"
-                  ? capture.payload.detail
-                  : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
+              {t("Save to device queue")}
+            </button>
+            <span className="text-xs text-muted-foreground">
+              Works offline · queue keeps {rules.max_queue} captures for{" "}
+              {rules.retention_days} days
+            </span>
+          </div>
+        </form>
 
-      {queue.length > 0 && (
-        <div className="mt-4 text-right">
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+
+        {/* Sync controls + last report */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold">
+              Queued captures ({queue.length})
+            </h2>
+            {summary.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {summary
+                  .map((s) => `${s.count} ${KIND_LABEL[s.kind].toLowerCase()}`)
+                  .join(" · ")}
+              </p>
+            )}
+          </div>
           <button
-            onClick={() => {
-              clearQueuedCaptures();
-              refreshQueue();
-              setSyncReport(null);
-            }}
-            className="text-xs text-muted-foreground underline"
+            onClick={runSync}
+            disabled={syncing || queue.length === 0}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
-            {t("Discard all queued captures")}
+            {syncing ? "Syncing…" : "Sync now"}
+          </button>
+          <button
+            onClick={downloadBackup}
+            disabled={queue.length === 0}
+            className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+            title={t("Download the unsynced queue as a JSON file you can keep")}
+          >
+            {t("Back up unsynced captures")}
           </button>
         </div>
-      )}
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+        {/* Engine #11 honest disclosure: where unsynced data lives */}
+        <div className="mb-6 rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+          <p>
+            Un-synced captures live only in this browser's storage. Reinstalling,
+            clearing browser data or losing this device loses them — sync before
+            that happens, or keep a backup file. Already-synced captures are
+            durable on the server and tied to your account.
+          </p>
+          <p className="mt-1">
+            Captures synced while signed out are not attributed to your account;
+            sign in before syncing to keep them on your record. Photos carry at
+            most {MAX_PHOTOS_PER_CAPTURE} attachments per capture.
+          </p>
+        </div>
 
-      {/* How it works: the honesty contract, in plain words */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How Field Sync works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            Captures are stored on this device only until the server confirms
-            them. A capture is never marked synced unless the server accepted
-            it.
-          </li>
-          <li>
-            Each capture has a unique ID the server also uses, so a retry after
-            a dropped connection can never record the same work twice.
-          </li>
-          <li>
-            If the queue fills up, the oldest capture is removed: and you are
-            told which one. Nothing is silently lost.
-          </li>
-          <li>
-            This page needs no login. If you are signed in, your synced captures
-            are linked to your account.
-          </li>
-        </ul>
-      </section>
-      <div className="mt-8">
-        <ToolFaqs slug="field-sync" />
-      </div>
-    </Container>
+        {syncReport && (
+          <div
+            className="mb-6 rounded-lg border bg-muted/40 p-4 text-sm"
+            role="status"
+          >
+            <p className="font-medium">{t("Last sync")}</p>
+            <p>
+              {syncReport.synced} synced
+              {syncReport.duplicates > 0 &&
+                ` · ${syncReport.duplicates} already on the server (safe)`}
+              {syncReport.failed > 0 &&
+                ` · ${syncReport.failed} failed and still queued`}
+              {syncReport.remaining > 0 && ` · ${syncReport.remaining} waiting`}
+            </p>
+            {syncReport.failed > 0 && (
+              <p className="mt-1 text-muted-foreground">
+                Failed captures stay on this device with the reason recorded. They
+                will be retried on the next sync: nothing is dropped.
+              </p>
+            )}
+          </div>
+        )}
+
+        {notice && (
+          <div
+            className="mb-6 rounded-lg border border-amber-600/30 bg-amber-600/10 p-4 text-sm text-amber-700 dark:text-amber-400"
+            role="alert"
+          >
+            {notice}
+          </div>
+        )}
+
+        {/* The queue itself: every capture with its honest status */}
+        {queue.length === 0 ? (
+          <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+            Nothing queued. Captures you record on site appear here until they are
+            confirmed synced.
+          </p>
+        ) : (
+          <ul className="space-y-3">
+            {queue.map((capture) => (
+              <li
+                key={capture.id}
+                className="rounded-lg border bg-card p-4 shadow-sm"
+                data-testid="queued-capture"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="font-medium">
+                      {KIND_LABEL[capture.kind]}: {capture.project_label}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Captured {timeAgo(capture.captured_at)} · on this device,
+                      not synced yet
+                    </p>
+                    {capture.last_error && (
+                      <p className="text-sm text-amber-600 dark:text-amber-400">
+                        Last sync attempt failed: kept in queue: will be retried
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-amber-600/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-400">
+                      {t("Queued")}
+                    </span>
+                    <button
+                      onClick={() => {
+                        removeQueuedCapture(capture.id);
+                        refreshQueue();
+                      }}
+                      className="text-xs text-muted-foreground underline"
+                      aria-label={`Delete queued capture ${capture.project_label}`}
+                    >
+                      {t("Discard")}
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-2 text-sm">
+                  {typeof capture.payload.detail === "string"
+                    ? capture.payload.detail
+                    : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {queue.length > 0 && (
+          <div className="mt-4 text-right">
+            <button
+              onClick={() => {
+                clearQueuedCaptures();
+                refreshQueue();
+                setSyncReport(null);
+              }}
+              className="text-xs text-muted-foreground underline"
+            >
+              {t("Discard all queued captures")}
+            </button>
+          </div>
+        )}
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works: the honesty contract, in plain words */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">{t("How Field Sync works")}</h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              Captures are stored on this device only until the server confirms
+              them. A capture is never marked synced unless the server accepted
+              it.
+            </li>
+            <li>
+              Each capture has a unique ID the server also uses, so a retry after
+              a dropped connection can never record the same work twice.
+            </li>
+            <li>
+              If the queue fills up, the oldest capture is removed: and you are
+              told which one. Nothing is silently lost.
+            </li>
+            <li>
+              This page needs no login. If you are signed in, your synced captures
+              are linked to your account.
+            </li>
+          </ul>
+        </section>
+      </Container>
+    </ToolShell>
   );
 }

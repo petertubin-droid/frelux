@@ -13,11 +13,10 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   fetchMaterialReuseFactors,
   fetchCalcRules,
@@ -36,19 +35,9 @@ import { useLanguage } from "@/lib/i18n";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function CircularReuse() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Circular & Reuse: Demolition Recovery", path: "/circular-reuse" },
-  ]);
-  useSeo({
-    title: "Circular & Reuse: Demolition Recovery Quantities | FRELUX",
-    description:
-      "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor: never a guess.",
-  });
 
   const [factors, setFactors] = useState<MaterialReuseFactor[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
@@ -125,196 +114,187 @@ export default function CircularReuse() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Circular & Reuse: Demolition Recovery" },
-          ]}
-          title={t("Circular & Reuse: Demolition Recovery")}
-          subtitle="Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump: computed only from sourced recovery factors, never a guess."
-        />
+    <ToolShell route="/circular-reuse" hideDisclaimer>
+      <Container>
+        <div className="space-y-6">
 
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
 
-        <div
-          ref={fieldsRef}
-          className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1 text-sm font-medium">
-              {t("Material category")}
-              <select
-                id="reuse-category"
-                aria-label={t("Material category")}
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setResult(null);
-                }}
-              >
-                <option value="">
-                  {t("Select the material being stripped out")}
-                </option>
-                {factors.map((f) => (
-                  <option key={f.id} value={f.category}>
-                    {f.category_label ?? f.category}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Quantity {selected ? `(${selected.unit})` : ""}
-              <input
-                id="reuse-quantity"
-                aria-label="Quantity"
-                type="number"
-                min="1"
-                step="1"
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
-            </label>
-          </div>
-          <MissingFieldsNotice fields={missing} />
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          )}
+
+          <div
+            ref={fieldsRef}
+            className="rounded-lg border border-border bg-card p-4 dark:border-white/5"
           >
-            {t("Plan recovery")}
-          </button>
-        </div>
-
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm font-medium">
+                {t("Material category")}
+                <select
+                  id="reuse-category"
+                  aria-label={t("Material category")}
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setResult(null);
+                  }}
+                >
+                  <option value="">
+                    {t("Select the material being stripped out")}
+                  </option>
+                  {factors.map((f) => (
+                    <option key={f.id} value={f.category}>
+                      {f.category_label ?? f.category}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Quantity {selected ? `(${selected.unit})` : ""}
+                <input
+                  id="reuse-quantity"
+                  aria-label="Quantity"
+                  type="number"
+                  min="1"
+                  step="1"
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
+              </label>
+            </div>
+            <MissingFieldsNotice fields={missing} />
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              {t("Plan recovery")}
+            </button>
           </div>
-        )}
 
-        {result?.ok && (
-          <div ref={resultsRef} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Recovered")}
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
                 </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.recovered_qty} {selected?.unit}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  recoverable from demolition
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Reused")}
-                </p>
-                <p className="mt-1 text-xl font-semibold text-emerald-600 dark:text-emerald-400">
-                  {result.reused_qty} {selected?.unit}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  fit for direct reuse
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Recycled")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.recycled_qty} {selected?.unit}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  fit for recycling
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("To landfill")}
-                </p>
-                <p className="mt-1 text-xl font-semibold text-destructive">
-                  {result.landfill_qty} {selected?.unit}
-                </p>
-                <p className="text-xs text-muted-foreground">not diverted</p>
-              </div>
+              ))}
             </div>
+          )}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Landfill diversion")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.diversion_percent}%
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.meets_diversion_target === null
-                    ? "not measured: no diversion target configured"
-                    : result.meets_diversion_target
-                      ? "meets the configured circular-economy target"
-                      : "below the configured circular-economy target"}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Reuse value")}
-                </p>
-                <p className="mt-1 text-xl font-semibold">
-                  {result.reuse_value_naira === null
-                    ? "N/A"
-                    : formatCurrency(result.reuse_value_naira)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.reuse_value_naira === null
-                    ? "no reclaimed value configured for this material"
-                    : "reclaimed-material value of the reusable quantity"}
-                </p>
-              </div>
-            </div>
-
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                {result.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {w}
+          {result?.ok && (
+            <div ref={resultsRef} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Recovered")}
                   </p>
-                ))}
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.recovered_qty} {selected?.unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    recoverable from demolition
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Reused")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold text-emerald-600 dark:text-emerald-400">
+                    {result.reused_qty} {selected?.unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    fit for direct reuse
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Recycled")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.recycled_qty} {selected?.unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    fit for recycling
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("To landfill")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold text-destructive">
+                    {result.landfill_qty} {selected?.unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">not diverted</p>
+                </div>
               </div>
-            )}
 
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("How this was determined")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-        )}
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-8">
-        <ToolFaqs slug="circular-reuse" />
-      </div>
-    </Container>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Landfill diversion")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.diversion_percent}%
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.meets_diversion_target === null
+                      ? "not measured: no diversion target configured"
+                      : result.meets_diversion_target
+                        ? "meets the configured circular-economy target"
+                        : "below the configured circular-economy target"}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Reuse value")}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {result.reuse_value_naira === null
+                      ? "N/A"
+                      : formatCurrency(result.reuse_value_naira)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.reuse_value_naira === null
+                      ? "no reclaimed value configured for this material"
+                      : "reclaimed-material value of the reusable quantity"}
+                  </p>
+                </div>
+              </div>
+
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  {result.warnings.map((w, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("How this was determined")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          )}
+        </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

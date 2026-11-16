@@ -14,10 +14,7 @@
  *   gone when the count completes.
  */
 
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
@@ -27,7 +24,7 @@ import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField } from "@/lib/forms/missing-fields";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
 import { fetchCountVisionRules, countPhoto } from "@/lib/estimation/queries";
 import {
@@ -57,10 +54,6 @@ const ITEM_HINTS = [
 
 export default function CountVision() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Counter-Vision", path: "/count-vision" },
-  ]);
   const { user } = useAuth();
   const [gateOpen, setGateOpen] = useState(false);
 
@@ -74,13 +67,6 @@ export default function CountVision() {
   const [counting, setCounting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  useSeo({
-    title:
-      "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX",
-    description:
-      "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so: it never guesses.",
-  });
 
   useEffect(() => {
     fetchCountVisionRules()
@@ -166,241 +152,226 @@ export default function CountVision() {
   }, [counting, doCount, photo, user]);
 
   return (
-    <Container>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Counter-Vision" },
-        ]}
-        title={t("Counter-Vision")}
-        subtitle="Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count: it never guesses a number."
-      />
+    <ToolShell route="/count-vision">
+      <Container>
 
-      {/* The counting form */}
-      <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
-        <label className="mb-4 block text-sm">
-          <span className="mb-1 block font-medium">
-            What did you photograph?
-          </span>
-          <select
-            value={itemHint}
-            onChange={(e) => setItemHint(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 sm:max-w-xs"
-          >
-            {ITEM_HINTS.map((h) => (
-              <option key={h} value={h}>
-                {h}
-              </option>
-            ))}
-          </select>
-        </label>
 
-        <label className="block text-sm">
-          <span className="mb-1 block font-medium">{t("Site photo")}</span>
-          <input
-            id="count-photo"
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/heic"
-            onChange={(e) => onPickPhoto(e.target.files?.[0] ?? null)}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            aria-label={t("Site photo to count")}
-          />
-        </label>
-        <p className="mt-1 text-xs text-muted-foreground">
-          JPEG, PNG, WebP or HEIC up to {rules.max_image_mb} MB. The photo is
-          sent for counting and never stored.
-        </p>
-
-        {preview && (
-          <div className="mt-4">
-            <img
-              src={preview}
-              alt={t("Selected site photo, ready for counting")}
-              className="max-h-64 rounded-md border"
-              loading="lazy"
-              decoding="async"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Ready to count: {photo?.name}
-            </p>
-          </div>
-        )}
-
-        <MissingFieldsNotice fields={missing} />
-
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => handleCalculate(runCount)}
-            disabled={counting}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-          >
-            {counting ? "Counting…" : "Count what's visible"}
-          </button>
-          {(preview || result) && (
-            <button
-              onClick={() => {
-                setPhoto(null);
-                setPreview(null);
-                setResult(null);
-                setError(null);
-                if (fileRef.current) fileRef.current.value = "";
-              }}
-              className="text-sm text-muted-foreground underline"
-            >
-              {t("Clear")}
-            </button>
-          )}
-        </div>
-
-        {error && (
-          <p className="mt-3 text-sm text-destructive" role="alert">
-            {error}
-          </p>
-        )}
-      </div>
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      {/* The honest result */}
-      {result && (
-        <div
-          ref={resultsRef}
-          className="mb-8 rounded-lg border bg-card p-6 shadow-sm"
-          role="status"
-          data-testid="count-result"
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <span
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                result.verdict === "counted"
-                  ? "bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
-                  : "bg-amber-600/10 text-amber-700 dark:text-amber-400"
-              }`}
-            >
-              {verdictLabel(result.verdict)}
+        {/* The counting form */}
+        <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
+          <label className="mb-4 block text-sm">
+            <span className="mb-1 block font-medium">
+              What did you photograph?
             </span>
-            {result.verdict === "counted" && (
-              <span className="text-xs text-muted-foreground">
-                confidence {(result.confidence * 100).toFixed(0)}%
-              </span>
+            <select
+              value={itemHint}
+              onChange={(e) => setItemHint(e.target.value)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 sm:max-w-xs"
+            >
+              {ITEM_HINTS.map((h) => (
+                <option key={h} value={h}>
+                  {h}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium">{t("Site photo")}</span>
+            <input
+              id="count-photo"
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              onChange={(e) => onPickPhoto(e.target.files?.[0] ?? null)}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label={t("Site photo to count")}
+            />
+          </label>
+          <p className="mt-1 text-xs text-muted-foreground">
+            JPEG, PNG, WebP or HEIC up to {rules.max_image_mb} MB. The photo is
+            sent for counting and never stored.
+          </p>
+
+          {preview && (
+            <div className="mt-4">
+              <img
+                src={preview}
+                alt={t("Selected site photo, ready for counting")}
+                className="max-h-64 rounded-md border"
+                loading="lazy"
+                decoding="async"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Ready to count: {photo?.name}
+              </p>
+            </div>
+          )}
+
+          <MissingFieldsNotice fields={missing} />
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => handleCalculate(runCount)}
+              disabled={counting}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            >
+              {counting ? "Counting…" : "Count what's visible"}
+            </button>
+            {(preview || result) && (
+              <button
+                onClick={() => {
+                  setPhoto(null);
+                  setPreview(null);
+                  setResult(null);
+                  setError(null);
+                  if (fileRef.current) fileRef.current.value = "";
+                }}
+                className="text-sm text-muted-foreground underline"
+              >
+                {t("Clear")}
+              </button>
             )}
           </div>
 
-          {result.verdict === "counted" && result.count !== null ? (
-            <>
-              <p className="mt-4 text-4xl font-bold" data-testid="count-number">
-                {result.count.toLocaleString()}
-              </p>
-              <p className="mt-1 text-lg font-medium text-muted-foreground">
-                {result.unitLabel ?? "units"} visible in the photo
-              </p>
-              <p className="mt-3 text-sm text-muted-foreground">
-                {result.reason}
-              </p>
-              <p className="mt-4 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-                This is what is visible: units hidden behind or under the stack
-                are not included. Count a second photo for the rest of the pile.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mt-4 text-lg font-semibold">
-                {result.verdict === "not_found"
-                  ? "No countable materials in this photo"
-                  : "This photo cannot be counted honestly"}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {result.reason}
-              </p>
-              <p className="mt-4 text-xs text-muted-foreground">
-                Take the photo in good light, close enough that each unit is
-                distinct: then try again. A refused count is better than a wrong
-                one.
-              </p>
-            </>
+          {error && (
+            <p className="mt-3 text-sm text-destructive" role="alert">
+              {error}
+            </p>
           )}
         </div>
-      )}
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
 
-      {/* How it works: the honesty contract, in plain words */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How Counter-Vision works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            The photo goes to the counting service (Google Gemini, configured
-            and switched on by the site admin) and is never stored: only the
-            answer and its diagnostics are logged.
-          </li>
-          <li>
-            It counts only what is clearly visible. Hidden layers of a stack are
-            never extrapolated, so a deep pile may honestly come back "cannot
-            count".
-          </li>
-          <li>
-            A count is only shown when the engine is confident in it. Below the
-            confidence floor, you get the reason instead of a number.
-          </li>
-          <li>
-            Nothing on this page requires an account. If you are signed in, your
-            count requests are linked to your account.
-          </li>
-        </ul>
-      </section>
+        {/* The honest result */}
+        {result && (
+          <div
+            ref={resultsRef}
+            className="mb-8 rounded-lg border bg-card p-6 shadow-sm"
+            role="status"
+            data-testid="count-result"
+          >
+            <div className="flex flex-wrap items-center gap-3">
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  result.verdict === "counted"
+                    ? "bg-emerald-600/10 text-emerald-700 dark:text-emerald-400"
+                    : "bg-amber-600/10 text-amber-700 dark:text-amber-400"
+                }`}
+              >
+                {verdictLabel(result.verdict)}
+              </span>
+              {result.verdict === "counted" && (
+                <span className="text-xs text-muted-foreground">
+                  confidence {(result.confidence * 100).toFixed(0)}%
+                </span>
+              )}
+            </div>
 
-      {gateOpen && (
-        <AiFeatureGate
-          featureKey="count_vision"
-          featureName="Counter-Vision"
-          onUnlocked={() => {
-            setGateOpen(false);
-            doCount();
-          }}
-          onClose={() => setGateOpen(false)}
+            {result.verdict === "counted" && result.count !== null ? (
+              <>
+                <p className="mt-4 text-4xl font-bold" data-testid="count-number">
+                  {result.count.toLocaleString()}
+                </p>
+                <p className="mt-1 text-lg font-medium text-muted-foreground">
+                  {result.unitLabel ?? "units"} visible in the photo
+                </p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {result.reason}
+                </p>
+                <p className="mt-4 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+                  This is what is visible: units hidden behind or under the stack
+                  are not included. Count a second photo for the rest of the pile.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="mt-4 text-lg font-semibold">
+                  {result.verdict === "not_found"
+                    ? "No countable materials in this photo"
+                    : "This photo cannot be counted honestly"}
+                </p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {result.reason}
+                </p>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Take the photo in good light, close enough that each unit is
+                  distinct: then try again. A refused count is better than a wrong
+                  one.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works: the honesty contract, in plain words */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">{t("How Counter-Vision works")}</h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              The photo goes to the counting service (Google Gemini, configured
+              and switched on by the site admin) and is never stored: only the
+              answer and its diagnostics are logged.
+            </li>
+            <li>
+              It counts only what is clearly visible. Hidden layers of a stack are
+              never extrapolated, so a deep pile may honestly come back "cannot
+              count".
+            </li>
+            <li>
+              A count is only shown when the engine is confident in it. Below the
+              confidence floor, you get the reason instead of a number.
+            </li>
+            <li>
+              Nothing on this page requires an account. If you are signed in, your
+              count requests are linked to your account.
+            </li>
+          </ul>
+        </section>
+
+        {gateOpen && (
+          <AiFeatureGate
+            featureKey="count_vision"
+            featureName="Counter-Vision"
+            onUnlocked={() => {
+              setGateOpen(false);
+              doCount();
+            }}
+            onClose={() => setGateOpen(false)}
+          />
+        )}
+
+
+        <ShareEstimateButton
+          estimate={
+            result
+              ? {
+                  kind: "Counter-Vision Count",
+                  summaryLines: [
+                    { label: "Verdict", value: result.verdict },
+                    {
+                      label: "Units counted",
+                      value:
+                        result.count === null
+                          ? "not counted"
+                          : `${result.count}${result.unitLabel ? " " + result.unitLabel : ""}`,
+                    },
+                    {
+                      label: "Confidence",
+                      value: `${(result.confidence * 100).toFixed(0)}%`,
+                    },
+                  ],
+                  lineItems: [],
+                  totals: [],
+                  notes: [result.reason],
+                  link: "/count-vision",
+                }
+              : null
+          }
         />
-      )}
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.imageEstimator,
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-          ]}
-        />
-      </div>
-
-      <ShareEstimateButton
-        estimate={
-          result
-            ? {
-                kind: "Counter-Vision Count",
-                summaryLines: [
-                  { label: "Verdict", value: result.verdict },
-                  {
-                    label: "Units counted",
-                    value:
-                      result.count === null
-                        ? "not counted"
-                        : `${result.count}${result.unitLabel ? " " + result.unitLabel : ""}`,
-                  },
-                  {
-                    label: "Confidence",
-                    value: `${(result.confidence * 100).toFixed(0)}%`,
-                  },
-                ],
-                lineItems: [],
-                totals: [],
-                notes: [result.reason],
-                link: "/count-vision",
-              }
-            : null
-        }
-      />
-      <HowCalculatedSection methodologyText={methodologyText("count-vision")} />
-      <EstimateDisclaimer />
-    </Container>
+        <HowCalculatedSection methodologyText={methodologyText("count-vision")} />
+      </Container>
+    </ToolShell>
   );
 }

@@ -16,14 +16,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { trackCalculation } from "@/lib/achievements";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { formatCurrency } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   fetchMaintenanceProfiles,
   saveMaintenancePlan,
@@ -36,16 +35,11 @@ import type { MaintenanceProfile } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatNGNForDisplay } from "@/lib/international/fx-display";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 export default function MaintenancePlanner({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "Maintenance Planner", path: "/maintenance-planner" },
-  ]);
   const [searchParams] = useSearchParams();
 
   const [profiles, setProfiles] = useState<MaintenanceProfile[]>([]);
@@ -64,12 +58,6 @@ export default function MaintenancePlanner({
   const [planRef, setPlanRef] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
-
-  useSeo({
-    title: "Maintenance Planner: FRELUX",
-    description:
-      "Deterministic maintenance schedules from database-verified data: when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
-  });
 
   useEffect(() => {
     if (searchParams.get("mode") !== "maintenance") return;
@@ -208,15 +196,7 @@ export default function MaintenancePlanner({
 
   const body = (
     <div className="space-y-6">
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Maintenance Planner" },
-        ]}
-        title={t("Maintenance Planner")}
-        subtitle="Plan the full life of your finish from database-verified data: inspections, re-coat cycles and full redecoration, with cost projections at years 3, 5 and 10."
-      />
+      
 
       {loadError && (
         <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
@@ -449,13 +429,12 @@ export default function MaintenancePlanner({
 
   if (embedded) return body;
   return (
-    <Container>
-      {body}
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-8">
-        <ToolFaqs slug="maintenance-planner" />
-      </div>
-    </Container>
+    <ToolShell route="/maintenance-planner" hideDisclaimer>
+      <Container>
+        {body}
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

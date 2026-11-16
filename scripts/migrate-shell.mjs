@@ -224,6 +224,54 @@ function catalogueWith(entry, route) {
   return { src, file };
 }
 
+
+/** Names a migrated page no longer uses; the import goes with the chrome. */
+const CHROME_NAMES = [
+  "PageHeader",
+  "ToolFaqs",
+  "EstimateDisclaimer",
+  "RelatedTools",
+  "CALC_LINKS",
+  "useSeo",
+  "useBreadcrumbJsonLd",
+  "MarketScopeNotice",
+];
+
+/** Put the wrapped body at the depth of the shell, and drop unused chrome imports. */
+function tidy(src) {
+  let out = src;
+  for (const name of CHROME_NAMES) {
+    const body = out.replace(/^import .*$/gm, "");
+    if (new RegExp(`\\b${name}\\b`).test(body)) continue;
+    // Drop the name from a named import list, or the whole default import.
+    out = out.replace(new RegExp(`^(import \\{[^}]*?)\\b${name}\\b,? ?([^}]*\\} from .*)$`, "m"), (m, a, b) => {
+      const inner = `${a}${b}`.replace(/\{\s*,/, "{").replace(/,\s*\}/, " }");
+      return inner;
+    });
+    out = out.replace(new RegExp(`^import ${name} from .*\\n`, "m"), "");
+  }
+  return out;
+}
+
+function reindent(src) {
+  const lines = src.split("\n");
+  const open = lines.findIndex((l) => l.trim().startsWith("<ToolShell"));
+  if (open < 0) return src;
+  const close = lines.findIndex((l) => l.trim() === "</ToolShell>");
+  if (close < 0) return src;
+  const body = lines.slice(open + 1, close).map((l) => (l.trim() ? `  ${l}` : l.trimEnd()));
+  const out = [...lines.slice(0, open + 1), ...body, "    </ToolShell>", ...lines.slice(close + 1)];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    if (out[i].trim() === ");") {
+      out[i] = "  );";
+      if (out[i + 1] && out[i + 1].trim() === "}") out[i + 1] = "}";
+      break;
+    }
+  }
+  return out.join("\n");
+}
+
+const tidyOnly = process.argv.includes("--tidy");
 const apply = !process.argv.includes("--dry");
 const targets = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const report = [];
@@ -232,13 +280,18 @@ let catalogueSrc = null;
 for (const target of targets) {
   const [file, route] = target.split(":");
   try {
+    if (tidyOnly) {
+      fs.writeFileSync(file, reindent(tidy(fs.readFileSync(file, "utf8"))));
+      report.push(`${file}: tidied`);
+      continue;
+    }
     const out = transform(file, route);
     if (out.skip) {
       report.push(`${file}: skipped (${out.skip})`);
       continue;
     }
     if (apply) {
-      fs.writeFileSync(file, out.src);
+      fs.writeFileSync(file, reindent(tidy(out.src)));
       const c = catalogueWith(out.entry, route);
       fs.writeFileSync(c.file, c.src);
       report.push(`${file}: migrated, catalogue copy added`);
