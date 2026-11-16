@@ -15,12 +15,11 @@ import {
   Thermometer,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   AREA_LABELS,
   LENGTH_LABELS,
@@ -151,209 +150,176 @@ function Assumption({ children }: { children: React.ReactNode }) {
 export default function UnitConverter() {
   const [tab, setTab] = useState<TabId>("universal");
 
-  useSeo({
-    title: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
-    description:
-      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
-    canonicalPath: "/unit-converter",
-    keywords:
-      "construction measurement converter, feet to metres, inches to millimetres, plot to square metres, tonnes to bags, sand density, paint bucket calculator, metric to imperial construction",
-    structuredDataArray: [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        name: "FRELUX Construction Measurement Converter",
-        applicationCategory: "UtilitiesApplication",
-        operatingSystem: "Web",
-        url: `${SITE_URL}/unit-converter`,
-        description:
-          "Converts construction measurements between metric and imperial units, including land plots, material weights and volumes, and paint bucket quantities.",
-        offers: {
-          "@context": "https://schema.org",
-          "@type": "Offer",
-          price: "0",
-        },
-      },
-    ],
-  });
-
   return (
-    <div className="pb-16">
-      <Container className="pt-10 sm:pt-14">
-        <PageHeader
-          eyebrow="Free construction tool"
-          title="Construction Measurement Converter"
-          subtitle="Convert common metric and imperial measurements for construction, from feet and inches to square metres, cubic yards and tonnes. See the conversion method, and supply depth, density or bag weight when a result depends on it."
-          breadcrumbs={[
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Measurement Converter" },
-          ]}
-        />
-
-        <section
-          aria-label="Converter overview"
-          className="mt-5 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm sm:p-6"
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold text-foreground">
-                One place for site measurements and quantity checks
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Convert defined units directly. Cross-dimension estimates are
-                labelled as geometry assumptions; material volume needs a
-                density, and a bag count needs the actual bag weight. Plot sizes
-                and material defaults are regional examples, not standards.
-              </p>
+    <ToolShell route="/unit-converter" hideDisclaimer>
+      <div className="pb-16">
+        <Container className="pt-10 sm:pt-14">
+          <section
+            aria-label="Converter overview"
+            className="mt-5 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-sm sm:p-6"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-semibold text-foreground">
+                  One place for site measurements and quantity checks
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  Convert defined units directly. Cross-dimension estimates are
+                  labelled as geometry assumptions; material volume needs a
+                  density, and a bag count needs the actual bag weight. Plot
+                  sizes and material defaults are regional examples, not
+                  standards.
+                </p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                Runs in your browser · no account needed
+              </span>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-              Runs in your browser · no account needed
-            </span>
+          </section>
+
+          <div
+            role="tablist"
+            aria-label="Conversion categories"
+            className="mt-6 flex gap-2 overflow-x-auto pb-1"
+          >
+            {TABS.map((item) => {
+              const Icon = item.icon;
+              const active = tab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setTab(item.id)}
+                  className={classNames(
+                    "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition",
+                    active
+                      ? "border-primary/40 bg-primary/15 text-foreground shadow-sm"
+                      : "border-white/20 bg-white/60 text-muted-foreground hover:text-foreground dark:border-white/10 dark:bg-white/5",
+                  )}
+                >
+                  <Icon aria-hidden="true" className="h-4 w-4" />
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
-        </section>
 
-        <div
-          role="tablist"
-          aria-label="Conversion categories"
-          className="mt-6 flex gap-2 overflow-x-auto pb-1"
-        >
-          {TABS.map((item) => {
-            const Icon = item.icon;
-            const active = tab === item.id;
-            return (
-              <button
-                key={item.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setTab(item.id)}
-                className={classNames(
-                  "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition",
-                  active
-                    ? "border-primary/40 bg-primary/15 text-foreground shadow-sm"
-                    : "border-white/20 bg-white/60 text-muted-foreground hover:text-foreground dark:border-white/10 dark:bg-white/5",
-                )}
-              >
-                <Icon aria-hidden="true" className="h-4 w-4" />
-                {item.label}
-              </button>
-            );
-          })}
-        </div>
+          <div className="mt-6">
+            {tab === "universal" && <UniversalPanel />}
+            {tab === "length" && <LengthPanel />}
+            {tab === "area" && <AreaPanel />}
+            {tab === "volume" && <VolumePanel />}
+            {tab === "weight" && <WeightPanel />}
+            {tab === "temperature" && <TemperaturePanel />}
+            {tab === "materials" && <MaterialsPanel />}
+            {tab === "paint" && <PaintPanel />}
+            {tab === "roofing" && <RoofingPanel />}
+          </div>
 
-        <div className="mt-6">
-          {tab === "universal" && <UniversalPanel />}
-          {tab === "length" && <LengthPanel />}
-          {tab === "area" && <AreaPanel />}
-          {tab === "volume" && <VolumePanel />}
-          {tab === "weight" && <WeightPanel />}
-          {tab === "temperature" && <TemperaturePanel />}
-          {tab === "materials" && <MaterialsPanel />}
-          {tab === "paint" && <PaintPanel />}
-          {tab === "roofing" && <RoofingPanel />}
-        </div>
+          <section className="mt-10 grid gap-6 md:grid-cols-2">
+            <div className={PANEL}>
+              <h2 className="text-lg font-semibold text-foreground">
+                Take the number to a calculator
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Convert here, then paste the metric value straight into the tool
+                that does the estimate.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {[
+                  { to: "/paint-calculator", label: "Paint calculator" },
+                  { to: "/tile-calculator", label: "Tile calculator" },
+                  {
+                    to: "/screeding-calculator",
+                    label: "Screeding calculator",
+                  },
+                  {
+                    to: "/pop-ceiling-calculator",
+                    label: "POP ceiling calculator",
+                  },
+                  {
+                    to: "/structural-calculator",
+                    label: "Structural calculator",
+                  },
+                  { to: "/flooring", label: "Flooring estimator" },
+                ].map((link) => (
+                  <Link key={link.to} to={link.to} className={CHIP}>
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className={PANEL}>
+              <h2 className="text-lg font-semibold text-foreground">
+                How the numbers are worked out
+              </h2>
+              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+                <li>
+                  Every conversion runs in one base unit, so chained conversions
+                  never drift.
+                </li>
+                <li>
+                  Constants are exact: an inch is 0.0254 m, an acre is
+                  4046.8564224 m².
+                </li>
+                <li>
+                  US and imperial gallons, short tons and long tons are separate
+                  units, never merged.
+                </li>
+                <li>
+                  Weight and volume are linked only through a density you can
+                  see and change.
+                </li>
+                <li>
+                  Everything is calculated in your browser. No measurement is
+                  sent anywhere.
+                </li>
+              </ul>
+            </div>
+          </section>
 
-        <section className="mt-10 grid gap-6 md:grid-cols-2">
-          <div className={PANEL}>
-            <h2 className="text-lg font-semibold text-foreground">
-              Take the number to a calculator
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Convert here, then paste the metric value straight into the tool
-              that does the estimate.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                { to: "/paint-calculator", label: "Paint calculator" },
-                { to: "/tile-calculator", label: "Tile calculator" },
-                { to: "/screeding-calculator", label: "Screeding calculator" },
+          <section className="mt-10 rounded-2xl border border-white/15 bg-white/35 px-4 py-2 dark:bg-white/[0.03]">
+            <FaqItemsWithSchema
+              title="Measurement converter FAQs"
+              faqs={[
                 {
-                  to: "/pop-ceiling-calculator",
-                  label: "POP ceiling calculator",
+                  question: "Which construction units can I convert?",
+                  answer:
+                    "The all-units converter covers metric and imperial length, area, volume and mass units, plus clearly labelled plot-size examples. Dedicated tabs also cover feet-and-inches measurements, material density and bag weight, paint buckets, and pitched-roof area.",
                 },
                 {
-                  to: "/structural-calculator",
-                  label: "Structural calculator",
+                  question: "How many square metres are in a plot?",
+                  answer:
+                    "A plot is a local land convention, not a fixed international unit. This page includes example presets for 50 × 100 ft, 60 × 120 ft and 100 × 100 ft, calculated from those dimensions. Confirm the actual surveyed plot boundaries before using a preset for purchase, design or legal purposes.",
                 },
-                { to: "/flooring", label: "Flooring estimator" },
-              ].map((link) => (
-                <Link key={link.to} to={link.to} className={CHIP}>
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div className={PANEL}>
-            <h2 className="text-lg font-semibold text-foreground">
-              How the numbers are worked out
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>
-                Every conversion runs in one base unit, so chained conversions
-                never drift.
-              </li>
-              <li>
-                Constants are exact: an inch is 0.0254 m, an acre is
-                4046.8564224 m².
-              </li>
-              <li>
-                US and imperial gallons, short tons and long tons are separate
-                units, never merged.
-              </li>
-              <li>
-                Weight and volume are linked only through a density you can see
-                and change.
-              </li>
-              <li>
-                Everything is calculated in your browser. No measurement is sent
-                anywhere.
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="mt-10 rounded-2xl border border-white/15 bg-white/35 px-4 py-2 dark:bg-white/[0.03]">
-          <FaqItemsWithSchema
-            title="Measurement converter FAQs"
-            faqs={[
-              {
-                question: "Which construction units can I convert?",
-                answer:
-                  "The all-units converter covers metric and imperial length, area, volume and mass units, plus clearly labelled plot-size examples. Dedicated tabs also cover feet-and-inches measurements, material density and bag weight, paint buckets, and pitched-roof area.",
-              },
-              {
-                question: "How many square metres are in a plot?",
-                answer:
-                  "A plot is a local land convention, not a fixed international unit. This page includes example presets for 50 × 100 ft, 60 × 120 ft and 100 × 100 ft, calculated from those dimensions. Confirm the actual surveyed plot boundaries before using a preset for purchase, design or legal purposes.",
-              },
-              {
-                question: "Can I convert tonnes of sand into cubic metres?",
-                answer:
-                  "Yes, when a bulk density is supplied. For example, 20 metric tonnes at 1,600 kg/m³ gives 12.5 m³. Density changes with material grading, moisture and compaction, so the example is not a supplier guarantee; inspect or replace the selected density with a project-specific value.",
-              },
-              {
-                question: "Can I convert an area into a volume?",
-                answer:
-                  "Yes, if you provide the layer depth. The calculation is area × depth. A length can also be treated as the side of a square or cube, but the result is explicitly labelled as that geometric assumption rather than a measured shape.",
-              },
-              {
-                question: "Are US and imperial gallons the same?",
-                answer:
-                  "No. One US gallon is exactly 3.785411784 litres, while one imperial gallon is exactly 4.54609 litres. Choose the gallon system stated by the drawing, product or supplier.",
-              },
-              {
-                question:
-                  "Does the converter use local prices or save my measurements?",
-                answer:
-                  "No. It performs unit calculations in your browser and does not fetch supplier prices or save the measurements. Material densities, plot presets and bucket sizes are assumptions to verify against the specific market and product.",
-              },
-            ]}
-          />
-        </section>
-        <div className="mt-8">
-          <ToolFaqs slug="measurement-converter" />
-        </div>
-      </Container>
-    </div>
+                {
+                  question: "Can I convert tonnes of sand into cubic metres?",
+                  answer:
+                    "Yes, when a bulk density is supplied. For example, 20 metric tonnes at 1,600 kg/m³ gives 12.5 m³. Density changes with material grading, moisture and compaction, so the example is not a supplier guarantee; inspect or replace the selected density with a project-specific value.",
+                },
+                {
+                  question: "Can I convert an area into a volume?",
+                  answer:
+                    "Yes, if you provide the layer depth. The calculation is area × depth. A length can also be treated as the side of a square or cube, but the result is explicitly labelled as that geometric assumption rather than a measured shape.",
+                },
+                {
+                  question: "Are US and imperial gallons the same?",
+                  answer:
+                    "No. One US gallon is exactly 3.785411784 litres, while one imperial gallon is exactly 4.54609 litres. Choose the gallon system stated by the drawing, product or supplier.",
+                },
+                {
+                  question:
+                    "Does the converter use local prices or save my measurements?",
+                  answer:
+                    "No. It performs unit calculations in your browser and does not fetch supplier prices or save the measurements. Material densities, plot presets and bucket sizes are assumptions to verify against the specific market and product.",
+                },
+              ]}
+            />
+          </section>
+        </Container>
+      </div>
+    </ToolShell>
   );
 }
 

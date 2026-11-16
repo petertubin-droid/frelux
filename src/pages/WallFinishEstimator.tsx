@@ -15,7 +15,7 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import {} from "@/components/seo/SeoSections";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -32,12 +32,11 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import { missingField, type MissingField } from "@/lib/forms/missing-fields";
-import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
-import { EstimateDisclaimer } from "@/components/calculators";
+import {} from "@/components/calculators";
 import { resolveWallFinCountry } from "@/lib/wallfinishing/resolver";
 import { getWallSystemsForCountry } from "@/lib/wallfinishing/wall-systems";
 import {
@@ -82,7 +81,7 @@ import type { QuotePayloadLike } from "@/lib/estimate-share-adapter";
 import { useLanguage } from "@/lib/i18n";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 /* ── helpers ─────────────────────────────────────────────── */
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -174,16 +173,6 @@ export default function WallFinishEstimator() {
     setSaveNote(null);
   };
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Construction Tools", path: "/construction-tools" },
-    { name: "Wall Finish Estimator", path: "/wall-finish-estimator" },
-  ]);
-  useSeo({
-    title:
-      "Wall Finish Estimator: country-aware wall finishing quantities & costs",
-    description:
-      "Plan walls from structure to finish anywhere in the world: pick your country's construction method, add rooms and openings, and get layer-by-layer material quantities, labour and costs with full calculation transparency.",
-  });
 
   const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
@@ -582,748 +571,740 @@ export default function WallFinishEstimator() {
     });
 
   return (
-    <div className="min-h-screen bg-background pb-16">
-      <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
-        <CityPriceSelect />
-      </div>
-      <PageHeader
-        title={t("Wall Finish Estimator")}
-        subtitle={t(
-          "Plan any wall worldwide: from structure to the final coat.",
-        )}
-      />
-      <Container className="max-w-6xl space-y-8">
-        <AdSlot slotKey="calculator_mid" />
+    <ToolShell route="/wall-finish-estimator">
+      <div className="min-h-screen bg-background pb-16">
+        <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
+          <CityPriceSelect />
+        </div>
 
-        <p className="text-sm text-muted-foreground">
-          {resolved.profile.flag} Starting from the {resolved.profile.name}{" "}
-          finishing template.{" "}
-          {resolved.inheritedNotice ?? resolved.profile.templateNotice}
-        </p>
+        <Container className="max-w-6xl space-y-8">
+          <AdSlot slotKey="calculator_mid" />
 
-        {/* ── Project ── */}
-        <section className="card p-6 space-y-4">
-          <MeasurementTip what="measurement unit and room dimensions" />
-          <h2 className="text-lg font-semibold">1. Project</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("Country / market")}
-              </span>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="input-field"
-              >
-                {COUNTRY_OPTIONS.map((g) => (
-                  <optgroup key={g.group} label={g.group}>
-                    {g.countries.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.name} ({c.currency})
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("Region / city")}
-              </span>
-              <input
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="optional"
-                className="input-field"
-              />
-            </label>
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("Building type")}
-              </span>
-              <select
-                value={buildingType}
-                onChange={(e) => setBuildingType(e.target.value)}
-                className="input-field"
-              >
-                <option value="residential">{t("Residential")}</option>
-                <option value="commercial">{t("Commercial")}</option>
-                <option value="renovation">{t("Renovation")}</option>
-              </select>
-            </label>
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("Contingency")}
-              </span>
-              <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            {resolved.profile.flag} Starting from the {resolved.profile.name}{" "}
+            finishing template.{" "}
+            {resolved.inheritedNotice ?? resolved.profile.templateNotice}
+          </p>
+
+          {/* ── Project ── */}
+          <section className="card p-6 space-y-4">
+            <MeasurementTip what="measurement unit and room dimensions" />
+            <h2 className="text-lg font-semibold">1. Project</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("Country / market")}
+                </span>
+                <select
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="input-field"
+                >
+                  {COUNTRY_OPTIONS.map((g) => (
+                    <optgroup key={g.group} label={g.group}>
+                      {g.countries.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.name} ({c.currency})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("Region / city")}
+                </span>
                 <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={contingency}
-                  onChange={(e) => setContingency(n(e.target.value))}
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  placeholder="optional"
                   className="input-field"
                 />
-                <span className="text-sm text-muted-foreground">%</span>
-              </div>
-            </label>
-          </div>
-          <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-            Common {resolved.profile.name} construction methods:{" "}
-            {wallSystems.map((s) => s.name).join(" · ")}
-          </div>
-        </section>
-
-        {/* ── Rooms ── */}
-        <section ref={fieldsRef} className="card p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">2. Rooms</h2>
-            <div className="flex items-center gap-2">
-              <div
-                role="group"
-                aria-label={t("Measurement unit")}
-                className="flex overflow-hidden rounded-md border border-input"
-              >
-                {(["meters", "feet"] as const).map((u) => (
-                  <button
-                    key={u}
-                    type="button"
-                    aria-pressed={unit === u}
-                    onClick={() => setUnit(u)}
-                    className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                      unit === u
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-transparent text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {u === "meters" ? t("Metres") : t("Feet")}
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setRooms((rs) => [
-                    ...rs,
-                    makeRoom(`Room ${rs.length + 1}`, unit),
-                  ])
-                }
-                className="btn-secondary text-sm"
-              >
-                + Add room
-              </button>
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("Building type")}
+                </span>
+                <select
+                  value={buildingType}
+                  onChange={(e) => setBuildingType(e.target.value)}
+                  className="input-field"
+                >
+                  <option value="residential">{t("Residential")}</option>
+                  <option value="commercial">{t("Commercial")}</option>
+                  <option value="renovation">{t("Renovation")}</option>
+                </select>
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("Contingency")}
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={contingency}
+                    onChange={(e) => setContingency(n(e.target.value))}
+                    className="input-field"
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </label>
             </div>
-          </div>
-          {rooms.map((r, i) => (
-            <div
-              key={r.id}
-              className="rounded-xl border border-border p-4 space-y-3"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <input
-                  value={r.name}
-                  onChange={(e) => setRoom(r.id, { name: e.target.value })}
-                  className="input-field max-w-56 font-medium"
-                  aria-label={t("Room name")}
-                />
-                {rooms.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setRooms((rs) => rs.filter((x) => x.id !== r.id))
-                    }
-                    className="text-xs text-muted-foreground hover:text-destructive"
-                  >
-                    {t("Remove")}
-                  </button>
-                )}
+            <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+              Common {resolved.profile.name} construction methods:{" "}
+              {wallSystems.map((s) => s.name).join(" · ")}
+            </div>
+          </section>
+
+          {/* ── Rooms ── */}
+          <section ref={fieldsRef} className="card p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">2. Rooms</h2>
+              <div className="flex items-center gap-2">
+                <div
+                  role="group"
+                  aria-label={t("Measurement unit")}
+                  className="flex overflow-hidden rounded-md border border-input"
+                >
+                  {(["meters", "feet"] as const).map((u) => (
+                    <button
+                      key={u}
+                      type="button"
+                      aria-pressed={unit === u}
+                      onClick={() => setUnit(u)}
+                      className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                        unit === u
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-transparent text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {u === "meters" ? t("Metres") : t("Feet")}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRooms((rs) => [
+                      ...rs,
+                      makeRoom(`Room ${rs.length + 1}`, unit),
+                    ])
+                  }
+                  className="btn-secondary text-sm"
+                >
+                  + Add room
+                </button>
               </div>
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {(["lengthM", "widthM", "heightM"] as const).map((f) => (
-                  <label key={f} className="space-y-1">
+            </div>
+            {rooms.map((r, i) => (
+              <div
+                key={r.id}
+                className="rounded-xl border border-border p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <input
+                    value={r.name}
+                    onChange={(e) => setRoom(r.id, { name: e.target.value })}
+                    className="input-field max-w-56 font-medium"
+                    aria-label={t("Room name")}
+                  />
+                  {rooms.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setRooms((rs) => rs.filter((x) => x.id !== r.id))
+                      }
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                    >
+                      {t("Remove")}
+                    </button>
+                  )}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                  {(["lengthM", "widthM", "heightM"] as const).map((f) => (
+                    <label key={f} className="space-y-1">
+                      <span className="text-xs uppercase text-muted-foreground">
+                        {f === "lengthM"
+                          ? `Length (${unitShortLabel(unit)})`
+                          : f === "widthM"
+                            ? `Width (${unitShortLabel(unit)})`
+                            : `Height (${unitShortLabel(unit)})`}
+                      </span>
+                      <input
+                        id={`room-${r.id}-${f}`}
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        value={r[f]}
+                        onChange={(e) => setRoom(r.id, { [f]: e.target.value })}
+                        className="input-field"
+                      />
+                    </label>
+                  ))}
+                  <label className="space-y-1">
                     <span className="text-xs uppercase text-muted-foreground">
-                      {f === "lengthM"
-                        ? `Length (${unitShortLabel(unit)})`
-                        : f === "widthM"
-                          ? `Width (${unitShortLabel(unit)})`
-                          : `Height (${unitShortLabel(unit)})`}
+                      {t("Doors")}
                     </span>
                     <input
-                      id={`room-${r.id}-${f}`}
                       type="number"
                       min={0}
-                      step="0.1"
-                      value={r[f]}
-                      onChange={(e) => setRoom(r.id, { [f]: e.target.value })}
+                      value={r.doors}
+                      onChange={(e) =>
+                        setRoom(r.id, { doors: Math.max(0, n(e.target.value)) })
+                      }
                       className="input-field"
                     />
                   </label>
-                ))}
-                <label className="space-y-1">
-                  <span className="text-xs uppercase text-muted-foreground">
-                    {t("Doors")}
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={r.doors}
-                    onChange={(e) =>
-                      setRoom(r.id, { doors: Math.max(0, n(e.target.value)) })
-                    }
-                    className="input-field"
-                  />
-                </label>
-                <label className="space-y-1">
-                  <span className="text-xs uppercase text-muted-foreground">
-                    {t("Windows")}
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    value={r.windows}
-                    onChange={(e) =>
-                      setRoom(r.id, { windows: Math.max(0, n(e.target.value)) })
-                    }
-                    className="input-field"
-                  />
-                </label>
-                <label className="space-y-1">
-                  <span className="text-xs uppercase text-muted-foreground">
-                    {t("Exterior walls")}
-                  </span>
-                  <select
-                    value={r.exteriorWalls}
-                    onChange={(e) =>
-                      setRoom(r.id, { exteriorWalls: n(e.target.value) })
-                    }
-                    className="input-field"
-                  >
-                    {[0, 1, 2, 3, 4].map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <input
-                    type="checkbox"
-                    checked={r.isWetArea}
-                    onChange={(e) =>
-                      setRoom(r.id, { isWetArea: e.target.checked })
-                    }
-                    className="h-4 w-4"
-                  />
-                  {t("Wet area (bathroom / kitchen)")}
-                </label>
-              </div>
-              {/* per-wall finishing assemblies */}
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {r.assemblies.map((a, wi) => (
-                  <label key={wi} className="space-y-1">
+                  <label className="space-y-1">
                     <span className="text-xs uppercase text-muted-foreground">
-                      Wall {String.fromCharCode(65 + wi)} finish
+                      {t("Windows")}
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={r.windows}
+                      onChange={(e) =>
+                        setRoom(r.id, {
+                          windows: Math.max(0, n(e.target.value)),
+                        })
+                      }
+                      className="input-field"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <span className="text-xs uppercase text-muted-foreground">
+                      {t("Exterior walls")}
                     </span>
                     <select
-                      value={a ?? ""}
-                      onChange={(e) => {
-                        const next = [...r.assemblies];
-                        next[wi] = e.target.value || null;
-                        setRoom(r.id, { assemblies: next });
-                      }}
+                      value={r.exteriorWalls}
+                      onChange={(e) =>
+                        setRoom(r.id, { exteriorWalls: n(e.target.value) })
+                      }
                       className="input-field"
                     >
-                      <option value="">{t("Country default")}</option>
-                      {assemblies.map((opt) => (
-                        <option key={opt.id} value={opt.id}>
-                          {opt.surface === "interior" ? "Interior" : "Exterior"}{" "}
-                          : {opt.name}
+                      {[0, 1, 2, 3, 4].map((v) => (
+                        <option key={v} value={v}>
+                          {v}
                         </option>
                       ))}
                     </select>
                   </label>
-                ))}
-              </div>
-            </div>
-          ))}
-          {rooms.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Doors and windows deduct from wall A. Wall A is the first length
-              wall; exterior walls finish with the country's exterior template.
-            </p>
-          )}
-        </section>
-
-        {/* ── Other costs ── */}
-        <section className="card p-6 space-y-4">
-          <h2 className="text-lg font-semibold">3. Equipment & other costs</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Scaffolding / tools / transport ({resolved.profile.currency})
-              </span>
-              <input
-                type="number"
-                min={0}
-                value={equipmentCost}
-                onChange={(e) => setEquipmentCost(e.target.value)}
-                placeholder="0"
-                className="input-field"
-              />
-            </label>
-          </div>
-        </section>
-
-        <MissingFieldsNotice fields={missing} />
-
-        <button
-          type="button"
-          onClick={() => {
-            const gaps = findRoomGaps();
-            if (gaps.length > 0) {
-              reportMissing(gaps);
-              return;
-            }
-            handleCalculate(() => void calculate());
-          }}
-          disabled={busy}
-          className="btn-primary w-full text-base"
-        >
-          {busy ? "Calculating…" : "Calculate finishing estimate"}
-        </button>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-
-        {/* ── Results ── */}
-        {result && (
-          <section ref={resultsRef} className="space-y-6">
-            {result.errors.length > 0 && (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
-                {result.errors.map((e, i) => (
-                  <p key={i}>• {e}</p>
-                ))}
-              </div>
-            )}
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-600 dark:text-amber-400">
-                {result.warnings.map((w, i) => (
-                  <p key={i}>• {w}</p>
-                ))}
-              </div>
-            )}
-
-            {result.rooms.map((room) =>
-              room.walls.map((wall) => (
-                <div key={wall.wallSpecId} className="card p-6 space-y-4">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h3 className="font-semibold">{wall.label}</h3>
-                    <button
-                      type="button"
-                      className="text-xs text-muted-foreground underline"
-                      onClick={() =>
-                        setStepsFor({
-                          title: `${wall.label}: how the area was calculated`,
-                          steps: wall.steps,
-                        })
-                      }
-                    >
-                      {wall.grossAreaM2} m² gross → {wall.netAreaM2} m² net
-                      {wall.revealAreaM2 > 0
-                        ? ` + ${wall.revealAreaM2} m² reveals`
-                        : ""}
-                    </button>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
-                          <th className="py-2 pr-3">{t("Layer")}</th>
-                          <th className="py-2 pr-3">{t("Material")}</th>
-                          <th className="py-2 pr-3">{t("Quantity")}</th>
-                          <th className="py-2 pr-3 text-right">
-                            {t("Material")}
-                          </th>
-                          <th className="py-2 pr-3 text-right">
-                            {t("Labour")}
-                          </th>
-                          <th className="py-2 text-right">{t("Total")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {wall.layers.map((layer) => (
-                          <tr
-                            key={layer.layerTemplateId}
-                            className="border-b border-border/50 align-top"
-                          >
-                            <td className="py-2.5 pr-3">
-                              <p className="font-medium">{layer.layerName}</p>
-                              {layer.overridden.length > 0 && (
-                                <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
-                                  edited: {layer.overridden.join(", ")}
-                                </p>
-                              )}
-                              <button
-                                type="button"
-                                className="mt-1 text-xs text-muted-foreground underline"
-                                onClick={() =>
-                                  setStepsFor({
-                                    title: `${layer.layerName}: how this was calculated`,
-                                    steps: layer.labourSteps,
-                                  })
-                                }
-                              >
-                                how?
-                              </button>
-                              {" · "}
-                              <button
-                                type="button"
-                                className="text-xs text-muted-foreground underline"
-                                onClick={() => {
-                                  if (
-                                    window.confirm(
-                                      `Remove the '${layer.layerName}' layer from this wall? You can recalculate to restore defaults.`,
-                                    )
-                                  ) {
-                                    removeLayer(
-                                      wall.wallSpecId,
-                                      layer.layerTemplateId,
-                                    );
-                                  }
-                                }}
-                              >
-                                remove
-                              </button>
-                              {" · "}
-                              <button
-                                type="button"
-                                className="text-xs text-muted-foreground underline"
-                                aria-label={`Move ${layer.layerName} up`}
-                                onClick={() =>
-                                  moveLayer(
-                                    wall.wallSpecId,
-                                    layer.layerTemplateId,
-                                    -1,
-                                  )
-                                }
-                              >
-                                move up
-                              </button>
-                              {" · "}
-                              <button
-                                type="button"
-                                className="text-xs text-muted-foreground underline"
-                                aria-label={`Move ${layer.layerName} down`}
-                                onClick={() =>
-                                  moveLayer(
-                                    wall.wallSpecId,
-                                    layer.layerTemplateId,
-                                    1,
-                                  )
-                                }
-                              >
-                                move down
-                              </button>
-                              {" · "}
-                              <button
-                                type="button"
-                                className="text-xs text-muted-foreground underline"
-                                onClick={() => {
-                                  const v = window.prompt(
-                                    `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "N/A"}):`,
-                                    "2",
-                                  );
-                                  if (v !== null) {
-                                    patchLayerOverride(
-                                      wall.wallSpecId,
-                                      layer.layerTemplateId,
-                                      {
-                                        coats: Math.max(1, n(v)),
-                                      },
-                                    );
-                                  }
-                                }}
-                              >
-                                set coats
-                              </button>
-                            </td>
-                            <td className="py-2.5 pr-3 text-muted-foreground">
-                              {layer.materialName}
-                            </td>
-                            <td className="py-2.5 pr-3">
-                              <p>
-                                {fmt(layer.purchaseQuantity)}{" "}
-                                {layer.purchaseUnit}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                incl. {layer.wastePercent}% waste
-                              </p>
-                            </td>
-                            <td className="py-2.5 pr-3 text-right">
-                              {layer.materialCost !== null
-                                ? fmt(layer.materialCost)
-                                : "N/A"}
-                            </td>
-                            <td className="py-2.5 pr-3 text-right">
-                              {layer.labourCost !== null
-                                ? fmt(layer.labourCost)
-                                : "N/A"}
-                            </td>
-                            <td className="py-2.5 text-right font-medium">
-                              {fmt(
-                                (layer.materialCost ?? 0) +
-                                  (layer.labourCost ?? 0),
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {(overrides[wall.wallSpecId]?.removedLayers ?? []).length >
-                    0 && (
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="text-muted-foreground">
-                        Removed layers:
-                      </span>
-                      {(overrides[wall.wallSpecId]?.removedLayers ?? []).map(
-                        (id) => {
-                          const name =
-                            WALLFIN_ASSEMBLIES.flatMap((a) => a.layers).find(
-                              (l) => l.id === id,
-                            )?.name ?? id;
-                          return (
-                            <span
-                              key={id}
-                              className="rounded-full border border-border bg-muted/40 px-2 py-0.5"
-                            >
-                              {name}{" "}
-                              <button
-                                type="button"
-                                className="text-primary underline"
-                                onClick={() =>
-                                  addLayerBack(wall.wallSpecId, id)
-                                }
-                              >
-                                add back
-                              </button>
-                            </span>
-                          );
-                        },
-                      )}
-                    </div>
-                  )}
-                  <p className="text-sm font-medium">
-                    Wall finishing total: {fmt(wall.wallCost)} {result.currency}
-                  </p>
-                  {/* quality checklist */}
-                  <details className="rounded-lg bg-muted/40 p-3">
-                    <summary className="cursor-pointer text-sm font-medium">
-                      Quality checklist ({wall.checklists.length} layers)
-                    </summary>
-                    <div className="mt-3 space-y-3 text-sm">
-                      {wall.checklists.map((c) => (
-                        <div key={c.layerTemplateId}>
-                          <p className="font-medium text-muted-foreground">
-                            {c.layerName}
-                          </p>
-                          <ul className="mt-1 space-y-1">
-                            {c.items.map((item) => (
-                              <li
-                                key={item.id}
-                                className="flex items-center gap-2 text-muted-foreground"
-                              >
-                                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-                                {item.label}
-                                <span className="text-xs text-muted-foreground/70">
-                                  : {QC_STATUS_LABELS[item.status]}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
                 </div>
-              )),
-            )}
-
-            {/* cost summary */}
-            <div className="card p-6 space-y-3">
-              <h3 className="text-lg font-semibold">
-                {t("Estimated cost summary")}
-              </h3>
-              <dl className="grid gap-2 sm:grid-cols-2">
-                {[
-                  ["Materials", result.cost.materials],
-                  ["Labour", result.cost.labour],
-                  ["Equipment / other", result.cost.equipment],
-                  ["Subtotal", result.cost.subtotal],
-                  [`Contingency (${contingency}%)`, result.cost.contingency],
-                ].map(([label, v]) => (
-                  <div
-                    key={label as string}
-                    className="flex justify-between border-b border-border/50 py-1.5"
-                  >
-                    <dt className="text-muted-foreground">{label}</dt>
-                    <dd className="font-medium">
-                      {fmt(v as number)} {result.currency}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="flex justify-between pt-2 text-lg font-semibold">
-                <span>{t("Total (estimate)")}</span>
-                <span>
-                  {fmt(result.cost.total)} {result.currency}
-                </span>
+                <div className="flex flex-wrap items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={r.isWetArea}
+                      onChange={(e) =>
+                        setRoom(r.id, { isWetArea: e.target.checked })
+                      }
+                      className="h-4 w-4"
+                    />
+                    {t("Wet area (bathroom / kitchen)")}
+                  </label>
+                </div>
+                {/* per-wall finishing assemblies */}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {r.assemblies.map((a, wi) => (
+                    <label key={wi} className="space-y-1">
+                      <span className="text-xs uppercase text-muted-foreground">
+                        Wall {String.fromCharCode(65 + wi)} finish
+                      </span>
+                      <select
+                        value={a ?? ""}
+                        onChange={(e) => {
+                          const next = [...r.assemblies];
+                          next[wi] = e.target.value || null;
+                          setRoom(r.id, { assemblies: next });
+                        }}
+                        className="input-field"
+                      >
+                        <option value="">{t("Country default")}</option>
+                        {assemblies.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.surface === "interior"
+                              ? "Interior"
+                              : "Exterior"}{" "}
+                            : {opt.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {rooms.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Doors and windows deduct from wall A. Wall A is the first length
+                wall; exterior walls finish with the country's exterior
+                template.
               </p>
-              <button
-                type="button"
-                className="text-xs text-muted-foreground underline"
-                onClick={() =>
-                  setStepsFor({
-                    title: "How the total was calculated",
-                    steps: result.cost.steps,
-                  })
-                }
-              >
-                how was the total calculated?
-              </button>
-              <div className="flex flex-wrap gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={saveEstimate}
-                  className="btn-primary text-sm"
-                >
-                  {t("Save estimate")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportWallFinPdf(buildSpec(), result)}
-                  className="btn-secondary text-sm"
-                >
-                  {t("Export PDF")}
-                </button>
-                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-                <HowCalculatedSection
-                  methodologyText={methodologyText("wall-finish")}
+            )}
+          </section>
+
+          {/* ── Other costs ── */}
+          <section className="card p-6 space-y-4">
+            <h2 className="text-lg font-semibold">
+              3. Equipment & other costs
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-1.5">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Scaffolding / tools / transport ({resolved.profile.currency})
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  value={equipmentCost}
+                  onChange={(e) => setEquipmentCost(e.target.value)}
+                  placeholder="0"
+                  className="input-field"
                 />
-                <QuoteShareButton
-                  build={buildShareQuote}
-                  kind="Wall Finishing Estimate"
-                  link="/wall-finish-estimator"
-                />
+              </label>
+            </div>
+          </section>
+
+          <MissingFieldsNotice fields={missing} />
+
+          <button
+            type="button"
+            onClick={() => {
+              const gaps = findRoomGaps();
+              if (gaps.length > 0) {
+                reportMissing(gaps);
+                return;
+              }
+              handleCalculate(() => void calculate());
+            }}
+            disabled={busy}
+            className="btn-primary w-full text-base"
+          >
+            {busy ? "Calculating…" : "Calculate finishing estimate"}
+          </button>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          {/* ── Results ── */}
+          {result && (
+            <section ref={resultsRef} className="space-y-6">
+              {result.errors.length > 0 && (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                  {result.errors.map((e, i) => (
+                    <p key={i}>• {e}</p>
+                  ))}
+                </div>
+              )}
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-600 dark:text-amber-400">
+                  {result.warnings.map((w, i) => (
+                    <p key={i}>• {w}</p>
+                  ))}
+                </div>
+              )}
+
+              {result.rooms.map((room) =>
+                room.walls.map((wall) => (
+                  <div key={wall.wallSpecId} className="card p-6 space-y-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h3 className="font-semibold">{wall.label}</h3>
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground underline"
+                        onClick={() =>
+                          setStepsFor({
+                            title: `${wall.label}: how the area was calculated`,
+                            steps: wall.steps,
+                          })
+                        }
+                      >
+                        {wall.grossAreaM2} m² gross → {wall.netAreaM2} m² net
+                        {wall.revealAreaM2 > 0
+                          ? ` + ${wall.revealAreaM2} m² reveals`
+                          : ""}
+                      </button>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground">
+                            <th className="py-2 pr-3">{t("Layer")}</th>
+                            <th className="py-2 pr-3">{t("Material")}</th>
+                            <th className="py-2 pr-3">{t("Quantity")}</th>
+                            <th className="py-2 pr-3 text-right">
+                              {t("Material")}
+                            </th>
+                            <th className="py-2 pr-3 text-right">
+                              {t("Labour")}
+                            </th>
+                            <th className="py-2 text-right">{t("Total")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {wall.layers.map((layer) => (
+                            <tr
+                              key={layer.layerTemplateId}
+                              className="border-b border-border/50 align-top"
+                            >
+                              <td className="py-2.5 pr-3">
+                                <p className="font-medium">{layer.layerName}</p>
+                                {layer.overridden.length > 0 && (
+                                  <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                                    edited: {layer.overridden.join(", ")}
+                                  </p>
+                                )}
+                                <button
+                                  type="button"
+                                  className="mt-1 text-xs text-muted-foreground underline"
+                                  onClick={() =>
+                                    setStepsFor({
+                                      title: `${layer.layerName}: how this was calculated`,
+                                      steps: layer.labourSteps,
+                                    })
+                                  }
+                                >
+                                  how?
+                                </button>
+                                {" · "}
+                                <button
+                                  type="button"
+                                  className="text-xs text-muted-foreground underline"
+                                  onClick={() => {
+                                    if (
+                                      window.confirm(
+                                        `Remove the '${layer.layerName}' layer from this wall? You can recalculate to restore defaults.`,
+                                      )
+                                    ) {
+                                      removeLayer(
+                                        wall.wallSpecId,
+                                        layer.layerTemplateId,
+                                      );
+                                    }
+                                  }}
+                                >
+                                  remove
+                                </button>
+                                {" · "}
+                                <button
+                                  type="button"
+                                  className="text-xs text-muted-foreground underline"
+                                  aria-label={`Move ${layer.layerName} up`}
+                                  onClick={() =>
+                                    moveLayer(
+                                      wall.wallSpecId,
+                                      layer.layerTemplateId,
+                                      -1,
+                                    )
+                                  }
+                                >
+                                  move up
+                                </button>
+                                {" · "}
+                                <button
+                                  type="button"
+                                  className="text-xs text-muted-foreground underline"
+                                  aria-label={`Move ${layer.layerName} down`}
+                                  onClick={() =>
+                                    moveLayer(
+                                      wall.wallSpecId,
+                                      layer.layerTemplateId,
+                                      1,
+                                    )
+                                  }
+                                >
+                                  move down
+                                </button>
+                                {" · "}
+                                <button
+                                  type="button"
+                                  className="text-xs text-muted-foreground underline"
+                                  onClick={() => {
+                                    const v = window.prompt(
+                                      `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "N/A"}):`,
+                                      "2",
+                                    );
+                                    if (v !== null) {
+                                      patchLayerOverride(
+                                        wall.wallSpecId,
+                                        layer.layerTemplateId,
+                                        {
+                                          coats: Math.max(1, n(v)),
+                                        },
+                                      );
+                                    }
+                                  }}
+                                >
+                                  set coats
+                                </button>
+                              </td>
+                              <td className="py-2.5 pr-3 text-muted-foreground">
+                                {layer.materialName}
+                              </td>
+                              <td className="py-2.5 pr-3">
+                                <p>
+                                  {fmt(layer.purchaseQuantity)}{" "}
+                                  {layer.purchaseUnit}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  incl. {layer.wastePercent}% waste
+                                </p>
+                              </td>
+                              <td className="py-2.5 pr-3 text-right">
+                                {layer.materialCost !== null
+                                  ? fmt(layer.materialCost)
+                                  : "N/A"}
+                              </td>
+                              <td className="py-2.5 pr-3 text-right">
+                                {layer.labourCost !== null
+                                  ? fmt(layer.labourCost)
+                                  : "N/A"}
+                              </td>
+                              <td className="py-2.5 text-right font-medium">
+                                {fmt(
+                                  (layer.materialCost ?? 0) +
+                                    (layer.labourCost ?? 0),
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {(overrides[wall.wallSpecId]?.removedLayers ?? []).length >
+                      0 && (
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className="text-muted-foreground">
+                          Removed layers:
+                        </span>
+                        {(overrides[wall.wallSpecId]?.removedLayers ?? []).map(
+                          (id) => {
+                            const name =
+                              WALLFIN_ASSEMBLIES.flatMap((a) => a.layers).find(
+                                (l) => l.id === id,
+                              )?.name ?? id;
+                            return (
+                              <span
+                                key={id}
+                                className="rounded-full border border-border bg-muted/40 px-2 py-0.5"
+                              >
+                                {name}{" "}
+                                <button
+                                  type="button"
+                                  className="text-primary underline"
+                                  onClick={() =>
+                                    addLayerBack(wall.wallSpecId, id)
+                                  }
+                                >
+                                  add back
+                                </button>
+                              </span>
+                            );
+                          },
+                        )}
+                      </div>
+                    )}
+                    <p className="text-sm font-medium">
+                      Wall finishing total: {fmt(wall.wallCost)}{" "}
+                      {result.currency}
+                    </p>
+                    {/* quality checklist */}
+                    <details className="rounded-lg bg-muted/40 p-3">
+                      <summary className="cursor-pointer text-sm font-medium">
+                        Quality checklist ({wall.checklists.length} layers)
+                      </summary>
+                      <div className="mt-3 space-y-3 text-sm">
+                        {wall.checklists.map((c) => (
+                          <div key={c.layerTemplateId}>
+                            <p className="font-medium text-muted-foreground">
+                              {c.layerName}
+                            </p>
+                            <ul className="mt-1 space-y-1">
+                              {c.items.map((item) => (
+                                <li
+                                  key={item.id}
+                                  className="flex items-center gap-2 text-muted-foreground"
+                                >
+                                  <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+                                  {item.label}
+                                  <span className="text-xs text-muted-foreground/70">
+                                    : {QC_STATUS_LABELS[item.status]}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+                )),
+              )}
+
+              {/* cost summary */}
+              <div className="card p-6 space-y-3">
+                <h3 className="text-lg font-semibold">
+                  {t("Estimated cost summary")}
+                </h3>
+                <dl className="grid gap-2 sm:grid-cols-2">
+                  {[
+                    ["Materials", result.cost.materials],
+                    ["Labour", result.cost.labour],
+                    ["Equipment / other", result.cost.equipment],
+                    ["Subtotal", result.cost.subtotal],
+                    [`Contingency (${contingency}%)`, result.cost.contingency],
+                  ].map(([label, v]) => (
+                    <div
+                      key={label as string}
+                      className="flex justify-between border-b border-border/50 py-1.5"
+                    >
+                      <dt className="text-muted-foreground">{label}</dt>
+                      <dd className="font-medium">
+                        {fmt(v as number)} {result.currency}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="flex justify-between pt-2 text-lg font-semibold">
+                  <span>{t("Total (estimate)")}</span>
+                  <span>
+                    {fmt(result.cost.total)} {result.currency}
+                  </span>
+                </p>
                 <button
                   type="button"
-                  onClick={() => exportWallFinExcel(buildSpec(), result)}
-                  className="btn-secondary text-sm"
+                  className="text-xs text-muted-foreground underline"
+                  onClick={() =>
+                    setStepsFor({
+                      title: "How the total was calculated",
+                      steps: result.cost.steps,
+                    })
+                  }
                 >
-                  {t("Export Excel")}
+                  how was the total calculated?
+                </button>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={saveEstimate}
+                    className="btn-primary text-sm"
+                  >
+                    {t("Save estimate")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => exportWallFinPdf(buildSpec(), result)}
+                    className="btn-secondary text-sm"
+                  >
+                    {t("Export PDF")}
+                  </button>
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
+                  <HowCalculatedSection
+                    methodologyText={methodologyText("wall-finish")}
+                  />
+                  <QuoteShareButton
+                    build={buildShareQuote}
+                    kind="Wall Finishing Estimate"
+                    link="/wall-finish-estimator"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => exportWallFinExcel(buildSpec(), result)}
+                    className="btn-secondary text-sm"
+                  >
+                    {t("Export Excel")}
+                  </button>
+                </div>
+                {saveNote && (
+                  <p className="text-xs text-muted-foreground">{saveNote}</p>
+                )}
+              </div>
+            </section>
+          )}
+
+          {savedList.length > 0 && (
+            <section className="card p-6 space-y-3">
+              <h3 className="font-semibold">
+                {t("Saved estimates (this device)")}
+              </h3>
+              <ul className="space-y-2 text-sm">
+                {savedList.map((p) => (
+                  <li
+                    key={p.id}
+                    className="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <span>
+                      <span className="font-medium">{p.name}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {new Date(p.createdAt).toLocaleString()}
+                      </span>
+                    </span>
+                    <span className="flex gap-3">
+                      <button
+                        type="button"
+                        className="text-xs underline"
+                        onClick={() => loadEstimate(p)}
+                      >
+                        {t("Load")}
+                      </button>
+                      <button
+                        type="button"
+                        className="text-xs text-destructive underline"
+                        onClick={() => {
+                          if (window.confirm(`Delete "${p.name}"?`))
+                            deleteEstimate(p.id);
+                        }}
+                      >
+                        {t("Delete")}
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          <AdSlot slotKey="calculator_native" className="mt-8" />
+        </Container>
+
+        {/* transparency modal */}
+        {stepsFor && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setStepsFor(null)}
+          >
+            <div
+              className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-card p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              role="presentation"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="font-semibold">{stepsFor.title}</h3>
+                <button
+                  type="button"
+                  onClick={() => setStepsFor(null)}
+                  className="text-muted-foreground"
+                >
+                  {t("Close")}
                 </button>
               </div>
-              {saveNote && (
-                <p className="text-xs text-muted-foreground">{saveNote}</p>
-              )}
-              <EstimateDisclaimer />
+              <ol className="mt-4 space-y-3">
+                {stepsFor.steps.map((s, i) => (
+                  <li key={i} className="rounded-lg bg-muted/40 p-3 text-sm">
+                    <p className="font-medium">{s.label}</p>
+                    <p className="mt-0.5 text-muted-foreground">{s.detail}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
-          </section>
-        )}
-
-        {savedList.length > 0 && (
-          <section className="card p-6 space-y-3">
-            <h3 className="font-semibold">
-              {t("Saved estimates (this device)")}
-            </h3>
-            <ul className="space-y-2 text-sm">
-              {savedList.map((p) => (
-                <li
-                  key={p.id}
-                  className="flex flex-wrap items-center justify-between gap-2"
-                >
-                  <span>
-                    <span className="font-medium">{p.name}</span>
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {new Date(p.createdAt).toLocaleString()}
-                    </span>
-                  </span>
-                  <span className="flex gap-3">
-                    <button
-                      type="button"
-                      className="text-xs underline"
-                      onClick={() => loadEstimate(p)}
-                    >
-                      {t("Load")}
-                    </button>
-                    <button
-                      type="button"
-                      className="text-xs text-destructive underline"
-                      onClick={() => {
-                        if (window.confirm(`Delete "${p.name}"?`))
-                          deleteEstimate(p.id);
-                      }}
-                    >
-                      {t("Delete")}
-                    </button>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-        <AdSlot slotKey="calculator_native" className="mt-8" />
-      </Container>
-
-      {/* transparency modal */}
-      {stepsFor && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setStepsFor(null)}
-        >
-          <div
-            className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-card p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-            role="presentation"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="font-semibold">{stepsFor.title}</h3>
-              <button
-                type="button"
-                onClick={() => setStepsFor(null)}
-                className="text-muted-foreground"
-              >
-                {t("Close")}
-              </button>
-            </div>
-            <ol className="mt-4 space-y-3">
-              {stepsFor.steps.map((s, i) => (
-                <li key={i} className="rounded-lg bg-muted/40 p-3 text-sm">
-                  <p className="font-medium">{s.label}</p>
-                  <p className="mt-0.5 text-muted-foreground">{s.detail}</p>
-                </li>
-              ))}
-            </ol>
           </div>
-        </div>
-      )}
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="waterproofing" />
-        </div>
-        <div className="mt-8">
-          <ToolFaqs slug="wall-finish-estimator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.finishEstimator,
-            CALC_LINKS.tyrolene,
-            CALC_LINKS.paintCalculator,
-          ]}
-        />
+        )}
       </div>
-    </div>
+    </ToolShell>
   );
 }

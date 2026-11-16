@@ -173,12 +173,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "A number and the unit it arrived in, such as a tape reading in feet and inches, a mix strength in MPa, a pump rate in L/min, or a curing temperature in Celsius.",
     gets: "The same measurement in the unit you need, with the method, the exact ratio and any depth, density or bag weight the answer depends on stated above the result.",
+    heading: "Construction Measurement Converter",
+    lede: "Convert common metric and imperial measurements for construction, from feet and inches to square metres, cubic yards and tonnes. See the conversion method, and supply depth, density or bag weight when a result depends on it.",
+    eyebrow: "Free construction tool",
+    seoTitle: "Unit Converter: Feet, Metres, Tonnes, Bags | FRELUX",
+    seoDescription:
+      "Convert feet to metres, plots to square metres, tonnes and 50 kg bags, litres and buckets. Every conversion factor is exact and each assumption is stated.",
     to: "/unit-converter",
     benefit: "Plots · MPa · Tonnes · °C",
-    seoTitle:
-      "Unit Converter: Feet, Plots, Tonnes, MPa, psi and Celsius | FRELUX",
-    seoDescription:
-      "Convert feet to metres, plots to square metres, tonnes to cubic metres and bags, MPa to psi, kN to tonnes-force, kWh to BTU, kW to horsepower, L/min to gpm, and Celsius to Fahrenheit. Every answer shows its method.",
     navVisible: true,
   },
   // ---------------------------------------------------------------- finishes
@@ -422,6 +424,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Plan walls from structure to the final coat, worldwide: render, plaster, putty, primer and paint in your country's standard sequence.",
     enters: "Country, rooms with dimensions, doors and windows.",
     gets: "Layer-by-layer material quantities, labour and total cost with full calculation transparency.",
+    heading: "Wall Finish Estimator",
+    seoTitle:
+      "Wall Finish Estimator: country-aware wall finishing quantities & costs",
+    seoDescription:
+      "Plan walls from structure to finish anywhere in the world: pick your country's construction method, add rooms and openings, and get layer-by-layer material quantities, labour and costs with full calculation transparency.",
     to: "/wall-finish-estimator",
     navVisible: true,
   },
@@ -518,11 +525,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Drilling depth, static water level, safe yield, aquifer hydrogeology, occupants, water quality assay, and tower elevation.",
     gets: "Total Dynamic Head (TDH), submersible motor HP, check valve schedule, 4-stage water treatment train, peak rush buffer volume, overhead tank sizing, tap hydrostatic pressure, and complete Bill of Quantities.",
+    heading: "Autonomous Borehole & Water Supply System Estimator",
+    lede: "Drilling strata, submersible pump hydraulics, multi-barrier filtration, overhead peak rush buffering, and gravity reticulation.",
+    eyebrow: "Hydraulic & Civil Infrastructure Engineering",
+    seoTitle: "Borehole Cost Calculator: Pump HP, Casing & Tank Stand | FRELUX",
+    seoDescription:
+      "Estimate a borehole end to end: drilling depth by soil type, casing pipe lengths, submersible pump horsepower (HP) for your well depth, overhead tank size and tank stand cost, filtration, and the gravity pressure left at your taps.",
     to: "/borehole-water-system-estimator",
     navVisible: true,
-    seoTitle: "Autonomous Borehole & Water Supply System Estimator | FRELUX",
-    seoDescription:
-      "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
   },
   {
     slug: "renovation-estimator",
@@ -632,11 +642,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Calculate concrete volumes, mix ratios, and quantities for slabs, beams, columns and lintels.",
     enters: "Element dimensions (slab, beam, column) and concrete grade.",
     gets: "Cement bags, sand, granite and required reinforcement.",
+    heading: "Structural Engineering Calculator",
+    lede: "Size a beam, column or slab from its span and load, see the formula behind every number, and check the section you land on. Preliminary sizing only: a licensed structural engineer must verify anything that gets built.",
+    eyebrow: "Engineering Tool",
+    seoTitle: "Structural Calculator | FRELUX",
+    seoDescription:
+      "Preliminary beam, column, and slab sizing estimates with formula transparency. Not a certified structural design or code-compliance check.",
     to: "/structural-calculator",
     navVisible: true,
-    seoTitle: "Concrete Calculator – Slabs, Beams & Columns | FRELUX",
-    seoDescription:
-      "Calculate concrete volume, mix ratios and material quantities for slabs, beams, columns and lintels. Enter member sizes to get cement, sand and aggregate.",
   },
   {
     slug: "concrete-slab-takeoff",
@@ -682,6 +695,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Measured building dimensions, pitch, rafter spacing and timber sections.",
     gets: "Common, jack, hip and ridge member counts, lengths, linear metres and board feet. Includes a step by step animated framing and bracing sequence.",
+    heading: "Roof Framing & Board Feet",
+    lede: "Plan member quantities from a measured rectangular roof, requested rafter spacing, and your selected timber sections. Geometry and board feet stay visible, while complex valleys remain tied to your verified drawing or schedule.",
+    eyebrow: "Roof structure takeoff",
+    seoTitle: "Roof Framing & Board-Foot Calculator | FRELUX",
+    seoDescription:
+      "Calculate common, jack, hip and ridge member layouts, lengths, linear metres and board feet for a measured gable or hip roof, with a step by step animated roof build sequence.",
     to: "/roof-framing-calculator",
     navVisible: true,
   },

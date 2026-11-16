@@ -18,7 +18,7 @@ import {
 } from "@/lib/estimation/build-sequence";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useState, useCallback, useEffect, useMemo, useId } from "react";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import {
   designBeam,
   designColumn,
@@ -118,10 +118,9 @@ import {
   ChevronRight,
   ChevronDown,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import {} from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
@@ -131,7 +130,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
 import { ACTION_BTN } from "@/components/calculators/CalculatorActions";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 type Tab = "beam" | "column" | "slab" | "wind" | "seismic" | "bbs" | "concrete";
 
@@ -196,101 +195,84 @@ function exportDesignSheet(args: {
 
 export default function StructuralCalculator() {
   const { t } = useLanguage();
-  useSeo({
-    title: "Structural Calculator | FRELUX",
-    description:
-      "Preliminary beam, column, and slab sizing estimates with formula transparency. Not a certified structural design or code-compliance check.",
-    keywords:
-      "structural calculator, beam design, column design, slab design, structural engineering",
-  });
 
   const [tab, setTab] = useState<Tab>("beam");
 
   return (
-    <SubscriptionGate feature="structural_calculator">
-      <PageHeader
-        variant="tool"
-        eyebrow="Engineering Tool"
-        title={t("Structural Engineering Calculator")}
-        subtitle="Size a beam, column or slab from its span and load, see the formula behind every number, and check the section you land on. Preliminary sizing only: a licensed structural engineer must verify anything that gets built."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Structural Calculator" },
-        ]}
-      />
+    <ToolShell route="/structural-calculator" hideDisclaimer>
+      <SubscriptionGate feature="structural_calculator">
+        <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
+          {/* Tabs */}
+          <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
+            {(
+              [
+                { id: "beam", label: "Beam", icon: Ruler },
+                { id: "column", label: "Column", icon: Layers },
+                { id: "slab", label: "Slab", icon: TrendingUp },
+                { id: "wind", label: "Wind", icon: Wind },
+                { id: "seismic", label: "Earthquake", icon: Activity },
+                { id: "bbs", label: "Bar schedule", icon: ListTree },
+                { id: "concrete", label: "Concrete volume", icon: Calculator },
+              ] as const
+            ).map((t) => (
+              <Button
+                variant="ghost"
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                  tab === t.id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
+                }`}
+              >
+                <t.icon className="w-4 h-4" />
+                {t.label}
+              </Button>
+            ))}
+          </div>
 
-      <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
-        {/* Tabs */}
-        <div className="mb-6 inline-flex flex-wrap rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
-          {(
-            [
-              { id: "beam", label: "Beam", icon: Ruler },
-              { id: "column", label: "Column", icon: Layers },
-              { id: "slab", label: "Slab", icon: TrendingUp },
-              { id: "wind", label: "Wind", icon: Wind },
-              { id: "seismic", label: "Earthquake", icon: Activity },
-              { id: "bbs", label: "Bar schedule", icon: ListTree },
-              { id: "concrete", label: "Concrete volume", icon: Calculator },
-            ] as const
-          ).map((t) => (
-            <Button
-              variant="ghost"
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                tab === t.id
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
-              }`}
-            >
-              <t.icon className="w-4 h-4" />
-              {t.label}
-            </Button>
-          ))}
-        </div>
+          <p className="mb-6 -mt-2 text-sm text-muted-foreground">
+            {TAB_HINTS[tab]}
+          </p>
 
-        <p className="mb-6 -mt-2 text-sm text-muted-foreground">
-          {TAB_HINTS[tab]}
-        </p>
+          {tab === "beam" && <BeamCalculator />}
+          {tab === "column" && <ColumnCalculator />}
+          {tab === "slab" && <SlabCalculator />}
+          {tab === "wind" && <WindLoadCalculator />}
+          {tab === "seismic" && <SeismicDetailingCalculator />}
+          {tab === "bbs" && <BarScheduleCalculator />}
+          {tab === "concrete" && <ConcreteTakeoffCalculator />}
 
-        {tab === "beam" && <BeamCalculator />}
-        {tab === "column" && <ColumnCalculator />}
-        {tab === "slab" && <SlabCalculator />}
-        {tab === "wind" && <WindLoadCalculator />}
-        {tab === "seismic" && <SeismicDetailingCalculator />}
-        {tab === "bbs" && <BarScheduleCalculator />}
-        {tab === "concrete" && <ConcreteTakeoffCalculator />}
-
-        {/* Disclaimer */}
-        <div className="mt-8 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-5 dark:border-amber-500/20 dark:bg-amber-500/5">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
-                {t("Professional Disclaimer")}
-              </p>
-              <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
-                Preliminary screening and budget-planning only. Concrete-grade
-                profiles do not mean the full design provisions of Eurocode, BS
-                8110, ACI 318, IS 456, or local amendments are implemented. This
-                tool does not certify code compliance or produce construction
-                designs. A locally licensed structural engineer must
-                independently verify loads, combinations, detailing, materials,
-                drawings, site conditions, and current jurisdictional
-                requirements before use.
-              </p>
+          {/* Disclaimer */}
+          <div className="mt-8 rounded-2xl border border-amber-200/80 bg-amber-50/50 p-5 dark:border-amber-500/20 dark:bg-amber-500/5">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
+                  {t("Professional Disclaimer")}
+                </p>
+                <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
+                  Preliminary screening and budget-planning only. Concrete-grade
+                  profiles do not mean the full design provisions of Eurocode,
+                  BS 8110, ACI 318, IS 456, or local amendments are implemented.
+                  This tool does not certify code compliance or produce
+                  construction designs. A locally licensed structural engineer
+                  must independently verify loads, combinations, detailing,
+                  materials, drawings, site conditions, and current
+                  jurisdictional requirements before use.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* Ad slot, placement "calculator_mid" */}
-      <RecommendedProducts category="cement" />
+        {/* Ad slot, placement "calculator_mid" */}
+        <RecommendedProducts category="cement" />
 
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot, placement "calculator_native" */}
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-    </SubscriptionGate>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        {/* Native banner slot, placement "calculator_native" */}
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </SubscriptionGate>
+    </ToolShell>
   );
 }
 
@@ -2329,19 +2311,6 @@ function BeamCalculator() {
           </div>
         </ResultCard>
       )}
-      <div className="mt-8">
-        <ToolFaqs slug="structural-calculator" />
-      </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.foundationCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.constructionSeq,
-          CALC_LINKS.imageEstimator,
-          CALC_LINKS.buildToRoof,
-        ]}
-      />
-      <RelatedToolsLinks />
     </div>
   );
 }

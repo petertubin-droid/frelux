@@ -49,6 +49,10 @@ export interface ToolShellProps {
   title?: string;
   /** Buttons or links that belong beside the heading, such as share or reset. */
   actions?: ReactNode;
+  /** A photograph the page shows behind or beside its heading. */
+  image?: string;
+  /** Show the link to how the page was built, once it has a result to explain. */
+  methodologyLink?: boolean;
   /** Extra SEO markup the tool owns, such as HowTo structured data. */
   structuredData?: object;
   /** Further blocks, such as the steps of a documented procedure. */
@@ -74,6 +78,8 @@ export default function ToolShell({
   subtitle,
   eyebrow,
   actions,
+  image,
+  methodologyLink,
   structuredData,
   structuredDataArray,
   showFaq = true,
@@ -169,6 +175,8 @@ export default function ToolShell({
           title={heading}
           subtitle={t(subtitle ?? tool.lede ?? tool.does)}
           actions={actions}
+          image={image}
+          methodologyLink={methodologyLink}
           breadcrumbs={crumbs}
         />
       ) : null}
