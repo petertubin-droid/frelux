@@ -604,6 +604,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Wet concrete volume, whole cement-bag procurement count, sand, coarse aggregate and scheduled rebar weight. Includes a step by step animated build sequence for the element.",
     to: "/concrete-takeoff-calculator",
     benefit: "Free quantity takeoff",
+    seoTitle: "Concrete Slab Quantity Calculator: Cement, Sand and Aggregate | FRELUX",
+    seoDescription:
+      "Estimate measured slab concrete volume, cement bags, sand, coarse aggregate and scheduled rebar weight from your own dimensions and mix, with a step by step animated build sequence for slabs, beams, columns and footings.",
     navVisible: true,
   },
   {
@@ -1179,4 +1182,14 @@ export function navToolsByCategory() {
 
 export function findTool(slug: string) {
   return CONSTRUCTION_TOOLS.find((t) => t.slug === slug);
+}
+
+/**
+ * Catalogue entry for a route. The tool shell resolves a page's own entry this
+ * way so a page carries no copy of its title, description or address, and the
+ * catalogue stays the one list of calculators.
+ */
+export function findToolByRoute(route: string): Tool | undefined {
+  const clean = route.replace(/\/+$/, "") || "/";
+  return CONSTRUCTION_TOOLS.find((t) => t.to === clean);
 }

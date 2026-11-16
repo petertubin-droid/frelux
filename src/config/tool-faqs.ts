@@ -698,6 +698,20 @@ export function getToolFaqGroup(slug: string): ToolFaqGroup | undefined {
   return BY_SLUG.get(slug);
 }
 
+const BY_ROUTE = new Map(TOOL_FAQS.map((g) => [g.route, g]));
+
+/**
+ * A tool's question set, found by the address the page is served at. The shell
+ * uses this so a page cannot be wired to another tool's questions, which is how
+ * a slab takeoff page once shipped the window blind set.
+ */
+export function getToolFaqGroupByRoute(
+  route: string,
+): ToolFaqGroup | undefined {
+  const clean = route.replace(/\/+$/, "") || "/";
+  return BY_ROUTE.get(clean);
+}
+
 /** Every question across the registry, for the /faq page and its schema. */
 export function allToolFaqQuestions(): {
   q: string;

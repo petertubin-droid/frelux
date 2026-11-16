@@ -70,7 +70,7 @@ export function FaqSection({
 
 // ── Related Calculators ─────────────────────────────────────────────
 
-interface RelatedLink {
+export interface RelatedLink {
   label: string;
   path: string;
   description?: string;
