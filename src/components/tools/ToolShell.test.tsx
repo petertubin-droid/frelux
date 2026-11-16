@@ -9,7 +9,10 @@ import { describe, expect, it } from "vitest";
 
 import ToolShell from "@/components/tools/ToolShell";
 import { relatedToolsFor } from "@/lib/tools/related-tools";
-import { CONSTRUCTION_TOOLS, findToolByRoute } from "@/config/construction-tools";
+import {
+  CONSTRUCTION_TOOLS,
+  findToolByRoute,
+} from "@/config/construction-tools";
 import { SITE_URL } from "@/lib/site-config";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 
@@ -99,7 +102,10 @@ describe("tool shell", () => {
       const declared = src.match(/<ToolShell[\s\S]{0,400}?route="([^"]+)"/);
       expect(declared, `${file} must state its catalogue route`).toBeTruthy();
       const route = declared![1];
-      expect(findToolByRoute(route), `${route} must be catalogued`).toBeDefined();
+      expect(
+        findToolByRoute(route),
+        `${route} must be catalogued`,
+      ).toBeDefined();
       const served = servedAt.get(file.replace(/\.tsx$/, ""));
       expect(served, `${file} must be routed in App.tsx`).toBeTruthy();
       expect([...served!], `${file} served at a different address`).toContain(
@@ -111,18 +117,22 @@ describe("tool shell", () => {
   it("puts the catalogue search copy on the document", () => {
     const tool = findToolByRoute("/margin-calculator")!;
     expect(tool.seoTitle).toBe("Profit Margin Calculator: FRELUX");
-    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
-    expect(document.title).toBe(tool.seoTitle);
-    const description = document.head.querySelector(
-      'meta[name="description"]',
+    renderAt(
+      "/margin-calculator",
+      <ToolShell route="/margin-calculator">x</ToolShell>,
     );
+    expect(document.title).toBe(tool.seoTitle);
+    const description = document.head.querySelector('meta[name="description"]');
     expect(description?.getAttribute("content")).toBe(tool.seoDescription);
     const canonical = document.head.querySelector('link[rel="canonical"]');
     expect(canonical?.getAttribute("href")).toContain("/margin-calculator");
   });
 
   it("emits one breadcrumb trail that matches the visible crumbs", () => {
-    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
+    renderAt(
+      "/margin-calculator",
+      <ToolShell route="/margin-calculator">x</ToolShell>,
+    );
     const scripts = document.head.querySelectorAll(
       'script[type="application/ld+json"]',
     );
@@ -152,8 +162,13 @@ describe("tool shell", () => {
 
   it("declares the tool as a free web calculator", () => {
     const tool = findToolByRoute("/margin-calculator")!;
-    renderAt("/margin-calculator", <ToolShell route="/margin-calculator">x</ToolShell>);
-    const scripts = [...document.head.querySelectorAll('script[type="application/ld+json"]')];
+    renderAt(
+      "/margin-calculator",
+      <ToolShell route="/margin-calculator">x</ToolShell>,
+    );
+    const scripts = [
+      ...document.head.querySelectorAll('script[type="application/ld+json"]'),
+    ];
     const apps = scripts
       .map((el) => {
         try {
@@ -168,6 +183,30 @@ describe("tool shell", () => {
     expect(apps[0].name).toBe(`FRELUX ${tool.heading ?? tool.title}`);
     expect(apps[0].offers.price).toBe("0");
     expect(apps[0].offers.priceCurrency).toBeTruthy();
+  });
+
+  it("carries the header features a tool adds to its own heading", () => {
+    // Three pages kept a photograph, a methodology link or a market selector in
+    // their header. The shell must place each one, or the page loses it.
+    renderAt(
+      "/concrete-takeoff-calculator",
+      <ToolShell
+        actions={<button type="button">Share</button>}
+        image="https://static.wixstatic.com/media/example.jpg"
+        methodologyLink
+        backTo="/construction-tools"
+        backLabel="Construction tools"
+      >
+        body
+      </ToolShell>,
+    );
+    expect(screen.getByRole("button", { name: "Share" })).toBeTruthy();
+    // The photograph is painted behind the heading rather than placed as an
+    // image element, so the address appears in the markup either way.
+    expect(document.body.innerHTML).toContain("example.jpg");
+    expect(
+      screen.getByText("Construction tools").closest("a")?.getAttribute("href"),
+    ).toBe("/construction-tools");
   });
 
   it("covers every catalogued route with an entry lookup that round trips", () => {

@@ -1,7 +1,7 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import {} from "@/components/seo/SeoSections";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -17,14 +17,13 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import AdSlot from "@/components/ui/AdSlot";
 import { useMarket } from "@/lib/international/market-context";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   CALIBRATION_UNITS,
   calibrationMetres,
@@ -95,17 +94,6 @@ export default function BlueprintTakeoff() {
     setCalibrationUnit("m");
   };
   const { marketCode } = useMarket();
-  useSeo({
-    title: "Blueprint & Plan Takeoff | FRELUX",
-    description:
-      "Calibrate a construction drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
-    canonicalPath: "/blueprint-takeoff",
-  });
-  useBreadcrumbJsonLd([
-    { name: "Home", path: "/" },
-    { name: "Construction Tools", path: "/construction-tools" },
-    { name: "Blueprint Takeoff", path: "/blueprint-takeoff" },
-  ]);
   const [, setSearchParams] = useSearchParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -678,523 +666,511 @@ export default function BlueprintTakeoff() {
     downloadFile("frelux-plan-takeoff.csv", csv, "text/csv");
   };
   return (
-    <div className="min-h-screen bg-background pb-14">
-      <PageHeader
-        variant="tool"
-        eyebrow="Construction quantity tools"
-        title="Blueprint & PDF Plan Takeoff"
-        subtitle="Calibrate a drawing, trace linear and area quantities, count items, and export an editable takeoff schedule."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Blueprint Takeoff" },
-        ]}
-        backTo="/construction-tools"
-        backLabel="All tools"
-      />
-      <Container as="main" className="space-y-5 py-6 sm:py-8">
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={exportProject}>
-            Export project JSON
-          </Button>
-          <Button variant="outline" onClick={exportCsv}>
-            Export CSV
-          </Button>
-          <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
-            Import project
-            <input
-              type="file"
-              accept="application/json,.json"
-              className="sr-only"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void importProject(file);
-                event.currentTarget.value = "";
-              }}
-            />
-          </label>
-        </div>
-        <section className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
-          <label className="block text-sm font-medium">
-            Plan image or vector PDF
-            <input
-              className="mt-2 block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-primary-foreground"
-              type="file"
-              accept="image/*,.pdf,application/pdf,.dxf"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void loadFile(file);
-              }}
-            />
-          </label>
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="min-w-[9rem] flex-1 text-sm font-medium">
-              Known dimension
+    <ToolShell
+      route="/blueprint-takeoff"
+      backTo="/construction-tools"
+      backLabel="All tools"
+    >
+      <div className="min-h-screen bg-background pb-14">
+        <Container as="main" className="space-y-5 py-6 sm:py-8">
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={exportProject}>
+              Export project JSON
+            </Button>
+            <Button variant="outline" onClick={exportCsv}>
+              Export CSV
+            </Button>
+            <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+              Import project
               <input
-                className="mt-2 w-full rounded-lg border border-border bg-background p-2"
-                value={calibrationLength}
-                onChange={(event) => setCalibrationLength(event.target.value)}
-                inputMode="decimal"
-                aria-label="Known dimension value"
+                type="file"
+                accept="application/json,.json"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void importProject(file);
+                  event.currentTarget.value = "";
+                }}
               />
             </label>
-            <label className="min-w-[8rem] flex-1 text-sm font-medium">
-              Unit
-              <select
-                className="mt-2 w-full rounded-lg border border-border bg-background p-2"
-                value={calibrationUnit}
-                onChange={(event) =>
-                  setCalibrationUnit(event.target.value as CalibrationUnit)
-                }
-                aria-label="Known dimension unit"
-              >
-                {CALIBRATION_UNITS.map(({ value, label }) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex items-end">
-              <Button
-                type="button"
-                className="w-full whitespace-nowrap"
-                onClick={() => {
-                  setMode("calibrate");
-                  setDraft([]);
-                  setMessage(
-                    "Click the two ends of the known drawing dimension.",
-                  );
-                }}
-              >
-                <Ruler className="mr-2 h-4 w-4" />
-                Calibrate
-              </Button>
-            </div>
           </div>
-        </section>
-        <section className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => void validateDocument()}
-          >
-            <FileCheck2 className="mr-2 h-4 w-4" />
-            Validate document
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => void autoDetectScale()}
-          >
-            <Ruler className="mr-2 h-4 w-4" />
-            Auto-detect scale
-          </Button>
-          <p className="text-xs text-muted-foreground">
-            Validation classifies every PDF sheet and flags scans. Auto-detect
-            reads the printed scale annotation of the current sheet.
-          </p>
-        </section>
-        <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
-          <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
-              <label className="text-xs">
-                Category{" "}
+          <section className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+            <label className="block text-sm font-medium">
+              Plan image or vector PDF
+              <input
+                className="mt-2 block w-full text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:font-semibold file:text-primary-foreground"
+                type="file"
+                accept="image/*,.pdf,application/pdf,.dxf"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void loadFile(file);
+                }}
+              />
+            </label>
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="min-w-[9rem] flex-1 text-sm font-medium">
+                Known dimension
+                <input
+                  className="mt-2 w-full rounded-lg border border-border bg-background p-2"
+                  value={calibrationLength}
+                  onChange={(event) => setCalibrationLength(event.target.value)}
+                  inputMode="decimal"
+                  aria-label="Known dimension value"
+                />
+              </label>
+              <label className="min-w-[8rem] flex-1 text-sm font-medium">
+                Unit
                 <select
-                  aria-label="Measurement category"
-                  value={activeCategory}
+                  className="mt-2 w-full rounded-lg border border-border bg-background p-2"
+                  value={calibrationUnit}
                   onChange={(event) =>
-                    setActiveCategory(event.target.value as TakeoffCategory)
+                    setCalibrationUnit(event.target.value as CalibrationUnit)
                   }
-                  className="ml-1 rounded border bg-background p-1"
+                  aria-label="Known dimension unit"
                 >
-                  {Object.entries(TAKEOFF_CATEGORIES).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {value.name}
+                  {CALIBRATION_UNITS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
                     </option>
                   ))}
                 </select>
               </label>
-              <input
-                aria-label="Measurement label"
-                value={labelInput}
-                onChange={(event) => setLabelInput(event.target.value)}
-                placeholder="Measurement label"
-                className="w-36 rounded border bg-background px-2 py-1 text-xs"
-              />
-              <Button
-                size="sm"
-                variant={mode === "linear" ? "default" : "outline"}
-                onClick={() => {
-                  setMode("linear");
-                  setDraft([]);
-                }}
-              >
-                <Ruler className="mr-1.5 h-4 w-4" />
-                Linear
-              </Button>
-              <Button
-                size="sm"
-                variant={mode === "area" ? "default" : "outline"}
-                onClick={() => {
-                  setMode("area");
-                  setDraft([]);
-                }}
-              >
-                <Pencil className="mr-1.5 h-4 w-4" />
-                Area
-              </Button>
-              <Button
-                size="sm"
-                variant={mode === "count" ? "default" : "outline"}
-                onClick={() => {
-                  setMode("count");
-                  setDraft([]);
-                }}
-              >
-                <MousePointer2 className="mr-1.5 h-4 w-4" />
-                Count
-              </Button>
-              <Button size="sm" variant="outline" onClick={finishMark}>
-                Finish measurement
-              </Button>
-              <span className="ml-auto flex items-center gap-2">
+              <div className="flex items-end">
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  aria-label="Zoom out"
-                  onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))}
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-                <span className="w-12 text-center text-xs">
-                  {Math.round(zoom * 100)}%
-                </span>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  aria-label="Zoom in"
-                  onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-              </span>
-            </div>
-            {pageCount > 1 && (
-              <div className="flex items-center justify-between border-b border-border px-4 py-2 text-sm">
-                <button
                   type="button"
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => p - 1)}
+                  className="w-full whitespace-nowrap"
+                  onClick={() => {
+                    setMode("calibrate");
+                    setDraft([]);
+                    setMessage(
+                      "Click the two ends of the known drawing dimension.",
+                    );
+                  }}
                 >
-                  Previous page
-                </button>
-                <span>
-                  Page {page} of {pageCount}
-                </span>
-                <button
-                  type="button"
-                  disabled={page >= pageCount}
-                  onClick={() => setPage((p) => p + 1)}
-                >
-                  Next page
-                </button>
+                  <Ruler className="mr-2 h-4 w-4" />
+                  Calibrate
+                </Button>
               </div>
-            )}
-            <div className="overflow-auto bg-slate-100 p-2 dark:bg-slate-950">
-              <canvas
-                ref={canvasRef}
-                onClick={onCanvasClick}
-                className="mx-auto w-full cursor-crosshair rounded border border-slate-300 bg-white shadow-sm"
-                style={{ maxWidth: 1200 }}
-              />
-            </div>
-            <div className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
-              {message}
             </div>
           </section>
-          <aside className="space-y-4">
-            {validation && (
-              <section className="rounded-2xl border border-border bg-card p-4">
-                <h2 className="font-semibold">Document validation</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {validation.summary}
-                </p>
-                <ul className="mt-3 space-y-1 text-xs">
-                  {validation.sheets.map((sheet) => (
-                    <li key={sheet.pageNumber}>
-                      Sheet {sheet.pageNumber}:{" "}
-                      {sheet.sheetClass ?? "unclassified"} · {sheet.orientation}
-                      {sheet.rotated ? " · rotated 90°" : ""}
-                    </li>
-                  ))}
-                </ul>
-                {validation.findings.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                    {validation.findings.map((finding, index) => (
-                      <li key={index}>
-                        {finding.severity === "error" ? "Error: " : "Warning: "}
-                        {finding.message}
+          <section className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => void validateDocument()}
+            >
+              <FileCheck2 className="mr-2 h-4 w-4" />
+              Validate document
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => void autoDetectScale()}
+            >
+              <Ruler className="mr-2 h-4 w-4" />
+              Auto-detect scale
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Validation classifies every PDF sheet and flags scans. Auto-detect
+              reads the printed scale annotation of the current sheet.
+            </p>
+          </section>
+          <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
+            <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
+              <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+                <label className="text-xs">
+                  Category{" "}
+                  <select
+                    aria-label="Measurement category"
+                    value={activeCategory}
+                    onChange={(event) =>
+                      setActiveCategory(event.target.value as TakeoffCategory)
+                    }
+                    className="ml-1 rounded border bg-background p-1"
+                  >
+                    {Object.entries(TAKEOFF_CATEGORIES).map(([key, value]) => (
+                      <option key={key} value={key}>
+                        {value.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <input
+                  aria-label="Measurement label"
+                  value={labelInput}
+                  onChange={(event) => setLabelInput(event.target.value)}
+                  placeholder="Measurement label"
+                  className="w-36 rounded border bg-background px-2 py-1 text-xs"
+                />
+                <Button
+                  size="sm"
+                  variant={mode === "linear" ? "default" : "outline"}
+                  onClick={() => {
+                    setMode("linear");
+                    setDraft([]);
+                  }}
+                >
+                  <Ruler className="mr-1.5 h-4 w-4" />
+                  Linear
+                </Button>
+                <Button
+                  size="sm"
+                  variant={mode === "area" ? "default" : "outline"}
+                  onClick={() => {
+                    setMode("area");
+                    setDraft([]);
+                  }}
+                >
+                  <Pencil className="mr-1.5 h-4 w-4" />
+                  Area
+                </Button>
+                <Button
+                  size="sm"
+                  variant={mode === "count" ? "default" : "outline"}
+                  onClick={() => {
+                    setMode("count");
+                    setDraft([]);
+                  }}
+                >
+                  <MousePointer2 className="mr-1.5 h-4 w-4" />
+                  Count
+                </Button>
+                <Button size="sm" variant="outline" onClick={finishMark}>
+                  Finish measurement
+                </Button>
+                <span className="ml-auto flex items-center gap-2">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Zoom out"
+                    onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))}
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </Button>
+                  <span className="w-12 text-center text-xs">
+                    {Math.round(zoom * 100)}%
+                  </span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    aria-label="Zoom in"
+                    onClick={() => setZoom((z) => Math.min(2, z + 0.1))}
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+                </span>
+              </div>
+              {pageCount > 1 && (
+                <div className="flex items-center justify-between border-b border-border px-4 py-2 text-sm">
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    Previous page
+                  </button>
+                  <span>
+                    Page {page} of {pageCount}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={page >= pageCount}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Next page
+                  </button>
+                </div>
+              )}
+              <div className="overflow-auto bg-slate-100 p-2 dark:bg-slate-950">
+                <canvas
+                  ref={canvasRef}
+                  onClick={onCanvasClick}
+                  className="mx-auto w-full cursor-crosshair rounded border border-slate-300 bg-white shadow-sm"
+                  style={{ maxWidth: 1200 }}
+                />
+              </div>
+              <div className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
+                {message}
+              </div>
+            </section>
+            <aside className="space-y-4">
+              {validation && (
+                <section className="rounded-2xl border border-border bg-card p-4">
+                  <h2 className="font-semibold">Document validation</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {validation.summary}
+                  </p>
+                  <ul className="mt-3 space-y-1 text-xs">
+                    {validation.sheets.map((sheet) => (
+                      <li key={sheet.pageNumber}>
+                        Sheet {sheet.pageNumber}:{" "}
+                        {sheet.sheetClass ?? "unclassified"} ·{" "}
+                        {sheet.orientation}
+                        {sheet.rotated ? " · rotated 90°" : ""}
                       </li>
                     ))}
                   </ul>
+                  {validation.findings.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+                      {validation.findings.map((finding, index) => (
+                        <li key={index}>
+                          {finding.severity === "error"
+                            ? "Error: "
+                            : "Warning: "}
+                          {finding.message}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
+              {dimensionCandidates.length > 0 && (
+                <section className="rounded-2xl border border-border bg-card p-4">
+                  <h2 className="font-semibold">Detected dimensions</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Dimension text found on sheet {page}. Cross-check before
+                    use.
+                  </p>
+                  <ul className="mt-3 max-h-40 space-y-1 overflow-auto text-xs">
+                    {dimensionCandidates
+                      .slice(0, 40)
+                      .map((candidate, index) => (
+                        <li key={index}>
+                          {candidate.text} = {candidate.meters.toFixed(2)} m (
+                          {candidate.unit})
+                        </li>
+                      ))}
+                  </ul>
+                </section>
+              )}
+              <section className="rounded-2xl border border-border bg-card p-4">
+                <h2 className="font-semibold">Engine handoff</h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Recompute every mark from its page calibration and hand paving
+                  and general areas to the concrete takeoff engine.
+                </p>
+                <label className="mt-3 block text-sm font-medium">
+                  Slab depth (m)
+                  <input
+                    value={slabDepthInput}
+                    onChange={(event) => setSlabDepthInput(event.target.value)}
+                    placeholder="0.15"
+                    inputMode="decimal"
+                    className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="mt-2 w-full"
+                  onClick={buildHandoff}
+                  disabled={!marks.length}
+                >
+                  Build engine handoff
+                </Button>
+                {handoffError && (
+                  <p className="mt-2 text-xs text-destructive">
+                    {handoffError}
+                  </p>
+                )}
+                {handoff && (
+                  <div className="mt-3">
+                    <CalculatorResetButton
+                      onReset={resetInputs}
+                      className="mb-4"
+                    />
+                    <HowCalculatedSection
+                      methodologyText={methodologyText("blueprint-takeoff")}
+                    />
+                    <ShareEstimateButton
+                      showPdf
+                      estimate={{
+                        kind: "Blueprint Takeoff",
+                        summaryLines: [
+                          {
+                            label: "Linear runs",
+                            value: `${handoff.linearRunsM.toFixed(2)} m`,
+                          },
+                          {
+                            label: "Plan areas",
+                            value: `${handoff.totalAreaM2.toFixed(2)} m²`,
+                          },
+                          {
+                            label: "Marks counted",
+                            value: String(handoff.totalCount),
+                          },
+                        ],
+                        lineItems: handoff.concreteSlabs.map((slab) => ({
+                          description: `Slab ${slab.markId} (${slab.lengthM.toFixed(2)} x ${slab.widthM.toFixed(2)} x ${slab.depthM} m)`,
+                          quantity: `${slab.result.concreteVolumeM3.toFixed(2)} m³, ${slab.result.volumeWithWasteM3.toFixed(2)} m³ with waste`,
+                        })),
+                        totals: [
+                          {
+                            label: "Cement to buy",
+                            value: `${handoff.concreteSlabs.reduce((sum, slab) => sum + slab.result.cementBagsToBuy, 0)} bags`,
+                            emphasized: true,
+                          },
+                        ],
+                        notes: handoff.notes,
+                        link: "/blueprint-takeoff",
+                      }}
+                      compact
+                    />
+                  </div>
+                )}
+                {handoff && (
+                  <div className="mt-3 space-y-2 text-xs">
+                    <p>
+                      Linear runs: {handoff.linearRunsM.toFixed(2)} m · Areas:{" "}
+                      {handoff.totalAreaM2.toFixed(2)} m² · Counts:{" "}
+                      {handoff.totalCount}
+                    </p>
+                    {handoff.concreteSlabs.map((slab) => (
+                      <div
+                        key={slab.markId}
+                        className="rounded-lg border border-border p-2"
+                      >
+                        <p className="font-semibold">Slab {slab.markId}</p>
+                        <p>
+                          {slab.lengthM.toFixed(2)} x {slab.widthM.toFixed(2)} x{" "}
+                          {slab.depthM} m
+                        </p>
+                        <p>
+                          Concrete: {slab.result.concreteVolumeM3.toFixed(2)} m³
+                          ({slab.result.volumeWithWasteM3.toFixed(2)} m³ with
+                          waste)
+                        </p>
+                        <p>
+                          Cement: {slab.result.cementBagsToBuy} bags · Sand:{" "}
+                          {slab.result.sandM3.toFixed(2)} m³ · Aggregate:{" "}
+                          {slab.result.aggregateM3.toFixed(2)} m³
+                        </p>
+                      </div>
+                    ))}
+                    <p className="text-muted-foreground">
+                      {handoff.notes.join(" ")}
+                    </p>
+                  </div>
                 )}
               </section>
-            )}
-            {dimensionCandidates.length > 0 && (
               <section className="rounded-2xl border border-border bg-card p-4">
-                <h2 className="font-semibold">Detected dimensions</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Dimension text found on sheet {page}. Cross-check before use.
-                </p>
-                <ul className="mt-3 max-h-40 space-y-1 overflow-auto text-xs">
-                  {dimensionCandidates.slice(0, 40).map((candidate, index) => (
-                    <li key={index}>
-                      {candidate.text} = {candidate.meters.toFixed(2)} m (
-                      {candidate.unit})
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-            <section className="rounded-2xl border border-border bg-card p-4">
-              <h2 className="font-semibold">Engine handoff</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Recompute every mark from its page calibration and hand paving
-                and general areas to the concrete takeoff engine.
-              </p>
-              <label className="mt-3 block text-sm font-medium">
-                Slab depth (m)
-                <input
-                  value={slabDepthInput}
-                  onChange={(event) => setSlabDepthInput(event.target.value)}
-                  placeholder="0.15"
-                  inputMode="decimal"
-                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-sm"
-                />
-              </label>
-              <Button
-                type="button"
-                size="sm"
-                className="mt-2 w-full"
-                onClick={buildHandoff}
-                disabled={!marks.length}
-              >
-                Build engine handoff
-              </Button>
-              {handoffError && (
-                <p className="mt-2 text-xs text-destructive">{handoffError}</p>
-              )}
-              {handoff && (
-                <div className="mt-3">
-                  <CalculatorResetButton
-                    onReset={resetInputs}
-                    className="mb-4"
-                  />
-                  <HowCalculatedSection
-                    methodologyText={methodologyText("blueprint-takeoff")}
-                  />
-                  <ShareEstimateButton
-                    showPdf
-                    estimate={{
-                      kind: "Blueprint Takeoff",
-                      summaryLines: [
-                        {
-                          label: "Linear runs",
-                          value: `${handoff.linearRunsM.toFixed(2)} m`,
-                        },
-                        {
-                          label: "Plan areas",
-                          value: `${handoff.totalAreaM2.toFixed(2)} m²`,
-                        },
-                        {
-                          label: "Marks counted",
-                          value: String(handoff.totalCount),
-                        },
-                      ],
-                      lineItems: handoff.concreteSlabs.map((slab) => ({
-                        description: `Slab ${slab.markId} (${slab.lengthM.toFixed(2)} x ${slab.widthM.toFixed(2)} x ${slab.depthM} m)`,
-                        quantity: `${slab.result.concreteVolumeM3.toFixed(2)} m³, ${slab.result.volumeWithWasteM3.toFixed(2)} m³ with waste`,
-                      })),
-                      totals: [
-                        {
-                          label: "Cement to buy",
-                          value: `${handoff.concreteSlabs.reduce((sum, slab) => sum + slab.result.cementBagsToBuy, 0)} bags`,
-                          emphasized: true,
-                        },
-                      ],
-                      notes: handoff.notes,
-                      link: "/blueprint-takeoff",
-                    }}
-                    compact
-                  />
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="font-semibold">Takeoff schedule</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {fileName || "No plan loaded"} · {marketCode}
+                    </p>
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    aria-label="Export CSV"
+                    onClick={exportCsv}
+                    disabled={!marks.length}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
-              {handoff && (
-                <div className="mt-3 space-y-2 text-xs">
-                  <p>
-                    Linear runs: {handoff.linearRunsM.toFixed(2)} m · Areas:{" "}
-                    {handoff.totalAreaM2.toFixed(2)} m² · Counts:{" "}
-                    {handoff.totalCount}
-                  </p>
-                  {handoff.concreteSlabs.map((slab) => (
+                <div className="mt-4 space-y-2">
+                  {marks.map((mark, index) => (
                     <div
-                      key={slab.markId}
-                      className="rounded-lg border border-border p-2"
+                      key={mark.id}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
                     >
-                      <p className="font-semibold">Slab {slab.markId}</p>
-                      <p>
-                        {slab.lengthM.toFixed(2)} x {slab.widthM.toFixed(2)} x{" "}
-                        {slab.depthM} m
-                      </p>
-                      <p>
-                        Concrete: {slab.result.concreteVolumeM3.toFixed(2)} m³ (
-                        {slab.result.volumeWithWasteM3.toFixed(2)} m³ with
-                        waste)
-                      </p>
-                      <p>
-                        Cement: {slab.result.cementBagsToBuy} bags · Sand:{" "}
-                        {slab.result.sandM3.toFixed(2)} m³ · Aggregate:{" "}
-                        {slab.result.aggregateM3.toFixed(2)} m³
-                      </p>
+                      <span className="flex items-center gap-2 text-sm">
+                        <i
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ background: mark.color }}
+                        />
+                        {index + 1}. {mark.category} · {mark.type} · page{" "}
+                        {mark.page} · {mark.quantity} {mark.unit}
+                      </span>
+                      <span className="text-sm font-semibold">
+                        {mark.label}
+                      </span>
+                      {buildWorksheetBridgeUrl({
+                        mark,
+                        sourceFileName: fileName,
+                        marketCode,
+                      }) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => bridgeToWorksheet(mark)}
+                        >
+                          Use in worksheet
+                        </Button>
+                      )}
                     </div>
                   ))}
-                  <p className="text-muted-foreground">
-                    {handoff.notes.join(" ")}
-                  </p>
+                  {!marks.length && (
+                    <p className="rounded-xl border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
+                      No measurements yet
+                    </p>
+                  )}
                 </div>
-              )}
-            </section>
-            <section className="rounded-2xl border border-border bg-card p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="font-semibold">Takeoff schedule</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {fileName || "No plan loaded"} · {marketCode}
-                  </p>
-                </div>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  aria-label="Export CSV"
-                  onClick={exportCsv}
-                  disabled={!marks.length}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="mt-4 space-y-2">
-                {marks.map((mark, index) => (
-                  <div
-                    key={mark.id}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setMarks((current) => current.slice(0, -1));
+                      setDraft([]);
+                    }}
+                    disabled={!marks.length}
                   >
-                    <span className="flex items-center gap-2 text-sm">
-                      <i
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ background: mark.color }}
-                      />
-                      {index + 1}. {mark.category} · {mark.type} · page{" "}
-                      {mark.page} · {mark.quantity} {mark.unit}
-                    </span>
-                    <span className="text-sm font-semibold">{mark.label}</span>
-                    {buildWorksheetBridgeUrl({
-                      mark,
-                      sourceFileName: fileName,
-                      marketCode,
-                    }) && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => bridgeToWorksheet(mark)}
-                      >
-                        Use in worksheet
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                {!marks.length && (
-                  <p className="rounded-xl border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
-                    No measurements yet
-                  </p>
-                )}
+                    <RotateBackIcon />
+                    Undo last
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setMarks([]);
+                      setDraft([]);
+                    }}
+                    disabled={!marks.length}
+                  >
+                    <Trash2 className="mr-1 h-4 w-4" />
+                    Clear all
+                  </Button>
+                </div>
+                <div className="mt-4 rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+                  Scale: {scale ? `${scale.toFixed(1)} px/m` : "not calibrated"}
+                  <br />
+                  Linear/area measures:{" "}
+                  {marks.filter((m) => m.type !== "count").length} · Count
+                  marks: {marks.filter((m) => m.type === "count").length}
+                </div>
+              </section>
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  Verify before use
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Drawing scan resolution, scale and measurement points affect
+                  takeoff accuracy. Cross-check measured quantities against
+                  source drawings and the responsible professional's review.
+                  This does not verify structural safety or code compliance.
+                </p>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setMarks((current) => current.slice(0, -1));
-                    setDraft([]);
-                  }}
-                  disabled={!marks.length}
-                >
-                  <RotateBackIcon />
-                  Undo last
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setMarks([]);
-                    setDraft([]);
-                  }}
-                  disabled={!marks.length}
-                >
-                  <Trash2 className="mr-1 h-4 w-4" />
-                  Clear all
-                </Button>
-              </div>
-              <div className="mt-4 rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
-                Scale: {scale ? `${scale.toFixed(1)} px/m` : "not calibrated"}
-                <br />
-                Linear/area measures:{" "}
-                {marks.filter((m) => m.type !== "count").length} · Count marks:{" "}
-                {marks.filter((m) => m.type === "count").length}
-              </div>
-            </section>
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm">
-              <div className="flex items-center gap-2 font-semibold">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                Verify before use
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Drawing scan resolution, scale and measurement points affect
-                takeoff accuracy. Cross-check measured quantities against source
-                drawings and the responsible professional's review. This does
-                not verify structural safety or code compliance.
-              </p>
-            </div>
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-              <FileUp className="h-4 w-4" />
-              {fileName || "Upload drawing"}
-            </label>
-          </aside>
-        </div>
-        {/* Ad slot, placement "calculator_mid" */}
-        <AdSlot slotKey="calculator_mid" className="mt-8" />
-        {/* Native banner slot, placement "calculator_native" */}
-        <AdSlot slotKey="calculator_native" className="mt-8" />
-        <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
-      </Container>
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="insulation-calculator" />
-        </div>
-        <div className="mt-8">
-          <ToolFaqs slug="demolition-calculator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.imageEstimator,
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-          ]}
-        />
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+                <FileUp className="h-4 w-4" />
+                {fileName || "Upload drawing"}
+              </label>
+            </aside>
+          </div>
+          {/* Ad slot, placement "calculator_mid" */}
+          <AdSlot slotKey="calculator_mid" className="mt-8" />
+          {/* Native banner slot, placement "calculator_native" */}
+          <AdSlot slotKey="calculator_native" className="mt-8" />
+          <EstimateDisclaimer text="Plan scale, scan resolution, drawing distortion, and manual measurement points affect accuracy. Cross-check takeoff quantities against the source drawings and site conditions; this tool does not provide structural design or code-compliance approval." />
+        </Container>
       </div>
-    </div>
+    </ToolShell>
   );
 }
 function polygonArea(points: { x: number; y: number }[]) {

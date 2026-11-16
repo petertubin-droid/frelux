@@ -53,6 +53,10 @@ export interface ToolShellProps {
   image?: string;
   /** Show the link to how the page was built, once it has a result to explain. */
   methodologyLink?: boolean;
+  /** Address the heading links back to, for a page inside a section. */
+  backTo?: string;
+  /** Wording of that back link. */
+  backLabel?: string;
   /** Extra SEO markup the tool owns, such as HowTo structured data. */
   structuredData?: object;
   /** Further blocks, such as the steps of a documented procedure. */
@@ -80,6 +84,8 @@ export default function ToolShell({
   actions,
   image,
   methodologyLink,
+  backTo,
+  backLabel,
   structuredData,
   structuredDataArray,
   showFaq = true,
@@ -177,6 +183,8 @@ export default function ToolShell({
           actions={actions}
           image={image}
           methodologyLink={methodologyLink}
+          backTo={backTo}
+          backLabel={backLabel}
           breadcrumbs={crumbs}
         />
       ) : null}

@@ -615,6 +615,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "A PDF or image plan and one known drawing dimension for scale calibration.",
     gets: "A measured takeoff schedule that can be exported as CSV.",
+    heading: "Blueprint & PDF Plan Takeoff",
+    lede: "Calibrate a drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
+    eyebrow: "Construction quantity tools",
+    seoTitle: "Blueprint & Plan Takeoff | FRELUX",
+    seoDescription:
+      "Calibrate a construction drawing, trace linear and area quantities, count items, and export an editable takeoff schedule.",
     to: "/blueprint-takeoff",
     navVisible: true,
   },
@@ -730,11 +736,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Size and cost a foundation: strip, pad or raft for your building.",
     enters: "Building dimensions, floors and soil condition.",
     gets: "Foundation dimensions, excavation, concrete and cost.",
+    heading: "Foundation Design Calculator",
+    lede: "Preliminary strip, pad, and raft sizing estimates using assumed or user-entered soil bearing capacity. Not a certified geotechnical or structural design or code-compliance check.",
+    eyebrow: "Engineering Tool",
+    seoTitle: "Foundation Design Calculator | FRELUX",
+    seoDescription:
+      "Preliminary strip, pad, and raft foundation sizing estimates. Not a certified geotechnical or structural design, and not a jurisdictional code-compliance check.",
     to: "/foundation-calculator",
     navVisible: true,
-    seoTitle: "Foundation Calculator – Strip, Pad & Raft Sizing | FRELUX",
-    seoDescription:
-      "Size and cost a strip, pad or raft foundation. Enter building dimensions, floors and soil condition to get concrete, mesh and formwork quantities with local prices.",
   },
   {
     slug: "retaining-wall",
@@ -826,6 +835,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Estimate the full cost of completing your foundation stage.",
     enters: "Plot size and foundation type.",
     gets: "Line-by-line foundation cost breakdown with current prices.",
+    heading: "Foundation Estimator",
+    lede: "Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design.",
+    seoTitle:
+      "Foundation Estimator: Concrete Mix, Blocks, Hardcore & Formwork | FRELUX",
+    seoDescription:
+      "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only: not foundation design.",
     to: "/foundation",
     navVisible: false,
   },
@@ -850,11 +865,14 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Floors above ground, typical and ground floor heights, plan length and width, concrete fck, the soil type, the mapped accelerations SDS and SD1, and the occupancy category.",
     gets: "The lateral system for the height, wind and seismic base shear with drift, raft thickness and the pile schedule, the concrete and reinforcement quantities, and a programme, with the method and every assumption shown. It is a deterministic screening check, not a structural design.",
-    to: "/tall-building-structure",
-    benefit: "Wind , Seismic , Piles",
+    heading: "Skyscraper Structure and Foundation Calculator",
+    lede: "Size the lateral system, foundation and programme of a high rise from the geometry you enter. Wind and seismic demand are computed with published relationships, then checked against drift, stability and pile capacity limits. This is a screening calculation, not a structural design.",
+    eyebrow: "Deterministic engineering · codes cited · no AI estimates",
     seoTitle: "Skyscraper Structure and Foundation Calculator | FRELUX",
     seoDescription:
       "Screen a high rise from entered geometry: lateral system by height, ASCE 7 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and a build programme. Deterministic engineering arithmetic, not a structural design.",
+    to: "/tall-building-structure",
+    benefit: "Wind , Seismic , Piles",
     navVisible: false,
   },
 
@@ -969,6 +987,13 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Country, location, building type, structural system and code edition.",
     gets: "The applicable code family and edition, references for concrete, reinforcement, loads, wind, snow, foundations, durability and materials, plus every unsupported or locally-verifiable point stated plainly.",
+    heading: "International Building Code Reference",
+    lede: "Configure your project and see which building code, edition and technical standards govern it, with every unsupported or locally-verifiable point stated plainly. This engine names documents; it never substitutes one country's design values for another's.",
+    eyebrow: "Regulatory reference",
+    seoTitle:
+      "International Building Code Reference: Standards by Country | FRELUX",
+    seoDescription:
+      "Select your project country, building type and structural system to see the building code, edition and standards that govern concrete, reinforcement, loads, wind, snow, foundations, durability and materials, with unsupported regulations identified, never filled from another country.",
     to: "/code-reference",
     navVisible: false,
   },
@@ -980,6 +1005,13 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Match construction materials to your site's real climate: rain, humidity, UV, salt air and frost.",
     enters: "Project location (search, map pick or coordinates).",
     gets: "Material guidance for paints, waterproofing, roofing, tiles, concrete exposure, steel, insulation and drainage — with the reasoning and standards shown.",
+    heading: "Climate-Responsive Material Advisor",
+    lede: "Choose your project location. FRELUX reads measured climate normals for that coordinate — rainfall, humidity, UV, frost, salt air — and explains which material properties belong on that site, and why.",
+    eyebrow: "Climate intelligence",
+    seoTitle:
+      "Climate-Responsive Material Advisor: Materials for Your Site's Climate | FRELUX",
+    seoDescription:
+      "Pick your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost. Exterior paints, waterproofing, roofing, tiles, concrete exposure classes, steel protection, insulation and drainage.",
     to: "/material-advisor",
     navVisible: false,
     featured: true,
@@ -1013,6 +1045,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Turn your material list into a formal Bill of Quantities.",
     enters: "Your project scope or an existing estimate.",
     gets: "A professional BOQ document ready to share or export.",
+    heading: "BOQ / Quote Generator",
+    lede: "Assemble your saved FRELUX estimates into one professional, client-ready Bill of Quantities. VAT and contingency come from database-configured rates: every line stays traceable to its source.",
+    seoTitle: "BOQ / Quote Generator: FRELUX",
+    seoDescription:
+      "Turn saved FRELUX estimates into a professional, client-ready Bill of Quantities with database-configured VAT and contingency rates.",
     to: "/boq-generator",
     navVisible: true,
   },
@@ -1157,6 +1194,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "Site perimeter, crew size, identified hazards and planning quantities.",
     gets: "A transparent inventory with OSHA, UK HSE/CDM and ISO 7010 references, plus a CSV export.",
+    heading: "Global Site Safety & PPE Estimator",
+    lede: "Build a transparent planning inventory for PPE, warning signs and site controls. Choose a framework reference, then set the assumptions that fit your worksite.",
+    eyebrow: "Site Planning & Safety",
+    seoTitle: "Global Construction Site Safety & PPE Estimator | FRELUX",
+    seoDescription:
+      "Plan construction-site PPE, warning signs, excavation barriers, first-aid kit and fire-extinguisher quantities with editable assumptions and OSHA, UK HSE/CDM or ISO 7010 references. Not a compliance certification.",
     to: "/global-site-safety-estimator",
     navVisible: true,
   },

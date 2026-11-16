@@ -19,7 +19,6 @@ import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
-import PageHeader from "@/components/ui/PageHeader";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
@@ -28,7 +27,7 @@ import {
   resolveStructuralMarketPricing,
   type StructuralMarketPricing,
 } from "@/lib/estimation/structural-market";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -63,11 +62,10 @@ import type {
 } from "@/types/estimation";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
 import VolumeUnitToggle from "@/components/measurement/VolumeUnitToggle";
 import { useAreaUnit, useVolumeUnit } from "@/lib/use-area-unit";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 type Field =
   | "concrete_volume_m3"
@@ -140,13 +138,6 @@ export default function FoundationEstimator() {
   const [result, setResult] = useState<FoundationResult | null>(null);
   const [saveState, setSaveState] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useSeo({
-    title:
-      "Foundation Estimator: Concrete Mix, Blocks, Hardcore & Formwork | FRELUX",
-    description:
-      "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only: not foundation design.",
-  });
 
   const [priceMap, setPriceMap] = useState<FoundationPriceMap>({});
   const [marketPricing, setMarketPricing] =
@@ -431,430 +422,418 @@ export default function FoundationEstimator() {
     useCalculatorFeedback<HTMLDivElement>();
 
   return (
-    <Container>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Foundation Estimator" },
-        ]}
-        title={t("Foundation Estimator")}
-        methodologyLink={Boolean(result)}
-        subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
-      />
-
-      <MarketScopeNotice />
-      {marketCode !== "NG" && marketPricing && (
-        <div
-          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
-          data-testid="market-price-provenance"
-        >
-          <p className="font-semibold">
-            Prices from the {marketCode} price book ({currencySymbol})
-          </p>
-          <ul className="mt-2 space-y-1 text-muted-foreground">
-            {marketPricing.provenance.map((p) => (
-              <li key={p.engineKey}>
-                {p.resolved ? "✓" : "✗"} {p.engineKey}: {p.explanation}
-              </li>
-            ))}
-            {marketPricing.unresolved.length > 0 && (
-              <li>
-                ✗ {marketPricing.unresolved.join(", ")}: no verified price in
-                the {marketCode} book - these lines report as unpriced until you
-                supply local prices.
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
-
-      {/* Inputs */}
-      <div
-        ref={fieldsRef}
-        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-      >
-        <div className="mb-4">
-          <MeasurementTip what="measured volumes and foundation units" />
-        </div>
-        <h3 className="mb-1 font-semibold">
-          {t("Measured volumes and areas")}
-        </h3>
-        <p className="mb-2 text-xs text-muted-foreground">
-          The engine never assumes volumes. Enter what you measured. Leave a
-          field blank when it needs a decision (the estimate is marked
-          incomplete); enter 0 only when there is truly none. Footing sizes,
-          depth and reinforcement are structural engineering decisions: use the
-          Reinforcement estimator for the bar schedule.
-        </p>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground">
-            Volumes in {volumeLabel}, areas in {areaLabel} by default
-          </span>
-          <div className="flex flex-wrap gap-2">
-            <VolumeUnitToggle value={volumeUnit} onChange={setVolumeUnit} />
-            <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {(Object.keys(FIELD_LABELS) as Field[]).map((k) =>
-            numberInput(
-              `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "volume" ? volumeLabel : areaLabel})`,
-              fields[k],
-              (v) => setFields((f) => ({ ...f, [k]: v })),
-            ),
-          )}
-        </div>
-
-        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
-            <select
-              value={labourMode}
-              onChange={(e) =>
-                setLabourMode(e.target.value as typeof labourMode)
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
-            >
-              <option value="none">{t("Not included")}</option>
-              <option value="per_m3">Per m³ of concrete (rate)</option>
-              <option value="lump_sum">{t("Lump sum")}</option>
-            </select>
-          </label>
-          {labourMode !== "none" &&
-            numberInput(
-              labourMode === "per_m3"
-                ? `Rate per m³ (${currencySymbol})`
-                : `Lump sum (${currencySymbol})`,
-              labourRate,
-              setLabourRate,
-            )}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Labour is always separate from material quantities and is never added
-          automatically.
-        </p>
-
-        <div className="mt-4">
-          <WasteFactorControl
-            material="cement"
-            baseQuantity={
-              Number(fields.concrete_volume_m3) > 0
-                ? Number(fields.concrete_volume_m3)
-                : undefined
-            }
-            unit={volumeLabel === "cu ft" ? "ft³" : "m³"}
-            packageSize={null}
-            compact
-          />
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("Calculate estimate")}
-          </button>
-          {result?.ok && (
-            <>
-              <button
-                onClick={save}
-                disabled={saving || result.lines.length === 0}
-                className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save estimate"}
-              </button>
-              {engineAccess.canExport && (
-                <button
-                  onClick={exportQuote}
-                  className="rounded-md border px-4 py-2 text-sm font-medium"
-                >
-                  {t("Export quote (PDF)")}
-                </button>
-              )}
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-              <HowCalculatedSection
-                methodologyText={methodologyText("foundation-estimator")}
-              />
-              <QuoteShareButton
-                build={buildQuote}
-                kind="Foundation Estimate"
-                link="/foundation"
-              />
-              <button
-                onClick={exportToDocumentStudio}
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
-                {t("Customize in Document Studio")}
-              </button>
-              <SaveToProjectButton
-                calculatorType="foundation"
-                calculatorSlug="foundation-estimator"
-                calcTitle="Foundation estimate"
-                calcData={input as unknown as Record<string, unknown>}
-                resultSummary={{
-                  grand_total: result.grand_total,
-                  material_subtotal: result.material_subtotal,
-                  labour_total: result.labour_total,
-                  incomplete: result.incomplete,
-                }}
-                materials={result.lines
-                  .filter((l) => l.quantity !== null)
-                  .map((l) => ({
-                    name: l.label,
-                    category: "foundation",
-                    quantity: l.quantity ?? 0,
-                    unit: l.unit,
-                    estimated_price: l.unit_price ?? undefined,
-                  }))}
-              />
-            </>
-          )}
-        </div>
-        {saveState && (
-          <p
-            className="mt-3 text-sm text-muted-foreground"
-            data-testid="save-state"
-          >
-            {saveState}
-          </p>
-        )}
-      </div>
-
-      <RecommendedProducts category="cement" />
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      <div className="mb-4">
-        <MissingFieldsNotice fields={missing} />
-      </div>
-
-      {/* Errors */}
-      {result && !result.ok && (
-        <div
-          className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
-          role="alert"
-        >
-          <h3 className="mb-1 font-semibold text-destructive">
-            {t("Fix these inputs first")}
-          </h3>
-          <ul className="list-disc pl-5 text-sm text-destructive">
-            {result.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Result */}
-      {result?.ok && (
-        <>
-          {/* Status banner */}
+    <ToolShell route="/foundation" methodologyLink={Boolean(result)}>
+      <Container>
+        <MarketScopeNotice />
+        {marketCode !== "NG" && marketPricing && (
           <div
-            ref={resultsRef}
-            className={`mb-4 rounded-lg border p-4 text-sm ${
-              result.incomplete
-                ? "border-amber-600/40 bg-amber-600/5"
-                : "border-emerald-600/40 bg-emerald-600/5"
-            }`}
-            data-testid="estimate-status"
+            className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+            data-testid="market-price-provenance"
           >
-            {result.incomplete ? (
-              <>
-                <strong className="block">
-                  {t("This estimate is INCOMPLETE.")}
-                </strong>
-                <ul className="mt-1 list-disc pl-5">
-                  {result.missing.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                  {result.lines
-                    .filter((l) => l.unit_price === null && l.quantity !== null)
-                    .map((l) => (
-                      <li key={l.key}>
-                        {l.label}: PRICE NOT CONFIGURED in the material database
-                        : the quantity is shown, but no price was invented.
-                      </li>
-                    ))}
-                </ul>
-              </>
-            ) : (
-              <strong>
-                Complete estimate: every line sized and priced from the shared
-                material database.
-              </strong>
-            )}
-          </div>
-
-          {/* Materials table */}
-          <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
-            <table
-              className="w-full text-sm"
-              aria-label={t("Foundation material takeoff")}
-            >
-              <thead className="border-b bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3">{t("Material")}</th>
-                  <th className="p-3">{t("Quantity")}</th>
-                  <th className="p-3">{t("Unit")}</th>
-                  <th className="p-3">{t("How it was sized")}</th>
-                  <th className="p-3">{t("Unit price")}</th>
-                  <th className="p-3">{t("Line total")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(engineAccess.limited
-                  ? result.lines.slice(0, engineAccess.visibleLines)
-                  : result.lines
-                ).map((l) => (
-                  <tr key={l.key} className="border-b last:border-0">
-                    <td className="p-3 font-medium">{l.label}</td>
-                    <td className="p-3" data-testid={`qty-${l.key}`}>
-                      {l.quantity === null
-                        ? "(provide measurement)"
-                        : fmtN(l.quantity)}
-                    </td>
-                    <td className="p-3 text-muted-foreground">{l.unit}</td>
-                    <td className="max-w-xs p-3 text-xs text-muted-foreground">
-                      {l.detail}
-                    </td>
-                    <td className="p-3">
-                      {l.unit_price === null ? (
-                        <span className="font-medium text-amber-700 dark:text-amber-400">
-                          {t("PRICE NOT CONFIGURED")}
-                        </span>
-                      ) : (
-                        formatCurrency(l.unit_price, currencySymbol)
-                      )}
-                    </td>
-                    <td className="p-3 font-medium">
-                      {l.line_total === null
-                        ? "N/A"
-                        : formatCurrency(l.line_total, currencySymbol)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {engineAccess.limited && engineAccess.engine && (
-            <div className="mb-6">
-              <EnginePreviewLock
-                engine={engineAccess.engine}
-                hiddenLines={engineAccess.hiddenLines(result.lines.length)}
-              />
-            </div>
-          )}
-
-          {/* Breakdown */}
-          <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
-            <ol className="space-y-2 text-sm">
-              {result.steps.map((s, i) => (
-                <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
-                  <span className="font-medium">{s.label}:</span>{" "}
-                  <span className="text-muted-foreground">{s.detail}</span>
+            <p className="font-semibold">
+              Prices from the {marketCode} price book ({currencySymbol})
+            </p>
+            <ul className="mt-2 space-y-1 text-muted-foreground">
+              {marketPricing.provenance.map((p) => (
+                <li key={p.engineKey}>
+                  {p.resolved ? "✓" : "✗"} {p.engineKey}: {p.explanation}
                 </li>
               ))}
-            </ol>
+              {marketPricing.unresolved.length > 0 && (
+                <li>
+                  ✗ {marketPricing.unresolved.join(", ")}: no verified price in
+                  the {marketCode} book - these lines report as unpriced until
+                  you supply local prices.
+                </li>
+              )}
+            </ul>
           </div>
+        )}
 
-          {/* Cost summary */}
-          <div className="mb-6 grid gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Material subtotal")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.material_subtotal === null
-                  ? "(prices/inputs missing)"
-                  : formatCurrency(result.material_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Of which priced so far")}
-              </p>
-              <p className="text-xl font-semibold">
-                {formatCurrency(result.priced_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
-              <p className="text-xl font-semibold">
-                {labourMode === "none"
-                  ? "Not included"
-                  : formatCurrency(result.labour_total, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Grand total")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.grand_total === null
-                  ? "N/A"
-                  : formatCurrency(result.grand_total, currencySymbol)}
-              </p>
+        {/* Inputs */}
+        <div
+          ref={fieldsRef}
+          className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+        >
+          <div className="mb-4">
+            <MeasurementTip what="measured volumes and foundation units" />
+          </div>
+          <h3 className="mb-1 font-semibold">
+            {t("Measured volumes and areas")}
+          </h3>
+          <p className="mb-2 text-xs text-muted-foreground">
+            The engine never assumes volumes. Enter what you measured. Leave a
+            field blank when it needs a decision (the estimate is marked
+            incomplete); enter 0 only when there is truly none. Footing sizes,
+            depth and reinforcement are structural engineering decisions: use
+            the Reinforcement estimator for the bar schedule.
+          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">
+              Volumes in {volumeLabel}, areas in {areaLabel} by default
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <VolumeUnitToggle value={volumeUnit} onChange={setVolumeUnit} />
+              <AreaUnitToggle value={areaUnit} onChange={setAreaUnit} />
             </div>
           </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(Object.keys(FIELD_LABELS) as Field[]).map((k) =>
+              numberInput(
+                `${FIELD_LABELS[k]} (${FIELD_UNIT_KIND[k] === "volume" ? volumeLabel : areaLabel})`,
+                fields[k],
+                (v) => setFields((f) => ({ ...f, [k]: v })),
+              ),
+            )}
+          </div>
 
-          {/* Warnings */}
-          <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
-            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              {result.warnings.map((w) => (
-                <li key={w}>{w}</li>
+          <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">{t("Labour mode")}</span>
+              <select
+                value={labourMode}
+                onChange={(e) =>
+                  setLabourMode(e.target.value as typeof labourMode)
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
+              >
+                <option value="none">{t("Not included")}</option>
+                <option value="per_m3">Per m³ of concrete (rate)</option>
+                <option value="lump_sum">{t("Lump sum")}</option>
+              </select>
+            </label>
+            {labourMode !== "none" &&
+              numberInput(
+                labourMode === "per_m3"
+                  ? `Rate per m³ (${currencySymbol})`
+                  : `Lump sum (${currencySymbol})`,
+                labourRate,
+                setLabourRate,
+              )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Labour is always separate from material quantities and is never
+            added automatically.
+          </p>
+
+          <div className="mt-4">
+            <WasteFactorControl
+              material="cement"
+              baseQuantity={
+                Number(fields.concrete_volume_m3) > 0
+                  ? Number(fields.concrete_volume_m3)
+                  : undefined
+              }
+              unit={volumeLabel === "cu ft" ? "ft³" : "m³"}
+              packageSize={null}
+              compact
+            />
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              {t("Calculate estimate")}
+            </button>
+            {result?.ok && (
+              <>
+                <button
+                  onClick={save}
+                  disabled={saving || result.lines.length === 0}
+                  className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save estimate"}
+                </button>
+                {engineAccess.canExport && (
+                  <button
+                    onClick={exportQuote}
+                    className="rounded-md border px-4 py-2 text-sm font-medium"
+                  >
+                    {t("Export quote (PDF)")}
+                  </button>
+                )}
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("foundation-estimator")}
+                />
+                <QuoteShareButton
+                  build={buildQuote}
+                  kind="Foundation Estimate"
+                  link="/foundation"
+                />
+                <button
+                  onClick={exportToDocumentStudio}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {t("Customize in Document Studio")}
+                </button>
+                <SaveToProjectButton
+                  calculatorType="foundation"
+                  calculatorSlug="foundation-estimator"
+                  calcTitle="Foundation estimate"
+                  calcData={input as unknown as Record<string, unknown>}
+                  resultSummary={{
+                    grand_total: result.grand_total,
+                    material_subtotal: result.material_subtotal,
+                    labour_total: result.labour_total,
+                    incomplete: result.incomplete,
+                  }}
+                  materials={result.lines
+                    .filter((l) => l.quantity !== null)
+                    .map((l) => ({
+                      name: l.label,
+                      category: "foundation",
+                      quantity: l.quantity ?? 0,
+                      unit: l.unit,
+                      estimated_price: l.unit_price ?? undefined,
+                    }))}
+                />
+              </>
+            )}
+          </div>
+          {saveState && (
+            <p
+              className="mt-3 text-sm text-muted-foreground"
+              data-testid="save-state"
+            >
+              {saveState}
+            </p>
+          )}
+        </div>
+
+        <RecommendedProducts category="cement" />
+
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+
+        <div className="mb-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
+
+        {/* Errors */}
+        {result && !result.ok && (
+          <div
+            className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
+            role="alert"
+          >
+            <h3 className="mb-1 font-semibold text-destructive">
+              {t("Fix these inputs first")}
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-destructive">
+              {result.errors.map((e) => (
+                <li key={e}>{e}</li>
               ))}
             </ul>
           </div>
-        </>
-      )}
+        )}
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+        {/* Result */}
+        {result?.ok && (
+          <>
+            {/* Status banner */}
+            <div
+              ref={resultsRef}
+              className={`mb-4 rounded-lg border p-4 text-sm ${
+                result.incomplete
+                  ? "border-amber-600/40 bg-amber-600/5"
+                  : "border-emerald-600/40 bg-emerald-600/5"
+              }`}
+              data-testid="estimate-status"
+            >
+              {result.incomplete ? (
+                <>
+                  <strong className="block">
+                    {t("This estimate is INCOMPLETE.")}
+                  </strong>
+                  <ul className="mt-1 list-disc pl-5">
+                    {result.missing.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                    {result.lines
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
+                      .map((l) => (
+                        <li key={l.key}>
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              ) : (
+                <strong>
+                  Complete estimate: every line sized and priced from the shared
+                  material database.
+                </strong>
+              )}
+            </div>
 
-      {/* How it works */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            Concrete follows the standard dry-volume mix math with every
-            constant shown: wet volume × waste × 1.54 dry factor, split by the
-            mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg bag. Change
-            the ratio in FRELUX settings and the split changes visibly.
-          </li>
-          <li>
-            Blocks follow the visible blocks-per-m² rule, which must match the
-            block supplier prices. Hardcore and formwork take your measured
-            volumes and areas directly.
-          </li>
-          <li>
-            All materials use the same shared records the Price Tracker manages
-            (cement, sand, granite, hardcore, blocks, formwork): one price
-            configuration feeds every engine. Unpriced materials show PRICE NOT
-            CONFIGURED, never invented.
-          </li>
-          <li>
-            This is material ESTIMATION, not foundation design. Footing sizes,
-            depth and reinforcement are structural engineering decisions: use
-            the Reinforcement estimator for the bar schedule.
-          </li>
-        </ul>
-      </section>
-      <EstimateDisclaimer />
-      <div className="mt-8">
-        <ToolFaqs slug="increte-flooring-calculator" />
-      </div>
-      <div className="mt-8">
-        <ToolFaqs slug="foundation-calculator" />
-      </div>
-      <div className="mt-8">
-        <ToolFaqs slug="reinforcement" />
-      </div>
-    </Container>
+            {/* Materials table */}
+            <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
+              <table
+                className="w-full text-sm"
+                aria-label={t("Foundation material takeoff")}
+              >
+                <thead className="border-b bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3">{t("Material")}</th>
+                    <th className="p-3">{t("Quantity")}</th>
+                    <th className="p-3">{t("Unit")}</th>
+                    <th className="p-3">{t("How it was sized")}</th>
+                    <th className="p-3">{t("Unit price")}</th>
+                    <th className="p-3">{t("Line total")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(engineAccess.limited
+                    ? result.lines.slice(0, engineAccess.visibleLines)
+                    : result.lines
+                  ).map((l) => (
+                    <tr key={l.key} className="border-b last:border-0">
+                      <td className="p-3 font-medium">{l.label}</td>
+                      <td className="p-3" data-testid={`qty-${l.key}`}>
+                        {l.quantity === null
+                          ? "(provide measurement)"
+                          : fmtN(l.quantity)}
+                      </td>
+                      <td className="p-3 text-muted-foreground">{l.unit}</td>
+                      <td className="max-w-xs p-3 text-xs text-muted-foreground">
+                        {l.detail}
+                      </td>
+                      <td className="p-3">
+                        {l.unit_price === null ? (
+                          <span className="font-medium text-amber-700 dark:text-amber-400">
+                            {t("PRICE NOT CONFIGURED")}
+                          </span>
+                        ) : (
+                          formatCurrency(l.unit_price, currencySymbol)
+                        )}
+                      </td>
+                      <td className="p-3 font-medium">
+                        {l.line_total === null
+                          ? "N/A"
+                          : formatCurrency(l.line_total, currencySymbol)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {engineAccess.limited && engineAccess.engine && (
+              <div className="mb-6">
+                <EnginePreviewLock
+                  engine={engineAccess.engine}
+                  hiddenLines={engineAccess.hiddenLines(result.lines.length)}
+                />
+              </div>
+            )}
+
+            {/* Breakdown */}
+            <div className="mb-6 rounded-lg border bg-card p-4">
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
+              <ol className="space-y-2 text-sm">
+                {result.steps.map((s, i) => (
+                  <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
+                    <span className="font-medium">{s.label}:</span>{" "}
+                    <span className="text-muted-foreground">{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Cost summary */}
+            <div className="mb-6 grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Material subtotal")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.material_subtotal === null
+                    ? "(prices/inputs missing)"
+                    : formatCurrency(result.material_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Of which priced so far")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(result.priced_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">{t("Labour")}</p>
+                <p className="text-xl font-semibold">
+                  {labourMode === "none"
+                    ? "Not included"
+                    : formatCurrency(result.labour_total, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-primary/10 p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Grand total")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.grand_total === null
+                    ? "N/A"
+                    : formatCurrency(result.grand_total, currencySymbol)}
+                </p>
+              </div>
+            </div>
+
+            {/* Warnings */}
+            <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
+              <h3 className="mb-1 font-semibold">{t("Important")}</h3>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                {result.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              Concrete follows the standard dry-volume mix math with every
+              constant shown: wet volume × waste × 1.54 dry factor, split by the
+              mix ratio (default 1:2:4), cement at 0.0347 m³ per 50 kg bag.
+              Change the ratio in FRELUX settings and the split changes visibly.
+            </li>
+            <li>
+              Blocks follow the visible blocks-per-m² rule, which must match the
+              block supplier prices. Hardcore and formwork take your measured
+              volumes and areas directly.
+            </li>
+            <li>
+              All materials use the same shared records the Price Tracker
+              manages (cement, sand, granite, hardcore, blocks, formwork): one
+              price configuration feeds every engine. Unpriced materials show
+              PRICE NOT CONFIGURED, never invented.
+            </li>
+            <li>
+              This is material ESTIMATION, not foundation design. Footing sizes,
+              depth and reinforcement are structural engineering decisions: use
+              the Reinforcement estimator for the bar schedule.
+            </li>
+          </ul>
+        </section>
+      </Container>
+    </ToolShell>
   );
 }

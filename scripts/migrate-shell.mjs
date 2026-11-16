@@ -17,7 +17,20 @@ import fs from "node:fs";
 import path from "node:path";
 
 const CATALOGUE = "src/config/construction-tools.ts";
-const ALLOWED_HEADER_PROPS = new Set(["breadcrumbs", "title", "subtitle", "eyebrow", "variant"]);
+const ALLOWED_HEADER_PROPS = new Set([
+  "breadcrumbs",
+  "title",
+  "subtitle",
+  "eyebrow",
+  "variant",
+  // Extras the shell now carries. A page that puts a market selector, a
+  // photograph, a methodology link or a back link in its header keeps them.
+  "actions",
+  "image",
+  "methodologyLink",
+  "backTo",
+  "backLabel",
+]);
 const ALLOWED_SEO_KEYS = new Set([
   "title",
   "description",
@@ -36,9 +49,35 @@ const SHELL_OWNED_TYPES = new Set([
   "FAQPage",
 ]);
 
+/** Index of the brace closing the one at `open`, counting nesting only. */
+function matchClose(src, open) {
+  let depth = 0;
+  for (let i = open; i < src.length; i += 1) {
+    if (src[i] === "{") depth += 1;
+    else if (src[i] === "}") {
+      depth -= 1;
+      if (depth === 0) return i;
+    }
+  }
+  return fail("unbalanced brace in a header prop");
+}
+
 const fail = (why) => {
   throw new Error(why);
 };
+
+/** Index just past the `/>` that ends the element at `start`, ignoring any
+ * self-closing element inside a prop value, such as a button in actions. */
+function endOfElement(src, start) {
+  let depth = 0;
+  for (let i = start; i < src.length; i += 1) {
+    const c = src[i];
+    if (c === "{") depth += 1;
+    else if (c === "}") depth -= 1;
+    else if (depth === 0 && c === "/" && src[i + 1] === ">") return i + 2;
+  }
+  return fail("no closing /> for the header");
+}
 
 /** Index just past the closing `/>` of the element starting at `start`. */
 function endOfSelfClosing(src, start, tag) {
@@ -75,7 +114,20 @@ function readStringProp(block, name) {
 }
 
 function headerProps(block) {
-  const names = [...block.matchAll(/(?:^|\s)(\w+)=/g)].map((m) => m[1]);
+  // Only the header's own attributes count. A prop value can hold an element
+  // of its own, such as a Link with its to and className, and those are not
+  // header props.
+  const names = [];
+  let depth = 0;
+  for (let i = 0; i < block.length; i += 1) {
+    const c = block[i];
+    if (c === "{") depth += 1;
+    else if (c === "}") depth -= 1;
+    else if (depth === 0 && c === " ") {
+      const m = /^\s+(\w+)=/.exec(block.slice(i, i + 40));
+      if (m) names.push(m[1]);
+    }
+  }
   const unexpected = names.filter((n) => !ALLOWED_HEADER_PROPS.has(n));
   if (unexpected.length > 0) fail(`unexpected header props: ${unexpected.join(", ")}`);
 }
@@ -107,7 +159,7 @@ function transform(file, route) {
   // 1. The header.
   const headerStart = src.indexOf("<PageHeader");
   if (headerStart < 0) fail("no PageHeader");
-  const headerEnd = endOfSelfClosing(src, headerStart, "PageHeader");
+  const headerEnd = endOfElement(src, headerStart);
   const header = src.slice(headerStart, headerEnd);
   headerProps(header);
   const title = readStringProp(header, "title");
@@ -185,7 +237,7 @@ function transform(file, route) {
 
   // 3. The header itself.
   const headerStart2 = src.indexOf("<PageHeader");
-  const headerEnd2 = endOfSelfClosing(src, headerStart2, "PageHeader");
+  const headerEnd2 = endOfElement(src, headerStart2);
   src = src.slice(0, headerStart2) + src.slice(headerEnd2);
 
   // 4. Tail chrome: the disclaimer line, and the row it sat under.
@@ -223,12 +275,38 @@ function transform(file, route) {
   const retStart = declAt + returnMatch.index + "\n  return (\n".length;
   const retEnd = src.indexOf("\n  );", retStart);
   if (retEnd < 0 || retEnd > declEnd) fail("page return does not close inside the component");
+  const extraProps = [];
+  const imageProp = header.match(/\bimage=(?:"([^"]*)"|\{\s*"([^"]*)"\s*\})/);
+  if (imageProp) extraProps.push(`image="${imageProp[1] ?? imageProp[2]}"`);
+  if (/\bmethodologyLink=\{/.test(header)) extraProps.push("methodologyLink={Boolean(result)}");
+  for (const name of ["backTo", "backLabel"]) {
+    const value = header.match(new RegExp(`\\b${name}="([^"]*)"`));
+    if (value) extraProps.push(`${name}="${value[1]}"`);
+  }
+  let actionsBody = null;
+  const actionsAt = header.search(/\bactions=\{/);
+  if (actionsAt >= 0) {
+    const open = header.indexOf("{", actionsAt);
+    actionsBody = header.slice(open + 1, matchClose(header, open)).trim();
+    extraProps.push("actions={headerActions}");
+  }
+  const propLines = extraProps.map((x) => `    ${x}\n`).join("");
   src =
     src.slice(0, retStart) +
-    `<ToolShell route="${route}"${quotesNothing ? " hideDisclaimer" : ""}>\n` +
+    `<ToolShell route="${route}"${quotesNothing ? " hideDisclaimer" : ""}${
+      extraProps.length > 0 ? "\n" + propLines + "    " : ""
+    }>\n` +
     src.slice(retStart, retEnd) +
     `</ToolShell>\n` +
     src.slice(retEnd);
+
+  if (actionsBody) {
+    src = src.replace(
+      "\n  return (\n",
+      `\n  const headerActions = (\n${actionsBody}\n  );\n\n  return (\n`,
+      1,
+    );
+  }
 
   // 6. Imports that are now unused. A name is dropped only when it no longer
   // appears in the file, and an import left empty goes with it.

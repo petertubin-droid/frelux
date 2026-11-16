@@ -1,9 +1,8 @@
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { methodologyText } from "@/lib/calculatorMethodology";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import {} from "@/components/seo/SeoSections";
 import { useNavigate } from "react-router-dom";
 import { stageStudioImport } from "@/lib/document-studio";
 /**
@@ -25,14 +24,13 @@ import { stageStudioImport } from "@/lib/document-studio";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
 import BoqTranslationCard from "@/components/dictionary/BoqTranslationCard";
 import { InvoicesCard } from "@/components/finance/InvoicesCard";
 import { useLanguage } from "@/lib/i18n";
-import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchEstimates,
   fetchCalcRules,
@@ -67,7 +65,7 @@ import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
 import StandardsCitationsCard from "@/components/regulatory/StandardsCitationsCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import type { InvoiceSnapshotTotals } from "@/lib/finance/invoice-engine";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 
 /** Display names for the 20 Frelux markets. */
 const MARKET_NAMES: Record<string, string> = {
@@ -125,17 +123,8 @@ export default function BoqGenerator() {
   const { symbol: currencySymbol } = useDisplayCurrency();
   const money = (v: number) =>
     `${currencySymbol}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "BOQ / Quote Generator", path: "/boq-generator" },
-  ]);
   const { user, isPaid } = useAuth();
   const { language } = useLanguage();
-  useSeo({
-    title: "BOQ / Quote Generator: FRELUX",
-    description:
-      "Turn saved FRELUX estimates into a professional, client-ready Bill of Quantities with database-configured VAT and contingency rates.",
-  });
 
   const [estimates, setEstimates] = useState<EstimationEstimate[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
@@ -611,752 +600,739 @@ export default function BoqGenerator() {
   const t = result?.totals ?? null;
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          image="https://images.pexels.com/photos/8470842/pexels-photo-8470842.jpeg?auto=compress&cs=tinysrgb&w=1600"
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "BOQ / Quote Generator" },
-          ]}
-          title="BOQ / Quote Generator"
-          subtitle="Assemble your saved FRELUX estimates into one professional, client-ready Bill of Quantities. VAT and contingency come from database-configured rates: every line stays traceable to its source."
-        />
+    <ToolShell
+      route="/boq-generator"
+      image="https://images.pexels.com/photos/8470842/pexels-photo-8470842.jpeg?auto=compress&cs=tinysrgb&w=1600"
+    >
+      <Container>
+        <div className="space-y-6">
+          {!user && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+              Sign in to import your saved estimates. You can still build a
+              quote from manual line items.
+            </div>
+          )}
+          {loadError && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {loadError}
+            </div>
+          )}
 
-        {!user && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-            Sign in to import your saved estimates. You can still build a quote
-            from manual line items.
-          </div>
-        )}
-        {loadError && (
-          <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-            {loadError}
-          </div>
-        )}
-
-        {/* ── Project & client details ── */}
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-              A
-            </span>
-            <h2 className="text-base font-semibold">Project &amp; client</h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <label className="grid gap-1 text-sm font-medium">
-              Quote title *
-              <input
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. 3-bedroom repaint"
-              />
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Client name *
-              <input
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="e.g. Mrs Ada Obi"
-              />
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Client contact
-              <input
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={clientContact}
-                onChange={(e) => setClientContact(e.target.value)}
-                placeholder="phone / email (optional)"
-              />
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Project location
-              <input
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={projectLocation}
-                onChange={(e) => setProjectLocation(e.target.value)}
-                placeholder="e.g. City, Area (optional)"
-              />
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Draft WBS / measurement framework
-              <select
-                aria-label="Draft WBS / measurement framework"
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={selectedStandard}
-                onChange={(e) =>
-                  setSelectedStandard(e.target.value as BoqStandard)
-                }
-              >
-                <option value="NRM2">NRM2 classification aid</option>
-                <option value="CSI_MASTERFORMAT">
-                  CSI MasterFormat classification aid
-                </option>
-                <option value="CESMM4">CESMM4 classification aid</option>
-                <option value="ICMS">ICMS classification aid</option>
-                <option value="Commercial">Commercial WBS</option>
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm font-medium">
-              Tax scheme ({tax.short})
-              <select
-                className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                value={marketCode}
-                onChange={(e) => setMarketCode(e.target.value)}
-              >
-                {ALL_20_MARKETS.map((cc) => (
-                  <option key={cc} value={cc}>
-                    {MARKET_NAMES[cc] ?? cc} ({boqTaxLabel(cc).short})
+          {/* ── Project & client details ── */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
+            <div className="mb-4 flex items-center gap-2">
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                A
+              </span>
+              <h2 className="text-base font-semibold">Project &amp; client</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <label className="grid gap-1 text-sm font-medium">
+                Quote title *
+                <input
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. 3-bedroom repaint"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Client name *
+                <input
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="e.g. Mrs Ada Obi"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Client contact
+                <input
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={clientContact}
+                  onChange={(e) => setClientContact(e.target.value)}
+                  placeholder="phone / email (optional)"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Project location
+                <input
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={projectLocation}
+                  onChange={(e) => setProjectLocation(e.target.value)}
+                  placeholder="e.g. City, Area (optional)"
+                />
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Draft WBS / measurement framework
+                <select
+                  aria-label="Draft WBS / measurement framework"
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={selectedStandard}
+                  onChange={(e) =>
+                    setSelectedStandard(e.target.value as BoqStandard)
+                  }
+                >
+                  <option value="NRM2">NRM2 classification aid</option>
+                  <option value="CSI_MASTERFORMAT">
+                    CSI MasterFormat classification aid
                   </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            The market selects the document's tax naming only ({tax.long},{" "}
-            {tax.short}). Rates always come from your configured rules — never
-            from the market.
-          </p>
-        </div>
-
-        {/* ── Import saved estimates ── */}
-        {user && estimates.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-                B
-              </span>
-              <h2 className="text-base font-semibold">
-                Import a saved estimate
-              </h2>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {estimates
-                .slice()
-                .reverse()
-                .map((est) => (
-                  <button
-                    key={est.id}
-                    type="button"
-                    onClick={() => importEstimate(est)}
-                    className="rounded-lg border border-border p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-muted/50"
-                  >
-                    <span className="block font-medium">
-                      {est.estimate_ref}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {est.calculator_type} ·{" "}
-                      {money(Number(est.total_material_cost) || 0)}
-                    </span>
-                  </button>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Line items ── */}
-        <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-                C
-              </span>
-              <h2 className="text-base font-semibold">Line items</h2>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                addItem({
-                  description: "",
-                  quantity: 1,
-                  unit: "job",
-                  unit_cost: 0,
-                  source_estimate_ref: "manual entry",
-                })
-              }
-              className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50"
-            >
-              + Add manual line
-            </button>
-          </div>
-
-          {items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No lines yet: import a saved estimate above or add a manual line.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {items.map((it, i) => (
-                <div
-                  key={i}
-                  className="grid items-end gap-2 rounded-lg border border-border bg-background/50 p-3 sm:grid-cols-[2fr_80px_80px_120px_1fr_auto] dark:border-white/5"
+                  <option value="CESMM4">CESMM4 classification aid</option>
+                  <option value="ICMS">ICMS classification aid</option>
+                  <option value="Commercial">Commercial WBS</option>
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium">
+                Tax scheme ({tax.short})
+                <select
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={marketCode}
+                  onChange={(e) => setMarketCode(e.target.value)}
                 >
-                  <label className="grid gap-1 text-xs font-medium">
-                    Description
-                    <input
-                      className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={it.description}
-                      onChange={(e) =>
-                        updateItem(i, { description: e.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="grid gap-1 text-xs font-medium">
-                    Qty
-                    <input
-                      type="number"
-                      min="0"
-                      step="any"
-                      className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={it.quantity}
-                      onChange={(e) =>
-                        updateItem(i, { quantity: Number(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label className="grid gap-1 text-xs font-medium">
-                    Unit
-                    <input
-                      className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={it.unit}
-                      onChange={(e) => updateItem(i, { unit: e.target.value })}
-                    />
-                  </label>
-                  <label className="grid gap-1 text-xs font-medium">
-                    Unit cost ({currencySymbol})
-                    <input
-                      type="number"
-                      min="0"
-                      step="any"
-                      className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={it.unit_cost}
-                      onChange={(e) =>
-                        updateItem(i, { unit_cost: Number(e.target.value) })
-                      }
-                    />
-                  </label>
-                  <label className="grid gap-1 text-xs font-medium">
-                    Source ref
-                    <input
-                      className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={it.source_estimate_ref}
-                      onChange={(e) =>
-                        updateItem(i, { source_estimate_ref: e.target.value })
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(i)}
-                    className="rounded border border-border px-2 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
-                    aria-label={`Remove line ${i + 1}`}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <BoqTranslationCard items={items} language={language} />
-
-          <div className="mt-4 rounded-lg border border-border p-3 text-sm">
-            <label htmlFor="volatility-buffer" className="font-medium">
-              Market volatility buffer: {volatilityPct}%
-            </label>
-            <input
-              id="volatility-buffer"
-              type="range"
-              min={0}
-              max={25}
-              step={1}
-              value={volatilityPct}
-              onChange={(e) => {
-                setVolatilityPct(Number(e.target.value));
-                setResult(null);
-              }}
-              className="mt-2 w-full"
-              aria-describedby="volatility-buffer-help"
-            />
-            <p
-              id="volatility-buffer-help"
-              className="text-xs text-muted-foreground"
-            >
-              Contingency for FX-sensitive materials (cement, rebar, copper) in
-              volatile markets. Applied as its own transparent line, never
-              hidden inside the contingency rate.
-            </p>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={generate}
-              disabled={!canGenerate}
-              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
-            >
-              Generate Quote
-            </button>
-            {result?.ok && (
-              <>
-                <button
-                  type="button"
-                  onClick={exportPdf}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50"
-                >
-                  Export PDF
-                </button>
-                <button
-                  type="button"
-                  onClick={exportToDocumentStudio}
-                  className="rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
-                >
-                  Customize in Studio
-                </button>
-                <button
-                  type="button"
-                  onClick={exportBankBoq}
-                  className="relative rounded-lg border border-primary/40 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-                >
-                  Export Bank BOQ
-                  <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-foreground">
-                    Pro
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={exportStandardBoq}
-                  className="relative rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20"
-                >
-                  Export{" "}
-                  {selectedStandard === "CSI_MASTERFORMAT"
-                    ? "CSI MasterFormat"
-                    : selectedStandard}{" "}
-                  BOQ
-                </button>
-                <button
-                  type="button"
-                  onClick={save}
-                  disabled={saving}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50 disabled:opacity-50"
-                >
-                  {saving
-                    ? "Saving..."
-                    : savedRef
-                      ? `Saved (${savedRef}) · v${revision}`
-                      : "Save Quote"}
-                </button>
-              </>
-            )}
-            {ruleRate("vat_rate") !== null &&
-            ruleRate("contingency_rate") !== null ? (
-              <span className="text-xs text-muted-foreground">
-                Rates from config: contingency {ruleRate("contingency_rate")}% ·{" "}
-                {tax.short} {ruleRate("vat_rate")}%
-              </span>
-            ) : (
-              <span className="text-xs text-amber-600 dark:text-amber-400">
-                VAT/contingency rates not configured: the quote will be produced
-                without them (set them under Admin → Estimation Config & Rules).
-              </span>
-            )}
-          </div>
-          {bankGateMsg && (
-            <p className="mt-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-primary">
-              {bankGateMsg}
-            </p>
-          )}
-          {saveMsg && (
-            <p className="mt-2 text-sm text-muted-foreground">{saveMsg}</p>
-          )}
-        </div>
-
-        {/* ── Result ── */}
-        {result && !result.ok && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            <p className="font-medium text-amber-600 dark:text-amber-400">
-              Quote incomplete
-            </p>
-            {result.warnings.map((w, i) => (
-              <p key={i} className="mt-1 text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {result?.ok && t && (
-          <div className="space-y-4">
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                {result.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {w}
-                  </p>
-                ))}
-              </div>
-            )}
-
-            {/* Premium totals tiles */}
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Subtotal
-                </p>
-                <p className="mt-1.5 text-xl font-semibold">
-                  {money(t.subtotal)}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {result.line_totals.length} line
-                  {result.line_totals.length === 1 ? "" : "s"}
-                </p>
-              </div>
-              {result.price_staleness && (
-                <div
-                  className={`rounded-xl border p-4 shadow-sm dark:border-white/5 ${
-                    result.price_staleness.status === "fresh"
-                      ? "border-emerald-500/40 bg-emerald-500/10"
-                      : result.price_staleness.status === "aging"
-                        ? "border-amber-500/40 bg-amber-500/10"
-                        : "border-red-500/40 bg-red-500/10"
-                  }`}
-                >
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Price snapshot
-                  </p>
-                  <p className="mt-1.5 text-xl font-semibold capitalize">
-                    {result.price_staleness.status}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {result.price_staleness.label}
-                    {result.price_staleness.advisory
-                      ? ` — ${result.price_staleness.advisory}`
-                      : ""}
-                  </p>
-                </div>
-              )}
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Contingency
-                </p>
-                <p className="mt-1.5 text-xl font-semibold">
-                  {t.contingency_amount !== null
-                    ? money(t.contingency_amount)
-                    : "—"}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t.contingency_rate !== null
-                    ? `${t.contingency_rate}% allowance`
-                    : "not configured"}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {tax.long} ({tax.short})
-                </p>
-                <p className="mt-1.5 text-xl font-semibold">
-                  {t.vat_amount !== null ? money(t.vat_amount) : "—"}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t.vat_rate !== null
-                    ? `${t.vat_rate}% per configured rate`
-                    : "not configured"}
-                </p>
-              </div>
-              <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-4 shadow-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-primary">
-                  Grand Total
-                </p>
-                <p className="mt-1.5 text-xl font-bold text-foreground">
-                  {money(t.grand_total)}
-                </p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {getActiveDisplayCurrency()}
-                </p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto rounded-xl border border-border shadow-sm dark:border-white/5">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50 text-left">
-                  <tr>
-                    <th className="p-3">#</th>
-                    <th className="p-3">Description</th>
-                    <th className="p-3">Qty</th>
-                    <th className="p-3">Unit cost</th>
-                    <th className="p-3">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card">
-                  {result.line_totals.map((l, i) => (
-                    <tr
-                      key={i}
-                      className="border-t border-border dark:border-white/5"
-                    >
-                      <td className="p-3">{i + 1}</td>
-                      <td className="p-3">
-                        {l.item.description}
-                        <span className="block text-xs text-muted-foreground">
-                          Source: {l.item.source_estimate_ref}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        {l.item.quantity} {l.item.unit}
-                      </td>
-                      <td className="p-3">{money(l.item.unit_cost)}</td>
-                      <td className="p-3 font-medium">{money(l.line_total)}</td>
-                    </tr>
+                  {ALL_20_MARKETS.map((cc) => (
+                    <option key={cc} value={cc}>
+                      {MARKET_NAMES[cc] ?? cc} ({boqTaxLabel(cc).short})
+                    </option>
                   ))}
-                  <tr className="border-t border-border bg-muted/30 dark:border-white/5">
-                    <td colSpan={4} className="p-3 font-medium">
-                      Subtotal
-                    </td>
-                    <td className="p-3 font-medium">
-                      {money(result.totals!.subtotal)}
-                    </td>
-                  </tr>
-                  {result.totals!.contingency_amount !== null && (
-                    <tr className="border-t border-border dark:border-white/5">
-                      <td colSpan={4} className="p-3">
-                        Contingency ({result.totals!.contingency_rate}%)
-                      </td>
-                      <td className="p-3">
-                        {money(result.totals!.contingency_amount)}
-                      </td>
-                    </tr>
-                  )}
-                  {result.totals!.volatility_amount !== null && (
-                    <tr className="border-t border-border dark:border-white/5">
-                      <td colSpan={4} className="p-3">
-                        Market volatility buffer (
-                        {result.totals!.volatility_buffer_pct}%)
-                      </td>
-                      <td className="p-3">
-                        {money(result.totals!.volatility_amount)}
-                      </td>
-                    </tr>
-                  )}
-                  {result.totals!.vat_amount !== null && (
-                    <tr className="border-t border-border dark:border-white/5">
-                      <td colSpan={4} className="p-3">
-                        {tax.short} ({result.totals!.vat_rate}%)
-                      </td>
-                      <td className="p-3">
-                        {money(result.totals!.vat_amount)}
-                      </td>
-                    </tr>
-                  )}
-                  <tr className="border-t border-border bg-primary text-primary-foreground">
-                    <td colSpan={4} className="p-3 font-bold">
-                      GRAND TOTAL
-                    </td>
-                    <td className="p-3 font-bold">
-                      {money(result.totals!.grand_total)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                </select>
+              </label>
             </div>
-
-            {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
-            <div
-              role="note"
-              className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-950 dark:text-amber-100"
-            >
-              <p className="font-semibold">
-                Draft quantity and cost schedule · not an official
-                standards-compliant BOQ
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                {selectedStandard} is used here as a market-context WBS
-                classification aid. The automatic description-to-division
-                mapping is heuristic, not a standards measurement audit, takeoff
-                verification, procurement order, structural design or
-                professional certification. Have a qualified local quantity
-                surveyor review measurements, scope, rates, tax and contract
-                terms before issue.
-              </p>
-            </div>
-            <StandardsCitationsCard
-              marketCode={marketCode}
-              engines={quoteEngines}
-            />
-
-            {/* ── Wave 1.3: click-to-invoice from the saved quotation ── */}
-            <InvoicesCard
-              quote={
-                savedId && result?.ok && result?.totals
-                  ? {
-                      id: savedId,
-                      user_id: user?.id ?? null,
-                      quote_ref: savedRef ?? quoteRef ?? "",
-                      title: title || "Untitled BOQ",
-                      client_name: clientName || "Client",
-                      client_contact: null,
-                      project_location: projectLocation || null,
-                      currency: getActiveDisplayCurrency(),
-                      items: (result.line_totals ?? []).map((lt) => ({
-                        description: lt.item.description,
-                        quantity: lt.item.quantity,
-                        unit: lt.item.unit,
-                        unit_cost: lt.item.unit_cost,
-                        total: lt.line_total,
-                      })),
-                      totals: result.totals as unknown as InvoiceSnapshotTotals,
-                    }
-                  : null
-              }
-              marketCode={marketCode}
-              userId={user?.id ?? null}
-            />
-
-            {/* ── Engine #4: verified tax + FX provenance + gated withholding ── */}
-            <TaxAndFxCard
-              marketCode={marketCode}
-              quoteCurrency={getActiveDisplayCurrency()}
-              grandTotal={
-                result?.totals?.grand_total != null
-                  ? Number(result.totals.grand_total)
-                  : null
-              }
-            />
-
-            <details className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                Calculation breakdown
-              </summary>
-              <ul className="mt-3 space-y-2">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-
-            {/* ── Company details (for the bank BOQ) ── */}
-            <details className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                Company details (used by the Bank BOQ export)
-              </summary>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {(
-                  [
-                    ["name", "Company name"],
-                    ["address", "Registered address"],
-                    ["registration", "Registration no."],
-                    ["phone", "Phone"],
-                    ["email", "Email"],
-                  ] as const
-                ).map(([key, label]) => (
-                  <label key={key} className="grid gap-1 text-xs font-medium">
-                    {label}
-                    <input
-                      className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm font-normal"
-                      value={company[key]}
-                      onChange={(e) =>
-                        setCompany((c) => ({ ...c, [key]: e.target.value }))
-                      }
-                      placeholder="blank fields export as fill-in lines"
-                    />
-                  </label>
-                ))}
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Nothing here is required: the bank BOQ prints blank fill-in
-                lines for empty fields rather than placeholder text.
-              </p>
-            </details>
+            <p className="mt-2 text-xs text-muted-foreground">
+              The market selects the document's tax naming only ({tax.long},{" "}
+              {tax.short}). Rates always come from your configured rules — never
+              from the market.
+            </p>
           </div>
-        )}
 
-        {/* ── Revision history ── */}
-        {savedRef && (
-          <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
-            <div className="mb-4 flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
-                D
-              </span>
-              <h2 className="text-base font-semibold">
-                Revision history{" "}
-                <span className="font-normal text-muted-foreground">
-                  ({savedRef})
+          {/* ── Import saved estimates ── */}
+          {user && estimates.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                  B
                 </span>
-              </h2>
+                <h2 className="text-base font-semibold">
+                  Import a saved estimate
+                </h2>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {estimates
+                  .slice()
+                  .reverse()
+                  .map((est) => (
+                    <button
+                      key={est.id}
+                      type="button"
+                      onClick={() => importEstimate(est)}
+                      className="rounded-lg border border-border p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-muted/50"
+                    >
+                      <span className="block font-medium">
+                        {est.estimate_ref}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {est.calculator_type} ·{" "}
+                        {money(Number(est.total_material_cost) || 0)}
+                      </span>
+                    </button>
+                  ))}
+              </div>
             </div>
-            {revisions.length === 0 ? (
+          )}
+
+          {/* ── Line items ── */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                  C
+                </span>
+                <h2 className="text-base font-semibold">Line items</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  addItem({
+                    description: "",
+                    quantity: 1,
+                    unit: "job",
+                    unit_cost: 0,
+                    source_estimate_ref: "manual entry",
+                  })
+                }
+                className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted/50"
+              >
+                + Add manual line
+              </button>
+            </div>
+
+            {items.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                The revision snapshot for v{revision} was recorded. Older
-                revisions will appear here after your next update.
+                No lines yet: import a saved estimate above or add a manual
+                line.
               </p>
             ) : (
-              <div className="space-y-2">
-                {revisions.map((rev) => (
+              <div className="space-y-3">
+                {items.map((it, i) => (
                   <div
-                    key={rev.id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background/50 p-3 text-sm dark:border-white/5"
+                    key={i}
+                    className="grid items-end gap-2 rounded-lg border border-border bg-background/50 p-3 sm:grid-cols-[2fr_80px_80px_120px_1fr_auto] dark:border-white/5"
                   >
-                    <div>
-                      <span className="font-semibold">
-                        Revision v{rev.version}
-                      </span>
-                      {rev.version === revision && (
-                        <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
-                          Current
-                        </span>
-                      )}
-                      <span className="block text-xs text-muted-foreground">
-                        {new Date(rev.created_at).toLocaleString()} ·{" "}
-                        {(rev.items ?? []).length} line
-                        {(rev.items ?? []).length === 1 ? "" : "s"}
-                        {rev.note ? ` · ${rev.note}` : ""}
-                      </span>
-                    </div>
-                    {rev.version !== revision && (
-                      <button
-                        type="button"
-                        onClick={() => restoreRevision(rev)}
-                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/50"
-                      >
-                        Restore
-                      </button>
-                    )}
+                    <label className="grid gap-1 text-xs font-medium">
+                      Description
+                      <input
+                        className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={it.description}
+                        onChange={(e) =>
+                          updateItem(i, { description: e.target.value })
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium">
+                      Qty
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={it.quantity}
+                        onChange={(e) =>
+                          updateItem(i, { quantity: Number(e.target.value) })
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium">
+                      Unit
+                      <input
+                        className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={it.unit}
+                        onChange={(e) =>
+                          updateItem(i, { unit: e.target.value })
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium">
+                      Unit cost ({currencySymbol})
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={it.unit_cost}
+                        onChange={(e) =>
+                          updateItem(i, { unit_cost: Number(e.target.value) })
+                        }
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs font-medium">
+                      Source ref
+                      <input
+                        className="rounded border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={it.source_estimate_ref}
+                        onChange={(e) =>
+                          updateItem(i, { source_estimate_ref: e.target.value })
+                        }
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(i)}
+                      className="rounded border border-border px-2 py-1.5 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+                      aria-label={`Remove line ${i + 1}`}
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        )}
-      </div>
-      <div className="mt-6 space-y-3">
-        <QuoteShareButton
-          build={buildShareQuote}
-          kind="Bill of Quantities"
-          link="/boq-generator"
-        />
-        <CalculatorResetButton onReset={resetInputs} />
-        <HowCalculatedSection methodologyText={methodologyText("boq")} />
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-10">
-        <div className="mt-8">
-          <ToolFaqs slug="boq-generator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
-      </div>
 
-      <EstimateDisclaimer />
-    </Container>
+            <BoqTranslationCard items={items} language={language} />
+
+            <div className="mt-4 rounded-lg border border-border p-3 text-sm">
+              <label htmlFor="volatility-buffer" className="font-medium">
+                Market volatility buffer: {volatilityPct}%
+              </label>
+              <input
+                id="volatility-buffer"
+                type="range"
+                min={0}
+                max={25}
+                step={1}
+                value={volatilityPct}
+                onChange={(e) => {
+                  setVolatilityPct(Number(e.target.value));
+                  setResult(null);
+                }}
+                className="mt-2 w-full"
+                aria-describedby="volatility-buffer-help"
+              />
+              <p
+                id="volatility-buffer-help"
+                className="text-xs text-muted-foreground"
+              >
+                Contingency for FX-sensitive materials (cement, rebar, copper)
+                in volatile markets. Applied as its own transparent line, never
+                hidden inside the contingency rate.
+              </p>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={generate}
+                disabled={!canGenerate}
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
+              >
+                Generate Quote
+              </button>
+              {result?.ok && (
+                <>
+                  <button
+                    type="button"
+                    onClick={exportPdf}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50"
+                  >
+                    Export PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={exportToDocumentStudio}
+                    className="rounded-lg border border-primary/40 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+                  >
+                    Customize in Studio
+                  </button>
+                  <button
+                    type="button"
+                    onClick={exportBankBoq}
+                    className="relative rounded-lg border border-primary/40 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    Export Bank BOQ
+                    <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary-foreground">
+                      Pro
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={exportStandardBoq}
+                    className="relative rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/20"
+                  >
+                    Export{" "}
+                    {selectedStandard === "CSI_MASTERFORMAT"
+                      ? "CSI MasterFormat"
+                      : selectedStandard}{" "}
+                    BOQ
+                  </button>
+                  <button
+                    type="button"
+                    onClick={save}
+                    disabled={saving}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50 disabled:opacity-50"
+                  >
+                    {saving
+                      ? "Saving..."
+                      : savedRef
+                        ? `Saved (${savedRef}) · v${revision}`
+                        : "Save Quote"}
+                  </button>
+                </>
+              )}
+              {ruleRate("vat_rate") !== null &&
+              ruleRate("contingency_rate") !== null ? (
+                <span className="text-xs text-muted-foreground">
+                  Rates from config: contingency {ruleRate("contingency_rate")}%
+                  · {tax.short} {ruleRate("vat_rate")}%
+                </span>
+              ) : (
+                <span className="text-xs text-amber-600 dark:text-amber-400">
+                  VAT/contingency rates not configured: the quote will be
+                  produced without them (set them under Admin → Estimation
+                  Config & Rules).
+                </span>
+              )}
+            </div>
+            {bankGateMsg && (
+              <p className="mt-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-primary">
+                {bankGateMsg}
+              </p>
+            )}
+            {saveMsg && (
+              <p className="mt-2 text-sm text-muted-foreground">{saveMsg}</p>
+            )}
+          </div>
+
+          {/* ── Result ── */}
+          {result && !result.ok && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              <p className="font-medium text-amber-600 dark:text-amber-400">
+                Quote incomplete
+              </p>
+              {result.warnings.map((w, i) => (
+                <p key={i} className="mt-1 text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {result?.ok && t && (
+            <div className="space-y-4">
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  {result.warnings.map((w, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {/* Premium totals tiles */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Subtotal
+                  </p>
+                  <p className="mt-1.5 text-xl font-semibold">
+                    {money(t.subtotal)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {result.line_totals.length} line
+                    {result.line_totals.length === 1 ? "" : "s"}
+                  </p>
+                </div>
+                {result.price_staleness && (
+                  <div
+                    className={`rounded-xl border p-4 shadow-sm dark:border-white/5 ${
+                      result.price_staleness.status === "fresh"
+                        ? "border-emerald-500/40 bg-emerald-500/10"
+                        : result.price_staleness.status === "aging"
+                          ? "border-amber-500/40 bg-amber-500/10"
+                          : "border-red-500/40 bg-red-500/10"
+                    }`}
+                  >
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Price snapshot
+                    </p>
+                    <p className="mt-1.5 text-xl font-semibold capitalize">
+                      {result.price_staleness.status}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {result.price_staleness.label}
+                      {result.price_staleness.advisory
+                        ? ` — ${result.price_staleness.advisory}`
+                        : ""}
+                    </p>
+                  </div>
+                )}
+                <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Contingency
+                  </p>
+                  <p className="mt-1.5 text-xl font-semibold">
+                    {t.contingency_amount !== null
+                      ? money(t.contingency_amount)
+                      : "—"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t.contingency_rate !== null
+                      ? `${t.contingency_rate}% allowance`
+                      : "not configured"}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4 shadow-sm dark:border-white/5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {tax.long} ({tax.short})
+                  </p>
+                  <p className="mt-1.5 text-xl font-semibold">
+                    {t.vat_amount !== null ? money(t.vat_amount) : "—"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {t.vat_rate !== null
+                      ? `${t.vat_rate}% per configured rate`
+                      : "not configured"}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 p-4 shadow-sm">
+                  <p className="text-xs font-medium uppercase tracking-wide text-primary">
+                    Grand Total
+                  </p>
+                  <p className="mt-1.5 text-xl font-bold text-foreground">
+                    {money(t.grand_total)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {getActiveDisplayCurrency()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-border shadow-sm dark:border-white/5">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50 text-left">
+                    <tr>
+                      <th className="p-3">#</th>
+                      <th className="p-3">Description</th>
+                      <th className="p-3">Qty</th>
+                      <th className="p-3">Unit cost</th>
+                      <th className="p-3">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card">
+                    {result.line_totals.map((l, i) => (
+                      <tr
+                        key={i}
+                        className="border-t border-border dark:border-white/5"
+                      >
+                        <td className="p-3">{i + 1}</td>
+                        <td className="p-3">
+                          {l.item.description}
+                          <span className="block text-xs text-muted-foreground">
+                            Source: {l.item.source_estimate_ref}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          {l.item.quantity} {l.item.unit}
+                        </td>
+                        <td className="p-3">{money(l.item.unit_cost)}</td>
+                        <td className="p-3 font-medium">
+                          {money(l.line_total)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t border-border bg-muted/30 dark:border-white/5">
+                      <td colSpan={4} className="p-3 font-medium">
+                        Subtotal
+                      </td>
+                      <td className="p-3 font-medium">
+                        {money(result.totals!.subtotal)}
+                      </td>
+                    </tr>
+                    {result.totals!.contingency_amount !== null && (
+                      <tr className="border-t border-border dark:border-white/5">
+                        <td colSpan={4} className="p-3">
+                          Contingency ({result.totals!.contingency_rate}%)
+                        </td>
+                        <td className="p-3">
+                          {money(result.totals!.contingency_amount)}
+                        </td>
+                      </tr>
+                    )}
+                    {result.totals!.volatility_amount !== null && (
+                      <tr className="border-t border-border dark:border-white/5">
+                        <td colSpan={4} className="p-3">
+                          Market volatility buffer (
+                          {result.totals!.volatility_buffer_pct}%)
+                        </td>
+                        <td className="p-3">
+                          {money(result.totals!.volatility_amount)}
+                        </td>
+                      </tr>
+                    )}
+                    {result.totals!.vat_amount !== null && (
+                      <tr className="border-t border-border dark:border-white/5">
+                        <td colSpan={4} className="p-3">
+                          {tax.short} ({result.totals!.vat_rate}%)
+                        </td>
+                        <td className="p-3">
+                          {money(result.totals!.vat_amount)}
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="border-t border-border bg-primary text-primary-foreground">
+                      <td colSpan={4} className="p-3 font-bold">
+                        GRAND TOTAL
+                      </td>
+                      <td className="p-3 font-bold">
+                        {money(result.totals!.grand_total)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}
+              <div
+                role="note"
+                className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-950 dark:text-amber-100"
+              >
+                <p className="font-semibold">
+                  Draft quantity and cost schedule · not an official
+                  standards-compliant BOQ
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {selectedStandard} is used here as a market-context WBS
+                  classification aid. The automatic description-to-division
+                  mapping is heuristic, not a standards measurement audit,
+                  takeoff verification, procurement order, structural design or
+                  professional certification. Have a qualified local quantity
+                  surveyor review measurements, scope, rates, tax and contract
+                  terms before issue.
+                </p>
+              </div>
+              <StandardsCitationsCard
+                marketCode={marketCode}
+                engines={quoteEngines}
+              />
+
+              {/* ── Wave 1.3: click-to-invoice from the saved quotation ── */}
+              <InvoicesCard
+                quote={
+                  savedId && result?.ok && result?.totals
+                    ? {
+                        id: savedId,
+                        user_id: user?.id ?? null,
+                        quote_ref: savedRef ?? quoteRef ?? "",
+                        title: title || "Untitled BOQ",
+                        client_name: clientName || "Client",
+                        client_contact: null,
+                        project_location: projectLocation || null,
+                        currency: getActiveDisplayCurrency(),
+                        items: (result.line_totals ?? []).map((lt) => ({
+                          description: lt.item.description,
+                          quantity: lt.item.quantity,
+                          unit: lt.item.unit,
+                          unit_cost: lt.item.unit_cost,
+                          total: lt.line_total,
+                        })),
+                        totals:
+                          result.totals as unknown as InvoiceSnapshotTotals,
+                      }
+                    : null
+                }
+                marketCode={marketCode}
+                userId={user?.id ?? null}
+              />
+
+              {/* ── Engine #4: verified tax + FX provenance + gated withholding ── */}
+              <TaxAndFxCard
+                marketCode={marketCode}
+                quoteCurrency={getActiveDisplayCurrency()}
+                grandTotal={
+                  result?.totals?.grand_total != null
+                    ? Number(result.totals.grand_total)
+                    : null
+                }
+              />
+
+              <details className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  Calculation breakdown
+                </summary>
+                <ul className="mt-3 space-y-2">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              {/* ── Company details (for the bank BOQ) ── */}
+              <details className="rounded-xl border border-border bg-card p-4 text-sm shadow-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  Company details (used by the Bank BOQ export)
+                </summary>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {(
+                    [
+                      ["name", "Company name"],
+                      ["address", "Registered address"],
+                      ["registration", "Registration no."],
+                      ["phone", "Phone"],
+                      ["email", "Email"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="grid gap-1 text-xs font-medium">
+                      {label}
+                      <input
+                        className="rounded-lg border border-border bg-background px-2 py-1.5 text-sm font-normal"
+                        value={company[key]}
+                        onChange={(e) =>
+                          setCompany((c) => ({ ...c, [key]: e.target.value }))
+                        }
+                        placeholder="blank fields export as fill-in lines"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Nothing here is required: the bank BOQ prints blank fill-in
+                  lines for empty fields rather than placeholder text.
+                </p>
+              </details>
+            </div>
+          )}
+
+          {/* ── Revision history ── */}
+          {savedRef && (
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm dark:border-white/5">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                  D
+                </span>
+                <h2 className="text-base font-semibold">
+                  Revision history{" "}
+                  <span className="font-normal text-muted-foreground">
+                    ({savedRef})
+                  </span>
+                </h2>
+              </div>
+              {revisions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  The revision snapshot for v{revision} was recorded. Older
+                  revisions will appear here after your next update.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {revisions.map((rev) => (
+                    <div
+                      key={rev.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background/50 p-3 text-sm dark:border-white/5"
+                    >
+                      <div>
+                        <span className="font-semibold">
+                          Revision v{rev.version}
+                        </span>
+                        {rev.version === revision && (
+                          <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
+                            Current
+                          </span>
+                        )}
+                        <span className="block text-xs text-muted-foreground">
+                          {new Date(rev.created_at).toLocaleString()} ·{" "}
+                          {(rev.items ?? []).length} line
+                          {(rev.items ?? []).length === 1 ? "" : "s"}
+                          {rev.note ? ` · ${rev.note}` : ""}
+                        </span>
+                      </div>
+                      {rev.version !== revision && (
+                        <button
+                          type="button"
+                          onClick={() => restoreRevision(rev)}
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/50"
+                        >
+                          Restore
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="mt-6 space-y-3">
+          <QuoteShareButton
+            build={buildShareQuote}
+            kind="Bill of Quantities"
+            link="/boq-generator"
+          />
+          <CalculatorResetButton onReset={resetInputs} />
+          <HowCalculatedSection methodologyText={methodologyText("boq")} />
+        </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

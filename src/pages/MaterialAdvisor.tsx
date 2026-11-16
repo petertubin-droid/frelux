@@ -17,15 +17,14 @@ import {
   ThermometerSun,
   Waves,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 import { GlobeMap } from "@/components/map/GlobeMap";
 import { Button } from "@/components/ui/shadcn/button";
-import { useSeo } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { useLocation as useGeoLocation } from "@/lib/location";
 import { searchPlaces, type PlaceResult } from "@/lib/map/geocode";
 import type { MapPoint } from "@/lib/map/geo";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   fetchEnvironmentalData,
   clearEnvironmentalCache,
@@ -215,33 +214,6 @@ function AdviceCard({ advice }: { advice: CategoryAdvice }) {
 }
 
 export default function MaterialAdvisor() {
-  useSeo({
-    title:
-      "Climate-Responsive Material Advisor: Materials for Your Site's Climate | FRELUX",
-    description:
-      "Pick your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost. Exterior paints, waterproofing, roofing, tiles, concrete exposure classes, steel protection, insulation and drainage.",
-    canonicalPath: "/material-advisor",
-    ogType: "website",
-    structuredDataArray: [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        name: "FRELUX Climate-Responsive Material Advisor",
-        description:
-          "Location-based construction material recommendations derived from measured climate normals, with explicit guidance-versus-specification distinctions.",
-        url: "https://freluxtools.com/material-advisor",
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        offers: { "@type": "Offer", price: "0" },
-        isPartOf: {
-          "@type": "WebSite",
-          name: "FRELUX SMART CALC",
-          url: "https://freluxtools.com",
-        },
-      },
-    ],
-  });
-
   // ── Location state ─────────────────────────────────────────────
   const [point, setPoint] = useState<GeoPoint | null>(null);
   const [label, setLabel] = useState<string>("");
@@ -448,346 +420,344 @@ export default function MaterialAdvisor() {
     : [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-        <PageHeader
-          eyebrow="Climate intelligence"
-          title="Climate-Responsive Material Advisor"
-          subtitle="Choose your project location. FRELUX reads measured climate normals for that coordinate — rainfall, humidity, UV, frost, salt air — and explains which material properties belong on that site, and why."
-          backTo="/construction-tools"
-          backLabel="All tools"
-        />
-
-        {/* ── Location picker ─────────────────────────────────── */}
-        <section className="mt-6 card-elevated p-5 sm:p-6">
-          <h2 className="text-base font-bold text-foreground">
-            1. Project location
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Search an address, use your current location, pick a point on the
-            map, or enter coordinates. Only the coordinate leaves your device.
-          </p>
-
-          <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto]">
-            <div className="relative">
-              <label htmlFor="advisor-address" className="sr-only">
-                Search address or place
-              </label>
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-              />
-              <input
-                id="advisor-address"
-                className="input-field pl-9"
-                placeholder="Search address or town (e.g. Lekki, Lagos)"
-                value={query}
-                onChange={(event) => {
-                  setSearchTouched(true);
-                  setQuery(event.target.value);
-                }}
-                autoComplete="off"
-              />
-              {searching && (
-                <Loader2
-                  aria-hidden="true"
-                  className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground"
-                />
-              )}
-              {results.length > 0 && (
-                <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border bg-popover p-1 shadow-lg">
-                  {results.map((place) => (
-                    <li key={place.id}>
-                      <button
-                        type="button"
-                        className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-accent"
-                        onClick={() =>
-                          choosePoint(
-                            { lat: place.lat, lon: place.lon },
-                            place.label || place.name,
-                          )
-                        }
-                      >
-                        <span className="font-medium text-foreground">
-                          {place.name}
-                        </span>
-                        <span className="block truncate text-xs text-muted-foreground">
-                          {place.label}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={useMyLocation}
-              disabled={geo.loading}
-              className="lg:w-auto"
-            >
-              {geo.loading ? (
-                <Loader2
-                  aria-hidden="true"
-                  className="mr-2 h-4 w-4 animate-spin"
-                />
-              ) : (
-                <Crosshair aria-hidden="true" className="mr-2 h-4 w-4" />
-              )}
-              Use my location
-            </Button>
-          </div>
-
-          {geo.error && (
-            <p role="status" className="mt-2 text-xs text-muted-foreground">
-              {geo.error}
+    <ToolShell
+      route="/material-advisor"
+      hideDisclaimer
+      backTo="/construction-tools"
+      backLabel="All tools"
+    >
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+          {/* ── Location picker ─────────────────────────────────── */}
+          <section className="mt-6 card-elevated p-5 sm:p-6">
+            <h2 className="text-base font-bold text-foreground">
+              1. Project location
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Search an address, use your current location, pick a point on the
+              map, or enter coordinates. Only the coordinate leaves your device.
             </p>
-          )}
 
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-[1fr_1fr_auto]">
-            <div>
-              <label
-                htmlFor="advisor-lat"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                Latitude
-              </label>
-              <input
-                id="advisor-lat"
-                className="input-field mt-1"
-                inputMode="decimal"
-                placeholder="6.4550"
-                value={latInput}
-                onChange={(event) => setLatInput(event.target.value)}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="advisor-lon"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                Longitude
-              </label>
-              <input
-                id="advisor-lon"
-                className="input-field mt-1"
-                inputMode="decimal"
-                placeholder="3.3947"
-                value={lonInput}
-                onChange={(event) => setLonInput(event.target.value)}
-              />
-            </div>
-            <div className="col-span-2 flex items-end sm:col-span-1">
+            <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto]">
+              <div className="relative">
+                <label htmlFor="advisor-address" className="sr-only">
+                  Search address or place
+                </label>
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <input
+                  id="advisor-address"
+                  className="input-field pl-9"
+                  placeholder="Search address or town (e.g. Lekki, Lagos)"
+                  value={query}
+                  onChange={(event) => {
+                    setSearchTouched(true);
+                    setQuery(event.target.value);
+                  }}
+                  autoComplete="off"
+                />
+                {searching && (
+                  <Loader2
+                    aria-hidden="true"
+                    className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground"
+                  />
+                )}
+                {results.length > 0 && (
+                  <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-xl border bg-popover p-1 shadow-lg">
+                    {results.map((place) => (
+                      <li key={place.id}>
+                        <button
+                          type="button"
+                          className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-accent"
+                          onClick={() =>
+                            choosePoint(
+                              { lat: place.lat, lon: place.lon },
+                              place.label || place.name,
+                            )
+                          }
+                        >
+                          <span className="font-medium text-foreground">
+                            {place.name}
+                          </span>
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {place.label}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
               <Button
                 type="button"
                 variant="outline"
-                onClick={applyManualCoords}
+                onClick={useMyLocation}
+                disabled={geo.loading}
+                className="lg:w-auto"
               >
-                Set point
+                {geo.loading ? (
+                  <Loader2
+                    aria-hidden="true"
+                    className="mr-2 h-4 w-4 animate-spin"
+                  />
+                ) : (
+                  <Crosshair aria-hidden="true" className="mr-2 h-4 w-4" />
+                )}
+                Use my location
               </Button>
             </div>
-          </div>
-          {coordError && (
-            <p role="alert" className="mt-2 text-xs text-destructive">
-              {coordError}
-            </p>
-          )}
 
-          <div className="mt-4 overflow-hidden rounded-xl border">
-            <GlobeMap
-              points={mapPoints}
-              center={point ?? { lat: 9.082, lon: 8.6753 }}
-              zoom={point ? 9.5 : 3.2}
-              focus={focus}
-              height={300}
-              label="Project location picker"
-              showTerrain={false}
-              onPickCoordinate={(coords) =>
-                choosePoint(
-                  coords,
-                  `Map point (${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)})`,
-                )
-              }
-              emptyTitle="Tap the map to place your project site"
-              emptyHint="Or search an address above."
-            />
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Selected:{" "}
-            {point
-              ? `${label || "Map point"} (${point.lat.toFixed(4)}, ${point.lon.toFixed(4)})`
-              : "no location yet"}
-          </p>
-        </section>
-
-        {/* ── Loading ─────────────────────────────────────────── */}
-        {envState.status === "loading" && (
-          <section
-            aria-live="polite"
-            className="mt-6 card-elevated flex items-center gap-3 p-5 text-sm text-muted-foreground"
-          >
-            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-            Reading climate normals for this coordinate…
-          </section>
-        )}
-
-        {/* ── Environmental factors ───────────────────────────── */}
-        {envState.status === "done" && factors && (
-          <section className="mt-6">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <h2 className="text-base font-bold text-foreground">
-                2. Environmental conditions
-              </h2>
-              {envState.result?.sources.length ? (
-                <p className="text-xs text-muted-foreground">
-                  {envState.result.sources
-                    .map((source) => source.name)
-                    .join(" · ")}
-                </p>
-              ) : null}
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-              {factorTiles.map((tile) => (
-                <FactorTile
-                  key={tile.label}
-                  icon={tile.icon}
-                  label={tile.label}
-                  value={tile.value}
-                  hint={tile.hint}
-                />
-              ))}
-            </div>
-            {factors.missing.length > 0 && (
-              <p className="mt-3 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-                Not assessed from data:{" "}
-                {factors.missing
-                  .map((item) => item.replace(/_/g, " ").replace(/^power:/, ""))
-                  .join(", ")}
-                . Nothing is guessed for these — they stay blank and the
-                guidance says so.
+            {geo.error && (
+              <p role="status" className="mt-2 text-xs text-muted-foreground">
+                {geo.error}
               </p>
             )}
-          </section>
-        )}
 
-        {/* ── Unavailable data ────────────────────────────────── */}
-        {envState.status === "done" && !factors && (
-          <section className="mt-6 card-elevated p-5" aria-live="polite">
-            <div className="flex items-start gap-3">
-              <AlertTriangle
-                aria-hidden="true"
-                className="mt-0.5 h-5 w-5 shrink-0 text-amber-500"
-              />
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-[1fr_1fr_auto]">
               <div>
-                <h2 className="text-base font-bold text-foreground">
-                  Environmental data unavailable for this location
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {envState.result?.reason ??
-                    "The climate data source did not answer."}{" "}
-                  You still get general guidance below, clearly labelled — it is
-                  not tailored to this site.
-                </p>
+                <label
+                  htmlFor="advisor-lat"
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  Latitude
+                </label>
+                <input
+                  id="advisor-lat"
+                  className="input-field mt-1"
+                  inputMode="decimal"
+                  placeholder="6.4550"
+                  value={latInput}
+                  onChange={(event) => setLatInput(event.target.value)}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="advisor-lon"
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  Longitude
+                </label>
+                <input
+                  id="advisor-lon"
+                  className="input-field mt-1"
+                  inputMode="decimal"
+                  placeholder="3.3947"
+                  value={lonInput}
+                  onChange={(event) => setLonInput(event.target.value)}
+                />
+              </div>
+              <div className="col-span-2 flex items-end sm:col-span-1">
                 <Button
                   type="button"
                   variant="outline"
-                  className="mt-3"
-                  onClick={retry}
+                  onClick={applyManualCoords}
                 >
-                  <RefreshCw aria-hidden="true" className="mr-2 h-4 w-4" />
-                  Try again
+                  Set point
                 </Button>
               </div>
             </div>
-          </section>
-        )}
+            {coordError && (
+              <p role="alert" className="mt-2 text-xs text-destructive">
+                {coordError}
+              </p>
+            )}
 
-        {/* ── Recommendations ─────────────────────────────────── */}
-        {advisor && factors && (
-          <section className="mt-8">
-            <h2 className="text-base font-bold text-foreground">
-              3. Material recommendations
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Eight material groups, each with the properties that suit this
-              site, the reason, the environmental risks, the governing standards
-              and installation notes.
-            </p>
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              {advisor.categories.map((advice) => (
-                <AdviceCard key={advice.id} advice={advice} />
-              ))}
+            <div className="mt-4 overflow-hidden rounded-xl border">
+              <GlobeMap
+                points={mapPoints}
+                center={point ?? { lat: 9.082, lon: 8.6753 }}
+                zoom={point ? 9.5 : 3.2}
+                focus={focus}
+                height={300}
+                label="Project location picker"
+                showTerrain={false}
+                onPickCoordinate={(coords) =>
+                  choosePoint(
+                    coords,
+                    `Map point (${coords.lat.toFixed(4)}, ${coords.lon.toFixed(4)})`,
+                  )
+                }
+                emptyTitle="Tap the map to place your project site"
+                emptyHint="Or search an address above."
+              />
             </div>
-          </section>
-        )}
-
-        {advisor && !factors && (
-          <section className="mt-8">
-            <h2 className="text-base font-bold text-foreground">
-              3. General material guidance
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              General starting points only — no climate matching was possible.
+            <p className="mt-2 text-xs text-muted-foreground">
+              Selected:{" "}
+              {point
+                ? `${label || "Map point"} (${point.lat.toFixed(4)}, ${point.lon.toFixed(4)})`
+                : "no location yet"}
             </p>
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              {advisor.categories.map((advice) => (
-                <AdviceCard key={advice.id} advice={advice} />
-              ))}
-            </div>
           </section>
-        )}
 
-        {/* ── Safety / scope ──────────────────────────────────── */}
-        <section className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
-          <div className="flex items-start gap-3">
-            <ShieldCheck
-              aria-hidden="true"
-              className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
-            />
-            <div>
-              <h2 className="text-sm font-bold text-foreground">
-                Important: guidance, not a specification
-              </h2>
-              <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-                {(advisor?.disclosures ?? ADVISOR_DISCLOSURES).map((line) => (
-                  <li key={line}>• {line}</li>
+          {/* ── Loading ─────────────────────────────────────────── */}
+          {envState.status === "loading" && (
+            <section
+              aria-live="polite"
+              className="mt-6 card-elevated flex items-center gap-3 p-5 text-sm text-muted-foreground"
+            >
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+              Reading climate normals for this coordinate…
+            </section>
+          )}
+
+          {/* ── Environmental factors ───────────────────────────── */}
+          {envState.status === "done" && factors && (
+            <section className="mt-6">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <h2 className="text-base font-bold text-foreground">
+                  2. Environmental conditions
+                </h2>
+                {envState.result?.sources.length ? (
+                  <p className="text-xs text-muted-foreground">
+                    {envState.result.sources
+                      .map((source) => source.name)
+                      .join(" · ")}
+                  </p>
+                ) : null}
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {factorTiles.map((tile) => (
+                  <FactorTile
+                    key={tile.label}
+                    icon={tile.icon}
+                    label={tile.label}
+                    value={tile.value}
+                    hint={tile.hint}
+                  />
                 ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+              </div>
+              {factors.missing.length > 0 && (
+                <p className="mt-3 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+                  Not assessed from data:{" "}
+                  {factors.missing
+                    .map((item) =>
+                      item.replace(/_/g, " ").replace(/^power:/, ""),
+                    )
+                    .join(", ")}
+                  . Nothing is guessed for these — they stay blank and the
+                  guidance says so.
+                </p>
+              )}
+            </section>
+          )}
 
-        <section className="mt-8">
-          <h2 className="text-sm font-bold text-foreground">
-            Keep going with FRELUX
-          </h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {[
-              { to: "/heat-comfort", label: "Heat & comfort analyser" },
-              { to: "/screeding-calculator", label: "Screeding calculator" },
-              {
-                to: "/pop-ceiling-calculator",
-                label: "POP ceiling calculator",
-              },
-              { to: "/paint-calculator", label: "Paint calculator" },
-              { to: "/map", label: "Construction map" },
-            ].map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="rounded-full border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </section>
+          {/* ── Unavailable data ────────────────────────────────── */}
+          {envState.status === "done" && !factors && (
+            <section className="mt-6 card-elevated p-5" aria-live="polite">
+              <div className="flex items-start gap-3">
+                <AlertTriangle
+                  aria-hidden="true"
+                  className="mt-0.5 h-5 w-5 shrink-0 text-amber-500"
+                />
+                <div>
+                  <h2 className="text-base font-bold text-foreground">
+                    Environmental data unavailable for this location
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {envState.result?.reason ??
+                      "The climate data source did not answer."}{" "}
+                    You still get general guidance below, clearly labelled — it
+                    is not tailored to this site.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={retry}
+                  >
+                    <RefreshCw aria-hidden="true" className="mr-2 h-4 w-4" />
+                    Try again
+                  </Button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ── Recommendations ─────────────────────────────────── */}
+          {advisor && factors && (
+            <section className="mt-8">
+              <h2 className="text-base font-bold text-foreground">
+                3. Material recommendations
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Eight material groups, each with the properties that suit this
+                site, the reason, the environmental risks, the governing
+                standards and installation notes.
+              </p>
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                {advisor.categories.map((advice) => (
+                  <AdviceCard key={advice.id} advice={advice} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {advisor && !factors && (
+            <section className="mt-8">
+              <h2 className="text-base font-bold text-foreground">
+                3. General material guidance
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                General starting points only — no climate matching was possible.
+              </p>
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                {advisor.categories.map((advice) => (
+                  <AdviceCard key={advice.id} advice={advice} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Safety / scope ──────────────────────────────────── */}
+          <section className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+            <div className="flex items-start gap-3">
+              <ShieldCheck
+                aria-hidden="true"
+                className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+              />
+              <div>
+                <h2 className="text-sm font-bold text-foreground">
+                  Important: guidance, not a specification
+                </h2>
+                <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+                  {(advisor?.disclosures ?? ADVISOR_DISCLOSURES).map((line) => (
+                    <li key={line}>• {line}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-8">
+            <h2 className="text-sm font-bold text-foreground">
+              Keep going with FRELUX
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {[
+                { to: "/heat-comfort", label: "Heat & comfort analyser" },
+                { to: "/screeding-calculator", label: "Screeding calculator" },
+                {
+                  to: "/pop-ceiling-calculator",
+                  label: "POP ceiling calculator",
+                },
+                { to: "/paint-calculator", label: "Paint calculator" },
+                { to: "/map", label: "Construction map" },
+              ].map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="rounded-full border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
-      <div className="mt-8">
-        <ToolFaqs slug="material-advisor" />
-      </div>
-    </div>
+    </ToolShell>
   );
 }
