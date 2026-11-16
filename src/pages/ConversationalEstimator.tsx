@@ -1,17 +1,14 @@
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { methodologyText } from "@/lib/calculatorMethodology";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useState } from "react";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
 import { Link } from "react-router-dom";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
 import {
   buildConversationalEstimate,
@@ -44,16 +41,6 @@ const SAMPLES: Record<ConversationLanguage, string> = {
 
 export default function ConversationalEstimator() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "WhatsApp Estimator", path: "/conversational-estimator" },
-  ]);
-  useSeo({
-    title: "WhatsApp Estimator: Chat Your Estimate in English | FRELUX",
-    description:
-      "Paste a WhatsApp chat or voice-note transcript and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
-  });
-
   const { marketCode, market } = useMarket();
   const { citySlug } = useProjectCity();
   const [thread, setThread] = useState("");
@@ -227,230 +214,213 @@ export default function ConversationalEstimator() {
   }
 
   return (
-    <Container>
-      <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
-        <CityPriceSelect />
-      </div>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "WhatsApp Estimator" },
-        ]}
-        title={t("WhatsApp Estimator")}
-        subtitle="Paste the chat: or the voice-note transcript: in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
-      />
-
-      <section className="mx-auto max-w-3xl space-y-4">
-        <div className="rounded-lg border bg-card p-4">
-          <label htmlFor="thread" className="block text-sm font-medium">
-            {t("Your WhatsApp chat / voice-note transcript")}
-          </label>
-          <textarea
-            id="thread"
-            value={thread}
-            onChange={(e) => setThread(e.target.value)}
-            rows={6}
-            placeholder={SAMPLES.en}
-            className="mt-2 w-full rounded-md border p-3 font-mono text-sm"
-          />
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <select
-              value={language}
-              onChange={(e) =>
-                setLanguage(e.target.value as ConversationLanguage | "auto")
-              }
-              className="rounded-md border bg-background px-3 py-2 text-sm"
-              aria-label={t("Language")}
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l} value={l}>
-                  {LANGUAGE_LABELS[l]}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={onEstimate}
-              disabled={busy || thread.trim().length === 0}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-            >
-              {busy ? "Reading your message…" : "Get my estimate"}
-            </button>
-            {(["en"] as const).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setThread(SAMPLES[l as ConversationLanguage])}
-                className="rounded-md border px-3 py-2 text-xs text-muted-foreground hover:bg-accent"
-              >
-                Try {LANGUAGE_LABELS[l as ConversationLanguage]}
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Everything runs in your browser: deterministic parsing, no AI
-            upload, nothing sent anywhere. Voice notes: paste WhatsApp&apos;s
-            transcript of the note.
-          </p>
+    <ToolShell route="/conversational-estimator">
+      <Container>
+        <div className="mx-auto flex w-full max-w-5xl justify-end px-4 pt-4 sm:px-6">
+          <CityPriceSelect />
         </div>
 
-        {result && (
-          <div className="space-y-4">
-            {/* The reply bubble: same language the customer wrote in */}
-            <div className="rounded-lg border bg-card p-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">{result.replyTitle}</h2>
-                <span className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
-                  {LANGUAGE_LABELS[result.language]}
-                  {language === "auto" ? " (detected)" : ""}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Estimated under the {market.countryName ?? marketCode} market
-                context. {marketPackNote ?? ""}
-              </p>
+        <section className="mx-auto max-w-3xl space-y-4">
+          <div className="rounded-lg border bg-card p-4">
+            <label htmlFor="thread" className="block text-sm font-medium">
+              {t("Your WhatsApp chat / voice-note transcript")}
+            </label>
+            <textarea
+              id="thread"
+              value={thread}
+              onChange={(e) => setThread(e.target.value)}
+              rows={6}
+              placeholder={SAMPLES.en}
+              className="mt-2 w-full rounded-md border p-3 font-mono text-sm"
+            />
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <select
+                value={language}
+                onChange={(e) =>
+                  setLanguage(e.target.value as ConversationLanguage | "auto")
+                }
+                className="rounded-md border bg-background px-3 py-2 text-sm"
+                aria-label={t("Language")}
+              >
+                {LANGUAGES.map((l) => (
+                  <option key={l} value={l}>
+                    {LANGUAGE_LABELS[l]}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={onEstimate}
+                disabled={busy || thread.trim().length === 0}
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              >
+                {busy ? "Reading your message…" : "Get my estimate"}
+              </button>
+              {(["en"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setThread(SAMPLES[l as ConversationLanguage])}
+                  className="rounded-md border px-3 py-2 text-xs text-muted-foreground hover:bg-accent"
+                >
+                  Try {LANGUAGE_LABELS[l as ConversationLanguage]}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Everything runs in your browser: deterministic parsing, no AI
+              upload, nothing sent anywhere. Voice notes: paste WhatsApp&apos;s
+              transcript of the note.
+            </p>
+          </div>
 
-              {result.understood.length > 0 && (
-                <ul className="mt-3 space-y-1 text-sm">
-                  {result.understood.map((u) => (
-                    <li key={u.label}>
-                      <span className="font-medium">{u.label}:</span> {u.value}
-                      {u.evidence && (
-                        <span className="text-muted-foreground">
-                          {" "}
-                          : “{u.evidence}”
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {result.notFoundNote && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  {result.notFoundNote}
+          {result && (
+            <div className="space-y-4">
+              {/* The reply bubble: same language the customer wrote in */}
+              <div className="rounded-lg border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">{result.replyTitle}</h2>
+                  <span className="rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground">
+                    {LANGUAGE_LABELS[result.language]}
+                    {language === "auto" ? " (detected)" : ""}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Estimated under the {market.countryName ?? marketCode} market
+                  context. {marketPackNote ?? ""}
                 </p>
+
+                {result.understood.length > 0 && (
+                  <ul className="mt-3 space-y-1 text-sm">
+                    {result.understood.map((u) => (
+                      <li key={u.label}>
+                        <span className="font-medium">{u.label}:</span>{" "}
+                        {u.value}
+                        {u.evidence && (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            : “{u.evidence}”
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {result.notFoundNote && (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    {result.notFoundNote}
+                  </p>
+                )}
+
+                {result.followUpQuestions.length > 0 && (
+                  <div className="mt-3 rounded-md bg-muted p-3 text-sm">
+                    {result.followUpQuestions.map((q) => (
+                      <p key={q}>{q}</p>
+                    ))}
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Reply with the size in the same chat and paste again: the
+                      estimate appears immediately.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {result.paintEstimate && (
+                <div className="rounded-lg border bg-card p-4">
+                  <h3 className="font-semibold">{t("Your paint estimate")}</h3>
+                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+                    <div>
+                      <dt className="text-muted-foreground">
+                        {t("Paintable area")}
+                      </dt>
+                      <dd className="font-medium">
+                        {result.paintEstimate.paintableArea.toFixed(2)} m²
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">
+                        {t("Paint needed")}
+                      </dt>
+                      <dd className="font-medium">
+                        {result.paintEstimate.liters.toFixed(2)} litres (incl.
+                        waste)
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">{t("Coats")}</dt>
+                      <dd className="font-medium">
+                        {result.paintEstimate.coats}
+                      </dd>
+                    </div>
+                  </dl>
+                  {result.paintEstimate.containers.length > 0 && (
+                    <p className="mt-3 text-sm">
+                      <span className="font-medium">Buy:</span>{" "}
+                      {result.paintEstimate.containers
+                        .map((c) => `${c.count} × ${c.size} L`)
+                        .join(", ")}
+                    </p>
+                  )}
+                  {result.paintEstimate.warnings.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+                      {result.paintEstimate.warnings.map((w) => (
+                        <li key={w}>• {w}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="mt-4 text-sm">
+                    <Link
+                      to="/paint-calculator"
+                      className="font-medium text-primary underline"
+                      onClick={() =>
+                        track("conversational_route_click", {
+                          to: "/paint-calculator",
+                        })
+                      }
+                    >
+                      Continue in the full Paint Calculator for exact products
+                      and costs →
+                    </Link>
+                  </p>
+                </div>
               )}
 
-              {result.followUpQuestions.length > 0 && (
-                <div className="mt-3 rounded-md bg-muted p-3 text-sm">
-                  {result.followUpQuestions.map((q) => (
-                    <p key={q}>{q}</p>
-                  ))}
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Reply with the size in the same chat and paste again: the
-                    estimate appears immediately.
+              {result.routedCalculatorPath && !result.paintEstimate && (
+                <div className="rounded-lg border bg-card p-4">
+                  <p className="text-sm">
+                    <Link
+                      to={result.routedCalculatorPath}
+                      className="font-medium text-primary underline"
+                      onClick={() =>
+                        track("conversational_route_click", {
+                          to: result.routedCalculatorPath!,
+                        })
+                      }
+                    >
+                      Open the right calculator with your numbers →
+                    </Link>
                   </p>
                 </div>
               )}
             </div>
+          )}
+        </section>
 
-            {result.paintEstimate && (
-              <div className="rounded-lg border bg-card p-4">
-                <h3 className="font-semibold">{t("Your paint estimate")}</h3>
-                <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-                  <div>
-                    <dt className="text-muted-foreground">
-                      {t("Paintable area")}
-                    </dt>
-                    <dd className="font-medium">
-                      {result.paintEstimate.paintableArea.toFixed(2)} m²
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">
-                      {t("Paint needed")}
-                    </dt>
-                    <dd className="font-medium">
-                      {result.paintEstimate.liters.toFixed(2)} litres (incl.
-                      waste)
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">{t("Coats")}</dt>
-                    <dd className="font-medium">
-                      {result.paintEstimate.coats}
-                    </dd>
-                  </div>
-                </dl>
-                {result.paintEstimate.containers.length > 0 && (
-                  <p className="mt-3 text-sm">
-                    <span className="font-medium">Buy:</span>{" "}
-                    {result.paintEstimate.containers
-                      .map((c) => `${c.count} × ${c.size} L`)
-                      .join(", ")}
-                  </p>
-                )}
-                {result.paintEstimate.warnings.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                    {result.paintEstimate.warnings.map((w) => (
-                      <li key={w}>• {w}</li>
-                    ))}
-                  </ul>
-                )}
-                <p className="mt-4 text-sm">
-                  <Link
-                    to="/paint-calculator"
-                    className="font-medium text-primary underline"
-                    onClick={() =>
-                      track("conversational_route_click", {
-                        to: "/paint-calculator",
-                      })
-                    }
-                  >
-                    Continue in the full Paint Calculator for exact products and
-                    costs →
-                  </Link>
-                </p>
-              </div>
-            )}
-
-            {result.routedCalculatorPath && !result.paintEstimate && (
-              <div className="rounded-lg border bg-card p-4">
-                <p className="text-sm">
-                  <Link
-                    to={result.routedCalculatorPath}
-                    className="font-medium text-primary underline"
-                    onClick={() =>
-                      track("conversational_route_click", {
-                        to: result.routedCalculatorPath!,
-                      })
-                    }
-                  >
-                    Open the right calculator with your numbers →
-                  </Link>
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-      </section>
-
-      <div className="mt-6 space-y-3">
-        <QuoteShareButton
-          showPdf
-          build={buildQuote}
-          kind="Conversational Estimate"
-          link="/conversational-estimator"
-        />
-        <CalculatorResetButton onReset={resetInputs} />
-        <HowCalculatedSection
-          methodologyText={methodologyText("conversational")}
-        />
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.smartCalc,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-          ]}
-        />
-      </div>
-
-      <EstimateDisclaimer />
-    </Container>
+        <div className="mt-6 space-y-3">
+          <QuoteShareButton
+            showPdf
+            build={buildQuote}
+            kind="Conversational Estimate"
+            link="/conversational-estimator"
+          />
+          <CalculatorResetButton onReset={resetInputs} />
+          <HowCalculatedSection
+            methodologyText={methodologyText("conversational")}
+          />
+        </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }

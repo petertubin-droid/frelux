@@ -77,6 +77,12 @@ export interface ToolShellProps {
   hideDisclaimer?: boolean;
   /** Override the category label shown above the heading. */
   eyebrow?: string;
+  /**
+   * Keep the page out of search results. A few tools are a working surface
+   * rather than an answer to a question people search for, and they asked not
+   * to be indexed before they moved onto the shell.
+   */
+  noIndex?: boolean;
 }
 
 export default function ToolShell({
@@ -97,6 +103,7 @@ export default function ToolShell({
   relatedLinks,
   disclaimerText,
   hideDisclaimer = false,
+  noIndex = false,
 }: ToolShellProps) {
   const { pathname } = useLocation();
   const { t } = useLanguage();
@@ -151,6 +158,7 @@ export default function ToolShell({
           canonicalPath: tool.to,
           structuredData: structuredData ?? toolMarkup,
           structuredDataArray,
+          ...(noIndex ? { noIndex: true } : {}),
         }
       : null,
   );

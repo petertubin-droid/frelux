@@ -8,10 +8,9 @@
  */
 
 import { Suspense, lazy, useCallback, useMemo, useState } from "react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import {
   parseIfcTakeoff,
   type IfcParseResult,
@@ -26,7 +25,6 @@ import { serializeIfcTakeoffExport } from "@/lib/estimation/ifc-takeoff-export";
 import { Button } from "@/components/ui/shadcn/button";
 import { Download } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 import {
   parseIfcModel,
   type IfcModelParseResult,
@@ -54,15 +52,6 @@ const CATEGORY_ORDER: EstimateCategory[] = [
 
 export default function BimIfcImport() {
   const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    { name: "BIM/IFC Import", path: "/bim-ifc-import" },
-  ]);
-  useSeo({
-    title: "BIM/IFC Import: Instant Takeoff from Architect Files | FRELUX",
-    description:
-      "Upload an architect's .ifc (BIM) export and instantly get a material takeoff: walls, slabs, doors, windows and their declared quantities. Parsed entirely in your browser: nothing is uploaded, nothing is guessed.",
-  });
 
   const [fileName, setFileName] = useState<string | null>(null);
   const [result, setResult] = useState<IfcParseResult | null>(null);
@@ -159,377 +148,371 @@ export default function BimIfcImport() {
   };
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Construction Tools", path: "/construction-tools" },
-            { label: "BIM/IFC Import" },
-          ]}
-          title={t("BIM/IFC Import")}
-          subtitle="Upload an architect's .ifc (BIM) export and get an instant material takeoff: walls, slabs, roofs, doors, windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas."
-        />
-
-        <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-          <label className="grid gap-2 text-sm font-medium">
-            {t("IFC file (.ifc or .ifczip)")}
-            <input
-              type="file"
-              accept=".ifc,.ifczip"
-              className="w-full max-w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal"
-              onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-            />
-          </label>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {t(
-              "The file is parsed locally in your browser. Nothing is uploaded.",
-            )}
-          </p>
-          {busy && (
-            <p className="mt-2 text-sm text-muted-foreground">Parsing…</p>
-          )}
-          {fileError && (
-            <p className="mt-2 text-sm text-destructive">{fileError}</p>
-          )}
-        </div>
-
-        {validation && (
+    <ToolShell route="/bim-ifc-import">
+      <Container>
+        <div className="space-y-6">
           <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold">{t("Import validation")}</p>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  validation.verdict === "invalid"
-                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
+            <label className="grid gap-2 text-sm font-medium">
+              {t("IFC file (.ifc or .ifczip)")}
+              <input
+                type="file"
+                accept=".ifc,.ifczip"
+                className="w-full max-w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal"
+                onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+              />
+            </label>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t(
+                "The file is parsed locally in your browser. Nothing is uploaded.",
+              )}
+            </p>
+            {busy && (
+              <p className="mt-2 text-sm text-muted-foreground">Parsing…</p>
+            )}
+            {fileError && (
+              <p className="mt-2 text-sm text-destructive">{fileError}</p>
+            )}
+          </div>
+
+          {validation && (
+            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold">
+                  {t("Import validation")}
+                </p>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    validation.verdict === "invalid"
+                      ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                      : validation.verdict === "valid_with_warnings"
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  }`}
+                >
+                  {validation.verdict === "invalid"
+                    ? "Refused"
                     : validation.verdict === "valid_with_warnings"
-                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                      : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                }`}
-              >
-                {validation.verdict === "invalid"
-                  ? "Refused"
-                  : validation.verdict === "valid_with_warnings"
-                    ? "Passed with warnings"
-                    : "Passed"}
-              </span>
-            </div>
-            <ul className="mt-3 space-y-1.5">
-              {validation.checks.map((c) => (
-                <li key={c.id} className="flex items-start gap-2 text-xs">
-                  <span
-                    aria-label={c.status}
-                    className={
-                      c.status === "pass"
-                        ? "text-emerald-600 dark:text-emerald-400"
+                      ? "Passed with warnings"
+                      : "Passed"}
+                </span>
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {validation.checks.map((c) => (
+                  <li key={c.id} className="flex items-start gap-2 text-xs">
+                    <span
+                      aria-label={c.status}
+                      className={
+                        c.status === "pass"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : c.status === "warn"
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-red-600 dark:text-red-400"
+                      }
+                    >
+                      {c.status === "pass"
+                        ? "✓"
                         : c.status === "warn"
-                          ? "text-amber-600 dark:text-amber-400"
-                          : "text-red-600 dark:text-red-400"
-                    }
-                  >
-                    {c.status === "pass"
-                      ? "✓"
-                      : c.status === "warn"
-                        ? "!"
-                        : "✗"}
-                  </span>
-                  <span className="text-muted-foreground">
-                    <span className="font-medium text-foreground">
-                      {c.label}:
-                    </span>{" "}
-                    {c.detail}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {validation.warnings.length > 0 && (
-              <ul className="mt-2 space-y-1">
-                {validation.warnings.map((w, i) => (
-                  <li
-                    key={i}
-                    className="text-xs text-amber-600 dark:text-amber-400"
-                  >
-                    {w}
+                          ? "!"
+                          : "✗"}
+                    </span>
+                    <span className="text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {c.label}:
+                      </span>{" "}
+                      {c.detail}
+                    </span>
                   </li>
                 ))}
               </ul>
-            )}
-            <p className="mt-2 text-xs text-muted-foreground">
-              Structural presence checks only: no IFC schema certification is
-              claimed, and no quantity is ever invented.
-            </p>
-          </div>
-        )}
-
-        {result && !result.ok && (
-          <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-            {result.warnings.map((w, i) => (
-              <p key={i} className="text-sm text-muted-foreground">
-                {w}
-              </p>
-            ))}
-            {result.warnings.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                {t("The file could not be turned into a takeoff.")}
-              </p>
-            )}
-          </div>
-        )}
-
-        {result?.ok && (
-          <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("File")}
-                </p>
-                <p
-                  className="mt-1 truncate text-lg font-semibold"
-                  title={fileName ?? ""}
-                >
-                  {fileName}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.entity_count.toLocaleString("en-NG")} STEP entities
-                  parsed
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Elements")}
-                </p>
-                <p className="mt-1 text-lg font-semibold">
-                  {result.elements
-                    .reduce((n, e) => n + e.count, 0)
-                    .toLocaleString("en-NG")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  across {result.elements.length} IFC type(s)
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-                <p className="text-xs font-medium uppercase text-muted-foreground">
-                  {t("Quantities")}
-                </p>
-                <p className="mt-1 text-lg font-semibold">
-                  {result.has_quantities
-                    ? "Declared by the file"
-                    : "None declared"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {result.has_quantities
-                    ? "Declared values; explicit supported units are converted to SI"
-                    : "counts only: nothing invented"}
-                </p>
-              </div>
-            </div>
-
-            <section className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="text-sm font-semibold">
-                {t("Observed IFC schema coverage")}
-              </h3>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Declared schema:{" "}
-                {result.schema_coverage.schema ?? "not specified"} ·{" "}
-                {result.schema_coverage.distinct_entity_types} entity types
-                observed. This reports presence only, not schema validation or
-                geometric quantities.
-              </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <div>
-                  <p className="text-xs font-medium">
-                    {t("Spatial structures")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {Object.entries(result.schema_coverage.spatial_structures)
-                      .map(
-                        ([type, count]) =>
-                          `${type.replace("IFC", "")} ${count}`,
-                      )
-                      .join(" · ") || "None observed"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium">
-                    {t("Recognized takeoff types")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {Object.entries(result.schema_coverage.recognized_elements)
-                      .map(
-                        ([type, count]) =>
-                          `${type.replace("IFC", "")} ${count}`,
-                      )
-                      .join(" · ") || "None observed"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-medium">
-                    {t("Geometry representation entities")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {Object.entries(
-                      result.schema_coverage.geometric_representations,
-                    )
-                      .map(
-                        ([type, count]) =>
-                          `${type.replace("IFC", "")} ${count}`,
-                      )
-                      .join(" · ") || "None observed"}
-                  </p>
-                </div>
-              </div>
+              {validation.warnings.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {validation.warnings.map((w, i) => (
+                    <li
+                      key={i}
+                      className="text-xs text-amber-600 dark:text-amber-400"
+                    >
+                      {w}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p className="mt-2 text-xs text-muted-foreground">
-                Unsupported entity types are retained in the portable JSON
-                review record.
+                Structural presence checks only: no IFC schema certification is
+                claimed, and no quantity is ever invented.
               </p>
-            </section>
+            </div>
+          )}
 
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <div>
+          {result && !result.ok && (
+            <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+              {result.warnings.map((w, i) => (
+                <p key={i} className="text-sm text-muted-foreground">
+                  {w}
+                </p>
+              ))}
+              {result.warnings.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {t("The file could not be turned into a takeoff.")}
+                </p>
+              )}
+            </div>
+          )}
+
+          {result?.ok && (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("File")}
+                  </p>
+                  <p
+                    className="mt-1 truncate text-lg font-semibold"
+                    title={fileName ?? ""}
+                  >
+                    {fileName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.entity_count.toLocaleString("en-NG")} STEP entities
+                    parsed
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Elements")}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {result.elements
+                      .reduce((n, e) => n + e.count, 0)
+                      .toLocaleString("en-NG")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    across {result.elements.length} IFC type(s)
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    {t("Quantities")}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {result.has_quantities
+                      ? "Declared by the file"
+                      : "None declared"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.has_quantities
+                      ? "Declared values; explicit supported units are converted to SI"
+                      : "counts only: nothing invented"}
+                  </p>
+                </div>
+              </div>
+
+              <section className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
                 <h3 className="text-sm font-semibold">
-                  {t("Portable review record")}
+                  {t("Observed IFC schema coverage")}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Export declared quantities and warnings as JSON. The source
-                  IFC is not included.
+                  Declared schema:{" "}
+                  {result.schema_coverage.schema ?? "not specified"} ·{" "}
+                  {result.schema_coverage.distinct_entity_types} entity types
+                  observed. This reports presence only, not schema validation or
+                  geometric quantities.
                 </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  const text = serializeIfcTakeoffExport(
-                    fileName ?? "source.ifc",
-                    result,
-                  );
-                  const url = URL.createObjectURL(
-                    new Blob([text], { type: "application/json" }),
-                  );
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.download = `${(fileName ?? "ifc-takeoff").replace(/\.ifc(z|x)?$/i, "")}-takeoff.json`;
-                  link.click();
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                <Download className="mr-2 h-4 w-4" />{" "}
-                {t("Export review record")}
-              </Button>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
-              <h3 className="mb-2 text-sm font-semibold">
-                {t("Material takeoff")}
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-xs uppercase text-muted-foreground">
-                    <tr>
-                      <th className="py-2 text-left">{t("IFC type")}</th>
-                      <th className="py-2 text-right">{t("Count")}</th>
-                      <th className="py-2 text-left">
-                        {t("Declared quantities (file totals)")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {result.elements.map((e) => (
-                      <tr
-                        key={e.type}
-                        className="border-t border-border dark:border-white/5"
-                      >
-                        <td className="py-2 font-mono text-xs">{e.type}</td>
-                        <td className="py-2 text-right font-mono text-xs">
-                          {e.count}
-                        </td>
-                        <td className="py-2">
-                          {Object.keys(e.quantity_totals).length === 0 ? (
-                            <span className="text-xs text-muted-foreground">
-                              no quantities declared: count only
-                            </span>
-                          ) : (
-                            <span className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                              {Object.entries(e.quantity_totals).map(
-                                ([qName, q]) => (
-                                  <span key={qName}>
-                                    <span className="font-medium">
-                                      {qName}:
-                                    </span>{" "}
-                                    <span className="font-mono">
-                                      {q.total.toLocaleString("en-NG")} {q.unit}
-                                    </span>{" "}
-                                    <span className="text-muted-foreground">
-                                      ({q.elements} element
-                                      {q.elements === 1 ? "" : "s"})
-                                    </span>
-                                  </span>
-                                ),
-                              )}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-medium">
+                      {t("Spatial structures")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {Object.entries(result.schema_coverage.spatial_structures)
+                        .map(
+                          ([type, count]) =>
+                            `${type.replace("IFC", "")} ${count}`,
+                        )
+                        .join(" · ") || "None observed"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium">
+                      {t("Recognized takeoff types")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {Object.entries(
+                        result.schema_coverage.recognized_elements,
+                      )
+                        .map(
+                          ([type, count]) =>
+                            `${type.replace("IFC", "")} ${count}`,
+                        )
+                        .join(" · ") || "None observed"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium">
+                      {t("Geometry representation entities")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {Object.entries(
+                        result.schema_coverage.geometric_representations,
+                      )
+                        .map(
+                          ([type, count]) =>
+                            `${type.replace("IFC", "")} ${count}`,
+                        )
+                        .join(" · ") || "None observed"}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Unsupported entity types are retained in the portable JSON
+                  review record.
+                </p>
+              </section>
 
-            {modelNote && (
-              <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground dark:border-white/5">
-                {modelNote}
-              </div>
-            )}
-
-            {model?.ok && model.elements.length > 0 && linkIndex && (
-              <Bim5dSection
-                model={model}
-                linkIndex={linkIndex}
-                selectedGlobalId={selectedGlobalId}
-                selectedLineId={selectedLineId}
-                onElementSelect={(id) => {
-                  setSelectedGlobalId(id);
-                  setSelectedLineId(null);
-                }}
-                onLineSelect={(lineId) => {
-                  setSelectedLineId(lineId);
-                  const [elementId] = elementIdsForLine(linkIndex, lineId);
-                  setSelectedGlobalId(elementId ?? null);
-                }}
-              />
-            )}
-
-            {result.warnings.length > 0 && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                {result.warnings.map((w, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {w}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                <div>
+                  <h3 className="text-sm font-semibold">
+                    {t("Portable review record")}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Export declared quantities and warnings as JSON. The source
+                    IFC is not included.
                   </p>
-                ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const text = serializeIfcTakeoffExport(
+                      fileName ?? "source.ifc",
+                      result,
+                    );
+                    const url = URL.createObjectURL(
+                      new Blob([text], { type: "application/json" }),
+                    );
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = `${(fileName ?? "ifc-takeoff").replace(/\.ifc(z|x)?$/i, "")}-takeoff.json`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                  }}
+                >
+                  <Download className="mr-2 h-4 w-4" />{" "}
+                  {t("Export review record")}
+                </Button>
               </div>
-            )}
+              <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
+                <h3 className="mb-2 text-sm font-semibold">
+                  {t("Material takeoff")}
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs uppercase text-muted-foreground">
+                      <tr>
+                        <th className="py-2 text-left">{t("IFC type")}</th>
+                        <th className="py-2 text-right">{t("Count")}</th>
+                        <th className="py-2 text-left">
+                          {t("Declared quantities (file totals)")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.elements.map((e) => (
+                        <tr
+                          key={e.type}
+                          className="border-t border-border dark:border-white/5"
+                        >
+                          <td className="py-2 font-mono text-xs">{e.type}</td>
+                          <td className="py-2 text-right font-mono text-xs">
+                            {e.count}
+                          </td>
+                          <td className="py-2">
+                            {Object.keys(e.quantity_totals).length === 0 ? (
+                              <span className="text-xs text-muted-foreground">
+                                no quantities declared: count only
+                              </span>
+                            ) : (
+                              <span className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                                {Object.entries(e.quantity_totals).map(
+                                  ([qName, q]) => (
+                                    <span key={qName}>
+                                      <span className="font-medium">
+                                        {qName}:
+                                      </span>{" "}
+                                      <span className="font-mono">
+                                        {q.total.toLocaleString("en-NG")}{" "}
+                                        {q.unit}
+                                      </span>{" "}
+                                      <span className="text-muted-foreground">
+                                        ({q.elements} element
+                                        {q.elements === 1 ? "" : "s"})
+                                      </span>
+                                    </span>
+                                  ),
+                                )}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-            <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
-              <summary className="cursor-pointer font-medium">
-                {t("How this was determined")}
-              </summary>
-              <ul className="mt-2 space-y-1">
-                {result.steps.map((s, i) => (
-                  <li key={i}>
-                    <span className="font-medium">{s.label}:</span>{" "}
-                    <span className="text-muted-foreground">{s.detail}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          </div>
-        )}
-      </div>
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-      <AdSlot slotKey="calculator_native" className="mt-8" />
-      <div className="mt-8">
-        <ToolFaqs slug="bim-ifc-import" />
-      </div>
-    </Container>
+              {modelNote && (
+                <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs text-muted-foreground dark:border-white/5">
+                  {modelNote}
+                </div>
+              )}
+
+              {model?.ok && model.elements.length > 0 && linkIndex && (
+                <Bim5dSection
+                  model={model}
+                  linkIndex={linkIndex}
+                  selectedGlobalId={selectedGlobalId}
+                  selectedLineId={selectedLineId}
+                  onElementSelect={(id) => {
+                    setSelectedGlobalId(id);
+                    setSelectedLineId(null);
+                  }}
+                  onLineSelect={(lineId) => {
+                    setSelectedLineId(lineId);
+                    const [elementId] = elementIdsForLine(linkIndex, lineId);
+                    setSelectedGlobalId(elementId ?? null);
+                  }}
+                />
+              )}
+
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                  {result.warnings.map((w, i) => (
+                    <p key={i} className="text-sm text-muted-foreground">
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              <details className="rounded-lg border border-border bg-card p-4 text-sm dark:border-white/5">
+                <summary className="cursor-pointer font-medium">
+                  {t("How this was determined")}
+                </summary>
+                <ul className="mt-2 space-y-1">
+                  {result.steps.map((s, i) => (
+                    <li key={i}>
+                      <span className="font-medium">{s.label}:</span>{" "}
+                      <span className="text-muted-foreground">{s.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </div>
+          )}
+        </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+      </Container>
+    </ToolShell>
   );
 }
 function Bim5dSection({

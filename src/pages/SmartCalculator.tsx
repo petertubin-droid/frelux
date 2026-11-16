@@ -1,12 +1,10 @@
-import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { methodologyText } from "@/lib/calculatorMethodology";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { useEffect, useMemo, useState } from "react";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -15,7 +13,6 @@ import {
   CheckCircle2,
   Eraser,
 } from "lucide-react";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 import { useLanguage } from "@/lib/i18n";
@@ -61,20 +58,6 @@ function readSavedDescription(): string {
 export default function SmartCalculator() {
   const { t } = useLanguage();
   const [description, setDescription] = useState(readSavedDescription);
-
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    {
-      name: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
-      path: "/smart-calculator",
-    },
-  ]);
-  const seo = useSeo({
-    title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
-    description:
-      "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations. Free to use.",
-    canonicalPath: "/smart-calculator",
-  });
 
   const trimmed = description.trim();
   const usable = trimmed.length >= MIN_DESCRIPTION;
@@ -123,19 +106,11 @@ export default function SmartCalculator() {
   }, [trimmed]);
 
   return (
-    <>
-      {seo}
-      <PageHeader
-        variant="tool"
-        backTo="/"
-        backLabel={t("Back to home")}
-        eyebrow={t("Describe a project")}
-        title={t("Smart Calculator")}
-        subtitle={t(
-          "Say what you are building in plain words. The assistant reads the project, names the right calculator and carries your measurements across, and every quantity still comes from the deterministic engine.",
-        )}
-      />
-
+    <ToolShell
+      route="/smart-calculator"
+      backTo="/"
+      backLabel={t("Back to home")}
+    >
       <Container className="max-w-4xl pb-12 pt-8">
         {/* AI-powered badge banner */}
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
@@ -337,17 +312,6 @@ export default function SmartCalculator() {
         {/* Native banner slot, placement "calculator_native" */}
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
-      <div className="mt-10">
-        <RelatedTools
-          links={[
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.imageEstimator,
-            CALC_LINKS.structuralCalc,
-          ]}
-        />
-      </div>
-
-      <EstimateDisclaimer />
-    </>
+    </ToolShell>
   );
 }

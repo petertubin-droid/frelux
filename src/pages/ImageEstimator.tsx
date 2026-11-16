@@ -4,10 +4,9 @@ import CalculatorResetButton from "@/components/calculators/CalculatorResetButto
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback, useRef, useEffect, useId } from "react";
-import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { Link } from "react-router-dom";
 import { trackAiPhotoEstimatorRewards } from "@/lib/rewards-integration";
@@ -52,57 +51,12 @@ import type {
 } from "@/types/build-to-roof";
 import { useMarket } from "@/lib/international/market-context";
 import { formatArea, formatCurrency } from "@/lib/utils";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 import { NumericInput } from "@/components/ui/NumericInput";
 import { metersToFeet } from "@/lib/utils";
 
 type Phase = "upload" | "analyzing" | "review" | "result" | "locked" | "error";
-
-// ── Rotating text slide for AI features ──
-function AiFeatureSlide() {
-  const messages = [
-    "Detects building type, roof structure, and materials from photos",
-    "Estimates dimensions, floor count, and room layout automatically",
-    "Generates material quantities with market pricing",
-    "Identifies foundation type, block type, and structural frame",
-  ];
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(
-      () => setIndex((p) => (p + 1) % messages.length),
-      3500,
-    );
-    return () => clearInterval(timer);
-  }, [messages.length]);
-
-  return (
-    <div className="relative h-5 overflow-hidden mt-2">
-      {messages.map((msg, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 flex items-center gap-2 transition-all duration-500"
-          style={{
-            opacity: i === index ? 1 : 0,
-            transform:
-              i === index
-                ? "translateY(0)"
-                : i < index
-                  ? "translateY(-100%)"
-                  : "translateY(100%)",
-          }}
-        >
-          <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
-          <span className="text-xs font-medium text-primary-foreground/70">
-            {msg}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 /**
  * Turn the vision edge function's error body (or its absence) into a message
@@ -173,13 +127,6 @@ export function describeVisionFailure(
 
 export default function ImageEstimator() {
   const market = useMarket().market;
-  useSeo({
-    title: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
-    description:
-      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary, verify with actual drawings and a qualified professional.",
-    keywords:
-      "AI building estimator, photo to construction cost, building image analysis, construction AI",
-  });
 
   const { user, isAdmin, isPaid } = useAuth();
   const [phase, setPhase] = useState<Phase>("upload");
@@ -524,31 +471,21 @@ export default function ImageEstimator() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader
-        variant="tool"
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Tools", path: "/construction-tools/" },
-          { label: "Photo Estimator" },
-        ]}
-        eyebrow="Photo takeoff"
-        title="Building Photo Estimator"
-        subtitle="Upload site photos, extract the measurements, then let the deterministic engine price the work."
-        actions={
-          config && config.enabled && accessDecision?.allowed ? (
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
-              <PremiumBadge size="xs" />
-              {accessDecision.reason === "admin_override"
-                ? "Restricted access"
-                : accessDecision.reason === "free"
-                  ? `${usage?.remaining ?? 0} free uses remaining today`
-                  : "Active"}
-            </div>
-          ) : undefined
-        }
-      />
-
+    <ToolShell
+      route="/image-estimator"
+      actions={
+        config && config.enabled && accessDecision?.allowed ? (
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <PremiumBadge size="xs" />
+            {accessDecision.reason === "admin_override"
+              ? "Restricted access"
+              : accessDecision.reason === "free"
+                ? `${usage?.remaining ?? 0} free uses remaining today`
+                : "Active"}
+          </div>
+        ) : undefined
+      }
+    >
       <Container className="max-w-5xl pb-12 pt-8">
         {error && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
@@ -1054,20 +991,11 @@ export default function ImageEstimator() {
             </Button>
           </div>
         )}
-        <RelatedTools
-          links={[
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.buildToRoof,
-            CALC_LINKS.paintCalculator,
-            CALC_LINKS.structuralCalc,
-            CALC_LINKS.foundationCalc,
-          ]}
-        />{" "}
         <AdSlot slotKey="ai_feature" className="mt-8" />
         {/* Native banner slot, placement "image_estimator_native" */}
         <AdSlot slotKey="image_estimator_native" className="mt-8" />
       </Container>
-    </div>
+    </ToolShell>
   );
 }
 

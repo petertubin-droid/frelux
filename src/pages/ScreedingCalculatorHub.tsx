@@ -2,20 +2,12 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import AdSlot from "@/components/ui/AdSlot";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
-import { useSeo } from "@/lib/seo";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
-import { EstimateDisclaimer } from "@/components/calculators";
-import { SITE_URL } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { getConstructionTerm } from "@/lib/globalization/construction-terminology";
 import { useLanguage } from "@/lib/i18n";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 
 const ScreedingCalculator = lazy(() => import("@/pages/ScreedingCalculator"));
 const ScreedingCostEstimator = lazy(
@@ -27,36 +19,6 @@ const TABS = [
   { id: "cost", label: "Cost Estimate" },
 ];
 
-function buildFaqs(finishTerm: string) {
-  const term = finishTerm.toLowerCase();
-  return [
-    {
-      question: `How does the FRELUX ${term} calculator work?`,
-      answer: `Enter room or wall dimensions, including doors and windows. The calculator determines the net wall surface area for ${term}. Material quantities and costs are calculated only when the relevant market configuration is available.`,
-    },
-    {
-      question: `Can I calculate ${term} for fences?`,
-      answer:
-        "Yes. Enter fence dimensions in feet or metres. The calculator converts the resulting surface area to square metres for the area calculation.",
-    },
-    {
-      question: `What is the difference between ${term} quantity and cost estimate?`,
-      answer:
-        "Quantity calculates wall surface area. The cost estimate can add configured material quantities, prices, and labour costs when those market details are available.",
-    },
-    {
-      question: "Does the calculator account for doors and windows?",
-      answer:
-        "Yes. Entered door and window openings are deducted from the wall surface area to calculate the net area.",
-    },
-    {
-      question: "Are prices localized to my selected market?",
-      answer:
-        "Prices use the selected market and currency where market data is configured. Missing prices are disclosed rather than guessed.",
-    },
-  ];
-}
-
 export default function ScreedingCalculatorHub() {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,7 +29,6 @@ export default function ScreedingCalculatorHub() {
     "Wall Finishing",
   );
   const finishTitle = `${finishTerm} Calculator`;
-  const faqs = buildFaqs(finishTerm);
   const initialMode = searchParams.get("mode") || "quantity";
   const [activeTab, setActiveTab] = useState(initialMode);
 
@@ -77,67 +38,6 @@ export default function ScreedingCalculatorHub() {
     if (mode !== activeTab) setActiveTab(mode);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const seoOfferCurrency = useSeoOfferCurrency();
-  useSeo({
-    title: "Screeding Calculator, Wall Screeding Quantity & Cost",
-    description:
-      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with verified material prices.",
-    canonicalPath: "/screeding-calculator",
-    ogType: "website",
-    keywords:
-      "screeding calculator, wall screeding, screeding cost estimator, screeding quantity, screeding material calculator",
-    structuredDataArray: [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        name: "FRELUX Screeding Calculator",
-        description:
-          "Calculate wall screeding surface area in m², material requirements, and cost estimates with verified material prices.",
-        url: `${SITE_URL}/screeding-calculator`,
-        applicationCategory: "CalculatorApplication",
-        operatingSystem: "Web",
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: seoOfferCurrency,
-        },
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Home",
-            item: SITE_URL,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Calculators",
-            item: `${SITE_URL}/calculators`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: "Screeding Calculator",
-            item: `${SITE_URL}/screeding-calculator`,
-          },
-        ],
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqs.map((f) => ({
-          "@type": "Question",
-          name: f.question,
-          acceptedAnswer: { "@type": "Answer", text: f.answer },
-        })),
-      },
-    ],
-  });
-
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     setSearchParams({ mode: tabId }, { replace: true });
@@ -145,17 +45,9 @@ export default function ScreedingCalculatorHub() {
   };
 
   return (
-    <>
-      <PageHeader
-        variant="tool"
-        eyebrow="Calculator"
-        title={finishTitle}
-        subtitle={`Calculate ${finishTerm.toLowerCase()} quantities, material requirements, and cost, all in one place.`}
-        breadcrumbs={[
-          { label: "Calculators", path: "/calculators" },
-          { label: finishTitle },
-        ]}
-      />
+    // The heading still follows the market name for wall finishing, but the
+    // shell reads it from the catalogue entry instead of the page.
+    <ToolShell route="/screeding-calculator">
       <WorkWeatherBanner workType="screeding" />
       <CalculatorTabs
         tabs={TABS}
@@ -220,27 +112,11 @@ export default function ScreedingCalculatorHub() {
           </p>
         </div>
 
-        <FaqItemsWithSchema faqs={faqs} />
-        <div className="mt-8">
-          <ToolFaqs slug="screeding-calculator" />
-        </div>
-        <RelatedTools
-          links={[
-            CALC_LINKS.paintCalculator,
-            CALC_LINKS.popCeilingCalc,
-            CALC_LINKS.tileCalc,
-            CALC_LINKS.finishEstimator,
-            CALC_LINKS.buildToRoof,
-          ]}
-        />
-        <RelatedToolsLinks />
         {/* Ad slot, placement "calculator_hub_mid" */}
         <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_hub_native" */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
-
-        <EstimateDisclaimer />
       </section>
-    </>
+    </ToolShell>
   );
 }

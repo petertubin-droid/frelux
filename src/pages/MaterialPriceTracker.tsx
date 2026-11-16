@@ -11,9 +11,8 @@ import {
   DollarSign,
   Package,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import { useToast } from "@/components/ui/Toast";
-import { useSeo } from "@/lib/seo";
 import {
   fetchMaterialsWithPrices,
   updateMaterialPrice,
@@ -29,19 +28,11 @@ import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
-import ToolFaqs from "@/components/seo/ToolFaqs";
 const fmt = (v: number) => formatCurrency(v || 0);
 
 export default function MaterialPriceTracker() {
   const { t } = useLanguage();
   const { toast } = useToast();
-
-  useSeo({
-    title: "Material Price Tracker",
-    description:
-      "Track and update material prices. See price history and spot cost changes.",
-    noIndex: true,
-  });
 
   const [materials, setMaterials] = useState<MaterialWithPrice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,19 +155,10 @@ export default function MaterialPriceTracker() {
   }
 
   return (
-    <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Construction Tools", path: "/construction-tools" },
-          { label: "Material Price Tracker" },
-        ]}
-        title={t("Material Price Tracker")}
-        subtitle={t(
-          "Monitor material costs, update prices, and track changes over time.",
-        )}
-      />
-
+    // A tracker answers no question and quotes nothing, so the shell adds
+    // neither a question block nor an estimate disclaimer. It was already kept
+    // out of the index before the move.
+    <ToolShell route="/material-prices" noIndex showFaq={false} hideDisclaimer>
       <div className="mx-auto max-w-5xl px-4 pb-12 pt-6 space-y-6">
         {/* Future Engine 4: deterministic price forecasting */}
         <MaterialPriceForecast />
@@ -514,7 +496,7 @@ export default function MaterialPriceTracker() {
           </div>
         </div>
       )}
-    </>
+    </ToolShell>
   );
 }
 
@@ -534,9 +516,6 @@ function StatCard({
       <Icon className={`h-5 w-5 mb-2 ${color}`} />
       <p className="text-xl font-bold">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <div className="mt-8">
-        <ToolFaqs slug="material-prices" />
-      </div>
     </div>
   );
 }

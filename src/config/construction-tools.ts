@@ -329,12 +329,13 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters: "Wall area and thickness, or room dimensions.",
     gets: "Bags of screeding, putty and finishing materials with total cost.",
     heading: "Screeding Calculator",
+    lede: "Calculate wall surface area for fine wall finishes and estimate materials and costs where market configuration is available.",
     to: "/screeding-calculator",
     benefit: "Quantity & cost",
     navVisible: true,
-    seoTitle: "Screeding Calculator – Cement, Sand & Cost | FRELUX",
+    seoTitle: "Screeding Calculator, Wall Screeding Quantity & Cost",
     seoDescription:
-      "Calculate screeding cement, sand and cost for smooth wall finishes. Enter wall area and thickness or room dimensions to get bags of screeding and a cost estimate.",
+      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with verified material prices.",
   },
   {
     slug: "finish",
@@ -671,6 +672,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Calculate every major material from foundation through roof in one run: blocks, concrete, steel, roofing and more.",
     enters: "Building size, number of floors and finishing level.",
     gets: "A complete material schedule and cost for the whole structure.",
+    eyebrow: "Foundation to roof",
+    lede: "Foundation, block walls, structural frame and roof in one estimate, with engineer-ready material schedules and a verified price book behind every rate.",
+    seoTitle:
+      "Build-to-Roof Estimator, Construction Planning & Budgeting | FRELUX",
+    seoDescription:
+      "Planning and budgeting estimate for building from foundation to roof. Configure dimensions, materials, and prices. Actual requirements and costs may vary based on location, current material prices, building design, site conditions, and professional specifications.",
     to: "/build-to-roof-estimator",
     benefit: "Foundation to roof",
     featured: true,
@@ -1316,6 +1323,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Upload a photo of any building and get an instant AI-assisted cost estimate. Premium feature.",
     enters: "A photo of the building or project.",
     gets: "An estimate of quantities and costs, reviewed against FRELUX rules.",
+    heading: "Building Photo Estimator",
+    eyebrow: "Photo takeoff",
+    lede: "Upload site photos, extract the measurements, then let the deterministic engine price the work.",
+    seoTitle: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
+    seoDescription:
+      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary, verify with actual drawings and a qualified professional.",
     to: "/image-estimator",
     benefit: "AI-powered · Premium",
     featured: true,
@@ -1330,6 +1343,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters:
       "A sentence like: 3-bedroom bungalow in Abuja, tiling and painting.",
     gets: "Material quantities, line items and cost from the FRELUX engines.",
+    eyebrow: "Describe a project",
+    lede: "Say what you are building in plain words. The assistant reads the project, names the right calculator and carries your measurements across, and every quantity still comes from the deterministic engine.",
+    seoTitle: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
+    seoDescription:
+      "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations. Free to use.",
     to: "/smart-calculator",
     benefit: "AI-powered · Free",
     featured: true,
@@ -1343,6 +1361,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Build an estimate step by step by chatting, like WhatsApp.",
     enters: "Your project details, one message at a time.",
     gets: "A full estimate assembled from your answers.",
+    heading: "WhatsApp Estimator",
+    lede: "Paste the chat, or the voice-note transcript, in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it.",
+    seoTitle: "WhatsApp Estimator: Chat Your Estimate in English | FRELUX",
+    seoDescription:
+      "Paste a WhatsApp chat or voice-note transcript and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
     to: "/conversational-estimator",
     navVisible: true,
   },
@@ -1371,6 +1394,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Get colour scheme advice for your rooms and surfaces.",
     enters: "Your room type and colour mood.",
     gets: "Recommended FRELUX colour combinations.",
+    lede: "Describe your space or share a photo and get personalized color ideas tailored to your room.",
+    seoTitle: "Smart Color Assistant: Get Personalized Paint Color Ideas",
+    seoDescription:
+      "Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.",
     to: "/ai-color-assistant",
     navVisible: false,
   },
@@ -1382,6 +1409,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "See your chosen colours applied to a room before you buy.",
     enters: "A room photo and your chosen colours.",
     gets: "A realistic preview of the finished room.",
+    // The menu calls this a preview; the page is a before and after tool, and
+    // its own heading says so.
+    heading: "AI Before & After Preview",
+    seoTitle: "Color Preview Tool",
+    lede: "Upload a photo of your room and see how different paint colors would transform it.",
     to: "/color-preview",
     navVisible: false,
   },
@@ -1443,6 +1475,12 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Import architectural models and extract quantities automatically.",
     enters: "An IFC model file from your architect.",
     gets: "Room areas, wall lengths and material take-offs.",
+    // The menu abbreviates; the page and the search listing say it in full.
+    heading: "BIM/IFC Import",
+    lede: "Upload an architect's .ifc (BIM) export and get an instant material takeoff: walls, slabs, roofs, doors and windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas.",
+    seoTitle: "BIM/IFC Import: Instant Takeoff from Architect Files | FRELUX",
+    seoDescription:
+      "Upload an architect's .ifc (BIM) export and instantly get a material takeoff: walls, slabs, doors, windows and their declared quantities. Parsed entirely in your browser: nothing is uploaded, nothing is guessed.",
     to: "/bim-ifc-import",
     navVisible: true,
   },
@@ -1470,6 +1508,11 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     does: "Browse current FRELUX material prices for your region.",
     enters: "A material name or category.",
     gets: "Up-to-date prices you can use in your own budgets.",
+    heading: "Material Price Tracker",
+    lede: "Monitor material costs, update prices, and track changes over time.",
+    seoTitle: "Material Price Tracker",
+    seoDescription:
+      "Track and update material prices. See price history and spot cost changes.",
     to: "/material-prices",
     navVisible: false,
   },

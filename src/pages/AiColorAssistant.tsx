@@ -17,14 +17,12 @@ import {
   Lock,
   Clock,
 } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent } from "@/lib/queries";
 import { requestColorConsultation, AiConsultError } from "@/lib/ai";
 import { isValidHexColor, normalizeHex, readableTextColor } from "@/lib/colors";
 import { fetchColorCombinations, fetchPaintColors } from "@/lib/queries";
-import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import {
   fetchAiAccessConfig,
   getAiUsageStatus,
@@ -44,10 +42,8 @@ import type {
 import type { DbColorCombination, DbPaintColor } from "@/types/database";
 import { trackRecentTool } from "@/lib/smart-defaults";
 
-import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
-import { SITE_URL } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
@@ -57,30 +53,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 type View = "choose" | "text" | "image";
 
 export default function AiColorAssistant() {
-  const { t } = useLanguage();
-  useBreadcrumbJsonLd([
-    { name: "Smart Color Assistant", path: "/ai-color-assistant" },
-  ]);
-  const seoOfferCurrency = useSeoOfferCurrency();
-  useSeo({
-    title: "Smart Color Assistant: Get Personalized Paint Color Ideas",
-    description:
-      "Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.",
-    canonicalPath: "/ai-color-assistant",
-    ogType: "website",
-    structuredData: {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: "FRELUX Smart Color Assistant",
-      description:
-        "Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture.",
-      url: `${SITE_URL}/ai-color-assistant`,
-      applicationCategory: "DesignApplication",
-      operatingSystem: "Web",
-      offers: { "@type": "Offer", price: "0", priceCurrency: seoOfferCurrency },
-    },
-  });
-
   const { user } = useAuth();
   useEffect(() => {
     trackRecentTool("/ai-color-assistant", "AI Color Assistant", "Bot");
@@ -112,16 +84,9 @@ export default function AiColorAssistant() {
   }
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Smart Tool"
-        title={t("Smart Color Assistant")}
-        subtitle="Describe your space or share a photo and get personalized color ideas tailored to your room."
-        breadcrumbs={[
-          { label: "Color Library", path: "/colors" },
-          { label: "Smart Color Assistant" },
-        ]}
-      />
+    // The question set is written in this page until it is registered for the
+    // shell, so the page keeps that block and the shell leaves the slot empty.
+    <ToolShell route="/ai-color-assistant" showFaq={false}>
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <DisclaimerBanner />
 
@@ -181,20 +146,10 @@ export default function AiColorAssistant() {
           },
         ]}
       />
-      <RelatedTools
-        links={[
-          CALC_LINKS.colors,
-          CALC_LINKS.compareColors,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
       {/* Native banner slot, placement "ai_assistant_native" */}
       <AdSlot slotKey="ai_assistant_native" className="mt-8" />
-    </>
+    </ToolShell>
   );
 }
 

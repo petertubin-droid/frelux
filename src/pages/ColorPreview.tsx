@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
-import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
-import PageHeader from "@/components/ui/PageHeader";
+import ToolShell from "@/components/tools/ToolShell";
 import { aiColorPreview, type ColorPreviewResult } from "@/lib/ai-project";
 import { Loader2, Upload, X, Eye } from "lucide-react";
 import { isValidHexColor, normalizeHex } from "@/lib/colors";
@@ -11,12 +10,6 @@ import { useLanguage } from "@/lib/i18n";
 
 export default function ColorPreview() {
   const { t } = useLanguage();
-  useSeo({
-    title: "Color Preview Tool",
-    description: "Preview paint colors on your room photos with AI.",
-    canonicalPath: "/color-preview",
-    noIndex: true,
-  });
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -99,397 +92,406 @@ export default function ColorPreview() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <PageHeader
-        title={t("AI Before & After Preview")}
-        subtitle="Upload a photo of your room and see how different paint colors would transform it."
-      />
-
-      {!user && (
-        <div className="mt-4 rounded-lg border p-4">
-          <p className="text-sm text-muted-foreground">
-            {t("Sign in to use the AI Color Preview feature.")}
-          </p>
-        </div>
-      )}
-
-      {user && (
-        <form onSubmit={handleGenerate} className="mt-6 space-y-6">
-          {/* Image Upload */}
-          <div>
-            <label className="text-sm font-medium text-foreground">
-              {t("Room Photo (optional but recommended)")}
-            </label>
-            {imagePreview ? (
-              <div className="relative mt-2">
-                <img
-                  src={imagePreview}
-                  alt={t("Room")}
-                  className="max-h-64 rounded-lg border"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => setImagePreview(null)}
-                  className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-primary-foreground"
-                >
-                  <X aria-hidden="true" className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
-              <div
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    (e.currentTarget as HTMLElement).click();
-                  }
-                }}
-                onClick={() => fileRef.current?.click()}
-                className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8"
-              >
-                <Upload className="h-8 w-8 text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t("Click to upload a room photo")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("JPG, PNG up to 4MB")}
-                </p>
-                <input
-                  aria-label={t("Room photo upload")}
-                  ref={fileRef}
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Room Context */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="cp-room-type"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("Room Type")}
-              </label>
-              <select
-                id="cp-room-type"
-                value={roomType}
-                onChange={(e) => setRoomType(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              >
-                <option value="">{t("Select...")}</option>
-                <option>{t("Living Room")}</option>
-                <option>{t("Bedroom")}</option>
-                <option>{t("Kitchen")}</option>
-                <option>{t("Bathroom")}</option>
-                <option>{t("Office")}</option>
-                <option>{t("Dining Room")}</option>
-                <option>{t("Corridor")}</option>
-                <option>{t("Outdoor")}</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="cp-lighting"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("Lighting")}
-              </label>
-              <select
-                id="cp-lighting"
-                value={lighting}
-                onChange={(e) => setLighting(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              >
-                <option value="">{t("Select...")}</option>
-                <option>{t("Natural daylight (bright)")}</option>
-                <option>{t("Natural daylight (limited)")}</option>
-                <option>{t("Artificial warm light")}</option>
-                <option>{t("Artificial cool light")}</option>
-                <option>{t("Mixed lighting")}</option>
-                <option>{t("Low light")}</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="cp-mood"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("Desired Mood")}
-              </label>
-              <select
-                id="cp-mood"
-                value={mood}
-                onChange={(e) => setMood(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              >
-                <option value="">{t("Select...")}</option>
-                <option>{t("Relaxing")}</option>
-                <option>{t("Energetic")}</option>
-                <option>{t("Professional")}</option>
-                <option>{t("Cozy")}</option>
-                <option>{t("Dramatic")}</option>
-                <option>{t("Calm")}</option>
-                <option>{t("Inviting")}</option>
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="cp-style"
-                className="text-sm font-medium text-foreground"
-              >
-                {t("Interior Style")}
-              </label>
-              <select
-                id="cp-style"
-                value={style}
-                onChange={(e) => setStyle(e.target.value)}
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
-              >
-                <option value="">{t("Select...")}</option>
-                <option>{t("Modern")}</option>
-                <option>{t("Traditional")}</option>
-                <option>{t("Minimalist")}</option>
-                <option>{t("Industrial")}</option>
-                <option>{t("Scandinavian")}</option>
-                <option>{t("Bohemian")}</option>
-                <option>{t("African Contemporary")}</option>
-                <option>{t("Tropical")}</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="cp-description"
-              className="text-sm font-medium text-foreground"
-            >
-              {t("Additional Description")}
-            </label>
-            <textarea
-              id="cp-description"
-              rows={2}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t(
-                "Describe your room, furniture, existing colors, climate...",
-              )}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
-            />
-          </div>
-
-          {/* Color Selection */}
-          <div>
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
-                {t("Colors to Preview")}
-              </label>
-              <Button
-                variant="ghost"
-                type="button"
-                onClick={addColor}
-                className="text-xs font-medium text-brand-purple"
-              >
-                + Add color
-              </Button>
-            </div>
-            <div className="mt-2 space-y-2">
-              {colors.map((color, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <input
-                    aria-label={`Colour ${i + 1} picker`}
-                    type="color"
-                    value={color.hex}
-                    onChange={(e) => updateColor(i, "hex", e.target.value)}
-                    className="h-10 w-10 cursor-pointer rounded border"
-                  />
-                  <input
-                    aria-label={`Colour ${i + 1} name`}
-                    value={color.name}
-                    onChange={(e) => updateColor(i, "name", e.target.value)}
-                    placeholder={t("Color name")}
-                    className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
-                  />
-                  {colors.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => removeColor(i)}
-                      className="rounded p-2 hover:bg-accent"
-                    >
-                      <X
-                        aria-hidden="true"
-                        className="h-4 w-4 text-destructive"
-                      />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            variant="default"
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium disabled:opacity-50"
-          >
-            {loading ? (
-              <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
-            ) : (
-              <Eye aria-hidden="true" className="h-5 w-5" />
-            )}
-            Generate AI Preview
-          </Button>
-        </form>
-      )}
-
-      {/* Error */}
-      {error && (
-        <div className="mt-6 rounded-lg bg-destructive/10 p-4">
-          <p className="text-sm text-destructive">{error}</p>
-        </div>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div className="mt-8 flex items-center justify-center py-12">
-          <div className="text-center">
-            <Loader2
-              aria-hidden="true"
-              className="mx-auto h-10 w-10 animate-spin text-brand-purple"
-            />
-            <p className="mt-3 text-sm text-muted-foreground">
-              {t("Analyzing your room and generating color previews...")}
+    <ToolShell
+      route="/color-preview"
+      // A working surface, not an answer people search for, and it was already
+      // kept out of the index before it moved onto the shell.
+      noIndex
+    >
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        {!user && (
+          <div className="mt-4 rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">
+              {t("Sign in to use the AI Color Preview feature.")}
             </p>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Result */}
-      {result && (
-        <div className="mt-8 space-y-6">
-          {/* Before / After visual comparison */}
-          {imagePreview && (
+        {user && (
+          <form onSubmit={handleGenerate} className="mt-6 space-y-6">
+            {/* Image Upload */}
             <div>
-              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Eye aria-hidden="true" className="h-5 w-5 text-brand-purple" />{" "}
-                Before & After
-              </h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">
-                    {t("Before")}
-                  </p>
+              <label className="text-sm font-medium text-foreground">
+                {t("Room Photo (optional but recommended)")}
+              </label>
+              {imagePreview ? (
+                <div className="relative mt-2">
                   <img
                     src={imagePreview}
-                    alt={t("Before")}
-                    className="w-full rounded-lg border"
+                    alt={t("Room")}
+                    className="max-h-64 rounded-lg border"
                     loading="lazy"
                     decoding="async"
                   />
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => setImagePreview(null)}
+                    className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-primary-foreground"
+                  >
+                    <X aria-hidden="true" className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div>
-                  <p className="mb-2 text-xs font-medium text-muted-foreground">
-                    {t("AI Color Suggestions")}
+              ) : (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      (e.currentTarget as HTMLElement).click();
+                    }
+                  }}
+                  onClick={() => fileRef.current?.click()}
+                  className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8"
+                >
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {t("Click to upload a room photo")}
                   </p>
-                  <div className="flex h-full min-h-[200px] flex-col rounded-lg border">
-                    {result.colorSuggestions.map((c, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-3 border-b p-3 last:border-0"
+                  <p className="text-xs text-muted-foreground">
+                    {t("JPG, PNG up to 4MB")}
+                  </p>
+                  <input
+                    aria-label={t("Room photo upload")}
+                    ref={fileRef}
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Room Context */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="cp-room-type"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {t("Room Type")}
+                </label>
+                <select
+                  id="cp-room-type"
+                  value={roomType}
+                  onChange={(e) => setRoomType(e.target.value)}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">{t("Select...")}</option>
+                  <option>{t("Living Room")}</option>
+                  <option>{t("Bedroom")}</option>
+                  <option>{t("Kitchen")}</option>
+                  <option>{t("Bathroom")}</option>
+                  <option>{t("Office")}</option>
+                  <option>{t("Dining Room")}</option>
+                  <option>{t("Corridor")}</option>
+                  <option>{t("Outdoor")}</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="cp-lighting"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {t("Lighting")}
+                </label>
+                <select
+                  id="cp-lighting"
+                  value={lighting}
+                  onChange={(e) => setLighting(e.target.value)}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">{t("Select...")}</option>
+                  <option>{t("Natural daylight (bright)")}</option>
+                  <option>{t("Natural daylight (limited)")}</option>
+                  <option>{t("Artificial warm light")}</option>
+                  <option>{t("Artificial cool light")}</option>
+                  <option>{t("Mixed lighting")}</option>
+                  <option>{t("Low light")}</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="cp-mood"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {t("Desired Mood")}
+                </label>
+                <select
+                  id="cp-mood"
+                  value={mood}
+                  onChange={(e) => setMood(e.target.value)}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">{t("Select...")}</option>
+                  <option>{t("Relaxing")}</option>
+                  <option>{t("Energetic")}</option>
+                  <option>{t("Professional")}</option>
+                  <option>{t("Cozy")}</option>
+                  <option>{t("Dramatic")}</option>
+                  <option>{t("Calm")}</option>
+                  <option>{t("Inviting")}</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="cp-style"
+                  className="text-sm font-medium text-foreground"
+                >
+                  {t("Interior Style")}
+                </label>
+                <select
+                  id="cp-style"
+                  value={style}
+                  onChange={(e) => setStyle(e.target.value)}
+                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                >
+                  <option value="">{t("Select...")}</option>
+                  <option>{t("Modern")}</option>
+                  <option>{t("Traditional")}</option>
+                  <option>{t("Minimalist")}</option>
+                  <option>{t("Industrial")}</option>
+                  <option>{t("Scandinavian")}</option>
+                  <option>{t("Bohemian")}</option>
+                  <option>{t("African Contemporary")}</option>
+                  <option>{t("Tropical")}</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="cp-description"
+                className="text-sm font-medium text-foreground"
+              >
+                {t("Additional Description")}
+              </label>
+              <textarea
+                id="cp-description"
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t(
+                  "Describe your room, furniture, existing colors, climate...",
+                )}
+                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm"
+              />
+            </div>
+
+            {/* Color Selection */}
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground">
+                  {t("Colors to Preview")}
+                </label>
+                <Button
+                  variant="ghost"
+                  type="button"
+                  onClick={addColor}
+                  className="text-xs font-medium text-brand-purple"
+                >
+                  + Add color
+                </Button>
+              </div>
+              <div className="mt-2 space-y-2">
+                {colors.map((color, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <input
+                      aria-label={`Colour ${i + 1} picker`}
+                      type="color"
+                      value={color.hex}
+                      onChange={(e) => updateColor(i, "hex", e.target.value)}
+                      className="h-10 w-10 cursor-pointer rounded border"
+                    />
+                    <input
+                      aria-label={`Colour ${i + 1} name`}
+                      value={color.name}
+                      onChange={(e) => updateColor(i, "name", e.target.value)}
+                      placeholder={t("Color name")}
+                      className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
+                    />
+                    {colors.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => removeColor(i)}
+                        className="rounded p-2 hover:bg-accent"
                       >
+                        <X
+                          aria-hidden="true"
+                          className="h-4 w-4 text-destructive"
+                        />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              variant="default"
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium disabled:opacity-50"
+            >
+              {loading ? (
+                <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
+              ) : (
+                <Eye aria-hidden="true" className="h-5 w-5" />
+              )}
+              Generate AI Preview
+            </Button>
+          </form>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="mt-6 rounded-lg bg-destructive/10 p-4">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <div className="mt-8 flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2
+                aria-hidden="true"
+                className="mx-auto h-10 w-10 animate-spin text-brand-purple"
+              />
+              <p className="mt-3 text-sm text-muted-foreground">
+                {t("Analyzing your room and generating color previews...")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Result */}
+        {result && (
+          <div className="mt-8 space-y-6">
+            {/* Before / After visual comparison */}
+            {imagePreview && (
+              <div>
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <Eye
+                    aria-hidden="true"
+                    className="h-5 w-5 text-brand-purple"
+                  />{" "}
+                  Before & After
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">
+                      {t("Before")}
+                    </p>
+                    <img
+                      src={imagePreview}
+                      alt={t("Before")}
+                      className="w-full rounded-lg border"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">
+                      {t("AI Color Suggestions")}
+                    </p>
+                    <div className="flex h-full min-h-[200px] flex-col rounded-lg border">
+                      {result.colorSuggestions.map((c, i) => (
                         <div
-                          className="h-12 w-12 rounded border"
+                          key={i}
+                          className="flex items-center gap-3 border-b p-3 last:border-0"
+                        >
+                          <div
+                            className="h-12 w-12 rounded border"
+                            style={{ backgroundColor: c.hex }}
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              {c.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {c.coverageArea}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Preview Description */}
+            {result.previewDescription && (
+              <div className="rounded-lg border p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t("AI Visual Analysis")}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {result.previewDescription}
+                </p>
+              </div>
+            )}
+
+            {/* Color Suggestions */}
+            {result.colorSuggestions.length > 0 && (
+              <div>
+                <h3 className="mb-3 text-lg font-semibold text-foreground">
+                  {t("Recommended Colors")}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {result.colorSuggestions.map((c, i) => (
+                    <div key={i} className="rounded-lg border p-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-16 w-16 rounded-lg border"
                           style={{ backgroundColor: c.hex }}
                         />
                         <div>
-                          <p className="text-sm font-medium text-foreground">
+                          <p className="font-medium text-foreground">
                             {c.name}
                           </p>
                           <p className="text-xs text-muted-foreground">
+                            {c.hex}
+                          </p>
+                          <p className="text-xs font-medium text-brand-purple">
                             {c.coverageArea}
                           </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        {c.reasoning}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Preview Description */}
-          {result.previewDescription && (
-            <div className="rounded-lg border p-6">
-              <h3 className="text-lg font-semibold text-foreground">
-                {t("AI Visual Analysis")}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {result.previewDescription}
-              </p>
-            </div>
-          )}
-
-          {/* Color Suggestions */}
-          {result.colorSuggestions.length > 0 && (
-            <div>
-              <h3 className="mb-3 text-lg font-semibold text-foreground">
-                {t("Recommended Colors")}
-              </h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {result.colorSuggestions.map((c, i) => (
-                  <div key={i} className="rounded-lg border p-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-16 w-16 rounded-lg border"
-                        style={{ backgroundColor: c.hex }}
-                      />
-                      <div>
-                        <p className="font-medium text-foreground">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">{c.hex}</p>
-                        <p className="text-xs font-medium text-brand-purple">
-                          {c.coverageArea}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      {c.reasoning}
-                    </p>
-                  </div>
-                ))}
+            {/* Application Tips */}
+            {result.applicationTips.length > 0 && (
+              <div className="rounded-lg border p-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t("Application Tips")}
+                </h3>
+                <ul className="mt-2 space-y-2">
+                  {result.applicationTips.map((tip, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
+                    >
+                      <span className="text-brand-purple">🎨</span> {tip}
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-          )}
-
-          {/* Application Tips */}
-          {result.applicationTips.length > 0 && (
-            <div className="rounded-lg border p-6">
-              <h3 className="text-lg font-semibold text-foreground">
-                {t("Application Tips")}
-              </h3>
-              <ul className="mt-2 space-y-2">
-                {result.applicationTips.map((tip, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm text-muted-foreground"
-                  >
-                    <span className="text-brand-purple">🎨</span> {tip}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </ToolShell>
   );
 }
