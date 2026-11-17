@@ -1835,6 +1835,20 @@ export interface MasonryCalculationResult {
   };
   marketNotes: string;
   packagingEvidence: ReturnType<typeof getPackagingEvidence>;
+  /**
+   * Inputs the engine had to work around, stated rather than smoothed over.
+   * An empty list means every figure came from what the caller supplied.
+   */
+  notices: MasonryNotice[];
+}
+
+export interface MasonryNotice {
+  code:
+    | "wall-not-measured"
+    | "openings-exceed-wall"
+    | "custom-unit-ignored"
+    | "unit-not-found";
+  message: string;
 }
 
 export const MORTAR_PARTS: Record<string, { cement: number; sand: number }> = {
@@ -1908,31 +1922,42 @@ export function calculateMasonryTakeoff(
   );
   const wastePercent = Math.max(0, Number(input.wastePercent ?? 5) || 0);
 
+  const notices: MasonryNotice[] = [];
+
   let activeUnit: MasonryUnitProfile = config.defaultUnit;
   if (input.selectedUnitId) {
     const found = config.availableUnits.find(
       (u) => u.id === input.selectedUnitId,
     );
     if (found) activeUnit = found;
+    else
+      notices.push({
+        code: "unit-not-found",
+        message: `No unit with id ${input.selectedUnitId} is configured for ${config.marketCode}, so the market default (${config.defaultUnit.name}) was used instead.`,
+      });
   }
-  if (
-    input.customUnit &&
-    input.customUnit.lengthMm &&
-    input.customUnit.heightMm &&
-    input.customUnit.widthMm
-  ) {
+  const custom = input.customUnit;
+  const customUsable = Boolean(
+    custom && custom.lengthMm && custom.heightMm && custom.widthMm,
+  );
+  if (custom && !customUsable)
+    notices.push({
+      code: "custom-unit-ignored",
+      message: `The custom unit needs a length, height and thickness above zero, and it has ${custom.lengthMm ?? "no"} x ${custom.heightMm ?? "no"} x ${custom.widthMm ?? "no"} mm. The ${activeUnit.name} was used instead, so these quantities are for that unit.`,
+    });
+  if (custom && customUsable) {
     activeUnit = {
       id: "custom-unit",
-      name: input.customUnit.name || "Custom Unit",
-      category: input.customUnit.category || "cmu",
-      lengthMm: input.customUnit.lengthMm,
-      heightMm: input.customUnit.heightMm,
-      widthMm: input.customUnit.widthMm,
-      isHollow: input.customUnit.isHollow ?? false,
-      standardJointMm: input.customUnit.standardJointMm ?? 10,
-      standardMixRatio: input.customUnit.standardMixRatio ?? "1:4",
+      name: custom.name || "Custom Unit",
+      category: custom.category || "cmu",
+      lengthMm: Number(custom.lengthMm),
+      heightMm: Number(custom.heightMm),
+      widthMm: Number(custom.widthMm),
+      isHollow: custom.isHollow ?? false,
+      standardJointMm: custom.standardJointMm ?? 10,
+      standardMixRatio: custom.standardMixRatio ?? "1:4",
       sourceStandard:
-        input.customUnit.sourceStandard || "User-specified custom dimensions",
+        custom.sourceStandard || "User-specified custom dimensions",
     };
   }
 
@@ -1955,6 +1980,19 @@ export function calculateMasonryTakeoff(
       openingsAreaM2 +=
         openingWidthM * openingHeightM * Math.max(1, Number(op.quantity) || 1);
     }
+  }
+  if (openingsAreaM2 > grossWallAreaM2 + 1e-9) {
+    notices.push({
+      code: "openings-exceed-wall",
+      message: `The openings total ${roundTo(openingsAreaM2, 2)} m2 against ${roundTo(grossWallAreaM2, 2)} m2 of wall, so the net area is held at 0 m2 and every quantity below is zero. One of the two inputs cannot be right.`,
+    });
+  }
+  if (grossWallAreaM2 <= 0) {
+    notices.push({
+      code: "wall-not-measured",
+      message:
+        "The wall has no length or height, so there is nothing to order. Enter the measurements.",
+    });
   }
   const netWallAreaM2 = Math.max(0, grossWallAreaM2 - openingsAreaM2);
   const leafCount = Math.max(1, Math.round(input.leafCount ?? 1));
@@ -2071,5 +2109,6 @@ export function calculateMasonryTakeoff(
     },
     marketNotes: `${config.regulatoryNote} ${packagingEvidence.guidance}`,
     packagingEvidence,
+    notices,
   };
 }

@@ -22,6 +22,7 @@ import {
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { Button } from "@/components/ui/shadcn/button";
 import {
+  AlertTriangle,
   BrickWall,
   CheckCircle2,
   Download,
@@ -592,7 +593,8 @@ export default function StandaloneTakeoffPage({
   const buildTakeoffQuote = (): QuoteOptions | null => {
     if (!result) return null;
     const record = result as unknown as Record<string, unknown>;
-    const skip = /packagingEvidence|warnings|assumptions|safetyNotice|steps/i;
+    const skip =
+      /packagingEvidence|warnings|notices|assumptions|safetyNotice|steps/i;
     const prettify = humaniseResultKey;
     const lines = Object.entries(record)
       .filter(([key, value]) => {
@@ -940,6 +942,30 @@ export default function StandaloneTakeoffPage({
               </div>
               {result ? (
                 <>
+                  {Array.isArray(
+                    (result as unknown as { notices?: unknown }).notices,
+                  ) &&
+                    (
+                      result as unknown as {
+                        notices: { code: string; message: string }[];
+                      }
+                    ).notices.length > 0 && (
+                      <ul className="mb-5 space-y-2 rounded-xl border border-amber-300/70 bg-amber-50 p-4 text-sm text-amber-900">
+                        {(
+                          result as unknown as {
+                            notices: { code: string; message: string }[];
+                          }
+                        ).notices.map((notice) => (
+                          <li key={notice.code} className="flex gap-2">
+                            <AlertTriangle
+                              className="mt-0.5 h-4 w-4 shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span>{notice.message}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   <div className="divide-y divide-border">
                     {(engineAccess.limited
                       ? rows.slice(0, engineAccess.visibleLines)
