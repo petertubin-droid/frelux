@@ -1,4 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import {
+  lazy,
+  startTransition,
+  Suspense,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -33,7 +40,11 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { PremiumBadge } from "@/components/ui/PremiumBadge";
+const PremiumBadge = lazy(() =>
+  import("@/components/ui/PremiumBadge").then((m) => ({
+    default: m.PremiumBadge,
+  })),
+);
 import Logo from "@/components/brand/Logo";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { navWorkspaces, siteConfig, type NavChild } from "@/config/site";
@@ -43,15 +54,48 @@ import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
 
 import { useTheme } from "@/lib/theme";
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
-import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
-import { MarketSelector } from "@/components/ui/MarketSelector";
+const LanguageSwitcher = lazy(() =>
+  import("@/components/ui/LanguageSwitcher").then((m) => ({
+    default: m.LanguageSwitcher,
+  })),
+);
+const CurrencySwitcher = lazy(() =>
+  import("@/components/ui/CurrencySwitcher").then((m) => ({
+    default: m.CurrencySwitcher,
+  })),
+);
+const AccessibilityToggle = lazy(() =>
+  import("@/components/ui/AccessibilityToggle").then((m) => ({
+    default: m.AccessibilityToggle,
+  })),
+);
+const MarketSelector = lazy(() =>
+  import("@/components/ui/MarketSelector").then((m) => ({
+    default: m.MarketSelector,
+  })),
+);
 import { useMarket } from "@/lib/international/market-context";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
 import { Button } from "@/components/ui/shadcn/button";
-import AdFreePromptNotice from "@/components/subscription/AdFreePromptNotice";
-import DisplaySettings from "@/components/layout/DisplaySettings";
+const AdFreePromptNotice = lazy(
+  () => import("@/components/subscription/AdFreePromptNotice"),
+);
+const DisplaySettings = lazy(
+  () => import("@/components/layout/DisplaySettings"),
+);
+
+/**
+ * Warm the drawer's deferred controls once the page is idle. The menu then
+ * opens with everything in place, and the download still happens after the
+ * first paint rather than before it.
+ */
+function preloadChromeControls() {
+  void import("@/components/layout/DisplaySettings");
+  void import("@/components/ui/AccessibilityToggle");
+  void import("@/components/ui/LanguageSwitcher");
+  void import("@/components/ui/CurrencySwitcher");
+  void import("@/components/ui/MarketSelector");
+}
 
 export default function Navbar() {
   const { t } = useLanguage();
@@ -178,6 +222,25 @@ export default function Navbar() {
   }, [mobileOpen]);
 
   useEffect(() => {
+    const idle = (
+      window as Window & {
+        requestIdleCallback?: (cb: () => void) => number;
+        cancelIdleCallback?: (handle: number) => void;
+      }
+    ).requestIdleCallback;
+    const handle = idle
+      ? idle(() => preloadChromeControls())
+      : window.setTimeout(preloadChromeControls, 1200);
+    return () => {
+      const cancel = (
+        window as Window & { cancelIdleCallback?: (h: number) => void }
+      ).cancelIdleCallback;
+      if (cancel) cancel(handle);
+      else window.clearTimeout(handle);
+    };
+  }, []);
+
+  useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
@@ -277,7 +340,7 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,backdrop-filter,border-radius] duration-500 lg:left-[var(--rail-w)] lg:w-[calc(100%-var(--rail-w))]",
+          "neon-edge fixed top-0 z-40 w-full rounded-b-[26px] border-b transition-[background-color,border-color,box-shadow,border-radius] duration-300 lg:left-[var(--rail-w)] lg:w-[calc(100%-var(--rail-w))]",
           scrolled
             ? "nav-glass border-border/40 shadow-[0_18px_44px_-34px_rgba(16,12,40,0.8)] dark:border-white/10"
             : "border-transparent bg-transparent backdrop-blur-none",
@@ -294,7 +357,9 @@ export default function Navbar() {
               variant="ghost"
               type="button"
               ref={menuTriggerRef}
-              onClick={() => setMobileOpen(true)}
+              onPointerEnter={preloadChromeControls}
+              onFocus={preloadChromeControls}
+              onClick={() => startTransition(() => setMobileOpen(true))}
               className="glass-control inline-flex h-10 w-10 items-center justify-center text-card-foreground transition-all active:scale-95 dark:text-card-foreground"
               aria-label="Open menu"
               aria-expanded={mobileOpen}
@@ -499,12 +564,17 @@ export default function Navbar() {
               </kbd>
             </Button>
 
-            {/* Utility toggles (desktop only) */}
+            {/* Utility toggles, desktop only, and deferred: a phone never
+                renders them, so it should not download them either. */}
             <div className="hidden items-center gap-1 lg:flex">
-              <AccessibilityToggle />
-              <LanguageSwitcher />
-              <CurrencySwitcher />
-              <MarketSelector />
+              <Suspense
+                fallback={<div aria-hidden="true" className="h-9 w-[9.5rem]" />}
+              >
+                <AccessibilityToggle />
+                <LanguageSwitcher />
+                <CurrencySwitcher />
+                <MarketSelector />
+              </Suspense>
               <Button
                 variant="ghost"
                 type="button"
@@ -765,7 +835,9 @@ export default function Navbar() {
             </div>
           </div>
         </nav>
-        <AdFreePromptNotice />
+        <Suspense fallback={null}>
+          <AdFreePromptNotice />
+        </Suspense>
       </header>
 
       {/* ===== Mobile drawer =====
@@ -1283,13 +1355,17 @@ export default function Navbar() {
                       Scale and calculator view
                     </p>
                   </div>
-                  <DisplaySettings />
+                  <Suspense fallback={null}>
+                    <DisplaySettings />
+                  </Suspense>
                 </div>
                 <div className="mt-1 space-y-1">
-                  <AccessibilityToggle inline={true} />
-                  <LanguageSwitcher inline={true} />
-                  <CurrencySwitcher inline={true} />
-                  <MarketSelector inline={true} />
+                  <Suspense fallback={null}>
+                    <AccessibilityToggle inline={true} />
+                    <LanguageSwitcher inline={true} />
+                    <CurrencySwitcher inline={true} />
+                    <MarketSelector inline={true} />
+                  </Suspense>
                   <Button
                     variant="ghost"
                     type="button"

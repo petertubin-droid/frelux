@@ -2903,3 +2903,25 @@ html[data-frelux-wide-view="true"]
     transform: none !important;
   }
 }
+
+/* ── Phone-first rendering budget ─────────────────────────────────────
+   Two costs dominate scroll smoothness on a mid-range phone: a large
+   backdrop blur repainted across the whole header, and a decorative edge
+   animation that animates a registered custom property (main thread, not
+   composited). Both stay on desktop, where they cost nothing noticeable,
+   and stand down on small screens, where the same pixels are drawn on a
+   weaker GPU. */
+@media (max-width: 767px) {
+  .nav-glass,
+  .dark .nav-glass,
+  .nav-glass-card {
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-frame {
+    display: none;
+  }
+}

@@ -46,6 +46,20 @@ import ConversionDock from "@/components/convert/ConversionDock";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
 import { shouldLoadAdSdks, shouldAnimate } from "@/lib/network";
+
+/**
+ * The viewport frame animates a registered custom property, which the browser
+ * cannot hand to the compositor, so it repaints continuously. That is free on a
+ * desktop GPU and measurable jank on a phone, so phones skip it entirely.
+ */
+function isSmallScreen() {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  try {
+    return window.matchMedia("(max-width: 767px)").matches;
+  } catch {
+    return false;
+  }
+}
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
@@ -655,7 +669,7 @@ export default function Layout() {
       <Suspense fallback={null}>
         {/* Purely decorative: skipped on slow links and for reduced motion,
             so a 2G visitor downloads no animation code at all. */}
-        {shouldAnimate() && <NeonFrame />}
+        {shouldAnimate() && !isSmallScreen() && <NeonFrame />}
       </Suspense>
       <main
         id="main-content"
