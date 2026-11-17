@@ -236,16 +236,20 @@ export function designConcreteCapacity(
       const gammaM = 1.25;
       const pct = Math.min((100 * As) / (b * d), 2);
       const dCap = Math.min(d, 400);
+      // BS 8110-1 Table 3.8 takes fcu as not greater than 40 MPa: above that the
+      // table stops, and reading 50 or 60 MPa into the cube-root term claimed a
+      // shear capacity the code does not give (8 per cent at fcu 50).
+      const fcuForVc = Math.min(fck, 40);
       const vc =
         (0.79 / gammaM) *
         Math.pow(pct, 1 / 3) *
         Math.pow(400 / dCap, 0.25) *
-        Math.pow(fck / 25, 1 / 3);
+        Math.pow(fcuForVc / 25, 1 / 3);
       const Vc = (vc * b * d) / 1e3;
       formulaTransparency.push(
         `xu = 0.87·fy·As/(0.405·fcu·b) = ${(0.87 * fy * As).toFixed(0)}/(0.405×${fck}×${b}) = ${xu.toFixed(1)} mm (BS 8110-1 Fig 2.1, Cl 3.4.4.3)`,
         `Mu = 0.87·fy·As·z = ${(0.87 * fy * As).toFixed(0)}×${z.toFixed(1)} = ${Mu.toFixed(1)} kN·m`,
-        `vc = (0.79/1.25)·(100As/bd)^(1/3)·(400/d)^(1/4)·(fcu/25)^(1/3) = ${vc.toFixed(3)} MPa; Vc = vc·b·d = ${Vc.toFixed(1)} kN (BS 8110-1 Table 3.8)`,
+        `vc = (0.79/1.25)·(100As/bd)^(1/3)·(400/d)^(1/4)·(min(fcu, 40)/25)^(1/3) = ${vc.toFixed(3)} MPa; Vc = vc·b·d = ${Vc.toFixed(1)} kN (BS 8110-1 Table 3.8, fcu not greater than 40)`,
       );
       if (xu > 0.5 * d)
         warnings.push(
@@ -266,19 +270,32 @@ export function designConcreteCapacity(
 
     case "AS_3600":
     default: {
-      // AS 3600:2018 Cl 3.1.4 / Table 3.2: gamma = 1.25 − 0.85·fc/200, clamped 0.65..0.85
-      const gamma = Math.min(Math.max(1.25 - (0.85 * fck) / 200, 0.65), 0.85);
-      // Rectangular stress block: uniform 0.85·gamma·fc over depth a
-      const a = (As * fy) / (0.85 * gamma * fck * b);
-      const ku = a / d;
-      // Cl 8.1.5 / 2.2.4(d): phi = 0.8 for bending with fsy <= 500 and
-      // ku <= 0.4 in the simplified rectangular-block method
-      const phi = ku <= 0.4 ? 0.8 : 0.8;
+      // AS 3600:2018 Cl 3.1.4 rectangular stress block: intensity alpha2 and
+      // depth factor gamma, each clamped between 0.67 and 0.85.
+      //
+      //     alpha2 = 1.0 - 0.003*f'c      gamma = 1.05 - 0.007*f'c
+      //
+      // This module carried gamma = 1.25 - 0.85*f'c/200, which stays above 1.0
+      // for every concrete up to about 94 MPa and so clamped to 0.85 at every
+      // realistic grade: 0.85 against the code's 0.826 at 32 MPa, 0.77 at 40 and
+      // 0.70 at 50. It also divided the block depth by gamma, which the
+      // equilibrium equation cancels: a = As*fsy/(alpha2*f'c*b) does not contain
+      // gamma at all. The two errors pulled in opposite directions and left the
+      // capacity 1.4 per cent low at 32 MPa, further off as the grade rose.
+      const alpha2 = Math.min(Math.max(1.0 - 0.003 * fck, 0.67), 0.85);
+      const gamma = Math.min(Math.max(1.05 - 0.007 * fck, 0.67), 0.85);
+      const a = (As * fy) / (alpha2 * fck * b);
+      // Neutral axis depth ratio: the block depth is gamma*ku*d, so ku = a/(gamma*d).
+      const ku = a / (gamma * d);
+      // Cl 8.1.5: phi = 0.80 for the rectangular-block method while ku <= 0.4.
+      // Beyond that the section leaves the method's ductility limit and the
+      // capacity is reported with a warning rather than a silently lower factor.
+      const phi = 0.8;
       const Muo = (As * fy * (d - a / 2)) / 1e6;
       const phiMuo = phi * Muo;
       formulaTransparency.push(
-        `gamma = 1.25 − 0.85·fc/200 = 1.25 − ${((0.85 * fck) / 200).toFixed(3)} = ${gamma.toFixed(3)} (clamped 0.65..0.85, AS 3600:2018 Table 3.2)`,
-        `a = As·fsy/(0.85·gamma·fc·b) = ${(As * fy).toFixed(0)}/(0.85×${gamma.toFixed(3)}×${fck}×${b}) = ${a.toFixed(1)} mm; ku = a/d = ${ku.toFixed(3)}`,
+        `alpha2 = 1.0 − 0.003·fc = ${alpha2.toFixed(3)}, gamma = 1.05 − 0.007·fc = ${gamma.toFixed(3)} (each clamped 0.67..0.85, AS 3600:2018 Cl 3.1.4)`,
+        `a = As·fsy/(alpha2·fc·b) = ${(As * fy).toFixed(0)}/(${alpha2.toFixed(3)}×${fck}×${b}) = ${a.toFixed(1)} mm; ku = a/(gamma·d) = ${ku.toFixed(3)}`,
         `Muo = As·fsy·(d − a/2) = ${Muo.toFixed(1)} kN·m; phi·Muo = ${phi}×${Muo.toFixed(1)} = ${phiMuo.toFixed(1)} kN·m (Cl 8.1.5, Table 2.2.2)`,
         `Shear capacity per AS 3600 Cl 8.2.7 is intentionally not reported: beta1 and Dv require more section data than this module captures.`,
       );
@@ -310,7 +327,7 @@ export function designConcreteCapacity(
         code,
         flexuralCapacityKNm: phiMuo,
         shearCapacityKN: null,
-        neutralAxisMm: a,
+        neutralAxisMm: a / gamma,
         leverArmMm: d - a / 2,
         capacityFactor: phi,
         blockDepthMm: a,

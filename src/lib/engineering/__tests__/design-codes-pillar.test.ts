@@ -129,9 +129,66 @@ describe("design-code-concrete: AS 3600:2018", () => {
       fck: 32,
       fy: 500,
     });
-    expect(r.blockDepthMm).toBeCloseTo(86.6, 0);
-    expect(r.flexuralCapacityKNm).toBeCloseTo(219.2, 0);
+    // AS 3600:2018 Cl 3.1.4 at f'c 32: alpha2 = 1 - 0.003 x 32 = 0.904, clamped
+    // to 0.85, and gamma = 1.05 - 0.007 x 32 = 0.826. Block depth a = 600000 /
+    // (0.85 x 32 x 300) = 73.53 mm, ku = 73.53 / (0.826 x 500) = 0.178, so
+    // phi.Muo = 0.8 x 600000 x (500 - 36.76) = 222.4 kN.m and the neutral axis
+    // sits at a/gamma = 89.0 mm. The module previously divided by gamma as well,
+    // giving 86.5 mm and 219.2 kN.m.
+    expect(r.blockDepthMm).toBeCloseTo(73.5, 1);
+    expect(r.neutralAxisMm).toBeCloseTo(89.0, 1);
+    expect(r.flexuralCapacityKNm).toBeCloseTo(222.4, 1);
     expect(r.capacityFactor).toBe(0.8);
+  });
+
+  it("takes the AS 3600 stress block factors from the concrete grade", () => {
+    // At f'c 50: alpha2 = 1 - 0.15 = 0.85, gamma = 1.05 - 0.35 = 0.70, so a =
+    // 600000 / (0.85 x 50 x 300) = 47.06 mm and phi.Muo = 228.7 kN.m. A gamma of
+    // 0.85 at this grade, as the module used to hold, is not the code's factor.
+    const r = designConcreteCapacity({
+      code: "AS_3600",
+      b: 300,
+      d: 500,
+      As: 1200,
+      fck: 50,
+      fy: 500,
+    });
+    expect(r.blockDepthMm).toBeCloseTo(47.1, 1);
+    expect(r.neutralAxisMm).toBeCloseTo(67.2, 1);
+    expect(r.flexuralCapacityKNm).toBeCloseTo(228.7, 1);
+  });
+
+  it("holds BS 8110 shear at the Table 3.8 limit of 40 MPa cube strength", () => {
+    // vc = (0.79/1.25) x 0.8^(1/3) x (400/400)^(1/4) x (40/25)^(1/3) = 0.686 MPa,
+    // Vc = 102.9 kN. Above 40 MPa the table stops, so fcu 50 and fcu 60 must give
+    // the same shear capacity as fcu 40 rather than an invented increase.
+    const at40 = designConcreteCapacity({
+      code: "BS_8110",
+      b: 300,
+      d: 500,
+      As: 1200,
+      fck: 40,
+      fy: 500,
+    });
+    const at50 = designConcreteCapacity({
+      code: "BS_8110",
+      b: 300,
+      d: 500,
+      As: 1200,
+      fck: 50,
+      fy: 500,
+    });
+    const at60 = designConcreteCapacity({
+      code: "BS_8110",
+      b: 300,
+      d: 500,
+      As: 1200,
+      fck: 60,
+      fy: 500,
+    });
+    expect(at40.shearCapacityKN).toBeCloseTo(102.9, 1);
+    expect(at50.shearCapacityKN).toBeCloseTo(at40.shearCapacityKN as number, 6);
+    expect(at60.shearCapacityKN).toBeCloseTo(at40.shearCapacityKN as number, 6);
   });
 
   it("reports shear as intentionally unimplemented (no fabricated beta1)", () => {
