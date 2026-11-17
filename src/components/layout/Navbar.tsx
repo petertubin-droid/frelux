@@ -336,7 +336,7 @@ export default function Navbar() {
                         location.pathname.startsWith(workspace.path) ||
                           openDropdown === workspace.label
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
+                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground dark:hover:text-brand-purple-lighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
                       )}
                     >
                       {t(workspace.label)}
@@ -456,7 +456,7 @@ export default function Navbar() {
                     href={workspace.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5"
+                    className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground dark:hover:text-brand-purple-lighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                   >
                     {t(workspace.label)}
                   </a>
@@ -468,7 +468,7 @@ export default function Navbar() {
                         "rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200",
                         isActive
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
+                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground dark:hover:text-brand-purple-lighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
                       )
                     }
                   >
@@ -822,7 +822,7 @@ export default function Navbar() {
                 variant="ghost"
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 dark:hover:bg-white/5"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                 aria-label="Close menu"
                 data-menu-close
               >
@@ -844,7 +844,7 @@ export default function Navbar() {
                   )
                 }
                 aria-expanded={mobileExpanded === "__quick_tools"}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
               >
                 Quick tools
                 <ChevronDown
@@ -880,7 +880,7 @@ export default function Navbar() {
                       key={item.to}
                       to={item.to}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                      className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                     >
                       <item.icon
                         aria-hidden="true"
@@ -929,7 +929,7 @@ export default function Navbar() {
                   <Link
                     to="/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-muted/60 dark:text-brand-purple-lighter dark:hover:bg-white/5"
+                    className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-muted/60 dark:text-brand-purple-lighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                   >
                     {t("My dashboard")}
                   </Link>
@@ -1039,7 +1039,7 @@ export default function Navbar() {
                           key={`${entry.path}-${index}`}
                           to={entry.path}
                           onClick={() => setMobileOpen(false)}
-                          className="block rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
+                          className="block rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                         >
                           <span className="block text-sm font-medium text-card-foreground">
                             {getMarketNavigationLabel(
@@ -1067,7 +1067,7 @@ export default function Navbar() {
                           "relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                           isActive
                             ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
                         )
                       }
                     >
@@ -1110,7 +1110,7 @@ export default function Navbar() {
                                     "relative flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                                     location.pathname.startsWith(workspace.path)
                                       ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
                                   )}
                                 >
                                   <span className="min-w-0 flex-1 truncate text-left">
@@ -1211,7 +1211,7 @@ export default function Navbar() {
                                 href={workspace.path}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                                className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                               >
                                 {t(workspace.label)}
                               </a>
@@ -1224,7 +1224,7 @@ export default function Navbar() {
                                     "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                                     isActive
                                       ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
+                                      : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
                                   )
                                 }
                               >
@@ -1262,7 +1262,7 @@ export default function Navbar() {
                     type="button"
                     onClick={toggle}
                     aria-label="Toggle dark mode"
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                   >
                     {theme === "dark" ? (
                       <Sun className="h-4 w-4" />
@@ -1292,7 +1292,7 @@ export default function Navbar() {
                     setMobileOpen(false);
                     await signOut();
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
                 >
                   <LogOut aria-hidden="true" className="h-4 w-4" />
                   <span>{t("Sign out")}</span>
@@ -1302,7 +1302,7 @@ export default function Navbar() {
               {/* Email contact */}
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
               >
                 <Mail className="h-4 w-4" />
                 <span>Email us</span>

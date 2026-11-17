@@ -105,6 +105,7 @@ const marketHubLinks = listTemplateMarkets().map((m) => ({
 }));
 
 export default function Footer() {
+  const { t } = useLanguage();
   const { marketCode } = useMarket();
   const marketCalculateLinks = calculateLinks.map((link) => ({
     ...link,
@@ -140,7 +141,7 @@ export default function Footer() {
           BrandBackdrop. Without it the light-mode scrim (85% opaque
           background) paints over the text and hides it. */}
       <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-6 lg:gap-x-8">
+        <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-7 lg:gap-x-8">
           <div className="col-span-1 md:col-span-3 lg:col-span-2">
             <Logo size="md" />
             <div className="mt-2 text-xs font-semibold tracking-wide text-foreground">
@@ -156,7 +157,7 @@ export default function Footer() {
               <Suspense fallback={null}>
                 <NewsletterSignup source="footer" />
               </Suspense>
-              <p className="mt-1 text-xs text-muted-foreground/80">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Industry intelligence & quarterly material rate reports. No
                 spam.
               </p>
@@ -166,37 +167,35 @@ export default function Footer() {
               <a
                 href={`mailto:${siteConfig.email}`}
                 aria-label="Email us"
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
+                className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
               >
                 <Mail className="h-3.5 w-3.5" />
                 {siteConfig.email}
               </a>
               <span className="text-xs text-muted-foreground">
-                Mon–Fri 8am–6pm (WAT) · Replies within 1 business day
+                Monday to Friday, 8am to 6pm (WAT)
               </span>
             </div>
 
-            <p className="mt-3 hidden flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:flex dark:text-muted-foreground">
+            <p className="mt-3 hidden flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground sm:flex">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
-                International market profiles
+                {t("International market profiles")}
               </span>
-              <span aria-hidden="true">·</span>
-              <span>Local currency pricing</span>
-              <span aria-hidden="true">·</span>
-              <span>Email support, replies within one business day</span>
+              <span>{t("with local currency pricing and email support")}</span>
             </p>
 
             {/* Google Publisher & E-E-A-T Quality Indicators */}
-            <div className="mt-3 hidden sm:flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground/85 border-t border-border/40 pt-2.5 dark:border-white/5">
-              <span className="inline-flex items-center gap-1">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>256-Bit TLS Security</span>
-              </span>
-              <span aria-hidden="true">·</span>
-              <span>Google AdSense & AdChoices Compliant</span>
-              <span aria-hidden="true">·</span>
-              <span>ISO & Eurocode Takeoff Logic</span>
-            </div>
+            <ul className="mt-3 hidden list-none flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/40 pt-2.5 text-xs text-muted-foreground sm:flex dark:border-white/5">
+              <li className="inline-flex items-center gap-1">
+                <ShieldCheck
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                />
+                <span>256-bit TLS security</span>
+              </li>
+              <li>Google AdSense and AdChoices compliant</li>
+              <li>ISO and Eurocode takeoff logic</li>
+            </ul>
           </div>
 
           {groupedColumns.map((column) => (
@@ -221,7 +220,7 @@ export default function Footer() {
             onClick={() => withdrawConsent()}
             aria-label="Cookie preferences"
             title="Cookie preferences"
-            className="h-8 w-8 shrink-0 self-start rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+            className="h-8 w-8 shrink-0 self-start rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
           >
             <Cookie className="h-4 w-4" aria-hidden="true" />
           </Button>
@@ -263,7 +262,7 @@ function FooterColumn({
           >
             <Link
               to={link.path}
-              className="inline-flex min-h-6 items-center text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple sm:text-sm dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              className="inline-flex min-h-6 items-center rounded text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm dark:hover:text-brand-purple-lighter"
             >
               {t(link.label)}
             </Link>
