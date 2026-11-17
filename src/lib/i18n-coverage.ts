@@ -1,4 +1,5 @@
-import { LANGUAGES, translations, type Language } from "@/lib/i18n";
+import { LANGUAGES, type Language } from "@/lib/i18n";
+import { curatedFor } from "@/lib/i18n/curated";
 import generatedEs from "@/lib/i18n/locales/es.json";
 import generatedFr from "@/lib/i18n/locales/fr.json";
 import generatedDe from "@/lib/i18n/locales/de.json";
@@ -127,7 +128,7 @@ export interface LocaleCoverage {
 function effectiveDictionary(language: Language): Record<string, string> {
   return {
     ...(GENERATED_DICTIONARIES[language] ?? {}),
-    ...((translations[language] ?? {}) as Record<string, string>),
+    ...curatedFor(language),
     ...((
       approvedOverrides as unknown as Record<string, Record<string, string>>
     )[language] ?? {}),

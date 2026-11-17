@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { curatedFor } from "@/lib/i18n/curated";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -14,7 +15,7 @@ describe("i18n", () => {
 
 describe("hero translations (Track 4)", () => {
   it("every locale translates the default hero strings", async () => {
-    const { translations, LANGUAGES } = await import("@/lib/i18n");
+    const { LANGUAGES } = await import("@/lib/i18n");
     const { DEFAULT_HERO_CONTENT } = await import("@/lib/useHeroContent");
     const keys = [
       DEFAULT_HERO_CONTENT.headline,
@@ -24,7 +25,7 @@ describe("hero translations (Track 4)", () => {
     ];
     for (const lang of LANGUAGES) {
       if (lang.value === "en") continue;
-      const dict = translations[lang.value];
+      const dict = curatedFor(lang.value);
       for (const key of keys) {
         expect(dict[key], `${lang.value}: missing hero key`).toBeTruthy();
         expect(dict[key], `${lang.value}: untranslated copy`).not.toEqual(key);
@@ -35,7 +36,7 @@ describe("hero translations (Track 4)", () => {
 
 describe("nav chrome translations (i18n batch 2026-10-23)", () => {
   it("every locale translates the account dropdown, section labels and mobile bottom nav", async () => {
-    const { translations, LANGUAGES } = await import("@/lib/i18n");
+    const { LANGUAGES } = await import("@/lib/i18n");
     const keys = [
       "Account",
       "Business",
@@ -54,7 +55,7 @@ describe("nav chrome translations (i18n batch 2026-10-23)", () => {
     ];
     for (const lang of LANGUAGES) {
       if (lang.value === "en") continue;
-      const dict = translations[lang.value];
+      const dict = curatedFor(lang.value);
       for (const key of keys) {
         expect(
           dict[key],
