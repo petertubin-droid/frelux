@@ -67,6 +67,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  // Section dropdowns inside an open workspace. Open by default, so a tool is
+  // never hidden behind a second tap; folding is there for anyone who wants to
+  // shorten the list.
+  const [foldedSections, setFoldedSections] = useState<string[]>([]);
   const [avatarError, setAvatarError] = useState(false);
   // Drawer search: with sixty-odd tools, typing the one you want is faster
   // than opening four accordions on a phone.
@@ -764,20 +768,16 @@ export default function Navbar() {
         <AdFreePromptNotice />
       </header>
 
-      {/* ===== Mobile drawer, premium collapsible sections ===== */}
-      <div
-        className={classNames(
-          "fixed inset-0 z-50",
-          mobileOpen ? "pointer-events-auto" : "pointer-events-none",
-        )}
-      >
+      {/* ===== Mobile drawer =====
+          Mounted only while it is open. Rendering it closed put the whole menu
+          into the prerendered HTML, where it surfaced as an unstyled sheet for
+          a frame and then jumped into place once the stylesheet arrived. */}
+      {mobileOpen && (
+      <div className="fixed inset-0 z-50">
         {/* Scrim: pointer-only; keyboard dismissal is handled by Escape. */}
         <div
           aria-hidden="true"
-          className={classNames(
-            "absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300",
-            mobileOpen ? "opacity-100" : "opacity-0",
-          )}
+          className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
           onClick={() => setMobileOpen(false)}
         />
         {/* Drawer */}
@@ -786,16 +786,13 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="FRELUX navigation menu"
-          aria-hidden={!mobileOpen}
           tabIndex={-1}
           className={classNames(
             // Logical anchoring: in Arabic the drawer must enter from the
             // right edge, not the left one. `start-2` follows the writing
             // direction, and the closed transform mirrors with it.
             "surface-sheet absolute start-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
-            mobileOpen
-              ? "translate-x-0"
-              : "ltr:-translate-x-full rtl:translate-x-full",
+            "translate-x-0",
           )}
         >
           {/* Same architectural backdrop as the hero and footer, held
@@ -1121,6 +1118,36 @@ export default function Navbar() {
                                 </Button>
                                 {mobileExpanded === workspace.label && (
                                   <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
+                                    {/* Where the visitor is, in words. */}
+                                    {(() => {
+                                      const activeChild = (
+                                        workspace.children ?? []
+                                      ).find(
+                                        (child) =>
+                                          location.pathname === child.path ||
+                                          location.pathname.startsWith(
+                                            `${child.path}/`,
+                                          ),
+                                      );
+                                      if (!activeChild?.section) return null;
+                                      return (
+                                        <p
+                                          aria-label={`${t(workspace.label)}: ${t(activeChild.section)}`}
+                                          className="flex items-center gap-1 px-3 pb-1 pt-1.5 text-xs text-muted-foreground"
+                                        >
+                                          <span className="truncate">
+                                            {t(workspace.label)}
+                                          </span>
+                                          <ChevronRight
+                                            aria-hidden="true"
+                                            className="h-3 w-3 shrink-0 opacity-60"
+                                          />
+                                          <span className="truncate font-medium text-foreground/70 dark:text-foreground/80">
+                                            {t(activeChild.section)}
+                                          </span>
+                                        </p>
+                                      );
+                                    })()}
                                     {groupBySection(workspace.children).map(
                                       (group, gi) => {
                                         const groupKey = `${workspace.label}/${group.section ?? "general"}`;
@@ -1162,20 +1189,47 @@ export default function Navbar() {
                                             </div>
                                           );
                                         }
-                                        // A section is a heading, not another
-                                        // tap: opening Construction Tools must
-                                        // show every tool, not nine closed
-                                        // doors. The drawer already scrolls,
-                                        // and search covers the long list.
+                                        // Each section folds, but starts
+                                        // open: opening Construction Tools
+                                        // shows every tool, and anyone who
+                                        // wants a shorter list can close a
+                                        // group without losing the rest.
+                                        const folded =
+                                          foldedSections.includes(groupKey);
                                         return (
-                                          <div key={gi} className="mb-1.5">
-                                            <p
-                                              id={groupKey}
-                                              className="px-3 pb-0.5 pt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground/80"
+                                          <div key={gi} className="mb-1">
+                                            <button
+                                              type="button"
+                                              aria-expanded={!folded}
+                                              aria-controls={groupKey}
+                                              onClick={() =>
+                                                setFoldedSections((current) =>
+                                                  current.includes(groupKey)
+                                                    ? current.filter(
+                                                        (key) =>
+                                                          key !== groupKey,
+                                                      )
+                                                    : [...current, groupKey],
+                                                )
+                                              }
+                                              className="flex w-full items-center justify-between gap-2 rounded-md px-3 pb-0.5 pt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground/80 transition-colors hover:text-foreground"
                                             >
-                                              {t(group.section)}
-                                            </p>
-                                            <div className="space-y-0.5">
+                                              <span className="truncate">
+                                                {t(group.section)}
+                                              </span>
+                                              <ChevronDown
+                                                aria-hidden="true"
+                                                className={classNames(
+                                                  "h-3 w-3 shrink-0 transition-transform duration-200",
+                                                  folded && "-rotate-90",
+                                                )}
+                                              />
+                                            </button>
+                                            <div
+                                              id={groupKey}
+                                              hidden={folded}
+                                              className="space-y-0.5"
+                                            >
                                               {renderLinks()}
                                             </div>
                                           </div>
@@ -1347,6 +1401,7 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }

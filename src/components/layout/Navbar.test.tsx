@@ -78,7 +78,9 @@ describe("Navbar", () => {
       ).toBeNull(),
     );
     await waitFor(() => expect(trigger).toHaveFocus());
-    expect(drawer).toHaveProperty("inert", true);
+    // The drawer is unmounted when it closes, so nothing of it stays in the
+    // tab order (or in the prerendered HTML, where it used to flash open).
+    expect(document.contains(drawer)).toBe(false);
   });
 
   it("opens a profile menu with identity, balance and sections", async () => {

@@ -9,7 +9,11 @@ import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MaintenanceTicker from "@/components/layout/MaintenanceTicker";
-import AppRail from "@/components/layout/AppRail";
+// The desktop rail is chrome for a viewport the first paint may not even have;
+// keeping it out of the entry lets a phone skip its code entirely.
+const AppRail = lazy(() =>
+  import("@/components/layout/AppRail").then((m) => ({ default: m.default })),
+);
 import Footer from "@/components/layout/Footer";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import { AdPushWorkerGate } from "@/components/ads/AdPushWorkerGate";
@@ -641,7 +645,9 @@ export default function Layout() {
       >
         {t("Skip to main content")}
       </a>
-      <AppRail variant="public" />
+      <Suspense fallback={null}>
+        <AppRail variant="public" />
+      </Suspense>
       <Navbar />
       {/* Site-wide neon viewport frame: illuminates ALL screen edges,
           completing the header and bottom-nav edge lights. Decorative,
