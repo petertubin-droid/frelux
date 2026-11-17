@@ -67,12 +67,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  // Sub-category (section) expansion inside an open workspace.
-  // Keys are `${t(workspace.label)}/${section}` so each category's
-  // dropdown expands independently.
-  const [mobileSubExpanded, setMobileSubExpanded] = useState<string | null>(
-    null,
-  );
   const [avatarError, setAvatarError] = useState(false);
   // Drawer search: with sixty-odd tools, typing the one you want is faster
   // than opening four accordions on a phone.
@@ -1168,37 +1162,22 @@ export default function Navbar() {
                                             </div>
                                           );
                                         }
+                                        // A section is a heading, not another
+                                        // tap: opening Construction Tools must
+                                        // show every tool, not nine closed
+                                        // doors. The drawer already scrolls,
+                                        // and search covers the long list.
                                         return (
-                                          <div key={gi} className="mb-1">
-                                            <button
-                                              type="button"
-                                              aria-expanded={
-                                                mobileSubExpanded === groupKey
-                                              }
-                                              onClick={() =>
-                                                setMobileSubExpanded(
-                                                  mobileSubExpanded === groupKey
-                                                    ? null
-                                                    : groupKey,
-                                                )
-                                              }
-                                              className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
+                                          <div key={gi} className="mb-1.5">
+                                            <p
+                                              id={groupKey}
+                                              className="px-3 pb-0.5 pt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground/80"
                                             >
                                               {t(group.section)}
-                                              <ChevronDown
-                                                aria-hidden="true"
-                                                className={classNames(
-                                                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
-                                                  mobileSubExpanded ===
-                                                    groupKey && "rotate-180",
-                                                )}
-                                              />
-                                            </button>
-                                            {mobileSubExpanded === groupKey && (
-                                              <div className="mt-0.5 space-y-0.5 pl-2">
-                                                {renderLinks()}
-                                              </div>
-                                            )}
+                                            </p>
+                                            <div className="space-y-0.5">
+                                              {renderLinks()}
+                                            </div>
                                           </div>
                                         );
                                       },

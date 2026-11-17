@@ -113,6 +113,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "Buckets · Cost · Project estimate",
       },
       {
+        to: "/paint-comparison",
+        label: "Paint Comparison",
+        benefit: "",
+      },
+      {
         to: "/screeding-calculator",
         label: "Wall Screeding",
         benefit: "Quantity & cost",
@@ -138,6 +143,16 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "Stamped · Overlay · Sealer",
       },
       {
+        to: "/flooring",
+        label: "Flooring",
+        benefit: "",
+      },
+      {
+        to: "/waterproofing",
+        label: "Waterproofing",
+        benefit: "",
+      },
+      {
         to: "/wall-finish-estimator",
         label: "Wall Finish Estimator",
         benefit: "",
@@ -150,6 +165,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/insulation-calculator",
         label: "Insulation Takeoff",
+        benefit: "",
+      },
+      {
+        to: "/surface-assessment",
+        label: "Surface Assessment",
         benefit: "",
       },
     ],
@@ -229,9 +249,39 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "",
       },
       {
+        to: "/retaining-wall-calculator",
+        label: "Retaining Wall Calculator",
+        benefit: "",
+      },
+      {
+        to: "/rainwater-gutter-soffit-cost-estimator",
+        label: "Soffit, Fascia & Gutter",
+        benefit: "",
+      },
+      {
         to: "/water-tower-staging-estimator",
         label: "Overhead Water Tank Staging",
         benefit: "",
+      },
+      {
+        to: "/structural-steel-i-beam-calculator",
+        label: "Steel I-Beam Weight",
+        benefit: "",
+      },
+      {
+        to: "/foundation",
+        label: "Foundation Cost Estimate",
+        benefit: "",
+      },
+      {
+        to: "/reinforcement",
+        label: "Reinforcement / Steel",
+        benefit: "",
+      },
+      {
+        to: "/tall-building-structure",
+        label: "Tall Building Structure",
+        benefit: "Wind , Seismic , Piles",
       },
     ],
   },
@@ -255,6 +305,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "",
       },
       {
+        to: "/electrical-conduit-wiring-estimator",
+        label: "Conduit & Wiring Loops",
+        benefit: "",
+      },
+      {
         to: "/electrical",
         label: "Electrical Wiring",
         benefit: "",
@@ -268,6 +323,26 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         to: "/solar-pv-estimator",
         label: "Solar PV Estimator",
         benefit: "Panels · Batteries · Cost",
+      },
+      {
+        to: "/generator",
+        label: "Backup Power / Generator",
+        benefit: "",
+      },
+      {
+        to: "/heat-comfort",
+        label: "Heat & Comfort",
+        benefit: "",
+      },
+      {
+        to: "/material-price-index",
+        label: "Live Material Price Index",
+        benefit: "",
+      },
+      {
+        to: "/material-advisor",
+        label: "Climate Material Advisor",
+        benefit: "",
       },
     ],
   },
@@ -294,8 +369,7 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/tv-console-calculator",
         label: "TV Console & Media Unit Calculator",
-        benefit:
-          "10 editable concepts · panel-by-panel schedule · Pro image parsing",
+        benefit: "10 editable concepts · panel-by-panel schedule · Pro image parsing",
       },
       {
         to: "/wallpaper-calculator",
@@ -308,6 +382,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
     id: "project",
     label: "Project & Cost",
     tools: [
+      {
+        to: "/renovation-estimator",
+        label: "Renovation Cost Estimator",
+        benefit: "Room by room · Strip out · Repaint",
+      },
       {
         to: "/diaspora-budget-tracker",
         label: "Diaspora Budget & Inflation Tracker",
@@ -324,8 +403,68 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "",
       },
       {
+        to: "/margin-calculator",
+        label: "Margin Calculator",
+        benefit: "",
+      },
+      {
+        to: "/quote-check",
+        label: "Quote Check",
+        benefit: "",
+      },
+      {
+        to: "/cash-flow-timeline",
+        label: "Cash-Flow Timeline",
+        benefit: "",
+      },
+      {
+        to: "/regional-cost-index",
+        label: "Regional Cost Index",
+        benefit: "",
+      },
+      {
+        to: "/project-timeline",
+        label: "Project Timeline",
+        benefit: "",
+      },
+      {
+        to: "/construction-sequence",
+        label: "Construction Sequence",
+        benefit: "",
+      },
+      {
+        to: "/maintenance-planner",
+        label: "Maintenance Planner",
+        benefit: "",
+      },
+      {
+        to: "/warranty-certificate",
+        label: "Warranty Certificate",
+        benefit: "",
+      },
+      {
+        to: "/contractor-credit",
+        label: "Contractor Credit",
+        benefit: "",
+      },
+      {
+        to: "/carbon-footprint",
+        label: "Embodied Carbon Estimator",
+        benefit: "",
+      },
+      {
+        to: "/circular-reuse",
+        label: "Demolition Recovery",
+        benefit: "",
+      },
+      {
         to: "/conversational-estimator",
         label: "Conversational Estimator",
+        benefit: "",
+      },
+      {
+        to: "/estimate-refresh",
+        label: "Estimate Refresh",
         benefit: "",
       },
     ],
@@ -371,6 +510,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "",
       },
       {
+        to: "/defect-diagnosis",
+        label: "Defect Diagnosis",
+        benefit: "",
+      },
+      {
         to: "/bim-ifc-import",
         label: "BIM / IFC Import",
         benefit: "",
@@ -378,6 +522,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/field-sync",
         label: "Field Sync",
+        benefit: "",
+      },
+      {
+        to: "/material-prices",
+        label: "Material Prices",
         benefit: "",
       },
     ],

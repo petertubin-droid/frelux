@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AppRail from "./AppRail";
+import { NAV_TOOL_GROUPS } from "@/config/tool-index";
 
 // The rail reads auth for the app variant and i18n for labels; both are
 // stubbed so the test stays about the navigation arrangement itself.
@@ -148,7 +149,13 @@ describe("AppRail", () => {
     const tools =
       navWorkspaces.find((entry) => entry.label === "Construction Tools")
         ?.children ?? [];
-    expect(tools.length).toBe(46);
+    // Derived from the generated index rather than pinned, so adding a tool to
+    // the catalogue cannot quietly leave the rail short of the menu.
+    const expected = NAV_TOOL_GROUPS.reduce(
+      (total, group) => total + group.tools.length,
+      0,
+    );
+    expect(tools.length).toBe(expected);
     for (const tool of tools) {
       expect(screen.getAllByText(tool.label).length).toBeGreaterThanOrEqual(1);
     }

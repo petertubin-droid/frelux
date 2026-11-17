@@ -324,7 +324,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Compare paint types side by side. See differences in finish, durability, washability, recommended use, and price range to choose the right paint for your project.",
     to: "/paint-comparison",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "screeding",
@@ -429,7 +429,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only: not a flooring specification.",
     to: "/flooring",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "waterproofing",
@@ -446,7 +446,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Size DPC, DPM, liquid coating, membrane and tape from your measured run, wet areas and terrace, with coats, coverage and overlap stated.",
     to: "/waterproofing",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "wall-finish-estimator",
@@ -574,6 +574,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   },
   {
     slug: "renovation-estimator",
+    navVisible: true,
     title: "Renovation Cost Estimator",
     category: "project",
     icon: Hammer,
@@ -790,7 +791,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Work out footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type. Soil type widens the recommended footing, and every quantity shows the rule behind it.",
     to: "/retaining-wall-calculator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "soffit-gutter",
@@ -807,7 +808,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Estimate fascia board, rainwater gutter, soffit panels, downpipes and brackets from the roof perimeter and eaves overhang, with a 5% cutting allowance and downpipes every 12 m.",
     to: "/rainwater-gutter-soffit-cost-estimator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "water-tower-staging",
@@ -859,7 +860,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Estimate PVC conduit, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and your lighting and socket point counts.",
     to: "/electrical-conduit-wiring-estimator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "steel-beam-weight",
@@ -876,7 +877,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Calculate the mass of IPE and universal beam sections from span length and nominal weight per metre, and cost them at your steel merchant's rate per tonne.",
     to: "/structural-steel-i-beam-calculator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "foundation-estimate",
@@ -893,7 +894,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only: not foundation design.",
     to: "/foundation",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "reinforcement",
@@ -904,7 +905,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     enters: "Element type and dimensions, bar spacing.",
     gets: "Lengths and tonnage of steel needed, with cost. Includes a step by step animated cage build sequence.",
     to: "/reinforcement",
-    navVisible: false,
+    navVisible: true,
   },
 
   {
@@ -924,7 +925,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Screen a high rise from entered geometry: lateral system by height, ASCE 7 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and a build programme. Deterministic engineering arithmetic, not a structural design.",
     to: "/tall-building-structure",
     benefit: "Wind , Seismic , Piles",
-    navVisible: false,
+    navVisible: true,
   },
 
   // ---------------------------------------------------------------- services
@@ -995,7 +996,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
     to: "/generator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "heat-comfort",
@@ -1011,7 +1012,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Compare how two finishes affect indoor heat comfort using configured solar reflectance data. Every number comes from a sourced factor: never a guess.",
     to: "/heat-comfort",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "material-price-index",
@@ -1027,7 +1028,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Verified and reported construction material prices across Nigerian cities: cement, reinforcement bars, aggregates, blocks, roofing, tiles, paint and more, with sample sizes and last verification dates shown.",
     to: "/material-price-index",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "code-reference",
@@ -1064,7 +1065,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Pick your project location and get construction material guidance for its real climate: rainfall, humidity, UV, coastal exposure and frost. Exterior paints, waterproofing, roofing, tiles, concrete exposure classes, steel protection, insulation and drainage.",
     to: "/material-advisor",
-    navVisible: false,
+    navVisible: true,
     featured: true,
   },
 
@@ -1134,7 +1135,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Price any base cost deterministically from verified margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
     to: "/margin-calculator",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "quote-check",
@@ -1152,7 +1153,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Check a contractor quote against the market price book line by line. See which lines sit above market and which have no reference price.",
     to: "/quote-check",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "cash-flow",
@@ -1168,7 +1169,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Generate a deterministic phased payment schedule for any estimate total from verified milestone templates.",
     to: "/cash-flow-timeline",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "regional-index",
@@ -1184,7 +1185,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Location-adjusted costing using Nigerian state and regional labour and material cost factors. Coverage is specific to available index data.",
     to: "/regional-cost-index",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "timeline",
@@ -1201,7 +1202,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Estimate how long your construction project will take. Stage-by-stage breakdown based on practical construction benchmarks.",
     to: "/project-timeline",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "sequence",
@@ -1218,7 +1219,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Interactive DAG network graph, Critical Path Method (CPM), and parallel execution waves conforming to ISO 21502 and PMI PMBOK 7th Ed. Optimize build duration, trade concurrency, and critical path.",
     to: "/construction-sequence",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "maintenance",
@@ -1234,7 +1235,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Deterministic maintenance schedules from database-verified data: when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
     to: "/maintenance-planner",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "global-site-safety-estimator",
@@ -1268,7 +1269,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Issue a hash-verified warranty certificate for your saved estimate. Claims and disputes replay the exact frozen configuration: mismatches are flagged, never guessed.",
     to: "/warranty-certificate",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "contractor-credit",
@@ -1284,7 +1285,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Check a contractor's trust signal before you commit: a deterministic 0–100 score from verified job history: on-time delivery, estimate accuracy, verified volume, dispute penalty. Unverified history is refused, never scored zero.",
     to: "/contractor-credit",
-    navVisible: false,
+    navVisible: true,
   },
 
   {
@@ -1301,7 +1302,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, verified emission factors.",
     to: "/carbon-footprint",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "circular-reuse",
@@ -1317,7 +1318,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor: never a guess.",
     to: "/circular-reuse",
-    navVisible: false,
+    navVisible: true,
   },
 
   // ---------------------------------------------------------------- ai
@@ -1437,7 +1438,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Assess your wall condition before painting. Get recommendations for surface preparation based on new, painted, rough, dirty, damp, or cracked surfaces.",
     to: "/surface-assessment",
-    navVisible: false,
+    navVisible: true,
   },
   {
     slug: "estimate-refresh",
@@ -1453,7 +1454,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Refresh a saved estimate against today's prices. Old quotes stay honest: see exactly what changed and what has no current price, never a guess.",
     to: "/estimate-refresh",
-    navVisible: false,
+    navVisible: true,
   },
 
   // ---------------------------------------------------------------- pro
@@ -1471,7 +1472,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Map a paint or finish defect to its root cause and get the fix, with quantities: from a deterministic, verified knowledge base.",
     to: "/defect-diagnosis",
-    navVisible: false,
+    navVisible: true,
   },
 
   {
@@ -1521,7 +1522,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     seoDescription:
       "Track and update material prices. See price history and spot cost changes.",
     to: "/material-prices",
-    navVisible: false,
+    navVisible: true,
   },
 ];
 
