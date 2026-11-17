@@ -62,12 +62,12 @@ const STATUS_SECTIONS: {
       "Shipped and running on FreluxTools. Dates are the month a feature went live, never a target.",
     items: [
       {
-        id: "blueprint-takeoff",
-        title: "Vector PDF, DXF and scale-checked takeoff",
+        id: "calculators-catalogue",
+        title: "79 calculators across 32 markets",
         description:
-          "Read drawings you upload, calibrate the measured scale from the sheet's annotation or a known dimension, and refuse to measure a sheet that cannot be scaled instead of guessing.",
-        category: "project-workflow",
-        icon: Layers,
+          "One catalogue of construction estimators, each priced in the market's own currency and answering with that market's standards, units and terminology rather than a translated British or American default.",
+        category: "calculators",
+        icon: Calculator,
       },
       {
         id: "structural-suite",
@@ -84,6 +84,59 @@ const STATUS_SECTIONS: {
           "Material grades, mix classes and code references available beside the estimators that depend on them, so a mix is traceable rather than assumed.",
         category: "market-data",
         icon: BookOpen,
+      },
+      {
+        id: "takeoff-vector",
+        title: "Vector PDF, DXF and scale-checked takeoff",
+        description:
+          "Read drawings you upload, calibrate the measured scale from the sheet's annotation or a known dimension, and refuse to measure a sheet that cannot be scaled instead of guessing.",
+        category: "project-workflow",
+        icon: Layers,
+      },
+      {
+        id: "bim-ifc",
+        title: "IFC model import with quantities",
+        description:
+          "An IFC2x3 or IFC4 model is read in the browser, every element placed and measured. Declared quantities are mirrored exactly and indicative figures, such as rebar per cubic metre, are labelled indicative rather than presented as measured.",
+        category: "project-workflow",
+        icon: Blocks,
+        shipped: "October 2026",
+      },
+      {
+        id: "contractor-money",
+        title: "Contractor invoices, part payments and receipts",
+        description:
+          "A five step invoice, an atomic document number, part payments against a named invoice, a numbered receipt for each payment, and proof of spend held in a private bucket behind a signed link rather than a public one.",
+        category: "project-workflow",
+        icon: FileStack,
+        shipped: "November 2026",
+      },
+      {
+        id: "business-ledgers",
+        title: "Four money surfaces for the business",
+        description:
+          "Receivables aged across every project, a client statement with a running balance, an expense book grouped by category and month, and a supplier ledger aged by due date. Each currency is reported separately and never added to another.",
+        category: "project-workflow",
+        icon: Banknote,
+        shipped: "November 2026",
+      },
+      {
+        id: "faq-registry",
+        title: "94 FAQ groups, 477 answers",
+        description:
+          "Every tool in the shared shell publishes its questions with matching FAQPage data, so an answer on a page and an answer in search results are the same words. The registry spans 83 routes and is measured rather than estimated.",
+        category: "experience",
+        icon: ClipboardCheck,
+        shipped: "November 2026",
+      },
+      {
+        id: "measured-building",
+        title: "Measure a building once, reuse it",
+        description:
+          "Rooms and openings are entered once and carried into compatible calculators, with each tool stating which parts of the shared schedule it used and which it refused because its measurement needs differ.",
+        category: "project-workflow",
+        icon: Database,
+        shipped: "November 2026",
       },
       {
         id: "planning-guide",
@@ -112,20 +165,44 @@ const STATUS_SECTIONS: {
       "Actively in progress. Shipped in part, not yet complete across every market.",
     items: [
       {
+        id: "engine-verification",
+        title: "Engine verification by market",
+        description:
+          "Every calculation is being taken one engine at a time and compared with the published source it claims to follow. Verification has already corrected real faults, including a roof membrane that bought half the layers it needed and a foundation block count that counted the mortar joint twice. Engines that hold their figures are recorded as checked, and the queue continues.",
+        category: "calculators",
+        icon: ShieldCheck,
+      },
+      {
+        id: "faq-outside-shell",
+        title: "FAQ coverage on pages outside the tool shell",
+        description:
+          "Tool pages publish questions today. Reference pages, hubs and the marketing pages do not, and a page level set has to describe the page rather than a calculator before it is worth publishing.",
+        category: "experience",
+        icon: ClipboardCheck,
+      },
+      {
+        id: "supplier-bill-entry",
+        title: "Entering supplier bills",
+        description:
+          "The supplier ledger reads and ages what it is given, but nothing on the site enters a bill yet, so the table is still filled outside the interface. Entry, part payment and a credit note are the remaining work.",
+        category: "project-workflow",
+        icon: Banknote,
+      },
+      {
+        id: "shell-migration",
+        title: "Six tools still on the specialty shell",
+        description:
+          "73 of 79 tools render through the shared shell, which owns the chrome, the questions and the related tools row. Flooring, renovation, retaining wall, soffit and gutter, conduit and wiring, and steel beam still use their own shell and are being moved across.",
+        category: "experience",
+        icon: Layers,
+      },
+      {
         id: "price-verification",
         title: "Local retailer price verification",
         description:
           "Reading market prices from retailer catalogues in the market's own currency. A market is only labelled verified once enough local rows are captured; some retailer sites still refuse automated reading, and those markets say so.",
         category: "market-data",
         icon: Gauge,
-      },
-      {
-        id: "marketplace-settlement",
-        title: "Marketplace order settlement",
-        description:
-          "Listings, orders and order status pages are live, but taking payment, holding it and releasing it on delivery is not connected to a payment provider yet. The settlement rules now exist as a tested money model, so the remaining work is the provider checkout, its webhook and the payout step, not the arithmetic.",
-        category: "project-workflow",
-        icon: Truck,
       },
       {
         id: "escrow-settlement",
@@ -136,20 +213,20 @@ const STATUS_SECTIONS: {
         icon: Banknote,
       },
       {
-        id: "engine-verification",
-        title: "Engine verification by market",
-        description:
-          "Every engine records an operational state per market (unavailable, partial, configured, verified operational or suspended) with an evidence owner and open gaps. Today most engine and market pairs are configured rather than operationally verified, and an estimate built on an unverified pair says so instead of pretending to local certainty.",
-        category: "market-data",
-        icon: ShieldCheck,
-      },
-      {
         id: "catalogue-coverage",
         title: "Retailer catalogue coverage in every market",
         description:
-          "Six retailer catalogues are registered and read in their own currency, but a catalogue that carries no matching local line prices nothing. Coverage is being widened market by market, and a shop that blocks automated reading stays on the open list rather than being quietly dropped.",
+          "Retailer catalogues are registered and read in their own currency, but a catalogue that carries no matching local line prices nothing. Coverage is being widened market by market, and a shop that blocks automated reading stays on the open list rather than being quietly dropped.",
         category: "market-data",
         icon: Database,
+      },
+      {
+        id: "marketplace-settlement",
+        title: "Marketplace order settlement",
+        description:
+          "Listings, orders and order status pages are live, but taking payment, holding it and releasing it on delivery is not connected to a payment provider yet. The settlement rules now exist as a tested money model, so the remaining work is the provider checkout, its webhook and the payout step, not the arithmetic.",
+        category: "project-workflow",
+        icon: Truck,
       },
       {
         id: "market-intelligence",
@@ -176,18 +253,26 @@ const STATUS_SECTIONS: {
       "Planned priorities. Order and scope may change as we validate them.",
     items: [
       {
-        id: "reusable-schedules",
-        title: "Reusable building schedules",
+        id: "production-release",
+        title: "Release the current build to production",
         description:
-          "Enter room and opening measurements once, then reuse compatible quantities across relevant calculators while keeping each tool’s assumptions visible.",
+          "The site is still serving an older build because the deploy cannot be triggered from here: no Netlify credential is available to the work environment. Everything below is merged and tested, and this is the step that puts it in front of users.",
         category: "project-workflow",
-        icon: Blocks,
+        icon: CloudOff,
+      },
+      {
+        id: "ad-unit-ids",
+        title: "Real ad unit ids for each placement",
+        description:
+          "Ad slots are placed on 83 of 152 page files, plus the placements the shared shell renders on every tool page. Each still needs its own AdSense unit id before it can serve revenue, so the slots exist and earn nothing.",
+        category: "market-data",
+        icon: BarChart3,
       },
       {
         id: "accounting-exports",
         title: "QuickBooks and Xero accounting export",
         description:
-          "Export a BOQ in the formats accounting software imports. This does not exist yet: FRELUX today exports PDF and spreadsheets, and the accounting formats have to be built before they are offered.",
+          "Export a BOQ or a ledger in the formats accounting software imports. This does not exist yet: FRELUX today exports PDF and spreadsheets, and the accounting formats have to be built before they are offered.",
         category: "project-workflow",
         icon: Database,
       },
@@ -200,6 +285,14 @@ const STATUS_SECTIONS: {
         icon: Calculator,
       },
       {
+        id: "offline-field-mode",
+        title: "Offline field mode",
+        description:
+          "Keep measuring and estimating on site with no signal, then sync the saved project when the device reconnects.",
+        category: "experience",
+        icon: CloudOff,
+      },
+      {
         id: "supplier-stock-alerts",
         title: "Supplier stock alerts",
         description:
@@ -208,20 +301,20 @@ const STATUS_SECTIONS: {
         icon: Truck,
       },
       {
+        id: "reusable-schedules",
+        title: "Reusable building schedules",
+        description:
+          "Enter room and opening measurements once, then reuse compatible quantities across relevant calculators while keeping each tool's assumptions visible. The shared store now carries rooms into compatible tools; coverage across every calculator is the remaining work.",
+        category: "project-workflow",
+        icon: Blocks,
+      },
+      {
         id: "setback-figures",
         title: "Local setback and permit figures",
         description:
           "Extend the planning guide from published national figures and scheme-based guidance to reviewed local figures, state by state and authority by authority.",
         category: "market-data",
         icon: Ruler,
-      },
-      {
-        id: "offline-field-mode",
-        title: "Offline field mode",
-        description:
-          "Keep measuring and estimating on site with no signal, then sync the saved project when the device reconnects.",
-        category: "experience",
-        icon: CloudOff,
       },
       {
         id: "explainable-estimates",
