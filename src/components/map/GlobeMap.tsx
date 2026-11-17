@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/lib/sanitization";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker as MapLibreMarker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -145,7 +146,8 @@ export function enhanceMapLabelsAndZoom(map: MapLibreMap) {
 
         const isPlace =
           layer.id.startsWith("label_") ||
-          (layer as unknown as { [key: string]: unknown })["source-layer"] === "place";
+          (layer as unknown as { [key: string]: unknown })["source-layer"] ===
+            "place";
 
         if (isPlace) {
           try {
@@ -156,45 +158,64 @@ export function enhanceMapLabelsAndZoom(map: MapLibreMap) {
           }
 
           try {
-            if (layer.id === "label_city" || layer.id === "label_city_capital") {
+            if (
+              layer.id === "label_city" ||
+              layer.id === "label_city_capital"
+            ) {
               map.setLayoutProperty(layer.id, "text-size", [
                 "interpolate",
                 ["exponential", 1.2],
                 ["zoom"],
-                3, 11,
-                7, 13,
-                10, 16,
-                14, 20,
+                3,
+                11,
+                7,
+                13,
+                10,
+                16,
+                14,
+                20,
               ]);
             } else if (layer.id === "label_town") {
               map.setLayoutProperty(layer.id, "text-size", [
                 "interpolate",
                 ["exponential", 1.2],
                 ["zoom"],
-                5, 10,
-                8, 12,
-                11, 15,
-                14, 18,
+                5,
+                10,
+                8,
+                12,
+                11,
+                15,
+                14,
+                18,
               ]);
             } else if (layer.id === "label_village") {
               map.setLayoutProperty(layer.id, "text-size", [
                 "interpolate",
                 ["exponential", 1.2],
                 ["zoom"],
-                7, 10,
-                10, 12,
-                13, 15,
-                16, 17,
+                7,
+                10,
+                10,
+                12,
+                13,
+                15,
+                16,
+                17,
               ]);
             } else if (layer.id === "label_other") {
               map.setLayoutProperty(layer.id, "text-size", [
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                8, 9,
-                11, 11,
-                13, 13,
-                16, 15,
+                8,
+                9,
+                11,
+                11,
+                13,
+                13,
+                16,
+                15,
               ]);
             }
           } catch {
@@ -659,7 +680,7 @@ export function GlobeMap({
           el.innerHTML =
             '<span class="frelux-you-dot__halo"></span>' +
             '<span class="frelux-you-dot__core"></span>' +
-            `<span class="frelux-pin__label">${point.title.replace(/[<>&]/g, "")}</span>`;
+            `<span class="frelux-pin__label">${escapeHtml(point.title)}</span>`;
         } else {
           el.className = classNames(
             "frelux-pin",
@@ -672,7 +693,7 @@ export function GlobeMap({
             '<circle cx="12" cy="11.5" r="4.8" fill="#ffffff"/>' +
             '<circle cx="12" cy="11.5" r="2.2" fill="var(--pin)"/>' +
             "</svg>" +
-            `<span class="frelux-pin__label">${point.title.replace(/[<>&]/g, "")}</span>`;
+            `<span class="frelux-pin__label">${escapeHtml(point.title)}</span>`;
         }
 
         el.addEventListener("click", (event) => {
@@ -689,7 +710,10 @@ export function GlobeMap({
         markersRef.current.push(marker);
       }
 
-      if (Math.abs(points.length - prevPointsCountRef.current) > 0 && prevPointsCountRef.current === 0) {
+      if (
+        Math.abs(points.length - prevPointsCountRef.current) > 0 &&
+        prevPointsCountRef.current === 0
+      ) {
         hasFittedBoundsRef.current = false;
       }
       prevPointsCountRef.current = points.length;
@@ -859,11 +883,11 @@ export function GlobeMap({
       (pos) => {
         applyPosition(pos);
         // Refine with GPS satellites if high-accuracy hardware is available
-        navigator.geolocation.getCurrentPosition(
-          applyPosition,
-          () => {},
-          { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 },
-        );
+        navigator.geolocation.getCurrentPosition(applyPosition, () => {}, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 10000,
+        });
       },
       () => {
         // Fallback retry with standard accuracy

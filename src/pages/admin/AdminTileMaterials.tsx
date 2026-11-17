@@ -1,3 +1,4 @@
+import { downloadCsv } from "@/lib/export-utils";
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, X, Check, Download } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -179,29 +180,20 @@ export default function AdminTileMaterials() {
   }
 
   function handleExportSizes() {
-    const csv = [
-      "name,width_mm,height_mm,tiles_per_box,is_standard,is_active,sort_order",
+    const columns = [
+      { header: "name", key: "name" },
+      { header: "width_mm", key: "width_mm" },
+      { header: "height_mm", key: "height_mm" },
+      { header: "tiles_per_box", key: "tiles_per_box" },
+      { header: "is_standard", key: "is_standard" },
+      { header: "is_active", key: "is_active" },
+      { header: "sort_order", key: "sort_order" },
     ];
-    sizes.forEach((s) =>
-      csv.push(
-        [
-          `"${s.name}"`,
-          s.width_mm,
-          s.height_mm,
-          s.tiles_per_box,
-          s.is_standard,
-          s.is_active,
-          s.sort_order,
-        ].join(","),
-      ),
+    downloadCsv(
+      "tile_sizes",
+      sizes as unknown as Record<string, unknown>[],
+      columns,
     );
-    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "tile_sizes.csv";
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   if (status === "loading")

@@ -338,11 +338,14 @@ export function renderAdsterraBanner(
   if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
   const serveDomain = getAdsterraBannerServeDomain(provider);
   const { width, height } = resolveAdsterraSize(provider, opts.slotKey);
-  const params =
+  const rawSubId =
     (provider.settings ?? {}) instanceof Object &&
     typeof (provider.settings as Record<string, unknown>).sub_id === "string"
-      ? `{ 'sub_id': '${(provider.settings as Record<string, unknown>).sub_id}' }`
-      : "{}";
+      ? ((provider.settings as Record<string, unknown>).sub_id as string).trim()
+      : null;
+  const safeSubId =
+    rawSubId && /^[a-zA-Z0-9._-]+$/.test(rawSubId) ? rawSubId : null;
+  const params = safeSubId ? `{ 'sub_id': '${safeSubId}' }` : "{}";
 
   const html =
     '<!DOCTYPE html><html><head><meta charset="utf-8">' +

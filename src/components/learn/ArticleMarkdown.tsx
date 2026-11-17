@@ -1,3 +1,4 @@
+import { sanitizeMarkdownUrl } from "@/lib/sanitization";
 import React from "react";
 import {
   ArticleInsertBlock,
@@ -21,11 +22,17 @@ function renderInline(text: string): React.ReactNode {
     }
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (linkMatch) {
-      const isExternal = linkMatch[2].startsWith("http");
+      const rawUrl = linkMatch[2];
+      const safeUrl = sanitizeMarkdownUrl(rawUrl);
+      if (!safeUrl) {
+        return <span key={i}>{linkMatch[1]}</span>;
+      }
+      const isExternal =
+        safeUrl.startsWith("http:") || safeUrl.startsWith("https:");
       return (
         <a
           key={i}
-          href={linkMatch[2]}
+          href={safeUrl}
           className="font-medium text-brand-purple hover:underline"
           target={isExternal ? "_blank" : undefined}
           rel={isExternal ? "noopener noreferrer" : undefined}

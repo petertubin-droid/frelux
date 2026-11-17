@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/lib/sanitization";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useState, useEffect, useCallback, useRef, useId } from "react";
 import {
@@ -1099,7 +1100,9 @@ function generateAiQuotationHTML(
   },
   currencySymbol = "₦",
 ): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${toolLabel} AI Analysis</title>
+  const safeTitle = escapeHtml(toolLabel);
+  const safeCurrency = escapeHtml(currencySymbol);
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${safeTitle} AI Analysis</title>
 <style>
 body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a2e}
 .header{text-align:center;border-bottom:3px solid #6366f1;padding-bottom:20px;margin-bottom:30px}
@@ -1112,13 +1115,13 @@ body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;col
 .costs div{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
 .footer{margin-top:40px;text-align:center;font-size:11px;color:#999}
 </style></head><body>
-<div class="header"><h1>FRELUX | ${toolLabel}</h1><p>AI-Powered Advanced Analysis</p><p>${new Date().toLocaleDateString()}</p></div>
-<div class="section"><h2>{tx("Calculator Results")}</h2><p>${contextSummary.replace(/</g, "&lt;")}</p></div>
-${aiBreakdown ? `<div class="section"><h2>{tx("AI Analysis")}</h2><p>${aiBreakdown.replace(/</g, "&lt;")}</p></div>` : ""}
+<div class="header"><h1>FRELUX | ${safeTitle}</h1><p>AI-Powered Advanced Analysis</p><p>${new Date().toLocaleDateString()}</p></div>
+<div class="section"><h2>${escapeHtml(tx("Calculator Results"))}</h2><p>${escapeHtml(contextSummary)}</p></div>
+${aiBreakdown ? `<div class="section"><h2>${escapeHtml(tx("AI Analysis"))}</h2><p>${escapeHtml(aiBreakdown)}</p></div>` : ""}
 <div class="costs">
-<h2>{tx("Cost Adjustments")}</h2>
-<div><span>Labour</span><span>${currencySymbol}${formatNumber(costAdjust.labourCost)}</span></div>
-<div><span>Transport</span><span>${currencySymbol}${formatNumber(costAdjust.transportCost)}</span></div>
+<h2>${escapeHtml(tx("Cost Adjustments"))}</h2>
+<div><span>Labour</span><span>${safeCurrency}${formatNumber(costAdjust.labourCost)}</span></div>
+<div><span>Transport</span><span>${safeCurrency}${formatNumber(costAdjust.transportCost)}</span></div>
 <div><span>Waste</span><span>${costAdjust.wastePercentage}%</span></div>
 <div><span>Markup</span><span>${costAdjust.markupPercentage}%</span></div>
 <div><span>Profit</span><span>${costAdjust.profitPercentage}%</span></div>

@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/lib/sanitization";
 /**
  * FRELUX Bank-Submittable BOQ (Wave 1.2, paid tier)
  *
@@ -36,7 +37,7 @@ export interface BankBoqOptions {
 
 function line(label: string, value?: string | null): string {
   const v = value?.trim();
-  return `<tr><td class="lbl">${label}</td><td>${v ? v : '<span class="fill">&nbsp;</span>'}</td></tr>`;
+  return `<tr><td class="lbl">${escapeHtml(label)}</td><td>${v ? escapeHtml(v) : '<span class="fill">&nbsp;</span>'}</td></tr>`;
 }
 
 export function boqToBankHtml(
@@ -49,19 +50,20 @@ export function boqToBankHtml(
   const tax = boqTaxLabel(opts.countryCode);
   const cur = input.currency || "XXX";
   const money = (n: number) => formatByCode(n || 0, cur, { decimals: 0 });
-  const rev = opts.revision && opts.revision > 1 ? ` — Revision v${opts.revision}` : "";
+  const rev =
+    opts.revision && opts.revision > 1 ? ` — Revision v${opts.revision}` : "";
 
   const rows = result.line_totals
     .map(
       (l, i) =>
-        `<tr><td class="num">${i + 1}</td><td>${l.item.description}<br/><small class="src">Ref: ${l.item.source_estimate_ref}</small></td><td class="num">${l.item.quantity.toLocaleString()} ${l.item.unit}</td><td class="num">${money(l.item.unit_cost)}</td><td class="num"><b>${money(l.line_total)}</b></td></tr>`,
+        `<tr><td class="num">${i + 1}</td><td>${escapeHtml(l.item.description)}<br/><small class="src">Ref: ${escapeHtml(l.item.source_estimate_ref)}</small></td><td class="num">${l.item.quantity.toLocaleString()} ${escapeHtml(l.item.unit)}</td><td class="num">${escapeHtml(money(l.item.unit_cost))}</td><td class="num"><b>${escapeHtml(money(l.line_total))}</b></td></tr>`,
     )
     .join("");
 
   const optRow = (label: string, rate: number | null, amount: number | null) =>
     rate === null || amount === null
       ? ""
-      : `<tr class="sum"><td colspan="4">${label} (${rate}%)</td><td class="num">${money(amount)}</td></tr>`;
+      : `<tr class="sum"><td colspan="4">${escapeHtml(label)} (${rate}%)</td><td class="num">${escapeHtml(money(amount))}</td></tr>`;
 
   const block = (title: string, rowsHtml: string) => `
     <table class="block">
@@ -83,13 +85,15 @@ export function boqToBankHtml(
     line("Project title", input.title) +
       line("Project location", input.project_location) +
       line("Client", input.client_name) +
-      (input.client_contact ? line("Client contact", input.client_contact) : "") +
+      (input.client_contact
+        ? line("Client contact", input.client_contact)
+        : "") +
       line("BOQ reference", `${quoteRef}${rev ? ` (${rev})` : ""}`) +
       line("Currency", cur) +
       line("Date", new Date().toISOString().slice(0, 10)),
   );
 
-  return `<!DOCTYPE html><html><head><title>Bill of Quantities ${quoteRef} — ${input.title}</title><style>
+  return `<!DOCTYPE html><html><head><title>Bill of Quantities ${escapeHtml(quoteRef)} — ${escapeHtml(input.title)}</title><style>
     body{font-family:Georgia,'Times New Roman',serif;padding:36px;color:#111;max-width:860px;margin:0 auto}
     .doc-head{text-align:center;border-bottom:3px double #111;padding-bottom:16px;margin-bottom:22px}
     .doc-head h1{font-size:22px;margin:0;letter-spacing:2px}
@@ -117,35 +121,35 @@ export function boqToBankHtml(
   </style></head><body>
     <div class="doc-head">
       <h1>BILL OF QUANTITIES</h1>
-      <h2>${input.title}${rev}</h2>
-      <div class="ref">${quoteRef}${rev ? ` · ${rev}` : ""} · Currency: ${cur}</div>
+      <h2>${escapeHtml(input.title)}${escapeHtml(rev)}</h2>
+      <div class="ref">${escapeHtml(quoteRef)}${rev ? ` · ${escapeHtml(rev)}` : ""} · Currency: ${escapeHtml(cur)}</div>
     </div>
     ${companyBlock}
     ${projectBlock}
     <h3 class="sec">C. PRICED SCHEDULE OF WORKS</h3>
     <table class="sched">
-      <tr><th style="width:28px">Item</th><th>Description</th><th>Quantity</th><th>Unit rate (${cur})</th><th>Amount (${cur})</th></tr>
+      <tr><th style="width:28px">Item</th><th>Description</th><th>Quantity</th><th>Unit rate (${escapeHtml(cur)})</th><th>Amount (${escapeHtml(cur)})</th></tr>
       ${rows}
-      <tr class="sum"><td colspan="4">Subtotal</td><td class="num"><b>${money(t.subtotal)}</b></td></tr>
+      <tr class="sum"><td colspan="4">Subtotal</td><td class="num"><b>${escapeHtml(money(t.subtotal))}</b></td></tr>
       ${optRow("Contingency allowance", t.contingency_rate, t.contingency_amount)}
       ${optRow(`${tax.long} (${tax.short})`, t.vat_rate, t.vat_amount)}
-      <tr class="grand"><td colspan="4">GRAND TOTAL (${cur})</td><td class="num">${money(t.grand_total)}</td></tr>
+      <tr class="grand"><td colspan="4">GRAND TOTAL (${escapeHtml(cur)})</td><td class="num">${escapeHtml(money(t.grand_total))}</td></tr>
     </table>
-    ${result.warnings.length ? `<p class="note"><b>Notes:</b> ${result.warnings.join(" ")}</p>` : ""}
+    ${result.warnings.length ? `<p class="note"><b>Notes:</b> ${escapeHtml(result.warnings.join(" "))}</p>` : ""}
     <h3 class="sec">D. TERMS &amp; CONDITIONS</h3>
     <ol class="terms">
       <li>This Bill of Quantities is a priced schedule of works prepared for construction-loan assessment purposes.</li>
       <li>Quantities and unit rates are planning estimates generated from FRELUX-verified calculations; every line references its source estimate (shown as "Ref").</li>
-      <li>${tax.long} (${tax.short}) is applied only where a database-verified rate applies to this quote; no tax rate is assumed.</li>
-      <li>The contingency allowance, where shown, is included per the stated percentage and is separate from the ${tax.short} base.</li>
-      <li>All amounts are expressed in ${cur}. ${tax.long} treatment follows the market of the project location.</li>
+      <li>${escapeHtml(tax.long)} (${escapeHtml(tax.short)}) is applied only where a database-verified rate applies to this quote; no tax rate is assumed.</li>
+      <li>The contingency allowance, where shown, is included per the stated percentage and is separate from the ${escapeHtml(tax.short)} base.</li>
+      <li>All amounts are expressed in ${escapeHtml(cur)}. ${escapeHtml(tax.long)} treatment follows the market of the project location.</li>
       <li>Final contract sums are subject to executed contract documents between the named client and contractor.</li>
       <li>This document is valid for loan-application assessment and is not a payment instrument or payment guarantee.</li>
     </ol>
     <div class="sig">
-      <div>Prepared by: ${opts.preparedBy?.trim() || ""}<br/><small>(name &amp; position)</small></div>
+      <div>Prepared by: ${escapeHtml(opts.preparedBy?.trim() || "")}<br/><small>(name &amp; position)</small></div>
       <div>Signature &amp; date: <span class="fill">&nbsp;</span></div>
     </div>
-    <p class="note">Generated by FRELUX (${SITE_URL}) on ${new Date().toISOString().slice(0, 10)}. Reference ${quoteRef}${rev ? `, ${rev}` : ""}. Amounts in ${cur}; ${tax.long} labelled per project market.</p>
+    <p class="note">Generated by FRELUX (${SITE_URL}) on ${new Date().toISOString().slice(0, 10)}. Reference ${escapeHtml(quoteRef)}${rev ? `, ${escapeHtml(rev)}` : ""}. Amounts in ${escapeHtml(cur)}; ${escapeHtml(tax.long)} labelled per project market.</p>
   </body></html>`;
 }

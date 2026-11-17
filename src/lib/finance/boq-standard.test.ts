@@ -180,14 +180,30 @@ describe("Standardized BOQ Assembly Engine", () => {
   });
 });
 
-
 describe("BOQ export disclosure", () => {
   it("labels the generated document as a draft and disclaims standards certification", async () => {
-    const { exportBoqToPrintHtml, assembleStandardBoq } = await import("./boq-standard");
-    const doc = assembleStandardBoq({ metadata: { title: "Test", projectRef: "T-1", clientName: "Client", marketCode: "US", currency: "USD", preparedBy: "User", date: "2026-01-01", revision: "1", standard: "CSI_MASTERFORMAT" }, commercials: {}, sections: [] });
+    const { exportBoqToPrintHtml, assembleStandardBoq } =
+      await import("./boq-standard");
+    const doc = assembleStandardBoq({
+      metadata: {
+        title: "Test",
+        projectRef: "T-1",
+        clientName: "Client",
+        marketCode: "US",
+        currency: "USD",
+        preparedBy: "User",
+        date: "2026-01-01",
+        revision: "1",
+        standard: "CSI_MASTERFORMAT",
+      },
+      commercials: {},
+      sections: [],
+    });
     const html = exportBoqToPrintHtml(doc);
     expect(html).toContain("DRAFT QUANTITY & COST SCHEDULE");
-    expect(html).toContain("Not an official standards-compliant BOQ or certified measurement.");
+    expect(html).toContain(
+      "Not an official standards-compliant BOQ or certified measurement.",
+    );
     expect(html).not.toContain("OFFICIAL BILL OF QUANTITIES");
   });
 });
@@ -343,5 +359,54 @@ describe("rates, numbering and retention base", () => {
       ],
     });
     expect(doc.sections[0].subSections[0].items[0].itemNumber).toBe("03.01");
+  });
+
+  it("escapes user-supplied strings in print HTML", () => {
+    const doc = assembleStandardBoq({
+      metadata: {
+        title: '<script>alert("xss")</script>',
+        projectRef: 'PRJ<"1">',
+        clientName: "Client & Co <img src=x onerror=alert(1)>",
+        contractorName: 'Builder "A"',
+        preparedBy: "QS <Bob>",
+        location: "Lagos",
+        marketCode: "NG",
+        currency: "NGN",
+        standard: "Commercial",
+        date: "2026-05-01",
+        revision: "0",
+      },
+      commercials: {},
+      sections: [
+        {
+          code: "01",
+          title: "General <tag>",
+          subSections: [
+            {
+              code: "01.1",
+              title: "Prelim <tag>",
+              items: [
+                {
+                  itemNumber: "01.1.01",
+                  description: "<img src=x onerror=alert(1)> Custom item",
+                  unit: "m2",
+                  quantity: 10,
+                  materialRate: 100,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const html = exportBoqToPrintHtml(doc);
+    expect(html).not.toContain('<script>alert("xss")</script>');
+    expect(html).toContain(
+      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;",
+    );
+    expect(html).toContain(
+      "Client &amp; Co &lt;img src=x onerror=alert(1)&gt;",
+    );
+    expect(html).toContain("&lt;img src=x onerror=alert(1)&gt; Custom item");
   });
 });

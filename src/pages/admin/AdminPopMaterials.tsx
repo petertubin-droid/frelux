@@ -1,3 +1,4 @@
+import { downloadCsv } from "@/lib/export-utils";
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, X, Check, Download } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -155,35 +156,26 @@ export default function AdminPopMaterials() {
   }
 
   function handleExport() {
-    const csv = [
-      "workflow,category,name,unit,coverage_rate,coverage_unit,package_size,package_unit,unit_price,labour_rate_per_sqm,is_optional,is_active,sort_order",
+    const columns = [
+      { header: "workflow", key: "workflow" },
+      { header: "category", key: "category" },
+      { header: "name", key: "name" },
+      { header: "unit", key: "unit" },
+      { header: "coverage_rate", key: "coverage_rate" },
+      { header: "coverage_unit", key: "coverage_unit" },
+      { header: "package_size", key: "package_size" },
+      { header: "package_unit", key: "package_unit" },
+      { header: "unit_price", key: "unit_price" },
+      { header: "labour_rate_per_sqm", key: "labour_rate_per_sqm" },
+      { header: "is_optional", key: "is_optional" },
+      { header: "is_active", key: "is_active" },
+      { header: "sort_order", key: "sort_order" },
     ];
-    materials.forEach((m) => {
-      csv.push(
-        [
-          m.workflow,
-          m.category,
-          `"${m.name}"`,
-          m.unit,
-          m.coverage_rate,
-          m.coverage_unit,
-          m.package_size,
-          m.package_unit,
-          m.unit_price,
-          m.labour_rate_per_sqm,
-          m.is_optional,
-          m.is_active,
-          m.sort_order,
-        ].join(","),
-      );
-    });
-    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "pop_materials.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      "pop_materials",
+      materials as unknown as Record<string, unknown>[],
+      columns,
+    );
   }
 
   const filtered = materials.filter((m) => m.workflow === filterWf);

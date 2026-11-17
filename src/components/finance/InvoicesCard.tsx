@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/lib/sanitization";
 /**
  * InvoicesCard (Wave 1.3 — Click-to-Invoice)
  *
@@ -150,26 +151,26 @@ export function InvoicesCard({
   const printInvoice = (inv: InvoiceWithState) => {
     const w = window.open("", "_blank");
     if (!w) return;
+    const invData = inv.invoice;
     w.document.write(
-      `<html><head><title>${inv.invoice.invoice_ref}</title><style>body{font-family:system-ui;padding:24px;color:#111}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}h1,h2{margin:0 0 4px}.meta{color:#555}</style></head><body>` +
-        `<h1>${inv.invoice.invoice_ref}</h1>` +
-        `<p class="meta">${inv.invoice.title} · Issued ${inv.invoice.issue_date} · Due ${inv.invoice.due_date ?? "—"}</p>` +
-        `<p class="meta">Client: ${inv.invoice.client_name}${inv.invoice.client_contact ? ` · ${inv.invoice.client_contact}` : ""}</p>` +
-        `<table><thead><tr><th>{t("Description")}</th><th>{t("Qty")}</th><th>{t("Unit")}</th><th>{t("Unit cost")}</th><th>{t("Total")}</th></tr></thead><tbody>` +
-        inv.invoice.items
+      `<html><head><title>${escapeHtml(invData.invoice_ref)}</title><style>body{font-family:system-ui;padding:24px;color:#111}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}h1,h2{margin:0 0 4px}.meta{color:#555}</style></head><body>` +
+        `<h1>${escapeHtml(invData.invoice_ref)}</h1>` +
+        `<p class="meta">${escapeHtml(invData.title)} · Issued ${escapeHtml(invData.issue_date)} · Due ${escapeHtml(invData.due_date ?? "—")}</p>` +
+        `<p class="meta">Client: ${escapeHtml(invData.client_name)}${invData.client_contact ? ` · ${escapeHtml(invData.client_contact)}` : ""}</p>` +
+        `<table><thead><tr><th>${escapeHtml(t("Description"))}</th><th>${escapeHtml(t("Qty"))}</th><th>${escapeHtml(t("Unit"))}</th><th>${escapeHtml(t("Unit cost"))}</th><th>${escapeHtml(t("Total"))}</th></tr></thead><tbody>` +
+        invData.items
           .map(
             (it) =>
-              `<tr><td>${it.description}</td><td>${it.quantity}</td><td>${it.unit}</td><td>${formatByCode(it.unit_cost, inv.invoice.currency)}</td><td>${formatByCode(it.total, inv.invoice.currency)}</td></tr>`,
+              `<tr><td>${escapeHtml(it.description)}</td><td>${escapeHtml(it.quantity)}</td><td>${escapeHtml(it.unit)}</td><td>${escapeHtml(formatByCode(it.unit_cost, invData.currency))}</td><td>${escapeHtml(formatByCode(it.total, invData.currency))}</td></tr>`,
           )
           .join("") +
         `</tbody></table>` +
-        `<p><strong>Subtotal:</strong> ${formatByCode(inv.invoice.totals.subtotal, inv.invoice.currency)}</p>` +
-        (inv.invoice.totals.vat_amount != null &&
-        inv.invoice.totals.vat_rate != null
-          ? `<p><strong>${inv.invoice.tax_label ?? "Tax"} (${inv.invoice.totals.vat_rate}%):</strong> ${formatByCode(inv.invoice.totals.vat_amount, inv.invoice.currency)}</p>`
+        `<p><strong>Subtotal:</strong> ${escapeHtml(formatByCode(invData.totals.subtotal, invData.currency))}</p>` +
+        (invData.totals.vat_amount != null && invData.totals.vat_rate != null
+          ? `<p><strong>${escapeHtml(invData.tax_label ?? "Tax")} (${escapeHtml(invData.totals.vat_rate)}%):</strong> ${escapeHtml(formatByCode(invData.totals.vat_amount, invData.currency))}</p>`
           : "") +
-        `<p><strong>Grand total:</strong> ${formatByCode(inv.invoice.totals.grand_total, inv.invoice.currency)}</p>` +
-        `<p><strong>Paid to date:</strong> ${formatByCode(inv.paidTotal, inv.invoice.currency)} · Status: ${DERIVED_STATUS_LABELS[inv.derivedStatus]}</p>` +
+        `<p><strong>Grand total:</strong> ${escapeHtml(formatByCode(invData.totals.grand_total, invData.currency))}</p>` +
+        `<p><strong>Paid to date:</strong> ${escapeHtml(formatByCode(inv.paidTotal, invData.currency))} · Status: ${escapeHtml(DERIVED_STATUS_LABELS[inv.derivedStatus])}</p>` +
         `</body></html>`,
     );
     w.document.close();

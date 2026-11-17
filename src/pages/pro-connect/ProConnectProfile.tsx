@@ -1,3 +1,4 @@
+import { sanitizeHttpUrl } from "@/lib/sanitization";
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -334,17 +335,23 @@ export default function ProConnectProfile() {
                     <span>{profile.years_experience} years experience</span>
                   </div>
                 )}
-                {profile.website_url && (
-                  <a
-                    href={profile.website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-brand-purple dark:text-brand-purple-lighter"
-                  >
-                    <Globe aria-hidden="true" className="h-4 w-4" />
-                    <span>{t("Website")}</span>
-                  </a>
-                )}
+                {(() => {
+                  const safeWebsite = profile.website_url
+                    ? sanitizeHttpUrl(profile.website_url)
+                    : null;
+                  if (!safeWebsite) return null;
+                  return (
+                    <a
+                      href={safeWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-brand-purple dark:text-brand-purple-lighter"
+                    >
+                      <Globe aria-hidden="true" className="h-4 w-4" />
+                      <span>{t("Website")}</span>
+                    </a>
+                  );
+                })()}
               </div>
 
               {/* Location */}

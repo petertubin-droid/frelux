@@ -1,3 +1,4 @@
+import { sanitizeHttpUrl } from "@/lib/sanitization";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Send, Paperclip } from "lucide-react";
@@ -316,17 +317,19 @@ export default function Messages() {
                                   ? "⚠️ This message was removed by the moderator."
                                   : msg.body}
                               </p>
-                              {!isRemoved && msg.attachment_url && (
-                                <a
-                                  href={msg.attachment_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="mt-1 flex items-center gap-1 text-xs underline"
-                                >
-                                  <Paperclip className="h-3 w-3" />
-                                  {t("Attachment")}
-                                </a>
-                              )}
+                              {!isRemoved &&
+                                msg.attachment_url &&
+                                sanitizeHttpUrl(msg.attachment_url) && (
+                                  <a
+                                    href={sanitizeHttpUrl(msg.attachment_url)!}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-1 flex items-center gap-1 text-xs underline"
+                                  >
+                                    <Paperclip className="h-3 w-3" />
+                                    {t("Attachment")}
+                                  </a>
+                                )}
                               <p
                                 className={classNames(
                                   "mt-1 text-xs",

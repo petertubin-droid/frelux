@@ -1,3 +1,4 @@
+import { escapeHtml } from "@/lib/sanitization";
 /**
  * FRELUX Enterprise Standardized Bill of Quantities (BOQ) Assembly Engine
  *
@@ -18,7 +19,8 @@
 import { formatByCode } from "@/lib/international/currency-format";
 import { TaxCalculationResult } from "./tax-engine";
 
-export type BoqStandard = "NRM2" | "CSI_MASTERFORMAT" | "CESMM4" | "ICMS" | "Commercial";
+export type BoqStandard =
+  "NRM2" | "CSI_MASTERFORMAT" | "CESMM4" | "ICMS" | "Commercial";
 
 export interface BoqItem {
   id: string;
@@ -105,7 +107,10 @@ export const STANDARD_SECTION_TEMPLATES: Record<
     { code: "04", title: "Masonry & Unit Assemblies" },
     { code: "05", title: "Metals (Structural Steel & Light Gauge)" },
     { code: "06", title: "Wood, Plastics, and Composites" },
-    { code: "07", title: "Thermal and Moisture Protection (Roofing & Waterproofing)" },
+    {
+      code: "07",
+      title: "Thermal and Moisture Protection (Roofing & Waterproofing)",
+    },
     { code: "08", title: "Openings (Doors, Windows & Hardware)" },
     { code: "09", title: "Finishes (Plaster, Screed, Tile & Painting)" },
     { code: "10", title: "Specialties" },
@@ -602,15 +607,15 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
       (sec) => `
     <div class="boq-section">
       <div class="sec-hdr">
-        <span class="code">${sec.code}</span>
-        <span class="title">${sec.title}</span>
-        <span class="tot">${fmt(sec.sectionTotal)}</span>
+        <span class="code">${escapeHtml(sec.code)}</span>
+        <span class="title">${escapeHtml(sec.title)}</span>
+        <span class="tot">${escapeHtml(fmt(sec.sectionTotal))}</span>
       </div>
       ${sec.subSections
         .map(
           (sub) => `
         <div class="sub-hdr">
-          <span>${sub.code} — ${sub.title}</span>
+          <span>${escapeHtml(sub.code)} — ${escapeHtml(sub.title)}</span>
         </div>
         <table class="boq-table">
           <thead>
@@ -619,8 +624,8 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
               <th style="width: 44%;">Description & Specification</th>
               <th style="width: 8%;">Unit</th>
               <th style="width: 10%;" class="num">Qty</th>
-              <th style="width: 15%;" class="num">Rate (${cur})</th>
-              <th style="width: 15%;" class="num">Amount (${cur})</th>
+              <th style="width: 15%;" class="num">Rate (${escapeHtml(cur)})</th>
+              <th style="width: 15%;" class="num">Amount (${escapeHtml(cur)})</th>
             </tr>
           </thead>
           <tbody>
@@ -628,15 +633,15 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
               .map(
                 (it) => `
               <tr>
-                <td class="item-no">${it.itemNumber}</td>
+                <td class="item-no">${escapeHtml(it.itemNumber)}</td>
                 <td>
-                  <div class="desc">${it.description}</div>
-                  ${it.specificationRef ? `<div class="spec">Spec: ${it.specificationRef}</div>` : ""}
+                  <div class="desc">${escapeHtml(it.description)}</div>
+                  ${it.specificationRef ? `<div class="spec">Spec: ${escapeHtml(it.specificationRef)}</div>` : ""}
                 </td>
-                <td>${it.unit}</td>
+                <td>${escapeHtml(it.unit)}</td>
                 <td class="num">${it.quantity.toLocaleString()}</td>
-                <td class="num">${fmt(it.unitRate)}</td>
-                <td class="num bold">${fmt(it.totalCost)}</td>
+                <td class="num">${escapeHtml(fmt(it.unitRate))}</td>
+                <td class="num bold">${escapeHtml(fmt(it.totalCost))}</td>
               </tr>
             `,
               )
@@ -655,7 +660,7 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>BOQ — ${metadata.title} (${metadata.projectRef})</title>
+  <title>BOQ — ${escapeHtml(metadata.title)} (${escapeHtml(metadata.projectRef)})</title>
   <style>
     @page { size: A4; margin: 15mm; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 11px; color: #1e293b; line-height: 1.4; padding: 20px; }
@@ -690,26 +695,26 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
   <div class="header">
     <div>
       <div class="brand">FRELUX GLOBAL ENTERPRISE</div>
-      <div class="doc-type">DRAFT QUANTITY & COST SCHEDULE — ${metadata.standard} classification aid</div>
+      <div class="doc-type">DRAFT QUANTITY & COST SCHEDULE — ${escapeHtml(metadata.standard)} classification aid</div>
       <div style="margin-top:6px;padding:8px;border:1px solid #f59e0b;background:#fffbeb;color:#78350f;font-size:10px"><b>Not an official standards-compliant BOQ or certified measurement.</b> Division assignment is heuristic. Review quantities, scope, rates, local measurement rules and contract requirements with a qualified local quantity surveyor before issue. This document is not structural design approval or a purchase order.</div>
     </div>
     <div style="text-align: right; font-size: 10px; color: #64748b;">
-      <div>Ref: <b>${metadata.projectRef}</b></div>
-      <div>Date: ${metadata.date} | Rev: ${metadata.revision}</div>
-      <div>Market: <b>${metadata.marketCode}</b></div>
+      <div>Ref: <b>${escapeHtml(metadata.projectRef)}</b></div>
+      <div>Date: ${escapeHtml(metadata.date)} | Rev: ${escapeHtml(metadata.revision)}</div>
+      <div>Market: <b>${escapeHtml(metadata.marketCode)}</b></div>
     </div>
   </div>
 
   <div class="meta-grid">
     <div>
-      <div class="meta-row"><span class="meta-lbl">Project:</span><span class="meta-val">${metadata.title}</span></div>
-      <div class="meta-row"><span class="meta-lbl">Client:</span><span class="meta-val">${metadata.clientName}</span></div>
-      ${metadata.location ? `<div class="meta-row"><span class="meta-lbl">Location:</span><span class="meta-val">${metadata.location}</span></div>` : ""}
+      <div class="meta-row"><span class="meta-lbl">Project:</span><span class="meta-val">${escapeHtml(metadata.title)}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Client:</span><span class="meta-val">${escapeHtml(metadata.clientName)}</span></div>
+      ${metadata.location ? `<div class="meta-row"><span class="meta-lbl">Location:</span><span class="meta-val">${escapeHtml(metadata.location)}</span></div>` : ""}
     </div>
     <div>
-      ${metadata.contractorName ? `<div class="meta-row"><span class="meta-lbl">Contractor:</span><span class="meta-val">${metadata.contractorName}</span></div>` : ""}
-      <div class="meta-row"><span class="meta-lbl">Currency:</span><span class="meta-val">${cur}</span></div>
-      <div class="meta-row"><span class="meta-lbl">Prepared By:</span><span class="meta-val">${metadata.preparedBy}</span></div>
+      ${metadata.contractorName ? `<div class="meta-row"><span class="meta-lbl">Contractor:</span><span class="meta-val">${escapeHtml(metadata.contractorName)}</span></div>` : ""}
+      <div class="meta-row"><span class="meta-lbl">Currency:</span><span class="meta-val">${escapeHtml(cur)}</span></div>
+      <div class="meta-row"><span class="meta-lbl">Prepared By:</span><span class="meta-val">${escapeHtml(metadata.preparedBy)}</span></div>
     </div>
   </div>
 
@@ -725,7 +730,7 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
       <tr><td>Subtotal before Contingency</td><td class="num bold">${fmt(summary.subtotalBeforeContingency)}</td></tr>
       ${summary.contingencyAmount > 0 ? `<tr><td>Construction Contingency (${doc.commercials.contingencyPercent || 0}%)</td><td class="num">${fmt(summary.contingencyAmount)}</td></tr>` : ""}
       <tr><td>Net Contract Sum (Excl. Tax)</td><td class="num bold">${fmt(summary.subtotalBeforeTax)}</td></tr>
-      <tr><td>Statutory Tax (${summary.taxCategory})</td><td class="num">${fmt(summary.taxAmount)}</td></tr>
+      <tr><td>Statutory Tax (${escapeHtml(summary.taxCategory)})</td><td class="num">${fmt(summary.taxAmount)}</td></tr>
       <tr class="total-row"><td>GROSS BILL OF QUANTITIES TOTAL</td><td class="num">${fmt(summary.grossTotal)}</td></tr>
       ${
         summary.retentionAmount > 0
@@ -752,7 +757,6 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
 </html>`;
 }
 
-
 // =========================================================
 // REGIONAL PROFESSIONAL STANDARDS MAPPER (CSI / NRM2 / COMMERCIAL)
 // =========================================================
@@ -763,27 +767,58 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
  */
 export function mapItemToStandardDivision(
   categoryOrDesc: string,
-  standard: BoqStandard
+  standard: BoqStandard,
 ): { code: string; title: string } {
   const norm = (categoryOrDesc || "").toLowerCase();
 
   if (standard === "CSI_MASTERFORMAT") {
-    if (norm.includes("concrete") || norm.includes("slab") || norm.includes("rebar") || norm.includes("cement")) {
-      return { code: "03", title: "Concrete (Foundations, Slabs & Structural)" };
+    if (
+      norm.includes("concrete") ||
+      norm.includes("slab") ||
+      norm.includes("rebar") ||
+      norm.includes("cement")
+    ) {
+      return {
+        code: "03",
+        title: "Concrete (Foundations, Slabs & Structural)",
+      };
     }
-    if (norm.includes("block") || norm.includes("brick") || norm.includes("masonry")) {
+    if (
+      norm.includes("block") ||
+      norm.includes("brick") ||
+      norm.includes("masonry")
+    ) {
       return { code: "04", title: "Masonry & Unit Assemblies" };
     }
-    if (norm.includes("steel") || norm.includes("iron") || norm.includes("metal")) {
+    if (
+      norm.includes("steel") ||
+      norm.includes("iron") ||
+      norm.includes("metal")
+    ) {
       return { code: "05", title: "Metals (Structural Steel & Light Gauge)" };
     }
-    if (norm.includes("wood") || norm.includes("carpentry") || norm.includes("timber")) {
+    if (
+      norm.includes("wood") ||
+      norm.includes("carpentry") ||
+      norm.includes("timber")
+    ) {
       return { code: "06", title: "Wood, Plastics, and Composites" };
     }
-    if (norm.includes("roof") || norm.includes("waterproof") || norm.includes("insulation")) {
-      return { code: "07", title: "Thermal and Moisture Protection (Roofing & Waterproofing)" };
+    if (
+      norm.includes("roof") ||
+      norm.includes("waterproof") ||
+      norm.includes("insulation")
+    ) {
+      return {
+        code: "07",
+        title: "Thermal and Moisture Protection (Roofing & Waterproofing)",
+      };
     }
-    if (norm.includes("door") || norm.includes("window") || norm.includes("glazing")) {
+    if (
+      norm.includes("door") ||
+      norm.includes("window") ||
+      norm.includes("glazing")
+    ) {
       return { code: "08", title: "Openings (Doors, Windows & Hardware)" };
     }
     if (
@@ -795,25 +830,51 @@ export function mapItemToStandardDivision(
       norm.includes("ceiling") ||
       norm.includes("finish")
     ) {
-      return { code: "09", title: "Finishes (Plaster, Screed, Tile & Painting)" };
+      return {
+        code: "09",
+        title: "Finishes (Plaster, Screed, Tile & Painting)",
+      };
     }
-    if (norm.includes("plumb") || norm.includes("pipe") || norm.includes("valve") || norm.includes("drain")) {
+    if (
+      norm.includes("plumb") ||
+      norm.includes("pipe") ||
+      norm.includes("valve") ||
+      norm.includes("drain")
+    ) {
       return { code: "22", title: "Plumbing (Pipes, Fixtures & Valves)" };
     }
-    if (norm.includes("electric") || norm.includes("wire") || norm.includes("conduit") || norm.includes("solar")) {
+    if (
+      norm.includes("electric") ||
+      norm.includes("wire") ||
+      norm.includes("conduit") ||
+      norm.includes("solar")
+    ) {
       return { code: "26", title: "Electrical & Lighting" };
     }
-    if (norm.includes("earth") || norm.includes("excavat") || norm.includes("foundation")) {
+    if (
+      norm.includes("earth") ||
+      norm.includes("excavat") ||
+      norm.includes("foundation")
+    ) {
       return { code: "31", title: "Earthwork & Excavation" };
     }
     return { code: "01", title: "General Requirements" };
   }
 
   if (standard === "NRM2") {
-    if (norm.includes("earth") || norm.includes("excavat") || norm.includes("foundation")) {
+    if (
+      norm.includes("earth") ||
+      norm.includes("excavat") ||
+      norm.includes("foundation")
+    ) {
       return { code: "04", title: "Substructure & Foundations" };
     }
-    if (norm.includes("concrete") || norm.includes("block") || norm.includes("slab") || norm.includes("column")) {
+    if (
+      norm.includes("concrete") ||
+      norm.includes("block") ||
+      norm.includes("slab") ||
+      norm.includes("column")
+    ) {
       return { code: "05", title: "Superstructure Frame, Walls & Floors" };
     }
     if (norm.includes("roof") || norm.includes("waterproof")) {
@@ -833,8 +894,16 @@ export function mapItemToStandardDivision(
     if (norm.includes("ceiling") || norm.includes("pop")) {
       return { code: "11", title: "Ceilings & Suspended Systems" };
     }
-    if (norm.includes("plumb") || norm.includes("electric") || norm.includes("mep") || norm.includes("solar")) {
-      return { code: "12", title: "Mechanical, Electrical & Public Health (MEP)" };
+    if (
+      norm.includes("plumb") ||
+      norm.includes("electric") ||
+      norm.includes("mep") ||
+      norm.includes("solar")
+    ) {
+      return {
+        code: "12",
+        title: "Mechanical, Electrical & Public Health (MEP)",
+      };
     }
     return { code: "01", title: "Preliminaries & General Requirements" };
   }
@@ -855,11 +924,19 @@ export function mapItemToStandardDivision(
   if (norm.includes("door") || norm.includes("window")) {
     return { code: "06", title: "Doors, Windows & Ironmongery" };
   }
-  if (norm.includes("paint") || norm.includes("tile") || norm.includes("screed") || norm.includes("pop")) {
+  if (
+    norm.includes("paint") ||
+    norm.includes("tile") ||
+    norm.includes("screed") ||
+    norm.includes("pop")
+  ) {
     return { code: "07", title: "Plastering, Screeding & Finishes" };
   }
   if (norm.includes("plumb") || norm.includes("electric")) {
-    return { code: "08", title: "Plumbing, Drainage & Electrical Installations" };
+    return {
+      code: "08",
+      title: "Plumbing, Drainage & Electrical Installations",
+    };
   }
   return { code: "01", title: "Preliminaries & Site Establishment" };
 }
@@ -875,7 +952,16 @@ export function resolveMarketBoqStandard(marketCode: string): BoqStandard {
   if (code === "US" || code === "CA") {
     return "CSI_MASTERFORMAT";
   }
-  if (code === "GB" || code === "UK" || code === "AU" || code === "NZ" || code === "ZA" || code === "KE" || code === "GH" || code === "NG") {
+  if (
+    code === "GB" ||
+    code === "UK" ||
+    code === "AU" ||
+    code === "NZ" ||
+    code === "ZA" ||
+    code === "KE" ||
+    code === "GH" ||
+    code === "NG"
+  ) {
     return "NRM2";
   }
   return "Commercial";

@@ -62,3 +62,14 @@ describe("export-utils", () => {
     expect(csv).toBe("A");
   });
 });
+
+it("toCsv neutralizes formula injection in cells", () => {
+  const rows = [{ formula: "=2+5", text: "@danger" }];
+  const columns: CsvColumn[] = [
+    { header: "Formula", key: "formula" },
+    { header: "Text", key: "text" },
+  ];
+  const csv = toCsv(rows, columns);
+  expect(csv).toContain('"\'=2+5"');
+  expect(csv).toContain('"\'@danger"');
+});
