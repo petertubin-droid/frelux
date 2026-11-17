@@ -60,6 +60,20 @@ export interface DrywallMarketProfile {
   tapeMetersPerM2: number;
 }
 
+/**
+ * Screws per square metre of board, one figure for every market.
+ *
+ * The profiles carried 32 per m2 for the imperial markets and 20 for the metric
+ * ones, against published guidance of about one screw per square foot, which is
+ * 10.8 per m2 and roughly 35 per 1.2 x 2.4 m sheet. Put another way: studs at
+ * 400 mm with fixings at 300 mm down each stud give 2.5 x 3.33 = 8.3 fixings per
+ * m2 along the studs, and fixings staggered between studs take a 4 x 8 ft sheet
+ * to the 30 to 40 that installers actually use. The 32 per m2 figure was a
+ * per-sheet count read as an area density, so a US project ordered about three
+ * times the screws it needed.
+ */
+export const DRYWALL_SCREW_DENSITY_PER_M2 = 12;
+
 /** Verified common board sizes / framing conventions are configurable; market profile is a starting default. */
 export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
   NG: {
@@ -67,7 +81,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -76,7 +90,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2438,
     studSpacingMm: 406,
     trackStockLengthM: 3.05,
-    screwDensityPerM2: 32,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.65,
     tapeMetersPerM2: 1.5,
   },
@@ -85,7 +99,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 400,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -94,7 +108,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2438,
     studSpacingMm: 406,
     trackStockLengthM: 3.05,
-    screwDensityPerM2: 32,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.65,
     tapeMetersPerM2: 1.5,
   },
@@ -103,7 +117,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 450,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -112,7 +126,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 450,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -121,7 +135,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 625,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -130,7 +144,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -139,7 +153,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -148,7 +162,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -157,7 +171,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2600,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -166,7 +180,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2600,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -175,7 +189,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 450,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -184,7 +198,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 625,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -193,7 +207,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -202,7 +216,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -211,7 +225,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -220,7 +234,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -229,7 +243,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -238,7 +252,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -247,7 +261,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -256,7 +270,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -265,7 +279,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -274,7 +288,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -283,7 +297,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2500,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 18,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.5,
     tapeMetersPerM2: 1.3,
   },
@@ -292,7 +306,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 1820,
     studSpacingMm: 455,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -301,7 +315,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 1800,
     studSpacingMm: 450,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -310,7 +324,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -319,7 +333,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -328,7 +342,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 1800,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -337,7 +351,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2440,
     studSpacingMm: 406,
     trackStockLengthM: 3.05,
-    screwDensityPerM2: 32,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.65,
     tapeMetersPerM2: 1.5,
   },
@@ -346,7 +360,7 @@ export const DRYWALL_MARKET_PROFILES: Record<string, DrywallMarketProfile> = {
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   },
@@ -361,7 +375,7 @@ export function calculateDrywallTakeoff(
     boardLengthMm: 2400,
     studSpacingMm: 600,
     trackStockLengthM: 3,
-    screwDensityPerM2: 20,
+    screwDensityPerM2: DRYWALL_SCREW_DENSITY_PER_M2,
     jointCompoundKgPerM2: 0.55,
     tapeMetersPerM2: 1.4,
   };
@@ -369,9 +383,10 @@ export function calculateDrywallTakeoff(
   const wallLengthM = Math.max(0, Number(input.wallLengthM) || 0);
   const wallHeightM = Math.max(0, Number(input.wallHeightM) || 0);
   const enteredWallArea = Number(input.wallAreaM2);
-  const grossWallAreaM2 = Number.isFinite(enteredWallArea) && enteredWallArea >= 0
-    ? enteredWallArea
-    : wallLengthM * wallHeightM * wallCount;
+  const grossWallAreaM2 =
+    Number.isFinite(enteredWallArea) && enteredWallArea >= 0
+      ? enteredWallArea
+      : wallLengthM * wallHeightM * wallCount;
 
   const openingsAreaM2 = (input.openings ?? []).reduce(
     (sum, opening) =>
