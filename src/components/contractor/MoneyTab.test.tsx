@@ -156,7 +156,14 @@ describe("MoneyTab", () => {
     renderTab();
 
     expect(await screen.findByText("Overdue")).toBeTruthy();
-    expect(screen.getByText("Unpaid")).toBeTruthy();
+    // The summary tiles also read "Overdue" and they render a tick before the
+    // rows, so waiting on that word does not prove the rows exist. CI caught
+    // this: the status label was read synchronously while the table body was
+    // still empty and the query found nothing. Wait for the second invoice's
+    // number, then read the row labels with a query that tolerates the rows
+    // earlier tests in this file leave behind.
+    expect(await screen.findByText("INV-0002")).toBeTruthy();
+    expect((await screen.findAllByText("Unpaid")).length).toBeGreaterThan(0);
   });
 
   it("records a part payment against the named invoice", async () => {
