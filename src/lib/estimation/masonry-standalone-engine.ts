@@ -1873,6 +1873,23 @@ export function wallThicknessForLeaves(
   return count * unitWidthMm + (count - 1) * jointMm;
 }
 
+/**
+ * Round half away from zero, the way a measuring rule works.
+ *
+ * toFixed rounds the stored binary value, so 0.6075 m3 printed as 0.607 and
+ * every half unit went down. Shifting through the decimal string rounds the
+ * number a person would write.
+ */
+function roundTo(value: number, places: number): number {
+  if (!Number.isFinite(value)) return 0;
+  // 30 x 0.02025 is stored as 0.6074999999999999, so the binary value has to be
+  // trimmed to the decimal the arithmetic means before it is shifted.
+  const normalised = Number(value.toPrecision(15));
+  const shifted = Number(`${normalised}e${places}`);
+  if (!Number.isFinite(shifted)) return value;
+  return Number(`${Math.round(shifted)}e-${places}`);
+}
+
 export function calculateMasonryTakeoff(
   input: MasonryCalculationInput,
 ): MasonryCalculationResult {
@@ -1974,9 +1991,17 @@ export function calculateMasonryTakeoff(
   // For solid units: Mortar wet volume = Total Wall Volume - Total Net Units Volume.
   let mortarVolumeM3Net = 0;
   if (activeUnit.isHollow) {
-    // Face-shell bedding mortar allowance (~0.018 m3 per m2 for 200mm block)
-    const factor = (unitWidthM / 0.2) * 0.018;
-    mortarVolumeM3Net = netWallAreaM2 * factor * leafCount;
+    // Face-shell bedding mortar allowance (~0.018 m3 per m2 for 200mm block).
+    // That figure is a calibration at the unit's own standard joint, so it is
+    // scaled by the joint the wall actually uses. Scaling was missing: a wall
+    // with 1 mm joints and one with 24 mm joints both ordered 0.607 m3 of
+    // mortar on 30 m2, because the allowance ignored the joint entirely while
+    // the block count did not. Mortar in bed and head joints is proportional to
+    // joint thickness to first order, which is what this ratio applies.
+    const standardJointMm = Math.max(1, activeUnit.standardJointMm || 10);
+    const jointRatio = jointMm / standardJointMm;
+    const factor = (unitWidthM / 0.2) * 0.018 * jointRatio * leafCount;
+    mortarVolumeM3Net = netWallAreaM2 * factor;
   } else {
     // Solid units: one leaf of thickness unitWidthM per leaf.
     const totalWallVolume = netWallAreaM2 * unitWidthM * leafCount;
@@ -2025,19 +2050,19 @@ export function calculateMasonryTakeoff(
     marketCode: config.marketCode,
     grossWallAreaM2: Number(grossWallAreaM2.toFixed(2)),
     openingsAreaM2: Number(openingsAreaM2.toFixed(2)),
-    netWallAreaM2: Number(netWallAreaM2.toFixed(2)),
+    netWallAreaM2: roundTo(netWallAreaM2, 2),
     unit: activeUnit,
     lengthUnit: entryUnit,
-    unitsPerM2: Number(unitsPerM2.toFixed(2)),
-    unitsPerM2Effective: Number(unitsPerM2Effective.toFixed(2)),
+    unitsPerM2: roundTo(unitsPerM2, 2),
+    unitsPerM2Effective: roundTo(unitsPerM2Effective, 2),
     leafCount,
     unitsRequiredNet: Math.round(unitsRequiredNet),
     unitsRequiredGross,
-    mortarVolumeM3Net: Number(mortarVolumeM3Net.toFixed(3)),
-    mortarVolumeM3Gross: Number(mortarVolumeM3Gross.toFixed(3)),
+    mortarVolumeM3Net: roundTo(mortarVolumeM3Net, 3),
+    mortarVolumeM3Gross: roundTo(mortarVolumeM3Gross, 3),
     cementBagWeightKg: cementBagWeight,
     cementBagsRequired,
-    sandVolumeM3: Number(sandVolM3.toFixed(2)),
+    sandVolumeM3: roundTo(sandVolM3, 2),
     sandWeightTonnes,
     waterLiters,
     estimatedLaborHours: {

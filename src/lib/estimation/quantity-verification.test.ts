@@ -49,7 +49,9 @@ describe("masonry quantities", () => {
     expect(r.unitsPerM2).toBeCloseTo(9.13, 2);
     expect(r.unitsRequiredNet).toBeCloseTo(273.9, 0);
     expect(r.unitsRequiredGross).toBe(288);
-    expect(r.mortarVolumeM3Net).toBeCloseTo(0.607, 3);
+    // 30 m2 x 0.02025 m3/m2 = 0.6075 m3, which prints as 0.608 now that a half
+    // rounds up instead of being shaved by the binary representation.
+    expect(r.mortarVolumeM3Net).toBeCloseTo(0.608, 3);
     expect(r.mortarVolumeM3Gross).toBeCloseTo(0.848, 2);
     expect(r.cementBagsRequired).toBe(5);
     expect(r.sandVolumeM3).toBeCloseTo(0.71, 1);
