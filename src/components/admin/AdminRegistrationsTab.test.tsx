@@ -49,7 +49,10 @@ const payload = {
     {
       id: "c-1",
       email: "buyer@example.com",
-      created_at: "2026-11-10T00:00:00Z",
+      // Relative, not a fixed date: "this week" is measured against the clock
+      // at run time, so a hard-coded 10 November stopped being new seven days
+      // later and the test failed for a reason it was never asking about.
+      created_at: new Date(Date.now() - 2 * 86_400_000).toISOString(),
     },
   ],
 };
