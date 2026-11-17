@@ -295,10 +295,14 @@ describe("audit fix F8 — PV temperature derating & battery chemistry DoD", () 
         avg_ambient_temp_c: 35,
       }),
     );
-    // cell = 65 °C; factor = 1 - 0.004×40 = 0.84; required = 30/(5×0.8×0.84) = 8.93 kWp → 17 panels
+    // The default derate already covers temperature, so the sizing stays at
+    // 30/(5×0.8) = 7.5 kWp → 14 panels and the model is disclosed as a further
+    // multiplier that was not applied. With the derate declared to exclude
+    // temperature the same section takes cell 65 °C, factor 1 - 0.004×40 = 0.84,
+    // so 30/(5×0.8×0.84) = 8.93 kWp → 17 panels.
     expect(hot.ok).toBe(true);
     const panelLine = hot.materials.find((l) => l.key === "panel");
-    expect(panelLine?.quantity).toBe(17);
+    expect(panelLine?.quantity).toBe(14);
     expect(
       hot.steps.some((s) => s.label === "Panel temperature derating"),
     ).toBe(true);
@@ -341,5 +345,53 @@ describe("audit fix F8 — PV temperature derating & battery chemistry DoD", () 
     expect(noChem.warnings.some((w) => w.includes("depth of discharge"))).toBe(
       true,
     );
+  });
+});
+
+describe("temperature loss is counted once", () => {
+  const target = (over: Record<string, unknown>, ruleSet: typeof rules) =>
+    calculateSolarPv({
+      ...makeInput({ mode: "energy_target", daily_energy_target_kwh: 30 }),
+      ...over,
+      rules: ruleSet,
+    } as never);
+
+  it("does not stack the panel temperature model on a derate that already includes it", () => {
+    // The seeded rule reads "lost to temperature, soiling, wiring and
+    // conversion", so the 0.2 already carries the temperature loss. At 35 C
+    // ambient the model would take a further 0.84, and multiplying both would
+    // size the array about 14 per cent larger for a loss counted twice.
+    const withoutAmbient = target({}, rules);
+    const withAmbient = target({ avg_ambient_temp_c: 35 }, rules);
+    expect(withAmbient.panel_count).toBe(withoutAmbient.panel_count);
+    // 30 / (5 x 0.8) = 7.5 kWp -> ceil(7.5 / 0.55) = 14 panels.
+    expect(withAmbient.panel_count).toBe(14);
+    const energyStep = withAmbient.steps.find(
+      (x) => x.label === "Estimated daily energy",
+    );
+    expect(energyStep?.detail).toMatch(/not applied a second time/);
+    // 14 x 0.55 = 7.7 kWp x 5 x 0.8 = 30.8 kWh/day.
+    expect(withAmbient.daily_energy_kwh).toBeCloseTo(30.8, 1);
+  });
+
+  it("applies the temperature model when the derate is declared to exclude it", () => {
+    // Flag false: cell temp 35 + 30 = 65 C, factor 1 - 0.004 x 40 = 0.84, so the
+    // derate is 0.8 x 0.84 = 0.672 and the size is 30 / (5 x 0.672) = 8.929 kWp,
+    // which is ceil(8.929 / 0.55) = 17 panels, 9.35 kWp.
+    const r = target({ avg_ambient_temp_c: 35 }, [
+      ...rules,
+      {
+        rule_key: "system_loss_includes_temperature",
+        rule_value: { value: 0 },
+      },
+    ] as never);
+    expect(r.panel_count).toBe(17);
+    expect(r.array_kwp).toBeCloseTo(9.35, 2);
+    // 9.35 x 5 x 0.8 x 0.84 = 31.416 kWh/day.
+    expect(r.daily_energy_kwh).toBeCloseTo(31.42, 1);
+    const energyStep = r.steps.find(
+      (x) => x.label === "Estimated daily energy",
+    );
+    expect(energyStep?.detail).toMatch(/temperature derate/);
   });
 });

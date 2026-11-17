@@ -36,7 +36,6 @@ import { ruleNumber as getRuleValue } from "./shared/rule-value";
 // keeps trailing decimals (up to 2) so exact math values stay visible.
 const fmtAuto = (n: number) => formatNGNForDisplay(n, { decimals: "auto" });
 
-
 export interface PanelModelInput {
   watt_peak: number;
   length_m: number;
@@ -122,6 +121,23 @@ const DEFAULT_PV_TEMP_COEFFICIENT = 0.004;
 const CELL_TEMP_OFFSET_C = 30;
 
 /**
+ * Whether the configured system_loss_factor already contains the temperature
+ * loss, which is how the seeded rule describes it: "Fraction of array output
+ * lost to temperature, soiling, wiring and conversion".
+ *
+ * Audit fix: the temperature model was multiplied on top of that factor, so the
+ * same temperature loss was counted twice and an array in a hot climate was
+ * sized about 14 per cent large. Defaulting to true reproduces the loss
+ * breakdown the rule states; an admin who wants the explicit temperature model
+ * to own that loss sets pv_temp_coefficient_per_c alongside a lower
+ * system_loss_factor and switches this to false.
+ */
+function lossIncludesTemperature(rules: SolarPvRule[]): boolean {
+  const v = getRuleValue(rules, "system_loss_includes_temperature");
+  return v === null ? true : v >= 0.5;
+}
+
+/**
  * Audit fix F8: PV temperature derating. Returns 1 (no derate) when the
  * ambient temperature is not supplied; otherwise 1 - coeff x (cell - 25),
  * floored at 0.6 so an extreme input cannot invert the result.
@@ -155,7 +171,6 @@ const BATTERY_USABLE_DOD: Record<"lead_acid" | "lifepo4", number> = {
   lifepo4: 0.85,
 };
 
-
 const REQUIRED_RULES = [
   "peak_sun_hours_day",
   "system_loss_factor",
@@ -185,8 +200,6 @@ const COMPONENT_LABELS: Record<string, { label: string; unit: string }> = {
   inverter_price_per_kw: { label: "Inverter", unit: "kW" },
   battery_unit: { label: "Battery units", unit: "unit" },
 };
-
-
 
 export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   const warnings: string[] = [];
@@ -354,7 +367,8 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   } else {
     const target = input.daily_energy_target_kwh!;
     const tempFactor = pvTemperatureFactor(input, rules, steps);
-    const derate = (1 - rv.system_loss_factor) * tempFactor;
+    const tempCounted = lossIncludesTemperature(rules) ? 1 : tempFactor;
+    const derate = (1 - rv.system_loss_factor) * tempCounted;
     const requiredKwp = target / (rv.peak_sun_hours_day * derate);
     panelCount = Math.ceil(requiredKwp / panelKwp);
     steps.push({
@@ -383,9 +397,15 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
 
   // ── Array, energy, inverter, strings ───────────────────
   const arrayKwp = panelCount * panelKwp;
-  const arrayTempFactor = pvTemperatureFactor(input, rules, null);
+  const arrayTempFactorRaw = pvTemperatureFactor(input, rules, null);
+  const arrayTempFactor = lossIncludesTemperature(rules)
+    ? 1
+    : arrayTempFactorRaw;
   const dailyEnergy =
-    arrayKwp * rv.peak_sun_hours_day * (1 - rv.system_loss_factor) * arrayTempFactor;
+    arrayKwp *
+    rv.peak_sun_hours_day *
+    (1 - rv.system_loss_factor) *
+    arrayTempFactor;
   const inverterKw = arrayKwp / rv.inverter_dc_ac_ratio;
   const strings = Math.ceil(panelCount / rv.string_size_max);
 
@@ -395,7 +415,10 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   });
   steps.push({
     label: "Estimated daily energy",
-    detail: `${r(arrayKwp)} kWp × ${rv.peak_sun_hours_day} sun hours × ${r(1 - rv.system_loss_factor)} derate = ${r(dailyEnergy)} kWh/day.`,
+    detail:
+      arrayTempFactor === 1
+        ? `${r(arrayKwp)} kWp × ${rv.peak_sun_hours_day} sun hours × ${r(1 - rv.system_loss_factor)} derate = ${r(dailyEnergy)} kWh/day. The configured derate already carries the temperature loss, so it is not applied a second time${arrayTempFactorRaw < 1 ? `; the panel temperature model would have taken a further × ${r(arrayTempFactorRaw)}` : ""}.`
+        : `${r(arrayKwp)} kWp × ${rv.peak_sun_hours_day} sun hours × ${r(1 - rv.system_loss_factor)} system derate × ${r(arrayTempFactor)} temperature derate = ${r(dailyEnergy)} kWh/day.`,
   });
   steps.push({
     label: "Inverter size",
