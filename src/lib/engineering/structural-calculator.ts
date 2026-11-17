@@ -938,10 +938,17 @@ function designBeamAtSpan(
     const la = leverArmBS(max_moment, fcu, assumed_width, steelDepth);
     doubly_reinforced = la.doubly_reinforced;
     As = (max_moment * 1e6) / (0.87 * fy * la.z);
+    // BS 8110-1 Table 3.25 states its minimum as 100 As/(b h), h being the
+    // overall depth, not the effective depth. Reading d into it understated the
+    // minimum by (h - d)/h, about 10 per cent on a 500 mm beam, and it disagreed
+    // with this file's own slab path, which already uses the gross thickness.
+    // IS 456 Cl 26.5.1.1 is the other way round and does use d, which is why the
+    // two codes keep separate expressions here.
+    const grossDepthForMinSteel = input.existing_depth ?? required_depth;
     min_As =
       concretePreset.standard === "is_456"
-        ? (0.85 / fy) * assumed_width * steelDepth // IS 456 26.5.1.1
-        : (fy <= 300 ? 0.0024 : 0.0013) * assumed_width * steelDepth; // BS 8110 Table 3.25: 0.24% mild, 0.13% high-yield
+        ? (0.85 / fy) * assumed_width * steelDepth // IS 456 26.5.1.1, b d
+        : (fy <= 300 ? 0.0024 : 0.0013) * assumed_width * grossDepthForMinSteel; // BS 8110 Table 3.25, b h
     formulas.push(
       `Lever arm: K = ${(max_moment * 1e6).toFixed(0)}/(${fcu} × ${assumed_width} × ${steelDepth.toFixed(0)}²) = ${la.K.toFixed(4)}${la.doubly_reinforced ? " > 0.156 → doubly reinforced required" : ""}`,
     );
@@ -952,7 +959,7 @@ function designBeamAtSpan(
       `Steel area required = ${(max_moment * 1e6).toFixed(0)} / (0.87 × ${fy} × ${la.z.toFixed(0)}) = ${As.toFixed(0)} mm²`,
     );
     formulas.push(
-      `Min steel = ${concretePreset.standard === "is_456" ? "0.85/fy × b × d (IS 456 26.5.1.1)" : `${fy <= 300 ? "0.24" : "0.13"}% × b × d (BS 8110-1 Table 3.25, fy = ${fy})`} = ${min_As.toFixed(0)} mm²`,
+      `Min steel = ${concretePreset.standard === "is_456" ? `0.85/fy × b × d (IS 456 26.5.1.1) = 0.85/${fy} × ${assumed_width} × ${steelDepth.toFixed(0)}` : `${fy <= 300 ? "0.24" : "0.13"}% × b × h (BS 8110-1 Table 3.25, fy = ${fy}) = ${fy <= 300 ? "0.24" : "0.13"}% × ${assumed_width} × ${grossDepthForMinSteel.toFixed(0)}`} = ${min_As.toFixed(0)} mm²`,
     );
     if (la.doubly_reinforced) {
       // BS 8110-1 Cl 3.4.4.4: above K' = 0.156 the concrete alone cannot carry

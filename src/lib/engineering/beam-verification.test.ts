@@ -74,8 +74,7 @@ describe("beam deflection check", () => {
       expect(r.deflection_check_pass).toBe(true);
       expect(
         r.formula_transparency.some(
-          (f) =>
-            f.includes("allowable") && f.includes("Cl 3.4.6.5"),
+          (f) => f.includes("allowable") && f.includes("Cl 3.4.6.5"),
         ),
       ).toBe(true);
     }
@@ -92,10 +91,13 @@ describe("beam deflection check", () => {
 describe("beam minimum steel", () => {
   it("reports the BS 8110 Table 3.25 ratio for the steel grade in use", () => {
     const r = designBeam(BASE);
-    // Fe500 -> 0.13% of b d
+    // Fe500 -> 0.13% of b h. Table 3.25 is stated over the overall depth h, not
+    // the effective depth d, so the required overall depth is the multiplier.
     expect(r.min_steel_area).toBeGreaterThan(0);
-    const d = r.required_depth - BASE.cover_mm - 25;
-    expect(r.min_steel_area).toBeCloseTo(0.0013 * r.required_width * d, -1);
+    expect(r.min_steel_area).toBeCloseTo(
+      0.0013 * r.required_width * r.required_depth,
+      -1,
+    );
   });
 
   it("never asks for less than 0.13% of the section being reported", () => {
@@ -103,10 +105,8 @@ describe("beam minimum steel", () => {
     // against a deeper supplied section; the minimum must still be at least
     // 0.13% of the member the user actually has.
     const r = designBeam({ ...BASE, existing_depth: 450, existing_width: 250 });
-    const providedDepth = 450 - BASE.cover_mm - 25;
-    expect(r.min_steel_area).toBeGreaterThanOrEqual(
-      0.0013 * 250 * providedDepth,
-    );
+    // The supplied member's overall depth is what Table 3.25 measures.
+    expect(r.min_steel_area).toBeGreaterThanOrEqual(0.0013 * 250 * 450);
   });
 });
 
@@ -121,7 +121,9 @@ describe("beam section warnings", () => {
       existing_width: 250,
       existing_depth: 400,
     });
-    expect(r.warnings.join(" ")).toMatch(/compression steel|doubly reinforced/i);
+    expect(r.warnings.join(" ")).toMatch(
+      /compression steel|doubly reinforced/i,
+    );
   });
 
   it("keeps shear capacity inside the Table 3.8 ceiling", () => {
@@ -163,14 +165,11 @@ describe("beam steel is sized on the section being reported", () => {
   });
 
   it("takes the minimum from the supplied depth, not the bending minimum", () => {
-    // 0.13% of 300 x (600 - 25 - 25) = 214.5 mm² for Fe500.
+    // 0.13% of 300 x 600 = 234 mm² for Fe500, and 0.13% of 300 x 700 = 273 mm².
+    // Table 3.25 measures the overall depth h, so the cover is not subtracted.
     // The engine reports the area rounded up to a whole mm².
-    expect(supplied(600).min_steel_area).toBe(
-      Math.ceil(0.0013 * 300 * (600 - 50)),
-    );
-    expect(supplied(700).min_steel_area).toBe(
-      Math.ceil(0.0013 * 300 * (700 - 50)),
-    );
+    expect(supplied(600).min_steel_area).toBe(Math.ceil(0.0013 * 300 * 600));
+    expect(supplied(700).min_steel_area).toBe(Math.ceil(0.0013 * 300 * 700));
   });
 
   it("still warns when the supplied depth cannot carry the moment", () => {
@@ -225,10 +224,8 @@ describe("doubly reinforced sections (BS 8110-1 Cl 3.4.4.4)", () => {
     const momentSingle = (kPrime * 25 * 300 * d ** 2) / 1e6;
     const excess = r.max_moment - momentSingle;
     const dPrime = BASE.cover_mm + 25;
-    const expectedAsPrime =
-      (excess * 1e6) / (0.87 * 500 * (d - dPrime));
-    const expectedAsSingle =
-      (momentSingle * 1e6) / (0.87 * 500 * 0.775 * d);
+    const expectedAsPrime = (excess * 1e6) / (0.87 * 500 * (d - dPrime));
+    const expectedAsSingle = (momentSingle * 1e6) / (0.87 * 500 * 0.775 * d);
     expect(r.compression_steel_area).toBeCloseTo(expectedAsPrime, -1);
     expect(r.area_steel_required).toBeCloseTo(
       expectedAsSingle + expectedAsPrime,
@@ -298,9 +295,9 @@ describe("doubly reinforced sections (BS 8110-1 Cl 3.4.4.4)", () => {
       existing_width: 225,
       existing_depth: 500,
     });
-    expect(
-      withoutBearing.formula_transparency.join(" "),
-    ).toMatch(/centre-to-centre limit needs a support width/i);
+    expect(withoutBearing.formula_transparency.join(" ")).toMatch(
+      /centre-to-centre limit needs a support width/i,
+    );
 
     const withBearing = designBeam({
       ...BASE,
