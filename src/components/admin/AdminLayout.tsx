@@ -85,6 +85,7 @@ import {
   FileStack,
   Activity,
   ChevronDown,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -434,6 +435,11 @@ export const navModules: NavModule[] = [
     items: [
       { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
       { label: "Money & disputes", to: "/admin/finance", icon: Wallet },
+      {
+        label: "Business ledger",
+        to: "/admin/business-ledger",
+        icon: Receipt,
+      },
       { label: "Supplier Network", to: "/admin/suppliers", icon: Factory },
       {
         label: "Professionals & Reports",

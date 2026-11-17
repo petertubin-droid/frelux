@@ -465,6 +465,9 @@ const AdminImageEstimation = lazy(
 );
 const AdminMarketplace = lazy(() => import("@/pages/admin/AdminMarketplace"));
 const AdminFinance = lazy(() => import("@/pages/admin/AdminFinance"));
+const AdminBusinessLedger = lazy(
+  () => import("@/pages/admin/AdminBusinessLedger"),
+);
 const AdminSuppliers = lazy(() => import("@/pages/admin/AdminSuppliers"));
 const AdManager = lazy(() => import("@/pages/admin/AdManager"));
 const AdminSeoLocation = lazy(() => import("@/pages/admin/AdminSeoLocation"));
@@ -1708,12 +1711,7 @@ export default function App() {
                         />
                         <Route
                           path="/pro-connect/escrow"
-                          element={
-                            <Navigate
-                              to="/escrow"
-                              replace
-                            />
-                          }
+                          element={<Navigate to="/escrow" replace />}
                         />
                         <Route
                           path="/developers/merchant-webhooks"
@@ -2710,6 +2708,10 @@ export default function App() {
                           element={<AdminMarketplace />}
                         />
                         <Route path="finance" element={<AdminFinance />} />
+                        <Route
+                          path="business-ledger"
+                          element={<AdminBusinessLedger />}
+                        />
                         <Route
                           path="suppliers"
                           element={
