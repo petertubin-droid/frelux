@@ -71,10 +71,16 @@ export const MORTAR_JOINT_THICKNESS = 0.012;
 // Standard hook length for stirrups = 10 × bar_diameter
 export const STIRRUP_HOOK_MULTIPLIER = 10;
 
-// Roofing sheet coverage by material type (m² per sheet)
+// Roofing sheet coverage by material type (m² per piece of the size the engine
+// counts). Long span is not counted here (see LONG_SPAN_COVER_WIDTH_M): it is
+// ordered by the metre and cut to the slope, so a fixed area per piece cannot
+// describe it.
 export const SHEET_COVERAGE: Record<RoofingMaterial, number> = {
   long_span_aluminium: 1.5, // 0.5m width × 3.0m length
-  stone_coated: 0.53, // ~0.42m × 1.27m per panel
+  // 0.46 m², not 0.53: a published stone-coated panel covers 1250 x 368 mm and
+  // is specified at 2.2 panels per m². The 0.53 figure counted 1.89 panels per
+  // m², so every stone-coated roof was short by about 15 per cent of its panels.
+  stone_coated: 0.46, // 1.25 m x 0.368 m cover per panel, 2.2 panels/m²
   gi_sheet: 1.52, // 0.83m × 1.83m per sheet
   shingle: 0.93, // ~0.93m × 1.0m per strip
   custom: 1.5, // fallback
@@ -915,7 +921,8 @@ function getRebarPriceForDiameter(
       return prices.rebar_25mm_per_length;
     default: {
       // For non-standard diameters, estimate from per-tonne price
-      const weightPerLength = rebarMassPerM(diameter_mm) * REBAR_STANDARD_LENGTH;
+      const weightPerLength =
+        rebarMassPerM(diameter_mm) * REBAR_STANDARD_LENGTH;
       return Math.round(
         (prices.reinforcement_per_tonne / 1000) * weightPerLength,
       );
@@ -1402,7 +1409,9 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
         "Internal wall length × (Internal footing width + 2 × 100 mm projection) × Blinding thickness",
         {
           internal_length: input.internal_wall_length,
-          blinding_width: round(internalFootingWidth + 2 * BLINDING_PROJECTION_M),
+          blinding_width: round(
+            internalFootingWidth + 2 * BLINDING_PROJECTION_M,
+          ),
           blinding_thickness: input.blinding_thickness,
         },
         internalBlindingVol,
@@ -1498,7 +1507,9 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     // only, so without this the internal refill was never ordered or paid for.
     const internalBackfillVol = Math.max(
       0,
-      internalExcavationVol - internalFoundationConcreteVol - internalBlindingVol,
+      internalExcavationVol -
+        internalFoundationConcreteVol -
+        internalBlindingVol,
     );
     if (internalBackfillVol > 0) {
       quantities.push(

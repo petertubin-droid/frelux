@@ -58,7 +58,9 @@ describe("constants", () => {
   });
   it("SHEET_COVERAGE has all materials", () => {
     expect(SHEET_COVERAGE.long_span_aluminium).toBe(1.5);
-    expect(SHEET_COVERAGE.stone_coated).toBe(0.53);
+    // 1250 x 368 mm cover, 2.2 panels per m² published, so 0.46 rather than
+    // the 0.53 that counted only 1.89 panels per m².
+    expect(SHEET_COVERAGE.stone_coated).toBe(0.46);
     expect(SHEET_COVERAGE.gi_sheet).toBe(1.52);
     expect(SHEET_COVERAGE.shingle).toBe(0.93);
     expect(SHEET_COVERAGE.custom).toBe(1.5);
@@ -189,7 +191,7 @@ describe("roofingSheetsCount", () => {
 describe("getSheetCoverage", () => {
   it("returns coverage for known material", () => {
     expect(getSheetCoverage("long_span_aluminium")).toBe(1.5);
-    expect(getSheetCoverage("stone_coated")).toBe(0.53);
+    expect(getSheetCoverage("stone_coated")).toBe(0.46);
   });
   it("falls back to custom for unknown", () => {
     expect(getSheetCoverage("custom")).toBe(1.5);
@@ -831,7 +833,10 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
 });
 
 describe("formwork, membrane and concrete allowances", () => {
-  function stageOf(result: ReturnType<typeof calculateBuildToRoof>, id: string) {
+  function stageOf(
+    result: ReturnType<typeof calculateBuildToRoof>,
+    id: string,
+  ) {
     const stage = result.stages.find((entry) => entry.stage === id);
     if (!stage) throw new Error(`stage ${id} missing`);
     return stage;
@@ -945,13 +950,20 @@ describe("formwork, membrane and concrete allowances", () => {
 describe("roofing lines reproduce themselves", () => {
   const roofStage = (material: string, roofType = "gable") => {
     const result = calculateBuildToRoof(
-      makeValidInput({ roofing_material: material, roof_type: roofType } as never),
+      makeValidInput({
+        roofing_material: material,
+        roof_type: roofType,
+      } as never),
     );
     return result.stages.find((s) => /roof/i.test(s.stage))!;
   };
 
   it("prices every material line at the quantity it prints", () => {
-    for (const material of ["gi_sheet", "long_span_aluminium", "stone_coated"]) {
+    for (const material of [
+      "gi_sheet",
+      "long_span_aluminium",
+      "stone_coated",
+    ]) {
       for (const line of roofStage(material).materials) {
         expect(line.total_cost, `${material} ${line.label}`).toBeCloseTo(
           line.final_quantity * line.unit_price,
@@ -989,7 +1001,9 @@ describe("roofing lines reproduce themselves", () => {
     const stage = roofStage("gi_sheet", "hip");
     for (const label of ["Ridge caps", "Hip accessories"]) {
       const trim = stage.materials.find((m) => m.label === label)!;
-      const qty = stage.quantities.find((q) => q.label.startsWith(label.split(" ")[0]))!;
+      const qty = stage.quantities.find((q) =>
+        q.label.startsWith(label.split(" ")[0]),
+      )!;
       expect(trim.wastage_percent, label).toBe(qty.wastage_percent);
       expect(trim.final_quantity, label).toBeCloseTo(
         qty.base_quantity * (1 + TRIM_WASTAGE_PERCENT / 100),
