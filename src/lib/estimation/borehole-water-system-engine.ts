@@ -497,13 +497,16 @@ export function calculateBoreholeWaterSystem(
     riserInnerMm,
     140,
   );
-  // Fittings loss allowance (check valves, bends, gate valve, meter): approx 10% of pipe friction + 1m
+  // Fittings allowance (check valve, bends, gate valve, meter): 12 per cent of
+  // the pipe friction plus 0.8 m. A site allowance, not a calculation, and it is
+  // stated here in the figures the arithmetic actually uses.
   const fittingsLoss = (riserFriction + surfaceFriction) * 0.12 + 0.8;
 
   // Static lift from pump setting depth up to overhead tank inlet
   const staticLift = pumpSettingDepthM + surfaceElevation;
-  // Residual pressure at tank discharge nozzle (0.5 bar = ~5.1m water head)
-  const residualPressure = 5.0;
+  // Residual pressure at the tank discharge nozzle: 0.5 bar at 9.80665 kN/m3 is
+  // 50,000 / 9,806.65 = 5.099 m, so the m of head the pump must leave is 5.1.
+  const residualPressure = 5.1;
 
   const totalDynamicHeadM =
     staticLift +
