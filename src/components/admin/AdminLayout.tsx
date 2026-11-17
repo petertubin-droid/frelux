@@ -445,6 +445,11 @@ export const navModules: NavModule[] = [
         to: "/admin/client-statement",
         icon: FileText,
       },
+      {
+        label: "Expense ledger",
+        to: "/admin/expense-ledger",
+        icon: Receipt,
+      },
       { label: "Supplier Network", to: "/admin/suppliers", icon: Factory },
       {
         label: "Professionals & Reports",

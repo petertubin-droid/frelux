@@ -471,6 +471,9 @@ const AdminBusinessLedger = lazy(
 const AdminClientStatement = lazy(
   () => import("@/pages/admin/AdminClientStatement"),
 );
+const AdminExpenseLedger = lazy(
+  () => import("@/pages/admin/AdminExpenseLedger"),
+);
 const AdminSuppliers = lazy(() => import("@/pages/admin/AdminSuppliers"));
 const AdManager = lazy(() => import("@/pages/admin/AdManager"));
 const AdminSeoLocation = lazy(() => import("@/pages/admin/AdminSeoLocation"));
@@ -2718,6 +2721,14 @@ export default function App() {
                         <Route
                           path="client-statement"
                           element={<AdminClientStatement />}
+                        />
+                        <Route
+                          path="expense-ledger"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <AdminExpenseLedger />
+                            </Suspense>
+                          }
                         />
                         <Route
                           path="suppliers"
