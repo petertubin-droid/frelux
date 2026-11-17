@@ -46,7 +46,10 @@ import {
 } from "./electrical-engine";
 import { calculateHazenWilliamsFrictionHead } from "./borehole-water-system-engine";
 import { calculateSepticSizing } from "./septic-sizing-engine";
-import { MORTAR_PARTS, wallThicknessForLeaves } from "./masonry-standalone-engine";
+import {
+  MORTAR_PARTS,
+  wallThicknessForLeaves,
+} from "./masonry-standalone-engine";
 import { designFoundation } from "@/lib/engineering/foundation-calculator";
 import { calculateRoofFraming } from "./advanced-takeoff-engine";
 import { calculateSolarPv } from "./solar-pv-engine";
@@ -151,7 +154,10 @@ describe("paving: paver count on nominal face plus joint", () => {
     });
     // 1 / (0.203 x 0.103) = 47.83 pavers/m2, so 100 m2 plus 5% is 5,022.
     expect(result.paversRequired).toBe(5022);
-    expect(result.beddingSandVolumeM3).toBeCloseTo(3.15, 2);
+    // Bedding sand is loose sand for a 30 mm compacted bed: 100 x 0.03 x 1.20
+    // = 3.60 m3. The 5 per cent applies to pavers, not to the sand.
+    expect(result.beddingSandVolumeM3).toBeCloseTo(3.6, 2);
+    expect(result.beddingSandTonnes).toBeCloseTo(5.76, 2);
     expect(result.looseSubbaseVolumeM3).toBeCloseTo(18.75, 2);
   });
 });
@@ -314,10 +320,13 @@ describe("roof framing: trigonometry and board feet", () => {
       roofType: "gable",
       sections,
     });
-    if (!result.ok || result.data === null) throw new Error("roof framing refused");
+    if (!result.ok || result.data === null)
+      throw new Error("roof framing refused");
     // Half of (8 + 2 x 0.5) = 4.5 m run, so 4.5 / cos(26.565) = 5.031 m.
     expect(result.data.roofRiseM).toBeCloseTo(2.25, 2);
-    const common = result.data.groups.find((g) => g.label.toLowerCase().includes("common"));
+    const common = result.data.groups.find((g) =>
+      g.label.toLowerCase().includes("common"),
+    );
     expect(common).toBeDefined();
     expect(common!.lengthM).toBeCloseTo(5.03, 1);
   });
@@ -332,10 +341,15 @@ describe("roof framing: trigonometry and board feet", () => {
       roofType: "gable",
       sections,
     });
-    if (!result.ok || result.data === null) throw new Error("roof framing refused");
-    const common = result.data.groups.find((g) => g.label.toLowerCase().includes("common"))!;
+    if (!result.ok || result.data === null)
+      throw new Error("roof framing refused");
+    const common = result.data.groups.find((g) =>
+      g.label.toLowerCase().includes("common"),
+    )!;
     // 2 x 6 x 12 in = 1 BF per running foot of member.
-    expect(common.boardFeet / (common.lengthM * 3.28084 * common.count)).toBeCloseTo(1, 2);
+    expect(
+      common.boardFeet / (common.lengthM * 3.28084 * common.count),
+    ).toBeCloseTo(1, 2);
   });
 });
 
