@@ -144,6 +144,12 @@ export interface PlumbingEngineeringMetrics {
   /** Bore of the pipe actually recommended, so the label and the number agree. */
   recommended_header_bore_mm: number;
   recommended_header_pipe_label: string;
+  /**
+   * False when even the largest standard bore in the table is below the bore
+   * that holds 1.8 m/s, so the recommended pipe does not satisfy the velocity
+   * limit and the supply has to be split or run in a larger main.
+   */
+  header_adequate: boolean;
   water_storage_litres_24h: number;
 }
 
@@ -179,6 +185,9 @@ export function calculatePlumbingEngineeringMetrics(
   // One table, so the bore reported and the pipe named can never disagree. The
   // PN20 bore for each outside diameter is used because that is the pressure
   // class sold for domestic supply lines.
+  // PN20 walls per DIN 8077: 20 mm 3.4, 25 mm 4.2, 32 mm 5.4, 40 mm 6.7,
+  // 50 mm 8.4, 63 mm 10.5, 75 mm 12.5, 90 mm 15.0, 110 mm 18.4, so the bores
+  // below are the outside diameter less twice the wall.
   const PPR_BORES: ReadonlyArray<readonly [number, string]> = [
     [13.2, '20 mm PPR (13.2 mm bore, 1/2" nominal)'],
     [16.6, '25 mm PPR (16.6 mm bore, 3/4" nominal)'],
@@ -186,15 +195,24 @@ export function calculatePlumbingEngineeringMetrics(
     [26.6, '40 mm PPR (26.6 mm bore, 1-1/4" nominal)'],
     [33.2, '50 mm PPR (33.2 mm bore, 1-1/2" nominal)'],
     [42.0, '63 mm PPR (42.0 mm bore, 2" nominal)'],
+    [50.0, '75 mm PPR (50.0 mm bore, 2-1/2" nominal)'],
+    [60.0, '90 mm PPR (60.0 mm bore, 3" nominal)'],
+    [73.2, '110 mm PPR (73.2 mm bore, 4" nominal)'],
   ];
   let requiredBoreMm = 0;
   let boreMm = 13.2;
   let pipeLabel = '20 mm PPR (13.2 mm bore, 1/2" nominal)';
+  let headerAdequate = true;
   if (peakLps > 0) {
     const areaM2 = peakLps / 1000 / 1.8;
     const reqBoreMm = Math.sqrt((4 * areaM2) / Math.PI) * 1000;
     requiredBoreMm = Math.round(reqBoreMm * 10) / 10;
-    const chosen = PPR_BORES.find(([bore]) => reqBoreMm <= bore) ?? PPR_BORES[PPR_BORES.length - 1];
+    const largest = PPR_BORES[PPR_BORES.length - 1];
+    // The table used to stop at 63 mm and quietly recommend it for any demand,
+    // describing a pipe as holding 1.8 m/s when it could not. Above 73.2 mm the
+    // recommended size stays the largest available and is reported as short.
+    headerAdequate = reqBoreMm <= largest[0];
+    const chosen = PPR_BORES.find(([bore]) => reqBoreMm <= bore) ?? largest;
     boreMm = chosen[0];
     pipeLabel = chosen[1];
   }
@@ -213,6 +231,7 @@ export function calculatePlumbingEngineeringMetrics(
     required_bore_mm: requiredBoreMm,
     recommended_header_bore_mm: boreMm,
     recommended_header_pipe_label: pipeLabel,
+    header_adequate: headerAdequate,
     water_storage_litres_24h: storageLitres,
   };
 }
@@ -243,8 +262,6 @@ function isCount(v: number): boolean {
 }
 
 const money = roundMoney;
-
-
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
@@ -589,7 +606,9 @@ export function calculatePlumbing(
   if (engineeringMetrics.total_wsfu > 0) {
     steps.push({
       label: "Hydraulic design demand (Hunter's Curve / BS EN 806)",
-      detail: `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Header: ${engineeringMetrics.recommended_header_pipe_label}, ${engineeringMetrics.recommended_header_bore_mm} mm bore (the minimum that holds 1.8 m/s is ${engineeringMetrics.required_bore_mm} mm, so the next standard pipe is chosen). Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
+      detail: engineeringMetrics.header_adequate
+        ? `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Header: ${engineeringMetrics.recommended_header_pipe_label}, ${engineeringMetrics.recommended_header_bore_mm} mm bore (the minimum that holds 1.8 m/s is ${engineeringMetrics.required_bore_mm} mm, so the next standard pipe is chosen). Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`
+        : `Total ${engineeringMetrics.total_wsfu} WSFU → Estimated peak demand ${engineeringMetrics.peak_flow_lpm} L/min (${engineeringMetrics.peak_flow_lps} L/s). Holding 1.8 m/s needs ${engineeringMetrics.required_bore_mm} mm of bore, which is beyond the largest standard size listed (${engineeringMetrics.recommended_header_pipe_label}, ${engineeringMetrics.recommended_header_bore_mm} mm bore). The recommended size does not hold the velocity limit at this demand: split the supply into two mains or specify a larger main. Suggested 24h domestic storage: ${engineeringMetrics.water_storage_litres_24h} L.`,
     });
   }
 
