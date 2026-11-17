@@ -142,8 +142,6 @@ export type FlooringPriceMap = Record<string, number | null>;
 
 const money = roundMoney;
 
-
-
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
@@ -291,13 +289,15 @@ export function calculateFlooring(
           "Underlay: no roll coverage configured (underlay_roll_coverage_m2). Set it from the roll supplier prices.",
         );
       } else {
-        const rolls = ceilU(
-          input.floor_area_m2 / rules.underlay_roll_coverage_m2,
-        );
+        // Underlay is cut and lapped over the same pieces the covering is
+        // bought for, so it is sized on the area including cutting waste. On the
+        // net area it fell a roll short on a 100 m2 floor at 10 per cent waste.
+        const laidAreaM2 = input.floor_area_m2 * wasteFactor;
+        const rolls = ceilU(laidAreaM2 / rules.underlay_roll_coverage_m2);
         const uPrice = prices["flooring-underlay-roll"] ?? null;
         steps.push({
           label: "Underlay rolls",
-          detail: `${input.floor_area_m2} m² ÷ ${rules.underlay_roll_coverage_m2} m²/roll = ${roundTo(input.floor_area_m2 / rules.underlay_roll_coverage_m2, 2)} → ${rolls} rolls (whole rolls, up).`,
+          detail: `${roundTo(input.floor_area_m2, 2)} m² + ${rules.floor_waste_pct}% cuts = ${roundTo(laidAreaM2, 2)} m² ÷ ${rules.underlay_roll_coverage_m2} m²/roll = ${roundTo(laidAreaM2 / rules.underlay_roll_coverage_m2, 2)} → ${rolls} rolls (whole rolls, up).`,
         });
         lines.push({
           key: "underlay",
@@ -306,7 +306,7 @@ export function calculateFlooring(
           quantity: rolls,
           quantity_source: "rule_derived",
           unit: "rolls",
-          detail: `${input.floor_area_m2} m² ÷ ${rules.underlay_roll_coverage_m2} m²/roll → ${rolls} rolls`,
+          detail: `${roundTo(laidAreaM2, 2)} m² ÷ ${rules.underlay_roll_coverage_m2} m²/roll → ${rolls} rolls`,
           unit_price: uPrice,
           line_total: uPrice !== null ? money(rolls * uPrice) : null,
         });
@@ -324,13 +324,14 @@ export function calculateFlooring(
           "Adhesive: no coverage rate configured (adhesive_coverage_m2_per_bag). Set it from the product datasheet.",
         );
       } else {
-        const bags = ceilU(
-          input.floor_area_m2 / rules.adhesive_coverage_m2_per_bag,
-        );
+        // Adhesive bonds the same pieces, including the cut ones, so it is
+        // sized on the laid area rather than the net floor area.
+        const laidAreaM2 = input.floor_area_m2 * wasteFactor;
+        const bags = ceilU(laidAreaM2 / rules.adhesive_coverage_m2_per_bag);
         const aPrice = prices["flooring-adhesive-bag"] ?? null;
         steps.push({
           label: "Adhesive bags",
-          detail: `${input.floor_area_m2} m² ÷ ${rules.adhesive_coverage_m2_per_bag} m²/bag = ${roundTo(input.floor_area_m2 / rules.adhesive_coverage_m2_per_bag, 2)} → ${bags} bags (whole bags, up).`,
+          detail: `${roundTo(input.floor_area_m2, 2)} m² + ${rules.floor_waste_pct}% cuts = ${roundTo(laidAreaM2, 2)} m² ÷ ${rules.adhesive_coverage_m2_per_bag} m²/bag = ${roundTo(laidAreaM2 / rules.adhesive_coverage_m2_per_bag, 2)} → ${bags} bags (whole bags, up).`,
         });
         lines.push({
           key: "adhesive",
@@ -339,7 +340,7 @@ export function calculateFlooring(
           quantity: bags,
           quantity_source: "rule_derived",
           unit: "bags",
-          detail: `${input.floor_area_m2} m² ÷ ${rules.adhesive_coverage_m2_per_bag} m²/bag → ${bags} bags`,
+          detail: `${roundTo(laidAreaM2, 2)} m² ÷ ${rules.adhesive_coverage_m2_per_bag} m²/bag → ${bags} bags`,
           unit_price: aPrice,
           line_total: aPrice !== null ? money(bags * aPrice) : null,
         });

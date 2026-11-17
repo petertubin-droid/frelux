@@ -144,14 +144,17 @@ describe("material lines", () => {
     expect(r.lines.find((l) => l.key === "floor_covering")?.quantity).toBe(33);
   });
 
-  it("underlay and adhesive: area ÷ coverage → whole units", () => {
+  it("underlay and adhesive: laid area ÷ coverage → whole units", () => {
     const r = calculateFlooring(
       makeInput({ include_adhesive: true }),
       rules,
       FULL_PRICES,
     );
-    expect(r.lines.find((l) => l.key === "underlay")?.quantity).toBe(3);
-    expect(r.lines.find((l) => l.key === "adhesive")?.quantity).toBe(6);
+    // 30 m² + 8% cuts = 32.4 m², so 32.4 ÷ 10 = 3.24 → 4 rolls and
+    // 32.4 ÷ 5 = 6.48 → 7 bags. On the net 30 m² this was 3 and 6, a roll and a
+    // bag short of the area the covering is actually laid over.
+    expect(r.lines.find((l) => l.key === "underlay")?.quantity).toBe(4);
+    expect(r.lines.find((l) => l.key === "adhesive")?.quantity).toBe(7);
   });
 
   it("skirting: run × waste factor, rounds up", () => {
