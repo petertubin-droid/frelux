@@ -203,22 +203,47 @@ function emptyTankMass(litres: number) {
   return round(Math.max(35, litres * 0.032), 0);
 }
 
+/**
+ * Candidate leg sections: area in mm2, second moment about the bending axis in
+ * mm4, elastic modulus in mm3. Square hollows carry the side and wall so their
+ * figures can be checked against the geometry they cannot exceed.
+ *
+ * The SHS 75x75x4 row previously read I = 1.06e6 and Z = 28.3e3. A 75 mm square
+ * tube cannot reach either: even with perfectly sharp corners and no corner
+ * radii at all, I is (75^4 - 67^4)/12 = 0.957e6 mm4, so Z cannot exceed 25.5e3.
+ * The row overstated the section modulus by 11 per cent, which understates
+ * bending stress, and overstated the radius of gyration by 8 per cent, which
+ * understates the slenderness of the leg. Rounded corners with the EN 10219
+ * outer radius of 2t give A = 1095 mm2, I = 0.902e6 mm4 and Z = 24.05e3, which
+ * sits below that bound as it must.
+ */
+export const LEG_SECTIONS: ReadonlyArray<{
+  label: string;
+  a: number;
+  i: number;
+  z: number;
+  /** Overall side for a square hollow, lateral dimension otherwise, mm. */
+  b: number;
+  /** Wall thickness for a square hollow, mm. */
+  t?: number;
+}> = [
+  { label: "SHS 75x75x4", a: 1095, i: 0.902e6, z: 24.05e3, b: 75, t: 4 },
+  { label: "SHS 100x100x5", a: 1836, i: 2.68e6, z: 53.6e3, b: 100, t: 5 },
+  { label: "SHS 120x120x6", a: 2640, i: 5.72e6, z: 95.3e3, b: 120, t: 6 },
+  { label: "SHS 150x150x6", a: 3360, i: 1.16e7, z: 155e3, b: 150, t: 6 },
+  { label: "SHS 150x150x8", a: 4380, i: 1.46e7, z: 195e3, b: 150, t: 8 },
+  { label: "SHS 200x200x8", a: 5980, i: 3.56e7, z: 356e3, b: 200, t: 8 },
+  { label: "UC 152x152x23", a: 2920, i: 1.25e7, z: 164e3, b: 152 },
+  { label: "UC 203x203x46", a: 5880, i: 4.57e7, z: 450e3, b: 203 },
+];
+
 /** Smallest SHS that carries the axial load with a bending allowance. */
 function sizeSteelLeg(
   axialKn: number,
   momentKnm: number,
   bucklingLengthM: number,
 ) {
-  const sections = [
-    { label: "SHS 75x75x4", a: 1096, i: 1.06e6, z: 28.3e3 },
-    { label: "SHS 100x100x5", a: 1836, i: 2.68e6, z: 53.6e3 },
-    { label: "SHS 120x120x6", a: 2640, i: 5.72e6, z: 95.3e3 },
-    { label: "SHS 150x150x6", a: 3360, i: 1.16e7, z: 155e3 },
-    { label: "SHS 150x150x8", a: 4380, i: 1.46e7, z: 195e3 },
-    { label: "SHS 200x200x8", a: 5980, i: 3.56e7, z: 356e3 },
-    { label: "UC 152x152x23", a: 2920, i: 1.25e7, z: 164e3 },
-    { label: "UC 203x203x46", a: 5880, i: 4.57e7, z: 450e3 },
-  ];
+  const sections = LEG_SECTIONS;
   const fy = STEEL_FY_MPA;
   const E = 210000;
   for (const s of sections) {
