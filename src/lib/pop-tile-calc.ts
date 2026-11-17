@@ -279,6 +279,7 @@ export function calculateTile(
   const NOTCH_KG_PER_M2: Record<number, number> = {
     4: 2.75, // thin bed (2.5-3.0 kg/m2)
     6: 4.25, // standard bed (4.0-4.5 kg/m2)
+    8: 5.25, // medium bed, the size most 8-10 mm tiles are laid with (5.0-5.5)
     10: 6.75, // large-format floor (6.0-7.5 kg/m2)
     12: 7.25, // large-format floor (7.0-7.5 kg/m2)
   };
@@ -439,8 +440,11 @@ export function calculateTile(
       input.adhesiveCoverageRate <= 0 &&
       NOTCH_KG_PER_M2[input.adhesiveNotchMm ?? 0] === undefined
     ) {
+      const notchMm = input.adhesiveNotchMm;
       tileWarnings.push(
-        "Adhesive coverage rate is not configured. Adhesive cost is excluded from the total until it is configured.",
+        notchMm === undefined || notchMm <= 0
+          ? "Adhesive coverage rate is not configured. Adhesive cost is excluded from the total until it is configured, or until a trowel notch size is given."
+          : `Adhesive coverage rate is not configured and the ${notchMm} mm notch has no published bed rate. Adhesive cost is excluded from the total until one of the two is supplied.`,
       );
     }
     if (
