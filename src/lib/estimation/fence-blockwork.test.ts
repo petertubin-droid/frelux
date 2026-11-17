@@ -196,9 +196,14 @@ describe("fence blockwork engine", () => {
     );
     expect(withFoundation.foundation.blocksTotal).toBeGreaterThan(0);
     expect(withFoundation.blocks.total).toBeGreaterThan(above.blocks.total);
-    // Strip footing: wall thickness wide, 200 mm deep, run under the wall.
+    // Strip footing: twice the wall thickness wide, 200 mm deep, run under the
+    // wall. Sizing it to the wall thickness alone spreads no load at all.
+    expect(withFoundation.foundation.footingWidthM).toBeCloseTo(
+      withFoundation.wall.thicknessM * 2,
+      3,
+    );
     expect(withFoundation.foundation.footingConcreteM3).toBeCloseTo(
-      withFoundation.site.perimeterM * withFoundation.wall.thicknessM * 0.2,
+      withFoundation.site.perimeterM * withFoundation.wall.thicknessM * 2 * 0.2,
       2,
     );
     expect(withFoundation.foundation.cementBags).toBeGreaterThan(0);

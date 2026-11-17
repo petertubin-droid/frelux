@@ -45,11 +45,20 @@ export const DEFAULT_BLOCK_WASTAGE = 0.05;
 
 /**
  * A strip footing under the wall. Fence walls are not laid on the ground: they
- * sit on a concrete strip the width of the block, and the first courses are
- * below ground level, so a take off that counts only the visible wall is short
- * of blocks and has no concrete in it at all.
+ * sit on a concrete strip, and the first courses are below ground level, so a
+ * take off that counts only the visible wall is short of blocks and has no
+ * concrete in it at all.
  */
 export const FOOTING_DEPTH_M = 0.2;
+
+/**
+ * Footing width as a multiple of the wall thickness, with a 300 mm floor. A
+ * strip footing carries load by spreading it wider than the wall it supports,
+ * and a 225 mm sandcrete block wall is founded on a 450 mm strip, not a strip
+ * the exact width of the block: spreading nothing at all is the one width that
+ * cannot work, and it understated the concrete by half on every fence take off.
+ */
+export const FOOTING_WIDTH_FACTOR = 2;
 
 /** Footing concrete is a lean 1:3:6 mix, not the mortar mix. */
 export const FOOTING_MIX = { cement: 1, sand: 3, aggregate: 6 };
@@ -74,6 +83,8 @@ export interface FenceBlockworkInput {
   gateCoaches?: number;
   /** Courses built below ground level, over the strip footing. */
   foundationCourses?: number;
+  /** Measured width of the strip footing, m. Defaults to twice the wall thickness. */
+  footingWidthM?: number;
   /** Cement to sand ratio by volume of the mortar, 4 means 1:4. */
   mortarRatio?: number;
   /** Share of blocks allowed for breakage, 0.05 means 5 percent. */
@@ -114,6 +125,8 @@ export interface FenceBlockworkResult {
   foundation: {
     courses: number;
     blocksTotal: number;
+    /** Width of the strip footing the concrete is sized on, m. */
+    footingWidthM: number;
     footingConcreteM3: number;
     cementBags: number;
     sandM3: number;
@@ -268,8 +281,13 @@ export function calculateFenceBlockwork(
   // Strip footing: the wall's own thickness wide, FOOTING_DEPTH_M deep, run
   // under everything except the gate.
   const footingRunM = Math.max(perimeter - gateWidthM, 0);
+  const statedFootingWidth = Number(input.footingWidthM);
+  const footingWidthM =
+    Number.isFinite(statedFootingWidth) && statedFootingWidth > 0
+      ? statedFootingWidth
+      : Math.max(unit.thicknessM * FOOTING_WIDTH_FACTOR, 0.3);
   const footingConcreteM3 =
-    foundationCourses > 0 ? footingRunM * unit.thicknessM * FOOTING_DEPTH_M : 0;
+    foundationCourses > 0 ? footingRunM * footingWidthM * FOOTING_DEPTH_M : 0;
   const footingDryM3 = footingConcreteM3 * CONCRETE_DRY_FACTOR;
   const footingParts =
     FOOTING_MIX.cement + FOOTING_MIX.sand + FOOTING_MIX.aggregate;
@@ -294,7 +312,7 @@ export function calculateFenceBlockwork(
       ? `The ${gateWidthM.toFixed(2)} m gate opening, ${gateCoaches} coach(es) high, is deducted from the wall, the mortar and the footing.`
       : "No gate opening is deducted. Enter the gate width if the wall has one.",
     foundationCourses > 0
-      ? `${foundationCourses} course(s) below ground are counted over the wall run, on a ${(unit.thicknessM * 1000).toFixed(0)} mm wide strip footing ${(FOOTING_DEPTH_M * 1000).toFixed(0)} mm deep in a 1:3:6 concrete.`
+      ? `${foundationCourses} course(s) below ground are counted over the wall run, on a ${(footingWidthM * 1000).toFixed(0)} mm wide strip footing ${(FOOTING_DEPTH_M * 1000).toFixed(0)} mm deep in a 1:3:6 concrete, twice the ${(unit.thicknessM * 1000).toFixed(0)} mm wall thickness unless you measure it.`
       : "No courses below ground and no strip footing are counted. Enter the foundation courses if the wall sits on a footing.",
     `Mortar is a 1:${ratio} cement to sand mix by volume, with a ${MORTAR_DRY_FACTOR} dry volume factor.`,
     resolveCementBag(input.market).isMarketSpecific
@@ -330,6 +348,7 @@ export function calculateFenceBlockwork(
       foundation: {
         courses: foundationCourses,
         blocksTotal: foundationBlocks,
+        footingWidthM: Number(footingWidthM.toFixed(3)),
         footingConcreteM3: Number(footingConcreteM3.toFixed(3)),
         cementBags: foundationBags,
         sandM3: Number(footingSandM3.toFixed(3)),
