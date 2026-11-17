@@ -369,6 +369,20 @@ describe("eaves and ridge heights", () => {
     expect(roof.eaves_height_m).toBeLessThan(roof.total_building_height_m);
   });
 
+  it("prices the ring beam on the centreline, not the outside face", () => {
+    // 12 x 9 with 225 mm walls: outside perimeter is 42 m, centreline is
+    // 2(11.775) + 2(8.775) = 41.10 m. With 22 m of internal wall the beam is
+    // 63.10 m, and at 225 x 225 mm that is 3.194 m3 of concrete, not the
+    // 3.24 m3 the outside face produced.
+    const beam =
+      calculateMathematicalElevation(DEFAULT_PLAN_INPUT).levels
+        .level_4_ring_beam;
+    const outsideFace = 2 * (12 + 9) + 22;
+    expect(beam.total_beam_length_m).toBeCloseTo(63.1, 2);
+    expect(beam.total_beam_length_m).toBeLessThan(outsideFace);
+    expect(beam.concrete_volume_m3).toBeCloseTo(3.19, 2);
+  });
+
   it("moves the eaves line with floor count and storey height", () => {
     const single = calculateMathematicalElevation({
       ...DEFAULT_PLAN_INPUT,
@@ -395,9 +409,15 @@ describe("eaves and ridge heights", () => {
     expect(
       tower.levels.level_3_superstructure.gross_external_wall_area_m2,
     ).toBe(5040);
-    // Ring beams run at every floor level: L_centerline 42 + 22 = 64 m per
-    // level, 64 x 40 = 2560 m.
-    expect(tower.levels.level_4_ring_beam.total_beam_length_m).toBe(2560);
+    // Ring beams run at every floor level, measured through the wall centre:
+    // 2(12 - 0.225) + 2(9 - 0.225) = 41.10 m external, plus 22 m of internal
+    // wall, is 63.10 m per level, and 63.10 x 40 = 2524 m. Measuring the beam
+    // on the outside face, which is the wall area's perimeter, charged 0.90 m
+    // of beam per level that the building does not have.
+    expect(tower.levels.level_4_ring_beam.total_beam_length_m).toBeCloseTo(
+      2524,
+      2,
+    );
   });
 
   it("answers a glass house with the solid remainder and names the glazing", () => {
@@ -407,7 +427,16 @@ describe("eaves and ridge heights", () => {
       ...DEFAULT_PLAN_INPUT,
       storeys: 1,
       internal_wall_length: 0,
-      openings: [{ id: "glaze", type: "window", width: 4.0, height: 2.75, count: 10, wall_side: "front" }],
+      openings: [
+        {
+          id: "glaze",
+          type: "window",
+          width: 4.0,
+          height: 2.75,
+          count: 10,
+          wall_side: "front",
+        },
+      ],
     } as never);
     const l3 = glassHouse.levels.level_3_superstructure;
     expect(l3.gross_external_wall_area_m2).toBe(126);

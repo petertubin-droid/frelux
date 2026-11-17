@@ -335,10 +335,10 @@ export function calculateMathematicalElevation(
     ),
     storeys: Math.max(
       1,
-      Math.min(MAX_SUPPORTED_STOREYS, Math.round(finiteInput(
-        rawInput.storeys,
-        DEFAULT_PLAN_INPUT.storeys,
-      ))),
+      Math.min(
+        MAX_SUPPORTED_STOREYS,
+        Math.round(finiteInput(rawInput.storeys, DEFAULT_PLAN_INPUT.storeys)),
+      ),
     ),
     wall_thickness: Math.max(
       0.12,
@@ -504,7 +504,12 @@ export function calculateMathematicalElevation(
   // No footing geometry, soil bearing, load path or excavation design is computed.
   // =========================================================
   const P_ext = 2 * (L + W);
-  const L_centerline = P_ext + input.internal_wall_length;
+  // A ring beam runs through the middle of the wall it sits in, so its length is
+  // the perimeter at the centreline: the outside face minus half a wall at each
+  // of the four corners. Taking the outside perimeter, which is what the wall
+  // areas use, overstated every beam by 4·tw per level and the concrete with it.
+  const P_centerline = 2 * (L - tw) + 2 * (W - tw);
+  const L_centerline = P_centerline + input.internal_wall_length;
   const level1Math: Level1FoundationMath = {
     level_name: "Level 1: Substructure & Foundation",
     excavation_depth_m: null,
@@ -537,7 +542,10 @@ export function calculateMathematicalElevation(
   // LEVEL 2: GROUND FLOOR SLAB & DPC MATHEMATICS
   // Fixed illustrative slab assumptions
   // =========================================================
-  const plinth_height_above_ground_m = 0.45; // 3 block courses
+  // Two 225 mm courses plus joints is about 0.47 m, so 0.45 m is a planning
+  // datum rather than a counted number of courses. It was labelled three
+  // courses, which no 225 mm block reaches.
+  const plinth_height_above_ground_m = 0.45;
   const slab_thickness_m = 0.15; // 150mm reinforced concrete slab
   const net_internal_slab_area = Math.max(0, (L - 2 * tw) * (W - 2 * tw));
   const slab_concrete_volume_m3 = net_internal_slab_area * slab_thickness_m;
@@ -640,11 +648,11 @@ export function calculateMathematicalElevation(
       category: "geometry",
       title: "Envelope is predominantly glazed",
       detected_value: `${glazedSharePercent.toFixed(1)}% of the gross wall is opening`,
-      permissible_threshold: "Advisory only; a glazed envelope is a valid design",
+      permissible_threshold:
+        "Advisory only; a glazed envelope is a valid design",
       regulation_code: "Scope note",
       mathematical_proof: `Openings total ${total_opening_deductions_m2.toFixed(1)} m² of the ${gross_masonry_area_m2.toFixed(1)} m² gross wall, so only ${net_masonry_area_m2.toFixed(1)} m² is solid masonry. Of the openings, ${glazedAreaM2.toFixed(1)} m² are windows and ${doorAreaM2.toFixed(1)} m² are doors. Glass, framing and fixings are not measured or priced here.`,
       recommended_fix: `Enter ${glazedAreaM2.toFixed(1)} m² of glazing as panels of the size being bought: the windows and doors estimator prices per unit, so its rate must match the panel size, not a standard window.`,
-
     });
   }
 
@@ -759,7 +767,7 @@ export function calculateMathematicalElevation(
     stirrups_spacing_mm: null,
     lintel_checks,
     mathematical_proof: [
-      `Continuous perimeter bond beam: ${beam_length_per_level_m.toFixed(2)}m per level × ${beam_levels} level(s) = ${total_beam_length_m.toFixed(2)}m, Section = ${(ring_beam_width_m * 1000).toFixed(0)} × ${(ring_beam_depth_m * 1000).toFixed(0)} mm`,
+      `Continuous perimeter bond beam on the wall centreline: ${P_centerline.toFixed(2)}m external + ${input.internal_wall_length.toFixed(2)}m internal = ${beam_length_per_level_m.toFixed(2)}m per level × ${beam_levels} level(s) = ${total_beam_length_m.toFixed(2)}m, Section = ${(ring_beam_width_m * 1000).toFixed(0)} × ${(ring_beam_depth_m * 1000).toFixed(0)} mm`,
       `Concrete volume: V_beam = ${total_beam_length_m.toFixed(2)} · ${ring_beam_width_m} · ${ring_beam_depth_m} = ${ring_beam_concrete_volume.toFixed(2)} m³`,
       "Reinforcement, anchorage, laps and links are not specified or quantified; obtain a project-specific design.",
     ],
@@ -806,6 +814,10 @@ export function calculateMathematicalElevation(
 
   // Height above finished ground level. The excavation depth is not part of the
   // building's height; it is reported on the substructure level instead.
+  // Convention: storey height is floor to floor, and the model keeps the ring
+  // beam above the top of the walls, so the eaves line sits one beam depth over
+  // the storey stack. The proof line states the convention so a reader is not
+  // left to infer it.
   const eaves_height_m =
     plinth_height_above_ground_m + H * storeys + ring_beam_depth_m;
   // Round the parts before summing so the figures a visitor adds up on the page
@@ -852,7 +864,8 @@ export function calculateMathematicalElevation(
       category: "geometry",
       title: "Eaves overhang is below configured planning threshold",
       detected_value: `${(overhang * 1000).toFixed(0)}mm overhang`,
-      permissible_threshold: `Below configured 450mm planning threshold`,
+      permissible_threshold:
+        "Overhang \u2265 450 mm (FRELUX planning threshold)",
       regulation_code: "Project-specific review",
       mathematical_proof: `Entered overhang is ${(overhang * 1000).toFixed(0)}mm; weather performance depends on project exposure and detailing.`,
       recommended_fix:
@@ -881,6 +894,9 @@ export function calculateMathematicalElevation(
     eaves_height_m: eaves_display_m,
     total_building_height_m,
     mathematical_proof: [
+      // The eaves convention is stated because the beam is modelled above the
+      // storey stack, and a reader adding the parts needs to know that.
+      `Eaves convention: plinth ${plinth_height_above_ground_m.toFixed(2)} m + storey height ${H.toFixed(2)} m × ${storeys} storey(s) + ${ring_beam_depth_m.toFixed(3)} m ring beam = ${eaves_height_m.toFixed(2)} m. Storey height is floor to floor.`,
       roofGeometrySupported
         ? `Clear roof span: S = min(L, W) = ${roof_span_m.toFixed(2)} m (overhang does not change ridge rise; half-span = ${half_span.toFixed(2)} m)`
         : `Roof form ${input.roof_type} is not modeled by the gable/hip geometry in this calculator.`,
