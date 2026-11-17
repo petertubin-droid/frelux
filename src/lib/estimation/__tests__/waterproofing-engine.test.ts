@@ -139,12 +139,39 @@ describe("material lines", () => {
     expect(coat?.detail).toMatch(/waste 10%/);
   });
 
-  it("terrace membrane: area ÷ roll coverage, whole rolls", () => {
-    const r = calculateWaterproofing(makeInput(), rules, FULL_PRICES);
-    // 30 ÷ 10 = 3
-    expect(r.lines.find((l) => l.key === "bituminous_membrane")?.quantity).toBe(
-      3,
+  it("terrace membrane: area × layers ÷ roll coverage, whole rolls", () => {
+    const twoLayer = calculateWaterproofing(makeInput(), rules, FULL_PRICES);
+    // The fixture rules are a two-layer treatment over 30 m² at 10 m²/roll:
+    // 30 × 2 = 60 ÷ 10 = 6 rolls. Counting only the plan area bought 3.
+    expect(
+      twoLayer.lines.find((l) => l.key === "bituminous_membrane")?.quantity,
+    ).toBe(6);
+    expect(
+      twoLayer.steps.some((s) => /30 m² × 2 layers = 60 m²/.test(s.detail)),
+    ).toBe(true);
+
+    const oneLayer = calculateWaterproofing(
+      makeInput(),
+      { ...rules, coats_terrace: 1 },
+      FULL_PRICES,
     );
+    // 30 × 1 = 30 ÷ 10 = 3 rolls, so the layer factor is the only variable.
+    expect(
+      oneLayer.lines.find((l) => l.key === "bituminous_membrane")?.quantity,
+    ).toBe(3);
+
+    const unknown = calculateWaterproofing(
+      makeInput(),
+      { ...rules, coats_terrace: null },
+      FULL_PRICES,
+    );
+    // An unconfigured layer count is one layer with a warning, never silence.
+    expect(
+      unknown.lines.find((l) => l.key === "bituminous_membrane")?.quantity,
+    ).toBe(3);
+    expect(
+      unknown.warnings.some((w) => /no layer count configured/.test(w)),
+    ).toBe(true);
   });
 
   it("tape: perimeter × overlap factor, rounds up", () => {

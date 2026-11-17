@@ -167,8 +167,6 @@ export type WaterproofingPriceMap = Record<string, number | null>;
 
 const money = roundMoney;
 
-
-
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
   return Math.round(v * f) / f;
@@ -365,13 +363,21 @@ export function calculateWaterproofing(
         "Bituminous membrane: no roll coverage configured (membrane_roll_coverage_m2). Set it from the roll size: quantities will not be guessed.",
       );
     } else {
-      const rolls = ceilU(
-        input.terrace_area_m2 / rules.membrane_roll_coverage_m2,
-      );
+      // A two-layer torch-on treatment needs twice the membrane, so the layer
+      // count multiplies the area before it is divided by the roll's effective
+      // coverage. Leaving it out of the quantity bought half the roof.
+      const layers = rules.coats_terrace ?? 1;
+      if (rules.coats_terrace === null) {
+        warnings.push(
+          "Bituminous membrane: no layer count configured (coats_terrace): counted one layer. A two-layer treatment needs twice the membrane.",
+        );
+      }
+      const membraneArea = input.terrace_area_m2 * layers;
+      const rolls = ceilU(membraneArea / rules.membrane_roll_coverage_m2);
       const price = prices["bituminous-membrane-roll"] ?? null;
       steps.push({
         label: "Bituminous membrane rolls",
-        detail: `${input.terrace_area_m2} m² ÷ ${rules.membrane_roll_coverage_m2} m²/roll = ${roundTo(input.terrace_area_m2 / rules.membrane_roll_coverage_m2, 2)} → ${rolls} rolls (whole rolls, up).`,
+        detail: `${input.terrace_area_m2} m² × ${layers} layer${layers === 1 ? "" : "s"} = ${roundTo(membraneArea, 2)} m² ÷ ${rules.membrane_roll_coverage_m2} m²/roll = ${roundTo(membraneArea / rules.membrane_roll_coverage_m2, 2)} → ${rolls} rolls (whole rolls, up). The coverage rule is the effective coverage of one roll after laps.`,
       });
       lines.push({
         key: "bituminous_membrane",
@@ -380,7 +386,7 @@ export function calculateWaterproofing(
         quantity: rolls,
         quantity_source: "rule_derived",
         unit: "rolls",
-        detail: `${input.terrace_area_m2} m² ÷ ${rules.membrane_roll_coverage_m2} m²/roll → ${rolls} rolls${rules.coats_terrace !== null && rules.coats_terrace > 1 ? ` (${rules.coats_terrace} layers: verify the treatment design with the datasheet)` : ""}`,
+        detail: `${input.terrace_area_m2} m² × ${layers} layer${layers === 1 ? "" : "s"} = ${roundTo(membraneArea, 2)} m² ÷ ${rules.membrane_roll_coverage_m2} m²/roll → ${rolls} rolls${layers > 1 ? ` (${layers} layers: verify the treatment design with the datasheet)` : ""}`,
         unit_price: price,
         line_total: price !== null ? money(rolls * price) : null,
       });
