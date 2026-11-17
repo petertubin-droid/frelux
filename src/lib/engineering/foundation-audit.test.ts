@@ -31,7 +31,9 @@ describe("foundation sizing, hand calculated", () => {
     expect(r.recommended_width).toBe(300); // practical minimum wins over 250
     expect(r.applied_pressure).toBeCloseTo(110, 0); // 33 / 0.3
     expect(r.excavation_volume).toBeCloseTo(10.8, 1); // 0.3 x 1.0 x 36
-    const buildNote = r.formula_transparency.find((f) => f.startsWith("Width to build"));
+    const buildNote = r.formula_transparency.find((f) =>
+      f.startsWith("Width to build"),
+    );
     expect(buildNote).toBeTruthy();
   });
 
@@ -87,7 +89,7 @@ describe("derived (Terzaghi) bearing capacity", () => {
     const f = bearingCapacityFactors(28);
     expect(f.nq).toBeCloseTo(14.72, 1);
     expect(f.ngamma).toBeCloseTo(16.71, 1);
-    expect(f.nc).toBeCloseTo(25.80, 1);
+    expect(f.nc).toBeCloseTo(25.8, 1);
   });
 
   it("a high water table widens the footing", () => {
@@ -115,7 +117,14 @@ describe("derived (Terzaghi) bearing capacity", () => {
 
 describe("retaining wall", () => {
   it("Rankine Ka for wet clay (20 degrees)", () => {
-    const s = computeRetainingWallStability(3, 1.5, 0.3, "wet_clay", "block", 0.225);
+    const s = computeRetainingWallStability(
+      3,
+      1.5,
+      0.3,
+      "wet_clay",
+      "block",
+      0.225,
+    );
     const phi = (20 * Math.PI) / 180;
     const ka = (1 - Math.sin(phi)) / (1 + Math.sin(phi));
     expect(s.ka).toBeCloseTo(ka, 2);
@@ -123,7 +132,14 @@ describe("retaining wall", () => {
   });
 
   it("lateritic soil has its own profile (30 degrees)", () => {
-    const s = computeRetainingWallStability(3, 1.5, 0.3, "lateritic", "block", 0.225);
+    const s = computeRetainingWallStability(
+      3,
+      1.5,
+      0.3,
+      "lateritic",
+      "block",
+      0.225,
+    );
     const phi = (30 * Math.PI) / 180;
     const ka = (1 - Math.sin(phi)) / (1 + Math.sin(phi));
     expect(s.ka).toBeCloseTo(ka, 2);
@@ -190,7 +206,10 @@ describe("market block defaults", () => {
     const ng = marketBlocksPerM2("NG")!;
     const us = marketBlocksPerM2("US")!;
     expect(ng.value).toBeCloseTo(9.13, 1);
-    expect(us.value).toBeCloseTo(11.13, 1);
+    // 12.13, not 11.13: the nominal 8 x 16 in face already contains its joint
+    // (NCMA TEK 02-01B, 1.125 blocks per square foot), so adding one again was
+    // an 8 per cent undercount on every US wall.
+    expect(us.value).toBeCloseTo(12.13, 1);
     expect(marketBlocksPerM2("ZZ")).toBeNull();
   });
 });

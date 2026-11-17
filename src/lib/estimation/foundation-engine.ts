@@ -34,7 +34,6 @@ import { MORTAR_JOINT_THICKNESS, blocksPerM2 } from "./build-to-roof-engine";
 import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
 import { cementBagVolumeM3 } from "@/config/masonry-units";
 
-
 // ─────────────────────────────────────────────
 // Standard mix-math constants (shown in the breakdown)
 // ─────────────────────────────────────────────
@@ -71,40 +70,169 @@ export interface FoundationRules {
  * listed, or a block that differs from the local standard, still needs the
  * blocks_per_m2 rule set explicitly.
  */
-export const BLOCK_FACE_BY_MARKET: Record<
-  string,
-  { lengthMm: number; heightMm: number; label: string }
-> = {
-  NG: { lengthMm: 450, heightMm: 225, label: "450×225 mm sandcrete block" },
-  GH: { lengthMm: 450, heightMm: 225, label: "450×225 mm sandcrete block" },
-  KE: { lengthMm: 450, heightMm: 225, label: "450×225 mm stone block" },
-  ZA: { lengthMm: 390, heightMm: 190, label: "390×190 mm concrete block" },
-  IN: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
-  GB: { lengthMm: 440, heightMm: 215, label: "440×215 mm concrete block" },
-  US: { lengthMm: 406, heightMm: 203, label: "16×8 in CMU" },
-  CA: { lengthMm: 406, heightMm: 203, label: "16×8 in CMU" },
-  AU: { lengthMm: 390, heightMm: 190, label: "390×190 mm concrete block" },
-  DE: { lengthMm: 300, heightMm: 250, label: "300×250 mm clay block" },
-  FR: { lengthMm: 400, heightMm: 200, label: "400×200 mm parpaing block" },
-  IT: { lengthMm: 300, heightMm: 250, label: "300×250 mm laterizio block" },
-  NL: { lengthMm: 300, heightMm: 250, label: "300×250 mm block" },
-  ES: { lengthMm: 400, heightMm: 200, label: "400×200 mm block" },
-  PL: { lengthMm: 380, heightMm: 240, label: "380×240 mm block" },
-  BR: { lengthMm: 390, heightMm: 190, label: "390×190 mm ceramic block" },
-  MX: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
-  SA: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
-  AE: { lengthMm: 400, heightMm: 200, label: "400×200 mm concrete block" },
-  CN: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
-  ID: { lengthMm: 390, heightMm: 190, label: "390×190 mm AAC block" },
-  JP: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
-  KR: { lengthMm: 390, heightMm: 190, label: "390×190 mm block" },
+export interface BlockFace {
+  lengthMm: number;
+  heightMm: number;
+  label: string;
+  /**
+   * True when the published face is a nominal module that already contains the
+   * mortar joint, as a US or Canadian concrete block does: a nominal 8 x 16 in
+   * CMU measures 7-5/8 x 15-5/8 in and reaches 8 x 16 in only once the 3/8 in
+   * joint is added (ASTM C90, NCMA TEK 02-01B, which publishes 1.125 blocks per
+   * square foot of wall). Adding a joint to a nominal face counts it twice.
+   * False when the published face is the manufactured block itself, as a
+   * Nigerian or British block is, where the joint has to be added.
+   */
+  jointIncluded: boolean;
+}
+
+export const BLOCK_FACE_BY_MARKET: Record<string, BlockFace> = {
+  NG: {
+    lengthMm: 450,
+    heightMm: 225,
+    jointIncluded: false,
+    label: "450×225 mm sandcrete block",
+  },
+  GH: {
+    lengthMm: 450,
+    heightMm: 225,
+    jointIncluded: false,
+    label: "450×225 mm sandcrete block",
+  },
+  KE: {
+    lengthMm: 450,
+    heightMm: 225,
+    jointIncluded: false,
+    label: "450×225 mm stone block",
+  },
+  ZA: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm concrete block",
+  },
+  IN: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm concrete block",
+  },
+  GB: {
+    lengthMm: 440,
+    heightMm: 215,
+    jointIncluded: false,
+    label: "440×215 mm concrete block",
+  },
+  US: {
+    lengthMm: 406,
+    heightMm: 203,
+    jointIncluded: true,
+    label: "16×8 in CMU",
+  },
+  CA: {
+    lengthMm: 406,
+    heightMm: 203,
+    jointIncluded: true,
+    label: "16×8 in CMU",
+  },
+  AU: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm concrete block",
+  },
+  DE: {
+    lengthMm: 300,
+    heightMm: 250,
+    jointIncluded: false,
+    label: "300×250 mm clay block",
+  },
+  FR: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm parpaing block",
+  },
+  IT: {
+    lengthMm: 300,
+    heightMm: 250,
+    jointIncluded: false,
+    label: "300×250 mm laterizio block",
+  },
+  NL: {
+    lengthMm: 300,
+    heightMm: 250,
+    jointIncluded: false,
+    label: "300×250 mm block",
+  },
+  ES: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm block",
+  },
+  PL: {
+    lengthMm: 380,
+    heightMm: 240,
+    jointIncluded: false,
+    label: "380×240 mm block",
+  },
+  BR: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm ceramic block",
+  },
+  MX: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm concrete block",
+  },
+  SA: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm concrete block",
+  },
+  AE: {
+    lengthMm: 400,
+    heightMm: 200,
+    jointIncluded: false,
+    label: "400×200 mm concrete block",
+  },
+  CN: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm block",
+  },
+  ID: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm AAC block",
+  },
+  JP: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm block",
+  },
+  KR: {
+    lengthMm: 390,
+    heightMm: 190,
+    jointIncluded: false,
+    label: "390×190 mm block",
+  },
 };
 
 /**
- * Blocks per m² implied by the market's nominal block, using the same
- * block + mortar joint module the build-to-roof engine counts with. Returns
- * null for a market with no published face, so the caller can ask for the rule
- * rather than invent a number.
+ * Blocks per m² implied by the market's block face, counted with the block plus
+ * mortar joint module the build-to-roof engine uses. A face that already
+ * contains the joint is counted without adding one again. Returns null for a
+ * market with no published face, so the caller can ask for the rule rather than
+ * invent a number.
  */
 export function marketBlocksPerM2(
   marketCode?: string,
@@ -113,11 +241,8 @@ export function marketBlocksPerM2(
   if (!code) return null;
   const face = BLOCK_FACE_BY_MARKET[code];
   if (!face) return null;
-  const value = blocksPerM2(
-    face.lengthMm / 25.4,
-    face.heightMm / 25.4,
-    MORTAR_JOINT_THICKNESS,
-  );
+  const joint = face.jointIncluded ? 0 : MORTAR_JOINT_THICKNESS;
+  const value = blocksPerM2(face.lengthMm / 25.4, face.heightMm / 25.4, joint);
   if (!Number.isFinite(value) || value <= 0) return null;
   return { value, label: face.label };
 }
@@ -243,7 +368,6 @@ export interface FoundationOptions {
   bagWeightKg?: number;
 }
 
-
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
@@ -252,10 +376,6 @@ export interface FoundationOptions {
 const DEFAULT_BAG_WEIGHT_KG = 50;
 
 const money = roundMoney;
-
-
-
-
 
 // ─────────────────────────────────────────────
 // Engine
@@ -328,7 +448,9 @@ export function calculateFoundation(
 
       // Resolve cement bag weight and nominal bag volume based on market or options override
       const market = options?.marketCode?.toUpperCase();
-      const marketBagKg = market ? CEMENT_BAG_WEIGHT_BY_MARKET[market] : undefined;
+      const marketBagKg = market
+        ? CEMENT_BAG_WEIGHT_BY_MARKET[market]
+        : undefined;
       const bagWeightKg =
         options?.bagWeightKg ?? marketBagKg ?? DEFAULT_BAG_WEIGHT_KG;
       if (market && marketBagKg === undefined && options?.bagWeightKg == null) {
@@ -417,8 +539,7 @@ export function calculateFoundation(
   // ── 3. Blockwork to DPC ──
   if (input.block_wall_area_m2 !== null && input.block_wall_area_m2 > 0) {
     const marketBlocks = marketBlocksPerM2(options?.marketCode);
-    const blocksRule =
-      rules.blocks_per_m2 ?? marketBlocks?.value ?? null;
+    const blocksRule = rules.blocks_per_m2 ?? marketBlocks?.value ?? null;
     if (blocksRule === null) {
       missing.push(
         "Blocks: no blocks-per-m² rule configured (blocks_per_m2) and no nominal block published for this market. Set it for the block you price: quantities will not be guessed.",
