@@ -26,7 +26,10 @@
 
 import type { CalcRuleRow } from "./count-vision-engine";
 import { roundMoney } from "@/lib/money/round";
-import { ec2AnchorageLength, ec2LapLength } from "@/lib/engineering/bbs-schedule";
+import {
+  ec2AnchorageLength,
+  ec2LapLength,
+} from "@/lib/engineering/bbs-schedule";
 import { ceilU } from "./shared/purchase-rounding";
 import { rebarMassPerM } from "./shared/rebar-mass";
 
@@ -486,46 +489,48 @@ const NOMINAL_MASS_MAP: Record<number, number> = {
 };
 
 /**
- * Calculates cut length (in metres) per BS 8666:2020 bend deductions.
+ * Cutting length for a BS 8666 shape, in metres, to three decimal places.
+ *
+ * This used to carry its own approximation table and the table disagreed with
+ * the schedule the engine actually prints. Shape 21, labelled a 90 degree L-bar
+ * by its own comment, took no bend deduction at all while shape 11 took
+ * 0.5r + d for the same turn, and the link shape added a bare 20d hook tail with
+ * no hook bend deduction. On a 16 mm bar in shape 21 that put 33 mm of scrap into
+ * every cut; on the 400 x 250 mm link in 10 mm bar it overstated the cut by
+ * 255 mm, a fifth of the bar.
+ *
+ * Both functions are exported and the exact geometry already lived in
+ * bs8666CutLength, so this one now defers to it: the cut length for a bar cannot
+ * depend on which of the two a caller picks. The old table also mislabelled the
+ * shapes: it called 21 a single-bend L-bar, which is shape 11 in the schedule's
+ * numbering, while 21 is a bar with two 90 degree bends and three legs. Codes
+ * now mean what the schedule means by them, old 41 maps to the schedule's link
+ * 51, and shape 33 (U-bar) is not in the shape set the schedule writes, so it is
+ * refused rather than estimated.
  */
 export function calculateBarCutLength(
   shapeCode: BS8666ShapeCode,
   dims: BBSDimensions,
   diameterMm: number,
 ): number {
-  const d = diameterMm;
-  const A = Math.max(0, dims.A);
-  const B = Math.max(0, dims.B ?? 0);
-  const C = Math.max(0, dims.C ?? 0);
-  const r = dims.r ?? 2 * d; // standard mandrel radius
-
-  let cutLengthMm = A;
-
-  switch (shapeCode) {
-    case "00": // Straight bar
-      cutLengthMm = A;
-      break;
-    case "11": // Single bend
-      cutLengthMm = A + B - 0.5 * r - d;
-      break;
-    case "21": // Standard L-bar / 90° bend
-      cutLengthMm = A + B;
-      break;
-    case "33": // U-bar
-      cutLengthMm = A + 2 * B - C;
-      break;
-    case "41": // Column / beam link (stirrup) with standard anchorage hooks
-      // Per BS 8666: 2A + 2B + 20d hook allowance
-      cutLengthMm = 2 * A + 2 * B + 20 * d;
-      break;
-    case "51": // Double-crank / offset bar
-      cutLengthMm = A + B + C;
-      break;
-    default:
-      cutLengthMm = A + B + C;
+  if (shapeCode === "33") {
+    throw new RangeError(
+      "Shape 33 (U-bar) is not in the BS 8666 shape set this schedule writes. Use bs8666CutLength for a supported shape.",
+    );
   }
-
-  return Math.round((cutLengthMm / 1000) * 1000) / 1000;
+  const scheduled = shapeCode === "41" ? "51" : shapeCode;
+  const result = bs8666CutLength({
+    shapeCode: scheduled,
+    diameterMm,
+    dims: { a: dims.A, b: dims.B, c: dims.C },
+  });
+  if (!result.ok || result.cutLengthMm === null) {
+    throw new RangeError(
+      result.errors.join(" ") ||
+        `Shape ${shapeCode} cannot be cut from those dimensions.`,
+    );
+  }
+  return Math.round((result.cutLengthMm / 1000) * 1000) / 1000;
 }
 
 /**
@@ -563,8 +568,7 @@ export function calculateDevelopmentLength(
   if (!(d > 0) || !(fyMpa > 0)) return 0;
   if (code === "aci") {
     // ACI 318-19 accepts psi or MPa for f'c; anything above 100 is psi.
-    const fcPsi =
-      fckOrFcPsi > 100 ? fckOrFcPsi : fckOrFcPsi * 145.038;
+    const fcPsi = fckOrFcPsi > 100 ? fckOrFcPsi : fckOrFcPsi * 145.038;
     const fcMpa = fcPsi / 145.038;
     if (!(fcMpa > 0)) return 0;
     const fyPsi = fyMpa * 145.038;
@@ -580,7 +584,10 @@ export function calculateDevelopmentLength(
     // grade. A C20 mix, routine in Nigeria and much of West Africa, was
     // anchored as if it were C30 and the laps it feeds were short by the same
     // margin. Both the steel and the concrete grade now enter the length.
-    const fcu = Math.min(60, Math.max(20, fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi));
+    const fcu = Math.min(
+      60,
+      Math.max(20, fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi),
+    );
     const beta = 0.5; // type 2 deformed bars in tension (BS 8110-1 Table 3.26)
     const bondStress = beta * Math.sqrt(fcu); // N/mm²
     const tension = (fyMpa * d) / (4 * bondStress);
@@ -646,7 +653,9 @@ export function calculateLapLength(
   // EN 1992-1-1 8.7.3 with alpha6 = sqrt(percent / 25) capped at 1.5.
   const percentLapped = moreThanHalfLapped ? 100 : 50;
   const fck = fckOrFcPsi > 100 ? fckOrFcPsi / 145.038 : fckOrFcPsi;
-  return Math.ceil(ec2LapLength({ db: barDiameterMm, fck, fyk: fyMpa, percentLapped }).l0);
+  return Math.ceil(
+    ec2LapLength({ db: barDiameterMm, fck, fyk: fyMpa, percentLapped }).l0,
+  );
 }
 
 /**

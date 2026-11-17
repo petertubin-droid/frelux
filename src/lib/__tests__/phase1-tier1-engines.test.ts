@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  bs8666CutLength,
   calculateBarCutLength,
   calculateDevelopmentLength,
   generateBarBendingSchedule,
@@ -18,15 +19,60 @@ import type { CostEstimate } from "../measurement/cost-integration";
 
 describe("Phase 1 Tier-1 Upgrades Verification", () => {
   describe("1. Bar Bending Schedule (BBS) & BVBS Export Engine (BS 8666 / ACI SP-66)", () => {
+    it("gives the schedule and the cut length helper the same bar", () => {
+      // Two exported cut length functions are one cut length: the helper defers
+      // to the schedule, so no caller can order a different bar than the
+      // schedule prints.
+      const cases: Array<
+        [
+          "00" | "11" | "21" | "51" | "41",
+          { A: number; B?: number; C?: number },
+        ]
+      > = [
+        ["00", { A: 3500 }],
+        ["11", { A: 2000, B: 400 }],
+        ["21", { A: 2000, B: 300, C: 1000 }],
+        ["51", { A: 400, B: 250 }],
+        ["41", { A: 400, B: 250 }],
+      ];
+      for (const [code, dims] of cases) {
+        const scheduled = bs8666CutLength({
+          shapeCode: code === "41" ? "51" : code,
+          diameterMm: 10,
+          dims: { a: dims.A, b: dims.B, c: dims.C },
+        });
+        expect(scheduled.ok, code).toBe(true);
+        expect(calculateBarCutLength(code, dims, 10), code).toBe(
+          Math.round(((scheduled.cutLengthMm as number) / 1000) * 1000) / 1000,
+        );
+      }
+    });
+
+    it("refuses the U-bar rather than estimating it", () => {
+      expect(() => calculateBarCutLength("33", { A: 900, B: 300 }, 12)).toThrow(
+        RangeError,
+      );
+    });
+
     it("calculates exact cut lengths for standard shape codes", () => {
       // Shape 00: Straight bar (A = 3500mm)
       expect(calculateBarCutLength("00", { A: 3500 }, 16)).toBe(3.5);
 
-      // Shape 21: L-Bar (A = 2000mm, B = 500mm)
-      expect(calculateBarCutLength("21", { A: 2000, B: 500 }, 16)).toBe(2.5);
+      // Shape 11: single 90 degree bend, A = 2000, B = 500, 16 mm bar. Mandrel
+      // 4d = 64, r = 32, arc = (pi/2)(32 + 8) = 62.83: 2500 - 2(48) + 62.83 =
+      // 2466.83 mm. The old table called this shape 21 and returned A + B =
+      // 2500 mm, 33 mm of scrap per bar.
+      expect(calculateBarCutLength("11", { A: 2000, B: 500 }, 16)).toBe(2.467);
 
-      // Shape 41: Stirrup/Link (A = 400mm, B = 250mm, diameter 10mm => 2A + 2B + 20d = 800 + 500 + 200 = 1500mm)
-      expect(calculateBarCutLength("41", { A: 400, B: 250 }, 10)).toBe(1.5);
+      // Shape 21 is the two-bend bar, three legs: 2000 + 300 + 1000 = 3300,
+      // less 4(48) plus 2 x 62.83 = 3233.66 mm.
+      expect(
+        calculateBarCutLength("21", { A: 2000, B: 300, C: 1000 }, 16),
+      ).toBe(3.234);
+
+      // Shape 41 link, A = 400, B = 250, 10 mm bar: 1300 - 240 + 157.08 + 200 - 171.9
+      // = 1245.18 mm. The old 2A + 2B + 20d returned 1500 mm, a fifth over.
+      expect(calculateBarCutLength("41", { A: 400, B: 250 }, 10)).toBe(1.245);
     });
 
     it("calculates development length for Eurocode 2 and ACI 318", () => {
