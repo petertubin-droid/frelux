@@ -30,7 +30,7 @@ const fmt = (v: number, currency = "NGN") =>
   }).format(v || 0);
 
 export default function ClientEstimateView() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   useSeo({
     title: "Project Estimate",
     description: "Review and approve your project estimate.",
@@ -183,10 +183,19 @@ export default function ClientEstimateView() {
               <span className="font-medium">{estimate.client_name}</span>
             </p>
           )}
-          <p className="text-xs text-muted-foreground mt-2">
-            Estimate created on{" "}
-            {new Date(estimate.created_at).toLocaleDateString()} • Valid for{" "}
-            {estimate.validity_days} days
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+            <span>
+              {t("Estimate created on")}{" "}
+              <time dateTime={estimate.created_at}>
+                {new Intl.DateTimeFormat(language, {
+                  dateStyle: "medium",
+                }).format(new Date(estimate.created_at))}
+              </time>
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>
+              {t("Valid for")} {estimate.validity_days} {t("days")}
+            </span>
           </p>
         </div>
 
@@ -318,7 +327,7 @@ export default function ClientEstimateView() {
               <div className="space-y-4">
                 <textarea
                   aria-label={t("Feedback for the professional")}
-                  className="w-full rounded-lg border bg-background px-4 py-3 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
+                  className="w-full rounded-lg border bg-background px-4 py-3 text-sm transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
                   rows={4}
                   placeholder={t("Describe what changes you'd like...")}
                   value={feedback}
