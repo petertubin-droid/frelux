@@ -100,15 +100,25 @@ export function calculateDrainageTakeoff(
   let excavationVolume = 0;
   const gradientCautions: string[] = [];
 
-  /** Minimum self-cleansing gradient, mm of fall per metre, by pipe size. */
+  /**
+   * Minimum self-cleansing gradient, mm of fall per metre, by pipe size: 1 in
+   * 60 at 75 mm, 1 in 80 at 110 mm, 1 in 150 at 160 mm, then 1 in 200 at 200 mm,
+   * 1 in 250 at 250 mm and 1 in 315 at 315 mm. A bigger pipe carries the same
+   * solids at a flatter fall, so the smallest pipe not above the run is looked
+   * up, and anything above the last row takes the last row: previously a 200 mm
+   * run fell through to no minimum at all and a sewer at 1 mm/m drew no caution.
+   */
   const MIN_FALL_MM_PER_M: ReadonlyArray<readonly [number, number]> = [
     [75, 16.7],
     [110, 12.5],
     [160, 6.7],
+    [200, 5.0],
+    [250, 4.0],
+    [315, 3.2],
   ];
-  const minFallFor = (diameterMm: number): number | null => {
+  const minFallFor = (diameterMm: number): number => {
     const hit = MIN_FALL_MM_PER_M.find(([d]) => diameterMm <= d);
-    return hit ? hit[1] : null;
+    return hit ? hit[1] : MIN_FALL_MM_PER_M[MIN_FALL_MM_PER_M.length - 1][1];
   };
 
   for (const run of runs) {
