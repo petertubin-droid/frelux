@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Send, Paperclip } from "lucide-react";
 import {
+  getConversationById,
   getMyConversations,
   getMessages,
   sendMessage,
@@ -30,21 +31,41 @@ export default function Messages() {
   const [messageText, setMessageText] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  // A conversation the list did not return, looked up on its own. `unavailable`
+  // is the honest third answer: the link points at something this account
+  // cannot open, so say so instead of leaving an empty column.
+  const [unavailable, setUnavailable] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       setLoading(true);
+      setUnavailable(false);
       const convos = await getMyConversations();
       setConversations(convos);
       setLoading(false);
 
       if (conversationId) {
-        const convo = convos.find((c) => c.id === conversationId);
-        if (convo) {
-          setActiveConvo(convo);
+        const listed = convos.find((c) => c.id === conversationId);
+        if (listed) {
+          setActiveConvo(listed);
           loadMessages(conversationId);
+        } else {
+          // The list is the fast path, not the only path: open the conversation
+          // the link names even when it is not in it yet.
+          const direct = await getConversationById(conversationId);
+          if (direct) {
+            setConversations((current) =>
+              current.some((c) => c.id === direct.id)
+                ? current
+                : [direct, ...current],
+            );
+            setActiveConvo(direct);
+            loadMessages(conversationId);
+          } else {
+            setUnavailable(true);
+          }
         }
       }
     })();
@@ -379,18 +400,46 @@ export default function Messages() {
                   </div>
                 </div>
               </>
+            ) : loading ? (
+              <div className="flex flex-1 flex-col gap-3 p-4">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-12 animate-pulse rounded-lg bg-muted dark:bg-white/5"
+                  />
+                ))}
+              </div>
             ) : (
               <div className="flex flex-1 items-center justify-center p-8">
-                <div className="text-center">
-                  <p className="text-muted-foreground dark:text-muted-foreground">
-                    {t("Select a conversation to view messages")}
+                <div className="max-w-sm text-center">
+                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
+                    {unavailable
+                      ? t("This conversation could not be opened")
+                      : t("Select a conversation to view messages")}
                   </p>
-                  <Link
-                    to="/pro-connect/"
-                    className="mt-3 inline-block text-sm text-brand-purple dark:text-brand-purple-lighter"
-                  >
-                    {t("Browse professionals")}
-                  </Link>
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                    {unavailable
+                      ? t(
+                          "It may belong to another account, or it has been removed. Open your messages to pick up an existing thread.",
+                        )
+                      : t(
+                          "Choose a thread on the left, or start one from a professional's profile.",
+                        )}
+                  </p>
+                  <div className="mt-4 flex items-center justify-center gap-3">
+                    <Link
+                      to="/messages/"
+                      className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted/60 dark:border-white/10 dark:text-muted-foreground"
+                    >
+                      {t("Messages")}
+                    </Link>
+                    <Link
+                      to="/pro-connect/"
+                      className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                    >
+                      {t("Browse professionals")}
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}

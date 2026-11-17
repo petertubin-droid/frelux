@@ -154,7 +154,9 @@ export default function ProConnectProfile() {
     } catch {
       /* email is a courtesy, never a gate */
     }
-    navigate(`/messages/${convo.id}`);
+    // `replace` so the back button returns to the profile, not to a page that
+    // immediately bounces forward again.
+    navigate(`/messages/${convo.id}`, { replace: true });
   }
 
   useSeo({

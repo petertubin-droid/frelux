@@ -895,6 +895,31 @@ export async function getOrCreateConversation(
   return data as DbProConversation;
 }
 
+/**
+ * One conversation by id, for the case the list cannot answer: a link followed
+ * before the list has loaded, or a conversation created a moment ago that the
+ * list query has not caught up with. Reading it directly means the thread opens
+ * instead of the page sitting empty.
+ */
+export async function getConversationById(
+  conversationId: string,
+): Promise<DbProConversation | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from("pro_conversations")
+    .select(
+      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
+    )
+    .eq("id", conversationId)
+    .maybeSingle();
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getConversationById:", error.message);
+    return null;
+  }
+  return (data as DbProConversation) ?? null;
+}
+
 export async function getMyConversations(): Promise<DbProConversation[]> {
   if (!isSupabaseConfigured) return [];
   const {
