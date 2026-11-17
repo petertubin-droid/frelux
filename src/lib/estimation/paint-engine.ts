@@ -233,6 +233,20 @@ const SQM_PER_SQFT = 0.09290304;
  * rounded to 2dp only at this documented stage. Shared by paint-engine and
  * painting-engine so both tools use one formula.
  */
+/**
+ * Lowest coverage a decorative paint is credibly sold at.
+ *
+ * Manufacturer spread rates sit well above this: Berger's Nigerian Luxol
+ * Emulsion technical manual gives 10 to 12 m2 per litre per coat, Berger Super
+ * White 11.6, Dulux Trade Vinyl Matt up to 17, and a US gallon covering 350
+ * square feet works out at 8.6. A configured rate below the floor is not a
+ * different paint, it is a configuration error or a unit mistake, and it
+ * multiplies every litre the calculator asks for. The engine still calculates
+ * with the configured rate, because the owner may know something the floor does
+ * not, but it says so in the warnings instead of quietly over-ordering.
+ */
+export const MIN_PLAUSIBLE_COVERAGE_M2_PER_L = 8;
+
 export function calculateTheoreticalLitres(
   areaM2: number,
   coats: number,
@@ -982,6 +996,11 @@ export function calculateRoom(
     );
     // Apply surface condition factor
     wallCoverageM2PerL = wallCoverageM2PerL * surfaceFactor;
+    if (wallCoverageM2PerL < MIN_PLAUSIBLE_COVERAGE_M2_PER_L) {
+      warnings.push(
+        `Coverage of ${wallCoverageM2PerL.toFixed(2)} m2/L per coat is below every published spread rate checked (10 to 12 for Berger Luxol Emulsion in Nigeria, 11.6 for Super White, up to 17 for Dulux Trade Vinyl Matt). The litres below are calculated from it, so they are likely over-stated: check the coverage and its unit in the paint configuration.`,
+      );
+    }
     steps.push({
       label: "Normalized Wall Coverage",
       value: `${wallCoverageM2PerL.toFixed(2)} m²/L per coat`,
@@ -1192,9 +1211,7 @@ export function calculateRoom(
         ? Math.round(((netWallArea * 1) / primerCoverageM2PerL) * 100) / 100
         : 0;
     primerBuckets =
-      primerLitres > 0
-        ? roundUpToBuckets(primerLitres, packSizeLitres)
-        : 0;
+      primerLitres > 0 ? roundUpToBuckets(primerLitres, packSizeLitres) : 0;
     const primerUnitPrice = config.primer_price?.price ?? 0;
     primerCost = primerUnitPrice > 0 ? primerUnitPrice * primerBuckets : 0;
 
