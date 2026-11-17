@@ -5,7 +5,9 @@
  * across international metric, imperial, and regional standards.
  *
  * 1. Bar Bending Schedule (BBS) & Rebar Weight:
- *    - Metric (ISO/EN): (diameter_mm^2) / 162 * length_m (returns kg)
+ *    - Metric (BS 4449 / EN 10080): 0.006165 * diameter_mm^2 * length_m (returns kg),
+ *      the nominal mass in closed form at 7850 kg/m3, shared with every other
+ *      rebar path so a bar weight cannot depend on which module is open
  *    - Imperial (ASTM): (bar_number^2) * 0.04167 * length_ft (returns lbs)
  *
  * 2. Concrete Structural Grade & Materials Engine:
@@ -21,6 +23,8 @@
  *      from survey / Cartesian coordinates [(x1, y1), (x2, y2), ...]
  */
 
+import { rebarMassPerM } from "../estimation/shared/rebar-mass";
+
 export type RebarUnitSystem = "metric" | "imperial";
 
 export interface RebarWeightResult {
@@ -35,7 +39,9 @@ export interface RebarWeightResult {
 /**
  * Calculates rebar weight globally across metric and imperial systems.
  *
- * Metric: length in meters, size in mm. Formula: (D^2 / 162) * length
+ * Metric: length in meters, size in mm. Nominal mass 0.006165 D^2 kg/m, the
+ * BS 4449 table value (12 mm 0.888, 16 mm 1.578, 25 mm 3.853 kg/m). The d^2/162
+ * approximation this module used is 0.13 per cent heavy, about 13 kg per tonne.
  * Imperial: length in feet, size as ASTM bar number (e.g. 3, 4, 5). Formula: (bar_number^2 * 0.04167) * length
  */
 export function calculateGlobalRebarWeight(
@@ -44,15 +50,20 @@ export function calculateGlobalRebarWeight(
   unitSystem: RebarUnitSystem = "metric",
 ): RebarWeightResult {
   if (!Number.isFinite(length) || length <= 0) {
-    throw new RangeError(`Length must be a positive finite number (received ${length}).`);
+    throw new RangeError(
+      `Length must be a positive finite number (received ${length}).`,
+    );
   }
 
   if (unitSystem === "metric") {
-    const diameter = typeof sizeInput === "string" ? parseFloat(sizeInput) : sizeInput;
+    const diameter =
+      typeof sizeInput === "string" ? parseFloat(sizeInput) : sizeInput;
     if (!Number.isFinite(diameter) || diameter <= 0) {
-      throw new RangeError(`Metric rebar diameter must be positive (received ${sizeInput}).`);
+      throw new RangeError(
+        `Metric rebar diameter must be positive (received ${sizeInput}).`,
+      );
     }
-    const weightPerMeter = (diameter ** 2) / 162;
+    const weightPerMeter = rebarMassPerM(diameter);
     const totalWeight = Math.round(weightPerMeter * length * 100) / 100;
     return {
       weight: totalWeight,
@@ -63,12 +74,17 @@ export function calculateGlobalRebarWeight(
       sizeInput,
     };
   } else if (unitSystem === "imperial") {
-    const barNumber = typeof sizeInput === "string" ? parseInt(sizeInput.replace(/^#/, ""), 10) : Math.round(sizeInput);
+    const barNumber =
+      typeof sizeInput === "string"
+        ? parseInt(sizeInput.replace(/^#/, ""), 10)
+        : Math.round(sizeInput);
     if (!Number.isFinite(barNumber) || barNumber <= 0) {
-      throw new RangeError(`Imperial bar number must be a positive integer (received ${sizeInput}).`);
+      throw new RangeError(
+        `Imperial bar number must be a positive integer (received ${sizeInput}).`,
+      );
     }
     // ASTM: Weight (lb/ft) = (Imperial Bar Number)^2 * 0.04167
-    const weightPerFoot = (barNumber ** 2) * 0.04167;
+    const weightPerFoot = barNumber ** 2 * 0.04167;
     const totalWeight = Math.round(weightPerFoot * length * 100) / 100;
     return {
       weight: totalWeight,
@@ -88,7 +104,10 @@ export function calculateGlobalRebarWeight(
  * Maps European (C) and Indian/Asian (M) characteristic strength grades
  * to volumetric nominal mix ratios (Cement : Sand : Coarse Aggregate).
  */
-export const GLOBAL_CONCRETE_GRADE_MAP: Record<string, [number, number, number]> = {
+export const GLOBAL_CONCRETE_GRADE_MAP: Record<
+  string,
+  [number, number, number]
+> = {
   C15: [1, 2, 4],
   M15: [1, 2, 4],
   C20: [1, 1.5, 3],
@@ -125,7 +144,9 @@ export function calculateGlobalConcrete(
   grade: string = "C20",
 ): GlobalConcreteQuantities {
   if (!Number.isFinite(volumeM3) || volumeM3 <= 0) {
-    throw new RangeError(`Concrete volume must be a positive finite number (received ${volumeM3}).`);
+    throw new RangeError(
+      `Concrete volume must be a positive finite number (received ${volumeM3}).`,
+    );
   }
 
   const normalizedGrade = grade.trim().toUpperCase();
@@ -181,7 +202,9 @@ export function calculateIrregularPolygonArea(
     const x = Array.isArray(c) ? c[0] : c.x;
     const y = Array.isArray(c) ? c[1] : c.y;
     if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      throw new RangeError(`Vertex at index ${i} contains non-finite coordinates: (${x}, ${y}).`);
+      throw new RangeError(
+        `Vertex at index ${i} contains non-finite coordinates: (${x}, ${y}).`,
+      );
     }
     return [x, y];
   });

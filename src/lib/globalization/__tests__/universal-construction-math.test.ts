@@ -10,19 +10,42 @@ import {
 
 describe("Universal Global Construction Math & Physics", () => {
   describe("1. Global Bar Bending Schedule (BBS) & Rebar Weight", () => {
-    it("calculates metric rebar weight using ISO/EN physics formula (D^2 / 162)", () => {
-      // 12 mm bar, 10 m length: (144 / 162) * 10 = 8.8888... -> 8.89 kg
+    it("calculates metric rebar weight at the BS 4449 nominal mass", () => {
+      // 12 mm bar, 10 m length: 0.006165 * 144 * 10 = 8.8776 -> 8.88 kg, the
+      // published 0.888 kg/m. The D^2/162 approximation gave 8.89, which is
+      // 0.13 per cent heavy.
       const result = calculateGlobalRebarWeight(12, 10, "metric");
-      expect(result.weight).toBe(8.89);
+      expect(result.weight).toBe(8.88);
       expect(result.unit).toBe("kg");
       expect(result.unitSystem).toBe("metric");
-      expect(result.unitWeightPerUnitLength).toBeCloseTo(144 / 162, 2);
+      expect(result.unitWeightPerUnitLength).toBeCloseTo(0.888, 2);
+    });
+
+    it("agrees with the published nominal mass across bar sizes", () => {
+      // BS 4449 / EN 10080 table values, kg/m.
+      const published: Array<[number, number]> = [
+        [8, 0.395],
+        [10, 0.617],
+        [12, 0.888],
+        [16, 1.578],
+        [20, 2.466],
+        [25, 3.853],
+        [32, 6.313],
+      ];
+      for (const [diameter, kgPerM] of published) {
+        const oneMetre = calculateGlobalRebarWeight(diameter, 1, "metric");
+        expect(oneMetre.unitWeightPerUnitLength, `${diameter} mm`).toBeCloseTo(
+          kgPerM,
+          2,
+        );
+        expect(oneMetre.weight, `${diameter} mm`).toBeCloseTo(kgPerM, 1);
+      }
     });
 
     it("calculates metric rebar weight when passed as string diameter", () => {
       const result = calculateGlobalRebarWeight("16", 12, "metric");
-      // (256 / 162) * 12 = 18.96 kg
-      expect(result.weight).toBe(18.96);
+      // 0.006165 * 256 * 12 = 18.94 kg
+      expect(result.weight).toBe(18.94);
       expect(result.unit).toBe("kg");
     });
 
