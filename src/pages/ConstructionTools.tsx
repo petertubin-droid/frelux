@@ -29,6 +29,13 @@ import {
   type Tool,
   type ToolCategoryId,
 } from "@/config/construction-tools";
+import {
+  DOMAIN_LABELS,
+  ENGINE_DOMAINS,
+  domainForTool,
+  toolsInDomain,
+  type EngineDomain,
+} from "@/config/engine-domains";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { useMarket } from "@/lib/international/market-context";
 import { getMarketToolCopy } from "@/lib/globalization/construction-terminology";
@@ -143,6 +150,12 @@ export default function ConstructionTools() {
   const activeCategoryDetails = TOOL_CATEGORIES.find(
     (category) => category.id === activeCategory,
   );
+  // The domain axis is independent of the catalogue categories: a reader can
+  // ask for the ground works without losing the detail the category gives.
+  const routedDomain = searchParams.get("domain");
+  const activeDomain = ENGINE_DOMAINS.includes(routedDomain as EngineDomain)
+    ? (routedDomain as EngineDomain)
+    : null;
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [recent, setRecent] = useState<string[]>([]);
 
@@ -180,12 +193,13 @@ export default function ConstructionTools() {
       const inCategory =
         activeCategory === "all" || t.category === activeCategory;
       if (!inCategory) return false;
+      if (activeDomain && domainForTool(t.slug) !== activeDomain) return false;
       if (!q) return true;
       const haystack =
         `${getMarketToolCopy(t.slug, marketCode, t).title} ${getMarketToolCopy(t.slug, marketCode, t).does} ${getMarketToolCopy(t.slug, marketCode, t).gets} ${t.title} ${t.does} ${t.gets} ${t.benefit ?? ""} ${t.category}`.toLowerCase();
       return q.split(/\s+/).every((w) => haystack.includes(w));
     });
-  }, [query, activeCategory, marketCode]);
+  }, [query, activeCategory, marketCode, activeDomain]);
 
   // ---- Pagination: every section of the library shows 10 tools ----
   // The ordered list respects category + search; the default view pages
@@ -193,8 +207,10 @@ export default function ConstructionTools() {
   // (?page=2) so next/prev survives reloads and the back button.
   const ordered = useMemo(
     () =>
-      activeCategory === "all" && !query.trim() ? CONSTRUCTION_TOOLS : filtered,
-    [filtered, activeCategory, query],
+      activeCategory === "all" && !query.trim() && !activeDomain
+        ? CONSTRUCTION_TOOLS
+        : filtered,
+    [filtered, activeCategory, query, activeDomain],
   );
 
   const totalPages = Math.max(1, Math.ceil(ordered.length / PAGE_SIZE));
@@ -211,12 +227,12 @@ export default function ConstructionTools() {
 
   // Within a section, cards stay grouped under their category headings.
   const groupedPage = useMemo(() => {
-    if (activeCategory !== "all" || query.trim()) return null;
+    if (activeCategory !== "all" || query.trim() || activeDomain) return null;
     return TOOL_CATEGORIES.map((cat) => ({
       cat,
       tools: pageTools.filter((t) => t.category === cat.id),
     })).filter((g) => g.tools.length > 0);
-  }, [pageTools, activeCategory, query]);
+  }, [pageTools, activeCategory, query, activeDomain]);
 
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const goToPage = (page: number) => {
@@ -378,6 +394,44 @@ export default function ConstructionTools() {
                 }
               >
                 {cat.label} ({count})
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Domains: the six grouping of the work, counted from the registry */}
+        <div
+          className="mt-4 flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Construction domains"
+        >
+          {ENGINE_DOMAINS.map((domain) => {
+            const count = toolsInDomain(domain).length;
+            const active = activeDomain === domain;
+            return (
+              <button
+                key={domain}
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.delete("page");
+                  if (active) next.delete("domain");
+                  else next.set("domain", domain);
+                  if (query) next.set("q", query);
+                  setSearchParams(next);
+                  track("construction_tools_domain_changed", {
+                    domain: active ? "all" : domain,
+                    total_tools: count,
+                  });
+                }}
+                className={
+                  active
+                    ? "rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                    : "rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground dark:border-white/10"
+                }
+              >
+                {DOMAIN_LABELS[domain]} ({count})
               </button>
             );
           })}

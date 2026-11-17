@@ -148,3 +148,90 @@ describe("ConstructionTools", () => {
     expect(recent).toContain("paint");
   });
 });
+
+describe("ConstructionTools domains", () => {
+  it("offers the six domains counted from the registry", async () => {
+    renderPage();
+    const tabs = await screen.findAllByRole("tab");
+    const domainTabs = tabs.filter(
+      (tab) =>
+        (tab.textContent ?? "").includes("(") &&
+        [
+          "Substructure and ground works",
+          "Superstructure and structure",
+          "Finishes and envelope",
+          "Services and MEP",
+          "Surveying, cost and renovation",
+          "External and infrastructure works",
+        ].some((label) => (tab.textContent ?? "").includes(label)),
+    );
+    expect(domainTabs.length).toBe(6);
+    // Counts come from the registry, so they add up to the classified tools.
+    const total = domainTabs.reduce((sum, tab) => {
+      const match = /\((\d+)\)/.exec(tab.textContent ?? "");
+      return sum + Number(match?.[1] ?? 0);
+    }, 0);
+    expect(total).toBe(69);
+  });
+
+  it("narrows the library to one domain and says how many it shows", async () => {
+    renderPage("/construction-tools?domain=finishes");
+    expect(sectionIndicator()).toBe("Section 1 of 2");
+    const finishes = CONSTRUCTION_TOOLS.filter(
+      (tool) => tool.category === "finishes",
+    );
+    expect(finishes.length).toBeGreaterThan(0);
+    const shown = CONSTRUCTION_TOOLS.filter((tool) =>
+      ["paint", "tile", "increte-flooring-calculator", "pop-ceiling"].includes(
+        tool.slug,
+      ),
+    );
+    for (const tool of shown) {
+      const localized = getMarketToolCopy(tool.slug, DEFAULT_MARKET_CODE, tool);
+      expect(await screen.findByText(localized.title)).toBeTruthy();
+    }
+  });
+
+  it("ignores a domain that is not one of the six", async () => {
+    renderPage("/construction-tools?domain=not-a-domain");
+    const totalSections = Math.ceil(CONSTRUCTION_TOOLS.length / 10);
+    expect(sectionIndicator()).toBe(`Section 1 of ${totalSections}`);
+  });
+
+  it("clears the domain when the active chip is pressed again", async () => {
+    renderPage("/construction-tools?domain=mep");
+    const active = await screen.findByRole("tab", {
+      name: /Services and MEP/,
+    });
+    expect(active.getAttribute("aria-selected")).toBe("true");
+    fireEvent.click(active);
+    expect(sectionIndicator()).toBe(
+      `Section 1 of ${Math.ceil(CONSTRUCTION_TOOLS.length / 10)}`,
+    );
+  });
+});
+
+describe("global readiness of the domain registry", () => {
+  it("resolves every classified tool in all 32 approved markets", async () => {
+    const { ALL_MARKET_CODES } =
+      await import("@/lib/international/capability-registry");
+    const { TOOL_DOMAINS, resolveDomainTool } =
+      await import("@/config/engine-domains");
+    const { MARKET_BUNDLES } = await import("@/lib/international/markets");
+    expect(ALL_MARKET_CODES.length).toBe(32);
+    expect(Object.keys(MARKET_BUNDLES).sort()).toEqual(
+      [...ALL_MARKET_CODES].sort(),
+    );
+    const slugs = Object.keys(TOOL_DOMAINS);
+    expect(slugs.length).toBe(69);
+    const unsupported: string[] = [];
+    for (const market of ALL_MARKET_CODES) {
+      for (const slug of slugs) {
+        const resolved = resolveDomainTool(slug, market);
+        if (!resolved?.marketSupported) unsupported.push(`${market}:${slug}`);
+      }
+    }
+    expect(unsupported).toEqual([]);
+    expect(ALL_MARKET_CODES.length * slugs.length).toBe(2208);
+  });
+});
