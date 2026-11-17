@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, AlertCircle, Search, BookOpen } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
@@ -146,6 +147,11 @@ export default function Glossary() {
         title={t("Construction Glossary")}
         subtitle="Every building and finishing term you will meet on a paint or construction project, explained without jargon."
         breadcrumbs={[{ label: "Glossary" }]}
+      />
+
+      <AdSlot
+        slotKey="content_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">

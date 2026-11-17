@@ -16,6 +16,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import {
   FAQ_CATEGORIES,
   TOOL_FAQS,
@@ -194,6 +195,11 @@ export default function Faq() {
         ]}
         title="Construction Questions, Answered"
         subtitle={`${all.length} answers across ${TOOL_FAQS.length} tools: what each calculator decides, what it deliberately leaves out, and how to check the numbers it gives you.`}
+      />
+
+      <AdSlot
+        slotKey="content_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
 
       <Container className="pb-16 pt-8">

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
@@ -62,6 +63,11 @@ export default function EngineeringStandards() {
           { label: "Home", path: "/" },
           { label: "Engineering & Accuracy" },
         ]}
+      />
+
+      <AdSlot
+        slotKey="content_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
       <Container className="py-8 md:py-12">
         <section

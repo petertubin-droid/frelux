@@ -10,6 +10,7 @@ import {
   SearchX,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import { useSeo } from "@/lib/seo";
 import { fetchWithOfflineCache, describeAge } from "@/lib/offline-store";
 import {
@@ -73,6 +74,11 @@ export default function CaseStudies() {
       <PageHeader
         title={t("Before & After Case Studies")}
         subtitle="Real projects from the FRELUX community, documented end to end: scope, challenges, outcome and cost."
+      />
+
+      <AdSlot
+        slotKey="content_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
 
       {cachedAt && !loading && (

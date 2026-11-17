@@ -10,6 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
@@ -281,6 +282,11 @@ export default function MaterialPrices() {
             My price book
           </Link>
         }
+      />
+
+      <AdSlot
+        slotKey="content_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

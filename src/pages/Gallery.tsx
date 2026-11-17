@@ -12,6 +12,7 @@ import {
   Share2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import AdSlot from "@/components/ui/AdSlot";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import {
@@ -99,6 +100,11 @@ export default function Gallery() {
         eyebrow="Community"
         title={t("Before & After Gallery")}
         subtitle={t("Real project transformations from the FRELUX community.")}
+      />
+
+      <AdSlot
+        slotKey="gallery_native"
+        className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         {/* Filter bar + Share button */}

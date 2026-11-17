@@ -310,6 +310,8 @@ export const CODE_DEFINED_ACTIVE_PLACEMENT_KEYS = [
   "calculator_sidebar",
   "color_detail_mid",
   "color_detail_native",
+  "content_mid",
+  "content_native",
   "desktop_sidebar_display",
   "estimator_mid",
   "estimator_native",
