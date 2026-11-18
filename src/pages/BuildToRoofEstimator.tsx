@@ -93,6 +93,7 @@ import { createDefaultRoofGeometry } from "@/lib/roof/geometry-engine";
 import type { RoofGeometry } from "@/lib/roof/geometry-types";
 import { trackBuildToRoofRewards } from "@/lib/rewards-integration";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { resolveRebarStockLength } from "@/config/steel-stock";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useEngineAccess } from "@/lib/use-engine-access";
@@ -570,10 +571,41 @@ export default function BuildToRoofEstimator({
   // Owner-approved behavior (2026-10-24): never carry Nigerian defaults into
   // another market's estimate; unpriced items show "enter your local price".
   const [missingLocalPrices, setMissingLocalPrices] = useState<string[]>([]);
+  const [marketBlockNote, setMarketBlockNote] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      // Masonry is a market fact too: a US wall is 8 x 8 x 16 inch CMU, a UK
+      // wall is brickwork, not a Nigerian 9 inch sandcrete block. The market's
+      // default unit seeds the block fields so the quantity maths is not
+      // silently Nigerian everywhere.
+      if (marketCode !== "NG") {
+        const { masonryUnitsForMarket } =
+          await import("@/config/masonry-units");
+        const marketUnit = masonryUnitsForMarket(marketCode)[0];
+        if (marketUnit && !marketUnit.substitutedFromMarket) {
+          const toInches = (m: number) => Math.round((m / 0.0254) * 100) / 100;
+          setInput((prev) => ({
+            ...prev,
+            block_size: "custom",
+            block_length: toInches(marketUnit.lengthM),
+            block_height: toInches(marketUnit.heightM),
+            block_width: toInches(marketUnit.thicknessM),
+            wall_thickness: marketUnit.thicknessM,
+          }));
+          setMarketBlockNote(
+            `Block fields set from the ${marketCode} masonry table: ${marketUnit.label} (${Math.round(marketUnit.lengthM * 1000)} x ${Math.round(marketUnit.heightM * 1000)} x ${Math.round(marketUnit.thicknessM * 1000)} mm). Change them in the Walls step if your site differs.`,
+          );
+        } else {
+          setMarketBlockNote(
+            `No verified masonry unit for ${marketCode}. The wall is sized from the dimensions you enter; no Nigerian block size is assumed.`,
+          );
+        }
+      } else {
+        setMarketBlockNote(null);
+      }
+
       if (marketCode === "NG") {
         setMarketCementNote(null);
         setMarketRebarNote(null);
@@ -651,7 +683,7 @@ export default function BuildToRoofEstimator({
       const rebarResolvedCount = Object.keys(rebarOverrides).length;
       if (rebarResolvedCount > 0) {
         setMarketRebarNote(
-          `Rebar prefilled from the ${marketCode} price book (${rebarResolvedCount}/4 diameters resolved per 12 m length).${
+          `Rebar prefilled from the ${marketCode} price book (${rebarResolvedCount}/4 diameters resolved per ${resolveRebarStockLength(marketCode).lengthM} m stock length).${
             rebar.unresolved.length > 0
               ? ` Unresolved diameters (${rebar.unresolved.join(", ")}) require your local price in the Prices step.`
               : ""
@@ -745,9 +777,18 @@ export default function BuildToRoofEstimator({
       return;
     }
     setValidationErrors([]);
-    const r = monitoredCalc("Build-to-Roof Estimator", () =>
-      calculateBuildToRoof(fullInput),
-    );
+    let r;
+    try {
+      r = monitoredCalc("Build-to-Roof Estimator", () =>
+        calculateBuildToRoof(fullInput),
+      );
+    } catch (error) {
+      // A market with no price book gets a stated reason, never a total in
+      // another country's currency.
+      setValidationErrors([(error as Error).message]);
+      setResult(null);
+      return;
+    }
     setResult(r);
     setPhase(4);
     setStep(STEPS.length - 1);

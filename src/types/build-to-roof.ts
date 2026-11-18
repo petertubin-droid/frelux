@@ -90,6 +90,12 @@ export interface BuildToRoofInput {
   // Project info
   project_name: string;
   location: string;
+  /**
+   * ISO market code (NG, US, GB, ...). Quantity engines and every purchase
+   * assumption are resolved from it: bag mass, bar stock length, masonry unit
+   * and price provenance. Omitted means NG, and the result says so.
+   */
+  market_code?: string;
   building_type: BuildingType;
   number_of_floors: number;
   measurement_unit: "m" | "ft";

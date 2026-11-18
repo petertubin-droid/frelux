@@ -46,12 +46,22 @@ import type {
   WastageConfig,
 } from "@/types/build-to-roof";
 import { rebarMassPerM } from "./shared/rebar-mass";
+import { resolveCementBag } from "@/config/cement-bag";
+import { resolveRebarStockLength } from "@/config/steel-stock";
+
+/** Bag mass for the run; a market with no configured bag falls back to 50 kg. */
+function bagKgForMarket(market?: string): number {
+  return resolveCementBag(market ?? "NG").bagKg;
+}
 
 // ── Constants ──
 
 // Cement: 1 bag = 50 kg at a loose bulk density of 1440 kg/m³, so the bag is
 // 0.03472 m³. Derived rather than typed in, so a change to the bag mass or the
 // density cannot leave a stale literal behind.
+// Default bag mass. The real one comes from resolveCementBag(market): 50 kg is
+// the Nigerian and most of the Commonwealth, while a US 94 lb sack is 42.6 kg
+// and a French, German or Italian sack is 25 kg. Engines must not assume this.
 export const CEMENT_BAG_KG = 50;
 export const CEMENT_BULK_DENSITY_KG_M3 = 1440;
 export const CEMENT_VOLUME_PER_BAG = CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3;
@@ -320,6 +330,7 @@ export function concreteToMaterials(
   mixCement: number,
   mixSand: number,
   mixGranite: number,
+  bagKg: number = CEMENT_BAG_KG,
 ): { cement_bags: number; sand_m3: number; granite_m3: number } {
   if (wetVolumeM3 <= 0) return { cement_bags: 0, sand_m3: 0, granite_m3: 0 };
   const dryVolume = wetVolumeM3 * DRY_WET_RATIO;
@@ -331,7 +342,7 @@ export function concreteToMaterials(
   const graniteVol = dryVolume * (mixGranite / totalParts);
 
   return {
-    cement_bags: cementVol / CEMENT_VOLUME_PER_BAG,
+    cement_bags: cementVol / (bagKg / CEMENT_BULK_DENSITY_KG_M3),
     sand_m3: sandVol,
     granite_m3: graniteVol,
   };
@@ -354,6 +365,7 @@ export function mortarToMaterials(
   mortarVolumeM3: number,
   mixCement: number,
   mixSand: number,
+  bagKg: number = CEMENT_BAG_KG,
 ): { cement_bags: number; sand_m3: number } {
   if (mortarVolumeM3 <= 0) return { cement_bags: 0, sand_m3: 0 };
   const dryVolume = mortarVolumeM3 * MORTAR_DRY_WET_RATIO;
@@ -364,7 +376,7 @@ export function mortarToMaterials(
   const sandVol = dryVolume * (mixSand / totalParts);
 
   return {
-    cement_bags: cementVol / CEMENT_VOLUME_PER_BAG,
+    cement_bags: cementVol / (bagKg / CEMENT_BULK_DENSITY_KG_M3),
     sand_m3: sandVol,
   };
 }
@@ -904,11 +916,13 @@ interface RebarAggregate {
   weight_kg: number;
 }
 
-const REBAR_STANDARD_LENGTH = 12; // meters (Nigerian standard: 12m lengths)
+// Fallback only: the market's own stock length is resolved per run.
+const REBAR_STANDARD_LENGTH = 12;
 
 function getRebarPriceForDiameter(
   diameter_mm: number,
   prices: PriceConfig,
+  stockLengthM: number = REBAR_STANDARD_LENGTH,
 ): number {
   switch (diameter_mm) {
     case 12:
@@ -921,8 +935,7 @@ function getRebarPriceForDiameter(
       return prices.rebar_25mm_per_length;
     default: {
       // For non-standard diameters, estimate from per-tonne price
-      const weightPerLength =
-        rebarMassPerM(diameter_mm) * REBAR_STANDARD_LENGTH;
+      const weightPerLength = rebarMassPerM(diameter_mm) * stockLengthM;
       return Math.round(
         (prices.reinforcement_per_tonne / 1000) * weightPerLength,
       );
@@ -934,6 +947,7 @@ export function buildReinforcementBreakdown(
   members: StructuralMemberInput[],
   wastagePercent: number,
   prices: PriceConfig,
+  stockLengthM: number = REBAR_STANDARD_LENGTH,
 ): ReinforcementBreakdown {
   const aggregates = new Map<string, RebarAggregate>();
 
@@ -997,11 +1011,13 @@ export function buildReinforcementBreakdown(
 
   for (const agg of aggregates.values()) {
     const lengthWithWastage = applyWastage(agg.total_length_m, wastagePercent);
-    const standardLengths = Math.ceil(
-      lengthWithWastage / REBAR_STANDARD_LENGTH,
-    );
+    const standardLengths = Math.ceil(lengthWithWastage / stockLengthM);
     const weightWithWastage = applyWastage(agg.weight_kg, wastagePercent);
-    const unitPrice = getRebarPriceForDiameter(agg.diameter_mm, prices);
+    const unitPrice = getRebarPriceForDiameter(
+      agg.diameter_mm,
+      prices,
+      stockLengthM,
+    );
     const cost = standardLengths * unitPrice;
 
     const sourceLabel = agg.source === "main" ? "Main Bars" : "Stirrups/Links";
@@ -1129,6 +1145,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     input.concrete_mix_cement,
     input.concrete_mix_sand,
     input.concrete_mix_granite,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -1186,6 +1203,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     input.concrete_mix_cement,
     input.concrete_mix_sand,
     input.concrete_mix_granite,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -1438,12 +1456,14 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
       input.concrete_mix_cement,
       input.concrete_mix_sand,
       input.concrete_mix_granite,
+      bagKgForMarket(input.market_code),
     );
     const internalFoundMats = concreteToMaterials(
       internalFoundationConcreteVol,
       input.concrete_mix_cement,
       input.concrete_mix_sand,
       input.concrete_mix_granite,
+      bagKgForMarket(input.market_code),
     );
     materials.push(
       matLine(
@@ -1577,6 +1597,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     foundationMortarVol,
     input.mortar_mix_cement,
     input.mortar_mix_sand,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -1655,6 +1676,7 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
     input.concrete_mix_cement,
     input.concrete_mix_sand,
     input.concrete_mix_granite,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -1822,15 +1844,22 @@ function calcWalls(input: BuildToRoofInput): StageResult {
     ),
   );
 
-  // Mortar, volume scales with wall thickness (thicker walls = more mortar per m²)
-  // 225mm (9"): 0.03 m³/m² | 150mm (6"): 0.022 m³/m² | 125mm (5"): 0.018 m³/m²
-  // Formula: mortarPerM² = 0.03 × (wallThickness / 0.225)  [linear scale from 225mm baseline]
-  const mortarPerM2 = 0.03 * (input.wall_thickness / 0.225);
+  // Mortar follows the joints, not the wall thickness alone: one horizontal
+  // bed joint per course and one head joint per unit, so the wet volume per m²
+  // is t × joint × (1/(height + joint) + 1/(length + joint)). The old linear
+  // 0.03 × (t / 0.225) rescaled a Nigerian 225 mm baseline onto every masonry
+  // unit and overstated mortar on thinner units and on thin-bed systems.
+  const joint = MORTAR_JOINT_THICKNESS;
+  const blockHeightM = input.block_height * 0.0254 + joint;
+  const blockLengthM = input.block_length * 0.0254 + joint;
+  const mortarPerM2 =
+    input.wall_thickness * joint * (1 / blockHeightM + 1 / blockLengthM);
   const mortarVol = netWallArea * mortarPerM2;
   const mortarMats = mortarToMaterials(
     mortarVol,
     input.mortar_mix_cement,
     input.mortar_mix_sand,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -1971,6 +2000,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     input.concrete_mix_cement,
     input.concrete_mix_sand,
     input.concrete_mix_granite,
+    bagKgForMarket(input.market_code),
   );
   materials.push(
     matLine(
@@ -2008,6 +2038,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     input.structural_members ?? [],
     input.wastage.reinforcement,
     input.prices,
+    resolveRebarStockLength(input.market_code ?? "NG").lengthM,
   );
   const rebarTonnes = rebarBreakdown.total_weight_tonnes;
 
@@ -2700,6 +2731,20 @@ export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
   return errors;
 }
 
+/**
+ * Thrown when a market has no verified price book and the caller did not supply
+ * one. A refusal with a reason is the only correct answer: the alternative is a
+ * total in the wrong currency.
+ */
+export class PricingUnavailableError extends Error {
+  constructor(public readonly marketCode: string) {
+    super(
+      `No verified price book for ${marketCode}. The estimate can still compute quantities, but pricing requires that market's material prices.`,
+    );
+    this.name = "PricingUnavailableError";
+  }
+}
+
 // ── Main calculation ──
 
 export function calculateBuildToRoof(
@@ -2716,19 +2761,44 @@ export function calculateBuildToRoof(
   // `input.wastage.blocks` before a single quantity was calculated. Missing
   // groups fall back to the documented defaults and every applied default is
   // listed in the result's assumptions.
+  const marketCode = (input_m.market_code ?? "NG").trim().toUpperCase();
+
   const appliedDefaults: string[] = [];
   if (!input_m.wastage) appliedDefaults.push("wastage allowances");
   if (!input_m.prices) appliedDefaults.push("material prices");
   if (!input_m.labour) appliedDefaults.push("labour rates");
+
+  // Nigerian reference prices are not a world price list. Handing them to a
+  // London, Houston or Nairobi estimate produced naira sums read as pounds,
+  // dollars or shillings, which is worse than no number at all. The caller owns
+  // the market's price book; without one the engine refuses to price.
+  if (marketCode !== "NG" && !input_m.prices) {
+    throw new PricingUnavailableError(marketCode);
+  }
+
+  // Labour is the same trap, but its absence does not make the quantities
+  // wrong, so it is zeroed and disclosed rather than refused.
+  const labourRates =
+    marketCode === "NG"
+      ? { ...DEFAULT_LABOUR, ...(input_m.labour ?? {}) }
+      : input_m.labour
+        ? { ...DEFAULT_LABOUR, ...input_m.labour }
+        : ZERO_LABOUR;
+  if (marketCode !== "NG" && !input_m.labour) {
+    appliedDefaults.push(
+      `labour withheld: no ${marketCode} labour rates supplied`,
+    );
+  }
   const withDefaults: BuildToRoofInput = {
     ...input_m,
     // input_m is metric by construction, and the validator converts ft input
     // to metric itself. Leaving the flag as "ft" here converted the values a
     // second time and rejected a perfectly good imperial estimate.
     measurement_unit: "m",
+    market_code: marketCode,
     wastage: { ...DEFAULT_WASTAGE, ...(input_m.wastage ?? {}) },
     prices: { ...DEFAULT_PRICES, ...(input_m.prices ?? {}) },
-    labour: { ...DEFAULT_LABOUR, ...(input_m.labour ?? {}) },
+    labour: labourRates,
   };
 
   // Invalid input must never produce an apparently-valid construction
@@ -2936,6 +3006,36 @@ export const DEFAULT_PRICES = {
   price_date: new Date().toISOString().split("T")[0],
   price_source:
     "FRELUX reference prices, Nigerian market (edit in Step 8; verify before ordering)",
+};
+
+/** All-zero labour: what a market with no supplied rates gets instead of naira. */
+export const ZERO_LABOUR: LabourConfig = {
+  excavation_per_m3: 0,
+  blockwork_per_block: 0,
+  concrete_per_m3: 0,
+  reinforcement_per_tonne: 0,
+  formwork_per_m2: 0,
+  roofing_per_m2: 0,
+  blinding_per_m3: 0,
+  hardcore_per_m3: 0,
+  sand_filling_per_m3: 0,
+  compaction_per_m3: 0,
+  backfilling_per_m3: 0,
+  general_labour_per_day: 0,
+  general_labour_days: 0,
+  bricklayer_per_day: 0,
+  bricklayer_days: 0,
+  contractor_fee: 0,
+  contractor_fee_type: "contract",
+  contractor_days: 0,
+  supervisor_per_day: 0,
+  supervisor_days: 0,
+  foreman_per_day: 0,
+  foreman_days: 0,
+  carpenter_per_day: 0,
+  carpenter_days: 0,
+  concrete_labourer_per_day: 0,
+  concrete_labourer_days: 0,
 };
 
 export const DEFAULT_LABOUR: LabourConfig = {

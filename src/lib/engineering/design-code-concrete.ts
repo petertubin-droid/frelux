@@ -29,7 +29,7 @@ export type DesignConcreteCode =
  */
 export function jurisdictionToDesignCode(
   jurisdiction: string,
-): DesignConcreteCode {
+): DesignConcreteCode | null {
   switch (jurisdiction) {
     case "ACI_318":
       return "ACI_318";
@@ -40,8 +40,12 @@ export function jurisdictionToDesignCode(
     case "AS_3600":
       return "AS_3600";
     case "BS_8110":
-    default:
       return "BS_8110";
+    // No silent default: sizing a section to a code the project is not built
+    // under is a compliance claim, not a convenience. An unrecognised
+    // jurisdiction gets no capacity verdict until it is mapped.
+    default:
+      return null;
   }
 }
 

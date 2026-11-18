@@ -244,13 +244,23 @@ registerEngine({
       DEFAULT_LABOUR,
       DEFAULT_WASTAGE,
     } = await import("@/lib/estimation/build-to-roof-engine");
-    // Smart defaults; wastage/prices/labour always come from the engine.
+    // Nigerian prices and labour are the engine's reference book, not a world
+    // price list. They are only injected for a Nigerian run; every other market
+    // has to bring its own, and the engine refuses to price without one.
+    const requested = (rawInput ?? {}) as {
+      market_code?: string;
+      market?: string;
+    };
+    const marketCode = String(requested.market_code ?? requested.market ?? "NG")
+      .trim()
+      .toUpperCase();
+    const nigerian = marketCode === "NG";
     const input = {
       ...defaultBuildToRoofInput(),
       ...(rawInput as Partial<BuildToRoofInputLike>),
+      market_code: marketCode,
       wastage: DEFAULT_WASTAGE,
-      labour: DEFAULT_LABOUR,
-      prices: DEFAULT_PRICES,
+      ...(nigerian ? { labour: DEFAULT_LABOUR, prices: DEFAULT_PRICES } : {}),
     } as never; // the engine owns the authoritative input type
 
     const result = calculateBuildToRoof(input);

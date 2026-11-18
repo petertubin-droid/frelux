@@ -1984,6 +1984,11 @@ function BeamCalculator() {
     // Authoritative per-code capacity check on the recommended section
     const preset = resolveConcreteGrade(concreteGrade, market.marketCode);
     const code = jurisdictionToDesignCode(jurisdiction);
+    if (code === null) {
+      // Unmapped jurisdiction: quantities stand, capacity is withheld.
+      setCapacity(null);
+      return;
+    }
     const codeFck =
       code === "BS_8110" || code === "IS_456"
         ? (preset.fcu ?? preset.fck ?? 25)
@@ -2655,6 +2660,11 @@ function SlabCalculator() {
     // Authoritative per-code capacity check, 1 m strip of the slab
     const preset = resolveConcreteGrade(concreteGrade, market.marketCode);
     const code = jurisdictionToDesignCode(jurisdiction);
+    if (code === null) {
+      // Unmapped jurisdiction: quantities stand, capacity is withheld.
+      setCapacity(null);
+      return;
+    }
     const codeFck =
       code === "BS_8110" || code === "IS_456"
         ? (preset.fcu ?? preset.fck ?? 25)

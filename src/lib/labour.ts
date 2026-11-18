@@ -106,6 +106,27 @@ export async function fetchLabourSettings(
       .maybeSingle();
     if (data) return data as DbLabourSettings;
 
+    // Another market's rate book is not this market's wage. Only the NG
+    // baseline is a deliberate fallback, and it returns as an explicit
+    // reference row so a caller can label it instead of presenting naira
+    // day rates as local.
+    if (market.trim().toUpperCase() !== "NG") {
+      const { data: globalData } = await supabase
+        .from("labour_settings")
+        .select("*")
+        .eq("estimator_key", "global")
+        .eq("market", market)
+        .maybeSingle();
+      if (globalData) return globalData as DbLabourSettings;
+      const { data: ngGlobal } = await supabase
+        .from("labour_settings")
+        .select("*")
+        .eq("estimator_key", "global")
+        .eq("market", "NG")
+        .maybeSingle();
+      return (ngGlobal as DbLabourSettings) ?? null;
+    }
+
     const { data: ngData } = await supabase
       .from("labour_settings")
       .select("*")

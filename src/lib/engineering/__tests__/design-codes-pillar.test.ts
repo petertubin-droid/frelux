@@ -291,7 +291,9 @@ describe("design-code-concrete: BS 8110-1:1997", () => {
     expect(jurisdictionToDesignCode("IS_456")).toBe("IS_456");
     expect(jurisdictionToDesignCode("AS_3600")).toBe("AS_3600");
     expect(jurisdictionToDesignCode("BS_8110")).toBe("BS_8110");
-    expect(jurisdictionToDesignCode("anything-else")).toBe("BS_8110");
+    // No silent default: an unmapped jurisdiction gets no capacity verdict
+    // rather than BS 8110 applied to a project built under another code.
+    expect(jurisdictionToDesignCode("anything-else")).toBeNull();
   });
 });
 

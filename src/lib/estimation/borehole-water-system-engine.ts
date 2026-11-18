@@ -23,6 +23,10 @@
  *  - Global: World Health Organization (WHO) Guidelines for Drinking-water Quality
  */
 
+import {
+  resolveWaterDemand,
+  type WaterDemandTier,
+} from "@/config/water-demand";
 import { ceilU } from "./shared/purchase-rounding";
 
 export type AquiferType =
@@ -747,9 +751,17 @@ export function calculateBoreholeWaterSystem(
   // ─────────────────────────────────────────────
   // 4. Storage & Peak Buffering Engine
   // ─────────────────────────────────────────────
-  let perCapitaLpd = 150;
-  if (tier === "rural_basic") perCapitaLpd = 80;
-  else if (tier === "urban_high") perCapitaLpd = 250;
+  // Demand is a living standard, not a constant: the market supplies the
+  // default for the chosen tier instead of a single 150 L figure being applied
+  // from Lagos to Los Angeles.
+  const demandTier: WaterDemandTier =
+    tier === "rural_basic"
+      ? "rural_basic"
+      : tier === "urban_high"
+        ? "urban_high"
+        : "base";
+  const demand = resolveWaterDemand(marketCode, demandTier);
+  const perCapitaLpd = demand.litresPerPersonPerDay;
 
   const dailyDemandLiters =
     tier === "custom" &&
