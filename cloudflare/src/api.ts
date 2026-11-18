@@ -67,7 +67,8 @@ export const HOOKS: Record<string, string> = {
   // itself. The escrow-only endpoint stays reachable under its own name.
   paystack: "paystack-webhook",
   "paystack-escrow": "escrow-webhook",
-  flutterwave: "flutterwave-webhook",
+  // Flutterwave deliberately stays on its Supabase function: its dashboard
+  // still posts there, and an unmapped path spends no invocation on probes.
 };
 
 /** Only these travel to the function. Host, cookie and CF metadata stay here. */
