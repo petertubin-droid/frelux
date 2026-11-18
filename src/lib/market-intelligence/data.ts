@@ -7,6 +7,7 @@
  *  - A missing figure is `null` with a reason, never a zero standing in for
  *    "unknown". Pages render "—" and say why.
  */
+import { invokeAtEdge } from "@/lib/edge/gateway";
 import { supabase } from "@/lib/supabase";
 import type { Candle } from "./chart";
 
@@ -152,6 +153,13 @@ export async function getCompany(symbol: string): Promise<Result<Company | null>
 
 // ── Stock data via the market-stocks edge function ──────────────────────
 async function invoke<T>(body: Record<string, unknown>): Promise<Result<T>> {
+  // Edge first: one hop from the visitor, and the Worker answers cached public
+  // reads without spending a Supabase invocation. A Worker that is down or
+  // unreachable returns null and the direct call below takes over.
+  const edge = await invokeAtEdge<T>("market-stocks", body);
+  if (edge) {
+    return edge.ok ? { ok: true, data: edge.data as T } : fail(edge.error ?? "");
+  }
   try {
     const { data, error } = await supabase.functions.invoke<T>("market-stocks", { body });
     if (error) return fail(error.message);

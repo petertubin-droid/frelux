@@ -369,7 +369,11 @@ export default {
           api: {
             turnstile: Boolean(env.TURNSTILE_SECRET && env.TURNSTILE_HOSTNAMES),
             gateway: Boolean(env.SUPABASE_URL),
-            hooks: Boolean(env.WEBHOOK_SECRET),
+            hooks: Boolean(
+              env.WEBHOOK_SECRET ||
+                env.PAYSTACK_SECRET_KEY ||
+                env.FLUTTERWAVE_SECRET_HASH,
+            ),
             imageResize: env.IMAGE_RESIZE === "on",
           },
         },
