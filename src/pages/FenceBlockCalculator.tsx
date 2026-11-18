@@ -16,6 +16,7 @@ import {
   type PlotPresetKey,
 } from "@/config/masonry-units";
 import { calculateFenceBlockwork } from "@/lib/estimation/fence-blockwork";
+import { useAreaUnit, useLengthUnit } from "@/lib/use-length-unit";
 import ToolShell from "@/components/tools/ToolShell";
 import {
   formatHeight,
@@ -51,6 +52,11 @@ export default function FenceBlockCalculator() {
   const [gateWidth, setGateWidth] = useState("3");
   const [gateCoaches, setGateCoaches] = useState("4");
   const [foundationCourses, setFoundationCourses] = useState("3");
+
+  // Plot and gate dimensions are typed in the visitor's length unit and the
+  // engine still receives metres; wall areas come back in their area unit.
+  const lengthUnit = useLengthUnit("meters");
+  const areaUnit = useAreaUnit("sqm");
 
   const vocab = regionalVocabulary(market);
   const units = vocabularyMarkets();
@@ -229,11 +235,11 @@ export default function FenceBlockCalculator() {
       calculateFenceBlockwork({
         market,
         plotPreset: preset === "custom" ? null : preset,
-        lengthM: Number(custom.length),
-        widthM: Number(custom.width),
+        lengthM: lengthUnit.toMetres(custom.length),
+        widthM: lengthUnit.toMetres(custom.width),
         coaches,
         unitKey,
-        gateWidthM: Number(gateWidth),
+        gateWidthM: lengthUnit.toMetres(gateWidth),
         gateCoaches: Number(gateCoaches),
         foundationCourses: Number(foundationCourses),
       }),
@@ -247,6 +253,7 @@ export default function FenceBlockCalculator() {
       gateWidth,
       gateCoaches,
       foundationCourses,
+      lengthUnit.unit,
     ],
   );
 
@@ -344,7 +351,7 @@ export default function FenceBlockCalculator() {
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       <label className="block">
                         <span className="text-xs text-muted-foreground">
-                          {t("Length (m)")}
+                          {`${t("Length")} (${lengthUnit.label})`}
                         </span>
                         <input
                           type="number"
@@ -363,7 +370,7 @@ export default function FenceBlockCalculator() {
                       </label>
                       <label className="block">
                         <span className="text-xs text-muted-foreground">
-                          {t("Width (m)")}
+                          {`${t("Width")} (${lengthUnit.label})`}
                         </span>
                         <input
                           type="number"
@@ -379,6 +386,32 @@ export default function FenceBlockCalculator() {
                           }
                           className={`${fieldClass} mt-1`}
                         />
+                      </label>
+                      <label className="col-span-2 flex items-center gap-2 text-xs text-muted-foreground">
+                        {t("Measuring in")}
+                        <select
+                          aria-label="Length unit"
+                          className={`${fieldClass} w-auto`}
+                          value={lengthUnit.unit}
+                          onChange={(event) =>
+                            lengthUnit.setUnit(event.target.value as never)
+                          }
+                        >
+                          <option value="meters">m</option>
+                          <option value="feet">ft</option>
+                          <option value="inches">in</option>
+                        </select>
+                        <select
+                          aria-label="Area unit"
+                          className={`${fieldClass} w-auto`}
+                          value={areaUnit.unit}
+                          onChange={(event) =>
+                            areaUnit.setUnit(event.target.value as never)
+                          }
+                        >
+                          <option value="sqm">m²</option>
+                          <option value="sqft">sq ft</option>
+                        </select>
                       </label>
                     </div>
                   ) : null}
@@ -425,7 +458,9 @@ export default function FenceBlockCalculator() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block" htmlFor="fence-gate-width">
-                    <span className={labelClass}>{t("Gate width (m)")}</span>
+                    <span className={labelClass}>
+                      {`${t("Gate width")} (${lengthUnit.label})`}
+                    </span>
                     <input
                       id="fence-gate-width"
                       type="number"
@@ -684,8 +719,8 @@ export default function FenceBlockCalculator() {
                             : ""}
                           {result.gate.deductedAreaM2 > 0
                             ? `, ${display(
-                                result.gate.deductedAreaM2,
-                              )} m² ${t("opening deducted")}`
+                                areaUnit.fromSqm(result.gate.deductedAreaM2),
+                              )} ${areaUnit.label} ${t("opening deducted")}`
                             : ""}
                         </span>
                       </span>
@@ -761,7 +796,8 @@ export default function FenceBlockCalculator() {
                       />
                       <span className="text-sm text-foreground">
                         <strong className="font-semibold">
-                          {display(result.wall.areaM2)} m² {t("of wall")}
+                          {display(areaUnit.fromSqm(result.wall.areaM2))}{" "}
+                          {areaUnit.label} {t("of wall")}
                         </strong>
                         <span className="block text-xs text-muted-foreground">
                           {display(result.blocks.perSquareMetre)}{" "}
