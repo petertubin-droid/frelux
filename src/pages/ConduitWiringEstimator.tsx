@@ -40,6 +40,7 @@ import HowCalculatedSection from "@/components/calculators/HowCalculatedSection"
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 type DeviceType = MEPPoint["type"];
 
@@ -72,6 +73,11 @@ const UNIT_MAX: Record<Unit, number> = {
 export default function ConduitWiringEstimator() {
   const { priceMap, ruleRows, bookSummary } =
     useSpecialtyPrices("conduit_wiring");
+  // The floor-area slider reads in the market's unit; the engine stays in m².
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const sliderMin = Math.round(areaUnit.fromSqm(10));
+  const sliderMax = Math.round(areaUnit.fromSqm(1000));
+  const sliderStep = Math.max(1, Math.round(areaUnit.fromSqm(5)));
 
   // Mode: "quick" (empirical area/points) vs "router" (interactive 2D Manhattan layout)
   const [activeMode, setActiveMode] = useState<"quick" | "router">("quick");
@@ -338,12 +344,12 @@ export default function ConduitWiringEstimator() {
               <FieldGroup title="Building">
                 <SliderField
                   label="Total floor area"
-                  unit="m²"
-                  value={area}
-                  onChange={setArea}
-                  min={10}
-                  max={1000}
-                  step={5}
+                  unit={areaUnit.label}
+                  value={Math.round(areaUnit.fromSqm(area))}
+                  onChange={(v: number) => setArea(areaUnit.toSqm(v))}
+                  min={sliderMin}
+                  max={sliderMax}
+                  step={sliderStep}
                   hint="Floor area of the spaces being wired."
                 />
               </FieldGroup>
