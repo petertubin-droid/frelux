@@ -40,6 +40,11 @@ import {
   type TakeoffProjectExport,
 } from "@/lib/estimation/blueprint-takeoff-project";
 import {
+  useAreaUnit,
+  useLengthUnit,
+  useMarketAreaUnit,
+} from "@/lib/use-length-unit";
+import {
   buildTakeoffEngineHandoff,
   detectScaleFromSheet,
   extractDimensionCandidates,
@@ -93,6 +98,19 @@ export default function BlueprintTakeoff() {
     setCalibrationUnit("m");
   };
   const { marketCode } = useMarket();
+  // Marks are stored in metres and square metres; the list reads in the
+  // market's unit so a visitor who calibrates in feet sees feet and sq ft.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const lengthUnit = useLengthUnit(
+    useMarketAreaUnit() === "sqft" ? "feet" : "meters",
+  );
+  const markLabel = (mark: { quantity: number; unit: string }) => {
+    if (mark.unit === "m²")
+      return `${areaUnit.fromSqm(mark.quantity).toFixed(2)} ${areaUnit.label}`;
+    if (mark.unit === "m")
+      return `${lengthUnit.fromMetres(mark.quantity).toFixed(2)} ${lengthUnit.label}`;
+    return `${mark.quantity} ${mark.unit}`;
+  };
   const [, setSearchParams] = useSearchParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -581,7 +599,7 @@ export default function BlueprintTakeoff() {
         unit,
         label:
           labelInput.trim() ||
-          `${type === "area" ? quantity.toFixed(2) + " m²" : quantity.toFixed(2) + " m"}`,
+          `${type === "area" ? areaUnit.fromSqm(quantity).toFixed(2) + " " + areaUnit.label : lengthUnit.fromMetres(quantity).toFixed(2) + " " + lengthUnit.label}`,
         color: COLORS[current.length % COLORS.length],
       },
     ]);
@@ -995,7 +1013,7 @@ export default function BlueprintTakeoff() {
                           },
                           {
                             label: "Plan areas",
-                            value: `${handoff.totalAreaM2.toFixed(2)} m²`,
+                            value: `${areaUnit.fromSqm(handoff.totalAreaM2).toFixed(2)} ${areaUnit.label}`,
                           },
                           {
                             label: "Marks counted",
@@ -1024,8 +1042,8 @@ export default function BlueprintTakeoff() {
                   <div className="mt-3 space-y-2 text-xs">
                     <p>
                       Linear runs: {handoff.linearRunsM.toFixed(2)} m · Areas:{" "}
-                      {handoff.totalAreaM2.toFixed(2)} m² · Counts:{" "}
-                      {handoff.totalCount}
+                      {areaUnit.fromSqm(handoff.totalAreaM2).toFixed(2)}{" "}
+                      {areaUnit.label} · Counts: {handoff.totalCount}
                     </p>
                     {handoff.concreteSlabs.map((slab) => (
                       <div
@@ -1085,7 +1103,7 @@ export default function BlueprintTakeoff() {
                           style={{ background: mark.color }}
                         />
                         {index + 1}. {mark.category} · {mark.type} · page{" "}
-                        {mark.page} · {mark.quantity} {mark.unit}
+                        {mark.page} · {markLabel(mark)}
                       </span>
                       <span className="text-sm font-semibold">
                         {mark.label}
