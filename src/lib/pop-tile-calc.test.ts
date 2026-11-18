@@ -529,14 +529,14 @@ describe("calculateTile", () => {
     expect(us.cementNeeded).toBe(5);
   });
 
-  it("warns when traditional mortar uses the fallback cement pack size", () => {
+  it("discloses the assumed pack weight when no market is supplied", () => {
     const result = calculateTile(
       { ...baseTileInput, method: "traditional", bedThicknessMm: 25 },
       tileMaterials,
       "NGN",
       "₦",
     );
-    expect(result.warnings?.join(" ")).toContain("50 kg fallback");
+    expect(result.warnings?.join(" ")).toContain("assumed at 50 kg");
   });
 
   it("calculates floor surface area as length * width", () => {
@@ -989,7 +989,12 @@ describe("AUDIT FIX: Tile missing-configuration warnings", () => {
 
   it("warns when traditional-method cement coverage rate is not configured", () => {
     const result = calculateTile(
-      { ...baseTileInput, method: "traditional", cementCoverageRate: 0 },
+      {
+        ...baseTileInput,
+        method: "traditional",
+        cementCoverageRate: 0,
+        marketCode: "NG",
+      },
       tileMaterials,
       "NGN",
       "₦",

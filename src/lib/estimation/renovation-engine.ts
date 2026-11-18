@@ -31,6 +31,7 @@
 
 import type { MixComponent } from "@/types/wallfinishing";
 import { mixComponentQuantity } from "@/lib/wallfinishing/quantity-engine";
+import { cementBagKg } from "@/config/cement-bag";
 import { calculateDemolitionTakeoff } from "@/lib/estimation/demolition-standalone-engine";
 import { LITRES_PER_US_GALLON } from "@/lib/estimation/paint-engine";
 import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
@@ -950,7 +951,11 @@ export function calculateRenovation(
           provenance: "measured",
         }),
       );
-      for (const component of mixComponentQuantity(dryVolumeM3, RENDER_MIX)) {
+      for (const component of mixComponentQuantity(
+        dryVolumeM3,
+        RENDER_MIX,
+        cementBagKg(marketCode),
+      )) {
         lines.push(
           line({
             id: `${metrics.id}-make-good-${component.component.role}`,
@@ -1056,7 +1061,11 @@ export function calculateRenovation(
           provenance: "measured",
         }),
       );
-      for (const component of mixComponentQuantity(dryVolumeM3, RENDER_MIX)) {
+      for (const component of mixComponentQuantity(
+        dryVolumeM3,
+        RENDER_MIX,
+        cementBagKg(marketCode),
+      )) {
         lines.push(
           line({
             id: `${metrics.id}-plaster-${component.component.role}`,
@@ -1116,7 +1125,11 @@ export function calculateRenovation(
           provenance: "measured",
         }),
       );
-      for (const component of mixComponentQuantity(dryVolumeM3, SCREED_MIX)) {
+      for (const component of mixComponentQuantity(
+        dryVolumeM3,
+        SCREED_MIX,
+        cementBagKg(marketCode),
+      )) {
         lines.push(
           line({
             id: `${metrics.id}-screed-${component.component.role}`,

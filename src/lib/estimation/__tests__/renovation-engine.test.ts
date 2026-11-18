@@ -299,7 +299,7 @@ describe("wet trades", () => {
     const expectedBags = (dry * (1 / 5)) / (50 / 1440);
     expect(bags).toBeCloseTo(Math.round(expectedBags * 1000) / 1000, 2);
     expect(findLine(result, "living-plaster-concrete-mix").unit).toBe(
-      "50 kg bag",
+      "bag of 50 kg",
     );
     expect(findLine(result, "living-plaster-sand").quantity).toBeCloseTo(
       Math.round(dry * (4 / 5) * 1000) / 1000,

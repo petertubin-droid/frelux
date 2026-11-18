@@ -471,8 +471,10 @@ export function calculateVisualFinishingEstimate(
     const includePrimer = options.painting?.includePrimer ?? true;
     const userBucketPrice = options.painting?.userPricePerBucket;
 
-    // FRELUX paint coverage rule: Emulsion standard coverage 10 m²/L per coat
-    const coverageM2PerL = 10;
+    // Coverage is a product property (10 to 17 m²/L per coat for common
+    // emulsions), so it is a supplied value with a disclosed default rather
+    // than a fixed rule applied to every product and market.
+    const coverageM2PerL = options.painting?.coverageM2PerL ?? 10;
     const bucketLitres = 20;
 
     // Wall Paint Calculation using central deterministic formula
@@ -1072,7 +1074,9 @@ export function packageTooSmallForBulk(row: {
   if (!Number.isFinite(size) || size <= 0) return false;
   const unit = (row.package_unit || "").trim().toLowerCase();
   const isVolume = /^(l|lt|ltr|litre|liter|litres|liters|ml)$/.test(unit);
-  const isMass = /^(kg|kgs|kilo|kilogram|kilograms|g|gm|gram|grams)$/.test(unit);
+  const isMass = /^(kg|kgs|kilo|kilogram|kilograms|g|gm|gram|grams)$/.test(
+    unit,
+  );
   if (isVolume) return /^(ml|)$/.test(unit) ? true : size < 5;
   if (isMass) return /^(g|gm|gram|grams)$/.test(unit) ? true : size < 5;
   return false;
@@ -1145,7 +1149,9 @@ export async function resolveMarketFinishingRates(
     ) {
       const { data: miRows } = await supabase
         .from("mi_approved_prices")
-        .select("price, product_name, category, package_size, package_unit, last_updated")
+        .select(
+          "price, product_name, category, package_size, package_unit, last_updated",
+        )
         .eq("market_code", marketCode)
         .eq("is_active", true)
         // Freshest first: without an order the rows come back arbitrarily and

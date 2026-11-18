@@ -54,7 +54,7 @@ describe("estimation/price-scanner", () => {
   });
 
   it("scanMaterialPrices returns a deterministic report of every entry", async () => {
-    const report = await scanMaterialPrices({});
+    const report = await scanMaterialPrices({}, { market: "NG" });
     expect(report.materials_scanned).toBe(Object.keys(FALLBACK_PRICES).length);
     expect(report.results.length).toBe(Object.keys(FALLBACK_PRICES).length);
     expect(report.currency).toBe("NGN");
@@ -63,8 +63,14 @@ describe("estimation/price-scanner", () => {
   });
 
   it("is deterministic: the same inputs produce the identical report twice", async () => {
-    const a = await scanMaterialPrices({ "cement-per-bag": 9000 });
-    const b = await scanMaterialPrices({ "cement-per-bag": 9000 });
+    const a = await scanMaterialPrices(
+      { "cement-per-bag": 9000 },
+      { market: "NG" },
+    );
+    const b = await scanMaterialPrices(
+      { "cement-per-bag": 9000 },
+      { market: "NG" },
+    );
     expect(
       a.results.map((r) => [
         r.material_key,
@@ -83,7 +89,10 @@ describe("estimation/price-scanner", () => {
   });
 
   it("compares configured prices (keyed by slug) against the reference", async () => {
-    const report = await scanMaterialPrices({ "cement-per-bag": 8000 });
+    const report = await scanMaterialPrices(
+      { "cement-per-bag": 8000 },
+      { market: "NG" },
+    );
     const cement = report.results.find(
       (r) => r.material_key === "cement_per_bag",
     );
@@ -95,7 +104,7 @@ describe("estimation/price-scanner", () => {
   });
 
   it("unconfigured materials are reported as NOT CONFIGURED, never priced", async () => {
-    const report = await scanMaterialPrices({});
+    const report = await scanMaterialPrices({}, { market: "NG" });
     const cement = report.results.find(
       (r) => r.material_key === "cement_per_bag",
     );
@@ -107,7 +116,7 @@ describe("estimation/price-scanner", () => {
   });
 
   it("an entry with no reference reports low confidence and asks for admin entry", async () => {
-    const report = await scanMaterialPrices({});
+    const report = await scanMaterialPrices({}, { market: "NG" });
     const cable = report.results.find(
       (r) => r.material_key === "elec_cable_lighting",
     );
@@ -165,10 +174,18 @@ describe("estimation/price-scanner US catalog", () => {
     );
   });
 
-  it("defaults to the NG catalog so existing behaviour is unchanged", async () => {
+  it("refuses to scan without a market instead of assuming Nigeria", async () => {
     const { scanMaterialPrices } =
       await import("@/lib/estimation/price-scanner");
     const report = await scanMaterialPrices({}, {});
+    expect(report.results).toEqual([]);
+    expect(report.error).toContain("No market was supplied");
+  });
+
+  it("reviews the NG catalog when the market is named", async () => {
+    const { scanMaterialPrices } =
+      await import("@/lib/estimation/price-scanner");
+    const report = await scanMaterialPrices({}, { market: "NG" });
     expect(report.currency).toBe("NGN");
     expect(
       report.results.some((r) => r.material_slug === "cement-per-bag"),
@@ -177,7 +194,13 @@ describe("estimation/price-scanner US catalog", () => {
 
   it("has reference catalogs only where market-priced references exist", () => {
     for (const [market, catalog] of Object.entries(MARKET_CATALOGS)) {
-      if (market === "AE" || market === "JP" || market === "FR" || market === "BR" || market === "SA") {
+      if (
+        market === "AE" ||
+        market === "JP" ||
+        market === "FR" ||
+        market === "BR" ||
+        market === "SA"
+      ) {
         expect(Object.keys(catalog)).toHaveLength(0);
       } else {
         expect(Object.keys(catalog).length).toBeGreaterThan(0);
@@ -239,10 +262,7 @@ describe("estimation/price-scanner US catalog", () => {
   });
 
   it("scanMaterialPrices uses the per-market catalog, region and currency", async () => {
-    const report = await scanMaterialPrices(
-      {},
-      { market: "GB" },
-    );
+    const report = await scanMaterialPrices({}, { market: "GB" });
     expect(report.currency).toBe("GBP");
     expect(report.market_region).toBe("United Kingdom");
     const multifinish = report.results.find(
@@ -251,4 +271,3 @@ describe("estimation/price-scanner US catalog", () => {
     expect(multifinish!.reference_price).toBe(11.25);
   });
 });
-

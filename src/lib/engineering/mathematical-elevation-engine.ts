@@ -11,6 +11,7 @@
 // - Geometry and indicative quantities only; no assumed project programme
 // =========================================================
 
+import { resolveMemberSizing } from "./member-sizing";
 import { round1, round2, round3 } from "@/lib/engineering/rounding";
 import type {
   BuildToRoofInput,
@@ -32,6 +33,17 @@ export interface PlanOpening {
   label?: string;
 }
 
+/**
+ * Default wall thickness, in metres, for a market's standard masonry module.
+ * Falls back to the NG baseline only when no market is supplied at all, which
+ * the engine reports in its assumptions.
+ */
+function marketWallThicknessM(marketCode?: string): number {
+  if (!marketCode) return DEFAULT_PLAN_INPUT.wall_thickness;
+  const width = resolveMemberSizing(marketCode).beamWidthMm;
+  return width ? width / 1000 : DEFAULT_PLAN_INPUT.wall_thickness;
+}
+
 export interface PlanElevationInput {
   project_name: string;
   building_type: BuildingType;
@@ -40,6 +52,8 @@ export interface PlanElevationInput {
   floor_to_floor_height: number; // meters (H)
   storeys: number;
   wall_thickness: number; // meters (tw, e.g. 0.225 for 9", 0.150 for 6")
+  /** Target market code; sets the default wall module when no thickness is given. */
+  market_code?: string;
   internal_wall_length: number; // meters
   roof_pitch_deg: number; // theta in degrees
   roof_overhang: number; // meters (e.g. 0.60m)
@@ -249,7 +263,7 @@ export const DEFAULT_PLAN_INPUT: PlanElevationInput = {
   building_width: 9.0,
   floor_to_floor_height: 3.0,
   storeys: 1,
-  wall_thickness: 0.225, // 9" standard hollow sandcrete
+  wall_thickness: 0.225, // 9" sandcrete, the NG baseline
   internal_wall_length: 22.0,
   roof_pitch_deg: 25.0,
   roof_overhang: 0.6,
@@ -344,7 +358,12 @@ export function calculateMathematicalElevation(
       0.12,
       Math.min(
         0.4,
-        finiteInput(rawInput.wall_thickness, DEFAULT_PLAN_INPUT.wall_thickness),
+        finiteInput(
+          rawInput.wall_thickness,
+          // The wall module is a market property: 225 mm sandcrete in Nigeria,
+          // 203 mm (8 in) in the US, 175 mm in Germany, 215 mm in the UK.
+          marketWallThicknessM(rawInput.market_code),
+        ),
       ),
     ),
     internal_wall_length: Math.max(

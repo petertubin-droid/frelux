@@ -10,6 +10,9 @@ import type {
 import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
 
 import { cementBagKg, resolveCementBag } from "@/config/cement-bag";
+
+/** Disclosed fallback pack weight, used only when no market or bag mass is given. */
+const CEMENT_BAG_KG_FALLBACK = 50;
 import { formatNumber, unitToMeters } from "@/lib/utils";
 
 function toSqm(value: number, unit: Unit): number {
@@ -336,13 +339,15 @@ export function calculateTile(
   // --- Cement (only when method === 'traditional') ---
   let cementNeeded = 0;
   let cementCost = 0;
+  let bagWeightAssumed = false;
   if (input.method === "traditional") {
     const bagKg =
       input.cementBagKg && input.cementBagKg > 0
         ? input.cementBagKg
         : input.marketCode
           ? cementBagKg(input.marketCode)
-          : CEMENT_BAG_KG;
+          : CEMENT_BAG_KG_FALLBACK;
+    if (!input.cementBagKg && !input.marketCode) bagWeightAssumed = true;
     const bagVolM3 = bagKg / CEMENT_BULK_DENSITY_KG_M3;
     const bagsRequired = bedVolumeMode
       ? ceilUnits(cementVolumeM3 / bagVolM3)
@@ -426,6 +431,11 @@ export function calculateTile(
   const spacerCost = spacerNeeded * input.spacerPricePerPack;
 
   const tileWarnings: string[] = [];
+  if (bagWeightAssumed) {
+    tileWarnings.push(
+      `Cement bags assumed at ${CEMENT_BAG_KG_FALLBACK} kg because no market or pack weight was supplied; verify the local pack before ordering.`,
+    );
+  }
   if (
     input.method === "traditional" &&
     !input.marketCode &&

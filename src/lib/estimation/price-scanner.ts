@@ -1267,6 +1267,8 @@ export interface PriceScanReport {
   results: PriceScanResultItem[];
   currency: string;
   market_region: string;
+  /** Set when the scan could not run, e.g. no market was supplied. */
+  error?: string;
 }
 
 export interface ScanOptions {
@@ -1290,8 +1292,27 @@ export async function scanMaterialPrices(
   options: ScanOptions = {},
 ): Promise<PriceScanReport> {
   const { region, currency } = options;
-  const market: ReferenceMarket = options.market ?? "NG";
-  const defaults = MARKET_DEFAULTS[market] ?? MARKET_DEFAULTS.NG;
+  const scannedAt = new Date().toISOString();
+  // A market must be named. Defaulting to Nigeria priced a Houston or Nairobi
+  // scan from a naira catalogue, which is worse than no scan at all.
+  const market = options.market;
+  if (
+    !market ||
+    !Object.prototype.hasOwnProperty.call(MARKET_DEFAULTS, market)
+  ) {
+    return {
+      scan_date: scannedAt,
+      materials_scanned: 0,
+      materials_unconfigured: 0,
+      materials_differing: 0,
+      materials_failed: 0,
+      results: [],
+      currency: currency ?? "",
+      market_region: region ?? "",
+      error: `No market was supplied${market ? ` (${market} is not a reference market)` : ""}; name the market to scan against its own catalogue.`,
+    } as PriceScanReport;
+  }
+  const defaults = MARKET_DEFAULTS[market];
   // No silent fallback to the Nigerian book: a market without its own catalog
   // would otherwise be offered naira figures to apply in its own currency.
   const catalog: Record<string, FallbackPrice> | null =
@@ -1304,7 +1325,6 @@ export async function scanMaterialPrices(
       : `FRELUX Reference Catalog (${defaults.region}, web survey 2026-10-10)`;
   const effRegion = region ?? defaults.region;
   const effCurrency = currency ?? defaults.currency;
-  const scannedAt = new Date().toISOString();
   const results: PriceScanResultItem[] = [];
 
   if (!catalog) {

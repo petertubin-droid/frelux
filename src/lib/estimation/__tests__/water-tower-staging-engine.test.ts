@@ -7,6 +7,9 @@ import {
 describe("Water Tower Staging Estimator Engine", () => {
   it("counts water, shell and deck for a 1,000L steel tower", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 1000,
       towerHeightMeters: 3,
       constructionMaterial: "steel",
@@ -29,6 +32,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
   it("checks wind overturning and quotes the factor", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 5000,
       towerHeightMeters: 6,
       constructionMaterial: "concrete",
@@ -45,6 +51,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
   it("prices the pads, columns and mix for a 5,000L tank at 6 m", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 5000,
       towerHeightMeters: 6,
       constructionMaterial: "concrete",
@@ -69,6 +78,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
   it("sizes a real steel section and reports its utilisation", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 5000,
       towerHeightMeters: 6,
       constructionMaterial: "steel",
@@ -81,6 +93,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
   it("gives an eight step installation sequence ending in a fill test", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 2000,
       towerHeightMeters: 4,
       constructionMaterial: "concrete",
@@ -93,6 +108,9 @@ describe("Water Tower Staging Estimator Engine", () => {
   it("validates input constraints", () => {
     expect(() =>
       calculateWaterTowerStaging({
+        soilBearingKpa: 150,
+        windSpeedMs: 30,
+        marketCode: "NG",
         tankVolumeLiters: -500,
         towerHeightMeters: 3,
         constructionMaterial: "steel",
@@ -101,6 +119,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
     expect(() =>
       calculateWaterTowerStaging({
+        soilBearingKpa: 150,
+        windSpeedMs: 30,
+        marketCode: "NG",
         tankVolumeLiters: 2000,
         towerHeightMeters: 0,
         constructionMaterial: "concrete",
@@ -115,6 +136,9 @@ describe("Water Tower Staging Estimator Engine", () => {
 
   it("orders the tower concrete mix from the shared constants and never rounds down", () => {
     const res = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 5000,
       towerHeightMeters: 6,
       constructionMaterial: "concrete",

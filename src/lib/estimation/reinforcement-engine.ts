@@ -32,6 +32,7 @@ import {
 } from "@/lib/engineering/bbs-schedule";
 import { ceilU } from "./shared/purchase-rounding";
 import { rebarMassPerM } from "./shared/rebar-mass";
+import { resolveRebarStockLength } from "@/config/steel-stock";
 
 // ─────────────────────────────────────────────
 // Rules
@@ -96,8 +97,10 @@ export interface ReinforcementInput {
   len_25mm_m: number | null;
   /** Total 32 mm cutting length (heavy foundation/columns), m */
   len_32mm_m?: number | null;
-  /** Optional custom stock length in metres (default 12 m; e.g. 6m or 18.288m / 60ft) */
+  /** Optional custom stock length in metres (default: the market's stock length) */
   stock_length_m?: number;
+  /** Target market code; sets the default stock length (12 m, 6 m, 20 ft…) */
+  marketCode?: string;
   labour: {
     mode: "none" | "per_tonne" | "lump_sum";
     per_tonne_rate?: number | null;
@@ -167,25 +170,25 @@ const REBAR_SPECS: {
   },
   {
     key: "rebar_12mm",
-    label: "12 mm rebar (12 m lengths)",
+    label: "12 mm rebar (per stock length)",
     slug: "rebar-12mm-per-length",
     kg_per_m: 0.888,
   },
   {
     key: "rebar_16mm",
-    label: "16 mm rebar (12 m lengths)",
+    label: "16 mm rebar (per stock length)",
     slug: "rebar-16mm-per-length",
     kg_per_m: 1.578,
   },
   {
     key: "rebar_20mm",
-    label: "20 mm rebar (12 m lengths)",
+    label: "20 mm rebar (per stock length)",
     slug: "rebar-20mm-per-length",
     kg_per_m: 2.466,
   },
   {
     key: "rebar_25mm",
-    label: "25 mm rebar (12 m lengths)",
+    label: "25 mm rebar (per stock length)",
     slug: "rebar-25mm-per-length",
     kg_per_m: 3.854,
   },
@@ -226,7 +229,9 @@ export function calculateReinforcement(
   const stockLengthM =
     input.stock_length_m && input.stock_length_m > 0
       ? input.stock_length_m
-      : DEFAULT_STOCK_LENGTH_M;
+      : input.marketCode
+        ? resolveRebarStockLength(input.marketCode).lengthM
+        : DEFAULT_STOCK_LENGTH_M;
 
   // ── 0. Validation ──
   const lengths: [string, string][] = [

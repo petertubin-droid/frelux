@@ -8,6 +8,8 @@
 // - Bearing capacity verification
 // - Excavation volume estimation
 //
+import { resolveMemberSizing } from "./member-sizing";
+
 // Based on BS 8004 / Eurocode 7 simplified methods, adapted
 // for common soil types (lateritic, sandy clay, etc.) — universal
 //
@@ -45,7 +47,9 @@ export interface FoundationDesignInput {
   /** Set when custom_bearing_capacity is an ultimate/gross capacity that still
    *  needs dividing by the safety factor. Default false: the value is allowable. */
   custom_capacity_is_ultimate?: boolean;
-  column_width_mm?: number; // supported column face for punching shear check (default 225)
+  column_width_mm?: number; // supported column face for punching shear check (default: the market's wall module)
+  /** Target market code (e.g. 'NG', 'US', 'DE'); sets the default column face. */
+  market_code?: string;
   /**
    * Bearing method.
    *  "table" (default) uses the assumed allowable pressures above, which are
@@ -152,7 +156,8 @@ export function bearingCapacityFactors(phiDeg: number): {
 } {
   const phi = (Math.max(0, Math.min(phiDeg, 45)) * Math.PI) / 180;
   if (phi <= 0.0001) return { nc: 5.7, nq: 1, ngamma: 0 };
-  const nq = Math.exp(Math.PI * Math.tan(phi)) * Math.tan(Math.PI / 4 + phi / 2) ** 2;
+  const nq =
+    Math.exp(Math.PI * Math.tan(phi)) * Math.tan(Math.PI / 4 + phi / 2) ** 2;
   return {
     nc: (nq - 1) / Math.tan(phi),
     nq,
@@ -229,7 +234,8 @@ export function terzaghiAllowablePressure(input: TerzaghiInput): {
     shapeC * input.cohesionKpa * nc +
     overburden * nq +
     shapeGamma * gammaWedge * B * ngamma;
-  const fs = input.factorOfSafety && input.factorOfSafety > 1 ? input.factorOfSafety : 3;
+  const fs =
+    input.factorOfSafety && input.factorOfSafety > 1 ? input.factorOfSafety : 3;
   return {
     allowable: ultimate / fs,
     ultimate,
@@ -291,7 +297,8 @@ export function designFoundation(
   // width and the groundwater level into the answer, which is what decides a
   // footing on a soft, wet site.
   const useTerzaghi = input.bearing_method === "terzaghi";
-  const baseParams = SOIL_STRENGTH_PARAMS[input.soil_type] ?? SOIL_STRENGTH_PARAMS.custom;
+  const baseParams =
+    SOIL_STRENGTH_PARAMS[input.soil_type] ?? SOIL_STRENGTH_PARAMS.custom;
   const soilParams = {
     phi_deg: Number.isFinite(input.soil_params?.phi_deg as number)
       ? Math.max(0, Math.min(45, input.soil_params!.phi_deg as number))
@@ -299,7 +306,9 @@ export function designFoundation(
     cohesion_kpa: Number.isFinite(input.soil_params?.cohesion_kpa as number)
       ? Math.max(0, input.soil_params!.cohesion_kpa as number)
       : baseParams.cohesion_kpa,
-    unit_weight_kn_m3: Number.isFinite(input.soil_params?.unit_weight_kn_m3 as number)
+    unit_weight_kn_m3: Number.isFinite(
+      input.soil_params?.unit_weight_kn_m3 as number,
+    )
       ? Math.max(1, input.soil_params!.unit_weight_kn_m3 as number)
       : baseParams.unit_weight_kn_m3,
   };
@@ -340,8 +349,7 @@ export function designFoundation(
   if (input.shape === "strip") {
     // ── Strip footing ──
     // Audit fix F4: 1.10 multiplier covers footing self-weight + overburden.
-    let required_width =
-      ((1.1 * input.wall_load) / allowable_capacity) * 1000; // mm
+    let required_width = ((1.1 * input.wall_load) / allowable_capacity) * 1000; // mm
     if (useTerzaghi) {
       // Capacity rises with width (the Nγ term), so the width has to be solved
       // rather than divided out. Six passes settle it to a millimetre.
@@ -359,7 +367,7 @@ export function designFoundation(
       const t = terzaghiAt(widthM, "strip");
       allowable_capacity = t.allowable;
       formulas.push(
-        `Derived capacity (Terzaghi, ${soilParams.phi_deg}° friction, ${soilParams.cohesion_kpa} kPa cohesion): Nc=${t.factors.nc.toFixed(1)}, Nq=${t.factors.nq.toFixed(1)}, Nγ=${t.factors.ngamma.toFixed(1)}; q_ult = c·Nc + γ·Df·Nq + 0.5·γ·B·Nγ = ${t.ultimate.toFixed(0)} kN/m², allowable = ${t.ultimate.toFixed(0)} / ${(input.bearing_factor_of_safety ?? 3)} = ${t.allowable.toFixed(0)} kN/m² at B = ${widthM.toFixed(3)} m`,
+        `Derived capacity (Terzaghi, ${soilParams.phi_deg}° friction, ${soilParams.cohesion_kpa} kPa cohesion): Nc=${t.factors.nc.toFixed(1)}, Nq=${t.factors.nq.toFixed(1)}, Nγ=${t.factors.ngamma.toFixed(1)}; q_ult = c·Nc + γ·Df·Nq + 0.5·γ·B·Nγ = ${t.ultimate.toFixed(0)} kN/m², allowable = ${t.ultimate.toFixed(0)} / ${input.bearing_factor_of_safety ?? 3} = ${t.allowable.toFixed(0)} kN/m² at B = ${widthM.toFixed(3)} m`,
       );
       if (waterDepth !== null && waterDepth < input.foundation_depth + widthM) {
         formulas.push(
@@ -499,7 +507,10 @@ export function designFoundation(
     // Audit fix F4: punching shear check at the critical perimeter 1.5d
     // from the column face (BS 8110 3.7.7.6 simplified). Pad thickness is
     // 300mm → effective depth d = 300 − 40 cover − 10 (bar/2) = 250mm.
-    const col_face = input.column_width_mm ?? 225;
+    const col_face =
+      input.column_width_mm ??
+      resolveMemberSizing(input.market_code ?? "NG").minColumnWidthMm ??
+      0;
     const fcu = fcuFromGrade(input.concrete_grade);
     const ULS_N = 1.4 * column_load * 1000; // N (BS 8110 axial-governed)
 
@@ -600,11 +611,14 @@ export function designFoundation(
     // out read the applied pressure about 10% low, so a marginal raft passed.
     const total_load = 1.1 * wall_load_total;
     if (useTerzaghi) {
-      const raftWidth = Math.max(1, Math.min(input.building_length ?? 10, input.building_width ?? 8));
+      const raftWidth = Math.max(
+        1,
+        Math.min(input.building_length ?? 10, input.building_width ?? 8),
+      );
       const t = terzaghiAt(raftWidth, "strip");
       allowable_capacity = t.allowable;
       formulas.push(
-        `Derived capacity (Terzaghi, taken at the ${raftWidth.toFixed(1)} m short side, ${soilParams.phi_deg}° friction, ${soilParams.cohesion_kpa} kPa cohesion) = ${t.ultimate.toFixed(0)} / ${(input.bearing_factor_of_safety ?? 3)} = ${t.allowable.toFixed(0)} kN/m²`,
+        `Derived capacity (Terzaghi, taken at the ${raftWidth.toFixed(1)} m short side, ${soilParams.phi_deg}° friction, ${soilParams.cohesion_kpa} kPa cohesion) = ${t.ultimate.toFixed(0)} / ${input.bearing_factor_of_safety ?? 3} = ${t.allowable.toFixed(0)} kN/m²`,
       );
     }
     const applied_pressure = total_load / building_area;

@@ -24,9 +24,15 @@ export interface TowerSpecs {
   towerHeightMeters: number;
   constructionMaterial: "steel" | "concrete";
   baseSizeMeters?: number; // default derived from tank volume
-  /** Allowable soil bearing capacity, kPa. Default 150 (firm laterite). */
+  /**
+   * Allowable soil bearing capacity, kPa. Required: it comes from the site's
+   * geotechnical report, and no country default can stand in for it.
+   */
   soilBearingKpa?: number;
-  /** Basic wind speed, m/s. Default 30 (most of Nigeria). */
+  /**
+   * Basic wind speed, m/s. Required: it comes from the location's code wind
+   * map (ASCE 7, EN 1991-1-4, NBC), and no country default can stand in for it.
+   */
   windSpeedMs?: number;
   /** Tank diameter, m. Default derived from volume as a squat cylinder. */
   tankDiameterMeters?: number;
@@ -149,7 +155,9 @@ const WIND_PRESSURE_COEFFICIENT = 0.613; // q = 0.613 v^2, N/m^2
 const MIN_OVERTURNING_FOS = 1.5;
 const MIN_SLIDING_FOS = 1.5;
 /**
- * Base friction for a concrete pad bearing on soil, BS 8002 / BS 8110 practice.
+ * Base friction for a concrete pad bearing on soil: tan(delta) = 0.5 for
+ * concrete cast against granular soil, the value BS 8002 and EN 1997-1 both
+ * give for that interface, so it is not tied to one country's code.
  * Passive resistance in front of the pads is ignored: it needs undisturbed
  * ground that cannot be guaranteed on a site this small.
  */
@@ -157,17 +165,14 @@ import { cementBagKg, cementBagVolumeM3 } from "@/config/cement-bag";
 import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
 
 const BASE_FRICTION_COEFFICIENT = 0.5;
-const DEFAULT_BEARING_KPA = 150;
-const DEFAULT_WIND_MS = 30;
 const PAD_CONCRETE_GRADE_MPA = 25; // 1:2:4
-/** Trade pack for the tower concrete: a 50 kg cement bag. */
-const CEMENT_BAG_KG_TOWER = 50;
 
 /**
  * Concrete materials for the tower legs and pads.
  *
  * The mix is the declared 1:2:4, the dry factor is the platform constant, and
- * the bag volume is derived from a 50 kg bag at the 1440 kg/m³ bulk density.
+ * the bag volume is derived from the local pack weight at the 1440 kg/m³ bulk
+ * density, so a 42.6 kg or 40 kg market gets its own bag count.
  *
  * Sand and gravel used to round to the nearest whole cubic metre, so 2.4 m³ of
  * sand was ordered as 2 m³ and the pour came up short. Purchased bulk materials
@@ -175,7 +180,7 @@ const CEMENT_BAG_KG_TOWER = 50;
  */
 function towerConcreteMix(
   volumeM3: number,
-  bagWeightKg: number = CEMENT_BAG_KG_TOWER,
+  bagWeightKg: number,
 ): {
   cementBags: number;
   sandM3: number;
@@ -313,14 +318,19 @@ export function calculateWaterTowerStaging(
   }
 
   const warnings: string[] = [];
-  if (specs.windSpeedMs === undefined || specs.soilBearingKpa === undefined) {
-    warnings.push(
-      "Site wind speed and/or allowable soil bearing capacity were not supplied. The engine uses preliminary default assumptions; obtain project-specific values and an engineer's design before construction.",
+  // A tower's footings and overturning depend on two values that belong to the
+  // site, not to a country: the ground's allowable bearing pressure and the
+  // location's basic wind speed. These used to default to Nigerian values
+  // (150 kPa laterite, 30 m/s) for every market, which sized a Houston or
+  // Munich tower on Lagos ground and Lagos wind.
+  if (!(specs.soilBearingKpa && specs.soilBearingKpa > 0)) {
+    throw new RangeError(
+      "Allowable soil bearing capacity is required (kPa, from the site's geotechnical report). It cannot be defaulted by market.",
     );
   }
-  if (!specs.marketCode && specs.bagWeightKg === undefined) {
-    warnings.push(
-      "Cement packaging uses the existing 50 kg fallback because no market or bag weight was supplied; verify local packaging before ordering.",
+  if (!(specs.windSpeedMs && specs.windSpeedMs > 0)) {
+    throw new RangeError(
+      "Basic wind speed is required (m/s, from the location's code wind map). It cannot be defaulted by market.",
     );
   }
   const bagWeightKg =
@@ -328,15 +338,13 @@ export function calculateWaterTowerStaging(
       ? specs.bagWeightKg
       : specs.marketCode
         ? cementBagKg(specs.marketCode)
-        : CEMENT_BAG_KG_TOWER;
-  const bearingKpa =
-    specs.soilBearingKpa && specs.soilBearingKpa > 0
-      ? specs.soilBearingKpa
-      : DEFAULT_BEARING_KPA;
-  const windMs =
-    specs.windSpeedMs && specs.windSpeedMs > 0
-      ? specs.windSpeedMs
-      : DEFAULT_WIND_MS;
+        : (() => {
+            throw new RangeError(
+              "A cement bag weight is required: pass marketCode or bagWeightKg. Packs are 25, 40, 42.6 and 50 kg by market.",
+            );
+          })();
+  const bearingKpa = specs.soilBearingKpa;
+  const windMs = specs.windSpeedMs;
   const { diameter: tankDiameter, height: tankHeight } = tankGeometry(
     tankVolumeLiters,
     specs.tankDiameterMeters,
@@ -550,9 +558,9 @@ export function calculateWaterTowerStaging(
       `Pads are at the 600 mm minimum for constructability. The ${serviceLoadPerLegKn} kN per leg needs ${round(padAreaM2ForPads, 2)} m² on ${bearingKpa} kPa soil, so the pad is governed by buildability, not bearing.`,
     );
   }
-  if (bearingKpa === DEFAULT_BEARING_KPA) {
+  if (bearingKpa < 100) {
     warnings.push(
-      "Soil bearing taken as 150 kPa (firm laterite). On filled or soft ground, get a bearing test or use a raft.",
+      `Soil bearing of ${bearingKpa} kPa is low; pads will be large. Consider a raft or a geotechnical bearing test before construction.`,
     );
   }
 

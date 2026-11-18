@@ -36,6 +36,14 @@ export type TallFoundationKey = "raft" | "thick_raft" | "piled_raft";
 
 export interface TallBuildingInput {
   project_name: string;
+  /** Target market code (e.g. 'US', 'GB', 'NG'); reported against the design basis. */
+  market_code?: string;
+  /**
+   * Structural basis this engine implements. Only ASCE 7-22 + ACI 318-19 is
+   * implemented; a caller designing to EN 1991/EN 1992 is told so explicitly
+   * instead of being handed ASCE numbers as if they were its own code.
+   */
+  design_code?: "asce_aci" | "en";
   /** Number of storeys above ground, including the ground floor. */
   floors: number;
   /** Typical storey-to-storey height in metres. */
@@ -1867,6 +1875,29 @@ export function calculateTallBuilding(
       threshold: `${architecture.egressWidthRequiredMm} mm required at 5 mm per occupant`,
       basis: "IBC 1005.3.2 stair width",
       action: "Widen the stairs or reduce the occupant load per floor.",
+    });
+  }
+
+  // The methodology here is ASCE 7-22 (wind and live-load reduction) plus
+  // ACI 318-19 (stiffness), which is correct for US practice and only
+  // indicative elsewhere. Say so, per market, rather than presenting ASCE
+  // results as the local code.
+  const ASCE_MARKETS = new Set(["US", "CA", "PH"]);
+  const market = (input.market_code ?? "").trim().toUpperCase();
+  if (input.design_code === "en" || (market && !ASCE_MARKETS.has(market))) {
+    checks.push({
+      id: "design-basis",
+      severity: "warning",
+      title: "Results follow ASCE 7-22 and ACI 318-19, not the local code",
+      observed: market
+        ? `Market ${market}${input.design_code === "en" ? ", EN basis requested" : ""}`
+        : "EN basis requested",
+      threshold:
+        "ASCE 7-22 wind and live-load reduction; ACI 318-19 stiffness and detailing",
+      basis:
+        "Implemented methodology of this engine. EN 1991-1-4/1-1 and EN 1992-1-1, and national codes elsewhere, differ in wind profile, load factors, drift limits and detailing.",
+      action:
+        "Treat these numbers as preliminary screening only, and re-run the design in the governing local code (EN 1991/1992, NBC, IS, GB, AS/NZS) before use.",
     });
   }
 

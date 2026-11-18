@@ -14,6 +14,7 @@
 
 import type { Derivation, QuantityUnit } from "./types";
 import { applyWaste, packsRequired, round } from "./measure";
+import { resolveCementBag } from "@/config/cement-bag";
 
 export interface AssemblyMaterialLine {
   material: string;
@@ -38,6 +39,38 @@ export interface AssemblyMaterialLine {
  */
 export const CEMENT_DENSITY_KG_M3 = 1440;
 export const CEMENT_BAG_KG = 50;
+
+/**
+ * Resolve the pack weight for an assembly.
+ *
+ * A bag is a package, not a unit of cement: 25 kg in parts of Africa, 40 kg in
+ * Europe, 42.6 kg (94 lb) in the US, 50 kg elsewhere. The caller must say which
+ * it is, or which market it is building in; the engine no longer assumes 50 kg.
+ */
+function resolveBagKg(spec: { cementBagKg?: number; marketCode?: string }): {
+  bagKg: number;
+  assumed: boolean;
+} {
+  if (
+    spec.cementBagKg !== undefined &&
+    Number.isFinite(spec.cementBagKg) &&
+    spec.cementBagKg > 0
+  ) {
+    return { bagKg: spec.cementBagKg, assumed: false };
+  }
+  if (spec.marketCode) {
+    const resolved = resolveCementBag(spec.marketCode);
+    if (resolved.isMarketSpecific)
+      return { bagKg: resolved.bagKg, assumed: false };
+    throw new RangeError(
+      `No cement pack weight is configured for ${spec.marketCode}; pass cementBagKg instead.`,
+    );
+  }
+  // No market and no pack mass: use the disclosed 50 kg fallback so a caller
+  // that predates market-aware bags still gets a number, and say so on the
+  // line rather than presenting it as the local pack.
+  return { bagKg: CEMENT_BAG_KG, assumed: true };
+}
 /** Volume of the default 50 kg bag, derived from its mass, not typed in. */
 export const CEMENT_BAG_M3 = CEMENT_BAG_KG / CEMENT_DENSITY_KG_M3;
 /**
@@ -61,12 +94,14 @@ export interface BlockworkSpec {
   /** Cement to sand parts, e.g. 1:6. */
   mix?: { cement: number; sand: number };
   /**
-   * Mass of one cement bag on the local market, in kilograms. Defaults to the
-   * 50 kg bag used across the engines. A market that sells 42.6 kg (94 lb) or
-   * 40 kg bags passes that mass and gets its own bag count, because a bag is a
-   * package, not a unit of cement.
+   * Mass of one cement bag on the local market, in kilograms. A market that
+   * sells 42.6 kg (94 lb) or 40 kg bags passes that mass and gets its own bag
+   * count, because a bag is a package, not a unit of cement. Required unless
+   * marketCode is given.
    */
   cementBagKg?: number;
+  /** Market code used to resolve the local cement pack weight. */
+  marketCode?: string;
   wastePct?: number;
   mortarWastePct?: number;
 }
@@ -86,10 +121,7 @@ export function blockworkAssembly(
   const sand = Math.max(1, spec.mix?.sand ?? 6);
   const wastePct = spec.wastePct ?? 5;
   const mortarWastePct = spec.mortarWastePct ?? 10;
-  const bagKg =
-    spec.cementBagKg !== undefined && Number.isFinite(spec.cementBagKg) && spec.cementBagKg > 0
-      ? spec.cementBagKg
-      : CEMENT_BAG_KG;
+  const { bagKg, assumed: bagAssumed } = resolveBagKg(spec);
   const bagM3 = bagKg / CEMENT_DENSITY_KG_M3;
 
   const faceM2 = (lengthMm / 1000) * (heightMm / 1000);
@@ -155,11 +187,20 @@ export function blockworkAssembly(
       wastePct: mortarWastePct,
       quantity: round(cementBags * bagKg, 2),
       purchaseQuantity: cementBags,
-      purchaseUnit: `bags of ${bagKg} kg`,
+      purchaseUnit: bagAssumed
+        ? `bags of ${bagKg} kg (assumed pack weight)`
+        : `bags of ${bagKg} kg`,
       derivation: {
         formula:
           "wet mortar x dry factor x cement parts / total parts / bag volume, rounded up to whole bags",
-        inputs: { mortarM3: mortar, dryFactor: MORTAR_DRY_FACTOR, cement, sand, bagKg, bagM3: round(bagM3, 4) },
+        inputs: {
+          mortarM3: mortar,
+          dryFactor: MORTAR_DRY_FACTOR,
+          cement,
+          sand,
+          bagKg,
+          bagM3: round(bagM3, 4),
+        },
         steps: [
           { label: "Dry mix", value: round(mortarDryM3, 4), unit: "m3" },
           { label: "Cement volume", value: round(cementM3, 4), unit: "m3" },
@@ -185,6 +226,10 @@ export interface RenderSpec {
   thicknessMm?: number;
   mix?: { cement: number; sand: number };
   wastePct?: number;
+  /** Mass of one local cement bag, kg. Required unless marketCode is given. */
+  cementBagKg?: number;
+  /** Market code used to resolve the local pack weight. */
+  marketCode?: string;
 }
 
 export function renderAssembly(
@@ -195,11 +240,13 @@ export function renderAssembly(
   const cement = Math.max(1, spec.mix?.cement ?? 1);
   const sand = Math.max(1, spec.mix?.sand ?? 4);
   const wastePct = spec.wastePct ?? 10;
+  const { bagKg, assumed: bagAssumed } = resolveBagKg(spec);
+  const bagM3 = bagKg / CEMENT_DENSITY_KG_M3;
 
   const netMortar = round(areaM2 * (thicknessMm / 1000), 4);
   const mortar = applyWaste(netMortar, wastePct);
   const parts = cement + sand;
-  const cementBags = Math.ceil((mortar * (cement / parts)) / CEMENT_BAG_M3);
+  const cementBags = Math.ceil((mortar * (cement / parts)) / bagM3);
 
   return [
     {
@@ -216,18 +263,23 @@ export function renderAssembly(
     {
       material: "Cement",
       unit: "kg",
-      netQuantity: round(
-        ((mortar * (cement / parts)) / CEMENT_BAG_M3) * CEMENT_BAG_KG,
-        2,
-      ),
+      netQuantity: round(((mortar * (cement / parts)) / bagM3) * bagKg, 2),
       wastePct,
-      quantity: round(cementBags * CEMENT_BAG_KG, 2),
+      quantity: round(cementBags * bagKg, 2),
       purchaseQuantity: cementBags,
-      purchaseUnit: "bags of 50 kg",
+      purchaseUnit: bagAssumed
+        ? `bags of ${bagKg} kg (assumed pack weight)`
+        : `bags of ${bagKg} kg`,
       derivation: {
         formula:
           "mortar x cement parts / total parts / bag volume, rounded up to whole bags",
-        inputs: { mortarM3: mortar, cement, sand, bagM3: CEMENT_BAG_M3 },
+        inputs: {
+          mortarM3: mortar,
+          cement,
+          sand,
+          bagM3: round(bagM3, 5),
+          bagKg,
+        },
       },
     },
   ];
@@ -389,6 +441,10 @@ export interface ScreedSpec {
   thicknessMm?: number;
   mix?: { cement: number; sand: number };
   wastePct?: number;
+  /** Mass of one local cement bag, kg. Required unless marketCode is given. */
+  cementBagKg?: number;
+  /** Market code used to resolve the local pack weight. */
+  marketCode?: string;
 }
 
 export function screedAssembly(
@@ -399,11 +455,13 @@ export function screedAssembly(
   const cement = Math.max(1, spec.mix?.cement ?? 1);
   const sand = Math.max(1, spec.mix?.sand ?? 4);
   const wastePct = spec.wastePct ?? 10;
+  const { bagKg, assumed: bagAssumed } = resolveBagKg(spec);
+  const bagM3 = bagKg / CEMENT_DENSITY_KG_M3;
 
   const netVolume = round(areaM2 * (thicknessMm / 1000), 4);
   const volume = applyWaste(netVolume, wastePct);
   const parts = cement + sand;
-  const cementBags = Math.ceil((volume * (cement / parts)) / CEMENT_BAG_M3);
+  const cementBags = Math.ceil((volume * (cement / parts)) / bagM3);
 
   return [
     {
@@ -420,17 +478,22 @@ export function screedAssembly(
     {
       material: "Cement",
       unit: "kg",
-      netQuantity: round(
-        ((volume * (cement / parts)) / CEMENT_BAG_M3) * CEMENT_BAG_KG,
-        2,
-      ),
+      netQuantity: round(((volume * (cement / parts)) / bagM3) * bagKg, 2),
       wastePct,
-      quantity: round(cementBags * CEMENT_BAG_KG, 2),
+      quantity: round(cementBags * bagKg, 2),
       purchaseQuantity: cementBags,
-      purchaseUnit: "bags of 50 kg",
+      purchaseUnit: bagAssumed
+        ? `bags of ${bagKg} kg (assumed pack weight)`
+        : `bags of ${bagKg} kg`,
       derivation: {
         formula: "volume x cement parts / total parts, rounded up to bags",
-        inputs: { volumeM3: volume, cement, sand, bagM3: CEMENT_BAG_M3 },
+        inputs: {
+          volumeM3: volume,
+          cement,
+          sand,
+          bagM3: round(bagM3, 5),
+          bagKg,
+        },
       },
     },
     {

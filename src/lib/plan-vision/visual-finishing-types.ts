@@ -153,6 +153,8 @@ export interface FinishingOptions {
     includeCeiling: boolean;
     includePrimer: boolean;
     userPricePerBucket?: number | null;
+    /** Published spread rate for the chosen product, m² per litre per coat. */
+    coverageM2PerL?: number | null;
   };
   screeding?: {
     systemType: "putty" | "white_cement_paint";

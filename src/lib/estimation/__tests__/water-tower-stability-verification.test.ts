@@ -34,6 +34,9 @@ const CASE = {
   tankVolumeLiters: 5000,
   towerHeightMeters: 4,
   constructionMaterial: "concrete" as const,
+  marketCode: "NG",
+  soilBearingKpa: 150,
+  windSpeedMs: 30,
 };
 
 describe("water tower stability, independent hand check", () => {
@@ -66,9 +69,7 @@ describe("water tower stability, independent hand check", () => {
   it("reports a factor of 2.07 on the case that governs", () => {
     expect(empty.overturningSafetyFactor).toBeCloseTo(2.07, 1);
     expect(result.governingCaseId).toBe("empty");
-    expect(result.overturningSafetyFactor).toBe(
-      empty.overturningSafetyFactor,
-    );
+    expect(result.overturningSafetyFactor).toBe(empty.overturningSafetyFactor);
   });
 
   it("regression: the full tank must not be used as the stabilising weight", () => {
@@ -84,6 +85,9 @@ describe("water tower stability, independent hand check", () => {
   it("flags leg uplift when the wind couple lifts a leg", () => {
     // 5,000 L steel tower on 6 m: light frame, heavy sail.
     const steel = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 5000,
       towerHeightMeters: 6,
       constructionMaterial: "steel",
@@ -111,6 +115,9 @@ describe("water tower stability, independent hand check", () => {
 
   it("a tower that cannot stand empty is not reported as passing", () => {
     const tall = calculateWaterTowerStaging({
+      soilBearingKpa: 150,
+      windSpeedMs: 30,
+      marketCode: "NG",
       tankVolumeLiters: 1000,
       towerHeightMeters: 6,
       constructionMaterial: "steel",

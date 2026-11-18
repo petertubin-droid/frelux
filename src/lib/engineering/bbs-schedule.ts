@@ -452,7 +452,7 @@ export function ec2AnchorageLength(
   // C80 (15.1 per cent high).
   const fctm =
     fck <= 50
-      ? 0.30 * Math.pow(fck, 2 / 3)
+      ? 0.3 * Math.pow(fck, 2 / 3)
       : 2.12 * Math.log(1 + (fck + 8) / 10);
   const fctk = 0.7 * fctm;
   const fctd = fctk / 1.5;
@@ -582,4 +582,57 @@ export function bbsItemMassKg(item: BbsItem): number {
   const massPerM = BAR_MASS_KG_M[item.dia];
   if (!massPerM) throw new Error(`No bar mass for diameter ${item.dia} mm.`);
   return (item.lengthMm / 1000) * item.count * massPerM;
+}
+
+// ─────────────────────────────────────────────
+// Eurocode hook geometry (EN 1992-1-1 / EN 13670)
+// ─────────────────────────────────────────────
+
+export type HookDesignCode = "aci_318" | "ec2";
+
+/**
+ * EN 1992-1-1 §8.3 and Fig 8.1: the mandrel diameter is 4φ for bars up to
+ * 16 mm and 7φ above that (Table 8.1 for bends, hooks and loops), and the
+ * straight extension beyond a hook is 5φ with a 50 mm minimum.
+ *
+ * The ACI hook set used to be the only geometry the schedule could produce, so
+ * a European or Commonwealth bar schedule was dimensioned to ACI tables. This
+ * gives each caller the geometry of the code it actually designs to.
+ */
+export function ec2HookGeometry(
+  barDia: number,
+  hookType: AciHookType,
+): AciHookGeometry {
+  if (!(barDia > 0)) throw new Error("Bar diameter must be positive (mm).");
+  const mandrel = barDia <= 16 ? 4 * barDia : 7 * barDia;
+  const extension = Math.max(5 * barDia, 50);
+  const notes: string[] = [
+    "EN 1992-1-1 §8.3 and Fig 8.1: bend mandrel 4φ up to 16 mm, 7φ above; hook extension 5φ, minimum 50 mm.",
+  ];
+  if (hookType === "seismic135") {
+    notes.push(
+      "Seismic detailing is a national-annex and national-code matter in the Eurocode system; confirm the ductility class requirements with the local authority.",
+    );
+  }
+  return {
+    hookType,
+    insideBendDiameter: mandrel,
+    straightExtension: extension,
+    clause:
+      hookType === "primary90" || hookType === "primary180"
+        ? "EN 1992-1-1 §8.3 (hook), Fig 8.1"
+        : "EN 1992-1-1 §8.3 (link hook), Fig 8.1",
+    notes,
+  };
+}
+
+/** Code-aware hook geometry: ACI 318-19 or EN 1992-1-1. */
+export function hookGeometry(
+  barDia: number,
+  hookType: AciHookType,
+  designCode: HookDesignCode = "aci_318",
+): AciHookGeometry {
+  return designCode === "ec2"
+    ? ec2HookGeometry(barDia, hookType)
+    : aciHookGeometry(barDia, hookType);
 }

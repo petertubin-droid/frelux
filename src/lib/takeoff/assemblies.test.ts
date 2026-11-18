@@ -12,7 +12,7 @@ const byMaterial = (lines: AssemblyMaterialLine[], name: string) =>
   lines.find((line) => line.material === name);
 
 describe("blockwork assembly", () => {
-  const lines = blockworkAssembly(10);
+  const lines = blockworkAssembly(10, { marketCode: "NG" });
 
   it("counts blocks on the face, not on the volume", () => {
     const blocks = byMaterial(lines, "Blocks");
@@ -40,6 +40,7 @@ describe("blockwork assembly", () => {
 
   it("honours a different block size", () => {
     const small = blockworkAssembly(10, {
+      marketCode: "NG",
       blockLengthMm: 400,
       blockHeightMm: 200,
     });
@@ -59,7 +60,7 @@ describe("blockwork assembly", () => {
 
 describe("render and paint", () => {
   it("converts render thickness into mortar volume", () => {
-    const lines = renderAssembly(20, { thicknessMm: 15 });
+    const lines = renderAssembly(20, { thicknessMm: 15, marketCode: "NG" });
     expect(byMaterial(lines, "Render mortar")?.quantity).toBeCloseTo(0.33, 2);
   });
 
@@ -107,7 +108,7 @@ describe("floor tiling", () => {
 
 describe("screed", () => {
   it("turns 50 mm over 20 m2 into one cubic metre before waste", () => {
-    const lines = screedAssembly(20, { thicknessMm: 50 });
+    const lines = screedAssembly(20, { thicknessMm: 50, marketCode: "NG" });
     const volume = byMaterial(lines, "Screed concrete");
     expect(volume?.netQuantity).toBe(1);
     expect(volume?.quantity).toBeCloseTo(1.1, 2);
@@ -115,7 +116,8 @@ describe("screed", () => {
 
   it("rounds cement up to whole bags", () => {
     const bags =
-      byMaterial(screedAssembly(20), "Cement")?.purchaseQuantity ?? 0;
+      byMaterial(screedAssembly(20, { marketCode: "NG" }), "Cement")
+        ?.purchaseQuantity ?? 0;
     expect(Number.isInteger(bags)).toBe(true);
     expect(bags).toBeGreaterThan(0);
   });
@@ -124,11 +126,11 @@ describe("screed", () => {
 describe("assembly invariants", () => {
   it("never returns a negative quantity for a positive area", () => {
     for (const lines of [
-      blockworkAssembly(5),
-      renderAssembly(5),
+      blockworkAssembly(5, { marketCode: "NG" }),
+      renderAssembly(5, { marketCode: "NG" }),
       paintAssembly(5),
       floorTileAssembly(5),
-      screedAssembly(5),
+      screedAssembly(5, { marketCode: "NG" }),
     ]) {
       for (const line of lines) {
         expect(line.quantity).toBeGreaterThanOrEqual(0);
@@ -138,9 +140,11 @@ describe("assembly invariants", () => {
   });
 
   it("returns nothing priced for an empty area", () => {
-    expect(blockworkAssembly(0).every((line) => line.quantity === 0)).toBe(
-      true,
-    );
+    expect(
+      blockworkAssembly(0, { marketCode: "NG" }).every(
+        (line) => line.quantity === 0,
+      ),
+    ).toBe(true);
     expect(paintAssembly(0)[0].quantity).toBe(0);
   });
 });

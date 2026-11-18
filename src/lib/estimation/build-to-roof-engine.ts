@@ -50,8 +50,19 @@ import { resolveCementBag } from "@/config/cement-bag";
 import { resolveRebarStockLength } from "@/config/steel-stock";
 
 /** Bag mass for the run; a market with no configured bag falls back to 50 kg. */
-function bagKgForMarket(market?: string): number {
-  return resolveCementBag(market ?? "NG").bagKg;
+function bagKgForMarket(market: string | undefined): number {
+  if (!market) {
+    throw new RangeError(
+      "A market code is required before cement bags are priced: packs are 25, 40, 42.6 and 50 kg by market.",
+    );
+  }
+  const resolved = resolveCementBag(market);
+  if (!resolved.isMarketSpecific) {
+    throw new RangeError(
+      `No cement pack weight is configured for ${market || "the supplied market"}; add it before pricing cement bags.`,
+    );
+  }
+  return resolved.bagKg;
 }
 
 // ── Constants ──

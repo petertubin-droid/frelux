@@ -34,6 +34,10 @@ import { calculateOpeningAreas, round } from "./openings";
 
 export { round };
 import { resolveAssemblyLayers } from "./assembly-overrides";
+/** Loose bulk density of cement, kg/m³, the constant every engine here uses. */
+const CEMENT_BULK_DENSITY_KG_M3 = 1440;
+/** The 50 kg pack, used only when a caller supplies no local pack weight. */
+export const DEFAULT_CEMENT_BAG_KG = 50;
 
 /** Dry-volume factor for wet mortar (standard shrinkage allowance). */
 export const MORTAR_DRY_FACTOR = 1.33;
@@ -344,6 +348,7 @@ export function calculateLayerQuantity(
 export function mixComponentQuantity(
   dryVolumeM3: number,
   mix: MixComponent[],
+  bagKg: number = DEFAULT_CEMENT_BAG_KG,
 ): {
   component: MixComponent;
   quantity: number;
@@ -354,13 +359,14 @@ export function mixComponentQuantity(
   return mix.map((component) => {
     const volume = dryVolumeM3 * (component.parts / totalParts);
     if (component.role === "concrete-mix") {
-      // cement: dry mortar share → 50 kg bags
-      const bags = volume / CEMENT_BAG_VOLUME_M3;
+      // cement: dry mortar share → bags of the local pack size
+      const bagVolume = bagKg / CEMENT_BULK_DENSITY_KG_M3;
+      const bags = volume / bagVolume;
       return {
         component,
         quantity: bags,
-        unit: "50 kg bag",
-        formula: `${round(volume, 4)} m³ ÷ ${CEMENT_BAG_VOLUME_M3} m³/bag = ${round(bags, 3)} bags`,
+        unit: `bag of ${bagKg} kg`,
+        formula: `${round(volume, 4)} m³ ÷ ${round(bagVolume, 5)} m³/bag (${bagKg} kg) = ${round(bags, 3)} bags`,
       };
     }
     return {
@@ -390,6 +396,8 @@ export function calculateAssemblyQuantities(
   assembly: WallAssemblyTemplate,
   areaM2: number,
   overrides?: WallSpecOverrides,
+  /** Local cement pack weight, kg. A bag is a package, not a unit of cement. */
+  cementBagKg: number = DEFAULT_CEMENT_BAG_KG,
 ): AssemblyQuantityResult {
   const errors: string[] = [];
   const layers: LayerQuantityResult[] = [];
@@ -420,7 +428,11 @@ export function calculateAssemblyQuantities(
     if (result.baseQuantity === 0) continue;
 
     if (layer.quantityMode === "volume" && layer.mix) {
-      const comps = mixComponentQuantity(result.baseQuantity, layer.mix);
+      const comps = mixComponentQuantity(
+        result.baseQuantity,
+        layer.mix,
+        cementBagKg,
+      );
       for (const c of comps) {
         const wasteAdjusted =
           c.quantity *
@@ -462,5 +474,3 @@ function emptyLayerResult(
     surfaceWarning: errors.length > 0 ? errors.join(" ") : null,
   };
 }
-
-

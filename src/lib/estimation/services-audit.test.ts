@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { calculatePlumbingEngineeringMetrics } from "./plumbing-engine";
-import { blockworkAssembly, CEMENT_BAG_KG, CEMENT_DENSITY_KG_M3 } from "@/lib/takeoff/assemblies";
+import {
+  blockworkAssembly,
+  CEMENT_BAG_KG,
+  CEMENT_DENSITY_KG_M3,
+} from "@/lib/takeoff/assemblies";
 
 describe("plumbing header sizing", () => {
   it("reports the bore of the pipe it recommends, not the theoretical minimum", () => {
@@ -22,7 +26,9 @@ describe("plumbing header sizing", () => {
     expect(metrics.peak_flow_lpm).toBeCloseTo(46.3, 1);
     expect(metrics.required_bore_mm).toBeCloseTo(23.4, 1);
     expect(metrics.recommended_header_bore_mm).toBeCloseTo(26.6, 6);
-    expect(metrics.recommended_header_pipe_label).toMatch(/40 mm PPR \(26\.6 mm bore/);
+    expect(metrics.recommended_header_pipe_label).toMatch(
+      /40 mm PPR \(26\.6 mm bore/,
+    );
   });
 
   it("keeps the two numbers consistent on the largest demand", () => {
@@ -37,14 +43,19 @@ describe("plumbing header sizing", () => {
     expect(metrics.required_bore_mm).toBeGreaterThan(33.2);
     expect(metrics.recommended_header_bore_mm).toBeCloseTo(42, 6);
     expect(metrics.recommended_header_pipe_label).toMatch(/63 mm PPR/);
-    expect(metrics.recommended_header_bore_mm).toBeGreaterThanOrEqual(metrics.required_bore_mm);
+    expect(metrics.recommended_header_bore_mm).toBeGreaterThanOrEqual(
+      metrics.required_bore_mm,
+    );
   });
 });
 
 describe("a cement bag is a package, not a unit of cement", () => {
   it("counts more 42.6 kg bags than 50 kg bags for the same wall", () => {
     const fifty = blockworkAssembly(10, { mix: { cement: 1, sand: 6 } });
-    const ninetyFour = blockworkAssembly(10, { mix: { cement: 1, sand: 6 }, cementBagKg: 42.6 });
+    const ninetyFour = blockworkAssembly(10, {
+      mix: { cement: 1, sand: 6 },
+      cementBagKg: 42.6,
+    });
     const cementOf = (lines: ReturnType<typeof blockworkAssembly>) =>
       lines.find((l) => l.material === "Cement")!;
 
@@ -52,19 +63,27 @@ describe("a cement bag is a package, not a unit of cement", () => {
     // 225 mm wall at 0.03 m3/m2 with 10 percent waste is 0.4389 m3 dry, so
     // 0.0627 m3 of cement, which is 90.3 kg whatever the bag weighs.
     expect(cementOf(ninetyFour).netQuantity).toBeCloseTo(90.29, 1);
-    expect(cementOf(ninetyFour).netQuantity).toBeCloseTo(cementOf(fifty).netQuantity, 6);
+    expect(cementOf(ninetyFour).netQuantity).toBeCloseTo(
+      cementOf(fifty).netQuantity,
+      6,
+    );
     expect(Number(cementOf(ninetyFour).purchaseQuantity)).toBeGreaterThan(
       Number(cementOf(fifty).purchaseQuantity),
     );
     expect(cementOf(ninetyFour).purchaseUnit).toBe("bags of 42.6 kg");
-    expect(cementOf(fifty).purchaseUnit).toBe(`bags of ${CEMENT_BAG_KG} kg`);
+    expect(cementOf(fifty).purchaseUnit).toBe(
+      `bags of ${CEMENT_BAG_KG} kg (assumed pack weight)`,
+    );
   });
 
   it("derives the bag volume from mass and density", () => {
     const cement = blockworkAssembly(10, { mix: { cement: 1, sand: 6 } }).find(
       (l) => l.material === "Cement",
     )!;
-    expect(Number(cement.derivation.inputs?.bagM3)).toBeCloseTo(50 / CEMENT_DENSITY_KG_M3, 4);
+    expect(Number(cement.derivation.inputs?.bagM3)).toBeCloseTo(
+      50 / CEMENT_DENSITY_KG_M3,
+      4,
+    );
     expect(cement.derivation.inputs?.bagKg).toBe(50);
   });
 });
