@@ -29,12 +29,37 @@ const siteKeyCandidates: unknown[] = [
   import.meta.env.VITE_CLOUDFL_TURNSTILE_SITE_KEY,
 ];
 
-export const TURNSTILE_SITE_KEY =
-  siteKeyCandidates
-    .map((value) => (typeof value === "string" ? value.trim() : ""))
-    // First non-empty wins: a defined-but-empty var must not stop the search,
-    // which is how an unset canonical name would otherwise hide a set alias.
-    .find((value) => value.length > 0) ?? "";
+/**
+ * The published site key, shipped as the default.
+ *
+ * A Turnstile site key is public: it is handed to every browser that loads the
+ * challenge. Production was built without any of the environment variables
+ * above, so `turnstileConfigured` was false and the widget silently rendered
+ * nothing on sign-in, sign-up and password reset. Baking the key in means the
+ * challenge appears on any build, and the variables still win when they are
+ * set, so rotating the key stays a build-time change.
+ */
+const BUILT_IN_SITE_KEY = "0x4AAAAAAF-p_V7JfcjyHG2q";
+
+/**
+ * First non-empty value wins, so a defined-but-empty canonical variable cannot
+ * hide a set alias. Local development gets no default: the verify function
+ * only accepts the production hostnames, so a widget there would collect a
+ * token it can never pass.
+ */
+export function resolveSiteKey(candidates: unknown[], isDev: boolean): string {
+  const fromEnvironment =
+    candidates
+      .map((value) => (typeof value === "string" ? value.trim() : ""))
+      .find((value) => value.length > 0) ?? "";
+  if (fromEnvironment) return fromEnvironment;
+  return isDev ? "" : BUILT_IN_SITE_KEY;
+}
+
+export const TURNSTILE_SITE_KEY = resolveSiteKey(
+  siteKeyCandidates,
+  Boolean(import.meta.env.DEV),
+);
 
 export const turnstileConfigured = TURNSTILE_SITE_KEY.length > 0;
 

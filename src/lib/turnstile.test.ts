@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveSiteKey } from "./turnstile";
 
 const invoke = vi.fn();
 vi.mock("@/lib/supabase", () => ({
@@ -68,6 +69,24 @@ describe("verifyTurnstileToken", () => {
     const { TURNSTILE_SITE_KEY, turnstileConfigured } = await loadModule();
     expect(turnstileConfigured).toBe(true);
     expect(TURNSTILE_SITE_KEY).toBe("0x4AAAAAAA_shortened");
+  });
+
+  it("falls back to the published key on a production build with no variable", () => {
+    // The production build had none of the aliases set, so the widget rendered
+    // nothing at all. The public key now ships as the default.
+    expect(resolveSiteKey([undefined, "", "  "], false)).toBe(
+      "0x4AAAAAAF-p_V7JfcjyHG2q",
+    );
+  });
+
+  it("keeps local development quiet, where the token could never verify", () => {
+    expect(resolveSiteKey([undefined, ""], true)).toBe("");
+  });
+
+  it("still prefers a configured variable over the built-in key", () => {
+    expect(resolveSiteKey(["", "0x4AAAAAAA_rotated"], false)).toBe(
+      "0x4AAAAAAA_rotated",
+    );
   });
 
   it("fails open with not-configured when no site key is configured", async () => {
