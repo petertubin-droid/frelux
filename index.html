@@ -223,6 +223,12 @@
     <link rel="dns-prefetch" href="https://nfgaaohweygwydoelxnf.supabase.co" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+    <!-- Turnstile runs on sign-in, sign-up and the contact form: warm the
+         connection so the challenge is not waiting on a cold TLS handshake. -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com" crossorigin />
+    <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+    <!-- Image delivery for marketplace photos and uploaded assets. -->
+    <link rel="dns-prefetch" href="https://files.freluxtools.com" />
     <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
     <link rel="dns-prefetch" href="https://quge5.com" />
     <link rel="dns-prefetch" href="https://omg10.com" />

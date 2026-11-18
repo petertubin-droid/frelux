@@ -63,6 +63,14 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Fonts and brand marks: stable URLs, so cache them for a year. They are not
+# content-hashed, so no `immutable`: a hard reload still revalidates.
+/fonts/*
+  Cache-Control: public, max-age=31536000
+
+/brand/*
+  Cache-Control: public, max-age=31536000
+
 # HTML files: short cache with revalidation
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
