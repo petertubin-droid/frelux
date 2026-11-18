@@ -1,5 +1,6 @@
 import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, useRef } from "react";
+import { useAreaUnit } from "@/lib/use-length-unit";
 import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
@@ -175,6 +176,11 @@ export default function ScreedingCalculator({
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding" });
 
+  // The engine answers in square metres; the visitor reads the unit they
+  // measure in, so every result goes through one conversion.
+  const areaUnit = useAreaUnit();
+  const shownArea = (m2: number) => areaUnit.fromSqm(m2);
+
   const [screedingResult, setScreedingResult] = useState<{
     totalAreaM2: number;
     steps: { label: string; formula: string; value: string }[];
@@ -216,7 +222,7 @@ export default function ScreedingCalculator({
   const engineExplanation = screedingResult
     ? engine.buildExplanation({
         subject: "Screeding Area Calculation",
-        resultSummary: `${screedingResult.totalAreaM2.toFixed(2)} m² total screeding area`,
+        resultSummary: `${shownArea(screedingResult.totalAreaM2).toFixed(2)} ${areaUnit.label} total screeding area`,
         steps: screedingResult.steps.map((s) => ({
           description: `${s.label}: ${s.formula}`,
           value: s.value,
@@ -369,11 +375,15 @@ export default function ScreedingCalculator({
                 Total {finishTerm} Area
               </p>
               <p className="relative mt-3 text-4xl font-bold text-foreground dark:text-primary-foreground">
-                {formatNumber(screedingResult.totalAreaM2, 2)}{" "}
-                <span className="text-2xl text-muted-foreground">m²</span>
+                {formatNumber(shownArea(screedingResult.totalAreaM2), 2)}{" "}
+                <span className="text-2xl text-muted-foreground">
+                  {areaUnit.label}
+                </span>
               </p>
               <p className="relative mt-1 text-xs text-muted-foreground">
-                {t("Surface area in square metres")}
+                {areaUnit.label === "sq ft"
+                  ? "Surface area in square feet"
+                  : t("Surface area in square metres")}
               </p>
             </div>
 
@@ -434,7 +444,7 @@ export default function ScreedingCalculator({
                         { label: "Finish", value: finishTerm },
                         {
                           label: "Surface area",
-                          value: `${formatNumber(screedingResult.totalAreaM2, 2)} m²`,
+                          value: `${formatNumber(shownArea(screedingResult.totalAreaM2), 2)} ${areaUnit.label}`,
                         },
                       ],
                       lineItems: [],
@@ -455,7 +465,7 @@ export default function ScreedingCalculator({
                     { label: "Finish", value: finishTerm },
                     {
                       label: "Surface area",
-                      value: `${formatNumber(screedingResult.totalAreaM2, 2)} m²`,
+                      value: `${formatNumber(shownArea(screedingResult.totalAreaM2), 2)} ${areaUnit.label}`,
                     },
                   ],
                   note: "Area only. Material quantities are calculated in the cost estimate, which applies coverage rates and waste.",
@@ -469,7 +479,7 @@ export default function ScreedingCalculator({
               <SaveToProjectButton
                 calculatorType="screeding"
                 calculatorSlug="screeding-calculator"
-                calcTitle={`${finishTerm}: ${formatNumber(screedingResult.totalAreaM2, 2)} m²`}
+                calcTitle={`${finishTerm}: ${formatNumber(shownArea(screedingResult.totalAreaM2), 2)} ${areaUnit.label}`}
                 calcData={{
                   totalAreaM2: screedingResult.totalAreaM2,
                   steps: screedingResult.steps,
