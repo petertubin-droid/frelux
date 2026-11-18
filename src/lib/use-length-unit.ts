@@ -8,7 +8,7 @@
  */
 import { useCallback, useState } from "react";
 import type { Unit } from "@/types";
-import { unitShortLabel, unitToMeters } from "@/lib/utils";
+import { SQFT_PER_SQM, unitShortLabel, unitToMeters } from "@/lib/utils";
 
 export interface LengthUnit {
   /** The unit the visitor is typing in. */
@@ -45,4 +45,64 @@ export function useLengthUnit(defaultUnit: Unit = "feet"): LengthUnit {
   );
 
   return { unit, setUnit, toMetres, fromMetres, label: unitShortLabel(unit) };
+}
+
+// ─────────────────────────────────────────────────────────
+// Area: the companion to the length unit, for floor and wall areas
+// ─────────────────────────────────────────────────────────
+
+/** Area entry unit: square feet or square metres. */
+export type AreaInputUnit = "sqft" | "sqm";
+
+/** Convert a typed area to square metres (canonical). */
+export function areaToSquareMetres(value: number, unit: AreaInputUnit): number {
+  if (!Number.isFinite(value)) return 0;
+  return unit === "sqft" ? value / SQFT_PER_SQM : value;
+}
+
+/** Convert square metres back into the visitor's area unit. */
+export function squareMetresToArea(sqm: number, unit: AreaInputUnit): number {
+  if (!Number.isFinite(sqm)) return 0;
+  return unit === "sqft" ? sqm * SQFT_PER_SQM : sqm;
+}
+
+/** Suffix for an area field or result: sq ft or m². */
+export function areaUnitLabel(unit: AreaInputUnit): string {
+  return unit === "sqft" ? "sq ft" : "m²";
+}
+
+export interface AreaUnit {
+  /** The area unit the visitor is typing and reading in. */
+  unit: AreaInputUnit;
+  setUnit: (unit: AreaInputUnit) => void;
+  /** Convert a typed area to square metres for the engine. */
+  toSqm: (value: string | number) => number;
+  /** Convert a stated number of square metres into the visitor's unit. */
+  fromSqm: (sqm: number) => number;
+  /** Short suffix for an input or result: sq ft, m². */
+  label: string;
+}
+
+/**
+ * One area unit per calculator page, square feet first, matching the length
+ * hook so a page never mixes a feet dimension with a square metre area.
+ */
+export function useAreaUnit(defaultUnit: AreaInputUnit = "sqft"): AreaUnit {
+  const [unit, setUnit] = useState<AreaInputUnit>(defaultUnit);
+
+  const toSqm = useCallback(
+    (value: string | number) => {
+      if (value === "" || value === null || value === undefined) return 0;
+      const numeric = typeof value === "number" ? value : Number(value);
+      return areaToSquareMetres(numeric, unit);
+    },
+    [unit],
+  );
+
+  const fromSqm = useCallback(
+    (sqm: number) => squareMetresToArea(sqm, unit),
+    [unit],
+  );
+
+  return { unit, setUnit, toSqm, fromSqm, label: areaUnitLabel(unit) };
 }
