@@ -137,6 +137,7 @@ import type {
   QuoteTaxResolution,
 } from "@/lib/tax/quote-tax";
 import { computeQuoteTax } from "@/lib/tax/quote-tax";
+import { activeLocaleTag } from "@/lib/i18n";
 import {
   CIS_SCHEME_LABELS,
   computeCanadaSalesTax,
@@ -333,7 +334,11 @@ export function buildQuotation(params: {
 
   // India GST: HSN/SAC code matching per line, CGST/SGST or IGST by state pair.
   let indiaGst: IndiaGstResult | null = null;
-  if (settings.indiaSupplierState && settings.indiaPlaceOfSupplyState && settings.indiaItems?.length) {
+  if (
+    settings.indiaSupplierState &&
+    settings.indiaPlaceOfSupplyState &&
+    settings.indiaItems?.length
+  ) {
     indiaGst = computeIndiaGst({
       items: settings.indiaItems,
       supplierState: settings.indiaSupplierState,
@@ -369,7 +374,8 @@ export function buildQuotation(params: {
     : null;
   const cisDeduction = cis?.deduction ?? 0;
   const netPayable = Math.round((grandTotal - cisDeduction) * 100) / 100;
-  const canadaTaxResult = canadaTax && canadaTax.errors.length === 0 ? canadaTax : null;
+  const canadaTaxResult =
+    canadaTax && canadaTax.errors.length === 0 ? canadaTax : null;
   const indiaGstResult = indiaGst ? indiaGst : null;
 
   const currency = settings.currency;
@@ -424,8 +430,12 @@ export function buildQuotation(params: {
     item.category,
     item.quantity.toString(),
     item.quantityUnit,
-    item.hasPrice ? `${item.unitPrice.toLocaleString()} ${currency}` : "",
-    item.hasPrice ? `${item.lineTotal.toLocaleString()} ${currency}` : "",
+    item.hasPrice
+      ? `${item.unitPrice.toLocaleString(activeLocaleTag())} ${currency}`
+      : "",
+    item.hasPrice
+      ? `${item.lineTotal.toLocaleString(activeLocaleTag())} ${currency}`
+      : "",
   ]);
   const matFooters = [
     [
@@ -434,7 +444,7 @@ export function buildQuotation(params: {
       "",
       "",
       "Materials Total",
-      `${materialsTotal.toLocaleString()} ${currency}`,
+      `${materialsTotal.toLocaleString(activeLocaleTag())} ${currency}`,
     ],
   ];
 
@@ -460,8 +470,12 @@ export function buildQuotation(params: {
       item.tradeLabel,
       item.quantity.toString(),
       item.unit,
-      item.hasRate ? `${item.ratePerUnit.toLocaleString()} ${currency}` : "",
-      item.hasRate ? `${item.lineTotal.toLocaleString()} ${currency}` : "",
+      item.hasRate
+        ? `${item.ratePerUnit.toLocaleString(activeLocaleTag())} ${currency}`
+        : "",
+      item.hasRate
+        ? `${item.lineTotal.toLocaleString(activeLocaleTag())} ${currency}`
+        : "",
     ]);
     const labFooters = [
       [
@@ -470,7 +484,7 @@ export function buildQuotation(params: {
         "",
         "",
         "Labour Total",
-        `${labourTotal.toLocaleString()} ${currency}`,
+        `${labourTotal.toLocaleString(activeLocaleTag())} ${currency}`,
       ],
     ];
 
@@ -486,14 +500,17 @@ export function buildQuotation(params: {
   const summaryFields: { label: string; value: string }[] = [
     {
       label: "Materials",
-      value: `${materialsTotal.toLocaleString()} ${currency}`,
+      value: `${materialsTotal.toLocaleString(activeLocaleTag())} ${currency}`,
     },
-    { label: "Labour", value: `${labourTotal.toLocaleString()} ${currency}` },
+    {
+      label: "Labour",
+      value: `${labourTotal.toLocaleString(activeLocaleTag())} ${currency}`,
+    },
   ];
   if (contingencyPercent > 0) {
     summaryFields.push({
       label: `Contingency (${contingencyPercent}%)`,
-      value: `${contingencyAmount.toLocaleString()} ${currency}`,
+      value: `${contingencyAmount.toLocaleString(activeLocaleTag())} ${currency}`,
     });
   }
   const hasComputedComponents = taxComputation !== null && taxAmount > 0;
@@ -506,12 +523,12 @@ export function buildQuotation(params: {
         taxPercent === null
           ? `Tax (component-level, verified: ${taxResolution?.rule?.code ?? "rule"}${basisLabel})`
           : `Tax (${taxPercent}%, verified: ${taxResolution?.rule?.code ?? taxResolution?.source}${basisLabel})`,
-      value: `${taxAmount.toLocaleString()} ${currency}`,
+      value: `${taxAmount.toLocaleString(activeLocaleTag())} ${currency}`,
     });
     for (const line of taxComputation!.lines) {
       summaryFields.push({
-        label: `  ${line.name} (${line.ratePct}%${line.compoundedOn ? ` on ${line.base.toLocaleString()} ${currency}` : ""})`,
-        value: `${line.amount.toLocaleString()} ${currency}`,
+        label: `  ${line.name} (${line.ratePct}%${line.compoundedOn ? ` on ${line.base.toLocaleString(activeLocaleTag())} ${currency}` : ""})`,
+        value: `${line.amount.toLocaleString(activeLocaleTag())} ${currency}`,
       });
     }
     if (taxResolution?.citation) {
@@ -527,7 +544,7 @@ export function buildQuotation(params: {
         : "";
     summaryFields.push({
       label: `Tax (${taxPercent}%${manualLabel})`,
-      value: `${taxAmount.toLocaleString()} ${currency}`,
+      value: `${taxAmount.toLocaleString(activeLocaleTag())} ${currency}`,
     });
   } else {
     summaryFields.push({
@@ -538,12 +555,12 @@ export function buildQuotation(params: {
   if (salesTax && salesTax.errors.length === 0) {
     summaryFields.push({
       label: `Sales tax (${salesTax.combinedRatePct}% combined, materials base)`,
-      value: `${salesTax.totalTax.toLocaleString()} ${currency}`,
+      value: `${salesTax.totalTax.toLocaleString(activeLocaleTag())} ${currency}`,
     });
     for (const line of salesTax.lines) {
       summaryFields.push({
-        label: `  ${line.name} (${line.ratePct}% on ${line.base.toLocaleString()} ${currency})`,
-        value: `${line.amount.toLocaleString()} ${currency}`,
+        label: `  ${line.name} (${line.ratePct}% on ${line.base.toLocaleString(activeLocaleTag())} ${currency})`,
+        value: `${line.amount.toLocaleString(activeLocaleTag())} ${currency}`,
       });
     }
   }
@@ -556,23 +573,23 @@ export function buildQuotation(params: {
   if (reverseCharge?.applies) {
     summaryFields.push({
       label: `VAT ${reverseCharge.ratePct}% — domestic reverse charge`,
-      value: `0 ${currency} charged; customer accounts for ${reverseCharge.amountAccountedByCustomer.toLocaleString()} ${currency}`,
+      value: `0 ${currency} charged; customer accounts for ${reverseCharge.amountAccountedByCustomer.toLocaleString(activeLocaleTag())} ${currency}`,
     });
   }
   if (cis) {
     summaryFields.push({
       label: `CIS deduction on labour (${cis.ratePct}%, ${CIS_SCHEME_LABELS[cis.scheme]})`,
-      value: `−${cisDeduction.toLocaleString()} ${currency}`,
+      value: `−${cisDeduction.toLocaleString(activeLocaleTag())} ${currency}`,
     });
   }
   summaryFields.push({
     label: "GRAND TOTAL",
-    value: `${grandTotal.toLocaleString()} ${currency}`,
+    value: `${grandTotal.toLocaleString(activeLocaleTag())} ${currency}`,
   });
   if (cis) {
     summaryFields.push({
       label: "NET PAYABLE AFTER CIS",
-      value: `${netPayable.toLocaleString()} ${currency}`,
+      value: `${netPayable.toLocaleString(activeLocaleTag())} ${currency}`,
     });
   }
   summaryFields.push({
@@ -626,18 +643,22 @@ export function buildQuotation(params: {
   // Explanation
   const explanation: string[] = [];
   explanation.push(`Quotation ${quotationNumber} generated on ${dateIssued}`);
-  explanation.push(`Materials: ${materialsTotal.toLocaleString()} ${currency}`);
-  explanation.push(`Labour: ${labourTotal.toLocaleString()} ${currency}`);
+  explanation.push(
+    `Materials: ${materialsTotal.toLocaleString(activeLocaleTag())} ${currency}`,
+  );
+  explanation.push(
+    `Labour: ${labourTotal.toLocaleString(activeLocaleTag())} ${currency}`,
+  );
   if (contingencyAmount > 0) {
     explanation.push(
-      `Contingency: ${contingencyAmount.toLocaleString()} ${currency}`,
+      `Contingency: ${contingencyAmount.toLocaleString(activeLocaleTag())} ${currency}`,
     );
   }
   if (salesTax) {
     for (const note of salesTax.notes) explanation.push(note);
     for (const line of salesTax.lines) {
       explanation.push(
-        `${line.name}: ${line.amount.toLocaleString()} ${currency} on ${line.base.toLocaleString()} ${currency} (${line.ratePct}%)`,
+        `${line.name}: ${line.amount.toLocaleString(activeLocaleTag())} ${currency} on ${line.base.toLocaleString(activeLocaleTag())} ${currency} (${line.ratePct}%)`,
       );
     }
     for (const err of salesTax.errors) {
@@ -650,7 +671,7 @@ export function buildQuotation(params: {
   if (cis) {
     for (const note of cis.notes) explanation.push(note);
     explanation.push(
-      `CIS deduction: ${cis.ratePct}% of ${cis.basis.toLocaleString()} ${currency} labour = ${cisDeduction.toLocaleString()} ${currency}; net payable ${netPayable.toLocaleString()} ${currency}.`,
+      `CIS deduction: ${cis.ratePct}% of ${cis.basis.toLocaleString(activeLocaleTag())} ${currency} labour = ${cisDeduction.toLocaleString(activeLocaleTag())} ${currency}; net payable ${netPayable.toLocaleString(activeLocaleTag())} ${currency}.`,
     );
   }
   if (taxAmount > 0) {
@@ -660,7 +681,9 @@ export function buildQuotation(params: {
         : taxResolution?.kind === "verified_rule"
           ? `Tax (${taxResolution.rule?.code ?? "verified rule"})`
           : "Tax";
-    explanation.push(`${label}: ${taxAmount.toLocaleString()} ${currency}`);
+    explanation.push(
+      `${label}: ${taxAmount.toLocaleString(activeLocaleTag())} ${currency}`,
+    );
     if (taxComputation?.basisInclusive) {
       explanation.push(
         "Tax is included in the quoted prices (inclusive basis).",
@@ -668,7 +691,7 @@ export function buildQuotation(params: {
     }
     for (const line of taxComputation?.lines ?? []) {
       explanation.push(
-        `${line.name}: ${line.amount.toLocaleString()} ${currency} on ${line.base.toLocaleString()} ${currency} (${line.ratePct}%)`,
+        `${line.name}: ${line.amount.toLocaleString(activeLocaleTag())} ${currency} on ${line.base.toLocaleString(activeLocaleTag())} ${currency} (${line.ratePct}%)`,
       );
     }
     if (taxResolution?.kind === "verified_rule" && taxResolution.citation) {
@@ -681,7 +704,9 @@ export function buildQuotation(params: {
       "Tax: not determined for this project location (pre-tax estimate)",
     );
   }
-  explanation.push(`Grand total: ${grandTotal.toLocaleString()} ${currency}`);
+  explanation.push(
+    `Grand total: ${grandTotal.toLocaleString(activeLocaleTag())} ${currency}`,
+  );
   explanation.push(`Valid until: ${validUntil}`);
 
   // Phase 1 Sourcing: CIS, Reverse Charge VAT & Retainage.
@@ -689,12 +714,23 @@ export function buildQuotation(params: {
   // flat cisRatePercent shortcut applies only on its own.
   const cisRate = cis ? 0 : Math.max(0, settings.cisRatePercent ?? 0);
   const cisDeductionAmount =
-    cisRate > 0
-      ? Math.round((labourTotal * cisRate) / 100 * 100) / 100
-      : 0;
+    cisRate > 0 ? Math.round(((labourTotal * cisRate) / 100) * 100) / 100 : 0;
   const retRate = Math.max(0, settings.retainagePercent ?? 0);
-  const retainageAmount = retRate > 0 ? Math.round(((materialsTotal + labourTotal + contingencyAmount) * retRate) / 100 * 100) / 100 : 0;
-  const netPayableToContractor = Math.round((grandTotal - (cis ? cisDeduction : cisDeductionAmount) - retainageAmount) * 100) / 100;
+  const retainageAmount =
+    retRate > 0
+      ? Math.round(
+          (((materialsTotal + labourTotal + contingencyAmount) * retRate) /
+            100) *
+            100,
+        ) / 100
+      : 0;
+  const netPayableToContractor =
+    Math.round(
+      (grandTotal -
+        (cis ? cisDeduction : cisDeductionAmount) -
+        retainageAmount) *
+        100,
+    ) / 100;
 
   return {
     quotationNumber,
@@ -768,30 +804,32 @@ function buildShareText(params: {
   lines.push("");
   lines.push("--- Cost Summary ---");
   lines.push(
-    `Materials: ${params.materialsTotal.toLocaleString()} ${params.currency}`,
+    `Materials: ${params.materialsTotal.toLocaleString(activeLocaleTag())} ${params.currency}`,
   );
   lines.push(
-    `Labour: ${params.labourTotal.toLocaleString()} ${params.currency}`,
+    `Labour: ${params.labourTotal.toLocaleString(activeLocaleTag())} ${params.currency}`,
   );
   if (params.contingencyAmount > 0) {
     lines.push(
-      `Contingency: ${params.contingencyAmount.toLocaleString()} ${params.currency}`,
+      `Contingency: ${params.contingencyAmount.toLocaleString(activeLocaleTag())} ${params.currency}`,
     );
   }
   if (params.taxAmount > 0) {
-    lines.push(`Tax: ${params.taxAmount.toLocaleString()} ${params.currency}`);
+    lines.push(
+      `Tax: ${params.taxAmount.toLocaleString(activeLocaleTag())} ${params.currency}`,
+    );
   }
   if (typeof params.cisDeduction === "number" && params.cisDeduction > 0) {
     lines.push(
-      `CIS deduction: −${params.cisDeduction.toLocaleString()} ${params.currency}`,
+      `CIS deduction: −${params.cisDeduction.toLocaleString(activeLocaleTag())} ${params.currency}`,
     );
   }
   lines.push(
-    `*Grand Total: ${params.grandTotal.toLocaleString()} ${params.currency}*`,
+    `*Grand Total: ${params.grandTotal.toLocaleString(activeLocaleTag())} ${params.currency}*`,
   );
   if (typeof params.netPayable === "number" && params.cisDeduction) {
     lines.push(
-      `Net payable after CIS: ${params.netPayable.toLocaleString()} ${params.currency}`,
+      `Net payable after CIS: ${params.netPayable.toLocaleString(activeLocaleTag())} ${params.currency}`,
     );
   }
   lines.push("");

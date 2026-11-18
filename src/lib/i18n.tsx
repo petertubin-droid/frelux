@@ -88,6 +88,31 @@ export const LANGUAGES: {
   { value: "nl", label: "Dutch", nativeLabel: "Nederlands", flag: "🇳🇱" },
 ];
 
+/**
+ * BCP-47 tag used for number and date formatting in each language, so a
+ * visitor reading German sees 1.234,56 rather than 1,234.56.
+ */
+export const LANGUAGE_LOCALE_TAGS: Record<Language, string> = {
+  en: "en-GB",
+  es: "es-ES",
+  fr: "fr-FR",
+  de: "de-DE",
+  pt: "pt-PT",
+  ru: "ru-RU",
+  id: "id-ID",
+  sw: "sw-KE",
+  ar: "ar-EG",
+  hi: "hi-IN",
+  zh: "zh-CN",
+  ja: "ja-JP",
+  nl: "nl-NL",
+};
+
+/** Locale tag of the language the visitor is currently reading. */
+export function activeLocaleTag(): string {
+  return LANGUAGE_LOCALE_TAGS[activeLanguage] ?? "en-GB";
+}
+
 /** URL path prefix per language - every language gets a locale URL. */
 export const LOCALE_ROUTES: { value: Language; path: string }[] = LANGUAGES.map(
   (l) => ({ value: l.value, path: l.value }),

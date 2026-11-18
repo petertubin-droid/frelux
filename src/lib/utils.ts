@@ -13,7 +13,7 @@ import type {
 } from "@/types";
 
 export function formatNumber(value: number, fractionDigits = 2): string {
-  return value.toLocaleString("en-US", {
+  return value.toLocaleString(activeLocaleTag(), {
     minimumFractionDigits: 0,
     maximumFractionDigits: fractionDigits,
   });
@@ -87,6 +87,7 @@ export function formatArea(
 
 import type { Unit } from "@/types";
 import { LENGTH_TO_M } from "@/lib/convert/units";
+import { activeLocaleTag } from "@/lib/i18n";
 
 /**
  * Metres per unit for every Unit, taken from the one module that defines SI so
