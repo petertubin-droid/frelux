@@ -27,13 +27,23 @@
  */
 
 import {
+  Suspense,
   createContext,
+  lazy,
   useContext,
   useEffect,
   useState,
   type ReactNode,
 } from "react";
-import { GoogleTranslateSync } from "@/components/ui/GoogleTranslate";
+// The Google Translate sync layer is only needed once the provider has
+// mounted, and it drags the page translator with it. Loading it as its own
+// chunk keeps that machinery out of the entry bundle without changing when
+// a locale switch is applied.
+const GoogleTranslateSync = lazy(() =>
+  import("@/components/ui/GoogleTranslate").then((mod) => ({
+    default: mod.GoogleTranslateSync,
+  })),
+);
 // Currency grouping follows the active language (i18n batch 2026-10-23).
 import { setActiveCurrencyLocale } from "@/lib/international/currency-format";
 
@@ -369,7 +379,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     <LanguageContext.Provider
       value={{ language, setLanguage, t, loadedLanguage }}
     >
-      <GoogleTranslateSync language={language} />
+      <Suspense fallback={null}>
+        <GoogleTranslateSync language={language} />
+      </Suspense>
       {children}
     </LanguageContext.Provider>
   );

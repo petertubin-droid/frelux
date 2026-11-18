@@ -14,7 +14,7 @@ import {
 import { CurrencyProvider } from "@/lib/international/currency-context";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { DisplayPreferencesProvider } from "@/lib/display-preferences";
-import { Toaster } from "@/components/ui/shadcn/toast";
+import { LazyToaster } from "@/components/ui/LazyToaster";
 import { initErrorMonitor } from "@/lib/errorMonitor";
 import { installChunkReloadHandler } from "@/lib/chunk-reload";
 
@@ -42,7 +42,7 @@ function mount() {
               <AccessibilityProvider>
                 <BrandingProvider>
                   <App />
-                  <Toaster />
+                  <LazyToaster />
                 </BrandingProvider>
               </AccessibilityProvider>
             </DisplayPreferencesProvider>
