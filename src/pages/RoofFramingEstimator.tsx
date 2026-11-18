@@ -38,6 +38,7 @@ import {
   type RoofFramingInput,
   type RoofFramingResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -129,6 +130,8 @@ export default function RoofFramingEstimator() {
     setResult(null);
   };
   const { t } = useLanguage();
+  // The tributary area is typed in the market's unit and looked up in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
   const engineAccess = useEngineAccess("/roof-framing-calculator");
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState<RoofFramingResult | null>(null);
@@ -280,7 +283,7 @@ export default function RoofFramingEstimator() {
     }
     const response = lookupNigeriaRoofLiveLoad(
       Number(designForm.roofRiseMMPerM),
-      Number(designForm.tributaryAreaM2),
+      areaUnit.toSqm(designForm.tributaryAreaM2),
     );
     setRoofLoadErrors(response.errors);
     setRoofLoadReference(response.data);
@@ -1026,9 +1029,9 @@ export default function RoofFramingEstimator() {
                       />
                     </label>
                     <label className="grid gap-1 text-sm font-medium">
-                      Member tributary loaded area (m²)
+                      {`Member tributary loaded area (${areaUnit.label})`}
                       <input
-                        aria-label={t("Member tributary loaded area (m²)")}
+                        aria-label={`${t("Member tributary loaded area")} (${areaUnit.label})`}
                         className={inputClass}
                         type="number"
                         min="0"

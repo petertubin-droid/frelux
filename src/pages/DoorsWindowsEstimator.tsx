@@ -68,6 +68,7 @@ import type {
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 type NumField =
   | "flush_doors"
@@ -105,6 +106,8 @@ export default function DoorsWindowsEstimator() {
     setResult(null);
   };
   const { t } = useLanguage();
+  // Glazed areas are typed in the market's unit and converted once for the engine.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
 
@@ -213,8 +216,10 @@ export default function DoorsWindowsEstimator() {
       security_doors: num(counts.security_doors),
       aluminium_windows: num(counts.aluminium_windows),
       louvre_windows: num(counts.louvre_windows),
-      glazed_area_m2: glazing.area.trim() === "" ? null : num(glazing.area),
-      pane_area_m2: glazing.pane.trim() === "" ? null : num(glazing.pane),
+      glazed_area_m2:
+        glazing.area.trim() === "" ? null : areaUnit.toSqm(glazing.area),
+      pane_area_m2:
+        glazing.pane.trim() === "" ? null : areaUnit.toSqm(glazing.pane),
       glass_thickness_mm:
         glazing.thickness.trim() === "" ? null : num(glazing.thickness),
       include_locksets: includeLocksets,
@@ -225,7 +230,7 @@ export default function DoorsWindowsEstimator() {
         lump_sum: labourMode === "lump_sum" ? Number(labourRate) || null : null,
       },
     };
-  }, [counts, includeLocksets, labourMode, labourRate]);
+  }, [counts, glazing, includeLocksets, labourMode, labourRate, areaUnit]);
 
   const run = useCallback(() => {
     const res = calculateDoorsWindows(input, rules, effectivePrices);
@@ -436,12 +441,13 @@ export default function DoorsWindowsEstimator() {
   return (
     <ToolShell route="/doors-windows">
       <Container>
-
-
         <MarketScopeNotice />
         {bookFreshness && (
           <div className="mt-4">
-            <PriceFreshnessNotice bookSummary={bookFreshness} className="mt-0" />
+            <PriceFreshnessNotice
+              bookSummary={bookFreshness}
+              className="mt-0"
+            />
           </div>
         )}
         {marketCode !== "NG" && (
@@ -495,10 +501,11 @@ export default function DoorsWindowsEstimator() {
           </div>
           <h3 className="mb-1 font-semibold">{t("Door and window counts")}</h3>
           <p className="mb-2 text-xs text-muted-foreground">
-            The engine never invents openings. Enter the counts from your drawing
-            or site survey; leave a type at 0 if you have none. Frames, hinges and
-            locksets are derived and labelled in the breakdown; unit prices must
-            match the sizes the configured: confirm actual sizes on site.
+            The engine never invents openings. Enter the counts from your
+            drawing or site survey; leave a type at 0 if you have none. Frames,
+            hinges and locksets are derived and labelled in the breakdown; unit
+            prices must match the sizes the configured: confirm actual sizes on
+            site.
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
@@ -514,19 +521,19 @@ export default function DoorsWindowsEstimator() {
           <h3 className="mt-5 mb-2 font-semibold">{t("Glazed envelope")}</h3>
           <p className="mb-2 text-xs text-muted-foreground">
             {t(
-              "For large or varied glazing where counting standard units would be wrong, enter the measured glass area. It is priced per m²; the pane count rounds up because a part pane is bought whole.",
+              "For large or varied glazing where counting standard units would be wrong, enter the measured glass area. It is priced per square unit; the pane count rounds up because a part pane is bought whole.",
             )}
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {numberInput(
-              t("Measured glazed area (m²)"),
+              `${t("Measured glazed area")} (${areaUnit.label})`,
               glazing.area,
               (v) => setGlazing((g) => ({ ...g, area: v })),
               "0",
               "glazed-area",
             )}
             {numberInput(
-              t("Area of one pane (m²)"),
+              `${t("Area of one pane")} (${areaUnit.label})`,
               glazing.pane,
               (v) => setGlazing((g) => ({ ...g, pane: v })),
               "optional",
@@ -561,7 +568,9 @@ export default function DoorsWindowsEstimator() {
                 className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
               >
                 <option value="none">{t("Not included")}</option>
-                <option value="per_door">{t("Per unit installed (rate)")}</option>
+                <option value="per_door">
+                  {t("Per unit installed (rate)")}
+                </option>
                 <option value="lump_sum">{t("Lump sum")}</option>
               </select>
             </label>
@@ -575,8 +584,8 @@ export default function DoorsWindowsEstimator() {
               )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Labour is always separate from material quantities and is never added
-            automatically.
+            Labour is always separate from material quantities and is never
+            added automatically.
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -779,11 +788,14 @@ export default function DoorsWindowsEstimator() {
                       <li key={m}>{m}</li>
                     ))}
                     {result.lines
-                      .filter((l) => l.unit_price === null && l.quantity !== null)
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
                       .map((l) => (
                         <li key={l.key}>
-                          {l.label}: PRICE NOT CONFIGURED in the material database
-                          : the quantity is shown, but no price was invented.
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
                         </li>
                       ))}
                   </ul>
@@ -847,7 +859,9 @@ export default function DoorsWindowsEstimator() {
 
             {/* Breakdown */}
             <div className="mb-6 rounded-lg border bg-card p-4">
-              <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
               <ol className="space-y-2 text-sm">
                 {result.steps.map((s, i) => (
                   <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -914,7 +928,9 @@ export default function DoorsWindowsEstimator() {
 
         {/* How it works */}
         <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-          <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
           <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
             <li>
               Door leaves and window units take your counts directly. Frames
@@ -925,12 +941,13 @@ export default function DoorsWindowsEstimator() {
             </li>
             <li>
               An all-zero schedule is reported as missing rather than inventing
-              openings. A missing hinge rule is reported too; nothing is guessed.
+              openings. A missing hinge rule is reported too; nothing is
+              guessed.
             </li>
             <li>
-              Prices come from the shared FRELUX material database, configured by
-              FRELUX price tracking. Door and window prices must match the size
-              and finish the configured: confirm actual unit sizes on site.
+              Prices come from the shared FRELUX material database, configured
+              by FRELUX price tracking. Door and window prices must match the
+              size and finish the configured: confirm actual unit sizes on site.
               Unpriced materials show PRICE NOT CONFIGURED, never invented.
             </li>
             <li>
@@ -938,7 +955,6 @@ export default function DoorsWindowsEstimator() {
             </li>
           </ul>
         </section>
-
       </Container>
     </ToolShell>
   );
