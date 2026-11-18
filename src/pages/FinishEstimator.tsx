@@ -76,6 +76,7 @@ import {
 } from "@/lib/location-intelligence";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -94,20 +95,28 @@ interface PassedState {
 }
 
 // Printable professional quote, market-currency formatted.
-function finishQuoteOptions(args: {
-  finishLabel: string;
-  result: FinishCalcResult;
-  labourCost: number;
-  currencySymbol: string;
-}): QuoteOptions {
+
+type AreaFormatter = (m2: number) => string;
+/** Fallback for quote builders called outside a page: plain square metres. */
+const plainArea: AreaFormatter = (m2) => `${formatNumber(m2)} m²`;
+
+function finishQuoteOptions(
+  args: {
+    finishLabel: string;
+    result: FinishCalcResult;
+    labourCost: number;
+    currencySymbol: string;
+  },
+  area: AreaFormatter = plainArea,
+): QuoteOptions {
   const { result, labourCost, currencySymbol } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
   return {
     title: `FRELUX ${args.finishLabel} Estimate`,
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.area)} m² · ${result.coats} coat(s)`,
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${area(args.result.area)} · ${args.result.coats} coat(s)`,
     metaRows: [
       ["Finish", args.finishLabel],
-      ["Area", `${formatNumber(result.area)} m²`],
+      ["Area", area(args.result.area)],
       ["Coats", String(result.coats)],
       ["Waste margin", `${result.wasteMargin}%`],
     ],
@@ -136,8 +145,11 @@ function finishQuoteOptions(args: {
   };
 }
 
-function exportFinishQuote(args: Parameters<typeof finishQuoteOptions>[0]) {
-  printQuote(finishQuoteOptions(args), "frelux-finish-estimate.html");
+function exportFinishQuote(
+  args: Parameters<typeof finishQuoteOptions>[0],
+  area: AreaFormatter = plainArea,
+) {
+  printQuote(finishQuoteOptions(args, area), "frelux-finish-estimate.html");
 }
 
 export default function FinishEstimator({
@@ -164,6 +176,11 @@ export default function FinishEstimator({
     setResult(null);
   };
   const { t } = useLanguage();
+  // Areas are shown in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("finish");
   const passed = (useLocation().state as PassedState | null) ?? {};
@@ -340,7 +357,7 @@ export default function FinishEstimator({
 
   async function handleSave() {
     if (!result) return;
-    const name = `${getFinishTypeLabel(selectedFinish)}, ${formatNumber(result.area)} m²`;
+    const name = `${getFinishTypeLabel(selectedFinish)}, ${area(result.area)}`;
     const { error } = await saveUserProject(
       name,
       "custom",
@@ -737,11 +754,11 @@ export default function FinishEstimator({
             )}
             <ResultCard
               title={`${getFinishTypeLabel(result.finishType)} Estimate`}
-              subtitle={`${formatNumber(result.area)} m², ${result.coats} coat${result.coats > 1 ? "s" : ""}, ${result.wasteMargin}% waste`}
+              subtitle={`${area(result.area)}, ${result.coats} coat${result.coats > 1 ? "s" : ""}, ${result.wasteMargin}% waste`}
               stats={[
                 {
                   label: "Surface Area",
-                  value: `${formatNumber(result.area)} m²`,
+                  value: area(result.area),
                   highlight: true,
                 },
                 {
@@ -792,7 +809,7 @@ export default function FinishEstimator({
                 <SaveToProjectButton
                   calculatorType="finish"
                   calculatorSlug="finish-estimator"
-                  calcTitle={`Finish: ${formatNumber(result.area)} m²`}
+                  calcTitle={`Finish: ${area(result.area)}`}
                   calcData={
                     { ...areaInput, ...result } as Record<string, unknown>
                   }
@@ -951,7 +968,7 @@ export default function FinishEstimator({
                 { label: "Waste margin", value: `${result.wasteMargin}%` },
                 {
                   label: "Surface area",
-                  value: `${formatNumber(result.area)} m²`,
+                  value: area(result.area),
                 },
               ]}
             />

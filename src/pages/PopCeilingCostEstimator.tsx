@@ -60,6 +60,7 @@ import UnitToggle from "@/components/measurement/UnitToggle";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { useWasteBridge } from "@/lib/waste/use-waste-settings";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -69,30 +70,38 @@ interface PassedState {
 }
 
 // Printable professional quote, market-currency formatted.
-function popQuoteOptions(result: {
-  ceilingArea: number;
-  wasteAmount: number;
-  materialCost: number;
-  equipmentCost: number;
-  labourCost: number;
-  grandTotal: number;
-  currencySymbol: string;
-  materials: {
-    name: string;
-    unit: string;
-    category?: string;
-    packagesNeeded: number;
-    cost: number;
-    quantity: number;
-  }[];
-  warnings?: string[];
-}): QuoteOptions {
+
+type AreaFormatter = (m2: number) => string;
+/** Fallback for quote builders called outside a page: plain square metres. */
+const plainArea: AreaFormatter = (m2) => `${formatNumber(m2)} m²`;
+
+function popQuoteOptions(
+  result: {
+    ceilingArea: number;
+    wasteAmount: number;
+    materialCost: number;
+    equipmentCost: number;
+    labourCost: number;
+    grandTotal: number;
+    currencySymbol: string;
+    materials: {
+      name: string;
+      unit: string;
+      category?: string;
+      packagesNeeded: number;
+      cost: number;
+      quantity: number;
+    }[];
+    warnings?: string[];
+  },
+  area: AreaFormatter = plainArea,
+): QuoteOptions {
   return {
     title: "FRELUX POP Ceiling Estimate",
     subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.materials.length} material line(s)`,
     metaRows: [
-      ["Ceiling area", `${formatNumber(result.ceilingArea)} m²`],
-      ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+      ["Ceiling area", `${area(result.ceilingArea)}`],
+      ["Waste allowance", `${area(result.wasteAmount)}`],
       ["Materials", String(result.materials.length)],
     ],
     lines: result.materials.map((m) => ({
@@ -138,14 +147,22 @@ function popQuoteOptions(result: {
   };
 }
 
-function exportPopQuote(args: Parameters<typeof popQuoteOptions>[0]) {
-  printQuote(popQuoteOptions(args), "frelux-pop-ceiling-estimate.html");
+function exportPopQuote(
+  args: Parameters<typeof popQuoteOptions>[0],
+  area: AreaFormatter = plainArea,
+) {
+  printQuote(popQuoteOptions(args, area), "frelux-pop-ceiling-estimate.html");
 }
 
 export default function PopCeilingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { t } = useLanguage();
+  // Areas are shown in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling_cost");
   const { fieldsRef, resultsRef, missing, handleCalculate } =
@@ -653,7 +670,7 @@ export default function PopCeilingCostEstimator({
                   <>
                     <Row
                       label="Ceiling area"
-                      value={`${formatNumber(result.ceilingArea)} m²`}
+                      value={`${area(result.ceilingArea)}`}
                     />
                     <Row
                       label="Material cost"
@@ -682,7 +699,7 @@ export default function PopCeilingCostEstimator({
                     )}
                     <Row
                       label="Waste allowance"
-                      value={`${formatNumber(result.wasteAmount)} m²`}
+                      value={`${area(result.wasteAmount)}`}
                     />
                     <div className="border-t border-border/50 pt-2">
                       <Row
@@ -737,7 +754,7 @@ export default function PopCeilingCostEstimator({
                       <div className="mt-3 flex justify-center">
                         <button
                           type="button"
-                          onClick={() => exportPopQuote(result)}
+                          onClick={() => exportPopQuote(result, area)}
                           className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
                         >
                           {t("Export quote (PDF)")}
@@ -752,7 +769,7 @@ export default function PopCeilingCostEstimator({
                         <ShareEstimateButton
                           showPdf={false}
                           estimate={quoteToShareable(
-                            popQuoteOptions(result),
+                            popQuoteOptions(result, area),
                             "/pop-ceiling-cost-estimator",
                           )}
                           compact
@@ -774,15 +791,15 @@ export default function PopCeilingCostEstimator({
                       <EngineExplanationPanel
                         result={engine.buildExplanation({
                           subject: "POP Ceiling Cost Estimate",
-                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.ceilingArea)} m²`,
+                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${area(result.ceilingArea)}`,
                           steps: [
                             {
                               description: "Ceiling area",
-                              value: `${formatNumber(result.ceilingArea)} m²`,
+                              value: `${area(result.ceilingArea)}`,
                             },
                             {
                               description: "Waste allowance",
-                              value: `${formatNumber(result.wasteAmount)} m²`,
+                              value: `${area(result.wasteAmount)}`,
                             },
                             {
                               description: "Material cost",
