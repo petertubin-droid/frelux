@@ -72,6 +72,7 @@ export default function FoundationCalculator() {
     setWallLoad(40);
     setColumnLoad(200);
     setDepth(0.9);
+    setWaterTableDepth(null);
     setBuildingLength(15);
     setBuildingWidth(10);
     setShowFormulas(false);
@@ -100,6 +101,7 @@ export default function FoundationCalculator() {
     preferredLengthUnit === "feet" ? "imperial" : "metric",
   );
   const [depth, setDepth] = useState(0.9);
+  const [waterTableDepth, setWaterTableDepth] = useState<number | null>(null);
   const { building } = useBuildingSize();
   const [footprintNote, setFootprintNote] = useState<string | null>(null);
   const [buildingLength, setBuildingLength] = useState(15);
@@ -114,6 +116,13 @@ export default function FoundationCalculator() {
 
   const calculate = useCallback(() => {
     const mPerFt = 0.3048;
+    const waterDepthM =
+      waterTableDepth !== null && waterTableDepth > 0
+        ? measurementUnit === "ft"
+          ? waterTableDepth * mPerFt
+          : waterTableDepth
+        : undefined;
+
     const input: FoundationDesignInput = {
       shape,
       soil_type: soilType,
@@ -125,6 +134,8 @@ export default function FoundationCalculator() {
       column_load:
         shape === "pad" ? pointLoadToKn(columnLoad, loadSystem) : undefined,
       foundation_depth: measurementUnit === "ft" ? depth * mPerFt : depth,
+      bearing_method: waterDepthM !== undefined ? "terzaghi" : undefined,
+      ground_water_depth_m: waterDepthM,
       concrete_grade: "C25",
       building_length:
         measurementUnit === "ft" ? buildingLength * mPerFt : buildingLength,
@@ -141,6 +152,7 @@ export default function FoundationCalculator() {
     wallLoad,
     columnLoad,
     depth,
+    waterTableDepth,
     buildingLength,
     buildingWidth,
     measurementUnit,
@@ -386,6 +398,21 @@ export default function FoundationCalculator() {
                   value={depth}
                   step={0.1}
                   onValueChange={setDepth}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="fnd-water-depth"
+                  className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                >
+                  Water table depth ({measurementUnit}, optional)
+                </label>
+                <NumericInput
+                  id="fnd-water-depth"
+                  value={waterTableDepth ?? 0}
+                  step={0.1}
+                  onValueChange={(val) => setWaterTableDepth(val > 0 ? val : null)}
                   className="input-field"
                 />
               </div>
@@ -735,6 +762,88 @@ export default function FoundationCalculator() {
                   </ul>
                 </div>
               )}
+
+              {/* Geotechnical & COREN Audit Sheet */}
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-sm mb-6 dark:border-white/10 dark:bg-card">
+                <div className="flex items-center justify-between mb-4 border-b border-border/60 pb-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-primary" />
+                    <h3 className="text-base font-semibold text-foreground">
+                      {t("Geotechnical & COREN Engineering Audit")}
+                    </h3>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                    BS 8004 / Eurocode 7 / NBC Part 7
+                  </span>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4 mb-4">
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5">
+                    <span className="text-xs text-muted-foreground block mb-1">
+                      {t("Recommended Foundation System")}
+                    </span>
+                    <span className="text-sm font-bold uppercase text-foreground">
+                      {result.recommended_foundation_type || result.shape} Footing
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5">
+                    <span className="text-xs text-muted-foreground block mb-1">
+                      {t("Recommended Concrete Grade")}
+                    </span>
+                    <span className="text-sm font-bold text-foreground">
+                      {result.recommended_concrete_grade || "C25/30"}
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5">
+                    <span className="text-xs text-muted-foreground block mb-1">
+                      {t("Water Table Risk")}
+                    </span>
+                    <span className="text-sm font-bold capitalize text-foreground">
+                      {result.water_table_classification?.replace(/_/g, " ") || "Standard"}
+                    </span>
+                  </div>
+                </div>
+
+                {result.geotechnical_advisory && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 mb-4 text-xs leading-relaxed text-blue-900 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
+                    <p className="font-semibold mb-1 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      {t("Geotechnical Advisory Notice")}:
+                    </p>
+                    {result.geotechnical_advisory}
+                  </div>
+                )}
+
+                {result.coren_audit_sheet && (
+                  <div className="rounded-xl border border-border/80 bg-muted/20 p-4 text-xs">
+                    <p className="font-semibold text-foreground mb-2">
+                      {t("Code Verification & Sign-Off Record")}:
+                    </p>
+                    <div className="grid sm:grid-cols-2 gap-2 text-muted-foreground">
+                      <div>
+                        <strong className="text-foreground">{t("Governing Code")}:</strong>{" "}
+                        {result.coren_audit_sheet.governing_code}
+                      </div>
+                      <div>
+                        <strong className="text-foreground">{t("Geotechnical Summary")}:</strong>{" "}
+                        {result.coren_audit_sheet.geotechnical_summary}
+                      </div>
+                      <div>
+                        <strong className="text-foreground">{t("Applied vs. Allowable")}:</strong>{" "}
+                        {result.coren_audit_sheet.applied_pressure_kpa} kPa ≤{" "}
+                        {result.coren_audit_sheet.bearing_capacity_allowable_kpa} kPa
+                      </div>
+                      <div>
+                        <strong className="text-foreground">{t("Safety Factor")}:</strong>{" "}
+                        {result.coren_audit_sheet.factor_of_safety} ({result.bearing_check_pass ? "PASS" : "FAIL"})
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[11px] italic text-muted-foreground">
+                      {result.coren_audit_sheet.coren_endorsement_placeholder}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Formula transparency */}
               <div className="mt-2">

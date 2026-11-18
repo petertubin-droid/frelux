@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach } from "vitest";
 
@@ -61,6 +61,10 @@ describe("PriceSubmissionForm accessibility", () => {
         <PriceSubmissionForm />
       </MemoryRouter>,
     );
+    // Switch to a market with no structured regions list (e.g. France / FR)
+    const market = screen.getByLabelText(/^Market$/i);
+    fireEvent.change(market, { target: { value: "FR" } });
+
     const region = screen.getByLabelText(/^Region$/i);
     // without configured regions the fallback free-text input renders,
     // and it must still carry the same accessible name as the select
