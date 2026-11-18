@@ -127,6 +127,7 @@ import { calculateLabourCost } from "@/lib/labour";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 // =========================================================
 // Constants
 // =========================================================
@@ -138,29 +139,37 @@ const CALCULATOR_TYPE = "tyrolene";
 // =========================================================
 
 // Printable professional quote, market-currency formatted.
-function exportTyroleneQuote(args: {
-  area: number;
-  partitions: number;
-  materials: {
-    material_name: string;
-    theoretical_unit: string;
-    theoretical_quantity: number;
-    practical_purchase_quantity: number;
-    unit_price: number;
-    total_price: number;
-  }[];
-  theoreticalCost: number;
-  practicalCost: number;
-  labourCost: number;
-  currency: string;
-}) {
+
+type AreaFormatter = (m2: number) => string;
+/** Fallback when the quote is built outside a page. */
+const plainArea: AreaFormatter = (m2) => `${formatNumber(m2)} m²`;
+
+function exportTyroleneQuote(
+  args: {
+    area: number;
+    partitions: number;
+    materials: {
+      material_name: string;
+      theoretical_unit: string;
+      theoretical_quantity: number;
+      practical_purchase_quantity: number;
+      unit_price: number;
+      total_price: number;
+    }[];
+    theoreticalCost: number;
+    practicalCost: number;
+    labourCost: number;
+    currency: string;
+  },
+  area: AreaFormatter = plainArea,
+) {
   const fmt = (v: number) => formatCurrency(v, args.currency);
   printQuote(
     {
       title: "FRELUX Tyrolene Estimate",
-      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.partitions} surface type(s) · ${formatNumber(args.area)} m²`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.partitions} surface type(s) · ${area(args.area)}`,
       metaRows: [
-        ["Total area", `${formatNumber(args.area)} m²`],
+        ["Total area", `${area(args.area)}`],
         ["Surface types", String(args.partitions)],
       ],
       lines: args.materials.map((m) => ({
@@ -219,6 +228,11 @@ export default function TyroleneEstimator({
     setResult(null);
   };
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
@@ -1039,10 +1053,7 @@ export default function TyroleneEstimator({
                 <p className="text-xs text-muted-foreground mt-2">
                   Standard partition: {standardPartition.width}m ×{" "}
                   {standardPartition.height}m ={" "}
-                  {(standardPartition.width * standardPartition.height).toFixed(
-                    2,
-                  )}
-                  m²
+                  {area(standardPartition.width * standardPartition.height)}
                 </p>
               )}
             </div>
@@ -1064,11 +1075,9 @@ export default function TyroleneEstimator({
                 <p className="text-xs text-muted-foreground">
                   Standard partition: {standardPartition.width}m ×{" "}
                   {standardPartition.height}m ={" "}
-                  {(standardPartition.width * standardPartition.height).toFixed(
-                    2,
-                  )}
-                  m². Enter actual partition dimensions, the system will
-                  calculate equivalent standard partitions.
+                  {area(standardPartition.width * standardPartition.height)}.
+                  Enter actual partition dimensions, the system will calculate
+                  equivalent standard partitions.
                 </p>
               )}
 
@@ -1171,12 +1180,11 @@ export default function TyroleneEstimator({
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Area:{" "}
-                    {(
+                    {area(
                       pt.quantity *
-                      unitToMeters(pt.width, dimUnit) *
-                      unitToMeters(pt.height, dimUnit)
-                    ).toFixed(2)}
-                    m²
+                        unitToMeters(pt.width, dimUnit) *
+                        unitToMeters(pt.height, dimUnit),
+                    )}
                   </p>
                 </div>
               ))}
@@ -1341,7 +1349,7 @@ export default function TyroleneEstimator({
                                 className="text-xs text-blue-600 dark:text-blue-400"
                               >
                                 {b.label}: {b.quantity} × {b.width}m ×{" "}
-                                {b.height}m = {b.area}m² →{" "}
+                                {b.height}m = {area(b.area)} →{" "}
                                 {b.equivalent_partitions} equivalent
                               </p>
                             ))}
@@ -1743,12 +1751,12 @@ export default function TyroleneEstimator({
                           summaryLines: [
                             {
                               label: "Total area",
-                              value: `${formatNumber(
+                              value: area(
                                 result.partition_breakdown.reduce(
                                   (sum, part) => sum + part.area,
                                   0,
                                 ),
-                              )} m²`,
+                              ),
                             },
                             {
                               label: "Surface types",
@@ -1856,7 +1864,7 @@ export default function TyroleneEstimator({
                       <SaveToProjectButton
                         calculatorType="tyrolene"
                         calculatorSlug="tyrolene-estimator"
-                        calcTitle={`Tyrolene: ${formatNumber(result.partition_breakdown.reduce((sum, p) => sum + p.area, 0))} m²`}
+                        calcTitle={`Tyrolene: ${area(result.partition_breakdown.reduce((sum, p) => sum + p.area, 0))}`}
                         calcData={
                           {
                             inputMode,
