@@ -49,6 +49,18 @@ describe("Navbar", () => {
     expect(container.innerHTML).not.toBe("");
   });
 
+  it("keeps the closed drawer out of the document entirely", async () => {
+    // Regression guard for the homepage flash: while the drawer markup was
+    // rendered closed, a phone painted the whole menu before the stylesheet
+    // settled, then watched it snap away. Closed must mean absent.
+    const { container } = await renderNavbar();
+    expect(
+      screen.queryByRole("dialog", { name: "FRELUX navigation menu" }),
+    ).toBeNull();
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+    expect(container.innerHTML).not.toContain("FRELUX navigation menu");
+  });
+
   it("traps focus in the mobile drawer and closes with Escape", async () => {
     await renderNavbar();
     const trigger = screen.getByRole("button", { name: "Open menu" });
