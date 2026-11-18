@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getRegions } from "@/lib/international/regions";
+import { getRegions, NIGERIA_STATES as NIGERIAN_STATES } from "@/lib/international/regions";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Send, Upload, X, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -23,31 +23,6 @@ import { getCurrencySymbol } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
-
-const NIGERIAN_STATES = [
-  "Lagos",
-  "Abuja FCT",
-  "Rivers",
-  "Kano",
-  "Oyo",
-  "Kaduna",
-  "Enugu",
-  "Delta",
-  "Edo",
-  "Ogun",
-  "Anambra",
-  "Imo",
-  "Akwa Ibom",
-  "Cross River",
-  "Benue",
-  "Osun",
-  "Ondo",
-  "Ekiti",
-  "Kwara",
-  "Nasarawa",
-  "Plateau",
-  "Bauchi",
-];
 
 const CONDITIONS: { value: ProductCondition; label: string }[] = [
   { value: "new", label: "New" },

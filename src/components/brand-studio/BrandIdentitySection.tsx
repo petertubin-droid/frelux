@@ -244,7 +244,7 @@ export function BrandIdentitySection({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+234 800 123 4567"
+                placeholder="+1 555 123 4567"
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
@@ -260,7 +260,7 @@ export function BrandIdentitySection({
                 type="tel"
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="+234 800 123 4567"
+                placeholder="+1 555 123 4567"
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>

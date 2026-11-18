@@ -25,3 +25,23 @@ describe("region data integrity", () => {
     expect(ke).toContain("Kajiado");
   });
 });
+
+describe("getRegions", () => {
+  it("resolves structured regions for supported markets", () => {
+    expect(regions.getRegions("NG")).toContain("Lagos");
+    expect(regions.getRegions("US")).toContain("California");
+    expect(regions.getRegions("GB")).toContain("England");
+    expect(regions.getRegions("CA")).toContain("Ontario");
+    expect(regions.getRegions("AU")).toContain("New South Wales");
+    expect(regions.getRegions("GH")).toContain("Greater Accra");
+    expect(regions.getRegions("KE")).toContain("Nairobi");
+    expect(regions.getRegions("ZA")).toContain("Gauteng");
+  });
+
+  it("returns null for unsupported or empty markets", () => {
+    expect(regions.getRegions("")).toBeNull();
+    expect(regions.getRegions("DE")).toBeNull();
+    expect(regions.getRegions("JP")).toBeNull();
+    expect(regions.getRegions("ZZ")).toBeNull();
+  });
+});

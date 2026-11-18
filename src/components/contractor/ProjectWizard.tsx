@@ -676,7 +676,7 @@ export default function ProjectWizard() {
                 type="tel"
                 value={state.client_phone}
                 onChange={(e) => update("client_phone", e.target.value)}
-                placeholder="+234 800 000 0000"
+                placeholder="+1 555 123 4567"
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>

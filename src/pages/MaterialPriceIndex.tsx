@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import {} from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
+import { formatByCode } from "@/lib/international/currency-format";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -98,6 +99,7 @@ export default function MaterialPriceIndex() {
       materialId: string;
       name: string;
       category: string;
+      currency: string;
       saleUnit: string | null;
       stats: ReturnType<typeof computeStats>;
       basis: "city" | "national";
@@ -134,6 +136,7 @@ export default function MaterialPriceIndex() {
         materialId,
         name: sample.name,
         category: sample.category,
+        currency: latest?.currency ?? sample.currency ?? "NGN",
         saleUnit: latest?.sale_unit ?? sample.sale_unit,
         stats,
         basis: useCity ? "city" : "national",
@@ -457,14 +460,14 @@ export default function MaterialPriceIndex() {
                             </span>
                           </span>
                           <span className="text-sm font-semibold text-foreground">
-                            {formatCurrency(
+                            {formatByCode(
                               row.stats.status === "ok" ? row.stats.median : 0,
-                              "NGN",
+                              row.currency,
                             )}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {row.stats.status === "ok"
-                              ? `${formatCurrency(row.stats.min, "NGN")} – ${formatCurrency(row.stats.max, "NGN")}`
+                              ? `${formatByCode(row.stats.min, row.currency)} – ${formatByCode(row.stats.max, row.currency)}`
                               : "—"}
                           </span>
                           <span className="text-xs">
@@ -526,7 +529,7 @@ export default function MaterialPriceIndex() {
                       {historyNote}
                     </p>
                   ) : (
-                    <PriceHistoryChart points={history} />
+                    <PriceHistoryChart points={history} currency={grouped.get(selectedMaterial)?.[0]?.currency ?? "NGN"} />
                   )}
                 </section>
 
@@ -551,6 +554,7 @@ export default function MaterialPriceIndex() {
                     <CityComparison
                       rows={comparison.priced}
                       unpriced={comparison.unpriced}
+                      currency={grouped.get(selectedMaterial)?.[0]?.currency ?? "NGN"}
                     />
                   ) : null}
                 </section>
@@ -654,8 +658,10 @@ function Stat({
 
 function PriceHistoryChart({
   points,
+  currency = "NGN",
 }: {
   points: { observed_at: string; price: number }[];
+  currency?: string;
 }) {
   if (points.length < 2) {
     return (
@@ -683,7 +689,7 @@ function PriceHistoryChart({
         viewBox={`0 0 ${width} ${height}`}
         className="h-28 w-full"
         role="img"
-        aria-label={`Price history from ${formatCurrency(min, "NGN")} to ${formatCurrency(max, "NGN")}`}
+        aria-label={`Price history from ${formatByCode(min, currency)} to ${formatByCode(max, currency)}`}
       >
         <polyline
           points={coords.join(" ")}
@@ -697,7 +703,7 @@ function PriceHistoryChart({
       <div className="mt-1 flex justify-between text-xs text-muted-foreground">
         <span>{points[0].observed_at.slice(0, 10)}</span>
         <span>
-          {formatCurrency(min, "NGN")} – {formatCurrency(max, "NGN")}
+          {formatByCode(min, currency)} – {formatByCode(max, currency)}
         </span>
         <span>{points[points.length - 1].observed_at.slice(0, 10)}</span>
       </div>
@@ -708,7 +714,9 @@ function PriceHistoryChart({
 function CityComparison({
   rows,
   unpriced,
+  currency = "NGN",
 }: {
+  currency?: string;
   rows: {
     city_slug: string;
     city_name: string;
@@ -726,7 +734,7 @@ function CityComparison({
           <div className="flex items-center justify-between text-xs">
             <span className="text-foreground">{row.city_name}</span>
             <span className="text-muted-foreground">
-              {formatCurrency(row.median, "NGN")}
+              {formatByCode(row.median, currency)}
               {row.versus_national !== null
                 ? ` · ${formatPercent(row.versus_national)} vs national`
                 : ""}

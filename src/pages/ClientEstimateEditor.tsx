@@ -1,4 +1,5 @@
 import { formatByCode } from "@/lib/international/currency-format";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useState, useEffect, useCallback, useId } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -78,7 +79,7 @@ export default function ClientEstimateEditor() {
     { name: string; quantity: number; unit: string; unitCost: number }[]
   >([]);
 
-  const [projectCurrency, setProjectCurrency] = useState<string>("NGN");
+  const [projectCurrency, setProjectCurrency] = useState<string>(() => getActiveDisplayCurrency() || "USD");
 
   const loadExisting = useCallback(async () => {
     if (!projectId) return;
@@ -143,7 +144,7 @@ export default function ClientEstimateEditor() {
         setClientName(quote.client_name ?? "");
         setClientEmail(quote.client_email ?? "");
         setClientPhone(quote.client_phone ?? "");
-        setProjectCurrency(quote.currency || "NGN");
+        setProjectCurrency(quote.currency || getActiveDisplayCurrency() || "USD");
         setMaterialsSummary(
           (quote.materials_summary ?? []).map((row) => ({
             name: row.name,

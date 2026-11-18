@@ -55,11 +55,8 @@ const MARKET_TAX_TABLE: Record<string, MarketTaxInfo> = {
   TR: { name: "KDV", ratePercent: 20 },
 };
 
-/** Default tax for unconfigured or neutral international context (7.5% VAT). */
-const DEFAULT_TAX: MarketTaxInfo = { name: "VAT", ratePercent: 7.5 };
-
-export function getMarketTaxRate(marketCode?: string | null): MarketTaxInfo {
-  if (!marketCode) return DEFAULT_TAX;
+export function getMarketTaxRate(marketCode?: string | null): MarketTaxInfo | null {
+  if (!marketCode) return null;
   const upper = marketCode.trim().toUpperCase();
-  return MARKET_TAX_TABLE[upper] ?? DEFAULT_TAX;
+  return MARKET_TAX_TABLE[upper] ?? null;
 }

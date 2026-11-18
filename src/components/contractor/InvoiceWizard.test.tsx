@@ -232,6 +232,17 @@ describe("InvoiceWizard", () => {
   });
 });
 
+  it("does not default unmapped currencies to Nigerian VAT", () => {
+    setup({ currency: "XYZ" });
+    next();
+    fireEvent.change(screen.getByLabelText("Amount before tax"), {
+      target: { value: "50000" },
+    });
+    next();
+    expect(screen.queryByText(/VAT at 7.5%/)).toBeNull();
+    expect(screen.getByText(/No statutory tax rate configured for this currency/)).toBeTruthy();
+  });
+
 describe("InvoiceWizard responsive layout", () => {
   it("stacks on a phone and only splits into columns from the small breakpoint", () => {
     setup();

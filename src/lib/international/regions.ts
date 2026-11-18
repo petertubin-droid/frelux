@@ -1,8 +1,137 @@
 /**
- * Structured region lists for non-NG markets (public administrative
- * divisions, not price data). NG states live with the NG location
- * tables; unsupported countries fall back to free-text input.
+ * Structured region lists for supported markets (public administrative
+ * divisions, not price data). Unsupported countries fall back to free-text
+ * input or unconstrained search.
  */
+export const NIGERIA_STATES = [
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "FCT (Abuja)",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara",
+];
+
+export const US_STATES = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "District of Columbia",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming",
+];
+
+export const UK_REGIONS = [
+  "England",
+  "Greater London",
+  "Northern Ireland",
+  "Scotland",
+  "Wales",
+];
+
+export const CANADA_PROVINCES = [
+  "Alberta",
+  "British Columbia",
+  "Manitoba",
+  "New Brunswick",
+  "Newfoundland and Labrador",
+  "Northwest Territories",
+  "Nova Scotia",
+  "Nunavut",
+  "Ontario",
+  "Prince Edward Island",
+  "Quebec",
+  "Saskatchewan",
+  "Yukon",
+];
+
+export const AUSTRALIA_STATES = [
+  "Australian Capital Territory",
+  "New South Wales",
+  "Northern Territory",
+  "Queensland",
+  "South Australia",
+  "Tasmania",
+  "Victoria",
+  "Western Australia",
+];
+
 export const GHANA_REGIONS = [
   "Ahafo",
   "Ashanti",
@@ -58,7 +187,7 @@ export const KENYA_COUNTIES = [
   "Narok",
   "Nyandarua",
   "Nyamira",
-  "Nyando",
+  "Nyeri",
   "Samburu",
   "Siaya",
   "Taita-Taveta",
@@ -85,6 +214,12 @@ export const SOUTH_AFRICA_PROVINCES = [
 ];
 
 const REGIONS_BY_COUNTRY: Record<string, string[]> = {
+  NG: NIGERIA_STATES,
+  US: US_STATES,
+  GB: UK_REGIONS,
+  UK: UK_REGIONS,
+  CA: CANADA_PROVINCES,
+  AU: AUSTRALIA_STATES,
   GH: GHANA_REGIONS,
   KE: KENYA_COUNTIES,
   ZA: SOUTH_AFRICA_PROVINCES,
@@ -92,5 +227,7 @@ const REGIONS_BY_COUNTRY: Record<string, string[]> = {
 
 /** Region list for a market, or null when only free text is available. */
 export function getRegions(country: string): string[] | null {
-  return REGIONS_BY_COUNTRY[country] ?? null;
+  if (!country) return null;
+  const upper = country.trim().toUpperCase();
+  return REGIONS_BY_COUNTRY[upper] ?? null;
 }

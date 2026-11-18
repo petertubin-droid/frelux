@@ -214,3 +214,20 @@ describe("MaterialPriceIndex page", () => {
     expect(await screen.findByText(/could not be loaded/)).toBeInTheDocument();
   });
 });
+
+  it("formats non-NGN rows with their actual currency", async () => {
+    queries.fetchListings.mockResolvedValue({
+      listings: [
+        listing({ currency: "USD", price: 120 }),
+        listing({ currency: "USD", price: 125 }),
+        listing({ currency: "USD", price: 130 }),
+      ],
+      error: null,
+    });
+
+    renderPage();
+
+    const rows = await screen.findAllByText(/Dangote 3X cement/);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/\$125/).length).toBeGreaterThan(0);
+  });

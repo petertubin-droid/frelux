@@ -3,10 +3,14 @@ import { getMarketTaxRate } from "./market-tax";
 import { ALL_MARKET_CODES } from "./capability-registry";
 
 describe("getMarketTaxRate", () => {
-  it("returns Nigerian 7.5% VAT by default", () => {
+  it("returns Nigerian 7.5% VAT when NG is requested", () => {
     expect(getMarketTaxRate("NG")).toEqual({ name: "VAT", ratePercent: 7.5 });
-    expect(getMarketTaxRate()).toEqual({ name: "VAT", ratePercent: 7.5 });
-    expect(getMarketTaxRate(null)).toEqual({ name: "VAT", ratePercent: 7.5 });
+  });
+
+  it("does not invent rates for unconfigured or null markets", () => {
+    expect(getMarketTaxRate()).toBeNull();
+    expect(getMarketTaxRate(null)).toBeNull();
+    expect(getMarketTaxRate("ZZ")).toBeNull();
   });
 
   it("returns verified rates for major international markets", () => {
@@ -23,13 +27,10 @@ describe("getMarketTaxRate", () => {
   it("covers every market code in ALL_MARKET_CODES with a defined statutory rate", () => {
     for (const code of ALL_MARKET_CODES) {
       const tax = getMarketTaxRate(code);
-      expect(tax.name).toBeTruthy();
-      expect(typeof tax.ratePercent).toBe("number");
-      expect(tax.ratePercent).toBeGreaterThanOrEqual(0);
+      expect(tax).not.toBeNull();
+      expect(tax!.name).toBeTruthy();
+      expect(typeof tax!.ratePercent).toBe("number");
+      expect(tax!.ratePercent).toBeGreaterThanOrEqual(0);
     }
-  });
-
-  it("falls back gracefully for unknown markets", () => {
-    expect(getMarketTaxRate("ZZ")).toEqual({ name: "VAT", ratePercent: 7.5 });
   });
 });

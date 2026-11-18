@@ -9,6 +9,7 @@ import {
   type TransportationChoice,
 } from "@/lib/estimation/transportation";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
+import { getCurrencySymbol } from "@/lib/international/currency-format";
 import {
   autoDisplayForReport,
   type QuoteDisplay,
@@ -160,7 +161,9 @@ export interface QuoteOptions {
 }
 
 function formatCurrencyForQuote(amount: number, opts: QuoteOptions): string {
-  return formatCurrency(amount, opts.currencySymbol || "₦");
+  const activeCurrency = getActiveDisplayCurrency();
+  const fallbackSymbol = getCurrencySymbol(activeCurrency) || "$";
+  return formatCurrency(amount, opts.currencySymbol || fallbackSymbol);
 }
 
 export function buildQuoteHtml(opts: QuoteOptions): string {

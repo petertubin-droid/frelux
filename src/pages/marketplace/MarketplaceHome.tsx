@@ -1,3 +1,4 @@
+import { getRegions } from "@/lib/international/regions";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapPanel } from "@/components/map/MapPanel";
@@ -30,7 +31,6 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
-import { useMarket } from "@/lib/international/market-context";
 import {
   findNearbyListings,
   type NearbyListing,
@@ -55,51 +55,9 @@ const PROJECT_TYPES = [
   { value: "multi_trade", label: "Multi-Trade" },
 ];
 
-const NIGERIAN_STATES = [
-  "Lagos",
-  "Abuja FCT",
-  "Rivers",
-  "Kano",
-  "Oyo",
-  "Kaduna",
-  "Enugu",
-  "Delta",
-  "Edo",
-  "Ogun",
-  "Anambra",
-  "Imo",
-];
-
-const REGIONS_BY_MARKET: Record<string, string[]> = {
-  NG: NIGERIAN_STATES,
-  US: [
-    "California",
-    "Texas",
-    "Florida",
-    "New York",
-    "Illinois",
-    "Pennsylvania",
-    "Ohio",
-    "Georgia",
-    "North Carolina",
-    "Washington",
-  ],
-  GB: ["England", "Scotland", "Wales", "Northern Ireland", "Greater London"],
-  CA: ["Ontario", "Quebec", "British Columbia", "Alberta", "Manitoba"],
-  AU: [
-    "New South Wales",
-    "Victoria",
-    "Queensland",
-    "Western Australia",
-    "South Australia",
-  ],
-  GH: ["Greater Accra", "Ashanti", "Western", "Eastern", "Central"],
-  KE: ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Kiambu"],
-};
-
 function getMarketRegions(countryOrMarket?: string): string[] {
-  const code = (countryOrMarket || "").toUpperCase();
-  return REGIONS_BY_MARKET[code] ?? REGIONS_BY_MARKET.NG;
+  if (!countryOrMarket) return [];
+  return getRegions(countryOrMarket) ?? [];
 }
 
 const SORT_OPTIONS = [
@@ -710,7 +668,7 @@ function JobsTab(props: {
           <select
             aria-label="Filter by country"
             value={props.country}
-            onChange={(e) => props.setCountry(e.target.value)}
+            onChange={(e) => { props.setCountry(e.target.value); props.setState(""); }}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">{tx("All countries")}</option>
@@ -724,19 +682,31 @@ function JobsTab(props: {
               </optgroup>
             ))}
           </select>
-          <select
-            aria-label="Filter by state or region"
-            value={props.state}
-            onChange={(e) => props.setState(e.target.value)}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
-          >
-            <option value="">{tx("All states / regions")}</option>
-            {getMarketRegions(props.country).map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {props.country && getMarketRegions(props.country).length === 0 ? (
+            <input
+              type="text"
+              aria-label="Filter by state or region"
+              placeholder={tx("Region or city")}
+              value={props.state}
+              onChange={(e) => props.setState(e.target.value)}
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            />
+          ) : (
+            <select
+              aria-label="Filter by state or region"
+              value={props.state}
+              disabled={!props.country}
+              onChange={(e) => props.setState(e.target.value)}
+              className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            >
+              <option value="">{tx("All states / regions")}</option>
+              {getMarketRegions(props.country).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
           <Button
             variant="ghost"
             onClick={() => {
@@ -1060,7 +1030,7 @@ function ProductsTab(props: {
           <select
             aria-label="Filter by country"
             value={props.country}
-            onChange={(e) => props.setCountry(e.target.value)}
+            onChange={(e) => { props.setCountry(e.target.value); props.setState(""); }}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">{tx("All countries")}</option>
@@ -1074,19 +1044,31 @@ function ProductsTab(props: {
               </optgroup>
             ))}
           </select>
-          <select
-            aria-label="Filter by state or region"
-            value={props.state}
-            onChange={(e) => props.setState(e.target.value)}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
-          >
-            <option value="">{tx("All states / regions")}</option>
-            {getMarketRegions(props.country).map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {props.country && getMarketRegions(props.country).length === 0 ? (
+            <input
+              type="text"
+              aria-label="Filter by state or region"
+              placeholder={tx("Region or city")}
+              value={props.state}
+              onChange={(e) => props.setState(e.target.value)}
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            />
+          ) : (
+            <select
+              aria-label="Filter by state or region"
+              value={props.state}
+              disabled={!props.country}
+              onChange={(e) => props.setState(e.target.value)}
+              className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            >
+              <option value="">{tx("All states / regions")}</option>
+              {getMarketRegions(props.country).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
           <Button
             variant="ghost"
             onClick={() => {

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { getRegions } from "@/lib/international/regions";
+import { getRegions, NIGERIA_STATES as NIGERIAN_STATES } from "@/lib/international/regions";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
 import { fetchLocations } from "@/lib/pro-connect";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Send, Loader2, Calculator, Info } from "lucide-react";
+import { Send, Loader2, Calculator, Info } from "lucide-react";
 import { createListing } from "@/lib/marketplace";
 import { useAuth } from "@/lib/auth";
 import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
@@ -17,21 +17,6 @@ import { getCurrencySymbol } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
 import Container from "@/components/ui/Container";
-
-const NIGERIAN_STATES = [
-  "Lagos",
-  "Abuja FCT",
-  "Rivers",
-  "Kano",
-  "Oyo",
-  "Kaduna",
-  "Enugu",
-  "Delta",
-  "Edo",
-  "Ogun",
-  "Anambra",
-  "Imo",
-];
 
 export default function PostListing() {
   const { t: tr } = useLanguage();

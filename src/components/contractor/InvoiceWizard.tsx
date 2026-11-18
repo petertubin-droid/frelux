@@ -77,8 +77,6 @@ export function addDays(isoDate: string, days: number): string {
   return base.toISOString().slice(0, 10);
 }
 
-const round2 = (value: number) =>
-  Math.round((value + Number.EPSILON) * 100) / 100;
 
 export interface InvoiceWizardProps {
   projectId: string;
@@ -145,16 +143,16 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
       XOF: "CI",
       TRY: "TR",
     };
-    const mCode = currToMarket[currUpper] || "NG";
+    const mCode = currToMarket[currUpper] || null;
     return getMarketTaxRate(mCode);
   }, [props.currency]);
 
   const taxRate = useMemo(() => {
     if (taxChoice === "none") return 0;
-    if (taxChoice === "vat") return defaultTax.ratePercent;
+    if (taxChoice === "vat") return defaultTax ? defaultTax.ratePercent : 0;
     const parsed = Number(customRate);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-  }, [taxChoice, customRate, defaultTax.ratePercent]);
+  }, [taxChoice, customRate, defaultTax]);
 
   const { subtotal, taxAmount, total } = invoiceTotals(
     Number(amount) || 0,
@@ -428,19 +426,21 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
                 />
                 <span className="text-sm text-foreground">{tr("No tax")}</span>
               </label>
-              <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-input bg-background px-3 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
-                <input
-                  type="radio"
-                  name="invoice-tax"
-                  value="vat"
-                  checked={taxChoice === "vat"}
-                  onChange={() => setTaxChoice("vat")}
-                  className="h-4 w-4 accent-violet-600"
-                />
-                <span className="text-sm text-foreground">
-                  {tr(`${defaultTax.name} at ${defaultTax.ratePercent}%`)}
-                </span>
-              </label>
+              {defaultTax && defaultTax.ratePercent > 0 && (
+                <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-input bg-background px-3 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
+                  <input
+                    type="radio"
+                    name="invoice-tax"
+                    value="vat"
+                    checked={taxChoice === "vat"}
+                    onChange={() => setTaxChoice("vat")}
+                    className="h-4 w-4 accent-violet-600"
+                  />
+                  <span className="text-sm text-foreground">
+                    {tr(`${defaultTax.name} at ${defaultTax.ratePercent}%`)}
+                  </span>
+                </label>
+              )}
               <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-input bg-background px-3 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
                 <input
                   type="radio"
@@ -455,6 +455,15 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
                 </span>
               </label>
             </div>
+            {defaultTax?.notes ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {defaultTax.notes}
+              </p>
+            ) : !defaultTax ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {tr("No statutory tax rate configured for this currency. Enter custom tax manually or choose No tax.")}
+              </p>
+            ) : null}
             {taxChoice === "custom" && (
               <div className="mt-3">
                 <label

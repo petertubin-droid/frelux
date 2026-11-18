@@ -432,7 +432,7 @@ export default function SellerDashboard() {
                     type="text"
                     value={businessPhone}
                     onChange={(e) => setBusinessPhone(e.target.value)}
-                    placeholder={t("Country code + number, e.g. +234...")}
+                    placeholder={t("e.g. +1 555 123 4567 (with country code)")}
                     className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                 </div>
