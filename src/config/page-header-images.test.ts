@@ -21,10 +21,6 @@ describe("resolveHeaderImage", () => {
     );
   });
 
-  it("maps the public roadmap to the construction header", () => {
-    expect(resolveHeaderImage("/roadmap")).toBe("/assets/headers/build.jpg");
-  });
-
   it("maps business and project routes", () => {
     expect(resolveHeaderImage("/colors/compare")).toBe(
       "/assets/headers/colors.jpg",

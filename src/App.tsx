@@ -540,7 +540,6 @@ const ProcurementRequestDetail = lazy(
   () => import("@/pages/procurement/ProcurementRequestDetail"),
 );
 const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
-const Roadmap = lazy(() => import("@/pages/Roadmap"));
 const MarketIntelligenceOverview = lazy(
   () => import("@/pages/market-intelligence/MarketOverview"),
 );
@@ -2019,7 +2018,15 @@ export default function App() {
                             </Suspense>
                           }
                         />
-                        <Route path="/roadmap" element={<Roadmap />} />
+                        {/* The roadmap carried internal release notes
+                            (unshipped work, ad unit ids, verification gaps)
+                            that are not for public eyes. The URL still
+                            resolves so old links and search results land
+                            somewhere useful. */}
+                        <Route
+                          path="/roadmap"
+                          element={<Navigate to="/user-guide" replace />}
+                        />
                         <Route
                           path="/global-markets"
                           element={<GlobalMarkets />}

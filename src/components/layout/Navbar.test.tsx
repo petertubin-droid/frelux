@@ -140,16 +140,17 @@ describe("Navbar", () => {
     expect(within(drawer).getByText("Manage & learn")).toBeInTheDocument();
   });
 
-  it("includes the roadmap in the Learn navigation menu", async () => {
+  it("keeps the internal roadmap out of the Learn navigation menu", async () => {
     await renderNavbar();
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     const drawer = await screen.findByRole("dialog", {
       name: "FRELUX navigation menu",
     });
     fireEvent.click(within(drawer).getByRole("button", { name: "Learn" }));
-    expect(
-      await within(drawer).findByRole("link", { name: "Roadmap" }),
-    ).toHaveAttribute("href", "/roadmap");
+    // The roadmap listed unshipped work and internal gaps, so it is not a
+    // public destination any more.
+    await within(drawer).findByRole("link", { name: "User Guide" });
+    expect(screen.queryByRole("link", { name: "Roadmap" })).toBeNull();
   });
 
   it("includes header container for ad-free prompt notices", async () => {

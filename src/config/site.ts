@@ -270,11 +270,6 @@ export const navWorkspaces: NavWorkspace[] = [
         description: "How to use every FRELUX feature",
       },
       {
-        label: "Roadmap",
-        path: "/roadmap",
-        description: "See what is live, building and planned",
-      },
-      {
         label: "About FRELUX",
         path: "/about",
         description: "Our story & mission",

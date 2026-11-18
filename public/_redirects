@@ -1,0 +1,5 @@
+# The roadmap page published internal release status (unshipped work, ad unit
+# ids, unverified market data). It is gone from the site; keep the URL useful
+# for old links, bookmarks and search results.
+/roadmap /user-guide 301
+/roadmap/ /user-guide 301
