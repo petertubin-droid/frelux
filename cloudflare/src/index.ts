@@ -53,6 +53,10 @@ export interface Env {
   WEBHOOK_SECRET?: string;
   /** "on" enables ?w=/?h= variants through Cloudflare Image Resizing. */
   IMAGE_RESIZE?: string;
+  PAYSTACK_SECRET_KEY?: string;
+  PAYSTACK_ESCROW_SECRET?: string;
+  FLUTTERWAVE_SECRET_HASH?: string;
+  HOOK_STRICT?: string;
   BUCKET_AVATARS?: R2BucketLike;
   BUCKET_BRAND_ASSETS?: R2BucketLike;
   BUCKET_MARKETPLACE?: R2BucketLike;
@@ -369,11 +373,9 @@ export default {
           api: {
             turnstile: Boolean(env.TURNSTILE_SECRET && env.TURNSTILE_HOSTNAMES),
             gateway: Boolean(env.SUPABASE_URL),
-            hooks: Boolean(
-              env.WEBHOOK_SECRET ||
-                env.PAYSTACK_SECRET_KEY ||
-                env.FLUTTERWAVE_SECRET_HASH,
-            ),
+            // The relay is ready when it can reach the functions that hold the
+            // provider secrets; the verdict itself is theirs.
+            hooks: Boolean(env.SUPABASE_URL),
             imageResize: env.IMAGE_RESIZE === "on",
           },
         },

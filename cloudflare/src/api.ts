@@ -29,11 +29,18 @@ export const CACHEABLE_READS: Record<string, number> = {
 
 export interface ApiEnv {
   SUPABASE_URL?: string;
+  /** Sent as `apikey` on relayed webhooks: the function is signature-guarded,
+   *  but the platform still rejects a call that carries no project key. */
+  SUPABASE_ANON_KEY?: string;
   TURNSTILE_SECRET?: string;
   TURNSTILE_HOSTNAMES?: string;
   WEBHOOK_SECRET?: string;
   /** Paystack signs the raw body with HMAC-SHA512 under the secret key. */
   PAYSTACK_SECRET_KEY?: string;
+  /** The escrow product signs with its own key, so both are accepted. */
+  PAYSTACK_ESCROW_SECRET?: string;
+  /** "on" makes the Worker reject a bad signature before the function sees it. */
+  HOOK_STRICT?: string;
   /** Flutterwave sends a plain secret hash in the verif-hash header. */
   FLUTTERWAVE_SECRET_HASH?: string;
 }
@@ -56,7 +63,10 @@ const SLUG = /^[a-z0-9][a-z0-9-]{1,60}$/;
  * WEBHOOK_SECRET is set, so nothing can be relayed by accident.
  */
 export const HOOKS: Record<string, string> = {
-  paystack: "escrow-webhook",
+  // `paystack-webhook` is the primary Live Mode endpoint: it dispatches escrow
+  // itself. The escrow-only endpoint stays reachable under its own name.
+  paystack: "paystack-webhook",
+  "paystack-escrow": "escrow-webhook",
   flutterwave: "flutterwave-webhook",
 };
 
@@ -68,6 +78,12 @@ const FORWARDED_HEADERS = [
   "accept",
   "x-client-info",
   "x-frelux-signature",
+  // The provider's own proof has to reach the function: it verifies the
+  // signature again from the raw body, so a relay that drops these headers
+  // would hand it unsigned traffic and every real callback would be rejected.
+  "x-paystack-signature",
+  "verif-hash",
+  "x-flutterwave-signature",
 ];
 
 const ALLOWED_METHODS = new Set([
@@ -283,8 +299,14 @@ async function hookSignatureValid(
   body: ArrayBuffer,
 ): Promise<boolean> {
   const paystack = request.headers.get("x-paystack-signature");
-  if (paystack && env.PAYSTACK_SECRET_KEY) {
-    return signatureMatchesSha512(env.PAYSTACK_SECRET_KEY, body, paystack);
+  if (paystack) {
+    // Escrow and checkout are separate Paystack integrations, each with its own
+    // secret key, so a signature is valid if either key produced it.
+    for (const secret of [env.PAYSTACK_SECRET_KEY, env.PAYSTACK_ESCROW_SECRET]) {
+      if (!secret) continue;
+      if (await signatureMatchesSha512(secret, body, paystack)) return true;
+    }
+    if (env.PAYSTACK_SECRET_KEY || env.PAYSTACK_ESCROW_SECRET) return false;
   }
   const verifHash = request.headers.get("verif-hash");
   if (verifHash && env.FLUTTERWAVE_SECRET_HASH) {
@@ -313,15 +335,21 @@ export async function handleHook(
   const target = HOOKS[name];
   if (!target || !SLUG.test(name))
     return json({ error: "Unknown hook" }, 404, cors);
-  const providerConfigured = Boolean(
-    env.PAYSTACK_SECRET_KEY || env.FLUTTERWAVE_SECRET_HASH || env.WEBHOOK_SECRET,
-  );
-  if (!providerConfigured || !env.SUPABASE_URL)
+  if (!env.SUPABASE_URL)
     return json({ error: "Hooks not configured" }, 503, cors);
 
   const raw = await request.arrayBuffer();
-  if (!(await hookSignatureValid(request, env, raw)))
+  // One verifier, not two. The function holds the provider's real signing
+  // secret and checks the raw body; the Worker keeps the provider's signature
+  // header intact and passes the verdict through. Re-checking here with a copy
+  // of the secret created a second place to drift, and a Worker holding a stale
+  // copy rejected every genuine callback. HOOK_STRICT="on" restores the edge
+  // check for anyone who wants the body refused before it reaches the function.
+  if (env.HOOK_STRICT === "on" && (await hookSignatureValid(request, env, raw))) {
+    // verified at the edge
+  } else if (env.HOOK_STRICT === "on") {
     return json({ error: "Invalid signature" }, 401, cors);
+  }
 
   const headers = new Headers();
   for (const header of FORWARDED_HEADERS) {
@@ -329,6 +357,9 @@ export async function handleHook(
     if (value) headers.set(header, value);
   }
   headers.set("x-frelux-hook", name);
+  if (!headers.has("apikey") && env.SUPABASE_ANON_KEY) {
+    headers.set("apikey", env.SUPABASE_ANON_KEY);
+  }
 
   let upstream: Response;
   try {

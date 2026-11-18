@@ -182,7 +182,7 @@ describe("edge API", () => {
     expect(response.status).toBe(502);
   });
 
-  it("relays a hook only with a correct signature", async () => {
+  it("leaves the verdict to the function unless strict mode is on", async () => {
     HOOKS.test = "escrow-webhook";
     const secret = "hook-secret";
     const payload = JSON.stringify({ event: "paid" });
@@ -209,6 +209,21 @@ describe("edge API", () => {
     expect(good.status).toBe(202);
     expect(await good.json()).toEqual({ received: true, status: 200 });
 
+    // Default mode: the function holds the real secret and decides, so a
+    // Worker copy that has drifted cannot reject genuine provider traffic.
+    const forwarded = await worker.fetch(
+      new Request(url("/api/hook/test"), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-frelux-signature": `sha256=${"0".repeat(64)}`,
+        },
+        body: payload,
+      }),
+      makeEnv({ WEBHOOK_SECRET: secret }),
+    );
+    expect(forwarded.status).toBe(202);
+
     const bad = await worker.fetch(
       new Request(url("/api/hook/test"), {
         method: "POST",
@@ -220,7 +235,19 @@ describe("edge API", () => {
       }),
       makeEnv({ WEBHOOK_SECRET: secret }),
     );
-    expect(bad.status).toBe(401);
+    const strict = await worker.fetch(
+      new Request(url("/api/hook/test"), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-frelux-signature": `sha256=${"0".repeat(64)}`,
+        },
+        body: payload,
+      }),
+      makeEnv({ WEBHOOK_SECRET: secret, HOOK_STRICT: "on" }),
+    );
+    expect(strict.status).toBe(401);
+    expect(bad.status).toBe(202);
   });
 
   it("leaves an unlisted hook inert", async () => {
@@ -229,5 +256,57 @@ describe("edge API", () => {
       makeEnv({ WEBHOOK_SECRET: "hook-secret" }),
     );
     expect(response.status).toBe(404);
+  });
+});
+
+describe("hook relay header forwarding", () => {
+  it("hands the provider's own signature to the function", async () => {
+    // A relay that strips x-paystack-signature would forward unsigned traffic
+    // and every real callback would be rejected downstream.
+    const fetched: Request[] = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      fetched.push(new Request(input as string, init));
+      return new Response("ok", { status: 200 });
+    }) as typeof fetch;
+    try {
+      const { handleHook } = await import("./api");
+      const secret = "sk_test_dummy";
+      const body = JSON.stringify({ event: "charge.success" });
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(secret),
+        { name: "HMAC", hash: "SHA-512" },
+        false,
+        ["sign"],
+      );
+      const digest = new Uint8Array(
+        await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body)),
+      );
+      const signature = [...digest]
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+      const response = await handleHook(
+        new Request("https://files.freluxtools.com/api/hook/paystack", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-paystack-signature": signature,
+          },
+          body,
+        }),
+        {
+          SUPABASE_URL: "https://example.supabase.co",
+          PAYSTACK_SECRET_KEY: "sk_test_dummy",
+        } as never,
+        new URL("https://files.freluxtools.com/api/hook/paystack"),
+        {},
+      );
+      expect(response.status).toBe(202);
+      expect(fetched).toHaveLength(1);
+      expect(fetched[0].headers.get("x-paystack-signature")).toBe(signature);
+    } finally {
+      globalThis.fetch = original;
+    }
   });
 });
