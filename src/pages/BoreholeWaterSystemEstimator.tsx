@@ -1,3 +1,4 @@
+import { useMarket } from "@/lib/international/market-context";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -55,6 +56,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import ToolShell from "@/components/tools/ToolShell";
 
 export default function BoreholeWaterSystemEstimator() {
+  const { marketCode } = useMarket();
   const resetInputs = () => {
     setDepthM(60);
     setStaticLevelM(18);
@@ -87,7 +89,11 @@ export default function BoreholeWaterSystemEstimator() {
   const [occupants, setOccupants] = useState<number>(6);
   const [tier, setTier] = useState<ConsumptionTier>("suburban_standard");
   const [reserveDays, _setReserveDays] = useState<number>(1.5);
-  const [power, setPower] = useState<PowerSupply>("single_phase_220v");
+  const [power, setPower] = useState<PowerSupply>(() =>
+    marketCode === "US" || marketCode === "CA"
+      ? "single_phase_110v"
+      : "single_phase_220v",
+  );
 
   // Water Quality States
   const [turbidity, setTurbidity] = useState<number>(3.5);
@@ -235,8 +241,11 @@ export default function BoreholeWaterSystemEstimator() {
         `${result.well.sanitaryGroutDepthMeters} m (Blocks surface runoff)`,
       ],
       [
-        "Portland Cement (50kg bags)",
-        String(result.well.sanitaryGroutCementBags50kg),
+        `Portland Cement (${result.well.cementBagKg || 50}kg bags)`,
+        String(
+          result.well.sanitaryGroutCementBags ??
+            result.well.sanitaryGroutCementBags50kg,
+        ),
       ],
       ["Sodium Bentonite Seal (kg)", String(result.well.bentoniteSealKg)],
       [

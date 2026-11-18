@@ -43,11 +43,15 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
+import { useMarket } from "@/lib/international/market-context";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
 export default function WorkerChannels() {
+  const { market } = useMarket();
+  const channelCurrencySymbol = market?.currencySymbol ?? "₦";
+  const channelCurrencyCode = market?.currencyCode ?? "NGN";
   const { t } = useLanguage();
   const { channelSlug } = useParams();
   const navigate = useNavigate();
@@ -279,7 +283,7 @@ export default function WorkerChannels() {
     // Channel price updates are posted in the channel's currency; NG
     // worker communities remain NGN (₦) — formatting goes through the
     // central layer so the stored price_currency always renders right.
-    const priceCurrency = "NGN";
+    const priceCurrency = channelCurrencyCode;
     const content = `📊 PRICE UPDATE: ${priceForm.item}, ${formatByCode(Number(priceForm.amount), priceCurrency)}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
     const msg = await sendMessage({
       channelId: activeChannel.id,
@@ -579,7 +583,7 @@ export default function WorkerChannels() {
                       />
                       <input
                         type="number"
-                        placeholder={t("Price (₦)")}
+                        placeholder={`${t("Price")} (${channelCurrencySymbol})`}
                         className="input-field"
                         value={priceForm.amount}
                         onChange={(e) =>

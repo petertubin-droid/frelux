@@ -30,6 +30,7 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
+import { useMarket } from "@/lib/international/market-context";
 import {
   findNearbyListings,
   type NearbyListing,
@@ -68,6 +69,38 @@ const NIGERIAN_STATES = [
   "Anambra",
   "Imo",
 ];
+
+const REGIONS_BY_MARKET: Record<string, string[]> = {
+  NG: NIGERIAN_STATES,
+  US: [
+    "California",
+    "Texas",
+    "Florida",
+    "New York",
+    "Illinois",
+    "Pennsylvania",
+    "Ohio",
+    "Georgia",
+    "North Carolina",
+    "Washington",
+  ],
+  GB: ["England", "Scotland", "Wales", "Northern Ireland", "Greater London"],
+  CA: ["Ontario", "Quebec", "British Columbia", "Alberta", "Manitoba"],
+  AU: [
+    "New South Wales",
+    "Victoria",
+    "Queensland",
+    "Western Australia",
+    "South Australia",
+  ],
+  GH: ["Greater Accra", "Ashanti", "Western", "Eastern", "Central"],
+  KE: ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Kiambu"],
+};
+
+function getMarketRegions(countryOrMarket?: string): string[] {
+  const code = (countryOrMarket || "").toUpperCase();
+  return REGIONS_BY_MARKET[code] ?? REGIONS_BY_MARKET.NG;
+}
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -692,13 +725,13 @@ function JobsTab(props: {
             ))}
           </select>
           <select
-            aria-label="Filter by state"
+            aria-label="Filter by state or region"
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">{tx("All states")}</option>
-            {NIGERIAN_STATES.map((s) => (
+            <option value="">{tx("All states / regions")}</option>
+            {getMarketRegions(props.country).map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
@@ -1042,13 +1075,13 @@ function ProductsTab(props: {
             ))}
           </select>
           <select
-            aria-label="Filter by state"
+            aria-label="Filter by state or region"
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
-            <option value="">{tx("All states")}</option>
-            {NIGERIAN_STATES.map((s) => (
+            <option value="">{tx("All states / regions")}</option>
+            {getMarketRegions(props.country).map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>

@@ -143,7 +143,7 @@ export default function ScreedingCostEstimator({
 
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const { citySlug } = useProjectCity();
   // Market-aware mix term (e.g. "Joint Compound / Sheetrock Skim Coat"
   // in the US); NG keeps its established phrasing with no extra note.
@@ -155,9 +155,10 @@ export default function ScreedingCostEstimator({
     "Wall Finishing",
   );
   const finishTitle = `${finishTerm} Cost Estimator`;
-  const { currencySymbol: projectCurrencySymbol } = useProjectLocationCurrency(
-    passed.projectLocation ?? null,
-  );
+  const {
+    currencyCode: projectCurrencyCode,
+    currencySymbol: projectCurrencySymbol,
+  } = useProjectLocationCurrency(passed.projectLocation ?? null);
 
   const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(
     null,
@@ -337,7 +338,15 @@ export default function ScreedingCostEstimator({
   }
 
   const currencySymbol =
-    projectCurrencySymbol ?? activeConfig?.currencySymbol ?? "₦";
+    projectCurrencySymbol ??
+    activeConfig?.currencySymbol ??
+    market?.currencySymbol ??
+    "₦";
+  const currency =
+    projectCurrencyCode ??
+    activeConfig?.currency ??
+    market?.currencyCode ??
+    "NGN";
 
   return (
     <>
@@ -934,7 +943,7 @@ export default function ScreedingCostEstimator({
                                     },
                                   ],
                                 },
-                                currencySymbol === "₦" ? "NGN" : "USD",
+                                currency,
                               );
                               navigate("/document-studio?calculatorImport=1");
                             }}

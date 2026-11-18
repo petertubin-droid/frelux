@@ -85,10 +85,12 @@ export default function FoundationCalculator() {
     reportMissing,
   } = useCalculatorFeedback<HTMLDivElement>();
   const { t } = useLanguage();
-  const { preferredLengthUnit } = useMarket();
+  const { preferredLengthUnit, marketCode } = useMarket();
 
   const [shape, setShape] = useState<FoundationShape>("strip");
-  const [soilType, setSoilType] = useState<SoilType>("lateritic");
+  const [soilType, setSoilType] = useState<SoilType>(() =>
+    marketCode === "NG" || marketCode === "GH" ? "lateritic" : "firm_clay",
+  );
   const [customBearing, setCustomBearing] = useState(150);
   const [wallLoad, setWallLoad] = useState(40);
   const [columnLoad, setColumnLoad] = useState(200);

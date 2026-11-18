@@ -422,6 +422,11 @@ export function designFoundation(
         `Strip footing width ${final_width}mm exceeds 1500mm. Consider pad footings or raft foundation instead.`,
       );
     }
+    if (input.foundation_depth < 0.9) {
+      warnings.push(
+        "Shallow foundation depth (< 0.9 m): in temperate and freezing climates, verify local frost-line depth requirements (e.g. US IRC R403.1.4, UK Building Regs Part A, Eurocode 7) to prevent frost heave.",
+      );
+    }
     if (allowable_capacity < 100) {
       warnings.push(
         "Very low bearing capacity soil. Consider pile foundation or soil improvement.",
@@ -501,6 +506,11 @@ export function designFoundation(
     if (recommended_side > 2000) {
       warnings.push(
         `Pad size ${recommended_side}×${recommended_side}mm is very large. Consider raft foundation or soil improvement.`,
+      );
+    }
+    if (input.foundation_depth < 0.9) {
+      warnings.push(
+        "Shallow foundation depth (< 0.9 m): in temperate and freezing climates, verify local frost-line depth requirements (e.g. US IRC R403.1.4, UK Building Regs Part A, Eurocode 7) to prevent frost heave.",
       );
     }
 

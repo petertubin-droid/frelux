@@ -199,7 +199,7 @@ export default function TileCostEstimator({
     useCalculatorFeedback<HTMLDivElement>();
 
   const navigate = useNavigate();
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
   const seoOfferCurrency = useSeoOfferCurrency();
   useSeo(
@@ -304,8 +304,15 @@ export default function TileCostEstimator({
     currencySymbol: projectCurrencySymbol,
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
-    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
-  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
+    projectCurrencySymbol ??
+    settings?.default_currency_symbol ??
+    market?.currencySymbol ??
+    "₦";
+  const currency =
+    projectCurrencyCode ??
+    settings?.default_currency ??
+    market?.currencyCode ??
+    "NGN";
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -1025,10 +1032,7 @@ export default function TileCostEstimator({
                                   },
                                 ],
                               };
-                              exportQuoteToDocumentStudio(
-                                opts,
-                                result.currencySymbol === "₦" ? "NGN" : "USD",
-                              );
+                              exportQuoteToDocumentStudio(opts, currency);
                               navigate("/document-studio?calculatorImport=1");
                             }}
                             className={ACTION_BTN_PRIMARY}

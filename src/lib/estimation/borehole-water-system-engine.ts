@@ -1,3 +1,4 @@
+import { resolveCementBag } from "@/config/cement-bag";
 /**
  * Borehole & Autonomous Water Supply System Engineering Engine
  *
@@ -175,6 +176,8 @@ export interface BoreholeSystemResult {
     gravelPackBags25kg: number;
     sanitaryGroutDepthMeters: number;
     sanitaryGroutVolumeM3: number;
+    cementBagKg?: number;
+    sanitaryGroutCementBags?: number;
     sanitaryGroutCementBags50kg: number;
     bentoniteSealKg: number;
     casingOuterDiameterMm: number;
@@ -441,9 +444,17 @@ export function calculateBoreholeWaterSystem(
     Math.max(6, Math.round(depth * 0.1)),
   );
   const sanitaryGroutVolM3 = annularAreaM2 * sanitaryGroutDepthM;
-  // Neat cement grout: ~33 standard 50kg bags per m³ of grout + 5% bentonite powder
-  const cementBags50kg = ceilU(sanitaryGroutVolM3 * 33 * 1.15); // with 15% wastage allowance
-  const bentoniteSealKg = Math.round(cementBags50kg * 50 * 0.05);
+  // Market-aware neat cement grout calculation
+  const resolvedBag = resolveCementBag(marketCode);
+  const cementBagKg = Math.round(resolvedBag.bagKg);
+  // ~1650 kg cement per m³ of neat grout + 5% bentonite powder
+  const sanitaryGroutCementBags = ceilU(
+    sanitaryGroutVolM3 * (1650 / cementBagKg) * 1.15,
+  ); // with 15% wastage allowance
+  const cementBags50kg = ceilU(sanitaryGroutVolM3 * 33 * 1.15); // retained for backwards compatibility
+  const bentoniteSealKg = Math.round(
+    sanitaryGroutCementBags * cementBagKg * 0.05,
+  );
 
   // Gravel pack around screen: fills annular space from bottom of casing to 2m above screen
   const gravelPackHeightM = screenLength + 2;
@@ -1124,6 +1135,8 @@ export function calculateBoreholeWaterSystem(
       gravelPackBags25kg,
       sanitaryGroutDepthMeters: sanitaryGroutDepthM,
       sanitaryGroutVolumeM3: Number(sanitaryGroutVolM3.toFixed(3)),
+      cementBagKg,
+      sanitaryGroutCementBags,
       sanitaryGroutCementBags50kg: cementBags50kg,
       bentoniteSealKg,
       casingOuterDiameterMm: casingDiaMm,

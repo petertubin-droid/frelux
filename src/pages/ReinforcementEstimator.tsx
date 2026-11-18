@@ -76,10 +76,10 @@ const lenLab = (key: LenField, unit: string): string =>
   LEN_LABELS[key].replace("(m)", `(${unit})`);
 
 const LEN_LABELS: Record<LenField, string> = {
-  len_12mm_m: "12 mm: total cutting length (m)",
-  len_16mm_m: "16 mm: total cutting length (m)",
-  len_20mm_m: "20 mm: total cutting length (m)",
-  len_25mm_m: "25 mm: total cutting length (m)",
+  len_12mm_m: "12 mm (ASTM #4): total cutting length (m)",
+  len_16mm_m: "16 mm (ASTM #5): total cutting length (m)",
+  len_20mm_m: "20 mm (ASTM #6): total cutting length (m)",
+  len_25mm_m: "25 mm (ASTM #8): total cutting length (m)",
 };
 
 function fmtN(v: number | null): string {

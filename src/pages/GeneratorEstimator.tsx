@@ -84,8 +84,8 @@ export default function GeneratorEstimator() {
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
   const { marketCode, market } = useMarket();
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
-  const currencyCode = market?.currencyCode || "NGN";
+  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "$";
+  const currencyCode = market?.currencyCode || "USD";
 
   const [size, setSize] = useState<GenSize>("20kva");
   const [units, setUnits] = useState("1");
@@ -332,373 +332,380 @@ export default function GeneratorEstimator() {
 
   return (
     <ToolShell route="/generator">
-    <Container>
-      <MarketScopeNotice />
-      {/* Inputs */}
-      <div
-        ref={fieldsRef}
-        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-      >
-        <div className="mb-4">
-          <MeasurementTip what="generator sizing units and load figures" />
-        </div>
-        <h3 className="mb-1 font-semibold">
-          {t("Your load decision, your measurements")}
-        </h3>
-        <p className="mb-2 text-xs text-muted-foreground">
-          This engine NEVER sizes the generator. Choose the bracket from your
-          own load assessment (add up your loads and allow for starting
-          current), then measure the cable run from the generator position to
-          the changeover panel. Leave the cable blank and the estimate is marked
-          incomplete rather than assuming a length; enter 0 only if the set
-          truly mounts at the panel.
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium">
-              {t("Generator size (your choice)")}
-            </span>
-            <select
-              value={size}
-              onChange={(e) => setSize(e.target.value as GenSize)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2"
-            >
-              {GEN_SIZES.map((g) => (
-                <option key={g.value} value={g.value}>
-                  {g.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          {numberInput("Units", units, setUnits, "1")}
-          {numberInput(
-            "Generator-to-panel cable run (m)",
-            cableRun,
-            setCableRun,
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-4 text-sm">
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={includeAts}
-              onChange={(e) => setIncludeAts(e.target.checked)}
-            />
-            {t("Include ATS (one per set, labelled)")}
-          </label>
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={includeBattery}
-              onChange={(e) => setIncludeBattery(e.target.checked)}
-            />
-            {t("Include starting battery (one per set, labelled)")}
-          </label>
-        </div>
-
-        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
-            <select
-              value={labourMode}
-              onChange={(e) =>
-                setLabourMode(e.target.value as typeof labourMode)
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
-            >
-              <option value="none">{t("Not included")}</option>
-              <option value="lump_sum">{t("Lump sum")}</option>
-            </select>
-          </label>
-          {labourMode !== "none" &&
-            numberInput(
-              `Lump sum (${currencySymbol})`,
-              labourRate,
-              setLabourRate,
-            )}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Labour is always separate from material quantities and is never added
-          automatically.
-        </p>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("Calculate estimate")}
-          </button>
-          {result?.ok && (
-            <>
-              <button
-                onClick={save}
-                disabled={saving || result.lines.length === 0}
-                className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save estimate"}
-              </button>
-              <button
-                onClick={exportQuote}
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
-                {t("Export quote (PDF)")}
-              </button>
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-              <HowCalculatedSection
-                methodologyText={methodologyText("generator")}
-              />
-              <QuoteShareButton
-                build={buildQuote}
-                kind="Backup Power Estimate"
-                link="/generator"
-              />
-              <SaveToProjectButton
-                calculatorType="generator"
-                calculatorSlug="generator-estimator"
-                calcTitle="Backup power estimate"
-                calcData={input as unknown as Record<string, unknown>}
-                resultSummary={{
-                  grand_total: result.grand_total,
-                  material_subtotal: result.material_subtotal,
-                  labour_total: result.labour_total,
-                  incomplete: result.incomplete,
-                }}
-                materials={result.lines
-                  .filter((l) => l.quantity !== null)
-                  .map((l) => ({
-                    name: l.label,
-                    category: "power",
-                    quantity: l.quantity ?? 0,
-                    unit: l.unit,
-                    estimated_price: l.unit_price ?? undefined,
-                  }))}
-              />
-            </>
-          )}
-        </div>
-        {saveState && (
-          <p
-            className="mt-3 text-sm text-muted-foreground"
-            data-testid="save-state"
-          >
-            {saveState}
-          </p>
-        )}
-      </div>
-
-      <RecommendedProducts category="electrical" />
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      <div className="mb-4">
-        <MissingFieldsNotice fields={missing} />
-      </div>
-
-      {/* Errors */}
-      {result && !result.ok && (
+      <Container>
+        <MarketScopeNotice />
+        {/* Inputs */}
         <div
-          className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
-          role="alert"
+          ref={fieldsRef}
+          className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
         >
-          <h3 className="mb-1 font-semibold text-destructive">
-            {t("Fix these inputs first")}
+          <div className="mb-4">
+            <MeasurementTip what="generator sizing units and load figures" />
+          </div>
+          <h3 className="mb-1 font-semibold">
+            {t("Your load decision, your measurements")}
           </h3>
-          <ul className="list-disc pl-5 text-sm text-destructive">
-            {result.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Result */}
-      {result?.ok && (
-        <>
-          {/* Status banner */}
-          <div
-            ref={resultsRef}
-            className={`mb-4 rounded-lg border p-4 text-sm ${
-              result.incomplete
-                ? "border-amber-600/40 bg-amber-600/5"
-                : "border-emerald-600/40 bg-emerald-600/5"
-            }`}
-            data-testid="estimate-status"
-          >
-            {result.incomplete ? (
-              <>
-                <strong className="block">
-                  {t("This estimate is INCOMPLETE.")}
-                </strong>
-                <ul className="mt-1 list-disc pl-5">
-                  {result.missing.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                  {result.lines
-                    .filter((l) => l.unit_price === null && l.quantity !== null)
-                    .map((l) => (
-                      <li key={l.key}>
-                        {l.label}: PRICE NOT CONFIGURED in the material database
-                        : the quantity is shown, but no price was invented.
-                      </li>
-                    ))}
-                </ul>
-              </>
-            ) : (
-              <strong>
-                Complete estimate: every line sized and priced from the shared
-                material database.
-              </strong>
+          <p className="mb-2 text-xs text-muted-foreground">
+            This engine NEVER sizes the generator. Choose the bracket from your
+            own load assessment (add up your loads and allow for starting
+            current), then measure the cable run from the generator position to
+            the changeover panel. Leave the cable blank and the estimate is
+            marked incomplete rather than assuming a length; enter 0 only if the
+            set truly mounts at the panel.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium">
+                {t("Generator size (your choice)")}
+              </span>
+              <select
+                value={size}
+                onChange={(e) => setSize(e.target.value as GenSize)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2"
+              >
+                {GEN_SIZES.map((g) => (
+                  <option key={g.value} value={g.value}>
+                    {g.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {numberInput("Units", units, setUnits, "1")}
+            {numberInput(
+              "Generator-to-panel cable run (m)",
+              cableRun,
+              setCableRun,
             )}
           </div>
+          <div className="mt-3 flex flex-wrap gap-4 text-sm">
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={includeAts}
+                onChange={(e) => setIncludeAts(e.target.checked)}
+              />
+              {t("Include ATS (one per set, labelled)")}
+            </label>
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={includeBattery}
+                onChange={(e) => setIncludeBattery(e.target.checked)}
+              />
+              {t("Include starting battery (one per set, labelled)")}
+            </label>
+          </div>
 
-          {/* Materials table */}
-          <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
-            <table
-              className="w-full text-sm"
-              aria-label={t("Backup power material takeoff")}
+          <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">{t("Labour mode")}</span>
+              <select
+                value={labourMode}
+                onChange={(e) =>
+                  setLabourMode(e.target.value as typeof labourMode)
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
+              >
+                <option value="none">{t("Not included")}</option>
+                <option value="lump_sum">{t("Lump sum")}</option>
+              </select>
+            </label>
+            {labourMode !== "none" &&
+              numberInput(
+                `Lump sum (${currencySymbol})`,
+                labourRate,
+                setLabourRate,
+              )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Labour is always separate from material quantities and is never
+            added automatically.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
-              <thead className="border-b bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3">{t("Material")}</th>
-                  <th className="p-3">{t("Quantity")}</th>
-                  <th className="p-3">{t("Unit")}</th>
-                  <th className="p-3">{t("How it was sized")}</th>
-                  <th className="p-3">{t("Unit price")}</th>
-                  <th className="p-3">{t("Line total")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.lines.map((l) => (
-                  <tr key={l.key} className="border-b last:border-0">
-                    <td className="p-3 font-medium">{l.label}</td>
-                    <td className="p-3" data-testid={`qty-${l.key}`}>
-                      {l.quantity === null
-                        ? "(provide measurement)"
-                        : fmtN(l.quantity)}
-                    </td>
-                    <td className="p-3 text-muted-foreground">{l.unit}</td>
-                    <td className="max-w-xs p-3 text-xs text-muted-foreground">
-                      {l.detail}
-                    </td>
-                    <td className="p-3">
-                      {l.unit_price === null ? (
-                        <span className="font-medium text-amber-700 dark:text-amber-400">
-                          {t("PRICE NOT CONFIGURED")}
-                        </span>
-                      ) : (
-                        formatCurrency(l.unit_price, currencySymbol)
-                      )}
-                    </td>
-                    <td className="p-3 font-medium">
-                      {l.line_total === null
-                        ? "N/A"
-                        : formatCurrency(l.line_total, currencySymbol)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              {t("Calculate estimate")}
+            </button>
+            {result?.ok && (
+              <>
+                <button
+                  onClick={save}
+                  disabled={saving || result.lines.length === 0}
+                  className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save estimate"}
+                </button>
+                <button
+                  onClick={exportQuote}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {t("Export quote (PDF)")}
+                </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("generator")}
+                />
+                <QuoteShareButton
+                  build={buildQuote}
+                  kind="Backup Power Estimate"
+                  link="/generator"
+                />
+                <SaveToProjectButton
+                  calculatorType="generator"
+                  calculatorSlug="generator-estimator"
+                  calcTitle="Backup power estimate"
+                  calcData={input as unknown as Record<string, unknown>}
+                  resultSummary={{
+                    grand_total: result.grand_total,
+                    material_subtotal: result.material_subtotal,
+                    labour_total: result.labour_total,
+                    incomplete: result.incomplete,
+                  }}
+                  materials={result.lines
+                    .filter((l) => l.quantity !== null)
+                    .map((l) => ({
+                      name: l.label,
+                      category: "power",
+                      quantity: l.quantity ?? 0,
+                      unit: l.unit,
+                      estimated_price: l.unit_price ?? undefined,
+                    }))}
+                />
+              </>
+            )}
           </div>
+          {saveState && (
+            <p
+              className="mt-3 text-sm text-muted-foreground"
+              data-testid="save-state"
+            >
+              {saveState}
+            </p>
+          )}
+        </div>
 
-          {/* Breakdown */}
-          <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
-            <ol className="space-y-2 text-sm">
-              {result.steps.map((s, i) => (
-                <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
-                  <span className="font-medium">{s.label}:</span>{" "}
-                  <span className="text-muted-foreground">{s.detail}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+        <RecommendedProducts category="electrical" />
 
-          {/* Cost summary */}
-          <div className="mb-6 grid gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Material subtotal")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.material_subtotal === null
-                  ? "(prices/inputs missing)"
-                  : formatCurrency(result.material_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Of which priced so far")}
-              </p>
-              <p className="text-xl font-semibold">
-                {formatCurrency(result.priced_subtotal, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
-              <p className="text-xl font-semibold">
-                {labourMode === "none"
-                  ? "Not included"
-                  : formatCurrency(result.labour_total, currencySymbol)}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Grand total")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.grand_total === null
-                  ? "N/A"
-                  : formatCurrency(result.grand_total, currencySymbol)}
-              </p>
-            </div>
-          </div>
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
 
-          {/* Warnings */}
-          <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
-            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              {result.warnings.map((w) => (
-                <li key={w}>{w}</li>
+        <div className="mb-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
+
+        {/* Errors */}
+        {result && !result.ok && (
+          <div
+            className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
+            role="alert"
+          >
+            <h3 className="mb-1 font-semibold text-destructive">
+              {t("Fix these inputs first")}
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-destructive">
+              {result.errors.map((e) => (
+                <li key={e}>{e}</li>
               ))}
             </ul>
           </div>
-        </>
-      )}
+        )}
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+        {/* Result */}
+        {result?.ok && (
+          <>
+            {/* Status banner */}
+            <div
+              ref={resultsRef}
+              className={`mb-4 rounded-lg border p-4 text-sm ${
+                result.incomplete
+                  ? "border-amber-600/40 bg-amber-600/5"
+                  : "border-emerald-600/40 bg-emerald-600/5"
+              }`}
+              data-testid="estimate-status"
+            >
+              {result.incomplete ? (
+                <>
+                  <strong className="block">
+                    {t("This estimate is INCOMPLETE.")}
+                  </strong>
+                  <ul className="mt-1 list-disc pl-5">
+                    {result.missing.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                    {result.lines
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
+                      .map((l) => (
+                        <li key={l.key}>
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              ) : (
+                <strong>
+                  Complete estimate: every line sized and priced from the shared
+                  material database.
+                </strong>
+              )}
+            </div>
 
-      {/* How it works */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            The size bracket is YOUR decision from your load assessment. The
-            engine prices the chosen unit; it never calculates or recommends a
-            size, and every result says so.
-          </li>
-          <li>
-            The cable quantity comes from your measured run with FRELUX's
-            visible waste/route allowance. A blank run is reported missing
-            rather than assumed; 0 is confirmed in the breakdown, not passed
-            silently.
-          </li>
-          <li>
-            ATS and starting battery follow one-per-set, labelled assumptions.
-            All prices come from the shared FRELUX material database (Price
-            Tracker); unpriced materials show PRICE NOT CONFIGURED, never
-            invented.
-          </li>
-          <li>
-            This is material ESTIMATION, not a load calculation or installation
-            design. Earthing, changeover wiring and commissioning must follow a
-            qualified electrician's design and local codes.
-          </li>
-        </ul>
-      </section>
-    </Container>
+            {/* Materials table */}
+            <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
+              <table
+                className="w-full text-sm"
+                aria-label={t("Backup power material takeoff")}
+              >
+                <thead className="border-b bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3">{t("Material")}</th>
+                    <th className="p-3">{t("Quantity")}</th>
+                    <th className="p-3">{t("Unit")}</th>
+                    <th className="p-3">{t("How it was sized")}</th>
+                    <th className="p-3">{t("Unit price")}</th>
+                    <th className="p-3">{t("Line total")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.lines.map((l) => (
+                    <tr key={l.key} className="border-b last:border-0">
+                      <td className="p-3 font-medium">{l.label}</td>
+                      <td className="p-3" data-testid={`qty-${l.key}`}>
+                        {l.quantity === null
+                          ? "(provide measurement)"
+                          : fmtN(l.quantity)}
+                      </td>
+                      <td className="p-3 text-muted-foreground">{l.unit}</td>
+                      <td className="max-w-xs p-3 text-xs text-muted-foreground">
+                        {l.detail}
+                      </td>
+                      <td className="p-3">
+                        {l.unit_price === null ? (
+                          <span className="font-medium text-amber-700 dark:text-amber-400">
+                            {t("PRICE NOT CONFIGURED")}
+                          </span>
+                        ) : (
+                          formatCurrency(l.unit_price, currencySymbol)
+                        )}
+                      </td>
+                      <td className="p-3 font-medium">
+                        {l.line_total === null
+                          ? "N/A"
+                          : formatCurrency(l.line_total, currencySymbol)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Breakdown */}
+            <div className="mb-6 rounded-lg border bg-card p-4">
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
+              <ol className="space-y-2 text-sm">
+                {result.steps.map((s, i) => (
+                  <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
+                    <span className="font-medium">{s.label}:</span>{" "}
+                    <span className="text-muted-foreground">{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Cost summary */}
+            <div className="mb-6 grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Material subtotal")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.material_subtotal === null
+                    ? "(prices/inputs missing)"
+                    : formatCurrency(result.material_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Of which priced so far")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(result.priced_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">{t("Labour")}</p>
+                <p className="text-xl font-semibold">
+                  {labourMode === "none"
+                    ? "Not included"
+                    : formatCurrency(result.labour_total, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-primary/10 p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Grand total")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.grand_total === null
+                    ? "N/A"
+                    : formatCurrency(result.grand_total, currencySymbol)}
+                </p>
+              </div>
+            </div>
+
+            {/* Warnings */}
+            <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
+              <h3 className="mb-1 font-semibold">{t("Important")}</h3>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                {result.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              The size bracket is YOUR decision from your load assessment. The
+              engine prices the chosen unit; it never calculates or recommends a
+              size, and every result says so.
+            </li>
+            <li>
+              The cable quantity comes from your measured run with FRELUX's
+              visible waste/route allowance. A blank run is reported missing
+              rather than assumed; 0 is confirmed in the breakdown, not passed
+              silently.
+            </li>
+            <li>
+              ATS and starting battery follow one-per-set, labelled assumptions.
+              All prices come from the shared FRELUX material database (Price
+              Tracker); unpriced materials show PRICE NOT CONFIGURED, never
+              invented.
+            </li>
+            <li>
+              This is material ESTIMATION, not a load calculation or
+              installation design. Earthing, changeover wiring and commissioning
+              must follow a qualified electrician's design and local codes.
+            </li>
+          </ul>
+        </section>
+      </Container>
     </ToolShell>
   );
 }

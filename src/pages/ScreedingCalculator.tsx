@@ -70,16 +70,15 @@ export default function ScreedingCalculator({
   useSeo(
     !embedded
       ? {
-          title: "Wall Screeding Calculator, How Much Screeding Do I Need?",
-          description:
-            "Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.",
+          title: `${finishTerm} Calculator, How Much Material Do I Need?`,
+          description: `Free ${finishTerm.toLowerCase()} calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs ${finishTerm.toLowerCase()}.`,
           canonicalPath: "/screeding-calculator",
           ogType: "website",
           structuredDataArray: [
             {
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "FRELUX Wall Screeding Calculator",
+              name: `FRELUX ${finishTerm} Calculator`,
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               offers: {
