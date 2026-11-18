@@ -134,6 +134,8 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { NearbySuppliersLink } from "@/components/map/NearbySuppliersLink";
 import { NumericInput } from "@/components/ui/NumericInput";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 // =========================================================
 // Types
 // =========================================================
@@ -159,27 +161,35 @@ const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 // =========================================================
 
 // Printable professional quote, market-currency formatted.
-function paintingQuoteOptions(args: {
-  rooms: number;
-  area: number;
-  lineItems: {
-    item_name: string;
-    practical_purchase_qty: number;
-    unit_price: number;
-    total_price: number;
-  }[];
-  materialCost: number;
-  labourCost: number;
-  grandTotal: number;
-  currency: string;
-}): QuoteOptions {
+
+type AreaFormatter = (m2: number) => string;
+/** Fallback for the quote builder when it runs outside a page. */
+const plainArea: AreaFormatter = (m2) => `${formatNumber(m2)} m²`;
+
+function paintingQuoteOptions(
+  args: {
+    rooms: number;
+    area: number;
+    lineItems: {
+      item_name: string;
+      practical_purchase_qty: number;
+      unit_price: number;
+      total_price: number;
+    }[];
+    materialCost: number;
+    labourCost: number;
+    grandTotal: number;
+    currency: string;
+  },
+  area: AreaFormatter = plainArea,
+): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, args.currency);
   return {
     title: "FRELUX Painting Cost Estimate",
-    subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${args.area.toFixed(1)} m²`,
+    subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${area(args.area)}`,
     metaRows: [
       ["Rooms", String(args.rooms)],
-      ["Paintable area", `${args.area.toFixed(1)} m²`],
+      ["Paintable area", `${area(args.area)}`],
       ["Material lines", String(args.lineItems.length)],
     ],
     lines: args.lineItems.map((li) => ({
@@ -224,6 +234,11 @@ export default function PaintingEstimator({
   };
 
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { marketCode, market } = useMarket();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "buckets" phrasing.
@@ -1308,6 +1323,10 @@ function RoomCard({
   onRemoveWindow: (winIndex: number) => void;
 }) {
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
   const roomQualities = qualities.get(room.product_id) ?? [];
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "bucket(s)" phrasing.
@@ -1799,6 +1818,10 @@ function EstimateResult({
   setLabourConfig: (config: LabourConfig) => void;
 }) {
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "bucket(s)" phrasing.
   const localTerm = useLocalTerm();
@@ -1986,7 +2009,7 @@ function EstimateResult({
               />
               <StatBox
                 label="Net Wall Area"
-                value={`${room.net_wall_area_m2.toFixed(2)} m²`}
+                value={area(room.net_wall_area_m2)}
               />
               <StatBox
                 label="Coverage"

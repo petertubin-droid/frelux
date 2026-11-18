@@ -41,6 +41,8 @@ import type {
 } from "@/lib/tv-console/media-context";
 import { calculateConsoleEstimate } from "@/lib/tv-console/calculator";
 import ToolShell from "@/components/tools/ToolShell";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const number = (v: string, fallback: number) =>
   v === "" ? fallback : Number(v);
@@ -118,6 +120,11 @@ const CONSOLE_FAQS = [
 ];
 
 export default function TvConsoleCalculator() {
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const resetInputs = () => {
     setWidth(1800);
     setHeight(400);
@@ -757,7 +764,7 @@ export default function TvConsoleCalculator() {
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       <div>
                         <div className="text-2xl font-bold tabular-nums">
-                          {result.carcassAreaM2.toFixed(3)} m²
+                          {area(result.carcassAreaM2)}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           board area to cut
@@ -791,10 +798,11 @@ export default function TvConsoleCalculator() {
                     </div>
 
                     <p className="mt-3 rounded-lg bg-background p-3 text-xs text-muted-foreground">
-                      Board packing:{" "}
-                      {result.carcassSheets.usedAreaM2.toFixed(2)} m² of parts
-                      cut into {result.carcassSheets.physicalSheets} board
-                      {result.carcassSheets.physicalSheets === 1 ? "" : "s"}{" "}
+                      Board packing: {area(result.carcassSheets.usedAreaM2)} of
+                      parts cut into {result.carcassSheets.physicalSheets} board
+                      {result.carcassSheets.physicalSheets === 1
+                        ? ""
+                        : "s"}{" "}
                       before allowance,{" "}
                       {result.carcassSheets.sheetsWithAllowance} with your{" "}
                       {waste}% allowance. A plain area division would have said{" "}
@@ -826,7 +834,7 @@ export default function TvConsoleCalculator() {
                             <th className="px-3 py-2">Board</th>
                             <th className="px-3 py-2 text-right">Qty</th>
                             <th className="px-3 py-2 text-right">Each (mm)</th>
-                            <th className="px-3 py-2 text-right">Area (m²)</th>
+                            <th className="px-3 py-2 text-right">{`Area (${areaUnit.label})`}</th>
                           </tr>
                         </thead>
                         <tbody>
