@@ -9,6 +9,7 @@
 import { useCallback, useState } from "react";
 import type { Unit } from "@/types";
 import { SQFT_PER_SQM, unitShortLabel, unitToMeters } from "@/lib/utils";
+import { useMarket } from "@/lib/international/market-context";
 
 export interface LengthUnit {
   /** The unit the visitor is typing in. */
@@ -105,4 +106,13 @@ export function useAreaUnit(defaultUnit: AreaInputUnit = "sqft"): AreaUnit {
   );
 
   return { unit, setUnit, toSqm, fromSqm, label: areaUnitLabel(unit) };
+}
+
+/**
+ * The area unit the active market reads in, so a page shows square feet to a
+ * US or UK visitor and square metres everywhere else without asking.
+ */
+export function useMarketAreaUnit(): AreaInputUnit {
+  const { preferredAreaUnit } = useMarket();
+  return preferredAreaUnit === "sqft" ? "sqft" : "sqm";
 }

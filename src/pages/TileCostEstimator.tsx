@@ -3,6 +3,7 @@ import HowCalculatedSection from "@/components/calculators/HowCalculatedSection"
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 import { useLocation } from "react-router-dom";
 import { ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
@@ -105,25 +106,26 @@ function tileQuoteOptions(
     warnings?: string[];
   },
   method: string,
+  area: (m2: number) => string,
 ): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, result.currencySymbol);
   return {
     title: "FRELUX Tile Cost Estimate",
     subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
     metaRows: [
-      ["Gross surface area", `${formatNumber(result.surfaceArea)} m²`],
+      ["Gross surface area", area(result.surfaceArea)],
       ...(result.openingArea > 0
         ? [
-            [
-              "Opening deductions",
-              `−${formatNumber(result.openingArea)} m²`,
-            ] as [string, string],
+            ["Opening deductions", `−${area(result.openingArea)}`] as [
+              string,
+              string,
+            ],
           ]
         : []),
-      ["Net tiled area", `${formatNumber(result.netSurfaceArea)} m²`],
+      ["Net tiled area", area(result.netSurfaceArea)],
       ["Tiles needed", String(result.tilesNeeded)],
       ["Boxes needed", String(result.boxesNeeded)],
-      ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+      ["Waste allowance", area(result.wasteAmount)],
     ],
     lines: [
       {
@@ -184,9 +186,10 @@ function tileQuoteOptions(
 function exportTileQuote(
   result: Parameters<typeof tileQuoteOptions>[0],
   method: string,
+  area: (m2: number) => string,
 ) {
   printQuote(
-    tileQuoteOptions(result, method),
+    tileQuoteOptions(result, method, area),
     "frelux-tile-cost-estimate.html",
   );
 }
@@ -232,6 +235,12 @@ export default function TileCostEstimator({
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
   const { user } = useAuth();
+
+  // The engine answers in square metres; the market decides how the visitor
+  // reads that area, so every figure goes through one conversion.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
 
   const [, setTileSizes] = useState<DbTileSize[]>([]);
   const [tileMaterials, setTileMaterials] = useState<DbTileMaterial[]>([]);
@@ -853,17 +862,17 @@ export default function TileCostEstimator({
                   <>
                     <Row
                       label="Gross surface area"
-                      value={`${formatNumber(result.surfaceArea)} m²`}
+                      value={area(result.surfaceArea)}
                     />
                     {result.openingArea > 0 && (
                       <Row
                         label="Opening deductions"
-                        value={`−${formatNumber(result.openingArea)} m²`}
+                        value={`−${area(result.openingArea)}`}
                       />
                     )}
                     <Row
                       label="Net tiled area"
-                      value={`${formatNumber(result.netSurfaceArea)} m²`}
+                      value={area(result.netSurfaceArea)}
                     />
                     <Row label="Tiles needed" value={`${result.tilesNeeded}`} />
                     <Row label="Boxes needed" value={`${result.boxesNeeded}`} />
@@ -951,7 +960,7 @@ export default function TileCostEstimator({
                           <button
                             type="button"
                             onClick={() =>
-                              exportTileQuote(result, result.method)
+                              exportTileQuote(result, result.method, area)
                             }
                             className={ACTION_BTN}
                           >
@@ -967,7 +976,7 @@ export default function TileCostEstimator({
                           <ShareEstimateButton
                             showPdf={false}
                             estimate={quoteToShareable(
-                              tileQuoteOptions(result, result.method),
+                              tileQuoteOptions(result, result.method, area),
                               "/tile-cost-estimator",
                             )}
                             compact
@@ -978,12 +987,9 @@ export default function TileCostEstimator({
                             onClick={() => {
                               const opts = {
                                 title: "Tile Cost Estimate",
-                                subtitle: `Surface: ${formatNumber(result.surfaceArea)} m² · ${result.method}`,
+                                subtitle: `Surface: ${area(result.surfaceArea)} · ${result.method}`,
                                 metaRows: [
-                                  [
-                                    "Surface area",
-                                    `${formatNumber(result.surfaceArea)} m²`,
-                                  ],
+                                  ["Surface area", area(result.surfaceArea)],
                                   ["Tiles needed", String(result.tilesNeeded)],
                                   ["Boxes needed", String(result.boxesNeeded)],
                                 ] as [string, string][],
@@ -1057,11 +1063,11 @@ export default function TileCostEstimator({
                       <EngineExplanationPanel
                         result={engine.buildExplanation({
                           subject: "Tile Cost Estimate",
-                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.netSurfaceArea)} m² net tiled area`,
+                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${area(result.netSurfaceArea)} net tiled area`,
                           steps: [
                             {
                               description: "Gross surface area",
-                              value: `${formatNumber(result.surfaceArea)} m²`,
+                              value: area(result.surfaceArea),
                             },
                             ...(result.openingArea > 0
                               ? [
@@ -1126,7 +1132,7 @@ export default function TileCostEstimator({
                           notes: [
                             `Method: ${result.method}`,
                             `Waste margin: ${input.wasteMargin}%`,
-                            `Gross surface: ${formatNumber(result.surfaceArea)} m²; openings: ${formatNumber(result.openingArea)} m²; net tiled area: ${formatNumber(result.netSurfaceArea)} m²`,
+                            `Gross surface: ${area(result.surfaceArea)}; openings: ${area(result.openingArea)}; net tiled area: ${area(result.netSurfaceArea)}`,
                           ],
                         })}
                       />
