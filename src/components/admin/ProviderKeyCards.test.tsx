@@ -126,7 +126,7 @@ describe("ProviderKeyCards", () => {
   it("never saves an empty draft", async () => {
     render(<ProviderKeyCards />);
     await waitFor(() => expect(listMock).toHaveBeenCalled());
-    const btns = screen.getAllByRole("button", {
+    const btns = await screen.findAllByRole("button", {
       name: /save & activate|rotate key/i,
     });
     // Empty drafts disable every save button — no provider can fire a save.

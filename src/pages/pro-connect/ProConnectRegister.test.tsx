@@ -146,6 +146,7 @@ async function renderPage() {
 /** Drive steps 1 to 3 so the email verification step is reachable. */
 async function advanceToEmailStep() {
   await renderPage();
+  await screen.findByRole("option", { name: /Painters/i });
   const combos = await screen.findAllByRole("combobox");
   fireEvent.change(combos[0], { target: { value: "c1" } });
   fireEvent.click(screen.getByRole("button", { name: /^Continue$/ }));

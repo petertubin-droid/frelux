@@ -127,6 +127,23 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
       ZAR: "ZA",
       GHS: "GH",
       KES: "KE",
+      CNY: "CN",
+      MXN: "MX",
+      BRL: "BR",
+      SAR: "SA",
+      AED: "AE",
+      NZD: "NZ",
+      SGD: "SG",
+      CHF: "CH",
+      SEK: "SE",
+      PLN: "PL",
+      IDR: "ID",
+      KRW: "KR",
+      ETB: "ET",
+      EGP: "EG",
+      TZS: "TZ",
+      XOF: "CI",
+      TRY: "TR",
     };
     const mCode = currToMarket[currUpper] || "NG";
     return getMarketTaxRate(mCode);
