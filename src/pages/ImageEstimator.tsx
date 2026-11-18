@@ -143,7 +143,7 @@ export default function ImageEstimator() {
   const [analysisElapsed, setAnalysisElapsed] = useState(0);
   const [_imageFile, setImageFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState("");
-  const [location, setLocation] = useState("Lagos");
+  const [location, setLocation] = useState("");
   const [analysis, setAnalysis] = useState<BuildingAnalysisResult | null>(null);
   const [estimateInput, setEstimateInput] = useState<BuildToRoofInput | null>(
     null,
@@ -582,7 +582,7 @@ export default function ImageEstimator() {
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder="e.g. Lagos"
+                      placeholder={`e.g. a city in ${market?.countryName ?? "your country"}`}
                       className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
                     />
                   </div>

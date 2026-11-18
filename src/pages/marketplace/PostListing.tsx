@@ -53,7 +53,7 @@ export default function PostListing() {
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
   const [state, setState] = useState(profile?.full_name ? "" : "");
-  const [country, setCountry] = useState("NG");
+  const [country, setCountry] = useState(market?.marketCode ?? "NG");
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
   const [userLocation, setUserLocation] =
