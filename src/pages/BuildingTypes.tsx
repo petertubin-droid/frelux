@@ -16,6 +16,8 @@ import {
 } from "@/lib/measurement/building-type-catalogue";
 import AdSlot from "@/components/ui/AdSlot";
 import { jsonLdScript } from "@/lib/structured-data";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const CATEGORY_ORDER: BuildingCategory[] = [
   "residential",
@@ -54,6 +56,11 @@ const FAQS = [
 ];
 
 export default function BuildingTypes() {
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const formatArea = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   useSeo({
     title: "Building Types: Room Schedules, Floor and Wall Areas | FRELUX",
     description:
@@ -145,7 +152,7 @@ export default function BuildingTypes() {
                     </p>
                     <p className="mt-2 text-xs text-muted-foreground">
                       {type.rooms.length} room types ·{" "}
-                      {Math.round(buildingTypeFloorAreaM2(type))} m² floor
+                      {formatArea(buildingTypeFloorAreaM2(type))} floor
                       {type.bedrooms > 0 ? ` · ${type.bedrooms} bedrooms` : ""}
                     </p>
                   </Link>

@@ -37,6 +37,8 @@ import {
 } from "@/lib/geospatial/imagery";
 import type { LatLon } from "@/lib/geospatial/geodesy";
 import { useLanguage } from "@/lib/i18n";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 function parseBoundary(text: string): { a: number; b: number }[] | null {
   const lines = text
@@ -62,6 +64,11 @@ function parseBoundary(text: string): { a: number; b: number }[] | null {
 
 export function SiteTab({ projectId }: { projectId: string }) {
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const formatArea = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const [loading, setLoading] = useState(true);
   const [site, setSite] = useState<Awaited<
     ReturnType<typeof getSiteLocation>
@@ -317,9 +324,7 @@ export function SiteTab({ projectId }: { projectId: string }) {
               </p>
               <p className="text-xs text-muted-foreground">
                 {site.site_area_m2 !== null
-                  ? `Boundary area: ${Math.round(
-                      site.site_area_m2,
-                    ).toLocaleString("en-NG")} m² (spherical, ~0.5%)`
+                  ? `Boundary area: ${formatArea(site.site_area_m2)} (spherical, ~0.5%)`
                   : "No boundary captured yet."}
               </p>
             </div>

@@ -81,6 +81,8 @@ import {
 } from "@/lib/construction-intelligence/risk-flags";
 import { calculateConstructionProject } from "@/lib/measurement/project-engine";
 import { useLanguage } from "@/lib/i18n";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 type Tab =
   | "overview"
@@ -112,6 +114,11 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
 
 export default function ProjectDetail() {
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engine stays in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const formatArea = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -657,10 +664,7 @@ export default function ProjectDetail() {
                                   ] ?? discipline}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  {area.toLocaleString(undefined, {
-                                    maximumFractionDigits: 2,
-                                  })}{" "}
-                                  m² total
+                                  {formatArea(area)} total
                                 </p>
                               </div>
                               <div className="mt-2 divide-y rounded-lg border">
