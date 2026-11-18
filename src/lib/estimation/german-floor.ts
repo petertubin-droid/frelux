@@ -25,6 +25,8 @@ import {
   unitsToBuy,
 } from "@/config/aggregate-units";
 
+export const STANDARD_TERMINOLOGY = "Slab-on-Grade / Ground-Bearing Slab";
+
 export type ConcreteMixKey = "1:1.5:3" | "1:2:4" | "1:3:6";
 
 export interface ConcreteMix {
@@ -104,6 +106,7 @@ export interface LayerVolume {
 }
 
 export interface GermanFloorResult {
+  standardTerminology?: string;
   areaM2: number;
   site: { lengthM: number; widthM: number; plotLabel: string | null };
   layers: {
@@ -247,6 +250,7 @@ export function calculateGermanFloor(
   return {
     errors: [],
     result: {
+      standardTerminology: STANDARD_TERMINOLOGY,
       areaM2: Number(areaM2.toFixed(2)),
       site: {
         lengthM: Number(lengthM.toFixed(2)),

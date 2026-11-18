@@ -31,6 +31,7 @@ import WaterTowerInstallationSequence from "@/components/tools/WaterTowerInstall
 import { buildSequenceHowTo } from "@/lib/build-sequence-seo";
 import { useLengthUnit } from "@/lib/use-length-unit";
 import ToolShell from "@/components/tools/ToolShell";
+import { useMarket } from "@/lib/international/market-context";
 
 export default function WaterTowerEstimator() {
   const resetInputs = () => {
@@ -44,14 +45,16 @@ export default function WaterTowerEstimator() {
   const { toMetres } = useLengthUnit("feet");
   const [height, setHeight] = useState<number>(20);
   const [material, setMaterial] = useState<"steel" | "concrete">("steel");
+  const { marketCode } = useMarket();
 
   const result = useMemo(() => {
     return calculateWaterTowerStaging({
       tankVolumeLiters: tankVolume,
       towerHeightMeters: toMetres(height),
       constructionMaterial: material,
+      marketCode,
     });
-  }, [tankVolume, height, material, toMetres]);
+  }, [tankVolume, height, material, toMetres, marketCode]);
 
   const exportCsv = () => {
     const rows: string[][] = [
@@ -106,8 +109,8 @@ export default function WaterTowerEstimator() {
         String(result.structuralBOM.concreteVolumeM3),
       ]);
       rows.push([
-        "Cement 50kg Bags",
-        String(result.structuralBOM.cementBags50kg),
+        `Cement ${result.structuralBOM.cementBagWeightKg ?? 50}kg Bags`,
+        String(result.structuralBOM.cementBags),
       ]);
       rows.push([
         "Clean Sharp Sand (m3)",
@@ -613,10 +616,11 @@ export default function WaterTowerEstimator() {
                             Cement
                           </span>
                           <span className="text-sm font-bold text-foreground font-mono">
-                            {result.structuralBOM.cementBags50kg} Bags
+                            {result.structuralBOM.cementBags} Bags
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            50kg bags
+                            {result.structuralBOM.cementBagWeightKg ?? 50}kg
+                            bags
                           </span>
                         </div>
                         <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 text-center">

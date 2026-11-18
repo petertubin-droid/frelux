@@ -509,6 +509,36 @@ describe("calculateTile — identical surfaces (multi-unit)", () => {
 });
 
 describe("calculateTile", () => {
+  it("adjusts traditional mortar package counts for a configured market bag size", () => {
+    const input: TileCalcInput = {
+      ...baseTileInput,
+      method: "traditional",
+      bedThicknessMm: 25,
+      sandUnitCubicMetres: 1,
+      marketCode: "UK",
+    };
+    const uk = calculateTile(input, tileMaterials, "GBP", "£");
+    const us = calculateTile(
+      { ...input, marketCode: "US" },
+      tileMaterials,
+      "USD",
+      "$",
+    );
+    expect(uk.cementNeeded).toBeGreaterThan(us.cementNeeded);
+    expect(uk.cementNeeded).toBe(9);
+    expect(us.cementNeeded).toBe(5);
+  });
+
+  it("warns when traditional mortar uses the fallback cement pack size", () => {
+    const result = calculateTile(
+      { ...baseTileInput, method: "traditional", bedThicknessMm: 25 },
+      tileMaterials,
+      "NGN",
+      "₦",
+    );
+    expect(result.warnings?.join(" ")).toContain("50 kg fallback");
+  });
+
   it("calculates floor surface area as length * width", () => {
     const result = calculateTile(baseTileInput, tileMaterials, "NGN", "₦");
     // 5m x 4m = 20 m²

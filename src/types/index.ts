@@ -419,6 +419,10 @@ export interface TileCalcInput {
   sandUnitLabel?: string;
   /** Mortar bed depth under the tiles, in millimetres. */
   bedThicknessMm?: number;
+  /** Market code to resolve market-specific cement packaging */
+  marketCode?: string;
+  /** Explicit cement bag weight override in kg */
+  cementBagKg?: number;
   // Grout (always needed)
   groutCoverageRate: number;
   groutPricePerKg: number;

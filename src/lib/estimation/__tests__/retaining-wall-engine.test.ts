@@ -134,6 +134,26 @@ describe("retaining wall takeoff", () => {
     expect(rebar?.detail).toContain("2 layers");
   });
 
+  it("uses the configured market cement pack weight", () => {
+    const r = calculateRetainingWall(
+      { ...base, marketCode: "UK" },
+      DEFAULT_RETAINING_WALL_RULES,
+      prices,
+    );
+    const cement = r.lines.find((line) => line.key === "cement");
+    expect(cement?.label).toContain("25 kg bags");
+    expect(cement?.quantity).toBe(26);
+  });
+
+  it("warns when no market is supplied and the 50 kg fallback is used", () => {
+    const r = calculateRetainingWall(
+      base,
+      DEFAULT_RETAINING_WALL_RULES,
+      prices,
+    );
+    expect(r.warnings.join(" ")).toContain("50 kg fallback");
+  });
+
   it("prices the lines and totals them", () => {
     const r = calculateRetainingWall(
       base,

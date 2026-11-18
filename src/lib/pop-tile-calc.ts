@@ -9,6 +9,7 @@ import type {
 } from "@/types";
 import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
 
+import { cementBagKg, resolveCementBag } from "@/config/cement-bag";
 import { formatNumber, unitToMeters } from "@/lib/utils";
 
 function toSqm(value: number, unit: Unit): number {
@@ -221,7 +222,6 @@ function ceilUnits(value: number): number {
 /** Mass of the default 50 kg cement bag, kg. */
 const CEMENT_BAG_KG = 50;
 const CEMENT_BULK_DENSITY_KG_M3 = 1440;
-const CEMENT_BAG_VOLUME_M3 = CEMENT_BAG_KG / CEMENT_BULK_DENSITY_KG_M3;
 /** Dry-to-wet mortar ratio, the same 1.33 the masonry engines use. */
 const MORTAR_DRY_FACTOR = 1.33;
 /** Default tile adhesive bag, kg. */
@@ -337,8 +337,15 @@ export function calculateTile(
   let cementNeeded = 0;
   let cementCost = 0;
   if (input.method === "traditional") {
+    const bagKg =
+      input.cementBagKg && input.cementBagKg > 0
+        ? input.cementBagKg
+        : input.marketCode
+          ? cementBagKg(input.marketCode)
+          : CEMENT_BAG_KG;
+    const bagVolM3 = bagKg / CEMENT_BULK_DENSITY_KG_M3;
     const bagsRequired = bedVolumeMode
-      ? ceilUnits(cementVolumeM3 / CEMENT_BAG_VOLUME_M3)
+      ? ceilUnits(cementVolumeM3 / bagVolM3)
       : input.cementCoverageRate > 0
         ? ceilUnits(adjustedArea / input.cementCoverageRate)
         : 0;
@@ -419,6 +426,24 @@ export function calculateTile(
   const spacerCost = spacerNeeded * input.spacerPricePerPack;
 
   const tileWarnings: string[] = [];
+  if (
+    input.method === "traditional" &&
+    !input.marketCode &&
+    !input.cementBagKg
+  ) {
+    tileWarnings.push(
+      "Cement quantity uses the existing 50 kg fallback because no market or bag weight was supplied; verify local packaging before ordering.",
+    );
+  } else if (
+    input.method === "traditional" &&
+    input.marketCode &&
+    !resolveCementBag(input.marketCode).isMarketSpecific &&
+    !input.cementBagKg
+  ) {
+    tileWarnings.push(
+      `No verified cement pack size is configured for ${input.marketCode}; quantity uses the 50 kg fallback. Verify the product pack before ordering.`,
+    );
+  }
   if (surfaceArea > 0 && tileAreaM2 <= 0) {
     tileWarnings.push(
       "Tile dimensions are invalid (zero tile area). Tile count and cost cannot be calculated.",

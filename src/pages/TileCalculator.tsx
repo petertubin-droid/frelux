@@ -614,7 +614,12 @@ export default function TileCalculator({
     if (Object.keys(e).length > 0) return;
 
     const r = monitoredCalc("Tile Calculator", () =>
-      calculateTile(input, tileMaterials, currency, currencySymbol),
+      calculateTile(
+        { ...input, marketCode },
+        tileMaterials,
+        currency,
+        currencySymbol,
+      ),
     );
     finishCompute(r, input.surfaceType);
     return;

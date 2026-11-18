@@ -15,6 +15,7 @@
  * aggregate behind the wall, mortar and plaster, and any engineer's design.
  */
 
+import { cementBagKg } from "@/config/cement-bag";
 import {
   TAX_NOT_DETERMINED,
   ceilQty,
@@ -128,6 +129,10 @@ export interface RetainingWallInput {
   stem_type: StemType;
   /** Contractor override of the recommended footing width, metres */
   footing_width_override_m?: number | null;
+  /** Target market code (e.g. 'US', 'GB', 'CA', 'NG') to adapt cement bag sizing */
+  marketCode?: string;
+  /** Explicit cement bag weight override in kg */
+  bagWeightKg?: number;
 }
 
 export interface RetainingWallGeometry {
@@ -162,7 +167,8 @@ export function computeRetainingWallStability(
   const H = Math.max(0.1, height_m);
   const B = Math.max(0.3, footing_width_m);
   const tf = Math.max(0.15, footing_thickness_m);
-  const ts = stem_type === "concrete" ? Math.max(0.15, stem_thickness_m) : 0.225;
+  const ts =
+    stem_type === "concrete" ? Math.max(0.15, stem_thickness_m) : 0.225;
 
   const soilProps: Record<
     SoilType,
@@ -225,11 +231,14 @@ export function computeRetainingWallStability(
 
   let summary = "Adequate geotechnical stability (BS 8002 / Eurocode 7)";
   if (!ot_pass && !sl_pass) {
-    summary = "Unstable against both overturning and sliding — footing width must be increased";
+    summary =
+      "Unstable against both overturning and sliding — footing width must be increased";
   } else if (!ot_pass) {
-    summary = "Overturning factor of safety is below 1.50 — widen the footing base";
+    summary =
+      "Overturning factor of safety is below 1.50 — widen the footing base";
   } else if (!sl_pass) {
-    summary = "Sliding factor of safety is below 1.50 — add a shear key or widen base";
+    summary =
+      "Sliding factor of safety is below 1.50 — add a shear key or widen base";
   } else if (!middle_third_pass) {
     summary = "Eccentricity outside middle third — risk of heel liftoff";
   }
@@ -375,15 +384,29 @@ export function calculateRetainingWall(
 
   const lines: SpecialtyLine[] = [];
 
+  const bagWeightKg =
+    input.bagWeightKg !== undefined && input.bagWeightKg > 0
+      ? input.bagWeightKg
+      : input.marketCode
+        ? cementBagKg(input.marketCode)
+        : 50;
+  const cementBags =
+    bagWeightKg === 50
+      ? Math.ceil(geo.concrete_m3 * CONCRETE_MIX.cement_bags_per_m3)
+      : Math.ceil(
+          (geo.concrete_m3 * CONCRETE_MIX.cement_bags_per_m3 * 50) /
+            bagWeightKg,
+        );
+
   if (geo.concrete_m3 > 0) {
     lines.push({
       key: "cement",
-      label: "Cement (50 kg bags)",
+      label: `Cement (${bagWeightKg} kg bags)`,
       material_slug: "cement-per-bag",
-      quantity: Math.ceil(geo.concrete_m3 * CONCRETE_MIX.cement_bags_per_m3),
+      quantity: cementBags,
       quantity_source: "rule_derived",
       unit: "bags",
-      detail: `${geo.concrete_m3} m³ concrete at 1:2:4`,
+      detail: `${geo.concrete_m3} m³ concrete at 1:2:4 (${bagWeightKg} kg bags)`,
       unit_price: null,
       line_total: null,
     });
@@ -411,6 +434,8 @@ export function calculateRetainingWall(
     });
   }
 
+  const blockLabel = "Hollow blocks (450 × 225)";
+
   const faceArea = money(input.length_m * input.height_m);
   if (input.stem_type === "block") {
     const blocks = ceilQty(
@@ -418,7 +443,7 @@ export function calculateRetainingWall(
     );
     lines.push({
       key: "blocks",
-      label: "Hollow blocks (450 × 225)",
+      label: blockLabel,
       material_slug: "block-per-piece",
       quantity: blocks,
       quantity_source: "rule_derived",
@@ -464,6 +489,11 @@ export function calculateRetainingWall(
   const priced = priceLines(lines, prices);
 
   const warnings: string[] = [...unpricedWarnings(priced.missing)];
+  if (!input.marketCode && input.bagWeightKg === undefined) {
+    warnings.push(
+      "Cement packaging uses the existing 50 kg fallback because no market or bag weight was supplied; verify the local product pack before ordering.",
+    );
+  }
   warnings.push(
     "Only the stem's vertical bars and the weep holes are counted. Bottom reinforcement in the footing, horizontal stem bars, and the drainage aggregate behind the wall are not: they follow the engineer's design.",
   );

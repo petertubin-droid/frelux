@@ -30,6 +30,10 @@ export interface TowerSpecs {
   windSpeedMs?: number;
   /** Tank diameter, m. Default derived from volume as a squat cylinder. */
   tankDiameterMeters?: number;
+  /** Target market code (e.g. 'US', 'GB', 'NG') to adapt cement bag sizing */
+  marketCode?: string;
+  /** Explicit cement bag weight override in kg */
+  bagWeightKg?: number;
 }
 
 /**
@@ -116,6 +120,8 @@ export interface WaterTowerStagingResult {
     steelKg?: number;
     concreteVolumeM3?: number;
     cementBags50kg?: number;
+    cementBags?: number;
+    cementBagWeightKg?: number;
     sandCubicMeters?: number;
     gravelCubicMeters?: number;
     verticalRebarY16Lengths?: number;
@@ -147,7 +153,7 @@ const MIN_SLIDING_FOS = 1.5;
  * Passive resistance in front of the pads is ignored: it needs undisturbed
  * ground that cannot be guaranteed on a site this small.
  */
-import { cementBagVolumeM3 } from "@/config/masonry-units";
+import { cementBagKg, cementBagVolumeM3 } from "@/config/cement-bag";
 import { CONCRETE_DRY_VOLUME_FACTOR } from "./site-conditions";
 
 const BASE_FRICTION_COEFFICIENT = 0.5;
@@ -167,14 +173,17 @@ const CEMENT_BAG_KG_TOWER = 50;
  * sand was ordered as 2 m³ and the pour came up short. Purchased bulk materials
  * round up here, as every other concrete engine on the platform orders them.
  */
-function towerConcreteMix(volumeM3: number): {
+function towerConcreteMix(
+  volumeM3: number,
+  bagWeightKg: number = CEMENT_BAG_KG_TOWER,
+): {
   cementBags: number;
   sandM3: number;
   gravelM3: number;
 } {
   const dryVol = volumeM3 * CONCRETE_DRY_VOLUME_FACTOR;
   return {
-    cementBags: Math.ceil(dryVol / 7 / cementBagVolumeM3(CEMENT_BAG_KG_TOWER)),
+    cementBags: Math.ceil(dryVol / 7 / cementBagVolumeM3(bagWeightKg)),
     sandM3: Math.ceil((dryVol * 2) / 7),
     gravelM3: Math.ceil((dryVol * 4) / 7),
   };
@@ -304,6 +313,22 @@ export function calculateWaterTowerStaging(
   }
 
   const warnings: string[] = [];
+  if (specs.windSpeedMs === undefined || specs.soilBearingKpa === undefined) {
+    warnings.push(
+      "Site wind speed and/or allowable soil bearing capacity were not supplied. The engine uses preliminary default assumptions; obtain project-specific values and an engineer's design before construction.",
+    );
+  }
+  if (!specs.marketCode && specs.bagWeightKg === undefined) {
+    warnings.push(
+      "Cement packaging uses the existing 50 kg fallback because no market or bag weight was supplied; verify local packaging before ordering.",
+    );
+  }
+  const bagWeightKg =
+    specs.bagWeightKg !== undefined && specs.bagWeightKg > 0
+      ? specs.bagWeightKg
+      : specs.marketCode
+        ? cementBagKg(specs.marketCode)
+        : CEMENT_BAG_KG_TOWER;
   const bearingKpa =
     specs.soilBearingKpa && specs.soilBearingKpa > 0
       ? specs.soilBearingKpa
@@ -569,7 +594,7 @@ export function calculateWaterTowerStaging(
     const columnVolume = section * towerHeightMeters * legs;
     concreteVolumeM3 = round(columnVolume + padsConcrete, 2);
 
-    const mix = towerConcreteMix(concreteVolumeM3);
+    const mix = towerConcreteMix(concreteVolumeM3, bagWeightKg);
     cementBags50kg = mix.cementBags;
     sandCubicMeters = mix.sandM3;
     gravelCubicMeters = mix.gravelM3;
@@ -642,7 +667,7 @@ export function calculateWaterTowerStaging(
       0,
     );
     concreteVolumeM3 = round(padsConcrete, 2);
-    const mix = towerConcreteMix(concreteVolumeM3);
+    const mix = towerConcreteMix(concreteVolumeM3, bagWeightKg);
     cementBags50kg = mix.cementBags;
     sandCubicMeters = mix.sandM3;
     gravelCubicMeters = mix.gravelM3;
@@ -820,6 +845,8 @@ export function calculateWaterTowerStaging(
       deckFixings: plankCount * 4,
       concreteVolumeM3,
       cementBags50kg,
+      cementBags: cementBags50kg,
+      cementBagWeightKg: bagWeightKg,
       sandCubicMeters,
       gravelCubicMeters,
       verticalRebarY16Lengths:

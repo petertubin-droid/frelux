@@ -58,7 +58,7 @@ export default function RetainingWallEstimator() {
   // currency the market book is quoted in. A country code here would match
   // nothing and silently drop the whole book.
   const { resolve } = usePriceBook();
-  const { market } = useMarket();
+  const { market, marketCode } = useMarket();
   const priceCurrency = market?.currencyCode ?? "NGN";
   const bookRates = resolve(priceCurrency).rates;
   const prices = useMemo(
@@ -71,6 +71,7 @@ export default function RetainingWallEstimator() {
     height_m: heightM,
     soil_type: soil,
     stem_type: stem,
+    marketCode,
     footing_width_override_m:
       widthOverride.trim() === ""
         ? null
