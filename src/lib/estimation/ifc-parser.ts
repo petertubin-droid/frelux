@@ -99,19 +99,45 @@ const TARGET_ELEMENT_TYPES = new Set([
   "IFCCHIMNEY",
 ]);
 
-const SPATIAL_STRUCTURE_TYPES = new Set(["IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE"]);
+const SPATIAL_STRUCTURE_TYPES = new Set([
+  "IFCPROJECT",
+  "IFCSITE",
+  "IFCBUILDING",
+  "IFCBUILDINGSTOREY",
+  "IFCSPACE",
+]);
 const GEOMETRIC_REPRESENTATION_TYPES = new Set([
-  "IFCGEOMETRICREPRESENTATIONCONTEXT", "IFCSHAPEREPRESENTATION", "IFCPRODUCTDEFINITIONSHAPE",
-  "IFCEXTRUDEDAREASOLID", "IFCFACETEDBREP", "IFCBOUNDARYREPRESENTATION", "IFCMAPPEDITEM",
-  "IFCCARTESIANPOINT", "IFCPOLYLINE", "IFCDIRECTION", "IFCAXIS2PLACEMENT3D", "IFCLOCALPLACEMENT",
-  "IFCGEOMETRICCURVESET", "IFCSHELLBASEDSURFACEMODEL", "IFCCOMPOSITECURVE", "IFCTRIMMEDCURVE",
+  "IFCGEOMETRICREPRESENTATIONCONTEXT",
+  "IFCSHAPEREPRESENTATION",
+  "IFCPRODUCTDEFINITIONSHAPE",
+  "IFCEXTRUDEDAREASOLID",
+  "IFCFACETEDBREP",
+  "IFCBOUNDARYREPRESENTATION",
+  "IFCMAPPEDITEM",
+  "IFCCARTESIANPOINT",
+  "IFCPOLYLINE",
+  "IFCDIRECTION",
+  "IFCAXIS2PLACEMENT3D",
+  "IFCLOCALPLACEMENT",
+  "IFCGEOMETRICCURVESET",
+  "IFCSHELLBASEDSURFACEMODEL",
+  "IFCCOMPOSITECURVE",
+  "IFCTRIMMEDCURVE",
 ]);
 
-function buildIfcSchemaCoverage(entities: Map<string, StepEntity>, fileText: string): IfcSchemaCoverage {
-  const schema = fileText.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i)?.[1] ?? null;
+function buildIfcSchemaCoverage(
+  entities: Map<string, StepEntity>,
+  fileText: string,
+): IfcSchemaCoverage {
+  const schema =
+    fileText.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i)?.[1] ?? null;
   const counts = new Map<string, number>();
-  for (const entity of entities.values()) counts.set(entity.type, (counts.get(entity.type) ?? 0) + 1);
-  const spatial: Record<string, number> = {}, recognized: Record<string, number> = {}, geometry: Record<string, number> = {}, unsupported: Record<string, number> = {};
+  for (const entity of entities.values())
+    counts.set(entity.type, (counts.get(entity.type) ?? 0) + 1);
+  const spatial: Record<string, number> = {},
+    recognized: Record<string, number> = {},
+    geometry: Record<string, number> = {},
+    unsupported: Record<string, number> = {};
   for (const [type, count] of counts) {
     if (SPATIAL_STRUCTURE_TYPES.has(type)) spatial[type] = count;
     else if (TARGET_ELEMENT_TYPES.has(type)) recognized[type] = count;
@@ -119,9 +145,14 @@ function buildIfcSchemaCoverage(entities: Map<string, StepEntity>, fileText: str
     else unsupported[type] = count;
   }
   return {
-    schema, spatial_structures: spatial, recognized_elements: recognized,
-    geometric_representations: geometry, distinct_entity_types: counts.size,
-    unsupported_entity_types: Object.fromEntries(Object.entries(unsupported).sort((a,b) => b[1]-a[1])),
+    schema,
+    spatial_structures: spatial,
+    recognized_elements: recognized,
+    geometric_representations: geometry,
+    distinct_entity_types: counts.size,
+    unsupported_entity_types: Object.fromEntries(
+      Object.entries(unsupported).sort((a, b) => b[1] - a[1]),
+    ),
     notes: [
       "Spatial structures and geometry entities are cataloged only; no 3D geometry or dimensions are inferred.",
       "Takeoff quantities remain limited to IfcQuantity values explicitly declared by the source file.",
@@ -146,10 +177,22 @@ const CANONICAL_UNIT_LABELS: Record<string, string> = {
 };
 
 const SI_PREFIX_FACTORS: Record<string, number> = {
-  EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6,
-  KILO: 1e3, HECTO: 1e2, DECA: 1e1, DECI: 1e-1, CENTI: 1e-2,
-  MILLI: 1e-3, MICRO: 1e-6, NANO: 1e-9, PICO: 1e-12,
-  FEMTO: 1e-15, ATTO: 1e-18,
+  EXA: 1e18,
+  PETA: 1e15,
+  TERA: 1e12,
+  GIGA: 1e9,
+  MEGA: 1e6,
+  KILO: 1e3,
+  HECTO: 1e2,
+  DECA: 1e1,
+  DECI: 1e-1,
+  CENTI: 1e-2,
+  MILLI: 1e-3,
+  MICRO: 1e-6,
+  NANO: 1e-9,
+  PICO: 1e-12,
+  FEMTO: 1e-15,
+  ATTO: 1e-18,
 };
 
 interface ResolvedIfcUnit {
@@ -171,9 +214,10 @@ function numericStepValue(value: string | undefined): number | null {
 }
 
 /** Resolves only explicitly declared units. Unknown or custom units stay raw. */
-function resolveIfcUnits(
-  entities: Map<string, StepEntity>,
-): { global: Map<string, ResolvedIfcUnit>; byId: Map<string, ResolvedIfcUnit> } {
+function resolveIfcUnits(entities: Map<string, StepEntity>): {
+  global: Map<string, ResolvedIfcUnit>;
+  byId: Map<string, ResolvedIfcUnit>;
+} {
   const cache = new Map<string, ResolvedIfcUnit>();
   const resolving = new Set<string>();
   const resolve = (id: string): ResolvedIfcUnit | null => {
@@ -192,13 +236,29 @@ function resolveIfcUnits(
       const prefixFactor = prefix ? SI_PREFIX_FACTORS[prefix] : 1;
       if (prefixFactor && unitType === "LENGTHUNIT" && name === "METRE") {
         unit = { unitType, factorToCanonical: prefixFactor, label: "m" };
-      } else if (prefixFactor && unitType === "AREAUNIT" && name === "SQUARE_METRE") {
+      } else if (
+        prefixFactor &&
+        unitType === "AREAUNIT" &&
+        name === "SQUARE_METRE"
+      ) {
         unit = { unitType, factorToCanonical: prefixFactor ** 2, label: "m²" };
-      } else if (prefixFactor && unitType === "VOLUMEUNIT" && name === "CUBIC_METRE") {
+      } else if (
+        prefixFactor &&
+        unitType === "VOLUMEUNIT" &&
+        name === "CUBIC_METRE"
+      ) {
         unit = { unitType, factorToCanonical: prefixFactor ** 3, label: "m³" };
       } else if (prefixFactor && unitType === "MASSUNIT" && name === "GRAM") {
-        unit = { unitType, factorToCanonical: prefixFactor / 1000, label: "kg" };
-      } else if (prefixFactor && unitType === "MASSUNIT" && name === "KILOGRAM") {
+        unit = {
+          unitType,
+          factorToCanonical: prefixFactor / 1000,
+          label: "kg",
+        };
+      } else if (
+        prefixFactor &&
+        unitType === "MASSUNIT" &&
+        name === "KILOGRAM"
+      ) {
         unit = { unitType, factorToCanonical: prefixFactor, label: "kg" };
       } else if (prefixFactor && unitType === "TIMEUNIT" && name === "SECOND") {
         unit = { unitType, factorToCanonical: prefixFactor, label: "s" };
@@ -207,7 +267,8 @@ function resolveIfcUnits(
       const unitType = enumValue(entity.args[1]);
       const conversionId = entity.args[3]?.match(/^#(\d+)$/)?.[1];
       const conversion = conversionId ? entities.get(conversionId) : undefined;
-      const measure = conversion?.type === "IFCMEASUREWITHUNIT" ? conversion : undefined;
+      const measure =
+        conversion?.type === "IFCMEASUREWITHUNIT" ? conversion : undefined;
       const numericFactor = numericStepValue(measure?.args[0]);
       const baseUnitId = measure?.args[1]?.match(/^#(\d+)$/)?.[1];
       const baseUnit = baseUnitId ? resolve(baseUnitId) : null;
@@ -216,11 +277,16 @@ function resolveIfcUnits(
           ? numericFactor * baseUnit.factorToCanonical
           : Number.NaN;
       if (
-        numericFactor !== null && numericFactor > 0 &&
-        Number.isFinite(factorToCanonical) && baseUnit &&
+        numericFactor !== null &&
+        numericFactor > 0 &&
+        Number.isFinite(factorToCanonical) &&
+        baseUnit &&
         baseUnit.unitType === unitType &&
-        (unitType === "LENGTHUNIT" || unitType === "AREAUNIT" ||
-          unitType === "VOLUMEUNIT" || unitType === "MASSUNIT" || unitType === "TIMEUNIT")
+        (unitType === "LENGTHUNIT" ||
+          unitType === "AREAUNIT" ||
+          unitType === "VOLUMEUNIT" ||
+          unitType === "MASSUNIT" ||
+          unitType === "TIMEUNIT")
       ) {
         unit = {
           unitType,
@@ -235,7 +301,10 @@ function resolveIfcUnits(
   };
 
   for (const [id, entity] of entities) {
-    if (entity.type === "IFCSIUNIT" || entity.type === "IFCCONVERSIONBASEDUNIT") {
+    if (
+      entity.type === "IFCSIUNIT" ||
+      entity.type === "IFCCONVERSIONBASEDUNIT"
+    ) {
       resolve(id);
     }
   }
@@ -246,7 +315,8 @@ function resolveIfcUnits(
     if (entity.type !== "IFCPROJECT") continue;
     for (const arg of entity.args) {
       const ref = arg.match(/^#(\d+)$/)?.[1];
-      if (ref && entities.get(ref)?.type === "IFCUNITASSIGNMENT") assignmentId = ref;
+      if (ref && entities.get(ref)?.type === "IFCUNITASSIGNMENT")
+        assignmentId = ref;
     }
   }
   const assignment = assignmentId ? entities.get(assignmentId) : undefined;
@@ -358,7 +428,8 @@ function parseStepEntities(fileText: string): {
     } catch {
       unparsed++;
     }
-    startRe.lastIndex = end + 1 + (fileText.slice(end + 1).match(/^\s*/)?.[0].length ?? 0) + 1;
+    startRe.lastIndex =
+      end + 1 + (fileText.slice(end + 1).match(/^\s*/)?.[0].length ?? 0) + 1;
   }
   return { entities, unparsed };
 }
@@ -471,7 +542,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       has_quantities: false,
       unparsed_lines: unparsed,
       warnings: [
-        `The file contains ${entities.size.toLocaleString("en-NG")} entities, above the configured cap of ${maxEntities.toLocaleString("en-NG")} (configured limit max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
+        `The file contains ${entities.size.toLocaleString()} entities, above the configured cap of ${maxEntities.toLocaleString()} (configured limit max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
       ],
       steps,
       schema_coverage: buildIfcSchemaCoverage(entities, fileText),
@@ -482,7 +553,13 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
   const resolvedUnits = resolveIfcUnits(entities);
   const quantities = new Map<
     string,
-    { name: string; type: string; value: number; unit: string; factor: number | null }
+    {
+      name: string;
+      type: string;
+      value: number;
+      unit: string;
+      factor: number | null;
+    }
   >();
   let unresolvedUnitCount = 0;
   for (const [id, ent] of entities) {
@@ -492,7 +569,13 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       const value = quantityValue(ent);
       if (value === null) continue;
       if (ent.type === "IFCQUANTITYCOUNT") {
-        quantities.set(id, { name: qName, type: ent.type, value, unit: "count", factor: 1 });
+        quantities.set(id, {
+          name: qName,
+          type: ent.type,
+          value,
+          unit: "count",
+          factor: 1,
+        });
         continue;
       }
       const unitType = QUANTITY_UNIT_TYPES[ent.type];
@@ -507,7 +590,9 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
         : null;
       const globalUnit = resolvedUnits.global.get(unitType) ?? null;
       const resolvedUnit = hasLocalUnitReference
-        ? localUnit?.unitType === unitType ? localUnit : null
+        ? localUnit?.unitType === unitType
+          ? localUnit
+          : null
         : globalUnit;
       const convertedValue = resolvedUnit
         ? value * resolvedUnit.factorToCanonical
@@ -632,7 +717,13 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
     let count = 0;
     const groupedTotals = new Map<
       string,
-      { name: string; unit: string; total: number; elements: number; names: Set<string> }
+      {
+        name: string;
+        unit: string;
+        total: number;
+        elements: number;
+        names: Set<string>;
+      }
     >();
     for (const [name, entry] of namedMap) {
       count += entry.count;
@@ -640,7 +731,11 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
         hasQuantities = true;
         const groupKey = `${q.name}\u0000${q.unit}`;
         const t = groupedTotals.get(groupKey) ?? {
-          name: q.name, unit: q.unit, total: 0, elements: 0, names: new Set<string>(),
+          name: q.name,
+          unit: q.unit,
+          total: 0,
+          elements: 0,
+          names: new Set<string>(),
         };
         t.total += q.value;
         if (!t.names.has(name)) {
@@ -659,9 +754,10 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       groupsPerName.set(total.name, (groupsPerName.get(total.name) ?? 0) + 1);
     }
     for (const total of groupedTotals.values()) {
-      const key = groupsPerName.get(total.name)! > 1
-        ? `${total.name} (${total.unit})`
-        : total.name;
+      const key =
+        groupsPerName.get(total.name)! > 1
+          ? `${total.name} (${total.unit})`
+          : total.name;
       roundedTotals[key] = {
         unit: total.unit,
         total: Number(total.total.toFixed(decimals)),
@@ -700,7 +796,10 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
   }
 
   const schema_coverage = buildIfcSchemaCoverage(entities, fileText);
-  steps.push({ label: "Schema coverage", detail: `Schema ${schema_coverage.schema ?? "unspecified"}; ${schema_coverage.distinct_entity_types} distinct entity types. Geometry is presence-only; no geometry or dimensions are inferred.` });
+  steps.push({
+    label: "Schema coverage",
+    detail: `Schema ${schema_coverage.schema ?? "unspecified"}; ${schema_coverage.distinct_entity_types} distinct entity types. Geometry is presence-only; no geometry or dimensions are inferred.`,
+  });
 
   return {
     ok: elements.length > 0,

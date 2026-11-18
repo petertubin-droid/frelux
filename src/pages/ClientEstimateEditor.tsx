@@ -633,7 +633,7 @@ export default function ClientEstimateEditor() {
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
                   placeholder={t(
-                    "Include country code, e.g. +234 800 000 0000",
+                    "Include your country code, e.g. +44 20 7946 0000",
                   )}
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                 />

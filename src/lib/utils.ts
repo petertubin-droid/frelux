@@ -25,6 +25,11 @@ export function formatNumber(value: number, fractionDigits = 2): string {
  * amount is converted for display with the owner-configured rate.
  * Everything else, including all NGN rendering, is unchanged.
  */
+/**
+ * Formats a money amount. Amounts in this codebase are denominated in naira,
+ * so the default symbol is ₦: passing a display currency that is not naira
+ * routes the value through fx-display, which converts it exactly once.
+ */
 export function formatCurrency(value: number, currency = "₦"): string {
   // Naira amounts may need FX conversion for display: that decision and the
   // conversion itself stay in fx-display (converted exactly once).

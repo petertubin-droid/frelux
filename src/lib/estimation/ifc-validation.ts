@@ -25,7 +25,11 @@ export interface IfcValidationCheck {
 
 export interface IfcValidationReport {
   /** IFC schema entity-presence summary, not schema certification. */
-  schema_coverage: { schema: string | null; distinct_entity_types: number; observed_entity_types: Record<string, number> };
+  schema_coverage: {
+    schema: string | null;
+    distinct_entity_types: number;
+    observed_entity_types: Record<string, number>;
+  };
   verdict: IfcValidationVerdict;
   /** FILE_SCHEMA value, e.g. IFC4 (null when absent). */
   schema: string | null;
@@ -104,9 +108,7 @@ export function validateIfcFile(input: {
   });
 
   // 2. FILE_SCHEMA --------------------------------------------------
-  const schemaMatch = text.match(
-    /FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i,
-  );
+  const schemaMatch = text.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const schema = schemaMatch ? schemaMatch[1] : null;
   checks.push({
     id: "file_schema",
@@ -125,22 +127,15 @@ export function validateIfcFile(input: {
   checks.push({
     id: "entity_coverage",
     label: "STEP entity coverage",
-    status:
-      entityCount === 0
-        ? "warn"
-        : unparsed === 0
-          ? "pass"
-          : "warn",
+    status: entityCount === 0 ? "warn" : unparsed === 0 ? "pass" : "warn",
     detail:
       entityCount === 0
         ? "No #<n>=TYPE(...) STEP entities found: the takeoff would be empty."
-        : `${entityCount.toLocaleString(
-            "en-NG",
-          )} entities tokenized${unparsed > 0 ? `, ${unparsed.toLocaleString("en-NG")} entity-shaped line(s) could not be tokenized` : ""}.`,
+        : `${entityCount.toLocaleString()} entities tokenized${unparsed > 0 ? `, ${unparsed.toLocaleString()} entity-shaped line(s) could not be tokenized` : ""}.`,
   });
   if (unparsed > 0) {
     warnings.push(
-      `${unparsed.toLocaleString("en-NG")} STEP line(s) could not be tokenized and are excluded from the takeoff.`,
+      `${unparsed.toLocaleString()} STEP line(s) could not be tokenized and are excluded from the takeoff.`,
     );
   }
 
@@ -151,8 +146,8 @@ export function validateIfcFile(input: {
     label: "Entity count within cap",
     status: overCap ? "fail" : "pass",
     detail: overCap
-      ? `${entityCount.toLocaleString("en-NG")} entities exceed the configured cap of ${maxEntities.toLocaleString("en-NG")}; parsing is refused rather than freezing the browser.`
-      : `${entityCount.toLocaleString("en-NG")} entities (cap ${maxEntities.toLocaleString("en-NG")}).`,
+      ? `${entityCount.toLocaleString()} entities exceed the configured cap of ${maxEntities.toLocaleString()}; parsing is refused rather than freezing the browser.`
+      : `${entityCount.toLocaleString()} entities (cap ${maxEntities.toLocaleString()}).`,
   });
 
   // 5. Project declaration -------------------------------------------
@@ -201,7 +196,9 @@ export function validateIfcFile(input: {
 
   // 8. Takeoff elements ------------------------------------------------
   const elementCount = TAKEOFF_ELEMENT_TYPES.reduce(
-    (n, t) => n + countMatches(text, new RegExp(`#${"\\d+"}\\s*=\\s*${t}\\s*\\(`, "gi")),
+    (n, t) =>
+      n +
+      countMatches(text, new RegExp(`#${"\\d+"}\\s*=\\s*${t}\\s*\\(`, "gi")),
     0,
   );
   checks.push({
@@ -210,7 +207,7 @@ export function validateIfcFile(input: {
     status: elementCount > 0 ? "pass" : "warn",
     detail:
       elementCount > 0
-        ? `${elementCount.toLocaleString("en-NG")} wall/slab/roof/door/window/... element(s) found.`
+        ? `${elementCount.toLocaleString()} wall/slab/roof/door/window/... element(s) found.`
         : "No takeoff-relevant elements (walls, slabs, roofs, doors, windows, ...) found: the takeoff would be empty.",
   });
 
@@ -225,7 +222,7 @@ export function validateIfcFile(input: {
     status: quantityCount > 0 ? "pass" : "warn",
     detail:
       quantityCount > 0
-        ? `${quantityCount.toLocaleString("en-NG")} quantity declaration(s) found.`
+        ? `${quantityCount.toLocaleString()} quantity declaration(s) found.`
         : "No IfcQuantity declarations: only element counts can be reported, never invented areas or volumes.",
   });
 
@@ -253,7 +250,11 @@ export function validateIfcFile(input: {
     observedEntityTypes[type] = (observedEntityTypes[type] ?? 0) + 1;
   }
   return {
-    schema_coverage: { schema, distinct_entity_types: Object.keys(observedEntityTypes).length, observed_entity_types: observedEntityTypes },
+    schema_coverage: {
+      schema,
+      distinct_entity_types: Object.keys(observedEntityTypes).length,
+      observed_entity_types: observedEntityTypes,
+    },
     verdict,
     schema,
     entity_count: entityCount,
