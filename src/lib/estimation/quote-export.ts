@@ -1,4 +1,13 @@
 import { stageStudioImport } from "@/lib/document-studio";
+import { formatCurrency } from "@/lib/utils";
+import {
+  grandTotalLabel,
+  showsTransportation,
+  totalWithTransportation,
+  transportationAmount,
+  TRANSPORTATION_TO_AGREE,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import {
   autoDisplayForReport,
@@ -138,6 +147,20 @@ export interface QuoteOptions {
    * none.
    */
   display?: QuoteDisplay;
+  /** Optional delivery to site. Off unless the visitor turned it on. */
+  transportation?: TransportationChoice;
+  /**
+   * The numeric grand total the `totals` list ends with, before
+   * transportation. Supplied so the document can add the delivery honestly;
+   * without it the total is labelled "excl. transportation" instead.
+   */
+  grandTotal?: number;
+  /** Symbol used to render a transportation amount, e.g. "₦". */
+  currencySymbol?: string;
+}
+
+function formatCurrencyForQuote(amount: number, opts: QuoteOptions): string {
+  return formatCurrency(amount, opts.currencySymbol || "₦");
 }
 
 export function buildQuoteHtml(opts: QuoteOptions): string {
@@ -181,7 +204,40 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
       </table>`
     : "";
 
-  const totalsRows = opts.totals
+  // Transportation is added here, once, so every calculator's quotation reads
+  // the same. The row is inserted before the closing total, and the closing
+  // figure only grows when the caller supplied the numeric base to add it to.
+  const transport = opts.transportation;
+  const baseTotalKnown =
+    typeof opts.grandTotal === "number" && Number.isFinite(opts.grandTotal);
+  const transportAmount = transportationAmount(transport);
+  const totalsForDocument = (() => {
+    const rows = [...opts.totals];
+    if (!showsTransportation(transport)) return rows;
+    const amountText =
+      transportAmount > 0
+        ? formatCurrencyForQuote(transportAmount, opts)
+        : TRANSPORTATION_TO_AGREE;
+    const line: QuoteTotal = { label: "Transportation", value: amountText };
+    const strongIndex = rows.findIndex((r) => r.strong);
+    if (strongIndex === -1) {
+      rows.push(line);
+      return rows;
+    }
+    const closing = { ...rows[strongIndex] };
+    closing.label = grandTotalLabel(transport, baseTotalKnown);
+    if (baseTotalKnown && transportAmount > 0) {
+      closing.value = formatCurrencyForQuote(
+        totalWithTransportation(opts.grandTotal as number, transport),
+        opts,
+      );
+    }
+    rows.splice(strongIndex, 0, line);
+    rows[strongIndex + 1] = closing;
+    return rows;
+  })();
+
+  const totalsRows = totalsForDocument
     .map(
       (t) =>
         `<tr class="${t.strong ? "grand" : "total-row"}"><td>${escapeHtml(

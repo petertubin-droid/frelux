@@ -52,6 +52,13 @@ import { calculateLabourCost } from "@/lib/labour";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { SITE_URL } from "@/lib/seo";
@@ -95,6 +102,7 @@ function popQuoteOptions(
     warnings?: string[];
   },
   area: AreaFormatter = plainArea,
+  transportation?: TransportationChoice,
 ): QuoteOptions {
   return {
     title: "FRELUX POP Ceiling Estimate",
@@ -135,9 +143,24 @@ function popQuoteOptions(
         label: "Labour",
         value: formatCurrency(result.labourCost, result.currencySymbol),
       },
+      ...(transportationRow(transportation, (v) =>
+        formatCurrency(v, result.currencySymbol),
+      )
+        ? [
+            {
+              label: "Transportation",
+              value: transportationRow(transportation, (v) =>
+                formatCurrency(v, result.currencySymbol),
+              )!.value,
+            },
+          ]
+        : []),
       {
         label: "Grand total",
-        value: formatCurrency(result.grandTotal, result.currencySymbol),
+        value: formatCurrency(
+          totalWithTransportation(result.grandTotal, transportation),
+          result.currencySymbol,
+        ),
         strong: true,
       },
     ],
@@ -150,8 +173,12 @@ function popQuoteOptions(
 function exportPopQuote(
   args: Parameters<typeof popQuoteOptions>[0],
   area: AreaFormatter = plainArea,
+  transportation?: TransportationChoice,
 ) {
-  printQuote(popQuoteOptions(args, area), "frelux-pop-ceiling-estimate.html");
+  printQuote(
+    popQuoteOptions(args, area, transportation),
+    "frelux-pop-ceiling-estimate.html",
+  );
 }
 
 export default function PopCeilingCostEstimator({
@@ -211,6 +238,7 @@ export default function PopCeilingCostEstimator({
   const [marketNotConfigured, setMarketNotConfigured] = useState(false);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const transportation = useTransportation("pop-ceiling-cost");
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
     "pop_ceiling",
     marketCode,
@@ -701,16 +729,41 @@ export default function PopCeilingCostEstimator({
                       label="Waste allowance"
                       value={`${area(result.wasteAmount)}`}
                     />
+                    {transportation.choice.enabled && (
+                      <Row
+                        label="Transportation"
+                        value={
+                          transportation.choice.amount > 0
+                            ? formatCurrency(
+                                transportation.choice.amount,
+                                currencySymbol,
+                              )
+                            : "To be agreed"
+                        }
+                      />
+                    )}
                     <div className="border-t border-border/50 pt-2">
                       <Row
-                        label="Grand total"
+                        label={
+                          transportation.choice.enabled
+                            ? "Grand total (incl. transportation)"
+                            : "Grand total"
+                        }
                         value={formatCurrency(
-                          result.grandTotal,
+                          totalWithTransportation(
+                            result.grandTotal,
+                            transportation.choice,
+                          ),
                           currencySymbol,
                         )}
                         strong
                       />
                     </div>
+                    <TransportationField
+                      controls={transportation}
+                      currencySymbol={currencySymbol}
+                      className="mt-3"
+                    />
                     <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 dark:bg-white/5 p-3 text-xs text-muted-foreground">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                       {input.workflow === "nigeria"
@@ -754,7 +807,9 @@ export default function PopCeilingCostEstimator({
                       <div className="mt-3 flex justify-center">
                         <button
                           type="button"
-                          onClick={() => exportPopQuote(result, area)}
+                          onClick={() =>
+                            exportPopQuote(result, area, transportation.choice)
+                          }
                           className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
                         >
                           {t("Export quote (PDF)")}
@@ -769,7 +824,11 @@ export default function PopCeilingCostEstimator({
                         <ShareEstimateButton
                           showPdf={false}
                           estimate={quoteToShareable(
-                            popQuoteOptions(result, area),
+                            popQuoteOptions(
+                              result,
+                              area,
+                              transportation.choice,
+                            ),
                             "/pop-ceiling-cost-estimator",
                           )}
                           compact

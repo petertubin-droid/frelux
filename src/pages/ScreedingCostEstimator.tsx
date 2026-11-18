@@ -33,6 +33,13 @@ import {
   exportQuoteToDocumentStudio,
   type QuoteOptions,
 } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import {
   ACTION_BTN,
@@ -188,6 +195,7 @@ export default function ScreedingCostEstimator({
   const [result, setResult] = useState<ScreedingSystemResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
+  const transportation = useTransportation("screeding-cost");
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
     "screeding",
     marketCode,
@@ -761,17 +769,43 @@ export default function ScreedingCostEstimator({
                               {formatCurrency(labourCost, currencySymbol)}
                             </span>
                           </div>
+                          {transportation.choice.enabled && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {t("Transportation")}
+                              </span>
+                              <span className="text-muted-foreground">
+                                {transportation.choice.amount > 0
+                                  ? formatCurrency(
+                                      transportation.choice.amount,
+                                      currencySymbol,
+                                    )
+                                  : t("To be agreed")}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex items-center justify-between border-t border-border pt-2 dark:border-white/10">
                             <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                               {t("Grand total (materials + labour)")}
+                              {transportation.choice.enabled
+                                ? ` ${t("incl. transportation")}`
+                                : ""}
                             </span>
                             <span className="text-base font-bold text-foreground dark:text-primary-foreground">
                               {formatCurrency(
-                                result.materialCost + labourCost,
+                                totalWithTransportation(
+                                  result.materialCost + labourCost,
+                                  transportation.choice,
+                                ),
                                 currencySymbol,
                               )}
                             </span>
                           </div>
+                          <TransportationField
+                            controls={transportation}
+                            currencySymbol={currencySymbol}
+                            className="mt-3"
+                          />
                         </>
                       )}
                       {result.materialCost == null && (
@@ -853,12 +887,15 @@ export default function ScreedingCostEstimator({
                           <button
                             type="button"
                             onClick={() =>
-                              exportScreedingQuote({
-                                result,
-                                labourCost,
-                                currencySymbol,
-                                finishTerm,
-                              })
+                              exportScreedingQuote(
+                                {
+                                  result,
+                                  labourCost,
+                                  currencySymbol,
+                                  finishTerm,
+                                },
+                                transportation.choice,
+                              )
                             }
                             className={ACTION_BTN}
                           >
@@ -1194,6 +1231,7 @@ function screedingQuoteOptions(args: {
   labourCost: number;
   currencySymbol: string;
   finishTerm: string;
+  transportation?: TransportationChoice;
 }): QuoteOptions {
   const { result, labourCost, currencySymbol, finishTerm } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
@@ -1228,12 +1266,25 @@ function screedingQuoteOptions(args: {
             : fmt(result.materialCost),
       },
       { label: "Labour", value: fmt(labourCost) },
+      ...(transportationRow(args.transportation, fmt)
+        ? [
+            {
+              label: "Transportation",
+              value: transportationRow(args.transportation, fmt)!.value,
+            },
+          ]
+        : []),
       {
         label: "Grand total",
         value:
           result.materialCost == null
             ? "N/A"
-            : fmt(result.materialCost + labourCost),
+            : fmt(
+                totalWithTransportation(
+                  result.materialCost + labourCost,
+                  args.transportation,
+                ),
+              ),
         strong: true,
       },
     ],
@@ -1245,8 +1296,12 @@ function screedingQuoteOptions(args: {
 
 function exportScreedingQuote(
   args: Parameters<typeof screedingQuoteOptions>[0],
+  transportation?: TransportationChoice,
 ) {
-  printQuote(screedingQuoteOptions(args), "frelux-screeding-estimate.html");
+  printQuote(
+    screedingQuoteOptions({ ...args, transportation }),
+    "frelux-screeding-estimate.html",
+  );
 }
 
 function MaterialBreakdownCard({

@@ -58,6 +58,13 @@ import {
   exportQuoteToDocumentStudio,
   type QuoteOptions,
 } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useNavigate } from "react-router-dom";
@@ -107,6 +114,7 @@ function tileQuoteOptions(
   },
   method: string,
   area: (m2: number) => string,
+  transportation?: TransportationChoice,
 ): QuoteOptions {
   const fmt = (v: number) => formatCurrency(v, result.currencySymbol);
   return {
@@ -175,7 +183,19 @@ function tileQuoteOptions(
     totals: [
       { label: "Material cost", value: fmt(result.materialCost) },
       { label: "Labour", value: fmt(result.labourCost) },
-      { label: "Grand total", value: fmt(result.grandTotal), strong: true },
+      ...(transportationRow(transportation, fmt)
+        ? [
+            {
+              label: "Transportation",
+              value: transportationRow(transportation, fmt)!.value,
+            },
+          ]
+        : []),
+      {
+        label: "Grand total",
+        value: fmt(totalWithTransportation(result.grandTotal, transportation)),
+        strong: true,
+      },
     ],
     warnings: result.warnings ?? [],
     footer:
@@ -187,9 +207,10 @@ function exportTileQuote(
   result: Parameters<typeof tileQuoteOptions>[0],
   method: string,
   area: (m2: number) => string,
+  transportation?: TransportationChoice,
 ) {
   printQuote(
-    tileQuoteOptions(result, method, area),
+    tileQuoteOptions(result, method, area, transportation),
     "frelux-tile-cost-estimate.html",
   );
 }
@@ -259,6 +280,7 @@ export default function TileCostEstimator({
   const engine = useEngineFeatures({ calculatorType: "tile_cost" });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
+  const transportation = useTransportation("tile-cost");
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
     "tile",
     marketCode,
@@ -909,16 +931,41 @@ export default function TileCostEstimator({
                         />
                       )}
                     </div>
+                    {transportation.choice.enabled && (
+                      <Row
+                        label="Transportation"
+                        value={
+                          transportation.choice.amount > 0
+                            ? formatCurrency(
+                                transportation.choice.amount,
+                                currencySymbol,
+                              )
+                            : "To be agreed"
+                        }
+                      />
+                    )}
                     <div className="border-t border-border/50 pt-2">
                       <Row
-                        label="Grand total"
+                        label={
+                          transportation.choice.enabled
+                            ? "Grand total (incl. transportation)"
+                            : "Grand total"
+                        }
                         value={formatCurrency(
-                          result.grandTotal,
+                          totalWithTransportation(
+                            result.grandTotal,
+                            transportation.choice,
+                          ),
                           currencySymbol,
                         )}
                         strong
                       />
                     </div>
+                    <TransportationField
+                      controls={transportation}
+                      currencySymbol={currencySymbol}
+                      className="mt-3"
+                    />
                     <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 dark:bg-white/5 p-3 text-xs text-muted-foreground">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                       {input.surfaceType === "floor" ? "Floor" : "Wall"} tiling
@@ -960,7 +1007,12 @@ export default function TileCostEstimator({
                           <button
                             type="button"
                             onClick={() =>
-                              exportTileQuote(result, result.method, area)
+                              exportTileQuote(
+                                result,
+                                result.method,
+                                area,
+                                transportation.choice,
+                              )
                             }
                             className={ACTION_BTN}
                           >
@@ -976,7 +1028,12 @@ export default function TileCostEstimator({
                           <ShareEstimateButton
                             showPdf={false}
                             estimate={quoteToShareable(
-                              tileQuoteOptions(result, result.method, area),
+                              tileQuoteOptions(
+                                result,
+                                result.method,
+                                area,
+                                transportation.choice,
+                              ),
                               "/tile-cost-estimator",
                             )}
                             compact

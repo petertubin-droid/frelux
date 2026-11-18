@@ -62,6 +62,13 @@ import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { calculateLabourCost } from "@/lib/labour";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
@@ -108,6 +115,7 @@ function finishQuoteOptions(
     currencySymbol: string;
   },
   area: AreaFormatter = plainArea,
+  transportation?: TransportationChoice,
 ): QuoteOptions {
   const { result, labourCost, currencySymbol } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
@@ -133,9 +141,22 @@ function finishQuoteOptions(
         label: "Labour",
         value: labourCost > 0 ? fmt(labourCost) : "(not included)",
       },
+      ...(transportationRow(transportation, fmt)
+        ? [
+            {
+              label: "Transportation",
+              value: transportationRow(transportation, fmt)!.value,
+            },
+          ]
+        : []),
       {
         label: "Grand total",
-        value: fmt(result.totalCost + labourCost),
+        value: fmt(
+          totalWithTransportation(
+            result.totalCost + labourCost,
+            transportation,
+          ),
+        ),
         strong: true,
       },
     ],
@@ -148,8 +169,12 @@ function finishQuoteOptions(
 function exportFinishQuote(
   args: Parameters<typeof finishQuoteOptions>[0],
   area: AreaFormatter = plainArea,
+  transportation?: TransportationChoice,
 ) {
-  printQuote(finishQuoteOptions(args, area), "frelux-finish-estimate.html");
+  printQuote(
+    finishQuoteOptions(args, area, transportation),
+    "frelux-finish-estimate.html",
+  );
 }
 
 export default function FinishEstimator({
@@ -227,6 +252,7 @@ export default function FinishEstimator({
 
   // Labour follows the site-wide labour layer so international
   // visitors get a complete estimate, not materials alone.
+  const transportation = useTransportation("finish");
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
     "global",
     marketCode,
@@ -781,12 +807,16 @@ export default function FinishEstimator({
                   type="button"
                   onClick={() =>
                     result &&
-                    exportFinishQuote({
-                      finishLabel: getFinishTypeLabel(selectedFinish),
-                      result,
-                      labourCost,
-                      currencySymbol,
-                    })
+                    exportFinishQuote(
+                      {
+                        finishLabel: getFinishTypeLabel(selectedFinish),
+                        result,
+                        labourCost,
+                        currencySymbol,
+                      },
+                      undefined,
+                      transportation.choice,
+                    )
                   }
                   className="rounded-lg border px-3 py-1.5 text-xs font-semibold"
                 >
@@ -796,12 +826,16 @@ export default function FinishEstimator({
                 <ShareEstimateButton
                   showPdf={false}
                   estimate={quoteToShareable(
-                    finishQuoteOptions({
-                      finishLabel: getFinishTypeLabel(selectedFinish),
-                      result,
-                      labourCost,
-                      currencySymbol,
-                    }),
+                    finishQuoteOptions(
+                      {
+                        finishLabel: getFinishTypeLabel(selectedFinish),
+                        result,
+                        labourCost,
+                        currencySymbol,
+                      },
+                      undefined,
+                      transportation.choice,
+                    ),
                     "/finish-estimator",
                   )}
                   compact

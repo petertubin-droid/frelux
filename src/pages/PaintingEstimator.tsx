@@ -102,6 +102,13 @@ import {
 import { saveUserProject } from "@/lib/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { quoteToShareable } from "@/lib/estimate-sharing";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { trackCalculation } from "@/lib/achievements";
@@ -180,6 +187,7 @@ function paintingQuoteOptions(
     labourCost: number;
     grandTotal: number;
     currency: string;
+    transportation?: TransportationChoice;
   },
   area: AreaFormatter = plainArea,
 ): QuoteOptions {
@@ -205,7 +213,21 @@ function paintingQuoteOptions(
         label: "Labour",
         value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
       },
-      { label: "Grand total", value: fmt(args.grandTotal), strong: true },
+      ...(transportationRow(args.transportation, fmt)
+        ? [
+            {
+              label: "Transportation",
+              value: transportationRow(args.transportation, fmt)!.value,
+            },
+          ]
+        : []),
+      {
+        label: "Grand total",
+        value: fmt(
+          totalWithTransportation(args.grandTotal, args.transportation),
+        ),
+        strong: true,
+      },
     ],
     footer:
       "Estimates are indicative and not a formal quote. Paint volumes include the configured practical purchase margin; prices come from the configured material database.",
@@ -1845,7 +1867,11 @@ function EstimateResult({
     0,
   );
   const labourCost = calculateLabourCost(labourConfig, paintAreaM2);
-  const grandTotal = result.total_material_cost + labourCost;
+  const transportation = useTransportation("painting");
+  const grandTotal = totalWithTransportation(
+    result.total_material_cost + labourCost,
+    transportation.choice,
+  );
   // Currency symbol for the shared labour section (extracted from a
   // formatted value so it works for every market currency)
   const currencySymbol = formatCurrency(1, result.currency).replace(
@@ -2251,16 +2277,37 @@ function EstimateResult({
                   : "Not included. Use the labour section above to add it."}
               </span>
             </div>
+            {transportation.choice.enabled && (
+              <div className="mt-2 flex justify-between text-sm">
+                <span className="text-muted-foreground dark:text-muted-foreground">
+                  {t("Transportation")}
+                </span>
+                <span className="text-muted-foreground dark:text-muted-foreground">
+                  {transportation.choice.amount > 0
+                    ? formatCurrency(
+                        transportation.choice.amount,
+                        result.currency,
+                      )
+                    : "To be agreed"}
+                </span>
+              </div>
+            )}
             <div className="mt-2 flex justify-between text-sm">
               <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">
                 {labourCost > 0
                   ? "Estimated Total (Materials + Labour)"
                   : "Estimated Total (Materials Only)"}
+                {transportation.choice.enabled ? " incl. transportation" : ""}
               </span>
               <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                 {formatCurrency(grandTotal, result.currency)}
               </span>
             </div>
+            <TransportationField
+              controls={transportation}
+              currencySymbol={result.currency}
+              className="mt-3"
+            />
           </div>
 
           {/* ── Engine Features (Additive) ── */}
@@ -2389,8 +2436,9 @@ function EstimateResult({
                   lineItems: result.line_items,
                   materialCost: result.total_material_cost,
                   labourCost,
-                  grandTotal,
+                  grandTotal: result.total_material_cost + labourCost,
                   currency: result.currency,
+                  transportation: transportation.choice,
                 })
               }
               className="gap-2"
@@ -2410,8 +2458,9 @@ function EstimateResult({
                   lineItems: result.line_items,
                   materialCost: result.total_material_cost,
                   labourCost,
-                  grandTotal,
+                  grandTotal: result.total_material_cost + labourCost,
                   currency: result.currency,
+                  transportation: transportation.choice,
                 }),
                 "/painting-estimator",
               )}

@@ -25,6 +25,12 @@ import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { PriceBookSummary } from "@/lib/prices/freshness";
 import type { SpecialtyResult } from "@/lib/estimation/specialty";
@@ -122,6 +128,7 @@ export function SpecialtyCalculatorShell({
       })),
     [crossLinks],
   );
+  const transportation = useTransportation(`specialty:${calculatorType}`);
   const totalsId = useId();
   const { fieldsRef, resultsRef, missing, handleCalculate } =
     useCalculatorFeedback();
@@ -163,10 +170,42 @@ export function SpecialtyCalculatorShell({
             label: "Priced so far",
             value: formatCurrency(result.priced_subtotal, symbol),
           },
+          ...(transportationRow(transportation.choice, (v) =>
+            formatCurrency(v, symbol),
+          )
+            ? [
+                {
+                  label: "Transportation",
+                  value: transportationRow(transportation.choice, (v) =>
+                    formatCurrency(v, symbol),
+                  )!.value,
+                },
+              ]
+            : []),
           { label: `Tax (${currencyCode})`, value: "Not determined" },
+          ...(transportation.choice.enabled &&
+          transportation.choice.amount > 0 &&
+          result.priced_subtotal !== null
+            ? [
+                {
+                  label: "Priced so far (incl. transportation)",
+                  value: formatCurrency(
+                    totalWithTransportation(
+                      result.priced_subtotal,
+                      transportation.choice,
+                    ),
+                    symbol,
+                  ),
+                  strong: true,
+                },
+              ]
+            : []),
         ],
         warnings: result.warnings,
         footer: quoteFooter,
+        transportation: transportation.choice,
+        grandTotal: result.priced_subtotal ?? undefined,
+        currencySymbol: symbol,
       },
       `frelux-${calculatorType.replace(/_/g, "-")}-estimate.html`,
     );
@@ -425,6 +464,18 @@ export function SpecialtyCalculatorShell({
                         Not determined
                       </span>
                     </div>
+                    {transportation.choice.enabled ? (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Transportation
+                        </span>
+                        <span className="tabular-nums text-muted-foreground">
+                          {transportation.choice.amount > 0
+                            ? fmt(transportation.choice.amount, symbol)
+                            : "To be agreed"}
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="flex justify-between border-t pt-2 font-semibold">
                       {/* A tool that carries labour must not label the sum of
                           material and labour as a material cost. */}
@@ -432,13 +483,27 @@ export function SpecialtyCalculatorShell({
                         {result.labour_total > 0
                           ? "Estimated total"
                           : "Estimated material cost"}
+                        {transportation.choice.enabled
+                          ? " (incl. transportation)"
+                          : ""}
                       </span>
                       <span className="tabular-nums">
                         {result.grand_total === null
                           ? "Not priced"
-                          : fmt(result.grand_total, symbol)}
+                          : fmt(
+                              totalWithTransportation(
+                                result.grand_total,
+                                transportation.choice,
+                              ),
+                              symbol,
+                            )}
                       </span>
                     </div>
+                    <TransportationField
+                      controls={transportation}
+                      currencySymbol={symbol}
+                      className="mt-3"
+                    />
                   </div>
 
                   {extraActions ? (

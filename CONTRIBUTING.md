@@ -22,6 +22,16 @@ This is a proprietary codebase. Internal developers only.
    ```
 5. Push and open a Pull Request
 
+## Globalization standard (mandatory)
+
+FRELUX is a global product. Every new feature and every upgrade must meet the
+globalization standard before it merges: market currency through the display
+layer (no hardcoded `₦`/`NGN`/`en-NG`), market units, translatable copy, the
+market dimension on stored and priced data, no region-locked assumptions, and
+honest statements when a market's data is missing. Exports (PDF, receipts, CSV)
+follow the same rules. The full checklist lives in
+[docs/GLOBALIZATION-STANDARD.md](docs/GLOBALIZATION-STANDARD.md).
+
 ## Code Standards
 
 - **TypeScript**: Strict mode, zero `any` casts. Use proper type augmentation when needed.

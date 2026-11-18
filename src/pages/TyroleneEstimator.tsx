@@ -109,6 +109,13 @@ import { useEngineFeatures } from "@/lib/measurement";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { SITE_URL } from "@/lib/seo";
 import {
   EngineConfidenceBadge,
@@ -160,6 +167,7 @@ function exportTyroleneQuote(
     practicalCost: number;
     labourCost: number;
     currency: string;
+    transportation?: TransportationChoice;
   },
   area: AreaFormatter = plainArea,
 ) {
@@ -190,9 +198,22 @@ function exportTyroleneQuote(
           label: "Labour",
           value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
         },
+        ...(transportationRow(args.transportation, fmt)
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(args.transportation, fmt)!.value,
+              },
+            ]
+          : []),
         {
           label: "Grand total",
-          value: fmt(args.practicalCost + args.labourCost),
+          value: fmt(
+            totalWithTransportation(
+              args.practicalCost + args.labourCost,
+              args.transportation,
+            ),
+          ),
           strong: true,
         },
       ],
@@ -372,6 +393,7 @@ export default function TyroleneEstimator({
   // ── State: Result ──
   const [result, setResult] = useState<TyroleneEstimateResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
+  const transportation = useTransportation("tyrolene");
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
     "screeding",
     marketCode,
@@ -1492,24 +1514,50 @@ export default function TyroleneEstimator({
                         )}
                       </span>
                     </div>
+                    {transportation.choice.enabled && (
+                      <div className="mt-1 flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          {t("Transportation")}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {transportation.choice.amount > 0
+                            ? formatCurrency(
+                                transportation.choice.amount,
+                                result.currency,
+                              )
+                            : t("To be agreed")}
+                        </span>
+                      </div>
+                    )}
                     <div className="mt-1 flex justify-between text-sm">
                       <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {t("Grand total (materials + labour)")}
+                        {transportation.choice.enabled
+                          ? ` ${t("incl. transportation")}`
+                          : ""}
                       </span>
                       <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
                         {formatCurrency(
-                          result.practical_purchase_cost +
-                            calculateLabourCost(
-                              labourConfig,
-                              (result.partition_breakdown ?? []).reduce(
-                                (sum, part) => sum + part.area,
-                                0,
+                          totalWithTransportation(
+                            result.practical_purchase_cost +
+                              calculateLabourCost(
+                                labourConfig,
+                                (result.partition_breakdown ?? []).reduce(
+                                  (sum, part) => sum + part.area,
+                                  0,
+                                ),
                               ),
-                            ),
+                            transportation.choice,
+                          ),
                           result.currency,
                         )}
                       </span>
                     </div>
+                    <TransportationField
+                      controls={transportation}
+                      currencySymbol={result.currency}
+                      className="mt-3"
+                    />
 
                     {/* Production Eligibility */}
                     <div
@@ -1855,6 +1903,7 @@ export default function TyroleneEstimator({
                               ),
                             ),
                             currency: result.currency,
+                            transportation: transportation.choice,
                           })
                         }
                         className="gap-2"

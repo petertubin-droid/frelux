@@ -49,6 +49,12 @@ import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
@@ -152,6 +158,7 @@ export default function ElectricalEstimator() {
 
   const { marketCode, market } = useMarket();
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const transportation = useTransportation("electrical");
   const currencyCode = market?.currencyCode || "NGN";
   const electricalProfile = useMemo(
     () => getElectricalProfile(marketCode),
@@ -359,12 +366,30 @@ export default function ElectricalEstimator() {
               ? "Not included"
               : formatCurrency(result.labour_total, currencySymbol),
         },
+        ...(transportationRow(transportation.choice, (v) =>
+          formatCurrency(v, currencySymbol),
+        )
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(transportation.choice, (v) =>
+                  formatCurrency(v, currencySymbol),
+                )!.value,
+              },
+            ]
+          : []),
         {
           label: "Grand total",
           value:
             result.grand_total === null
               ? "N/A"
-              : formatCurrency(result.grand_total, currencySymbol),
+              : formatCurrency(
+                  totalWithTransportation(
+                    result.grand_total,
+                    transportation.choice,
+                  ),
+                  currencySymbol,
+                ),
           strong: true,
         },
       ],
@@ -479,8 +504,6 @@ export default function ElectricalEstimator() {
   return (
     <ToolShell route="/electrical">
       <Container>
-
-
         {isRestored && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
             <div className="flex items-center gap-2">
@@ -541,8 +564,8 @@ export default function ElectricalEstimator() {
                 The {marketCode} price book covers {electricalCoverage} of{" "}
                 {ELECTRICAL_MATERIAL_SLUGS.length} electrical material types.
                 Unpriced lines are shown without a total and are never silently
-                substituted; add verified prices for your market before relying on
-                cost totals.
+                substituted; add verified prices for your market before relying
+                on cost totals.
               </p>
             )}
           </div>
@@ -619,8 +642,8 @@ export default function ElectricalEstimator() {
           <p className="mb-2 text-xs text-muted-foreground">
             The engine never invents cable lengths. Give your estimated average
             run per point from your layout (measure or read it off your plan).
-            Leave a field blank and that cable line stays unsized: the estimate is
-            marked incomplete rather than guessed.
+            Leave a field blank and that cable line stays unsized: the estimate
+            is marked incomplete rather than guessed.
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {(Object.keys(RUN_LABELS) as RunField[]).map((k) => {
@@ -659,8 +682,8 @@ export default function ElectricalEstimator() {
               )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Labour is always separate from material quantities and is never added
-            automatically.
+            Labour is always separate from material quantities and is never
+            added automatically.
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -918,11 +941,14 @@ export default function ElectricalEstimator() {
                       <li key={m}>{m}</li>
                     ))}
                     {result.lines
-                      .filter((l) => l.unit_price === null && l.quantity !== null)
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
                       .map((l) => (
                         <li key={l.key}>
-                          {l.label}: PRICE NOT CONFIGURED in the material database
-                          : the quantity is shown, but no price was invented.
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
                         </li>
                       ))}
                   </ul>
@@ -993,19 +1019,21 @@ export default function ElectricalEstimator() {
                     rule: not design)
                   </h3>
                   <p className="text-muted-foreground">
-                    Lighting {result.circuit_summary.lighting_circuits} · Sockets{" "}
-                    {result.circuit_summary.socket_circuits} · Dedicated{" "}
+                    Lighting {result.circuit_summary.lighting_circuits} ·
+                    Sockets {result.circuit_summary.socket_circuits} · Dedicated{" "}
                     {result.circuit_summary.dedicated_circuits}. One breaker per
                     circuit counted; {result.circuit_summary.db_ways_guidance}{" "}
-                    board ways as guidance. Breaker ratings are a design decision
-                    for a licensed engineer.
+                    board ways as guidance. Breaker ratings are a design
+                    decision for a licensed engineer.
                   </p>
                 </div>
               )}
 
             {/* Breakdown */}
             <div className="mb-6 rounded-lg border bg-card p-4">
-              <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
               <ol className="space-y-2 text-sm">
                 {result.steps.map((s, i) => (
                   <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
@@ -1044,17 +1072,46 @@ export default function ElectricalEstimator() {
                     : formatCurrency(result.labour_total, currencySymbol)}
                 </p>
               </div>
+              {transportation.choice.enabled && (
+                <div className="rounded-lg border bg-card p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t("Transportation")}
+                  </p>
+                  <p className="text-xl font-semibold">
+                    {transportation.choice.amount > 0
+                      ? formatCurrency(
+                          transportation.choice.amount,
+                          currencySymbol,
+                        )
+                      : t("To be agreed")}
+                  </p>
+                </div>
+              )}
               <div className="rounded-lg border bg-primary/10 p-4">
                 <p className="text-sm text-muted-foreground">
-                  {t("Grand total")}
+                  {transportation.choice.enabled
+                    ? t("Grand total (incl. transportation)")
+                    : t("Grand total")}
                 </p>
                 <p className="text-xl font-semibold">
                   {result.grand_total === null
                     ? "N/A"
-                    : formatCurrency(result.grand_total, currencySymbol)}
+                    : formatCurrency(
+                        totalWithTransportation(
+                          result.grand_total,
+                          transportation.choice,
+                        ),
+                        currencySymbol,
+                      )}
                 </p>
               </div>
             </div>
+
+            <TransportationField
+              controls={transportation}
+              currencySymbol={currencySymbol}
+              className="mb-6"
+            />
 
             {/* Warnings */}
             <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
@@ -1074,22 +1131,24 @@ export default function ElectricalEstimator() {
 
         {/* How it works */}
         <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-          <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
           <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
             <li>
               Quantities come from your explicit point counts, your estimated
               average run lengths, and the visible planning rules (circuit
-              grouping, conduit allowance, junction boxes, waste). Nothing else is
-              assumed.
+              grouping, conduit allowance, junction boxes, waste). Nothing else
+              is assumed.
             </li>
             <li>
               The five cable categories (lighting, socket, dedicated, earth,
-              feeder) are sized separately: they are never merged into one "cable"
-              number.
+              feeder) are sized separately: they are never merged into one
+              "cable" number.
             </li>
             <li>
-              Prices come from the shared FRELUX material database, configured by
-              the site admin. Unpriced materials are shown as PRICE NOT
+              Prices come from the shared FRELUX material database, configured
+              by the site admin. Unpriced materials are shown as PRICE NOT
               CONFIGURED, never invented.
             </li>
             <li>
@@ -1099,7 +1158,6 @@ export default function ElectricalEstimator() {
             </li>
           </ul>
         </section>
-
       </Container>
     </ToolShell>
   );
