@@ -681,6 +681,12 @@ export default function BoqGenerator() {
                     setSelectedStandard(e.target.value as BoqStandard)
                   }
                 >
+                  <option value="BESMM4">
+                    BESMM4 classification aid (NIQS Nigeria)
+                  </option>
+                  <option value="SMM7">
+                    SMM7 classification aid (Commonwealth legacy)
+                  </option>
                   <option value="NRM2">NRM2 classification aid</option>
                   <option value="CSI_MASTERFORMAT">
                     CSI MasterFormat classification aid

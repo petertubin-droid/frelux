@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   assembleStandardBoq,
   exportBoqToCsv,
   exportBoqToPrintHtml,
   STANDARD_SECTION_TEMPLATES,
+  resolveMarketBoqStandard,
 } from "./boq-standard";
 
 describe("Standardized BOQ Assembly Engine", () => {
@@ -495,5 +498,63 @@ describe("rates, numbering and retention base", () => {
       "Client &amp; Co &lt;img src=x onerror=alert(1)&gt;",
     );
     expect(html).toContain("&lt;img src=x onerror=alert(1)&gt; Custom item");
+  });
+});
+
+describe("measurement method per market", () => {
+  it("gives each market the method its bills are written to", () => {
+    expect(resolveMarketBoqStandard("NG")).toBe("BESMM4");
+    expect(resolveMarketBoqStandard("US")).toBe("CSI_MASTERFORMAT");
+    expect(resolveMarketBoqStandard("CA")).toBe("CSI_MASTERFORMAT");
+    expect(resolveMarketBoqStandard("GB")).toBe("NRM2");
+    expect(resolveMarketBoqStandard("IE")).toBe("NRM2");
+    expect(resolveMarketBoqStandard("AU")).toBe("NRM2");
+    expect(resolveMarketBoqStandard("KE")).toBe("NRM2");
+  });
+
+  it("labels a market whose national method is unimplemented as Commercial", () => {
+    // Germany, France, India and the Gulf each measure to their own method,
+    // which this engine does not implement: an honest trade schedule beats
+    // mislabelling their bills as British or American.
+    for (const market of ["DE", "FR", "IN", "AE", "SA", "BR", "JP"]) {
+      expect(resolveMarketBoqStandard(market)).toBe("Commercial");
+    }
+  });
+
+  it("tolerates lowercase and blank market codes", () => {
+    expect(resolveMarketBoqStandard("ng")).toBe("BESMM4");
+    expect(resolveMarketBoqStandard("")).toBe("Commercial");
+  });
+
+  it("every standard the resolver can return is selectable in the generator", () => {
+    // The generator defaults its picker to the resolver's answer. A resolved
+    // value with no matching <option> rendered the control blank, so the user
+    // could neither see nor change the method in force.
+    const source = readFileSync(
+      join(process.cwd(), "src/pages/BoqGenerator.tsx"),
+      "utf8",
+    );
+    const offered = new Set(
+      [...source.matchAll(/<option value="([A-Za-z0-9_]+)">/g)].map(
+        (m) => m[1],
+      ),
+    );
+    const markets = [
+      "NG",
+      "US",
+      "CA",
+      "GB",
+      "IE",
+      "AU",
+      "NZ",
+      "ZA",
+      "KE",
+      "GH",
+      "DE",
+      "",
+    ];
+    for (const market of markets) {
+      expect(offered.has(resolveMarketBoqStandard(market))).toBe(true);
+    }
   });
 });

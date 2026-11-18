@@ -2676,6 +2676,25 @@ export interface CorenStructuralAuditSheet {
 }
 
 /**
+ * Endorsement line for an audit sheet.
+ *
+ * Software cannot certify a design, so the sheet states what was checked and
+ * leaves the certification to a named, registered engineer. When no engineer
+ * has been supplied the block says so plainly instead of inventing one.
+ */
+function signatureBlock(
+  scope: string,
+  isSigned: boolean,
+  engineerName: string,
+  registrationNumber: string,
+): string {
+  if (!isSigned) {
+    return `UNSIGNED — not endorsed. This sheet records that ${scope}. It becomes an endorsement only when a registered engineer signs below.\nName: ____________________  Registration no: ____________________  Date: ____________  Seal: ____________`;
+  }
+  return `Certification: I have reviewed the calculations above and certify that ${scope}.\n${engineerName}  Registration no: ${registrationNumber}  Date: ${new Date().toISOString().slice(0, 10)}`;
+}
+
+/**
  * Generates an auditable, deterministic calculation sheet for COREN-registered
  * structural engineers to endorse commercial tender and building permit submissions.
  */
@@ -2692,11 +2711,25 @@ export function generateCorenStructuralAuditSheet(
   },
 ): CorenStructuralAuditSheet {
   const title = metadata?.projectTitle || "Commercial Structural Execution";
-  const engName = metadata?.engineerName || "Lead Structural Engineer, MNSE";
-  const corenNo = metadata?.corenRegNo || "R.38492/COREN";
+  // A sheet that invents an engineer's name or registration number is a forged
+  // endorsement. Blank until a real engineer supplies them.
+  const engName = metadata?.engineerName?.trim() ?? "";
+  const corenNo = metadata?.corenRegNo?.trim() ?? "";
+  const isSigned = Boolean(engName && corenNo);
+  const usedCode =
+    "jurisdiction_code" in result
+      ? (result as { jurisdiction_code?: JurisdictionCode }).jurisdiction_code
+      : undefined;
   const standard =
     metadata?.governingStandard ||
-    "BS 8110-1:1997 / Eurocode 2 (BS EN 1992-1-1)";
+    (usedCode
+      ? (JURISDICTION_CODES[usedCode]?.governingCode ?? String(usedCode))
+      : "BS 8110-1:1997 / Eurocode 2 (BS EN 1992-1-1)");
+  // The jurisdiction is the code that actually governed the design, not the
+  // country the software was written in.
+  const jurisdictionLabel = usedCode
+    ? (JURISDICTION_CODES[usedCode]?.label ?? String(usedCode))
+    : "Not stated: the design carries no jurisdiction code";
   const designDate = metadata?.date || new Date().toISOString().slice(0, 10);
 
   if (memberType === "beam") {
@@ -2736,12 +2769,12 @@ export function generateCorenStructuralAuditSheet(
       header: {
         projectTitle: title,
         governingStandard: standard,
-        jurisdiction: "Nigeria (COREN / Nigerian National Building Code §7)",
+        jurisdiction: jurisdictionLabel,
         engineerName: engName,
         corenRegNumber: corenNo,
         practiceFirm: metadata?.practiceFirm,
         designDate,
-        status: allPass ? "TENDER_VERIFIED" : "PRELIMINARY",
+        status: allPass && isSigned ? "TENDER_VERIFIED" : "PRELIMINARY",
       },
       designParameters: {
         memberType: "beam",
@@ -2764,8 +2797,12 @@ export function generateCorenStructuralAuditSheet(
           "Fabrication and bending strictly compliant with BS 8666 Table 2/3.",
         ],
       },
-      endorsementText:
-        "COREN Structural Engineer Verification: I certify that the reinforced concrete beam design complies with limit-state requirements for commercial tenders and statutory engineering submission.",
+      endorsementText: signatureBlock(
+        "the reinforced concrete beam design complies with the limit-state requirements of the governing code above",
+        isSigned,
+        engName,
+        corenNo,
+      ),
     };
   }
 
@@ -2805,12 +2842,12 @@ export function generateCorenStructuralAuditSheet(
       header: {
         projectTitle: title,
         governingStandard: standard,
-        jurisdiction: "Nigeria (COREN / Nigerian National Building Code §7)",
+        jurisdiction: jurisdictionLabel,
         engineerName: engName,
         corenRegNumber: corenNo,
         practiceFirm: metadata?.practiceFirm,
         designDate,
-        status: allPass ? "TENDER_VERIFIED" : "PRELIMINARY",
+        status: allPass && isSigned ? "TENDER_VERIFIED" : "PRELIMINARY",
       },
       designParameters: {
         memberType: "column",
@@ -2832,8 +2869,12 @@ export function generateCorenStructuralAuditSheet(
           "Column lap length minimum 40 bar diameters with minimum 4 links at lap zone.",
         ],
       },
-      endorsementText:
-        "COREN Structural Engineer Verification: I certify that this reinforced concrete column design satisfies ULS axial-moment interaction and slenderness checks for tender and construction.",
+      endorsementText: signatureBlock(
+        "this reinforced concrete column design satisfies the ULS axial-moment interaction and slenderness checks of the governing code above",
+        isSigned,
+        engName,
+        corenNo,
+      ),
     };
   }
 
@@ -2863,7 +2904,7 @@ export function generateCorenStructuralAuditSheet(
     header: {
       projectTitle: title,
       governingStandard: standard,
-      jurisdiction: "Nigeria (COREN / Nigerian National Building Code §7)",
+      jurisdiction: jurisdictionLabel,
       engineerName: engName,
       corenRegNumber: corenNo,
       practiceFirm: metadata?.practiceFirm,
@@ -2891,7 +2932,11 @@ export function generateCorenStructuralAuditSheet(
         "Maximum bar spacing does not exceed 3d or 400mm per BS 8110 Cl 3.12.11.2.",
       ],
     },
-    endorsementText:
-      "COREN Structural Engineer Verification: I certify that the slab design satisfies limit-state bending and serviceability deflection criteria.",
+    endorsementText: signatureBlock(
+      "the slab design satisfies the limit-state bending and serviceability deflection criteria of the governing code above",
+      isSigned,
+      engName,
+      corenNo,
+    ),
   };
 }

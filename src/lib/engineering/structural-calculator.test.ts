@@ -517,9 +517,9 @@ describe("COREN Structural Audit Sheet and Verification", () => {
     expect(sheet.header.status).toBe("TENDER_VERIFIED");
     expect(sheet.codeChecks.length).toBeGreaterThanOrEqual(3);
     expect(sheet.reinforcementSchedule.mainReinforcement).toContain("Y");
-    expect(sheet.endorsementText).toContain(
-      "COREN Structural Engineer Verification",
-    );
+    // The sheet records what the engineer signed; it never certifies on its own.
+    expect(sheet.endorsementText).toContain("Engr. Babatunde Adeleke");
+    expect(sheet.endorsementText).toContain("R.29481/COREN");
   });
 
   it("generates an endorsed calculation sheet for reinforced concrete columns", () => {
@@ -547,5 +547,33 @@ describe("COREN Structural Audit Sheet and Verification", () => {
     expect(sheet.reinforcementSchedule.detailingNotes.length).toBeGreaterThan(
       0,
     );
+    // A registration number without a named engineer is not a signature.
+    expect(sheet.header.status).toBe("PRELIMINARY");
+    expect(sheet.endorsementText.startsWith("UNSIGNED")).toBe(true);
+  });
+
+  it("never invents an engineer or a registration number", () => {
+    const beam = designBeam({
+      span: 6,
+      dead_load: 12,
+      live_load: 5,
+      tributary_width: 3,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      existing_width: 230,
+      existing_depth: 450,
+      support_condition: "simply_supported",
+      beam_type: "suspended_beam",
+      cover_mm: 25,
+    });
+
+    const sheet = generateCorenStructuralAuditSheet(beam, "beam");
+
+    expect(sheet.header.engineerName).toBe("");
+    expect(sheet.header.corenRegNumber).toBe("");
+    expect(sheet.header.status).toBe("PRELIMINARY");
+    expect(sheet.endorsementText).toContain("UNSIGNED");
+    // No Nigerian default for a design that did not say it was Nigerian.
+    expect(sheet.header.jurisdiction).not.toMatch(/COREN|Nigeria/);
   });
 });

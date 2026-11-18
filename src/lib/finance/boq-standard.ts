@@ -1233,17 +1233,29 @@ export function mapItemToStandardDivision(
  * GB / AU / NZ / ZA -> NRM2 (RICS New Rules of Measurement)
  * International / EU -> ICMS / Standard Commercial
  */
+/**
+ * The measurement method a market's bills are actually written to.
+ *
+ * Only methods this engine implements are returned. A market whose national
+ * method is not implemented (Germany's StLB-Bau, France's descriptif, India's
+ * IS 1200, the Gulf's POMI) gets "Commercial": a plainly labelled trade
+ * schedule, not another country's method wearing its name.
+ */
 export function resolveMarketBoqStandard(marketCode: string): BoqStandard {
   const code = (marketCode || "").toUpperCase();
+  // North America measures by MasterFormat division.
   if (code === "US" || code === "CA") {
     return "CSI_MASTERFORMAT";
   }
+  // Nigeria has its own statutory method: NIQS BESMM4.
   if (code === "NG") {
-    return "BESMM4"; // Nigerian Institute of Quantity Surveyors Standard (NIQS)
+    return "BESMM4";
   }
+  // Commonwealth markets, including Ireland, measure to RICS rules.
   if (
     code === "GB" ||
     code === "UK" ||
+    code === "IE" ||
     code === "AU" ||
     code === "NZ" ||
     code === "ZA" ||

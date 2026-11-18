@@ -31,6 +31,7 @@ import {
   exportBoqToPrintHtml,
   BoqStandard,
   STANDARD_SECTION_TEMPLATES,
+  resolveMarketBoqStandard,
 } from "@/lib/finance/boq-standard";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
@@ -100,7 +101,12 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
   const [riskMarginBps, setRiskMarginBps] = useState(150); // 1.5%
 
   // BOQ Standard & Commercials
-  const [boqStandard, setBoqStandard] = useState<BoqStandard>("NRM2");
+  // Default to the measurement method the project's own market uses, so a
+  // Nigerian job opens on BESMM4 and a US job on MasterFormat instead of every
+  // project in the world opening on the UK method.
+  const [boqStandard, setBoqStandard] = useState<BoqStandard>(() =>
+    resolveMarketBoqStandard(projectMarket),
+  );
   const [prelimsPercent, setPrelimsPercent] = useState(5);
   const [ohpPercent, setOhpPercent] = useState(10);
   const [contingencyPercent, setContingencyPercent] = useState(5);
