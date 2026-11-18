@@ -146,7 +146,10 @@ describe("HeatComfort page", () => {
         screen.getAllByRole("option", { name: "Dark membrane" }).length,
       ).toBe(2);
     });
-    const boxes = screen.getAllByRole("combobox");
+    // The area unit selector is not one of the finish pickers.
+    const boxes = screen
+      .getAllByRole("combobox")
+      .filter((el) => el.getAttribute("aria-label") !== "Area unit");
     fireEvent.change(boxes[1], { target: { value: "dark_membrane" } });
     fireEvent.change(boxes[2], { target: { value: "cool_coating" } });
     fireEvent.click(screen.getByRole("button", { name: /Compare finishes/i }));
@@ -180,7 +183,10 @@ describe("HeatComfort page", () => {
     expect(document.activeElement?.id).toBe("heat-current");
 
     // Picking only one finish still leaves the comparison unfinished.
-    const boxes = screen.getAllByRole("combobox");
+    // The area unit selector is not one of the finish pickers.
+    const boxes = screen
+      .getAllByRole("combobox")
+      .filter((el) => el.getAttribute("aria-label") !== "Area unit");
     fireEvent.change(boxes[1], { target: { value: "dark_membrane" } });
     fireEvent.click(compare);
     expect(
@@ -196,7 +202,10 @@ describe("HeatComfort page", () => {
         screen.getAllByRole("option", { name: "Dark membrane" }).length,
       ).toBe(2);
     });
-    const boxes = screen.getAllByRole("combobox");
+    // The area unit selector is not one of the finish pickers.
+    const boxes = screen
+      .getAllByRole("combobox")
+      .filter((el) => el.getAttribute("aria-label") !== "Area unit");
     fireEvent.change(boxes[1], { target: { value: "cool_coating" } });
     fireEvent.change(boxes[2], { target: { value: "dark_membrane" } });
     fireEvent.click(screen.getByRole("button", { name: /Compare finishes/i }));

@@ -32,6 +32,7 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { useAreaUnit } from "@/lib/use-length-unit";
 
 export default function HeatComfort() {
   const { t } = useLanguage();
@@ -41,6 +42,11 @@ export default function HeatComfort() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [surfaceType, setSurfaceType] = useState<"roof" | "wall">("roof");
   const [area, setArea] = useState("100");
+  // Visitors measure a roof or wall in the unit they read; the engine takes
+  // square metres, so the field converts at the edge.
+  // Square metres first here: the hand-verified defaults and the engine's
+  // published basis are metric, and the visitor can switch to square feet.
+  const areaUnit = useAreaUnit("sqm");
   const [currentCat, setCurrentCat] = useState("");
   const [proposedCat, setProposedCat] = useState("");
   const [result, setResult] = useState<HeatComfortResult | null>(null);
@@ -87,7 +93,7 @@ export default function HeatComfort() {
 
     const r = calculateHeatComfort({
       surface_type: surfaceType,
-      area_sqm: Number(area),
+      area_sqm: areaUnit.toSqm(area),
       current_category: currentCat,
       proposed_category: proposedCat,
       factors: factorMap,
@@ -101,8 +107,6 @@ export default function HeatComfort() {
     <ToolShell route="/heat-comfort" hideDisclaimer>
       <Container>
         <div className="space-y-6">
-
-
           {loadError && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
               {loadError}
@@ -131,15 +135,28 @@ export default function HeatComfort() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Surface area (m²)
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                />
+                Surface area ({areaUnit.label})
+                <span className="flex gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                  />
+                  <select
+                    aria-label="Area unit"
+                    className="rounded-lg border border-border bg-background px-2 py-2 font-normal"
+                    value={areaUnit.unit}
+                    onChange={(e) =>
+                      areaUnit.setUnit(e.target.value as "sqft" | "sqm")
+                    }
+                  >
+                    <option value="sqft">sq ft</option>
+                    <option value="sqm">m²</option>
+                  </select>
+                </span>
               </label>
               <label className="grid gap-1 text-sm font-medium">
                 {t("Current finish")}
