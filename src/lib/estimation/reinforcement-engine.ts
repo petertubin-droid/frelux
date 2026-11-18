@@ -562,7 +562,7 @@ export function calculateDevelopmentLength(
   fckOrFcPsi: number,
   fyMpa: number = 500,
   isTension: boolean = true,
-  code: "eurocode" | "aci" | "bs8110" = "eurocode",
+  code: LapCode = "eurocode",
 ): number {
   const d = barDiameterMm;
   if (!(d > 0) || !(fyMpa > 0)) return 0;
@@ -614,6 +614,64 @@ export function calculateDevelopmentLength(
   );
 }
 
+/** The three anchorage models this module implements. */
+export type LapCode = "eurocode" | "aci" | "bs8110";
+
+/**
+ * The design code a market actually builds to, so a lap length is never
+ * computed to Eurocode for a caller in Houston or Toronto.
+ *
+ * US, Canada, Mexico and Saudi Arabia follow ACI 318; Nigeria, the UK,
+ * Ireland, Australia, New Zealand, India, South Africa and the Gulf
+ * practice that grew out of British standards use BS 8110 anchorage;
+ * everything else in the served markets uses Eurocode 2.
+ */
+export function lapCodeForMarket(marketCode: string): LapCode {
+  switch ((marketCode || "").toUpperCase()) {
+    case "US":
+    case "CA":
+    case "MX":
+    case "SA":
+      return "aci";
+    case "NG":
+    case "GB":
+    case "UK":
+    case "IE":
+    case "AU":
+    case "NZ":
+    case "IN":
+    case "ZA":
+    case "KE":
+    case "GH":
+      return "bs8110";
+    default:
+      return "eurocode";
+  }
+}
+
+/**
+ * Lap length for a market, resolving the design code itself. Use this when
+ * the market is known; the low-level functions take an explicit code and
+ * default to Eurocode only because their callers predate the market tables.
+ */
+export function lapLengthForMarket(
+  marketCode: string,
+  barDiameterMm: number,
+  fckOrFcPsi: number,
+  fyMpa: number = 500,
+  isTension: boolean = true,
+  moreThanHalfLapped: boolean = false,
+): number {
+  return calculateLapLength(
+    barDiameterMm,
+    fckOrFcPsi,
+    fyMpa,
+    isTension,
+    lapCodeForMarket(marketCode),
+    moreThanHalfLapped,
+  );
+}
+
 /**
  * Lap length in mm. EN 1992-1-1 §8.7.3: l0 = α6 · lb,rqd, floored at
  * max(0.3 α6 lb,rqd, 15db, 200 mm). α6 is 1.5 when no more than half the bars
@@ -626,7 +684,7 @@ export function calculateLapLength(
   fckOrFcPsi: number,
   fyMpa: number = 500,
   isTension: boolean = true,
-  code: "eurocode" | "aci" | "bs8110" = "eurocode",
+  code: LapCode = "eurocode",
   moreThanHalfLapped: boolean = false,
 ): number {
   const anchorage = calculateDevelopmentLength(

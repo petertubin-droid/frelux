@@ -284,6 +284,38 @@ describe("tank stand engine", () => {
     expect(rc.concrete!.columnFormworkM2).toBeGreaterThan(0);
   });
 
+  it("sizes reinforced concrete legs to the market, not a 225 mm constant", () => {
+    const mk = (market: string) =>
+      calculateTankStand({
+        ...base,
+        market,
+        structure: "reinforced_concrete",
+      }).result!;
+
+    const ng = mk("NG");
+    const us = mk("US");
+    const de = mk("DE");
+
+    // 225 mm in Nigeria, 203 mm (8 inch CMU module) in the US, 175 mm in
+    // Germany: the quoted section and the quantities that depend on it move
+    // together instead of disclosing one width and pricing another.
+    expect(ng.concrete!.columnDimensionM).toBeCloseTo(0.225, 3);
+    expect(us.concrete!.columnDimensionM).toBeCloseTo(0.203, 3);
+    expect(de.concrete!.columnDimensionM).toBeCloseTo(0.175, 3);
+
+    const widthRatio = (r: { columnDimensionM: number }) =>
+      r.columnDimensionM * r.columnDimensionM;
+    expect(widthRatio(us.concrete!)).toBeLessThan(widthRatio(ng.concrete!));
+
+    // Shuttered area scales with the leg width, so it must follow too.
+    const usFormPerLeg = us.concrete!.columnFormworkM2 / 4;
+    const ngFormPerLeg = ng.concrete!.columnFormworkM2 / 4;
+    expect(usFormPerLeg).toBeLessThan(ngFormPerLeg);
+
+    expect(us.assumptions.join(" ")).toContain("203 mm square");
+    expect(ng.assumptions.join(" ")).toContain("225 mm square");
+  });
+
   it("carries no prices in the bill of quantities", () => {
     const { result } = calculateTankStand(base);
     const lines = result!.boq;

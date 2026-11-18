@@ -27,6 +27,7 @@ import {
   type MasonryUnitKey,
 } from "@/config/masonry-units";
 import type { BOQItem } from "./borehole-water-system-engine";
+import { resolveMemberSizing } from "@/lib/engineering/member-sizing";
 
 export type StandStructure = "blockwork" | "reinforced_concrete" | "steel";
 export type TankShellMaterial = "polyethylene" | "steel";
@@ -387,8 +388,18 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
   const courses = Math.ceil(height / courseHeight);
   const actualHeightM = Number((courses * courseHeight).toFixed(2));
 
-  const pierWidthM = structure === "blockwork" ? unit.lengthM : 0.225;
-  const pierThicknessM = structure === "blockwork" ? unit.thicknessM : 0.225;
+  // The leg section is a market fact, not a 225 mm constant: a US stand is
+  // built to 8 inch modules, a German one to 175 mm, and a frame-based
+  // market has no verified section at all. Resolving it here keeps the
+  // concrete, steel and formwork quantities on the same footing everywhere.
+  const marketSizing = resolveMemberSizing(input.marketCode ?? input.market);
+  const rcLegWidthM =
+    marketSizing.minColumnWidthMm !== null
+      ? Number((marketSizing.minColumnWidthMm / 1000).toFixed(3))
+      : 0.2;
+  const pierWidthM = structure === "blockwork" ? unit.lengthM : rcLegWidthM;
+  const pierThicknessM =
+    structure === "blockwork" ? unit.thicknessM : rcLegWidthM;
   const pierAreaM2 = pierWidthM * pierThicknessM;
 
   let standSelfWeightKg = 0;
@@ -445,13 +456,13 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
       pierStressMpa: 0,
     };
   } else if (structure === "reinforced_concrete") {
-    const columnAreaM2 = 0.225 * 0.225;
+    const columnAreaM2 = rcLegWidthM * rcLegWidthM;
     const columnConcreteM3 = columnAreaM2 * actualHeightM * legs;
     const mainBars = 4;
     const columnsMainKg =
       legs * actualHeightM * mainBars * BAR_KG_PER_M.Y16 * 1.1;
     const linkCountPerColumn = Math.ceil(actualHeightM / 0.2);
-    const linkLength = 4 * (0.225 - 0.05) + 0.1;
+    const linkLength = 4 * (rcLegWidthM - 0.05) + 0.1;
     const columnsLinksKg =
       legs * linkCountPerColumn * linkLength * BAR_KG_PER_M.Y8;
     standSelfWeightKg =
@@ -517,9 +528,13 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
   const padVolumeM3 = padSideM * padSideM * padDepthM;
   const footingConcreteM3 = padVolumeM3 * legs;
 
+  // The quoted quantities follow the same market-resolved leg section as the
+  // self weight above. They used to be recomputed here from a 225 mm
+  // constant, so a US stand disclosed 203 mm legs and then priced 225 mm
+  // columns, understating or overstating every line that depended on them.
   const columnConcreteM3 =
     structure === "reinforced_concrete"
-      ? Number((0.225 * 0.225 * actualHeightM * legs).toFixed(3))
+      ? Number((rcLegWidthM * rcLegWidthM * actualHeightM * legs).toFixed(3))
       : 0;
   const columnMainKg =
     structure === "reinforced_concrete"
@@ -529,7 +544,7 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     structure === "reinforced_concrete"
       ? legs *
         Math.ceil(actualHeightM / 0.2) *
-        (4 * 0.175 + 0.1) *
+        (4 * (rcLegWidthM - 0.05) + 0.1) *
         BAR_KG_PER_M.Y8
       : 0;
 
@@ -541,10 +556,15 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     reinforcementKg: Math.ceil(footingConcreteM3 * 60),
     blindingM3: Number((padSideM * padSideM * 0.05 * legs).toFixed(2)),
     padLoadKn: Number(padLoadKn.toFixed(1)),
-    columnDimensionM: 0.225,
+    columnDimensionM: structure === "reinforced_concrete" ? rcLegWidthM : 0,
     columnConcreteM3,
     columnRebarKg: Math.ceil(columnMainKg + columnLinkKg),
-    columnFormworkM2: Number((legs * 4 * 0.225 * actualHeightM).toFixed(2)),
+    columnFormworkM2: Number(
+      (structure === "reinforced_concrete"
+        ? legs * 4 * rcLegWidthM * actualHeightM
+        : 0
+      ).toFixed(2),
+    ),
   };
 
   const appliedPressureKpa = Number(
@@ -689,6 +709,11 @@ export function calculateTankStand(input: TankStandInput): TankStandOutcome {
     `The tank is treated as a cylinder with equal height and diameter: ${dims.diameterM.toFixed(2)} m across and ${dims.heightM.toFixed(2)} m high for ${capacity.toLocaleString()} litres.`,
     `Stand height is ${height} m, built as ${courses} courses of ${unit.label.toLowerCase()} at ${(courseHeight * 1000).toFixed(0)} mm each, ${actualHeightM} m to the underside of the platform.`,
     `${legs} ${structure === "blockwork" ? "piers" : "legs"} share the load equally.`,
+    structure === "blockwork"
+      ? `Piers are ${(pierWidthM * 1000).toFixed(0)} x ${(pierThicknessM * 1000).toFixed(0)} mm, the ${unit.label.toLowerCase()} the stand is built from.`
+      : marketSizing.minColumnWidthMm !== null
+        ? `Concrete legs are ${(rcLegWidthM * 1000).toFixed(0)} mm square, the market's verified minimum column width. ${marketSizing.minColumnBasis}.`
+        : `Concrete legs are assumed ${(rcLegWidthM * 1000).toFixed(0)} mm square: no verified section exists for ${input.marketCode ?? input.market}, so confirm the leg size with your engineer.`,
     `Load is water plus ${(TANK_TARE_KG_PER_LITRE[tankMat] * 1000).toFixed(0)} kg per 1000 litres of tank tare plus stand and platform self weight plus a ${(PLATFORM_ALLOWANCE * 100).toFixed(0)} percent allowance.`,
     `Pads are ${(padDepthM * 1000).toFixed(0)} mm thick, sized so the bearing pressure stays within the allowable figure including the pad's own weight, and rounded up to 50 mm.`,
     `Footing reinforcement is a plain 60 kg per cubic metre and the ring beam is 4-Y12 with Y8 links at 200 mm: enough to price, not a designed cage.`,
