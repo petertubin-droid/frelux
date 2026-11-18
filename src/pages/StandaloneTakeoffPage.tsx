@@ -92,6 +92,7 @@ import {
   calculateSepticSizing,
   type SepticSizingResult,
 } from "@/lib/estimation/septic-sizing-engine";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 type Engine =
   | "masonry"
@@ -192,6 +193,8 @@ export default function StandaloneTakeoffPage({
     resolveMarketRoomUnit({ ...market, marketCode }, "meters") === "feet"
       ? "ft"
       : "m";
+  // Areas are typed in the market's unit and converted once, like the walls.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
   // The building sized in the shared bar is the default here, so a user who has
@@ -323,6 +326,14 @@ export default function StandaloneTakeoffPage({
         : undefined;
   const number = (key: string, fallback = 0) =>
     Number.isFinite(Number(values[key])) ? Number(values[key]) : fallback;
+  /** A wall field typed in the visitor's unit, returned in metres. */
+  const lengthM = (key: string, fallback = 0) =>
+    wallLengthUnit === "ft"
+      ? number(key, fallback) * 0.3048
+      : number(key, fallback);
+  /** An area field typed in the visitor's unit, returned in square metres. */
+  const areaM2 = (key: string, fallback = 0) =>
+    areaUnit.toSqm(number(key, fallback));
   const update = (key: string, value: string) =>
     setValues((old) => ({ ...old, [key]: value }));
   const field = (key: string, label: string, unit = "m", min = 0) => (
@@ -389,8 +400,8 @@ export default function StandaloneTakeoffPage({
         } else {
           next = calculateMasonryTakeoff({
             marketCode,
-            wallLengthM: number("length"),
-            wallHeightM: number("height"),
+            wallLengthM: lengthM("length"),
+            wallHeightM: lengthM("height"),
             wallCount: number("count", 1),
             selectedUnitId: unitId || undefined,
             wastePercent: number("waste", 5),
@@ -423,7 +434,7 @@ export default function StandaloneTakeoffPage({
         } else {
           next = calculatePlasteringTakeoff({
             marketCode,
-            surfaceAreaM2: number("area"),
+            surfaceAreaM2: areaM2("area"),
             thicknessMm: number("thickness", 12),
             wastePercent: number("waste", 5),
             applicationType: "internal_plaster",
@@ -432,8 +443,8 @@ export default function StandaloneTakeoffPage({
       } else if (engine === "drywall")
         next = calculateDrywallTakeoff({
           marketCode,
-          wallLengthM: number("length"),
-          wallHeightM: number("height"),
+          wallLengthM: lengthM("length"),
+          wallHeightM: lengthM("height"),
           wallCount: number("count", 1),
           studSpacingMm: number("spacing", 600),
           wastePercent: number("waste", 10),
@@ -442,7 +453,7 @@ export default function StandaloneTakeoffPage({
       else if (engine === "paving")
         next = calculatePavingTakeoff({
           marketCode,
-          areaM2: number("area"),
+          areaM2: areaM2("area"),
           paverLengthMm: number("paverLength", 200),
           paverWidthMm: number("paverWidth", 100),
           wastePercent: number("waste", 5),
@@ -463,7 +474,7 @@ export default function StandaloneTakeoffPage({
       else if (engine === "insulation")
         next = calculateInsulationTakeoff({
           marketCode,
-          areaM2: number("area"),
+          areaM2: areaM2("area"),
           thicknessMm: number("thickness", 100),
           layers: number("layers", 1),
           packCoverageM2: number("packCoverage", 0),
@@ -800,7 +811,7 @@ export default function StandaloneTakeoffPage({
                 )}
                 {engine === "plastering" && (
                   <>
-                    {field("area", "Surface area", "m²")}{" "}
+                    {field("area", "Surface area", areaUnit.label)}{" "}
                     {field("thickness", "Total coat thickness", "mm")}{" "}
                     {field("waste", "Material allowance", "%")}
                   </>
@@ -816,7 +827,7 @@ export default function StandaloneTakeoffPage({
                 )}
                 {engine === "paving" && (
                   <>
-                    {field("area", "Paved area", "m²")}{" "}
+                    {field("area", "Paved area", areaUnit.label)}{" "}
                     {field("paverLength", "Paver length", "mm")}{" "}
                     {field("paverWidth", "Paver width", "mm")}{" "}
                     {field("waste", "Cutting allowance", "%")}
@@ -873,7 +884,7 @@ export default function StandaloneTakeoffPage({
                 )}
                 {engine === "insulation" && (
                   <>
-                    {field("area", "Insulated area", "m²")}{" "}
+                    {field("area", "Insulated area", areaUnit.label)}{" "}
                     {field("thickness", "Insulation thickness", "mm")}{" "}
                     {field("layers", "Number of layers", "layers", 1)}{" "}
                     {field(
