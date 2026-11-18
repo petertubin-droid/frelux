@@ -326,4 +326,29 @@ describe("audit fix F4 — pad footing self-weight & punching shear", () => {
       true,
     );
   });
+
+  it("recognizes soft_clay_swamp soil and recommends raft or pile foundation with C25/30 concrete", () => {
+    const swampInput = {
+      ...baseInput,
+      shape: "pad" as const,
+      soil_type: "soft_clay_swamp" as const,
+      column_load: 450, // heavy column load
+      foundation_depth: 1.2,
+      ground_water_depth_m: 0.8, // shallow water table < 1.0 m
+    };
+    const result = designFoundation(swampInput);
+
+    expect(result.bearing_capacity).toBe(60);
+    expect(result.recommended_foundation_type).toBe("pile");
+    expect(result.recommended_concrete_grade).toBe("C25/30");
+    expect(result.water_table_classification).toBe("shallow_high_risk");
+    expect(result.geotechnical_advisory).toContain("buoyant uplift");
+
+    // COREN Geotechnical Audit Sheet
+    expect(result.coren_audit_sheet).toBeDefined();
+    expect(result.coren_audit_sheet?.governing_code).toContain("BS 8004");
+    expect(result.coren_audit_sheet?.coren_endorsement_placeholder).toContain(
+      "COREN Registered",
+    );
+  });
 });

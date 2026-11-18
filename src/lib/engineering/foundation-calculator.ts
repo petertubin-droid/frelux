@@ -26,6 +26,7 @@ export type SoilType =
   | "loose_sand"
   | "dense_sand"
   | "lateritic"
+  | "soft_clay_swamp"
   | "rock"
   | "custom";
 
@@ -71,6 +72,17 @@ export interface FoundationDesignInput {
   bearing_factor_of_safety?: number;
 }
 
+export interface CorenGeotechnicalAuditSheet {
+  governing_code: string;
+  geotechnical_summary: string;
+  bearing_capacity_allowable_kpa: number;
+  applied_pressure_kpa: number;
+  factor_of_safety: number;
+  foundation_recommendation: string;
+  groundwater_evaluation: string;
+  coren_endorsement_placeholder: string;
+}
+
 export interface FoundationDesignResult {
   shape: FoundationShape;
   soil_type: SoilType;
@@ -91,6 +103,11 @@ export interface FoundationDesignResult {
   punching_shear_stress?: number; // N/mm² (pad only, ULS)
   punching_shear_capacity?: number; // N/mm² (pad only)
   punching_shear_check_pass?: boolean; // pad only
+  recommended_foundation_type?: FoundationShape | "pile";
+  recommended_concrete_grade?: string;
+  water_table_classification?: "dry" | "moderate" | "shallow_high_risk";
+  geotechnical_advisory?: string;
+  coren_audit_sheet?: CorenGeotechnicalAuditSheet;
   warnings: string[];
   formula_transparency: string[];
 }
@@ -108,6 +125,7 @@ export const SOIL_BEARING_CAPACITY: Record<SoilType, number> = {
   loose_sand: 100,
   dense_sand: 300,
   lateritic: 250,
+  soft_clay_swamp: 60,
   rock: 600,
   custom: 0, // user-provided
 };
@@ -119,6 +137,8 @@ export const SOIL_DESCRIPTIONS: Record<SoilType, string> = {
   loose_sand: "Loose sand, poorly compacted",
   dense_sand: "Dense sand, well-compacted granular",
   lateritic: "Lateritic soil (common in tropical regions)",
+  soft_clay_swamp:
+    "Soft clay, swamp / coastal marsh (Southern Nigeria / Niger Delta, low bearing)",
   rock: "Sound rock, very high capacity",
   custom: "Custom, user-defined bearing capacity",
 };
@@ -142,6 +162,7 @@ export const SOIL_STRENGTH_PARAMS: Record<
   loose_sand: { phi_deg: 28, cohesion_kpa: 0, unit_weight_kn_m3: 17 },
   dense_sand: { phi_deg: 35, cohesion_kpa: 0, unit_weight_kn_m3: 19 },
   lateritic: { phi_deg: 30, cohesion_kpa: 10, unit_weight_kn_m3: 18.5 },
+  soft_clay_swamp: { phi_deg: 0, cohesion_kpa: 28, unit_weight_kn_m3: 15.5 },
   rock: { phi_deg: 40, cohesion_kpa: 200, unit_weight_kn_m3: 22 },
   custom: { phi_deg: 30, cohesion_kpa: 0, unit_weight_kn_m3: 18 },
 };
@@ -678,5 +699,65 @@ export function designFoundation(
     };
   }
 
-  return result;
+  // Geotechnical and COREN Engineering Audit Classification
+  let recommended_foundation_type: FoundationShape | "pile" = input.shape;
+  let recommended_concrete_grade = input.concrete_grade || "C20/25";
+  let geotechnical_advisory = "";
+
+  if (allowable_capacity < 75 || input.soil_type === "soft_clay_swamp") {
+    recommended_foundation_type =
+      (input.column_load && input.column_load > 350) || input.wall_load > 120
+        ? "pile"
+        : "raft";
+    recommended_concrete_grade = "C25/30";
+    geotechnical_advisory =
+      "Soft swamp/clay soil exhibits high compressibility. Shallow strip/pad footings risk excessive differential settlement; raft foundation or deep bored/driven piles embedded into competent sand/gravel strata are recommended under Eurocode 7 / BS 8004.";
+  } else if (allowable_capacity <= 150) {
+    recommended_foundation_type = input.shape === "raft" ? "raft" : "pad";
+    recommended_concrete_grade = "C20/25";
+    geotechnical_advisory =
+      "Medium-strength cohesive soil. Strip or wide isolated pad footings are acceptable provided excavation is inspected for soft pockets.";
+  } else {
+    recommended_foundation_type = input.shape;
+    recommended_concrete_grade = input.concrete_grade || "C20/25";
+    geotechnical_advisory =
+      "Competent bearing stratum (firm laterite / dense granular soil). Standard strip or pad footings are fully adequate.";
+  }
+
+  let water_table_classification: "dry" | "moderate" | "shallow_high_risk" =
+    "dry";
+  if (waterDepth !== null && waterDepth !== undefined) {
+    if (waterDepth < 1.0) {
+      water_table_classification = "shallow_high_risk";
+      geotechnical_advisory +=
+        " Shallow water table detected (< 1.0 m below GL). Substructure waterproofing (BS 8102), dewatering during excavation, and buoyant uplift verification are required.";
+    } else if (waterDepth <= 2.5) {
+      water_table_classification = "moderate";
+    }
+  }
+
+  const coren_audit_sheet: CorenGeotechnicalAuditSheet = {
+    governing_code:
+      "BS 8004:1986 / Eurocode 7 (BS EN 1997-1) / Nigerian National Building Code §8",
+    geotechnical_summary: `${SOIL_DESCRIPTIONS[input.soil_type]} with ${allowable_capacity.toFixed(0)} kN/m² allowable bearing capacity.`,
+    bearing_capacity_allowable_kpa: allowable_capacity,
+    applied_pressure_kpa: result.applied_pressure,
+    factor_of_safety: result.factor_of_safety,
+    foundation_recommendation: `${recommended_foundation_type.toUpperCase()} footing recommended (Concrete Grade: ${recommended_concrete_grade}).`,
+    groundwater_evaluation:
+      water_table_classification === "shallow_high_risk"
+        ? "High groundwater table requires continuous dewatering and buoyant uplift checks."
+        : "Groundwater table does not imperil bearing stratum.",
+    coren_endorsement_placeholder:
+      "COREN Registered Geotechnical / Structural Engineer Sign-Off: [Name: ________________________, Reg No: R.________________________, Date: ____________, Seal: ________________________]",
+  };
+
+  return {
+    ...result,
+    recommended_foundation_type,
+    recommended_concrete_grade,
+    water_table_classification,
+    geotechnical_advisory,
+    coren_audit_sheet,
+  };
 }

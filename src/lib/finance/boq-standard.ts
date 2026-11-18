@@ -21,7 +21,23 @@ import { TaxCalculationResult } from "./tax-engine";
 import { FRELUX_LOGO_DATA_URL } from "@/lib/pdf-logo-data";
 
 export type BoqStandard =
-  "NRM2" | "CSI_MASTERFORMAT" | "CESMM4" | "ICMS" | "Commercial";
+  | "NRM2"
+  | "BESMM4"
+  | "SMM7"
+  | "CSI_MASTERFORMAT"
+  | "CESMM4"
+  | "ICMS"
+  | "Commercial";
+
+export interface BoqEndorsement {
+  certifiedBy?: string; // Registered Quantity Surveyor Name
+  niqsRegNumber?: string; // Nigerian Institute of Quantity Surveyors Reg. No.
+  qsrbnRegNumber?: string; // Quantity Surveyors Registration Board of Nigeria Reg. No.
+  practiceFirm?: string;
+  status: "draft" | "tender_ready" | "certified_for_bank_tender";
+  certificationDate?: string;
+  notes?: string;
+}
 
 export interface BoqItem {
   id: string;
@@ -32,10 +48,14 @@ export interface BoqItem {
   materialRate: number;
   laborRate: number;
   plantRate: number;
-  unitRate: number; // materialRate + laborRate + plantRate
+  transportRate?: number; // Regional logistics & haulage to site
+  overheadRate?: number; // Contractor overhead allocation
+  profitRate?: number; // Contractor profit margin allocation
+  laborOutputHours?: number; // Labor productivity rate (man-hours per unit)
+  unitRate: number; // materialRate + laborRate + plantRate + transportRate + overheadRate + profitRate
   totalCost: number;
   specificationRef?: string;
-  standardCode?: string; // e.g. "NRM2-2.1"
+  standardCode?: string; // e.g. "BESMM4-F.1" or "NRM2-2.1"
 }
 
 export interface BoqSubSection {
@@ -66,6 +86,7 @@ export interface BoqProjectMetadata {
   date: string;
   revision: string;
   standard: BoqStandard;
+  endorsement?: BoqEndorsement;
 }
 
 export interface BoqCommercials {
@@ -79,6 +100,7 @@ export interface BoqCommercials {
 export interface StandardBoqDocument {
   metadata: BoqProjectMetadata;
   commercials: BoqCommercials;
+  endorsement?: BoqEndorsement;
   sections: BoqSection[];
   summary: {
     measuredWorksTotal: number;
@@ -101,6 +123,53 @@ export const STANDARD_SECTION_TEMPLATES: Record<
   BoqStandard,
   Array<{ code: string; title: string }>
 > = {
+  BESMM4: [
+    { code: "A", title: "Preliminaries & General Contract Conditions" },
+    { code: "D", title: "Demolition & Site Clearance" },
+    { code: "E", title: "Earthworks & Bulk Excavation" },
+    { code: "F", title: "In Situ Concrete & Formwork" },
+    { code: "G", title: "Reinforcement (BS 8666 Schedules)" },
+    { code: "H", title: "Precast Concrete" },
+    { code: "J", title: "Masonry, Sandcrete & Blockwork" },
+    { code: "K", title: "Structural Metalwork" },
+    { code: "L", title: "Woodwork, Roof Structure & Carcassing" },
+    {
+      code: "M",
+      title: "Thermal & Moisture Protection (Waterproofing & Roofing)",
+    },
+    { code: "N", title: "Windows, Doors & Ironmongery" },
+    {
+      code: "P",
+      title: "Wall, Floor & Ceiling Finishes (Plaster, Screed, Tiles)",
+    },
+    { code: "Q", title: "Glazing" },
+    { code: "R", title: "Painting & Decorating" },
+    { code: "S", title: "Plumbing & Mechanical Engineering Services" },
+    { code: "T", title: "Electrical Engineering Services" },
+    { code: "U", title: "External Works, Drainage, Fencing & Landscaping" },
+    { code: "V", title: "Prime Cost (PC) Sums & Provisional Sums" },
+  ],
+  SMM7: [
+    { code: "A", title: "Preliminaries / General Conditions" },
+    { code: "C", title: "Existing Site / Buildings / Demolitions" },
+    { code: "D", title: "Groundwork & Substructure" },
+    { code: "E", title: "In Situ Concrete / Large Precast Concrete" },
+    { code: "F", title: "Masonry & Blockwork" },
+    { code: "G", title: "Structural / Carcassing Metal & Timber" },
+    { code: "H", title: "Cladding & Covering" },
+    { code: "J", title: "Waterproofing" },
+    { code: "K", title: "Linings, Sheathing & Dry Partitioning" },
+    { code: "L", title: "Windows, Doors & Stairs" },
+    { code: "M", title: "Surface Finishes (Plaster, Screed, Tile, Paint)" },
+    { code: "N", title: "Furniture & Equipment" },
+    { code: "P", title: "Building Fabric Sundries" },
+    { code: "Q", title: "Paving, Planting & Fencing" },
+    { code: "R", title: "Disposal Systems & Drainage" },
+    { code: "S", title: "Piped Supply Systems (Plumbing & Water)" },
+    { code: "T", title: "Mechanical Heating & Cooling Systems (HVAC)" },
+    { code: "V", title: "Electrical Supply, Power & Lighting Systems" },
+    { code: "W", title: "Communications, Security & Control Systems" },
+  ],
   CSI_MASTERFORMAT: [
     { code: "01", title: "General Requirements" },
     { code: "02", title: "Existing Conditions" },
@@ -198,6 +267,10 @@ export function assembleStandardBoq(params: {
         materialRate?: number;
         laborRate?: number;
         plantRate?: number;
+        transportRate?: number;
+        overheadRate?: number;
+        profitRate?: number;
+        laborOutputHours?: number;
         specificationRef?: string;
         standardCode?: string;
       }>;
@@ -219,11 +292,12 @@ export function assembleStandardBoq(params: {
         const mat = it.materialRate || 0;
         const lab = it.laborRate || 0;
         const plt = it.plantRate || 0;
-        // The rate is money and is published to the cent, so it is rounded
-        // before it is multiplied. Carrying an unrounded rate meant the printed
-        // rate and the printed amount disagreed: a 0.335 rate on 7 units
-        // printed 0.34 and priced 2.35, which no reader can reproduce.
-        const unitRate = Math.round((mat + lab + plt) * 100) / 100;
+        const trp = it.transportRate || 0;
+        const ovh = it.overheadRate || 0;
+        const prf = it.profitRate || 0;
+        // Rate build-up transparency: Material + Labor + Plant + Haulage + Overheads + Profit
+        const unitRate =
+          Math.round((mat + lab + plt + trp + ovh + prf) * 100) / 100;
         const totalCost = Math.round(it.quantity * unitRate * 100) / 100;
 
         subTotal += totalCost;
@@ -239,6 +313,10 @@ export function assembleStandardBoq(params: {
           materialRate: mat,
           laborRate: lab,
           plantRate: plt,
+          transportRate: trp > 0 ? trp : undefined,
+          overheadRate: ovh > 0 ? ovh : undefined,
+          profitRate: prf > 0 ? prf : undefined,
+          laborOutputHours: it.laborOutputHours,
           unitRate,
           totalCost,
           specificationRef: it.specificationRef,
@@ -315,6 +393,7 @@ export function assembleStandardBoq(params: {
   return {
     metadata,
     commercials,
+    endorsement: metadata.endorsement,
     sections: processedSections,
     summary: {
       measuredWorksTotal,
@@ -371,6 +450,9 @@ export function exportBoqToCsv(doc: StandardBoqDocument): string {
     `Material Rate (${cur})`,
     `Labor Rate (${cur})`,
     `Plant Rate (${cur})`,
+    `Logistics Rate (${cur})`,
+    `Overhead Rate (${cur})`,
+    `Profit Rate (${cur})`,
     `Unit Rate (${cur})`,
     `Total Amount (${cur})`,
   ]);
@@ -415,6 +497,9 @@ export function exportBoqToCsv(doc: StandardBoqDocument): string {
           item.materialRate.toFixed(2),
           item.laborRate.toFixed(2),
           item.plantRate.toFixed(2),
+          (item.transportRate || 0).toFixed(2),
+          (item.overheadRate || 0).toFixed(2),
+          (item.profitRate || 0).toFixed(2),
           item.unitRate.toFixed(2),
           item.totalCost.toFixed(2),
         ]);
@@ -752,8 +837,12 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
   <div class="sign-block">
     <div class="sign-box">
       <b>PREPARED & VERIFIED BY:</b><br />
+      ${doc.endorsement?.certifiedBy ? `<span><b>${escapeHtml(doc.endorsement.certifiedBy)}</b></span><br />` : ""}
+      ${doc.endorsement?.practiceFirm ? `<span>${escapeHtml(doc.endorsement.practiceFirm)}</span><br />` : ""}
+      ${doc.endorsement?.niqsRegNumber ? `<span>NIQS Reg: <b>${escapeHtml(doc.endorsement.niqsRegNumber)}</b></span><br />` : ""}
+      ${doc.endorsement?.qsrbnRegNumber ? `<span>QSRBN Reg: <b>${escapeHtml(doc.endorsement.qsrbnRegNumber)}</b></span><br />` : ""}
       Quantity Surveyor / Cost Consultant Signature<br />
-      Date: ________________________
+      Date: ${escapeHtml(doc.endorsement?.certificationDate || metadata.date)}
     </div>
     <div class="sign-box">
       <b>APPROVED & ACCEPTED BY:</b><br />
@@ -869,6 +958,195 @@ export function mapItemToStandardDivision(
     return { code: "01", title: "General Requirements" };
   }
 
+  if (standard === "BESMM4") {
+    if (
+      norm.includes("earth") ||
+      norm.includes("excavat") ||
+      norm.includes("site clearance")
+    ) {
+      return { code: "E", title: "Earthworks & Bulk Excavation" };
+    }
+    if (
+      norm.includes("rebar") ||
+      norm.includes("reinforce") ||
+      norm.includes("bar bending") ||
+      norm.includes("steel mesh")
+    ) {
+      return { code: "G", title: "Reinforcement (BS 8666 Schedules)" };
+    }
+    if (
+      norm.includes("concrete") ||
+      norm.includes("blinding") ||
+      norm.includes("formwork") ||
+      norm.includes("ground beam")
+    ) {
+      return { code: "F", title: "In Situ Concrete & Formwork" };
+    }
+    if (
+      norm.includes("block") ||
+      norm.includes("sandcrete") ||
+      norm.includes("brick") ||
+      norm.includes("masonry") ||
+      norm.includes("damp proof")
+    ) {
+      return { code: "J", title: "Masonry, Sandcrete & Blockwork" };
+    }
+    if (
+      norm.includes("structural steel") ||
+      norm.includes("universal beam") ||
+      norm.includes("stanchion")
+    ) {
+      return { code: "K", title: "Structural Metalwork" };
+    }
+    if (
+      norm.includes("wood") ||
+      norm.includes("timber") ||
+      norm.includes("carpentry") ||
+      norm.includes("truss") ||
+      norm.includes("rafter") ||
+      norm.includes("fascia")
+    ) {
+      return { code: "L", title: "Woodwork, Roof Structure & Carcassing" };
+    }
+    if (
+      norm.includes("roof") ||
+      norm.includes("waterproof") ||
+      norm.includes("felt") ||
+      norm.includes("membrane")
+    ) {
+      return {
+        code: "M",
+        title: "Thermal & Moisture Protection (Waterproofing & Roofing)",
+      };
+    }
+    if (
+      norm.includes("door") ||
+      norm.includes("window") ||
+      norm.includes("ironmongery") ||
+      norm.includes("lockset")
+    ) {
+      return { code: "N", title: "Windows, Doors & Ironmongery" };
+    }
+    if (norm.includes("paint")) {
+      return { code: "R", title: "Painting & Decorating" };
+    }
+    if (
+      norm.includes("tile") ||
+      norm.includes("screed") ||
+      norm.includes("plaster") ||
+      norm.includes("pop") ||
+      norm.includes("ceiling") ||
+      norm.includes("finish")
+    ) {
+      return {
+        code: "P",
+        title: "Wall, Floor & Ceiling Finishes (Plaster, Screed, Tiles)",
+      };
+    }
+    if (
+      norm.includes("plumb") ||
+      norm.includes("pipe") ||
+      norm.includes("sanitary") ||
+      norm.includes("drain") ||
+      norm.includes("soakaway") ||
+      norm.includes("septic")
+    ) {
+      return { code: "S", title: "Plumbing & Mechanical Engineering Services" };
+    }
+    if (
+      norm.includes("electric") ||
+      norm.includes("wire") ||
+      norm.includes("conduit") ||
+      norm.includes("solar") ||
+      norm.includes("inverter") ||
+      norm.includes("lighting")
+    ) {
+      return { code: "T", title: "Electrical Engineering Services" };
+    }
+    if (
+      norm.includes("paving") ||
+      norm.includes("drainage") ||
+      norm.includes("fence") ||
+      norm.includes("gate") ||
+      norm.includes("external")
+    ) {
+      return {
+        code: "U",
+        title: "External Works, Drainage, Fencing & Landscaping",
+      };
+    }
+    return { code: "A", title: "Preliminaries & General Contract Conditions" };
+  }
+
+  if (standard === "SMM7") {
+    if (
+      norm.includes("earth") ||
+      norm.includes("excavat") ||
+      norm.includes("groundwork")
+    ) {
+      return { code: "D", title: "Groundwork & Substructure" };
+    }
+    if (
+      norm.includes("concrete") ||
+      norm.includes("rebar") ||
+      norm.includes("formwork")
+    ) {
+      return { code: "E", title: "In Situ Concrete / Large Precast Concrete" };
+    }
+    if (
+      norm.includes("block") ||
+      norm.includes("brick") ||
+      norm.includes("masonry")
+    ) {
+      return { code: "F", title: "Masonry & Blockwork" };
+    }
+    if (
+      norm.includes("steel") ||
+      norm.includes("timber") ||
+      norm.includes("truss")
+    ) {
+      return { code: "G", title: "Structural / Carcassing Metal & Timber" };
+    }
+    if (norm.includes("cladding") || norm.includes("roof")) {
+      return { code: "H", title: "Cladding & Covering" };
+    }
+    if (norm.includes("waterproof")) {
+      return { code: "J", title: "Waterproofing" };
+    }
+    if (norm.includes("door") || norm.includes("window")) {
+      return { code: "L", title: "Windows, Doors & Stairs" };
+    }
+    if (
+      norm.includes("paint") ||
+      norm.includes("tile") ||
+      norm.includes("screed") ||
+      norm.includes("plaster") ||
+      norm.includes("ceiling")
+    ) {
+      return {
+        code: "M",
+        title: "Surface Finishes (Plaster, Screed, Tile, Paint)",
+      };
+    }
+    if (norm.includes("drain") || norm.includes("disposal")) {
+      return { code: "R", title: "Disposal Systems & Drainage" };
+    }
+    if (norm.includes("plumb") || norm.includes("pipe")) {
+      return { code: "S", title: "Piped Supply Systems (Plumbing & Water)" };
+    }
+    if (
+      norm.includes("electric") ||
+      norm.includes("power") ||
+      norm.includes("lighting")
+    ) {
+      return {
+        code: "V",
+        title: "Electrical Supply, Power & Lighting Systems",
+      };
+    }
+    return { code: "A", title: "Preliminaries / General Conditions" };
+  }
+
   if (standard === "NRM2") {
     if (
       norm.includes("earth") ||
@@ -960,6 +1238,9 @@ export function resolveMarketBoqStandard(marketCode: string): BoqStandard {
   if (code === "US" || code === "CA") {
     return "CSI_MASTERFORMAT";
   }
+  if (code === "NG") {
+    return "BESMM4"; // Nigerian Institute of Quantity Surveyors Standard (NIQS)
+  }
   if (
     code === "GB" ||
     code === "UK" ||
@@ -967,8 +1248,7 @@ export function resolveMarketBoqStandard(marketCode: string): BoqStandard {
     code === "NZ" ||
     code === "ZA" ||
     code === "KE" ||
-    code === "GH" ||
-    code === "NG"
+    code === "GH"
   ) {
     return "NRM2";
   }

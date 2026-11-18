@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   designBeam,
+  generateCorenStructuralAuditSheet,
   designColumn,
   designSlab,
   getConcreteStandardForMarket,
@@ -483,5 +484,68 @@ describe("audit fix F4 — thinnest compliant slab", () => {
     );
     expect(heavy.deflection_check_pass).toBe(true);
     expect(heavy.link_check.length).toBeGreaterThan(0);
+  });
+});
+
+describe("COREN Structural Audit Sheet and Verification", () => {
+  it("generates an endorsed calculation sheet for reinforced concrete beams", () => {
+    const beam = designBeam({
+      span: 3.5,
+      tributary_width: 2.0,
+      dead_load: 4,
+      live_load: 2,
+      existing_width: 250,
+      existing_depth: 450,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      support_condition: "simply_supported",
+      beam_type: "suspended_beam",
+      cover_mm: 25,
+    });
+
+    const sheet = generateCorenStructuralAuditSheet(beam, "beam", {
+      projectTitle: "Victoria Island Corporate Headquarters",
+      engineerName: "Engr. Babatunde Adeleke, FNSE, COREN Reg",
+      corenRegNo: "R.29481/COREN",
+      practiceFirm: "Adeleke Structural Consultants Ltd",
+    });
+
+    expect(sheet.header.projectTitle).toBe(
+      "Victoria Island Corporate Headquarters",
+    );
+    expect(sheet.header.corenRegNumber).toBe("R.29481/COREN");
+    expect(sheet.header.status).toBe("TENDER_VERIFIED");
+    expect(sheet.codeChecks.length).toBeGreaterThanOrEqual(3);
+    expect(sheet.reinforcementSchedule.mainReinforcement).toContain("Y");
+    expect(sheet.endorsementText).toContain(
+      "COREN Structural Engineer Verification",
+    );
+  });
+
+  it("generates an endorsed calculation sheet for reinforced concrete columns", () => {
+    const col = designColumn({
+      axial_load: 650,
+      height: 3.2,
+      concrete_grade: "C25",
+      steel_grade: "Fe500",
+      cover_mm: 25,
+      is_rectangular: true,
+      unbraced_height_ratio: 10,
+      existing_width: 300,
+      existing_depth: 300,
+    });
+
+    const sheet = generateCorenStructuralAuditSheet(col, "column", {
+      projectTitle: "Ikeja High-Rise Logistics Warehouse",
+      corenRegNo: "R.19482/COREN",
+    });
+
+    expect(sheet.header.corenRegNumber).toBe("R.19482/COREN");
+    expect(sheet.codeChecks.some((c) => c.checkName.includes("Squash"))).toBe(
+      true,
+    );
+    expect(sheet.reinforcementSchedule.detailingNotes.length).toBeGreaterThan(
+      0,
+    );
   });
 });

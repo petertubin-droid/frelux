@@ -180,6 +180,93 @@ describe("Standardized BOQ Assembly Engine", () => {
   });
 });
 
+it("assembles a BESMM4 compliant BOQ with granular rate build-up and NIQS sections", () => {
+  const doc = assembleStandardBoq({
+    metadata: {
+      title: "Lekki Commercial Mixed-Use Plaza",
+      projectRef: "PRJ-NG-2026-088",
+      clientName: "Eko Atlantic Developments",
+      contractorName: "Julius & Partners Construction",
+      location: "Lekki Phase 1, Lagos, Nigeria",
+      marketCode: "NG",
+      currency: "NGN",
+      preparedBy: "Engr. & QS O. Adebayo, FNIQS, RQS",
+      date: "2026-11-18",
+      revision: "Rev 01 - Binding Tender",
+      standard: "BESMM4",
+      endorsement: {
+        certifiedBy: "QS Olumide Adebayo",
+        niqsRegNumber: "M/NIQS/4892",
+        qsrbnRegNumber: "QSRBN/REG/2014/1108",
+        practiceFirm: "Adebayo Cost Engineering Consultants",
+        status: "certified_for_bank_tender",
+        certificationDate: "2026-11-18",
+        notes:
+          "Prepared in accordance with NIQS BESMM4 for commercial tender submission.",
+      },
+    },
+    commercials: {
+      preliminariesPercent: 6,
+      overheadProfitPercent: 12,
+      contingencyPercent: 5,
+      retentionPercent: 5,
+    },
+    sections: [
+      {
+        code: "F",
+        title: "In Situ Concrete & Formwork",
+        subSections: [
+          {
+            code: "F.1",
+            title: "Reinforced Concrete Members (C25/30)",
+            items: [
+              {
+                itemNumber: "F.1.01",
+                description:
+                  "Vibrated reinforced in-situ concrete Grade C25/30 in ground beams",
+                quantity: 40,
+                unit: "m³",
+                materialRate: 85000,
+                laborRate: 12000,
+                plantRate: 8000,
+                transportRate: 5000, // Haulage to site
+                overheadRate: 3000, // Granular contractor overhead
+                profitRate: 4000, // Granular profit allocation
+                laborOutputHours: 2.5,
+                specificationRef: "BS 8110 / BS EN 1992-1-1",
+                standardCode: "BESMM4-F.102",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  expect(doc.metadata.standard).toBe("BESMM4");
+  expect(doc.endorsement?.status).toBe("certified_for_bank_tender");
+  expect(doc.endorsement?.niqsRegNumber).toBe("M/NIQS/4892");
+
+  const item = doc.sections[0].subSections[0].items[0];
+  // Unit rate = 85000 + 12000 + 8000 + 5000 + 3000 + 4000 = 117,000 NGN/m³
+  expect(item.unitRate).toBe(117000);
+  expect(item.transportRate).toBe(5000);
+  expect(item.overheadRate).toBe(3000);
+  expect(item.profitRate).toBe(4000);
+  expect(item.totalCost).toBe(40 * 117000);
+
+  const csv = exportBoqToCsv(doc);
+  expect(csv).toContain("Logistics Rate (NGN)");
+  expect(csv).toContain("Overhead Rate (NGN)");
+  expect(csv).toContain("Profit Rate (NGN)");
+  expect(csv).toContain("BESMM4");
+
+  const html = exportBoqToPrintHtml(doc);
+  expect(html).toContain("BESMM4");
+  expect(html).toContain("M/NIQS/4892");
+  expect(html).toContain("QSRBN/REG/2014/1108");
+});
+
 describe("BOQ export disclosure", () => {
   it("labels the generated document as a draft and disclaims standards certification", async () => {
     const { exportBoqToPrintHtml, assembleStandardBoq } =

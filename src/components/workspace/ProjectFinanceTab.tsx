@@ -445,8 +445,15 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="BESMM4">
+                  {t("BESMM4 (NIQS Nigeria)")}
+                </SelectItem>
                 <SelectItem value="NRM2">{t("NRM2 (RICS)")}</SelectItem>
+                <SelectItem value="SMM7">{t("SMM7 (Commonwealth)")}</SelectItem>
                 <SelectItem value="CESMM4">{t("CESMM4 (Civil)")}</SelectItem>
+                <SelectItem value="CSI_MASTERFORMAT">
+                  {t("CSI MasterFormat")}
+                </SelectItem>
                 <SelectItem value="ICMS">{t("ICMS (Global)")}</SelectItem>
                 <SelectItem value="Commercial">{t("Commercial")}</SelectItem>
               </SelectContent>
