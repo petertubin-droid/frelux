@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildQuoteHtml, printQuote } from "../quote-export";
+import {
+  buildQuoteHtml,
+  printQuote,
+  printWhenImagesReady,
+} from "../quote-export";
 
 const opts = {
   title: "FRELUX Backup Power Estimate",
@@ -53,8 +57,12 @@ describe("buildQuoteHtml", () => {
   it("prints the FRELUX mark in the header and as the background", () => {
     const html = buildQuoteHtml(opts);
     expect(html).toContain('class="brand-mark"');
-    expect(html).toContain("/logo-mark.png");
     expect(html).toContain("pdf-watermark--mark");
+    // Embedded, not a remote URL: a network image raced the print snapshot and
+    // vanished from saved PDFs (regression: Nov 2026 painting estimate PDF).
+    expect(html).toContain('src="data:image/png;base64,');
+    expect(html).not.toContain("/logo-mark.png");
+    expect(html).not.toContain("onerror");
     // The mark sits under the content: the watermark div opens the invoice body.
     expect(html.indexOf("pdf-watermark--mark")).toBeLessThan(
       html.indexOf("Generator 10 kVA"),
@@ -105,13 +113,61 @@ describe("printQuote", () => {
     const focus = vi.fn();
     const print = vi.fn();
     vi.spyOn(window, "open").mockReturnValue({
-      document: { write, close },
+      document: { write, close, images: [] },
       focus,
       print,
+      requestAnimationFrame: (cb: () => void) => cb(),
     } as unknown as Window);
     printQuote(opts, "x.html");
     expect(write).toHaveBeenCalled();
     expect(print).toHaveBeenCalled();
+  });
+
+  it("waits for a still-loading image before printing", () => {
+    vi.useFakeTimers();
+    const listeners: Record<string, () => void> = {};
+    const img = {
+      complete: false,
+      addEventListener: (ev: string, cb: () => void) => {
+        listeners[ev] = cb;
+      },
+    };
+    const print = vi.fn();
+    const w = { document: { images: [img] }, print } as unknown as Window;
+    printWhenImagesReady(w);
+    expect(print).not.toHaveBeenCalled();
+    listeners.load();
+    expect(print).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it("still prints after the cap when an image never settles", () => {
+    vi.useFakeTimers();
+    const img = { complete: false, addEventListener: () => {} };
+    const print = vi.fn();
+    const w = { document: { images: [img] }, print } as unknown as Window;
+    printWhenImagesReady(w, 1000);
+    vi.advanceTimersByTime(1001);
+    expect(print).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it("prints exactly once even if both load and the cap fire", () => {
+    vi.useFakeTimers();
+    const listeners: Record<string, () => void> = {};
+    const img = {
+      complete: false,
+      addEventListener: (ev: string, cb: () => void) => {
+        listeners[ev] = cb;
+      },
+    };
+    const print = vi.fn();
+    const w = { document: { images: [img] }, print } as unknown as Window;
+    printWhenImagesReady(w, 500);
+    listeners.load();
+    vi.advanceTimersByTime(600);
+    expect(print).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 
   it("falls back to an HTML file download when popups are blocked", () => {

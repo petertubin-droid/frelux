@@ -10,6 +10,7 @@
 
 import type { LedgerSummary } from "@/lib/project-ledger";
 import type { CsvColumn } from "@/lib/export-utils";
+import { buildReceiptDocument } from "@/lib/estimation/receipt-document";
 
 const escapeHtml = (value: unknown): string =>
   String(value ?? "")
@@ -51,19 +52,13 @@ export interface ReceiptInput {
   businessName?: string | null;
 }
 
-const RECEIPT_STYLES = `
-  *{box-sizing:border-box}
-  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:24px;color:#14121a;background:#fff}
-  .sheet{max-width:420px;margin:0 auto}
-  .brand{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #6d28d9;padding-bottom:10px}
-  .brand h1{font-size:15px;margin:0;letter-spacing:.08em;text-transform:uppercase}
-  .brand span{font-size:11px;color:#6b6478}
-  h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#6b6478;margin:22px 0 10px}
-  .amount{font-size:30px;font-weight:700;margin:0 0 4px}
-  dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}
-  dt{color:#6b6478}
-  dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
-  .foot{margin-top:22px;border-top:1px solid #e4e0ea;padding-top:10px;font-size:11px;color:#6b6478;line-height:1.5}
+/** Layout niceties only: colours, type and the header come from the shell. */
+const RECEIPT_EXTRA_CSS = `
+  .invoice{max-width:420px;padding:28px 26px}
+  .pay-amount{font-size:30px;font-weight:800;margin:0 0 10px;color:#0f172a}
+  dl.pay{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:13px}
+  dl.pay dt{color:#64748b}
+  dl.pay dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 `;
 
 export function buildReceiptHtml(input: ReceiptInput): string {
@@ -83,24 +78,24 @@ export function buildReceiptHtml(input: ReceiptInput): string {
     ]);
   }
 
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8" /><title>Receipt ${escapeHtml(input.receiptNo)}</title>
-<style>${RECEIPT_STYLES}</style></head>
-<body><div class="sheet">
-  <div class="brand">
-    <h1>${escapeHtml(input.businessName || "FRELUX")}</h1>
-    <span>Receipt ${escapeHtml(input.receiptNo)}</span>
-  </div>
-  <h2>Payment received</h2>
-  <p class="amount">${money(input.amount, input.currency)}</p>
-  <dl>
+  const bodyHtml = `<h2>Payment received</h2>
+  <p class="pay-amount">${money(input.amount, input.currency)}</p>
+  <dl class="pay">
     ${rows.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join("\n    ")}
-  </dl>
-  <div class="foot">
-    Issued from the project record on ${escapeHtml(new Date().toLocaleDateString("en-GB"))}.
-    Figures reflect the payments recorded against this project. Keep this receipt for your records.
-  </div>
-</div></body></html>`;
+  </dl>`;
+
+  return buildReceiptDocument({
+    title: `Receipt ${input.receiptNo}`,
+    subtitle: `Issued from the project record on ${new Date().toLocaleDateString("en-GB")}`,
+    reference: input.receiptNo,
+    bodyHtml,
+    extraCss: RECEIPT_EXTRA_CSS,
+    footer:
+      "Figures reflect the payments recorded against this project. Keep this receipt for your records.",
+    branding: input.businessName
+      ? { brandName: input.businessName }
+      : undefined,
+  });
 }
 
 export interface RecordsPackInput {
@@ -131,22 +126,12 @@ export interface RecordsPackInput {
   }[];
 }
 
-const PACK_STYLES = `
-  *{box-sizing:border-box}
-  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:32px;color:#14121a;background:#fff}
-  h1{font-size:20px;margin:0 0 2px}
-  .meta{font-size:12px;color:#6b6478;margin-bottom:22px}
-  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#6b6478;margin:26px 0 8px}
+const PACK_EXTRA_CSS = `
   .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 8px}
-  .card{border:1px solid #e4e0ea;border-radius:10px;padding:10px 12px}
-  .card span{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6b6478}
-  .card strong{font-size:16px;font-variant-numeric:tabular-nums}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th{text-align:left;color:#6b6478;font-weight:600;border-bottom:1px solid #e4e0ea;padding:6px 4px}
-  td{border-bottom:1px solid #f1eef5;padding:6px 4px;font-variant-numeric:tabular-nums}
-  td.n{text-align:right}
-  .foot{margin-top:24px;font-size:11px;color:#6b6478;line-height:1.5;border-top:1px solid #e4e0ea;padding-top:10px}
-  @media print{body{padding:16px}}
+  .card{border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;background:#fff}
+  .card span{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#64748b}
+  .card strong{font-size:16px;font-variant-numeric:tabular-nums;color:#0f172a}
+  @media (max-width:560px){.cards{grid-template-columns:repeat(2,1fr)}}
 `;
 
 export function buildRecordsPackHtml(input: RecordsPackInput): string {
@@ -191,13 +176,7 @@ export function buildRecordsPackHtml(input: RecordsPackInput): string {
   const empty = (label: string) =>
     `<tr><td colspan="5">No ${label} recorded.</td></tr>`;
 
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8" /><title>${escapeHtml(input.projectName)} records</title>
-<style>${PACK_STYLES}</style></head>
-<body>
-  <h1>${escapeHtml(input.projectName)}</h1>
-  <div class="meta">Client: ${escapeHtml(input.clientName || "Not recorded")} &middot; Currency: ${escapeHtml(input.currency)} &middot; Prepared ${escapeHtml(new Date().toLocaleDateString("en-GB"))}</div>
-  <div class="cards">
+  const bodyHtml = `<div class="cards">
     ${cards.map(([label, value]) => `<div class="card"><span>${label}</span><strong>${value}</strong></div>`).join("")}
   </div>
   <h2>Invoices</h2>
@@ -209,12 +188,19 @@ export function buildRecordsPackHtml(input: RecordsPackInput): string {
   <h2>Spend and proof</h2>
   <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Proof</th><th class="n">Amount</th></tr></thead>
   <tbody>${expenseRows || empty("expenses")}</tbody></table>
-  <div class="foot">
+  <div class="notes-box"><h3>Reading this pack</h3>
     Billed less spend: ${money(s.projectedMargin, input.currency)}. Cash received less spend: ${money(s.cashPosition, input.currency)}.
     ${s.expensesMissingReceipt > 0 ? `${s.expensesMissingReceipt} expense(s) have no proof attached.` : "Every expense has proof attached."}
-    Generated from recorded invoices, payments and expenses; no figure is estimated.
-  </div>
-</body></html>`;
+  </div>`;
+
+  return buildReceiptDocument({
+    title: `${input.projectName} records`,
+    subtitle: `Client: ${input.clientName || "Not recorded"} · Currency: ${input.currency} · Prepared ${new Date().toLocaleDateString("en-GB")}`,
+    bodyHtml,
+    extraCss: PACK_EXTRA_CSS,
+    footer:
+      "Generated from recorded invoices, payments and expenses; no figure is estimated.",
+  });
 }
 
 /** One row per money event, in date order, for spreadsheet review. */

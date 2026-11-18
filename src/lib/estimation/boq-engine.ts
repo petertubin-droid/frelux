@@ -14,8 +14,8 @@ import { escapeHtml } from "@/lib/sanitization";
 
 import { formatByCode } from "@/lib/international/currency-format";
 import { roundMoney } from "@/lib/money/round";
-import { SITE_URL } from "@/lib/seo";
 import type { EstimationCalcRule } from "@/types/estimation";
+import { FRELUX_LOGO_DATA_URL } from "@/lib/pdf-logo-data";
 
 // ─────────────────────────────────────────────
 // Input / output contracts
@@ -378,10 +378,15 @@ export function boqToHtml(
     .warn{font-size:10px;color:#b45309;margin-top:12px}
     .disclaimer{font-size:9.5px;color:#777;margin-top:18px;border-top:1px solid #ddd;padding-top:10px;line-height:1.6}
     .disclaimer b{color:#555}
+    .pdf-watermark{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);opacity:.07;pointer-events:none}
+    .pdf-watermark img{width:460px;max-width:68%;height:auto;display:block}
+    body{position:relative}
+    body > *:not(.pdf-watermark){position:relative;z-index:1}
     @media print{body{padding:12px}}
   </style></head><body>
+    <div class="pdf-watermark"><img src="${FRELUX_LOGO_DATA_URL}" alt=""/></div>
     <div class="doc-head">
-      <img src="${SITE_URL}/logo-mark.png" alt="FRELUX logo" onerror="this.remove()"/>
+      <img src="${FRELUX_LOGO_DATA_URL}" alt="FRELUX logo"/>
       <div>
         <h1>FRELUX</h1>
         <h2>Bill of Quantities: ${escapeHtml(input.title)}</h2>

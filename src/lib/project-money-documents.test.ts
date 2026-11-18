@@ -77,6 +77,13 @@ describe("receipt document", () => {
   it("marks the receipt for printing at A5 width", () => {
     expect(receipt).toContain("max-width:420px");
   });
+
+  it("wears the FRELUX receipt house style with an embedded mark", () => {
+    expect(receipt).toContain('class="brand-mark"');
+    expect(receipt).toContain("pdf-watermark--mark");
+    expect(receipt).toContain('src="data:image/png;base64,');
+    expect(receipt).not.toMatch(/src="https?:/);
+  });
 });
 
 describe("records pack", () => {

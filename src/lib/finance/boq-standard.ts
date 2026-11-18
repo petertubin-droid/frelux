@@ -18,6 +18,7 @@ import { escapeHtml } from "@/lib/sanitization";
 
 import { formatByCode } from "@/lib/international/currency-format";
 import { TaxCalculationResult } from "./tax-engine";
+import { FRELUX_LOGO_DATA_URL } from "@/lib/pdf-logo-data";
 
 export type BoqStandard =
   "NRM2" | "CSI_MASTERFORMAT" | "CESMM4" | "ICMS" | "Commercial";
@@ -687,13 +688,20 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
     .summary-table { width: 100%; border-collapse: collapse; }
     .summary-table td { padding: 6px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
     .summary-table tr.total-row td { background: #f8fafc; font-weight: 800; font-size: 13px; color: #0284c7; border-top: 2px solid #0f172a; }
+    .pdf-watermark { position: absolute; left: 50%; top: 45%; pointer-events: none; user-select: none; }
+    .pdf-watermark img { width: 460px; max-width: 68%; height: auto; display: block; opacity: 0.07; }
+    body { position: relative; }
+    body > *:not(.pdf-watermark) { position: relative; z-index: 1; }
+    .brand-mark { height: 34px; width: auto; display: block; margin-bottom: 6px; }
     .sign-block { margin-top: 40px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; page-break-inside: avoid; }
     .sign-box { border-top: 1px dashed #64748b; padding-top: 8px; font-size: 10px; color: #475569; }
   </style>
 </head>
 <body>
+  <div class="pdf-watermark"><img src="${FRELUX_LOGO_DATA_URL}" alt="" /></div>
   <div class="header">
     <div>
+      <img class="brand-mark" src="${FRELUX_LOGO_DATA_URL}" alt="FRELUX" />
       <div class="brand">FRELUX GLOBAL ENTERPRISE</div>
       <div class="doc-type">DRAFT QUANTITY & COST SCHEDULE — ${escapeHtml(metadata.standard)} classification aid</div>
       <div style="margin-top:6px;padding:8px;border:1px solid #f59e0b;background:#fffbeb;color:#78350f;font-size:10px"><b>Not an official standards-compliant BOQ or certified measurement.</b> Division assignment is heuristic. Review quantities, scope, rates, local measurement rules and contract requirements with a qualified local quantity surveyor before issue. This document is not structural design approval or a purchase order.</div>

@@ -1,3 +1,4 @@
+import { printReceiptHtml } from "@/lib/estimation/receipt-document";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Plus,
@@ -95,14 +96,9 @@ const emptyPaymentForm = () => ({
   notes: "",
 });
 
-function openPrintable(html: string, title: string) {
-  const win = window.open("", "_blank", "width=520,height=720");
-  if (!win) throw new Error("Allow pop-ups to print this document");
-  win.document.write(html);
-  win.document.close();
-  win.document.title = title;
-  win.focus();
-  win.print();
+function openPrintable(html: string, _title: string) {
+  if (!printReceiptHtml(html))
+    throw new Error("Allow pop-ups to print this document");
 }
 
 const round2 = (value: number) =>

@@ -92,7 +92,15 @@ export function exportQuoteToDocumentStudio(
  */
 
 import type { ResolvedBranding } from "@/lib/brand-studio";
-import { SITE_URL } from "@/lib/seo";
+import {
+  buildReceiptDocument,
+  downloadReceiptHtml,
+  escapeHtml,
+  printReceiptHtml,
+  printWhenImagesReady,
+} from "@/lib/estimation/receipt-document";
+
+export { printWhenImagesReady };
 
 export interface QuoteLine {
   label: string;
@@ -132,239 +140,7 @@ export interface QuoteOptions {
   display?: QuoteDisplay;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function getBaseStyles(primaryColor: string, accentColor: string): string {
-  return `
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #1e293b;
-    background: #f8fafc;
-    padding: 32px 16px;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  .invoice {
-    max-width: 840px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 44px 48px;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    position: relative;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-  }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-    border-bottom: 2px solid ${primaryColor};
-    padding-bottom: 20px;
-    gap: 20px;
-  }
-  .company { flex: 1; }
-  .company-name {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: ${primaryColor};
-    text-transform: uppercase;
-  }
-  .company-tagline {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    margin-top: 3px;
-  }
-  .company-info {
-    font-size: 11px;
-    color: #94a3b8;
-    margin-top: 2px;
-  }
-  .meta { text-align: right; }
-  .meta h1 {
-    font-size: 20px;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 4px;
-    letter-spacing: -0.5px;
-  }
-  .meta .ref { font-size: 11px; color: #64748b; font-weight: 600; font-family: monospace; }
-  .meta .date { font-size: 11px; color: #64748b; margin-top: 2px; }
-  .sub {
-    color: #475569;
-    font-size: 12.5px;
-    margin-bottom: 20px;
-    background: #f8fafc;
-    padding: 10px 14px;
-    border-radius: 6px;
-    border-left: 3px solid ${primaryColor};
-  }
-  h1 { font-size: 20px; margin: 0 0 2px; }
-  h2 {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #334155;
-    margin: 22px 0 8px;
-  }
-  h3 {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin: 14px 0 4px;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-    margin-bottom: 16px;
-  }
-  th {
-    background: #f8fafc;
-    border-bottom: 2px solid ${primaryColor};
-    padding: 8px 10px;
-    text-align: left;
-    text-transform: uppercase;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #475569;
-  }
-  td {
-    border-bottom: 1px solid #e2e8f0;
-    padding: 8px 10px;
-    text-align: left;
-    color: #1e293b;
-  }
-  .n { text-align: right; font-variant-numeric: tabular-nums; }
-  .conversion-note { margin: 8px 0 0; font-size: 11px; line-height: 1.6; color: #475569; }
-  .muted { color: #64748b; font-size: 11px; margin-top: 2px; }
-  .meta-table { margin-bottom: 14px; }
-  .meta-table td {
-    border: none;
-    padding: 3px 10px 3px 0;
-    font-size: 12.5px;
-  }
-  .total-row { font-size: 13.5px; font-weight: 600; color: #334155; }
-  .grand {
-    font-size: 15px;
-    font-weight: 800;
-    color: ${primaryColor};
-    border-top: 2px solid ${primaryColor} !important;
-  }
-  .notes-box {
-    background: #fffbeb;
-    border: 1px solid #fef3c7;
-    border-left: 3px solid #f59e0b;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 14px;
-    font-size: 11.5px;
-    color: #92400e;
-  }
-  .notes-box h3 { color: #b45309; margin-top: 0; }
-  .steps-box {
-    background: #f0fdf4;
-    border: 1px solid #dcfce7;
-    border-left: 3px solid #10b981;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 14px;
-    font-size: 11.5px;
-    color: #166534;
-  }
-  .steps-box h3 { color: #15803d; margin-top: 0; }
-  ul { font-size: 11.5px; padding-left: 18px; margin: 4px 0 0; }
-  .disclaimer {
-    color: #64748b;
-    font-size: 10px;
-    margin-top: 24px;
-    padding-top: 12px;
-    border-top: 1px solid #e2e8f0;
-    line-height: 1.5;
-    text-align: center;
-  }
-  .footer-brand {
-    text-align: center;
-    font-size: 10.5px;
-    font-weight: 600;
-    color: #94a3b8;
-    margin-top: 6px;
-  }
-  .footer-brand strong { color: ${primaryColor}; }
-  .brand-mark {
-    height: 32px;
-    width: auto;
-    display: block;
-    margin-bottom: 8px;
-  }
-  .pdf-watermark--mark {
-    transform: translate(-50%, -50%);
-  }
-  .pdf-watermark--mark img {
-    width: 60vw;
-    max-width: 560px;
-    height: auto;
-    display: block;
-    opacity: 1;
-  }
-  .pdf-watermark {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-35deg);
-    font-size: 58px;
-    font-weight: 900;
-    color: ${primaryColor};
-    opacity: 0.035;
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 0;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-  @media print {
-    body { background: #ffffff; padding: 0; margin: 0; }
-    .brand-mark { height: 26px; }
-    .invoice {
-      box-shadow: none;
-      border: none;
-      border-radius: 0;
-      max-width: 100%;
-      padding: 16px 20px;
-    }
-    @page { margin: 1cm; }
-  }
-  `;
-}
-
 export function buildQuoteHtml(opts: QuoteOptions): string {
-  const brandName = opts.branding?.brandName || "FRELUX SMART CALC";
-  const tagline =
-    opts.branding?.tagline || "Every Trade. Every Cost. One Platform.";
-  const primaryColor = opts.branding?.primaryColor || "#7C3AED";
-  const accentColor = opts.branding?.accentColor || "#F97316";
-  const watermarkText = brandName;
-  const showWatermark = opts.branding?.watermark?.enabled ?? true;
-
-  const dateStr = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-  const refCode = `FLX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
   const metaRows = opts.metaRows
     .filter(([, v]) => v !== null && v !== undefined && v !== "")
     .map(
@@ -453,49 +229,20 @@ export function buildQuoteHtml(opts: QuoteOptions): string {
         .join("")}</ul></div>`
     : "";
 
-  const footerText =
-    opts.footer ??
-    "Estimates are indicative and not a formal quote. Unpriced items are reported, never invented.";
-
-  const logoSource = opts.branding?.logoUrl || `${SITE_URL}/logo-mark.png`;
-  const brandMarkHtml = `<img class="brand-mark" src="${escapeHtml(logoSource)}" alt="${escapeHtml(brandName)}" onerror="this.remove()" />`;
-  // A document with no brand logo of its own gets the FRELUX mark as the faint
-  // background; a branded one keeps its wordmark watermark.
-  const watermarkHtml = !showWatermark
-    ? ""
-    : opts.branding?.logoUrl
-      ? `<div class="pdf-watermark">${escapeHtml(watermarkText)}</div>`
-      : `<div class="pdf-watermark pdf-watermark--mark"><img src="${escapeHtml(logoSource)}" alt="" onerror="this.remove()" /></div>`;
-
-  return `<!doctype html><html><head><meta charset="utf-8">
-    <title>${escapeHtml(opts.title)} - ${escapeHtml(brandName)}</title>
-    <style>${getBaseStyles(primaryColor, accentColor)}</style></head><body>
-    <div class="invoice">
-      ${watermarkHtml}
-      <div class="header">
-        <div class="company">
-          ${brandMarkHtml}
-          <div class="company-name">${escapeHtml(brandName)}</div>
-          <div class="company-tagline">${escapeHtml(tagline)}</div>
-          <div class="company-info">Smart Construction Estimation &amp; Quantity Surveying</div>
-        </div>
-        <div class="meta">
-          <h1>${escapeHtml(opts.title)}</h1>
-          <div class="ref">Ref: ${refCode}</div>
-          <div class="date">Date: ${dateStr}</div>
-        </div>
-      </div>
-      <div class="sub">${escapeHtml(opts.subtitle)}</div>
-      ${metaHtml}
+  const bodyHtml = `${metaHtml}
       ${linesHtml}
       ${totalsHtml}
       ${displayHtml}
       ${warningsHtml}
-      ${stepsHtml}
-      <p class="disclaimer">${escapeHtml(footerText)}</p>
-      <div class="footer-brand">Generated by <strong>${escapeHtml(brandName)}</strong> · Smart Construction Estimation</div>
-    </div>
-    </body></html>`;
+      ${stepsHtml}`;
+
+  return buildReceiptDocument({
+    title: opts.title,
+    subtitle: opts.subtitle,
+    bodyHtml,
+    footer: opts.footer,
+    branding: opts.branding,
+  });
 }
 
 /**
@@ -584,19 +331,5 @@ export function printShareableQuote(
  */
 export function printQuote(opts: QuoteOptions, downloadName: string): void {
   const html = buildQuoteHtml(opts);
-  const w = window.open("", "_blank", "width=900,height=720");
-  if (!w) {
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = downloadName;
-    a.click();
-    URL.revokeObjectURL(url);
-    return;
-  }
-  w.document.write(html);
-  w.document.close();
-  w.focus();
-  w.print();
+  if (!printReceiptHtml(html)) downloadReceiptHtml(html, downloadName);
 }

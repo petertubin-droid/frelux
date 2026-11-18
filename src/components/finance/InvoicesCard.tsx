@@ -1,4 +1,3 @@
-import { escapeHtml } from "@/lib/sanitization";
 /**
  * InvoicesCard (Wave 1.3 — Click-to-Invoice)
  *
@@ -25,6 +24,8 @@ import {
   setInvoiceStatus,
   type InvoiceWithState,
 } from "@/lib/finance/invoice-service";
+import { buildInvoiceHtml } from "@/lib/finance/invoice-print";
+import { printReceiptHtml } from "@/lib/estimation/receipt-document";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 
@@ -149,31 +150,23 @@ export function InvoicesCard({
   };
 
   const printInvoice = (inv: InvoiceWithState) => {
-    const w = window.open("", "_blank");
-    if (!w) return;
-    const invData = inv.invoice;
-    w.document.write(
-      `<html><head><title>${escapeHtml(invData.invoice_ref)}</title><style>body{font-family:system-ui;padding:24px;color:#111}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ccc;padding:8px;text-align:left}h1,h2{margin:0 0 4px}.meta{color:#555}</style></head><body>` +
-        `<h1>${escapeHtml(invData.invoice_ref)}</h1>` +
-        `<p class="meta">${escapeHtml(invData.title)} · Issued ${escapeHtml(invData.issue_date)} · Due ${escapeHtml(invData.due_date ?? "—")}</p>` +
-        `<p class="meta">Client: ${escapeHtml(invData.client_name)}${invData.client_contact ? ` · ${escapeHtml(invData.client_contact)}` : ""}</p>` +
-        `<table><thead><tr><th>${escapeHtml(t("Description"))}</th><th>${escapeHtml(t("Qty"))}</th><th>${escapeHtml(t("Unit"))}</th><th>${escapeHtml(t("Unit cost"))}</th><th>${escapeHtml(t("Total"))}</th></tr></thead><tbody>` +
-        invData.items
-          .map(
-            (it) =>
-              `<tr><td>${escapeHtml(it.description)}</td><td>${escapeHtml(it.quantity)}</td><td>${escapeHtml(it.unit)}</td><td>${escapeHtml(formatByCode(it.unit_cost, invData.currency))}</td><td>${escapeHtml(formatByCode(it.total, invData.currency))}</td></tr>`,
-          )
-          .join("") +
-        `</tbody></table>` +
-        `<p><strong>Subtotal:</strong> ${escapeHtml(formatByCode(invData.totals.subtotal, invData.currency))}</p>` +
-        (invData.totals.vat_amount != null && invData.totals.vat_rate != null
-          ? `<p><strong>${escapeHtml(invData.tax_label ?? "Tax")} (${escapeHtml(invData.totals.vat_rate)}%):</strong> ${escapeHtml(formatByCode(invData.totals.vat_amount, invData.currency))}</p>`
-          : "") +
-        `<p><strong>Grand total:</strong> ${escapeHtml(formatByCode(invData.totals.grand_total, invData.currency))}</p>` +
-        `<p><strong>Paid to date:</strong> ${escapeHtml(formatByCode(inv.paidTotal, invData.currency))} · Status: ${escapeHtml(DERIVED_STATUS_LABELS[inv.derivedStatus])}</p>` +
-        `</body></html>`,
-    );
-    w.document.close();
+    const html = buildInvoiceHtml({
+      invoice: inv.invoice,
+      paidTotal: inv.paidTotal,
+      derivedStatus: inv.derivedStatus,
+      derivedStatusLabel: DERIVED_STATUS_LABELS[inv.derivedStatus],
+      money: formatByCode,
+      labels: {
+        description: t("Description"),
+        qty: t("Qty"),
+        unit: t("Unit"),
+        unitCost: t("Unit cost"),
+        total: t("Total"),
+      },
+    });
+    if (!printReceiptHtml(html)) {
+      setMsg("Pop-up blocked. Allow pop-ups to print this invoice.");
+    }
   };
 
   const canInvoice = useMemo(
