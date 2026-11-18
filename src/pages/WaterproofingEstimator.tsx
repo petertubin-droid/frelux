@@ -10,11 +10,15 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -122,9 +126,13 @@ export default function WaterproofingEstimator() {
     { name: "Waterproofing Estimator", path: "/waterproofing" },
   ]);
   const { marketCode, market } = useMarket();
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const quoteCurrencyCode = useQuoteCurrencyCode();
+  const currencySymbol =
+    market?.currencySymbol ||
+    displayCurrencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
   const transportation = useTransportation("waterproofing");
-  const currencyCode = market?.currencyCode || "NGN";
+  const currencyCode = quoteCurrencyCode;
   const { user } = useAuth();
 
   // Runs are typed in feet and surfaces in square feet by default; the engine

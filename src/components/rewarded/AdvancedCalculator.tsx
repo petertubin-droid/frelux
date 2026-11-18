@@ -1,3 +1,4 @@
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { escapeHtml } from "@/lib/sanitization";
 import {
   buildReceiptDocument,
@@ -28,7 +29,10 @@ import { supabase } from "@/lib/supabase";
 import type { AdvancedEstimateData } from "@/types";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import { Button } from "@/components/ui/shadcn/button";
 import { tx } from "@/lib/i18n";
 import { NumericInput } from "@/components/ui/NumericInput";
@@ -53,8 +57,10 @@ export function AdvancedCalculator({
   clientHash,
 }: Props) {
   const { market } = useMarket();
-  const currencySymbol = market.currencySymbol || "₦";
-  const currencyCode = market.currencyCode || "NGN";
+  const quoteCurrencyCode = useQuoteCurrencyCode();
+  const currencySymbol =
+    market.currencySymbol || currencySymbolOrCode(market?.currencyCode ?? "");
+  const currencyCode = quoteCurrencyCode;
   const [tab, setTab] = useState<Tab>("ai");
   const [savedEstimates, setSavedEstimates] = useState<
     {

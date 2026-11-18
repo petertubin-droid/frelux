@@ -421,7 +421,7 @@ export default function ListingDetail() {
                     htmlFor="bid-price"
                     className="text-xs font-medium text-muted-foreground dark:text-muted-foreground"
                   >
-                    Your Price ({getCurrencySymbol(listing.currency) || "₦"})
+                    Your Price ({getCurrencySymbol(listing.currency) ?? ""})
                   </label>
                   <input
                     id="bid-price"

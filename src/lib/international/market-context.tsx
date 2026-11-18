@@ -18,6 +18,7 @@ import {
   type ReactNode,
 } from "react";
 import { detectMarketCode } from "./market-suggest";
+import { getActiveDisplayCurrency } from "./fx-display";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
 import type {
@@ -1601,4 +1602,17 @@ export function useCurrencySymbol(): string {
 export function useCurrencyCode(): string {
   const { market } = useMarket();
   return market.currencyCode;
+}
+
+/**
+ * Currency a new quote is priced in: the visitor's market currency, then their
+ * chosen display currency, and an empty string when neither is known.
+ *
+ * Never falls back to naira. A market FRELUX has no profile for gets an honest
+ * gap so the UI can say "currency not set" instead of quietly quoting in
+ * another country's money.
+ */
+export function useQuoteCurrencyCode(): string {
+  const { market } = useMarket();
+  return market.currencyCode || getActiveDisplayCurrency() || "";
 }

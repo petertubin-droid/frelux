@@ -6,6 +6,7 @@
  * prep recommendations, waste-factor display, and a per-room calculator
  * modal trigger.
  */
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { useMarket } from "@/lib/international/market-context";
 import {
   useCallback,
@@ -519,7 +520,8 @@ function RoomCard({
   onRunCalc: () => void;
 }) {
   const { market } = useMarket();
-  const currencySymbol = market.currencySymbol || "₦";
+  const currencySymbol =
+    market.currencySymbol || currencySymbolOrCode(market.currencyCode);
   const [expanded, setExpanded] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const RoomIcon = ROOM_TYPE_ICONS[room.room_type] ?? Calculator;

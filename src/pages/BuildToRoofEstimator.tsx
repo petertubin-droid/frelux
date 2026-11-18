@@ -19,6 +19,7 @@ import {
   resolveMarketRebar,
 } from "@/lib/estimation/structural-market";
 import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatAreaDual } from "@/lib/international/units-display";
@@ -433,7 +434,10 @@ export default function BuildToRoofEstimator({
     [marketCode],
   );
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
-  const currencySymbol = displayCurrencySymbol || market.currencySymbol || "₦";
+  const currencySymbol =
+    displayCurrencySymbol ||
+    market.currencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
 
   const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
   const [step, setStep] = useState(0);

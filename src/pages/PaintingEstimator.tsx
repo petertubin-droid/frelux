@@ -12,7 +12,10 @@ import HowCalculatedSection from "@/components/calculators/HowCalculatedSection"
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import {
+  useSeoOfferCurrency,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import type { CustomerLocation } from "@/lib/estimation/painting-engine";
 import {
   withDefaultQuality,
@@ -262,6 +265,8 @@ export default function PaintingEstimator({
     `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
 
   const { marketCode, market } = useMarket();
+
+  const quoteCurrencyCode = useQuoteCurrencyCode();
   // Market-aware pack term (e.g. "1 gal / 5 gal pail"); NG keeps its
   // established "buckets" phrasing.
   const localTerm = useLocalTerm();
@@ -794,7 +799,7 @@ export default function PaintingEstimator({
       rooms,
       // Prices resolve in the visitor's market currency, so label totals
       // with it (a hard-coded NGN mislabelled non-Nigerian amounts).
-      currency: market.currencyCode || "NGN",
+      currency: quoteCurrencyCode,
       user_id: null,
       client_hash: null,
       project_description: projectDescription,

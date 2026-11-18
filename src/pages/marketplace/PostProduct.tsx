@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { getRegions, NIGERIA_STATES as NIGERIAN_STATES } from "@/lib/international/regions";
+import {
+  getRegions,
+  NIGERIA_STATES as NIGERIAN_STATES,
+} from "@/lib/international/regions";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Send, Upload, X, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -36,7 +39,7 @@ export default function PostProduct() {
   // Prices are entered in the visitor's market currency (NG visitors
   // still see ₦ — zero behavior change for the reference market).
   const { market } = useMarket();
-  const priceSymbol = getCurrencySymbol(market.currencyCode) || "₦";
+  const priceSymbol = getCurrencySymbol(market.currencyCode) ?? "";
   useSeo({
     description: "FRELUX marketplace",
     title: "Post a Product, FRELUX Marketplace",

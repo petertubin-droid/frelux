@@ -11,6 +11,7 @@
  * This is ESTIMATION and does NOT design foundations.
  */
 
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -22,7 +23,10 @@ import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import {
   resolveStructuralMarketPricing,
   type StructuralMarketPricing,
@@ -149,9 +153,13 @@ export default function FoundationEstimator() {
   const [marketPricing, setMarketPricing] =
     useState<StructuralMarketPricing | null>(null);
   const { marketCode, market } = useMarket();
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const currencySymbol =
+    market?.currencySymbol ||
+    displayCurrencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
   const transportation = useTransportation("foundation");
-  const currencyCode = market?.currencyCode || displayCurrencyCode || "NGN";
+  // market -> the visitor's display currency -> honest gap, never naira.
+  const currencyCode = market?.currencyCode || displayCurrencyCode || "";
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
 
   useEffect(() => {

@@ -111,6 +111,7 @@ vi.mock("@/lib/estimation/doors-windows-engine", async (importOriginal) => {
 });
 vi.mock("@/lib/international/market-context", () => ({
   useSeoOfferCurrency: () => "NGN",
+  useQuoteCurrencyCode: () => mockMarket.currencyCode,
   useMarket: () => ({
     marketCode: mockMarket.code,
     market: mockMarket,

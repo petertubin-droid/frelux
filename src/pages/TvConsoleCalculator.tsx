@@ -165,7 +165,9 @@ export default function TvConsoleCalculator() {
   const [sheetW, setSheetW] = useState(1220);
   const [sheetL, setSheetL] = useState(2440);
   const [waste, setWaste] = useState(10);
-  const [currency, setCurrency] = useState(marketCurrency || "NGN");
+  const [currency, setCurrency] = // The market supplies the currency; an unknown market stays blank
+    // rather than silently pricing the sheet in naira.
+    useState(marketCurrency || "");
 
   const [sheetPrice, setSheetPrice] = useState("");
   const [backSheetPrice, setBackSheetPrice] = useState("");

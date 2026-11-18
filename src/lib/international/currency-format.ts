@@ -66,6 +66,16 @@ export function getCurrencySymbol(code: string): string | null {
   return CURRENCY_SYMBOLS[String(code ?? "").toUpperCase()] ?? null;
 }
 
+/**
+ * Symbol for display, falling back to the code itself ("USD 1,200") when the
+ * currency has no known symbol. Never guesses a symbol from another market.
+ */
+export function currencySymbolOrCode(code: string): string {
+  const trimmed = String(code ?? "").trim();
+  if (!trimmed) return "";
+  return getCurrencySymbol(trimmed) ?? trimmed.toUpperCase();
+}
+
 /** Multi-character symbols get a space between symbol and amount. */
 function joinSymbol(symbol: string, formatted: string): string {
   return symbol.length === 1

@@ -11,6 +11,7 @@
  * This is ESTIMATION, not professional electrical design.
  */
 
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -24,7 +25,10 @@ import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import { CalculatorAdBanner } from "@/components/ads/CampaignSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
 import { downloadCsv } from "@/lib/export-utils";
 import { useAuth } from "@/lib/auth";
@@ -157,9 +161,14 @@ export default function ElectricalEstimator() {
   const { user } = useAuth();
 
   const { marketCode, market } = useMarket();
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+
+  const quoteCurrencyCode = useQuoteCurrencyCode();
+  const currencySymbol =
+    market?.currencySymbol ||
+    displayCurrencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
   const transportation = useTransportation("electrical");
-  const currencyCode = market?.currencyCode || "NGN";
+  const currencyCode = quoteCurrencyCode;
   const electricalProfile = useMemo(
     () => getElectricalProfile(marketCode),
     [marketCode],

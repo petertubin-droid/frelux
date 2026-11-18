@@ -1,4 +1,7 @@
-import { formatByCode } from "@/lib/international/currency-format";
+import {
+  formatByCode,
+  currencySymbolOrCode,
+} from "@/lib/international/currency-format";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -149,7 +152,8 @@ export default function ProjectDetail() {
   );
   // Project currency follows the project's active regional market profile
   // (synced whenever a location is saved). Existing rows keep their currency.
-  const currencySymbol = project?.currency_symbol || "₦";
+  const currencySymbol =
+    project?.currency_symbol || currencySymbolOrCode(project?.currency || "");
   const fmt = (v: number) => currencySymbol + (v || 0).toLocaleString();
   // Estimates carry their own stored currency, always display in it,
   // never the project's (a saved estimate is a historical document).

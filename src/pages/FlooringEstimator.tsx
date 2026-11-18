@@ -15,8 +15,12 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { useAuth } from "@/lib/auth";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import {
   convertArea,
   convertLength,
@@ -96,14 +100,18 @@ export default function FlooringEstimator() {
     setAreaUnit,
     setLengthUnit,
   } = useMarket();
+  const quoteCurrencyCode = useQuoteCurrencyCode();
   const areaUnit: AreaUnit = preferredAreaUnit === "sqft" ? "ft2" : "m2";
   const lengthUnit: LengthUnit = preferredLengthUnit === "feet" ? "ft" : "m";
   const areaLabel = areaUnit === "ft2" ? "ft²" : "m²";
   const lengthLabel = lengthUnit === "ft" ? "ft" : "m";
   /** Money per square metre, whichever area unit the visitor is typing in. */
   const rateFactor = convertArea(1, "m2", areaUnit) ?? 1;
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
-  const currencyCode = market?.currencyCode || "NGN";
+  const currencySymbol =
+    market?.currencySymbol ||
+    displayCurrencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
+  const currencyCode = quoteCurrencyCode;
 
   const [floorType, setFloorType] = useState<FloorType>("laminate");
   const [areaInput, setAreaInput] = useState("");

@@ -534,7 +534,7 @@ export default function ProductDetail() {
                     type="number"
                     value={inquiryPrice}
                     onChange={(e) => setInquiryPrice(e.target.value)}
-                    placeholder={`Offer price (${getCurrencySymbol(product.currency) || "₦"})`}
+                    placeholder={`Offer price (${getCurrencySymbol(product.currency) ?? ""})`}
                     className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                   <input

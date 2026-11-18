@@ -19,7 +19,11 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import MissingFieldsNotice from "@/components/ui/MissingFieldsNotice";
 import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { useEngineAccess } from "@/lib/use-engine-access";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -105,6 +109,7 @@ export function SpecialtyCalculatorShell({
   afterResults,
 }: SpecialtyCalculatorShellProps) {
   const { market, marketCode } = useMarket();
+  const quoteCurrencyCode = useQuoteCurrencyCode();
   const access = useEngineAccess(routePath);
   const visibleLines =
     result && access.limited
@@ -114,8 +119,11 @@ export function SpecialtyCalculatorShell({
     ? access.hiddenLines(result?.lines.length ?? 0)
     : 0;
   const { symbol: displaySymbol } = useDisplayCurrency();
-  const symbol = market?.currencySymbol || displaySymbol || "₦";
-  const currencyCode = market?.currencyCode || "NGN";
+  const symbol =
+    market?.currencySymbol ||
+    displaySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
+  const currencyCode = quoteCurrencyCode;
   // The curated cross links these calculators offer are the related row; handing
   // them to the shell keeps one row of links instead of a grid above the shell's
   // own list saying the same thing twice.

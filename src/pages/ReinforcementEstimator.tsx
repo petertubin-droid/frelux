@@ -11,6 +11,7 @@
  * This is ESTIMATION and does NOT design reinforcement.
  */
 
+import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -22,7 +23,10 @@ import { useCalculatorFeedback } from "@/hooks/useCalculatorFeedback";
 import RecommendedProducts from "@/components/estimation/RecommendedProducts";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useMarket } from "@/lib/international/market-context";
+import {
+  useMarket,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import {
   resolveMarketRebar,
   type RebarMarketResolution,
@@ -120,10 +124,15 @@ export default function ReinforcementEstimator() {
   const { user } = useAuth();
 
   const { marketCode, market } = useMarket();
+
+  const quoteCurrencyCode = useQuoteCurrencyCode();
   const reinforcementTerm = getConstructionTerm("reinforcement", marketCode);
-  const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const currencySymbol =
+    market?.currencySymbol ||
+    displayCurrencySymbol ||
+    currencySymbolOrCode(market?.currencyCode ?? "");
   const transportation = useTransportation("reinforcement");
-  const currencyCode = market?.currencyCode || "NGN";
+  const currencyCode = quoteCurrencyCode;
   const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(
     null,
   );

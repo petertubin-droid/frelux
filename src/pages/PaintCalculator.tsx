@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
 import { useProjectCity } from "@/lib/price-index/use-project-city";
-import { useSeoOfferCurrency } from "@/lib/international/market-context";
+import {
+  useSeoOfferCurrency,
+  useQuoteCurrencyCode,
+} from "@/lib/international/market-context";
 import { useMarket, useLocalTerm } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
@@ -218,6 +221,7 @@ export default function PaintCalculator({
 
   const navigate = useNavigate();
   const { marketCode, market } = useMarket();
+  const quoteCurrencyCode = useQuoteCurrencyCode();
   const { citySlug } = useProjectCity();
   const { t } = useLanguage();
   const roomUnit = resolveMarketRoomUnit(market, "feet");
@@ -1097,7 +1101,7 @@ export default function PaintCalculator({
         unitPrice: 0,
       })),
     ];
-    const currency = market.currencyCode || "NGN";
+    const currency = quoteCurrencyCode;
     const exportArea = formatArea(result.paintableArea, {
       unit: input.unit === "meters" ? "sqm" : "sqft",
     });

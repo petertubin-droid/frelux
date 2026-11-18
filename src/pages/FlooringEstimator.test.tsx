@@ -54,6 +54,7 @@ const marketState = vi.hoisted(() => ({
 
 vi.mock("@/lib/international/market-context", () => ({
   useSeoOfferCurrency: () => "NGN",
+  useQuoteCurrencyCode: () => "NGN",
   useMarket: () => ({
     market: {
       marketCode: "NG",

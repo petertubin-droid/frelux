@@ -4,6 +4,7 @@ import {
   setActiveCurrencyLocale,
   formatWithSymbol,
   getCurrencySymbol,
+  currencySymbolOrCode,
 } from "@/lib/international/currency-format";
 import { formatCurrency as formatCurrencyPricing } from "@/lib/estimation/pricing";
 
@@ -181,5 +182,20 @@ describe("active UI language grouping (i18n batch 2026-10-23)", () => {
     setActiveCurrencyLocale("de");
     setActiveCurrencyLocale(null);
     expect(formatByCode(1250000, "NGN")).toBe("₦1,250,000");
+  });
+});
+
+describe("currencySymbolOrCode", () => {
+  it("uses the currency's own symbol", () => {
+    expect(currencySymbolOrCode("GBP")).toBe("£");
+    expect(currencySymbolOrCode("NGN")).toBe("₦");
+  });
+
+  it("shows the code instead of borrowing another market's symbol", () => {
+    expect(currencySymbolOrCode("XYZ")).toBe("XYZ");
+  });
+
+  it("renders nothing when no currency is known", () => {
+    expect(currencySymbolOrCode("")).toBe("");
   });
 });

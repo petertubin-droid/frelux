@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { getRegions, NIGERIA_STATES as NIGERIAN_STATES } from "@/lib/international/regions";
+import {
+  getRegions,
+  NIGERIA_STATES as NIGERIAN_STATES,
+} from "@/lib/international/regions";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
 import { fetchLocations } from "@/lib/pro-connect";
@@ -23,7 +26,7 @@ export default function PostListing() {
   // Budgets are entered in the visitor's market currency (NG visitors
   // still see ₦ — zero behavior change for the reference market).
   const { market } = useMarket();
-  const budgetSymbol = getCurrencySymbol(market.currencyCode) || "₦";
+  const budgetSymbol = getCurrencySymbol(market.currencyCode) ?? "";
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   useSeo({
