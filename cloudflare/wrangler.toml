@@ -14,7 +14,10 @@ compatibility_date = "2026-11-01"
 # rather than left for a future zone move:
 #   GET https://files.freluxtools.com/health -> {"service":"frelux-files",...}
 # VITE_R2_WORKER_URL points at that hostname.
-routes = [{ pattern = "files.freluxtools.com", custom_domain = true }]
+routes = [
+  { pattern = "files.freluxtools.com", custom_domain = true },
+  { pattern = "api.freluxtools.com", custom_domain = true },
+]
 # api.freluxtools.com is bound to this same Worker (Workers Custom Domain, DNS
 # resolving) but its edge certificate had not issued when checked on 2026-11-12:
 # TLS to the hostname resets while the files host serves normally. Until it
@@ -34,6 +37,11 @@ ALLOWED_ORIGINS = "https://freluxtools.com,https://www.freluxtools.com,http://lo
 PUBLIC_BASE_URL = "https://files.freluxtools.com"
 # Edge API vars. TURNSTILE_HOSTNAMES is an allowlist, so an empty value fails closed.
 TURNSTILE_HOSTNAMES = "freluxtools.com,www.freluxtools.com"
+# Cloudflare Image Resizing: `/public/<bucket>/<key>?w=&h=&q=` returns a variant
+# with immutable caching, falling back to the original bytes on any failure, so
+# a zone without the entitlement keeps serving full-size images rather than
+# breaking. Marketplace photos are otherwise delivered at upload size.
+IMAGE_RESIZE = "on"
 
 [[r2_buckets]]
 binding = "BUCKET_AVATARS"

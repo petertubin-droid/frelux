@@ -32,6 +32,10 @@ export interface ApiEnv {
   TURNSTILE_SECRET?: string;
   TURNSTILE_HOSTNAMES?: string;
   WEBHOOK_SECRET?: string;
+  /** Paystack signs the raw body with HMAC-SHA512 under the secret key. */
+  PAYSTACK_SECRET_KEY?: string;
+  /** Flutterwave sends a plain secret hash in the verif-hash header. */
+  FLUTTERWAVE_SECRET_HASH?: string;
 }
 
 export const json = (
@@ -51,7 +55,10 @@ const SLUG = /^[a-z0-9][a-z0-9-]{1,60}$/;
  * "name": "supabase-function-slug". A hook is inert until it is listed here and
  * WEBHOOK_SECRET is set, so nothing can be relayed by accident.
  */
-export const HOOKS: Record<string, string> = {};
+export const HOOKS: Record<string, string> = {
+  paystack: "escrow-webhook",
+  flutterwave: "flutterwave-webhook",
+};
 
 /** Only these travel to the function. Host, cookie and CF metadata stay here. */
 const FORWARDED_HEADERS = [
@@ -237,6 +244,65 @@ export async function signatureMatches(
   return diff === 0;
 }
 
+/** HMAC-SHA512 hex, which is how Paystack signs its webhook bodies. */
+async function signatureMatchesSha512(
+  secret: string,
+  body: ArrayBuffer,
+  header: string,
+): Promise<boolean> {
+  const provided = header.trim().toLowerCase();
+  if (!/^[0-9a-f]{128}$/.test(provided)) return false;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-512" },
+    false,
+    ["sign"],
+  );
+  const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, body));
+  let expected = "";
+  for (const byte of digest) expected += byte.toString(16).padStart(2, "0");
+  if (expected.length !== provided.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i += 1)
+    diff |= expected.charCodeAt(i) ^ provided.charCodeAt(i);
+  return diff === 0;
+}
+
+/**
+ * The sender's own scheme, in the order a request can prove itself.
+ *
+ * Paystack and Flutterwave cannot produce our `x-frelux-signature`, so a relay
+ * that only understood that header could never accept a real provider callback.
+ * Each provider's own proof is accepted instead, and our own HMAC stays for
+ * internal callers.
+ */
+async function hookSignatureValid(
+  request: Request,
+  env: ApiEnv,
+  body: ArrayBuffer,
+): Promise<boolean> {
+  const paystack = request.headers.get("x-paystack-signature");
+  if (paystack && env.PAYSTACK_SECRET_KEY) {
+    return signatureMatchesSha512(env.PAYSTACK_SECRET_KEY, body, paystack);
+  }
+  const verifHash = request.headers.get("verif-hash");
+  if (verifHash && env.FLUTTERWAVE_SECRET_HASH) {
+    // Flutterwave's hash is a shared string, so compare without leaking timing.
+    const a = new TextEncoder().encode(verifHash.trim());
+    const b = new TextEncoder().encode(env.FLUTTERWAVE_SECRET_HASH.trim());
+    if (a.length !== b.length) return false;
+    let diff = 0;
+    for (let i = 0; i < a.length; i += 1) diff |= a[i] ^ b[i];
+    return diff === 0;
+  }
+  const ours = request.headers.get("x-frelux-signature") ?? "";
+  if (env.WEBHOOK_SECRET && ours) {
+    return signatureMatches(env.WEBHOOK_SECRET, body, ours);
+  }
+  return false;
+}
+
 export async function handleHook(
   request: Request,
   env: ApiEnv,
@@ -247,12 +313,14 @@ export async function handleHook(
   const target = HOOKS[name];
   if (!target || !SLUG.test(name))
     return json({ error: "Unknown hook" }, 404, cors);
-  if (!env.WEBHOOK_SECRET || !env.SUPABASE_URL)
+  const providerConfigured = Boolean(
+    env.PAYSTACK_SECRET_KEY || env.FLUTTERWAVE_SECRET_HASH || env.WEBHOOK_SECRET,
+  );
+  if (!providerConfigured || !env.SUPABASE_URL)
     return json({ error: "Hooks not configured" }, 503, cors);
 
   const raw = await request.arrayBuffer();
-  const signature = request.headers.get("x-frelux-signature") ?? "";
-  if (!(await signatureMatches(env.WEBHOOK_SECRET, raw, signature)))
+  if (!(await hookSignatureValid(request, env, raw)))
     return json({ error: "Invalid signature" }, 401, cors);
 
   const headers = new Headers();

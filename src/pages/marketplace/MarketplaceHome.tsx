@@ -44,6 +44,7 @@ import { buildTradeOptions } from "@/lib/pro-connect-trades";
 import { tx } from "@/lib/i18n";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
+import { imageSrcSet, sizedImageUrl } from "@/lib/storage/image-variants";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -1137,14 +1138,21 @@ function ProductsTab(props: {
                     <div className="aspect-square overflow-hidden bg-muted dark:bg-white/5 relative">
                       {product.images.length > 0 ? (
                         <img
-                          src={
+                          src={sizedImageUrl(
                             product.images[product.primary_image_idx] ||
-                            product.images[0]
-                          }
-                          alt={product.title}
-                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                              product.images[0],
+                            { width: 640 },
+                          )}
+                          srcSet={imageSrcSet(
+                            product.images[product.primary_image_idx] ||
+                              product.images[0],
+                            [320, 640, 960],
+                          )}
+                          sizes="(max-width: 640px) 45vw, 320px"
                           loading="lazy"
                           decoding="async"
+                          alt={product.title}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">

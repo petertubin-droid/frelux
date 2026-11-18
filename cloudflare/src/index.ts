@@ -291,6 +291,52 @@ const publicUrlFor = (
     ? `${env.PUBLIC_BASE_URL.replace(/\/+$/, "")}/public/${bucket}/${key}`
     : null;
 
+
+/**
+ * A resized variant of an object, or null when the caller asked for nothing,
+ * the zone has no Image Resizing entitlement, or the subrequest failed. The
+ * caller then serves the original bytes, so a missing entitlement degrades to
+ * today's behaviour instead of broken images.
+ */
+async function resizedVariant(
+  env: Env,
+  request: Request,
+  bucketName: string,
+  keyPath: string,
+  contentType: string,
+): Promise<Response | null> {
+  if (env.IMAGE_RESIZE !== "on" || !env.PUBLIC_BASE_URL) return null;
+  if (!contentType.startsWith("image/") || contentType === "image/svg+xml")
+    return null;
+  const url = new URL(request.url);
+  const width = resizeParam(url.searchParams.get("w"), 16, 2400);
+  const height = resizeParam(url.searchParams.get("h"), 16, 2400);
+  const quality = resizeParam(url.searchParams.get("q"), 1, 100) ?? 82;
+  if (width === null && height === null) return null;
+
+  const source = `${env.PUBLIC_BASE_URL.replace(/\/+$/, "")}/public/${bucketName}/${keyPath}`;
+  const resized = await fetch(source, {
+    cf: {
+      image: {
+        width: width ?? undefined,
+        height: height ?? undefined,
+        quality,
+        fit: "scale-down",
+        format: "auto",
+      },
+    },
+  } as RequestInit).catch(() => null);
+  const resizedType = resized?.headers.get("content-type") ?? "";
+  if (!resized?.ok || !resizedType.startsWith("image/")) return null;
+  return new Response(resized.body, {
+    headers: {
+      "content-type": resizedType,
+      "cache-control": "public, max-age=31536000, immutable",
+      "x-frelux-resize": "hit",
+    },
+  });
+}
+
 export default {
   async fetch(
     request: Request,
@@ -412,6 +458,23 @@ export default {
 
       const object = await store.get(decodeURIComponent(rest.join("/")));
       if (!object) return json({ error: "Not found" }, 404, cors);
+
+      // Authenticated reads get variants too: marketplace photos are uploaded
+      // at up to 25 MB and a card needs a few hundred pixels of them.
+      const variant = await resizedVariant(
+        env,
+        request,
+        bucketName,
+        rest.join("/"),
+        object.httpMetadata?.contentType ?? "",
+      );
+      if (variant) {
+        const headers = new Headers(variant.headers);
+        headers.set("cache-control", "private, max-age=86400");
+        for (const [name, value] of Object.entries(cors))
+          headers.set(name, value);
+        return new Response(variant.body, { headers });
+      }
 
       return new Response(object.body, {
         headers: {
