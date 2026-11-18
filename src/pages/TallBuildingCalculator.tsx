@@ -49,6 +49,7 @@ import {
 } from "@/lib/engineering/tall-building-engine";
 import type { TallOccupancy } from "@/lib/engineering/architectural-planning";
 import ToolShell from "@/components/tools/ToolShell";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const metresToFeet = (value: number) => value * 3.28084;
 
@@ -359,6 +360,11 @@ const TALL_INPUT_LABELS: Partial<Record<keyof TallBuildingInput, string>> = {
 };
 
 export default function TallBuildingCalculator() {
+  // Areas read in the market's unit; the engines stay in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const resetInputs = () => {
     setParams(DEFAULT_TALL_INPUT);
     setShowAdvanced(false);
@@ -509,8 +515,8 @@ export default function TallBuildingCalculator() {
     },
     {
       label: "Gross floor area",
-      value: `${formatNumber(geometry.gross_floor_area_m2)} m²`,
-      sub: `${formatNumber(geometry.floor_plate_m2)} m² per floor`,
+      value: area(geometry.gross_floor_area_m2),
+      sub: `${area(geometry.floor_plate_m2)} per floor`,
     },
     {
       label: "Lateral system",
@@ -1327,11 +1333,8 @@ export default function TallBuildingCalculator() {
                   "Reinforcement",
                   `${formatNumber(quantities.total_rebar_tonnes)} t`,
                 ],
-                ["Formwork", `${formatNumber(quantities.formwork_m2)} m²`],
-                [
-                  "Facade area",
-                  `${formatNumber(quantities.facade_area_m2)} m²`,
-                ],
+                ["Formwork", area(quantities.formwork_m2)],
+                ["Facade area", area(quantities.facade_area_m2)],
                 ["Core wall thickness", `${geometry.core_wall_thickness_m} m`],
                 ["Column size at base", `${gravity.column_size_mm} mm`],
                 [
@@ -1397,10 +1400,7 @@ export default function TallBuildingCalculator() {
           <dl className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
             {[
               ["Lettable efficiency", `${architecture.efficiencyPct}%`],
-              [
-                "Net lettable area",
-                `${formatNumber(architecture.netLettableAreaM2)} m²`,
-              ],
+              ["Net lettable area", area(architecture.netLettableAreaM2)],
               ["Core to plate", `${architecture.coreToPlateRatioPct}%`],
               [
                 "Facade to floor",
@@ -1422,10 +1422,7 @@ export default function TallBuildingCalculator() {
                 "Handling capacity",
                 `${architecture.lifts.handlingCapacityPct}%`,
               ],
-              [
-                "Lift core needed",
-                `${formatNumber(architecture.lifts.coreAreaNeededM2)} m²`,
-              ],
+              ["Lift core needed", area(architecture.lifts.coreAreaNeededM2)],
               [
                 "Egress width required",
                 `${architecture.egressWidthRequiredMm} mm`,

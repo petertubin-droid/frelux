@@ -16,6 +16,7 @@ import {
 } from "@/lib/measurement/building-type-catalogue";
 import AdSlot from "@/components/ui/AdSlot";
 import { jsonLdScript } from "@/lib/structured-data";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const CALCULATORS = [
   { to: "/paint-calculator", label: "Paint" },
@@ -30,6 +31,12 @@ function round(value: number, digits = 1): string {
 }
 
 export default function BuildingTypeDetail() {
+  // Areas read in the market's unit; the schedule is computed in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${areaUnit.fromSqm(m2).toLocaleString(undefined, {
+      maximumFractionDigits: areaUnit.unit === "sqft" ? 0 : 1,
+    })} ${areaUnit.label}`;
   const { slug } = useParams<{ slug: string }>();
   const type = slug ? findBuildingTypeProgramme(slug) : undefined;
 
@@ -92,14 +99,14 @@ export default function BuildingTypeDetail() {
   const faqs = [
     {
       q: `How big is a ${type.label.toLowerCase()}?`,
-      a: `This schedule works out to about ${Math.round(floorArea)} m² of floor across ${type.rooms.reduce(
+      a: `This schedule works out to about ${area(floorArea)} of floor across ${type.rooms.reduce(
         (total, room) => total + Math.max(1, room.quantity ?? 1),
         0,
       )} spaces, with a ${round(type.wallHeightM)} m wall height. That is the reference layout: your market profile scales each space family, and you can edit every room in the calculator before estimating.`,
     },
     {
       q: `How much wall area does a ${type.label.toLowerCase()} have?`,
-      a: `About ${Math.round(wallArea)} m² of gross wall area, before doors and windows are deducted. The paint and screeding calculators deduct the openings you enter room by room and apply the coverage rate for the product you select.`,
+      a: `About ${area(wallArea)} of gross wall area, before doors and windows are deducted. The paint and screeding calculators deduct the openings you enter room by room and apply the coverage rate for the product you select.`,
     },
     {
       q: "Do I have to use these sizes exactly?",
@@ -141,8 +148,8 @@ export default function BuildingTypeDetail() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Floor area", value: `${Math.round(floorArea)} m²` },
-            { label: "Gross wall area", value: `${Math.round(wallArea)} m²` },
+            { label: "Floor area", value: `${area(floorArea)}` },
+            { label: "Gross wall area", value: `${area(wallArea)}` },
             { label: "Wall height", value: `${round(type.wallHeightM)} m` },
             {
               label: "Room types",
@@ -181,8 +188,8 @@ export default function BuildingTypeDetail() {
                   <th className="px-3 py-2 font-medium">Width (m)</th>
                   <th className="px-3 py-2 font-medium">Height (m)</th>
                   <th className="px-3 py-2 font-medium">Count</th>
-                  <th className="px-3 py-2 font-medium">Floor (m²)</th>
-                  <th className="px-3 py-2 font-medium">Wall (m²)</th>
+                  <th className="px-3 py-2 font-medium">{`Floor (${areaUnit.label})`}</th>
+                  <th className="px-3 py-2 font-medium">{`Wall (${areaUnit.label})`}</th>
                 </tr>
               </thead>
               <tbody>
