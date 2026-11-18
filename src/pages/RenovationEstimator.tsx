@@ -43,6 +43,7 @@ import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 /** One editable room row. Figures are text so a field can be empty. */
 interface RoomRow {
@@ -323,6 +324,8 @@ export default function RenovationEstimator() {
     bookSummary,
   } = useSpecialtyPrices("renovation");
   const { market } = useMarket();
+  // The measured surface is reported in the market's unit.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
   const { resolve } = usePriceBook();
   const priceCurrency = market?.currencyCode ?? "NGN";
   const bookRates = useMemo(
@@ -544,7 +547,7 @@ export default function RenovationEstimator() {
       steps: [
         {
           label: "Rooms measured",
-          detail: `${engine.rooms.length} room${engine.rooms.length === 1 ? "" : "s"} measured, ${engine.quantitiesByUnit.m2 ?? 0} m² of surface in total.`,
+          detail: `${engine.rooms.length} room${engine.rooms.length === 1 ? "" : "s"} measured, ${areaUnit.fromSqm(engine.quantitiesByUnit.m2 ?? 0).toFixed(1)} ${areaUnit.label} of surface in total.`,
         },
         {
           label: "Scope lines",

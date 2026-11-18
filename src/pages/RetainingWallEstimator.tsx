@@ -34,7 +34,7 @@ import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
 import UnitToggle from "@/components/measurement/UnitToggle";
-import { unitShortLabel, unitToMeters } from "@/lib/utils";
+import { SQFT_PER_SQM, unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
 
 export default function RetainingWallEstimator() {
@@ -46,6 +46,10 @@ export default function RetainingWallEstimator() {
   const [length, setLength] = useState("");
   const [height, setHeight] = useState("");
   const lengthM = unitToMeters(Number(length), unit);
+  // The rule book is stored in metres; the summary reads in the visitor's unit.
+  const ruleLength = (m: number) =>
+    `${(m / unitToMeters(1, unit)).toFixed(2)} ${unitShortLabel(unit)}`;
+  const areaPerUnit = unit === "feet" ? 1 / SQFT_PER_SQM : 1;
   const heightM = unitToMeters(Number(height), unit);
   const [soil, setSoil] = useState<SoilType>("stable");
   const [stem, setStem] = useState<StemType>("block");
@@ -241,11 +245,12 @@ export default function RetainingWallEstimator() {
             </>
           )}
           <p className="mt-3">
-            Rules in use: footing base {rules.footing_width_m} m scaled by
-            height and soil, {rules.footing_thickness_m} m base thickness,{" "}
-            {rules.blocks_per_m2} blocks per m², {rules.waste_pct}% block waste,
-            weep holes every {rules.weep_spacing_m} m, bars at{" "}
-            {rules.bar_spacing_m} m centres.
+            Rules in use: footing base {ruleLength(rules.footing_width_m)}{" "}
+            scaled by height and soil, {ruleLength(rules.footing_thickness_m)}{" "}
+            base thickness, {(rules.blocks_per_m2 * areaPerUnit).toFixed(1)}{" "}
+            blocks per {unit === "feet" ? "sq ft" : "m²"}, {rules.waste_pct}%
+            block waste, weep holes every {ruleLength(rules.weep_spacing_m)},
+            bars at {ruleLength(rules.bar_spacing_m)} centres.
           </p>
         </>
       }
