@@ -52,6 +52,11 @@ import type {
   SiteScreening,
   SoilClassification,
 } from "@/lib/site-intelligence/types";
+import {
+  useAreaUnit,
+  useLengthUnit,
+  useMarketAreaUnit,
+} from "@/lib/use-length-unit";
 
 const FOUNDATION_TYPES: { key: FoundationType; label: string }[] = [
   { key: "strip", label: "Strip foundation" },
@@ -221,6 +226,23 @@ export default function SiteIntelligence() {
   const [pileRate, setPileRate] = useState("");
   const [improveRate, setImproveRate] = useState("");
   const [dewatering, setDewatering] = useState("");
+  // Dimensions and areas are typed in the market's unit; the engines work in
+  // metres and square metres, and rates are converted with them so a per-foot
+  // rate cannot be multiplied by a metre depth.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const lengthUnit = useLengthUnit(
+    useMarketAreaUnit() === "sqft" ? "feet" : "meters",
+  );
+  const perMetre = (rate: string) => {
+    const value = Number(rate);
+    if (!Number.isFinite(value) || value <= 0) return null;
+    return value / lengthUnit.toMetres(1);
+  };
+  const perSquareMetre = (rate: string) => {
+    const value = Number(rate);
+    if (!Number.isFinite(value) || value <= 0) return null;
+    return value / areaUnit.toSqm(1);
+  };
   const [scenarios, setScenarios] = useState<
     { type: FoundationType; result: FoundationScenarioResult }[]
   >([]);
@@ -348,14 +370,14 @@ export default function SiteIntelligence() {
       const assumptions = {
         bearing_capacity_kpa: bearingValue,
         bearing_source: bearingSource,
-        depth_m: Number(depth) || 1,
+        depth_m: lengthUnit.toMetres(depth) || 1,
         wall_load_kn_m: Number(wallLoad) || 0,
         column_load_kn: Number(columnLoad) || 0,
-        building_length_m: Number(length) || undefined,
-        building_width_m: Number(width) || undefined,
+        building_length_m: lengthUnit.toMetres(length) || undefined,
+        building_width_m: lengthUnit.toMetres(width) || undefined,
         pile_count: Number(pileCount) || undefined,
-        pile_depth_m: Number(pileDepth) || undefined,
-        ground_improvement_area_m2: Number(improveArea) || undefined,
+        pile_depth_m: lengthUnit.toMetres(pileDepth) || undefined,
+        ground_improvement_area_m2: areaUnit.toSqm(improveArea) || undefined,
         dewatering_allowance: dewatering ? Number(dewatering) : undefined,
       };
       const results = await Promise.all(
@@ -365,8 +387,8 @@ export default function SiteIntelligence() {
             type: t.key,
             assumptions,
             citySlug,
-            pileRate: pileRate ? Number(pileRate) : null,
-            groundImprovementRate: improveRate ? Number(improveRate) : null,
+            pileRate: perMetre(pileRate),
+            groundImprovementRate: perSquareMetre(improveRate),
             dewateringRate: dewatering ? 1 : null,
           }),
         })),
@@ -790,7 +812,9 @@ export default function SiteIntelligence() {
               </select>
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Founding depth (m)</span>
+              <span className="text-muted-foreground">
+                Founding depth ({lengthUnit.label})
+              </span>
               <input
                 value={depth}
                 onChange={(e) => setDepth(e.target.value)}
@@ -817,7 +841,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Building length (m)</span>
+              <span className="text-muted-foreground">
+                Building length ({lengthUnit.label})
+              </span>
               <input
                 value={length}
                 onChange={(e) => setLength(e.target.value)}
@@ -826,7 +852,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Building width (m)</span>
+              <span className="text-muted-foreground">
+                Building width ({lengthUnit.label})
+              </span>
               <input
                 value={width}
                 onChange={(e) => setWidth(e.target.value)}
@@ -836,7 +864,7 @@ export default function SiteIntelligence() {
             </label>
             <label className="text-xs">
               <span className="text-muted-foreground">
-                Area to improve (m²)
+                Area to improve ({areaUnit.label})
               </span>
               <input
                 value={improveArea}
@@ -855,7 +883,9 @@ export default function SiteIntelligence() {
               />
             </label>
             <label className="text-xs">
-              <span className="text-muted-foreground">Pile depth (m)</span>
+              <span className="text-muted-foreground">
+                Pile depth ({lengthUnit.label})
+              </span>
               <input
                 value={pileDepth}
                 onChange={(e) => setPileDepth(e.target.value)}
@@ -865,7 +895,7 @@ export default function SiteIntelligence() {
             </label>
             <label className="text-xs">
               <span className="text-muted-foreground">
-                Piling rate (currency per m)
+                Piling rate (currency per {lengthUnit.label})
               </span>
               <input
                 value={pileRate}
@@ -877,7 +907,7 @@ export default function SiteIntelligence() {
             </label>
             <label className="text-xs">
               <span className="text-muted-foreground">
-                Ground improvement rate (per m²)
+                Ground improvement rate (per {areaUnit.label})
               </span>
               <input
                 value={improveRate}
