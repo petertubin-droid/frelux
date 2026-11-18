@@ -82,6 +82,12 @@ import type {
 } from "@/types/build-to-roof";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { ROOF_CSV_HEADERS, buildRoofCsvRows } from "@/lib/estimation/roof-csv";
 import { downloadCsv } from "@/lib/export-utils";
 import { quoteToShareable } from "@/lib/estimate-sharing";
@@ -3053,6 +3059,9 @@ function EstimateResult({
 }) {
   const { t } = useLanguage();
   const engineAccess = useEngineAccess("/build-to-roof-estimator");
+  const { symbol: displayCurrencySymbol } = useDisplayCurrency();
+  const transportation = useTransportation("build-to-roof");
+  const transportRow = transportationRow(transportation.choice, formatCurrency);
   const confidenceColors: Record<string, string> = {
     high: "bg-green-50 text-green-700 border-green-200",
     moderate: "bg-amber-50 text-amber-700 border-amber-200",
@@ -3109,9 +3118,14 @@ function EstimateResult({
           value: formatCurrency(result.wastage_allowance),
         },
         { label: "Contingency", value: formatCurrency(result.contingency) },
+        ...(transportRow
+          ? [{ label: "Transportation", value: transportRow.value }]
+          : []),
         {
           label: "Grand total",
-          value: formatCurrency(result.grand_total),
+          value: formatCurrency(
+            totalWithTransportation(result.grand_total, transportation.choice),
+          ),
           strong: true,
         },
       ],
@@ -3196,8 +3210,21 @@ function EstimateResult({
                 : "Estimated Build-to-Roof Cost"}
             </p>
             <p className="text-xl sm:text-2xl font-bold">
-              {formatCurrency(result.grand_total)}
+              {formatCurrency(
+                totalWithTransportation(
+                  result.grand_total,
+                  transportation.choice,
+                ),
+              )}
             </p>
+            {transportation.choice.enabled && (
+              <p className="mt-1 text-xs text-primary-foreground/60">
+                incl. transportation{" "}
+                {transportation.choice.amount > 0
+                  ? formatCurrency(transportation.choice.amount)
+                  : "(to be agreed)"}
+              </p>
+            )}
           </div>
         </div>
         <div
@@ -3233,6 +3260,12 @@ function EstimateResult({
           </p>
         </div>
       </div>
+
+      <TransportationField
+        controls={transportation}
+        currencySymbol={displayCurrencySymbol}
+        className="mt-3"
+      />
 
       {/* Premium Cost Breakdown Table */}
       <div

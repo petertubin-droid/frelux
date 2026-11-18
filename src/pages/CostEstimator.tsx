@@ -89,6 +89,13 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
@@ -125,6 +132,7 @@ function exportCostQuote(args: {
     other: boolean;
   };
   currencySymbol: string;
+  transportation?: TransportationChoice;
 }) {
   const { result, includes, currencySymbol } = args;
   const fmt = (v: number) => formatCurrency(v, currencySymbol);
@@ -167,9 +175,19 @@ function exportCostQuote(args: {
           label: "Labour",
           value: formatCurrency(result.laborCost, currencySymbol),
         },
+        ...(transportationRow(args.transportation, fmt)
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(args.transportation, fmt)!.value,
+              },
+            ]
+          : []),
         {
           label: "Grand total",
-          value: formatCurrency(result.total, currencySymbol),
+          value: fmt(
+            totalWithTransportation(result.total, args.transportation),
+          ),
           strong: true,
         },
       ],
@@ -305,6 +323,7 @@ export default function CostEstimator({
     currencyCode: projectCurrencyCode,
     currencySymbol: projectCurrencySymbol,
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
+  const transportation = useTransportation("painting-cost");
   const currencySymbol =
     projectCurrencySymbol ??
     displayCurrencySymbol ??
@@ -493,6 +512,7 @@ export default function CostEstimator({
             other: input.includeOther,
           },
           currencySymbol,
+          transportation: transportation.choice,
         });
         // Session-scoped: reset unlock after use
         setPdfUnlocked(false);
@@ -1138,17 +1158,45 @@ export default function CostEstimator({
                     />
                   )}
                 </div>
+                {transportation.choice.enabled && (
+                  <Row
+                    label="Transportation"
+                    value={
+                      transportation.choice.amount > 0
+                        ? formatCurrency(
+                            transportation.choice.amount,
+                            currencySymbol,
+                          )
+                        : "To be agreed"
+                    }
+                  />
+                )}
                 <div className="border-t border-border/50 pt-2">
                   <Row
-                    label="Grand total"
+                    label={
+                      transportation.choice.enabled
+                        ? "Grand total (incl. transportation)"
+                        : "Grand total"
+                    }
                     value={
                       result
-                        ? formatCurrency(result.total, currencySymbol)
+                        ? formatCurrency(
+                            totalWithTransportation(
+                              result.total,
+                              transportation.choice,
+                            ),
+                            currencySymbol,
+                          )
                         : "N/A"
                     }
                     strong
                   />
                 </div>
+                <TransportationField
+                  controls={transportation}
+                  currencySymbol={currencySymbol}
+                  className="mt-3"
+                />
                 {result && (
                   <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />

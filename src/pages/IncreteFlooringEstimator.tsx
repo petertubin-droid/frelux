@@ -12,6 +12,12 @@ import { useAuth } from "@/lib/auth";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { createEstimate } from "@/lib/estimation/queries";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { INCRETE_MARKETS } from "@/lib/estimation/increte-market-config";
@@ -72,6 +78,7 @@ export default function IncreteFlooringEstimator() {
   const [status, setStatus] = useState("");
   const marketInfo = INCRETE_MARKETS.find((m) => m.code === selectedMarket);
   const currencyCode = marketInfo?.currencyCode || market?.currencyCode || "";
+  const transportation = useTransportation("increte-flooring");
   const currencySymbol =
     selectedMarket === marketCode
       ? market?.currencySymbol || symbol || ""
@@ -156,12 +163,30 @@ export default function IncreteFlooringEstimator() {
                 ? "Not included"
                 : formatCurrency(result.labourTotal, currencySymbol),
           },
+          ...(transportationRow(transportation.choice, (v) =>
+            formatCurrency(v, currencySymbol),
+          )
+            ? [
+                {
+                  label: "Transportation",
+                  value: transportationRow(transportation.choice, (v) =>
+                    formatCurrency(v, currencySymbol),
+                  )!.value,
+                },
+              ]
+            : []),
           {
             label: "Estimate total",
             value:
               result.grandTotal === null
                 ? "Incomplete"
-                : formatCurrency(result.grandTotal, currencySymbol),
+                : formatCurrency(
+                    totalWithTransportation(
+                      result.grandTotal,
+                      transportation.choice,
+                    ),
+                    currencySymbol,
+                  ),
             strong: true,
           },
         ],
@@ -213,7 +238,6 @@ export default function IncreteFlooringEstimator() {
   return (
     <ToolShell route="/increte-flooring-calculator">
       <Container>
-
         <MarketScopeNotice />
         <div className="mx-auto max-w-5xl space-y-6 pb-12">
           <section className="rounded-xl border bg-card p-5">
@@ -329,7 +353,9 @@ export default function IncreteFlooringEstimator() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setProducts((items) => [...items, blankProduct()])}
+                onClick={() =>
+                  setProducts((items) => [...items, blankProduct()])
+                }
               >
                 {t("Add product layer")}
               </Button>
@@ -407,7 +433,9 @@ export default function IncreteFlooringEstimator() {
                       step="any"
                       value={product.packageSize ?? ""}
                       onChange={(e) =>
-                        updateProduct(index, { packageSize: num(e.target.value) })
+                        updateProduct(index, {
+                          packageSize: num(e.target.value),
+                        })
                       }
                       placeholder={t("Optional")}
                     />
@@ -488,9 +516,9 @@ export default function IncreteFlooringEstimator() {
                   </label>
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Coverage must be entered as the manufacturer's coverage for one
-                  purchasable package. User-entered inputs are not independently
-                  verified.
+                  Coverage must be entered as the manufacturer's coverage for
+                  one purchasable package. User-entered inputs are not
+                  independently verified.
                 </p>
               </div>
             ))}
@@ -518,17 +546,46 @@ export default function IncreteFlooringEstimator() {
                       : `${result.concreteVolumeM3.toFixed(3)} m³`}
                   </p>
                 </div>
+                {transportation.choice.enabled && (
+                  <div className="rounded-lg bg-muted p-3">
+                    <span className="text-sm text-muted-foreground">
+                      {t("Transportation")}
+                    </span>
+                    <p className="text-xl font-semibold">
+                      {transportation.choice.amount > 0
+                        ? formatCurrency(
+                            transportation.choice.amount,
+                            currencySymbol,
+                          )
+                        : t("To be agreed")}
+                    </p>
+                  </div>
+                )}
                 <div className="rounded-lg bg-muted p-3">
                   <span className="text-sm text-muted-foreground">
-                    {t("Estimate total")}
+                    {transportation.choice.enabled
+                      ? t("Estimate total (incl. transportation)")
+                      : t("Estimate total")}
                   </span>
                   <p className="text-xl font-semibold">
                     {result.grandTotal === null
                       ? "Incomplete inputs"
-                      : formatCurrency(result.grandTotal, currencySymbol)}
+                      : formatCurrency(
+                          totalWithTransportation(
+                            result.grandTotal,
+                            transportation.choice,
+                          ),
+                          currencySymbol,
+                        )}
                   </p>
                 </div>
               </div>
+
+              <TransportationField
+                controls={transportation}
+                currencySymbol={currencySymbol}
+                className="mt-4"
+              />
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
@@ -630,7 +687,13 @@ export default function IncreteFlooringEstimator() {
                         value:
                           result.grandTotal === null
                             ? "Not priced"
-                            : formatCurrency(result.grandTotal, currencySymbol),
+                            : formatCurrency(
+                                totalWithTransportation(
+                                  result.grandTotal,
+                                  transportation.choice,
+                                ),
+                                currencySymbol,
+                              ),
                         emphasized: true,
                       },
                     ],
@@ -661,13 +724,12 @@ export default function IncreteFlooringEstimator() {
           {/* Native banner slot, placement "calculator_native" */}
           <AdSlot slotKey="calculator_native" className="mt-8" />
           <p className="text-xs text-muted-foreground">
-            Estimates are planning aids, not installation specifications. Confirm
-            substrate condition, product compatibility, local standards, current
-            supplier availability and installation requirements with qualified
-            local professionals and manufacturers.
+            Estimates are planning aids, not installation specifications.
+            Confirm substrate condition, product compatibility, local standards,
+            current supplier availability and installation requirements with
+            qualified local professionals and manufacturers.
           </p>
         </div>
-
       </Container>
     </ToolShell>
   );

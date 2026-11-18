@@ -29,6 +29,12 @@ import { formatNumber, formatArea, SQFT_PER_SQM } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -137,6 +143,7 @@ export default function ConfigurableFinishCalculator({
   // ── Config state ──
   // Market currency for the visitor's selected market.
   const currencySymbol = useCurrencySymbol();
+  const transportation = useTransportation("configurable-finish");
 
   const [products, setProducts] = useState<ConfigurableFinishProduct[]>([]);
   const [configError, setConfigError] = useState<string | null>(null);
@@ -466,9 +473,24 @@ export default function ConfigurableFinishCalculator({
         totals: [
           { label: "Material cost", value: costValue },
           { label: "Labour", value: formatCurrency(labourCost) },
+          ...(transportationRow(transportation.choice, (v) => formatCurrency(v))
+            ? [
+                {
+                  label: "Transportation",
+                  value: transportationRow(transportation.choice, (v) =>
+                    formatCurrency(v),
+                  )!.value,
+                },
+              ]
+            : []),
           {
             label: "Grand total (materials + labour)",
-            value: formatCurrency((result.cost_min ?? 0) + labourCost),
+            value: formatCurrency(
+              totalWithTransportation(
+                (result.cost_min ?? 0) + labourCost,
+                transportation.choice,
+              ),
+            ),
             strong: true,
           },
         ],
@@ -828,16 +850,38 @@ export default function ConfigurableFinishCalculator({
                         area={labourAreaM2}
                         last
                       />
+                      {transportation.choice.enabled && (
+                        <div className="rounded-lg border border-border p-4">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            {t("Transportation")}
+                          </p>
+                          <p className="mt-1 text-xl font-bold">
+                            {transportation.choice.amount > 0
+                              ? formatCurrency(transportation.choice.amount)
+                              : t("To be agreed")}
+                          </p>
+                        </div>
+                      )}
                       <div className="rounded-lg border border-border p-4">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          {t("Grand total (materials + labour)")}
+                          {transportation.choice.enabled
+                            ? t("Grand total (materials + labour + transport)")
+                            : t("Grand total (materials + labour)")}
                         </p>
                         <p className="mt-1 text-xl font-bold">
-                          {formatCurrency((result.cost_min ?? 0) + labourCost)}
+                          {formatCurrency(
+                            totalWithTransportation(
+                              (result.cost_min ?? 0) + labourCost,
+                              transportation.choice,
+                            ),
+                          )}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           Materials {formatCurrency(result.cost_min ?? 0)} +
                           Labour {formatCurrency(labourCost)}
+                          {transportation.choice.enabled
+                            ? ` + Transport ${formatCurrency(transportation.choice.amount)}`
+                            : ""}
                         </p>
                       </div>
 

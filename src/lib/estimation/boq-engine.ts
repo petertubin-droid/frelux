@@ -12,6 +12,11 @@ import { escapeHtml } from "@/lib/sanitization";
  * replayable and auditable end-to-end.
  */
 
+import {
+  totalWithTransportation,
+  transportationRow,
+  type TransportationChoice,
+} from "./transportation";
 import { formatByCode } from "@/lib/international/currency-format";
 import { roundMoney } from "@/lib/money/round";
 import type { EstimationCalcRule } from "@/types/estimation";
@@ -348,6 +353,7 @@ export function boqToHtml(
   input: BoqInput,
   result: BoqResult,
   quoteRef: string,
+  transportation?: TransportationChoice,
 ): string {
   const t = result.totals!;
   const rows = result.line_totals
@@ -407,7 +413,20 @@ export function boqToHtml(
       <tr><td colspan="4">Subtotal</td><td><b>${escapeHtml(fmt(input.currency, t.subtotal))}</b></td></tr>
       ${optLine("Contingency", t.contingency_rate, t.contingency_amount)}
       ${optLine("VAT", t.vat_rate, t.vat_amount)}
-      <tr class="grand"><td colspan="4">GRAND TOTAL</td><td>${escapeHtml(fmt(input.currency, t.grand_total))}</td></tr>
+      ${
+        transportationRow(transportation, (v) => fmt(input.currency, v))
+          ? `<tr><td colspan="4">Transportation</td><td>${escapeHtml(
+              transportationRow(transportation, (v) => fmt(input.currency, v))!
+                .value,
+            )}</td></tr>`
+          : ""
+      }
+      <tr class="grand"><td colspan="4">GRAND TOTAL</td><td>${escapeHtml(
+        fmt(
+          input.currency,
+          totalWithTransportation(t.grand_total, transportation),
+        ),
+      )}</td></tr>
     </table>
     ${result.warnings.length ? `<p class="warn">Note: ${escapeHtml(result.warnings.join(" "))}</p>` : ""}
     <div class="disclaimer">

@@ -18,6 +18,13 @@ import CalculatorResetButton from "@/components/calculators/CalculatorResetButto
 import { useEffect, useState, useCallback } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import TransportationField from "@/components/calculators/TransportationField";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import type { QuoteLine } from "@/lib/estimation/quote-export";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -63,6 +70,10 @@ export default function SolarPvEstimator() {
     setResult(null);
   };
   const { t } = useLanguage();
+  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } =
+    useDisplayCurrency();
+  const transportation = useTransportation("solar-pv");
+  const transportRow = transportationRow(transportation.choice, formatCurrency);
 
   const [models, setModels] = useState<SolarPanelModel[]>([]);
   const [rules, setRules] = useState<EstimationCalcRule[]>([]);
@@ -258,9 +269,14 @@ export default function SolarPvEstimator() {
       ],
       lines,
       totals: [
+        ...(transportRow
+          ? [{ label: "Transportation", value: transportRow.value }]
+          : []),
         {
           label: "Total estimate",
-          value: formatCurrency(pricedTotal),
+          value: formatCurrency(
+            totalWithTransportation(pricedTotal, transportation.choice),
+          ),
           strong: true,
         },
       ],
@@ -589,7 +605,12 @@ export default function SolarPvEstimator() {
                   </p>
                   {result.total_cost_naira !== null ? (
                     <p className="mt-1 text-3xl font-semibold">
-                      {formatCurrency(result.total_cost_naira)}
+                      {formatCurrency(
+                        totalWithTransportation(
+                          result.total_cost_naira,
+                          transportation.choice,
+                        ),
+                      )}
                     </p>
                   ) : (
                     <>
@@ -606,8 +627,22 @@ export default function SolarPvEstimator() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     materials + labour, from configured prices
                   </p>
+                  {transportation.choice.enabled && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("Transportation")}:{" "}
+                      {transportation.choice.amount > 0
+                        ? formatCurrency(transportation.choice.amount)
+                        : t("To be agreed")}
+                    </p>
+                  )}
                 </div>
               </div>
+
+              <TransportationField
+                controls={transportation}
+                currencySymbol={displayCurrencySymbol}
+                className="mt-4"
+              />
 
               {result.warnings.length > 0 && (
                 <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
@@ -679,14 +714,20 @@ export default function SolarPvEstimator() {
                         string_count: result.string_count,
                         needed_roof_area_m2: result.needed_roof_area_m2,
                         battery_count: result.battery_count,
-                        total: pricedTotal,
-                        currency: "NGN",
+                        total: totalWithTransportation(
+                          pricedTotal,
+                          transportation.choice,
+                        ),
+                        currency: displayCurrencyCode,
                       },
                     } as unknown as Record<string, unknown>
                   }
                   resultSummary={
                     {
-                      grandTotal: pricedTotal,
+                      grandTotal: totalWithTransportation(
+                        pricedTotal,
+                        transportation.choice,
+                      ),
                       panelCount: result.panel_count,
                       arrayKwp: result.array_kwp,
                       dailyEnergyKwh: result.daily_energy_kwh,

@@ -9,6 +9,13 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { useSeoOfferCurrency } from "@/lib/international/market-context";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { formatArea } from "@/lib/utils";
@@ -248,8 +255,20 @@ export default function PopCeilingCalculator({
     setInput(data as unknown as PopCalcInput);
   }, [loadedTemplate]);
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } =
+    useDisplayCurrency();
+  // Globalization: the visitor's market currency wins; the site setting is only
+  // the fallback for a market with no currency configured.
+  const currencySymbol =
+    market?.currencySymbol ??
+    displayCurrencySymbol ??
+    settings?.default_currency_symbol ??
+    "";
+  const currency =
+    market?.currencyCode ??
+    displayCurrencyCode ??
+    settings?.default_currency ??
+    "";
 
   useEffect(() => {
     async function load() {
@@ -788,6 +807,10 @@ function PopResultCard({
   const areaUnit: "sqft" | "sqm" = input.unit === "meters" ? "sqm" : "sqft";
   const area = (sqm: number, digits = 0) =>
     formatArea(sqm, { unit: areaUnit, digits });
+  const transportation = useTransportation("pop-ceiling");
+  const transportRow = transportationRow(transportation.choice, (v) =>
+    formatCurrency(v, currencySymbol),
+  );
   const grouped = result.materials.reduce<
     Record<string, typeof result.materials>
   >((acc, m) => {
@@ -868,13 +891,31 @@ function PopResultCard({
             value={formatCurrency(result.labourCost, currencySymbol)}
           />
           <Row label="Waste allowance" value={area(result.wasteAmount)} />
+          {transportRow && (
+            <Row label="Transportation" value={transportRow.value} />
+          )}
           <div className="border-t border-border pt-2">
             <Row
-              label="Grand total"
-              value={formatCurrency(result.grandTotal, currencySymbol)}
+              label={
+                transportation.choice.enabled
+                  ? "Grand total (incl. transportation)"
+                  : "Grand total"
+              }
+              value={formatCurrency(
+                totalWithTransportation(
+                  result.grandTotal,
+                  transportation.choice,
+                ),
+                currencySymbol,
+              )}
               strong
             />
           </div>
+          <TransportationField
+            controls={transportation}
+            currencySymbol={currencySymbol}
+            className="mt-3"
+          />
         </div>
 
         <div className="mt-4">
@@ -913,9 +954,18 @@ function PopResultCard({
                   label: "Material cost",
                   value: formatCurrency(result.materialCost, currencySymbol),
                 },
+                ...(transportRow
+                  ? [{ label: "Transportation", value: transportRow.value }]
+                  : []),
                 {
                   label: "Grand total",
-                  value: formatCurrency(result.grandTotal, currencySymbol),
+                  value: formatCurrency(
+                    totalWithTransportation(
+                      result.grandTotal,
+                      transportation.choice,
+                    ),
+                    currencySymbol,
+                  ),
                   emphasized: true,
                 },
               ],

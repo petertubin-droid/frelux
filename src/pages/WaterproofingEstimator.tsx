@@ -42,6 +42,12 @@ import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { useLanguage } from "@/lib/i18n";
 import {
   calculateWaterproofing,
@@ -117,6 +123,7 @@ export default function WaterproofingEstimator() {
   ]);
   const { marketCode, market } = useMarket();
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const transportation = useTransportation("waterproofing");
   const currencyCode = market?.currencyCode || "NGN";
   const { user } = useAuth();
 
@@ -279,12 +286,30 @@ export default function WaterproofingEstimator() {
               ? "Not included"
               : formatCurrency(result.labour_total, currencySymbol),
         },
+        ...(transportationRow(transportation.choice, (v) =>
+          formatCurrency(v, currencySymbol),
+        )
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(transportation.choice, (v) =>
+                  formatCurrency(v, currencySymbol),
+                )!.value,
+              },
+            ]
+          : []),
         {
           label: "Grand total",
           value:
             result.grand_total === null
               ? "N/A"
-              : formatCurrency(result.grand_total, currencySymbol),
+              : formatCurrency(
+                  totalWithTransportation(
+                    result.grand_total,
+                    transportation.choice,
+                  ),
+                  currencySymbol,
+                ),
           strong: true,
         },
       ],
@@ -691,17 +716,46 @@ export default function WaterproofingEstimator() {
                     : formatCurrency(result.labour_total, currencySymbol)}
                 </p>
               </div>
+              {transportation.choice.enabled && (
+                <div className="rounded-lg border bg-card p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t("Transportation")}
+                  </p>
+                  <p className="text-xl font-semibold">
+                    {transportation.choice.amount > 0
+                      ? formatCurrency(
+                          transportation.choice.amount,
+                          currencySymbol,
+                        )
+                      : t("To be agreed")}
+                  </p>
+                </div>
+              )}
               <div className="rounded-lg border bg-primary/10 p-4">
                 <p className="text-sm text-muted-foreground">
-                  {t("Grand total")}
+                  {transportation.choice.enabled
+                    ? t("Grand total (incl. transportation)")
+                    : t("Grand total")}
                 </p>
                 <p className="text-xl font-semibold">
                   {result.grand_total === null
                     ? "N/A"
-                    : formatCurrency(result.grand_total, currencySymbol)}
+                    : formatCurrency(
+                        totalWithTransportation(
+                          result.grand_total,
+                          transportation.choice,
+                        ),
+                        currencySymbol,
+                      )}
                 </p>
               </div>
             </div>
+
+            <TransportationField
+              controls={transportation}
+              currencySymbol={currencySymbol}
+              className="mb-6"
+            />
 
             {/* Warnings */}
             <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">

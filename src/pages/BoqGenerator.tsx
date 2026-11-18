@@ -64,6 +64,12 @@ import AdSlot from "@/components/ui/AdSlot";
 import TaxAndFxCard from "@/components/tax/TaxAndFxCard";
 import StandardsCitationsCard from "@/components/regulatory/StandardsCitationsCard";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import type { InvoiceSnapshotTotals } from "@/lib/finance/invoice-engine";
 import ToolShell from "@/components/tools/ToolShell";
 
@@ -121,6 +127,7 @@ function defaultMarketCode(): string {
 export default function BoqGenerator() {
   const navigate = useNavigate();
   const { symbol: currencySymbol } = useDisplayCurrency();
+  const transportation = useTransportation("boq");
   const money = (v: number) =>
     `${currencySymbol}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
   const { user, isPaid } = useAuth();
@@ -436,6 +443,7 @@ export default function BoqGenerator() {
         },
         result,
         quoteRef,
+        transportation.choice,
       ),
     );
     w.document.close();
@@ -1137,16 +1145,40 @@ export default function BoqGenerator() {
                         </td>
                       </tr>
                     )}
+                    {transportationRow(transportation.choice, money) && (
+                      <tr className="border-t border-border dark:border-white/5">
+                        <td colSpan={4} className="p-3">
+                          Transportation
+                        </td>
+                        <td className="p-3">
+                          {
+                            transportationRow(transportation.choice, money)!
+                              .value
+                          }
+                        </td>
+                      </tr>
+                    )}
                     <tr className="border-t border-border bg-primary text-primary-foreground">
                       <td colSpan={4} className="p-3 font-bold">
                         GRAND TOTAL
                       </td>
                       <td className="p-3 font-bold">
-                        {money(result.totals!.grand_total)}
+                        {money(
+                          totalWithTransportation(
+                            result.totals!.grand_total,
+                            transportation.choice,
+                          ),
+                        )}
                       </td>
                     </tr>
                   </tbody>
                 </table>
+
+                <TransportationField
+                  controls={transportation}
+                  currencySymbol={currencySymbol}
+                  className="mt-4"
+                />
               </div>
 
               {/* ── Engine #5: cite-and-flag the standards behind each engine ── */}

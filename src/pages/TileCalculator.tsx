@@ -10,6 +10,13 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { useMarket } from "@/lib/international/market-context";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { MaterialPriceField } from "@/components/pricing/MaterialPriceField";
 import { SandQuantityHint } from "@/components/pricing/SandQuantityHint";
 import {
@@ -223,10 +230,21 @@ export default function TileCalculator({
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
-
   const { market, marketCode } = useMarket();
+  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } =
+    useDisplayCurrency();
+  // Globalization: the visitor's market currency wins; the site setting is only
+  // the fallback for a market with no currency configured.
+  const currencySymbol =
+    market?.currencySymbol ??
+    displayCurrencySymbol ??
+    settings?.default_currency_symbol ??
+    "";
+  const currency =
+    market?.currencyCode ??
+    displayCurrencyCode ??
+    settings?.default_currency ??
+    "";
   const [tileMode, setTileMode] = useState<"single" | "house">("single");
   const [houseRooms, setHouseRooms] = useState<HouseRoomRow[]>([]);
   const [presetId, setPresetId] = useState("");
@@ -1626,6 +1644,10 @@ function TileResultCard({
   const areaUnit: "sqft" | "sqm" = input.unit === "meters" ? "sqm" : "sqft";
   const area = (sqm: number, digits = 0) =>
     formatArea(sqm, { unit: areaUnit, digits });
+  const transportation = useTransportation("tile");
+  const transportRow = transportationRow(transportation.choice, (v) =>
+    formatCurrency(v, currencySymbol),
+  );
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
       <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
@@ -1716,13 +1738,28 @@ function TileResultCard({
           label="Labour cost"
           value={formatCurrency(result.labourCost, currencySymbol)}
         />
+        {transportRow && (
+          <Row label="Transportation" value={transportRow.value} />
+        )}
         <div className="border-t border-border/50 pt-2">
           <Row
-            label="Grand total"
-            value={formatCurrency(result.grandTotal, currencySymbol)}
+            label={
+              transportation.choice.enabled
+                ? "Grand total (incl. transportation)"
+                : "Grand total"
+            }
+            value={formatCurrency(
+              totalWithTransportation(result.grandTotal, transportation.choice),
+              currencySymbol,
+            )}
             strong
           />
         </div>
+        <TransportationField
+          controls={transportation}
+          currencySymbol={currencySymbol}
+          className="mt-3"
+        />
       </div>
 
       <div className="px-6 pb-4 sm:px-8">
@@ -1782,9 +1819,18 @@ function TileResultCard({
               },
             ],
             totals: [
+              ...(transportRow
+                ? [{ label: "Transportation", value: transportRow.value }]
+                : []),
               {
                 label: "Grand total",
-                value: formatCurrency(result.grandTotal, currencySymbol),
+                value: formatCurrency(
+                  totalWithTransportation(
+                    result.grandTotal,
+                    transportation.choice,
+                  ),
+                  currencySymbol,
+                ),
                 emphasized: true,
               },
             ],

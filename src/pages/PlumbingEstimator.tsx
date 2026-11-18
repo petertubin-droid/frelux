@@ -46,6 +46,12 @@ import { CheckCircle2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import TransportationField from "@/components/calculators/TransportationField";
 import { shareableFromQuote } from "@/lib/estimate-share-adapter";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import { useLanguage } from "@/lib/i18n";
@@ -132,6 +138,7 @@ export default function PlumbingEstimator() {
 
   const { marketCode, market } = useMarket();
   const currencySymbol = market?.currencySymbol || displayCurrencySymbol || "₦";
+  const transportation = useTransportation("plumbing");
   const currencyCode = market?.currencyCode || "NGN";
   const plumbingProfile = useMemo(
     () => getPlumbingProfile(marketCode),
@@ -309,12 +316,30 @@ export default function PlumbingEstimator() {
               ? "Not included"
               : formatCurrency(result.labour_total, currencySymbol),
         },
+        ...(transportationRow(transportation.choice, (v) =>
+          formatCurrency(v, currencySymbol),
+        )
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(transportation.choice, (v) =>
+                  formatCurrency(v, currencySymbol),
+                )!.value,
+              },
+            ]
+          : []),
         {
           label: "Grand total",
           value:
             result.grand_total === null
               ? "N/A"
-              : formatCurrency(result.grand_total, currencySymbol),
+              : formatCurrency(
+                  totalWithTransportation(
+                    result.grand_total,
+                    transportation.choice,
+                  ),
+                  currencySymbol,
+                ),
           strong: true,
         },
       ],
@@ -427,480 +452,517 @@ export default function PlumbingEstimator() {
 
   return (
     <ToolShell route="/plumbing">
-    <Container>
-      {isRestored && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>
-              We restored your previous plumbing calculation draft from your
-              browser.
-            </span>
+      <Container>
+        {isRestored && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs sm:text-sm text-foreground shadow-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>
+                We restored your previous plumbing calculation draft from your
+                browser.
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  clearDraft();
+                  setCounts(DEFAULT_COUNTS);
+                  setRuns(DEFAULT_RUNS);
+                  setLabourMode("none");
+                  setLabourRate("");
+                }}
+                className="font-medium text-muted-foreground hover:text-foreground underline cursor-pointer"
+              >
+                {t("Start fresh")}
+              </button>
+              <button
+                type="button"
+                onClick={dismissRestored}
+                className="font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                {t("Dismiss")}
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                clearDraft();
-                setCounts(DEFAULT_COUNTS);
-                setRuns(DEFAULT_RUNS);
-                setLabourMode("none");
-                setLabourRate("");
-              }}
-              className="font-medium text-muted-foreground hover:text-foreground underline cursor-pointer"
-            >
-              {t("Start fresh")}
-            </button>
-            <button
-              type="button"
-              onClick={dismissRestored}
-              className="font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-            >
-              {t("Dismiss")}
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      <MarketScopeNotice />
-      {marketCode !== "NG" && (
-        <div
-          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
-          data-testid="trade-price-coverage"
-        >
-          <p className="font-semibold">Price book coverage ({marketCode})</p>
-          <p className="mt-1 text-muted-foreground">
-            {plumbingMarket && plumbingMarket.provenance.length > 0
-              ? `The ${marketCode} price book covers verified pipe and fitting keys below. Any items not covered in this market are disclosed and marked; sanitaryware still uses the reference book with honest disclosure.`
-              : `The ${marketCode} price book does not yet cover all plumbing items. Items without verified market prices use the disclosed reference book; adjust them for your market before relying on cost totals.`}
-          </p>
-        </div>
-      )}
-      {plumbingMarket &&
-        marketCode !== "NG" &&
-        plumbingMarket.provenance.length > 0 && (
+        <MarketScopeNotice />
+        {marketCode !== "NG" && (
           <div
             className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
-            data-testid="plumbing-price-provenance"
+            data-testid="trade-price-coverage"
           >
-            <p className="font-semibold">
-              Market plumbing prices ({marketCode} book)
+            <p className="font-semibold">Price book coverage ({marketCode})</p>
+            <p className="mt-1 text-muted-foreground">
+              {plumbingMarket && plumbingMarket.provenance.length > 0
+                ? `The ${marketCode} price book covers verified pipe and fitting keys below. Any items not covered in this market are disclosed and marked; sanitaryware still uses the reference book with honest disclosure.`
+                : `The ${marketCode} price book does not yet cover all plumbing items. Items without verified market prices use the disclosed reference book; adjust them for your market before relying on cost totals.`}
             </p>
-            <ul className="mt-2 space-y-1 text-muted-foreground">
-              {plumbingMarket.provenance.map((p) => (
-                <li key={p.engineKey}>
-                  ✓ {p.engineKey}: {p.materialName} - {p.explanation}
-                </li>
-              ))}
-              {plumbingMarket.unresolved.length > 0 && (
-                <li>
-                  ✗ {plumbingMarket.unresolved.join(", ")}: no verified price in
-                  the {marketCode} book - reported unpriced, never silent
-                  substitution.
-                </li>
-              )}
-            </ul>
           </div>
         )}
-
-      {/* Regional Plumbing System Profile */}
-      <div
-        className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
-        data-testid="regional-plumbing-profile"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="font-semibold text-foreground">
-            Regional System Profile: {plumbingProfile.name}
-          </p>
-          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            {plumbingProfile.standardsRef}
-          </span>
-        </div>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-xs text-muted-foreground">
-          <div>
-            <span className="font-medium text-foreground">Water Supply:</span>{" "}
-            {plumbingProfile.waterSupplyMaterial}
-          </div>
-          <div>
-            <span className="font-medium text-foreground">Drainage DWV:</span>{" "}
-            {plumbingProfile.drainageDwvMaterial}
-          </div>
-          <div>
-            <span className="font-medium text-foreground">Fall / Slope:</span>{" "}
-            {plumbingProfile.drainageSlopeRule}
-          </div>
-          <div>
-            <span className="font-medium text-foreground">Purchasing:</span>{" "}
-            {plumbingProfile.standardPipePurchasingLength}
-          </div>
-        </div>
-        <p className="mt-2 text-xs italic text-muted-foreground">
-          {plumbingProfile.notes}
-        </p>
-      </div>
-
-      <div className="mb-6">
-        <CalculatorSchematic
-          kind="plumbing"
-          counts={(Object.keys(NUM_LABELS) as NumField[]).map((key) => ({
-            label: NUM_LABELS[key],
-            value: counts[key] || "0",
-          }))}
-          runs={(Object.keys(RUN_LABELS) as RunField[]).map((key) => ({
-            label: RUN_LABELS[key].replace("(m)", isFeet ? "(ft)" : "(m)"),
-            value: runs[key],
-            entered: runs[key].trim() !== "",
-          }))}
-        />
-      </div>
-
-      {/* Inputs */}
-      <div
-        ref={fieldsRef}
-        className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
-      >
-        <div className="mb-4">
-          <MeasurementTip what="measurement unit and pipe run figures" />
-        </div>
-        <h3 className="mb-2 font-semibold">{t("Fixtures and equipment")}</h3>
-        <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
-            numberInput(NUM_LABELS[k], counts[k], (v) =>
-              setCounts((c) => ({ ...c, [k]: v })),
-            ),
-          )}
-        </div>
-
-        <h3 className="mb-1 font-semibold">
-          {t("Pipe runs (your measurements)")}
-        </h3>
-        <p className="mb-2 text-xs text-muted-foreground">
-          The engine never invents pipe lengths. Give the total run per category
-          from your layout; leave <strong>{t("Hot water")}</strong> blank if
-          there is no hot water system. A blank field the rest of the project
-          needs leaves that line unsized and the estimate marked incomplete:
-          enter 0 only when a category truly doesn't exist.
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(Object.keys(RUN_LABELS) as RunField[]).map((k) => {
-            const label = isFeet
-              ? RUN_LABELS[k].replace("(m)", "(ft)")
-              : RUN_LABELS[k];
-            return numberInput(label, runs[k], (v) =>
-              setRuns((r) => ({ ...r, [k]: v })),
-            );
-          })}
-        </div>
-
-        <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{t("Labour mode")}</span>
-            <select
-              value={labourMode}
-              onChange={(e) =>
-                setLabourMode(e.target.value as typeof labourMode)
-              }
-              className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
+        {plumbingMarket &&
+          marketCode !== "NG" &&
+          plumbingMarket.provenance.length > 0 && (
+            <div
+              className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+              data-testid="plumbing-price-provenance"
             >
-              <option value="none">{t("Not included")}</option>
-              <option value="per_fixture">
-                {t("Per fixture point (rate)")}
-              </option>
-              <option value="lump_sum">{t("Lump sum")}</option>
-            </select>
-          </label>
-          {labourMode !== "none" &&
-            numberInput(
-              labourMode === "per_fixture"
-                ? `Rate per point (${currencySymbol})`
-                : `Lump sum (${currencySymbol})`,
-              labourRate,
-              setLabourRate,
-            )}
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Labour is always separate from material quantities and is never added
-          automatically.
-        </p>
-
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleCalculate(run)}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >
-            {t("Calculate estimate")}
-          </button>
-          {result?.ok && (
-            <>
-              <button
-                onClick={save}
-                disabled={saving || result.lines.length === 0}
-                className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
-              >
-                {saving ? "Saving…" : "Save estimate"}
-              </button>
-              <button
-                onClick={exportQuote}
-                className="rounded-md border px-4 py-2 text-sm font-medium"
-              >
-                {t("Export quote (PDF)")}
-              </button>
-              <CalculatorResetButton onReset={resetInputs} className="mb-4" />
-              <HowCalculatedSection
-                methodologyText={methodologyText("plumbing")}
-              />
-              <QuoteShareButton
-                build={buildQuote}
-                kind="Plumbing Estimate"
-                link="/plumbing"
-              />
-              <SaveToProjectButton
-                calculatorType="plumbing"
-                calculatorSlug="plumbing-estimator"
-                calcTitle="Plumbing estimate"
-                calcData={input as unknown as Record<string, unknown>}
-                resultSummary={{
-                  grand_total: result.grand_total,
-                  material_subtotal: result.material_subtotal,
-                  labour_total: result.labour_total,
-                  incomplete: result.incomplete,
-                }}
-                materials={result.lines
-                  .filter((l) => l.quantity !== null)
-                  .map((l) => ({
-                    name: l.label,
-                    category: "plumbing",
-                    quantity: l.quantity ?? 0,
-                    unit: l.unit,
-                    estimated_price: l.unit_price ?? undefined,
-                  }))}
-              />
-              <NearbySuppliersLink material="plumbing fittings" />
-            </>
-          )}
-        </div>
-        {saveState && (
-          <p
-            className="mt-3 text-sm text-muted-foreground"
-            data-testid="save-state"
-          >
-            {saveState}
-          </p>
-        )}
-      </div>
-
-      <RecommendedProducts category="pipe" />
-
-      <AdSlot slotKey="calculator_mid" className="mt-8" />
-
-      <div className="mb-4">
-        <MissingFieldsNotice fields={missing} />
-      </div>
-
-      {/* Errors */}
-      {result && !result.ok && (
-        <div
-          className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
-          role="alert"
-        >
-          <h3 className="mb-1 font-semibold text-destructive">
-            {t("Fix these inputs first")}
-          </h3>
-          <ul className="list-disc pl-5 text-sm text-destructive">
-            {result.errors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Result */}
-      {result?.ok && (
-        <>
-          {/* Status banner */}
-          <div
-            ref={resultsRef}
-            className={`mb-4 rounded-lg border p-4 text-sm ${
-              result.incomplete
-                ? "border-amber-600/40 bg-amber-600/5"
-                : "border-emerald-600/40 bg-emerald-600/5"
-            }`}
-            data-testid="estimate-status"
-          >
-            {result.incomplete ? (
-              <>
-                <strong className="block">
-                  {t("This estimate is INCOMPLETE.")}
-                </strong>
-                <ul className="mt-1 list-disc pl-5">
-                  {result.missing.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                  {result.lines
-                    .filter((l) => l.unit_price === null && l.quantity !== null)
-                    .map((l) => (
-                      <li key={l.key}>
-                        {l.label}: PRICE NOT CONFIGURED in the material database
-                        : the quantity is shown, but no price was invented.
-                      </li>
-                    ))}
-                </ul>
-              </>
-            ) : (
-              <strong>
-                Complete estimate: every line sized and priced from the shared
-                material database.
-              </strong>
-            )}
-          </div>
-
-          {/* Materials table */}
-          <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
-            <table
-              className="w-full text-sm"
-              aria-label={t("Plumbing material takeoff")}
-            >
-              <thead className="border-b bg-muted/50 text-left">
-                <tr>
-                  <th className="p-3">{t("Material")}</th>
-                  <th className="p-3">{t("Quantity")}</th>
-                  <th className="p-3">{t("Unit")}</th>
-                  <th className="p-3">{t("How it was sized")}</th>
-                  <th className="p-3">{t("Unit price")}</th>
-                  <th className="p-3">{t("Line total")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.lines.map((l) => (
-                  <tr key={l.key} className="border-b last:border-0">
-                    <td className="p-3 font-medium">{l.label}</td>
-                    <td className="p-3" data-testid={`qty-${l.key}`}>
-                      {l.quantity === null
-                        ? "(provide run length)"
-                        : fmtN(l.quantity)}
-                    </td>
-                    <td className="p-3 text-muted-foreground">{l.unit}</td>
-                    <td className="max-w-xs p-3 text-xs text-muted-foreground">
-                      {l.detail}
-                    </td>
-                    <td className="p-3">
-                      {l.unit_price === null ? (
-                        <span className="font-medium text-amber-700 dark:text-amber-400">
-                          {t("PRICE NOT CONFIGURED")}
-                        </span>
-                      ) : (
-                        formatCurrency(l.unit_price, currencySymbol)
-                      )}
-                    </td>
-                    <td className="p-3 font-medium">
-                      {l.line_total === null
-                        ? "N/A"
-                        : formatCurrency(l.line_total, currencySymbol)}
-                    </td>
-                  </tr>
+              <p className="font-semibold">
+                Market plumbing prices ({marketCode} book)
+              </p>
+              <ul className="mt-2 space-y-1 text-muted-foreground">
+                {plumbingMarket.provenance.map((p) => (
+                  <li key={p.engineKey}>
+                    ✓ {p.engineKey}: {p.materialName} - {p.explanation}
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
+                {plumbingMarket.unresolved.length > 0 && (
+                  <li>
+                    ✗ {plumbingMarket.unresolved.join(", ")}: no verified price
+                    in the {marketCode} book - reported unpriced, never silent
+                    substitution.
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
 
-          {/* Breakdown */}
-          <div className="mb-6 rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">{t("Calculation breakdown")}</h3>
-            <ol className="space-y-2 text-sm">
-              {result.steps.map((s, i) => (
-                <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
-                  <span className="font-medium">{s.label}:</span>{" "}
-                  <span className="text-muted-foreground">{s.detail}</span>
-                </li>
-              ))}
-            </ol>
+        {/* Regional Plumbing System Profile */}
+        <div
+          className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
+          data-testid="regional-plumbing-profile"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-semibold text-foreground">
+              Regional System Profile: {plumbingProfile.name}
+            </p>
+            <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+              {plumbingProfile.standardsRef}
+            </span>
           </div>
-
-          {/* Cost summary */}
-          <div className="mb-6 grid gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Material subtotal")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.material_subtotal === null
-                  ? "(prices/inputs missing)"
-                  : formatCurrency(result.material_subtotal, currencySymbol)}
-              </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-xs text-muted-foreground">
+            <div>
+              <span className="font-medium text-foreground">Water Supply:</span>{" "}
+              {plumbingProfile.waterSupplyMaterial}
             </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Of which priced so far")}
-              </p>
-              <p className="text-xl font-semibold">
-                {formatCurrency(result.priced_subtotal, currencySymbol)}
-              </p>
+            <div>
+              <span className="font-medium text-foreground">Drainage DWV:</span>{" "}
+              {plumbingProfile.drainageDwvMaterial}
             </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm text-muted-foreground">{t("Labour")}</p>
-              <p className="text-xl font-semibold">
-                {labourMode === "none"
-                  ? "Not included"
-                  : formatCurrency(result.labour_total, currencySymbol)}
-              </p>
+            <div>
+              <span className="font-medium text-foreground">Fall / Slope:</span>{" "}
+              {plumbingProfile.drainageSlopeRule}
             </div>
-            <div className="rounded-lg border bg-primary/10 p-4">
-              <p className="text-sm text-muted-foreground">
-                {t("Grand total")}
-              </p>
-              <p className="text-xl font-semibold">
-                {result.grand_total === null
-                  ? "N/A"
-                  : formatCurrency(result.grand_total, currencySymbol)}
-              </p>
+            <div>
+              <span className="font-medium text-foreground">Purchasing:</span>{" "}
+              {plumbingProfile.standardPipePurchasingLength}
             </div>
           </div>
+          <p className="mt-2 text-xs italic text-muted-foreground">
+            {plumbingProfile.notes}
+          </p>
+        </div>
 
-          {/* Warnings */}
-          <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
-            <h3 className="mb-1 font-semibold">{t("Important")}</h3>
-            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              {result.warnings.map((w) => (
-                <li key={w}>{w}</li>
+        <div className="mb-6">
+          <CalculatorSchematic
+            kind="plumbing"
+            counts={(Object.keys(NUM_LABELS) as NumField[]).map((key) => ({
+              label: NUM_LABELS[key],
+              value: counts[key] || "0",
+            }))}
+            runs={(Object.keys(RUN_LABELS) as RunField[]).map((key) => ({
+              label: RUN_LABELS[key].replace("(m)", isFeet ? "(ft)" : "(m)"),
+              value: runs[key],
+              entered: runs[key].trim() !== "",
+            }))}
+          />
+        </div>
+
+        {/* Inputs */}
+        <div
+          ref={fieldsRef}
+          className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
+        >
+          <div className="mb-4">
+            <MeasurementTip what="measurement unit and pipe run figures" />
+          </div>
+          <h3 className="mb-2 font-semibold">{t("Fixtures and equipment")}</h3>
+          <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
+              numberInput(NUM_LABELS[k], counts[k], (v) =>
+                setCounts((c) => ({ ...c, [k]: v })),
+              ),
+            )}
+          </div>
+
+          <h3 className="mb-1 font-semibold">
+            {t("Pipe runs (your measurements)")}
+          </h3>
+          <p className="mb-2 text-xs text-muted-foreground">
+            The engine never invents pipe lengths. Give the total run per
+            category from your layout; leave <strong>{t("Hot water")}</strong>{" "}
+            blank if there is no hot water system. A blank field the rest of the
+            project needs leaves that line unsized and the estimate marked
+            incomplete: enter 0 only when a category truly doesn't exist.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {(Object.keys(RUN_LABELS) as RunField[]).map((k) => {
+              const label = isFeet
+                ? RUN_LABELS[k].replace("(m)", "(ft)")
+                : RUN_LABELS[k];
+              return numberInput(label, runs[k], (v) =>
+                setRuns((r) => ({ ...r, [k]: v })),
+              );
+            })}
+          </div>
+
+          <h3 className="mt-5 mb-2 font-semibold">{t("Labour")}</h3>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="text-sm">
+              <span className="mb-1 block font-medium">{t("Labour mode")}</span>
+              <select
+                value={labourMode}
+                onChange={(e) =>
+                  setLabourMode(e.target.value as typeof labourMode)
+                }
+                className="w-full rounded-md border border-input bg-background px-3 py-2 sm:w-56"
+              >
+                <option value="none">{t("Not included")}</option>
+                <option value="per_fixture">
+                  {t("Per fixture point (rate)")}
+                </option>
+                <option value="lump_sum">{t("Lump sum")}</option>
+              </select>
+            </label>
+            {labourMode !== "none" &&
+              numberInput(
+                labourMode === "per_fixture"
+                  ? `Rate per point (${currencySymbol})`
+                  : `Lump sum (${currencySymbol})`,
+                labourRate,
+                setLabourRate,
+              )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Labour is always separate from material quantities and is never
+            added automatically.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleCalculate(run)}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            >
+              {t("Calculate estimate")}
+            </button>
+            {result?.ok && (
+              <>
+                <button
+                  onClick={save}
+                  disabled={saving || result.lines.length === 0}
+                  className="rounded-md border px-4 py-2 text-sm font-medium disabled:opacity-50"
+                >
+                  {saving ? "Saving…" : "Save estimate"}
+                </button>
+                <button
+                  onClick={exportQuote}
+                  className="rounded-md border px-4 py-2 text-sm font-medium"
+                >
+                  {t("Export quote (PDF)")}
+                </button>
+                <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                <HowCalculatedSection
+                  methodologyText={methodologyText("plumbing")}
+                />
+                <QuoteShareButton
+                  build={buildQuote}
+                  kind="Plumbing Estimate"
+                  link="/plumbing"
+                />
+                <SaveToProjectButton
+                  calculatorType="plumbing"
+                  calculatorSlug="plumbing-estimator"
+                  calcTitle="Plumbing estimate"
+                  calcData={input as unknown as Record<string, unknown>}
+                  resultSummary={{
+                    grand_total: result.grand_total,
+                    material_subtotal: result.material_subtotal,
+                    labour_total: result.labour_total,
+                    incomplete: result.incomplete,
+                  }}
+                  materials={result.lines
+                    .filter((l) => l.quantity !== null)
+                    .map((l) => ({
+                      name: l.label,
+                      category: "plumbing",
+                      quantity: l.quantity ?? 0,
+                      unit: l.unit,
+                      estimated_price: l.unit_price ?? undefined,
+                    }))}
+                />
+                <NearbySuppliersLink material="plumbing fittings" />
+              </>
+            )}
+          </div>
+          {saveState && (
+            <p
+              className="mt-3 text-sm text-muted-foreground"
+              data-testid="save-state"
+            >
+              {saveState}
+            </p>
+          )}
+        </div>
+
+        <RecommendedProducts category="pipe" />
+
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
+
+        <div className="mb-4">
+          <MissingFieldsNotice fields={missing} />
+        </div>
+
+        {/* Errors */}
+        {result && !result.ok && (
+          <div
+            className="mb-8 rounded-lg border border-destructive/40 bg-destructive/5 p-4"
+            role="alert"
+          >
+            <h3 className="mb-1 font-semibold text-destructive">
+              {t("Fix these inputs first")}
+            </h3>
+            <ul className="list-disc pl-5 text-sm text-destructive">
+              {result.errors.map((e) => (
+                <li key={e}>{e}</li>
               ))}
             </ul>
           </div>
-        </>
-      )}
+        )}
 
-      <PipeSizingPanel />
+        {/* Result */}
+        {result?.ok && (
+          <>
+            {/* Status banner */}
+            <div
+              ref={resultsRef}
+              className={`mb-4 rounded-lg border p-4 text-sm ${
+                result.incomplete
+                  ? "border-amber-600/40 bg-amber-600/5"
+                  : "border-emerald-600/40 bg-emerald-600/5"
+              }`}
+              data-testid="estimate-status"
+            >
+              {result.incomplete ? (
+                <>
+                  <strong className="block">
+                    {t("This estimate is INCOMPLETE.")}
+                  </strong>
+                  <ul className="mt-1 list-disc pl-5">
+                    {result.missing.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                    {result.lines
+                      .filter(
+                        (l) => l.unit_price === null && l.quantity !== null,
+                      )
+                      .map((l) => (
+                        <li key={l.key}>
+                          {l.label}: PRICE NOT CONFIGURED in the material
+                          database : the quantity is shown, but no price was
+                          invented.
+                        </li>
+                      ))}
+                  </ul>
+                </>
+              ) : (
+                <strong>
+                  Complete estimate: every line sized and priced from the shared
+                  material database.
+                </strong>
+              )}
+            </div>
 
-      <AdSlot slotKey="calculator_native" className="mt-8" />
+            {/* Materials table */}
+            <div className="mb-6 overflow-x-auto rounded-lg border bg-card">
+              <table
+                className="w-full text-sm"
+                aria-label={t("Plumbing material takeoff")}
+              >
+                <thead className="border-b bg-muted/50 text-left">
+                  <tr>
+                    <th className="p-3">{t("Material")}</th>
+                    <th className="p-3">{t("Quantity")}</th>
+                    <th className="p-3">{t("Unit")}</th>
+                    <th className="p-3">{t("How it was sized")}</th>
+                    <th className="p-3">{t("Unit price")}</th>
+                    <th className="p-3">{t("Line total")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.lines.map((l) => (
+                    <tr key={l.key} className="border-b last:border-0">
+                      <td className="p-3 font-medium">{l.label}</td>
+                      <td className="p-3" data-testid={`qty-${l.key}`}>
+                        {l.quantity === null
+                          ? "(provide run length)"
+                          : fmtN(l.quantity)}
+                      </td>
+                      <td className="p-3 text-muted-foreground">{l.unit}</td>
+                      <td className="max-w-xs p-3 text-xs text-muted-foreground">
+                        {l.detail}
+                      </td>
+                      <td className="p-3">
+                        {l.unit_price === null ? (
+                          <span className="font-medium text-amber-700 dark:text-amber-400">
+                            {t("PRICE NOT CONFIGURED")}
+                          </span>
+                        ) : (
+                          formatCurrency(l.unit_price, currencySymbol)
+                        )}
+                      </td>
+                      <td className="p-3 font-medium">
+                        {l.line_total === null
+                          ? "N/A"
+                          : formatCurrency(l.line_total, currencySymbol)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      {/* How it works */}
-      <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-        <h2 className="mb-2 font-semibold">{t("How this estimator works")}</h2>
-        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-          <li>
-            Pipe quantities come from your measured total runs, one category at
-            a time (cold, hot, waste, drainage), with the waste allowance shown
-            in the breakdown. Nothing is assumed about hidden pipe lengths.
-          </li>
-          <li>
-            Fittings (elbows, tees, reducers, unions, valves) follow FRELUX's
-            visible planning allowances per fixture connection: a labelled
-            estimate, not a measurement.
-          </li>
-          <li>
-            Prices come from the shared FRELUX material database, configured by
-            FRELUX price tracking. Unpriced materials show PRICE NOT CONFIGURED,
-            never invented.
-          </li>
-          <li>
-            This is material ESTIMATION, not professional plumbing design. Pipe
-            diameters, slopes and drainage design need a qualified plumber or
-            engineer.
-          </li>
-        </ul>
-      </section>
-    </Container>
+            {/* Breakdown */}
+            <div className="mb-6 rounded-lg border bg-card p-4">
+              <h3 className="mb-2 font-semibold">
+                {t("Calculation breakdown")}
+              </h3>
+              <ol className="space-y-2 text-sm">
+                {result.steps.map((s, i) => (
+                  <li key={i} className="border-b pb-2 last:border-0 last:pb-0">
+                    <span className="font-medium">{s.label}:</span>{" "}
+                    <span className="text-muted-foreground">{s.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Cost summary */}
+            <div className="mb-6 grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Material subtotal")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.material_subtotal === null
+                    ? "(prices/inputs missing)"
+                    : formatCurrency(result.material_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">
+                  {t("Of which priced so far")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {formatCurrency(result.priced_subtotal, currencySymbol)}
+                </p>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <p className="text-sm text-muted-foreground">{t("Labour")}</p>
+                <p className="text-xl font-semibold">
+                  {labourMode === "none"
+                    ? "Not included"
+                    : formatCurrency(result.labour_total, currencySymbol)}
+                </p>
+              </div>
+              {transportation.choice.enabled && (
+                <div className="rounded-lg border bg-card p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t("Transportation")}
+                  </p>
+                  <p className="text-xl font-semibold">
+                    {transportation.choice.amount > 0
+                      ? formatCurrency(
+                          transportation.choice.amount,
+                          currencySymbol,
+                        )
+                      : t("To be agreed")}
+                  </p>
+                </div>
+              )}
+              <div className="rounded-lg border bg-primary/10 p-4">
+                <p className="text-sm text-muted-foreground">
+                  {transportation.choice.enabled
+                    ? t("Grand total (incl. transportation)")
+                    : t("Grand total")}
+                </p>
+                <p className="text-xl font-semibold">
+                  {result.grand_total === null
+                    ? "N/A"
+                    : formatCurrency(
+                        totalWithTransportation(
+                          result.grand_total,
+                          transportation.choice,
+                        ),
+                        currencySymbol,
+                      )}
+                </p>
+              </div>
+            </div>
+
+            <TransportationField
+              controls={transportation}
+              currencySymbol={currencySymbol}
+              className="mb-6"
+            />
+
+            {/* Warnings */}
+            <div className="mb-8 rounded-lg border border-amber-600/40 bg-amber-600/5 p-4 text-sm">
+              <h3 className="mb-1 font-semibold">{t("Important")}</h3>
+              <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+                {result.warnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <PipeSizingPanel />
+
+        <AdSlot slotKey="calculator_native" className="mt-8" />
+
+        {/* How it works */}
+        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold">
+            {t("How this estimator works")}
+          </h2>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li>
+              Pipe quantities come from your measured total runs, one category
+              at a time (cold, hot, waste, drainage), with the waste allowance
+              shown in the breakdown. Nothing is assumed about hidden pipe
+              lengths.
+            </li>
+            <li>
+              Fittings (elbows, tees, reducers, unions, valves) follow FRELUX's
+              visible planning allowances per fixture connection: a labelled
+              estimate, not a measurement.
+            </li>
+            <li>
+              Prices come from the shared FRELUX material database, configured
+              by FRELUX price tracking. Unpriced materials show PRICE NOT
+              CONFIGURED, never invented.
+            </li>
+            <li>
+              This is material ESTIMATION, not professional plumbing design.
+              Pipe diameters, slopes and drainage design need a qualified
+              plumber or engineer.
+            </li>
+          </ul>
+        </section>
+      </Container>
     </ToolShell>
   );
 }

@@ -44,6 +44,13 @@ import type {
 } from "@/types/premium-estimation";
 import { calculateBuildToRoof } from "@/lib/estimation/build-to-roof-engine";
 import { printQuote } from "@/lib/estimation/quote-export";
+import {
+  totalWithTransportation,
+  transportationRow,
+} from "@/lib/estimation/transportation";
+import { useTransportation } from "@/hooks/useTransportation";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import TransportationField from "@/components/calculators/TransportationField";
 import type {
   BuildToRoofInput,
   BuildToRoofResult,
@@ -1188,6 +1195,8 @@ export function EstimateResultView({
   // not necessarily the visitor's: print, share and the screen all read the
   // floor area back in the unit their market works in.
   const { preferredAreaUnit } = useMarket();
+  const transportation = useTransportation("ai-photo-estimate");
+  const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const areaLabel = (sqm: number | null | undefined) =>
     formatArea(Number(sqm ?? 0), { unit: preferredAreaUnit, digits: 0 });
 
@@ -1226,9 +1235,24 @@ export function EstimateResultView({
           value: formatCurrency(estimate.labour_total),
         },
         { label: "Contingency", value: formatCurrency(estimate.contingency) },
+        ...(transportationRow(transportation.choice, (v) => formatCurrency(v))
+          ? [
+              {
+                label: "Transportation",
+                value: transportationRow(transportation.choice, (v) =>
+                  formatCurrency(v),
+                )!.value,
+              },
+            ]
+          : []),
         {
           label: "Estimated Grand Total",
-          value: formatCurrency(estimate.grand_total),
+          value: formatCurrency(
+            totalWithTransportation(
+              estimate.grand_total,
+              transportation.choice,
+            ),
+          ),
           strong: true,
         },
       ],
@@ -1379,8 +1403,21 @@ export function EstimateResultView({
             Estimated Build-to-Roof Cost
           </p>
           <p className="text-2xl font-bold">
-            {formatCurrency(estimate.grand_total)}
+            {formatCurrency(
+              totalWithTransportation(
+                estimate.grand_total,
+                transportation.choice,
+              ),
+            )}
           </p>
+          {transportation.choice.enabled && (
+            <p className="mt-1 text-xs text-primary-foreground/60">
+              incl. transportation{" "}
+              {transportation.choice.amount > 0
+                ? formatCurrency(transportation.choice.amount)
+                : "(to be agreed)"}
+            </p>
+          )}
         </div>
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <p className="text-xs text-muted-foreground mb-1">Materials</p>
@@ -1401,6 +1438,12 @@ export function EstimateResultView({
           </p>
         </div>
       </div>
+
+      <TransportationField
+        controls={transportation}
+        currencySymbol={displayCurrencySymbol}
+        className="mt-4"
+      />
 
       {/* Cost breakdown */}
       <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
