@@ -1,3 +1,4 @@
+import { formatByCode } from "@/lib/international/currency-format";
 import { useState, useEffect, useCallback, useId } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -34,11 +35,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 
 const fmt = (v: number, currency = "NGN") =>
-  new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(v || 0);
+  formatByCode(v || 0, currency, { decimals: 0 });
 
 export default function ClientEstimateEditor() {
   const { t } = useLanguage();

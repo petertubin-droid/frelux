@@ -33,7 +33,7 @@ export function OfflineIndicator() {
   if (!offline && !fallbackAt) return null;
 
   const cachedDate = fallbackAt
-    ? new Date(fallbackAt).toLocaleString("en-NG", {
+    ? new Date(fallbackAt).toLocaleString(undefined, {
         dateStyle: "medium",
         timeStyle: "short",
       })

@@ -1,3 +1,4 @@
+import { formatByCode } from "@/lib/international/currency-format";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
@@ -153,11 +154,7 @@ export default function ProjectDetail() {
   // Estimates carry their own stored currency, always display in it,
   // never the project's (a saved estimate is a historical document).
   const formatEstimateAmount = (v: number, currency: string) =>
-    new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(v || 0);
+    formatByCode(v || 0, currency, { decimals: 0 });
 
   const loadData = useCallback(async () => {
     if (!id) return;

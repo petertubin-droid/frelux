@@ -66,7 +66,7 @@ const FOUNDATION_TYPES: { key: FoundationType; label: string }[] = [
   { key: "ground_improvement", label: "Ground improvement" },
 ];
 
-const naira = new Intl.NumberFormat("en-NG", {
+const naira = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "NGN",
   maximumFractionDigits: 0,

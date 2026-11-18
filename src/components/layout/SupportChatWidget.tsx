@@ -146,7 +146,7 @@ export default function SupportChatWidget() {
   );
 
   function formatTime(ts: number) {
-    return new Date(ts).toLocaleTimeString("en-NG", {
+    return new Date(ts).toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",
     });

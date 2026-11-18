@@ -162,7 +162,7 @@ export function planSandPurchase(
 }
 
 function formatNumber(value: number, dp: number): string {
-  return value.toLocaleString("en-NG", {
+  return value.toLocaleString("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: dp,
   });

@@ -41,7 +41,7 @@ import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "N/A";
-  return new Date(iso).toLocaleDateString("en-NG", {
+  return new Date(iso).toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",

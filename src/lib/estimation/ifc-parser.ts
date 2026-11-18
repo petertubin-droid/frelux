@@ -542,7 +542,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       has_quantities: false,
       unparsed_lines: unparsed,
       warnings: [
-        `The file contains ${entities.size.toLocaleString()} entities, above the configured cap of ${maxEntities.toLocaleString()} (configured limit max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
+        `The file contains ${entities.size.toLocaleString("en-US")} entities, above the configured cap of ${maxEntities.toLocaleString("en-US")} (configured limit max_entities_per_file). It is refused with an honest error instead of freezing your browser.`,
       ],
       steps,
       schema_coverage: buildIfcSchemaCoverage(entities, fileText),

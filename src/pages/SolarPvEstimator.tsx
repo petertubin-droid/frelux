@@ -212,7 +212,7 @@ export default function SolarPvEstimator() {
   const buildQuote = (): Parameters<typeof printQuote>[0] | null => {
     if (!result?.ok) return null;
     const model = models.find((m) => m.id === modelId);
-    const fmtQty = (q: number) => q.toLocaleString("en-NG");
+    const fmtQty = (q: number) => q.toLocaleString("en-US");
     const lines: QuoteLine[] = result.materials.map((m) => ({
       label: m.label,
       quantity: fmtQty(m.quantity),
@@ -551,7 +551,7 @@ export default function SolarPvEstimator() {
                         >
                           <td className="py-2">{m.label}</td>
                           <td className="py-2 text-right font-mono text-xs">
-                            {m.quantity.toLocaleString("en-NG")} {m.unit}
+                            {m.quantity.toLocaleString("en-US")} {m.unit}
                           </td>
                           <td className="py-2 text-right font-mono text-xs">
                             {m.unit_price_naira === null

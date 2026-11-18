@@ -29,11 +29,18 @@ const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
   $: "en-US",
   "\u00A3": "en-GB", // Pound
   "\u20AC": "en-IE", // Euro
+  "GH\u00A2": "en-GH",
+  "KSh": "en-KE",
+  "R": "en-ZA",
+  "C$": "en-CA",
+  "A$": "en-AU",
+  "\u20B9": "en-IN",
+  "\u00A5": "ja-JP",
 };
 
 /** Number-format locale matching the display currency. */
 function pdfLocale(currencySymbol: string): string {
-  return PDF_LOCALE_BY_SYMBOL[currencySymbol] ?? "en-NG";
+  return PDF_LOCALE_BY_SYMBOL[currencySymbol] ?? "en-US";
 }
 
 // ============================================================

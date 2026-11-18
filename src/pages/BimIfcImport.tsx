@@ -272,7 +272,7 @@ export default function BimIfcImport() {
                     {fileName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {result.entity_count.toLocaleString("en-NG")} STEP entities
+                    {result.entity_count.toLocaleString("en-US")} STEP entities
                     parsed
                   </p>
                 </div>
@@ -283,7 +283,7 @@ export default function BimIfcImport() {
                   <p className="mt-1 text-lg font-semibold">
                     {result.elements
                       .reduce((n, e) => n + e.count, 0)
-                      .toLocaleString("en-NG")}
+                      .toLocaleString("en-US")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     across {result.elements.length} IFC type(s)
@@ -439,7 +439,7 @@ export default function BimIfcImport() {
                                         {qName}:
                                       </span>{" "}
                                       <span className="font-mono">
-                                        {q.total.toLocaleString("en-NG")}{" "}
+                                        {q.total.toLocaleString("en-US")}{" "}
                                         {q.unit}
                                       </span>{" "}
                                       <span className="text-muted-foreground">
@@ -588,7 +588,7 @@ function Bim5dSection({
                   : selectedElement.quantities
                       .map(
                         (q) =>
-                          `${q.name}: ${q.value.toLocaleString("en-NG")} ${q.kind}`,
+                          `${q.name}: ${q.value.toLocaleString("en-US")} ${q.kind}`,
                       )
                       .join(" · ")}
               </p>
@@ -625,7 +625,7 @@ function Bim5dSection({
                         {category}
                       </td>
                       <td className="py-1.5 text-right font-mono">
-                        {total.toLocaleString("en-NG")}
+                        {total.toLocaleString("en-US")}
                       </td>
                       <td className="py-1.5 text-right text-muted-foreground">
                         {lines.length} line{lines.length === 1 ? "" : "s"}
@@ -690,7 +690,7 @@ function BimBoqLineRow({
     >
       <td className="py-1.5 pl-4">{line.label}</td>
       <td className="py-1.5 text-right font-mono">
-        {line.quantity.toLocaleString("en-NG")} {line.unit}
+        {line.quantity.toLocaleString("en-US")} {line.unit}
       </td>
       <td className="py-1.5 text-right text-muted-foreground">
         {line.provenance === "declared" ? "declared" : "indicative"}

@@ -1056,7 +1056,7 @@ function TransactionHistory({
                 {tx.reason}
               </p>
               <p className="text-xs text-muted-foreground">
-                {new Date(tx.created_at).toLocaleDateString("en-NG", {
+                {new Date(tx.created_at).toLocaleDateString(undefined, {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

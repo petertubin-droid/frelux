@@ -1,3 +1,4 @@
+import { getMarketTaxRate } from "@/lib/international/market-tax";
 import { useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, FileText, X } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
@@ -112,12 +113,31 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
 
   const step = STEPS[stepIndex];
 
+  const defaultTax = useMemo(() => {
+    const currUpper = String(props.currency || "").toUpperCase();
+    const currToMarket: Record<string, string> = {
+      NGN: "NG",
+      GBP: "GB",
+      USD: "US",
+      EUR: "DE",
+      CAD: "CA",
+      AUD: "AU",
+      INR: "IN",
+      JPY: "JP",
+      ZAR: "ZA",
+      GHS: "GH",
+      KES: "KE",
+    };
+    const mCode = currToMarket[currUpper] || "NG";
+    return getMarketTaxRate(mCode);
+  }, [props.currency]);
+
   const taxRate = useMemo(() => {
     if (taxChoice === "none") return 0;
-    if (taxChoice === "vat") return 7.5;
+    if (taxChoice === "vat") return defaultTax.ratePercent;
     const parsed = Number(customRate);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-  }, [taxChoice, customRate]);
+  }, [taxChoice, customRate, defaultTax.ratePercent]);
 
   const { subtotal, taxAmount, total } = invoiceTotals(
     Number(amount) || 0,
@@ -401,7 +421,7 @@ export function InvoiceWizard(props: InvoiceWizardProps) {
                   className="h-4 w-4 accent-violet-600"
                 />
                 <span className="text-sm text-foreground">
-                  {tr("VAT at 7.5%")}
+                  {tr(`${defaultTax.name} at ${defaultTax.ratePercent}%`)}
                 </span>
               </label>
               <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-input bg-background px-3 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary/40">
