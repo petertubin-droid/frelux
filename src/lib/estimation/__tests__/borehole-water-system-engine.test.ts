@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calculateBoreholeWaterSystem,
   calculateHazenWilliamsFrictionHead,
+  trenchDepthForMarket,
   BoreholeSystemInputs,
 } from "../borehole-water-system-engine";
 
@@ -33,9 +34,15 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
     expect(result.well.strataProfile.length).toBe(4);
 
     // Verify hydraulics
-    expect(result.pumping.dynamicWaterLevelMeters).toBeGreaterThan(defaultInputs.staticWaterLevelMeters);
-    expect(result.pumping.pumpSettingDepthMeters).toBeGreaterThan(result.pumping.dynamicWaterLevelMeters);
-    expect(result.pumping.totalDynamicHeadMeters).toBeGreaterThan(result.pumping.pumpSettingDepthMeters);
+    expect(result.pumping.dynamicWaterLevelMeters).toBeGreaterThan(
+      defaultInputs.staticWaterLevelMeters,
+    );
+    expect(result.pumping.pumpSettingDepthMeters).toBeGreaterThan(
+      result.pumping.dynamicWaterLevelMeters,
+    );
+    expect(result.pumping.totalDynamicHeadMeters).toBeGreaterThan(
+      result.pumping.pumpSettingDepthMeters,
+    );
     expect(result.pumping.recommendedMotorHp).toBeGreaterThanOrEqual(0.75);
     expect(result.pumping.checkValves.length).toBeGreaterThanOrEqual(1);
     expect(result.pumping.submersibleCableMm2).toBeGreaterThanOrEqual(1.5);
@@ -43,13 +50,25 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
 
     // Verify storage & peak rush buffer
     expect(result.storage.dailyTotalDemandLiters).toBe(6 * 150); // 900 L/d
-    expect(result.storage.peakRushDemandLitersPerHour).toBeGreaterThan(result.storage.dailyTotalDemandLiters / 24);
-    expect(result.storage.commercialTankSizeLiters).toBeGreaterThanOrEqual(1000);
-    expect(result.storage.overflowPipeDiameterMm).toBeGreaterThan(result.pumping.riserPipeDiameterMm);
+    expect(result.storage.peakRushDemandLitersPerHour).toBeGreaterThan(
+      result.storage.dailyTotalDemandLiters / 24,
+    );
+    expect(result.storage.commercialTankSizeLiters).toBeGreaterThanOrEqual(
+      1000,
+    );
+    expect(result.storage.overflowPipeDiameterMm).toBeGreaterThan(
+      result.pumping.riserPipeDiameterMm,
+    );
 
     // Verify hydrostatic gravity pressure
-    expect(result.distribution.groundHydrostaticPressureBar).toBeCloseTo(0.59, 1);
-    expect(result.distribution.groundHydrostaticPressurePsi).toBeCloseTo(8.6, 1);
+    expect(result.distribution.groundHydrostaticPressureBar).toBeCloseTo(
+      0.59,
+      1,
+    );
+    expect(result.distribution.groundHydrostaticPressurePsi).toBeCloseTo(
+      8.6,
+      1,
+    );
 
     // Verify installation steps
     expect(result.installationSteps.length).toBe(7);
@@ -63,7 +82,9 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
 
     // Verify BOQ completeness
     expect(result.billOfQuantities.length).toBeGreaterThan(15);
-    const categories = new Set(result.billOfQuantities.map((item) => item.category));
+    const categories = new Set(
+      result.billOfQuantities.map((item) => item.category),
+    );
     expect(categories.size).toBe(6);
   });
 
@@ -110,7 +131,9 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
 
     const res = calculateBoreholeWaterSystem(hardWaterInputs);
     expect(res.treatment.hardnessAlert).toBe(true);
-    const softenerStage = res.treatment.stages.find((s) => s.id === "stage-2-softener");
+    const softenerStage = res.treatment.stages.find(
+      (s) => s.id === "stage-2-softener",
+    );
     expect(softenerStage).toBeDefined();
     expect(softenerStage?.recommended).toBe(true);
   });
@@ -125,7 +148,9 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
 
     const res = calculateBoreholeWaterSystem(deepInputs);
     expect(res.pumping.checkValves.length).toBeGreaterThanOrEqual(2);
-    expect(res.pumping.checkValves[1].locationMetersFromPump).toBeGreaterThan(0);
+    expect(res.pumping.checkValves[1].locationMetersFromPump).toBeGreaterThan(
+      0,
+    );
   });
 
   it("validates input boundary ranges and throws clear errors", () => {
@@ -164,5 +189,32 @@ describe("Borehole & Autonomous Water Supply System Engine", () => {
     expect(res.pumping.totalDynamicHeadFeet).toBeGreaterThan(100);
     expect(res.pumping.designFlowRateGpm).toBeGreaterThan(10);
     expect(res.storage.commercialTankSizeUsGal).toBeGreaterThan(250);
+  });
+
+  it("buries the delivery trench to the market's cover depth, not one default", () => {
+    // Globalization: only the US and UK used to get a frost-safe depth; every
+    // other market, including Canada and Sweden, got the tropical 0.6 m.
+    expect(trenchDepthForMarket("NG")).toBe(0.6);
+    expect(trenchDepthForMarket("CA")).toBe(1.2);
+    expect(trenchDepthForMarket("SE")).toBe(1.2);
+    expect(trenchDepthForMarket("DE")).toBe(1.0);
+    expect(trenchDepthForMarket("AU")).toBe(0.6);
+    // Unknown markets fall back to the documented tropical cover.
+    expect(trenchDepthForMarket("ZZ")).toBe(0.6);
+    expect(trenchDepthForMarket(null)).toBe(0.6);
+
+    const canada = calculateBoreholeWaterSystem({
+      ...defaultInputs,
+      marketCode: "CA",
+    });
+    const nigeria = calculateBoreholeWaterSystem(defaultInputs);
+    const canadaTrench = canada.installationSteps.find(
+      (line) => line.id === "buried-trench-reticulation",
+    );
+    const nigeriaTrench = nigeria.installationSteps.find(
+      (line) => line.id === "buried-trench-reticulation",
+    );
+    expect(canadaTrench?.detail).toContain("1.2 m deep");
+    expect(nigeriaTrench?.detail).toContain("0.6 m deep");
   });
 });

@@ -169,6 +169,8 @@ export interface CaseStudyInput {
   materials_used?: string[];
   project_duration?: string | null;
   budget?: number | null;
+  /** ISO code the budget is quoted in. Never defaulted to a region here. */
+  currency?: string | null;
   is_published?: boolean;
 }
 
@@ -187,6 +189,10 @@ export async function upsertCaseStudy(
     materials_used: input.materials_used ?? [],
     project_duration: input.project_duration ?? null,
     budget: input.budget ?? null,
+    // Only written when the caller states it: the column default is the
+    // base currency, and a case study from another market must not be
+    // relabelled as base money.
+    ...(input.currency ? { currency: input.currency.toUpperCase() } : {}),
     is_published: input.is_published ?? false,
     updated_at: new Date().toISOString(),
   };

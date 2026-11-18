@@ -13,6 +13,8 @@ import {
 } from "@/lib/brand-studio";
 import type { DbBrandProfile } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
+import { dialCodePlaceholder } from "@/lib/phone/msisdn";
 
 interface Props {
   userId: string;
@@ -29,6 +31,9 @@ export function BrandIdentitySection({
   selectedProfileId,
   onProfileSaved,
 }: Props) {
+  const { market } = useMarket();
+  // The example number follows the visitor's market instead of assuming +234.
+  const phonePlaceholder = dialCodePlaceholder(market?.marketCode);
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
   const [description, setDescription] = useState("");
@@ -244,7 +249,7 @@ export function BrandIdentitySection({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 555 123 4567"
+                placeholder={phonePlaceholder}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
@@ -260,7 +265,7 @@ export function BrandIdentitySection({
                 type="tel"
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                placeholder="+1 555 123 4567"
+                placeholder={phonePlaceholder}
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>

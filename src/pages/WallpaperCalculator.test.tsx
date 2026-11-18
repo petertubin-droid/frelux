@@ -61,7 +61,9 @@ describe("WallpaperCalculator page", () => {
         name: /Wall 1, 3.60 m wide by 3.00 m high, shown as 7 vertical wallpaper drops/,
       }),
     ).toBeTruthy();
-    expect(screen.getByText("51,000", { exact: false })).toBeTruthy();
+    // Globalization: no market is pre-filled with an invented price, so the
+    // cost card asks for the local price instead of printing a made-up total.
+    expect(screen.getAllByText("Not priced").length).toBeGreaterThan(0);
     expect(screen.getByTestId("tool-faqs").getAttribute("data-slug")).toBe(
       "wallpaper-calculator",
     );

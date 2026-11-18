@@ -21,11 +21,21 @@ describe("market consistency report", () => {
     });
   });
 
+  it("resolves a native masonry unit for every supported market", () => {
+    // Japan used to borrow the Nigerian block; it now has its own profile, so
+    // the report must not claim a substitution that no longer happens.
+    const [jp] = marketConsistencyRows(["JP"]);
+    expect(jp.masonrySubstitutedFrom).toBeNull();
+    expect(jp.masonryUnit).toBe("Concrete block (CB) 120");
+    // The timber gap is real and still reported.
+    expect(jp.gaps.join(" ")).toMatch(/No timber section table/);
+  });
+
   it("names the market a substituted unit came from", () => {
-    const [row] = marketConsistencyRows(["JP"]);
+    // A market outside the supported list still borrows, and that is flagged.
+    const [row] = marketConsistencyRows(["ZZ"]);
     expect(row.masonrySubstitutedFrom).toBe("NG");
     expect(row.gaps.join(" ")).toMatch(/falls back to NG/);
-    expect(row.gaps.join(" ")).toMatch(/No timber section table/);
   });
 
   it("flags every missing piece for an unregistered market", () => {

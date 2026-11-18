@@ -179,7 +179,7 @@ function ProductsTab() {
                   </p>
                   <div className="mt-1 flex items-center justify-between text-xs">
                     <span className="font-semibold text-brand-purple">
-                      {formatCurrency(Number(item.price), "₦")}
+                      {formatCurrency(Number(item.price), item.currency)}
                     </span>
                     <div className="flex items-center gap-1 text-xs">
                       <span className="font-mono bg-muted/60 px-1 py-0.5 rounded text-muted-foreground">
@@ -195,7 +195,8 @@ function ProductsTab() {
                   {item.base_price !== undefined &&
                     item.base_price !== null && (
                       <p className="text-xs text-muted-foreground">
-                        Base: {formatCurrency(Number(item.base_price), "₦")}
+                        Base:{" "}
+                        {formatCurrency(Number(item.base_price), item.currency)}
                       </p>
                     )}
                 </div>
@@ -492,7 +493,7 @@ function MaterialsTab() {
                   {item.category} · {item.unit}
                 </p>
                 <p className="mt-1 text-xs font-semibold text-brand-purple">
-                  {formatCurrency(Number(item.price), "₦")}
+                  {formatCurrency(Number(item.price), item.currency)}
                 </p>
               </div>
               <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
@@ -827,7 +828,8 @@ function LaborTab() {
                   )}
                 </div>
                 <p className="mt-1 text-xs font-semibold text-brand-purple">
-                  {formatCurrency(Number(item.rate_per_sqm), "₦")} / m²
+                  {formatCurrency(Number(item.rate_per_sqm), item.currency)} /
+                  m²
                 </p>
               </div>
               <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">

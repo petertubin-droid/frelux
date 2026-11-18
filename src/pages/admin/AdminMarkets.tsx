@@ -55,6 +55,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { AdminCard, StateMessage } from "@/components/admin/AdminUi";
 import { supabase } from "@/lib/supabase";
 import { useEscapeKey } from "@/lib/use-escape-key";
+import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import {
   consistencySummary,
   marketConsistencyRows,
@@ -495,10 +496,14 @@ function ProfileEditModal({
   const [form, setForm] = useState({
     country_code: profile?.country_code ?? "",
     country_name: profile?.country_name ?? "",
-    region: profile?.region ?? "West Africa",
-    currency_code: profile?.currency_code ?? "NGN",
-    currency_symbol: profile?.currency_symbol ?? "₦",
-    currency_name: profile?.currency_name ?? "Naira",
+    // A market FRELUX knows nothing about starts blank. Filling a new
+    // profile with naira and "West Africa" is exactly the region-locked
+    // default the globalization standard forbids; a known country is filled
+    // from the built-in catalog instead (see the country_code handler).
+    region: profile?.region ?? "",
+    currency_code: profile?.currency_code ?? "",
+    currency_symbol: profile?.currency_symbol ?? "",
+    currency_name: profile?.currency_name ?? "",
     default_measurement_system: profile?.default_measurement_system ?? "metric",
     default_length_unit: profile?.default_length_unit ?? "meters",
     default_area_unit: profile?.default_area_unit ?? "sqm",
@@ -562,11 +567,31 @@ function ProfileEditModal({
           <Field
             label="Country Code (ISO)"
             value={form.country_code}
-            onChange={(v) =>
-              setForm({ ...form, country_code: v.toUpperCase() })
-            }
+            onChange={(v) => {
+              const code = v.toUpperCase();
+              // A known country is filled from the catalog so the admin never
+              // has to remember its currency; an unknown one stays blank.
+              const known = BUILTIN_MARKET_PROFILES.find(
+                (p) => p.country_code === code,
+              );
+              setForm({
+                ...form,
+                country_code: code,
+                ...(known && !profile
+                  ? {
+                      country_name: form.country_name || known.country_name,
+                      region: known.region ?? "",
+                      currency_code: known.currency_code,
+                      currency_symbol: known.currency_symbol,
+                      currency_name: known.currency_name ?? "",
+                      default_measurement_system:
+                        known.default_measurement_system,
+                    }
+                  : {}),
+              });
+            }}
             disabled={!!profile}
-            placeholder={t("NG")}
+            placeholder={t("ISO code, e.g. KE")}
           />
           <Field
             label="Country Name"

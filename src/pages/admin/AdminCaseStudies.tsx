@@ -11,6 +11,11 @@ import type { DbCaseStudy } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { CATEGORY_LABELS } from "@/lib/case-study-labels";
 import { useLanguage } from "@/lib/i18n";
+import {
+  BUILTIN_MARKET_PROFILES,
+  useCurrencyCode,
+} from "@/lib/international/market-context";
+import { currencySymbol } from "@/lib/settings/global-settings";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 import { Link } from "react-router-dom";
@@ -288,6 +293,17 @@ function Thumb({
   );
 }
 
+/** Every currency the supported markets use, plus the record's own. */
+const budgetCurrencies: string[] = [
+  ...new Set([
+    ...BUILTIN_MARKET_PROFILES.map((p) => p.currency_code).filter(Boolean),
+    "NGN",
+    "USD",
+    "EUR",
+    "GBP",
+  ]),
+].sort();
+
 function CaseStudyForm({
   row,
   saving,
@@ -315,6 +331,12 @@ function CaseStudyForm({
   const [budget, setBudget] = useState(
     cs?.budget !== null && cs?.budget !== undefined ? String(cs.budget) : "",
   );
+  // A stored record keeps the currency it was quoted in; a new one starts on
+  // the admin's own market currency, never on a hardcoded naira default.
+  const marketCurrency = useCurrencyCode();
+  const [currency, setCurrency] = useState(
+    cs?.currency || marketCurrency || "",
+  );
   const [published, setPublished] = useState(cs?.is_published ?? false);
 
   function submit() {
@@ -331,6 +353,7 @@ function CaseStudyForm({
         .filter(Boolean),
       project_duration: duration.trim() || null,
       budget: budget.trim() ? Number(budget) : null,
+      currency: currency.trim() ? currency.trim().toUpperCase() : null,
       is_published: published,
     });
   }
@@ -410,7 +433,13 @@ function CaseStudyForm({
               placeholder="3 weeks"
             />
           </Field>
-          <Field label="Budget (₦)">
+          <Field
+            label={
+              currency
+                ? `Budget (${currencySymbol(currency).trim()})`
+                : "Budget (state a currency)"
+            }
+          >
             <input
               aria-label="850000"
               type="number"
@@ -420,6 +449,21 @@ function CaseStudyForm({
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
               placeholder="850000"
             />
+          </Field>
+          <Field label="Budget currency">
+            <select
+              aria-label="Budget currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Not stated</option>
+              {budgetCurrencies.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
           </Field>
         </div>
         <label className="flex items-center gap-2 text-sm text-foreground">

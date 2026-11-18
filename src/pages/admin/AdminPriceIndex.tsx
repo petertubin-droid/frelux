@@ -27,6 +27,7 @@ import {
   StatusBadge,
 } from "@/components/admin/AdminUi";
 import { supabase } from "@/lib/supabase";
+import { formatCurrency } from "@/lib/utils";
 import {
   categoryLabel,
   fetchAuditTrail,
@@ -108,9 +109,21 @@ export default function AdminPriceIndex() {
           (listing) => listing.city_slug === city.slug,
         );
         const stats = computeStats(toSamples(cityListings));
+        // A median is only meaningful in one currency. When a city's listings
+        // are quoted in more than one, say so instead of averaging across them
+        // and stamping the result with the base currency.
+        const currencies = [
+          ...new Set(
+            cityListings
+              .map((listing) => listing.currency)
+              .filter((code): code is string => Boolean(code)),
+          ),
+        ];
         return {
           city: city.name,
           slug: city.slug,
+          currency: currencies.length === 1 ? currencies[0] : null,
+          mixedCurrency: currencies.length > 1,
           status: stats.status,
           median: stats.status === "ok" ? stats.median : null,
           samples: stats.status === "ok" ? stats.counted : stats.count,
@@ -352,7 +365,7 @@ export default function AdminPriceIndex() {
                           "—"}
                       </td>
                       <td className="px-3 py-2 font-semibold text-foreground">
-                        ₦{Number(row.price).toLocaleString()}
+                        {formatCurrency(Number(row.price), row.currency)}
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {row.price_kind
@@ -457,8 +470,12 @@ export default function AdminPriceIndex() {
                           {row.city}
                         </td>
                         <td className="px-3 py-2">
-                          {row.median !== null ? (
-                            `₦${row.median.toLocaleString()}`
+                          {row.mixedCurrency ? (
+                            <span className="text-muted-foreground">
+                              mixed currencies: no single median
+                            </span>
+                          ) : row.median !== null && row.currency ? (
+                            formatCurrency(row.median, row.currency)
                           ) : (
                             <span className="text-muted-foreground">
                               below the sample gate ({row.samples})

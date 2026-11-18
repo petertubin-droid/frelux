@@ -11,8 +11,11 @@ import {
   MASONRY_SOURCES,
   MASONRY_UNITS,
   masonryUnitsForMarket,
+  plotPresetsForMarket,
+  hasPlotPresets,
   unitFaceAreaM2,
 } from "@/config/masonry-units";
+import { ALL_MARKET_CODES } from "@/lib/international/capability-registry";
 
 describe("masonry units by market", () => {
   it("gives each market the block that is actually laid there", () => {
@@ -30,7 +33,21 @@ describe("masonry units by market", () => {
         expect(unit.substitutedFromMarket).toBeUndefined();
       }
     }
-    const fallback = masonryUnitsForMarket("JP");
+  });
+
+  it("no longer substitutes the Nigerian block in any supported market", () => {
+    // 2026-11-18 globalization audit: 25 of the 32 markets had no table of
+    // their own, so a German, Japanese or Brazilian wall was counted in
+    // 9 inch sandcrete blocks.
+    for (const market of ALL_MARKET_CODES) {
+      for (const unit of masonryUnitsForMarket(market)) {
+        expect(unit.substitutedFromMarket).toBeUndefined();
+      }
+    }
+  });
+
+  it("still flags a substitution for a market outside the supported list", () => {
+    const fallback = masonryUnitsForMarket("AR");
     expect(fallback).toHaveLength(1);
     expect(fallback[0].key).toBe("ng-block-9");
     expect(fallback[0].substitutedFromMarket).toBe("NG");
@@ -40,6 +57,28 @@ describe("masonry units by market", () => {
     const ids = new Set(MASONRY_SOURCES.map((s) => s.id));
     for (const unit of Object.values(MASONRY_UNITS)) {
       expect(ids.has(unit.sourceId)).toBe(true);
+    }
+  });
+
+  it("gives the new markets their own unit, not the Nigerian default", () => {
+    expect(masonryUnitsForMarket("DE")[0].key).toBe("de-nf-brick");
+    expect(masonryUnitsForMarket("FR")[0].key).toBe("fr-bloc-20");
+    expect(masonryUnitsForMarket("JP")[0].key).toBe("jp-cb");
+    expect(masonryUnitsForMarket("BR")[0].key).toBe("br-bloco");
+    expect(masonryUnitsForMarket("ZA")[0].key).toBe("za-maxi-brick");
+    expect(masonryUnitsForMarket("CN")[0].key).toBe("cn-brick");
+    expect(masonryUnitsForMarket("KE")[0].key).toBe("ke-sandcrete");
+    expect(masonryUnitsForMarket("NZ")[0].key).toBe("nz-block-190");
+  });
+
+  it("offers plot presets only where a plot is a real land unit", () => {
+    expect(hasPlotPresets("NG")).toBe(true);
+    expect(plotPresetsForMarket("NG")).toHaveLength(3);
+    // A "full plot" is a Nigerian survey unit; it must not be offered in
+    // markets that subdivide land in acres, perches or erven.
+    for (const market of ["US", "GB", "CA", "AU", "ZA", "DE", "JP"]) {
+      expect(plotPresetsForMarket(market)).toEqual([]);
+      expect(hasPlotPresets(market)).toBe(false);
     }
   });
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BUILTIN_MARKET_PROFILES } from "./market-context";
 import {
   DETECTABLE_MARKETS,
   detectMarketFromLocale,
@@ -10,24 +11,9 @@ import {
   timezoneToMarket,
 } from "./market-suggest";
 
-const BUILTIN_MARKET_CODES = [
-  "NG",
-  "US",
-  "GB",
-  "CA",
-  "AU",
-  "DE",
-  "IN",
-  "GH",
-  "KE",
-  "ZA",
-  "JP",
-  "FR",
-  "BR",
-  "SA",
-  "AE",
-  "NL",
-];
+// Read from the real profile list so the guard keeps its meaning as markets
+// are added (a hand-copied list silently stopped covering new markets).
+const BUILTIN_MARKET_CODES = BUILTIN_MARKET_PROFILES.map((p) => p.country_code);
 
 describe("timezoneToMarket", () => {
   it("maps the reference and imperial home timezones", () => {
@@ -50,9 +36,31 @@ describe("timezoneToMarket", () => {
     expect(timezoneToMarket("Asia/Dubai")).toBe("AE");
   });
 
-  it("returns null for an unmapped timezone - never a guess", () => {
-    expect(timezoneToMarket("Europe/Zurich")).toBeNull();
-    expect(timezoneToMarket("Europe/Stockholm")).toBeNull();
+  it("maps the 2026-11-18 audit timezones for every supported market", () => {
+    // Previously these fell through to the Nigerian default.
+    expect(timezoneToMarket("Europe/Zurich")).toBe("CH");
+    expect(timezoneToMarket("Europe/Stockholm")).toBe("SE");
+    expect(timezoneToMarket("Asia/Shanghai")).toBe("CN");
+    expect(timezoneToMarket("America/Mexico_City")).toBe("MX");
+    expect(timezoneToMarket("Asia/Seoul")).toBe("KR");
+    expect(timezoneToMarket("Europe/Rome")).toBe("IT");
+    expect(timezoneToMarket("Africa/Cairo")).toBe("EG");
+    expect(timezoneToMarket("Asia/Singapore")).toBe("SG");
+    expect(timezoneToMarket("Pacific/Auckland")).toBe("NZ");
+    expect(timezoneToMarket("Europe/Istanbul")).toBe("TR");
+  });
+
+  it("returns null for a timezone outside every supported market - never a guess", () => {
+    expect(timezoneToMarket("America/Argentina/Buenos_Aires")).toBeNull();
+    expect(timezoneToMarket("Asia/Kathmandu")).toBeNull();
+  });
+
+  it("detects every supported market from at least one timezone", () => {
+    // The audit's real complaint: supported markets that detection could
+    // never reach, so their visitors were silently treated as Nigerian.
+    for (const profile of BUILTIN_MARKET_PROFILES) {
+      expect(isDetectableMarket(profile.country_code)).toBe(true);
+    }
   });
 
   it("handles null and empty input", () => {
@@ -99,10 +107,19 @@ describe("marketForSignals", () => {
   it("returns null when both signals are unmapped - Nigeria default stays", () => {
     expect(
       marketForSignals({
+        timezone: "America/Argentina/Buenos_Aires",
+        browserLanguages: ["es-AR"],
+      }),
+    ).toBeNull();
+  });
+
+  it("a Zurich visitor resolves to CH instead of the Nigerian default", () => {
+    expect(
+      marketForSignals({
         timezone: "Europe/Zurich",
         browserLanguages: ["it-IT"],
       }),
-    ).toBeNull();
+    ).toBe("CH");
   });
 
   it("a Paris visitor now maps to FR (was unmapped before the expansion)", () => {

@@ -12,6 +12,15 @@ let singleResult: { data: unknown; error: unknown } = {
   error: null,
 };
 
+// Records the arguments each chained call received, so a test can assert on
+// the payload that was actually sent to the database.
+const chainCalls: { method: string; args: unknown[] }[] = [];
+
+function lastPayload(): Record<string, unknown> {
+  const call = [...chainCalls].reverse().find((c) => c.method === "upsert");
+  return (call?.args[0] ?? {}) as Record<string, unknown>;
+}
+
 function builder(result: { data: unknown; error: unknown }) {
   const chain: Record<string, unknown> = {};
   const proxy = new Proxy(chain, {
@@ -23,7 +32,10 @@ function builder(result: { data: unknown; error: unknown }) {
       if (prop === "maybeSingle") return () => Promise.resolve(result);
       if (prop === "single") return () => Promise.resolve(singleResult);
       if (prop in target) return target[prop];
-      target[prop] = () => proxy;
+      target[prop] = (...args: unknown[]) => {
+        chainCalls.push({ method: prop, args });
+        return proxy;
+      };
       return target[prop];
     },
   });
@@ -209,6 +221,31 @@ describe("upsertCaseStudy", () => {
       is_published: true,
     });
     expect(saved.id).toBe("cs-1");
+  });
+
+  it("writes the currency the admin stated, uppercased", async () => {
+    singleResult = { data: studyRow({ currency: "USD" }), error: null };
+    chainCalls.length = 0;
+    await upsertCaseStudy({
+      gallery_entry_id: "ge-1",
+      headline: "Loft conversion",
+      summary: "Brooklyn brownstone loft",
+      budget: 52000,
+      currency: "usd",
+    });
+    expect(lastPayload()).toMatchObject({ currency: "USD", budget: 52000 });
+  });
+
+  it("leaves the column default alone when no currency is stated", async () => {
+    singleResult = { data: studyRow(), error: null };
+    chainCalls.length = 0;
+    await upsertCaseStudy({
+      gallery_entry_id: "ge-1",
+      headline: "Flat repaint",
+      summary: "Full repaint",
+    });
+    // Not defaulted to naira here: an unstated currency must not be invented.
+    expect("currency" in lastPayload()).toBe(false);
   });
 
   it("rejects when the database errors", async () => {

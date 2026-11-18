@@ -24,7 +24,34 @@ export type MasonryUnitKey =
   | "ca-cmu"
   | "au-block-190"
   | "ae-block-200"
-  | "in-brick";
+  | "in-brick"
+  // 2026-11-18 globalization audit: native profiles for the markets that
+  // previously fell through to the Nigerian 9 inch sandcrete block.
+  | "gh-sandcrete"
+  | "ke-sandcrete"
+  | "et-hcb"
+  | "eg-block-200"
+  | "ci-parpaing"
+  | "za-maxi-brick"
+  | "de-nf-brick"
+  | "fr-bloc-20"
+  | "it-blocco-25"
+  | "es-bloque-40"
+  | "nl-betonblok"
+  | "ch-backstein"
+  | "se-lattbetong"
+  | "tr-bims"
+  | "sa-block-200"
+  | "cn-brick"
+  | "jp-cb"
+  | "kr-block-190"
+  | "sg-block-190"
+  | "id-batako"
+  | "mx-tabique"
+  | "br-bloco"
+  | "nz-block-190"
+  | "tz-sandcrete"
+  | "pl-brick";
 
 export interface MasonryUnit {
   key: MasonryUnitKey;
@@ -90,6 +117,156 @@ export const MASONRY_SOURCES: MasonrySource[] = [
     claim:
       "The Gulf hollow concrete block is commonly 400 mm long, 200 mm high and 200 mm thick.",
     url: "https://www.municipality.gov.ae/",
+  },
+  {
+    id: "gh-block-sizes",
+    claim:
+      "The Ghanaian sandcrete block is nominally 450 mm long and 225 mm high, sold as a 9 inch (225 mm) or 6 inch (150 mm) block, the same nominal family as Nigeria's.",
+    url: "https://www.gsa.gov.gh/",
+  },
+  {
+    id: "ke-block-sizes",
+    claim:
+      "The Kenyan sandcrete block is nominally 450 mm long and 225 mm high, sold as a 9 inch (225 mm) block, with 400 x 200 x 200 mm blocks also common.",
+    url: "https://www.kebs.org/",
+  },
+  {
+    id: "et-block-sizes",
+    claim:
+      "The Ethiopian hollow concrete block (HCB) is nominally 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.ethiostandards.org/",
+  },
+  {
+    id: "eg-block-sizes",
+    claim:
+      "The Egyptian concrete masonry block is nominally 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.eos.org.eg/",
+  },
+  {
+    id: "ci-block-sizes",
+    claim:
+      "The Ivorian parpaing (concrete block) is nominally 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.codinorm.ci/",
+  },
+  {
+    id: "za-brick-sizes",
+    claim:
+      "The South African maxi brick is nominally 290 mm long, 90 mm high and 140 mm wide; 390 mm concrete blocks are the other common wall unit.",
+    url: "https://www.sabs.co.za/",
+  },
+  {
+    id: "de-brick-sizes",
+    claim:
+      "The German NF brick format is nominally 240 mm long, 115 mm wide and 71 mm high.",
+    url: "https://www.din.de/",
+  },
+  {
+    id: "fr-block-sizes",
+    claim:
+      "The French concrete masonry block is nominally 500 mm long, 200 mm high and 200 mm thick (bloc beton creux 20).",
+    url: "https://www.afnor.org/",
+  },
+  {
+    id: "it-block-sizes",
+    claim:
+      "The Italian concrete masonry block is nominally 500 mm long, 250 mm high and 250 mm thick (blocco 25 x 25 x 50 cm).",
+    url: "https://www.uni.com/",
+  },
+  {
+    id: "es-block-sizes",
+    claim:
+      "The Spanish concrete block is nominally 400 mm long, 200 mm high and 200 mm thick (bloque de hormigon 40 x 20 x 20 cm).",
+    url: "https://www.une.org/",
+  },
+  {
+    id: "nl-block-sizes",
+    claim:
+      "The Dutch concrete block is nominally 500 mm long, 200 mm high and 200 mm thick (betonblok 500 x 200 x 200 mm).",
+    url: "https://www.nen.nl/",
+  },
+  {
+    id: "ch-brick-sizes",
+    claim:
+      "The Swiss backing brick is nominally 250 mm long, 120 mm wide and 65 mm high.",
+    url: "https://www.snv.ch/",
+  },
+  {
+    id: "se-block-sizes",
+    claim:
+      "The Swedish lightweight concrete block is nominally 590 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.sis.se/",
+  },
+  {
+    id: "tr-block-sizes",
+    claim:
+      "The Turkish pumice (bims) block is nominally 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.tse.org.tr/",
+  },
+  {
+    id: "sa-block-sizes",
+    claim:
+      "The Saudi concrete masonry block is nominally 400 mm long, 200 mm high and 200 mm thick.",
+    url: "https://www.saso.gov.sa/",
+  },
+  {
+    id: "cn-brick-sizes",
+    claim:
+      "The standard Chinese clay brick is nominally 240 mm long, 115 mm wide and 53 mm high.",
+    url: "https://www.sac.gov.cn/",
+  },
+  {
+    id: "jp-block-sizes",
+    claim:
+      "The Japanese concrete block (CB) is nominally 390 mm long, 190 mm high and 120 mm thick.",
+    url: "https://www.jisc.go.jp/",
+  },
+  {
+    id: "kr-block-sizes",
+    claim:
+      "The Korean concrete block is nominally 390 mm long, 190 mm high and 100 mm thick.",
+    url: "https://www.kssn.net/",
+  },
+  {
+    id: "sg-block-sizes",
+    claim:
+      "The Singapore concrete block is nominally 390 mm long, 190 mm high and 190 mm thick.",
+    url: "https://www.enterprisesg.gov.sg/",
+  },
+  {
+    id: "id-block-sizes",
+    claim:
+      "The Indonesian batako block is nominally 400 mm long, 200 mm high and 100 mm thick.",
+    url: "https://www.bsn.go.id/",
+  },
+  {
+    id: "mx-block-sizes",
+    claim:
+      "The Mexican tabique concrete block is nominally 400 mm long, 200 mm high and 120 mm thick.",
+    url: "https://www.dof.gob.mx/",
+  },
+  {
+    id: "br-block-sizes",
+    claim:
+      "The Brazilian concrete block is nominally 390 mm long, 190 mm high and 140 mm thick.",
+    url: "https://www.abnt.org.br/",
+  },
+  {
+    id: "nz-block-sizes",
+    claim:
+      "The New Zealand concrete masonry block is nominally 390 mm long, 190 mm high and 190 mm thick.",
+    url: "https://www.standards.govt.nz/",
+  },
+  {
+    id: "tz-block-sizes",
+    claim:
+      "The Tanzanian sandcrete block is nominally 450 mm long and 225 mm high, sold as a 9 inch (225 mm) block, matching East African practice.",
+    url: "https://www.tbs.go.tz/",
+  },
+  {
+    id: "pl-brick-sizes",
+    claim:
+      "The Polish solid brick (cegla pelna) is nominally 250 mm long, 120 mm wide and 65 mm high.",
+    url: "https://www.pkn.pl/",
   },
   {
     id: "in-brick-sizes",
@@ -192,6 +369,256 @@ export const MASONRY_UNITS: Record<MasonryUnitKey, MasonryUnit> = {
     thicknessM: 0.09,
     sourceId: "in-brick-sizes",
   },
+  "gh-sandcrete": {
+    key: "gh-sandcrete",
+    market: "GH",
+    label: "9 inch sandcrete block",
+    noun: "blocks",
+    lengthM: 0.45,
+    heightM: 0.225,
+    thicknessM: 0.225,
+    sourceId: "gh-block-sizes",
+  },
+  "ke-sandcrete": {
+    key: "ke-sandcrete",
+    market: "KE",
+    label: "9 inch sandcrete block",
+    noun: "blocks",
+    lengthM: 0.45,
+    heightM: 0.225,
+    thicknessM: 0.225,
+    sourceId: "ke-block-sizes",
+  },
+  "et-hcb": {
+    key: "et-hcb",
+    market: "ET",
+    label: "HCB 200 mm block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "et-block-sizes",
+  },
+  "eg-block-200": {
+    key: "eg-block-200",
+    market: "EG",
+    label: "200 mm concrete block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "eg-block-sizes",
+  },
+  "ci-parpaing": {
+    key: "ci-parpaing",
+    market: "CI",
+    label: "Parpaing 200 mm block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "ci-block-sizes",
+  },
+  "za-maxi-brick": {
+    key: "za-maxi-brick",
+    market: "ZA",
+    label: "Maxi brick",
+    noun: "bricks",
+    lengthM: 0.29,
+    heightM: 0.09,
+    thicknessM: 0.14,
+    sourceId: "za-brick-sizes",
+  },
+  "de-nf-brick": {
+    key: "de-nf-brick",
+    market: "DE",
+    label: "NF brick",
+    noun: "bricks",
+    lengthM: 0.24,
+    heightM: 0.071,
+    thicknessM: 0.115,
+    sourceId: "de-brick-sizes",
+  },
+  "fr-bloc-20": {
+    key: "fr-bloc-20",
+    market: "FR",
+    label: "Bloc beton creux 20",
+    noun: "blocks",
+    lengthM: 0.5,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "fr-block-sizes",
+  },
+  "it-blocco-25": {
+    key: "it-blocco-25",
+    market: "IT",
+    label: "Blocco 25 x 25 x 50",
+    noun: "blocks",
+    lengthM: 0.5,
+    heightM: 0.25,
+    thicknessM: 0.25,
+    sourceId: "it-block-sizes",
+  },
+  "es-bloque-40": {
+    key: "es-bloque-40",
+    market: "ES",
+    label: "Bloque 40 x 20 x 20",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "es-block-sizes",
+  },
+  "nl-betonblok": {
+    key: "nl-betonblok",
+    market: "NL",
+    label: "Betonblok 500 x 200",
+    noun: "blocks",
+    lengthM: 0.5,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "nl-block-sizes",
+  },
+  "ch-backstein": {
+    key: "ch-backstein",
+    market: "CH",
+    label: "Backstein 250 x 120",
+    noun: "bricks",
+    lengthM: 0.25,
+    heightM: 0.065,
+    thicknessM: 0.12,
+    sourceId: "ch-brick-sizes",
+  },
+  "se-lattbetong": {
+    key: "se-lattbetong",
+    market: "SE",
+    label: "Lattbetongblock 590 x 200",
+    noun: "blocks",
+    lengthM: 0.59,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "se-block-sizes",
+  },
+  "tr-bims": {
+    key: "tr-bims",
+    market: "TR",
+    label: "Bims block 200 mm",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "tr-block-sizes",
+  },
+  "sa-block-200": {
+    key: "sa-block-200",
+    market: "SA",
+    label: "200 mm concrete block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.2,
+    sourceId: "sa-block-sizes",
+  },
+  "cn-brick": {
+    key: "cn-brick",
+    market: "CN",
+    label: "Standard clay brick",
+    noun: "bricks",
+    lengthM: 0.24,
+    heightM: 0.053,
+    thicknessM: 0.115,
+    sourceId: "cn-brick-sizes",
+  },
+  "jp-cb": {
+    key: "jp-cb",
+    market: "JP",
+    label: "Concrete block (CB) 120",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.12,
+    sourceId: "jp-block-sizes",
+  },
+  "kr-block-190": {
+    key: "kr-block-190",
+    market: "KR",
+    label: "Concrete block 190 x 100",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.1,
+    sourceId: "kr-block-sizes",
+  },
+  "sg-block-190": {
+    key: "sg-block-190",
+    market: "SG",
+    label: "190 mm concrete block",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.19,
+    sourceId: "sg-block-sizes",
+  },
+  "id-batako": {
+    key: "id-batako",
+    market: "ID",
+    label: "Batako 100 mm block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.1,
+    sourceId: "id-block-sizes",
+  },
+  "mx-tabique": {
+    key: "mx-tabique",
+    market: "MX",
+    label: "Tabique 120 mm block",
+    noun: "blocks",
+    lengthM: 0.4,
+    heightM: 0.2,
+    thicknessM: 0.12,
+    sourceId: "mx-block-sizes",
+  },
+  "br-bloco": {
+    key: "br-bloco",
+    market: "BR",
+    label: "Bloco de concreto 140",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.14,
+    sourceId: "br-block-sizes",
+  },
+  "nz-block-190": {
+    key: "nz-block-190",
+    market: "NZ",
+    label: "190 mm concrete block",
+    noun: "blocks",
+    lengthM: 0.39,
+    heightM: 0.19,
+    thicknessM: 0.19,
+    sourceId: "nz-block-sizes",
+  },
+  "tz-sandcrete": {
+    key: "tz-sandcrete",
+    market: "TZ",
+    label: "9 inch sandcrete block",
+    noun: "blocks",
+    lengthM: 0.45,
+    heightM: 0.225,
+    thicknessM: 0.225,
+    sourceId: "tz-block-sizes",
+  },
+  "pl-brick": {
+    key: "pl-brick",
+    market: "PL",
+    label: "Cegla pelna brick",
+    noun: "bricks",
+    lengthM: 0.25,
+    heightM: 0.065,
+    thicknessM: 0.12,
+    sourceId: "pl-brick-sizes",
+  },
 };
 
 export function masonryUnitsForMarket(market: string): MasonryUnit[] {
@@ -286,6 +713,23 @@ export const PLOT_PRESETS: Record<PlotPresetKey, PlotPreset> = {
     sourceId: "ng-plot-size",
   },
 };
+
+/**
+ * Plot presets are Nigerian land-surveying units (a plot is 100 ft by 50 ft).
+ * They mean nothing in Texas, Bavaria or Queensland, so the calculator only
+ * offers them for Nigeria; every other market gets the plain length and width
+ * inputs instead of a preset that would quietly mis-size the site.
+ */
+export function plotPresetsForMarket(market: string): PlotPreset[] {
+  const codes = new Set(marketCodeVariants(market || "NG"));
+  if (!codes.has("NG")) return [];
+  return Object.values(PLOT_PRESETS);
+}
+
+/** True when the market has local land presets to offer. */
+export function hasPlotPresets(market: string): boolean {
+  return plotPresetsForMarket(market).length > 0;
+}
 
 /** Perimeter of a rectangular site in metres. */
 export function perimeterM(lengthM: number, widthM: number): number {

@@ -294,6 +294,49 @@ export const COMMERCIAL_TANK_SIZES_LITERS = [
  *  h_f = 10.67 * L * Q^1.852 / (C^1.852 * D^4.87)
  *  L in m, Q in m³/s, D in m. C=140 for uPVC/HDPE smooth pipe.
  */
+/**
+ * Minimum burial depth for the delivery trench, market by market.
+ *
+ * The engine used to bury every pipe 0.6 m deep except in the US and UK, which
+ * is right for Lagos and wrong for Toronto or Stockholm: a pipe above the frost
+ * line splits in the first hard winter. These are the cover depths a designer
+ * starts from in each market, not a site survey - the specification line tells
+ * the reader to confirm the local frost depth before digging.
+ */
+const TRENCH_DEPTH_BY_MARKET: Record<string, number> = {
+  US: 1.0,
+  CA: 1.2,
+  GB: 1.0,
+  IE: 0.9,
+  DE: 1.0,
+  AT: 1.0,
+  CH: 1.0,
+  NL: 0.9,
+  BE: 0.9,
+  PL: 1.0,
+  SE: 1.2,
+  DK: 1.0,
+  FR: 0.8,
+  IT: 0.7,
+  ES: 0.6,
+  PT: 0.6,
+  TR: 0.7,
+  CN: 1.0,
+  JP: 0.8,
+  KR: 1.0,
+  AU: 0.6,
+  NZ: 0.6,
+};
+
+/** Tropical and warm-temperate markets share the 0.6 m cover. */
+const DEFAULT_TRENCH_DEPTH_M = 0.6;
+
+export function trenchDepthForMarket(marketCode?: string | null): number {
+  const code = String(marketCode ?? "").toUpperCase();
+  const depth = TRENCH_DEPTH_BY_MARKET[code];
+  return typeof depth === "number" ? depth : DEFAULT_TRENCH_DEPTH_M;
+}
+
 export function calculateHazenWilliamsFrictionHead(
   lengthMeters: number,
   flowRateM3PerHour: number,
@@ -831,7 +874,7 @@ export function calculateBoreholeWaterSystem(
 
   // Distribution pipe sizing: DN25 (1") or DN32 (1.25")
   const buriedPipeDiaMm = occupants > 8 ? 32 : 25;
-  const trenchDepthM = marketCode === "US" || marketCode === "GB" ? 1.0 : 0.6; // frost line vs tropical
+  const trenchDepthM = trenchDepthForMarket(marketCode);
   const trenchWidthM = 0.4;
   const beddingSandVolM3 = Number((buriedRun * trenchWidthM * 0.15).toFixed(2));
 
@@ -884,7 +927,7 @@ export function calculateBoreholeWaterSystem(
     {
       id: "buried-trench-reticulation",
       title: "Bury Distribution Pipes & Reticulate to House Fixtures",
-      detail: `Excavate ${trenchDepthM} m deep delivery trench from tower to building. Lay ${buriedPipeDiaMm} mm PN10/PN16 pipe in 150 mm bedding sand and backfill. Connect to household plumbing manifold: ${hydrostaticPressureBar} bar (${hydrostaticPressurePsi} psi) hydrostatic gravity pressure delivers clean water straight to kitchen sink taps, bathrooms, and appliances. Open tap and commission system.`,
+      detail: `Excavate ${trenchDepthM} m deep delivery trench from tower to building (confirm the local frost or cover depth before digging). Lay ${buriedPipeDiaMm} mm PN10/PN16 pipe in 150 mm bedding sand and backfill. Connect to household plumbing manifold: ${hydrostaticPressureBar} bar (${hydrostaticPressurePsi} psi) hydrostatic gravity pressure delivers clean water straight to kitchen sink taps, bathrooms, and appliances. Open tap and commission system.`,
       check: `Pressure-test buried line at 6 bar for 30 minutes without pressure drop before final backfill.`,
     },
   ];

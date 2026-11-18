@@ -2,7 +2,7 @@ import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ruler, Layers, BrickWall, Truck } from "lucide-react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -11,6 +11,8 @@ import { downloadCsv } from "@/lib/export-utils";
 import { useLanguage } from "@/lib/i18n";
 import {
   PLOT_PRESETS,
+  plotPresetsForMarket,
+  hasPlotPresets,
   masonryUnitsForMarket,
   type MasonryUnitKey,
   type PlotPresetKey,
@@ -59,6 +61,14 @@ export default function FenceBlockCalculator() {
   const areaUnit = useAreaUnit("sqm");
 
   const vocab = regionalVocabulary(market);
+
+  // Plot presets are Nigerian land units: switching to any other market drops
+  // back to measured dimensions instead of carrying a Lagos plot into Berlin.
+  useEffect(() => {
+    if (!hasPlotPresets(market)) {
+      setPreset((current) => (current === "custom" ? current : "custom"));
+    }
+  }, [market]);
   const units = vocabularyMarkets();
 
   /**
@@ -309,30 +319,27 @@ export default function FenceBlockCalculator() {
                 <div>
                   <span className={labelClass}>{t("Land size")}</span>
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {(Object.keys(PLOT_PRESETS) as PlotPresetKey[]).map(
-                      (key) => {
-                        const option = PLOT_PRESETS[key];
-                        const active = preset === key;
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            aria-pressed={active}
-                            onClick={() => setPreset(key)}
-                            className={
-                              active
-                                ? "rounded-lg border border-primary bg-primary/10 px-2 py-2 text-xs font-semibold text-foreground"
-                                : "rounded-lg border border-border px-2 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
-                            }
-                          >
-                            {t(option.label)}
-                            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                              {option.idiom}
-                            </span>
-                          </button>
-                        );
-                      },
-                    )}
+                    {plotPresetsForMarket(market).map((option) => {
+                      const active = preset === option.key;
+                      return (
+                        <button
+                          key={option.key}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => setPreset(option.key)}
+                          className={
+                            active
+                              ? "rounded-lg border border-primary bg-primary/10 px-2 py-2 text-xs font-semibold text-foreground"
+                              : "rounded-lg border border-border px-2 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+                          }
+                        >
+                          {t(option.label)}
+                          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                            {option.idiom}
+                          </span>
+                        </button>
+                      );
+                    })}
                     <button
                       type="button"
                       aria-pressed={preset === "custom"}

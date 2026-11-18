@@ -43,6 +43,16 @@ export const DIAL_CODES: Record<string, string> = {
   NZ: "64",
 };
 
+/**
+ * Placeholder example number for a market, e.g. "+234 800 123 4567".
+ * Globalization: a Nigerian placeholder in a German or Japanese form is a
+ * region-locked assumption, so forms ask this instead of hardcoding +234.
+ */
+export function dialCodePlaceholder(country?: string | null): string {
+  const code = DIAL_CODES[String(country ?? "").toUpperCase()] ?? DIAL_CODES.NG;
+  return `+${code} 800 123 4567`;
+}
+
 /** Dial codes sorted longest first so 234 wins over 23, and so on. */
 const ORDERED_DIAL_CODES = [...new Set(Object.values(DIAL_CODES))].sort(
   (a, b) => b.length - a.length,

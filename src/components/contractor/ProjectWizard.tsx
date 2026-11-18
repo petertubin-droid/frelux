@@ -49,6 +49,8 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useMarket } from "@/lib/international/market-context";
+import { dialCodePlaceholder } from "@/lib/phone/msisdn";
 
 // NOTE: lucide-react@0.344.0 does not export `Trowel`, so `Paintbrush2` is used
 // as the icon for the screeding project type instead.
@@ -314,6 +316,8 @@ export default function ProjectWizard() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
+  const { market } = useMarket();
+  const phonePlaceholder = dialCodePlaceholder(market?.marketCode);
   const [step, setStep] = useState(0);
   const [state, setState] = useState<WizardState>(initialState);
   const [submitting, setSubmitting] = useState(false);
@@ -676,7 +680,7 @@ export default function ProjectWizard() {
                 type="tel"
                 value={state.client_phone}
                 onChange={(e) => update("client_phone", e.target.value)}
-                placeholder="+1 555 123 4567"
+                placeholder={phonePlaceholder}
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>

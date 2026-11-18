@@ -10,6 +10,7 @@ import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import { useToast } from "@/components/ui/Toast";
+import { formatCurrency } from "@/lib/utils";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
@@ -58,13 +59,18 @@ export default function AdminMaterialPrices() {
     setShowHistory(true);
   }
 
-  const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
+  // These are base price-book figures: the tracker edits the reference book that
+  // every market's local price is derived from, and the book itself has no
+  // currency column. The column header says so rather than letting an admin
+  // read the figures as local money anywhere in the world.
+  const BASE_CURRENCY = "₦";
+  const fmt = (v: number) => formatCurrency(v || 0, BASE_CURRENCY);
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         title={t("Material Price Tracker")}
-        description="Manage current material prices. Price history is preserved automatically."
+        description="Manage current material prices. Price history is preserved automatically. Figures are base price-book amounts, not a local market price."
         actions={
           <Button
             variant="ghost"

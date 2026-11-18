@@ -208,14 +208,12 @@ export default function WallpaperCalculator() {
   const [windowHeight, setWindowHeight] = useState(1.2);
   const [showOpeningSizes, setShowOpeningSizes] = useState(false);
   const [extraRoll, setExtraRoll] = useState(false);
-  // Example figures shown in the supplied screenshot are illustrative, not verified prices.
-  const [rollPrice, setRollPrice] = useState(
-    market.currencyCode === "NGN" ? 12500 : 0,
-  );
+  // Globalization: FRELUX does not verify wallpaper prices in any market, so
+  // it starts every market at zero and asks for the local price. Pre-filling
+  // one market only made its totals look real while others read as free.
+  const [rollPrice, setRollPrice] = useState(0);
   const [unitsPerPackage, setUnitsPerPackage] = useState(1);
-  const [labourPerRoll, setLabourPerRoll] = useState(
-    market.currencyCode === "NGN" ? 4500 : 0,
-  );
+  const [labourPerRoll, setLabourPerRoll] = useState(0);
   const [adhesivePerRolls, setAdhesivePerRolls] = useState(5);
   const [adhesivePackPrice, setAdhesivePackPrice] = useState(0);
   const [previewWallId, setPreviewWallId] = useState(INITIAL_WALL.id);
@@ -393,8 +391,10 @@ export default function WallpaperCalculator() {
     setWallpaperType("nonwoven");
     setInstallationMethod("pasted");
     setPreviewWallId(INITIAL_WALL.id);
-    setRollPrice(market.currencyCode === "NGN" ? 12500 : 0);
-    setLabourPerRoll(market.currencyCode === "NGN" ? 4500 : 0);
+    // No market gets an invented price: switching market clears the local
+    // quote so nobody carries a Naira figure into a euro job.
+    setRollPrice(0);
+    setLabourPerRoll(0);
     setAdhesivePackPrice(0);
     setAdhesivePerRolls(5);
     setUnitsPerPackage(1);
@@ -1070,7 +1070,10 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                             ? "Mural panels"
                             : "Wallpaper rolls",
                           quantity: `${estimate.packages}`,
-                          amount: money(estimate.materialCost),
+                          amount:
+                            rollPrice > 0
+                              ? money(estimate.materialCost)
+                              : "Enter local price",
                         },
                         {
                           description: "Adhesive",
@@ -1079,7 +1082,10 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                         {
                           section: "Labour",
                           description: "Installation",
-                          amount: money(estimate.labourCost),
+                          amount:
+                            labourPerRoll > 0
+                              ? money(estimate.labourCost)
+                              : "Enter local quote",
                         },
                       ],
                       totals: [
@@ -1111,11 +1117,19 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
                   />
                   <ResultMetric
                     label="Materials + paste"
-                    value={money(estimate.materialCost)}
+                    value={
+                      rollPrice > 0
+                        ? money(estimate.materialCost)
+                        : "Not priced"
+                    }
                   />
                   <ResultMetric
                     label="Installation"
-                    value={money(estimate.labourCost)}
+                    value={
+                      labourPerRoll > 0
+                        ? money(estimate.labourCost)
+                        : "Not priced"
+                    }
                   />
                 </div>
                 <WallDiagram

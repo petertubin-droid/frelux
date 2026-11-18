@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { activeLocaleTag } from "@/lib/i18n";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 
 export type StudioBlock =
   | { id: string; type: "heading"; text: string }
@@ -198,8 +200,10 @@ export function validateStudioConfig(value: unknown): StudioConfig {
       ? (raw.pageSize as StudioConfig["pageSize"])
       : "a4",
     orientation: raw.orientation === "landscape" ? "landscape" : "portrait",
-    currency: safeText(raw.currency, 3) || "NGN",
-    locale: safeText(raw.locale, 20) || "en-NG",
+    // Globalization: a studio document follows the visitor's currency and
+    // language instead of stamping NGN / en-NG on a Berlin or Toronto job.
+    currency: safeText(raw.currency, 3) || getActiveDisplayCurrency(),
+    locale: safeText(raw.locale, 20) || activeLocaleTag(),
     accentColor: color,
     watermark: raw.watermark !== false,
     logoPath:
@@ -488,7 +492,7 @@ export function convertSavedProjectToDocument(project: {
   const currency =
     typeof data.currency === "string" && /^[A-Z]{3}$/.test(data.currency)
       ? data.currency
-      : "NGN";
+      : getActiveDisplayCurrency();
   const type = project.project_type.toLowerCase();
   const document_type: StudioTemplate["document_type"] = type.includes("boq")
     ? "bill_of_quantities"

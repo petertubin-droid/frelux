@@ -1,5 +1,4 @@
 import { formatByCode } from "@/lib/international/currency-format";
-import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useState, useEffect, useCallback, useId } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -34,8 +33,11 @@ import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbClientEstimate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 
-const fmt = (v: number, currency = "NGN") =>
+// Globalization: an estimate with no stored currency belongs to the market
+// the visitor is in, not to Nigeria by default.
+const fmt = (v: number, currency: string = getActiveDisplayCurrency()) =>
   formatByCode(v || 0, currency, { decimals: 0 });
 
 export default function ClientEstimateEditor() {
@@ -79,7 +81,9 @@ export default function ClientEstimateEditor() {
     { name: string; quantity: number; unit: string; unitCost: number }[]
   >([]);
 
-  const [projectCurrency, setProjectCurrency] = useState<string>(() => getActiveDisplayCurrency() || "USD");
+  const [projectCurrency, setProjectCurrency] = useState<string>(
+    getActiveDisplayCurrency(),
+  );
 
   const loadExisting = useCallback(async () => {
     if (!projectId) return;
@@ -100,7 +104,8 @@ export default function ClientEstimateEditor() {
         .maybeSingle();
       if (proj?.currency) setProjectCurrency(proj.currency);
     } catch {
-      // fall back to NGN, honest default for legacy projects
+      // No stored currency: the visitor's display currency stands in, and the
+      // field stays editable rather than pretending the project is Nigerian.
     }
   }, [projectId]);
 
@@ -144,7 +149,7 @@ export default function ClientEstimateEditor() {
         setClientName(quote.client_name ?? "");
         setClientEmail(quote.client_email ?? "");
         setClientPhone(quote.client_phone ?? "");
-        setProjectCurrency(quote.currency || getActiveDisplayCurrency() || "USD");
+        setProjectCurrency(quote.currency || getActiveDisplayCurrency());
         setMaterialsSummary(
           (quote.materials_summary ?? []).map((row) => ({
             name: row.name,

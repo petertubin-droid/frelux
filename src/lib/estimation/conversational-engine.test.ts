@@ -108,6 +108,46 @@ describe("extractParams", () => {
     expect(p.propertyType!.value).toBe("house");
   });
 
+  it("recognises the region of the market the visitor is in, not just Nigeria", () => {
+    // Globalization: the estimator used to know only Nigerian states, so a
+    // Kenyan or Ghanaian thread lost its location entirely.
+    const nairobi = extractParams(
+      threadOf("how much to paint a 3 bedroom flat in Nairobi"),
+      "en",
+      null,
+      "KE",
+    );
+    expect(nairobi.region!.value).toBe("nairobi");
+
+    // Ghana's list is regions, not cities: a region name is matched, and a
+    // city the layer does not hold is left unextracted rather than guessed.
+    const ashanti = extractParams(
+      threadOf("painting a 2 bedroom apartment in Ashanti"),
+      "en",
+      null,
+      "GH",
+    );
+    expect(ashanti.region!.value).toBe("ashanti");
+
+    // A Lagos job read in a Kenyan market is not a Kenyan location.
+    const lagos = extractParams(
+      threadOf("painting a flat in Lagos"),
+      "en",
+      null,
+      "KE",
+    );
+    expect(lagos.region).toBeNull();
+
+    // A market with no published region list leaves the gap honest.
+    const berlin = extractParams(
+      threadOf("painting a flat in Berlin"),
+      "en",
+      null,
+      "DE",
+    );
+    expect(berlin.region).toBeNull();
+  });
+
   it("reports honestly when nothing is found: no invented facts", () => {
     const p = extractParams(threadOf("hello good evening"), "en");
     expect(p.intent).toBe("unknown");

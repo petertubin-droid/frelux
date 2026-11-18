@@ -8,8 +8,10 @@ import {
   TRANSPORTATION_TO_AGREE,
   type TransportationChoice,
 } from "@/lib/estimation/transportation";
-import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
-import { getCurrencySymbol } from "@/lib/international/currency-format";
+import {
+  activeCurrencySymbol,
+  getActiveDisplayCurrency,
+} from "@/lib/international/fx-display";
 import {
   autoDisplayForReport,
   type QuoteDisplay,
@@ -161,9 +163,10 @@ export interface QuoteOptions {
 }
 
 function formatCurrencyForQuote(amount: number, opts: QuoteOptions): string {
-  const activeCurrency = getActiveDisplayCurrency();
-  const fallbackSymbol = getCurrencySymbol(activeCurrency) || "$";
-  return formatCurrency(amount, opts.currencySymbol || fallbackSymbol);
+  // Globalization: an exported quotation must speak the visitor's currency.
+  // The caller's market symbol wins; otherwise the active display currency
+  // (which converts NGN amounts), and only then the reference symbol.
+  return formatCurrency(amount, opts.currencySymbol || activeCurrencySymbol());
 }
 
 export function buildQuoteHtml(opts: QuoteOptions): string {

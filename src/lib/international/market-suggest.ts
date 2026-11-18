@@ -112,6 +112,37 @@ const MARKET_TIMEZONES: Record<string, string[]> = {
   ],
   DE: ["Europe/Berlin", "Europe/Busingen"],
   IN: ["Asia/Kolkata", "Asia/Calcutta"],
+  // 2026-11-18 globalization audit: the remaining supported markets, so a
+  // visitor anywhere FRELUX trades is detected by location instead of being
+  // silently treated as Nigerian.
+  CN: ["Asia/Shanghai", "Asia/Urumqi", "Asia/Chongqing", "Asia/Harbin", "PRC"],
+  ID: ["Asia/Jakarta", "Asia/Pontianak", "Asia/Makassar", "Asia/Jayapura"],
+  MX: [
+    "America/Mexico_City",
+    "America/Cancun",
+    "America/Merida",
+    "America/Monterrey",
+    "America/Matamoros",
+    "America/Mazatlan",
+    "America/Chihuahua",
+    "America/Ojinaga",
+    "America/Hermosillo",
+    "America/Tijuana",
+    "America/Bahia_Banderas",
+  ],
+  KR: ["Asia/Seoul"],
+  IT: ["Europe/Rome"],
+  ET: ["Africa/Addis_Ababa"],
+  EG: ["Africa/Cairo"],
+  TZ: ["Africa/Dar_es_Salaam"],
+  CI: ["Africa/Abidjan"],
+  ES: ["Europe/Madrid", "Africa/Ceuta", "Atlantic/Canary"],
+  PL: ["Europe/Warsaw"],
+  SE: ["Europe/Stockholm"],
+  CH: ["Europe/Zurich"],
+  SG: ["Asia/Singapore"],
+  TR: ["Europe/Istanbul", "Asia/Istanbul"],
+  NZ: ["Pacific/Auckland", "Pacific/Chatham"],
 };
 
 /** All market codes detection can return. */

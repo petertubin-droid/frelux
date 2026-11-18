@@ -1,7 +1,7 @@
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Layers, Package, Truck, Shield } from "lucide-react";
 import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
@@ -11,6 +11,8 @@ import {
   CEMENT_MARKETS,
   MARKET_NAMES,
   PLOT_PRESETS,
+  plotPresetsForMarket,
+  hasPlotPresets,
   type PlotPresetKey,
 } from "@/config/masonry-units";
 import {
@@ -59,6 +61,14 @@ export default function GermanFloorCalculator() {
   const [mixKey, setMixKey] = useState<ConcreteMixKey>("1:2:4");
 
   const vocab = slabVocabulary(market);
+
+  // Nigerian plot presets do not describe a floor anywhere else: outside NG
+  // the slab is measured, not chosen from a Lagos land size.
+  useEffect(() => {
+    if (!hasPlotPresets(market)) {
+      setPreset((current) => (current === "custom" ? current : "custom"));
+    }
+  }, [market]);
 
   const outcome = useMemo(
     () =>
@@ -129,22 +139,20 @@ export default function GermanFloorCalculator() {
                     {t("Floor size")}
                   </span>
                   <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {(Object.keys(PLOT_PRESETS) as PlotPresetKey[]).map(
-                      (key) => (
-                        <button
-                          key={key}
-                          type="button"
-                          aria-pressed={preset === key}
-                          onClick={() => setPreset(key)}
-                          className={chip(preset === key)}
-                        >
-                          {t(PLOT_PRESETS[key].label)}
-                          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                            {PLOT_PRESETS[key].idiom}
-                          </span>
-                        </button>
-                      ),
-                    )}
+                    {plotPresetsForMarket(market).map((option) => (
+                      <button
+                        key={option.key}
+                        type="button"
+                        aria-pressed={preset === option.key}
+                        onClick={() => setPreset(option.key)}
+                        className={chip(preset === option.key)}
+                      >
+                        {t(option.label)}
+                        <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                          {option.idiom}
+                        </span>
+                      </button>
+                    ))}
                     <button
                       type="button"
                       aria-pressed={preset === "custom"}

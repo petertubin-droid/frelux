@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import { HardHat, Plus, Pencil, Trash2, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -47,15 +48,18 @@ const LABOUR_MARKETS = [
   "CA",
   "IN",
 ] as const;
-const MARKET_CURRENCY: Record<string, string> = {
-  NG: "NGN",
-  US: "USD",
-  GB: "GBP",
-  DE: "EUR",
-  AU: "AUD",
-  CA: "CAD",
-  IN: "INR",
-};
+/**
+ * Currency for a market, read from the shared market profiles rather than a
+ * short local list: the seven hardcoded markets here used to leave every other
+ * market blank, which is the region-locked assumption the globalization
+ * standard forbids. Unknown markets stay blank rather than defaulting to NGN.
+ */
+function marketCurrency(code: string): string {
+  return (
+    BUILTIN_MARKET_PROFILES.find((p) => p.country_code === code)
+      ?.currency_code ?? ""
+  );
+}
 
 export default function AdminLabourSettings() {
   const { t } = useLanguage();
@@ -180,9 +184,7 @@ function SettingsTab() {
         >
           {LABOUR_MARKETS.map((m) => (
             <option key={m} value={m}>
-              {m === "ALL"
-                ? "All markets"
-                : `${m} (${MARKET_CURRENCY[m] ?? ""})`}
+              {m === "ALL" ? "All markets" : `${m} (${marketCurrency(m)})`}
             </option>
           ))}
         </select>
@@ -204,7 +206,7 @@ function SettingsTab() {
                     {ESTIMATOR_LABELS[setting.estimator_key] ??
                       setting.estimator_key}
                     <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs font-bold uppercase text-muted-foreground">
-                      {setting.market} · {MARKET_CURRENCY[setting.market] ?? ""}
+                      {setting.market} · {marketCurrency(setting.market)}
                     </span>
                   </h3>
                   <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -445,8 +447,8 @@ function CategoriesTab() {
                     {cat.category_name}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    {PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦
-                    {Number(cat.suggested_rate).toLocaleString()}
+                    {PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} ·
+                    base ₦{Number(cat.suggested_rate).toLocaleString()}
                   </p>
                 </div>
               </div>

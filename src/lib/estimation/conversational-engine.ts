@@ -30,6 +30,7 @@
 
 import { calculatePaint, type CalcConfig } from "../calc";
 import type { CalculatorInput, ProjectType, Unit } from "../../types";
+import { getRegions } from "@/lib/international/regions";
 
 // =========================================================
 // Language packs (defaults; DB-configurable)
@@ -402,10 +403,26 @@ function wordNumber(text: string, lang: ConversationLanguage): number | null {
  * Every fact keeps the phrase it came from - the customer can
  * verify what the engine "heard".
  */
+/**
+ * Region vocabulary for a market. Nigeria's states plus the FCT are the
+ * reference list; Ghana, Kenya and South Africa contribute their own regions
+ * from the international layer. A market with no list extracts no region
+ * rather than borrowing Lagos: an honest gap, so the visitor is asked.
+ */
+function regionsForMarket(market?: string | null): string[] {
+  const code = String(market ?? "NG").toUpperCase();
+  const own = getRegions(code);
+  const base = code === "NG" ? NIGERIAN_REGIONS : [];
+  const extra = (own ?? []).map((r) => r.toLowerCase());
+  return [...new Set([...base, ...extra])];
+}
+
 export function extractParams(
   thread: ParsedThread,
   language: ConversationLanguage,
   packs: LanguagePack[] | null | undefined = null,
+  /** Market whose regions are searched for; Nigeria by default. */
+  market?: string | null,
 ): ExtractedParams {
   const text = thread.cleanedText;
   const activePacks = normalizePacks(packs);
@@ -505,7 +522,7 @@ export function extractParams(
 
   // ---- region ----
   let region: ExtractedFact<string> | null = null;
-  for (const r of NIGERIAN_REGIONS) {
+  for (const r of regionsForMarket(market)) {
     if (new RegExp(`(^|[^a-z])${r}([^a-z]|$)`).test(text)) {
       region = { value: r, evidence: r };
       break;
@@ -621,6 +638,8 @@ export function buildConversationalEstimate(
     language?: ConversationLanguage | "auto";
     packs?: LanguagePack[] | null;
     calcConfig?: CalcConfig;
+    /** Market whose place names are recognised; Nigeria by default. */
+    market?: string | null;
   } = {},
 ): ConversationalEstimate {
   const thread = parseThread(rawThread);
@@ -629,7 +648,7 @@ export function buildConversationalEstimate(
     !options.language || options.language === "auto"
       ? detection.language
       : options.language;
-  const params = extractParams(thread, language, options.packs);
+  const params = extractParams(thread, language, options.packs, options.market);
   const strings = REPLIES[language];
 
   const understood: Array<{ label: string; value: string; evidence: string }> =

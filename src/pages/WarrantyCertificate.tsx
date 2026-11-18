@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { } from "@/lib/seo";
+import {} from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
@@ -38,6 +38,7 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
 import { ACTION_BTN_PRIMARY } from "@/components/calculators/CalculatorActions";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "N/A";
@@ -103,7 +104,7 @@ export default function WarrantyCertificate() {
         estimate_ref: selected.estimate_ref,
         estimate_id: selected.id,
         calculator_type: selected.calculator_type,
-        currency: selected.currency || "NGN",
+        currency: selected.currency || getActiveDisplayCurrency(),
         quoted_at: selected.created_at,
         total_material_cost: Number(selected.total_material_cost) || 0,
         inputs: (selected.inputs ?? {}) as Record<string, unknown>,
@@ -129,7 +130,7 @@ export default function WarrantyCertificate() {
           user_id: user?.id ?? null,
           estimate_id: selected.id,
           certificate_ref: r.certificate_ref,
-          currency: selected.currency || "NGN",
+          currency: selected.currency || getActiveDisplayCurrency(),
           estimate_snapshot: r.estimate_snapshot ?? undefined,
           config_hash: r.config_hash ?? undefined,
           warranty_months: r.warranty_months ?? 0,
@@ -160,8 +161,6 @@ export default function WarrantyCertificate() {
     <ToolShell route="/warranty-certificate" hideDisclaimer>
       <Container>
         <div className="space-y-6">
-
-
           {loadError && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
               {loadError}
@@ -177,8 +176,8 @@ export default function WarrantyCertificate() {
             </div>
           ) : estimates.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              You have no completed estimates yet. Run any calculator and save the
-              estimate, then come back to certify it.
+              You have no completed estimates yet. Run any calculator and save
+              the estimate, then come back to certify it.
             </div>
           ) : (
             <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
@@ -259,7 +258,9 @@ export default function WarrantyCertificate() {
                     <p className="font-mono text-sm">{result.config_hash}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">{t("Issued")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("Issued")}
+                    </p>
                     <p className="text-sm font-medium">
                       {fmtDate(result.issued_at)}
                     </p>
