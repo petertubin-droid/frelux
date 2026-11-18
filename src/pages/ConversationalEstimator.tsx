@@ -27,6 +27,8 @@ import {
   fetchConversationalPacks,
   insertConversationalParseLog,
 } from "@/lib/estimation/queries";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const LANGUAGE_LABELS: Record<ConversationLanguage | "auto", string> = {
   auto: "Auto-detect",
@@ -41,6 +43,11 @@ const SAMPLES: Record<ConversationLanguage, string> = {
 
 export default function ConversationalEstimator() {
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engines stay in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
+
   const { marketCode, market } = useMarket();
   const { citySlug } = useProjectCity();
   const [thread, setThread] = useState("");
@@ -334,7 +341,7 @@ export default function ConversationalEstimator() {
                         {t("Paintable area")}
                       </dt>
                       <dd className="font-medium">
-                        {result.paintEstimate.paintableArea.toFixed(2)} m²
+                        {area(result.paintEstimate.paintableArea)}
                       </dd>
                     </div>
                     <div>

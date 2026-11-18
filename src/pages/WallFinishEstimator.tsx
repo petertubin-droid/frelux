@@ -82,6 +82,8 @@ import { useLanguage } from "@/lib/i18n";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
 import ToolShell from "@/components/tools/ToolShell";
+import { formatNumber } from "@/lib/utils";
+import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 /* ── helpers ─────────────────────────────────────────────── */
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -173,6 +175,10 @@ export default function WallFinishEstimator() {
     setSaveNote(null);
   };
   const { t } = useLanguage();
+  // Areas read in the market's unit; the engines stay in square metres.
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const area = (m2: number) =>
+    `${formatNumber(areaUnit.fromSqm(m2))} ${areaUnit.label}`;
 
   const { market, marketCode } = useMarket();
   const { citySlug } = useProjectCity();
@@ -920,9 +926,10 @@ export default function WallFinishEstimator() {
                           })
                         }
                       >
-                        {wall.grossAreaM2} m² gross → {wall.netAreaM2} m² net
+                        {area(wall.grossAreaM2)} gross → {area(wall.netAreaM2)}{" "}
+                        net
                         {wall.revealAreaM2 > 0
-                          ? ` + ${wall.revealAreaM2} m² reveals`
+                          ? ` + ${area(wall.revealAreaM2)} reveals`
                           : ""}
                       </button>
                     </div>
