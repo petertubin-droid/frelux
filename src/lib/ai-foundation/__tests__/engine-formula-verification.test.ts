@@ -366,6 +366,9 @@ describe("pad footing design, first principles", () => {
     concrete_grade: "C25",
     building_length: 10,
     building_width: 8,
+    // The supported column face is a real site input; the hand checks below
+    // are written for a 225 mm column.
+    column_width_mm: 225,
   };
 
   it("sizes a square pad from the required area", () => {

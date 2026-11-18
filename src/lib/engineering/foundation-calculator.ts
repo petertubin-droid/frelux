@@ -507,10 +507,21 @@ export function designFoundation(
     // Audit fix F4: punching shear check at the critical perimeter 1.5d
     // from the column face (BS 8110 3.7.7.6 simplified). Pad thickness is
     // 300mm → effective depth d = 300 − 40 cover − 10 (bar/2) = 250mm.
+    // The supported column face drives the punching perimeter. It comes from
+    // the caller, or from the target market's masonry module. With neither, the
+    // check still runs but says which face it assumed instead of quietly using
+    // the Nigerian 225 mm module in Houston.
     const col_face =
       input.column_width_mm ??
-      resolveMemberSizing(input.market_code ?? "NG").minColumnWidthMm ??
+      (input.market_code
+        ? resolveMemberSizing(input.market_code).minColumnWidthMm
+        : 0) ??
       0;
+    if (!input.column_width_mm && !input.market_code) {
+      warnings.push(
+        `Punching shear assumed a ${col_face} mm column face; pass column_width_mm or market_code for the real support size.`,
+      );
+    }
     const fcu = fcuFromGrade(input.concrete_grade);
     const ULS_N = 1.4 * column_load * 1000; // N (BS 8110 axial-governed)
 

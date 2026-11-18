@@ -34,6 +34,7 @@ import { calculateOpeningAreas, round } from "./openings";
 
 export { round };
 import { resolveAssemblyLayers } from "./assembly-overrides";
+import { resolveCementBag } from "@/config/cement-bag";
 /** Loose bulk density of cement, kg/m³, the constant every engine here uses. */
 const CEMENT_BULK_DENSITY_KG_M3 = 1440;
 /** The 50 kg pack, used only when a caller supplies no local pack weight. */
@@ -397,9 +398,22 @@ export function calculateAssemblyQuantities(
   areaM2: number,
   overrides?: WallSpecOverrides,
   /** Local cement pack weight, kg. A bag is a package, not a unit of cement. */
-  cementBagKg: number = DEFAULT_CEMENT_BAG_KG,
+  cementBagKg?: number,
+  /** Target market; resolves the local cement pack when no mass is given. */
+  marketCode?: string,
 ): AssemblyQuantityResult {
   const errors: string[] = [];
+  const bagKg =
+    cementBagKg && cementBagKg > 0
+      ? cementBagKg
+      : marketCode
+        ? resolveCementBag(marketCode).bagKg
+        : DEFAULT_CEMENT_BAG_KG;
+  if (!cementBagKg && !marketCode) {
+    errors.push(
+      `Cement bags assumed at ${DEFAULT_CEMENT_BAG_KG} kg: pass marketCode or cementBagKg for the local pack weight.`,
+    );
+  }
   const layers: LayerQuantityResult[] = [];
   const components: AssemblyQuantityResult["components"] = [];
   const oMap = overrides?.layers ?? {};
@@ -428,11 +442,7 @@ export function calculateAssemblyQuantities(
     if (result.baseQuantity === 0) continue;
 
     if (layer.quantityMode === "volume" && layer.mix) {
-      const comps = mixComponentQuantity(
-        result.baseQuantity,
-        layer.mix,
-        cementBagKg,
-      );
+      const comps = mixComponentQuantity(result.baseQuantity, layer.mix, bagKg);
       for (const c of comps) {
         const wasteAdjusted =
           c.quantity *
