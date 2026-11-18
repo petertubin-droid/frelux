@@ -1184,13 +1184,13 @@ export function calculateRoom(
   steps.push({
     label: "Price",
     value: priceConfigured
-      ? `${unitPrice} ${config.price?.currency ?? "NGN"} per ${packSizeLitres}-L bucket`
+      ? `${unitPrice} ${config.price?.currency ?? "(currency not set)"} per ${packSizeLitres}-L bucket`
       : "NOT CONFIGURED",
   });
   steps.push({
     label: "Material Cost",
     value: priceConfigured
-      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "NGN"}`
+      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "(currency not set)"}`
       : "Cannot calculate, price not configured",
     detail: `${practicalTotalBuckets} bucket(s) × ${unitPrice}`,
   });
@@ -1223,7 +1223,7 @@ export function calculateRoom(
           : "Recommended but not calculated (coverage not configured)",
       detail:
         primerCost > 0
-          ? `Cost: ${primerCost.toFixed(2)} ${config.primer_price?.currency ?? "NGN"}`
+          ? `Cost: ${primerCost.toFixed(2)} ${config.primer_price?.currency ?? "(currency not set)"}`
           : "Primer price not configured.",
     });
   }
@@ -1260,7 +1260,7 @@ export function calculateRoom(
       ? Math.round(materialCost * 100) / 100
       : null,
     material_cost_formatted: priceConfigured
-      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "NGN"}`
+      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "(currency not set)"}`
       : "Not configured",
     height_notice: heightWarning,
     labour_note: "Labour: Not included, negotiated separately.",

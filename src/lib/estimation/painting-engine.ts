@@ -68,6 +68,7 @@ import {
   paintPackLabel,
   paintPackNoun,
 } from "@/lib/estimation/paint-packaging";
+import { activeCurrencySymbol } from "@/lib/international/fx-display";
 import {
   calculateTheoreticalLitres,
   normalizeCoverage,
@@ -982,7 +983,9 @@ export function calculateRoom(
     material_cost: unitPrice > 0 ? Math.round(lineTotal * 100) / 100 : null,
     material_cost_formatted:
       unitPrice > 0
-        ? formatCurrency(lineTotal, config.price?.currency ?? "NGN")
+        ? config.price?.currency
+          ? formatCurrency(lineTotal, config.price.currency)
+          : "Currency not set on the price book"
         : "Not configured",
     height_notice: heightAdjustment?.message ?? null,
   };
@@ -1320,7 +1323,7 @@ export function calculatePaintingProject(
 
 export function formatPaintingCurrency(
   amount: number,
-  currency = "NGN",
+  currency = activeCurrencySymbol(),
 ): string {
   return formatCurrency(amount, currency);
 }

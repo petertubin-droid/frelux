@@ -9,7 +9,9 @@ import {
 
 describe("estimation/pricing", () => {
   it("createPriceSnapshot builds correct object", () => {
-    const snap = createPriceSnapshot(2500, "Premium Paint", 20, "litres");
+    const snap = createPriceSnapshot(2500, "Premium Paint", 20, "litres", {
+      currency: "NGN",
+    });
     expect(snap.unit_price).toBe(2500);
     expect(snap.ref_name).toBe("Premium Paint");
     expect(snap.currency).toBe("NGN");
@@ -19,7 +21,9 @@ describe("estimation/pricing", () => {
   });
 
   it("createPriceSnapshot handles NaN price", () => {
-    const snap = createPriceSnapshot(NaN, "Test");
+    const snap = createPriceSnapshot(NaN, "Test", null, null, {
+      currency: "NGN",
+    });
     expect(snap.unit_price).toBe(0);
   });
 

@@ -1,4 +1,5 @@
 import { stageStudioImport } from "@/lib/document-studio";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import {
   autoDisplayForReport,
   type QuoteDisplay,
@@ -6,7 +7,8 @@ import {
 
 export function exportQuoteToDocumentStudio(
   opts: QuoteOptions,
-  currencyCode = "NGN",
+  /** Currency the quote totals are denominated in. */
+  currencyCode?: string,
   documentType: "quotation" | "material_schedule" | "invoice" = "quotation",
 ): void {
   let omittedLines = 0;
@@ -45,6 +47,9 @@ export function exportQuoteToDocumentStudio(
   if (opts.warnings && opts.warnings.length > 0) {
     notesParts.push("Notes: " + opts.warnings.join(". "));
   }
+  const quoteCurrency = String(currencyCode ?? getActiveDisplayCurrency())
+    .trim()
+    .toUpperCase();
   const display = autoDisplayForReport(opts.totals);
   if (display) {
     const headline =
@@ -69,7 +74,7 @@ export function exportQuoteToDocumentStudio(
     materials,
     notes: notesParts.join("\n\n"),
     document_type: documentType,
-    currency: currencyCode,
+    currency: quoteCurrency,
   });
 }
 

@@ -12,17 +12,26 @@ export function createPriceSnapshot(
   options?: {
     priceType?: "product" | "quality" | "material";
     refId?: string;
+    /** ISO code of the amount's currency. Required: a price without one is unlabelled money. */
     currency?: string;
     priceId?: string;
     effectiveDate?: string;
   },
 ): PriceSnapshot {
+  const currency = String(options?.currency ?? "")
+    .trim()
+    .toUpperCase();
+  if (!currency) {
+    throw new RangeError(
+      "A price snapshot needs its currency: pass options.currency so the amount is never assumed to be naira.",
+    );
+  }
   return {
     price_type: options?.priceType ?? "product",
     ref_id: options?.refId ?? "",
     ref_name: productName ?? "Unknown Product",
     unit_price: Math.max(0, isNaN(price) ? 0 : price),
-    currency: options?.currency ?? "NGN",
+    currency,
     pack_size: packSize ?? null,
     pack_unit: packUnit ?? null,
     effective_date:
