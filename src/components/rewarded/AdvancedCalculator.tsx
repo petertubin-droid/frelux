@@ -214,7 +214,7 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
     setSaveStatus("saving");
     const title =
       saveTitle || `${toolLabel} estimate ${new Date().toLocaleDateString()}`;
-    const { id, error } = await saveAdvancedEstimate({
+    const { id, error, limited, nextStep } = await saveAdvancedEstimate({
       clientHash,
       toolKey,
       title,
@@ -228,7 +228,13 @@ Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbe
       currency: currencyCode,
     });
     if (error) {
-      setSaveStatus(`Error: ${error}`);
+      // A spent allowance is not an error the visitor caused by doing something
+      // wrong, so it reads as a state with a way forward, not as a failure.
+      setSaveStatus(
+        limited
+          ? [error, nextStep].filter(Boolean).join(" ")
+          : `Error: ${error}`,
+      );
       return;
     }
     setSaveStatus("saved");

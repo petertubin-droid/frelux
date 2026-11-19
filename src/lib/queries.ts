@@ -9,6 +9,7 @@ import {
   bundledPopMaterials,
   bundledTileMaterials,
 } from "@/lib/international/bundled-book";
+import { classifySavedEstimateError } from "@/lib/estimates/free-allowance";
 import { saveLocalProject } from "@/lib/local-projects";
 import type {
   DbColorCombination,
@@ -1469,7 +1470,15 @@ export async function saveAdvancedEstimate(params: {
     })
     .select("id")
     .maybeSingle();
-  return { id: data?.id ?? null, error: error ? error.message : null };
+  // A spent free allowance is a product state, not a fault: the caller says so
+  // and offers the next step instead of showing a raw database error.
+  const classified = classifySavedEstimateError(error?.message);
+  return {
+    id: data?.id ?? null,
+    error: error ? classified.message || error.message : null,
+    limited: classified.limited,
+    nextStep: classified.nextStep,
+  };
 }
 
 export async function fetchAdvancedEstimates(clientHash: string) {
