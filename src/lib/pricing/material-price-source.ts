@@ -14,7 +14,15 @@
  * price, which is the honest outcome.
  */
 
-export type PriceSource = "frelux" | "custom";
+import {
+  lockState,
+  vendorLockNotice,
+  vendorLockReasonText,
+  type VendorLockReason,
+  type VendorPriceLock,
+} from "@/lib/pricing/vendor-lock";
+
+export type PriceSource = "frelux" | "custom" | "vendor-lock";
 
 export type FreluxPriceStatus = "verified" | "indicative" | "unavailable";
 
@@ -32,6 +40,13 @@ export interface ResolvePriceArgs {
   freluxValue: number | null | undefined;
   /** True only when the FRELUX price has passed verification. */
   freluxVerified?: boolean;
+  /**
+   * A supplier price held for a period, if one was found for this material,
+   * market and currency. Used only while it is inside its own window.
+   */
+  vendorLock?: VendorPriceLock | null;
+  /** The moment to judge the lock against; defaults to now. */
+  at?: string | Date;
 }
 
 export interface ResolvedPrice {
@@ -41,6 +56,10 @@ export interface ResolvedPrice {
   notice: string;
   /** True when the calculator must ask for a custom price before it can total. */
   needsCustomPrice: boolean;
+  /** Why a supplier lock was or was not used, when one was offered. */
+  vendorLockReason?: VendorLockReason;
+  /** The lock that was applied, so the quote can cite it. */
+  appliedLock?: VendorPriceLock | null;
 }
 
 export function freluxPriceStatus(
@@ -63,7 +82,48 @@ export function resolveMaterialPrice({
   customValue,
   freluxValue,
   freluxVerified = false,
+  vendorLock = null,
+  at = new Date(),
 }: ResolvePriceArgs): ResolvedPrice {
+  // A firm supplier figure beats an indicative one, but only inside its own
+  // window: an expired lock is a withdrawn price, not an old one.
+  if (vendorLock && source !== "custom") {
+    const state = lockState(vendorLock, at);
+    if (
+      state === "active" &&
+      Number.isFinite(vendorLock.lockedPrice) &&
+      vendorLock.lockedPrice > 0
+    ) {
+      return {
+        value: vendorLock.lockedPrice,
+        source: "vendor-lock",
+        status: "verified",
+        notice: vendorLockNotice(vendorLock),
+        needsCustomPrice: false,
+        vendorLockReason: "applied",
+        appliedLock: vendorLock,
+      };
+    }
+    const reason: VendorLockReason =
+      state === "expired"
+        ? "expired"
+        : state === "pending"
+          ? "pending"
+          : "malformed";
+    const fallback = resolveMaterialPrice({
+      source,
+      customValue,
+      freluxValue,
+      freluxVerified,
+    });
+    return {
+      ...fallback,
+      notice: `${vendorLockReasonText(reason)} ${fallback.notice}`.trim(),
+      vendorLockReason: reason,
+      appliedLock: null,
+    };
+  }
+
   if (source === "custom") {
     const typed =
       customValue === null ||
