@@ -13,6 +13,7 @@ import { writeFileSync, mkdirSync, readFileSync, existsSync } from "fs";
 import { createHash } from "crypto";
 import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
+import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 import { isLocalePrefixed } from "./lib/locale-paths.mjs";
 
@@ -545,6 +546,13 @@ const routes = [
     path: `/market/${m.code.toLowerCase()}`,
     priority: "0.8",
     changefreq: "monthly",
+  })),
+  // Building-type pages are prerendered and public (see scripts/prerender.mjs);
+  // they belong in the sitemap with their own priority/changefreq metadata.
+  ...buildingTypeRoutes.map((r) => ({
+    path: r.path,
+    priority: r.priority ?? "0.7",
+    changefreq: r.changefreq ?? "monthly",
   })),
 ];
 
