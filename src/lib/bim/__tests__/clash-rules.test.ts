@@ -7,7 +7,10 @@ import {
   type ModelBoxes,
 } from "../clash-rules";
 
-function box(min: [number, number, number], max: [number, number, number]): Box3Like {
+function box(
+  min: [number, number, number],
+  max: [number, number, number],
+): Box3Like {
   return { min, max };
 }
 
@@ -51,19 +54,31 @@ describe("screenClashes", () => {
   });
 
   it("skips same-model pairs unless cross_model_only is false", () => {
-    const models = [model("arch", { a: box([0, 0, 0], [2, 2, 2]), b: box([1, 1, 1], [3, 3, 3]) })];
+    const models = [
+      model("arch", {
+        a: box([0, 0, 0], [2, 2, 2]),
+        b: box([1, 1, 1], [3, 3, 3]),
+      }),
+    ];
     expect(screenClashes(models).candidates).toHaveLength(0);
-    expect(screenClashes(models, { cross_model_only: false }).candidates).toHaveLength(1);
+    expect(
+      screenClashes(models, { cross_model_only: false }).candidates,
+    ).toHaveLength(1);
   });
 
   it("is deterministic: same input, same ordered output", () => {
     const models = [
       model("b", { x: box([0, 0, 0], [3, 3, 3]) }),
-      model("a", { y: box([0, 0, 0], [1, 1, 1]), z: box([0, 0, 0], [2, 2, 2]) }),
+      model("a", {
+        y: box([0, 0, 0], [1, 1, 1]),
+        z: box([0, 0, 0], [2, 2, 2]),
+      }),
     ];
     const r1 = screenClashes(models);
     const r2 = screenClashes(models);
-    expect(r1.candidates.map((c) => c.id)).toEqual(r2.candidates.map((c) => c.id));
+    expect(r1.candidates.map((c) => c.id)).toEqual(
+      r2.candidates.map((c) => c.id),
+    );
     // largest overlap first
     expect(r1.candidates[0].overlap_volume).toBeGreaterThanOrEqual(
       r1.candidates[r1.candidates.length - 1].overlap_volume,
@@ -77,9 +92,12 @@ describe("screenClashes", () => {
       arch[`w${i}`] = box([0, 0, 0], [10, 10, 10]);
       struct[`c${i}`] = box([0, 0, 0], [10, 10, 10]);
     }
-    const result = screenClashes([model("arch", arch), model("struct", struct)], {
-      max_candidates: 3,
-    });
+    const result = screenClashes(
+      [model("arch", arch), model("struct", struct)],
+      {
+        max_candidates: 3,
+      },
+    );
     expect(result.candidates).toHaveLength(3);
     expect(result.truncated).toBe(true);
   });
@@ -91,7 +109,11 @@ describe("createClashIssue", () => {
       model("arch", { w1: box([0, 0, 0], [2, 1, 1]) }),
       model("struct", { c1: box([1, 0, 0], [3, 1, 1]) }),
     ]);
-    const issue = createClashIssue(result.candidates[0], "2026-11-19T12:00:00Z", 0.05);
+    const issue = createClashIssue(
+      result.candidates[0],
+      "2026-11-19T12:00:00Z",
+      0.05,
+    );
     expect(issue.status).toBe("open");
     expect(issue.rule_id).toBe("aabb-overlap-v1");
     expect(issue.detected_at).toBe("2026-11-19T12:00:00Z");

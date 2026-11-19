@@ -20,7 +20,13 @@ function act(
   end: string,
   ids: string[],
 ): ScheduleActivity {
-  return { id, name: id, start_date: start, end_date: end, element_global_ids: ids };
+  return {
+    id,
+    name: id,
+    start_date: start,
+    end_date: end,
+    element_global_ids: ids,
+  };
 }
 
 describe("buildScheduleLink", () => {
@@ -48,15 +54,20 @@ describe("buildScheduleLink", () => {
   it("refuses duplicate ids and inverted or invalid dates", () => {
     expect(
       buildScheduleLink(
-        [act("a1", "2026-11-01", "2026-11-02", []), act("a1", "2026-11-03", "2026-11-04", [])],
+        [
+          act("a1", "2026-11-01", "2026-11-02", []),
+          act("a1", "2026-11-03", "2026-11-04", []),
+        ],
         revision,
       ).ok,
     ).toBe(false);
     expect(
-      buildScheduleLink([act("a1", "2026-11-05", "2026-11-01", [])], revision).ok,
+      buildScheduleLink([act("a1", "2026-11-05", "2026-11-01", [])], revision)
+        .ok,
     ).toBe(false);
     expect(
-      buildScheduleLink([act("a1", "2026-13-01", "2026-11-10", [])], revision).ok,
+      buildScheduleLink([act("a1", "2026-13-01", "2026-11-10", [])], revision)
+        .ok,
     ).toBe(false);
   });
 
@@ -76,7 +87,10 @@ describe("buildScheduleLink", () => {
 describe("elementsActiveOn", () => {
   it("includes both interval ends and nothing outside them", () => {
     const link = buildScheduleLink(
-      [act("a1", "2026-11-01", "2026-11-10", ["w1"]), act("a2", "2026-11-11", "2026-11-20", ["w2"])],
+      [
+        act("a1", "2026-11-01", "2026-11-10", ["w1"]),
+        act("a2", "2026-11-11", "2026-11-20", ["w2"]),
+      ],
       revision,
     );
     if (!link.ok) throw new Error("unexpected refusal");

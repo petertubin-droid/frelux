@@ -10,6 +10,7 @@ import {
   accuracyReviewFlags,
   declaredAttributeGaps,
   EMPTY_ATTRIBUTES,
+  propertyScalar,
   readAccuracyAttributes,
 } from "../model-attributes";
 
@@ -121,5 +122,80 @@ describe("declaredAttributeGaps", () => {
     });
     expect(gaps).toContain("isExternal");
     expect(gaps).not.toContain("fireRating");
+  });
+});
+
+describe("propertyScalar (structured property values)", () => {
+  it("uses a bounded value's explicit set point", () => {
+    expect(
+      propertyScalar({
+        kind: "bounded",
+        lower: 0.2,
+        upper: 0.26,
+        setPoint: 0.24,
+      }),
+    ).toBe(0.24);
+  });
+
+  it("accepts equal bounds but never picks between different ones", () => {
+    expect(propertyScalar({ kind: "bounded", lower: 0.3, upper: 0.3 })).toBe(
+      0.3,
+    );
+    expect(propertyScalar({ kind: "bounded", lower: 0.2, upper: 0.26 })).toBe(
+      null,
+    );
+  });
+
+  it("reads a single-item list and refuses a multi-value list", () => {
+    expect(propertyScalar({ kind: "list", values: ["FD60"] })).toBe("FD60");
+    expect(propertyScalar({ kind: "list", values: ["Paint", "Tile"] })).toBe(
+      null,
+    );
+  });
+
+  it("leaves complex values to their nested entries", () => {
+    expect(propertyScalar({ kind: "complex", properties: [] })).toBe(null);
+  });
+});
+
+describe("readAccuracyAttributes with structured properties", () => {
+  it("reads a U-value from its bounded set point", () => {
+    const attributes = readAccuracyAttributes({
+      properties: props([
+        "Pset_Extended",
+        "UValue",
+        { kind: "bounded", lower: 0.2, upper: 0.26, setPoint: 0.24 } as never,
+      ]),
+    });
+    expect(attributes.thermalTransmittance).toBe(0.24);
+  });
+
+  it("matches a nested complex entry by its final name segment", () => {
+    const attributes = readAccuracyAttributes({
+      properties: [
+        {
+          pset: "Pset_Extended",
+          name: "Spec.Finish",
+          value: "Satin",
+          nested: true,
+        },
+      ],
+    });
+    expect(attributes.finish).toBe("Satin");
+  });
+
+  it("prefers an exact property name over a nested one of the same name", () => {
+    const attributes = readAccuracyAttributes({
+      properties: [
+        {
+          pset: "Pset_Extended",
+          name: "Spec.Reference",
+          value: "NESTED-9",
+          nested: true,
+        },
+        { pset: "Pset_Extended", name: "Reference", value: "SPEC-9" },
+      ],
+    });
+    expect(attributes.reference).toBe("SPEC-9");
   });
 });

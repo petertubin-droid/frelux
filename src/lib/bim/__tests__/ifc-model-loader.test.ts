@@ -132,12 +132,47 @@ describe("parseIfcModel property sets (real web-ifc)", () => {
     expect(result.elementsWithProperties).toBeGreaterThanOrEqual(2);
   });
 
-  it("counts complex properties instead of flattening them", async () => {
+  it("flattens complex properties into dotted nested names", async () => {
+    const result = await parseIfcModel(fixture("property-sets.ifc"));
+    const door = result.elements.find((e) => e.name === "Door-FD60");
+    expect(door?.properties?.some((p) => p.name === "Layers.Inner")).toBe(true);
+    expect(
+      door?.properties?.find((p) => p.name === "Layers.Inner")?.value,
+    ).toBe("x");
+    // nested entries are marked so a consumer can tell them apart
+    expect(
+      door?.properties?.find((p) => p.name === "Layers.Inner")?.nested,
+    ).toBe(true);
+  });
+
+  it("keeps bounded and list values structured instead of picking a number", async () => {
+    const result = await parseIfcModel(fixture("property-sets.ifc"));
+    const door = result.elements.find((e) => e.name === "Door-FD60");
+    const bounded = door?.properties?.find((p) => p.name === "UValue")?.value;
+    expect(bounded).toEqual({
+      kind: "bounded",
+      upper: 0.26,
+      lower: 0.2,
+      setPoint: 0.24,
+    });
+    const list = door?.properties?.find((p) => p.name === "Finishes")?.value;
+    expect(list).toEqual({ kind: "list", values: ["Paint", "Tile"] });
+  });
+
+  it("reads nested complex entries under dotted names", async () => {
+    const result = await parseIfcModel(fixture("property-sets.ifc"));
+    const door = result.elements.find((e) => e.name === "Door-FD60");
+    expect(door?.properties?.find((p) => p.name === "Spec.Finish")?.value).toBe(
+      "Satin",
+    );
+  });
+
+  it("counts table values as skipped rather than inventing rows", async () => {
     const result = await parseIfcModel(fixture("property-sets.ifc"));
     expect(result.skippedComplexProperties).toBeGreaterThanOrEqual(1);
     const door = result.elements.find((e) => e.name === "Door-FD60");
-    // the complex "Layers" property must not appear as a flattened scalar
-    expect(door?.properties?.some((p) => p.name === "Layers")).toBe(false);
-    expect(door?.properties?.some((p) => p.name === "Inner")).toBe(false);
+    expect(door?.properties?.some((p) => p.name === "ThermalTable")).toBe(
+      false,
+    );
   });
 });

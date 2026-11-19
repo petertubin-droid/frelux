@@ -56,12 +56,36 @@ export interface IfcModelElement {
   properties?: IfcElementProperty[];
 }
 
+/** Scalar value a single IFC property can state. */
+export type IfcPropertyScalar = string | number | boolean;
+
+/**
+ * A property value as the file states it. Simple properties carry a scalar;
+ * list, bounded and (flattened) complex properties keep their structure so
+ * nothing is silently flattened into a value the file did not claim.
+ */
+export type IfcPropertyValue =
+  | IfcPropertyScalar
+  | { kind: "list"; values: IfcPropertyScalar[] }
+  | {
+      kind: "bounded";
+      lower?: IfcPropertyScalar;
+      upper?: IfcPropertyScalar;
+      setPoint?: IfcPropertyScalar;
+    }
+  | {
+      kind: "complex";
+      properties: Array<{ name: string; value: IfcPropertyValue }>;
+    };
+
 export interface IfcElementProperty {
   /** property set name, e.g. Pset_WallCommon */
   pset: string;
-  /** property name, e.g. FireRating */
+  /** property name, e.g. FireRating; nested complex entries use dotted paths */
   name: string;
-  value: string | number | boolean;
+  value: IfcPropertyValue;
+  /** true when this entry came out of a complex property (dotted name) */
+  nested?: boolean;
 }
 
 /**
@@ -79,12 +103,17 @@ export const IFC_COVERAGE = {
     "IfcRelAssociatesMaterial -> IfcMaterial / IfcMaterialLayerSet",
     "IfcProject.UnitsInContext -> IfcUnitAssignment",
     "IfcRelDefinesByProperties -> IfcPropertySet (single-value + enumerated)",
+    "IfcPropertyBoundedValue (lower / upper / set point)",
+    "IfcPropertyListValue (all values, kept as a list)",
+    "IfcPropertyComplexProperty (nested entries, dotted names)",
   ],
   /**
-   * Not covered, and not claimed: complex, list and bounded properties are
-   * counted and skipped rather than flattened; no unit conversion is
-   * performed; spatial structure above storey level (site/building) is not
-   * modelled. Full IFC4 entity coverage is not claimed.
+   * Not covered, and not claimed: IfcPropertyTableValue is counted and
+   * skipped; a bounded value is never collapsed into one number (the bounds
+   * stay visible, the consumer may use an explicit set point); no unit
+   * conversion is performed; spatial structure above storey level
+   * (site/building) is not modelled. Full IFC4 entity coverage is not
+   * claimed.
    */
 } as const;
 
@@ -340,57 +369,143 @@ export async function parseIfcModel(
     const enumType = (WebIfc.IFCPROPERTYENUMERATEDVALUE ?? 0) as number;
     const boundedType = (WebIfc.IFCPROPERTYBOUNDEDVALUE ?? 0) as number;
     const listType = (WebIfc.IFCPROPERTYLISTVALUE ?? 0) as number;
-    const complexType = (WebIfc.IFCPROPERTYCOMPLEXPROPERTY ?? 0) as number;
-    const SKIPPED_TYPES = new Set(
-      [boundedType, listType, complexType].filter(
-        (t) => typeof t === "number" && t > 0,
-      ),
-    );
-    const scalarProperty = (
+    // IFC4 names this entity IfcComplexProperty; IFCPROPERTYCOMPLEXPROPERTY
+    // does not exist in the schema (web-ifc returns undefined for it), which
+    // silently disabled complex-property detection before this fix.
+    const complexType = (WebIfc.IFCCOMPLEXPROPERTY ?? 0) as number;
+    const tableType = (WebIfc.IFCPROPERTYTABLEVALUE ?? 0) as number;
+    /** Deepest complex nesting read; deeper entries are counted, not guessed. */
+    const MAX_COMPLEX_DEPTH = 4;
+
+    const scalarOf = (x: unknown): IfcPropertyScalar | null => {
+      if (
+        typeof x === "string" ||
+        typeof x === "number" ||
+        typeof x === "boolean"
+      )
+        return x;
+      if (x && typeof x === "object" && "value" in (x as object)) {
+        const v = (x as { value?: unknown }).value;
+        if (
+          typeof v === "string" ||
+          typeof v === "number" ||
+          typeof v === "boolean"
+        )
+          return v;
+      }
+      return null;
+    };
+
+    /** web-ifc type code of a property line, or null when unreadable. */
+    const typeOf = (propID: number): number | null => {
+      try {
+        const line = api.GetLine(modelID, propID) as { type?: number };
+        return typeof line.type === "number" ? line.type : null;
+      } catch {
+        return null;
+      }
+    };
+
+    /**
+     * Read one property line into zero or more flat entries. Simple and
+     * enumerated values yield one entry; bounded and list values keep their
+     * structure; a complex property is flattened into dotted nested entries so
+     * nothing is dropped or invented.
+     */
+    const propertyEntries = (
       propID: number,
-    ): { name: string; value: string | number | boolean } | null => {
+      depth: number,
+      prefix?: string,
+    ): Array<{ name: string; value: IfcPropertyValue; nested?: boolean }> => {
       let prop: Record<string, unknown>;
       try {
         prop = api.GetLine(modelID, propID) as Record<string, unknown>;
       } catch {
         // A malformed property line must never abort the whole model parse.
-        return null;
+        return [];
       }
-      const name = labelText(prop.Name);
-      if (!name) return null;
-      const nominal = prop.NominalValue as
-        { value?: unknown; type?: number } | undefined;
-      if (nominal && typeof nominal === "object" && "value" in nominal) {
-        const v = nominal.value;
-        if (
-          typeof v === "string" ||
-          typeof v === "number" ||
-          typeof v === "boolean"
-        ) {
-          return { name, value: v };
+      const type = typeof prop.type === "number" ? prop.type : null;
+      const baseName = labelText(prop.Name);
+      const name = baseName
+        ? prefix
+          ? `${prefix}.${baseName}`
+          : baseName
+        : null;
+
+      if (type === complexType) {
+        if (depth >= MAX_COMPLEX_DEPTH || !name) return [];
+        const inner = prop.HasProperties as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(inner)) return [];
+        const out: Array<{
+          name: string;
+          value: IfcPropertyValue;
+          nested?: boolean;
+        }> = [];
+        for (const ref of inner) {
+          out.push(...propertyEntries(ref.value, depth + 1, name));
         }
+        return out;
       }
-      if (
-        typeof nominal === "string" ||
-        typeof nominal === "number" ||
-        typeof nominal === "boolean"
-      ) {
-        return { name, value: nominal };
+
+      if (!name) return [];
+
+      if (type === boundedType) {
+        const lower = scalarOf(prop.LowerBoundValue);
+        const upper = scalarOf(prop.UpperBoundValue);
+        const setPoint = scalarOf(prop.SetPointValue);
+        if (lower === null && upper === null && setPoint === null) return [];
+        return [
+          {
+            name,
+            value: {
+              kind: "bounded",
+              ...(lower !== null ? { lower } : {}),
+              ...(upper !== null ? { upper } : {}),
+              ...(setPoint !== null ? { setPoint } : {}),
+            },
+            ...(prefix ? { nested: true } : {}),
+          },
+        ];
+      }
+
+      if (type === listType) {
+        const refs = prop.ListValues as Array<{ value?: unknown }> | undefined;
+        if (!Array.isArray(refs)) return [];
+        const values = refs
+          .map((r) => scalarOf(r?.value))
+          .filter((v): v is IfcPropertyScalar => v !== null);
+        if (values.length === 0) return [];
+        return [
+          {
+            name,
+            value: { kind: "list", values },
+            ...(prefix ? { nested: true } : {}),
+          },
+        ];
+      }
+
+      if (type === tableType) {
+        // Not read: a table's rows carry a meaning we would have to invent.
+        return [];
+      }
+
+      // Single, enumerated, or an untyped line: one scalar when present.
+      const nominal = scalarOf(prop.NominalValue);
+      if (nominal !== null) {
+        return [{ name, value: nominal, ...(prefix ? { nested: true } : {}) }];
       }
       const enumerated = prop.EnumerationValues as
         Array<{ value?: unknown }> | undefined;
       if (Array.isArray(enumerated) && enumerated.length > 0) {
-        const v = enumerated[0]?.value;
-        if (
-          typeof v === "string" ||
-          typeof v === "number" ||
-          typeof v === "boolean"
-        ) {
-          return { name, value: v };
+        const v = scalarOf(enumerated[0]?.value);
+        if (v !== null) {
+          return [{ name, value: v, ...(prefix ? { nested: true } : {}) }];
         }
       }
-      return null;
+      return [];
     };
+
     if (psetIds.size > 0) {
       const psetProps = new Map<number, IfcElementProperty[]>();
       for (const psetID of psetIds) {
@@ -408,23 +523,13 @@ export async function parseIfcModel(
         if (!Array.isArray(hasProps)) continue;
         const collected: IfcElementProperty[] = [];
         for (const ref of hasProps) {
-          let propType: number | undefined;
-          try {
-            propType = (api.GetLine(modelID, ref.value) as { type?: number })
-              .type;
-          } catch {
+          const entries = propertyEntries(ref.value, 0);
+          if (entries.length === 0) {
             skippedComplexProperties += 1;
             continue;
           }
-          if (typeof propType === "number" && SKIPPED_TYPES.has(propType)) {
-            skippedComplexProperties += 1;
-            continue;
-          }
-          const scalar = scalarProperty(ref.value);
-          if (scalar) {
-            collected.push({ pset: psetName, ...scalar });
-          } else {
-            skippedComplexProperties += 1;
+          for (const entry of entries) {
+            collected.push({ pset: psetName, ...entry });
           }
         }
         if (collected.length > 0) psetProps.set(psetID, collected);

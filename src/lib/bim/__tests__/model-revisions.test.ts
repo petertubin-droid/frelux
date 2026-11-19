@@ -54,7 +54,10 @@ describe("buildRevisionChain", () => {
   });
 
   it("refuses a missing parent instead of guessing order", () => {
-    const r = buildRevisionChain("arch", [rev("a", null, {}), rev("b", "zz", {})]);
+    const r = buildRevisionChain("arch", [
+      rev("a", null, {}),
+      rev("b", "zz", {}),
+    ]);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.errors[0]).toContain("missing parent");
   });
@@ -70,9 +73,15 @@ describe("buildRevisionChain", () => {
   });
 
   it("refuses two roots and duplicate ids", () => {
-    const twoRoots = buildRevisionChain("arch", [rev("a", null, {}), rev("b", null, {})]);
+    const twoRoots = buildRevisionChain("arch", [
+      rev("a", null, {}),
+      rev("b", null, {}),
+    ]);
     expect(twoRoots.ok).toBe(false);
-    const dup = buildRevisionChain("arch", [rev("a", null, {}), rev("a", null, {})]);
+    const dup = buildRevisionChain("arch", [
+      rev("a", null, {}),
+      rev("a", null, {}),
+    ]);
     expect(dup.ok).toBe(false);
     if (!dup.ok) expect(dup.errors.join(" ")).toContain("Duplicate");
   });

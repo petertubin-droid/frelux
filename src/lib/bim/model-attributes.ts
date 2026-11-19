@@ -14,7 +14,12 @@
  *    applied. It is not a price and never substitutes for one.
  */
 
-import type { IfcElementProperty, IfcModelElement } from "./ifc-model-loader";
+import type {
+  IfcElementProperty,
+  IfcModelElement,
+  IfcPropertyScalar,
+  IfcPropertyValue,
+} from "./ifc-model-loader";
 
 export interface ElementAccuracyAttributes {
   /** declared fire rating, verbatim (e.g. "FD60", "2 HR") */
@@ -95,13 +100,59 @@ function asBoolean(v: string | number | boolean): boolean | null {
   return null;
 }
 
+/**
+ * Collapse a structured property to the one scalar it honestly states.
+ *
+ *  - list: only when it holds exactly one value (a multi-value list is a
+ *    set of alternatives, not a statement, so it stays null)
+ *  - bounded: the explicit set point; or a single number when the lower and
+ *    upper bounds are equal; otherwise null, because picking a bound would be
+ *    inventing the design value
+ *  - complex: null here; its nested entries arrive as dotted names
+ */
+export function propertyScalar(
+  value: IfcPropertyValue,
+): IfcPropertyScalar | null {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  )
+    return value;
+  if (value.kind === "list") {
+    return value.values.length === 1 ? value.values[0] : null;
+  }
+  if (value.kind === "bounded") {
+    if (value.setPoint !== undefined) return value.setPoint;
+    if (
+      value.lower !== undefined &&
+      value.upper !== undefined &&
+      value.lower === value.upper
+    )
+      return value.lower;
+    return null;
+  }
+  return null;
+}
+
+/** Last segment of a dotted nested name, e.g. "Spec.FireRating" -> "firerating". */
+function baseName(name: string): string {
+  const idx = name.lastIndexOf(".");
+  return (idx >= 0 ? name.slice(idx + 1) : name).toLowerCase();
+}
+
 function findProperty(
   properties: readonly IfcElementProperty[],
   aliases: readonly string[],
-): string | number | boolean | null {
+): IfcPropertyScalar | null {
   for (const alias of aliases) {
-    const hit = properties.find((p) => p.name.toLowerCase() === alias);
-    if (hit) return hit.value;
+    const hit =
+      properties.find((p) => p.name.toLowerCase() === alias) ??
+      properties.find((p) => baseName(p.name) === alias);
+    if (hit) {
+      const scalar = propertyScalar(hit.value);
+      if (scalar !== null) return scalar;
+    }
   }
   return null;
 }
