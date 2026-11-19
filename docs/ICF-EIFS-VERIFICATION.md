@@ -79,8 +79,18 @@ exception explicitly instead of labelling a metre value as feet.
 
 ## Still open
 
-- Price coverage is US, GB and AU only. Elsewhere the BOQ states that no prices
-  are recorded rather than borrowing another market's currency.
+- Price coverage is partial and honest. Nine roles exist per system, and the
+  book currently maps: US 9 of 9, GB 5 of 9 (missing concrete, rebar, finish,
+  primer), AU 4 of 9 (missing form block, concrete, adhesive, finish, primer).
+  Every unmapped role makes the BOQ say "quantities only" rather than borrow a
+  currency. NG is left empty on purpose: ICF and EIFS are not stocked at retail
+  there, so any NG figure would be invented.
+- The migration `20261119150000_icf_eifs_gb_au_roles.sql` adds the GB and AU
+  roles that could be sourced from a retailer page, records the pack size and
+  VAT/GST basis in each note, and sets `verification_status` on the first twelve
+  rows, which were written with none. `icf-eifs-seed-units.test.ts` fails if a
+  seeded unit_label ever disagrees with the unit the engine prices that role in,
+  because system-boq-pricing would otherwise drop the line silently.
 - Bracing, fixings, WRB, drainage, trims and labour are quantity-only, on
   purpose: no market price is recorded for them.
 - The two pages display rates and subtotals but do not yet load a saved
