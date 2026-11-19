@@ -67,7 +67,7 @@ describe("tool shell", () => {
     expect(
       screen.getByRole("heading", { name: "Concrete Slab Takeoff" }),
     ).toBeTruthy();
-    expect(screen.getByText(tool!.does)).toBeTruthy();
+    expect(screen.getAllByText(tool!.does).length).toBeGreaterThan(0);
     expect(screen.getByText("calculator body")).toBeTruthy();
   });
 

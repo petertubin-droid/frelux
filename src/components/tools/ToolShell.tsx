@@ -26,12 +26,11 @@ import { getMarketToolCopy } from "@/lib/globalization/construction-terminology"
 import { SITE_URL } from "@/lib/site-config";
 
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
-import ToolFaqs from "@/components/seo/ToolFaqs";
+import AboutThisToolSection from "@/components/calculators/AboutThisToolSection";
 import { RelatedTools } from "@/components/seo/SeoSections";
 import type { RelatedLink } from "@/components/seo/SeoSections";
 import PageHeader from "@/components/ui/PageHeader";
 import { TOOL_CATEGORIES, findToolByRoute } from "@/config/construction-tools";
-import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 import { relatedToolsFor } from "@/lib/tools/related-tools";
 import { stripLocaleFromPathname, useLanguage } from "@/lib/i18n";
 import { useBreadcrumbJsonLd, useSeo } from "@/lib/seo";
@@ -118,7 +117,6 @@ export default function ToolShell({
   const tool = catalogued
     ? getMarketToolCopy(catalogued.slug, marketCode, catalogued)
     : undefined;
-  const faqGroup = showFaq ? getToolFaqGroupByRoute(address) : undefined;
   const links = useMemo(
     () => relatedLinks ?? (tool ? relatedToolsFor(tool) : []),
     [relatedLinks, tool],
@@ -211,13 +209,15 @@ export default function ToolShell({
 
       {children}
 
-      {faqGroup ? (
-        <div className="mt-10">
-          <ToolFaqs slug={faqGroup.slug} />
-        </div>
+      {tool ? (
+        <AboutThisToolSection
+          route={tool.to}
+          relatedLinks={showRelated ? links : []}
+          showFaq={showFaq}
+        />
       ) : null}
 
-      {showRelated && links.length > 0 ? <RelatedTools links={links} /> : null}
+      {!tool && showRelated && links.length > 0 ? <RelatedTools links={links} /> : null}
 
       {hideDisclaimer ? null : <EstimateDisclaimer text={disclaimerText} />}
     </>
