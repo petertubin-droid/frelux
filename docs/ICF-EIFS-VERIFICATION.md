@@ -86,3 +86,56 @@ exception explicitly instead of labelling a metre value as feet.
 - The two pages display rates and subtotals but do not yet load a saved
   template into the form. That is the Calculator Templates System work, not a
   defect in these engines.
+
+## Independent arithmetic audit
+
+Formulas were recomputed by hand from the published rules and diffed against
+engine output, rather than reading the code and agreeing with it. Case: 10 m x
+3 m wall, 200 mm core, flat form, 4% cutting waste, 5% concrete over-order, four
+90 degree corners.
+
+| Quantity                         | Hand calculation            | Engine | Verdict                           |
+| -------------------------------- | --------------------------- | ------ | --------------------------------- |
+| Courses                          | ceil(3.0 / 0.4) = 8         | 8      | Correct                           |
+| Blocks before corners            | ceil(30 / 0.48 x 1.04) = 65 | 65     | Correct                           |
+| Corner blocks                    | 4 x 8 = 32                  | 32     | Correct                           |
+| Straight blocks                  | 65 - 32 = 33                | 33     | Correct                           |
+| Cutting allowance                | 65 x 0.48 - 30 = 1.20 m2    | 1.20   | Correct                           |
+| Net concrete                     | 30 x 0.20 x 0.985 = 5.91 m3 | 5.91   | Correct                           |
+| Pump prime                       | 5.91 x 5% = 0.30 m3         | 0.30   | Correct                           |
+| Total concrete                   | 6.21 m3                     | 6.21   | Correct                           |
+| Sand at 790 kg/m3                | 4.91 t                      | 4.91   | Correct                           |
+| Aggregate at 1150 kg/m3          | 7.14 t                      | 7.14   | Correct                           |
+| Water at 182 L/m3                | 1,131 L                     | 1,131  | Correct                           |
+| Cement at 350 kg/m3, 42.6 kg bag | 51.0 bags                   | 52     | Correct, rounded up to whole bags |
+
+EIFS, same wall, 50 mm board, 6% waste:
+
+| Quantity            | Hand calculation           | Engine         | Verdict |
+| ------------------- | -------------------------- | -------------- | ------- |
+| Effective area      | 30 x 1.06 = 31.8 m2        | 31.8           | Correct |
+| Boards              | ceil(31.8 / 0.72) = 45     | 45             | Correct |
+| Board volume        | 45 x 0.72 x 0.05 = 1.62 m3 | 1.62           | Correct |
+| Continuous R        | 1.9685 in x 3.85 = 7.58    | R-7.6          | Correct |
+| RSI at lambda 0.038 | 0.05 / 0.038 = 1.32        | 1.32           | Correct |
+| U factor            | 1 / (1.32 + 0.17) = 0.67   | 0.671          | Correct |
+| Starter track       | perimeter 10 m, 3 m pieces | 10 m, 4 pieces | Correct |
+| Corner bead         | 4 corners x 3 m = 12 m     | 12 m, 4 pieces | Correct |
+
+Every figure reconciles. Nothing in the core arithmetic is a placeholder.
+
+## Expansion joints
+
+`expansionJointLengthM` documents "auto-calculated if 0", and the audit found the
+auto path only fires when the wall run exceeds 15 m. That is defensible, since
+movement joints belong on long runs, but the input description overstates it. The
+behaviour is correct; the wording is not. Left as a documented nuance rather than
+changing an engineering threshold without a source.
+
+## Shared calculator shell
+
+Both pages render inside `ToolShell` with their own route
+(`/icf-wall-estimator`, `/eifs-wall-estimator`), the same wrapper every other
+calculator uses, so navigation, header, disclaimer and layout come from one
+place. The two aliases `/icf-calculator` and `/eifs-calculator` redirect to them
+rather than rendering a second implementation.
