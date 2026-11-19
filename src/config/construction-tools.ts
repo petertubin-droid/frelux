@@ -167,6 +167,17 @@ export interface Tool {
    */
   seoTitle?: string;
   seoDescription?: string;
+  /**
+   * Markets where this tool's trade vocabulary is the local one.
+   *
+   * Absent means the tool is offered everywhere. Set it only where the method
+   * itself is regional, such as POP ceiling or Tyrolene finishes, so a US or
+   * German visitor is not handed a Nigerian trade term and left to guess what
+   * it means. A blank or unknown market still sees the full catalogue: hiding
+   * tools from a market we have no profile for would be the same region-locked
+   * assumption in the other direction.
+   */
+  markets?: string[];
 }
 
 export const CONSTRUCTION_TOOLS: Tool[] = [
@@ -359,6 +370,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Free FRELUX finishing calculator. Compare Painting, Tyrolene, and Grafitex finishes. Detailed Tyrolene estimator with partition-based material calculations.",
     to: "/finish-estimator",
     benefit: "Tyrolene · Grafitex",
+    // Tyrolene and Grafitex are Nigerian decorative finishes; outside the
+    // region the same calculator is offered as plaster and paint.
+    markets: ["NG", "GH"],
     navVisible: true,
   },
   {
@@ -376,6 +390,10 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with verified material prices.",
     to: "/pop-ceiling-calculator",
     benefit: "Materials & cost",
+    // POP is the West African plasterboard ceiling trade. A US visitor calls
+    // the same work drywall ceiling and buys sheets in square feet, so the
+    // term would mislead rather than help.
+    markets: ["NG", "GH", "KE"],
     navVisible: true,
   },
   {
@@ -1548,4 +1566,24 @@ export function findTool(slug: string) {
 export function findToolByRoute(route: string): Tool | undefined {
   const clean = route.replace(/\/+$/, "") || "/";
   return CONSTRUCTION_TOOLS.find((t) => t.to === clean);
+}
+
+/** True when the tool is offered in this market (blank/unknown: offered). */
+export function toolOfferedInMarket(
+  tool: Pick<Tool, "markets">,
+  marketCode: string | null | undefined,
+): boolean {
+  const markets = tool.markets;
+  if (!markets || markets.length === 0) return true;
+  const code = (marketCode ?? "").trim().toUpperCase();
+  if (!code) return true;
+  return markets.some((market) => market.toUpperCase() === code);
+}
+
+/** The catalogue a visitor in this market should be shown. */
+export function toolsOfferedInMarket<T extends Pick<Tool, "markets">>(
+  tools: T[],
+  marketCode: string | null | undefined,
+): T[] {
+  return tools.filter((tool) => toolOfferedInMarket(tool, marketCode));
 }

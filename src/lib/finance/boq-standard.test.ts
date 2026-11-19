@@ -558,3 +558,79 @@ describe("measurement method per market", () => {
     }
   });
 });
+
+describe("printed schedule letterhead", () => {
+  const baseDoc = () =>
+    assembleStandardBoq({
+      metadata: {
+        title: "Lekki Phase 2 Duplex",
+        projectRef: "FRL-2026-014",
+        clientName: "Client",
+        contractorName: "Buildcorp Engineering",
+        location: "Lagos, Nigeria",
+        marketCode: "NG",
+        currency: "NGN",
+        preparedBy: "QS",
+        date: "2026-11-19",
+        revision: "Rev A",
+        standard: "BESMM4",
+      },
+      commercials: {
+        preliminariesPercent: 5,
+        overheadProfitPercent: 10,
+        contingencyPercent: 5,
+        retentionPercent: 5,
+      },
+      sections: [
+        {
+          code: "C",
+          title: "Substructure",
+          subSections: [
+            {
+              code: "C.1",
+              title: "Concrete",
+              items: [
+                {
+                  itemNumber: "C.1.01",
+                  description: "Mass concrete to strip footing",
+                  quantity: 12,
+                  unit: "m³",
+                  materialRate: 90000,
+                  laborRate: 25000,
+                  plantRate: 5000,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+  it("prints FRELUX when no contractor brand is supplied", () => {
+    const html = exportBoqToPrintHtml(baseDoc());
+    expect(html).toContain("FRELUX GLOBAL ENTERPRISE");
+  });
+
+  it("prints the contractor's own name, tagline and contact lines", () => {
+    const html = exportBoqToPrintHtml(baseDoc(), {
+      name: "Adeleke Structural Consultants Ltd",
+      logoUrl: "https://media.example.com/adeleke-mark.png",
+      tagline: "Structural engineering and quantity surveying",
+      contactLines: ["12 Marina, Lagos", "+234 800 000 0000"],
+    });
+    expect(html).toContain("Adeleke Structural Consultants Ltd");
+    expect(html).toContain("https://media.example.com/adeleke-mark.png");
+    expect(html).toContain("Structural engineering and quantity surveying");
+    expect(html).toContain("12 Marina, Lagos");
+    // The platform does not stamp itself onto a third party's tender.
+    expect(html).not.toContain("FRELUX GLOBAL ENTERPRISE");
+  });
+
+  it("escapes a contractor name rather than injecting it as markup", () => {
+    const html = exportBoqToPrintHtml(baseDoc(), {
+      name: "<script>alert(1)</script>Build Co",
+    });
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("&lt;script&gt;");
+  });
+});

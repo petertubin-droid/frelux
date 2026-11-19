@@ -7,8 +7,10 @@ import { useLanguage } from "@/lib/i18n";
 import {
   CONSTRUCTION_TOOLS,
   TOOL_CATEGORIES,
+  toolsOfferedInMarket,
   type ToolCategoryId,
 } from "@/config/construction-tools";
+import { useMarket } from "@/lib/international/market-context";
 
 // Registry-driven preview of the complete FRELUX tool library: every
 // category with its most popular tools and a count badge. The homepage
@@ -16,25 +18,37 @@ import {
 // finishing calculators twice.
 const CATEGORY_TOP_TOOLS = 4;
 
-const categoryCards = TOOL_CATEGORIES.map((category) => {
-  const tools = CONSTRUCTION_TOOLS.filter(
-    (t) => t.category === (category.id as ToolCategoryId),
-  );
-  // Featured tools first, then registry order.
-  const top = [...tools].sort(
-    (a, b) => Number(b.featured ?? false) - Number(a.featured ?? false),
-  );
-  return {
-    id: category.id,
-    label: category.label,
-    blurb: category.blurb,
-    count: tools.length,
-    tools: top.slice(0, CATEGORY_TOP_TOOLS),
-  };
-});
+/**
+ * Category preview built for one market: a Nigerian visitor sees POP and
+ * Tyrolene, a US visitor sees the same categories without the regional trades
+ * whose vocabulary they do not use.
+ */
+function buildCategoryCards(marketCode: string) {
+  return TOOL_CATEGORIES.map((category) => {
+    const tools = toolsOfferedInMarket(
+      CONSTRUCTION_TOOLS.filter(
+        (t) => t.category === (category.id as ToolCategoryId),
+      ),
+      marketCode,
+    );
+    // Featured tools first, then registry order.
+    const top = [...tools].sort(
+      (a, b) => Number(b.featured ?? false) - Number(a.featured ?? false),
+    );
+    return {
+      id: category.id,
+      label: category.label,
+      blurb: category.blurb,
+      count: tools.length,
+      tools: top.slice(0, CATEGORY_TOP_TOOLS),
+    };
+  }).filter((card) => card.count > 0);
+}
 
 export default function ToolsSection() {
   const { t } = useLanguage();
+  const { marketCode } = useMarket();
+  const categoryCards = buildCategoryCards(marketCode);
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (

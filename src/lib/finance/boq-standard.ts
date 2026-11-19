@@ -683,10 +683,39 @@ export function exportBoqToCsv(doc: StandardBoqDocument): string {
 /**
  * Generates an institutional print-ready HTML layout for lender and contract submissions
  */
-export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
+/**
+ * Whose letterhead the printed schedule carries.
+ *
+ * FRELUX is the default because that is who generated the document. A
+ * contractor issuing the schedule to a client passes their own name and logo,
+ * so the paper they hand over is theirs and the platform is not printed on a
+ * third party's tender.
+ */
+export interface BoqPrintBrand {
+  /** Company name printed beside the mark. */
+  name?: string;
+  /** Absolute URL or data URI for the mark. */
+  logoUrl?: string | null;
+  /** One line under the name, e.g. the firm's tagline. */
+  tagline?: string | null;
+  /** Address, phone, email: printed under the name, one per line. */
+  contactLines?: string[];
+}
+
+export function exportBoqToPrintHtml(
+  doc: StandardBoqDocument,
+  brand?: BoqPrintBrand,
+): string {
   const { metadata, summary, sections } = doc;
   const cur = metadata.currency;
   const fmt = (n: number) => formatByCode(n, cur, { decimals: 2 });
+
+  const brandName = brand?.name?.trim() || "FRELUX GLOBAL ENTERPRISE";
+  const brandLogo = brand?.logoUrl?.trim() || FRELUX_LOGO_DATA_URL;
+  const brandTagline = brand?.tagline?.trim() || "";
+  const brandContact = (brand?.contactLines ?? [])
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   const sectionHtml = sections
     .map(
@@ -783,11 +812,13 @@ export function exportBoqToPrintHtml(doc: StandardBoqDocument): string {
   </style>
 </head>
 <body>
-  <div class="pdf-watermark"><img src="${FRELUX_LOGO_DATA_URL}" alt="" /></div>
+  <div class="pdf-watermark"><img src="${brandLogo}" alt="" /></div>
   <div class="header">
     <div>
-      <img class="brand-mark" src="${FRELUX_LOGO_DATA_URL}" alt="FRELUX" />
-      <div class="brand">FRELUX GLOBAL ENTERPRISE</div>
+      <img class="brand-mark" src="${brandLogo}" alt="${escapeHtml(brandName)}" />
+      <div class="brand">${escapeHtml(brandName)}</div>
+      ${brandTagline ? `<div class="doc-type">${escapeHtml(brandTagline)}</div>` : ""}
+      ${brandContact.length ? `<div style="font-size:10px;color:#475569">${brandContact.map((line) => escapeHtml(line)).join(" · ")}</div>` : ""}
       <div class="doc-type">DRAFT QUANTITY & COST SCHEDULE — ${escapeHtml(metadata.standard)} classification aid</div>
       <div style="margin-top:6px;padding:8px;border:1px solid #f59e0b;background:#fffbeb;color:#78350f;font-size:10px"><b>Not an official standards-compliant BOQ or certified measurement.</b> Division assignment is heuristic. Review quantities, scope, rates, local measurement rules and contract requirements with a qualified local quantity surveyor before issue. This document is not structural design approval or a purchase order.</div>
     </div>

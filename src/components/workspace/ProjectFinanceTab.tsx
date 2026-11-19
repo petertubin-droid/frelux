@@ -26,6 +26,11 @@ import {
   VerifiedTaxRate,
 } from "@/lib/finance/tax-engine";
 import {
+  resolveBranding,
+  useBrandStudioAccess,
+  type ResolvedBranding,
+} from "@/lib/brand-studio";
+import {
   assembleStandardBoq,
   exportBoqToCsv,
   exportBoqToPrintHtml,
@@ -107,6 +112,7 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
   const [boqStandard, setBoqStandard] = useState<BoqStandard>(() =>
     resolveMarketBoqStandard(projectMarket),
   );
+  const brandAccess = useBrandStudioAccess();
   const [prelimsPercent, setPrelimsPercent] = useState(5);
   const [ohpPercent, setOhpPercent] = useState(10);
   const [contingencyPercent, setContingencyPercent] = useState(5);
@@ -228,8 +234,29 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
     toast({ title: "BOQ CSV Exported", variant: "success" });
   };
 
-  const handlePrintHtml = () => {
-    const htmlContent = exportBoqToPrintHtml(boqDocument);
+  const handlePrintHtml = async () => {
+    // The contractor's own letterhead when they have one; FRELUX otherwise.
+    let brand: ResolvedBranding | null = null;
+    try {
+      brand = await resolveBranding(null, brandAccess);
+    } catch {
+      brand = null;
+    }
+    const brandArg =
+      brand && brand.source !== "frelux_default" && brand.brandName
+        ? {
+            name: brand.brandName,
+            logoUrl: brand.logoUrl,
+            tagline: brand.tagline,
+            contactLines: [
+              brand.address,
+              brand.phone,
+              brand.email,
+              brand.website,
+            ].filter((line): line is string => Boolean(line && line.trim())),
+          }
+        : undefined;
+    const htmlContent = exportBoqToPrintHtml(boqDocument, brandArg);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(htmlContent);
@@ -716,43 +743,54 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
                       </thead>
                       <tbody className="divide-y divide-border/40">
                         {allItems.map((item) => (
-                        <tr key={item.itemNumber} className="hover:bg-muted/10">
-                          <td className="p-2 font-mono text-muted-foreground">
-                            {item.itemNumber}
-                          </td>
-                          <td className="p-2 font-medium">{item.description}</td>
-                          <td className="p-2 text-muted-foreground">{item.unit}</td>
-                          <td className="p-2 text-right">{item.quantity}</td>
-                          <td className="p-2 text-right text-muted-foreground">
-                            {formatByCode(item.materialRate, quoteCurrency)}
-                          </td>
-                          <td className="p-2 text-right text-muted-foreground">
-                            {formatByCode(item.laborRate, quoteCurrency)}
-                          </td>
-                          <td className="p-2 text-right text-muted-foreground">
-                            {formatByCode(item.plantRate, quoteCurrency)}
-                          </td>
-                          <td className="p-2 text-right text-muted-foreground">
-                            {formatByCode(item.transportRate || 0, quoteCurrency)}
-                          </td>
-                          <td className="p-2 text-right text-muted-foreground">
-                            {formatByCode(
-                              (item.overheadRate || 0) + (item.profitRate || 0),
-                              quoteCurrency,
-                            )}
-                          </td>
-                          <td className="p-2 text-right font-semibold">
-                            {formatByCode(item.unitRate, quoteCurrency)}
-                          </td>
-                          <td className="p-2 text-right font-semibold text-primary">
-                            {formatByCode(item.totalCost, quoteCurrency)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          <tr
+                            key={item.itemNumber}
+                            className="hover:bg-muted/10"
+                          >
+                            <td className="p-2 font-mono text-muted-foreground">
+                              {item.itemNumber}
+                            </td>
+                            <td className="p-2 font-medium">
+                              {item.description}
+                            </td>
+                            <td className="p-2 text-muted-foreground">
+                              {item.unit}
+                            </td>
+                            <td className="p-2 text-right">{item.quantity}</td>
+                            <td className="p-2 text-right text-muted-foreground">
+                              {formatByCode(item.materialRate, quoteCurrency)}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground">
+                              {formatByCode(item.laborRate, quoteCurrency)}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground">
+                              {formatByCode(item.plantRate, quoteCurrency)}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground">
+                              {formatByCode(
+                                item.transportRate || 0,
+                                quoteCurrency,
+                              )}
+                            </td>
+                            <td className="p-2 text-right text-muted-foreground">
+                              {formatByCode(
+                                (item.overheadRate || 0) +
+                                  (item.profitRate || 0),
+                                quoteCurrency,
+                              )}
+                            </td>
+                            <td className="p-2 text-right font-semibold">
+                              {formatByCode(item.unitRate, quoteCurrency)}
+                            </td>
+                            <td className="p-2 text-right font-semibold text-primary">
+                              {formatByCode(item.totalCost, quoteCurrency)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
               );
             })}
           </div>
@@ -762,10 +800,14 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
         <div className="rounded-lg border border-border/80 bg-muted/20 p-4 text-xs">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold text-foreground">
-              {t("Commercial Tender Governance & Quantity Surveyor Verification")}
+              {t(
+                "Commercial Tender Governance & Quantity Surveyor Verification",
+              )}
             </span>
             <span className="text-[11px] text-muted-foreground">
-              {boqStandard === "BESMM4" ? "NIQS / QSRBN Standard" : "RICS / Commonwealth Standard"}
+              {boqStandard === "BESMM4"
+                ? "NIQS / QSRBN Standard"
+                : "RICS / Commonwealth Standard"}
             </span>
           </div>
           <p className="text-muted-foreground mb-3 text-[11px]">
@@ -775,16 +817,26 @@ export const ProjectFinanceTab: React.FC<Props> = ({ project }) => {
           </p>
           <div className="grid sm:grid-cols-3 gap-3 border-t border-border/60 pt-3 text-[11px]">
             <div>
-              <span className="text-muted-foreground block">{t("Measurement Basis")}</span>
+              <span className="text-muted-foreground block">
+                {t("Measurement Basis")}
+              </span>
               <span className="font-medium text-foreground">{boqStandard}</span>
             </div>
             <div>
-              <span className="text-muted-foreground block">{t("Rate Build-Up Model")}</span>
-              <span className="font-medium text-foreground">{t("Granular (Mat + Lab + Plt + Log + OH&P)")}</span>
+              <span className="text-muted-foreground block">
+                {t("Rate Build-Up Model")}
+              </span>
+              <span className="font-medium text-foreground">
+                {t("Granular (Mat + Lab + Plt + Log + OH&P)")}
+              </span>
             </div>
             <div>
-              <span className="text-muted-foreground block">{t("Audit Trail")}</span>
-              <span className="font-medium text-foreground">{t("Deterministic Formula Verification")}</span>
+              <span className="text-muted-foreground block">
+                {t("Audit Trail")}
+              </span>
+              <span className="font-medium text-foreground">
+                {t("Deterministic Formula Verification")}
+              </span>
             </div>
           </div>
         </div>
