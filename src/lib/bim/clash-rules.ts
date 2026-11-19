@@ -67,10 +67,17 @@ const SCOPE_NOTE =
   "overlap, not that geometry intersects. Confirm or dismiss each candidate " +
   "before treating it as a clash.";
 
-function overlapExtents(a: Box3Like, b: Box3Like, tol: number): [number, number, number] | null {
-  const ox = Math.min(a.max[0], b.max[0]) + tol - (Math.max(a.min[0], b.min[0]) - tol);
-  const oy = Math.min(a.max[1], b.max[1]) + tol - (Math.max(a.min[1], b.min[1]) - tol);
-  const oz = Math.min(a.max[2], b.max[2]) + tol - (Math.max(a.min[2], b.min[2]) - tol);
+function overlapExtents(
+  a: Box3Like,
+  b: Box3Like,
+  tol: number,
+): [number, number, number] | null {
+  const ox =
+    Math.min(a.max[0], b.max[0]) + tol - (Math.max(a.min[0], b.min[0]) - tol);
+  const oy =
+    Math.min(a.max[1], b.max[1]) + tol - (Math.max(a.min[1], b.min[1]) - tol);
+  const oz =
+    Math.min(a.max[2], b.max[2]) + tol - (Math.max(a.min[2], b.min[2]) - tol);
   if (ox <= 0 || oy <= 0 || oz <= 0) return null;
   return [ox, oy, oz];
 }
@@ -85,8 +92,12 @@ export function screenClashes(
 
   // Flatten to a deterministic element list.
   const elements: { model: string; globalId: string; box: Box3Like }[] = [];
-  for (const model of [...models].sort((a, b) => a.model_id.localeCompare(b.model_id))) {
-    for (const [globalId, box] of [...model.boxes.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  for (const model of [...models].sort((a, b) =>
+    a.model_id.localeCompare(b.model_id),
+  )) {
+    for (const [globalId, box] of [...model.boxes.entries()].sort(([a], [b]) =>
+      a.localeCompare(b),
+    )) {
       elements.push({ model: model.model_id, globalId, box });
     }
   }
@@ -110,7 +121,9 @@ export function screenClashes(
         model_b: b.model,
         global_id_b: b.globalId,
         overlap,
-        overlap_volume: Number((overlap[0] * overlap[1] * overlap[2]).toFixed(6)),
+        overlap_volume: Number(
+          (overlap[0] * overlap[1] * overlap[2]).toFixed(6),
+        ),
       });
       if (candidates.length >= cap) {
         truncated = true;
@@ -121,8 +134,7 @@ export function screenClashes(
 
   // Largest overlap first, then stable id order.
   candidates.sort(
-    (x, y) =>
-      y.overlap_volume - x.overlap_volume || x.id.localeCompare(y.id),
+    (x, y) => y.overlap_volume - x.overlap_volume || x.id.localeCompare(y.id),
   );
 
   return {

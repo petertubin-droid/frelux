@@ -61,13 +61,18 @@ export function buildScheduleLink(
   const seen = new Set<string>();
 
   for (const activity of activities) {
-    if (seen.has(activity.id)) errors.push(`Duplicate activity id ${activity.id}.`);
+    if (seen.has(activity.id))
+      errors.push(`Duplicate activity id ${activity.id}.`);
     seen.add(activity.id);
     if (!validDate(activity.start_date)) {
-      errors.push(`Activity ${activity.id} has invalid start_date "${activity.start_date}".`);
+      errors.push(
+        `Activity ${activity.id} has invalid start_date "${activity.start_date}".`,
+      );
     }
     if (!validDate(activity.end_date)) {
-      errors.push(`Activity ${activity.id} has invalid end_date "${activity.end_date}".`);
+      errors.push(
+        `Activity ${activity.id} has invalid end_date "${activity.end_date}".`,
+      );
     }
     if (
       validDate(activity.start_date) &&
@@ -84,7 +89,8 @@ export function buildScheduleLink(
   const unknown = new Set<string>();
 
   for (const activity of activities) {
-    if (activity.element_global_ids.length === 0) emptyActivities.push(activity.id);
+    if (activity.element_global_ids.length === 0)
+      emptyActivities.push(activity.id);
     for (const globalId of activity.element_global_ids) {
       if (!revision.element_index[globalId]) {
         unknown.add(globalId);

@@ -176,3 +176,26 @@ describe("parseIfcModel property sets (real web-ifc)", () => {
     );
   });
 });
+
+describe("representation-derived quantities (real web-ifc)", () => {
+  it("derives volume, area and depth from an extrusion with no declared quantities", async () => {
+    const result = await parseIfcModel(fixture("extruded-wall.ifc"));
+    expect(result.ok).toBe(true);
+    const wall = result.elements.find((e) => e.name === "Wall-NoQty");
+    expect(wall).toBeDefined();
+    // the file declares nothing
+    expect(wall?.quantities).toEqual([]);
+    const derived = wall?.derivedQuantities ?? [];
+    expect(derived.map((d) => d.kind)).toEqual(["volume", "area", "length"]);
+    expect(derived[0].value).toBeCloseTo(1.2, 6); // 2.0 x 0.2 x 3.0
+    expect(derived[1].value).toBeCloseTo(0.4, 6);
+    expect(derived[2].value).toBeCloseTo(3, 6);
+    for (const d of derived) {
+      expect(d.method).toBe("extruded-area-solid");
+    }
+    expect(result.elementsWithDerivedQuantities).toBe(1);
+    expect(
+      result.warnings.some((w) => w.includes("DERIVED from extrusion")),
+    ).toBe(true);
+  });
+});

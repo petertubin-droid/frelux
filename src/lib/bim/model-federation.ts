@@ -16,11 +16,7 @@
 import * as THREE from "three";
 
 import type { IfcModelElement } from "./ifc-model-loader";
-import {
-  buildScene,
-  disposeScene,
-  type IfcSceneModel,
-} from "./viewer-scene";
+import { buildScene, disposeScene, type IfcSceneModel } from "./viewer-scene";
 
 export interface FederatedModelInput {
   /** Stable id used by picking, toggles and issue attribution. */

@@ -693,7 +693,11 @@ function BimBoqLineRow({
         {line.quantity.toLocaleString("en-US")} {line.unit}
       </td>
       <td className="py-1.5 text-right text-muted-foreground">
-        {line.provenance === "declared" ? "declared" : "indicative"}
+        {line.provenance === "declared"
+          ? "declared"
+          : line.provenance === "derived"
+            ? "derived"
+            : "indicative"}
       </td>
     </tr>
   );

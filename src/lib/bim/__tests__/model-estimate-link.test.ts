@@ -227,3 +227,80 @@ describe("estimate lines carry declared specification attributes", () => {
     expect(index.lines[0].attributes?.fireRating).toBeNull();
   });
 });
+
+describe("derived quantities (no declared IfcQuantity)", () => {
+  const wall = element({
+    globalId: "WALL-DERIVED",
+    ifcClass: "IFCWALL",
+    name: "Wall-NoQty",
+    quantities: [],
+    derivedQuantities: [
+      {
+        name: "Extrusion volume",
+        kind: "volume",
+        value: 1.2,
+        method: "extruded-area-solid",
+        basis: "Derived from the element's extrusion geometry.",
+      },
+      {
+        name: "Extrusion cross-section area",
+        kind: "area",
+        value: 0.4,
+        method: "extruded-area-solid",
+        basis: "Derived from the element's extrusion geometry.",
+      },
+      {
+        name: "Extrusion depth",
+        kind: "length",
+        value: 3,
+        method: "extruded-area-solid",
+        basis: "Derived from the element's extrusion geometry.",
+      },
+    ],
+  });
+
+  it("uses the derived number and says so on the line", () => {
+    const index = buildEstimateLines([wall]);
+    const lines = linesForElement(index, "WALL-DERIVED");
+    expect(lines.length).toBeGreaterThan(0);
+    const withDerived = lines.filter((l) => l.provenance === "derived");
+    expect(withDerived.length).toBeGreaterThan(0);
+    for (const line of withDerived) {
+      expect(line.note).toMatch(/derived/i);
+      expect(line.reviewFlags ?? []).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(/derived from geometry/i),
+        ]),
+      );
+    }
+  });
+
+  it("never mixes a derived number into a declared line", () => {
+    const index = buildEstimateLines([wall]);
+    for (const line of linesForElement(index, "WALL-DERIVED")) {
+      if (line.provenance === "declared") {
+        // a declared line can only exist when the file declared quantities
+        expect(wall.quantities.length).toBeGreaterThan(0);
+      }
+    }
+    // no line silently claims "declared" from derived-only input
+    expect(
+      linesForElement(index, "WALL-DERIVED").every(
+        (l) => l.provenance !== "declared",
+      ),
+    ).toBe(true);
+  });
+
+  it("prefers declared quantities when both are present", () => {
+    const both = element({
+      ...wall,
+      quantities: [{ name: "NetVolume", kind: "volume", value: 9.9 }],
+    });
+    const index = buildEstimateLines([both]);
+    const concrete = index.lineById.get(
+      `concrete-Concrete - IFCWALL Wall-NoQty-WALL-DERIVED`,
+    );
+    expect(concrete?.quantity).toBe(9.9);
+    expect(concrete?.provenance).toBe("declared");
+  });
+});

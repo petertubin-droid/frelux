@@ -27,7 +27,7 @@ export interface EstimateLine {
   /** GlobalIds of the model elements this line derives from. */
   elementIds: string[];
   /** "declared" = straight from IfcQuantity; "indicative" = derived. */
-  provenance: "declared" | "indicative";
+  provenance: "declared" | "derived" | "indicative";
   note: string;
   /**
    * Specification attributes the model declares for this line's element
@@ -85,8 +85,8 @@ const ROOF_CLASSES = new Set(["IFCROOF"]);
 
 const OPENING_CLASSES = new Set(["IFCDOOR", "IFCWINDOW", "IFCCURTAINWALL"]);
 
-function pickQuantity(
-  quantities: IfcQuantityValue[],
+function pickFrom(
+  quantities: readonly IfcQuantityValue[],
   kind: "volume" | "area" | "length",
   preferredNames: string[],
 ): IfcQuantityValue | null {
@@ -96,6 +96,31 @@ function pickQuantity(
     if (hit) return hit;
   }
   return byKind.length > 0 ? byKind[0] : null;
+}
+
+/**
+ * Declared quantities win. Geometry-derived ones are used only when the file
+ * declares none, and come back flagged so the line can say so.
+ */
+function pickQuantity(
+  element: IfcModelElement,
+  kind: "volume" | "area" | "length",
+  preferredNames: string[],
+): IfcQuantityValue | null {
+  const declared = pickFrom(element.quantities, kind, preferredNames);
+  if (declared) return declared;
+  const derived = pickFrom(
+    (element.derivedQuantities ?? []).map((d) => ({
+      name: d.name,
+      kind: d.kind,
+      value: d.value,
+      derived: true,
+      method: d.method,
+    })),
+    kind,
+    preferredNames,
+  );
+  return derived;
 }
 
 /**
@@ -135,8 +160,23 @@ export function buildEstimateLines(
     const id = `${line.category}-${line.label}-${element.globalId}`;
     const attributes = attributesFor(element);
     const flags = accuracyReviewFlags(element.ifcClass, attributes);
+    const derivedOnly =
+      element.quantities.length === 0 &&
+      (element.derivedQuantities?.length ?? 0) > 0 &&
+      line.provenance === "declared";
+    if (derivedOnly) {
+      flags.push(
+        "Quantity derived from geometry, not declared by the author: confirm the measured amount before pricing.",
+      );
+    }
     const full: EstimateLine = {
       ...line,
+      provenance: derivedOnly ? "derived" : line.provenance,
+      ...(derivedOnly
+        ? {
+            note: `${line.note} Derived from extrusion geometry in the model's own units; the file declares no quantity for this element.`,
+          }
+        : {}),
       id,
       elementIds: [element.globalId],
       attributes,
@@ -157,7 +197,7 @@ export function buildEstimateLines(
     const dims = `${element.ifcClass}${element.name ? ` ${element.name}` : ""}`;
 
     if (isRoof) {
-      const areaQ = pickQuantity(element.quantities, "area", [
+      const areaQ = pickQuantity(element, "area", [
         "grossarea",
         "netarea",
         "projectedarea",
@@ -189,10 +229,7 @@ export function buildEstimateLines(
           note: `Derived from sheet count x ${opts.screwsPerSheet} screws per sheet; confirm with the fixing schedule.`,
         });
       }
-      const ridge = pickQuantity(element.quantities, "length", [
-        "ridgelength",
-        "ridge",
-      ]);
+      const ridge = pickQuantity(element, "length", ["ridgelength", "ridge"]);
       if (ridge) {
         add(element, {
           label: `Ridge cap - ${dims}`,
@@ -216,7 +253,7 @@ export function buildEstimateLines(
     }
 
     if (STRUCTURAL_CLASSES.has(cls) || cls === "IFCSLAB") {
-      const volume = pickQuantity(element.quantities, "volume", [
+      const volume = pickQuantity(element, "volume", [
         "netvolume",
         "grossvolume",
       ]);
@@ -238,7 +275,7 @@ export function buildEstimateLines(
           note: `Derived from declared volume x ${opts.rebarDensityKgPerM3} kg/m3 indicative density; engineer must confirm per structure.`,
         });
       }
-      const area = pickQuantity(element.quantities, "area", [
+      const area = pickQuantity(element, "area", [
         "grosssidearea",
         "netarea",
         "grossarea",
@@ -257,10 +294,7 @@ export function buildEstimateLines(
     }
 
     if (OPENING_CLASSES.has(cls)) {
-      const area = pickQuantity(element.quantities, "area", [
-        "netarea",
-        "grossarea",
-      ]);
+      const area = pickQuantity(element, "area", ["netarea", "grossarea"]);
       if (area) {
         add(element, {
           label: `Openings - ${dims}`,

@@ -57,8 +57,7 @@ const SCOPE_NOTE =
   "No geometric, positional or dimensional comparison is performed.";
 
 export type ChainResult =
-  | { ok: true; chain: IfcModelRevision[] }
-  | { ok: false; errors: string[] };
+  { ok: true; chain: IfcModelRevision[] } | { ok: false; errors: string[] };
 
 /**
  * Order a model's revisions oldest -> newest by walking parent links.
@@ -72,7 +71,9 @@ export function buildRevisionChain(
   const byId = new Map<string, IfcModelRevision>();
   for (const rev of revisions) {
     if (rev.model_id !== model_id) {
-      errors.push(`Revision ${rev.id} belongs to model ${rev.model_id}, not ${model_id}.`);
+      errors.push(
+        `Revision ${rev.id} belongs to model ${rev.model_id}, not ${model_id}.`,
+      );
       continue;
     }
     if (byId.has(rev.id)) errors.push(`Duplicate revision id ${rev.id}.`);
@@ -81,11 +82,12 @@ export function buildRevisionChain(
   if (errors.length > 0) return { ok: false, errors };
 
   // Find roots (no parent). Exactly one root per model chain.
-  const roots = [...byId.values()].filter(
-    (r) => r.parent_revision_id === null,
-  );
+  const roots = [...byId.values()].filter((r) => r.parent_revision_id === null);
   if (roots.length === 0) {
-    return { ok: false, errors: ["No root revision (parent_revision_id null) found."] };
+    return {
+      ok: false,
+      errors: ["No root revision (parent_revision_id null) found."],
+    };
   }
   if (roots.length > 1) {
     return {
@@ -103,7 +105,9 @@ export function buildRevisionChain(
     if (!byId.has(rev.parent_revision_id)) {
       return {
         ok: false,
-        errors: [`Revision ${rev.id} points at missing parent ${rev.parent_revision_id}.`],
+        errors: [
+          `Revision ${rev.id} points at missing parent ${rev.parent_revision_id}.`,
+        ],
       };
     }
     const list = children.get(rev.parent_revision_id) ?? [];
@@ -116,7 +120,10 @@ export function buildRevisionChain(
   let current: IfcModelRevision | undefined = roots[0];
   while (current) {
     if (visited.has(current.id)) {
-      return { ok: false, errors: [`Cycle detected at revision ${current.id}.`] };
+      return {
+        ok: false,
+        errors: [`Cycle detected at revision ${current.id}.`],
+      };
     }
     visited.add(current.id);
     chain.push(current);

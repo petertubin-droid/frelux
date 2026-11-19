@@ -14,12 +14,23 @@
  * as such, never invented.
  */
 
+import {
+  extrusionQuantities,
+  profileArea,
+  type DerivedQuantity,
+  type ProfileShape,
+} from "./model-representation";
+
 export type IfcQuantityKind = "length" | "area" | "volume" | "count" | "weight";
 
 export interface IfcQuantityValue {
   name: string;
   kind: IfcQuantityKind;
   value: number;
+  /** true when the number was derived from geometry, not declared */
+  derived?: boolean;
+  /** the derivation used, when derived */
+  method?: string;
 }
 
 export interface IfcGeometryPart {
@@ -41,6 +52,12 @@ export interface IfcModelElement {
   name: string;
   /** Quantities the file declares for this element. */
   quantities: IfcQuantityValue[];
+  /**
+   * Quantities derived from the element's geometry when the file declares
+   * none. Always labelled with their method and never mixed into
+   * `quantities`; the estimate link marks lines that use them.
+   */
+  derivedQuantities?: DerivedQuantity[];
   geometry: IfcGeometryPart[];
   /** Name of the IfcBuildingStorey the element is contained in, when declared. */
   storey?: string;
@@ -103,6 +120,7 @@ export const IFC_COVERAGE = {
     "IfcRelAssociatesMaterial -> IfcMaterial / IfcMaterialLayerSet",
     "IfcProject.UnitsInContext -> IfcUnitAssignment",
     "IfcRelDefinesByProperties -> IfcPropertySet (single-value + enumerated)",
+    "IfcExtrudedAreaSolid -> derived volume / area / depth (when nothing is declared)",
     "IfcPropertyBoundedValue (lower / upper / set point)",
     "IfcPropertyListValue (all values, kept as a list)",
     "IfcPropertyComplexProperty (nested entries, dotted names)",
@@ -147,6 +165,8 @@ export interface IfcModelParseResult {
   units: IfcDeclaredUnits;
   /** elements carrying at least one declared single-value property */
   elementsWithProperties: number;
+  /** elements whose quantity came from geometry because none was declared */
+  elementsWithDerivedQuantities: number;
   /**
    * complex / list / bounded properties encountered and deliberately skipped,
    * so a partially read Pset is visible rather than silently thin
@@ -365,8 +385,6 @@ export async function parseIfcModel(
       const ids = api.GetLineIDsWithType(modelID, psetType);
       for (let i = 0; i < ids.size(); i++) psetIds.add(ids.get(i));
     }
-    const singleType = (WebIfc.IFCPROPERTYSINGLEVALUE ?? 0) as number;
-    const enumType = (WebIfc.IFCPROPERTYENUMERATEDVALUE ?? 0) as number;
     const boundedType = (WebIfc.IFCPROPERTYBOUNDEDVALUE ?? 0) as number;
     const listType = (WebIfc.IFCPROPERTYLISTVALUE ?? 0) as number;
     // IFC4 names this entity IfcComplexProperty; IFCPROPERTYCOMPLEXPROPERTY
@@ -394,16 +412,6 @@ export async function parseIfcModel(
           return v;
       }
       return null;
-    };
-
-    /** web-ifc type code of a property line, or null when unreadable. */
-    const typeOf = (propID: number): number | null => {
-      try {
-        const line = api.GetLine(modelID, propID) as { type?: number };
-        return typeof line.type === "number" ? line.type : null;
-      } catch {
-        return null;
-      }
     };
 
     /**
@@ -688,6 +696,148 @@ export async function parseIfcModel(
       if (parts.length > 0) geometryByElement.set(expressID, parts);
     });
 
+    // 2b. Representation-derived quantities: read only when the file
+    // declares none, and only for shapes whose implication is exact.
+    const extrudedType = (WebIfc.IFCEXTRUDEDAREASOLID ?? 0) as number;
+    const rectangleProfile = (WebIfc.IFCRECTANGLEPROFILEDEF ?? 0) as number;
+    const circleProfile = (WebIfc.IFCCIRCLEPROFILEDEF ?? 0) as number;
+    const circleHollowProfile = (WebIfc.IFCCIRCLEHOLLOWPROFILEDEF ??
+      0) as number;
+    const rectangleHollowProfile = (WebIfc.IFCRECTANGLEHOLLOWPROFILEDEF ??
+      0) as number;
+    const arbitraryProfile = (WebIfc.IFCARBITRARYCLOSEDPROFILEDEF ??
+      0) as number;
+    const polylineType = (WebIfc.IFCPOLYLINE ?? 0) as number;
+    const cartesianPoint = (WebIfc.IFCCARTESIANPOINT ?? 0) as number;
+
+    const numberOf = (x: unknown): number | null => {
+      if (typeof x === "number" && Number.isFinite(x)) return x;
+      if (x && typeof x === "object" && "value" in (x as object)) {
+        const v = (x as { value?: unknown }).value;
+        if (typeof v === "number" && Number.isFinite(v)) return v;
+      }
+      return null;
+    };
+
+    const profileShapeOf = (profileID: number): ProfileShape | null => {
+      let profile: Record<string, unknown>;
+      try {
+        profile = api.GetLine(modelID, profileID) as Record<string, unknown>;
+      } catch {
+        return null;
+      }
+      const type = typeof profile.type === "number" ? profile.type : null;
+      if (type === rectangleProfile) {
+        const xDim = numberOf(profile.XDim);
+        const yDim = numberOf(profile.YDim);
+        if (xDim === null || yDim === null) return null;
+        return { kind: "rectangle", xDim, yDim };
+      }
+      if (type === circleProfile) {
+        const radius = numberOf(profile.Radius);
+        if (radius === null) return null;
+        return { kind: "circle", radius };
+      }
+      if (type === circleHollowProfile) {
+        const radius = numberOf(profile.Radius);
+        const wallThickness = numberOf(profile.WallThickness);
+        if (radius === null || wallThickness === null) return null;
+        return { kind: "circle-hollow", radius, wallThickness };
+      }
+      if (type === rectangleHollowProfile) {
+        const xDim = numberOf(profile.XDim);
+        const yDim = numberOf(profile.YDim);
+        const wallThickness = numberOf(profile.WallThickness);
+        if (xDim === null || yDim === null || wallThickness === null)
+          return null;
+        return { kind: "rectangle-hollow", xDim, yDim, wallThickness };
+      }
+      if (type === arbitraryProfile) {
+        const curveRef = refValue(profile.OuterCurve);
+        if (curveRef === null) return null;
+        let curve: Record<string, unknown>;
+        try {
+          curve = api.GetLine(modelID, curveRef) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+        if (curve.type !== polylineType) return null;
+        const points = curve.Points as Array<{ value: number }> | undefined;
+        if (!Array.isArray(points)) return null;
+        const out: Array<{ x: number; y: number }> = [];
+        for (const ref of points) {
+          try {
+            const point = api.GetLine(modelID, ref.value) as {
+              type?: number;
+              Coordinates?: Array<{ value?: number }>;
+            };
+            if (point.type !== cartesianPoint) continue;
+            const coords = point.Coordinates ?? [];
+            const x = coords[0]?.value;
+            const y = coords[1]?.value;
+            if (typeof x === "number" && typeof y === "number")
+              out.push({ x, y });
+          } catch {
+            return null;
+          }
+        }
+        return out.length >= 3
+          ? { kind: "arbitrary-closed", points: out }
+          : null;
+      }
+      return null;
+    };
+
+    /** Extrusion quantities for one element, or null when nothing is exact. */
+    const derivedForElement = (
+      line: Record<string, unknown>,
+    ): DerivedQuantity[] | null => {
+      if (extrudedType <= 0) return null;
+      const shapeRef = refValue(line.Representation);
+      if (shapeRef === null) return null;
+      let shape: Record<string, unknown>;
+      try {
+        shape = api.GetLine(modelID, shapeRef) as Record<string, unknown>;
+      } catch {
+        return null;
+      }
+      const representations = shape.Representations as
+        Array<{ value: number }> | undefined;
+      if (!Array.isArray(representations)) return null;
+      for (const repRef of representations) {
+        let rep: Record<string, unknown>;
+        try {
+          rep = api.GetLine(modelID, repRef.value) as Record<string, unknown>;
+        } catch {
+          continue;
+        }
+        const items = rep.Items as Array<{ value: number }> | undefined;
+        if (!Array.isArray(items)) continue;
+        for (const itemRef of items) {
+          let item: Record<string, unknown>;
+          try {
+            item = api.GetLine(modelID, itemRef.value) as Record<
+              string,
+              unknown
+            >;
+          } catch {
+            continue;
+          }
+          if (item.type !== extrudedType) continue;
+          const profileRef = refValue(item.SweptArea);
+          if (profileRef === null) continue;
+          const shapeDef = profileShapeOf(profileRef);
+          if (!shapeDef) continue;
+          const area = profileArea(shapeDef);
+          const depth = numberOf(item.Depth);
+          if (area === null || depth === null) continue;
+          const quantities = extrusionQuantities(area, depth);
+          if (quantities.length > 0) return quantities;
+        }
+      }
+      return null;
+    };
+
     // 3. Elements: iterate the deterministic class list.
     const elements: IfcModelElement[] = [];
     let withQuantities = 0;
@@ -721,12 +871,15 @@ export async function parseIfcModel(
           }
         }
         if (quantities.length > 0) withQuantities++;
+        const derived =
+          quantities.length === 0 ? derivedForElement(line) : null;
         elements.push({
           expressID: id,
           globalId,
           ifcClass: className,
           name,
           quantities,
+          ...(derived ? { derivedQuantities: derived } : {}),
           geometry: geometryByElement.get(id) ?? [],
           ...(storeyByElement.has(id)
             ? { storey: storeyByElement.get(id) }
@@ -794,6 +947,14 @@ export async function parseIfcModel(
         "The model declares no IfcUnitAssignment; quantities are reported in the file's own numbers without a stated unit.",
       );
     }
+    const derivedCount = elements.filter(
+      (e) => (e.derivedQuantities?.length ?? 0) > 0,
+    ).length;
+    if (derivedCount > 0) {
+      warnings.push(
+        `${derivedCount} of ${elements.length} elements declare no quantities; their numbers are DERIVED from extrusion geometry, in the model's own units, and are marked as derived on the takeoff line.`,
+      );
+    }
     const withoutQuantities = elements.length - withQuantities;
     if (withoutQuantities > 0) {
       warnings.push(
@@ -814,6 +975,9 @@ export async function parseIfcModel(
       warnings,
       elementsWithProperties: elements.filter(
         (e) => (e.properties?.length ?? 0) > 0,
+      ).length,
+      elementsWithDerivedQuantities: elements.filter(
+        (e) => (e.derivedQuantities?.length ?? 0) > 0,
       ).length,
       skippedComplexProperties,
       coverage: summarizeCoverage(geometryClasses, elements),
