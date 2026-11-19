@@ -632,9 +632,8 @@ const WaterTowerEstimator = lazy(() => import("@/pages/WaterTowerEstimator"));
 const BoreholeWaterSystemEstimator = lazy(
   () => import("@/pages/BoreholeWaterSystemEstimator"),
 );
-const IcfWallEstimator = lazy(
-  () => import("@/pages/IcfWallEstimator"),
-);
+const IcfWallEstimator = lazy(() => import("@/pages/IcfWallEstimator"));
+const EifsWallEstimator = lazy(() => import("@/pages/EifsWallEstimator"));
 const GlobalSiteSafetyEstimator = lazy(
   () => import("@/pages/GlobalSiteSafetyEstimator"),
 );
@@ -2346,6 +2345,22 @@ export default function App() {
                           path="/icf-calculator"
                           element={
                             <Navigate to="/icf-wall-estimator" replace />
+                          }
+                        />
+                        <Route
+                          path="/eifs-wall-estimator"
+                          element={<EifsWallEstimator />}
+                        />
+                        <Route
+                          path="/eifs-calculator"
+                          element={
+                            <Navigate to="/eifs-wall-estimator" replace />
+                          }
+                        />
+                        <Route
+                          path="/etics-calculator"
+                          element={
+                            <Navigate to="/eifs-wall-estimator" replace />
                           }
                         />
                         <Route

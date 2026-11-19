@@ -585,6 +585,37 @@ const BLINDS_FAQ_GROUPS: ToolFaqGroup[] = [
   },
 ];
 
+const EIFS_FAQ_GROUPS: ToolFaqGroup[] = [
+  {
+    slug: "eifs-wall-estimator",
+    route: "/eifs-wall-estimator",
+    name: "EIFS / ETICS Wall Estimator & Takeoff",
+    category: "finishes",
+    questions: [
+      {
+        q: "What does the EIFS / ETICS wall calculator estimate?",
+        a: "It turns entered facade dimensions and openings into a full material schedule: fluid-applied water-resistive barrier (WRB), continuous insulation boards (EPS, GPS Neopor, or Mineral Wool), dual adhesive and mechanical washer fasteners, standard and high-impact armor mesh, base coat mortar, acrylic textured finish coat, starter weep screeds, corner mesh beads, and joint sealant sausages.",
+      },
+      {
+        q: "Why is a drainage plane required in EIFS systems?",
+        a: "Modern building codes (IBC 1407.4.1 and ASTM E2273) mandate EIFS with Drainage over wood-framed and light-gauge steel stud walls. The drainage cavity behind the continuous insulation provides a gravity pathway for incidental moisture to drain down to starter weep screeds, preventing water trapping.",
+      },
+      {
+        q: "How does the calculator determine continuous insulation R-values?",
+        a: "Continuous insulation (ci) eliminates thermal bridging across studs. R-values are calculated per inch/mm of thickness based on material conductivity (EPS R-3.85/in, Neopor GPS R-4.7/in, Mineral Wool R-4.2/in, XPS R-5.0/in), reporting both imperial continuous R-value and metric U-factor (W/m²·K).",
+      },
+      {
+        q: "Where is high-impact armor mesh required on EIFS facades?",
+        a: "Ground-level walls, building entrances, and vehicular traffic zones are susceptible to blunt force impacts. Heavy-duty 400 g/m² armor mesh is embedded in base coat up to 2.0 meters (6.5 feet) above grade, overlaid with standard field mesh to meet ASTM E2486 high-impact standards.",
+      },
+      {
+        q: "What are 45-degree butterfly mesh patches and why are they counted?",
+        a: "Stress concentrates diagonally at window and door rough opening corners. The takeoff calculates 45-degree diagonal mesh patches (butterfly strips, minimum 200mm x 300mm) at every fenestration corner to prevent re-entrant cracking in the base coat.",
+      },
+    ],
+  },
+];
+
 const ICF_FAQ_GROUPS: ToolFaqGroup[] = [
   {
     slug: "icf-wall-estimator",
@@ -720,6 +751,7 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
   ...ICF_FAQ_GROUPS,
+  ...EIFS_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
   ...RENOVATION_FAQ_GROUPS,
   {

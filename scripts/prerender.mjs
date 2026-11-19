@@ -2821,6 +2821,52 @@ const routes = [
     ],
   },
   {
+    path: "/eifs-wall-estimator",
+    title: "EIFS / ETICS Wall Estimator: Insulation, Mesh & Finish | FRELUX",
+    description:
+      "Calculate Exterior Insulation and Finish Systems (EIFS / ETICS) materials: fluid-applied WRB, rigid continuous insulation boards, reinforcing fiberglass mesh, base coat mortar, synthetic acrylic finish, and R-value compliance.",
+    priority: "0.8",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "EIFS / ETICS Wall Estimator",
+            item: `${SITE_URL}/eifs-wall-estimator`,
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX EIFS Wall Estimator",
+        operatingSystem: "Web",
+        applicationCategory: "DesignApplication",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+    ],
+  },
+  {
     path: "/retaining-wall-calculator",
     title: "Retaining Wall Calculator: Material & Cost | FRELUX",
     description:

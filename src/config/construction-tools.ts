@@ -817,14 +817,34 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "structure",
     icon: Building2,
     does: "Work out form blocks, concrete core, rebar grids, alignment bracing, and envelope ratings for Insulated Concrete Form walls.",
-    enters: "Wall dimensions, core cavity width, corner counts, window/door openings, and rebar spacing.",
+    enters:
+      "Wall dimensions, core cavity width, corner counts, window/door openings, and rebar spacing.",
     gets: "Straight and corner blocks, ready-mix concrete m³, rebar schedules, turnbuckle bracing, rough bucking, and continuous R-value scorecard.",
     heading: "ICF Wall Estimator & Takeoff",
     lede: "Deterministic takeoff for Insulated Concrete Form (ICF) construction: form blocks, concrete pump volume, reinforcement schedules, alignment bracing, and code-aligned thermal performance.",
     eyebrow: "Structural Engineering",
     seoTitle: "ICF Wall Estimator & Takeoff Calculator | FRELUX",
-    seoDescription: "Calculate Insulated Concrete Form (ICF) form blocks, core concrete volume, rebar grids, alignment bracing strongbacks, rough bucking, and continuous insulation R-values.",
+    seoDescription:
+      "Calculate Insulated Concrete Form (ICF) form blocks, core concrete volume, rebar grids, alignment bracing strongbacks, rough bucking, and continuous insulation R-values.",
     to: "/icf-wall-estimator",
+    navVisible: true,
+  },
+  {
+    slug: "eifs-wall-estimator",
+    title: "EIFS / ETICS Wall Estimator",
+    category: "finishes",
+    icon: Layers,
+    does: "Calculate fluid WRB, continuous insulation boards, fiberglass mesh, base coat, synthetic acrylic finish, and accessories for EIFS and ETICS facades.",
+    enters:
+      "Wall perimeter, height, outside corners, substrate type, insulation chemistry, thickness, finish texture, and window/door openings.",
+    gets: "Itemized physical takeoff: WRB pails, rigid insulation boards and bundles, dual adhesive and mechanical fixings, standard and high-impact armor mesh, base coat and acrylic finish pails, weep screeds, corner beads, and continuous R-value scorecard.",
+    heading: "EIFS / ETICS Wall Estimator & Takeoff",
+    lede: "Deterministic material takeoff and building envelope scorecard for Exterior Insulation and Finish Systems (EIFS) and External Thermal Insulation Composite Systems (ETICS): weather barriers, continuous insulation, dual fixings, reinforcing mesh, textured finish coats, and thermal performance.",
+    eyebrow: "Exterior Envelopes",
+    seoTitle: "EIFS / ETICS Wall Estimator & Takeoff Calculator | FRELUX",
+    seoDescription:
+      "Calculate Exterior Insulation and Finish Systems (EIFS / ETICS) materials: fluid-applied WRB, rigid continuous insulation boards, reinforcing fiberglass mesh, base coat mortar, synthetic acrylic finish, and R-value compliance.",
+    to: "/eifs-wall-estimator",
     navVisible: true,
   },
   {
