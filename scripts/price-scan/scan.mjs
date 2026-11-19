@@ -20,6 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseCatalogue, scoreMatch } from "./match.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
@@ -127,6 +128,88 @@ const main = async () => {
     }
   }
 
+
+  // Catalogue feeds: a registered retailer product list, matched to the price
+  // book by the rules above. This is the wiring that lets a weekly run find
+  // prices without a hand-written product URL per material.
+  const catalogues = (sourcesDoc.catalogues || []).filter(
+    (c) => c.url && c.active !== false,
+  );
+  const catalogueReport = [];
+  if (doFetch) {
+    for (const catalogue of catalogues) {
+      const currency = catalogue.currency || MARKET_CURRENCY[catalogue.market];
+      const entry = {
+        market: catalogue.market,
+        retailer: catalogue.retailer,
+        url: catalogue.url,
+        currency,
+        products_seen: 0,
+        matched: 0,
+        candidates: 0,
+        status: "fetched",
+      };
+      try {
+        const res = await fetch(catalogue.url, {
+          headers: {
+            "User-Agent": "FRELUX price-intel (weekly)",
+            Accept: "application/json",
+          },
+        });
+        if (!res.ok) {
+          entry.status = `http_${res.status}`;
+          catalogueReport.push(entry);
+          continue;
+        }
+        const products = parseCatalogue(catalogue.platform, await res.json())
+          .filter((p) => p.name && Number.isFinite(p.price) && p.price > 0);
+        entry.products_seen = products.length;
+        if (!products.length) {
+          // A feed that answers 200 but publishes every price as "0" is not a
+          // price source. Saying so beats reporting a silent zero.
+          entry.status = "no_priced_products";
+          catalogueReport.push(entry);
+          continue;
+        }
+
+        const marketPrices = prices.filter((p) => p.currency === currency);
+        for (const row of marketPrices) {
+          const material = byId.get(row.ref_id);
+          if (!material) continue;
+          let best = null;
+          for (const product of products) {
+            const { score, reason } = scoreMatch(material.name, product.name);
+            if (score > (best?.score ?? 0)) best = { ...product, score, reason };
+          }
+          if (!best || best.score < 0.8) continue;
+          entry.matched += 1;
+          const drift = Math.abs(best.price - row.price) / row.price;
+          const withinBand = drift <= SANE_BAND;
+          if (withinBand) entry.candidates += 1;
+          fetched.push({
+            ref_id: row.ref_id,
+            material: material.slug,
+            market: catalogue.market,
+            retailer: catalogue.retailer,
+            url: catalogue.url,
+            product: best.name,
+            match_score: best.score,
+            currency,
+            fetched_price: Number(best.price.toFixed(2)),
+            current_price: row.price,
+            drift: Number(drift.toFixed(3)),
+            source_kind: "catalogue",
+            status: withinBand ? "candidate" : "out_of_band",
+          });
+        }
+      } catch (error) {
+        entry.status = "fetch_failed";
+        entry.error = String(error).slice(0, 160);
+      }
+      catalogueReport.push(entry);
+    }
+  }
+
   const report = {
     generated_at: new Date().toISOString(),
     material_prices_active: prices.length,
@@ -135,6 +218,8 @@ const main = async () => {
     by_market: byCurrency,
     sources_registered: (sourcesDoc.sources || []).length,
     sources_usable: sources.length,
+    catalogues_registered: catalogues.length,
+    catalogues: catalogueReport,
     fetched,
     apply: { requested: doApply, performed: false, reason: null },
   };

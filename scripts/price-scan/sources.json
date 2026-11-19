@@ -1,5 +1,64 @@
 {
-  "$comment": "Retailer sources the weekly scan may fetch. A source is usable only when it has a real product URL; the scan reports gaps instead of inventing prices. Populate as retailers are registered per market.",
-  "version": 1,
+  "$comment": "Retailer sources the weekly scan may fetch. Two kinds. 'catalogues' are probed product feeds from verified-sources.json: the scan fetches the feed and matches products to materials by pack signature and name, so a run finds prices without a hand-written URL per material. 'sources' are single product URLs with a ref_id and an optional regex, for a retailer that has no feed. A source is usable only when it has a real URL; the scan reports gaps instead of inventing prices.",
+  "version": 2,
+  "catalogues": [
+    {
+      "market": "AU",
+      "retailer": "Plyco",
+      "platform": "shopify",
+      "currency": "AUD",
+      "url": "https://plyco.com.au/products.json?limit=250"
+    },
+    {
+      "market": "AU",
+      "retailer": "Trade Warehouse",
+      "platform": "shopify",
+      "currency": "AUD",
+      "url": "https://tradewarehouse.com.au/products.json?limit=250"
+    },
+    {
+      "market": "CA",
+      "retailer": "Handley Lumber",
+      "platform": "shopify",
+      "currency": "CAD",
+      "url": "https://handleylumber.com/products.json?limit=250"
+    },
+    {
+      "market": "AE",
+      "retailer": "Nextrise",
+      "platform": "woocommerce",
+      "currency": "AED",
+      "url": "https://nextrisedubai.com/wp-json/wc/store/products?per_page=100"
+    },
+    {
+      "market": "MX",
+      "retailer": "Materiales de Construccion",
+      "platform": "woocommerce",
+      "currency": "MXN",
+      "url": "https://materialesconstruccion.mx/wp-json/wc/store/products?per_page=100"
+    },
+    {
+      "market": "KE",
+      "retailer": "Randtech Kenya",
+      "platform": "woocommerce",
+      "currency": "KES",
+      "url": "https://randtech.co.ke/wp-json/wc/store/products?per_page=100"
+    },
+    {
+      "market": "ZA",
+      "retailer": "DIY Shop",
+      "platform": "shopify",
+      "currency": "ZAR",
+      "url": "https://diyshop.co.za/products.json?limit=250"
+    },
+    {
+      "market": "ZA",
+      "retailer": "Buildmat",
+      "platform": "woocommerce",
+      "currency": "ZAR",
+      "url": "https://buildmat.co.za/wp-json/wc/store/products?per_page=100",
+      "note": "Store API publishes price 0 to anonymous callers, so this feed yields no prices until they expose them."
+    }
+  ],
   "sources": []
 }

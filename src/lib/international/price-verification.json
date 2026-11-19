@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-16T05:03:43.626Z",
+  "scanned_at": "2026-11-19T10:11:23.671Z",
   "max_age_days": 45,
   "markets": {
     "NG": {
@@ -10,29 +10,29 @@
       "verified": true
     },
     "DE": {
-      "total": 220,
+      "total": 216,
       "local_verified": 128,
-      "fx_reference": 92,
+      "fx_reference": 88,
       "stale": 0,
       "verified": false
     },
     "MX": {
-      "total": 39,
+      "total": 36,
       "local_verified": 21,
-      "fx_reference": 18,
+      "fx_reference": 15,
       "stale": 0,
       "verified": false
     },
     "US": {
-      "total": 70,
-      "local_verified": 55,
-      "fx_reference": 15,
+      "total": 78,
+      "local_verified": 64,
+      "fx_reference": 14,
       "stale": 0,
       "verified": true
     },
     "GB": {
-      "total": 59,
-      "local_verified": 42,
+      "total": 64,
+      "local_verified": 47,
       "fx_reference": 17,
       "stale": 0,
       "verified": false
@@ -65,10 +65,17 @@
       "stale": 0,
       "verified": false
     },
+    "AU": {
+      "total": 44,
+      "local_verified": 27,
+      "fx_reference": 17,
+      "stale": 0,
+      "verified": false
+    },
     "ZA": {
-      "total": 42,
+      "total": 41,
       "local_verified": 26,
-      "fx_reference": 16,
+      "fx_reference": 15,
       "stale": 0,
       "verified": false
     },
@@ -80,9 +87,9 @@
       "verified": true
     },
     "BR": {
-      "total": 41,
+      "total": 40,
       "local_verified": 25,
-      "fx_reference": 16,
+      "fx_reference": 15,
       "stale": 0,
       "verified": false
     },
@@ -115,9 +122,9 @@
       "verified": true
     },
     "JP": {
-      "total": 36,
+      "total": 34,
       "local_verified": 17,
-      "fx_reference": 19,
+      "fx_reference": 17,
       "stale": 0,
       "verified": false
     },
@@ -134,13 +141,6 @@
       "fx_reference": 0,
       "stale": 0,
       "verified": true
-    },
-    "AU": {
-      "total": 41,
-      "local_verified": 23,
-      "fx_reference": 18,
-      "stale": 0,
-      "verified": false
     },
     "KE": {
       "total": 42,
@@ -171,9 +171,9 @@
       "verified": false
     },
     "KR": {
-      "total": 39,
+      "total": 36,
       "local_verified": 17,
-      "fx_reference": 22,
+      "fx_reference": 19,
       "stale": 0,
       "verified": false
     },
@@ -227,9 +227,9 @@
       "verified": true
     },
     "AE": {
-      "total": 28,
+      "total": 26,
       "local_verified": 8,
-      "fx_reference": 20,
+      "fx_reference": 18,
       "stale": 0,
       "verified": false
     }
