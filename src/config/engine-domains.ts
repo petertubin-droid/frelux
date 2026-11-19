@@ -69,6 +69,7 @@ export const TOOL_DOMAINS: Readonly<Record<string, EngineDomain>> = {
   "mathematical-plan-elevation": "superstructure",
   "blueprint-takeoff": "superstructure",
   "insulation-calculator": "superstructure",
+  "icf-wall-estimator": "superstructure",
   // finishes
   paint: "finishes",
   "paint-comparison": "finishes",

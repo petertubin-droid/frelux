@@ -236,7 +236,7 @@ const SupplierPortal = lazy(() => import("@/pages/marketplace/SupplierPortal"));
 const AdminRegionalCostIndices = lazy(
   () => import("@/pages/admin/AdminRegionalCostIndices"),
 );
-const AdminSiteIntelligence = lazy(
+const _AdminSiteIntelligence = lazy(
   () => import("@/pages/admin/AdminSiteIntelligence"),
 );
 
@@ -631,6 +631,9 @@ const ConduitWiringEstimator = lazy(
 const WaterTowerEstimator = lazy(() => import("@/pages/WaterTowerEstimator"));
 const BoreholeWaterSystemEstimator = lazy(
   () => import("@/pages/BoreholeWaterSystemEstimator"),
+);
+const IcfWallEstimator = lazy(
+  () => import("@/pages/IcfWallEstimator"),
 );
 const GlobalSiteSafetyEstimator = lazy(
   () => import("@/pages/GlobalSiteSafetyEstimator"),
@@ -2334,6 +2337,16 @@ export default function App() {
                         <Route
                           path="/borehole-water-system-estimator"
                           element={<BoreholeWaterSystemEstimator />}
+                        />
+                        <Route
+                          path="/icf-wall-estimator"
+                          element={<IcfWallEstimator />}
+                        />
+                        <Route
+                          path="/icf-calculator"
+                          element={
+                            <Navigate to="/icf-wall-estimator" replace />
+                          }
                         />
                         <Route
                           path="/borehole-estimator"

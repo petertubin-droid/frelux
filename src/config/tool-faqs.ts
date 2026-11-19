@@ -585,6 +585,37 @@ const BLINDS_FAQ_GROUPS: ToolFaqGroup[] = [
   },
 ];
 
+const ICF_FAQ_GROUPS: ToolFaqGroup[] = [
+  {
+    slug: "icf-wall-estimator",
+    route: "/icf-wall-estimator",
+    name: "ICF Wall Estimator & Takeoff",
+    category: "structure",
+    questions: [
+      {
+        q: "What does the ICF wall calculator actually calculate?",
+        a: "It turns entered perimeter, height, and core thickness into a complete physical takeoff: straight form blocks, 90-degree corner pairs, 45-degree splays, ready-mix concrete pump volume (deducting internal tie webs), rebar schedules for starter dowels, vertical grid, horizontal courses, and lintel cages, turnbuckle bracing strongbacks, rough bucking, and envelope thermal ratings.",
+      },
+      {
+        q: "How is concrete core volume calculated for ICF walls?",
+        a: "From net wall face area multiplied by core thickness (100mm to 300mm), minus approximately 1.5% internal volume displaced by molded polypropylene webs, plus an explicit pump hopper and placement waste allowance (typically 3% to 5%). It outputs ready-mix truck counts (6m³ and 8m³) as well as site-mix ingredient weights for cement, sand, pea gravel, and water.",
+      },
+      {
+        q: "What rebar schedule does an ICF wall require?",
+        a: "Vertical reinforcing steel spaced at 400mm or 600mm centers with matching footing starter dowels, continuous horizontal runs in molded web saddles at 400mm or 800mm vertical increments with 48 bar diameter lap splices, and reinforced lintel header cages with top and bottom tensile steel plus shear stirrups over door and window openings spanning 0.8m or wider.",
+      },
+      {
+        q: "Why is turnbuckle alignment bracing required?",
+        a: "Lightweight EPS forms must be held plumb, aligned, and braced against hydrostatic concrete pressure and wind before and during the pour. The estimator sizes adjustable turnbuckle strongbacks every 2.0 meters along the wall perimeter plus additional units at all corners, along with integrated catwalk scaffolding brackets for safe placement access.",
+      },
+      {
+        q: "What are the fire, acoustic and thermal ratings of ICF?",
+        a: "Double 64mm EPS panels provide continuous insulation with an R-22 rating (RSI 3.87) for standard EPS or R-28.5 (RSI 5.02) for graphite Neopor, eliminating thermal bridging. The solid concrete core delivers an STC 48 to STC 58 sound transmission rating and a 1.5 to 4-hour fire rating depending on core thickness. Building codes mandate a 15-minute thermal barrier (such as 12.5mm / 1/2-inch gypsum drywall) on all interior living surfaces.",
+      },
+    ],
+  },
+];
+
 const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
   {
     slug: "borehole-water-system",
@@ -688,6 +719,7 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...BASE_TOOL_FAQS,
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
+  ...ICF_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
   ...RENOVATION_FAQ_GROUPS,
   {

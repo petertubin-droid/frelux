@@ -78,7 +78,6 @@ import { faqSchemaByPath } from "./generated/faq-schema.mjs";
 import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 import { howManyHtml, howManyFaq } from "./lib/how-many.mjs";
-import { listingCopyFor } from "./lib/listing-copy.mjs";
 
 const distDir = "dist";
 
@@ -2884,6 +2883,52 @@ const routes = [
       "Answers to the questions people ask before buying building materials: paint and tile quantities, screed and POP materials, foundation concrete, retaining wall footings, gutters, conduit and steel beam weight.",
   },
   {
+    path: "/icf-wall-estimator",
+    title: "ICF Wall Estimator: Blocks, Concrete & Rebar | FRELUX",
+    description:
+      "Calculate Insulated Concrete Form (ICF) form blocks, core concrete volume, rebar grid, turnbuckle bracing, rough bucking, and continuous R-value scorecard.",
+    priority: "0.8",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "ICF Wall Estimator",
+            item: `${SITE_URL}/icf-wall-estimator`,
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX ICF Wall Estimator",
+        operatingSystem: "Web",
+        applicationCategory: "DesignApplication",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+    ],
+  },
+  {
     path: "/retaining-wall-calculator",
     title: "Retaining Wall Calculator: Material & Cost | FRELUX",
     description:
@@ -5314,22 +5359,6 @@ for (const faqRoute of faqPrerenderRoutes) {
     aligned += 1;
   }
   console.log(`[prerender] listing copy aligned to the tool registry: ${aligned} routes`);
-}
-
-// The pages no registry entry owns: directories, legal pages, guides, templates
-// and market intelligence. Their copy is held to the same display limits, so a
-// result is never cut mid-phrase.
-{
-  let applied = 0;
-  for (const route of routes) {
-    const copy = listingCopyFor(route.path);
-    if (!copy) continue;
-    if (route.title === copy.title && route.description === copy.description) continue;
-    route.title = copy.title;
-    route.description = copy.description;
-    applied += 1;
-  }
-  console.log(`[prerender] listing copy applied to ${applied} non-registry routes`);
 }
 
 // Search results cut a title at roughly 60 characters, so a brand suffix that

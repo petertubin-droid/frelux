@@ -1,0 +1,928 @@
+import React, { useMemo, useState } from "react";
+import ToolShell from "@/components/tools/ToolShell";
+import Container from "@/components/ui/Container";
+import { Button } from "@/components/ui/shadcn/button";
+import { Input } from "@/components/ui/shadcn/input";
+import { Label } from "@/components/ui/shadcn/label";
+import { Switch } from "@/components/ui/shadcn/switch";
+import { Badge } from "@/components/ui/shadcn/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/shadcn/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/shadcn/select";
+import {
+  AlertTriangle,
+  Building2,
+  CheckCircle2,
+  Copy,
+  Download,
+  Flame,
+  HardHat,
+  Layers,
+  Plus,
+  RotateCcw,
+  Ruler,
+  ShieldCheck,
+  Thermometer,
+  Trash2,
+  Volume2,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  calculateIcfWall,
+  type IcfCoreThicknessMm,
+  type IcfFoamType,
+  type IcfHorizontalCourses,
+  type IcfOpening,
+  type IcfRebarSize,
+  type IcfVerticalSpacingMm,
+  type IcfWallInput,
+} from "@/lib/estimation/icf-engine";
+import IcfWallSchematic from "@/components/tools/IcfWallSchematic";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import { useMarket } from "@/lib/international/market-context";
+
+export default function IcfWallEstimator() {
+  const { marketCode } = useMarket();
+
+  // Unit system toggle
+  const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
+
+  // Core dimensional inputs
+  const [wallLength, setWallLength] = useState<string>("40");
+  const [wallHeight, setWallHeight] = useState<string>("3.0");
+  const [coreThicknessMm, setCoreThicknessMm] = useState<IcfCoreThicknessMm>(150);
+  const [foamType, setFoamType] = useState<IcfFoamType>("standard_eps");
+
+  // Corner and T-junction counts
+  const [corners90, setCorners90] = useState<number>(4);
+  const [corners45, setCorners45] = useState<number>(0);
+  const [tWalls, setTWalls] = useState<number>(0);
+
+  // Reinforcement inputs
+  const [verticalRebarSize, setVerticalRebarSize] = useState<IcfRebarSize>("12M");
+  const [verticalSpacingMm, setVerticalSpacingMm] = useState<IcfVerticalSpacingMm>(400);
+  const [horizontalCourses, setHorizontalCourses] = useState<IcfHorizontalCourses>("every_course");
+
+  // Openings
+  const [openings, setOpenings] = useState<IcfOpening[]>([
+    { id: "win-1", label: "Front Windows", widthM: 1.8, heightM: 1.2, count: 2 },
+    { id: "door-1", label: "Entry Door", widthM: 1.0, heightM: 2.1, count: 1 },
+  ]);
+
+  // Operational options
+  const [isBasement, setIsBasement] = useState<boolean>(false);
+  const [wastePct, setWastePct] = useState<number>(4);
+  const [crewSize, setCrewSize] = useState<number>(4);
+
+  // Conversion helpers
+  const lengthM = unitSystem === "imperial" ? (Number(wallLength) || 0) * 0.3048 : Number(wallLength) || 0;
+  const heightM = unitSystem === "imperial" ? (Number(wallHeight) || 0) * 0.3048 : Number(wallHeight) || 0;
+
+  // Add opening handler
+  const handleAddOpening = () => {
+    const newId = `op-${Date.now()}`;
+    setOpenings((prev) => [
+      ...prev,
+      {
+        id: newId,
+        label: `Opening ${prev.length + 1}`,
+        widthM: unitSystem === "imperial" ? 3.0 * 0.3048 : 1.2,
+        heightM: unitSystem === "imperial" ? 4.0 * 0.3048 : 1.5,
+        count: 1,
+      },
+    ]);
+  };
+
+  // Remove opening handler
+  const handleRemoveOpening = (id: string) => {
+    setOpenings((prev) => prev.filter((o) => o.id !== id));
+  };
+
+  // Update opening handler
+  const handleUpdateOpening = <K extends keyof IcfOpening>(id: string, field: K, value: IcfOpening[K]) => {
+    setOpenings((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, [field]: value } : o)),
+    );
+  };
+
+  // Reset all inputs
+  const handleReset = () => {
+    setUnitSystem("metric");
+    setWallLength("40");
+    setWallHeight("3.0");
+    setCoreThicknessMm(150);
+    setFoamType("standard_eps");
+    setCorners90(4);
+    setCorners45(0);
+    setTWalls(0);
+    setVerticalRebarSize("12M");
+    setVerticalSpacingMm(400);
+    setHorizontalCourses("every_course");
+    setOpenings([
+      { id: "win-1", label: "Front Windows", widthM: 1.8, heightM: 1.2, count: 2 },
+      { id: "door-1", label: "Entry Door", widthM: 1.0, heightM: 2.1, count: 1 },
+    ]);
+    setIsBasement(false);
+    setWastePct(4);
+    setCrewSize(4);
+    toast.info("Inputs reset to standard defaults.");
+  };
+
+  // Engine calculation
+  const engineResult = useMemo(() => {
+    const input: IcfWallInput = {
+      wallLengthM: lengthM,
+      wallHeightM: heightM,
+      coreThicknessMm,
+      foamType,
+      openings,
+      corners90Count: corners90,
+      corners45Count: corners45,
+      tWallsCount: tWalls,
+      verticalRebarSize,
+      verticalRebarSpacingMm: verticalSpacingMm,
+      horizontalRebarCourses: horizontalCourses,
+      wasteFactorPercent: wastePct,
+      isBasement,
+      marketCode,
+      laborCrewSize: crewSize,
+    };
+    return calculateIcfWall(input);
+  }, [
+    lengthM,
+    heightM,
+    coreThicknessMm,
+    foamType,
+    openings,
+    corners90,
+    corners45,
+    tWalls,
+    verticalRebarSize,
+    verticalSpacingMm,
+    horizontalCourses,
+    wastePct,
+    isBasement,
+    marketCode,
+    crewSize,
+  ]);
+
+  // Export BOQ as CSV
+  const handleExportCsv = () => {
+    const headers = ["Item Code", "Description", "Category", "Quantity", "Unit", "Notes"];
+    const rows = engineResult.boq.map((b) => [
+      `"${b.code}"`,
+      `"${b.description.replace(/"/g, '""')}"`,
+      `"${b.category}"`,
+      b.quantity,
+      `"${b.unit}"`,
+      `"${(b.notes || "").replace(/"/g, '""')}"`,
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `ICF_Wall_Takeoff_${coreThicknessMm}mm.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Bill of Quantities exported to CSV.");
+  };
+
+  // Copy BOQ to clipboard
+  const handleCopyBoq = () => {
+    const textLines = [
+      `FRELUX Insulated Concrete Form (ICF) Takeoff Summary`,
+      `Core Cavity: ${coreThicknessMm}mm | Foam: ${foamType === "graphite_neopor" ? "Graphite Neopor" : "Standard EPS"}`,
+      `Net Wall Area: ${engineResult.geometry.netWallAreaM2} m² | Concrete: ${engineResult.concrete.totalVolumeM3} m³`,
+      `Total Blocks: ${engineResult.blocks.totalBlocksCount} units | Rebar: ${engineResult.reinforcement.totalSteelWeightTonnes} tonnes`,
+      `-------------------------------------------------------`,
+      ...engineResult.boq.map(
+        (b) => `${b.code}\t${b.description}\t${b.quantity} ${b.unit}\t${b.notes || ""}`,
+      ),
+    ].join("\n");
+
+    navigator.clipboard.writeText(textLines).then(
+      () => toast.success("Takeoff copied to clipboard!"),
+      () => toast.error("Could not access clipboard."),
+    );
+  };
+
+  return (
+    <ToolShell route="/icf-wall-estimator">
+      <Container className="py-6 space-y-6">
+        {/* Top Control Bar with Unit Switch & Reset */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-muted/30 p-3 rounded-lg border border-border/60">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Measurement System:
+            </span>
+            <div className="inline-flex rounded-md border border-input bg-background p-0.5 shadow-xs">
+              <Button
+                type="button"
+                size="sm"
+                variant={unitSystem === "metric" ? "default" : "ghost"}
+                className="h-7 text-xs px-3"
+                onClick={() => setUnitSystem("metric")}
+              >
+                Metric (Meters / m³)
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={unitSystem === "imperial" ? "default" : "ghost"}
+                className="h-7 text-xs px-3"
+                onClick={() => setUnitSystem("imperial")}
+              >
+                Imperial (Feet / yd³)
+              </Button>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="h-7 text-xs flex items-center gap-1.5"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset Defaults
+          </Button>
+        </div>
+
+        {/* Input Parameters Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 space-y-5">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Ruler className="h-4 w-4 text-primary" />
+                  Wall Geometry & Core Specification
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Enter perimeter centerline, height, and choose concrete core thickness.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="wallLength" className="text-xs font-medium">
+                      Total Wall Perimeter ({unitSystem === "metric" ? "m" : "ft"})
+                    </Label>
+                    <Input
+                      id="wallLength"
+                      type="number"
+                      step="0.5"
+                      min="1"
+                      value={wallLength}
+                      onChange={(e) => setWallLength(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="wallHeight" className="text-xs font-medium">
+                      Wall Height ({unitSystem === "metric" ? "m" : "ft"})
+                    </Label>
+                    <Input
+                      id="wallHeight"
+                      type="number"
+                      step="0.1"
+                      min="0.5"
+                      value={wallHeight}
+                      onChange={(e) => setWallHeight(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium">Concrete Core Cavity</Label>
+                    <Select
+                      value={String(coreThicknessMm)}
+                      onValueChange={(val) => setCoreThicknessMm(Number(val) as IcfCoreThicknessMm)}
+                    >
+                      <SelectTrigger className="text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="100">100mm (4&quot;) Core</SelectItem>
+                        <SelectItem value="150">150mm (6&quot;) Core - Standard</SelectItem>
+                        <SelectItem value="200">200mm (8&quot;) Core - Heavy</SelectItem>
+                        <SelectItem value="250">250mm (10&quot;) Core</SelectItem>
+                        <SelectItem value="300">300mm (12&quot;) Core - Retaining</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium">EPS Foam Formulation</Label>
+                    <Select
+                      value={foamType}
+                      onValueChange={(val) => setFoamType(val as IcfFoamType)}
+                    >
+                      <SelectTrigger className="text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="standard_eps">Standard EPS (R-22)</SelectItem>
+                        <SelectItem value="graphite_neopor">Graphite Neopor (R-28.5)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Corners and Intersections */}
+                <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border/40">
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">90° Corners</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={corners90}
+                      onChange={(e) => setCorners90(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">45° Splay Corners</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={corners45}
+                      onChange={(e) => setCorners45(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">T-Intersections</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={tWalls}
+                      onChange={(e) => setTWalls(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Reinforcement Configuration */}
+                <div className="pt-2 border-t border-border/40 space-y-2">
+                  <Label className="text-xs font-semibold flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                    Reinforcing Steel Grid Specification
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-[11px] text-muted-foreground">Bar Size</Label>
+                      <Select
+                        value={verticalRebarSize}
+                        onValueChange={(val) => setVerticalRebarSize(val as IcfRebarSize)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="10M">10M (11.3mm)</SelectItem>
+                          <SelectItem value="12M">12M (12mm) - Std</SelectItem>
+                          <SelectItem value="16M">16M (16mm) - Heavy</SelectItem>
+                          <SelectItem value="no4">US #4 (1/2&quot;)</SelectItem>
+                          <SelectItem value="no5">US #5 (5/8&quot;)</SelectItem>
+                          <SelectItem value="no6">US #6 (3/4&quot;)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] text-muted-foreground">Vertical Spacing</Label>
+                      <Select
+                        value={String(verticalSpacingMm)}
+                        onValueChange={(val) => setVerticalSpacingMm(Number(val) as IcfVerticalSpacingMm)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="400">400mm (16&quot;) Centers</SelectItem>
+                          <SelectItem value="600">600mm (24&quot;) Centers</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-[11px] text-muted-foreground">Horiz. Frequency</Label>
+                      <Select
+                        value={horizontalCourses}
+                        onValueChange={(val) => setHorizontalCourses(val as IcfHorizontalCourses)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="every_course">Every Course (400mm)</SelectItem>
+                          <SelectItem value="every_second_course">Every 2nd (800mm)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Below Grade & Waste Factor */}
+                <div className="pt-2 border-t border-border/40 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="basement-switch"
+                      checked={isBasement}
+                      onCheckedChange={setIsBasement}
+                    />
+                    <Label htmlFor="basement-switch" className="text-xs cursor-pointer">
+                      Below-Grade Earth Retaining (Basement)
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Label htmlFor="wastePct" className="text-xs text-muted-foreground">
+                      Waste Allowance:
+                    </Label>
+                    <Input
+                      id="wastePct"
+                      type="number"
+                      min="0"
+                      max="20"
+                      value={wastePct}
+                      onChange={(e) => setWastePct(Number(e.target.value) || 0)}
+                      className="h-7 w-14 text-xs text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Window & Door Openings Builder */}
+            <Card>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Window & Door Openings</CardTitle>
+                  <CardDescription className="text-xs">
+                    Subtracted from wall area; generates bucking & lintel header cages.
+                  </CardDescription>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddOpening}
+                  className="h-7 text-xs flex items-center gap-1"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Opening
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {openings.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-2 text-center">
+                    No openings added. Wall is calculated as solid perimeter.
+                  </p>
+                ) : (
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    {openings.map((op) => (
+                      <div
+                        key={op.id}
+                        className="flex items-center gap-2 bg-muted/40 p-2 rounded-md border border-border/40 text-xs"
+                      >
+                        <Input
+                          value={op.label}
+                          onChange={(e) => handleUpdateOpening(op.id, "label", e.target.value)}
+                          className="h-7 text-xs flex-1 min-w-[90px]"
+                          placeholder="Label"
+                        />
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-muted-foreground">W:</span>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={unitSystem === "imperial" ? (op.widthM / 0.3048).toFixed(1) : op.widthM}
+                            onChange={(e) => {
+                              const v = Number(e.target.value) || 0;
+                              handleUpdateOpening(op.id, "widthM", unitSystem === "imperial" ? v * 0.3048 : v);
+                            }}
+                            className="h-7 w-14 text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-muted-foreground">H:</span>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            value={unitSystem === "imperial" ? (op.heightM / 0.3048).toFixed(1) : op.heightM}
+                            onChange={(e) => {
+                              const v = Number(e.target.value) || 0;
+                              handleUpdateOpening(op.id, "heightM", unitSystem === "imperial" ? v * 0.3048 : v);
+                            }}
+                            className="h-7 w-14 text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-muted-foreground">Qty:</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={op.count}
+                            onChange={(e) =>
+                              handleUpdateOpening(op.id, "count", Math.max(1, parseInt(e.target.value) || 1))
+                            }
+                            className="h-7 w-12 text-xs"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveOpening(op.id)}
+                          className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column: Interactive Schematic & Key Scorecards */}
+          <div className="lg:col-span-7 space-y-5">
+            {/* Structural Schematic */}
+            <IcfWallSchematic
+              coreThicknessMm={coreThicknessMm}
+              foamType={foamType}
+              wallLengthM={lengthM}
+              wallHeightM={heightM}
+              hasOpenings={openings.length > 0}
+              isBasement={isBasement}
+            />
+
+            {/* High-Level Metric Tiles */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
+                <p className="text-[11px] font-medium text-muted-foreground">Net Wall Area</p>
+                <p className="text-xl font-bold text-foreground mt-0.5">
+                  {engineResult.geometry.netWallAreaM2} <span className="text-xs font-normal text-muted-foreground">m²</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  ({(engineResult.geometry.netWallAreaM2 * 10.764).toFixed(0)} sq ft)
+                </p>
+              </div>
+
+              <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
+                <p className="text-[11px] font-medium text-muted-foreground">Total ICF Blocks</p>
+                <p className="text-xl font-bold text-primary mt-0.5">
+                  {engineResult.blocks.totalBlocksCount} <span className="text-xs font-normal text-muted-foreground">units</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {engineResult.blocks.straightBlocksCount} straight, {engineResult.blocks.corner90BlocksCount} corner
+                </p>
+              </div>
+
+              <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
+                <p className="text-[11px] font-medium text-muted-foreground">Concrete Core Volume</p>
+                <p className="text-xl font-bold text-foreground mt-0.5">
+                  {engineResult.concrete.totalVolumeM3} <span className="text-xs font-normal text-muted-foreground">m³</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  ~{(engineResult.concrete.totalVolumeM3 * 1.30795).toFixed(1)} yd³ ({engineResult.concrete.readyMixTrucks6M3} trucks)
+                </p>
+              </div>
+
+              <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
+                <p className="text-[11px] font-medium text-muted-foreground">Reinforcement Steel</p>
+                <p className="text-xl font-bold text-foreground mt-0.5">
+                  {engineResult.reinforcement.totalSteelWeightTonnes} <span className="text-xs font-normal text-muted-foreground">tonnes</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  ({(engineResult.reinforcement.totalSteelWeightKg * 2.20462).toFixed(0)} lbs total)
+                </p>
+              </div>
+            </div>
+
+            {/* Performance Envelope & Scorecard */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Thermometer className="h-4 w-4 text-amber-500" />
+                    Thermal, Acoustic & Fire Performance Scorecard
+                  </span>
+                  <Badge variant="secondary" className="text-xs font-mono">
+                    {coreThicknessMm}mm Core
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground">Continuous R-Value</p>
+                    <p className="text-lg font-bold text-amber-600 mt-0.5">
+                      R-{engineResult.envelope.continuousRValueImperial}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      RSI {engineResult.envelope.metricRsiValue} m²·K/W
+                    </p>
+                  </div>
+
+                  <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground">U-Value (Transmittance)</p>
+                    <p className="text-lg font-bold text-foreground mt-0.5">
+                      {engineResult.envelope.thermalTransmittanceUValue}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">W/(m²·K)</p>
+                  </div>
+
+                  <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1">
+                      <Volume2 className="h-3 w-3 text-sky-500" />
+                      Sound STC Rating
+                    </p>
+                    <p className="text-lg font-bold text-sky-600 mt-0.5">
+                      STC {engineResult.envelope.acousticStcRating}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Acoustic attenuation</p>
+                  </div>
+
+                  <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1">
+                      <Flame className="h-3 w-3 text-rose-500" />
+                      Fire Resistance
+                    </p>
+                    <p className="text-lg font-bold text-rose-600 mt-0.5">
+                      {engineResult.envelope.fireResistanceHours} Hours
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Non-combustible core</p>
+                  </div>
+                </div>
+
+                <div className="rounded-md bg-amber-500/10 border border-amber-500/30 p-2.5 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold">Building Code Mandatory Thermal Barrier: </span>
+                    {engineResult.envelope.thermalBarrierRequirement}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Labor Duration & Comparison */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <HardHat className="h-4 w-4 text-primary" />
+                  Site Labor Duration & CMU Comparison
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="bg-muted/40 p-2.5 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground">Total ICF Labor</p>
+                    <p className="text-base font-bold text-foreground mt-0.5">
+                      {engineResult.labor.totalManHours} man-hours
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      ~{engineResult.labor.estimatedCrewDays} days ({crewSize}-person crew)
+                    </p>
+                  </div>
+
+                  <div className="bg-muted/40 p-2.5 rounded-lg border border-border/40">
+                    <p className="text-[11px] text-muted-foreground">Traditional Blockwork</p>
+                    <p className="text-base font-bold text-foreground mt-0.5">
+                      {engineResult.labor.traditionalBlockworkManHoursComparison} man-hours
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Masonry + insulation + plaster</p>
+                  </div>
+
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded-lg text-emerald-950 dark:text-emerald-200 col-span-2 sm:col-span-1">
+                    <p className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">
+                      Labor Duration Saved
+                    </p>
+                    <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      {engineResult.labor.laborSavingsPercentage}% Faster
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">All-in-one building envelope</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Concrete Pouring & Lift Rate Warning Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-border/80">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Layers className="h-4 w-4 text-primary" />
+                Concrete Placement & Placement Logistics
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs space-y-2 text-muted-foreground">
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Maximum Vertical Rise Rate:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.maxPourLiftRateMPerHour} m/hour (4 ft/hr max)
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Recommended Concrete Slump:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.recommendedSlumpMm}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Maximum Aggregate Size:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.aggregateSizeMaxMm}mm (3/8&quot; pea gravel)
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Alignment Turnbuckle Jacks:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.bracing.turnbuckleAlignmentJacks} jacks ({engineResult.bracing.concreteAnchorBolts} slab anchors)
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/80">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" />
+                Site-Mix Materials Equivalent (If Batching On Site)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs space-y-2 text-muted-foreground">
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Cement Bags (Standard Retail Pack):</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.siteMixCementBags} bags
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Sharp Sand:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.siteMixSandTonnes} tonnes
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>10mm Pea Gravel (Granite):</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.siteMixGraniteTonnes} tonnes
+                </span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Water:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.siteMixWaterLitres} litres
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Full Bill of Quantities (BOQ) */}
+        <Card className="border-border/80">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                Itemized Bill of Quantities (BOQ)
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Comprehensive purchase schedule covering form blocks, ready-mix, reinforcement, bracing, and envelope materials.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyBoq}
+                className="h-8 text-xs flex items-center gap-1.5"
+              >
+                <Copy className="h-3.5 w-3.5" />
+                Copy Table
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleExportCsv}
+                className="h-8 text-xs flex items-center gap-1.5"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Download CSV
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-md border border-border/60 overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-muted/40 border-b border-border/60">
+                  <tr>
+                    <th className="p-2.5 w-[120px] text-xs font-semibold text-muted-foreground">Code</th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">Description</th>
+                    <th className="p-2.5 w-[110px] text-xs font-semibold text-muted-foreground">Trade</th>
+                    <th className="p-2.5 w-[100px] text-right text-xs font-semibold text-muted-foreground">Quantity</th>
+                    <th className="p-2.5 w-[80px] text-xs font-semibold text-muted-foreground">Unit</th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">Specification Notes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {engineResult.boq.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-muted/20 transition-colors">
+                      <td className="p-2.5 font-mono text-xs text-muted-foreground">
+                        {item.code}
+                      </td>
+                      <td className="p-2.5 text-xs font-medium text-foreground">
+                        {item.description}
+                      </td>
+                      <td className="p-2.5 text-xs capitalize">
+                        <Badge variant="outline" className="text-[10px] font-normal">
+                          {item.category}
+                        </Badge>
+                      </td>
+                      <td className="p-2.5 text-right text-xs font-semibold text-foreground">
+                        {item.quantity}
+                      </td>
+                      <td className="p-2.5 text-xs text-muted-foreground">{item.unit}</td>
+                      <td className="p-2.5 text-xs text-muted-foreground">{item.notes || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* International Building Code Alignment */}
+        <Card className="border-border/80">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              Structural Code Citations & Regulatory References
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              {engineResult.codeCitations.map((c, i) => (
+                <div key={i} className="p-2.5 rounded-lg border border-border/50 bg-muted/20 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-foreground">{c.jurisdiction}</span>
+                    <Badge variant="secondary" className="text-[10px] font-mono">
+                      {c.code}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] text-primary font-medium">{c.clause}</p>
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">{c.summary}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* How It's Calculated Accordion & Estimation Disclaimer */}
+        <HowCalculatedSection
+          methodologyText={`1. Block Geometry & Corner Allocation: Gross wall perimeter and height define total surface area. Window and door openings are deducted to establish net face area. Nominal block face dimensions (1200mm x 400mm = 0.48 m²) determine base unit counts, with corner units and T-junctions segregated course by course.
+
+2. Concrete Core Volume & Lift Rates: Core volume is computed from net wall area and core cavity width (100mm to 300mm), with a 1.5% deduction for internal polypropylene webs and a 4% pump hopper allowance. Vertical pour rate must be restricted to 1.2 m/hr (4 ft/hr) to avoid exceeding hydrostatic lateral form pressure limits.
+
+3. Reinforcement Grid & Lintel Headers: Footing starter dowels, vertical rebar grid (400mm or 600mm centers), and horizontal courses with 48 bar diameter lap splices are calculated. Openings spanning 0.8m or wider receive reinforced lintel header cages with top and bottom tensile steel and shear stirrups.
+
+4. Turnbuckle Alignment Bracing: Adjustable turnbuckle strongback jacks are spaced every 2.0 meters along the wall perimeter, with additional jacks located within 600mm of every corner, paired with catwalk scaffolding brackets for safe placement and consolidation.`}
+          assumptions={[
+            { label: "Nominal Block Face", value: "1200mm x 400mm (0.48 m²)" },
+            { label: "Concrete Web Displacement", value: "-1.5% core volume" },
+            { label: "Bracing Spacing", value: "2.0m on center + corners" },
+            { label: "Rebar Lap Length", value: "48 bar diameters" },
+            { label: "Thermal Barrier", value: "12.5mm Type X Gypsum (IRC R316)" },
+          ]}
+        />
+
+        <EstimateDisclaimer
+          text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction."
+        />
+      </Container>
+    </ToolShell>
+  );
+}

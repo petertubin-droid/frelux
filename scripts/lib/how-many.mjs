@@ -179,6 +179,10 @@ export const HOW_MANY = {
     q: "How big should the staging under a water tank be?",
     a: "Tank volume gives the dead load, and the height gives the overturning moment: enter tank size and height to get dead load, pad footing size, leg section and utilisation, with the steel or concrete quantities.",
   },
+  "/icf-wall-estimator": {
+    q: "How many ICF blocks and concrete volume do I need?",
+    a: "Wall perimeter and height less openings determine the block count, corner units and concrete core volume: select core thickness to calculate form blocks, rebar schedules, alignment bracing and ready-mix delivery.",
+  },
   "/retaining-wall-calculator": {
     q: "How much concrete and blockwork does a retaining wall need?",
     a: "Wall length, height and stem thickness give the volumes: enter them to get footing concrete, blocks, rebar and weep holes, with the rule behind each quantity stated.",

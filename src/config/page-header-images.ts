@@ -56,7 +56,7 @@ const HEADER_IMAGE_RULES: HeaderImageRule[] = [
     // Specialty takeoffs: retaining wall, steel sections, eaves finishing,
     // conduit runs. Specific routes first, so the broad rules below only
     // catch what these do not.
-    test: /^\/(retaining-wall-calculator|structural-steel-i-beam-calculator)/,
+    test: /^\/(retaining-wall-calculator|structural-steel-i-beam-calculator|icf-wall-estimator)/,
     image: "/assets/headers/structural.jpg",
   },
   {

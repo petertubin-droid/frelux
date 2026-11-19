@@ -450,6 +450,11 @@ const routes = [
     changefreq: "monthly",
   },
   {
+    path: "/icf-wall-estimator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
     path: "/borehole-water-system-estimator",
     priority: "0.9",
     changefreq: "monthly",
