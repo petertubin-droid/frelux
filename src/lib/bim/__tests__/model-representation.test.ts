@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   closedMeshVolume,
   extrusionQuantities,
+  meshQuantities,
   meshSurfaceArea,
   polygonArea,
   profileArea,
@@ -197,5 +198,44 @@ describe("meshSurfaceArea", () => {
 
   it("returns null for an empty mesh", () => {
     expect(meshSurfaceArea(new Float32Array(0), new Uint32Array(0))).toBe(null);
+  });
+});
+
+describe("meshQuantities (boolean / swept-disk / brep path)", () => {
+  it("reports volume and surface area for a watertight cube", () => {
+    const { positions, indices } = cube();
+    const qs = meshQuantities([{ positions, indices }]);
+    const volume = qs.find((q) => q.kind === "volume");
+    const area = qs.find((q) => q.kind === "area");
+    expect(volume?.value).toBeCloseTo(1, 6);
+    expect(volume?.method).toBe("mesh-closed-shell");
+    expect(area?.value).toBeCloseTo(6, 6);
+    expect(area?.method).toBe("mesh-surface");
+    expect(area?.basis).toMatch(/not a plan/i);
+  });
+
+  it("sums volume across closed parts", () => {
+    const { positions, indices } = cube();
+    const qs = meshQuantities([
+      { positions, indices },
+      { positions, indices },
+    ]);
+    expect(qs.find((q) => q.kind === "volume")?.value).toBeCloseTo(2, 6);
+    expect(qs.find((q) => q.kind === "area")?.value).toBeCloseTo(12, 6);
+  });
+
+  it("refuses volume when any part is an open shell, but still reports area", () => {
+    const { positions, indices } = cube();
+    const open = indices.slice(0, indices.length - 6);
+    const qs = meshQuantities([
+      { positions, indices },
+      { positions, indices: open },
+    ]);
+    expect(qs.some((q) => q.kind === "volume")).toBe(false);
+    expect(qs.some((q) => q.kind === "area")).toBe(true);
+  });
+
+  it("returns nothing for an empty mesh", () => {
+    expect(meshQuantities([])).toEqual([]);
   });
 });

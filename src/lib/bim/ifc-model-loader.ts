@@ -16,6 +16,7 @@
 
 import {
   extrusionQuantities,
+  meshQuantities,
   profileArea,
   type DerivedQuantity,
   type ProfileShape,
@@ -121,6 +122,7 @@ export const IFC_COVERAGE = {
     "IfcProject.UnitsInContext -> IfcUnitAssignment",
     "IfcRelDefinesByProperties -> IfcPropertySet (single-value + enumerated)",
     "IfcExtrudedAreaSolid -> derived volume / area / depth (when nothing is declared)",
+    "Tessellated mesh -> derived volume (watertight only) / surface area, covering boolean results, swept disks and breps",
     "IfcPropertyBoundedValue (lower / upper / set point)",
     "IfcPropertyListValue (all values, kept as a list)",
     "IfcPropertyComplexProperty (nested entries, dotted names)",
@@ -872,7 +874,10 @@ export async function parseIfcModel(
         }
         if (quantities.length > 0) withQuantities++;
         const derived =
-          quantities.length === 0 ? derivedForElement(line) : null;
+          quantities.length === 0
+            ? (derivedForElement(line) ??
+              meshQuantities(geometryByElement.get(id) ?? []))
+            : null;
         elements.push({
           expressID: id,
           globalId,

@@ -199,3 +199,23 @@ describe("representation-derived quantities (real web-ifc)", () => {
     ).toBe(true);
   });
 });
+
+describe("mesh-derived quantities (real brep fixture)", () => {
+  it("derives surface area from a real brep and refuses volume when the tessellation is not watertight", async () => {
+    const result = await parseIfcModel(fixture("cube-advanced-brep.ifc"));
+    const element = result.elements.find(
+      (e) => (e.derivedQuantities?.length ?? 0) > 0,
+    );
+    expect(element).toBeDefined();
+    const derived = element!.derivedQuantities!;
+    const area = derived.find((q) => q.kind === "area");
+    expect(area?.method).toBe("mesh-surface");
+    expect(area!.value).toBeGreaterThan(0);
+    // This fixture's tessellation has 136 boundary edges (faces do not share
+    // vertices), so it is NOT watertight and no volume is claimed. The
+    // watertight case is covered by the synthetic cube in
+    // model-representation.test.ts.
+    expect(derived.some((q) => q.kind === "volume")).toBe(false);
+    expect(result.elementsWithDerivedQuantities).toBeGreaterThanOrEqual(1);
+  });
+});

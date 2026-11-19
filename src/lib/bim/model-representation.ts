@@ -38,6 +38,14 @@ export interface PlanarPoint {
   y: number;
 }
 
+/** Minimal shape of a tessellated part, as the loader already holds it. */
+export interface MeshPart {
+  positions: Float32Array;
+  indices: Uint32Array;
+  /** column-major 4x4 placement */
+  matrix?: readonly number[];
+}
+
 export type ProfileShape =
   | { kind: "rectangle"; xDim: number; yDim: number }
   | { kind: "circle"; radius: number }
@@ -201,13 +209,48 @@ export function closedMeshVolume(
 ): number | null {
   if (indices.length < 12) return null;
 
+  // Tessellations split vertices per face (flat shading), so edges must be
+  // paired by position, not by index: an index-only check would call a closed
+  // brep "open" and refuse a volume the geometry really has.
+  let minX = Infinity,
+    minY = Infinity,
+    minZ = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity,
+    maxZ = -Infinity;
+  for (let i = 0; i + 2 < positions.length; i += 3) {
+    const x = positions[i];
+    const y = positions[i + 1];
+    const z = positions[i + 2];
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (z < minZ) minZ = z;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
+    if (z > maxZ) maxZ = z;
+  }
+  const diag = Math.hypot(maxX - minX, maxY - minY, maxZ - minZ);
+  const tol = diag > 0 ? diag * 1e-7 : 1e-9;
+  const quantize = (v: number) => Math.round(v / tol);
+
+  const vertexKey = (index: number): string => {
+    const i = index * 3;
+    return `${quantize(positions[i])},${quantize(positions[i + 1])},${quantize(
+      positions[i + 2],
+    )}`;
+  };
+
   const edges = new Map<string, number>();
   for (let i = 0; i + 2 < indices.length; i += 3) {
-    const tri = [indices[i], indices[i + 1], indices[i + 2]];
+    const tri = [
+      vertexKey(indices[i]),
+      vertexKey(indices[i + 1]),
+      vertexKey(indices[i + 2]),
+    ];
     for (let e = 0; e < 3; e++) {
       const a = tri[e];
       const b = tri[(e + 1) % 3];
-      const key = a < b ? `${a}:${b}` : `${b}:${a}`;
+      const key = a < b ? `${a}|${b}` : `${b}|${a}`;
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
   }
@@ -244,4 +287,71 @@ export function closedMeshVolume(
   }
   const volume = Math.abs(sum);
   return Number.isFinite(volume) && volume > 0 ? volume : null;
+}
+
+/**
+ * Quantities from the tessellated mesh.
+ *
+ * This is the path that covers what the analytic extrusion reader cannot:
+ * boolean results (IfcBooleanResult / IfcBooleanClippingResult), swept disks
+ * and advanced breps. web-ifc has already evaluated those into triangles, so
+ * the mesh is the model's own answer rather than an approximation we invent.
+ *
+ * Rules, all of them refusals rather than guesses:
+ *  - volume only when EVERY part is watertight (each edge shared by exactly
+ *    two triangles); one open part and there is no volume, because summing a
+ *    meaningless number would be worse than reporting none
+ *  - surface area is always meaningful, but it counts every face (both sides
+ *    of a wall), so it is labelled mesh-surface and never called plan area
+ */
+export function meshQuantities(parts: readonly MeshPart[]): DerivedQuantity[] {
+  if (parts.length === 0) return [];
+  const usable = parts.filter(
+    (p) => p.positions.length >= 9 && p.indices.length >= 3,
+  );
+  if (usable.length === 0) return [];
+
+  const out: DerivedQuantity[] = [];
+
+  let volumeTotal = 0;
+  let allClosed = true;
+  for (const part of usable) {
+    const v = closedMeshVolume(part.positions, part.indices, part.matrix);
+    if (v === null) {
+      allClosed = false;
+      break;
+    }
+    volumeTotal += v;
+  }
+  if (allClosed && volumeTotal > 0) {
+    out.push({
+      name: "Mesh volume",
+      kind: "volume",
+      value: volumeTotal,
+      method: "mesh-closed-shell",
+      basis:
+        "Measured from the watertight tessellated mesh, in the model's own units. This covers boolean, swept-disk and brep shapes the extrusion reader cannot evaluate.",
+    });
+  }
+
+  let areaTotal = 0;
+  let anyArea = false;
+  for (const part of usable) {
+    const a = meshSurfaceArea(part.positions, part.indices, part.matrix);
+    if (a === null) continue;
+    areaTotal += a;
+    anyArea = true;
+  }
+  if (anyArea && areaTotal > 0) {
+    out.push({
+      name: "Mesh surface area",
+      kind: "area",
+      value: areaTotal,
+      method: "mesh-surface",
+      basis:
+        "Total tessellated surface, both faces included, in the model's own units. Not a plan or painting area.",
+    });
+  }
+
+  return out;
 }
