@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import HowManyAnswer from "@/components/seo/HowManyAnswer";
 import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
 import { PriceBookProvider } from "@/lib/pricing/price-book-context";
 import { isToolRoute } from "@/config/tool-index";
@@ -719,6 +720,7 @@ export default function Layout() {
               </Suspense>
             )}
             <Outlet />
+            <HowManyAnswer />
             {shouldShowLayoutAd(location.pathname) && (
               <AdSlot
                 slotKey="content_native"

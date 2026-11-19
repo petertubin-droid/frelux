@@ -97,6 +97,469 @@
   status = 301
   force = true
 
+
+# Alias consolidation: these slugs were served as a 200 SPA shell whose only
+# content was a client-side <Navigate>. A 200 page with no body competes with
+# the real calculator for the same query and splits whatever link equity it
+# earns, so each one is a permanent redirect to the canonical calculator
+# instead. They must stay above the /tools/* rewrite below, which would
+# otherwise answer them with index.html first.
+[[redirects]]
+  from = "/borehole-estimator"
+  to = "/borehole-water-system-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/borehole-estimator/"
+  to = "/borehole-water-system-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn/glossary"
+  to = "/learn/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn/glossary/"
+  to = "/learn/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/marketplace/merchant-api"
+  to = "/developers/merchant-webhooks/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/marketplace/merchant-api/"
+  to = "/developers/merchant-webhooks/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network"
+  to = "/pro-connect/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network/"
+  to = "/pro-connect/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network/marketplace"
+  to = "/marketplace/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network/marketplace/"
+  to = "/marketplace/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network/pros"
+  to = "/pro-connect/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/network/pros/"
+  to = "/pro-connect/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/price-index"
+  to = "/material-price-index/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/price-index/"
+  to = "/material-price-index/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prices/regional-indices"
+  to = "/regional-cost-index/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prices/regional-indices/"
+  to = "/regional-cost-index/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prices/trends"
+  to = "/prices/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/prices/trends/"
+  to = "/prices/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pro-connect/escrow"
+  to = "/escrow/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pro-connect/escrow/"
+  to = "/escrow/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projects"
+  to = "/my-projects/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projects/"
+  to = "/my-projects/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projects/templates"
+  to = "/templates/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/projects/templates/"
+  to = "/templates/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/roadmap"
+  to = "/user-guide/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/roadmap/"
+  to = "/user-guide/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/site-tracker"
+  to = "/diaspora-tracker/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/site-tracker/"
+  to = "/diaspora-tracker/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools"
+  to = "/construction-tools/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/"
+  to = "/construction-tools/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/color-assistant"
+  to = "/ai-color-assistant/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/color-assistant/"
+  to = "/ai-color-assistant/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/defects"
+  to = "/defect-diagnosis/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/defects/"
+  to = "/defect-diagnosis/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/photo-estimator"
+  to = "/smart-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/ai/photo-estimator/"
+  to = "/smart-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/components/doors-windows"
+  to = "/doors-windows/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/components/doors-windows/"
+  to = "/doors-windows/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/flooring"
+  to = "/flooring/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/flooring/"
+  to = "/flooring/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/paint"
+  to = "/paint-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/paint/"
+  to = "/paint-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/pop"
+  to = "/pop-ceiling-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/pop/"
+  to = "/pop-ceiling-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/screeding"
+  to = "/screeding-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/screeding/"
+  to = "/screeding-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/tiles"
+  to = "/tile-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/tiles/"
+  to = "/tile-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/waterproofing"
+  to = "/waterproofing/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/finishes/waterproofing/"
+  to = "/waterproofing/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/boq"
+  to = "/boq-generator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/boq/"
+  to = "/boq-generator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/cash-flow"
+  to = "/cash-flow-timeline/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/cash-flow/"
+  to = "/cash-flow-timeline/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/labour"
+  to = "/labour-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/labour/"
+  to = "/labour-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/margin"
+  to = "/margin-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/margin/"
+  to = "/margin-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/timeline"
+  to = "/project-timeline/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/project/timeline/"
+  to = "/project-timeline/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/comfort"
+  to = "/heat-comfort/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/comfort/"
+  to = "/heat-comfort/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/electrical"
+  to = "/electrical/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/electrical/"
+  to = "/electrical/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/plumbing"
+  to = "/plumbing/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/plumbing/"
+  to = "/plumbing/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/solar"
+  to = "/solar-pv-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/services/solar/"
+  to = "/solar-pv-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/build-to-roof"
+  to = "/build-to-roof-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/build-to-roof/"
+  to = "/build-to-roof-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/concrete"
+  to = "/structural-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/concrete/"
+  to = "/structural-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/foundation"
+  to = "/foundation-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/foundation/"
+  to = "/foundation-calculator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/rebar"
+  to = "/reinforcement/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tools/structure/rebar/"
+  to = "/reinforcement/"
+  status = 301
+  force = true
+
 # 301 redirects — worldwide rebrand of learn articles (was Nigeria-only slugs)
 [[redirects]]
   from = "/learn/nigerian-building-regulations-what-you-need-to-know/*"

@@ -121,7 +121,6 @@ const routes = [
   },
   { path: "/map", priority: "0.7", changefreq: "weekly" },
   { path: "/", priority: "1.0", changefreq: "weekly" },
-  { path: "/calculators", priority: "0.9", changefreq: "monthly" },
   { path: "/construction-tools", priority: "0.9", changefreq: "weekly" },
   { path: "/fence-block-calculator", priority: "0.9", changefreq: "monthly" },
   { path: "/german-floor-calculator", priority: "0.9", changefreq: "monthly" },
@@ -524,11 +523,6 @@ const routes = [
   { path: "/rewards", priority: "0.6", changefreq: "monthly" },
   {
     path: "/increte-flooring-calculator",
-    priority: "0.8",
-    changefreq: "monthly",
-  },
-  {
-    path: "/visual-finishing-estimator",
     priority: "0.8",
     changefreq: "monthly",
   },

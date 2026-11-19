@@ -1536,9 +1536,9 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Up-to-date prices you can use in your own budgets.",
     heading: "Material Price Tracker",
     lede: "Monitor material costs, update prices, and track changes over time.",
-    seoTitle: "Material Price Tracker",
+    seoTitle: "Material Price Tracker: Building Prices Today | FRELUX",
     seoDescription:
-      "Track and update material prices. See price history and spot cost changes.",
+      "Track cement, sand, blocks, paint and steel prices by market, with the date each price was verified and the source behind the number.",
     to: "/material-prices",
     navVisible: true,
   },

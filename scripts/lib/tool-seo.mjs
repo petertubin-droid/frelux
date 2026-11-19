@@ -24,7 +24,7 @@ function clamp(text, max) {
   const cut = t.slice(0, max + 1);
   const at = cut.lastIndexOf(" ");
   let out = (at > max * 0.6 ? cut.slice(0, at) : t.slice(0, max)).trim();
-  out = out.replace(/[\s,;:.\-–—]+$/, "");
+  out = out.replace(/[\s,;:.\-–—|]+$/, "");
   return out;
 }
 
@@ -72,7 +72,13 @@ export function toolSeoTitle(tool) {
   return compose(name, phrase.length >= 14 && phrase.length <= 34 ? phrase : "");
 }
 
-const finish = (text) => (/[.!?]$/.test(text) ? text : `${text}.`);
+const finish = (text) => {
+  const t = String(text || "").trim();
+  if (/[.!?]$/.test(t)) return t;
+  // The period is part of the listing width, so the clamp has to leave room
+  // for it rather than overflow by one character.
+  return `${t.length >= DESC_MAX ? clamp(t, DESC_MAX - 1) : t}.`;
+};
 
 export function toolSeoDescription(tool) {
   if (tool.seoDescription) return finish(clamp(tool.seoDescription, DESC_MAX));

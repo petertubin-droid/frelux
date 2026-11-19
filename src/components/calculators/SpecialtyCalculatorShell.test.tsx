@@ -11,6 +11,9 @@ const useMarketMock = vi.fn(() => ({
 vi.mock("@/lib/international/market-context", () => ({
   useMarket: () => useMarketMock(),
   useSeoOfferCurrency: () => "NGN",
+  // The shell prices its quote in the market's currency, so the mock has to
+  // answer the hook it calls or the component throws before rendering.
+  useQuoteCurrencyCode: () => "NGN",
 }));
 vi.mock("@/lib/use-engine-access", () => ({
   useEngineAccess: () => ({

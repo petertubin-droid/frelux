@@ -77,6 +77,7 @@ import { faqPrerenderRoutes } from "./generated/faq-prerender.mjs";
 import { faqSchemaByPath } from "./generated/faq-schema.mjs";
 import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
+import { howManyHtml, howManyFaq } from "./lib/how-many.mjs";
 
 const distDir = "dist";
 
@@ -528,9 +529,9 @@ const routes = [
   },
   {
     path: "/paint-calculator",
-    title: "Paint Calculator: How Much Paint Do I Need? | FRELUX SMART CALC",
+    title: "Paint Calculator: How Much Paint Do I Need? | FRELUX",
     description:
-      "Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using verified coverage rates.",
+      "Enter room size, doors, windows and coats to get litres, containers and a paint budget at your market's prices. Free, no account needed.",
     priority: "0.9",
     changefreq: "monthly",
     structuredData: [
@@ -589,9 +590,9 @@ const routes = [
   },
   {
     path: "/screeding-calculator",
-    title: "Wall Screeding Calculator: FRELUX",
+    title: "Screeding Calculator: Cement, Sand & Cost | FRELUX",
     description:
-      "Calculate wall screeding area in m² and estimate screeding paint (litres) and white cement (kg). Enter room or fence dimensions in feet or metres.",
+      "Enter floor or wall area and screed thickness to get cement bags, sand in cubic metres and the cost at your market's rates.",
     priority: "0.9",
     changefreq: "monthly",
     structuredData: [
@@ -681,9 +682,9 @@ const routes = [
   },
   {
     path: "/pop-ceiling-calculator",
-    title: "POP Ceiling Calculator: FRELUX",
+    title: "POP Ceiling Calculator: Materials and Cost | FRELUX",
     description:
-      "Calculate POP ceiling material quantities. Enter room dimensions to estimate POP cement, mesh, and other materials for your ceiling project.",
+      "Enter ceiling area and design to get POP cement, boards, screws, mesh and labour at your market's rates, with the waste stated.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -746,8 +747,8 @@ const routes = [
   },
   {
     path: "/wallpaper-calculator",
-    title: "Wallpaper Calculator: Rolls, Materials & Installation Budget | FRELUX",
-    description: "Estimate wallpaper rolls from measured walls, openings, roll dimensions and pattern repeat. See a wall-strip diagram and an editable material and installation budget.",
+    title: "Wallpaper Calculator: Rolls, Repeat & Waste | FRELUX",
+    description: "Enter wall area, roll size, pattern repeat and trimming allowance to get the rolls to buy, the waste and the cost at your market's price.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -773,9 +774,9 @@ const routes = [
   {
     path: "/mineral-stone-calculator",
     title:
-      "Mineral Stone Calculator: Quantity and Cost from Product Data | FRELUX",
+      "Mineral Stone Calculator: Quantity & Cost | FRELUX",
     description:
-      "Estimate mineral stone finish from measured wall area and the selected product's published coverage, pack size and price. Quantities are rounded up to whole packages, and no coverage rate is assumed.",
+      "Enter the area and the stone product's coverage to get bags or packs, the waste allowance and the cost from the product data you select.",
     priority: "0.7",
     changefreq: "monthly",
     structuredData: [
@@ -810,9 +811,9 @@ const routes = [
   },
   {
     path: "/stucco-calculator",
-    title: "Stucco Calculator: Material Quantity and Package Count | FRELUX",
+    title: "Stucco Calculator: Material Quantity & Packages | FRELUX",
     description:
-      "Estimate stucco from measured wall area using the selected product's published thickness or coverage, its pack size and its price. Package counts round up, and the calculation shows every step.",
+      "Enter wall area and coat thickness to get the stucco quantity, the package count and the waste allowance, priced at the rate you enter.",
     priority: "0.7",
     changefreq: "monthly",
     structuredData: [
@@ -847,9 +848,9 @@ const routes = [
   },
   {
     path: "/tile-calculator",
-    title: "Tile Calculator: How Many Tiles Do I Need? | FRELUX SMART CALC",
+    title: "Tile Calculator: How Many Tiles and Boxes | FRELUX",
     description:
-      "Free tile calculator. Enter your floor or wall dimensions to calculate tile quantity, adhesive, grout, and layout recommendations.",
+      "Enter room size and tile size to get tiles, boxes, adhesive, grout and cutting allowance, priced at the rate you enter.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -912,9 +913,9 @@ const routes = [
   },
   {
     path: "/painting-estimator",
-    title: "Painting Estimator: Room-Based Paint & Cost | FRELUX SMART CALC",
+    title: "Painting Estimator: Paint and Cost per Room | FRELUX",
     description:
-      "Professional painting estimator using the FRELUX methodology. Calculate paint quantity and project cost for multiple rooms with real product prices.",
+      "Pick a room, enter walls, ceiling and openings, and get paint litres, primer, containers and a labour-inclusive budget at your own rates.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -1081,9 +1082,9 @@ const routes = [
   {
     path: "/finish-estimator",
     title:
-      "Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX SMART CALC",
+      "Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX",
     description:
-      "Estimate material quantities and costs for wall finishes: painting, Tyrolene, and Grafitex. Uses real coverage rates and package sizes.",
+      "Cost a wall finish across paint, tyrolene and grafitex from the same measurements, with quantities, containers and your own market rates.",
     priority: "0.7",
     changefreq: "monthly",
     structuredData: [
@@ -1137,9 +1138,9 @@ const routes = [
   },
   {
     path: "/tyrolene-estimator",
-    title: "Tyrolene Estimator: Exterior Wall Finish | FRELUX SMART CALC",
+    title: "Tyrolene Estimator: Texture Coat Quantity | FRELUX",
     description:
-      "Partition-based Tyrolene estimator for exterior walls. Calculate sand, cement, acrylic bond, water seal, and anti-fungal material quantities per standard partition.",
+      "Enter wall area and the coat build-up to get tyrolene bags, primer and labour at your market's rates, with the waste stated.",
     priority: "0.7",
     changefreq: "monthly",
     structuredData: [
@@ -1399,9 +1400,9 @@ const routes = [
   {
     path: "/material-prices",
     title:
-      "Material Price Tracker: Live Paint & Building Material Prices | FRELUX SMART CALC",
+      "Material Price Tracker: Building Prices Today | FRELUX",
     description:
-      "Track live prices of paint, cement, tiles, and building materials across supported markets to keep your estimates accurate.",
+      "Track cement, sand, blocks, paint and steel prices by market, with the date each price was verified and where the number came from.",
     priority: "0.7",
     changefreq: "daily",
     structuredData: [
@@ -1548,9 +1549,9 @@ const routes = [
   {
     path: "/prices",
     title:
-      "Material Prices: Live Construction & Paint Price Book | FRELUX SMART CALC",
+      "Construction Material Prices by Market | FRELUX",
     description:
-      "Browse the FRELUX material price book: current prices for cement, paint, aggregates, plumbing, electrical and more, with sources, effective dates, and weekly movement.",
+      "See what building materials cost in each market FRELUX covers, with the verified date, the currency and the source behind every price.",
     priority: "0.8",
     changefreq: "daily",
     structuredData: [
@@ -1898,75 +1899,75 @@ const routes = [
   },
   {
     path: "/templates/standard-room-screeding",
-    title: "Screeding Calculator Template: Standard Room | FRELUX SMART CALC",
+    title: "Screeding Template: Standard Room | FRELUX",
     description:
-      "Calculate screeding materials for a standard room with this FRELUX template.",
+      "A pre-filled screeding calculator for a standard room: wall and ceiling areas, coat thickness and mix, giving cement, sand and cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/single-wall-screeding",
-    title: "Screeding Calculator Template: Single Wall | FRELUX SMART CALC",
+    title: "Screeding Template: Single Wall | FRELUX",
     description:
-      "Calculate screeding materials for a single wall with this FRELUX template.",
+      "A pre-filled screeding calculator for one wall: measured length and height, coat thickness and mix, giving cement bags, sand and the cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/living-room-ceiling-screeding",
     title:
-      "Screeding Calculator Template: Living Room + Ceiling | FRELUX SMART CALC",
+      "Screeding Template: Living Room and Ceiling | FRELUX",
     description:
-      "Calculate screeding for living room walls and ceiling with this FRELUX template.",
+      "Pre-filled screeding template for a living room plus its ceiling: measured areas, coat thickness and mix, giving cement, sand and cost.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/corridor-walls-screeding",
-    title: "Screeding Calculator Template: Corridor Walls | FRELUX SMART CALC",
+    title: "Screeding Template: Corridor Walls | FRELUX",
     description:
-      "Calculate screeding materials for corridor walls with this FRELUX template.",
+      "Pre-filled screeding template for corridor walls: the measured run, coat thickness and mix, giving cement bags, sand and cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/dining-room-screeding",
-    title: "Screeding Calculator Template: Dining Room | FRELUX SMART CALC",
+    title: "Screeding Template: Dining Room | FRELUX",
     description:
-      "Calculate screeding materials for a dining room with this FRELUX template.",
+      "Pre-filled screeding calculator for a dining room: wall and ceiling areas, coat thickness and mix, giving cement, sand and cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/office-screeding",
-    title: "Screeding Calculator Template: Office | FRELUX SMART CALC",
+    title: "Screeding Template: Office Walls | FRELUX",
     description:
-      "Calculate screeding materials for office walls with this FRELUX template.",
+      "Pre-filled screeding calculator for office walls: the measured runs, coat thickness and mix, giving cement bags, sand and cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/corridor-screeding",
-    title: "Screeding Calculator Template: Corridor | FRELUX SMART CALC",
+    title: "Screeding Template: Corridor and Ceiling | FRELUX",
     description:
-      "Calculate screeding materials for corridors with this FRELUX template.",
+      "Pre-filled screeding calculator for a corridor and its ceiling: measured areas, coat thickness and mix, giving cement, sand and cost.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/single-feature-wall-screeding",
     title:
-      "Screeding Calculator Template: Single Feature Wall | FRELUX SMART CALC",
+      "Screeding Template: Single Feature Wall | FRELUX",
     description:
-      "Calculate screeding materials for a single feature wall with this FRELUX template.",
+      "Pre-filled screeding template for one feature wall: area, coat thickness and mix, giving cement, sand and the cost at the rate you enter.",
     priority: "0.5",
     changefreq: "monthly",
   },
   {
     path: "/templates/shop-front-screeding",
-    title: "Screeding Calculator Template: Shop Front | FRELUX SMART CALC",
+    title: "Screeding Template: Shop Front | FRELUX",
     description:
-      "Calculate screeding materials for shop front walls with this FRELUX template.",
+      "Pre-filled screeding calculator for a shop front: frontage area, coat thickness and mix, giving cement bags, sand and the cost at your rates.",
     priority: "0.5",
     changefreq: "monthly",
   },
@@ -2082,9 +2083,9 @@ const routes = [
   {
     path: "/build-to-roof-estimator",
     title:
-      "Build-to-Roof Estimator: Full Construction Cost | FRELUX SMART CALC",
+      "Build-to-Roof Estimator: Foundation to Roof | FRELUX",
     description:
-      "Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for building projects.",
+      "Cost a building from foundation to roof: concrete, blocks, timber, roofing sheets and labour, with quantities from your own measurements.",
     priority: "0.9",
     changefreq: "monthly",
     structuredData: [
@@ -2146,9 +2147,9 @@ const routes = [
   },
   {
     path: "/image-estimator",
-    title: "AI Photo Estimator: Estimate from a Photo | FRELUX SMART CALC",
+    title: "AI Photo Estimator: Quantities from a Photo | FRELUX",
     description:
-      "Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for painting, tiling, and construction projects.",
+      "Upload a photo of the work and get a starting material and cost estimate you can correct, with every assumption shown on the page.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -2189,9 +2190,9 @@ const routes = [
   {
     path: "/smart-calculator",
     title:
-      "Smart Calculator: AI-Powered Construction Estimator | FRELUX SMART CALC",
+      "AI Photo & Smart Calculator: Estimate from a Photo | FRELUX",
     description:
-      "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations.",
+      "Describe the job or upload a photo and get a structured material and cost estimate you can edit, using your market's units and prices.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -2231,9 +2232,9 @@ const routes = [
   },
   {
     path: "/structural-calculator",
-    title: "Structural Calculator: Beams, Columns & Slabs | FRELUX SMART CALC",
+    title: "Structural Calculator: Beams, Columns & Slabs | FRELUX",
     description:
-      "Calculate structural member sizes for building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.",
+      "Size beams, columns and slabs against ACI 318, Eurocode 2, BS 8110, IS 456 or AS 3600, with concrete, steel and formwork quantities.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -2287,9 +2288,9 @@ const routes = [
   },
   {
     path: "/foundation-calculator",
-    title: "Foundation Calculator: Sizing & Materials | FRELUX SMART CALC",
+    title: "Foundation Calculator: Footings and Materials | FRELUX",
     description:
-      "Calculate foundation sizes and materials for building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.",
+      "Size pad, strip and raft footings from load and bearing capacity, then get concrete, blinding, rebar and formwork quantities.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -2534,9 +2535,9 @@ const routes = [
   },
   {
     path: "/calculators",
-    title: "All Calculators & Estimators | FRELUX SMART CALC",
+    title: "All Construction Calculators and Estimators | FRELUX",
     description:
-      "Browse every FRELUX calculator and estimator: paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free construction material calculators.",
+      "Every FRELUX calculator in one directory: structure, finishes, services, prices and project tools, each free and no account needed.",
     priority: "0.9",
     changefreq: "monthly",
     structuredData: [
@@ -2697,9 +2698,9 @@ const routes = [
   },
   {
     path: "/boq-generator",
-    title: "BOQ Generator | FRELUX SMART CALC",
+    title: "BOQ Generator: Bill of Quantities in BESMM4 | FRELUX",
     description:
-      "Generate a professional bill of quantities from your FRELUX estimates.",
+      "Turn your estimates into a bill of quantities with preliminaries, rate build-up, contingency and tax, in BESMM4, SMM7 or NRM2.",
   },
   {
     path: "/suppliers",
@@ -2781,9 +2782,9 @@ const routes = [
   },
   {
     path: "/tools/services",
-    title: "Building Services Tools | FRELUX SMART CALC",
+    title: "Building Services Tools: Electrical & Plumbing | FRELUX",
     description:
-      "Browse FRELUX electrical, plumbing, solar, backup power, and indoor comfort tools.",
+      "Browse the FRELUX electrical, plumbing, solar, backup power and comfort calculators, with the inputs and outputs each one takes.",
     priority: "0.8",
     changefreq: "monthly",
   },
@@ -2797,9 +2798,9 @@ const routes = [
   },
   {
     path: "/tools/components",
-    title: "Building Components Tools | FRELUX SMART CALC",
+    title: "Building Components Tools: Doors and Windows | FRELUX",
     description:
-      "Browse FRELUX tools for doors, windows, and configurable building components.",
+      "Browse FRELUX calculators for doors, windows and configurable building components, with the inputs and outputs each one produces.",
     priority: "0.7",
     changefreq: "monthly",
   },
@@ -2813,17 +2814,17 @@ const routes = [
   },
   {
     path: "/tools/ai",
-    title: "AI Construction Tools | FRELUX SMART CALC",
+    title: "AI Construction Tools: Photo and Vision Estimating | FRELUX",
     description:
-      "Browse FRELUX photo, chat, and vision assistants for construction estimation and planning.",
+      "Browse the FRELUX photo, chat and vision assistants, and see exactly which numbers each one produces before you rely on them.",
     priority: "0.7",
     changefreq: "monthly",
   },
   {
     path: "/tools/pro",
-    title: "Pro and Field Tools | FRELUX SMART CALC",
+    title: "Pro and Field Tools for Contractors | FRELUX",
     description:
-      "Browse FRELUX tools for construction professionals working with plans, projects, and on-site data.",
+      "Browse FRELUX tools for plans, takeoff, site data and project records, built for quantity surveyors, engineers and site teams.",
     priority: "0.7",
     changefreq: "monthly",
   },
@@ -2883,35 +2884,35 @@ const routes = [
   },
   {
     path: "/retaining-wall-calculator",
-    title: "Retaining Wall Material and Cost Calculator | FRELUX SMART CALC",
+    title: "Retaining Wall Calculator: Material & Cost | FRELUX",
     description:
-      "Size footing concrete, blocks, reinforcement and weep holes for a retaining wall from wall length, height and soil type, with every quantity traced to its rule.",
+      "Enter wall length, height and stem thickness to get concrete, blockwork, backfill and reinforcement quantities, priced at your rates.",
   },
   {
     path: "/rainwater-gutter-soffit-cost-estimator",
-    title: "Soffit, Fascia and Rainwater Gutter Estimator | FRELUX SMART CALC",
+    title: "Soffit, Fascia & Rainwater Gutter Estimator | FRELUX",
     description:
-      "Turn the eaves perimeter into fascia, gutter, soffit area, downpipes and brackets, with a cutting allowance and downpipes every 12 metres.",
+      "Measure the eaves to get soffit boards, fascia, gutter runs, downpipes, brackets and fixings, with cost at the rates you enter.",
   },
   {
     path: "/electrical-conduit-wiring-estimator",
     title:
-      "Electrical Conduit and Wiring Material Estimator | FRELUX SMART CALC",
+      "Conduit & Wiring Estimator: Cable and Conduit | FRELUX",
     description:
-      "Estimate PVC conduit lengths, 1.5 mm and 2.5 mm cable coils, junction boxes, switch plates and sockets from floor area and point counts.",
+      "Count points and runs to get conduit, cable, boxes, switches and accessories for the circuit schedule you enter, priced at your rates.",
   },
   {
     path: "/water-tower-staging-estimator",
-    title: "Overhead Water Tank Staging Estimator | FRELUX SMART CALC",
+    title: "Water Tower Staging Estimator: Stand and Tanks | FRELUX",
     description:
-      "Calculate dead load, wind overturning safety factor and a preliminary steel or concrete bill of quantities for overhead water tank towers, with pad footing sizes and a step by step animated build sequence.",
+      "Size a water tower stand from tank volume and height, then get the steel, concrete, staging and fixing quantities at your rates.",
   },
   {
     path: "/borehole-water-system-estimator",
     title:
-      "Autonomous Borehole & Water Supply System Estimator | FRELUX SMART CALC",
+      "Borehole & Water Supply System Estimator | FRELUX",
     description:
-      "Size and engineer your complete borehole water system: strata drilling, casing & sanitary seal, submersible pump hydraulics, multi-barrier water treatment, elevated tank peak buffering, and gravity piping.",
+      "Cost a borehole from drilling depth, casing, pump, tank and pipe runs, with every item listed separately at the rates you enter.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -3001,9 +3002,9 @@ const routes = [
   },
   {
     path: "/global-site-safety-estimator",
-    title: "Global Site Safety & PPE Estimator | FRELUX SMART CALC",
+    title: "Site Safety Estimator: Fencing, Signage & PPE | FRELUX",
     description:
-      "Plan PPE, site warning signs, excavation barriers and emergency inventory with editable assumptions and OSHA, UK HSE/CDM or ISO 7010 references. Not a compliance certification.",
+      "Estimate site safety items from perimeter, workforce and duration: hoarding, signage, PPE, first aid and welfare, at your rates.",
   },
   {
     path: "/diaspora-budget-tracker",
@@ -3015,9 +3016,9 @@ const routes = [
   {
     path: "/structural-steel-i-beam-calculator",
     title:
-      "Structural Steel I-Beam Weight and Cost Calculator | FRELUX SMART CALC",
+      "Steel I-Beam Calculator: Weight and Cost | FRELUX",
     description:
-      "Convert span and steel profile into kilograms and tonnes, then cost them at your own merchant rate per tonne.",
+      "Pick a section and span to get beam weight per metre, total tonnage, priming area and cost, with the section table you selected.",
   },
   {
     path: "/doors-windows",
@@ -3051,9 +3052,9 @@ const routes = [
   },
   {
     path: "/flooring",
-    title: "Flooring Estimator | FRELUX SMART CALC",
+    title: "Flooring Estimator: Boards, Tiles & Screed | FRELUX",
     description:
-      "Estimate flooring materials, quantities, and labour for any room or building.",
+      "Enter room areas and pick a floor finish to get boards, tiles, adhesive, underlay and screed quantities with waste allowances.",
   },
   {
     path: "/foundation",
@@ -3111,9 +3112,9 @@ const routes = [
   },
   {
     path: "/labour-estimator",
-    title: "Labour Estimator | FRELUX SMART CALC",
+    title: "Labour Estimator: Rates by Trade and Task | FRELUX",
     description:
-      "Estimate labour costs by trade and task with configurable rates for your market.",
+      "Build a labour budget trade by trade: day rates or task rates, gang size and duration, with the total split for each trade.",
   },
   {
     path: "/maintenance-planner",
@@ -3129,9 +3130,9 @@ const routes = [
   },
   {
     path: "/margin-calculator",
-    title: "Margin Calculator | FRELUX SMART CALC",
+    title: "Margin Calculator for Construction Quotes | FRELUX",
     description:
-      "Calculate profit margins on construction quotes with material, labour, and overhead inputs.",
+      "Enter material, labour and overhead costs to see markup, gross margin and the price to quote, with the difference explained.",
   },
   {
     path: "/quote-check",
@@ -3141,9 +3142,9 @@ const routes = [
   },
   {
     path: "/plumbing",
-    title: "Plumbing Estimator | FRELUX SMART CALC",
+    title: "Plumbing Estimator: Pipes, Fittings & Labour | FRELUX",
     description:
-      "Estimate plumbing materials, pipes, fittings, and labour for residential and commercial projects.",
+      "Estimate water supply and drainage from fixture counts and pipe runs: pipes, fittings, tanks, traps and labour at your rates.",
   },
   {
     path: "/regional-cost-index",
@@ -3153,9 +3154,9 @@ const routes = [
   },
   {
     path: "/reinforcement",
-    title: "Reinforcement Estimator | FRELUX SMART CALC",
+    title: "Reinforcement Estimator: Bars, Mesh & BBS | FRELUX",
     description:
-      "Estimate reinforcement bars, mesh, and accessories for slabs, beams, columns, and foundations.",
+      "Get bar counts, cutting lengths, laps and mesh areas for slabs, beams, columns and footings, with a BS 8666 or ACI bar schedule.",
   },
   {
     path: "/partners",
@@ -3177,33 +3178,33 @@ const routes = [
   },
   {
     path: "/masonry-calculator",
-    title: "Masonry & Blockwork Calculator | FRELUX SMART CALC",
+    title: "Masonry Calculator: Blocks and Mortar | FRELUX",
     description:
-      "Estimate masonry units and mortar quantities from wall measurements.",
+      "Enter wall length, height, openings and block size to get blocks, mortar, cement and sand, using the market's own wall unit.",
   },
   {
     path: "/plastering-calculator",
-    title: "Plastering & Rendering Calculator | FRELUX SMART CALC",
+    title: "Plastering Calculator: Cement and Sand | FRELUX",
     description:
-      "Estimate plaster and render material quantities from surface area and thickness.",
+      "Enter wall or ceiling area and coat thickness to get plaster volume, cement bags and sand in cubic metres and supplier trips.",
   },
   {
     path: "/drywall-calculator",
-    title: "Drywall & Partition Calculator | FRELUX SMART CALC",
+    title: "Drywall Calculator: Boards, Studs and Screws | FRELUX",
     description:
-      "Estimate drywall boards, framing and jointing material quantities.",
+      "Enter wall and ceiling areas to get plasterboard sheets, studs, track, jointing compound and screws, in your market's board size.",
   },
   {
     path: "/paving-calculator",
-    title: "Paving Takeoff Calculator | FRELUX SMART CALC",
+    title: "Paving Calculator: Pavers, Sand and Sub-base | FRELUX",
     description:
-      "Estimate pavers, bedding and sub-base quantities for external works.",
+      "Enter the paved area and paver size to get paver counts, bedding sand, sub-base volume and edge restraints, with cutting allowance.",
   },
   {
     path: "/drainage-calculator",
-    title: "External Drainage Takeoff | FRELUX SMART CALC",
+    title: "Drainage Calculator: Pipe, Trench and Bedding | FRELUX",
     description:
-      "Estimate drainage pipe, trench and bedding quantities; not a hydraulic design.",
+      "Enter run lengths and pipe diameters to get pipe counts, trench excavation, bedding and surround volumes; not a hydraulic design.",
   },
   {
     path: "/septic-sizing-calculator",
@@ -3213,27 +3214,27 @@ const routes = [
   },
   {
     path: "/temporary-works-calculator",
-    title: "Formwork & Temporary Works Calculator | FRELUX SMART CALC",
+    title: "Temporary Works Calculator: Formwork Contact Area | FRELUX",
     description:
-      "Estimate form contact area and simplified temporary works quantities; not a design.",
+      "Get formwork contact area and simplified propping quantities from the concrete elements you enter; not a temporary works design.",
   },
   {
     path: "/insulation-calculator",
-    title: "Insulation Takeoff Calculator | FRELUX SMART CALC",
+    title: "Insulation Calculator: Boards, Rolls and Coverage | FRELUX",
     description:
-      "Estimate insulation product quantities by area, thickness and coverage.",
+      "Enter area, thickness and product coverage to get insulation boards or rolls, fixings and the waste allowance for your market.",
   },
   {
     path: "/demolition-calculator",
-    title: "Demolition & Debris Takeoff | FRELUX SMART CALC",
+    title: "Demolition Calculator: Debris Volume and Skips | FRELUX",
     description:
-      "Estimate demolition debris volumes and indicative skip loads.",
+      "Enter the elements being removed to get debris volume, bulking, skip or lorry loads and an indicative haulage count for the job.",
   },
   {
     path: "/blueprint-takeoff",
-    title: "Blueprint & PDF Plan Takeoff | FRELUX SMART CALC",
+    title: "Blueprint Takeoff: Measure Plans, Compare Revisions | FRELUX",
     description:
-      "Calibrate a plan drawing and measure linear, area and counted quantities.",
+      "Calibrate a drawing, measure linear, area and counted quantities, and compare revisions with the drift flagged sheet by sheet.",
   },
   {
     path: "/wall-finish-estimator",
@@ -3249,9 +3250,9 @@ const routes = [
   },
   {
     path: "/waterproofing",
-    title: "Waterproofing Estimator | FRELUX SMART CALC",
+    title: "Waterproofing Estimator: Membrane and Coating | FRELUX",
     description:
-      "Estimate waterproofing materials for roofs, walls, wet areas, and foundations.",
+      "Enter wet areas and detail lengths to get membrane rolls, coating litres, primer, laps and the protection layer at your rates.",
   },
   {
     path: "/ai-disclaimer",
@@ -3281,16 +3282,16 @@ const routes = [
   {
     path: "/visual-finishing-estimator",
     title:
-      "Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence",
+      "Visual Finishing: Compare Finishes Side by Side | FRELUX",
     description:
-      "Estimate painting, screeding, tiling, POP ceilings, and flooring directly from room and surface photographs with verified metric calibration.",
+      "Compare paint, tile, screed and cladding finishes on the same measured area, with quantities, waste and cost at your market rates.",
   },
   {
     path: "/tools/visual-finishing-estimator",
     title:
-      "Visual Finishing Estimator | FRELUX Global Visual Construction Intelligence",
+      "Visual Finishing Estimator: Finish by Area | FRELUX",
     description:
-      "Estimate painting, screeding, tiling, POP ceilings, and flooring directly from room and surface photographs with verified metric calibration.",
+      "Estimate paint, tile, screed and cladding finishes from measured areas, with quantities, waste and cost at your own market rates.",
   },
 ];
 
@@ -5211,6 +5212,59 @@ for (const route of routes) {
   ];
 }
 
+// Four calculators shipped in the catalogue but never prerendered: the build
+// sitemap listed them at priority 0.9 while the served page was the bare SPA
+// shell, so a crawler was handed a URL with no title, no body and no schema.
+{
+  const late = [
+    { path: "/fence-block-calculator", name: "Fence Block Calculator" },
+    { path: "/german-floor-calculator", name: "German Floor Calculator" },
+    { path: "/renovation-estimator", name: "Renovation Estimator" },
+    { path: "/window-blind-calculator", name: "Window Blind Calculator" },
+  ];
+  for (const t of late) {
+    if (routes.some((r) => r.path === t.path)) continue;
+    routes.push({
+      path: t.path,
+      title: t.name,
+      description: `${t.name}: quantities from your own measurements, free and no account needed.`,
+      priority: "0.9",
+      changefreq: "monthly",
+      structuredData: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: t.name,
+          url: `${SITE_URL}${t.path}/`,
+          applicationCategory: "CalculatorApplication",
+          operatingSystem: "Web",
+          inLanguage: "en",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "USD",
+            description: "Free to use, no account required.",
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Construction Tools",
+              item: `${SITE_URL}/construction-tools/`,
+            },
+            { "@type": "ListItem", position: 3, name: t.name, item: `${SITE_URL}${t.path}/` },
+          ],
+        },
+      ],
+    });
+  }
+}
+
 // FAQ surfaces (2026-11-01): the hub and all 62 answer pages ship as static
 // HTML carrying the article body and FAQPage data, because most AI crawlers and
 // several search crawlers do not run JavaScript. The payload is generated from
@@ -5234,6 +5288,31 @@ for (const faqRoute of faqPrerenderRoutes) {
     changefreq: "monthly",
     structuredData: faqRoute.structuredData,
   });
+}
+
+// The tool registry is the single source for a calculator's listing copy: the
+// hydrated page reads toolSeoTitle()/toolSeoDescription() from it, so the
+// prerendered <title> must come from the same place or the two disagree about
+// what the page is. Hand-written catalogue copy only survives where no registry
+// entry exists.
+{
+  const byPath = new Map(loadToolRegistry().map((t) => [t.path, t]));
+  // The bare finishing slug redirects to the library path, so it never needs a
+  // duplicate listing of its own.
+  const aliases = new Set(["/visual-finishing-estimator"]);
+  let aligned = 0;
+  for (const route of routes) {
+    if (aliases.has(route.path)) continue;
+    const tool = byPath.get(route.path);
+    if (!tool) continue;
+    const title = toolSeoTitle(tool);
+    const description = toolSeoDescription(tool);
+    if (route.title === title && route.description === description) continue;
+    route.title = title;
+    route.description = description;
+    aligned += 1;
+  }
+  console.log(`[prerender] listing copy aligned to the tool registry: ${aligned} routes`);
 }
 
 // Search results cut a title at roughly 60 characters, so a brand suffix that
@@ -5427,8 +5506,14 @@ for (const route of routes) {
     "",
   );
 
-  const routeQuestions = faqSchemaByPath[route.path];
-  if (routeQuestions && routeQuestions.length) {
+  const howMany = howManyFaq(route.path);
+  const routeQuestions = [...(faqSchemaByPath[route.path] ?? [])];
+  if (howMany && !routeQuestions.some((q) => q.q === howMany.name)) {
+    // The quantity question is the one most searches actually ask, so it leads
+    // the page's FAQ rather than sitting at the bottom of it.
+    routeQuestions.unshift({ q: howMany.name, a: howMany.acceptedAnswer.text });
+  }
+  if (routeQuestions.length) {
     const faqSchema = {
       "@context": "https://schema.org",
       "@type": "FAQPage",
@@ -5469,10 +5554,18 @@ for (const route of routes) {
   // route.content covers families whose copy is built inline (market
   // templates); contentMap covers the curated pages; FAQ bodies are generated
   // from the article registries.
-  const pageContent = withHeading(
-    route,
-    contentMap[route.path] ?? route.content ?? faqContentByPath[route.path],
-  );
+  const howManyBlock = howManyHtml(route.path);
+  const baseContent =
+    contentMap[route.path] ?? route.content ?? faqContentByPath[route.path];
+  // The answer sits right after the opening description, so a reader (and a
+  // featured snippet) meets it without scrolling past a column of inputs.
+  const withAnswer =
+    howManyBlock && baseContent
+      ? baseContent.includes("</main>")
+        ? baseContent.replace("</main>", `${howManyBlock}</main>`)
+        : `${baseContent}${howManyBlock}`
+      : baseContent;
+  const pageContent = withHeading(route, withAnswer);
   if (pageContent) {
     html = html.replace(
       /(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/,
