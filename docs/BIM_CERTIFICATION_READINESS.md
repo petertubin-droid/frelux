@@ -77,10 +77,15 @@ Cost, timeline and acceptance are decided by buildingSMART, not by FRELUX.
 - [x] Real-wasm tests against IFC4 geometry and quantity fixtures.
 - [ ] Official buildingSMART test corpus run, with results recorded per file.
 - [ ] IFC4.3 support (IFC4 and IFC2x3 only today).
-- [~] Property-set coverage beyond quantities: DONE for single-value and enumerated
-  properties (2026-11-19); complex, list and bounded properties are counted and
-  skipped, not read. Remaining example (e.g. Pset_WallCommon fire rating,
-  acoustic rating) for code-compliance checks.
+- [x] Property-set coverage beyond quantities (2026-11-19): single-value,
+      enumerated, bounded (lower/upper/set point), list (all values kept) and
+      complex properties (nested entries as dotted names) are all read.
+      IfcPropertyTableValue is counted as skipped, because a table's rows would
+      need meaning the file does not state.
+- [~] Quantities when nothing is declared: extrusion-derived volume, profile
+  area and depth are computed exactly and marked derived (2026-11-19). Not yet
+  covered: boolean results, swept disks and advanced-brep volumes, which are
+  reported as unavailable rather than approximated.
 - [ ] Submission to the IFC Validation Service and third-party verification.
 
 ## 5. Next concrete steps
