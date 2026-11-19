@@ -39,6 +39,11 @@ import {
   type RoofFramingResult,
 } from "@/lib/estimation/advanced-takeoff-engine";
 import { useAreaUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  defaultTimberSection,
+  timberScheduleForMarket,
+} from "@/lib/materials/timber-sections";
 
 const inputClass =
   "w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary";
@@ -132,6 +137,9 @@ export default function RoofFramingEstimator() {
   const { t } = useLanguage();
   // The tributary area is typed in the market's unit and looked up in square metres.
   const areaUnit = useAreaUnit(useMarketAreaUnit());
+  const { marketCode } = useMarket();
+  const timber = timberScheduleForMarket(marketCode);
+  const timberSection = defaultTimberSection(marketCode);
   const engineAccess = useEngineAccess("/roof-framing-calculator");
   const [form, setForm] = useState(initialForm);
   const [result, setResult] = useState<RoofFramingResult | null>(null);
@@ -983,6 +991,22 @@ export default function RoofFramingEstimator() {
                         }
                       />
                     </label>
+                    <button
+                      type="button"
+                      className="self-end rounded-lg border border-border px-3 py-2 text-xs font-medium"
+                      onClick={() => {
+                        updateDesign(
+                          "sectionWidthMM",
+                          String(timberSection.widthMm),
+                        );
+                        updateDesign(
+                          "sectionDepthMM",
+                          String(timberSection.depthMm),
+                        );
+                      }}
+                    >
+                      {t("Use market section")} · {timberSection.label}
+                    </button>
                     <button
                       type="button"
                       onClick={calculateSection}
