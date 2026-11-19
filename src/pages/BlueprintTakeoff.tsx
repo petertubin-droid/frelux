@@ -40,6 +40,10 @@ import {
   type TakeoffProjectExport,
 } from "@/lib/estimation/blueprint-takeoff-project";
 import {
+  compareTakeoffRevisions,
+  type TakeoffRevisionComparison,
+} from "@/lib/estimation/takeoff-revisions";
+import {
   useAreaUnit,
   useLengthUnit,
   useMarketAreaUnit,
@@ -137,6 +141,8 @@ export default function BlueprintTakeoff() {
   const [calibrationUnit, setCalibrationUnit] = useState<CalibrationUnit>("m");
   const [zoom, setZoom] = useState(1);
   const [fileName, setFileName] = useState("");
+  const [comparison, setComparison] =
+    useState<TakeoffRevisionComparison | null>(null);
   const [message, setMessage] = useState(
     "Upload a plan image or PDF to begin.",
   );
@@ -651,6 +657,44 @@ export default function BlueprintTakeoff() {
       "Project imported. Upload the matching original drawing to restore the measurement overlay.",
     );
   };
+  /**
+   * Compare the current takeoff with an earlier exported revision.
+   * Nothing is overwritten: the earlier file is only read, and the result is an
+   * audit trail the estimator can keep with the tender.
+   */
+  const compareWithRevision = async (file: File) => {
+    const parsed = parseTakeoffProjectExport(await file.text());
+    if (!parsed.ok || !parsed.project) {
+      setMessage(parsed.error || "Could not read the previous revision file.");
+      return;
+    }
+    const current = createTakeoffProjectExport({
+      sourceFileName: fileName,
+      marketCode,
+      pageCount,
+      scalesByPage,
+      marks,
+    });
+    const result = compareTakeoffRevisions(parsed.project, current);
+    setComparison(result);
+    setMessage(
+      `Compared with ${parsed.project.sourceFileName}: ${result.changes.filter((c) => c.status !== "unchanged").length} change(s), ${result.incomparableCount} mark(s) not comparable.`,
+    );
+  };
+
+  const downloadComparisonTrail = () => {
+    if (!comparison) return;
+    downloadFile(
+      `${fileName || "takeoff"}.revision-comparison.txt`,
+      [
+        ...comparison.warnings.map((warning) => `WARNING: ${warning}`),
+        "",
+        ...comparison.auditTrail,
+      ].join("\n"),
+      "text/plain",
+    );
+  };
+
   const bridgeToWorksheet = (mark: Mark) => {
     const bridge = buildWorksheetBridgeUrl({
       mark,
@@ -698,6 +742,19 @@ export default function BlueprintTakeoff() {
             <Button variant="outline" onClick={exportCsv}>
               Export CSV
             </Button>
+            <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+              Compare previous revision
+              <input
+                type="file"
+                accept="application/json,.json"
+                className="sr-only"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void compareWithRevision(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
             <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
               Import project
               <input
@@ -914,6 +971,59 @@ export default function BlueprintTakeoff() {
               </div>
             </section>
             <aside className="space-y-4">
+              {comparison && (
+                <section className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <h2 className="font-semibold">Revision comparison</h2>
+                    <Button variant="outline" onClick={downloadComparisonTrail}>
+                      Download audit trail
+                    </Button>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {comparison.previous.sourceFileName} (
+                    {comparison.previous.exportedAt.slice(0, 10)}) →{" "}
+                    {comparison.current.sourceFileName} (
+                    {comparison.current.exportedAt.slice(0, 10)})
+                  </p>
+                  <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <dt className="text-muted-foreground">Length</dt>
+                      <dd className="font-semibold">
+                        {comparison.totals.previous.m} →{" "}
+                        {comparison.totals.current.m} m
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Area</dt>
+                      <dd className="font-semibold">
+                        {comparison.totals.previous["m²"]} →{" "}
+                        {comparison.totals.current["m²"]} m²
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Count</dt>
+                      <dd className="font-semibold">
+                        {comparison.totals.previous.items} →{" "}
+                        {comparison.totals.current.items}
+                      </dd>
+                    </div>
+                  </dl>
+                  {comparison.warnings.length > 0 && (
+                    <ul className="mt-3 space-y-1 text-xs text-amber-700 dark:text-amber-500">
+                      {comparison.warnings.map((warning) => (
+                        <li key={warning}>{warning}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <ul className="mt-3 space-y-1 text-xs">
+                    {comparison.auditTrail.map((line) => (
+                      <li key={line} className="text-muted-foreground">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
               {validation && (
                 <section className="rounded-2xl border border-border bg-card p-4">
                   <h2 className="font-semibold">Document validation</h2>
