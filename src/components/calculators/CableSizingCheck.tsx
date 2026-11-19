@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { Ruler } from "lucide-react";
 import {
+  calculateNecPreliminaryCable,
+  type NorthAmericanSystem,
+} from "@/lib/estimation/nec-electrical-engine";
+import {
   COPPER_AMPACITY_A,
   minimumCableSize,
   selectBreaker,
@@ -77,6 +81,10 @@ export default function CableSizingCheck({
 
   const field =
     "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
+
+  if (market === "US" || market === "CA") {
+    return <NorthAmericanCableSizingCheck market={market} />;
+  }
 
   if (market !== "GB") {
     return (
@@ -250,6 +258,131 @@ export default function CableSizingCheck({
           </p>
         )}
       </div>
+    </section>
+  );
+}
+
+function NorthAmericanCableSizingCheck({ market }: { market: "US" | "CA" }) {
+  const [load, setLoad] = useState("1800");
+  const [runFt, setRunFt] = useState("50");
+  const [system, setSystem] = useState<NorthAmericanSystem>("120V_single");
+  const [powerFactor, setPowerFactor] = useState("1");
+  const [temperature, setTemperature] = useState<60 | 75 | 90>(75);
+  const [lighting, setLighting] = useState(false);
+  const parsedLoad = Number(load);
+  const parsedRun = Number(runFt);
+  const result = useMemo(() => {
+    if (!(parsedLoad > 0) || !(parsedRun > 0)) return null;
+    return calculateNecPreliminaryCable({
+      load_watts: parsedLoad,
+      run_ft: parsedRun,
+      system,
+      power_factor: Number(powerFactor),
+      termination_temperature_c: temperature,
+      lighting_dominant: lighting,
+    });
+  }, [parsedLoad, parsedRun, system, powerFactor, temperature, lighting]);
+  const field =
+    "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
+  return (
+    <section
+      aria-labelledby="na-cable-check-heading"
+      className="mt-10 rounded-lg border p-5"
+    >
+      <h2 id="na-cable-check-heading" className="font-semibold">
+        North American AWG cable planning check
+      </h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {market} copper-conductor reference using NEC 2023 ampacity columns.
+        This is a preliminary planning aid, not a code-compliant cable, breaker,
+        or installation design.
+      </p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <label className="text-sm">
+          <span className="font-medium">Connected load (W)</span>
+          <input
+            className={field}
+            inputMode="decimal"
+            value={load}
+            onChange={(e) => setLoad(e.target.value)}
+          />
+        </label>
+        <label className="text-sm">
+          <span className="font-medium">One-way run (ft)</span>
+          <input
+            className={field}
+            inputMode="decimal"
+            value={runFt}
+            onChange={(e) => setRunFt(e.target.value)}
+          />
+        </label>
+        <label className="text-sm">
+          <span className="font-medium">Supply system</span>
+          <select
+            className={field}
+            value={system}
+            onChange={(e) => setSystem(e.target.value as NorthAmericanSystem)}
+          >
+            <option value="120V_single">120 V single-phase</option>
+            <option value="240V_single">240 V single-phase</option>
+            <option value="208V_three">208 V three-phase</option>
+            <option value="240V_three">240 V three-phase</option>
+            <option value="480V_three">480 V three-phase</option>
+          </select>
+        </label>
+        <label className="text-sm">
+          <span className="font-medium">Power factor</span>
+          <input
+            className={field}
+            inputMode="decimal"
+            value={powerFactor}
+            onChange={(e) => setPowerFactor(e.target.value)}
+          />
+        </label>
+        <label className="text-sm">
+          <span className="font-medium">Conductor temperature column</span>
+          <select
+            className={field}
+            value={temperature}
+            onChange={(e) =>
+              setTemperature(Number(e.target.value) as 60 | 75 | 90)
+            }
+          >
+            <option value={60}>60°C</option>
+            <option value={75}>75°C</option>
+            <option value={90}>90°C</option>
+          </select>
+        </label>
+      </div>
+      <label className="mt-4 flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={lighting}
+          onChange={(e) => setLighting(e.target.checked)}
+        />
+        <span>Lighting-dominant run (3% planning voltage-drop limit)</span>
+      </label>
+      {result && (
+        <div aria-live="polite" className="mt-4 space-y-2 text-sm">
+          <p>
+            <span className="font-medium">Preliminary result:</span>{" "}
+            {result.selected_awg ?? "No listed AWG candidate passes"}
+            {result.selected_ampacity_a
+              ? ` · ${result.selected_ampacity_a} A at ${temperature}°C column`
+              : ""}{" "}
+            · {result.design_current_a} A calculated ·{" "}
+            {result.candidate_table
+              .find((row) => row.awg === result.selected_awg)
+              ?.voltage_drop_percent.toFixed(2) ?? "—"}
+            % voltage-drop estimate.
+          </p>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            {result.limitations.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }

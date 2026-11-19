@@ -8,6 +8,12 @@
 
 // ── Enums / Union types ──
 
+export type StructuralTypologyType =
+  | "rc_frame_block_infill"
+  | "north_american_timber"
+  | "light_gauge_steel"
+  | "european_cavity_wall";
+
 export type BuildingType =
   | "bungalow"
   | "duplex"
@@ -96,6 +102,8 @@ export interface BuildToRoofInput {
    * and price provenance. Omitted means NG, and the result says so.
    */
   market_code?: string;
+  /** Dedicated structural assembly typology (e.g. north_american_timber, light_gauge_steel, european_cavity_wall). */
+  structural_typology?: StructuralTypologyType;
   building_type: BuildingType;
   number_of_floors: number;
   measurement_unit: "m" | "ft";
@@ -345,6 +353,8 @@ export interface StageResult {
   labour_total: number;
   stage_total: number;
   reinforcement_breakdown?: ReinforcementBreakdown;
+  structural_typology?: StructuralTypologyType;
+  typology_assembly?: import("@/lib/estimation/typology-assemblies").TypologyAssemblyResult;
 }
 
 export interface ConsolidatedMaterial {
@@ -397,6 +407,8 @@ export interface BuildToRoofResult {
 
   // Reinforcement breakdown (user-friendly, split by bar diameter)
   reinforcement_breakdown?: ReinforcementBreakdown;
+  structural_typology?: StructuralTypologyType;
+  typology_assembly?: import("@/lib/estimation/typology-assemblies").TypologyAssemblyResult;
 
   // Totals
   materials_total: number;

@@ -1,3 +1,9 @@
+import {
+  calculateTypologyAssembly,
+  resolveDefaultTypology,
+  type StructuralTypologyType,
+  type TypologyAssemblyResult,
+} from "./typology-assemblies";
 // =========================================================
 // FRELUX Build-to-Roof Construction Cost Estimator
 // Calculation Engine, Phase 30 (Audited & Corrected)
@@ -2893,8 +2899,33 @@ export function calculateBuildToRoof(
 
   const confidence = assessConfidence(input);
 
+  const resolvedTypology: StructuralTypologyType =
+    input.structural_typology ?? resolveDefaultTypology(marketCode);
+
+  const typologyAssembly: TypologyAssemblyResult = calculateTypologyAssembly({
+    typology: resolvedTypology,
+    market_code: marketCode,
+    building_length_m: normalized.building_length,
+    building_width_m: normalized.building_width,
+    floor_to_floor_height_m: normalized.floor_to_floor_height,
+    number_of_floors: normalized.number_of_floors,
+    internal_wall_length_m: normalized.internal_wall_length,
+    openings_area_m2: (normalized.openings ?? []).reduce(
+      (s, o) => s + o.width * o.height * o.count,
+      0,
+    ),
+    openings_count: (normalized.openings ?? []).reduce(
+      (s, o) => s + o.count,
+      0,
+    ),
+    roof_slope_deg: input.roof_pitch_degrees,
+  });
+
   // Assumptions & limitations
   const assumptions: string[] = [
+    `Structural typology assembly: ${typologyAssembly.assembly_name} (${typologyAssembly.applicable_standards})`,
+    ...typologyAssembly.assumptions,
+
     `Concrete mix ratio: ${input.concrete_mix_cement}:${input.concrete_mix_sand}:${input.concrete_mix_granite} (cement:sand:granite)`,
     `Mortar mix ratio: ${input.mortar_mix_cement}:${input.mortar_mix_sand} (cement:sand)`,
     `Block size: ${input.block_length}" × ${input.block_height}" × ${input.block_width}" (inches)`,
@@ -2915,7 +2946,7 @@ export function calculateBuildToRoof(
     "This estimate stops at the Build-to-Roof stage. It does NOT include plastering, painting, screeding, tiling, POP/ceiling finishing, doors, windows, plumbing, electrical, or other finishing works.",
     "Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.",
     "Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.",
-    "This workflow is a preliminary reinforced-concrete frame with block infill takeoff, not a universal building-typology model. It does not replace local typology-specific assemblies such as light timber framing, steel framing, cavity-wall systems, or region-specific structural assemblies; review quantities and methods against the actual design and local practice.",
+    `The core stage schedule remains the preliminary RC frame/block-infill workflow. The selected ${typologyAssembly.assembly_name} is an additional indicative assembly schedule only; it is not included in project totals and must be reconciled against drawings and local practice. ${typologyAssembly.limitations_notice}`,
     "Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.",
     "Mortar volume is estimated at 0.03 m³ per m² of wall, this is a standard industry approximation for 9-inch (225mm) blockwork.",
     "Sand filling thickness under ground floor slab defaults to 50mm, configurable in advanced settings.",
@@ -2964,6 +2995,8 @@ export function calculateBuildToRoof(
     shopping_list: shoppingList,
     reinforcement_breakdown: stages.find((s) => s.reinforcement_breakdown)
       ?.reinforcement_breakdown,
+    structural_typology: resolvedTypology,
+    typology_assembly: typologyAssembly,
     materials_total: round(materialsTotal),
     labour_total: round(labourTotal),
     wastage_allowance: round(wastageAllowance),

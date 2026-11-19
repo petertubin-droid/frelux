@@ -64,6 +64,21 @@ import { NumericInput } from "@/components/ui/NumericInput";
 
 import { Link } from "react-router-dom";
 import ToolShell from "@/components/tools/ToolShell";
+
+function formatFoundationDimension(mm: number, unit: "m" | "ft"): string {
+  if (unit === "m") return `${Math.round(mm)} mm`;
+  const totalInches = mm / 25.4;
+  const feet = Math.floor(totalInches / 12);
+  const inches = Math.round((totalInches - feet * 12) * 16) / 16;
+  return `${feet}′ ${inches}″`;
+}
+
+function formatFoundationVolume(m3: number, unit: "m" | "ft"): string {
+  return unit === "ft"
+    ? `${(m3 * 35.3146667).toFixed(2)} ft³ (${(m3 * 1.30795062).toFixed(2)} yd³)`
+    : `${m3} m³`;
+}
+
 export default function FoundationCalculator() {
   const resetInputs = () => {
     setShape("strip");
@@ -412,7 +427,9 @@ export default function FoundationCalculator() {
                   id="fnd-water-depth"
                   value={waterTableDepth ?? 0}
                   step={0.1}
-                  onValueChange={(val) => setWaterTableDepth(val > 0 ? val : null)}
+                  onValueChange={(val) =>
+                    setWaterTableDepth(val > 0 ? val : null)
+                  }
                   className="input-field"
                 />
               </div>
@@ -538,15 +555,24 @@ export default function FoundationCalculator() {
                     { label: "Design footing shape", value: result.shape },
                     {
                       label: "Concrete volume",
-                      value: `${result.concrete_volume.toFixed(2)} m³`,
+                      value: formatFoundationVolume(
+                        Number(result.concrete_volume.toFixed(2)),
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Excavation volume",
-                      value: `${result.excavation_volume.toFixed(2)} m³`,
+                      value: formatFoundationVolume(
+                        Number(result.excavation_volume.toFixed(2)),
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Blinding volume",
-                      value: `${result.blinding_volume.toFixed(2)} m³`,
+                      value: formatFoundationVolume(
+                        Number(result.blinding_volume.toFixed(2)),
+                        measurementUnit,
+                      ),
                     },
                   ]}
                 />
@@ -562,19 +588,29 @@ export default function FoundationCalculator() {
                       },
                       {
                         label: "Recommended width",
-                        value: `${result.recommended_width} mm`,
+                        value: formatFoundationDimension(
+                          result.recommended_width,
+                          measurementUnit,
+                        ),
                       },
                       ...(result.recommended_length
                         ? [
                             {
                               label: "Recommended length",
-                              value: `${result.recommended_length} mm`,
+                              value: formatFoundationDimension(
+                                result.recommended_length ??
+                                  result.recommended_width,
+                                measurementUnit,
+                              ),
                             },
                           ]
                         : []),
                       {
                         label: "Pad thickness",
-                        value: `${result.pad_thickness_mm} mm`,
+                        value: formatFoundationDimension(
+                          result.pad_thickness_mm ?? 0,
+                          measurementUnit,
+                        ),
                       },
                       {
                         label: "Bearing capacity",
@@ -600,19 +636,31 @@ export default function FoundationCalculator() {
                     lineItems: [
                       {
                         description: "Concrete volume",
-                        quantity: `${result.concrete_volume} m³`,
+                        quantity: formatFoundationVolume(
+                          result.concrete_volume,
+                          measurementUnit,
+                        ),
                       },
                       {
                         description: "Blinding volume",
-                        quantity: `${result.blinding_volume} m³`,
+                        quantity: formatFoundationVolume(
+                          result.blinding_volume,
+                          measurementUnit,
+                        ),
                       },
                       {
                         description: "Hardcore volume",
-                        quantity: `${result.hardcore_volume} m³`,
+                        quantity: formatFoundationVolume(
+                          result.hardcore_volume,
+                          measurementUnit,
+                        ),
                       },
                       {
                         description: "Excavation volume",
-                        quantity: `${result.excavation_volume} m³`,
+                        quantity: formatFoundationVolume(
+                          result.excavation_volume,
+                          measurementUnit,
+                        ),
                       },
                     ],
                     totals: [
@@ -632,7 +680,10 @@ export default function FoundationCalculator() {
                 <CalculatorSchematic
                   kind="foundation"
                   shape={result.shape}
-                  width={`${result.recommended_width} mm`}
+                  width={formatFoundationDimension(
+                    result.recommended_width,
+                    measurementUnit,
+                  )}
                   length={foundationExtentLabel({
                     shape: result.shape,
                     unit: measurementUnit,
@@ -658,11 +709,8 @@ export default function FoundationCalculator() {
                     </p>
                     <p className="relative text-2xl font-bold text-foreground dark:text-primary-foreground">
                       {result.shape === "pad"
-                        ? `${result.recommended_width} × ${result.recommended_length}`
-                        : `${result.recommended_width}`}
-                      <span className="text-sm font-normal text-muted-foreground ml-1">
-                        mm
-                      </span>
+                        ? `${formatFoundationDimension(result.recommended_width, measurementUnit)} × ${formatFoundationDimension(result.recommended_length ?? result.recommended_width, measurementUnit)}`
+                        : `${formatFoundationDimension(result.recommended_width, measurementUnit)}`}
                     </p>
                   </div>
                 )}
@@ -717,11 +765,32 @@ export default function FoundationCalculator() {
                 {[
                   {
                     label: "Excavation",
-                    value: `${result.excavation_volume} m³`,
+                    value: formatFoundationVolume(
+                      result.excavation_volume,
+                      measurementUnit,
+                    ),
                   },
-                  { label: "Concrete", value: `${result.concrete_volume} m³` },
-                  { label: "Blinding", value: `${result.blinding_volume} m³` },
-                  { label: "Hardcore", value: `${result.hardcore_volume} m³` },
+                  {
+                    label: "Concrete",
+                    value: formatFoundationVolume(
+                      result.concrete_volume,
+                      measurementUnit,
+                    ),
+                  },
+                  {
+                    label: "Blinding",
+                    value: formatFoundationVolume(
+                      result.blinding_volume,
+                      measurementUnit,
+                    ),
+                  },
+                  {
+                    label: "Hardcore",
+                    value: formatFoundationVolume(
+                      result.hardcore_volume,
+                      measurementUnit,
+                    ),
+                  },
                   ...(result.pad_thickness_mm
                     ? [
                         {
@@ -783,7 +852,8 @@ export default function FoundationCalculator() {
                       {t("Recommended Foundation System")}
                     </span>
                     <span className="text-sm font-bold uppercase text-foreground">
-                      {result.recommended_foundation_type || result.shape} Footing
+                      {result.recommended_foundation_type || result.shape}{" "}
+                      Footing
                     </span>
                   </div>
                   <div className="rounded-xl border border-border/60 bg-muted/30 p-3.5">
@@ -799,7 +869,8 @@ export default function FoundationCalculator() {
                       {t("Water Table Risk")}
                     </span>
                     <span className="text-sm font-bold capitalize text-foreground">
-                      {result.water_table_classification?.replace(/_/g, " ") || "Standard"}
+                      {result.water_table_classification?.replace(/_/g, " ") ||
+                        "Standard"}
                     </span>
                   </div>
                 </div>
@@ -821,21 +892,34 @@ export default function FoundationCalculator() {
                     </p>
                     <div className="grid sm:grid-cols-2 gap-2 text-muted-foreground">
                       <div>
-                        <strong className="text-foreground">{t("Governing Code")}:</strong>{" "}
+                        <strong className="text-foreground">
+                          {t("Governing Code")}:
+                        </strong>{" "}
                         {result.coren_audit_sheet.governing_code}
                       </div>
                       <div>
-                        <strong className="text-foreground">{t("Geotechnical Summary")}:</strong>{" "}
+                        <strong className="text-foreground">
+                          {t("Geotechnical Summary")}:
+                        </strong>{" "}
                         {result.coren_audit_sheet.geotechnical_summary}
                       </div>
                       <div>
-                        <strong className="text-foreground">{t("Applied vs. Allowable")}:</strong>{" "}
+                        <strong className="text-foreground">
+                          {t("Applied vs. Allowable")}:
+                        </strong>{" "}
                         {result.coren_audit_sheet.applied_pressure_kpa} kPa ≤{" "}
-                        {result.coren_audit_sheet.bearing_capacity_allowable_kpa} kPa
+                        {
+                          result.coren_audit_sheet
+                            .bearing_capacity_allowable_kpa
+                        }{" "}
+                        kPa
                       </div>
                       <div>
-                        <strong className="text-foreground">{t("Safety Factor")}:</strong>{" "}
-                        {result.coren_audit_sheet.factor_of_safety} ({result.bearing_check_pass ? "PASS" : "FAIL"})
+                        <strong className="text-foreground">
+                          {t("Safety Factor")}:
+                        </strong>{" "}
+                        {result.coren_audit_sheet.factor_of_safety} (
+                        {result.bearing_check_pass ? "PASS" : "FAIL"})
                       </div>
                     </div>
                     <p className="mt-2 text-[11px] italic text-muted-foreground">
@@ -917,7 +1001,10 @@ export default function FoundationCalculator() {
                     { label: "Footing shape", value: result.shape },
                     {
                       label: "Recommended width",
-                      value: `${result.recommended_width} mm`,
+                      value: formatFoundationDimension(
+                        result.recommended_width,
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Bearing capacity used",
@@ -928,19 +1015,31 @@ export default function FoundationCalculator() {
                     },
                     {
                       label: "Excavation",
-                      value: `${result.excavation_volume} m³`,
+                      value: formatFoundationVolume(
+                        result.excavation_volume,
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Blinding",
-                      value: `${result.blinding_volume} m³`,
+                      value: formatFoundationVolume(
+                        result.blinding_volume,
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Concrete",
-                      value: `${result.concrete_volume} m³`,
+                      value: formatFoundationVolume(
+                        result.concrete_volume,
+                        measurementUnit,
+                      ),
                     },
                     {
                       label: "Hardcore",
-                      value: `${result.hardcore_volume} m³`,
+                      value: formatFoundationVolume(
+                        result.hardcore_volume,
+                        measurementUnit,
+                      ),
                     },
                   ],
                   note: "Preliminary sizing only. Soil capacity is a generic assumption, not a site test result.",
@@ -953,7 +1052,7 @@ export default function FoundationCalculator() {
               <SaveToProjectButton
                 calculatorType="foundation"
                 calculatorSlug="foundation-calculator"
-                calcTitle={`Foundation: ${result.shape} (${result.recommended_width}mm)`}
+                calcTitle={`Foundation: ${result.shape} (${formatFoundationDimension(result.recommended_width, measurementUnit)})`}
                 calcData={result}
                 resultSummary={{
                   shape: result.shape,

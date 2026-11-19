@@ -469,3 +469,12 @@ export function getConstructionTypology(
       "Preliminary material takeoff only. Geotechnical soil testing and structural design calculations are mandatory prior to construction.",
   };
 }
+
+export {
+  calculateTypologyAssembly,
+  resolveDefaultTypology,
+  type StructuralTypologyType,
+  type TypologyAssemblyInput,
+  type TypologyAssemblyMaterialItem,
+  type TypologyAssemblyResult,
+} from "./typology-assemblies";

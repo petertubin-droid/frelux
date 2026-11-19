@@ -44,6 +44,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import PipeSizingPanel from "@/components/calculators/PipeSizingPanel";
+import RegionalDrainageCheck from "@/components/calculators/RegionalDrainageCheck";
 import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import { useEstimatorDraft } from "@/hooks/useEstimatorDraft";
 import { CheckCircle2 } from "lucide-react";
@@ -939,6 +940,7 @@ export default function PlumbingEstimator() {
         )}
 
         <PipeSizingPanel />
+        <RegionalDrainageCheck marketCode={marketCode} />
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 

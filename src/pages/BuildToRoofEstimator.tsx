@@ -9,7 +9,10 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import React, { useState, useMemo, useCallback, useEffect, useId } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
+import {
+  getConstructionTypology,
+  resolveDefaultTypology,
+} from "@/lib/estimation/construction-typologies";
 import { useWasteSettings } from "@/lib/waste/use-waste-settings";
 import { startingWastePercent } from "@/lib/waste/waste-factor";
 import type { WasteMaterialKey } from "@/lib/waste/waste-factor";
@@ -80,6 +83,7 @@ import type {
   BlockSize,
   RoofingMaterial,
   StructuralMemberInput,
+  StructuralTypologyType,
 } from "@/types/build-to-roof";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
@@ -493,6 +497,7 @@ export default function BuildToRoofEstimator({
     project_name: "",
     location: "",
     building_type: "bungalow",
+    structural_typology: resolveDefaultTypology(marketCode),
     number_of_floors: 1,
     measurement_unit: "m",
     building_length: 15,
@@ -1125,6 +1130,38 @@ export default function BuildToRoofEstimator({
                                 update("building_type", v as BuildingType)
                               }
                               options={BUILDING_TYPES}
+                            />
+                            <SelectField
+                              label="Takeoff assembly"
+                              value={
+                                input.structural_typology ??
+                                resolveDefaultTypology(marketCode)
+                              }
+                              onChange={(v) =>
+                                update(
+                                  "structural_typology",
+                                  v as StructuralTypologyType,
+                                )
+                              }
+                              options={[
+                                {
+                                  value: "rc_frame_block_infill",
+                                  label: "RC frame + block infill",
+                                },
+                                {
+                                  value: "north_american_timber",
+                                  label: "Light-frame timber",
+                                },
+                                {
+                                  value: "light_gauge_steel",
+                                  label: "Light-gauge steel",
+                                },
+                                {
+                                  value: "european_cavity_wall",
+                                  label: "Insulated cavity wall",
+                                },
+                              ]}
+                              hint="Regional default is only a starting point. Confirm the actual drawing assembly."
                             />
                             <Field
                               label="Number of floors"

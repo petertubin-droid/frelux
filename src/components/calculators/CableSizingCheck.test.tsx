@@ -19,9 +19,18 @@ describe("CableSizingCheck", () => {
     expect(screen.getByLabelText(/Power factor/)).toBeTruthy();
   });
 
-  it("does not present UK BS 7671 sizing as a local recommendation in the US", () => {
+  it("does not present UK BS 7671 sizing as a local recommendation in the US and offers preliminary North American reference", () => {
     render(<CableSizingCheck marketCode="US" />);
-    expect(screen.getByText(/unavailable for US/i)).toBeTruthy();
+    expect(
+      screen.getByText(/North American AWG cable planning check/i),
+    ).toBeTruthy();
+    expect(screen.getByText(/NEC 2023 ampacity columns/i)).toBeTruthy();
+    expect(screen.queryByText(/BS 7671/i)).toBeNull();
+  });
+
+  it("marks BS 7671 unavailable when unconfigured markets without dedicated engines are selected", () => {
+    render(<CableSizingCheck marketCode="DE" />);
+    expect(screen.getByText(/unavailable for DE/i)).toBeTruthy();
     expect(screen.getByText(/not validated for this market/i)).toBeTruthy();
   });
 });
