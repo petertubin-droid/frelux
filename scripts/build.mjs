@@ -15,19 +15,9 @@ import { spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import os from "node:os";
 
-// The typecheck is the single most expensive step (≈100 s locally, several
-// minutes and ~3 GB on a Netlify builder, where it is the step most likely to
-// tip a 4 GB container over and get the whole build killed with no error line).
-// GitHub CI runs the same typecheck with a 6 GB heap on every push, so a
-// deploy host can opt out with SKIP_TYPECHECK=1 and still never ship a commit
-// that failed to compile. Default is unchanged: the step runs.
-const skipTypecheck = process.env.SKIP_TYPECHECK === "1";
-
 const steps = [
   ["verify supabase target", "node", ["scripts/verify-supabase-target.mjs"]],
-  ...(skipTypecheck
-    ? [["typecheck", "node", ["-e", "console.log('skipped: SKIP_TYPECHECK=1 (CI runs the typecheck with a 6 GB heap)')"]]]
-    : [["typecheck", "npm", ["run", "typecheck"]]]),
+  ["typecheck", "npm", ["run", "typecheck"]],
   ["faq prerender", "npm", ["run", "faqs:prerender"]],
   ["building type prerender", "npm", ["run", "buildings:prerender"]],
   ["sequence prerender", "npm", ["run", "sequences:prerender"]],

@@ -10,14 +10,6 @@
   directory = "netlify/functions"
 
 [build.environment]
-  # The typecheck is skipped on Netlify on purpose. It is the most expensive
-  # build step (≈100 s locally; minutes and ~3 GB on a 4 GB builder, where it
-  # is the step that tips the container over and gets the build killed with
-  # exit code 2 and no error line). GitHub CI runs the identical typecheck
-  # with a 6 GB heap on every push, plus lint, migration checks and the test
-  # suite, so no commit reaches Netlify without having compiled. Set this to
-  # "0" to put the typecheck back into the deploy build.
-  SKIP_TYPECHECK = "1"
   # Match the Node major that .github/workflows/ci.yml builds and tests with.
   # Netlify's default drifts per site age; pinning keeps one validated runtime.
   NODE_VERSION = "20"
@@ -34,7 +26,19 @@
   # VITE_OPENWEATHER_API_KEY / VITE_SITE_URL are also client-facing by design.
   # Without this, Netlify's secret scanner flags them as "exposed secrets"
   # in the build output, which fails the build.
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,VITE_CLOUDFLARE_TURNSTILE_SITE_KEY,VITE_TURNSTILE_SITE_KEY,VITE_CLOUDFL_TURNSTILE_SITE_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  # VITE_CLOUDFLARE_TURNSTILE_SITE_KEY / VITE_TURNSTILE_SITE_KEY /
+  # VITE_CLOUDFL_TURNSTILE_SITE_KEY: a Cloudflare Turnstile *site* key is
+  # public by design — it is handed to every browser that loads the
+  # challenge (src/lib/turnstile.ts calls it "the published site key" and
+  # ships one as the default). Netlify's scanner flagged the production
+  # value once it was set in the site environment and blocked every deploy
+  # with "Exposed secrets detected" + exit code 2, even though nothing
+  # secret left the repo. The matching *secret* key is never in the client:
+  # it is read only by the turnstile-verify edge function via Deno.env.
+  # All three spellings are omitted because production's variable is spelled
+  # VITE_CLOUDFL_TURNSTILE_SITE_KEY (missing "LARE") and the code accepts
+  # every spelling rather than silently rendering no widget.
   # TERMII_SENDER_ID (Termii SMS sender ID) is not a real credential — it's
   # a public display name shown in every SMS ("FRELUX"), which also happens
   # to be the project's own brand name used throughout the codebase (CSS,
@@ -66,7 +70,7 @@
   # Context environment tables are merged over [build.environment], but the
   # secrets-scan config is repeated here so a preview build can never fail
   # on the same false positives while a production deploy passes.
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,VITE_CLOUDFLARE_TURNSTILE_SITE_KEY,VITE_TURNSTILE_SITE_KEY,VITE_CLOUDFL_TURNSTILE_SITE_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
   SECRETS_SCAN_OMIT_PATHS = "supabase/migrations,supabase/functions"
 
 [[context.deploy-preview.headers]]
@@ -80,7 +84,7 @@
 
 [context.branch-deploy.environment]
   VITE_SENTRY_ENVIRONMENT = "staging"
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,VITE_CLOUDFLARE_TURNSTILE_SITE_KEY,VITE_TURNSTILE_SITE_KEY,VITE_CLOUDFL_TURNSTILE_SITE_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
   SECRETS_SCAN_OMIT_PATHS = "supabase/migrations,supabase/functions"
 
 [[context.branch-deploy.headers]]
