@@ -3026,6 +3026,50 @@ export const faqSchemaByPath = {
       "a": "The output is a screening check and the page says so. It is enough to choose a framing direction, compare two heights, and brief a structural engineer with the numbers already in view. It is not enough to cast concrete: member design, reinforcement detailing, connection design, a site investigation and a permit submission all need a licensed engineer, and no part of this page replaces that signature."
     }
   ],
+  "/faq/icf-wall-estimator": [
+    {
+      "q": "What does the ICF wall calculator actually calculate?",
+      "a": "It counts the materials the wall consumes, in the units they are sold in: straight form blocks, ninety degree corner pairs, forty five degree splays, the ready mix concrete that fills the cores, the reinforcement in each position, and the temporary bracing the pour needs. It does not price the wall on its own. Once a block rate, a concrete rate and a steel rate exist for the market you select, the same quantities feed a rate build up, which is what keeps the material list and the budget describing the same wall."
+    },
+    {
+      "q": "How is concrete core volume calculated for ICF walls?",
+      "a": "The core volume is the wall face area multiplied by the core thickness, with two deductions. The tie webs cross the cavity and are not concrete, so they come out of the gross core, and the openings come out again because no concrete is placed there. The result is the volume a pump or a truck delivers, and it is why an ICF wall of a given face area takes less concrete than the same thickness of solid wall. The page prints the gross volume, the web deduction and the net volume so the difference is visible instead of being buried in a single figure."
+    },
+    {
+      "q": "What rebar schedule does an ICF wall require?",
+      "a": "Four positions matter. Starter dowels come out of the footing and lap onto the vertical bars, so their count follows the vertical spacing and their length follows the lap. The vertical grid runs on both faces at the spacing you enter, and it is continuous through the storey. The horizontal courses follow the lifts, and they tie the vertical bars together at the spacing the wall needs. A lintel cage sits over every opening and runs past each side. The page schedules those positions separately because that is how steel is cut, labelled and fixed, and because a single lump of tonnage tells a site nothing about what to bend."
+    },
+    {
+      "q": "Why is turnbuckle alignment bracing required?",
+      "a": "The forms are the formwork. Wet concrete exerts a lateral pressure that grows with the pour rate and the temperature of the mix, and nothing but the blocks, the webs and the bracing resists it. Turnbuckles and strongbacks hold the wall plumb and straight while that pressure acts, and they are removed once the concrete has taken its set. A wall poured without them can bow or bulge before it hardens, and the correction afterwards costs more than the hire did. The page lists the bracing as a line item so it is priced with the wall, not treated as site sundries."
+    },
+    {
+      "q": "What are the fire, acoustic and thermal ratings of ICF?",
+      "a": "ICF assemblies are chosen for all three, and all three are properties of a tested assembly, not of the concrete alone. The mass of the core carries airborne sound, the insulation on both faces lifts the thermal resistance of the wall well above an uninsulated concrete wall of the same thickness, and the gypsum or render lining on the inside is what usually gives the assembly its fire resistance. The page reports indicative values for the core thickness you entered so you can compare options early, and it says plainly that a rating quoted for a tender has to come from the tested listing of the product you are buying."
+    }
+  ],
+  "/icf-wall-estimator": [
+    {
+      "q": "What does the ICF wall calculator actually calculate?",
+      "a": "It counts the materials the wall consumes, in the units they are sold in: straight form blocks, ninety degree corner pairs, forty five degree splays, the ready mix concrete that fills the cores, the reinforcement in each position, and the temporary bracing the pour needs. It does not price the wall on its own. Once a block rate, a concrete rate and a steel rate exist for the market you select, the same quantities feed a rate build up, which is what keeps the material list and the budget describing the same wall."
+    },
+    {
+      "q": "How is concrete core volume calculated for ICF walls?",
+      "a": "The core volume is the wall face area multiplied by the core thickness, with two deductions. The tie webs cross the cavity and are not concrete, so they come out of the gross core, and the openings come out again because no concrete is placed there. The result is the volume a pump or a truck delivers, and it is why an ICF wall of a given face area takes less concrete than the same thickness of solid wall. The page prints the gross volume, the web deduction and the net volume so the difference is visible instead of being buried in a single figure."
+    },
+    {
+      "q": "What rebar schedule does an ICF wall require?",
+      "a": "Four positions matter. Starter dowels come out of the footing and lap onto the vertical bars, so their count follows the vertical spacing and their length follows the lap. The vertical grid runs on both faces at the spacing you enter, and it is continuous through the storey. The horizontal courses follow the lifts, and they tie the vertical bars together at the spacing the wall needs. A lintel cage sits over every opening and runs past each side. The page schedules those positions separately because that is how steel is cut, labelled and fixed, and because a single lump of tonnage tells a site nothing about what to bend."
+    },
+    {
+      "q": "Why is turnbuckle alignment bracing required?",
+      "a": "The forms are the formwork. Wet concrete exerts a lateral pressure that grows with the pour rate and the temperature of the mix, and nothing but the blocks, the webs and the bracing resists it. Turnbuckles and strongbacks hold the wall plumb and straight while that pressure acts, and they are removed once the concrete has taken its set. A wall poured without them can bow or bulge before it hardens, and the correction afterwards costs more than the hire did. The page lists the bracing as a line item so it is priced with the wall, not treated as site sundries."
+    },
+    {
+      "q": "What are the fire, acoustic and thermal ratings of ICF?",
+      "a": "ICF assemblies are chosen for all three, and all three are properties of a tested assembly, not of the concrete alone. The mass of the core carries airborne sound, the insulation on both faces lifts the thermal resistance of the wall well above an uninsulated concrete wall of the same thickness, and the gypsum or render lining on the inside is what usually gives the assembly its fire resistance. The page reports indicative values for the core thickness you entered so you can compare options early, and it says plainly that a rating quoted for a tender has to come from the tested listing of the product you are buying."
+    }
+  ],
   "/faq/window-blinds": [
     {
       "q": "How is a window blind priced per window and per square metre?",

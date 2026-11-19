@@ -101,6 +101,30 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
   },
 
+  "icf-wall-estimator": {
+    summary:
+      "Turns a wall run into the blocks, concrete, steel and bracing an insulated concrete form wall consumes.",
+    description:
+      "A takeoff for walls built with insulated concrete forms. You give it the perimeter, the wall height and the core thickness, and it returns the physical materials the wall takes: straight form blocks, corner and splay pieces, the ready-mix concrete that fills the cores, the reinforcement schedule, and the bracing and bucking needed to place and finish it.",
+    functions: [
+      "Counts straight form blocks, 90 degree corner pairs and 45 degree splays from the perimeter and height you enter.",
+      "Works out the concrete core volume and deducts the internal tie webs, so the pump order is the volume that actually fills the cores.",
+      "Builds the reinforcement schedule by position: starter dowels, vertical grid, horizontal courses and lintel cages.",
+      "Lists turnbuckle bracing, strongbacks and rough bucking as separate lines, because they are hired or cut, not bought with the blocks.",
+      "Reports envelope thermal ratings for the core thickness you choose, labelled indicative, not certified.",
+    ],
+    advantages: [
+      "Every block, cubic metre and bar traces back to a measurement, so the takeoff can be checked line by line.",
+      "Corner and splay pieces are counted as their own products instead of being priced as cut straights.",
+      "Concrete is ordered on the net core volume, which is the difference between a full pour and a short one.",
+    ],
+    limits: [
+      "It does not design the wall. Reinforcement is scheduled to the arrangement you specify, not engineered for your loads.",
+      "Thermal values are indicative for the core thickness entered and are not a certified assembly rating.",
+      "Concrete, steel and block rates come from your market price book or the rate you enter; it never converts another market's figure.",
+      "Openings, embedments and site access are outside it, and any quantity you leave out is reported as missing, not assumed.",
+    ],
+  },
   "paint-calculator": {
     summary:
       "Turns room measurements into the paint a repaint actually consumes, coat by coat.",

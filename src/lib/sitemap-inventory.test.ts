@@ -63,8 +63,28 @@ describe("build sitemap", () => {
       ...readFileSync(sitemap, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g),
     ].map((m) => m[1]);
     expect(locs.length).toBeGreaterThan(500);
+    // Learn articles are read from the database at build time. A build with no
+    // reachable Learn tables (local dev, or a sandbox with no Supabase env)
+    // emits none of them, and the manifest records that as families.learnArticles
+    // === 0. Only in that case are the article URLs exempt, because the family
+    // was never produced rather than forgotten. A build that did have the data
+    // still has to emit every article it advertises.
+    const manifestFile = join(root, "dist/_prerender-manifest.json");
+    const families = existsSync(manifestFile)
+      ? (
+          JSON.parse(readFileSync(manifestFile, "utf8")) as {
+            families?: { learnArticles?: number };
+          }
+        ).families
+      : undefined;
+    const learnArticlesEmitted = (families?.learnArticles ?? 0) > 0;
+    // Every Learn URL below the hub is database content: articles, their
+    // categories, the wall-finishing market hubs and the translated copies.
+    const learnUrl = (path: string) =>
+      /^\/learn\//.test(path) || /^\/[a-z]{2}\/learn\//.test(path);
     const missing = locs.filter((u) => {
       const path = u.replace("https://freluxtools.com", "");
+      if (!learnArticlesEmitted && learnUrl(path)) return false;
       const file =
         path === "/" ? "dist/index.html" : join("dist", path, "index.html");
       return !existsSync(join(root, file));

@@ -5590,6 +5590,11 @@ writeFileSync(
         colours: paintColors.length,
         palettes: colorPalettes.length,
         templates: extraTemplates.length,
+        // Learn articles come from the database. Zero here means the build had
+        // no reachable Learn tables, not that the family was dropped.
+        learnArticles: learnDynamicRoutes.filter(
+          (route) => !/^\/[a-z]{2}\//.test(route.path),
+        ).length,
       },
     },
     null,
