@@ -78,6 +78,7 @@ import { faqSchemaByPath } from "./generated/faq-schema.mjs";
 import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
 import { howManyHtml, howManyFaq } from "./lib/how-many.mjs";
+import { listingCopyFor } from "./lib/listing-copy.mjs";
 
 const distDir = "dist";
 
@@ -5313,6 +5314,22 @@ for (const faqRoute of faqPrerenderRoutes) {
     aligned += 1;
   }
   console.log(`[prerender] listing copy aligned to the tool registry: ${aligned} routes`);
+}
+
+// The pages no registry entry owns: directories, legal pages, guides, templates
+// and market intelligence. Their copy is held to the same display limits, so a
+// result is never cut mid-phrase.
+{
+  let applied = 0;
+  for (const route of routes) {
+    const copy = listingCopyFor(route.path);
+    if (!copy) continue;
+    if (route.title === copy.title && route.description === copy.description) continue;
+    route.title = copy.title;
+    route.description = copy.description;
+    applied += 1;
+  }
+  console.log(`[prerender] listing copy applied to ${applied} non-registry routes`);
 }
 
 // Search results cut a title at roughly 60 characters, so a brand suffix that

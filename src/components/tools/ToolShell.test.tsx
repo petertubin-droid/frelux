@@ -20,6 +20,12 @@ import { getMarketToolCopy } from "@/lib/globalization/construction-terminology"
 const renderAt = (path: string, ui = <p>calculator body</p>) =>
   render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 
+beforeEach(() => {
+  // The SEO hook reads the pathname, and jsdom's default "/" has its own shared
+  // listing copy, so pin the URL to the tool route under test.
+  window.history.pushState({}, "", "/margin-calculator");
+});
+
 describe("tool shell", () => {
   it("reads a market's own noun for the page heading", () => {
     // The catalogue lists this tool as "Reinforcement / Steel", which is the

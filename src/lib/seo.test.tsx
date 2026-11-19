@@ -36,6 +36,9 @@ function headMetaCount(): number {
 
 describe("useSeo", () => {
   beforeEach(() => {
+    // A path with no shared listing copy, so the meta the hook is given is what
+    // it sets. Pages that do have shared copy are covered by serp-copy.test.ts.
+    window.history.pushState({}, "", "/a-route-with-its-own-meta");
     document.head.innerHTML = "";
     document.title = "";
   });
@@ -346,7 +349,9 @@ describe("useSeo", () => {
   describe("isStagingHostname & staging robots guard", () => {
     it("correctly classifies staging and production hostnames", () => {
       expect(isStagingHostname("freluxtools.netlify.app")).toBe(true);
-      expect(isStagingHostname("deploy-preview-42--freluxtools.netlify.app")).toBe(true);
+      expect(
+        isStagingHostname("deploy-preview-42--freluxtools.netlify.app"),
+      ).toBe(true);
       expect(isStagingHostname("staging.freluxtools.com")).toBe(true);
 
       // Production & local development
@@ -363,7 +368,9 @@ describe("useSeo", () => {
         // @ts-expect-error test mock
         delete window.location;
         // @ts-expect-error test mock
-        window.location = new URL("https://freluxtools.netlify.app/paint-calculator/");
+        window.location = new URL(
+          "https://freluxtools.netlify.app/paint-calculator/",
+        );
 
         renderSeo({
           title: "Paint Calculator",

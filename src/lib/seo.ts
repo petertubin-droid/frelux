@@ -3,6 +3,7 @@
  * Production canonical host is freluxtools.com. Local hosts (localhost, 127.0.0.1) are excluded.
  * All *.netlify.app domains and staging environments must never be indexed.
  */
+import { listingCopyFor } from "../../scripts/lib/listing-copy.mjs";
 export function isStagingHostname(hostname?: string): boolean {
   if (!hostname) return false;
   const h = hostname.toLowerCase().split(":")[0];
@@ -86,9 +87,17 @@ function removeStructuredData(id: string) {
 export function useSeo(meta: SeoMeta | null) {
   useEffect(() => {
     if (!meta) return;
-    const fullTitle = meta.title.includes("FRELUX")
-      ? meta.title
-      : `${meta.title}: FRELUX SMART CALC`;
+    // Directory, legal, guide and template pages take their listing copy from
+    // one shared file that the prerenderer also reads, so the title a crawler
+    // sees in the static HTML is the title the hydrated page keeps.
+    const pathname = window.location.pathname.replace(/(.)\/$/, "$1");
+    const shared = listingCopyFor(pathname);
+    const description = shared?.description ?? meta.description;
+    const fullTitle = shared
+      ? shared.title
+      : meta.title.includes("FRELUX")
+        ? meta.title
+        : `${meta.title}: FRELUX SMART CALC`;
     // Netlify pretty URLs force-redirect /path to /path/ (301), so the
     // canonical URL must use the trailing-slash form to match what is
     // actually served and indexed.
@@ -103,7 +112,7 @@ export function useSeo(meta: SeoMeta | null) {
 
     // Primary meta
     document.title = fullTitle;
-    setMeta("name", "description", meta.description);
+    setMeta("name", "description", description);
     setMeta("name", "author", "FRELUX SMART CALC");
 
     // Keywords (if provided)
@@ -113,7 +122,7 @@ export function useSeo(meta: SeoMeta | null) {
 
     // Open Graph
     setMeta("property", "og:title", fullTitle);
-    setMeta("property", "og:description", meta.description);
+    setMeta("property", "og:description", description);
     setMeta("property", "og:type", meta.ogType ?? "website");
     setMeta("property", "og:url", canonicalUrl);
     setMeta("property", "og:site_name", "FRELUX SMART CALC");
@@ -145,7 +154,7 @@ export function useSeo(meta: SeoMeta | null) {
     // Twitter Cards
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", fullTitle);
-    setMeta("name", "twitter:description", meta.description);
+    setMeta("name", "twitter:description", description);
     setMeta("name", "twitter:image", ogImage);
     setMeta("name", "twitter:image:alt", `${fullTitle}: FRELUX SMART CALC`);
 
@@ -187,7 +196,8 @@ export function useSeo(meta: SeoMeta | null) {
       !seoLocale || isLocalePathIndexable(seoLocale, window.location.pathname);
 
     const isStaging =
-      typeof window !== "undefined" && isStagingHostname(window.location.hostname);
+      typeof window !== "undefined" &&
+      isStagingHostname(window.location.hostname);
 
     if (meta.noIndex || !localeIsIndexable || isStaging) {
       setMeta("name", "robots", "noindex, nofollow");

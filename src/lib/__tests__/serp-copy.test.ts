@@ -20,6 +20,7 @@ import {
   NOT_A_QUANTITY,
 } from "../../../scripts/lib/how-many.mjs";
 import { loadToolRegistry } from "../../../scripts/lib/tool-registry.mjs";
+import { listingCopyFor } from "../../../scripts/lib/listing-copy.mjs";
 import {
   toolSeoTitle,
   toolSeoDescription,
@@ -89,31 +90,38 @@ describe("search listing copy", () => {
     ).toEqual([]);
   });
 
-  it("keeps hand-written calculator copy inside the same limits", () => {
-    // Informational pages (learn articles, standards, market intelligence) are
-    // their own pass: this guard covers the calculator surfaces a "how many"
-    // search lands on.
-    const bad = curatedRoutes
-      .filter((r) => CALCULATOR.test(r.path))
+  it("keeps every prerendered page inside the display limits", () => {
+    // The copy a page actually serves: the registry for a tool, the listing-copy
+    // file for a directory or template page, the literal otherwise.
+    const effective = routes.map((r) => {
+      const tool = tools.find((t) => t.path === r.path);
+      if (tool) {
+        return {
+          path: r.path,
+          title: toolSeoTitle(tool),
+          d: toolSeoDescription(tool),
+        };
+      }
+      const copy = listingCopyFor(r.path);
+      return copy
+        ? { path: r.path, title: copy.title, d: copy.description }
+        : { path: r.path, title: r.title, d: r.description };
+    });
+    const bad = effective
       .filter(
-        (r) =>
-          r.title.length > 62 ||
-          r.description.length < 100 ||
-          r.description.length > 158,
+        (x) => x.title.length > 62 || x.d.length < 100 || x.d.length > 158,
       )
-      .map(
-        (r) =>
-          `${r.path}: title ${r.title.length}, desc ${r.description.length}`,
-      );
+      .map((x) => `${x.path}: title ${x.title.length}, desc ${x.d.length}`);
     expect(bad).toEqual([]);
   });
 
   it("never lists the same title twice across the catalogue", () => {
-    const all = [
-      ...tools.map((t) => toolSeoTitle(t)),
-      ...curatedRoutes.map((r) => r.title),
-    ];
-    expect(all.filter((t, i) => all.indexOf(t) !== i)).toEqual([]);
+    const titles = routes.map((r) => {
+      const tool = tools.find((t) => t.path === r.path);
+      if (tool) return toolSeoTitle(tool);
+      return listingCopyFor(r.path)?.title ?? r.title;
+    });
+    expect(titles.filter((t, i) => titles.indexOf(t) !== i)).toEqual([]);
   });
 });
 

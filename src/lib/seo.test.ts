@@ -11,6 +11,9 @@ function renderSeoHook(meta: SeoMeta | null) {
 }
 
 beforeEach(() => {
+  // A path with no shared listing copy, so the meta the hook is given is what
+  // it sets. Pages that do have shared copy are covered by serp-copy.test.ts.
+  window.history.pushState({}, "", "/a-route-with-its-own-meta");
   document.head.innerHTML = "";
   document.title = "";
 });
