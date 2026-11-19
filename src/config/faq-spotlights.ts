@@ -69,6 +69,7 @@ export const FAQ_SPOTLIGHT_PLACEMENTS: FaqSpotlightPlacementConfig[] = [
       { slug: "roof-framing-calculator", questionIndexes: [0, 1] },
       { slug: "temporary-works-calculator", questionIndexes: [0, 1] },
       { slug: "foundation-designer", questionIndexes: [0, 1] },
+      { slug: "icf-wall-estimator", questionIndexes: [0, 1] },
     ],
   },
   {

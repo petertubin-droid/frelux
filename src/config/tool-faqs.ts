@@ -585,7 +585,7 @@ const BLINDS_FAQ_GROUPS: ToolFaqGroup[] = [
   },
 ];
 
-const EIFS_FAQ_GROUPS: ToolFaqGroup[] = [
+export const EIFS_FAQ_GROUPS: ToolFaqGroup[] = [
   {
     slug: "eifs-wall-estimator",
     route: "/eifs-wall-estimator",
@@ -641,7 +641,7 @@ const ICF_FAQ_GROUPS: ToolFaqGroup[] = [
       },
       {
         q: "What are the fire, acoustic and thermal ratings of ICF?",
-        a: "Double 64mm EPS panels provide continuous insulation with an R-22 rating (RSI 3.87) for standard EPS or R-28.5 (RSI 5.02) for graphite Neopor, eliminating thermal bridging. The solid concrete core delivers an STC 48 to STC 58 sound transmission rating and a 1.5 to 4-hour fire rating depending on core thickness. Building codes mandate a 15-minute thermal barrier (such as 12.5mm / 1/2-inch gypsum drywall) on all interior living surfaces.",
+        a: "Double 64mm EPS panels provide continuous insulation with an R-22 rating (RSI 3.87) or R-28.5 (RSI 5.02) for graphite Neopor. The solid concrete core delivers STC 48 to STC 58 acoustic isolation and a 1.5 to 4-hour fire rating depending on thickness. Building codes mandate a 15-minute thermal barrier (such as 12.5mm gypsum board) on all interior living surfaces.",
       },
     ],
   },
@@ -751,7 +751,6 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
   ...ICF_FAQ_GROUPS,
-  ...EIFS_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
   ...RENOVATION_FAQ_GROUPS,
   {
