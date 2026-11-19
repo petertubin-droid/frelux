@@ -153,7 +153,7 @@ function digestHtml(
   return [
     "<p>Your weekly Frelux price check.</p>",
     body,
-    `<p>Run your numbers: <a href="${SITE}/price-tracker/">price tracker</a>, <a href="${SITE}/paint-calculator/">paint calculator</a>, <a href="${SITE}/build-to-roof-estimator/">build-to-roof estimator</a>.</p>`,
+    `<p>Run your numbers: <a href="${SITE}/material-prices/">price tracker</a>, <a href="${SITE}/paint-calculator/">paint calculator</a>, <a href="${SITE}/build-to-roof-estimator/">build-to-roof estimator</a>.</p>`,
     "<p>Build well,<br>The Frelux team</p>",
     `<p style="color:#888;font-size:12px;"><a href="${unsubUrl}">Unsubscribe</a> at any time.</p>`,
   ].join("\n");

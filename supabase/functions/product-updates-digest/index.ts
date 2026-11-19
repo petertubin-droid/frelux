@@ -136,7 +136,7 @@ function digestHtml(
     '<p style="margin:0 0 6px;color:#52525b;font-size:15px;line-height:1.6;">Here is what changed on Frelux, and what it means for your next estimate.</p>',
     freshBlock,
     evergreenBlock,
-    '<p style="margin:28px 0 0;color:#52525b;font-size:14px;line-height:1.7;">Run your numbers: <a href="https://freluxtools.com/calculators/" style="color:#6d28d9;">all calculators</a>, <a href="https://freluxtools.com/price-tracker/" style="color:#6d28d9;">price tracker</a>, <a href="https://freluxtools.com/build-to-roof-estimator/" style="color:#6d28d9;">build to roof</a>.</p>',
+    '<p style="margin:28px 0 0;color:#52525b;font-size:14px;line-height:1.7;">Run your numbers: <a href="https://freluxtools.com/calculators/" style="color:#6d28d9;">all calculators</a>, <a href="https://freluxtools.com/material-prices/" style="color:#6d28d9;">price tracker</a>, <a href="https://freluxtools.com/build-to-roof-estimator/" style="color:#6d28d9;">build to roof</a>.</p>',
     '<p style="margin:22px 0 0;color:#52525b;font-size:14px;">Build well,<br />The Frelux team</p>',
     `<p style="margin:24px 0 0;color:#a1a1aa;font-size:12px;line-height:1.6;">You are receiving this because you subscribed at freluxtools.com. <a href="${unsubUrl}" style="color:#71717a;">Unsubscribe</a> at any time.</p>`,
     "</div>",

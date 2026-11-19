@@ -83,7 +83,7 @@ function welcomeHtml(email: string, unsubUrl: string): string {
     `<p>Hi ${htmlEscape(email.split("@")[0])},</p>`,
     "<p>Thanks for subscribing to the Frelux price updates.</p>",
     "<p>Every Monday you will get a short email with the current tracked building material prices, week-over-week changes, and what they mean for your estimates. Nothing else: no marketing, no spam.</p>",
-    `<p>Meanwhile, the <a href="${SITE}/learn/">Learn library</a> has practical guides for every trade, and the <a href="${SITE}/price-tracker/">price tracker</a> shows the same numbers the email will.</p>`,
+    `<p>Meanwhile, the <a href="${SITE}/learn/">Learn library</a> has practical guides for every trade, and the <a href="${SITE}/material-prices/">price tracker</a> shows the same numbers the email will.</p>`,
     "<p>Build well,<br>The Frelux team</p>",
     `<p style="color:#888;font-size:12px;">You are receiving this because you subscribed on freluxtools.com (${htmlEscape(email)}).</p>`,
     `<p style="color:#888;font-size:12px;"><a href="${unsubUrl}">Unsubscribe</a> at any time.</p>`,
