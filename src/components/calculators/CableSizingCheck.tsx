@@ -16,7 +16,12 @@ import {
  * estimator as incomplete. Both answers come from the same deterministic
  * functions the tests pin: no value here is guessed.
  */
-export default function CableSizingCheck() {
+export default function CableSizingCheck({
+  marketCode,
+}: {
+  marketCode: string;
+}) {
+  const market = marketCode.trim().toUpperCase();
   const [loadWatts, setLoadWatts] = useState("5000");
   const [runM, setRunM] = useState("25");
   const [voltage, setVoltage] = useState("230");
@@ -73,6 +78,27 @@ export default function CableSizingCheck() {
   const field =
     "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
+  if (market !== "GB") {
+    return (
+      <section
+        aria-labelledby="cable-check-heading"
+        className="mt-10 rounded-lg border border-amber-600/40 bg-amber-600/5 p-5"
+      >
+        <h2 id="cable-check-heading" className="font-semibold">
+          Cable sizing check unavailable for {market || "this market"}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          The available conductor ampacity table and 3%/5% voltage-drop guidance
+          are based on the UK BS 7671 reference method. They are not validated
+          for this market’s wiring code, conductor system, installation method,
+          or units, so FRELUX will not present them as a local cable or breaker
+          recommendation. Use the local market profile and a qualified
+          electrical professional for design.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section
       aria-labelledby="cable-check-heading"
@@ -88,9 +114,10 @@ export default function CableSizingCheck() {
             Feeder volt drop and cable size check
           </h2>
           <p className="text-sm text-muted-foreground">
-            Sizes a copper feeder against the 3% lighting and 5% power limits
-            and the tabulated current carrying capacity. It checks one run at a
-            time and is not a board schedule.
+            UK BS 7671 planning check for one copper feeder. It applies the
+            listed ampacity reference and 3% lighting / 5% other voltage-drop
+            guidance, but does not apply installation correction factors or
+            replace a competent-person design.
           </p>
         </div>
       </div>
@@ -216,8 +243,8 @@ export default function CableSizingCheck() {
           <p>
             <span className="font-medium">
               {sizing.feasible
-                ? `Smallest compliant size: ${sizing.cross_section_mm2} mm²`
-                : "No compliant size in the table"}
+                ? `Smallest listed size before installation factors: ${sizing.cross_section_mm2} mm²`
+                : "No listed size passes the preliminary checks"}
             </span>{" "}
             <span className="text-muted-foreground">{sizing.reason}</span>
           </p>

@@ -10,13 +10,11 @@
  *      rebar path so a bar weight cannot depend on which module is open
  *    - Imperial (ASTM): (bar_number^2) * 0.04167 * length_ft (returns lbs)
  *
- * 2. Concrete Structural Grade & Materials Engine:
- *    - Volumetric Shrinkage Constancy: 1.54 dry-to-wet factor
- *    - International Structural Grades:
- *      * C15 / M15 (Lean foundation concrete): 1 : 2 : 4
- *      * C20 / M20 (Residential slabs & beams): 1 : 1.5 : 3
- *      * C25 / M25 (High-strength structural elements): 1 : 1 : 2
- *    - Cement bulk density: 1440 kg/m³
+ * 2. Concrete material takeoff:
+ *    - An explicit user-supplied volumetric mix ratio and dry-volume allowance
+ *    - No conversion from strength grade to mix ratio: strength depends on
+ *      materials, water/cement ratio, batching, curing and the governing code.
+ *    - Cement bulk density is an editable planning assumption, not universal.
  *
  * 3. Irregular Polygon Coordinate Geometry (Shoelace Algorithm):
  *    - Calculates planar area of any non-self-intersecting polygon
@@ -57,7 +55,11 @@ export function calculateGlobalRebarWeight(
 
   if (unitSystem === "metric") {
     const diameter =
-      typeof sizeInput === "string" ? parseFloat(sizeInput) : sizeInput;
+      typeof sizeInput === "string" && /^\d+(?:\.\d+)?$/.test(sizeInput.trim())
+        ? Number(sizeInput.trim())
+        : typeof sizeInput === "number"
+          ? sizeInput
+          : Number.NaN;
     if (!Number.isFinite(diameter) || diameter <= 0) {
       throw new RangeError(
         `Metric rebar diameter must be positive (received ${sizeInput}).`,
@@ -74,11 +76,18 @@ export function calculateGlobalRebarWeight(
       sizeInput,
     };
   } else if (unitSystem === "imperial") {
-    const barNumber =
-      typeof sizeInput === "string"
-        ? parseInt(sizeInput.replace(/^#/, ""), 10)
-        : Math.round(sizeInput);
-    if (!Number.isFinite(barNumber) || barNumber <= 0) {
+    const rawBarNumber =
+      typeof sizeInput === "string" && /^#?\d+$/.test(sizeInput.trim())
+        ? Number(sizeInput.trim().replace(/^#/, ""))
+        : typeof sizeInput === "number"
+          ? sizeInput
+          : Number.NaN;
+    const barNumber = rawBarNumber;
+    if (
+      !Number.isFinite(barNumber) ||
+      !Number.isInteger(barNumber) ||
+      barNumber <= 0
+    ) {
       throw new RangeError(
         `Imperial bar number must be a positive integer (received ${sizeInput}).`,
       );
@@ -99,32 +108,20 @@ export function calculateGlobalRebarWeight(
   }
 }
 
+/** Explicit volumetric mix ratio, ordered cement : fine aggregate : coarse aggregate. */
+export type ConcreteMixRatio = readonly [number, number, number];
+
 /**
- * Standard International Concrete Grade database.
- * Maps European (C) and Indian/Asian (M) characteristic strength grades
- * to volumetric nominal mix ratios (Cement : Sand : Coarse Aggregate).
+ * Planning defaults only. They are not universal physical constants or
+ * structural-grade mappings; callers should expose and disclose these values.
  */
-export const GLOBAL_CONCRETE_GRADE_MAP: Record<
-  string,
-  [number, number, number]
-> = {
-  C15: [1, 2, 4],
-  M15: [1, 2, 4],
-  C20: [1, 1.5, 3],
-  M20: [1, 1.5, 3],
-  C25: [1, 1, 2],
-  M25: [1, 1, 2],
-};
-
-/** Global physical constant: dry-to-wet shrinkage factor for aggregate mix */
 export const GLOBAL_DRY_SHRINKAGE_FACTOR = 1.54;
-
-/** Global physical constant: dry uncompacted bulk density of Portland cement (kg/m³) */
 export const GLOBAL_CEMENT_DENSITY_KG_M3 = 1440;
 
 export interface GlobalConcreteQuantities {
+  /** User-provided label; never inferred to be a strength class. */
   grade: string;
-  mixRatio: [number, number, number];
+  mixRatio: ConcreteMixRatio;
   wetVolumeM3: number;
   dryVolumeM3: number;
   cementMetricTons: number;
@@ -134,37 +131,60 @@ export interface GlobalConcreteQuantities {
 }
 
 /**
- * Computes cement, sand, and gravel quantities based on international structural grades.
+ * Computes a preliminary constituent takeoff from an explicit volumetric mix
+ * ratio. This is not a strength-grade conversion or a concrete design.
  *
  * @param volumeM3 Wet compacted concrete volume in cubic meters
- * @param grade International structural strength grade (e.g. "C15", "C20", "C25", "M20")
+ * @param mixRatio User-supplied cement:fine aggregate:coarse aggregate parts
+ * @param label Optional user label, for example a project mix ID (not a grade)
+ * @param assumptions Optional dry-volume factor and loose cement density
  */
 export function calculateGlobalConcrete(
   volumeM3: number,
-  grade: string = "C20",
+  mixRatio: ConcreteMixRatio,
+  label = "user-specified mix",
+  assumptions: { dryVolumeFactor?: number; cementDensityKgM3?: number } = {},
 ): GlobalConcreteQuantities {
   if (!Number.isFinite(volumeM3) || volumeM3 <= 0) {
     throw new RangeError(
       `Concrete volume must be a positive finite number (received ${volumeM3}).`,
     );
   }
+  if (
+    !Array.isArray(mixRatio) ||
+    mixRatio.length !== 3 ||
+    mixRatio.some((part) => !Number.isFinite(part) || part <= 0)
+  ) {
+    throw new RangeError(
+      "An explicit positive cement:fine aggregate:coarse aggregate ratio is required; strength grades are not mapped to nominal mixes.",
+    );
+  }
+  const dryFactor = assumptions.dryVolumeFactor ?? GLOBAL_DRY_SHRINKAGE_FACTOR;
+  const cementDensity =
+    assumptions.cementDensityKgM3 ?? GLOBAL_CEMENT_DENSITY_KG_M3;
+  if (!Number.isFinite(dryFactor) || dryFactor <= 0) {
+    throw new RangeError("Dry-volume factor must be a positive finite number.");
+  }
+  if (!Number.isFinite(cementDensity) || cementDensity <= 0) {
+    throw new RangeError(
+      "Cement bulk density must be a positive finite number.",
+    );
+  }
 
-  const normalizedGrade = grade.trim().toUpperCase();
-  const ratio = GLOBAL_CONCRETE_GRADE_MAP[normalizedGrade] ?? [1, 2, 4];
-
-  // Dry volume allowance based on global physical constant 1.54
-  const dryVolume = volumeM3 * GLOBAL_DRY_SHRINKAGE_FACTOR;
+  const ratio: [number, number, number] = [
+    mixRatio[0],
+    mixRatio[1],
+    mixRatio[2],
+  ];
+  const dryVolume = volumeM3 * dryFactor;
   const totalParts = ratio[0] + ratio[1] + ratio[2];
-
   const cementVol = (ratio[0] / totalParts) * dryVolume;
   const sandVol = (ratio[1] / totalParts) * dryVolume;
   const gravelVol = (ratio[2] / totalParts) * dryVolume;
-
-  // Cement mass via standard bulk density (1440 kg/m³)
-  const cementKg = cementVol * GLOBAL_CEMENT_DENSITY_KG_M3;
+  const cementKg = cementVol * cementDensity;
 
   return {
-    grade: normalizedGrade,
+    grade: label.trim() || "user-specified mix",
     mixRatio: ratio,
     wetVolumeM3: Math.round(volumeM3 * 100) / 100,
     dryVolumeM3: Math.round(dryVolume * 100) / 100,

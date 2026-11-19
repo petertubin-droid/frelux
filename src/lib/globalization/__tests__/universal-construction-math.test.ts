@@ -3,7 +3,6 @@ import {
   calculateGlobalRebarWeight,
   calculateGlobalConcrete,
   calculateIrregularPolygonArea,
-  GLOBAL_CONCRETE_GRADE_MAP,
   GLOBAL_DRY_SHRINKAGE_FACTOR,
   GLOBAL_CEMENT_DENSITY_KG_M3,
 } from "../universal-construction-math";
@@ -78,53 +77,57 @@ describe("Universal Global Construction Math & Physics", () => {
     });
   });
 
-  describe("2. Global Concrete Structural Grade & Materials Engine", () => {
-    it("respects universal physical constants", () => {
+  describe("2. Explicit-ratio concrete materials takeoff", () => {
+    it("exposes disclosed planning defaults, not universal grade mappings", () => {
       expect(GLOBAL_DRY_SHRINKAGE_FACTOR).toBe(1.54);
       expect(GLOBAL_CEMENT_DENSITY_KG_M3).toBe(1440);
     });
 
-    it("computes C15 / M15 lean mix (1:2:4)", () => {
-      const result = calculateGlobalConcrete(10, "C15");
+    it("computes quantities from a user-supplied volumetric ratio", () => {
+      const result = calculateGlobalConcrete(10, [1, 2, 4], "Mix A");
+      expect(result.grade).toBe("Mix A");
       expect(result.mixRatio).toEqual([1, 2, 4]);
       expect(result.wetVolumeM3).toBe(10);
-      expect(result.dryVolumeM3).toBe(15.4); // 10 * 1.54
-      // cement vol = (1/7) * 15.4 = 2.2 m3. cement kg = 2.2 * 1440 = 3168 kg -> 3.17 tonnes
+      expect(result.dryVolumeM3).toBe(15.4);
       expect(result.cementMetricTons).toBe(3.17);
-      expect(result.sandCubicMeters).toBe(4.4); // (2/7) * 15.4 = 4.4
-      expect(result.gravelCubicMeters).toBe(8.8); // (4/7) * 15.4 = 8.8
+      expect(result.sandCubicMeters).toBe(4.4);
+      expect(result.gravelCubicMeters).toBe(8.8);
     });
 
-    it("computes C20 / M20 structural mix (1:1.5:3)", () => {
-      const result = calculateGlobalConcrete(10, "C20");
-      expect(result.mixRatio).toEqual([1, 1.5, 3]);
-      // total parts = 5.5. dry volume = 15.4
-      // cement vol = (1/5.5) * 15.4 = 2.8 m3 -> cement kg = 2.8 * 1440 = 4032 kg -> 4.03 tonnes
-      expect(result.cementMetricTons).toBe(4.03);
-      expect(result.cementKg).toBe(4032);
-      expect(result.sandCubicMeters).toBe(4.2); // (1.5/5.5) * 15.4 = 4.2
-      expect(result.gravelCubicMeters).toBe(8.4); // (3/5.5) * 15.4 = 8.4
+    it("allows project-specific dry-volume and cement-density assumptions", () => {
+      const result = calculateGlobalConcrete(1, [1, 1, 1], "Trial", {
+        dryVolumeFactor: 1.5,
+        cementDensityKgM3: 1400,
+      });
+      expect(result.dryVolumeM3).toBe(1.5);
+      expect(result.cementKg).toBe(700);
+      expect(result.sandCubicMeters).toBe(0.5);
+      expect(result.gravelCubicMeters).toBe(0.5);
     });
 
-    it("computes C25 / M25 high-strength mix (1:1:2)", () => {
-      const result = calculateGlobalConcrete(10, "C25");
-      expect(result.mixRatio).toEqual([1, 1, 2]);
-      // total parts = 4. dry volume = 15.4
-      // cement vol = (1/4) * 15.4 = 3.85 m3 -> cement kg = 3.85 * 1440 = 5544 kg -> 5.54 tonnes
-      expect(result.cementMetricTons).toBe(5.54);
-      expect(result.cementKg).toBe(5544);
-      expect(result.sandCubicMeters).toBe(3.85); // (1/4) * 15.4 = 3.85
-      expect(result.gravelCubicMeters).toBe(7.7); // (2/4) * 15.4 = 7.7
+    it("rejects strength-grade strings instead of silently mapping them to ratios", () => {
+      expect(() => calculateGlobalConcrete(10, "C20" as never)).toThrow(
+        RangeError,
+      );
+      expect(() => calculateGlobalConcrete(10, [1, 0, 2] as never)).toThrow(
+        RangeError,
+      );
+      expect(() =>
+        calculateGlobalConcrete(10, [1, 2, Number.NaN] as never),
+      ).toThrow(RangeError);
     });
 
-    it("defaults to 1:2:4 if unrecognized grade is supplied", () => {
-      const result = calculateGlobalConcrete(10, "CUSTOM_UNKNOWN");
-      expect(result.mixRatio).toEqual([1, 2, 4]);
-    });
-
-    it("throws RangeError for invalid volume", () => {
-      expect(() => calculateGlobalConcrete(0, "C20")).toThrow(RangeError);
-      expect(() => calculateGlobalConcrete(-10, "C20")).toThrow(RangeError);
+    it("requires finite positive volume and physical assumptions", () => {
+      expect(() => calculateGlobalConcrete(0, [1, 2, 4])).toThrow(RangeError);
+      expect(() => calculateGlobalConcrete(-10, [1, 2, 4])).toThrow(RangeError);
+      expect(() =>
+        calculateGlobalConcrete(1, [1, 2, 4], "Mix", { dryVolumeFactor: 0 }),
+      ).toThrow(RangeError);
+      expect(() =>
+        calculateGlobalConcrete(1, [1, 2, 4], "Mix", {
+          cementDensityKgM3: Infinity,
+        }),
+      ).toThrow(RangeError);
     });
   });
 

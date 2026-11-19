@@ -226,12 +226,19 @@ export function calculateReinforcement(
   const missing: string[] = [];
   const lines: ReinforcementLine[] = [];
 
-  const stockLengthM =
-    input.stock_length_m && input.stock_length_m > 0
-      ? input.stock_length_m
-      : input.marketCode
-        ? resolveRebarStockLength(input.marketCode).lengthM
-        : DEFAULT_STOCK_LENGTH_M;
+  const stockResolution = input.marketCode
+    ? resolveRebarStockLength(input.marketCode)
+    : null;
+  const usesExplicitStockLength =
+    input.stock_length_m !== undefined && input.stock_length_m > 0;
+  const stockLengthM = usesExplicitStockLength
+    ? input.stock_length_m!
+    : (stockResolution?.lengthM ?? DEFAULT_STOCK_LENGTH_M);
+  if (!usesExplicitStockLength && !stockResolution?.isMarketSpecific) {
+    warnings.push(
+      `Rebar stock length uses the ${stockLengthM} m planning fallback because no market-specific stock length is configured${input.marketCode ? ` for ${input.marketCode.toUpperCase()}` : " and no market code was supplied"}. Confirm merchant stock before using purchase quantities.`,
+    );
+  }
 
   // ── 0. Validation ──
   const lengths: [string, string][] = [

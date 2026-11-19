@@ -2915,6 +2915,7 @@ export function calculateBuildToRoof(
     "This estimate stops at the Build-to-Roof stage. It does NOT include plastering, painting, screeding, tiling, POP/ceiling finishing, doors, windows, plumbing, electrical, or other finishing works.",
     "Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.",
     "Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.",
+    "This workflow is a preliminary reinforced-concrete frame with block infill takeoff, not a universal building-typology model. It does not replace local typology-specific assemblies such as light timber framing, steel framing, cavity-wall systems, or region-specific structural assemblies; review quantities and methods against the actual design and local practice.",
     "Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.",
     "Mortar volume is estimated at 0.03 m³ per m² of wall, this is a standard industry approximation for 9-inch (225mm) blockwork.",
     "Sand filling thickness under ground floor slab defaults to 50mm, configurable in advanced settings.",

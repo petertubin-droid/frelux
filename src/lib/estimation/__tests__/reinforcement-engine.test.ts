@@ -125,6 +125,37 @@ describe("validation and missing schedule", () => {
 // ─────────────────────────────────────────────
 
 describe("stock lengths and tonnage", () => {
+  it("discloses an unconfigured market stock-length fallback", () => {
+    const r = calculateReinforcement(
+      makeInput({ marketCode: "XX", len_12mm_m: 10, len_16mm_m: null }),
+      rules,
+      FULL_PRICES,
+    );
+    expect(
+      r.warnings.some(
+        (warning) =>
+          warning.includes("planning fallback") && warning.includes("XX"),
+      ),
+    ).toBe(true);
+  });
+
+  it("does not warn when a stock length is explicitly supplied", () => {
+    const r = calculateReinforcement(
+      makeInput({
+        marketCode: "XX",
+        stock_length_m: 6,
+        len_12mm_m: 10,
+        len_16mm_m: null,
+      }),
+      rules,
+      FULL_PRICES,
+    );
+    expect(
+      r.warnings.some((warning) => warning.includes("planning fallback")),
+    ).toBe(false);
+    expect(r.lines.find((line) => line.key === "rebar_12mm")?.quantity).toBe(2);
+  });
+
   it("converts cutting length to whole 12 m lengths with visible lap/waste", () => {
     const r = calculateReinforcement(makeInput(), rules, FULL_PRICES);
     const d12 = r.lines.find((l) => l.key === "rebar_12mm");

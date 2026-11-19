@@ -54,6 +54,7 @@ vi.mock("@/lib/estimation/quote-export", () => ({
 
 vi.mock("@/lib/international/market-context", () => ({
   useSeoOfferCurrency: () => "NGN",
+  useQuoteCurrencyCode: () => currentMarket.currencyCode,
   useMarket: () => ({
     marketCode: currentMarket.code,
     market: currentMarket,

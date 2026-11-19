@@ -1134,7 +1134,7 @@ export default function ElectricalEstimator() {
           </>
         )}
 
-        <CableSizingCheck />
+        <CableSizingCheck marketCode={marketCode} />
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 
