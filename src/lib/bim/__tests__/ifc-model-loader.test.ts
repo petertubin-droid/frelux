@@ -71,3 +71,36 @@ describe("parseIfcModel (real web-ifc, IFC2x3 and IFC4)", () => {
     );
   });
 });
+
+describe("parseIfcModel: spatial, type, material and unit context", () => {
+  it("reads storey, type object, material and declared SI units", async () => {
+    const result = await parseIfcModel(fixture("element-context.ifc"));
+    expect(result.ok).toBe(true);
+    expect(result.schema).toBe("IFC4");
+    expect(result.elements).toHaveLength(2);
+    for (const wall of result.elements) {
+      expect(wall.ifcClass).toBe("IFCWALL");
+      expect(wall.storey).toBe("Level 1");
+      expect(wall.typeName).toBe("WT-200");
+      expect(wall.material).toBe("Concrete C30/37");
+      const vol = wall.quantities.find((q) => q.kind === "volume");
+      expect(vol).toMatchObject({ name: "NetVolume", value: 4.8 });
+    }
+    expect(result.units).toEqual({
+      length: "METRE",
+      area: "SQUARE_METRE",
+      volume: "CUBIC_METRE",
+      undeclared: false,
+    });
+    expect(result.coverage.countsByClass.IFCWALL).toBe(2);
+    expect(result.coverage.unmappedClasses).toEqual([]);
+  });
+
+  it("reports undeclared units honestly on a file without IfcUnitAssignment", async () => {
+    const result = await parseIfcModel(fixture("column-quantities.ifc"));
+    expect(result.units.undeclared).toBe(true);
+    expect(
+      result.warnings.some((w) => w.includes("no IfcUnitAssignment")),
+    ).toBe(true);
+  });
+});

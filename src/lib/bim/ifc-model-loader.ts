@@ -42,6 +42,51 @@ export interface IfcModelElement {
   /** Quantities the file declares for this element. */
   quantities: IfcQuantityValue[];
   geometry: IfcGeometryPart[];
+  /** Name of the IfcBuildingStorey the element is contained in, when declared. */
+  storey?: string;
+  /** Name of the IfcTypeObject the element is defined by, when declared. */
+  typeName?: string;
+  /** Name of the IfcMaterial / material layer set, when declared. */
+  material?: string;
+}
+
+/**
+ * What the loader understands, stated as data so the UI and the docs cannot
+ * drift from the code. Anything outside this list is reported in
+ * `coverage.unmappedClasses`, never silently dropped.
+ */
+export const IFC_COVERAGE = {
+  schema: ["IFC2X3", "IFC4", "IFC4X3"],
+  quantityKinds: ["length", "area", "volume", "count", "weight"],
+  relations: [
+    "IfcRelDefinesByProperties -> IfcElementQuantity",
+    "IfcRelContainedInSpatialStructure -> IfcBuildingStorey",
+    "IfcRelDefinesByType -> IfcTypeObject",
+    "IfcRelAssociatesMaterial -> IfcMaterial / IfcMaterialLayerSet",
+    "IfcProject.UnitsInContext -> IfcUnitAssignment",
+  ],
+  /**
+   * Not covered, and not claimed: property sets (Pset_*) are not read, no unit
+   * conversion is performed, and spatial structure above storey level
+   * (site/building) is not modelled. Full IFC4 entity coverage is not claimed.
+   */
+} as const;
+
+export interface IfcCoverageReport {
+  /** classes the loader took off (TARGET_IFC_CLASSES) */
+  supportedClasses: string[];
+  /** elements taken off, per class */
+  countsByClass: Record<string, number>;
+  /** IFC classes present in the model with geometry but not taken off */
+  unmappedClasses: Array<{ ifcClass: string; count: number }>;
+}
+
+export interface IfcDeclaredUnits {
+  length: string | null;
+  area: string | null;
+  volume: string | null;
+  /** true when the model declares no IfcUnitAssignment at all */
+  undeclared: boolean;
 }
 
 export interface IfcModelParseResult {
@@ -51,6 +96,10 @@ export interface IfcModelParseResult {
   elementsWithGeometry: number;
   elementsWithQuantities: number;
   warnings: string[];
+  /** what this model contained versus what the loader takes off */
+  coverage: IfcCoverageReport;
+  /** units the file declares; never converted, only reported */
+  units: IfcDeclaredUnits;
 }
 
 /** IFC classes the QTO takes off (deterministic fixed list). */
@@ -74,6 +123,12 @@ const TARGET_IFC_CLASSES = [
   "IFCCOVERING",
   "IFCCHIMNEY",
   "IFCBUILDINGELEMENTPROXY",
+  "IFCBUILDINGELEMENTPART",
+  "IFCRAMP",
+  "IFCRAMPFLIGHT",
+  "IFCPROXY",
+  "IFCREINFORCINGBAR",
+  "IFCREINFORCINGMESH",
 ];
 
 function detectSchema(bytes: Uint8Array): string | null {
@@ -136,6 +191,58 @@ function refValue(x: unknown): number | null {
   return null;
 }
 
+/** Maps an IfcSIUnit name to the quantity kind it measures. */
+const SI_UNIT_KIND: Record<string, keyof Omit<IfcDeclaredUnits, "undeclared">> =
+  {
+    METRE: "length",
+    SQUARE_METRE: "area",
+    CUBIC_METRE: "volume",
+  };
+
+/**
+ * Summarises what a model contained versus what the loader takes off.
+ * Pure: takes the classes found while streaming geometry, returns counts.
+ */
+export function summarizeCoverage(
+  geometryClasses: readonly string[],
+  elements: readonly { ifcClass: string }[],
+): IfcCoverageReport {
+  const supported = new Set(TARGET_IFC_CLASSES);
+  const countsByClass: Record<string, number> = {};
+  for (const el of elements) {
+    countsByClass[el.ifcClass] = (countsByClass[el.ifcClass] ?? 0) + 1;
+  }
+  const unmappedCounts = new Map<string, number>();
+  for (const cls of geometryClasses) {
+    if (supported.has(cls)) continue;
+    unmappedCounts.set(cls, (unmappedCounts.get(cls) ?? 0) + 1);
+  }
+  return {
+    supportedClasses: [...TARGET_IFC_CLASSES],
+    countsByClass,
+    unmappedClasses: [...unmappedCounts.entries()]
+      .map(([ifcClass, count]) => ({ ifcClass, count }))
+      .sort(
+        (a, b) => b.count - a.count || a.ifcClass.localeCompare(b.ifcClass),
+      ),
+  };
+}
+
+/** Builds the declared-units record from IfcSIUnit names found in the file. */
+export function summarizeUnits(unitNames: readonly string[]): IfcDeclaredUnits {
+  const units: IfcDeclaredUnits = {
+    length: null,
+    area: null,
+    volume: null,
+    undeclared: unitNames.length === 0,
+  };
+  for (const name of unitNames) {
+    const kind = SI_UNIT_KIND[name];
+    if (kind && units[kind] === null) units[kind] = name;
+  }
+  return units;
+}
+
 /**
  * Parse an IFC file (IFC2x3 or IFC4) into model elements with declared
  * quantities and placed geometry. Runs fully client-side.
@@ -181,12 +288,97 @@ export async function parseIfcModel(
       }
     }
 
-    // 2. Geometry per element expressID.
+    // 2. Spatial containment: element expressID -> storey name.
+    const storeyByElement = new Map<number, string>();
+    const relStorey = (WebIfc.IFCRELCONTAINEDINSPATIALSTRUCTURE ?? 0) as number;
+    if (typeof relStorey === "number" && relStorey > 0) {
+      const storeyIds = api.GetLineIDsWithType(
+        modelID,
+        WebIfc.IFCBUILDINGSTOREY as number,
+      );
+      const storeyName = new Map<number, string>();
+      for (let i = 0; i < storeyIds.size(); i++) {
+        const sid = storeyIds.get(i);
+        const line = api.GetLine(modelID, sid);
+        storeyName.set(
+          sid,
+          (line.Name as { value?: string } | undefined)?.value ?? "",
+        );
+      }
+      const rels2 = api.GetLineIDsWithType(modelID, relStorey);
+      for (let i = 0; i < rels2.size(); i++) {
+        const rel = api.GetLine(modelID, rels2.get(i));
+        const target = refValue(rel.RelatingStructure);
+        if (target === null) continue;
+        const name = storeyName.get(target);
+        if (!name) continue;
+        const related = rel.RelatedElements as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(related)) continue;
+        for (const obj of related) storeyByElement.set(obj.value, name);
+      }
+    }
+
+    // 3. Type objects: element expressID -> IfcTypeObject name.
+    const typeByElement = new Map<number, string>();
+    const relTypeDef = (WebIfc.IFCRELDEFINESBYTYPE ?? 0) as number;
+    if (typeof relTypeDef === "number" && relTypeDef > 0) {
+      const rels3 = api.GetLineIDsWithType(modelID, relTypeDef);
+      for (let i = 0; i < rels3.size(); i++) {
+        const rel = api.GetLine(modelID, rels3.get(i));
+        const typeRef = refValue(rel.RelatingType);
+        if (typeRef === null) continue;
+        const typeLine = api.GetLine(modelID, typeRef);
+        const typeName =
+          (typeLine.Name as { value?: string } | undefined)?.value ?? "";
+        if (!typeName) continue;
+        const related = rel.RelatedObjects as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(related)) continue;
+        for (const obj of related) typeByElement.set(obj.value, typeName);
+      }
+    }
+
+    // 4. Materials: element expressID -> material / layer set name.
+    const materialByElement = new Map<number, string>();
+    const relMat = (WebIfc.IFCRELASSOCIATESMATERIAL ?? 0) as number;
+    if (typeof relMat === "number" && relMat > 0) {
+      const rels4 = api.GetLineIDsWithType(modelID, relMat);
+      for (let i = 0; i < rels4.size(); i++) {
+        const rel = api.GetLine(modelID, rels4.get(i));
+        const matRef = refValue(rel.RelatingMaterial);
+        if (matRef === null) continue;
+        const matLine = api.GetLine(modelID, matRef);
+        const matName =
+          (matLine.Name as { value?: string } | undefined)?.value ??
+          (matLine.LayerSetName as { value?: string } | undefined)?.value ??
+          "";
+        if (!matName) continue;
+        const related = rel.RelatedObjects as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(related)) continue;
+        for (const obj of related) materialByElement.set(obj.value, matName);
+      }
+    }
+
+    // 5. Geometry per element expressID (and the class of each streamed mesh).
     const geometryByElement = new Map<number, IfcGeometryPart[]>();
+    const geometryClasses: string[] = [];
     let streamed = 0;
     api.StreamAllMeshes(modelID, (mesh) => {
       streamed++;
       const expressID = (mesh as { expressID: number }).expressID;
+      try {
+        const line = api.GetLine(modelID, expressID);
+        const typeCode = (line as { type?: number }).type;
+        if (typeof typeCode === "number") {
+          const name = api.GetNameFromTypeCode(typeCode);
+          if (name) geometryClasses.push(name.toUpperCase());
+        }
+      } catch {
+        // A mesh whose line cannot be read still contributes geometry; it is
+        // simply not counted in coverage rather than dropping the element.
+      }
       const geometries = (
         mesh as {
           geometries: {
@@ -273,15 +465,68 @@ export async function parseIfcModel(
           name,
           quantities,
           geometry: geometryByElement.get(id) ?? [],
+          ...(storeyByElement.has(id)
+            ? { storey: storeyByElement.get(id) }
+            : {}),
+          ...(typeByElement.has(id) ? { typeName: typeByElement.get(id) } : {}),
+          ...(materialByElement.has(id)
+            ? { material: materialByElement.get(id) }
+            : {}),
         });
       }
     }
+
+    // Declared units: read, reported, never converted.
+    const unitNames: string[] = [];
+    try {
+      const projectIds = api.GetLineIDsWithType(
+        modelID,
+        WebIfc.IFCPROJECT as number,
+      );
+      if (projectIds.size() > 0) {
+        const project = api.GetLine(modelID, projectIds.get(0));
+        const unitAssignRef = refValue(project.UnitsInContext);
+        if (unitAssignRef !== null) {
+          const assignment = api.GetLine(modelID, unitAssignRef);
+          const unitRefs = assignment.Units as
+            Array<{ value: number }> | undefined;
+          if (Array.isArray(unitRefs)) {
+            for (const ref of unitRefs) {
+              const unit = api.GetLine(modelID, ref.value);
+              const unitName = (unit.Name as { value?: string } | undefined)
+                ?.value;
+              if (unitName) unitNames.push(unitName);
+            }
+          }
+        }
+      }
+    } catch {
+      // Older/partial files may omit UnitsInContext; reported as undeclared.
+    }
+    const units = summarizeUnits(unitNames);
 
     const elementsWithGeometry = elements.filter(
       (e) => e.geometry.length > 0,
     ).length;
     if (elements.length === 0) {
       warnings.push("No recognized construction elements found in this model.");
+    }
+    const coverage = summarizeCoverage(geometryClasses, elements);
+    if (coverage.unmappedClasses.length > 0) {
+      const total = coverage.unmappedClasses.reduce((n, c) => n + c.count, 0);
+      warnings.push(
+        `${total} geometry element(s) of ${coverage.unmappedClasses.length} class(es) outside the takeoff list were not taken off (${coverage.unmappedClasses
+          .slice(0, 5)
+          .map((c) => `${c.ifcClass} x${c.count}`)
+          .join(
+            ", ",
+          )}${coverage.unmappedClasses.length > 5 ? ", ..." : ""}). They are reported, never guessed.`,
+      );
+    }
+    if (units.undeclared) {
+      warnings.push(
+        "The model declares no IfcUnitAssignment; quantities are reported in the file's own numbers without a stated unit.",
+      );
     }
     const withoutQuantities = elements.length - withQuantities;
     if (withoutQuantities > 0) {
@@ -301,6 +546,8 @@ export async function parseIfcModel(
       elementsWithGeometry,
       elementsWithQuantities: withQuantities,
       warnings,
+      coverage: summarizeCoverage(geometryClasses, elements),
+      units,
     };
   } finally {
     api.CloseModel(modelID);
