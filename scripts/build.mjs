@@ -13,6 +13,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
+import os from "node:os";
 
 const steps = [
   ["verify supabase target", "node", ["scripts/verify-supabase-target.mjs"]],
@@ -26,6 +27,25 @@ const steps = [
   ["sitemap", "node", ["scripts/generate-sitemap.mjs"]],
   ["bundle budget", "node", ["scripts/check-bundle-budget.mjs"]],
 ];
+
+// Environment header: makes a deploy log self-explanatory when a build only
+// fails on one host. Prints versions and capacities, never secret values.
+const envFlags = [
+  "NETLIFY",
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_ANON_KEY",
+  "VITE_SITE_URL",
+  "NODE_ENV",
+]
+  .map((k) => `${k}=${process.env[k] ? "set" : "MISSING"}`)
+  .join(" ");
+console.log(
+  `build env: node ${process.version} on ${process.platform}/${process.arch}, ` +
+    `npm ${process.env.npm_config_user_agent?.match(/npm\/([\d.]+)/)?.[1] ?? "?"}, ` +
+    `cpus ${os.cpus().length}, ram ${Math.round(os.totalmem() / 1024 ** 3)}GB, ` +
+    `cwd ${process.cwd()}`,
+);
+console.log(`build env vars: ${envFlags}`);
 
 const total = steps.length;
 let failed = null;

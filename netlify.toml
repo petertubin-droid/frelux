@@ -10,6 +10,9 @@
   directory = "netlify/functions"
 
 [build.environment]
+  # Match the Node major that .github/workflows/ci.yml builds and tests with.
+  # Netlify's default drifts per site age; pinning keeps one validated runtime.
+  NODE_VERSION = "20"
   # The build runs `npm run typecheck` before vite, and tsc needs more heap than
   # Netlify's default cap: measured here at >2 GB and <3 GB on this tree, while a
   # 4 GB build container gives Node a ~2 GB default, which failed the build with
