@@ -687,15 +687,21 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
           : 0.16;
   const exteriorFinishRsi = 0.03;
   const totalRsi = foamRsi + concreteRsi + liningRsi + exteriorFinishRsi;
+  // ISO 6946 surface films: 0.13 m²K/W inside, 0.04 m²K/W outside. The R-value
+  // is quoted for the assembly, but a U-value without the films overstates heat
+  // loss, and EIFS already applies them, so both systems must agree.
+  const SURFACE_FILM_RSI = 0.17;
   const metricRsiValue = Number(totalRsi.toFixed(2));
   const continuousRValueImperial = Number(
     (totalRsi / R_PER_INCH_TO_RSI).toFixed(1),
   );
-  const thermalTransmittanceUValue = Number((1 / totalRsi).toFixed(3));
+  const thermalTransmittanceUValue = Number(
+    (1 / (totalRsi + SURFACE_FILM_RSI)).toFixed(3),
+  );
   const rValueBasis =
     `${foamThicknessMm} mm ${foamType === "graphite_neopor" ? "graphite EPS" : "EPS"} each face at ` +
     `${ICF_FOAM_R_PER_INCH[foamType]} R per inch, plus the ${coreThicknessMm} mm concrete core, ` +
-    `the interior lining and an exterior finish. A tested assembly value from the product listing supersedes it.`;
+    `the interior lining and an exterior finish. The U-value adds the 0.17 m²K/W of ISO 6946 surface films; the R-value quotes the assembly alone. A tested assembly value from the product listing supersedes both.`;
 
   // Sound: the mass of the core and the lining do the work. Published ICF
   // assemblies land in a band, so the figure is reported as indicative.

@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-11T15:39:46.238Z",
+  "scanned_at": "2026-11-16T05:03:43.626Z",
   "max_age_days": 45,
   "markets": {
     "NG": {
@@ -44,6 +44,13 @@
       "stale": 0,
       "verified": false
     },
+    "TZ": {
+      "total": 1,
+      "local_verified": 1,
+      "fx_reference": 0,
+      "stale": 0,
+      "verified": false
+    },
     "DK": {
       "total": 8,
       "local_verified": 8,
@@ -80,9 +87,9 @@
       "verified": false
     },
     "GH": {
-      "total": 38,
+      "total": 37,
       "local_verified": 22,
-      "fx_reference": 16,
+      "fx_reference": 15,
       "stale": 0,
       "verified": false
     },

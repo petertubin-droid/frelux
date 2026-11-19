@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import type { ShareableEstimate } from "@/lib/estimate-sharing";
 import { formatMoney } from "@/lib/estimation/system-boq-pricing";
 import { useSystemBoqPricing } from "@/lib/estimation/use-system-boq-pricing";
 import Container from "@/components/ui/Container";
@@ -1215,6 +1217,13 @@ export default function EifsWallEstimator() {
           </Card>
         </div>
 
+        <div className="flex justify-end">
+          <ShareEstimateButton
+            estimate={eifsShareableEstimate(engineResult, pricing)}
+            showPdf
+          />
+        </div>
+
         {/* Itemized Bill of Quantities (BOQ) */}
         <Card className="shadow-xs border-border/80">
           <CardHeader className="pb-3 flex flex-row items-center justify-between">
@@ -1412,4 +1421,55 @@ export default function EifsWallEstimator() {
       </Container>
     </ToolShell>
   );
+}
+
+/** The estimate in the shape the shared share sheet and PDF expect. */
+function eifsShareableEstimate(
+  result: ReturnType<typeof calculateEifsWall>,
+  pricing: {
+    total: number;
+    currency: string | null;
+    lines: Record<string, unknown>;
+  },
+): ShareableEstimate | null {
+  if (!result?.ok) return null;
+  const priced = Object.keys(pricing.lines).length > 0;
+  return {
+    kind: "EIFS Wall Estimate",
+    summaryLines: [
+      {
+        label: "Net facade area",
+        value: `${result.geometry.netFacadeAreaM2} m²`,
+      },
+      {
+        label: "Insulation",
+        value: `${result.insulation.thicknessMm} mm, ${result.insulation.type}`,
+      },
+      { label: "Boards", value: `${result.insulation.boardsCount}` },
+      {
+        label: "Continuous R",
+        value: `R-${result.insulation.continuousRValueUS}`,
+      },
+      { label: "Base coat", value: `${result.reinforcing.baseCoatKg} kg` },
+      { label: "Finish coat", value: `${result.finish.finishCoatKg} kg` },
+    ],
+    lineItems: result.boq.slice(0, 10).map((item) => ({
+      description: item.description,
+      quantity: `${item.quantity} ${item.unit}`,
+    })),
+    totals: [
+      ...(priced
+        ? [
+            {
+              label: "Priced materials",
+              value: formatMoney(pricing.total, pricing.currency),
+              emphasized: true,
+            },
+          ]
+        : []),
+      { label: "Labour", value: `${result.labor.totalManHours} man-hours` },
+    ],
+    notes: result.warnings.slice(0, 4),
+    link: "/eifs-wall-estimator",
+  };
 }

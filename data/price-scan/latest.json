@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-11-11T15:39:46.238Z",
+  "generated_at": "2026-11-16T05:03:43.626Z",
   "material_prices_active": 1000,
-  "materials_active": 637,
+  "materials_active": 638,
   "max_age_days": 45,
   "by_market": {
     "NG": {
@@ -40,6 +40,12 @@
       "fx_reference": 15,
       "stale": 0
     },
+    "TZ": {
+      "total": 1,
+      "local_verified": 1,
+      "fx_reference": 0,
+      "stale": 0
+    },
     "DK": {
       "total": 8,
       "local_verified": 8,
@@ -71,9 +77,9 @@
       "stale": 0
     },
     "GH": {
-      "total": 38,
+      "total": 37,
       "local_verified": 22,
-      "fx_reference": 16,
+      "fx_reference": 15,
       "stale": 0
     },
     "CA": {

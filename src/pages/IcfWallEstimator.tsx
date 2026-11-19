@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import type { ShareableEstimate } from "@/lib/estimate-sharing";
 import {
   formatMoney,
   type PricedBoqLine,
@@ -1407,6 +1409,12 @@ export default function IcfWallEstimator() {
                 </p>
               )}
             </div>
+            <div className="flex justify-end pt-3">
+              <ShareEstimateButton
+                estimate={icfShareableEstimate(engineResult, pricing)}
+                showPdf
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -1473,4 +1481,60 @@ export default function IcfWallEstimator() {
       </Container>
     </ToolShell>
   );
+}
+
+/**
+ * The estimate in the shape the shared share sheet and PDF expect.
+ *
+ * Values are formatted here, from the engine's own output, so the shared copy
+ * can never disagree with what is on screen.
+ */
+function icfShareableEstimate(
+  result: ReturnType<typeof calculateIcfWall>,
+  pricing: {
+    total: number;
+    currency: string | null;
+    lines: Record<string, unknown>;
+  },
+): ShareableEstimate | null {
+  if (!result?.ok) return null;
+  const priced = Object.keys(pricing.lines).length > 0;
+  return {
+    kind: "ICF Wall Estimate",
+    summaryLines: [
+      { label: "Net wall area", value: `${result.geometry.netWallAreaM2} m²` },
+      {
+        label: "Core",
+        value: `${result.concrete.coreThicknessMm} mm, ${result.concrete.formSystem} form`,
+      },
+      { label: "ICF blocks", value: `${result.blocks.totalBlocksCount}` },
+      { label: "Concrete", value: `${result.concrete.totalVolumeM3} m³` },
+      {
+        label: "Reinforcement",
+        value: `${result.reinforcement.totalSteelWeightKg} kg`,
+      },
+      {
+        label: "Thermal",
+        value: `R-${result.envelope.continuousRValueImperial} (U ${result.envelope.thermalTransmittanceUValue} W/m²K)`,
+      },
+    ],
+    lineItems: result.boq.slice(0, 10).map((item) => ({
+      description: item.description,
+      quantity: `${item.quantity} ${item.unit}`,
+    })),
+    totals: [
+      ...(priced
+        ? [
+            {
+              label: "Priced materials",
+              value: formatMoney(pricing.total, pricing.currency),
+              emphasized: true,
+            },
+          ]
+        : []),
+      { label: "Labour", value: `${result.labor.totalManHours} man-hours` },
+    ],
+    notes: result.warnings.slice(0, 4),
+    link: "/icf-wall-estimator",
+  };
 }

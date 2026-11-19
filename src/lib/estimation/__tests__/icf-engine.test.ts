@@ -308,10 +308,17 @@ describe("ICF Engineering & Takeoff Engine", () => {
       expect(graphite.envelope.continuousRValueImperial).toBeGreaterThan(
         thin.envelope.continuousRValueImperial,
       );
-      // U-value is the reciprocal of the total resistance.
+      // U-value is the reciprocal of the assembly resistance PLUS the ISO 6946
+      // surface films (0.13 inside + 0.04 outside). Quoting 1/R alone would
+      // overstate heat loss, and EIFS applies the same films.
+      const FILMS_RSI = 0.17;
       expect(thin.envelope.thermalTransmittanceUValue).toBeCloseTo(
-        1 / thin.envelope.metricRsiValue,
+        1 / (thin.envelope.metricRsiValue + FILMS_RSI),
         2,
+      );
+      // The assembly R-value must NOT include the films, so 1/U is larger.
+      expect(1 / thin.envelope.thermalTransmittanceUValue).toBeGreaterThan(
+        thin.envelope.metricRsiValue,
       );
       expect(thin.envelope.rValueBasis).toContain("50 mm");
     });
