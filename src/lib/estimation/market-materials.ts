@@ -54,6 +54,18 @@ export const MATERIAL_ROLES = [
   "fine-filler",
   "mist-coat",
   "sandpaper",
+  // ICF and EIFS are systems, not single materials: a form block, a pump mix,
+  // a mesh and a base coat are each their own product with their own price.
+  // Roles exist per family so a US block price can never answer a UK question.
+  "icf-form-block",
+  "icf-concrete",
+  "icf-rebar",
+  "eifs-insulation",
+  "eifs-adhesive",
+  "eifs-basecoat",
+  "eifs-mesh",
+  "eifs-finish",
+  "eifs-primer",
 ] as const;
 
 export type MaterialRole = (typeof MATERIAL_ROLES)[number];

@@ -65,8 +65,15 @@ export function convertTemplateInputForUnit(
   input: Record<string, unknown>,
   toUnit: RoomUnit,
 ): Record<string, unknown> {
+  // ICF and EIFS store dimensions in metres under self-describing field
+  // names (wallLengthM, wallHeightM). Relabelling those as feet would put a
+  // metre value under a feet label, so they keep their own unit and are never
+  // rewritten.
+  if ("wallLengthM" in input || "wallHeightM" in input) {
+    return { ...input, unit: "meters" };
+  }
   const storedUnit = input.unit === "feet" ? "feet" : "meters";
-  if (storedUnit === toUnit) return { ...input };
+  if (storedUnit === toUnit) return { ...input, unit: toUnit };
 
   const fields = DIM_FIELDS.paint
     .concat(DIM_FIELDS.tile, DIM_FIELDS.screeding, DIM_FIELDS.pop)
@@ -187,6 +194,31 @@ export function templateDimsSentence(
       if (d.wasteMargin) parts.push(`${d.wasteMargin}% waste`);
       break;
     }
+    case "icf": {
+      // ICF and EIFS store wall dimensions in metres under explicit field
+      // names, so they are not converted by DIM_FIELDS. The sentence is
+      // rendered from the stored value and labelled with the unit the
+      // template actually holds, never silently rewritten.
+      if (Number(d.wallLengthM) > 0 && Number(d.wallHeightM) > 0)
+        parts.push(`${fmt(d.wallLengthM)} × ${fmt(d.wallHeightM)} m wall`);
+      if (d.coreThicknessMm) parts.push(`${d.coreThicknessMm} mm core`);
+      if (d.blockFaceLengthMm && d.blockFaceHeightMm)
+        parts.push(`${d.blockFaceLengthMm}×${d.blockFaceHeightMm} mm blocks`);
+      if (d.isBasement) parts.push("below grade");
+      if (d.wasteFactorPercent) parts.push(`${d.wasteFactorPercent}% waste`);
+      break;
+    }
+    case "eifs": {
+      if (Number(d.wallLengthM) > 0 && Number(d.wallHeightM) > 0)
+        parts.push(`${fmt(d.wallLengthM)} × ${fmt(d.wallHeightM)} m facade`);
+      if (d.insulationThicknessMm)
+        parts.push(`${d.insulationThicknessMm} mm insulation`);
+      if (d.systemType) parts.push(String(d.systemType).replace(/_/g, " "));
+      if (d.finishTexture)
+        parts.push(String(d.finishTexture).replace(/_/g, " "));
+      if (d.wasteFactorPercent) parts.push(`${d.wasteFactorPercent}% waste`);
+      break;
+    }
   }
   return parts.join(" · ");
 }
@@ -282,6 +314,53 @@ export function templateSummaryForMarket(
     if (d.windows) parts.push({ label: "Windows", value: String(d.windows) });
     if (d.wasteMargin)
       parts.push({ label: "Waste Margin", value: `${d.wasteMargin}%` });
+  } else if (template.calculator_type === "icf") {
+    if (d.wallLengthM)
+      parts.push({ label: "Wall Length", value: `${fmt(d.wallLengthM)} m` });
+    if (d.wallHeightM)
+      parts.push({ label: "Wall Height", value: `${fmt(d.wallHeightM)} m` });
+    if (d.coreThicknessMm)
+      parts.push({ label: "Core", value: `${d.coreThicknessMm} mm` });
+    if (d.blockFaceLengthMm && d.blockFaceHeightMm)
+      parts.push({
+        label: "Block Face",
+        value: `${d.blockFaceLengthMm}×${d.blockFaceHeightMm} mm`,
+      });
+    if (d.verticalRebarSpacingMm)
+      parts.push({
+        label: "Vertical Bars",
+        value: `${d.verticalRebarSpacingMm} mm centres`,
+      });
+    if (d.isBasement) parts.push({ label: "Below Grade", value: "Yes" });
+    if (d.wasteFactorPercent)
+      parts.push({ label: "Waste", value: `${d.wasteFactorPercent}%` });
+  } else if (template.calculator_type === "eifs") {
+    if (d.wallLengthM)
+      parts.push({ label: "Facade Length", value: `${fmt(d.wallLengthM)} m` });
+    if (d.wallHeightM)
+      parts.push({ label: "Facade Height", value: `${fmt(d.wallHeightM)} m` });
+    if (d.insulationThicknessMm)
+      parts.push({
+        label: "Insulation",
+        value: `${d.insulationThicknessMm} mm`,
+      });
+    if (d.systemType)
+      parts.push({
+        label: "System",
+        value: String(d.systemType).replace(/_/g, " "),
+      });
+    if (d.substrateType)
+      parts.push({
+        label: "Substrate",
+        value: String(d.substrateType).replace(/_/g, " "),
+      });
+    if (d.finishTexture)
+      parts.push({
+        label: "Finish",
+        value: String(d.finishTexture).replace(/_/g, " "),
+      });
+    if (d.wasteFactorPercent)
+      parts.push({ label: "Waste", value: `${d.wasteFactorPercent}%` });
   } else if (system === "polystyrene") {
     // Board ceilings are configured by board, thickness, method and design;
     // the plaster fields do not exist on that form. Mirrors

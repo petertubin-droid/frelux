@@ -1611,7 +1611,16 @@ export interface DbWeatherCache {
 // Calculator Templates
 // =========================================================
 export type CalculatorType =
-  "paint" | "tile" | "pop" | "screeding" | "build_to_roof";
+  | "paint"
+  | "tile"
+  | "pop"
+  | "screeding"
+  | "build_to_roof"
+  // System estimators. The database check constraint already accepts these
+  // and public templates exist for both, so the type was the only thing
+  // stopping them from being first-class.
+  | "icf"
+  | "eifs";
 export type TemplateVisibility = "private" | "public" | "unlisted";
 
 export interface DbCalculatorTemplate {

@@ -22,6 +22,7 @@
  *  - Middle East & Africa: SANS 10400 / Agrément SA, SASO / Estidama Energy Standards
  */
 
+import type { MaterialRole } from "@/lib/estimation/market-materials";
 import { ceilU } from "./shared/purchase-rounding";
 import { resolveCementBag } from "@/config/cement-bag";
 import { getStructuralJurisdictionScope } from "@/lib/engineering/structural-jurisdiction-scope";
@@ -105,6 +106,20 @@ export interface IcfWallInput {
   horizontalBarsPerCourse?: 1 | 2;
   /** Concrete over-order allowance for pump prime and line loss (default 5%). */
   concreteWastePercent?: number;
+  /**
+   * Core thickness outside the standard 100-300 mm brackets, in mm.
+   * Published ICF systems run from 65 mm to 400 mm cores, so the fixed
+   * union cannot cover every system a buyer already owns. Clamped to 75-400.
+   */
+  customCoreThicknessMm?: number;
+  /**
+   * Block face length in mm. Metric systems are 1200 mm; North American
+   * systems are 1219 mm (48 in). Templates and buyers already distinguish
+   * these, and the difference changes the block count by about 3%.
+   */
+  blockFaceLengthMm?: number;
+  /** Block face height in mm: 400 metric, 406 North American (16 in). */
+  blockFaceHeightMm?: number;
 }
 
 export interface IcfBoqItem {
@@ -121,6 +136,15 @@ export interface IcfBoqItem {
   quantity: number;
   unit: string;
   notes?: string;
+  /**
+   * Material role that can price this line. Absent means the line is
+   * deliberately quantity-only: no market price exists for it, and inventing
+   * one would be worse than leaving it unpriced.
+   */
+  priceRole?: MaterialRole;
+  /** Quantity in the unit the role's price is quoted in (m², m³ or kg). */
+  pricingQuantity?: number;
+  pricingUnit?: "m²" | "m³" | "kg";
 }
 
 export interface IcfWallResult {
@@ -145,6 +169,8 @@ export interface IcfWallResult {
     tWallBlocksCount: number;
     totalBlocksCount: number;
     nominalBlockAreaM2: number;
+    blockFaceLengthM: number;
+    blockFaceHeightM: number;
     cuttingWasteAllowanceM2: number;
   };
 
@@ -350,7 +376,13 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
 
   const wallLengthM = Number(input.wallLengthM) || 0;
   const wallHeightM = Number(input.wallHeightM) || 0;
-  const coreThicknessMm = input.coreThicknessMm || 150;
+  // A custom core wins over the bracket, but only inside a physically
+  // buildable range: below 75 mm the webs and rebar cover cannot be met, and
+  // no published ICF system goes past 400 mm.
+  const coreThicknessMm =
+    input.customCoreThicknessMm !== undefined
+      ? Math.min(400, Math.max(75, Number(input.customCoreThicknessMm) || 150))
+      : input.coreThicknessMm || 150;
   const foamType: IcfFoamType =
     input.foamType === "graphite_neopor" ? "graphite_neopor" : "standard_eps";
   const openings = input.openings || [];
@@ -440,7 +472,19 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
   }
 
   const netWallAreaM2 = Math.max(0, grossAreaM2 - openingsAreaM2);
-  const wallHeightCourses = Math.ceil(wallHeightM / ICF_BLOCK_FACE_HEIGHT_M);
+  // A block face is not one size worldwide: 1200 x 400 mm is the metric
+  // standard and 1219 x 406 mm (48 in x 16 in) is the North American one.
+  // The face size drives the block count, the course count and the cutting
+  // allowance, so it is an input rather than a constant.
+  const blockFaceLengthM = Math.min(
+    3,
+    Math.max(0.6, (Number(input.blockFaceLengthMm) || 1200) / 1000),
+  );
+  const blockFaceHeightM = Math.min(
+    0.6,
+    Math.max(0.2, (Number(input.blockFaceHeightMm) || 400) / 1000),
+  );
+  const wallHeightCourses = Math.ceil(wallHeightM / blockFaceHeightM);
   // Manufacturers place concrete in lifts of about 1.2 m (4 ft) at 3 to 4 ft/hr.
   const POUR_LIFT_M = 1.2;
   const pourLifts = Math.max(1, Math.ceil(wallHeightM / POUR_LIFT_M));
@@ -461,7 +505,7 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
   }
 
   // 2. Block units takeoff
-  const nominalBlockAreaM2 = ICF_BLOCK_FACE_AREA_M2;
+  const nominalBlockAreaM2 = blockFaceLengthM * blockFaceHeightM;
   const cuttingWasteFactor = 1 + wastePct / 100;
   const grossBlocksRequired = ceilU(
     (netWallAreaM2 / nominalBlockAreaM2) * cuttingWasteFactor,
@@ -731,6 +775,13 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       quantity: straightBlocksCount,
       unit: "units",
       notes: `${nominalBlockAreaM2} m² face area per block`,
+      // Merchants price ICF formwork per m² of wall face, not per block, so the
+      // priced quantity is the form area including cutting waste.
+      priceRole: "icf-form-block",
+      // cuttingWasteFactor is already a multiplier (1.04 for 4%), so it is
+      // applied directly. Adding 1 to it doubled the form area.
+      pricingQuantity: Number((netWallAreaM2 * cuttingWasteFactor).toFixed(2)),
+      pricingUnit: "m²",
     },
     {
       code: "ICF-BLK-CNR90",
@@ -771,6 +822,9 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       category: "concrete",
       quantity: totalVolumeM3,
       unit: "m³",
+      priceRole: "icf-concrete",
+      pricingQuantity: totalVolumeM3,
+      pricingUnit: "m³",
       notes: `Net core ${Number(netConcreteVolumeM3.toFixed(2))} m³ at a ${(fillFactor * 100).toFixed(0)}% ${formSystem} fill factor, plus ${pumpPrimeLossM3} m³ pump prime and line loss`,
     },
     {
@@ -779,6 +833,10 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       category: "reinforcement",
       quantity: dowelsCount,
       unit: "bars",
+      // Rebar is sold by weight; bars and courses are display units only.
+      priceRole: "icf-rebar",
+      pricingQuantity: dowelsTotalWeightKg,
+      pricingUnit: "kg",
       notes: `${dowelsTotalLengthM}m total (${dowelsTotalWeightKg} kg)`,
     },
     {
@@ -787,6 +845,9 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       category: "reinforcement",
       quantity: verticalBarsCount,
       unit: "bars",
+      priceRole: "icf-rebar",
+      pricingQuantity: verticalTotalWeightKg,
+      pricingUnit: "kg",
       notes: `${verticalTotalLengthM}m total (${verticalTotalWeightKg} kg)`,
     },
     {
@@ -795,6 +856,9 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       category: "reinforcement",
       quantity: horizontalCoursesCount,
       unit: "courses",
+      priceRole: "icf-rebar",
+      pricingQuantity: horizontalTotalWeightKg,
+      pricingUnit: "kg",
       notes: `${horizontalTotalLengthM}m total (${horizontalTotalWeightKg} kg)`,
     },
   );
@@ -806,6 +870,9 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       category: "reinforcement",
       quantity: ceilU(lintelsTensileLengthM),
       unit: "m",
+      priceRole: "icf-rebar",
+      pricingQuantity: lintelsSteelWeightKg,
+      pricingUnit: "kg",
       notes: `${lintelsStirrupsCount} shear stirrups included (${lintelsSteelWeightKg} kg)`,
     });
   }
@@ -1035,6 +1102,8 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       tWallBlocksCount,
       totalBlocksCount,
       nominalBlockAreaM2,
+      blockFaceLengthM,
+      blockFaceHeightM,
       cuttingWasteAllowanceM2,
     },
     concrete: {

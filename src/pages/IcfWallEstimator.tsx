@@ -1,5 +1,10 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import {
+  formatMoney,
+  type PricedBoqLine,
+} from "@/lib/estimation/system-boq-pricing";
+import { useSystemBoqPricing } from "@/lib/estimation/use-system-boq-pricing";
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
@@ -68,6 +73,10 @@ export default function IcfWallEstimator() {
   const [wallHeight, setWallHeight] = useState<string>("3.0");
   const [coreThicknessMm, setCoreThicknessMm] =
     useState<IcfCoreThicknessMm>(150);
+  // Blank means "use the bracket above". A value here overrides it, which is
+  // how a buyer with a non-standard system (65 mm through 400 mm cores) gets a
+  // takeoff instead of the nearest bracket.
+  const [customCoreMm, setCustomCoreMm] = useState<string>("");
   const [foamType, setFoamType] = useState<IcfFoamType>("standard_eps");
   const [formSystem, setFormSystem] = useState<IcfFormSystem>("flat");
   const [foamThicknessMm, setFoamThicknessMm] = useState<number>(64);
@@ -195,6 +204,9 @@ export default function IcfWallEstimator() {
       wallLengthM: lengthM,
       wallHeightM: heightM,
       coreThicknessMm,
+      customCoreThicknessMm: customCoreMm.trim()
+        ? Number(customCoreMm)
+        : undefined,
       foamType,
       formSystem,
       foamThicknessPerSideMm: foamThicknessMm,
@@ -238,6 +250,11 @@ export default function IcfWallEstimator() {
     marketCode,
     crewSize,
   ]);
+
+  // Prices come from the selected market's book only. A market with no
+  // prices for this system resolves to nothing, and the BOQ stays
+  // quantities only rather than borrowing another market's currency.
+  const pricing = useSystemBoqPricing(engineResult?.boq, marketCode);
 
   // Export BOQ as CSV
   const handleExportCsv = () => {
@@ -413,6 +430,17 @@ export default function IcfWallEstimator() {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <Input
+                      type="number"
+                      min={75}
+                      max={400}
+                      step={5}
+                      inputMode="numeric"
+                      placeholder="Custom core mm (75-400), optional"
+                      value={customCoreMm}
+                      onChange={(e) => setCustomCoreMm(e.target.value)}
+                      className="text-xs h-8"
+                    />
                   </div>
 
                   <div className="space-y-1.5">
@@ -1296,6 +1324,12 @@ export default function IcfWallEstimator() {
                     <th className="p-2.5 text-xs font-semibold text-muted-foreground">
                       Specification Notes
                     </th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground text-right">
+                      Rate
+                    </th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground text-right">
+                      Amount
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
@@ -1327,10 +1361,51 @@ export default function IcfWallEstimator() {
                       <td className="p-2.5 text-xs text-muted-foreground">
                         {item.notes || "-"}
                       </td>
+                      <td className="p-2.5 text-right text-xs text-muted-foreground whitespace-nowrap">
+                        {pricing.lines[item.code]
+                          ? `${formatMoney(pricing.lines[item.code].rate, pricing.lines[item.code].currency)}/${pricing.lines[item.code].unit}`
+                          : "-"}
+                      </td>
+                      <td className="p-2.5 text-right text-xs font-semibold text-foreground whitespace-nowrap">
+                        {pricing.lines[item.code]
+                          ? formatMoney(
+                              pricing.lines[item.code].amount,
+                              pricing.lines[item.code].currency,
+                            )
+                          : ""}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 space-y-1.5 text-xs">
+              {pricing.loading ? (
+                <p className="text-muted-foreground">
+                  Resolving {marketCode} material prices...
+                </p>
+              ) : pricing.currency ? (
+                <p className="font-semibold text-foreground">
+                  Priced materials subtotal:{" "}
+                  {formatMoney(pricing.total, pricing.currency)}
+                </p>
+              ) : (
+                <p className="text-muted-foreground">
+                  No ICF material prices are recorded for {marketCode} yet, so
+                  this BOQ is quantities only.
+                </p>
+              )}
+              <p className="text-muted-foreground">
+                {Object.keys(pricing.lines).length} of {engineResult.boq.length}{" "}
+                lines priced. Bracing, accessories and labour are quantities
+                only; no market price is recorded for them.
+              </p>
+              {pricing.unitMismatches.length > 0 && (
+                <p className="text-amber-600">
+                  Excluded on a unit check, because the catalogue unit does not
+                  match the priced unit: {pricing.unitMismatches.join(", ")}.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

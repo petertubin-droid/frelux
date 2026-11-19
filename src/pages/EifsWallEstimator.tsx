@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { formatMoney } from "@/lib/estimation/system-boq-pricing";
+import { useSystemBoqPricing } from "@/lib/estimation/use-system-boq-pricing";
 import Container from "@/components/ui/Container";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
@@ -69,6 +71,9 @@ export default function EifsWallEstimator() {
     useState<EifsSystemType>("drainable_eifs");
   const [insulationType, setInsulationType] =
     useState<EifsInsulationType>("standard_eps");
+  // Blank means "use the bracket above"; a value overrides it so a 30 mm or
+  // 90 mm board (common outside the standard brackets) can be taken off.
+  const [customThicknessMm, setCustomThicknessMm] = useState<string>("");
   const [insulationThicknessMm, setInsulationThicknessMm] =
     useState<EifsThicknessMm>(50);
   const [attachmentMethod, setAttachmentMethod] =
@@ -191,6 +196,9 @@ export default function EifsWallEstimator() {
       substrateType,
       insulationType,
       insulationThicknessMm,
+      customInsulationThicknessMm: customThicknessMm.trim()
+        ? Number(customThicknessMm)
+        : undefined,
       systemType,
       attachmentMethod,
       finishTexture,
@@ -219,6 +227,11 @@ export default function EifsWallEstimator() {
     marketCode,
     crewSize,
   ]);
+
+  // Prices come from the selected market's book only. A market with no
+  // prices for this system resolves to nothing, and the BOQ stays
+  // quantities only rather than borrowing another market's currency.
+  const pricing = useSystemBoqPricing(engineResult?.boq, marketCode);
 
   // Copy BOQ to clipboard
   const handleCopyBoq = () => {
@@ -636,6 +649,17 @@ export default function EifsWallEstimator() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={300}
+                    step={5}
+                    inputMode="numeric"
+                    placeholder="Custom board mm (10-300), optional"
+                    value={customThicknessMm}
+                    onChange={(e) => setCustomThicknessMm(e.target.value)}
+                    className="h-8 text-xs"
+                  />
                   <span className="text-[10px] text-muted-foreground">
                     Continuous R-value: R-
                     {engineResult.insulation.continuousRValueUS} (U-
@@ -1237,6 +1261,8 @@ export default function EifsWallEstimator() {
                     <th className="py-2.5 px-3 text-right">Quantity</th>
                     <th className="py-2.5 px-3">Unit</th>
                     <th className="py-2.5 px-3">Specification Notes</th>
+                    <th className="py-2.5 px-3 text-right">Rate</th>
+                    <th className="py-2.5 px-3 text-right">Amount</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40 font-mono">
@@ -1268,10 +1294,51 @@ export default function EifsWallEstimator() {
                       <td className="py-2 px-3 text-muted-foreground font-sans text-[11px]">
                         {item.notes || "-"}
                       </td>
+                      <td className="py-2 px-3 text-right text-muted-foreground font-sans whitespace-nowrap">
+                        {pricing.lines[item.code]
+                          ? `${formatMoney(pricing.lines[item.code].rate, pricing.lines[item.code].currency)}/${pricing.lines[item.code].unit}`
+                          : "-"}
+                      </td>
+                      <td className="py-2 px-3 text-right font-bold text-foreground whitespace-nowrap">
+                        {pricing.lines[item.code]
+                          ? formatMoney(
+                              pricing.lines[item.code].amount,
+                              pricing.lines[item.code].currency,
+                            )
+                          : ""}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-3 space-y-1.5 text-xs">
+              {pricing.loading ? (
+                <p className="text-muted-foreground">
+                  Resolving {marketCode} material prices...
+                </p>
+              ) : pricing.currency ? (
+                <p className="font-semibold text-foreground">
+                  Priced materials subtotal:{" "}
+                  {formatMoney(pricing.total, pricing.currency)}
+                </p>
+              ) : (
+                <p className="text-muted-foreground">
+                  No EIFS material prices are recorded for {marketCode} yet, so
+                  this BOQ is quantities only.
+                </p>
+              )}
+              <p className="text-muted-foreground">
+                {Object.keys(pricing.lines).length} of {engineResult.boq.length}{" "}
+                lines priced. WRB, drainage, trims and labour are quantities
+                only; no market price is recorded for them.
+              </p>
+              {pricing.unitMismatches.length > 0 && (
+                <p className="text-amber-600">
+                  Excluded on a unit check, because the catalogue unit does not
+                  match the priced unit: {pricing.unitMismatches.join(", ")}.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

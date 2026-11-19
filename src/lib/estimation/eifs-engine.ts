@@ -25,6 +25,7 @@
  *  - Australia & NZ: AS/NZS 4859.1, NCC Volume 1 & 2 continuous weatherproofing
  */
 
+import type { MaterialRole } from "@/lib/estimation/market-materials";
 import { ceilU } from "./shared/purchase-rounding";
 
 export type EifsSubstrateType =
@@ -77,6 +78,12 @@ export interface EifsWallInput {
   insulationType?: EifsInsulationType;
   /** Continuous insulation thickness in mm (25, 40, 50, 75, 100, 120, 150, 200). */
   insulationThicknessMm: EifsThicknessMm;
+  /**
+   * Board thickness outside the standard brackets, in mm. EIFS boards are
+   * available from 10 mm to 300 mm, so a fixed union cannot cover every
+   * system. Clamped to 10-300.
+   */
+  customInsulationThicknessMm?: number;
   /** Drainable cavity vs barrier face-sealed system. */
   systemType?: EifsSystemType;
   /** Board fixing attachment method. */
@@ -113,6 +120,14 @@ export interface EifsBoqItem {
   quantity: number;
   unit: string;
   notes?: string;
+  /**
+   * Material role that can price this line. Absent means the line is
+   * deliberately quantity-only: no market price exists for it.
+   */
+  priceRole?: MaterialRole;
+  /** Quantity in the unit the role's price is quoted in (m², m³ or kg). */
+  pricingQuantity?: number;
+  pricingUnit?: "m²" | "m³" | "kg";
 }
 
 export interface EifsWallResult {
@@ -233,7 +248,13 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
 
   const wallLengthM = Number(input.wallLengthM) || 0;
   const wallHeightM = Number(input.wallHeightM) || 0;
-  const insulationThicknessMm = input.insulationThicknessMm || 50;
+  const insulationThicknessMm =
+    input.customInsulationThicknessMm !== undefined
+      ? Math.min(
+          300,
+          Math.max(10, Number(input.customInsulationThicknessMm) || 50),
+        )
+      : input.insulationThicknessMm || 50;
   const substrateType = input.substrateType ?? "exterior_sheathing";
   const insulationType = input.insulationType ?? "standard_eps";
   const systemType =
@@ -555,6 +576,10 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
     category: "insulation",
     quantity: boardsCount,
     unit: "board",
+    // Insulation boards are quoted per m²; the board count is a display unit.
+    priceRole: "eifs-insulation",
+    pricingQuantity: Number(effectiveAreaM2.toFixed(2)),
+    pricingUnit: "m²",
     notes: `${bundlesCount} factory bundles (${totalVolumeM3} m³). Continuous R-${continuousRValueUS} (U-${uFactorMetric})`,
   });
 
@@ -566,6 +591,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       category: "attachment",
       quantity: adhesiveBags25Kg,
       unit: "25kg bag",
+      priceRole: "eifs-adhesive",
+      pricingQuantity: adhesiveKg,
+      pricingUnit: "kg",
       notes: `Ribbon-and-dab spread pattern (~${adhesiveSpreadRate} kg/m²). Total dry mass: ${adhesiveKg} kg`,
     });
   }
@@ -588,6 +616,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
     category: "reinforcing",
     quantity: standardMeshRolls50M2,
     unit: "50m² roll",
+    priceRole: "eifs-mesh",
+    pricingQuantity: Number(standardMeshAreaM2.toFixed(2)),
+    pricingUnit: "m²",
     notes: `${standardMeshAreaM2} m² required including mandatory 65mm (2.5-inch) minimum edge laps`,
   });
 
@@ -599,6 +630,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       category: "reinforcing",
       quantity: highImpactMeshRolls25M2,
       unit: "25m² roll",
+      priceRole: "eifs-mesh",
+      pricingQuantity: Number(highImpactAreaM2.toFixed(2)),
+      pricingUnit: "m²",
       notes: `Ground splash protection up to ${effectiveImpactHeight}m height (${highImpactAreaM2} m²)`,
     });
   }
@@ -623,6 +657,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       category: "reinforcing",
       quantity: baseCoatBags25Kg,
       unit: "25kg bag",
+      priceRole: "eifs-basecoat",
+      pricingQuantity: baseCoatKg,
+      pricingUnit: "kg",
       notes: `Embeds standard & high-impact mesh (~4.5 kg/m²). Total dry mass: ${baseCoatKg} kg`,
     },
     {
@@ -632,6 +669,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       category: "finish",
       quantity: primerPails20Kg,
       unit: "20kg pail",
+      priceRole: "eifs-primer",
+      pricingQuantity: primerKg,
+      pricingUnit: "kg",
       notes: `Reduces surface absorption and eliminates color shadow. Total mass: ${primerKg} kg`,
     },
     {
@@ -640,6 +680,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       category: "finish",
       quantity: finishPails25Kg,
       unit: "25kg pail",
+      priceRole: "eifs-finish",
+      pricingQuantity: finishCoatKg,
+      pricingUnit: "kg",
       notes: `Dirt pick-up resistant (DPR), vapor-permeable exterior texture. Spread rate: ${finishSpreadRate} kg/m²`,
     },
     {

@@ -234,7 +234,16 @@ describe("all 40 fallback templates globalize cleanly", () => {
           t as DbCalculatorTemplate,
           m as never,
         );
-        expect(converted.unit).toBe(resolveTemplateRoomUnit(m as never));
+        // ICF and EIFS engines take metres under self-describing field names
+        // (wallLengthM, wallHeightM). Their prefilled input therefore keeps
+        // "meters" in every market: relabelling a metre value as feet without
+        // converting it is the exact defect this repo fixed elsewhere. Every
+        // other calculator converts and reports the visitor's unit.
+        const metricNative =
+          t.calculator_type === "icf" || t.calculator_type === "eifs";
+        expect(converted.unit).toBe(
+          metricNative ? "meters" : resolveTemplateRoomUnit(m as never),
+        );
       }
     }
   });

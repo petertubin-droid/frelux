@@ -84,7 +84,10 @@ describe("an unpriced slot says what kind of gap it is", () => {
     if (sandpaper && !sandpaper.priced) {
       expect(sandpaper.pricedIn.length).toBeGreaterThanOrEqual(0);
     }
-    expect(ci.entries).toHaveLength(26);
+    // Derived from the role list, not a literal. The count moved from 26 to 35
+    // when the ICF and EIFS roles were added, and a hardcoded number turns
+    // every future role into a false failure.
+    expect(ci.entries).toHaveLength(MATERIAL_ROLES.length);
   });
 
   it("reports nothing priced anywhere for a product no market holds", () => {
