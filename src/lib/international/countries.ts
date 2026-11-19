@@ -101,3 +101,116 @@ export function getCountryCurrency(code: string | null | undefined): string {
   if (!normalised) return "USD";
   return COUNTRY_CURRENCY[normalised] ?? "USD";
 }
+
+import { DIAL_CODES } from "@/lib/phone/msisdn";
+
+/**
+ * Convert a 2-letter ISO country code (e.g. "NG", "US", "GB") to its unicode flag emoji.
+ * Returns a fallback globe emoji "🌐" for missing or invalid codes.
+ */
+export function getCountryFlag(code?: string | null): string {
+  if (!code || typeof code !== "string") return "🌐";
+  const clean = code.trim().toUpperCase();
+  if (clean.length !== 2) return "🌐";
+  const first = clean.charCodeAt(0) - 65 + 0x1f1e6;
+  const second = clean.charCodeAt(1) - 65 + 0x1f1e6;
+  if (
+    first < 0x1f1e6 ||
+    first > 0x1f1ff ||
+    second < 0x1f1e6 ||
+    second > 0x1f1ff
+  ) {
+    return "🌐";
+  }
+  return String.fromCodePoint(first, second);
+}
+
+/**
+ * Return the human-readable country name for a market code (e.g. "NG" -> "Nigeria").
+ */
+export function getCountryName(code?: string | null): string {
+  const clean = (code ?? "").trim().toUpperCase();
+  if (!clean) return "Unknown";
+  for (const group of COUNTRY_OPTIONS) {
+    const found = group.countries.find((c) => c.code === clean);
+    if (found) return found.name;
+  }
+  return clean;
+}
+
+/**
+ * Return the telephone dial code for a country code (e.g. "NG" -> "234", "US" -> "1").
+ */
+export function getCountryDialCode(code?: string | null): string | null {
+  const clean = (code ?? "").trim().toUpperCase();
+  if (!clean) return null;
+  return DIAL_CODES[clean] ?? null;
+}
+
+/**
+ * Infer country code from a phone number string when country_code is not explicitly stored.
+ * Checks Nigerian domestic patterns (070, 080, 081, 090, 091...) and international dial codes.
+ */
+export function inferCountryFromPhone(raw?: string | null): string | null {
+  if (!raw || typeof raw !== "string") return null;
+  const digits = raw.replace(/[^0-9]/g, "");
+  if (!digits) return null;
+  // Nigerian domestic patterns
+  if (/^0[789][01]\d{8}$/.test(digits)) return "NG";
+
+  const sorted = Object.entries(DIAL_CODES).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+  for (const [, dial] of sorted) {
+    if (!digits.startsWith(dial) || digits.length < dial.length + 6) continue;
+    const matches = Object.entries(DIAL_CODES)
+      .filter(([, candidate]) => candidate === dial)
+      .map(([code]) => code);
+    // Shared calling codes (for example +1 for the US and Canada) do not
+    // identify a country on their own. Keep the country unset rather than guess.
+    return matches.length === 1 ? matches[0] : null;
+  }
+  return null;
+}
+
+export interface UserCountryInfo {
+  code: string | null;
+  flag: string;
+  name: string;
+  dialCode: string | null;
+  source: "reported" | "phone" | "unset";
+}
+
+/**
+ * Resolve country code, flag, name, and dial code for a user record.
+ */
+export function resolveUserCountry(
+  user?: {
+    country_code?: string | null;
+    phone?: string | null;
+  } | null,
+): UserCountryInfo {
+  const rawCode = (user?.country_code ?? "").trim().toUpperCase();
+  const validCode =
+    rawCode && rawCode.length === 2 && /^[A-Z]{2}$/.test(rawCode)
+      ? rawCode
+      : inferCountryFromPhone(user?.phone);
+
+  if (!validCode) {
+    return {
+      code: null,
+      flag: "🌐",
+      name: "Unset",
+      dialCode: null,
+      source: "unset",
+    };
+  }
+
+  return {
+    code: validCode,
+    flag: getCountryFlag(validCode),
+    name: getCountryName(validCode),
+    dialCode: getCountryDialCode(validCode),
+    source: rawCode ? "reported" : "phone",
+  };
+}

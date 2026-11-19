@@ -34,6 +34,19 @@ describe("Login", () => {
     expect(container.innerHTML).not.toBe("");
   });
 
+  it("requires a country and mobile number during sign up", async () => {
+    await renderPage();
+    fireEvent.click(
+      screen.getByRole("button", { name: /need an account\? sign up/i }),
+    );
+    const country = screen.getByRole("combobox", {
+      name: /country or region/i,
+    });
+    const phone = screen.getByRole("textbox", { name: /mobile number/i });
+    expect(country.getAttribute("required")).not.toBeNull();
+    expect(phone.getAttribute("required")).not.toBeNull();
+  });
+
   it("toggles password visibility with the eye control", async () => {
     await renderPage();
     const pwd = screen.getByPlaceholderText("Enter your password");

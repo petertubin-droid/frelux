@@ -22,7 +22,15 @@ import {
   Ban,
   ShieldOff,
   RotateCcw,
+  Phone,
 } from "lucide-react";
+import {
+  resolveUserCountry,
+  getCountryFlag,
+  getCountryDialCode,
+  COUNTRY_OPTIONS,
+} from "@/lib/international/countries";
+import { dialCodePlaceholder } from "@/lib/phone/msisdn";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
 import {
@@ -70,10 +78,12 @@ export default function AdminUsers() {
   const [search, setSearch] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserWithPaid | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string>("all");
   const [form, setForm] = useState({
     email: "",
     full_name: "",
     phone: "",
+    country_code: "",
     account_type: "client",
     display_name: "",
     business_name: "",
@@ -104,7 +114,7 @@ export default function AdminUsers() {
       .trim();
     if (safeSearch)
       profileQuery = profileQuery.or(
-        `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`,
+        `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`,
       );
     if (kind !== "all")
       profileQuery = profileQuery.eq(
@@ -113,6 +123,8 @@ export default function AdminUsers() {
       );
     if (stateFilter !== "all")
       profileQuery = profileQuery.eq("account_state", stateFilter);
+    if (countryFilter !== "all")
+      profileQuery = profileQuery.eq("country_code", countryFilter);
     const profilesRes = await profileQuery
       .order("created_at", { ascending: false })
       .range(page * pageSize, page * pageSize + pageSize - 1);
@@ -148,7 +160,7 @@ export default function AdminUsers() {
     setUsers(merged);
     setTotal(profilesRes.count ?? 0);
     setStatus("ready");
-  }, [page, pageSize, search, kind, stateFilter]);
+  }, [page, pageSize, search, kind, stateFilter, countryFilter]);
 
   useEffect(() => {
     load();
@@ -224,6 +236,7 @@ export default function AdminUsers() {
       email: "",
       full_name: "",
       phone: "",
+      country_code: "",
       account_type: "client",
       display_name: "",
       business_name: "",
@@ -240,6 +253,7 @@ export default function AdminUsers() {
       email: user.email ?? "",
       full_name: user.full_name ?? "",
       phone: user.phone ?? "",
+      country_code: user.country_code ?? resolveUserCountry(user).code ?? "",
       account_type: user.account_type ?? "client",
       display_name: user.full_name ?? "",
       business_name: "",
@@ -456,6 +470,21 @@ export default function AdminUsers() {
             <option value="suspended">Suspended</option>
             <option value="revoked">Revoked</option>
           </AdminSelect>
+          <AdminSelect
+            aria-label="Filter by country"
+            value={countryFilter}
+            onChange={(e) => {
+              setCountryFilter(e.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="all">All countries</option>
+            {COUNTRY_OPTIONS.flatMap((g) => g.countries).map((c) => (
+              <option key={c.code} value={c.code}>
+                {getCountryFlag(c.code)} {c.name} ({c.code})
+              </option>
+            ))}
+          </AdminSelect>
         </div>
         <div className="admin-inset flex items-center gap-2 rounded-xl px-4 py-2 text-sm">
           <Users aria-hidden="true" className="h-4 w-4 text-primary" />
@@ -488,6 +517,9 @@ export default function AdminUsers() {
                   {t("User")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
+                  {t("Country")}
+                </th>
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   {t("Role")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
@@ -511,7 +543,7 @@ export default function AdminUsers() {
               {users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
                     {t("No users yet.")}
@@ -524,6 +556,7 @@ export default function AdminUsers() {
                     (!u.paid_status?.paid_until ||
                       new Date(u.paid_status.paid_until) > new Date());
                   const isEditing = editingId === u.id;
+                  const countryInfo = resolveUserCountry(u);
                   return (
                     <tr
                       key={u.id}
@@ -536,6 +569,51 @@ export default function AdminUsers() {
                         <div className="text-xs text-muted-foreground">
                           {u.email}
                         </div>
+                        {u.phone ? (
+                          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone
+                              className="h-3 w-3 shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span className="tabular-nums">{u.phone}</span>
+                          </div>
+                        ) : (
+                          <div className="mt-0.5 text-[11px] text-muted-foreground/60 italic">
+                            No phone
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4 whitespace-nowrap">
+                        {countryInfo.code ? (
+                          <div
+                            className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/40 px-2 py-1 text-xs font-medium text-foreground dark:border-white/10 dark:bg-card"
+                            title={`${countryInfo.name}${countryInfo.dialCode ? ` (+${countryInfo.dialCode})` : ""} · ${countryInfo.source === "phone" ? "inferred from phone, not recorded at signup" : "reported at signup"}`}
+                            data-testid={`user-country-${u.id}`}
+                          >
+                            <span
+                              className="text-base leading-none"
+                              role="img"
+                              aria-label={countryInfo.name}
+                            >
+                              {countryInfo.flag}
+                            </span>
+                            <span className="font-semibold tracking-wide">
+                              {countryInfo.code}
+                            </span>
+                            {countryInfo.dialCode && (
+                              <span className="text-muted-foreground text-[11px] tabular-nums">
+                                (+{countryInfo.dialCode})
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span
+                            className="text-xs text-muted-foreground"
+                            title="Country not recorded"
+                          >
+                            —
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 pr-4">
                         <span
@@ -798,10 +876,38 @@ export default function AdminUsers() {
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
             />
           </AdminField>
-          <AdminField label="Phone">
+          <AdminField
+            label="Registered country"
+            hint="Choose the user's reported registration country; this is not independently verified."
+          >
+            <AdminSelect
+              required
+              value={form.country_code}
+              onChange={(e) =>
+                setForm({ ...form, country_code: e.target.value })
+              }
+            >
+              <option value="">Unset</option>
+              {COUNTRY_OPTIONS.flatMap((g) => g.countries).map((c) => (
+                <option key={c.code} value={c.code}>
+                  {getCountryFlag(c.code)} {c.name} ({c.code}){" "}
+                  {getCountryDialCode(c.code)
+                    ? `+${getCountryDialCode(c.code)}`
+                    : ""}
+                </option>
+              ))}
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="Mobile / Phone number">
             <AdminInput
               type="tel"
+              required
               value={form.phone}
+              placeholder={
+                form.country_code
+                  ? dialCodePlaceholder(form.country_code)
+                  : "Select country first"
+              }
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
           </AdminField>

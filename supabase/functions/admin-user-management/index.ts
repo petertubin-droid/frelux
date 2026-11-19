@@ -6,6 +6,41 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const APPROVED_MARKET_CODES = new Set([
+  "NG",
+  "GH",
+  "KE",
+  "ZA",
+  "ET",
+  "EG",
+  "TZ",
+  "CI",
+  "US",
+  "CA",
+  "BR",
+  "MX",
+  "GB",
+  "DE",
+  "FR",
+  "IT",
+  "ES",
+  "NL",
+  "PL",
+  "SE",
+  "CH",
+  "CN",
+  "JP",
+  "ID",
+  "IN",
+  "KR",
+  "SG",
+  "AE",
+  "SA",
+  "TR",
+  "AU",
+  "NZ",
+]);
+
 serveWithCors(async (req: Request) => {
   const cors = handleCors(req);
   if (cors) return cors;
@@ -48,16 +83,31 @@ serveWithCors(async (req: Request) => {
       const phone = String(body.phone ?? "")
         .trim()
         .slice(0, 40);
+      const country_code = String(body.country_code ?? "")
+        .trim()
+        .toUpperCase()
+        .slice(0, 10);
       const account_type =
         body.account_type === "pro_worker" ? "pro_worker" : "client";
+      if (!phone || phone.replace(/\D/g, "").length < 7)
+        return errorResponse("A valid mobile number is required.", 400);
+      const countryCodeValid = APPROVED_MARKET_CODES.has(country_code);
+      if (!countryCodeValid)
+        return errorResponse("A valid ISO country code is required.", 400);
       const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-        data: { full_name, phone, account_type },
+        data: { full_name, phone, account_type, country_code },
       });
       if (error) return errorResponse(error.message, 400);
       if (data.user?.id) {
+        const profilePayload: Record<string, unknown> = {
+          full_name,
+          phone,
+          account_type,
+        };
+        if (country_code) profilePayload.country_code = country_code;
         const { error: profileError } = await admin
           .from("profiles")
-          .update({ full_name, phone, account_type })
+          .update(profilePayload)
           .eq("id", data.user.id);
         if (profileError)
           return errorResponse(
@@ -133,11 +183,30 @@ serveWithCors(async (req: Request) => {
       const phone = String(body.phone ?? "")
         .trim()
         .slice(0, 40);
+      const country_code =
+        body.country_code !== undefined
+          ? String(body.country_code ?? "")
+              .trim()
+              .toUpperCase()
+              .slice(0, 10)
+          : undefined;
       const account_type =
         body.account_type === "pro_worker" ? "pro_worker" : "client";
+      if (!phone || phone.replace(/\D/g, "").length < 7)
+        return errorResponse("A valid mobile number is required.", 400);
+      const updatePayload: Record<string, unknown> = {
+        full_name,
+        phone,
+        account_type,
+      };
+      if (country_code !== undefined) {
+        if (!APPROVED_MARKET_CODES.has(country_code))
+          return errorResponse("A valid ISO country code is required.", 400);
+        updatePayload.country_code = country_code;
+      }
       const { error: profileError } = await admin
         .from("profiles")
-        .update({ full_name, phone, account_type })
+        .update(updatePayload)
         .eq("id", userId);
       if (profileError) return errorResponse(profileError.message, 500);
 
@@ -148,15 +217,24 @@ serveWithCors(async (req: Request) => {
           .eq("user_id", userId)
           .maybeSingle();
 
-        const proPatch = (body.pro as Record<string, unknown> | undefined) || {};
-        const displayName =
-          String(proPatch.display_name || body.display_name || full_name || "Professional").trim();
+        const proPatch =
+          (body.pro as Record<string, unknown> | undefined) || {};
+        const displayName = String(
+          proPatch.display_name ||
+            body.display_name ||
+            full_name ||
+            "Professional",
+        ).trim();
         const businessName =
-          String(proPatch.business_name ?? body.business_name ?? "").trim() || null;
+          String(proPatch.business_name ?? body.business_name ?? "").trim() ||
+          null;
         const yearsExp = proPatch.years_experience ?? body.years_experience;
-        const yearsExperience = yearsExp ? parseInt(String(yearsExp), 10) || null : null;
+        const yearsExperience = yearsExp
+          ? parseInt(String(yearsExp), 10) || null
+          : null;
         const availability =
-          proPatch.availability === "busy" || proPatch.availability === "unavailable"
+          proPatch.availability === "busy" ||
+          proPatch.availability === "unavailable"
             ? proPatch.availability
             : "available";
         const isListed =

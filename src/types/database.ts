@@ -7,6 +7,7 @@ export interface DbProfile {
   account_type: "client" | "pro_worker";
   full_name: string;
   phone: string;
+  country_code?: string | null;
   avatar_url: string;
   marketplace_id: string;
   onboarding_completed: boolean;

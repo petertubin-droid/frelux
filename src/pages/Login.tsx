@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import { useAuth, type AccountType } from "@/lib/auth";
 import { getSafeAuthRedirect } from "@/lib/auth-redirect";
+import { COUNTRY_OPTIONS, getCountryFlag } from "@/lib/international/countries";
+import { DIAL_CODES, toE164 } from "@/lib/phone/msisdn";
 
 import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
@@ -70,6 +72,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState<AccountType>("client");
+  const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -111,6 +115,10 @@ export default function Login() {
 
   async function completePendingOAuthProfile() {
     const pending = localStorage.getItem("frelux_pending_account_type");
+    const pendingPhone =
+      sessionStorage.getItem("frelux_pending_signup_phone") ?? "";
+    const pendingCountry =
+      sessionStorage.getItem("frelux_pending_signup_country") ?? "";
     if (!pending || (pending !== "client" && pending !== "pro_worker") || !user)
       return;
     setOauthProfileProcessing(true);
@@ -119,7 +127,11 @@ export default function Login() {
       const { supabase } = await import("@/lib/supabase");
       const { data: updated, error } = await supabase
         .from("profiles")
-        .update({ account_type: pending })
+        .update({
+          account_type: pending,
+          ...(pendingPhone ? { phone: pendingPhone } : {}),
+          ...(pendingCountry ? { country_code: pendingCountry } : {}),
+        })
         .eq("id", user.id)
         .select("id")
         .maybeSingle();
@@ -129,11 +141,15 @@ export default function Login() {
           "ensure_own_profile",
           {
             requested_account_type: pending,
+            requested_phone: pendingPhone || null,
+            requested_country_code: pendingCountry || null,
           },
         );
         if (ensureError) throw ensureError;
       }
       localStorage.removeItem("frelux_pending_account_type");
+      sessionStorage.removeItem("frelux_pending_signup_phone");
+      sessionStorage.removeItem("frelux_pending_signup_country");
       setAccountType(pending);
       setShowSuccess(true);
     } catch (err) {
@@ -150,7 +166,8 @@ export default function Login() {
   const hasPendingOAuthProfile =
     user !== null &&
     typeof window !== "undefined" &&
-    window.localStorage.getItem("frelux_pending_account_type") !== null;
+    (window.localStorage.getItem("frelux_pending_account_type") !== null ||
+      window.sessionStorage.getItem("frelux_pending_signup_phone") !== null);
 
   useEffect(() => {
     if (user && localStorage.getItem("frelux_pending_account_type")) {
@@ -225,7 +242,21 @@ export default function Login() {
     }
 
     if (mode === "signup") {
-      const result = await signUp(email.trim(), password, accountType);
+      const normalizedPhone = toE164(phone, countryCode);
+      if (!countryCode) {
+        setLoading(false);
+        setError("Select your country or region.");
+        return;
+      }
+      if (!normalizedPhone) {
+        setLoading(false);
+        setError("Enter a valid mobile number for the selected country.");
+        return;
+      }
+      const result = await signUp(email.trim(), password, accountType, {
+        phone: `+${normalizedPhone}`,
+        country_code: countryCode,
+      });
       setLoading(false);
       if (result.error) {
         setError(result.error);
@@ -265,11 +296,29 @@ export default function Login() {
 
   async function handleGoogleSignIn() {
     setError(null);
+    if (mode === "signup") {
+      const normalizedPhone = toE164(phone, countryCode);
+      if (!countryCode) {
+        setError("Select your country or region.");
+        return;
+      }
+      if (!normalizedPhone) {
+        setError("Enter a valid mobile number for the selected country.");
+        return;
+      }
+      sessionStorage.setItem(
+        "frelux_pending_signup_phone",
+        `+${normalizedPhone}`,
+      );
+      sessionStorage.setItem("frelux_pending_signup_country", countryCode);
+    }
     setGoogleLoading(true);
     const { error } = await signInWithGoogle(
       mode === "signup" ? accountType : undefined,
     );
     if (error) {
+      sessionStorage.removeItem("frelux_pending_signup_phone");
+      sessionStorage.removeItem("frelux_pending_signup_country");
       setError(error);
       setGoogleLoading(false);
     }
@@ -489,6 +538,59 @@ export default function Login() {
                 />
               </div>
             </label>
+            {mode === "signup" && (
+              <>
+                <label className="block">
+                  <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
+                    {t("Country or region")}
+                  </span>
+                  <select
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="input-field mt-1.5"
+                    required
+                    aria-label="Country or region"
+                  >
+                    <option value="">Select your country or region</option>
+                    {COUNTRY_OPTIONS.flatMap((group) => group.countries).map(
+                      (country) => (
+                        <option key={country.code} value={country.code}>
+                          {getCountryFlag(country.code)} {country.name} (
+                          {country.code})
+                        </option>
+                      ),
+                    )}
+                  </select>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    Used as your registration country; choose the country you
+                    are registering from.
+                  </span>
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">
+                    {t("Mobile number")}
+                  </span>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="input-field mt-1.5"
+                    placeholder={
+                      countryCode
+                        ? `+${DIAL_CODES[countryCode]} …`
+                        : "Select country first"
+                    }
+                    autoComplete="tel"
+                    required
+                    aria-label="Mobile number"
+                  />
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    Required for account documentation. We will use email for
+                    account verification.
+                  </span>
+                </label>
+              </>
+            )}
             {mode !== "reset" && (
               <label className="block">
                 <span className="block text-sm font-semibold text-card-foreground dark:text-foreground">

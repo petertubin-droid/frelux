@@ -9,6 +9,7 @@ import {
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, getSupabase } from "@/lib/supabase-lazy";
 import type { DbProfile, DbUserPaidStatus } from "@/types/database";
+import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
 import { publishEntitlement } from "@/lib/entitlement-store";
 
 export type AccountType = "client" | "pro_worker";
@@ -40,6 +41,12 @@ interface AuthContextValue extends AuthState {
     email: string,
     password: string,
     accountType?: AccountType,
+    metadata?: {
+      phone?: string;
+      country_code?: string;
+      full_name?: string;
+      [key: string]: unknown;
+    },
   ) => Promise<SignUpResult>;
   signInWithGoogle: (
     accountType?: AccountType,
@@ -70,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase
       .from("profiles")
       .select(
-        "id, email, role, account_type, full_name, phone, avatar_url, marketplace_id, welcome_email_sent, created_at, updated_at",
+        "id, email, role, account_type, full_name, phone, country_code, avatar_url, marketplace_id, welcome_email_sent, created_at, updated_at",
       )
       .eq("id", userId)
       .maybeSingle();
@@ -160,11 +167,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userId: string,
     _email: string,
     accountType: AccountType,
+    extra?: {
+      phone?: string;
+      country_code?: string;
+      full_name?: string;
+    },
   ) {
     const supabase = await getSupabase();
+    const updatePayload: Record<string, unknown> = {
+      account_type: accountType,
+    };
+    if (extra?.phone) updatePayload.phone = extra.phone;
+    if (extra?.country_code) updatePayload.country_code = extra.country_code;
+    if (extra?.full_name) updatePayload.full_name = extra.full_name;
+
     const { data: updated, error: updateError } = await supabase
       .from("profiles")
-      .update({ account_type: accountType })
+      .update(updatePayload)
       .eq("id", userId)
       .select("id")
       .maybeSingle();
@@ -173,6 +192,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { error: ensureError } = await supabase.rpc("ensure_own_profile", {
       requested_account_type: accountType,
+      requested_phone: extra?.phone || null,
+      requested_country_code: extra?.country_code || null,
     });
     if (ensureError) throw ensureError;
   }
@@ -287,19 +308,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }));
         return { error: null, isAdmin };
       },
-      signUp: async (email, password, accountType = "client") => {
+      signUp: async (email, password, accountType = "client", metadata) => {
         const supabase = await getSupabase();
+        const phone = (metadata?.phone ?? "").trim();
+        const countryCode = (metadata?.country_code ?? "").trim().toUpperCase();
+        const fullName = (metadata?.full_name ?? "").trim();
+        if (!/^\+\d{7,15}$/.test(phone)) {
+          return {
+            error: "A valid mobile number is required.",
+            needsConfirmation: false,
+          };
+        }
+        if (!APPROVED_MARKET_CODES.includes(countryCode)) {
+          return {
+            error: "Select a valid registration country.",
+            needsConfirmation: false,
+          };
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { account_type: accountType } },
+          options: {
+            data: {
+              account_type: accountType,
+              ...metadata,
+              phone,
+              country_code: countryCode,
+              full_name: fullName,
+            },
+          },
         });
         if (error) return { error: error.message, needsConfirmation: false };
         const needsConfirmation = !data.session;
-        // If auto-signed-in, set account type on profile immediately
+        // If auto-signed-in, set account type and metadata on profile immediately
         if (data.user && !needsConfirmation) {
           try {
-            await setAccountType(data.user.id, email, accountType);
+            await setAccountType(data.user.id, email, accountType, {
+              phone,
+              country_code: countryCode,
+              full_name: fullName,
+            });
           } catch (setupError) {
             if (import.meta.env.DEV)
               console.error("[auth] Signup profile setup failed:", setupError);
