@@ -14,7 +14,11 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
-import { HOW_MANY, NOT_A_QUANTITY } from "../../../scripts/lib/how-many.mjs";
+import {
+  ALIASES,
+  HOW_MANY,
+  NOT_A_QUANTITY,
+} from "../../../scripts/lib/how-many.mjs";
 import { loadToolRegistry } from "../../../scripts/lib/tool-registry.mjs";
 import {
   toolSeoTitle,
@@ -200,13 +204,37 @@ describe("the how-many answer every tool owes a search", () => {
     expect(unanswered).toEqual([]);
   });
 
-  it("answers only for tools that exist", () => {
-    const strays = Object.keys(HOW_MANY).filter((p) => !toolPaths.includes(p));
+  it("answers on every calculator route the build emits", () => {
+    const emitted = [...prerenderSrc.matchAll(/path:\s*"(\/[^"]*)"/g)].map(
+      (m) => m[1],
+    );
+    const calculatorLike = [...new Set(emitted)].filter((p) =>
+      /calculator|estimator|takeoff|prices|price-index|boq|quote|cost|converter|index|planner|timeline|advisor|reference|diagnosis|assessment|preview|assistant|refresh|certificate|credit|footprint|reuse|vision|sync|import/.test(
+        p,
+      ),
+    );
+    const silent = calculatorLike.filter(
+      (p) => !HOW_MANY[p] && !NOT_A_QUANTITY[p],
+    );
+    expect(silent).toEqual([]);
+  });
+
+  it("answers only for pages the build actually emits", () => {
+    const emitted = new Set(
+      [...prerenderSrc.matchAll(/path:\s*"(\/[^"]*)"/g)].map((m) => m[1]),
+    );
+    // A registry tool is a real page even when its route is built rather than
+    // written as a literal, so both sources count.
+    const strays = Object.keys(HOW_MANY).filter(
+      (p) => !emitted.has(p) && !toolPaths.includes(p),
+    );
     expect(strays).toEqual([]);
   });
 
   it("asks a quantity question, and asks each one once", () => {
-    const questions = Object.values(HOW_MANY).map((v) => v.q);
+    const questions = Object.entries(HOW_MANY)
+      .filter(([path]) => !ALIASES[path])
+      .map(([, v]) => v.q);
     const odd = questions.filter((q) => !/^(How |What size )/.test(q));
     expect(odd).toEqual([]);
     const repeated = questions.filter((q, i, all) => all.indexOf(q) !== i);

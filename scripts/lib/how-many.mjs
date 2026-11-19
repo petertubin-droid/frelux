@@ -19,6 +19,54 @@
 
 /** @type {Record<string, { q: string, a: string }>} */
 export const HOW_MANY = {
+  "/cost-estimator": {
+    q: "How much will this construction work cost?",
+    a: "Pick the work and enter the measurements: quantities come from the engines and the cost follows the prices in your market's book, with labour and waste shown as separate lines.",
+  },
+  "/painting-estimator": {
+    q: "How much paint does a room need?",
+    a: "Walls and ceiling area, less the openings, divided by the coverage per coat gives the litres: pick the room preset or enter your own measurements to get litres, containers and cost.",
+  },
+  "/mineral-stone-calculator": {
+    q: "How much mineral stone finish do I need?",
+    a: "Wall area divided by the coverage of the product you select gives the bags or packs, plus the waste allowance: the cost follows the product data, not an assumed price.",
+  },
+  "/stucco-calculator": {
+    q: "How much stucco do I need for this wall?",
+    a: "Wall area times the coat thickness gives the volume, and the package yield turns that into packages: the calculator states the coverage it used and the waste it allowed.",
+  },
+  "/tyrolene-estimator": {
+    q: "How many bags of tyrolene do I need?",
+    a: "Wall area divided by the coverage per bag for the build-up you choose gives the bags, plus primer and the waste allowance, priced at the rate you enter.",
+  },
+  "/screeding-cost-estimator": {
+    q: "How much does screeding cost per square metre?",
+    a: "Cement and sand follow from area times thickness, and the cost from the rates in your market's book: the per-square-metre figure and the total are shown separately.",
+  },
+  "/pop-ceiling-cost-estimator": {
+    q: "How much does a POP ceiling cost?",
+    a: "Ceiling area drives the POP cement, boards, mesh and screws, and the labour rate turns the quantities into a total, with the waste allowance stated beside each line.",
+  },
+  "/tile-cost-estimator": {
+    q: "How much do tiles cost for this area?",
+    a: "Area divided by the tile size gives the tiles, the box count follows from tiles per box, and the cost from the price of the tile you select, with adhesive and grout added.",
+  },
+  "/boq-studio": {
+    q: "How do I build a priced bill of quantities?",
+    a: "Measure or import the work, choose the standard, and the studio builds the BOQ with rate build-up, preliminaries and contingency, so every rate can be traced to its parts.",
+  },
+  "/visual-finishing-estimator": {
+    q: "How do I compare the cost of two finishes?",
+    a: "The same measured area is costed across paint, tile, screed and cladding, so the comparison is per square metre rather than per tin or per bag.",
+  },
+  "/tools/visual-finishing-estimator": {
+    q: "How do I compare the cost of two finishes?",
+    a: "The same measured area is costed across paint, tile, screed and cladding, so the comparison is per square metre rather than per tin or per bag.",
+  },
+  "/prices": {
+    q: "How much do building materials cost right now?",
+    a: "Each material shows the price, the currency, the market and the date it was verified, so a budget is built on dated evidence rather than a remembered figure.",
+  },
   "/paint-calculator": {
     q: "How many litres of paint do I need?",
     a: "Divide the paintable wall and ceiling area by the coverage printed on the tin for each coat, then add the number of coats you are applying: the calculator does that sum and returns whole buckets to buy, walls and ceiling counted separately.",
@@ -345,10 +393,22 @@ export const HOW_MANY = {
  * @type {Record<string, string>}
  */
 export const NOT_A_QUANTITY = {
-  "/prices": "a price book index, not a quantity calculator",
+  "/calculators": "a directory of the calculators, not one of them",
+  "/pricing": "a plan and pricing page, not a calculator",
+  "/credits": "a credit balance page, not a calculator",
   "/marketplace": "a listing directory, not a calculator",
   "/faq": "a question index",
   "/learn": "an article index",
+};
+
+/**
+ * Two paths that serve the same tool. They carry the same question on purpose,
+ * so the uniqueness guard checks canonical paths only.
+ *
+ * @type {Record<string, string>}
+ */
+export const ALIASES = {
+  "/visual-finishing-estimator": "/tools/visual-finishing-estimator",
 };
 
 export const howManyFor = (path) => HOW_MANY[path] ?? null;

@@ -5559,12 +5559,15 @@ for (const route of routes) {
     contentMap[route.path] ?? route.content ?? faqContentByPath[route.path];
   // The answer sits right after the opening description, so a reader (and a
   // featured snippet) meets it without scrolling past a column of inputs.
-  const withAnswer =
-    howManyBlock && baseContent
-      ? baseContent.includes("</main>")
+  // A page with no body of its own still gets the answer rather than shipping a
+  // bare shell: the answer is the most useful thing it can say.
+  const withAnswer = !howManyBlock
+    ? baseContent
+    : !baseContent
+      ? howManyBlock
+      : baseContent.includes("</main>")
         ? baseContent.replace("</main>", `${howManyBlock}</main>`)
-        : `${baseContent}${howManyBlock}`
-      : baseContent;
+        : `${baseContent}${howManyBlock}`;
   const pageContent = withHeading(route, withAnswer);
   if (pageContent) {
     html = html.replace(
