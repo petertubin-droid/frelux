@@ -219,3 +219,15 @@ describe("mesh-derived quantities (real brep fixture)", () => {
     expect(result.elementsWithDerivedQuantities).toBeGreaterThanOrEqual(1);
   });
 });
+
+describe("IFC4.3 (IFC4X3_ADD2) schema", () => {
+  it("reads the schema string and the same geometry/derivation path", async () => {
+    const result = await parseIfcModel(fixture("ifc43-wall.ifc"));
+    expect(result.ok).toBe(true);
+    expect(result.schema).toBe("IFC4X3_ADD2");
+    const wall = result.elements.find((e) => e.name === "Wall-NoQty");
+    expect(wall).toBeDefined();
+    const volume = wall?.derivedQuantities?.find((q) => q.kind === "volume");
+    expect(volume?.value).toBeCloseTo(1.2, 6);
+  });
+});

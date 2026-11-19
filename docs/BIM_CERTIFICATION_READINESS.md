@@ -76,7 +76,10 @@ Cost, timeline and acceptance are decided by buildingSMART, not by FRELUX.
 - [x] Coverage manifest with unmapped-class reporting, guarded by tests.
 - [x] Real-wasm tests against IFC4 geometry and quantity fixtures.
 - [ ] Official buildingSMART test corpus run, with results recorded per file.
-- [ ] IFC4.3 support (IFC4 and IFC2x3 only today).
+- [~] IFC4.3: the schema string IFC4X3_ADD2 is read and the same geometry and
+  quantity path runs (fixture ifc43-wall.ifc, 2026-11-19). Not claimed: the
+  IFC4.3-only entities (alignment, rail, new spatial elements), which are
+  reported as unmapped rather than guessed.
 - [x] Property-set coverage beyond quantities (2026-11-19): single-value,
       enumerated, bounded (lower/upper/set point), list (all values kept) and
       complex properties (nested entries as dotted names) are all read.
@@ -90,11 +93,14 @@ Cost, timeline and acceptance are decided by buildingSMART, not by FRELUX.
 
 ## 5. Next concrete steps
 
-1. Download the official IFC validation test files for IFC2x3 and IFC4.
-2. Build a harness that runs `parseIfcModel` over the corpus and records, per
-   file: parse success, element count, quantity coverage, unmapped classes.
-3. Publish the harness output as `docs/ifc-conformance-report.md`, regenerated on
-   demand. This is evidence, not certification.
+1. Download the official IFC validation test files for IFC2x3, IFC4 and IFC4.3.
+2. Harness: DONE (2026-11-19). `npx tsx scripts/ifc-conformance-report.ts <corpus-dir>`
+   runs `parseIfcModel` over every .ifc file and records parse success, element
+   and geometry counts, declared versus derived quantities, unmapped classes and
+   undeclared units.
+3. `docs/ifc-conformance-report.md` is regenerated on demand from that harness.
+   The committed copy currently covers the repository's own fixtures and says so
+   in its header; it becomes evidence only once the official corpus is passed in.
 4. Only then approach buildingSMART with a defined scope.
 
 Until steps 1-3 exist, any statement about IFC conformance beyond the list in
