@@ -821,7 +821,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
       "Wall dimensions, core cavity width, corner counts, window/door openings, and rebar spacing.",
     gets: "Straight and corner blocks, ready-mix concrete m³, rebar schedules, turnbuckle bracing, rough bucking, and continuous R-value scorecard.",
     heading: "ICF Wall Estimator & Takeoff",
-    lede: "Deterministic takeoff for Insulated Concrete Form (ICF) construction: form blocks, concrete pump volume, reinforcement schedules, alignment bracing, and code-aligned thermal performance.",
+    lede: "Deterministic takeoff for Insulated Concrete Form (ICF) construction: form blocks, concrete pump volume, reinforcement schedules, alignment bracing, and envelope ratings calculated from the foam, core and lining you enter.",
+    benefit: "Blocks · Core m³ · Rebar",
     eyebrow: "Structural Engineering",
     seoTitle: "ICF Wall Estimator & Takeoff Calculator | FRELUX",
     seoDescription:

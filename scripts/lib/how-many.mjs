@@ -177,7 +177,7 @@ export const HOW_MANY = {
   },
   "/icf-wall-estimator": {
     q: "How many ICF blocks and concrete volume do I need?",
-    a: "Wall perimeter and height less openings determine the block count, corner units and concrete core volume: select core thickness to calculate form blocks, rebar schedules, alignment bracing and ready-mix delivery.",
+    a: "Wall perimeter and height less openings give the block count, corner units and core volume, and the form family decides how much of the cavity is concrete: enter core width, flat, waffle or screen forms and the interior lining to get blocks, rebar, bracing, ready-mix and the R-value with its basis.",
   },
   "/eifs-wall-estimator": {
     q: "How much continuous insulation, mesh and acrylic finish for EIFS / ETICS?",
@@ -411,7 +411,10 @@ export function howManyHtml(path) {
   const entry = HOW_MANY[path];
   if (!entry) return "";
   const esc = (s) =>
-    String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   return `<h2>${esc(entry.q)}</h2><p>${esc(entry.a)}</p>`;
 }
 
@@ -419,5 +422,9 @@ export function howManyHtml(path) {
 export function howManyFaq(path) {
   const entry = HOW_MANY[path];
   if (!entry) return null;
-  return { "@type": "Question", name: entry.q, acceptedAnswer: { "@type": "Answer", text: entry.a } };
+  return {
+    "@type": "Question",
+    name: entry.q,
+    acceptedAnswer: { "@type": "Answer", text: entry.a },
+  };
 }

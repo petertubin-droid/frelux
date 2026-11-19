@@ -57,6 +57,7 @@ export const TOOL_ROUTES: ReadonlySet<string> = new Set([
   "/german-floor-calculator",
   "/global-site-safety-estimator",
   "/heat-comfort",
+  "/icf-wall-estimator",
   "/image-estimator",
   "/increte-flooring-calculator",
   "/insulation-calculator",
@@ -254,6 +255,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
         benefit: "",
       },
       {
+        to: "/icf-wall-estimator",
+        label: "ICF Wall Estimator",
+        benefit: "Blocks · Core m³ · Rebar",
+      },
+      {
         to: "/rainwater-gutter-soffit-cost-estimator",
         label: "Soffit, Fascia & Gutter",
         benefit: "",
@@ -369,7 +375,8 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/tv-console-calculator",
         label: "TV Console & Media Unit Calculator",
-        benefit: "10 editable concepts · panel-by-panel schedule · Pro image parsing",
+        benefit:
+          "10 editable concepts · panel-by-panel schedule · Pro image parsing",
       },
       {
         to: "/wallpaper-calculator",

@@ -1,355 +1,355 @@
 {
   "/": {
     "lastmod": "2026-11-19",
-    "hash": "d7eb2a4ca8500d83"
+    "hash": "25b018241e256d33"
   },
   "/about": {
     "lastmod": "2026-11-19",
-    "hash": "914882f0ac1f454d"
+    "hash": "fb1fc7b7d44b6517"
   },
   "/ai-color-assistant": {
     "lastmod": "2026-11-19",
-    "hash": "5039e2b5531f24fa"
+    "hash": "3f2db9040b35b407"
   },
   "/ai-disclaimer": {
     "lastmod": "2026-11-19",
-    "hash": "97327ec4746ecb6a"
+    "hash": "1ee69a937cfedf6a"
   },
   "/bim-ifc-import": {
     "lastmod": "2026-11-19",
-    "hash": "d116106aee4405d7"
+    "hash": "c6fd97e3a197605b"
   },
   "/blueprint-takeoff": {
     "lastmod": "2026-11-19",
-    "hash": "0ccaf47d3be4e9ab"
+    "hash": "76ae318e552fd50c"
   },
   "/boq-generator": {
     "lastmod": "2026-11-19",
-    "hash": "41732bc91db5bc44"
+    "hash": "6fcb06c0c33b9687"
   },
   "/boq-studio": {
     "lastmod": "2026-11-19",
-    "hash": "1c41f0b3f544fc8b"
+    "hash": "a5296a6c262a1be8"
   },
   "/borehole-water-system-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "0866b6d657f8a5f0"
+    "hash": "6bf665879550f964"
   },
   "/brand-studio": {
     "lastmod": "2026-11-19",
-    "hash": "134d3b4cee1abeeb"
+    "hash": "91993d92d255b6fb"
   },
   "/build-to-roof-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "db6d29ea119169eb"
+    "hash": "f41d556fcba7d2bb"
   },
   "/building-types": {
     "lastmod": "2026-11-19",
-    "hash": "5aa97dedf729ceac"
+    "hash": "0df19e3a38bda6ed"
   },
   "/building-types/1br-apartment": {
     "lastmod": "2026-11-19",
-    "hash": "723d8b0274b64a34"
+    "hash": "9481d67a79937492"
   },
   "/building-types/1br-bungalow": {
     "lastmod": "2026-11-19",
-    "hash": "37a7841dc8490615"
+    "hash": "05428832a94931bc"
   },
   "/building-types/2br-apartment": {
     "lastmod": "2026-11-19",
-    "hash": "01e94c85a27ff165"
+    "hash": "f1e3b98a5a72d031"
   },
   "/building-types/2br-bungalow": {
     "lastmod": "2026-11-19",
-    "hash": "93961a76d8b25fe0"
+    "hash": "73d3f2c1703b89aa"
   },
   "/building-types/2br-duplex": {
     "lastmod": "2026-11-19",
-    "hash": "6622f4893f94f54d"
+    "hash": "5673997e67cc5586"
   },
   "/building-types/2br-maisonette": {
     "lastmod": "2026-11-19",
-    "hash": "86d46c4b38fbe70b"
+    "hash": "f4a31c9089e78d4c"
   },
   "/building-types/2br-terrace": {
     "lastmod": "2026-11-19",
-    "hash": "3f971f8ced32d5b0"
+    "hash": "0f131899e148f78c"
   },
   "/building-types/3br-apartment": {
     "lastmod": "2026-11-19",
-    "hash": "c2d70c33d2a4fbec"
+    "hash": "9fc0809aac181a44"
   },
   "/building-types/3br-duplex": {
     "lastmod": "2026-11-19",
-    "hash": "022f5a50cb400add"
+    "hash": "617dc06034493341"
   },
   "/building-types/3br-penthouse": {
     "lastmod": "2026-11-19",
-    "hash": "4b4d075feb819165"
+    "hash": "7430daaebbc76840"
   },
   "/building-types/3br-terrace": {
     "lastmod": "2026-11-19",
-    "hash": "c974a75078df81c8"
+    "hash": "b83132fef3ab45eb"
   },
   "/building-types/4br-bungalow": {
     "lastmod": "2026-11-19",
-    "hash": "655a155ef3b7bcdc"
+    "hash": "e7adabf2052419fe"
   },
   "/building-types/4br-semi-detached": {
     "lastmod": "2026-11-19",
-    "hash": "12de7dc6733577e2"
+    "hash": "16cb539de1604a46"
   },
   "/building-types/4br-terrace": {
     "lastmod": "2026-11-19",
-    "hash": "ed988cd72c01f7dd"
+    "hash": "253004d21d495e5b"
   },
   "/building-types/4br-townhouse": {
     "lastmod": "2026-11-19",
-    "hash": "dac1c97c449523e0"
+    "hash": "e9a9dda55f99d3f8"
   },
   "/building-types/5br-detached": {
     "lastmod": "2026-11-19",
-    "hash": "adcf5d3304cb4591"
+    "hash": "82e0b638808b75d2"
   },
   "/building-types/5br-duplex": {
     "lastmod": "2026-11-19",
-    "hash": "8b856107342f4845"
+    "hash": "3af2a27784477eea"
   },
   "/building-types/6br-mansion": {
     "lastmod": "2026-11-19",
-    "hash": "ab5533f8b0b0bd1a"
+    "hash": "fef7c8090d897ef3"
   },
   "/building-types/bar-lounge": {
     "lastmod": "2026-11-19",
-    "hash": "5e2d4ecdf7a1b0f1"
+    "hash": "32b739cc524ecd57"
   },
   "/building-types/clinic": {
     "lastmod": "2026-11-19",
-    "hash": "1ecb2a6c554ec7f9"
+    "hash": "cb1c5397fde360ef"
   },
   "/building-types/cold-store": {
     "lastmod": "2026-11-19",
-    "hash": "08eafaa43bf8bd5a"
+    "hash": "5f9a904f14cbbaa5"
   },
   "/building-types/community-hall": {
     "lastmod": "2026-11-19",
-    "hash": "c1bce4e38ef2c973"
+    "hash": "37f961fdd71dad06"
   },
   "/building-types/event-hall": {
     "lastmod": "2026-11-19",
-    "hash": "e7044a08169fcfd0"
+    "hash": "8687e33ffde31cee"
   },
   "/building-types/factory-shed": {
     "lastmod": "2026-11-19",
-    "hash": "97baf640b5a0ab62"
+    "hash": "37d9cd18062d9721"
   },
   "/building-types/guest-house": {
     "lastmod": "2026-11-19",
-    "hash": "846c7918bbdd2079"
+    "hash": "133c3194ff71e7bc"
   },
   "/building-types/hospital-ward": {
     "lastmod": "2026-11-19",
-    "hash": "44b6ea9efdf13225"
+    "hash": "be51b85acb3d16c3"
   },
   "/building-types/hostel-block": {
     "lastmod": "2026-11-19",
-    "hash": "fd07ff4021588290"
+    "hash": "5d200824c8e17f50"
   },
   "/building-types/hotel": {
     "lastmod": "2026-11-19",
-    "hash": "eece75bef046c0c5"
+    "hash": "0eb64548d6ae6459"
   },
   "/building-types/laboratory": {
     "lastmod": "2026-11-19",
-    "hash": "eb6f484e626afbd2"
+    "hash": "5233b82c316dcf65"
   },
   "/building-types/library": {
     "lastmod": "2026-11-19",
-    "hash": "23c2ffaf5a463b5b"
+    "hash": "daf28cb349ef0c2e"
   },
   "/building-types/mixed-use-block": {
     "lastmod": "2026-11-19",
-    "hash": "9c7d2dd49d1b60e6"
+    "hash": "d5249bade2a9c78c"
   },
   "/building-types/office-suite": {
     "lastmod": "2026-11-19",
-    "hash": "9cf52d129ec13fa3"
+    "hash": "ad1eec41dd6e1c8f"
   },
   "/building-types/pharmacy": {
     "lastmod": "2026-11-19",
-    "hash": "f07c6ed808269acc"
+    "hash": "3b0623f2b54d638c"
   },
   "/building-types/place-of-worship": {
     "lastmod": "2026-11-19",
-    "hash": "1e0dd8cc4e479996"
+    "hash": "3d13ab1ad94b6e6f"
   },
   "/building-types/poultry-pen": {
     "lastmod": "2026-11-19",
-    "hash": "6b5296d5c5ca6679"
+    "hash": "bb43b697ad35b051"
   },
   "/building-types/restaurant": {
     "lastmod": "2026-11-19",
-    "hash": "7e18fe995a54d126"
+    "hash": "ab98a578a8082627"
   },
   "/building-types/school-block": {
     "lastmod": "2026-11-19",
-    "hash": "5c988ddd0ca6491d"
+    "hash": "db60145d39311d96"
   },
   "/building-types/shop-unit": {
     "lastmod": "2026-11-19",
-    "hash": "0bacc086665f7159"
+    "hash": "ba1663406f27a0bc"
   },
   "/building-types/showroom": {
     "lastmod": "2026-11-19",
-    "hash": "b5ecf98da3926bdb"
+    "hash": "b64b9d26b1b52d51"
   },
   "/building-types/studio": {
     "lastmod": "2026-11-19",
-    "hash": "1262eb161476feb9"
+    "hash": "2029aea624bb7044"
   },
   "/building-types/supermarket": {
     "lastmod": "2026-11-19",
-    "hash": "711e939e6a050917"
+    "hash": "3ec056e0a3398f79"
   },
   "/building-types/warehouse": {
     "lastmod": "2026-11-19",
-    "hash": "ae863d094bd34439"
+    "hash": "30fda445fa505148"
   },
   "/building-types/workshop": {
     "lastmod": "2026-11-19",
-    "hash": "9aad708ecd30331e"
+    "hash": "91d39207d8b149fd"
   },
   "/carbon-footprint": {
     "lastmod": "2026-11-19",
-    "hash": "5847a225aabb1530"
+    "hash": "6f5ebe824da9a0db"
   },
   "/case-studies": {
     "lastmod": "2026-11-19",
-    "hash": "9d95a5b3ed5d189b"
+    "hash": "9056432efc9c4071"
   },
   "/cash-flow-timeline": {
     "lastmod": "2026-11-19",
-    "hash": "189402d4f21b1e8c"
+    "hash": "9997a3b4aad6ff98"
   },
   "/circular-reuse": {
     "lastmod": "2026-11-19",
-    "hash": "b420341bdd628a3f"
+    "hash": "29679e32fdfd2509"
   },
   "/code-reference": {
     "lastmod": "2026-11-19",
-    "hash": "549a4766ad873e02"
+    "hash": "a7d0dc74bca0aea8"
   },
   "/color-preview": {
     "lastmod": "2026-11-19",
-    "hash": "3a3f3b3ee03b2533"
+    "hash": "c22879336011a78b"
   },
   "/colors": {
     "lastmod": "2026-11-19",
-    "hash": "3160395ea86700a2"
+    "hash": "4b141d12e4cdeb5f"
   },
   "/colors/compare": {
     "lastmod": "2026-11-19",
-    "hash": "e75ce82ffb67e745"
+    "hash": "ae13516adec3824b"
   },
   "/concrete-takeoff-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "8e90039f2324f731"
+    "hash": "8e2991e07083f8dd"
   },
   "/construction-sequence": {
     "lastmod": "2026-11-19",
-    "hash": "00ca4a7e96aabbaf"
+    "hash": "770d7b4820f6c50e"
   },
   "/construction-tools": {
     "lastmod": "2026-11-19",
-    "hash": "1fcc4ee0b00c4374"
+    "hash": "ff42f0bff549e733"
   },
   "/contact": {
     "lastmod": "2026-11-19",
-    "hash": "f44b58c9815b6443"
+    "hash": "637634989fb27b35"
   },
   "/contractor-credit": {
     "lastmod": "2026-11-19",
-    "hash": "73214802e60ca3c6"
+    "hash": "04b82a58537e4699"
   },
   "/conversational-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "b4cf86f5533980a4"
+    "hash": "d933b379e7723539"
   },
   "/cookie-policy": {
     "lastmod": "2026-11-19",
-    "hash": "0884aac57edccdc3"
+    "hash": "31251c4582fe374e"
   },
   "/cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "58f1353c4a488699"
+    "hash": "3072e9e7638eab0d"
   },
   "/count-vision": {
     "lastmod": "2026-11-19",
-    "hash": "8bd3e9222e076bb4"
+    "hash": "ab1e005d4f05d3a3"
   },
   "/credits": {
     "lastmod": "2026-11-19",
-    "hash": "6dba4eed2c06f462"
+    "hash": "6706d08e48dfcc28"
   },
   "/data-request": {
     "lastmod": "2026-11-19",
-    "hash": "1c6165e3aba403d9"
+    "hash": "7a003f910b24cbfd"
   },
   "/defect-diagnosis": {
     "lastmod": "2026-11-19",
-    "hash": "c49d8a39801abb3b"
+    "hash": "f3907781288cca96"
   },
   "/demolition-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "84a09d8259f1e8eb"
+    "hash": "78fb9637d27bf43b"
   },
   "/developers": {
     "lastmod": "2026-11-19",
-    "hash": "b1a7560ba8eb9da0"
+    "hash": "7930171d36994e39"
   },
   "/developers/merchant-webhooks": {
     "lastmod": "2026-11-19",
-    "hash": "27f87fd461dd4d97"
+    "hash": "a5d30dd71dc6ff8d"
   },
   "/diaspora-budget-tracker": {
     "lastmod": "2026-11-19",
-    "hash": "60351976f95da304"
+    "hash": "c9a19174e54fbb5b"
   },
   "/diaspora-tracker": {
     "lastmod": "2026-11-19",
-    "hash": "9698abcc6efa1e33"
+    "hash": "d336068671aa8868"
   },
   "/disclaimer": {
     "lastmod": "2026-11-19",
-    "hash": "ad3a17f58f9e1d92"
+    "hash": "9cc41a306b9f11bb"
   },
   "/doors-windows": {
     "lastmod": "2026-11-19",
-    "hash": "f5a8ee13682bff51"
+    "hash": "cb1690c5f70ed02f"
   },
   "/drainage-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "6208d6d511677f0e"
+    "hash": "7e9dc322a435568f"
   },
   "/drywall-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "fac3e5561e7787f3"
+    "hash": "bc9e08134a7097fd"
   },
   "/earthworks-cut-fill": {
     "lastmod": "2026-11-19",
-    "hash": "ce7d68257aef0872"
+    "hash": "102d8b5ec5c44b15"
   },
   "/electrical": {
     "lastmod": "2026-11-19",
-    "hash": "f74b3407e2d67ead"
+    "hash": "f32d1485b9d6d341"
   },
   "/electrical-conduit-wiring-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "8749f22d2fcfd4aa"
+    "hash": "a5820e42c2757c9b"
   },
   "/engineering-standards": {
     "lastmod": "2026-11-19",
-    "hash": "cbb6662a2a2a02fb"
+    "hash": "b9d031215a19573c"
   },
   "/es/learn/achieving-textured-finishes-techniques-tools": {
     "lastmod": "2026-11-10",
@@ -953,475 +953,475 @@
   },
   "/escrow": {
     "lastmod": "2026-11-19",
-    "hash": "a2204cfd49bbb05d"
+    "hash": "8994caaccb066cc0"
   },
   "/estimate-refresh": {
     "lastmod": "2026-11-19",
-    "hash": "eb835c3f3b4e5cb8"
+    "hash": "7eea463a10300af3"
   },
   "/faq": {
     "lastmod": "2026-11-19",
-    "hash": "702f989a67059d94"
+    "hash": "d940ef2bb0b2eef8"
   },
   "/faq/bim-ifc-import": {
     "lastmod": "2026-11-19",
-    "hash": "3cdd29ca04327c9a"
+    "hash": "3d523bd3e61dc5f5"
   },
   "/faq/blueprint-takeoff": {
     "lastmod": "2026-11-19",
-    "hash": "a361211c0d7f7ba3"
+    "hash": "18d5e6b92c019d9a"
   },
   "/faq/boq-generator": {
     "lastmod": "2026-11-19",
-    "hash": "6eb5aaa00fa8752c"
+    "hash": "91e2d5e6d2935171"
   },
   "/faq/borehole-water-system": {
     "lastmod": "2026-11-19",
-    "hash": "656f79684d0161a4"
+    "hash": "db96d3c936f73fb2"
   },
   "/faq/borehole-water-system-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "469afa2d12082f1e"
+    "hash": "3cc420f82f580c33"
   },
   "/faq/build-to-roof-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "ac462334306f403a"
+    "hash": "dee9ef64ef0b2a3d"
   },
   "/faq/carbon-footprint": {
     "lastmod": "2026-11-19",
-    "hash": "3ce79d54a6423e68"
+    "hash": "849086ec363eb6f3"
   },
   "/faq/cash-flow-timeline": {
     "lastmod": "2026-11-19",
-    "hash": "fff3fce21c6b96cc"
+    "hash": "a1743f7c02699072"
   },
   "/faq/circular-reuse": {
     "lastmod": "2026-11-19",
-    "hash": "3368dfdecadbf130"
+    "hash": "1977179ef598f556"
   },
   "/faq/client-estimate": {
     "lastmod": "2026-11-19",
-    "hash": "edebd0f14efd975f"
+    "hash": "baff5511ff032224"
   },
   "/faq/code-reference": {
     "lastmod": "2026-11-19",
-    "hash": "6fbf7056e6b6296a"
+    "hash": "7443d567e3dc01bb"
   },
   "/faq/color-assistant": {
     "lastmod": "2026-11-19",
-    "hash": "9f4368c3001a43ef"
+    "hash": "2e08d4b1319cca0d"
   },
   "/faq/color-preview": {
     "lastmod": "2026-11-19",
-    "hash": "f9ece49406de3a62"
+    "hash": "18f85d43a4699a3a"
   },
   "/faq/concrete-takeoff-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "7a3ecb26b8de0463"
+    "hash": "3872008976171bee"
   },
   "/faq/conduit-wiring-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "a292670bcfc7fd59"
+    "hash": "5e21e1c27c6bf35e"
   },
   "/faq/construction-sequence": {
     "lastmod": "2026-11-19",
-    "hash": "52f67f0947a5247d"
+    "hash": "c55e5db363fea91d"
   },
   "/faq/contractor-credit": {
     "lastmod": "2026-11-19",
-    "hash": "a4c4a7845f0797ea"
+    "hash": "663a6f6bc3194b9c"
   },
   "/faq/conversational-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "1e514254721e75d1"
+    "hash": "a1c4ab879ec85ce5"
   },
   "/faq/count-vision": {
     "lastmod": "2026-11-19",
-    "hash": "dfad66bc3e22364c"
+    "hash": "2bf01286dfb4681d"
   },
   "/faq/defect-diagnosis": {
     "lastmod": "2026-11-19",
-    "hash": "e664b83ed445a171"
+    "hash": "3c5a58ee14be1b4f"
   },
   "/faq/demolition-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "72ca2cf4334cf92a"
+    "hash": "f456718ad0afcf20"
   },
   "/faq/diaspora-budget-tracker": {
     "lastmod": "2026-11-19",
-    "hash": "32fb24d303125bed"
+    "hash": "d7aa8547a4a60281"
   },
   "/faq/doors-windows": {
     "lastmod": "2026-11-19",
-    "hash": "928f30ca64ac6347"
+    "hash": "084fb691cdd4da23"
   },
   "/faq/drainage-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "0ed8f115055816c0"
+    "hash": "60b2a0e4fa65c64b"
   },
   "/faq/drywall-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "7bfe9f39701c4928"
+    "hash": "b6ae8cc7ecdb3ffa"
   },
   "/faq/earthworks-cut-fill": {
     "lastmod": "2026-11-19",
-    "hash": "fc1fc35e0b90de96"
+    "hash": "6a4191ce6581ef58"
   },
   "/faq/electrical": {
     "lastmod": "2026-11-19",
-    "hash": "53f465e41f87eeef"
+    "hash": "7877ba9fe9c3251a"
   },
   "/faq/estimate-refresh": {
     "lastmod": "2026-11-19",
-    "hash": "d60b2ea42931c829"
+    "hash": "64724b2033eb11b4"
   },
   "/faq/fence-block-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "6262aa78a0aa50b3"
+    "hash": "7c617c83c2fff3c3"
   },
   "/faq/field-sync": {
     "lastmod": "2026-11-19",
-    "hash": "20240635d2338865"
+    "hash": "bd9499d00372037c"
   },
   "/faq/finish-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "8281854f201871f8"
+    "hash": "03123764fcb90aa3"
   },
   "/faq/flooring": {
     "lastmod": "2026-11-19",
-    "hash": "2ad45a17388deb62"
+    "hash": "787ce881f3b44f2b"
   },
   "/faq/foundation-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "2f37c1d4b712f93d"
+    "hash": "985f47150921a321"
   },
   "/faq/foundation-designer": {
     "lastmod": "2026-11-19",
-    "hash": "90a00060c41ce874"
+    "hash": "50392936a83f01bc"
   },
   "/faq/generator": {
     "lastmod": "2026-11-19",
-    "hash": "4e3b47f2cee92430"
+    "hash": "a2464cae0e0c8655"
   },
   "/faq/german-floor-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "9da9f230916ea8b0"
+    "hash": "8d42766af1c425fe"
   },
   "/faq/global-site-safety-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "e031371ec5d775bf"
+    "hash": "179d6b753516a83f"
   },
   "/faq/heat-comfort": {
     "lastmod": "2026-11-19",
-    "hash": "45591a35efc35100"
+    "hash": "be605dd9dfc6fbe8"
   },
   "/faq/icf-wall-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "07c8412a7073d89a"
+    "hash": "e7ae30b1a7ee22a9"
   },
   "/faq/increte-flooring-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "15355b18b78c7f66"
+    "hash": "3839a7d96a329c7c"
   },
   "/faq/insulation-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "b1b0c887eb5ae31c"
+    "hash": "23347a31800908d0"
   },
   "/faq/labour-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "8f5d0920db8047de"
+    "hash": "877bc88341ff3ee8"
   },
   "/faq/maintenance-planner": {
     "lastmod": "2026-11-19",
-    "hash": "f3d68064869a7f48"
+    "hash": "4751cf73930e4713"
   },
   "/faq/margin-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "00d321353789ec9f"
+    "hash": "cec032db1ce4aad9"
   },
   "/faq/masonry-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "130f45c587824e60"
+    "hash": "33d69be2e8dcf4ba"
   },
   "/faq/material-advisor": {
     "lastmod": "2026-11-19",
-    "hash": "f9f8b237d1b9907b"
+    "hash": "6eaf90524f9ec0c6"
   },
   "/faq/material-price-index": {
     "lastmod": "2026-11-19",
-    "hash": "3cf1f35d6091c2e7"
+    "hash": "4d88a7f4387d8362"
   },
   "/faq/material-prices": {
     "lastmod": "2026-11-19",
-    "hash": "5f41445e95dc9cf1"
+    "hash": "ff8375f5994a88ec"
   },
   "/faq/mathematical-plan-elevation": {
     "lastmod": "2026-11-19",
-    "hash": "b84799f1b084a021"
+    "hash": "92ea73b611b64155"
   },
   "/faq/measurement-converter": {
     "lastmod": "2026-11-19",
-    "hash": "7317e8bc9e8baa6c"
+    "hash": "d4fe20988708326c"
   },
   "/faq/paint-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "727167da2dc56270"
+    "hash": "7473cbc89bece0dd"
   },
   "/faq/paint-comparison": {
     "lastmod": "2026-11-19",
-    "hash": "de569be175b364dc"
+    "hash": "9bca5335a2a0c73c"
   },
   "/faq/painting-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "4eaca64af5e7c3dd"
+    "hash": "519e966d8096f9b0"
   },
   "/faq/paving-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "75d1b0b0a65b175f"
+    "hash": "68af905961e3cac0"
   },
   "/faq/photo-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "e5e791888bfb4e66"
+    "hash": "018a3d24865e52f6"
   },
   "/faq/plastering-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "426eb0a7e0e33377"
+    "hash": "596a1c9b9afa9c58"
   },
   "/faq/plumbing": {
     "lastmod": "2026-11-19",
-    "hash": "d7b0f7daca879e3b"
+    "hash": "74bfa49e30145fde"
   },
   "/faq/pop-ceiling-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "a55d68cd98f7f350"
+    "hash": "92dc801a7d6c4095"
   },
   "/faq/project-timeline": {
     "lastmod": "2026-11-19",
-    "hash": "0541169e009035f1"
+    "hash": "6b0afc687c45f572"
   },
   "/faq/quote-check": {
     "lastmod": "2026-11-19",
-    "hash": "5c2ce496e78b2e5f"
+    "hash": "b306964b2dad783c"
   },
   "/faq/quotes": {
     "lastmod": "2026-11-19",
-    "hash": "c6d28e5108a22148"
+    "hash": "b1e2b1737584687e"
   },
   "/faq/regional-cost-index": {
     "lastmod": "2026-11-19",
-    "hash": "92bf3c6dcc540c9b"
+    "hash": "baded045991d8a7c"
   },
   "/faq/reinforcement": {
     "lastmod": "2026-11-19",
-    "hash": "6203a79b18615833"
+    "hash": "cbca22535dab05ba"
   },
   "/faq/renovation-ceilings": {
     "lastmod": "2026-11-19",
-    "hash": "32bd8387e33fdbf3"
+    "hash": "8072e156492a4e58"
   },
   "/faq/renovation-electrical-points": {
     "lastmod": "2026-11-19",
-    "hash": "a91fe049726aff90"
+    "hash": "ca733315451f2b87"
   },
   "/faq/renovation-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "3c473e3aac5074cc"
+    "hash": "8313028f580e9ad1"
   },
   "/faq/renovation-flooring": {
     "lastmod": "2026-11-19",
-    "hash": "9a5aa2533bfb57df"
+    "hash": "b9b5fa14f509b81b"
   },
   "/faq/renovation-plastering": {
     "lastmod": "2026-11-19",
-    "hash": "be3c2a088318b785"
+    "hash": "b5f9432c852dca00"
   },
   "/faq/renovation-plumbing-points": {
     "lastmod": "2026-11-19",
-    "hash": "1fa3cc2ba96f9bfb"
+    "hash": "3130f9fc8f1ccf8c"
   },
   "/faq/renovation-repaint": {
     "lastmod": "2026-11-19",
-    "hash": "f65a292c2a5c3d44"
+    "hash": "175bfe335f9b56ba"
   },
   "/faq/renovation-screed": {
     "lastmod": "2026-11-19",
-    "hash": "0dd6df5af58b05ac"
+    "hash": "dd31b4b9453403cb"
   },
   "/faq/renovation-strip-out": {
     "lastmod": "2026-11-19",
-    "hash": "5152ad2b57ecee63"
+    "hash": "fbd24519b8e858f0"
   },
   "/faq/renovation-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "57c94511004a74c0"
+    "hash": "5196acd2d502ec5a"
   },
   "/faq/renovation-waste": {
     "lastmod": "2026-11-19",
-    "hash": "e12a14b7f05616c9"
+    "hash": "2a8ab467c1019dfa"
   },
   "/faq/retaining-wall-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "9fcbd9f2b2c27459"
+    "hash": "573a1d8300f708f0"
   },
   "/faq/roof-framing-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "d3835268cbe738f6"
+    "hash": "89de23e4dbc74f60"
   },
   "/faq/screeding-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "d3d9633574d0b58a"
+    "hash": "600909f6a4df80bc"
   },
   "/faq/septic-sizing-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "3ea88f9318c2d510"
+    "hash": "e829bc20ff6adf0d"
   },
   "/faq/smart-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "9713369180dde45e"
+    "hash": "e36e88929a9ebe94"
   },
   "/faq/soffit-gutter-cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "aa3669e489064b6e"
+    "hash": "381cb641fa632dfa"
   },
   "/faq/solar-pv-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "243c1a5b3ec4ac0d"
+    "hash": "5590b0f9a9830485"
   },
   "/faq/steel-beam-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "a81742f9630cff48"
+    "hash": "f0253d98fab57de4"
   },
   "/faq/structural-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "91b3313a9eab3473"
+    "hash": "ae253bdf6b07ca9b"
   },
   "/faq/surface-assessment": {
     "lastmod": "2026-11-19",
-    "hash": "afe6fe196ebb1196"
+    "hash": "daa15526f4404e30"
   },
   "/faq/tall-building-structure": {
     "lastmod": "2026-11-19",
-    "hash": "7b99078d8b5588a3"
+    "hash": "9bb86ac91a6cb471"
   },
   "/faq/temporary-works-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "9fde0106966a2cdf"
+    "hash": "f3cb1260a113ca9e"
   },
   "/faq/tile-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "a17e369934eb740a"
+    "hash": "035c10d041884377"
   },
   "/faq/tv-console-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "0e6efb6bf99ec08b"
+    "hash": "0f94bca29eca8012"
   },
   "/faq/using-frelux": {
     "lastmod": "2026-11-19",
-    "hash": "7d604912a9f4c563"
+    "hash": "f8116b07dd854d31"
   },
   "/faq/wall-finish-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "f829430e4a53533b"
+    "hash": "8a87ab61c9f27772"
   },
   "/faq/wallpaper-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "fb2f7dccfcb10e08"
+    "hash": "0047a5bfb55c6442"
   },
   "/faq/warranty-certificate": {
     "lastmod": "2026-11-19",
-    "hash": "634987d4ee0d1bb4"
+    "hash": "c8df62d48dc6d1b1"
   },
   "/faq/water-tower-staging-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "91c6a5e70b93a2d6"
+    "hash": "b28da9dfb6f7ad85"
   },
   "/faq/waterproofing": {
     "lastmod": "2026-11-19",
-    "hash": "21a33c402ffad322"
+    "hash": "4e781de6c6c9684c"
   },
   "/faq/window-blinds": {
     "lastmod": "2026-11-19",
-    "hash": "fd95f376a74a62e2"
+    "hash": "2690d9233777eb31"
   },
   "/feedback": {
     "lastmod": "2026-11-19",
-    "hash": "ddb0ff90be9718bc"
+    "hash": "7f5f85c46e0ce04f"
   },
   "/fence-block-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "38e1ea0c92057f52"
+    "hash": "ffc1bb740c565d9a"
   },
   "/field-sync": {
     "lastmod": "2026-11-19",
-    "hash": "4c24324ef19190a4"
+    "hash": "e8b2cf361d1f1dfe"
   },
   "/finish-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "b21209e5955dcd0f"
+    "hash": "de9254898e371344"
   },
   "/flooring": {
     "lastmod": "2026-11-19",
-    "hash": "c94b335670da7596"
+    "hash": "c0fe3ed8f84f72b5"
   },
   "/foundation": {
     "lastmod": "2026-11-19",
-    "hash": "fc58db507b021230"
+    "hash": "5c2c5fcccdd5bbb1"
   },
   "/foundation-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "ec213158c3145a62"
+    "hash": "fb8ef64b1d79a021"
   },
   "/gallery": {
     "lastmod": "2026-11-19",
-    "hash": "9354b12c40b92d8a"
+    "hash": "1ce1b5c2d7c25412"
   },
   "/generator": {
     "lastmod": "2026-11-19",
-    "hash": "3b52af3801b91acc"
+    "hash": "bf967d53bc94af58"
   },
   "/german-floor-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "8e9c6b47df352acb"
+    "hash": "aa1c6dff3ace71c4"
   },
   "/global-markets": {
     "lastmod": "2026-11-19",
-    "hash": "dd8a10ee5bc5fb52"
+    "hash": "10136ac9c76513cb"
   },
   "/global-site-safety-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "1a5929c0673f0edc"
+    "hash": "e07b85dcac65fbfc"
   },
   "/glossary": {
     "lastmod": "2026-11-19",
-    "hash": "5cd660adbb7299bb"
+    "hash": "8da50328e8c17623"
   },
   "/heat-comfort": {
     "lastmod": "2026-11-19",
-    "hash": "57635b145eeac2c3"
+    "hash": "2340dbd629d34afb"
   },
   "/icf-wall-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "5e86a79f6e6c77e9"
+    "hash": "3eb0dd1e62b193af"
   },
   "/image-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "f0af677d8f5727fb"
+    "hash": "6d5cbf3103fc264d"
   },
   "/increte-flooring-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "2f99963004f43a18"
+    "hash": "a3e18c3f32425799"
   },
   "/insulation-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "2956b96209bb9807"
+    "hash": "d0befc49c2d54a63"
   },
   "/labour-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "1717b56fc00356c1"
+    "hash": "8f40fbfd26b91cf6"
   },
   "/learn": {
     "lastmod": "2026-11-19",
-    "hash": "b27e4a336e457af3"
+    "hash": "c241abcb0996d2e4"
   },
   "/learn/a-practical-quality-control-checklist-for-reinforcement-estimates": {
     "lastmod": "2026-11-10",
@@ -1457,7 +1457,7 @@
   },
   "/learn/build-in-nigeria-from-abroad": {
     "lastmod": "2026-11-19",
-    "hash": "b8053f19769ce2e3"
+    "hash": "4f39a2697cc37605"
   },
   "/learn/building-in-the-rainy-season": {
     "lastmod": "2026-11-10",
@@ -3253,2002 +3253,1994 @@
   },
   "/maintenance-planner": {
     "lastmod": "2026-11-19",
-    "hash": "2c2e53e5448b03a2"
+    "hash": "8d4b17b83a401aa5"
   },
   "/map": {
     "lastmod": "2026-11-19",
-    "hash": "2fd590caefb91a16"
+    "hash": "baeba1a80369b8c2"
   },
   "/margin-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "06a3adc31721981b"
+    "hash": "b61e48809c0e4b9f"
   },
   "/market-intelligence": {
     "lastmod": "2026-11-19",
-    "hash": "ebd99ba28c8fb585"
+    "hash": "2fb5adcd9d8d145e"
   },
   "/market-intelligence/companies": {
     "lastmod": "2026-11-19",
-    "hash": "c6f89d9b3222f261"
+    "hash": "988fb64ee050c696"
   },
   "/market-intelligence/investment": {
     "lastmod": "2026-11-19",
-    "hash": "40099a71ed1074cc"
+    "hash": "c40d5d9ef7a30663"
   },
   "/market-intelligence/materials": {
     "lastmod": "2026-11-19",
-    "hash": "9aae1e5b0139a4b5"
+    "hash": "d370e567227d203a"
   },
   "/market-intelligence/news": {
     "lastmod": "2026-11-19",
-    "hash": "2be07413a6ad7a14"
+    "hash": "97934de69f1ee9ad"
   },
   "/market-intelligence/stocks": {
     "lastmod": "2026-11-19",
-    "hash": "7e77d899c11543a4"
+    "hash": "8cc3d556dcf7d7a6"
   },
   "/market-intelligence/trends": {
     "lastmod": "2026-11-19",
-    "hash": "9be87545810be732"
+    "hash": "379da41a5e58b4ce"
   },
   "/market/ae": {
     "lastmod": "2026-11-19",
-    "hash": "63f4c5e3b025161a"
+    "hash": "d19b99cecf35bc2b"
   },
   "/market/ae/templates": {
     "lastmod": "2026-11-19",
-    "hash": "b3feba7d1b8c4c7d"
+    "hash": "93ac7c3caf1ce239"
   },
   "/market/ae/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "48d28d9008305ccd"
+    "hash": "7ecc28ab6b2e122b"
   },
   "/market/ae/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7155ed43a03fbd76"
+    "hash": "fbc853bfea2a0354"
   },
   "/market/ae/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0446410d2e4eb3b8"
+    "hash": "6ae61a497cbaa843"
   },
   "/market/ae/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a5a63e9d8a92dd8a"
+    "hash": "813012a12943f035"
   },
   "/market/ae/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e8f62f0dee4cc23b"
+    "hash": "7d5a54c2e6131692"
   },
   "/market/ae/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a659ea11bb772db1"
+    "hash": "239b5e061703d425"
   },
   "/market/ae/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a5a6205cd37b0929"
+    "hash": "f9601c609ae2b010"
   },
   "/market/ae/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "608d541bf33a26cc"
+    "hash": "54a2f803353186d8"
   },
   "/market/ae/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "760617ff7bf507c0"
+    "hash": "578790dafc540773"
   },
   "/market/ae/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e2b9da3590934ffb"
+    "hash": "1aa07f2270668d86"
   },
   "/market/au": {
     "lastmod": "2026-11-19",
-    "hash": "99e7f55f12b0cf8c"
+    "hash": "e14dd4d533cc1403"
   },
   "/market/au/templates": {
     "lastmod": "2026-11-19",
-    "hash": "10851ad28ead987a"
+    "hash": "0ad1c84e3dc98bf2"
   },
   "/market/au/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b5cd08d4d172e7d3"
+    "hash": "712f93c1126c6bf4"
   },
   "/market/au/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e4cdd4cd1fbcfda2"
+    "hash": "a1afac5a4808d02c"
   },
   "/market/au/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b596319245ab3324"
+    "hash": "120e7c713819121f"
   },
   "/market/au/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "982cecec7071887b"
+    "hash": "3c0dd6014dcac409"
   },
   "/market/au/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a9edb1e05488bcdd"
+    "hash": "ec87508eebc45b77"
   },
   "/market/au/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4faadac4e6a2db4d"
+    "hash": "5ddf628285284696"
   },
   "/market/au/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "266019220277de81"
+    "hash": "e3eac0704d9f6b42"
   },
   "/market/au/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "474ac94d409f78b2"
+    "hash": "6f7643a33e5cce8f"
   },
   "/market/au/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "bec18e13e9aee096"
+    "hash": "7670820a643e5269"
   },
   "/market/au/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ed35a9530bed3ee3"
+    "hash": "0a9ed0ac1534b5ea"
   },
   "/market/br": {
     "lastmod": "2026-11-19",
-    "hash": "3a47045aa23d535e"
+    "hash": "dfc3ea850e5f4775"
   },
   "/market/br/templates": {
     "lastmod": "2026-11-19",
-    "hash": "e1618d5f30910723"
+    "hash": "eb5c56a475900be2"
   },
   "/market/br/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7d55f9c49584425a"
+    "hash": "3276e2932db7ab16"
   },
   "/market/br/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c0d93922e8f4bdc8"
+    "hash": "f1b1712b0a43e10d"
   },
   "/market/br/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "eed26e6519a0b1fd"
+    "hash": "0d69cf81879ff6cf"
   },
   "/market/br/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "be30a5f5d054d817"
+    "hash": "aeaf5881f785c543"
   },
   "/market/br/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "112e4b35244638e1"
+    "hash": "7deb5a417ad7c376"
   },
   "/market/br/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "02118322988a4dae"
+    "hash": "1c25fd9eb4e91e1d"
   },
   "/market/br/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "faec02690af1ba2b"
+    "hash": "e8443e97501229e4"
   },
   "/market/br/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1cdcf0da070c3d7a"
+    "hash": "2f5bec47edea8748"
   },
   "/market/br/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "37fa12acf088ef14"
+    "hash": "db44d5e36bf9358d"
   },
   "/market/br/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f423c978437b6d82"
+    "hash": "726a945f65930c88"
   },
   "/market/ca": {
     "lastmod": "2026-11-19",
-    "hash": "ccde8dc007a10997"
+    "hash": "cdea94f9f61e6bc7"
   },
   "/market/ca/templates": {
     "lastmod": "2026-11-19",
-    "hash": "33816c143c74cb9d"
+    "hash": "47bfdf14dce89caf"
   },
   "/market/ca/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "eb2585aa29e243b1"
+    "hash": "e7eadd80e73f0504"
   },
   "/market/ca/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "37c61daa0c4c9f35"
+    "hash": "9d63b39efe3a95ea"
   },
   "/market/ca/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0523ee29d2675909"
+    "hash": "cdc315d024e605c4"
   },
   "/market/ca/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "de64b56917e62781"
+    "hash": "35a36f55fd00f8e4"
   },
   "/market/ca/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c027d74b1524dd54"
+    "hash": "1032e46685145b27"
   },
   "/market/ca/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "08eb4e1bfa99a12b"
+    "hash": "e411d9549684a38e"
   },
   "/market/ca/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3dcb5b89a3d770e4"
+    "hash": "dc1b274961156ed4"
   },
   "/market/ca/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e992aaf494d12393"
+    "hash": "b54d9528c6dd8f97"
   },
   "/market/ca/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "40a1741aeb91b107"
+    "hash": "6dc32dfa6146866c"
   },
   "/market/ca/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0a75dd890cfc49f3"
+    "hash": "b4031f878eb1f003"
   },
   "/market/ch": {
     "lastmod": "2026-11-19",
-    "hash": "c5bafe5b772d609c"
+    "hash": "87e1628d6ef13fd7"
   },
   "/market/ch/templates": {
     "lastmod": "2026-11-19",
-    "hash": "0eee75c991469c85"
+    "hash": "efb6d1a752fcb7b3"
   },
   "/market/ch/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "61727f6ea753c4e3"
+    "hash": "f7d9fa39e2c137d0"
   },
   "/market/ch/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c0124d1805730f4d"
+    "hash": "5605b3f59148178a"
   },
   "/market/ch/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e1597a9b25e580ce"
+    "hash": "d3c9e4b31a230415"
   },
   "/market/ch/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e62794a6df06ebf6"
+    "hash": "721380dfd8a6f4e9"
   },
   "/market/ch/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "25dda203b53ffd0f"
+    "hash": "c6d33436c09f6b65"
   },
   "/market/ch/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "70cafa77a5f01cac"
+    "hash": "1029b8bad774cd54"
   },
   "/market/ch/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e11870cd195c743e"
+    "hash": "9d6c8ff27bd746e5"
   },
   "/market/ch/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4aece1656a95b4e6"
+    "hash": "fb235e9121c9b93b"
   },
   "/market/ch/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9a5520e255d85b80"
+    "hash": "830e86fab5cbfb71"
   },
   "/market/ch/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2155d71dcbfd95ee"
+    "hash": "ed0be09d2e02cd5e"
   },
   "/market/ci": {
     "lastmod": "2026-11-19",
-    "hash": "ce7b617e10dca783"
+    "hash": "9cd0cfd04c98d5ba"
   },
   "/market/ci/templates": {
     "lastmod": "2026-11-19",
-    "hash": "2477b8c3049ae103"
+    "hash": "3d8c5f09d08701a5"
   },
   "/market/ci/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f7e2d7cad4e35e72"
+    "hash": "f4854094a2b90a00"
   },
   "/market/ci/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ce053838eed81281"
+    "hash": "7d705287d6ce2492"
   },
   "/market/ci/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a8595e2c3b7dd034"
+    "hash": "4e1f99ed021811b8"
   },
   "/market/ci/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "eaf592138286988f"
+    "hash": "3df0b9b4b460b7ca"
   },
   "/market/ci/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "57a51888a5eb4963"
+    "hash": "79fc9584c28cb40b"
   },
   "/market/ci/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "655ecd19783e830c"
+    "hash": "29126af7186f466c"
   },
   "/market/ci/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ed35694808b9102a"
+    "hash": "f940e3662a2c0fec"
   },
   "/market/ci/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "dfea3823ad9183d3"
+    "hash": "c96679db9de531da"
   },
   "/market/ci/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6f09b7487d6b0e62"
+    "hash": "ef9612cff7e37bb5"
   },
   "/market/ci/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a86c8181225284b0"
+    "hash": "d352c5259cd8f2e6"
   },
   "/market/cn": {
     "lastmod": "2026-11-19",
-    "hash": "13595b821d6b7b46"
+    "hash": "2a9489e792cd350d"
   },
   "/market/de": {
     "lastmod": "2026-11-19",
-    "hash": "313af48b13bd4420"
+    "hash": "8aa06152d7b21fa9"
   },
   "/market/de/templates": {
     "lastmod": "2026-11-19",
-    "hash": "b561f6e081db75de"
+    "hash": "f14a9210588a2c60"
   },
   "/market/de/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "252461570eca2c1f"
+    "hash": "b01141c316ec71ef"
   },
   "/market/de/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b079ba0a396dbeaa"
+    "hash": "d6365fcc3e9d161a"
   },
   "/market/de/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d22a2d3543745e53"
+    "hash": "b7ff75e8fdfcf0f0"
   },
   "/market/de/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "23f76d901fba9466"
+    "hash": "67cacc94c60acb1e"
   },
   "/market/de/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "57e65e68b3d0f709"
+    "hash": "34c641bd8717d316"
   },
   "/market/de/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4c6825f695aabd5f"
+    "hash": "098b38a66a4f41a5"
   },
   "/market/de/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ff1a0f0c2bfd323c"
+    "hash": "b252069f29fe5137"
   },
   "/market/de/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8ff4894a1dcef085"
+    "hash": "0e8d4284b00b17bc"
   },
   "/market/de/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b3f7c683fe524d21"
+    "hash": "060786be2681d71b"
   },
   "/market/de/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c96fb792eb90ebe9"
+    "hash": "fe3ebd60dc2b421a"
   },
   "/market/eg": {
     "lastmod": "2026-11-19",
-    "hash": "6023df8d2487bf5e"
+    "hash": "cd30bf8ecfee66f6"
   },
   "/market/eg/templates": {
     "lastmod": "2026-11-19",
-    "hash": "952eb5b78bbd2ad0"
+    "hash": "a7cb9d6945d40814"
   },
   "/market/eg/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9df4657cb7196c8d"
+    "hash": "86eb8a7f1ec18627"
   },
   "/market/eg/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cc37367b86fd7f6a"
+    "hash": "4a196e5285ce4dde"
   },
   "/market/eg/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4e29fcb25b5a375c"
+    "hash": "aceb0ca9621add8b"
   },
   "/market/eg/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1dfa62512c16404e"
+    "hash": "c769e54f4ce753bf"
   },
   "/market/eg/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b3f8ac4cce0cba30"
+    "hash": "198b804d0fa06849"
   },
   "/market/eg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7bc9469a8824b208"
+    "hash": "265baf809a319cd6"
   },
   "/market/eg/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6d865e05b293d241"
+    "hash": "0b845dfacfa17076"
   },
   "/market/eg/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e4d72ac98e86d6b2"
+    "hash": "86085b4b44fd9036"
   },
   "/market/eg/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8640768461f5dc41"
+    "hash": "8dfcd0469e95ef50"
   },
   "/market/eg/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "59ca44f57697d042"
+    "hash": "dbef8b77be145d12"
   },
   "/market/es": {
     "lastmod": "2026-11-19",
-    "hash": "1475b92cd0fc592a"
+    "hash": "7b643940f12ecd54"
   },
   "/market/es/templates": {
     "lastmod": "2026-11-19",
-    "hash": "6fc24fd525027239"
+    "hash": "4bdd2980b7d8c055"
   },
   "/market/es/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8955658ff98d5cab"
+    "hash": "077a358a7cac3ab3"
   },
   "/market/es/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fcdb8013d113c3d6"
+    "hash": "1552b507f78a4e2f"
   },
   "/market/es/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f6ff7dc1a73e4883"
+    "hash": "be5dabf719c9e84a"
   },
   "/market/es/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e0c7e8ce99c1adc9"
+    "hash": "397dfbd026c4483e"
   },
   "/market/es/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1f64c84481d80950"
+    "hash": "bb8eed7897763f44"
   },
   "/market/es/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "13f98b3f83eaba97"
+    "hash": "afad77fc911181b9"
   },
   "/market/es/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "24efc2ba1fcb74da"
+    "hash": "7ec9ed827d3ceb05"
   },
   "/market/es/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "743bd0ac0e032af2"
+    "hash": "baece13eccd569eb"
   },
   "/market/es/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d038d935e551ce22"
+    "hash": "1c7a8d76e5406acb"
   },
   "/market/es/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "37b59719289ccf1e"
+    "hash": "28e86ab501f45b20"
   },
   "/market/et": {
     "lastmod": "2026-11-19",
-    "hash": "bdc2ce2a57754685"
+    "hash": "3a49b7ac3098748d"
   },
   "/market/et/templates": {
     "lastmod": "2026-11-19",
-    "hash": "071ba4112f429d03"
+    "hash": "209422c27ed9f2b6"
   },
   "/market/et/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cf0c9e586dff08a0"
+    "hash": "b8688df3a3a74b27"
   },
   "/market/et/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e3d1a1866aa7892e"
+    "hash": "1ecbd3d354ae6ffe"
   },
   "/market/et/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3c7c8253e3d3c096"
+    "hash": "9eb2b553fb7d0970"
   },
   "/market/et/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1ef8776d117168f1"
+    "hash": "0078948a6950c2bd"
   },
   "/market/et/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "105f8eb67973204f"
+    "hash": "a29b42473a2de4e4"
   },
   "/market/et/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7265bd18c2ff5878"
+    "hash": "8c47eb0188fab0d2"
   },
   "/market/et/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5445f597ba787025"
+    "hash": "20fccdd2be66e9ac"
   },
   "/market/et/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "955bb59f35c8a545"
+    "hash": "e482a0577c546096"
   },
   "/market/et/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "381318ba0cf7d95c"
+    "hash": "3a9dd184be9b981f"
   },
   "/market/et/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "69ef049edc7c33ea"
+    "hash": "298d4480e7f6d733"
   },
   "/market/fr": {
     "lastmod": "2026-11-19",
-    "hash": "29ec16f20d96fe2a"
+    "hash": "afa64529b6264261"
   },
   "/market/fr/templates": {
     "lastmod": "2026-11-19",
-    "hash": "f2c355d5b876dd73"
+    "hash": "2a42e0b3dbe4a658"
   },
   "/market/fr/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "838d4ee49149728c"
+    "hash": "0879dad5d9d08fb1"
   },
   "/market/fr/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1c7b5c465c615e3b"
+    "hash": "f23f025ab17155d2"
   },
   "/market/fr/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "15ffaee002749f04"
+    "hash": "860370a79d6b62a1"
   },
   "/market/fr/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "530e7e3c51e03c81"
+    "hash": "45b7f9de8e2c6492"
   },
   "/market/fr/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f4da6a20b473b18a"
+    "hash": "81b15ad343a6253f"
   },
   "/market/fr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7b1102764daa8bb5"
+    "hash": "bfff2491c2c4e3fa"
   },
   "/market/fr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cddc1d10cea12ae2"
+    "hash": "460074b12ca83dfd"
   },
   "/market/fr/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "704c5af6455f663c"
+    "hash": "46dd086359412ae6"
   },
   "/market/fr/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4834b44c6a14068b"
+    "hash": "b4b58939a1b4f368"
   },
   "/market/fr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a50a7782070d9b1b"
+    "hash": "27ad6a0d4726f50e"
   },
   "/market/gb": {
     "lastmod": "2026-11-19",
-    "hash": "51a7ca6ebc3530f2"
+    "hash": "e9f2c2a938bb7d23"
   },
   "/market/gb/templates": {
     "lastmod": "2026-11-19",
-    "hash": "85c63b29e5c3c21a"
+    "hash": "fd800c6bf1790292"
   },
   "/market/gb/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5084436bcea69c08"
+    "hash": "875e6d8fbd731aae"
   },
   "/market/gb/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a24aef974549bde0"
+    "hash": "4ae02fa724aca612"
   },
   "/market/gb/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "949e86a2138f0a8b"
+    "hash": "9f66274a6e8328da"
   },
   "/market/gb/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "26dca6b3770690a9"
+    "hash": "39b3f5db2d0a09ac"
   },
   "/market/gb/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ad8efbaf84f4691b"
+    "hash": "b52da4a732fcfd35"
   },
   "/market/gb/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "03cd211becf5d683"
+    "hash": "23f090ff61a3ece6"
   },
   "/market/gb/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8c86528794ed88c7"
+    "hash": "727dd1e7a7902841"
   },
   "/market/gb/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2f7924c450bf2a44"
+    "hash": "fef5df431cd4d61f"
   },
   "/market/gb/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c920817564020a43"
+    "hash": "bc6e3c506c44e634"
   },
   "/market/gb/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "441f8fcbff826783"
+    "hash": "41c2a9a1576b4350"
   },
   "/market/gh": {
     "lastmod": "2026-11-19",
-    "hash": "068c72b80e3660e4"
+    "hash": "68dbede7baf9517e"
   },
   "/market/gh/templates": {
     "lastmod": "2026-11-19",
-    "hash": "cea818ed416a4302"
+    "hash": "77d4991695ad0035"
   },
   "/market/gh/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "349109e2751146ec"
+    "hash": "fa77578ffa288629"
   },
   "/market/gh/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "185e5b3f80eef31b"
+    "hash": "276e44fa50c7c8fd"
   },
   "/market/gh/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "dc7a33d891d10249"
+    "hash": "9152ec549056b7bd"
   },
   "/market/gh/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8ba3bfc920272328"
+    "hash": "860845f91069ece0"
   },
   "/market/gh/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6ad1fa28f6b1b3e5"
+    "hash": "4ba6cfda107e7f90"
   },
   "/market/gh/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e6ef21a85a5c25f1"
+    "hash": "d7932e530bb7a043"
   },
   "/market/gh/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9221b503b3c6d797"
+    "hash": "6db2846854a425f0"
   },
   "/market/gh/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "18222fe8e500b3e8"
+    "hash": "d19afa66fda9acb1"
   },
   "/market/gh/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "99d0233a967c52b6"
+    "hash": "0d2fabfc01ced68c"
   },
   "/market/gh/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "34176163e8e6398f"
+    "hash": "dc9ab41afc6e0435"
   },
   "/market/id": {
     "lastmod": "2026-11-19",
-    "hash": "67510e17f10dd194"
+    "hash": "77926a2444c3e454"
   },
   "/market/id/templates": {
     "lastmod": "2026-11-19",
-    "hash": "76808a7a1ffac239"
+    "hash": "b28120189369979d"
   },
   "/market/id/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b244e7e652d010cd"
+    "hash": "3d477f06da485412"
   },
   "/market/id/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "605e8a429a924189"
+    "hash": "479fd8f0a2b461a6"
   },
   "/market/id/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "198c2d575b9005bc"
+    "hash": "a100146e541b5020"
   },
   "/market/id/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "17a99499cdc8281a"
+    "hash": "59fa40c413a5a014"
   },
   "/market/id/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "603ac5bb7c2ff311"
+    "hash": "6a3fc79796fd15cb"
   },
   "/market/id/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "21c46e89929f577a"
+    "hash": "62cc2fb4f008e2d2"
   },
   "/market/id/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "52e75096687d255c"
+    "hash": "f758b77ed706c50c"
   },
   "/market/id/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "373b27428582cfd4"
+    "hash": "9e85354a7a5a454f"
   },
   "/market/id/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "616c10d937760e3d"
+    "hash": "ddeeb56dd0eb0c89"
   },
   "/market/id/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "959f687d94dfbc3f"
+    "hash": "511aaad7fb75ff14"
   },
   "/market/in": {
     "lastmod": "2026-11-19",
-    "hash": "439bea2cf941b010"
+    "hash": "723159642019a0f7"
   },
   "/market/in/templates": {
     "lastmod": "2026-11-19",
-    "hash": "e9d07af856419455"
+    "hash": "98a1691c13d4db98"
   },
   "/market/in/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7f5a824f6aa25c21"
+    "hash": "40c61423688f6947"
   },
   "/market/in/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9c03dbf15f4caafe"
+    "hash": "6bd57ddc67eee361"
   },
   "/market/in/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "155275bbfd777c90"
+    "hash": "bc572cbc25390907"
   },
   "/market/in/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d3a72176a8aa742b"
+    "hash": "e16fe340661625a4"
   },
   "/market/in/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "604a7d60dd43b9e4"
+    "hash": "bd5c985686d01acb"
   },
   "/market/in/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5a976e93dd3f9385"
+    "hash": "97e2bae9919a4115"
   },
   "/market/in/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9ba1ba6d45266dc0"
+    "hash": "15f0d528826fa606"
   },
   "/market/in/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cd102f51f99c8278"
+    "hash": "7bb923ced43eb733"
   },
   "/market/in/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b828e3001d48a4fc"
+    "hash": "3b58d334e8f0bea8"
   },
   "/market/in/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fedff66f467a747c"
+    "hash": "cdaa55dc76f9fba9"
   },
   "/market/it": {
     "lastmod": "2026-11-19",
-    "hash": "c3900faedbc0523b"
+    "hash": "75128412423bf911"
   },
   "/market/it/templates": {
     "lastmod": "2026-11-19",
-    "hash": "39218685ae80901e"
+    "hash": "7e6f60bcf31cc65c"
   },
   "/market/it/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d0df286aa29c43d4"
+    "hash": "37e15c6077952ef6"
   },
   "/market/it/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8d4d7dde7c1f782e"
+    "hash": "379fa9884df31c4d"
   },
   "/market/it/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "06464f8c1017f442"
+    "hash": "03b4d301ee33bead"
   },
   "/market/it/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c4ebc40f8c83adee"
+    "hash": "91dc8964b06fba5e"
   },
   "/market/it/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "af10ece8bce64f91"
+    "hash": "e5f783a13843f1ae"
   },
   "/market/it/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d8f8e29b886ad41d"
+    "hash": "36a93f410acf3e99"
   },
   "/market/it/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "188406952b9e7146"
+    "hash": "a6b31a0da93b9a02"
   },
   "/market/it/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "803d66092c2b7aa2"
+    "hash": "1b5374b05083d2bf"
   },
   "/market/it/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "106e42653c33bc31"
+    "hash": "e40ea12b868fcfdb"
   },
   "/market/it/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ec29d7e1c8453c67"
+    "hash": "dcb62316f38e5c8b"
   },
   "/market/jp": {
     "lastmod": "2026-11-19",
-    "hash": "c7eb37834efb3f07"
+    "hash": "fd88bfda1ae0c6a5"
   },
   "/market/jp/templates": {
     "lastmod": "2026-11-19",
-    "hash": "cd665b409a41d867"
+    "hash": "abce0e2a7844bff2"
   },
   "/market/jp/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0ab75a5b913aeb50"
+    "hash": "c316298a6be1871b"
   },
   "/market/jp/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0a519c0f4b233706"
+    "hash": "8d48558bea032986"
   },
   "/market/jp/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "301ee2c60e43a9e1"
+    "hash": "29113cebcc66519e"
   },
   "/market/jp/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "926def0a13cb29ca"
+    "hash": "dc20d05afa7a280c"
   },
   "/market/jp/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ca73cf46b0f51051"
+    "hash": "331b27f20fdeee07"
   },
   "/market/jp/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2c5c17920a2d0f62"
+    "hash": "524edf1999c4dd29"
   },
   "/market/jp/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4bb8bcba13226106"
+    "hash": "fb2e17bd36bc52b2"
   },
   "/market/jp/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4352750296742372"
+    "hash": "83fc6b43fc3f7e54"
   },
   "/market/jp/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6e3d868107ea615c"
+    "hash": "70123bda19ae8de2"
   },
   "/market/jp/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e8ccde794875aa24"
+    "hash": "46f11ee9f6e4b497"
   },
   "/market/ke": {
     "lastmod": "2026-11-19",
-    "hash": "9ad17fd67e94f7f1"
+    "hash": "57777dbf0cb25cad"
   },
   "/market/ke/templates": {
     "lastmod": "2026-11-19",
-    "hash": "9e0a661ccda77712"
+    "hash": "94d00f3aa5d359e8"
   },
   "/market/ke/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a7708091651cf219"
+    "hash": "d4922d99c6a8a09b"
   },
   "/market/ke/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "310f4c013711f966"
+    "hash": "be590117e39eebdf"
   },
   "/market/ke/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ad3ac6a55de6315f"
+    "hash": "aaaa9b9a9926a55c"
   },
   "/market/ke/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fef5a6e53041379f"
+    "hash": "0b8ed365a59f864e"
   },
   "/market/ke/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "099ca23096169518"
+    "hash": "d56bbd77ad12227a"
   },
   "/market/ke/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "074cf86e830c3ec1"
+    "hash": "807b92065881c958"
   },
   "/market/ke/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6123adc16f9a64f5"
+    "hash": "f50422305e3c1970"
   },
   "/market/ke/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e048b5fdb6a34a40"
+    "hash": "352a5f3e3a7f7a8e"
   },
   "/market/ke/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8f6a93116d0f4955"
+    "hash": "a9b5c6bb2e22f217"
   },
   "/market/ke/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "55c1b94851ec9d99"
+    "hash": "9042c73db2daea71"
   },
   "/market/kr": {
     "lastmod": "2026-11-19",
-    "hash": "1e7a11aef35280e6"
+    "hash": "fa76cea405159102"
   },
   "/market/kr/templates": {
     "lastmod": "2026-11-19",
-    "hash": "5118d214db7b89a1"
+    "hash": "9f032c56e2d68c59"
   },
   "/market/kr/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d2c6d8d2bcf55782"
+    "hash": "ae0dcd9e8dc54fb4"
   },
   "/market/kr/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6effb5931791145d"
+    "hash": "0a4687f6b213e73a"
   },
   "/market/kr/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a52926d244cdb23f"
+    "hash": "63c5e70c3246b0e9"
   },
   "/market/kr/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0a928601655e7a24"
+    "hash": "224a506489738f7c"
   },
   "/market/kr/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "074c2f5b9977eae4"
+    "hash": "a2124e95b44e4514"
   },
   "/market/kr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3c34f78ca70e7fff"
+    "hash": "7a01c71110ffb21f"
   },
   "/market/kr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "562fdda5c10b3452"
+    "hash": "b09b07089a2b12c9"
   },
   "/market/kr/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7874a2a6a24d0c6b"
+    "hash": "1e0f8637867e33f1"
   },
   "/market/kr/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3c4fa341a51593c5"
+    "hash": "5d4bff9f658d5b3b"
   },
   "/market/kr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "128df199629b3c2e"
+    "hash": "b2c55ee0d0c79e30"
   },
   "/market/mx": {
     "lastmod": "2026-11-19",
-    "hash": "fdc2a929f2501f04"
+    "hash": "a7d0ef4ebcbfe837"
   },
   "/market/mx/templates": {
     "lastmod": "2026-11-19",
-    "hash": "fd7c488969bb8bd9"
+    "hash": "e20e0d027865d990"
   },
   "/market/mx/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9aaa8925853984b8"
+    "hash": "c39f51fdcf13e228"
   },
   "/market/mx/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f7e02ebd0e2e77b9"
+    "hash": "4ef91aaaf9b822b0"
   },
   "/market/mx/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "45768d9fa7c5e91d"
+    "hash": "f5a233595efacb86"
   },
   "/market/mx/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "be2a4d4bf54eb7b0"
+    "hash": "6a71e73c88c6b4c2"
   },
   "/market/mx/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "38ed9726fc997367"
+    "hash": "6786c3646a3797a3"
   },
   "/market/mx/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "176e67ff95f27321"
+    "hash": "d93ecfbbd7bb4f8b"
   },
   "/market/mx/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5b290a1503fc566c"
+    "hash": "89172c7b0d70cab9"
   },
   "/market/mx/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "78a8202190cba808"
+    "hash": "f05483ed26ce4318"
   },
   "/market/mx/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8d1d230ed89de1ba"
+    "hash": "bd462ba27d43aee6"
   },
   "/market/mx/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5cc99e9331128a2b"
+    "hash": "c65ccedfe7586412"
   },
   "/market/ng": {
     "lastmod": "2026-11-19",
-    "hash": "5ad8e44dc721b3c4"
+    "hash": "6d2b082f4d725b90"
   },
   "/market/ng/templates": {
     "lastmod": "2026-11-19",
-    "hash": "9f6058089b4dfec8"
+    "hash": "d74c3b97f8e7bec7"
   },
   "/market/ng/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "51c17a85002a5ede"
+    "hash": "c7429bc061b07f36"
   },
   "/market/ng/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "04774d5a6c45cffa"
+    "hash": "375e1972d3ed8b21"
   },
   "/market/ng/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2bf7a4a91e19a3b2"
+    "hash": "ecec7c2fabd4ecdf"
   },
   "/market/ng/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c5fec96824ccd868"
+    "hash": "61b7e5d3aed70443"
   },
   "/market/ng/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "af1b8e60c7d0dc2b"
+    "hash": "98cd1acb8bb52ca3"
   },
   "/market/ng/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "69c27bc067a0a3ab"
+    "hash": "e1d74e56beacb339"
   },
   "/market/ng/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "09c8a94bbe558bc8"
+    "hash": "5214f864ba9ad858"
   },
   "/market/ng/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a6435ed3d13af8a5"
+    "hash": "abf67045f13f5b19"
   },
   "/market/ng/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "efab9c4081fada27"
+    "hash": "f9c8640f2b7f5369"
   },
   "/market/ng/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1baf06103c1d8e6f"
+    "hash": "e289af8ba90c4018"
   },
   "/market/nl": {
     "lastmod": "2026-11-19",
-    "hash": "f061102bbcf463d1"
+    "hash": "1d4aeb048f7f0eed"
   },
   "/market/nl/templates": {
     "lastmod": "2026-11-19",
-    "hash": "5b4fc7f8878bb778"
+    "hash": "3ba3d4a90e593d93"
   },
   "/market/nl/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "da61254629d69ede"
+    "hash": "a2c90964a0b6f475"
   },
   "/market/nl/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "82bce0d181aa73dd"
+    "hash": "ec3f99d3f2e4fb8a"
   },
   "/market/nl/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9f93e6dc1ac735c1"
+    "hash": "5b6f585abdb6f000"
   },
   "/market/nl/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cd94e44aa1f29a4b"
+    "hash": "695dca2d5b456132"
   },
   "/market/nl/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a68abc765b1f6ee6"
+    "hash": "78c342d0d15bfa4d"
   },
   "/market/nl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d3c26293e3a2a987"
+    "hash": "8b79d2efe1a37f2e"
   },
   "/market/nl/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "73766c7b884ceb82"
+    "hash": "f4b76acd6b4df33f"
   },
   "/market/nl/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "af256cc940336b7f"
+    "hash": "dcbc20f0c1eb5d5f"
   },
   "/market/nl/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "463f450020141350"
+    "hash": "dcd085db6d58e9b7"
   },
   "/market/nl/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "623fb6953f61e95b"
+    "hash": "71c976d3111590ca"
   },
   "/market/nz": {
     "lastmod": "2026-11-19",
-    "hash": "5f6a1e8c43934331"
+    "hash": "d8a46dadea926d97"
   },
   "/market/nz/templates": {
     "lastmod": "2026-11-19",
-    "hash": "ede0aaa484d8fcc4"
+    "hash": "f41c9a93ede71fba"
   },
   "/market/nz/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ea5b81443fc79f7d"
+    "hash": "60472ba871f2beb8"
   },
   "/market/nz/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ba845de318a861d3"
+    "hash": "f7b80fc1e0265bd7"
   },
   "/market/nz/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "dfa6befc2a4279af"
+    "hash": "f0f0bddc6c933992"
   },
   "/market/nz/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f902f824c1029c39"
+    "hash": "ce15ac227f5cabdb"
   },
   "/market/nz/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "13e04c61bdba0554"
+    "hash": "03a28ab38fae0459"
   },
   "/market/nz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2ce8c56c0f938676"
+    "hash": "10e62e2c53e46f0c"
   },
   "/market/nz/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8b00d434c24e6e81"
+    "hash": "da94b8872770abdb"
   },
   "/market/nz/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ead86de674df7875"
+    "hash": "8692ff949fb1fcf4"
   },
   "/market/nz/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2840e270e454875e"
+    "hash": "db01b9b4c53034df"
   },
   "/market/nz/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ed2cf73b2c169965"
+    "hash": "4003406d1f210bc6"
   },
   "/market/pl": {
     "lastmod": "2026-11-19",
-    "hash": "6999ebb6735b1c11"
+    "hash": "069e4d977a6c8674"
   },
   "/market/pl/templates": {
     "lastmod": "2026-11-19",
-    "hash": "e24bf7659469bc6c"
+    "hash": "c5f98fcd0bd77575"
   },
   "/market/pl/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ca5aa17312414896"
+    "hash": "ce18c0b273ad3237"
   },
   "/market/pl/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "90a929a39b33805a"
+    "hash": "be1551d04da6efe7"
   },
   "/market/pl/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b92d5ec2b02d132d"
+    "hash": "27e0be4369f8bd43"
   },
   "/market/pl/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5eaac1bd8888c4bc"
+    "hash": "5a8de66a215a5060"
   },
   "/market/pl/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "50be1dc5f37363f2"
+    "hash": "269ba99b8bf1f6eb"
   },
   "/market/pl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b3799684311e9153"
+    "hash": "d499c5b1b27d67f0"
   },
   "/market/pl/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4d8de3ef2f61263e"
+    "hash": "0f62e6567a573f37"
   },
   "/market/pl/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fb2a6b5e6c7018fd"
+    "hash": "985883e5b6e9f36c"
   },
   "/market/pl/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f7fb07ce647477a1"
+    "hash": "5aa38b4d52f094cd"
   },
   "/market/pl/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d3550d00f5cf3b5c"
+    "hash": "30827bd365cea109"
   },
   "/market/sa": {
     "lastmod": "2026-11-19",
-    "hash": "46a686390fa1fb78"
+    "hash": "2becb9d12ac117bf"
   },
   "/market/sa/templates": {
     "lastmod": "2026-11-19",
-    "hash": "951be147788e3f4c"
+    "hash": "9c64e645bab829dd"
   },
   "/market/sa/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "e3addf8782ef5b48"
+    "hash": "72418972369585e3"
   },
   "/market/sa/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9d92d4520ac2c17a"
+    "hash": "2f036e9d1e009e58"
   },
   "/market/sa/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4f1993246af9d6e0"
+    "hash": "8722f592da90aa9a"
   },
   "/market/sa/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "39c4a5163aa2d31b"
+    "hash": "67aa5243f8f8facc"
   },
   "/market/sa/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fbe1296b115531f8"
+    "hash": "071fc1f22e82726a"
   },
   "/market/sa/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6e7270e8db1b4739"
+    "hash": "7e7b02e41120bf80"
   },
   "/market/sa/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "abd68276a6765dd9"
+    "hash": "c9921637d96bceb1"
   },
   "/market/sa/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "9bf8ab87e3bf5aca"
+    "hash": "bb276b9e964c6aa1"
   },
   "/market/sa/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "aa620dbf4a71e671"
+    "hash": "fa384e15ed32cddd"
   },
   "/market/sa/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5df122a8360d057c"
+    "hash": "d72f2b13adee0ee5"
   },
   "/market/se": {
     "lastmod": "2026-11-19",
-    "hash": "238a9027aa1b11d9"
+    "hash": "0af4bb0d0c089973"
   },
   "/market/se/templates": {
     "lastmod": "2026-11-19",
-    "hash": "067a622c4a7721f7"
+    "hash": "7d6569b5dad589f8"
   },
   "/market/se/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "da93a89b848ee4d8"
+    "hash": "952e874702391aba"
   },
   "/market/se/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5a2c95cb0788c0d1"
+    "hash": "310ccc2e0defed73"
   },
   "/market/se/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "022858865d874e0b"
+    "hash": "e9b6778e2e87c302"
   },
   "/market/se/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "fbb19621ade5082f"
+    "hash": "3dc999405028f0e8"
   },
   "/market/se/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6e71ff235992cca4"
+    "hash": "6a1115787d8beef2"
   },
   "/market/se/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "07fbff33dac36824"
+    "hash": "1e4be75a031cf2fd"
   },
   "/market/se/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8938f3b94da7176b"
+    "hash": "7260a34ca49cad42"
   },
   "/market/se/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ed06961d4c3d4192"
+    "hash": "35233e7ed34a9a7c"
   },
   "/market/se/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5a00d3f62b52ec71"
+    "hash": "09227622aeed7c3a"
   },
   "/market/se/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ee137f51193687cf"
+    "hash": "724b534e0a0bd179"
   },
   "/market/sg": {
     "lastmod": "2026-11-19",
-    "hash": "a903720d05e87517"
+    "hash": "a90667f0194459c6"
   },
   "/market/sg/templates": {
     "lastmod": "2026-11-19",
-    "hash": "f6131b24b6774814"
+    "hash": "12dcb0cd85aea2ba"
   },
   "/market/sg/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "964327ec506de16f"
+    "hash": "001a4baab422d5f8"
   },
   "/market/sg/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "adf15958a2422b86"
+    "hash": "a6ab0c174dbd9cd7"
   },
   "/market/sg/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "74d6addbf616520f"
+    "hash": "4f5b708ef8cda707"
   },
   "/market/sg/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "c881b1a978c85e7d"
+    "hash": "bb3f0e21ae2cd152"
   },
   "/market/sg/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8c222f5f09426ca9"
+    "hash": "74a7ef3d3aa3b462"
   },
   "/market/sg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "decc92adf25ecd7b"
+    "hash": "40681c2c2e0bb5a2"
   },
   "/market/sg/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6e370a7a93271203"
+    "hash": "71ef58b7444ec6cb"
   },
   "/market/sg/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f4d1ce9cbbc399b9"
+    "hash": "ce5309d63315be72"
   },
   "/market/sg/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "acbf16dd4a515626"
+    "hash": "bee959a6407a6cd0"
   },
   "/market/sg/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4daae74a2b890d18"
+    "hash": "c76ef849f7b43d50"
   },
   "/market/tr": {
     "lastmod": "2026-11-19",
-    "hash": "7ab338a3ce6e440f"
+    "hash": "558efec2b19662f5"
   },
   "/market/tr/templates": {
     "lastmod": "2026-11-19",
-    "hash": "6f1555db357cb256"
+    "hash": "6bb56159b6fe2881"
   },
   "/market/tr/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "a2acf01ee06cf242"
+    "hash": "1668cfc807bd97e0"
   },
   "/market/tr/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2d624912128c66df"
+    "hash": "113fede0a78242a4"
   },
   "/market/tr/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "810facc878839618"
+    "hash": "ad996d451600e3a9"
   },
   "/market/tr/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1e362744b9b4fa8e"
+    "hash": "7c613288d0933660"
   },
   "/market/tr/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "984f1235ff81b3b9"
+    "hash": "aeedcd8eaecfb52f"
   },
   "/market/tr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "494bd6a7a520fb41"
+    "hash": "2fc23b3cb51310c0"
   },
   "/market/tr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d9b89105e472e7f7"
+    "hash": "92aa8d3a2812a897"
   },
   "/market/tr/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4cd6e598ee45d31b"
+    "hash": "402bbed6b1ee7915"
   },
   "/market/tr/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8e5a08f77e4f3b58"
+    "hash": "6848b40043d427da"
   },
   "/market/tr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f004d39bd78234d7"
+    "hash": "e402f0baf6ddd84d"
   },
   "/market/tz": {
     "lastmod": "2026-11-19",
-    "hash": "49bc74d318eea7ee"
+    "hash": "4bd26e5682c419b4"
   },
   "/market/tz/templates": {
     "lastmod": "2026-11-19",
-    "hash": "dfdc51a61571794f"
+    "hash": "731f9bec716e94fc"
   },
   "/market/tz/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "b4a97f6abb6ae92d"
+    "hash": "16c4a1f68eb5279d"
   },
   "/market/tz/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4b6da9fcb564afbb"
+    "hash": "1e4e49ad8fdc4557"
   },
   "/market/tz/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "47bfe1fd7b49d2c6"
+    "hash": "844f0656cdd1dbb3"
   },
   "/market/tz/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2e14e44ea016a595"
+    "hash": "b3f0ceda86a78270"
   },
   "/market/tz/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5c714da8819bd8e6"
+    "hash": "1c98b5e2c7e83b65"
   },
   "/market/tz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "38ecf5ea37ad0dd1"
+    "hash": "b4ff9dd82ff51574"
   },
   "/market/tz/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0c4bf99ba6e93378"
+    "hash": "69dbe2dce371ff32"
   },
   "/market/tz/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ca7dd12f6bc59264"
+    "hash": "1de8c5cb3507dccf"
   },
   "/market/tz/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ce0f696148298332"
+    "hash": "b6ae9bee293e9f5c"
   },
   "/market/tz/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "17de8eadc59decd1"
+    "hash": "c50a80d777d3a6da"
   },
   "/market/us": {
     "lastmod": "2026-11-19",
-    "hash": "502d113297ddd6a6"
+    "hash": "02116f93be85d9fa"
   },
   "/market/us/templates": {
     "lastmod": "2026-11-19",
-    "hash": "a8ec187486aceebe"
+    "hash": "a9ed06c0f228461f"
   },
   "/market/us/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "7f1618b2169b44cc"
+    "hash": "88a8701ede6107f2"
   },
   "/market/us/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "23851396eeeae3d7"
+    "hash": "f379c401e104635f"
   },
   "/market/us/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0cc8fc67f942ab48"
+    "hash": "1017c67f36f041c0"
   },
   "/market/us/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6c9e9fa515c22b7c"
+    "hash": "c93bae690e92831e"
   },
   "/market/us/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2392e53434fe3210"
+    "hash": "38f0dff97bc07ef4"
   },
   "/market/us/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5ca5c1356dcc62a9"
+    "hash": "d1994607d598753d"
   },
   "/market/us/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "29c5ef3941a50ddc"
+    "hash": "37777d235a67de73"
   },
   "/market/us/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "968507a23afc2236"
+    "hash": "a7c79b69f4fc9f04"
   },
   "/market/us/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5d63510ae9138e04"
+    "hash": "640a3f7438742c7e"
   },
   "/market/us/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "6db9fd514ff21869"
+    "hash": "acd4ffffd598c8f3"
   },
   "/market/za": {
     "lastmod": "2026-11-19",
-    "hash": "5058820eef06eb7a"
+    "hash": "6644676f85305e19"
   },
   "/market/za/templates": {
     "lastmod": "2026-11-19",
-    "hash": "789438c714c03e4b"
+    "hash": "ca321588aa7d4563"
   },
   "/market/za/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "1d1b56339ac04dbe"
+    "hash": "ce21af73368b3705"
   },
   "/market/za/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5ba1f5fdec6c4737"
+    "hash": "7e35e09739695eff"
   },
   "/market/za/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "f98d26aa9cee3e51"
+    "hash": "5f52d987fe3d9462"
   },
   "/market/za/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3f264ac8dfa3540c"
+    "hash": "6eed6bb644e311f7"
   },
   "/market/za/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "863a37858b8c9181"
+    "hash": "436d1514dd165c66"
   },
   "/market/za/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "3d8a256eafa776c4"
+    "hash": "47ea4de2665dd5a9"
   },
   "/market/za/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "0a7fed44e040a3a2"
+    "hash": "74c44b11f3ec243c"
   },
   "/market/za/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "19fc90cf4015bbed"
+    "hash": "37e8836aae419665"
   },
   "/market/za/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "39edcb405ae2ab57"
+    "hash": "2b8e1d6eef252938"
   },
   "/market/za/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "53f786b784519186"
+    "hash": "9299ae51d35137af"
   },
   "/marketplace": {
     "lastmod": "2026-11-19",
-    "hash": "e425b01d31c73d22"
+    "hash": "f79fbdc3668f0171"
   },
   "/masonry-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "4bed1e8b84987f63"
+    "hash": "09a0f3db000f91cd"
   },
   "/material-advisor": {
     "lastmod": "2026-11-19",
-    "hash": "ad4571595abddf38"
+    "hash": "7b07f700bd5ad155"
   },
   "/material-price-index": {
     "lastmod": "2026-11-19",
-    "hash": "a4fb0db07adaa490"
+    "hash": "82efd8aba03abf28"
   },
   "/material-prices": {
     "lastmod": "2026-11-19",
-    "hash": "b28c1989daefd1ce"
+    "hash": "365849cc7c3bfd19"
   },
   "/mathematical-plan-elevation": {
     "lastmod": "2026-11-19",
-    "hash": "84e235b8b02dc76f"
+    "hash": "b9dfb68b9eb805bd"
   },
   "/mineral-stone-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "f9fdd392660487cb"
+    "hash": "0ffd1898cd23645d"
   },
   "/paint-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "bbcd85c99ebb7c35"
+    "hash": "e7a719d3498a8e10"
   },
   "/paint-comparison": {
     "lastmod": "2026-11-19",
-    "hash": "32c03fbaa591987a"
+    "hash": "8d6327e482ce7562"
   },
   "/painting-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "f7c73056715a19a9"
+    "hash": "943883e48d74b78c"
   },
   "/partners": {
     "lastmod": "2026-11-19",
-    "hash": "fa4e5bfae4865875"
+    "hash": "29af2ba73e47924c"
   },
   "/paving-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "a898f2f7cd5f50bb"
+    "hash": "b3dc7d7dfbf0407a"
   },
   "/planning-approvals": {
     "lastmod": "2026-11-19",
-    "hash": "760106351a1b742f"
+    "hash": "60eb239913e23fa3"
   },
   "/plastering-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "b63ad383bebe4fbd"
+    "hash": "cbdcbd80a10b0a11"
   },
   "/plumbing": {
     "lastmod": "2026-11-19",
-    "hash": "e2672da5f94cc5a7"
+    "hash": "65f38d5def49289a"
   },
   "/pop-ceiling-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "52825f75ff272757"
+    "hash": "d54af548002da73e"
   },
   "/pop-ceiling-cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "f4b8e2d9f8b04f9b"
+    "hash": "782a212426bffc51"
   },
   "/prices": {
     "lastmod": "2026-11-19",
-    "hash": "f665a79a0e5ebc73"
+    "hash": "784e6626d1940eac"
   },
   "/pricing": {
     "lastmod": "2026-11-19",
-    "hash": "b5fed6e1ee00cc7b"
+    "hash": "e18ecd33e10fbcb1"
   },
   "/printables": {
     "lastmod": "2026-11-19",
-    "hash": "d0f7ec5a9acccbca"
+    "hash": "cebe40ba76045cd8"
   },
   "/privacy-policy": {
     "lastmod": "2026-11-19",
-    "hash": "67fb9f9985d2be31"
+    "hash": "f2688d93be721af6"
   },
   "/pro-connect": {
     "lastmod": "2026-11-19",
-    "hash": "c4746af3d2236206"
+    "hash": "26735029dfbbea35"
   },
   "/procurement": {
     "lastmod": "2026-11-19",
-    "hash": "f6730a2a75616a54"
+    "hash": "7b1d476fb2d209f6"
   },
   "/project-timeline": {
     "lastmod": "2026-11-19",
-    "hash": "f1dca4390562e252"
+    "hash": "29f6b4a04320311e"
   },
   "/quote-check": {
     "lastmod": "2026-11-19",
-    "hash": "5402dd662c2c5f6d"
+    "hash": "6b2a192096f3f6d1"
   },
   "/rainwater-gutter-soffit-cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "fc3930257dd2d205"
+    "hash": "e3425465c1a73489"
   },
   "/regional-cost-index": {
     "lastmod": "2026-11-19",
-    "hash": "64ff9a6a4ff84a5b"
+    "hash": "7889052f3edfb983"
   },
   "/reinforcement": {
     "lastmod": "2026-11-19",
-    "hash": "55a44a0e7edeea93"
+    "hash": "ab162e810d093b38"
   },
   "/renovation-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "1e20cbeec2a9db8c"
+    "hash": "a8cbd0494c02b445"
   },
   "/retaining-wall-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "cdd4a32e6e199f12"
+    "hash": "e672f76f164da478"
   },
   "/rewards": {
     "lastmod": "2026-11-19",
-    "hash": "396beafbae8034f4"
+    "hash": "1656c8aa1e431806"
   },
   "/roof-framing-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "a6b9339e07f32d71"
+    "hash": "2cca1993975ae3c8"
   },
   "/screeding-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "36f6fa55036bb0c6"
+    "hash": "73fb0f45888c269f"
   },
   "/screeding-cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "3c848e8e39bb3a76"
+    "hash": "afe9b09705b1b983"
   },
   "/septic-sizing-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "916f09c81118f5a4"
+    "hash": "227b128ba47209e3"
   },
   "/site-intelligence": {
     "lastmod": "2026-11-19",
-    "hash": "306d6b20da0d1872"
+    "hash": "b5d2d666d9b7deaa"
   },
   "/smart-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "4d09f8af67e1ce6c"
+    "hash": "9cfd5740f92bf689"
   },
   "/solar-pv-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "46b2cdde81b011aa"
+    "hash": "aac6fc1fc10baac4"
   },
   "/start-building": {
     "lastmod": "2026-11-19",
-    "hash": "05184c03094cca9e"
+    "hash": "b35d008203564cc0"
   },
   "/structural-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "cb4019386157c2fb"
+    "hash": "b9ec6c65061c318f"
   },
   "/structural-steel-i-beam-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "2993c6dcc8e3103f"
+    "hash": "105d9e23b77c2081"
   },
   "/stucco-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "7fc53fd91d076870"
+    "hash": "48dc142c1536ccbb"
   },
   "/suppliers": {
     "lastmod": "2026-11-19",
-    "hash": "4dedd9022da2a457"
+    "hash": "61bbd2f415dbc8a1"
   },
   "/suppliers/compare": {
     "lastmod": "2026-11-19",
-    "hash": "a808aa70518e478c"
+    "hash": "6dd55b16fe9b456f"
   },
   "/suppliers/register": {
     "lastmod": "2026-11-19",
-    "hash": "17305753cf495006"
+    "hash": "45c537ffebe7c9c9"
   },
   "/surface-assessment": {
     "lastmod": "2026-11-19",
-    "hash": "1472ac44c1c4ce27"
+    "hash": "c4ed028aeb612b2a"
   },
   "/tall-building-structure": {
     "lastmod": "2026-11-19",
-    "hash": "64416b45e9ecd087"
+    "hash": "eeda2cd715ee71d6"
   },
   "/templates": {
     "lastmod": "2026-11-19",
-    "hash": "1120355f25fa81af"
+    "hash": "81a20d60ef01681b"
   },
   "/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-19",
-    "hash": "ef71287343084d79"
+    "hash": "3f2d9c584ac0c4bf"
   },
   "/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "bef773d67904bbdf"
+    "hash": "a784703e9024968e"
   },
   "/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "4b76651eabf5614c"
+    "hash": "b83075692d83d0d4"
   },
   "/templates/childrens-room-painting": {
     "lastmod": "2026-11-19",
-    "hash": "f159ecb561e3ae2b"
+    "hash": "54d882db8e92af06"
   },
   "/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "3c9cf77a9eef1739"
+    "hash": "5027231698412613"
   },
   "/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "564041a7f25f1f61"
+    "hash": "8bbefd02d9a763dd"
   },
   "/templates/corridor-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "4cd3adcb19be5068"
+    "hash": "544a7980ca6b9b6a"
   },
   "/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-19",
-    "hash": "afbdbc1d84c11bb8"
+    "hash": "a02f34c47e9afa05"
   },
   "/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "7f140c2b49ee1b2f"
+    "hash": "ecfe5bd7a938f378"
   },
   "/templates/dining-room-painting": {
     "lastmod": "2026-11-19",
-    "hash": "59f17f54f9d66913"
+    "hash": "1f00559bce9b5e89"
   },
   "/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "7cb51c14ef676137"
+    "hash": "7461120f24633a34"
   },
   "/templates/dining-room-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "b676bf73e2222a5b"
+    "hash": "a4a13e1ab110c57a"
   },
   "/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-19",
-    "hash": "8df2163b83255396"
+    "hash": "5013fbf64fa55ac5"
   },
   "/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-19",
-    "hash": "692cab84bbff3122"
+    "hash": "71f973795607aee3"
   },
   "/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d7bfdf5c1e69f1b3"
+    "hash": "f9bc96b8df74c49e"
   },
   "/templates/hall-coffered-polystyrene-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "155a65b875073b7d"
+    "hash": "de3bfcdec315353f"
   },
   "/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "ce164bb20246392c"
+    "hash": "bb90dc89f1c2bb3f"
   },
   "/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "d0141790a93b1587"
+    "hash": "716fe4f4a3b25022"
   },
   "/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "2e7d191d6a408f2f"
+    "hash": "cb735e28c4827bbc"
   },
   "/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "4ecb056f3dbece29"
+    "hash": "797104259031ce80"
   },
   "/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-19",
-    "hash": "ac9cf07793001e02"
+    "hash": "91ae019f2752e44b"
   },
   "/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "5d5490ce130da4ab"
+    "hash": "ce0329f36d9ba662"
   },
   "/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "2a78fc2a4d119adf"
+    "hash": "a046db72d429d82d"
   },
   "/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "87a7e28180c2262c"
+    "hash": "10a512afa769765a"
   },
   "/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "9697574f35f4ad81"
+    "hash": "93f703d72f334e1b"
   },
   "/templates/master-bedroom-painting": {
     "lastmod": "2026-11-19",
-    "hash": "af3d29b8dace4b5d"
+    "hash": "0c6a391c0d3bf738"
   },
   "/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "f7164141b8c9e262"
+    "hash": "3d6a11dc16a01fcb"
   },
   "/templates/office-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "a0fce7742d625528"
+    "hash": "63ba50a6e193122a"
   },
   "/templates/office-space-painting": {
     "lastmod": "2026-11-19",
-    "hash": "8d5b466cb2bdfcd4"
+    "hash": "98bb6b6fa4cfee96"
   },
   "/templates/shop-front-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "f2f0bcbbb1492737"
+    "hash": "70be09d1b40c0a7e"
   },
   "/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-19",
-    "hash": "7a26fde8827a5784"
+    "hash": "01245050f87d987f"
   },
   "/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-19",
-    "hash": "557cd7edd5046131"
+    "hash": "50d948f7665fc8d9"
   },
   "/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "daefe5e3cf165e32"
+    "hash": "00000d3362347e1f"
   },
   "/templates/single-wall-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "535d2d145c359505"
+    "hash": "e2099e286ae7c444"
   },
   "/templates/small-office-polystyrene-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "88b2796aa23a74a6"
+    "hash": "341001bd8d1d56ba"
   },
   "/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "c24e981f258ae8d0"
+    "hash": "8884b2b7a7e0ee65"
   },
   "/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "cc397e12f8f86d97"
+    "hash": "718c8f41dabd13db"
   },
   "/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "7c39d9eb0fe2255a"
+    "hash": "586c69a908db0634"
   },
   "/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-19",
-    "hash": "c3c273bb78f1b41b"
+    "hash": "8280edd8cbca0040"
   },
   "/templates/standard-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "466ca1bf56f71427"
+    "hash": "3896ce8d5b010510"
   },
   "/templates/standard-living-room-painting": {
     "lastmod": "2026-11-19",
-    "hash": "908c20dc3f23d42a"
+    "hash": "422c78f580c75d57"
   },
   "/templates/standard-room-screeding": {
     "lastmod": "2026-11-19",
-    "hash": "66e9da94637a7f46"
+    "hash": "6136a0de68170877"
   },
   "/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "8c5cef2ecada02f5"
+    "hash": "b45380374c7b74bb"
   },
   "/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
-    "hash": "ef5a02d946e0d126"
+    "hash": "ca8dbdd80f982502"
   },
   "/temporary-works-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "4587d12f5f4ea505"
+    "hash": "d0c828d6d8fb93f2"
   },
   "/terms": {
     "lastmod": "2026-11-19",
-    "hash": "db909a2b1e07e09b"
+    "hash": "087d48c38ffcabc2"
   },
   "/tile-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "24ae9a7f4ec15945"
+    "hash": "b8b47cafacb6ea18"
   },
   "/tile-cost-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "00538724d761f070"
+    "hash": "aa742eba27ac52e3"
   },
   "/tools/ai": {
     "lastmod": "2026-11-19",
-    "hash": "c6fd16f877afe0db"
+    "hash": "70be0f4b08bac5ac"
   },
   "/tools/components": {
     "lastmod": "2026-11-19",
-    "hash": "b8f64efc1559bd93"
+    "hash": "b7ebb4e8e2fc2a74"
   },
   "/tools/finishes": {
     "lastmod": "2026-11-19",
-    "hash": "9734766054515b3d"
+    "hash": "339fd1254414988b"
   },
   "/tools/interiors": {
     "lastmod": "2026-11-19",
-    "hash": "524919410e406f5c"
+    "hash": "71db9cbc52757cd8"
   },
   "/tools/pro": {
     "lastmod": "2026-11-19",
-    "hash": "481b90cededc61d1"
+    "hash": "a76a636c48e0ccbb"
   },
   "/tools/project": {
     "lastmod": "2026-11-19",
-    "hash": "0665631a86d4a3fb"
+    "hash": "c47f5923e46a1745"
   },
   "/tools/services": {
     "lastmod": "2026-11-19",
-    "hash": "4722b20d87b56e19"
+    "hash": "f70aa2f7b0ce8561"
   },
   "/tools/structure": {
     "lastmod": "2026-11-19",
-    "hash": "9080324ff59cf963"
+    "hash": "868a569c4cdfa2a0"
   },
   "/tools/visual-finishing-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "d85f49c17ad2212a"
+    "hash": "31d23fdda2a75ac2"
   },
   "/tv-console-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "aa977d3df380248f"
+    "hash": "2a9b5bfb0d904b29"
   },
   "/tyrolene-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "5db5d1d587237eeb"
+    "hash": "bd3ff0dc0293caa5"
   },
   "/unit-converter": {
     "lastmod": "2026-11-19",
-    "hash": "764df99d00876d6e"
+    "hash": "1b10b6ead2244d66"
   },
   "/user-guide": {
     "lastmod": "2026-11-19",
-    "hash": "15ebe8a398d4cdaf"
+    "hash": "ad76b55af86bdb43"
   },
   "/wall-finish-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "3940e51bea8dd013"
+    "hash": "fe6ee7661b545420"
   },
   "/wallpaper-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "2d8b9fa209fe9620"
+    "hash": "9e817aa048027736"
   },
   "/warranty-certificate": {
     "lastmod": "2026-11-19",
-    "hash": "748bb33b01c273c2"
+    "hash": "64f8f3e2ae660bd7"
   },
   "/water-tower-staging-estimator": {
     "lastmod": "2026-11-19",
-    "hash": "be39c59e5fe5fb09"
+    "hash": "33490d2a05d6dfa8"
   },
   "/waterproofing": {
     "lastmod": "2026-11-19",
-    "hash": "8b8899c1f3b1f2c0"
+    "hash": "016739deb82a252a"
   },
   "/window-blind-calculator": {
     "lastmod": "2026-11-19",
-    "hash": "43c6e15a735a89d0"
-  },
-  "/eifs-wall-estimator": {
-    "lastmod": "2026-11-19",
-    "hash": null
-  },
-  "/faq/eifs-wall-estimator": {
-    "lastmod": "2026-11-19",
-    "hash": null
+    "hash": "7d5ff5029b379471"
   }
 }

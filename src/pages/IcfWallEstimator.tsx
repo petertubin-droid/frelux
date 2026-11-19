@@ -52,6 +52,10 @@ import IcfWallSchematic from "@/components/tools/IcfWallSchematic";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useMarket } from "@/lib/international/market-context";
+import type {
+  IcfFormSystem,
+  IcfInteriorLining,
+} from "@/lib/estimation/icf-engine";
 
 export default function IcfWallEstimator() {
   const { marketCode } = useMarket();
@@ -62,8 +66,16 @@ export default function IcfWallEstimator() {
   // Core dimensional inputs
   const [wallLength, setWallLength] = useState<string>("40");
   const [wallHeight, setWallHeight] = useState<string>("3.0");
-  const [coreThicknessMm, setCoreThicknessMm] = useState<IcfCoreThicknessMm>(150);
+  const [coreThicknessMm, setCoreThicknessMm] =
+    useState<IcfCoreThicknessMm>(150);
   const [foamType, setFoamType] = useState<IcfFoamType>("standard_eps");
+  const [formSystem, setFormSystem] = useState<IcfFormSystem>("flat");
+  const [foamThicknessMm, setFoamThicknessMm] = useState<number>(64);
+  const [interiorLining, setInteriorLining] =
+    useState<IcfInteriorLining>("gypsum_12_5");
+  const [barsPerWeb, setBarsPerWeb] = useState<1 | 2>(1);
+  const [barsPerCourse, setBarsPerCourse] = useState<1 | 2>(1);
+  const [concreteWastePct, setConcreteWastePct] = useState<number>(5);
 
   // Corner and T-junction counts
   const [corners90, setCorners90] = useState<number>(4);
@@ -71,13 +83,22 @@ export default function IcfWallEstimator() {
   const [tWalls, setTWalls] = useState<number>(0);
 
   // Reinforcement inputs
-  const [verticalRebarSize, setVerticalRebarSize] = useState<IcfRebarSize>("12M");
-  const [verticalSpacingMm, setVerticalSpacingMm] = useState<IcfVerticalSpacingMm>(400);
-  const [horizontalCourses, setHorizontalCourses] = useState<IcfHorizontalCourses>("every_course");
+  const [verticalRebarSize, setVerticalRebarSize] =
+    useState<IcfRebarSize>("12M");
+  const [verticalSpacingMm, setVerticalSpacingMm] =
+    useState<IcfVerticalSpacingMm>(400);
+  const [horizontalCourses, setHorizontalCourses] =
+    useState<IcfHorizontalCourses>("every_course");
 
   // Openings
   const [openings, setOpenings] = useState<IcfOpening[]>([
-    { id: "win-1", label: "Front Windows", widthM: 1.8, heightM: 1.2, count: 2 },
+    {
+      id: "win-1",
+      label: "Front Windows",
+      widthM: 1.8,
+      heightM: 1.2,
+      count: 2,
+    },
     { id: "door-1", label: "Entry Door", widthM: 1.0, heightM: 2.1, count: 1 },
   ]);
 
@@ -87,8 +108,14 @@ export default function IcfWallEstimator() {
   const [crewSize, setCrewSize] = useState<number>(4);
 
   // Conversion helpers
-  const lengthM = unitSystem === "imperial" ? (Number(wallLength) || 0) * 0.3048 : Number(wallLength) || 0;
-  const heightM = unitSystem === "imperial" ? (Number(wallHeight) || 0) * 0.3048 : Number(wallHeight) || 0;
+  const lengthM =
+    unitSystem === "imperial"
+      ? (Number(wallLength) || 0) * 0.3048
+      : Number(wallLength) || 0;
+  const heightM =
+    unitSystem === "imperial"
+      ? (Number(wallHeight) || 0) * 0.3048
+      : Number(wallHeight) || 0;
 
   // Add opening handler
   const handleAddOpening = () => {
@@ -111,7 +138,11 @@ export default function IcfWallEstimator() {
   };
 
   // Update opening handler
-  const handleUpdateOpening = <K extends keyof IcfOpening>(id: string, field: K, value: IcfOpening[K]) => {
+  const handleUpdateOpening = <K extends keyof IcfOpening>(
+    id: string,
+    field: K,
+    value: IcfOpening[K],
+  ) => {
     setOpenings((prev) =>
       prev.map((o) => (o.id === id ? { ...o, [field]: value } : o)),
     );
@@ -124,6 +155,12 @@ export default function IcfWallEstimator() {
     setWallHeight("3.0");
     setCoreThicknessMm(150);
     setFoamType("standard_eps");
+    setFormSystem("flat");
+    setFoamThicknessMm(64);
+    setInteriorLining("gypsum_12_5");
+    setBarsPerWeb(1);
+    setBarsPerCourse(1);
+    setConcreteWastePct(5);
     setCorners90(4);
     setCorners45(0);
     setTWalls(0);
@@ -131,8 +168,20 @@ export default function IcfWallEstimator() {
     setVerticalSpacingMm(400);
     setHorizontalCourses("every_course");
     setOpenings([
-      { id: "win-1", label: "Front Windows", widthM: 1.8, heightM: 1.2, count: 2 },
-      { id: "door-1", label: "Entry Door", widthM: 1.0, heightM: 2.1, count: 1 },
+      {
+        id: "win-1",
+        label: "Front Windows",
+        widthM: 1.8,
+        heightM: 1.2,
+        count: 2,
+      },
+      {
+        id: "door-1",
+        label: "Entry Door",
+        widthM: 1.0,
+        heightM: 2.1,
+        count: 1,
+      },
     ]);
     setIsBasement(false);
     setWastePct(4);
@@ -147,6 +196,12 @@ export default function IcfWallEstimator() {
       wallHeightM: heightM,
       coreThicknessMm,
       foamType,
+      formSystem,
+      foamThicknessPerSideMm: foamThicknessMm,
+      interiorLining,
+      verticalBarsPerWeb: barsPerWeb,
+      horizontalBarsPerCourse: barsPerCourse,
+      concreteWastePercent: concreteWastePct,
       openings,
       corners90Count: corners90,
       corners45Count: corners45,
@@ -165,6 +220,12 @@ export default function IcfWallEstimator() {
     heightM,
     coreThicknessMm,
     foamType,
+    formSystem,
+    foamThicknessMm,
+    interiorLining,
+    barsPerWeb,
+    barsPerCourse,
+    concreteWastePct,
     openings,
     corners90,
     corners45,
@@ -180,7 +241,14 @@ export default function IcfWallEstimator() {
 
   // Export BOQ as CSV
   const handleExportCsv = () => {
-    const headers = ["Item Code", "Description", "Category", "Quantity", "Unit", "Notes"];
+    const headers = [
+      "Item Code",
+      "Description",
+      "Category",
+      "Quantity",
+      "Unit",
+      "Notes",
+    ];
     const rows = engineResult.boq.map((b) => [
       `"${b.code}"`,
       `"${b.description.replace(/"/g, '""')}"`,
@@ -189,7 +257,10 @@ export default function IcfWallEstimator() {
       `"${b.unit}"`,
       `"${(b.notes || "").replace(/"/g, '""')}"`,
     ]);
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -205,12 +276,13 @@ export default function IcfWallEstimator() {
   const handleCopyBoq = () => {
     const textLines = [
       `FRELUX Insulated Concrete Form (ICF) Takeoff Summary`,
-      `Core Cavity: ${coreThicknessMm}mm | Foam: ${foamType === "graphite_neopor" ? "Graphite Neopor" : "Standard EPS"}`,
+      `Core Cavity: ${coreThicknessMm}mm | Form: ${formSystem} | Foam: ${foamType === "graphite_neopor" ? "Graphite EPS" : "Standard EPS"} ${foamThicknessMm}mm per face | Market: ${marketCode}`,
       `Net Wall Area: ${engineResult.geometry.netWallAreaM2} m² | Concrete: ${engineResult.concrete.totalVolumeM3} m³`,
       `Total Blocks: ${engineResult.blocks.totalBlocksCount} units | Rebar: ${engineResult.reinforcement.totalSteelWeightTonnes} tonnes`,
       `-------------------------------------------------------`,
       ...engineResult.boq.map(
-        (b) => `${b.code}\t${b.description}\t${b.quantity} ${b.unit}\t${b.notes || ""}`,
+        (b) =>
+          `${b.code}\t${b.description}\t${b.quantity} ${b.unit}\t${b.notes || ""}`,
       ),
     ].join("\n");
 
@@ -273,14 +345,16 @@ export default function IcfWallEstimator() {
                   Wall Geometry & Core Specification
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Enter perimeter centerline, height, and choose concrete core thickness.
+                  Enter perimeter centerline, height, and choose concrete core
+                  thickness.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label htmlFor="wallLength" className="text-xs font-medium">
-                      Total Wall Perimeter ({unitSystem === "metric" ? "m" : "ft"})
+                      Total Wall Perimeter (
+                      {unitSystem === "metric" ? "m" : "ft"})
                     </Label>
                     <Input
                       id="wallLength"
@@ -309,26 +383,42 @@ export default function IcfWallEstimator() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium">Concrete Core Cavity</Label>
+                    <Label className="text-xs font-medium">
+                      Concrete Core Cavity
+                    </Label>
                     <Select
                       value={String(coreThicknessMm)}
-                      onValueChange={(val) => setCoreThicknessMm(Number(val) as IcfCoreThicknessMm)}
+                      onValueChange={(val) =>
+                        setCoreThicknessMm(Number(val) as IcfCoreThicknessMm)
+                      }
                     >
                       <SelectTrigger className="text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="100">100mm (4&quot;) Core</SelectItem>
-                        <SelectItem value="150">150mm (6&quot;) Core - Standard</SelectItem>
-                        <SelectItem value="200">200mm (8&quot;) Core - Heavy</SelectItem>
-                        <SelectItem value="250">250mm (10&quot;) Core</SelectItem>
-                        <SelectItem value="300">300mm (12&quot;) Core - Retaining</SelectItem>
+                        <SelectItem value="100">
+                          100mm (4&quot;) Core
+                        </SelectItem>
+                        <SelectItem value="150">
+                          150mm (6&quot;) Core - Standard
+                        </SelectItem>
+                        <SelectItem value="200">
+                          200mm (8&quot;) Core - Heavy
+                        </SelectItem>
+                        <SelectItem value="250">
+                          250mm (10&quot;) Core
+                        </SelectItem>
+                        <SelectItem value="300">
+                          300mm (12&quot;) Core - Retaining
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium">EPS Foam Formulation</Label>
+                    <Label className="text-xs font-medium">
+                      EPS Foam Formulation
+                    </Label>
                     <Select
                       value={foamType}
                       onValueChange={(val) => setFoamType(val as IcfFoamType)}
@@ -337,42 +427,159 @@ export default function IcfWallEstimator() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="standard_eps">Standard EPS (R-22)</SelectItem>
-                        <SelectItem value="graphite_neopor">Graphite Neopor (R-28.5)</SelectItem>
+                        <SelectItem value="standard_eps">
+                          Standard EPS
+                        </SelectItem>
+                        <SelectItem value="graphite_neopor">
+                          Graphite EPS (higher R)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+
+                {/* Form family, foam thickness and interior lining */}
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-border/40">
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Form Family
+                    </Label>
+                    <Select
+                      value={formSystem}
+                      onValueChange={(val) =>
+                        setFormSystem(val as IcfFormSystem)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="flat">
+                          Flat wall (full cavity)
+                        </SelectItem>
+                        <SelectItem value="waffle">
+                          Waffle grid (large void)
+                        </SelectItem>
+                        <SelectItem value="screen">
+                          Screen grid (larger void)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Foam per Face ({unitSystem === "metric" ? "mm" : "in"})
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      step={0.25}
+                      value={
+                        unitSystem === "metric"
+                          ? foamThicknessMm
+                          : Number((foamThicknessMm / 25.4).toFixed(2))
+                      }
+                      onChange={(e) => {
+                        const raw = Number(e.target.value) || 0;
+                        setFoamThicknessMm(
+                          unitSystem === "metric"
+                            ? raw
+                            : Math.round(raw * 25.4),
+                        );
+                      }}
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Interior Lining
+                    </Label>
+                    <Select
+                      value={interiorLining}
+                      onValueChange={(val) =>
+                        setInteriorLining(val as IcfInteriorLining)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (unlined)</SelectItem>
+                        <SelectItem value="gypsum_12_5">
+                          12.5 mm gypsum
+                        </SelectItem>
+                        <SelectItem value="gypsum_15_9_type_x">
+                          15.9 mm Type X
+                        </SelectItem>
+                        <SelectItem value="double_gypsum_12_5">
+                          Double 12.5 mm
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Concrete Over-order (%)
+                    </Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={25}
+                      value={concreteWastePct}
+                      onChange={(e) =>
+                        setConcreteWastePct(
+                          Math.max(
+                            0,
+                            Math.min(25, Number(e.target.value) || 0),
+                          ),
+                        )
+                      }
+                      className="h-8 text-xs"
+                    />
                   </div>
                 </div>
 
                 {/* Corners and Intersections */}
                 <div className="grid grid-cols-3 gap-2 pt-1 border-t border-border/40">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-muted-foreground">90° Corners</Label>
+                    <Label className="text-[11px] text-muted-foreground">
+                      90° Corners
+                    </Label>
                     <Input
                       type="number"
                       min="0"
                       value={corners90}
-                      onChange={(e) => setCorners90(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(e) =>
+                        setCorners90(Math.max(0, parseInt(e.target.value) || 0))
+                      }
                       className="h-8 text-xs"
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-muted-foreground">45° Splay Corners</Label>
+                    <Label className="text-[11px] text-muted-foreground">
+                      45° Splay Corners
+                    </Label>
                     <Input
                       type="number"
                       min="0"
                       value={corners45}
-                      onChange={(e) => setCorners45(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(e) =>
+                        setCorners45(Math.max(0, parseInt(e.target.value) || 0))
+                      }
                       className="h-8 text-xs"
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-muted-foreground">T-Intersections</Label>
+                    <Label className="text-[11px] text-muted-foreground">
+                      T-Intersections
+                    </Label>
                     <Input
                       type="number"
                       min="0"
                       value={tWalls}
-                      onChange={(e) => setTWalls(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(e) =>
+                        setTWalls(Math.max(0, parseInt(e.target.value) || 0))
+                      }
                       className="h-8 text-xs"
                     />
                   </div>
@@ -386,10 +593,14 @@ export default function IcfWallEstimator() {
                   </Label>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">Bar Size</Label>
+                      <Label className="text-[11px] text-muted-foreground">
+                        Bar Size
+                      </Label>
                       <Select
                         value={verticalRebarSize}
-                        onValueChange={(val) => setVerticalRebarSize(val as IcfRebarSize)}
+                        onValueChange={(val) =>
+                          setVerticalRebarSize(val as IcfRebarSize)
+                        }
                       >
                         <SelectTrigger className="h-8 text-xs">
                           <SelectValue />
@@ -397,7 +608,9 @@ export default function IcfWallEstimator() {
                         <SelectContent>
                           <SelectItem value="10M">10M (11.3mm)</SelectItem>
                           <SelectItem value="12M">12M (12mm) - Std</SelectItem>
-                          <SelectItem value="16M">16M (16mm) - Heavy</SelectItem>
+                          <SelectItem value="16M">
+                            16M (16mm) - Heavy
+                          </SelectItem>
                           <SelectItem value="no4">US #4 (1/2&quot;)</SelectItem>
                           <SelectItem value="no5">US #5 (5/8&quot;)</SelectItem>
                           <SelectItem value="no6">US #6 (3/4&quot;)</SelectItem>
@@ -406,36 +619,102 @@ export default function IcfWallEstimator() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">Vertical Spacing</Label>
+                      <Label className="text-[11px] text-muted-foreground">
+                        Vertical Spacing
+                      </Label>
                       <Select
                         value={String(verticalSpacingMm)}
-                        onValueChange={(val) => setVerticalSpacingMm(Number(val) as IcfVerticalSpacingMm)}
+                        onValueChange={(val) =>
+                          setVerticalSpacingMm(
+                            Number(val) as IcfVerticalSpacingMm,
+                          )
+                        }
                       >
                         <SelectTrigger className="h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="400">400mm (16&quot;) Centers</SelectItem>
-                          <SelectItem value="600">600mm (24&quot;) Centers</SelectItem>
+                          <SelectItem value="400">
+                            400mm (16&quot;) Centers
+                          </SelectItem>
+                          <SelectItem value="600">
+                            600mm (24&quot;) Centers
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">Horiz. Frequency</Label>
+                      <Label className="text-[11px] text-muted-foreground">
+                        Horiz. Frequency
+                      </Label>
                       <Select
                         value={horizontalCourses}
-                        onValueChange={(val) => setHorizontalCourses(val as IcfHorizontalCourses)}
+                        onValueChange={(val) =>
+                          setHorizontalCourses(val as IcfHorizontalCourses)
+                        }
                       >
                         <SelectTrigger className="h-8 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="every_course">Every Course (400mm)</SelectItem>
-                          <SelectItem value="every_second_course">Every 2nd (800mm)</SelectItem>
+                          <SelectItem value="every_course">
+                            Every Course (400mm)
+                          </SelectItem>
+                          <SelectItem value="every_second_course">
+                            Every 2nd (800mm)
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+
+                {/* Bar arrangement across the cavity */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Vertical Bars per Web
+                    </Label>
+                    <Select
+                      value={String(barsPerWeb)}
+                      onValueChange={(val) =>
+                        setBarsPerWeb(Number(val) as 1 | 2)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">
+                          One, centred in the web
+                        </SelectItem>
+                        <SelectItem value="2">
+                          Two, one near each face
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[11px] text-muted-foreground">
+                      Horizontal Bars per Course
+                    </Label>
+                    <Select
+                      value={String(barsPerCourse)}
+                      onValueChange={(val) =>
+                        setBarsPerCourse(Number(val) as 1 | 2)
+                      }
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">One per course</SelectItem>
+                        <SelectItem value="2">
+                          Two, one near each face
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -447,13 +726,19 @@ export default function IcfWallEstimator() {
                       checked={isBasement}
                       onCheckedChange={setIsBasement}
                     />
-                    <Label htmlFor="basement-switch" className="text-xs cursor-pointer">
+                    <Label
+                      htmlFor="basement-switch"
+                      className="text-xs cursor-pointer"
+                    >
                       Below-Grade Earth Retaining (Basement)
                     </Label>
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <Label htmlFor="wastePct" className="text-xs text-muted-foreground">
+                    <Label
+                      htmlFor="wastePct"
+                      className="text-xs text-muted-foreground"
+                    >
                       Waste Allowance:
                     </Label>
                     <Input
@@ -475,9 +760,12 @@ export default function IcfWallEstimator() {
             <Card>
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base">Window & Door Openings</CardTitle>
+                  <CardTitle className="text-base">
+                    Window & Door Openings
+                  </CardTitle>
                   <CardDescription className="text-xs">
-                    Subtracted from wall area; generates bucking & lintel header cages.
+                    Subtracted from wall area; generates bucking & lintel header
+                    cages.
                   </CardDescription>
                 </div>
                 <Button
@@ -505,44 +793,72 @@ export default function IcfWallEstimator() {
                       >
                         <Input
                           value={op.label}
-                          onChange={(e) => handleUpdateOpening(op.id, "label", e.target.value)}
+                          onChange={(e) =>
+                            handleUpdateOpening(op.id, "label", e.target.value)
+                          }
                           className="h-7 text-xs flex-1 min-w-[90px]"
                           placeholder="Label"
                         />
                         <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">W:</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            W:
+                          </span>
                           <Input
                             type="number"
                             step="0.1"
-                            value={unitSystem === "imperial" ? (op.widthM / 0.3048).toFixed(1) : op.widthM}
+                            value={
+                              unitSystem === "imperial"
+                                ? (op.widthM / 0.3048).toFixed(1)
+                                : op.widthM
+                            }
                             onChange={(e) => {
                               const v = Number(e.target.value) || 0;
-                              handleUpdateOpening(op.id, "widthM", unitSystem === "imperial" ? v * 0.3048 : v);
+                              handleUpdateOpening(
+                                op.id,
+                                "widthM",
+                                unitSystem === "imperial" ? v * 0.3048 : v,
+                              );
                             }}
                             className="h-7 w-14 text-xs"
                           />
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">H:</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            H:
+                          </span>
                           <Input
                             type="number"
                             step="0.1"
-                            value={unitSystem === "imperial" ? (op.heightM / 0.3048).toFixed(1) : op.heightM}
+                            value={
+                              unitSystem === "imperial"
+                                ? (op.heightM / 0.3048).toFixed(1)
+                                : op.heightM
+                            }
                             onChange={(e) => {
                               const v = Number(e.target.value) || 0;
-                              handleUpdateOpening(op.id, "heightM", unitSystem === "imperial" ? v * 0.3048 : v);
+                              handleUpdateOpening(
+                                op.id,
+                                "heightM",
+                                unitSystem === "imperial" ? v * 0.3048 : v,
+                              );
                             }}
                             className="h-7 w-14 text-xs"
                           />
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">Qty:</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Qty:
+                          </span>
                           <Input
                             type="number"
                             min="1"
                             value={op.count}
                             onChange={(e) =>
-                              handleUpdateOpening(op.id, "count", Math.max(1, parseInt(e.target.value) || 1))
+                              handleUpdateOpening(
+                                op.id,
+                                "count",
+                                Math.max(1, parseInt(e.target.value) || 1),
+                              )
                             }
                             className="h-7 w-12 text-xs"
                           />
@@ -579,42 +895,69 @@ export default function IcfWallEstimator() {
             {/* High-Level Metric Tiles */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
-                <p className="text-[11px] font-medium text-muted-foreground">Net Wall Area</p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  Net Wall Area
+                </p>
                 <p className="text-xl font-bold text-foreground mt-0.5">
-                  {engineResult.geometry.netWallAreaM2} <span className="text-xs font-normal text-muted-foreground">m²</span>
+                  {engineResult.geometry.netWallAreaM2}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    m²
+                  </span>
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  ({(engineResult.geometry.netWallAreaM2 * 10.764).toFixed(0)} sq ft)
+                  ({(engineResult.geometry.netWallAreaM2 * 10.764).toFixed(0)}{" "}
+                  sq ft)
                 </p>
               </div>
 
               <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
-                <p className="text-[11px] font-medium text-muted-foreground">Total ICF Blocks</p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  Total ICF Blocks
+                </p>
                 <p className="text-xl font-bold text-primary mt-0.5">
-                  {engineResult.blocks.totalBlocksCount} <span className="text-xs font-normal text-muted-foreground">units</span>
+                  {engineResult.blocks.totalBlocksCount}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    units
+                  </span>
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  {engineResult.blocks.straightBlocksCount} straight, {engineResult.blocks.corner90BlocksCount} corner
+                  {engineResult.blocks.straightBlocksCount} straight,{" "}
+                  {engineResult.blocks.corner90BlocksCount} corner
                 </p>
               </div>
 
               <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
-                <p className="text-[11px] font-medium text-muted-foreground">Concrete Core Volume</p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  Concrete Core Volume
+                </p>
                 <p className="text-xl font-bold text-foreground mt-0.5">
-                  {engineResult.concrete.totalVolumeM3} <span className="text-xs font-normal text-muted-foreground">m³</span>
+                  {engineResult.concrete.totalVolumeM3}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    m³
+                  </span>
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  ~{(engineResult.concrete.totalVolumeM3 * 1.30795).toFixed(1)} yd³ ({engineResult.concrete.readyMixTrucks6M3} trucks)
+                  ~{(engineResult.concrete.totalVolumeM3 * 1.30795).toFixed(1)}{" "}
+                  yd³ ({engineResult.concrete.readyMixTrucks6M3} trucks)
                 </p>
               </div>
 
               <div className="bg-card border border-border/80 rounded-xl p-3 shadow-2xs">
-                <p className="text-[11px] font-medium text-muted-foreground">Reinforcement Steel</p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  Reinforcement Steel
+                </p>
                 <p className="text-xl font-bold text-foreground mt-0.5">
-                  {engineResult.reinforcement.totalSteelWeightTonnes} <span className="text-xs font-normal text-muted-foreground">tonnes</span>
+                  {engineResult.reinforcement.totalSteelWeightTonnes}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    tonnes
+                  </span>
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  ({(engineResult.reinforcement.totalSteelWeightKg * 2.20462).toFixed(0)} lbs total)
+                  (
+                  {(
+                    engineResult.reinforcement.totalSteelWeightKg * 2.20462
+                  ).toFixed(0)}{" "}
+                  lbs total)
                 </p>
               </div>
             </div>
@@ -635,7 +978,9 @@ export default function IcfWallEstimator() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
-                    <p className="text-[11px] text-muted-foreground">Continuous R-Value</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Continuous R-Value
+                    </p>
                     <p className="text-lg font-bold text-amber-600 mt-0.5">
                       R-{engineResult.envelope.continuousRValueImperial}
                     </p>
@@ -645,11 +990,15 @@ export default function IcfWallEstimator() {
                   </div>
 
                   <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
-                    <p className="text-[11px] text-muted-foreground">U-Value (Transmittance)</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      U-Value (Transmittance)
+                    </p>
                     <p className="text-lg font-bold text-foreground mt-0.5">
                       {engineResult.envelope.thermalTransmittanceUValue}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">W/(m²·K)</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      W/(m²·K)
+                    </p>
                   </div>
 
                   <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
@@ -660,7 +1009,9 @@ export default function IcfWallEstimator() {
                     <p className="text-lg font-bold text-sky-600 mt-0.5">
                       STC {engineResult.envelope.acousticStcRating}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Acoustic attenuation</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Acoustic attenuation
+                    </p>
                   </div>
 
                   <div className="bg-muted/40 p-2 rounded-lg border border-border/40">
@@ -669,19 +1020,62 @@ export default function IcfWallEstimator() {
                       Fire Resistance
                     </p>
                     <p className="text-lg font-bold text-rose-600 mt-0.5">
-                      {engineResult.envelope.fireResistanceHours} Hours
+                      {engineResult.envelope.fireResistanceHours > 0
+                        ? `${engineResult.envelope.fireResistanceHours} Hours`
+                        : "Not rated"}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Non-combustible core</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {engineResult.envelope.fireResistanceHours > 0
+                        ? "Tested assembly minimum"
+                        : "Lining required"}
+                    </p>
                   </div>
+                </div>
+
+                <div className="space-y-1.5 rounded-md bg-muted/30 border border-border/50 p-2.5 text-[11px] text-muted-foreground">
+                  <p>
+                    <span className="font-semibold text-foreground">
+                      R-value basis:{" "}
+                    </span>
+                    {engineResult.envelope.rValueBasis}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">
+                      Sound:{" "}
+                    </span>
+                    {engineResult.envelope.acousticBasis}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">
+                      Fire:{" "}
+                    </span>
+                    {engineResult.envelope.fireBasis}
+                  </p>
                 </div>
 
                 <div className="rounded-md bg-amber-500/10 border border-amber-500/30 p-2.5 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold">Building Code Mandatory Thermal Barrier: </span>
+                    <span className="font-semibold">
+                      Building Code Mandatory Thermal Barrier:{" "}
+                    </span>
                     {engineResult.envelope.thermalBarrierRequirement}
                   </div>
                 </div>
+
+                {engineResult.warnings.length > 0 && (
+                  <ul className="space-y-1.5">
+                    {engineResult.warnings.map((w, i) => (
+                      <li
+                        key={i}
+                        className="rounded-md bg-rose-500/10 border border-rose-500/30 p-2 text-[11px] text-rose-900 dark:text-rose-200 flex items-start gap-1.5"
+                      >
+                        <AlertTriangle className="h-3.5 w-3.5 text-rose-600 shrink-0 mt-0.5" />
+                        <span>{w}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </CardContent>
             </Card>
 
@@ -696,21 +1090,32 @@ export default function IcfWallEstimator() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/40">
-                    <p className="text-[11px] text-muted-foreground">Total ICF Labor</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Total ICF Labor
+                    </p>
                     <p className="text-base font-bold text-foreground mt-0.5">
                       {engineResult.labor.totalManHours} man-hours
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                      ~{engineResult.labor.estimatedCrewDays} days ({crewSize}-person crew)
+                      ~{engineResult.labor.estimatedCrewDays} days ({crewSize}
+                      -person crew)
                     </p>
                   </div>
 
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/40">
-                    <p className="text-[11px] text-muted-foreground">Traditional Blockwork</p>
-                    <p className="text-base font-bold text-foreground mt-0.5">
-                      {engineResult.labor.traditionalBlockworkManHoursComparison} man-hours
+                    <p className="text-[11px] text-muted-foreground">
+                      Traditional Blockwork
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Masonry + insulation + plaster</p>
+                    <p className="text-base font-bold text-foreground mt-0.5">
+                      {
+                        engineResult.labor
+                          .traditionalBlockworkManHoursComparison
+                      }{" "}
+                      man-hours
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Masonry + insulation + plaster
+                    </p>
                   </div>
 
                   <div className="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded-lg text-emerald-950 dark:text-emerald-200 col-span-2 sm:col-span-1">
@@ -720,7 +1125,9 @@ export default function IcfWallEstimator() {
                     <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
                       {engineResult.labor.laborSavingsPercentage}% Faster
                     </p>
-                    <p className="text-[10px] text-muted-foreground">All-in-one building envelope</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      All-in-one building envelope
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -741,7 +1148,8 @@ export default function IcfWallEstimator() {
               <div className="flex justify-between py-1 border-b border-border/40">
                 <span>Maximum Vertical Rise Rate:</span>
                 <span className="font-semibold text-foreground">
-                  {engineResult.concrete.maxPourLiftRateMPerHour} m/hour (4 ft/hr max)
+                  {engineResult.concrete.maxPourLiftRateMPerHour} m/hour (4
+                  ft/hr max)
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-border/40">
@@ -753,13 +1161,30 @@ export default function IcfWallEstimator() {
               <div className="flex justify-between py-1 border-b border-border/40">
                 <span>Maximum Aggregate Size:</span>
                 <span className="font-semibold text-foreground">
-                  {engineResult.concrete.aggregateSizeMaxMm}mm (3/8&quot; pea gravel)
+                  {engineResult.concrete.aggregateSizeMaxMm}mm (3/8&quot; pea
+                  gravel)
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Concrete Fill of the Cavity:</span>
+                <span className="font-semibold text-foreground">
+                  {(engineResult.concrete.fillFactor * 100).toFixed(0)}% (
+                  {engineResult.concrete.formSystem} forms)
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-border/40">
+                <span>Pour Lifts at 1.2 m:</span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.geometry.pourLifts} lift
+                  {engineResult.geometry.pourLifts === 1 ? "" : "s"}
                 </span>
               </div>
               <div className="flex justify-between py-1">
                 <span>Alignment Turnbuckle Jacks:</span>
                 <span className="font-semibold text-foreground">
-                  {engineResult.bracing.turnbuckleAlignmentJacks} jacks ({engineResult.bracing.concreteAnchorBolts} slab anchors)
+                  {engineResult.bracing.turnbuckleAlignmentJacks} jacks at{" "}
+                  {engineResult.bracing.recommendedJackSpacingM} m centres (
+                  {engineResult.bracing.concreteAnchorBolts} slab anchors)
                 </span>
               </div>
             </CardContent>
@@ -791,12 +1216,24 @@ export default function IcfWallEstimator() {
                   {engineResult.concrete.siteMixGraniteTonnes} tonnes
                 </span>
               </div>
-              <div className="flex justify-between py-1">
+              <div className="flex justify-between py-1 border-b border-border/40">
                 <span>Water:</span>
                 <span className="font-semibold text-foreground">
                   {engineResult.concrete.siteMixWaterLitres} litres
                 </span>
               </div>
+              <div className="flex justify-between py-1">
+                <span>
+                  Mix Design ({engineResult.concrete.mixDesign.grade}):
+                </span>
+                <span className="font-semibold text-foreground">
+                  {engineResult.concrete.mixDesign.cementKgPerM3} kg cement/m³
+                  at w/c {engineResult.concrete.mixDesign.waterCementRatio}
+                </span>
+              </div>
+              <p className="text-[10px] leading-relaxed pt-1 border-t border-border/40">
+                {engineResult.concrete.mixDesign.note}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -810,7 +1247,8 @@ export default function IcfWallEstimator() {
                 Itemized Bill of Quantities (BOQ)
               </CardTitle>
               <CardDescription className="text-xs">
-                Comprehensive purchase schedule covering form blocks, ready-mix, reinforcement, bracing, and envelope materials.
+                Comprehensive purchase schedule covering form blocks, ready-mix,
+                reinforcement, bracing, and envelope materials.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -840,17 +1278,32 @@ export default function IcfWallEstimator() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-muted/40 border-b border-border/60">
                   <tr>
-                    <th className="p-2.5 w-[120px] text-xs font-semibold text-muted-foreground">Code</th>
-                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">Description</th>
-                    <th className="p-2.5 w-[110px] text-xs font-semibold text-muted-foreground">Trade</th>
-                    <th className="p-2.5 w-[100px] text-right text-xs font-semibold text-muted-foreground">Quantity</th>
-                    <th className="p-2.5 w-[80px] text-xs font-semibold text-muted-foreground">Unit</th>
-                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">Specification Notes</th>
+                    <th className="p-2.5 w-[120px] text-xs font-semibold text-muted-foreground">
+                      Code
+                    </th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">
+                      Description
+                    </th>
+                    <th className="p-2.5 w-[110px] text-xs font-semibold text-muted-foreground">
+                      Trade
+                    </th>
+                    <th className="p-2.5 w-[100px] text-right text-xs font-semibold text-muted-foreground">
+                      Quantity
+                    </th>
+                    <th className="p-2.5 w-[80px] text-xs font-semibold text-muted-foreground">
+                      Unit
+                    </th>
+                    <th className="p-2.5 text-xs font-semibold text-muted-foreground">
+                      Specification Notes
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {engineResult.boq.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-muted/20 transition-colors">
+                    <tr
+                      key={idx}
+                      className="hover:bg-muted/20 transition-colors"
+                    >
                       <td className="p-2.5 font-mono text-xs text-muted-foreground">
                         {item.code}
                       </td>
@@ -858,15 +1311,22 @@ export default function IcfWallEstimator() {
                         {item.description}
                       </td>
                       <td className="p-2.5 text-xs capitalize">
-                        <Badge variant="outline" className="text-[10px] font-normal">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-normal"
+                        >
                           {item.category}
                         </Badge>
                       </td>
                       <td className="p-2.5 text-right text-xs font-semibold text-foreground">
                         {item.quantity}
                       </td>
-                      <td className="p-2.5 text-xs text-muted-foreground">{item.unit}</td>
-                      <td className="p-2.5 text-xs text-muted-foreground">{item.notes || "-"}</td>
+                      <td className="p-2.5 text-xs text-muted-foreground">
+                        {item.unit}
+                      </td>
+                      <td className="p-2.5 text-xs text-muted-foreground">
+                        {item.notes || "-"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -886,15 +1346,27 @@ export default function IcfWallEstimator() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
               {engineResult.codeCitations.map((c, i) => (
-                <div key={i} className="p-2.5 rounded-lg border border-border/50 bg-muted/20 space-y-1">
+                <div
+                  key={i}
+                  className="p-2.5 rounded-lg border border-border/50 bg-muted/20 space-y-1"
+                >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-foreground">{c.jurisdiction}</span>
-                    <Badge variant="secondary" className="text-[10px] font-mono">
+                    <span className="font-bold text-foreground">
+                      {c.jurisdiction}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] font-mono"
+                    >
                       {c.code}
                     </Badge>
                   </div>
-                  <p className="text-[11px] text-primary font-medium">{c.clause}</p>
-                  <p className="text-muted-foreground text-[11px] leading-relaxed">{c.summary}</p>
+                  <p className="text-[11px] text-primary font-medium">
+                    {c.clause}
+                  </p>
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">
+                    {c.summary}
+                  </p>
                 </div>
               ))}
             </div>
@@ -915,13 +1387,14 @@ export default function IcfWallEstimator() {
             { label: "Concrete Web Displacement", value: "-1.5% core volume" },
             { label: "Bracing Spacing", value: "2.0m on center + corners" },
             { label: "Rebar Lap Length", value: "48 bar diameters" },
-            { label: "Thermal Barrier", value: "12.5mm Type X Gypsum (IRC R316)" },
+            {
+              label: "Thermal Barrier",
+              value: "12.5mm Type X Gypsum (IRC R316)",
+            },
           ]}
         />
 
-        <EstimateDisclaimer
-          text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction."
-        />
+        <EstimateDisclaimer text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction." />
       </Container>
     </ToolShell>
   );

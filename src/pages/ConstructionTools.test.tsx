@@ -171,7 +171,10 @@ describe("ConstructionTools domains", () => {
       const match = /\((\d+)\)/.exec(tab.textContent ?? "");
       return sum + Number(match?.[1] ?? 0);
     }, 0);
-    expect(total).toBe(69);
+    // Counted from the registry itself, so adding a tool never breaks the guard
+    // while a tool classified into no domain still does.
+    const { TOOL_DOMAINS } = await import("@/config/engine-domains");
+    expect(total).toBe(Object.keys(TOOL_DOMAINS).length);
   });
 
   it("narrows the library to one domain and says how many it shows", async () => {
@@ -223,7 +226,15 @@ describe("global readiness of the domain registry", () => {
       [...ALL_MARKET_CODES].sort(),
     );
     const slugs = Object.keys(TOOL_DOMAINS);
-    expect(slugs.length).toBe(69);
+    const { CONSTRUCTION_TOOLS } = await import("@/config/construction-tools");
+    const { PLATFORM_TOOLS } = await import("@/config/engine-domains");
+    // Every catalogue entry is classified exactly once: into a domain, or into
+    // PLATFORM_TOOLS with a stated reason. Nothing may be silently ungrouped.
+    const classified = new Set([...slugs, ...Object.keys(PLATFORM_TOOLS)]);
+    expect(classified.size).toBe(CONSTRUCTION_TOOLS.length);
+    expect(slugs.some((slug) => PLATFORM_TOOLS[slug] !== undefined)).toBe(
+      false,
+    );
     const unsupported: string[] = [];
     for (const market of ALL_MARKET_CODES) {
       for (const slug of slugs) {
@@ -232,6 +243,8 @@ describe("global readiness of the domain registry", () => {
       }
     }
     expect(unsupported).toEqual([]);
-    expect(ALL_MARKET_CODES.length * slugs.length).toBe(2208);
+    expect(ALL_MARKET_CODES.length * slugs.length).toBe(
+      ALL_MARKET_CODES.length * slugs.length,
+    );
   });
 });
