@@ -1,3 +1,4 @@
+import DeviceRoomsBar from "@/components/rooms/DeviceRoomsBar";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useNavigate } from "react-router-dom";
 import { resolveCityAwarePriceByRole } from "@/lib/price-index/calculator-prices";
@@ -691,6 +692,14 @@ export default function PaintCalculator({
     }));
   }
 
+  /** Rooms measured in another trade, added without retyping them. */
+  function importHouseRooms(rows: HouseRoomRow[]) {
+    setInput((prev) => ({
+      ...prev,
+      houseRooms: [...(prev.houseRooms ?? []), ...rows],
+    }));
+  }
+
   /** Custom house input: add any number of identical single rooms in one step. */
   const [houseQuickAdd, setHouseQuickAdd] = useState({
     length: 0,
@@ -1236,6 +1245,8 @@ export default function PaintCalculator({
                 onApplyPreset={applyPreset}
                 onAddHouseRoom={addHouseRoom}
                 onUpdateHouseRoom={updateHouseRoom}
+                onImportHouseRooms={importHouseRooms}
+                marketCode={marketCode}
                 onRemoveHouseRoom={removeHouseRoom}
                 onAddRun={addRun}
                 onUpdateRun={updateRun}
@@ -1512,6 +1523,8 @@ function Step2({
   onAddHouseRoom,
   onUpdateHouseRoom,
   onRemoveHouseRoom,
+  onImportHouseRooms,
+  marketCode,
   onAddRun,
   onUpdateRun,
   onRemoveRun,
@@ -1530,6 +1543,8 @@ function Step2({
   onAddHouseRoom: () => void;
   onUpdateHouseRoom: (id: string, patch: Partial<HouseRoomRow>) => void;
   onRemoveHouseRoom: (id: string) => void;
+  onImportHouseRooms: (rows: HouseRoomRow[]) => void;
+  marketCode?: string | null;
   onAddRun: () => void;
   onUpdateRun: (id: string, patch: Partial<SurfaceRunRow>) => void;
   onRemoveRun: (id: string) => void;
@@ -1710,6 +1725,13 @@ function Step2({
                     .join(", ")}.`
                 : ""}
             </p>
+            <DeviceRoomsBar
+              rooms={houseRows}
+              onImport={onImportHouseRooms}
+              unit={input.unit}
+              market={marketCode}
+              className="mt-3"
+            />
           </div>
 
           <div className="mt-4 max-w-xs">

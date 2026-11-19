@@ -59,6 +59,7 @@ import {
   houseRowsFromPreset,
 } from "@/lib/estimation/multi-unit";
 import type { HouseRoomRow } from "@/types";
+import DeviceRoomsBar from "@/components/rooms/DeviceRoomsBar";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -816,27 +817,38 @@ export default function TileCalculator({
             </div>
 
             {tileMode === "house" ? (
-              <TileHouseEditor
-                marketPresets={marketPresets}
-                presetId={presetId}
-                onApplyPreset={applyTilePreset}
-                rooms={houseRooms}
-                onUpdateRoom={updateHouseRoom}
-                onRemoveRoom={removeHouseRoom}
-                onAddRoom={addHouseRoom}
-                quickAdd={quickAdd}
-                setQuickAdd={setQuickAdd}
-                onAddIdenticalRooms={addIdenticalRooms}
-                unitShort={unitShortLabel(input.unit)}
-                error={errors.houseRooms}
-                unit={input.unit}
-                onUnitChange={(u) => {
-                  update("unit", u);
-                  // Reseed the preset in the new unit so numbers stay
-                  // consistent; manual rooms are left untouched.
-                  if (presetId) applyTilePreset(presetId);
-                }}
-              />
+              <>
+                <TileHouseEditor
+                  marketPresets={marketPresets}
+                  presetId={presetId}
+                  onApplyPreset={applyTilePreset}
+                  rooms={houseRooms}
+                  onUpdateRoom={updateHouseRoom}
+                  onRemoveRoom={removeHouseRoom}
+                  onAddRoom={addHouseRoom}
+                  quickAdd={quickAdd}
+                  setQuickAdd={setQuickAdd}
+                  onAddIdenticalRooms={addIdenticalRooms}
+                  unitShort={unitShortLabel(input.unit)}
+                  error={errors.houseRooms}
+                  unit={input.unit}
+                  onUnitChange={(u) => {
+                    update("unit", u);
+                    // Reseed the preset in the new unit so numbers stay
+                    // consistent; manual rooms are left untouched.
+                    if (presetId) applyTilePreset(presetId);
+                  }}
+                />
+                <DeviceRoomsBar
+                  rooms={houseRooms}
+                  onImport={(rows) =>
+                    setHouseRooms((current) => [...current, ...rows])
+                  }
+                  unit={input.unit}
+                  market={marketCode}
+                  className="mt-4"
+                />
+              </>
             ) : (
               <>
                 {/* Surface type */}
