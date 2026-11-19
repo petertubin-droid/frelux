@@ -48,6 +48,20 @@ export interface IfcModelElement {
   typeName?: string;
   /** Name of the IfcMaterial / material layer set, when declared. */
   material?: string;
+  /**
+   * Single-value properties the file declares for this element, read from
+   * Pset_* property sets. Complex, list and bounded properties are counted in
+   * `skippedComplexProperties` instead of being flattened or guessed.
+   */
+  properties?: IfcElementProperty[];
+}
+
+export interface IfcElementProperty {
+  /** property set name, e.g. Pset_WallCommon */
+  pset: string;
+  /** property name, e.g. FireRating */
+  name: string;
+  value: string | number | boolean;
 }
 
 /**
@@ -64,11 +78,13 @@ export const IFC_COVERAGE = {
     "IfcRelDefinesByType -> IfcTypeObject",
     "IfcRelAssociatesMaterial -> IfcMaterial / IfcMaterialLayerSet",
     "IfcProject.UnitsInContext -> IfcUnitAssignment",
+    "IfcRelDefinesByProperties -> IfcPropertySet (single-value + enumerated)",
   ],
   /**
-   * Not covered, and not claimed: property sets (Pset_*) are not read, no unit
-   * conversion is performed, and spatial structure above storey level
-   * (site/building) is not modelled. Full IFC4 entity coverage is not claimed.
+   * Not covered, and not claimed: complex, list and bounded properties are
+   * counted and skipped rather than flattened; no unit conversion is
+   * performed; spatial structure above storey level (site/building) is not
+   * modelled. Full IFC4 entity coverage is not claimed.
    */
 } as const;
 
@@ -100,6 +116,13 @@ export interface IfcModelParseResult {
   coverage: IfcCoverageReport;
   /** units the file declares; never converted, only reported */
   units: IfcDeclaredUnits;
+  /** elements carrying at least one declared single-value property */
+  elementsWithProperties: number;
+  /**
+   * complex / list / bounded properties encountered and deliberately skipped,
+   * so a partially read Pset is visible rather than silently thin
+   */
+  skippedComplexProperties: number;
 }
 
 /** IFC classes the QTO takes off (deterministic fixed list). */
@@ -184,6 +207,20 @@ const QUANTITY_KINDS: Array<{
   { attr: "CountValue", kind: "count", type: "IFCQUANTITYCOUNT" },
   { attr: "WeightValue", kind: "weight", type: "IFCQUANTITYWEIGHT" },
 ];
+
+/**
+ * web-ifc returns IFC strings as wrapper objects ({ value, type, name }) for
+ * attributes such as Name and NominalValue, and plain strings elsewhere.
+ * This reads either shape and returns null when there is no usable text.
+ */
+function labelText(x: unknown): string | null {
+  if (typeof x === "string") return x.trim() === "" ? null : x;
+  if (x && typeof x === "object" && "value" in x) {
+    const v = (x as { value: unknown }).value;
+    if (typeof v === "string") return v.trim() === "" ? null : v;
+  }
+  return null;
+}
 
 function refValue(x: unknown): number | null {
   if (x && typeof x === "object" && "value" in x)
@@ -285,6 +322,127 @@ export async function parseIfcModel(
         const list = quantitiesByElement.get(obj.value) ?? [];
         list.push(pd);
         quantitiesByElement.set(obj.value, list);
+      }
+    }
+
+    // 1b. Property sets: element expressID -> declared single-value properties.
+    //     IfcPropertySet/IfcElementQuantity share IfcRelDefinesByProperties, so
+    //     the quantity sets collected above are skipped here by id.
+    const propertiesByElement = new Map<number, IfcElementProperty[]>();
+    let skippedComplexProperties = 0;
+    const psetIds = new Set<number>();
+    const psetType = (WebIfc.IFCPROPERTYSET ?? 0) as number;
+    if (psetType > 0) {
+      const ids = api.GetLineIDsWithType(modelID, psetType);
+      for (let i = 0; i < ids.size(); i++) psetIds.add(ids.get(i));
+    }
+    const singleType = (WebIfc.IFCPROPERTYSINGLEVALUE ?? 0) as number;
+    const enumType = (WebIfc.IFCPROPERTYENUMERATEDVALUE ?? 0) as number;
+    const boundedType = (WebIfc.IFCPROPERTYBOUNDEDVALUE ?? 0) as number;
+    const listType = (WebIfc.IFCPROPERTYLISTVALUE ?? 0) as number;
+    const complexType = (WebIfc.IFCPROPERTYCOMPLEXPROPERTY ?? 0) as number;
+    const SKIPPED_TYPES = new Set(
+      [boundedType, listType, complexType].filter(
+        (t) => typeof t === "number" && t > 0,
+      ),
+    );
+    const scalarProperty = (
+      propID: number,
+    ): { name: string; value: string | number | boolean } | null => {
+      let prop: Record<string, unknown>;
+      try {
+        prop = api.GetLine(modelID, propID) as Record<string, unknown>;
+      } catch {
+        // A malformed property line must never abort the whole model parse.
+        return null;
+      }
+      const name = labelText(prop.Name);
+      if (!name) return null;
+      const nominal = prop.NominalValue as
+        { value?: unknown; type?: number } | undefined;
+      if (nominal && typeof nominal === "object" && "value" in nominal) {
+        const v = nominal.value;
+        if (
+          typeof v === "string" ||
+          typeof v === "number" ||
+          typeof v === "boolean"
+        ) {
+          return { name, value: v };
+        }
+      }
+      if (
+        typeof nominal === "string" ||
+        typeof nominal === "number" ||
+        typeof nominal === "boolean"
+      ) {
+        return { name, value: nominal };
+      }
+      const enumerated = prop.EnumerationValues as
+        Array<{ value?: unknown }> | undefined;
+      if (Array.isArray(enumerated) && enumerated.length > 0) {
+        const v = enumerated[0]?.value;
+        if (
+          typeof v === "string" ||
+          typeof v === "number" ||
+          typeof v === "boolean"
+        ) {
+          return { name, value: v };
+        }
+      }
+      return null;
+    };
+    if (psetIds.size > 0) {
+      const psetProps = new Map<number, IfcElementProperty[]>();
+      for (const psetID of psetIds) {
+        let pset: Record<string, unknown>;
+        try {
+          pset = api.GetLine(modelID, psetID) as Record<string, unknown>;
+        } catch {
+          skippedComplexProperties += 1;
+          continue;
+        }
+        const psetName = labelText(pset.Name);
+        if (!psetName) continue;
+        const hasProps = pset.HasProperties as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(hasProps)) continue;
+        const collected: IfcElementProperty[] = [];
+        for (const ref of hasProps) {
+          let propType: number | undefined;
+          try {
+            propType = (api.GetLine(modelID, ref.value) as { type?: number })
+              .type;
+          } catch {
+            skippedComplexProperties += 1;
+            continue;
+          }
+          if (typeof propType === "number" && SKIPPED_TYPES.has(propType)) {
+            skippedComplexProperties += 1;
+            continue;
+          }
+          const scalar = scalarProperty(ref.value);
+          if (scalar) {
+            collected.push({ pset: psetName, ...scalar });
+          } else {
+            skippedComplexProperties += 1;
+          }
+        }
+        if (collected.length > 0) psetProps.set(psetID, collected);
+      }
+      for (let i = 0; i < rels.size(); i++) {
+        const rel = api.GetLine(modelID, rels.get(i));
+        const pd = refValue(rel.RelatingPropertyDefinition);
+        if (pd === null) continue;
+        const collected = psetProps.get(pd);
+        if (!collected) continue;
+        const related = rel.RelatedObjects as
+          Array<{ value: number }> | undefined;
+        if (!Array.isArray(related)) continue;
+        for (const obj of related) {
+          const list = propertiesByElement.get(obj.value) ?? [];
+          list.push(...collected);
+          propertiesByElement.set(obj.value, list);
+        }
       }
     }
 
@@ -472,6 +630,9 @@ export async function parseIfcModel(
           ...(materialByElement.has(id)
             ? { material: materialByElement.get(id) }
             : {}),
+          ...(propertiesByElement.has(id)
+            ? { properties: propertiesByElement.get(id) }
+            : {}),
         });
       }
     }
@@ -546,6 +707,10 @@ export async function parseIfcModel(
       elementsWithGeometry,
       elementsWithQuantities: withQuantities,
       warnings,
+      elementsWithProperties: elements.filter(
+        (e) => (e.properties?.length ?? 0) > 0,
+      ).length,
+      skippedComplexProperties,
       coverage: summarizeCoverage(geometryClasses, elements),
       units,
     };

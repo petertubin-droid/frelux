@@ -104,3 +104,40 @@ describe("parseIfcModel: spatial, type, material and unit context", () => {
     ).toBe(true);
   });
 });
+
+describe("parseIfcModel property sets (real web-ifc)", () => {
+  it("reads declared single-value and enumerated properties per element", async () => {
+    const result = await parseIfcModel(fixture("property-sets.ifc"));
+    expect(result.ok).toBe(true);
+    const wall = result.elements.find((e) => e.name === "Wall-Ext");
+    const door = result.elements.find((e) => e.name === "Door-FD60");
+    expect(wall?.properties?.map((p) => `${p.pset}.${p.name}`)).toEqual(
+      expect.arrayContaining([
+        "Pset_WallCommon.FireRating",
+        "Pset_WallCommon.IsExternal",
+        "Pset_WallCommon.LoadBearing",
+        "Pset_WallInsulation.ThermalTransmittance",
+      ]),
+    );
+    expect(wall?.properties?.find((p) => p.name === "FireRating")?.value).toBe(
+      "2 HR",
+    );
+    expect(wall?.properties?.find((p) => p.name === "IsExternal")?.value).toBe(
+      true,
+    );
+    // enumerated value comes through as its declared first value
+    expect(
+      door?.properties?.find((p) => p.name === "SecurityRating")?.value,
+    ).toBe("High");
+    expect(result.elementsWithProperties).toBeGreaterThanOrEqual(2);
+  });
+
+  it("counts complex properties instead of flattening them", async () => {
+    const result = await parseIfcModel(fixture("property-sets.ifc"));
+    expect(result.skippedComplexProperties).toBeGreaterThanOrEqual(1);
+    const door = result.elements.find((e) => e.name === "Door-FD60");
+    // the complex "Layers" property must not appear as a flattened scalar
+    expect(door?.properties?.some((p) => p.name === "Layers")).toBe(false);
+    expect(door?.properties?.some((p) => p.name === "Inner")).toBe(false);
+  });
+});
