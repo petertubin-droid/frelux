@@ -92,6 +92,11 @@ export default function Login() {
     mode === "signup" ? "signup" : mode === "signin" ? "signin" : "reset";
   const turnstile = useTurnstileGate(turnstileAction);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  // Set when the bot check cannot run at all. Without it the submit button is
+  // disabled with nothing on screen saying why, which reads as a dead button.
+  const [verificationBlocked, setVerificationBlocked] = useState<
+    "load-failed" | "challenge-error" | "timeout" | null
+  >(null);
 
   // Returning visitors who asked to be remembered get the address prefilled.
   useEffect(() => {
@@ -671,9 +676,34 @@ export default function Login() {
             <TurnstileWidget
               key={`${turnstileAction}-${turnstile.attempt}`}
               action={turnstileAction}
-              onToken={turnstile.setToken}
+              onToken={(token) => {
+                turnstile.setToken(token);
+                // A solved challenge means the blocker is no longer in the way.
+                if (token) setVerificationBlocked(null);
+              }}
+              onUnavailable={setVerificationBlocked}
               className="flex justify-center"
             />
+            {verificationBlocked && !turnstile.token && (
+              <div
+                role="alert"
+                className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-semibold">
+                    {verificationBlocked === "timeout"
+                      ? "The verification check timed out."
+                      : "Verification couldn't load."}
+                  </p>
+                  <p className="mt-1">
+                    {verificationBlocked === "load-failed"
+                      ? "An ad-blocker or content blocker is the usual cause. Disable your ad-blocker from your phone settings, then reload this page and try again."
+                      : "Disable your ad-blocker from your phone settings, then reload this page and try again."}
+                  </p>
+                </div>
+              </div>
+            )}
             {verifyError && (
               <p role="alert" className="text-sm font-medium text-destructive">
                 {verifyError}

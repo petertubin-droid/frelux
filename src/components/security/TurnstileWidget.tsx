@@ -6,10 +6,21 @@ import {
   type TurnstileApi,
 } from "@/lib/turnstile";
 
+/** Why the challenge could not run, so the page can say something useful. */
+export type TurnstileUnavailableReason =
+  "load-failed" | "challenge-error" | "timeout";
+
 type TurnstileWidgetProps = {
   /** Fixed action name, checked server-side against the token. */
   action: string;
   onToken: (token: string | null) => void;
+  /**
+   * Called when the challenge cannot run at all: the script was blocked (an
+   * ad-blocker or content blocker is the usual cause), the challenge itself
+   * errored, or it timed out. Without this the submit button stays disabled
+   * with nothing on screen explaining why.
+   */
+  onUnavailable?: (reason: TurnstileUnavailableReason) => void;
   theme?: "light" | "dark" | "auto";
   className?: string;
 };
@@ -22,6 +33,7 @@ type TurnstileWidgetProps = {
 export function TurnstileWidget({
   action,
   onToken,
+  onUnavailable,
   theme = "auto",
   className,
 }: TurnstileWidgetProps) {
@@ -31,6 +43,8 @@ export function TurnstileWidget({
   // Keep the latest callback without re-rendering the widget.
   const onTokenRef = useRef(onToken);
   onTokenRef.current = onToken;
+  const onUnavailableRef = useRef(onUnavailable);
+  onUnavailableRef.current = onUnavailable;
 
   useEffect(() => {
     if (!turnstileConfigured) {
@@ -50,11 +64,22 @@ export function TurnstileWidget({
           appearance: "always",
           callback: (token: string) => onTokenRef.current(token),
           "expired-callback": () => onTokenRef.current(null),
-          "timeout-callback": () => onTokenRef.current(null),
-          "error-callback": () => onTokenRef.current(null),
+          "timeout-callback": () => {
+            onTokenRef.current(null);
+            onUnavailableRef.current?.("timeout");
+          },
+          "error-callback": () => {
+            onTokenRef.current(null);
+            onUnavailableRef.current?.("challenge-error");
+          },
         });
       })
-      .catch(() => onTokenRef.current(null));
+      .catch(() => {
+        // The script never arrived: a blocker, an offline device, or a CSP
+        // that does not allow challenges.cloudflare.com.
+        onTokenRef.current(null);
+        onUnavailableRef.current?.("load-failed");
+      });
 
     return () => {
       cancelled = true;
