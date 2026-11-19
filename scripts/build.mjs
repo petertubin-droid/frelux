@@ -15,14 +15,32 @@ import { spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import os from "node:os";
 
+// The typecheck is the single most expensive step (≈100 s locally, several
+// minutes and ~3 GB on a Netlify builder, where it is the step most likely to
+// tip a 4 GB container over and get the whole build killed with no error line).
+// GitHub CI runs the same typecheck with a 6 GB heap on every push, so a
+// deploy host can opt out with SKIP_TYPECHECK=1 and still never ship a commit
+// that failed to compile. Default is unchanged: the step runs.
+const skipTypecheck = process.env.SKIP_TYPECHECK === "1";
+
 const steps = [
   ["verify supabase target", "node", ["scripts/verify-supabase-target.mjs"]],
-  ["typecheck", "npm", ["run", "typecheck"]],
+  ...(skipTypecheck
+    ? [["typecheck", "node", ["-e", "console.log('skipped: SKIP_TYPECHECK=1 (CI runs the typecheck with a 6 GB heap)')"]]]
+    : [["typecheck", "npm", ["run", "typecheck"]]]),
   ["faq prerender", "npm", ["run", "faqs:prerender"]],
   ["building type prerender", "npm", ["run", "buildings:prerender"]],
   ["sequence prerender", "npm", ["run", "sequences:prerender"]],
   ["vite build", process.execPath, ["node_modules/vite/bin/vite.js", "build"]],
-  ["page prerender", "node", ["scripts/prerender.mjs"]],
+  // Its own heap cap: the prerender writes thousands of pages and a builder's
+  // default heap is sized for the container, not for this step. Measured peak
+  // with production-volume data (3,856 routes) is well under 512 MB, so 2 GB is
+  // headroom rather than a squeeze; raise it per-host with PRERENDER_HEAP_MB.
+  [
+    "page prerender",
+    "node",
+    [`--max-old-space-size=${process.env.PRERENDER_HEAP_MB || 2048}`, "scripts/prerender.mjs"],
+  ],
   ["service worker", "node", ["scripts/generate-sw.mjs"]],
   ["sitemap", "node", ["scripts/generate-sitemap.mjs"]],
   ["bundle budget", "node", ["scripts/check-bundle-budget.mjs"]],

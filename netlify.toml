@@ -10,6 +10,14 @@
   directory = "netlify/functions"
 
 [build.environment]
+  # The typecheck is skipped on Netlify on purpose. It is the most expensive
+  # build step (≈100 s locally; minutes and ~3 GB on a 4 GB builder, where it
+  # is the step that tips the container over and gets the build killed with
+  # exit code 2 and no error line). GitHub CI runs the identical typecheck
+  # with a 6 GB heap on every push, plus lint, migration checks and the test
+  # suite, so no commit reaches Netlify without having compiled. Set this to
+  # "0" to put the typecheck back into the deploy build.
+  SKIP_TYPECHECK = "1"
   # Match the Node major that .github/workflows/ci.yml builds and tests with.
   # Netlify's default drifts per site age; pinning keeps one validated runtime.
   NODE_VERSION = "20"
