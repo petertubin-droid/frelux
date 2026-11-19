@@ -37,6 +37,7 @@ import {
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import { useWidgetSettings } from "@/lib/widget-settings";
 
 // Derive Supabase project ref from the env URL for dashboard links
 const SUPABASE_PROJECT_REF =
@@ -166,6 +167,7 @@ const RESET_PERIODS = [
 
 export default function AdminAiSettings() {
   const { t } = useLanguage();
+  const { liveChatEnabled, updateWidgetSettings } = useWidgetSettings();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -661,16 +663,20 @@ export default function AdminAiSettings() {
 
                     {feature.key === "livechat" && (
                       <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
-                        <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
-                          {t("Live Chat Settings")}
-                        </h4>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
+                            {t("Live Chat Settings")}
+                          </h4>
+                          <Toggle
+                            label={liveChatEnabled ? t("Widget Active") : t("Widget Disabled")}
+                            checked={liveChatEnabled}
+                            onChange={(checked) =>
+                              updateWidgetSettings({ liveChatEnabled: checked })
+                            }
+                          />
+                        </div>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                          Powered by Google Gemini (gemini-3.6-flash). System
-                          prompt is in the edge function source. Requires{" "}
-                          <code className="text-xs text-brand-purple">
-                            GEMINI_API_KEY
-                          </code>{" "}
-                          in Supabase secrets.
+                          Powered by Google Gemini (gemini-3.6-flash). When disabled, the floating chat widget is hidden across all public pages.
                         </p>
                       </div>
                     )}

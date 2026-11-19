@@ -6,15 +6,15 @@ import {
   type ReactNode,
 } from "react";
 
-type Theme = "light" | "dark";
+type Theme = "dark" | "light";
 
-interface ThemeContextValue {
+interface ThemeContextType {
   theme: Theme;
   toggle: () => void;
-  setTheme: (t: Theme) => void;
+  setTheme: (theme: Theme) => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({
+const ThemeContext = createContext<ThemeContextType>({
   theme: "light",
   toggle: () => {},
   setTheme: () => {},
@@ -22,12 +22,12 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
+    if (typeof window === "undefined") return "light";
     const stored = localStorage.getItem("theme") as Theme | null;
     if (stored) return stored;
-    // Dark is the primary FRELUX visual identity: default to it unless the
-    // visitor explicitly chose light before.
-    return "dark";
+    // Default visual mode is light: default to it unless the visitor
+    // explicitly chose dark before.
+    return "light";
   });
 
   useEffect(() => {
@@ -40,13 +40,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  function toggle() {
+  const toggle = () => {
     setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
-  }
+  };
 
-  function setTheme(t: Theme) {
-    setThemeState(t);
-  }
+  const setTheme = (next: Theme) => {
+    setThemeState(next);
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggle, setTheme }}>
@@ -55,7 +55,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   return useContext(ThemeContext);
 }

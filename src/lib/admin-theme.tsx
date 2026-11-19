@@ -57,7 +57,7 @@ function applyThemeClass(theme: Theme) {
 
 /** Resolve the PUBLIC theme preference the way the public provider does. */
 function readPublicTheme(): Theme {
-  return readStoredTheme(PUBLIC_THEME_KEY) ?? (prefersDark() ? "dark" : "light");
+  return readStoredTheme(PUBLIC_THEME_KEY) ?? "light";
 }
 
 export function AdminThemeProvider({ children }: { children: ReactNode }) {

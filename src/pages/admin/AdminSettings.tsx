@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/BrandedLoader";
 import type { LoaderConfig } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
+import { useWidgetSettings } from "@/lib/widget-settings";
 import {
   SITE_SETTINGS_COLUMNS_WITHOUT_BANNER,
   isMissingMaintenanceBannerColumn,
@@ -32,6 +33,7 @@ import {
 
 export default function AdminSettings() {
   const { t } = useLanguage();
+  const { bottomNavEnabled, liveChatEnabled, updateWidgetSettings } = useWidgetSettings();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [bannerSaving, setBannerSaving] = useState(false);
   const [bannerSupported, setBannerSupported] = useState(true);
@@ -873,6 +875,60 @@ export default function AdminSettings() {
                 </div>
               </div>
             </AdminField>
+          </div>
+        </AdminCard>
+
+        {/* Navigation & Floating Widgets */}
+        <AdminCard>
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-foreground">
+              Navigation & Floating Widgets
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Control the visibility of the mobile bottom navigation bar and
+              floating live chat assistant widget across the public site. Both default to toggled off.
+            </p>
+          </div>
+
+          <div className="space-y-4 divide-y divide-border/40">
+            <div className="flex items-center justify-between pt-2">
+              <div className="max-w-[75%]">
+                <span className="text-sm font-medium text-foreground">
+                  Mobile Bottom Navigation Bar
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  Display sticky bottom navigation bar on mobile viewports.
+                  When disabled, mobile navigation is accessed via the top header
+                  menu.
+                </p>
+              </div>
+              <Toggle
+                srLabel="Mobile bottom navigation bar"
+                checked={bottomNavEnabled}
+                onChange={(checked) =>
+                  updateWidgetSettings({ bottomNavEnabled: checked })
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-4">
+              <div className="max-w-[75%]">
+                <span className="text-sm font-medium text-foreground">
+                  Live Chat Widget
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  Display the floating AI live chat assistant bubble in the
+                  bottom corner for site visitors.
+                </p>
+              </div>
+              <Toggle
+                srLabel="Live chat widget"
+                checked={liveChatEnabled}
+                onChange={(checked) =>
+                  updateWidgetSettings({ liveChatEnabled: checked })
+                }
+              />
+            </div>
           </div>
         </AdminCard>
       </div>

@@ -44,6 +44,7 @@ const MonetagInPagePush = lazy(() =>
   })),
 );
 import ConversionDock from "@/components/convert/ConversionDock";
+import { useWidgetSettings } from "@/lib/widget-settings";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
 import { shouldLoadAdSdks, shouldAnimate } from "@/lib/network";
@@ -129,6 +130,7 @@ export default function Layout() {
   } | null>(null);
   const location = useLocation();
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+  const { bottomNavEnabled, liveChatEnabled } = useWidgetSettings();
 
   // Track visit and check onboarding on first load
   const mountedRef = useRef(true);
@@ -770,13 +772,13 @@ export default function Layout() {
       </ErrorBoundary>
       <ErrorBoundary boundaryName="support-chat" silent>
         <Suspense fallback={null}>
-          <SupportChatWidget />
+          {liveChatEnabled && <SupportChatWidget />}
         </Suspense>
       </ErrorBoundary>
       <ErrorBoundary boundaryName="dock-and-nav" silent>
         <Suspense fallback={null}>
           <ConversionDock />
-          <MobileBottomNav />
+          {bottomNavEnabled && <MobileBottomNav />}
           <BottomAdSlot />
         </Suspense>
       </ErrorBoundary>
