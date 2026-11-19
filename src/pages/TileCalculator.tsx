@@ -701,7 +701,7 @@ export default function TileCalculator({
               subtitle={tx("Calculate tile quantities, adhesive, and grout.")}
               breadcrumbs={[
                 { label: "Home", path: "/" },
-                { label: "Calculators", path: "/calculators" },
+                { label: "Calculators", path: "/construction-tools" },
                 { label: "Tile Calculator" },
               ]}
             />
@@ -725,7 +725,7 @@ export default function TileCalculator({
           subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project."
           breadcrumbs={[
             { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
+            { label: "Calculators", path: "/construction-tools" },
             { label: "Tile Calculator" },
           ]}
         />

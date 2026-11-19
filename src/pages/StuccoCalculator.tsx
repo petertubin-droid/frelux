@@ -14,7 +14,7 @@ export default function StuccoCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Stucco Calculator", path: "/stucco-calculator" },
   ]);
   return (

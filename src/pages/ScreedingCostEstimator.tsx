@@ -115,7 +115,7 @@ export default function ScreedingCostEstimator({
   const { t } = useLanguage();
   const navigate = useNavigate();
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Screeding Cost Estimator", path: "/screeding-cost-estimator" },
   ]);
   const { defaults: calcDefaults } = useCalcDefaults("screeding_cost");
@@ -332,7 +332,7 @@ export default function ScreedingCostEstimator({
             subtitle={`Estimate material and labour costs for your ${finishTerm.toLowerCase()} project.`}
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: finishTitle },
             ]}
           />
@@ -366,7 +366,7 @@ export default function ScreedingCostEstimator({
           subtitle={`Calculate ${finishTerm.toLowerCase()} material costs using the configured systems, coverage, coats, waste, and pricing.`}
           breadcrumbs={[
             { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
+            { label: "Calculators", path: "/construction-tools" },
             { label: finishTitle },
           ]}
         />

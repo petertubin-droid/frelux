@@ -602,7 +602,7 @@ export default function CostEstimator({
             )}
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: "Cost Estimator" },
             ]}
           />
@@ -625,7 +625,7 @@ export default function CostEstimator({
           subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."
           breadcrumbs={[
             { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
+            { label: "Calculators", path: "/construction-tools" },
             { label: "Cost Estimator" },
           ]}
         />

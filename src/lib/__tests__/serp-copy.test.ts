@@ -14,11 +14,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { CONSTRUCTION_TOOLS } from "@/config/construction-tools";
-import {
-  ALIASES,
-  HOW_MANY,
-  NOT_A_QUANTITY,
-} from "../../../scripts/lib/how-many.mjs";
+import { HOW_MANY, NOT_A_QUANTITY } from "../../../scripts/lib/how-many.mjs";
 import { loadToolRegistry } from "../../../scripts/lib/tool-registry.mjs";
 import { listingCopyFor } from "../../../scripts/lib/listing-copy.mjs";
 import {
@@ -184,6 +180,8 @@ describe("alias consolidation", () => {
     ["/borehole-estimator", "/borehole-water-system-estimator"],
     ["/price-index", "/material-price-index"],
     ["/prices/regional-indices", "/regional-cost-index"],
+    ["/calculators", "/construction-tools"],
+    ["/visual-finishing-estimator", "/tools/visual-finishing-estimator"],
   ];
 
   it("permanently redirects to the canonical calculator", () => {
@@ -240,9 +238,7 @@ describe("the how-many answer every tool owes a search", () => {
   });
 
   it("asks a quantity question, and asks each one once", () => {
-    const questions = Object.entries(HOW_MANY)
-      .filter(([path]) => !ALIASES[path])
-      .map(([, v]) => v.q);
+    const questions = Object.values(HOW_MANY).map((v) => v.q);
     const odd = questions.filter((q) => !/^(How |What size )/.test(q));
     expect(odd).toEqual([]);
     const repeated = questions.filter((q, i, all) => all.indexOf(q) !== i);

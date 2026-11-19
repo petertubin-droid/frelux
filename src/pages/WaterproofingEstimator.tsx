@@ -122,7 +122,7 @@ export default function WaterproofingEstimator() {
   const { t } = useLanguage();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Waterproofing Estimator", path: "/waterproofing" },
   ]);
   const { marketCode, market } = useMarket();

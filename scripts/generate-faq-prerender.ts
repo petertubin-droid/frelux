@@ -81,7 +81,7 @@ const routes: PrerenderRoute[] = groups.map((group) => {
     `<h2>Keep reading</h2><ul>`,
     `<li><a href="${trail(group.route)}">${esc(group.name)}</a>: run the calculation on your own measurements.</li>`,
     `<li><a href="/faq/">Every construction question FRELUX answers</a>: all ${groups.length} answer pages by trade.</li>`,
-    `<li><a href="/calculators/">All FRELUX calculators</a>: the full tool list.</li>`,
+    `<li><a href="/construction-tools/">All FRELUX calculators</a>: the full tool list.</li>`,
     `</ul>`,
   ]
     .filter(Boolean)
@@ -158,7 +158,7 @@ const hubContent = [
       )
       .join("")}</ul>`;
   }),
-  `<p><a href="/calculators/">All FRELUX calculators</a> &middot; <a href="/construction-tools">Construction tools</a> &middot; <a href="/learn">Learn hub</a></p>`,
+  `<p><a href="/construction-tools/">All FRELUX calculators</a> &middot; <a href="/construction-tools">Construction tools</a> &middot; <a href="/learn">Learn hub</a></p>`,
 ]
   .filter(Boolean)
   .join("\n");

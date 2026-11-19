@@ -153,7 +153,7 @@ export default function OfflineSyncHub() {
         image="/assets/headers/ai.jpg"
         breadcrumbs={[
           { label: "Home", path: "/" },
-          { label: "Tools", path: "/calculators" },
+          { label: "Tools", path: "/construction-tools" },
           { label: "Offline Edge Sync" },
         ]}
       />

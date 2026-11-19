@@ -356,7 +356,7 @@ export default function PopCeilingCalculator({
             subtitle={tx("Calculate POP ceiling materials and quantities.")}
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: "POP Ceiling Calculator" },
             ]}
           />
@@ -378,7 +378,7 @@ export default function PopCeilingCalculator({
           subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project."
           breadcrumbs={[
             { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
+            { label: "Calculators", path: "/construction-tools" },
             { label: "POP Ceiling Calculator" },
           ]}
         />

@@ -236,7 +236,7 @@ export default function CaseStudyDetail() {
         </Link>
         . Want numbers for your own project?{" "}
         <Link
-          to="/calculators"
+          to="/construction-tools"
           className="font-medium text-brand-purple underline-offset-4 hover:underline"
         >
           {t("Run a free estimate")}

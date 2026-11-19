@@ -418,7 +418,7 @@ export default function FinishEstimator({
             subtitle="Calculate material quantities and costs for Painting, Tyrolene, and Grafitex wall finishes."
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: "Finish Estimator" },
             ]}
           />

@@ -56,7 +56,7 @@ describe("repairInternalLinks", () => {
   });
 
   it("uses a known alias only when the target was actually built", () => {
-    write(root, "calculators", page(`<h1>Calculators</h1>`));
+    write(root, "construction-tools", page(`<h1>Construction tools</h1>`));
     write(
       root,
       "es/learn/a",
@@ -67,7 +67,7 @@ describe("repairInternalLinks", () => {
 
     expect(stats.byAlias).toBe(1);
     const html = readFileSync(join(root, "es/learn/a/index.html"), "utf8");
-    expect(html).toContain('href="/calculators"');
+    expect(html).toContain('href="/construction-tools"');
   });
 
   it("falls back to the nearest existing ancestor", () => {

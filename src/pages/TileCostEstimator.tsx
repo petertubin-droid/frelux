@@ -500,7 +500,7 @@ export default function TileCostEstimator({
             )}
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: "Tile Cost Estimator" },
             ]}
           />
@@ -524,7 +524,7 @@ export default function TileCostEstimator({
           )}
           breadcrumbs={[
             { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
+            { label: "Calculators", path: "/construction-tools" },
             { label: "Tile Cost Estimator" },
           ]}
         />

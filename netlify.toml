@@ -105,6 +105,30 @@
 # instead. They must stay above the /tools/* rewrite below, which would
 # otherwise answer them with index.html first.
 [[redirects]]
+  from = "/calculators"
+  to = "/construction-tools/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/calculators/"
+  to = "/construction-tools/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/visual-finishing-estimator"
+  to = "/tools/visual-finishing-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/visual-finishing-estimator/"
+  to = "/tools/visual-finishing-estimator/"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/borehole-estimator"
   to = "/borehole-water-system-estimator/"
   status = 301
@@ -1113,11 +1137,6 @@
   status = 200
 
 [[redirects]]
-  from = "/calculators"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
   from = "/carbon-footprint"
   to = "/index.html"
   status = 200
@@ -1999,11 +2018,6 @@
 
 [[redirects]]
   from = "/user-guide"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/visual-finishing-estimator"
   to = "/index.html"
   status = 200
 

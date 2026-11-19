@@ -54,7 +54,7 @@ const COVERAGE_LABELS: Record<number, string> = {
 export default function GlobalMarkets() {
   const { t } = useLanguage();
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Global Markets", path: "/global-markets" },
   ]);
   useSeo({

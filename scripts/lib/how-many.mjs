@@ -55,10 +55,6 @@ export const HOW_MANY = {
     q: "How do I build a priced bill of quantities?",
     a: "Measure or import the work, choose the standard, and the studio builds the BOQ with rate build-up, preliminaries and contingency, so every rate can be traced to its parts.",
   },
-  "/visual-finishing-estimator": {
-    q: "How do I compare the cost of two finishes?",
-    a: "The same measured area is costed across paint, tile, screed and cladding, so the comparison is per square metre rather than per tin or per bag.",
-  },
   "/tools/visual-finishing-estimator": {
     q: "How do I compare the cost of two finishes?",
     a: "The same measured area is costed across paint, tile, screed and cladding, so the comparison is per square metre rather than per tin or per bag.",
@@ -397,22 +393,11 @@ export const HOW_MANY = {
  * @type {Record<string, string>}
  */
 export const NOT_A_QUANTITY = {
-  "/calculators": "a directory of the calculators, not one of them",
   "/pricing": "a plan and pricing page, not a calculator",
   "/credits": "a credit balance page, not a calculator",
   "/marketplace": "a listing directory, not a calculator",
   "/faq": "a question index",
   "/learn": "an article index",
-};
-
-/**
- * Two paths that serve the same tool. They carry the same question on purpose,
- * so the uniqueness guard checks canonical paths only.
- *
- * @type {Record<string, string>}
- */
-export const ALIASES = {
-  "/visual-finishing-estimator": "/tools/visual-finishing-estimator",
 };
 
 export const howManyFor = (path) => HOW_MANY[path] ?? null;

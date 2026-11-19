@@ -44,7 +44,7 @@ const CALCULATOR_LABELS: Record<string, string> = {
 export default function EstimateAnalytics() {
   const { t } = useLanguage();
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Estimate Analytics", path: "/estimate-analytics" },
   ]);
   const { user } = useAuth();

@@ -259,7 +259,7 @@ export default function PlanningApprovals() {
         eyebrow="Planning and permits"
         title="Building Permit and Setback Guide"
         subtitle="Who issues the permit, what law they work under, and every stage from plot check to certificate of fitness. Every Nigerian state and the FCT, plus the markets FRELUX serves."
-        backTo="/calculators"
+        backTo="/construction-tools"
         backLabel="All calculators"
         breadcrumbs={[
           { label: "Home", path: "/" },
@@ -436,7 +436,7 @@ export default function PlanningApprovals() {
             Need quantities once the permit question is settled?{" "}
             <Link
               className="font-semibold text-primary underline"
-              to="/calculators"
+              to="/construction-tools"
             >
               Run the numbers on the calculators
             </Link>{" "}

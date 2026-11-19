@@ -175,7 +175,7 @@ export const legalPageContent = {
     `<p>Feedback on the calculators is read against the actual engine behaviour, so a report that names the discipline and the measurement is far more useful than a description of the screen. Suggestions for new markets are checked against the rule that a market needs verified local sources before it can carry prices, which is why some markets show a note instead of figures.</p>` +
     footerNav([
       ["Contact", "/contact"],
-      ["Calculators", "/calculators"],
+      ["Calculators", "/construction-tools"],
       ["Markets", "/global-markets"],
     ]),
 
@@ -233,7 +233,7 @@ export const legalPageContent = {
     `<p>Any signed-in user can submit a project from this page. Nothing is published automatically: an entry appears once it has been reviewed, and an empty gallery shows a plain notice rather than placeholder images of work that does not exist.</p>` +
     `<p>If you are pricing a similar job, the relevant calculators are the fastest route from the finished result back to a quantity: <a href="/paint-calculator/">paint</a>, <a href="/tile-calculator/">tiling</a>, <a href="/screeding-calculator/">screeding</a> and <a href="/pop-ceiling-calculator/">POP ceilings</a> all take room measurements and return materials against your market's prices.</p>` +
     footerNav([
-      ["Calculators", "/calculators"],
+      ["Calculators", "/construction-tools"],
       ["Case studies", "/case-studies"],
       ["Feedback", "/feedback"],
     ]),
@@ -253,10 +253,10 @@ export const legalPageContent = {
     ]) +
     `<h2>Why milestone release matters</h2>` +
     `<p>A single upfront transfer puts all the risk on the person furthest from the site. Releasing in stages moves the risk to where it can be managed: a milestone that is not delivered is not paid, and the evidence attached to it is what the release is judged against.</p>` +
-    `<p>Use the <a href="/diaspora-budget-tracker">diaspora budget tracker</a> to plan the spend and the <a href="/calculators">calculators</a> to price the scope before it is funded, so the milestones are sized from quantities rather than estimates of effort.</p>` +
+    `<p>Use the <a href="/diaspora-budget-tracker">diaspora budget tracker</a> to plan the spend and the <a href="/construction-tools">calculators</a> to price the scope before it is funded, so the milestones are sized from quantities rather than estimates of effort.</p>` +
     footerNav([
       ["Diaspora budget tracker", "/diaspora-budget-tracker"],
-      ["Calculators", "/calculators"],
+      ["Calculators", "/construction-tools"],
       ["Global markets", "/global-markets"],
     ]),
 
@@ -276,7 +276,7 @@ export const legalPageContent = {
     `<p>Each market has its own set of building templates, so a three-bedroom bungalow is sized in metres or feet as that market builds it, and priced in that market's currency. Open a market to see its templates, its price coverage and its standards.</p>` +
     footerNav([
       ["Templates", "/templates"],
-      ["Calculators", "/calculators"],
+      ["Calculators", "/construction-tools"],
       ["Material prices", "/material-prices"],
     ]),
 
@@ -293,9 +293,9 @@ export const legalPageContent = {
     ]) +
     `<h2>Why that separation matters</h2>` +
     `<p>An estimate is only useful if it can be checked. When a number comes from a deterministic engine, the same inputs and the same price book always produce the same output, which means a disagreement can be traced to a measurement or a price rather than to a model's mood. When a price is missing, the answer is a request for the real figure, not a plausible-looking substitute.</p>` +
-    `<p>The same principle shapes the interface: professional, mobile-first, and free of decoration that gets in the way of a number. Start with the <a href="/calculators">calculators</a>, or read how pricing works in each <a href="/global-markets">market</a>.</p>` +
+    `<p>The same principle shapes the interface: professional, mobile-first, and free of decoration that gets in the way of a number. Start with the <a href="/construction-tools">calculators</a>, or read how pricing works in each <a href="/global-markets">market</a>.</p>` +
     footerNav([
-      ["Calculators", "/calculators"],
+      ["Calculators", "/construction-tools"],
       ["Contact", "/contact"],
       ["Privacy Policy", "/privacy-policy"],
     ]),

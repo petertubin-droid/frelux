@@ -1169,7 +1169,7 @@ export default function PaintCalculator({
             )}
             breadcrumbs={[
               { label: "Home", path: "/" },
-              { label: "Calculators", path: "/calculators" },
+              { label: "Calculators", path: "/construction-tools" },
               { label: "Paint Calculator" },
             ]}
           />

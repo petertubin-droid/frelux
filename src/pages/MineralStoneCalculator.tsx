@@ -13,7 +13,7 @@ export default function MineralStoneCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     { name: "Mineral Stone Calculator", path: "/mineral-stone-calculator" },
   ]);
   return (

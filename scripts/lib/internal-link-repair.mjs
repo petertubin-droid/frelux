@@ -56,18 +56,18 @@ export function repairInternalLinks(dir, { quiet = false } = {}) {
     if (/^\/(aprender|aprende|aprendiz|aprendiza)\//.test(p))
       return ["/es/learn", "/learn"];
     // A documented app route with an :id placeholder is a pattern, not a page.
-    if (p.includes(":")) return ["/calculators"];
+    if (p.includes(":")) return ["/construction-tools"];
     if (/^\/calculadora/.test(p) || /^\/estructural/.test(p))
-      return ["/calculators"];
-    if (/^\/estimador/.test(p)) return ["/calculators"];
+      return ["/construction-tools"];
+    if (/^\/estimador/.test(p)) return ["/construction-tools"];
     const table = {
       "/market": ["/global-markets"],
       "/markets": ["/global-markets"],
       "/screed-calculator": ["/screeding-calculator"],
       "/colores": ["/colors"],
-      "/quotes": ["/projects", "/calculators"],
-      "/my-projects": ["/projects", "/calculators"],
-      "/climate-advisor": ["/calculators"],
+      "/quotes": ["/projects", "/construction-tools"],
+      "/my-projects": ["/projects", "/construction-tools"],
+      "/climate-advisor": ["/construction-tools"],
       "/cost-guides": ["/learn", "/prices"],
     };
     return table[p] ?? [];

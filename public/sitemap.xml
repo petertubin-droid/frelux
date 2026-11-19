@@ -7359,12 +7359,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/calculators/</loc>
-    <lastmod>2026-11-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/cost-estimator/</loc>
     <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -7426,12 +7420,6 @@
   </url>
   <url>
     <loc>https://freluxtools.com/tyrolene-estimator/</loc>
-    <lastmod>2026-11-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/visual-finishing-estimator/</loc>
     <lastmod>2026-11-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

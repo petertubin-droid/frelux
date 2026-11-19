@@ -711,7 +711,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -877,7 +877,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -942,7 +942,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -1110,7 +1110,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -1166,7 +1166,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2111,7 +2111,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2175,7 +2175,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2218,7 +2218,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2260,7 +2260,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2316,7 +2316,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2380,7 +2380,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2422,7 +2422,7 @@ const routes = [
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: `${SITE_URL}/calculators`,
+            item: `${SITE_URL}/construction-tools`,
           },
           {
             "@type": "ListItem",
@@ -2533,114 +2533,6 @@ const routes = [
       },
     ],
   },
-  {
-    path: "/calculators",
-    title: "All Construction Calculators and Estimators | FRELUX",
-    description:
-      "Every FRELUX calculator in one directory: structure, finishes, services, prices and project tools, each free and no account needed.",
-    priority: "0.9",
-    changefreq: "monthly",
-    structuredData: [
-      {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        name: "FRELUX Calculators & Estimators",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Build-to-Roof Estimator",
-            url: `${SITE_URL}/build-to-roof-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "Paint Calculator",
-            url: `${SITE_URL}/paint-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: "Painting Estimator",
-            url: `${SITE_URL}/painting-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 4,
-            name: "Screeding Calculator",
-            url: `${SITE_URL}/screeding-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 5,
-            name: "POP Ceiling Calculator",
-            url: `${SITE_URL}/pop-ceiling-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 6,
-            name: "Tile Calculator",
-            url: `${SITE_URL}/tile-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 7,
-            name: "Structural Calculator",
-            url: `${SITE_URL}/structural-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 8,
-            name: "Foundation Calculator",
-            url: `${SITE_URL}/foundation-calculator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 9,
-            name: "AI Photo Estimator",
-            url: `${SITE_URL}/image-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 10,
-            name: "Finish Estimator",
-            url: `${SITE_URL}/finish-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 11,
-            name: "Tyrolene Estimator",
-            url: `${SITE_URL}/tyrolene-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 12,
-            name: "Cost Estimator",
-            url: `${SITE_URL}/cost-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 13,
-            name: "Screeding Cost Estimator",
-            url: `${SITE_URL}/screeding-cost-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 14,
-            name: "POP Ceiling Cost Estimator",
-            url: `${SITE_URL}/pop-ceiling-cost-estimator`,
-          },
-          {
-            "@type": "ListItem",
-            position: 15,
-            name: "Tile Cost Estimator",
-            url: `${SITE_URL}/tile-cost-estimator`,
-          },
-        ],
-      },
-    ],
-  },
-
   // ── About / Contact / Legal ──
   {
     path: "/about",
@@ -3324,13 +3216,6 @@ const routes = [
     title: "Increte Flooring Calculator & Estimator | FRELUX SMART CALC",
     description:
       "Estimate decorative concrete flooring quantities using explicit product coverage, coats, waste, local prices and installation inputs.",
-  },
-  {
-    path: "/visual-finishing-estimator",
-    title:
-      "Visual Finishing: Compare Finishes Side by Side | FRELUX",
-    description:
-      "Compare paint, tile, screed and cladding finishes on the same measured area, with quantities, waste and cost at your market rates.",
   },
   {
     path: "/tools/visual-finishing-estimator",
@@ -4562,7 +4447,7 @@ for (const t of extraTemplates) {
         `</ul>`
       );
     })() +
-    `<ul><li><a href="/templates/">All templates</a></li><li><a href="/calculators/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
+    `<ul><li><a href="/templates/">All templates</a></li><li><a href="/construction-tools/">All calculators</a></li><li><a href="/market/">Markets</a></li></ul></main>`;
 }
 
 // Case study detail pages: the hub links to them, and without a prerendered
@@ -4674,7 +4559,7 @@ if (glossaryTerms.length && !contentMap["/glossary"]) {
       )
       .join("") +
     `<h2>Put the terms to work</h2><p>Once the vocabulary is clear, run the numbers: the same definitions are used by the FRELUX calculators when they describe coverage, wastage and coats.</p>` +
-    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/prices/">Material price intelligence</a></li><li><a href="/learn/">Guides</a></li></ul></main>`;
+    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/construction-tools/">Calculator library</a></li><li><a href="/prices/">Material price intelligence</a></li><li><a href="/learn/">Guides</a></li></ul></main>`;
 }
 
 // /prices body
@@ -4699,7 +4584,7 @@ if (priceMaterials.length && !contentMap["/prices"]) {
     `<h2>How a price gets into the book</h2>` +
     `<p>A price enters only from a configured source for that market and is dated. Where a verified local supplier price exists it is used directly; where it does not, the line is shown as a reference rate rather than presented as a quote. Nothing on this page is an average of unrelated markets.</p>` +
     `<h2>Using it in an estimate</h2><p>Pick your market in any calculator and the quantities are priced from this book, not from a generic table. Change the market and both the units and the prices change with it.</p>` +
-    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/market/">Markets and currencies</a></li><li><a href="/calculators/">Calculator library</a></li><li><a href="/glossary/">Glossary of terms</a></li></ul></main>`;
+    `<ul><li><a href="/construction-tools/">All construction tools</a></li><li><a href="/market/">Markets and currencies</a></li><li><a href="/construction-tools/">Calculator library</a></li><li><a href="/glossary/">Glossary of terms</a></li></ul></main>`;
 }
 
 routes.push(...dynamicFamilyRoutes);
@@ -5001,7 +4886,7 @@ for (const m of marketLandingRoutes) {
         (t) => `<li><a href="${hubPath}/${t.slug}/">${t.name}</a></li>`,
       ).join("") +
       `</ul><h2>Before you start</h2><p>Check the room measurements and the number of coats. FRELUX applies two coats as standard, and quantities are shown in the units used on ${m.countryName} sites rather than in a generic metric table.</p>` +
-      `<ul><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market overview</a></li><li><a href="/calculators/">All FRELUX calculators</a></li><li><a href="/prices/">Material price intelligence</a></li></ul></main>`,
+      `<ul><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market overview</a></li><li><a href="/construction-tools/">All FRELUX calculators</a></li><li><a href="/prices/">Material price intelligence</a></li></ul></main>`,
     structuredData: [
       {
         "@context": "https://schema.org",
@@ -5094,7 +4979,7 @@ for (const m of marketLandingRoutes) {
           ? `<p>Four things decide a board ceiling: the measured surface including any drop faces, the wastage the design produces, the board size and thickness your ${m.countryName} supplier actually stocks, and the unit price you enter. A price change moves the cost only; the quantity of board, tape, adhesive and putty is fixed by the geometry.</p>`
           : `<p>Three things decide this estimate: how much surface the ${t.type} scope actually covers once openings are deducted, how many coats the spec calls for, and whether your supplier's ${m.currency} price is the one stored in the book today. Waste allowance is added from the template, not guessed at the till.</p>`) +
         `<p>Costs stay in ${m.currency} (${m.currencySymbol}) end to end, so the figure you read here is the figure the estimate uses, with no conversion step between the page and the total.</p>` +
-        `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/calculators/">All FRELUX calculators</a></li></ul></main>`,
+        `<h2>Run it</h2><ul><li><a href="${hubPath}/">All templates for ${m.countryName}</a></li><li><a href="/templates/${t.slug}/">${t.name} (global version)</a></li><li><a href="/market/${m.code.toLowerCase()}/">${m.countryName} market page</a></li><li><a href="/construction-tools/">All FRELUX calculators</a></li></ul></main>`,
       structuredData: [
         {
           "@context": "https://schema.org",
@@ -5343,9 +5228,9 @@ for (const faqRoute of faqPrerenderRoutes) {
 // entry exists.
 {
   const byPath = new Map(loadToolRegistry().map((t) => [t.path, t]));
-  // The bare finishing slug redirects to the library path, so it never needs a
-  // duplicate listing of its own.
-  const aliases = new Set(["/visual-finishing-estimator"]);
+  // Both slugs that used to be listed twice are 301s now, so every route in
+  // this array is a page that is actually served.
+  const aliases = new Set();
   let aligned = 0;
   for (const route of routes) {
     if (aliases.has(route.path)) continue;
@@ -5651,7 +5536,7 @@ for (const route of routes) {
     "",
   );
   const notFoundContent =
-    '<main><h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/calculators/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p></main>';
+    '<main><h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/construction-tools/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p></main>';
   html404 = html404.replace(
     /(<div id="root">)[\s\S]*(\n\s*<\/div>\s*<\/body>)/,
     (_match, opening, closing) =>

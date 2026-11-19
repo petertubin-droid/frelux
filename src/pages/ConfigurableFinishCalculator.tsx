@@ -127,7 +127,7 @@ export default function ConfigurableFinishCalculator({
   const market = useMarket();
   const { marketCode } = market;
   useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
+    { name: "Calculators", path: "/construction-tools" },
     {
       name: "Configurable Finish Calculator",
       path: "/configurable-finish-calculator",

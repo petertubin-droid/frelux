@@ -698,7 +698,7 @@ export default function MyProjects() {
                   {t("Contractor Workspace")}
                 </Link>
                 <Link
-                  to="/calculators"
+                  to="/construction-tools"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all"
                 >
                   <Plus className="h-3.5 w-3.5" /> {t("New Estimate")}
@@ -712,7 +712,7 @@ export default function MyProjects() {
                 title={t("No saved projects or estimates yet")}
                 description="Save calculations, estimates, or contractor workspaces to access them here anytime."
                 actionLabel="Explore Calculators"
-                actionTo="/calculators"
+                actionTo="/construction-tools"
               />
             ) : (
               <div className="space-y-6">

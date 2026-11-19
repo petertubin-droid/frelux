@@ -194,7 +194,7 @@ export default function BuildingTypes() {
                 label: "POP ceiling calculator",
               },
               { to: "/finish-estimator", label: "Finish estimator" },
-              { to: "/calculators", label: "All calculators" },
+              { to: "/construction-tools", label: "All calculators" },
             ].map((link) => (
               <Link
                 key={link.to}
