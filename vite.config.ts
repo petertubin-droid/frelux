@@ -45,6 +45,18 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     // Only generate hidden sourcemaps when Sentry is configured
     sourcemap: hasSentryToken ? "hidden" : false,
+    // Module preload is a BUILD-level Vite option; under
+    // rollupOptions.output it was silently ignored, so the intended
+    // optimisation never applied.
+    modulePreload: {
+      polyfill: false,
+      // The Supabase client is only reached through a dynamic import, but
+      // Vite was still adding it to the entry's preload list, so every
+      // visitor downloaded 200 KB of client code before the first screen
+      // and most of them never sign in. Let it arrive when it is used.
+      resolveDependencies: (_filename, deps) =>
+        deps.filter((dep) => !dep.includes("supabase-vendor")),
+    },
     rollupOptions: {
       output: {
         // Vendor chunk splitting for better caching
@@ -77,17 +89,6 @@ export default defineConfig({
           ) {
             return "ui-vendor";
           }
-        },
-        // The module preload polyfill is a request of its own for browsers that
-        // all support modulepreload natively now.
-        modulePreload: {
-          polyfill: false,
-          // The Supabase client is only reached through a dynamic import, but
-          // Vite was still adding it to the entry's preload list, so every
-          // visitor downloaded 200 KB of client code before the first screen
-          // and most of them never sign in. Let it arrive when it is used.
-          resolveDependencies: (_filename, deps) =>
-            deps.filter((dep) => !dep.includes("supabase-vendor")),
         },
         // Use content-based hashing for long-term caching
         chunkFileNames: "assets/js/[name]-[hash].js",
