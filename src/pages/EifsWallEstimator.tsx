@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { useSeo, useFaqJsonLd, useBreadcrumbJsonLd } from "@/lib/seo";
+
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { ShareableEstimate } from "@/lib/estimate-sharing";
 import { formatMoney } from "@/lib/estimation/system-boq-pricing";
@@ -55,7 +57,45 @@ import HowCalculatedSection from "@/components/calculators/HowCalculatedSection"
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { useMarket } from "@/lib/international/market-context";
 
+const EIFS_FAQ = [
+  {
+    question: "How many insulation boards do I need for an EIFS wall?",
+    answer:
+      "A standard board faces 1.2 m by 0.6 m, so 0.72 m2. Take the facade area, deduct the openings, then add back the reveal depth of every opening because the returns are clad too, and divide by 0.72. A 40 m wall 3 m high with four openings of 2 m2 covers 120 m2 less 8 m2 of openings plus the reveals, which is about 160 boards before the waste allowance.",
+  },
+  {
+    question: "How much does an EIFS wall cost?",
+    answer:
+      "An EIFS wall is priced as a system, not as a single material: insulation board per square metre, adhesive or mechanical fixings, reinforcing mesh, base coat, primer and the textured finish, each at your market's own rate. This page prices each role from the market price book and shows the currency it used. Where a market has no recorded rate for a role, that line is reported as quantities only instead of borrowing another country's price.",
+  },
+  {
+    question: "How to estimate an EIFS wall?",
+    answer:
+      "Start with the substrate, because sheathing takes adhesive while masonry may need mechanical fixings, and mineral wool needs washers either way. Add the water-resistive barrier, then the board, then the reinforcing mesh bedded in base coat, a heavier mesh below the impact height, then primer and the textured finish. Deduct openings but add their reveals, count starter track at the base, corner bead on every external corner and casing bead around every opening, and allow expansion joints on long runs.",
+  },
+];
+
 export default function EifsWallEstimator() {
+  useSeo({
+    title: "EIFS Wall Estimator, Insulation, Mesh, Base Coat & Finish Takeoff",
+    description:
+      "Estimate an EIFS or ETICS wall: insulation boards, adhesive and fixings, reinforcing mesh, base coat, primer, textured finish and trims, priced in your own market.",
+    canonicalPath: "/eifs-wall-estimator",
+    ogType: "website",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "FRELUX EIFS Wall Estimator",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+  });
+  useFaqJsonLd(EIFS_FAQ);
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/construction-tools" },
+    { name: "EIFS Wall Estimator", path: "/eifs-wall-estimator" },
+  ]);
   const { marketCode } = useMarket();
 
   // Unit system toggle
@@ -1419,6 +1459,20 @@ export default function EifsWallEstimator() {
           notes="Calculations are deterministic takeoffs for preliminary planning, contractor budgeting, and procurement. They do not replace job-specific structural engineering wind-load analysis, dew point hygrothermal calculations, or manufacturer system warranty specifications."
         />
       </Container>
+
+      <div className="rounded-xl border border-border/80 p-4 space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">
+          Questions this estimator answers
+        </h2>
+        {EIFS_FAQ.map((item) => (
+          <div key={item.question} className="space-y-1">
+            <h3 className="text-sm font-medium text-foreground">
+              {item.question}
+            </h3>
+            <p className="text-xs text-muted-foreground">{item.answer}</p>
+          </div>
+        ))}
+      </div>
     </ToolShell>
   );
 }

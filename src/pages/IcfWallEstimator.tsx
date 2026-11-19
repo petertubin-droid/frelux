@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { useSeo, useFaqJsonLd, useBreadcrumbJsonLd } from "@/lib/seo";
+
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { ShareableEstimate } from "@/lib/estimate-sharing";
 import {
@@ -64,7 +66,45 @@ import type {
   IcfInteriorLining,
 } from "@/lib/estimation/icf-engine";
 
+const ICF_FAQ = [
+  {
+    question: "How many ICF blocks do I need for a wall?",
+    answer:
+      "Cover the wall face that remains after openings, divide by the block face area, and count corner pieces separately. A metric block faces 1.2 m by 0.4 m, so 0.48 m2, and a North American block faces 48 in by 16 in, so 1.23 m2. A 40 m wall 3 m high with 8 m2 of openings covers 112 m2, which is about 84 straight blocks on the 0.48 m2 face plus one corner pair per course at each corner, before cutting waste.",
+  },
+  {
+    question: "How much does an ICF wall cost?",
+    answer:
+      "The material cost is the form blocks per square metre of wall face, the concrete per cubic metre of net core, and the reinforcement per kilogram of bar, each at your market's own rate. This page prices those three roles from the market price book and states the currency it used. Where a market has no recorded rate, it reports quantities only rather than converting another country's price.",
+  },
+  {
+    question: "How to estimate an ICF wall?",
+    answer:
+      "Measure the perimeter and the height, then deduct the door and window openings. Choose the core thickness and the form family, because a waffle or screen form fills far less of the cavity than a flat one. Count form blocks from the net face, order concrete on the net core volume after the tie webs and openings are removed, and schedule the steel by position: starter dowels, vertical bars at your spacing, horizontal courses per lift, and a lintel cage over each opening. Add the bracing and the rough bucking, which are hired or cut on site rather than bought with the blocks.",
+  },
+];
+
 export default function IcfWallEstimator() {
+  useSeo({
+    title: "ICF Wall Estimator, Form Blocks, Concrete Core & Rebar Takeoff",
+    description:
+      "Estimate an insulated concrete form wall: form blocks by shape, net concrete core volume, rebar by position, bracing and envelope properties, priced in your own market.",
+    canonicalPath: "/icf-wall-estimator",
+    ogType: "website",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "FRELUX ICF Wall Estimator",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+  });
+  useFaqJsonLd(ICF_FAQ);
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/construction-tools" },
+    { name: "ICF Wall Estimator", path: "/icf-wall-estimator" },
+  ]);
   const { marketCode } = useMarket();
 
   // Unit system toggle
@@ -1479,6 +1519,20 @@ export default function IcfWallEstimator() {
 
         <EstimateDisclaimer text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction." />
       </Container>
+
+      <div className="rounded-xl border border-border/80 p-4 space-y-3">
+        <h2 className="text-sm font-semibold text-foreground">
+          Questions this estimator answers
+        </h2>
+        {ICF_FAQ.map((item) => (
+          <div key={item.question} className="space-y-1">
+            <h3 className="text-sm font-medium text-foreground">
+              {item.question}
+            </h3>
+            <p className="text-xs text-muted-foreground">{item.answer}</p>
+          </div>
+        ))}
+      </div>
     </ToolShell>
   );
 }

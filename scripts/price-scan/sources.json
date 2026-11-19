@@ -1,5 +1,5 @@
 {
-  "$comment": "Retailer sources the weekly scan may fetch. Two kinds. 'catalogues' are probed product feeds from verified-sources.json: the scan fetches the feed and matches products to materials by pack signature and name, so a run finds prices without a hand-written URL per material. 'sources' are single product URLs with a ref_id and an optional regex, for a retailer that has no feed. A source is usable only when it has a real URL; the scan reports gaps instead of inventing prices.",
+  "$comment": "Retailer sources the weekly scan may fetch. 'catalogues' are probed product feeds: the scan fetches the feed, matches products to materials and reports candidates. 'benchmarks' are generic materials (bench-*) that carry no price; the scan treats them as discovery targets so the first retailer price becomes the seeded rate for that market. 'sources' stays for per-SKU product URLs when a specific product must be tracked.",
   "version": 2,
   "catalogues": [
     {
@@ -60,5 +60,19 @@
       "note": "Store API publishes price 0 to anonymous callers, so this feed yields no prices until they expose them."
     }
   ],
-  "sources": []
+  "sources": [],
+  "benchmarks": [
+    "bench-cement-50kg",
+    "bench-sand-tonne",
+    "bench-eps-board-50mm",
+    "bench-emulsion-20l",
+    "bench-rebar-12mm-6m",
+    "bench-ready-mix-concrete",
+    "bench-icf-block",
+    "bench-adhesive-25kg",
+    "bench-eifs-basecoat-25kg",
+    "bench-eifs-mesh-50m",
+    "bench-eifs-finish-25kg",
+    "bench-eifs-primer-20kg"
+  ]
 }

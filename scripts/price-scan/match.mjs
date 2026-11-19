@@ -64,7 +64,7 @@ export function matchWords(text) {
  * Returns 0 with a reason when the pack signature differs, because a 4 L can
  * must never answer a 20 L bucket.
  */
-export function scoreMatch(materialName, productName) {
+export function scoreMatch(materialName, productName, options = {}) {
   const materialSizes = sizeSignature(materialName);
   const productSizes = sizeSignature(productName);
   if (materialSizes.length) {
@@ -76,7 +76,7 @@ export function scoreMatch(materialName, productName) {
   if (!wanted.length) return { score: 0, reason: "no material words" };
   // A single generic word is never a match on its own; it needs a pack size to
   // anchor it, otherwise "timber" would price a timber insert.
-  if (wanted.length === 1 && !materialSizes.length) {
+  if (wanted.length === 1 && !materialSizes.length && !options.benchmark) {
     return { score: 0, reason: "generic single word" };
   }
   const have = new Set(matchWords(productName));
@@ -85,6 +85,12 @@ export function scoreMatch(materialName, productName) {
   if (wanted.length > 1 && hits < 2)
     return { score: 0, reason: "too few shared words" };
   const overlap = hits / wanted.length;
+  // A benchmark is deliberately generic ("Cement 50 kg"), so one matching word
+  // beside an identical pack signature is enough; a curated material still has
+  // to clear the full overlap rule below.
+  if (options.benchmark && hits >= 1 && materialSizes.length) {
+    return { score: Math.max(0.8, overlap), reason: "benchmark" };
+  }
   if (overlap < 0.8) return { score: 0, reason: "name overlap too low" };
   return { score: Number((0.5 + 0.5 * overlap).toFixed(2)), reason: null };
 }

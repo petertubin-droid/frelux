@@ -172,13 +172,29 @@ const main = async () => {
           continue;
         }
 
+        // Targets are the market's own priced rows plus the generic benchmark
+        // materials, which carry no price yet. A benchmark match becomes the
+        // first price for that material in that market, so the rate always has
+        // a retailer page behind it.
         const marketPrices = prices.filter((p) => p.currency === currency);
-        for (const row of marketPrices) {
+        const benchmarkTargets = (sourcesDoc.benchmarks || [])
+          .map((slug) => materials.find((m) => m.slug === slug))
+          .filter(Boolean)
+          .map((m) => ({
+            ref_id: m.id,
+            price: null,
+            currency,
+            name: m.name,
+            benchmark: true,
+          }));
+        for (const row of [...marketPrices, ...benchmarkTargets]) {
           const material = byId.get(row.ref_id);
           if (!material) continue;
           let best = null;
           for (const product of products) {
-            const { score, reason } = scoreMatch(material.name, product.name);
+            const { score, reason } = scoreMatch(material.name, product.name, {
+              benchmark: Boolean(row.benchmark),
+            });
             if (score > (best?.score ?? 0)) best = { ...product, score, reason };
           }
           if (!best || best.score < 0.8) continue;
