@@ -17,6 +17,7 @@ import { MATERIAL_ROLES } from "../market-materials";
 const SEEDS = [
   "../../../../supabase/migrations/20261119150000_icf_eifs_gb_au_roles.sql",
   "../../../../supabase/migrations/20261119170000_icf_eifs_gb_remaining_roles.sql",
+  "../../../../supabase/migrations/20261119190000_au_queued_role_mappings.sql",
 ].map((rel) => resolve(__dirname, rel));
 
 const icfInput: IcfWallInput = {
