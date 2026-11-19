@@ -23,13 +23,20 @@
   # VITE_OPENWEATHER_API_KEY / VITE_SITE_URL are also client-facing by design.
   # Without this, Netlify's secret scanner flags them as "exposed secrets"
   # in the build output, which fails the build.
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
   # TERMII_SENDER_ID (Termii SMS sender ID) is not a real credential — it's
   # a public display name shown in every SMS ("FRELUX"), which also happens
   # to be the project's own brand name used throughout the codebase (CSS,
   # types, docs). That coincidence made Netlify's scanner flag hundreds of
   # unrelated files as "leaking" it. Omitted here (both spellings, in case
   # the Netlify dashboard var has a typo vs. the code's TERMII_SENDER_ID).
+  # GEMINI_API_KEY / TERMII_API_KEY (and the dashboard's TERMLII_ typos) are
+  # Supabase edge-function secrets, consumed only by Deno.env.get() inside
+  # supabase/functions. The web build never reads them: Vite's envPrefix is
+  # the default "VITE_" only, so a non-prefixed name is never inlined into
+  # dist/. They cannot leak through the bundle, and Netlify does not need
+  # them to build. Omitted so a copy of them sitting in the site's build
+  # environment cannot fail the deploy.
   # supabase/migrations and supabase/functions are Deno/SQL files deployed
   # separately via the Supabase CLI — Netlify never builds or ships them.
   # They only reference secrets via Deno.env.get()/env vars (never hardcoded),
@@ -45,6 +52,11 @@
 
 [context.deploy-preview.environment]
   VITE_SENTRY_ENVIRONMENT = "staging"
+  # Context environment tables are merged over [build.environment], but the
+  # secrets-scan config is repeated here so a preview build can never fail
+  # on the same false positives while a production deploy passes.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  SECRETS_SCAN_OMIT_PATHS = "supabase/migrations,supabase/functions"
 
 [[context.deploy-preview.headers]]
   for = "/*"
@@ -57,6 +69,8 @@
 
 [context.branch-deploy.environment]
   VITE_SENTRY_ENVIRONMENT = "staging"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID,VITE_CARTO_API_KEY,GEMINI_API_KEY,TERMLII_API_KEY,TERMII_API_KEY"
+  SECRETS_SCAN_OMIT_PATHS = "supabase/migrations,supabase/functions"
 
 [[context.branch-deploy.headers]]
   for = "/*"
