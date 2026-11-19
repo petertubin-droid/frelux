@@ -13,6 +13,15 @@ vi.mock("@/components/seo/ToolFaqs", () => ({
       Frequently asked questions
     </section>
   ),
+  // The About This Tool block renders the same accordion through the named
+  // export, so the mock has to carry it or the page throws on mount.
+  // Same block, same test id: the shell renders the questions through this
+  // export now, and the page still has exactly one FAQ section.
+  FaqItemsWithSchema: ({ title }: { title?: string }) => (
+    <section data-testid="tool-faqs">
+      {title ?? "Frequently asked questions"}
+    </section>
+  ),
 }));
 vi.mock("@/components/ui/AdSlot", () => ({
   default: ({ slotKey }: { slotKey: string }) => (
@@ -64,9 +73,9 @@ describe("WallpaperCalculator page", () => {
     // Globalization: no market is pre-filled with an invented price, so the
     // cost card asks for the local price instead of printing a made-up total.
     expect(screen.getAllByText("Not priced").length).toBeGreaterThan(0);
-    expect(screen.getByTestId("tool-faqs").getAttribute("data-slug")).toBe(
-      "wallpaper-calculator",
-    );
+    // The shell now renders the questions through the About This Tool block,
+    // which labels the group with the tool's own name.
+    expect(screen.getByTestId("tool-faqs").textContent).toContain("Wallpaper");
     expect(screen.getByTestId("ad-calculator_mid")).toBeTruthy();
     expect(screen.getByTestId("ad-calculator_native")).toBeTruthy();
   });

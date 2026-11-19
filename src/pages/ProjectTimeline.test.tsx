@@ -48,7 +48,9 @@ describe("ProjectTimeline blank dimensions", () => {
 
     const notice = screen.getByTestId("missing-fields-notice");
     expect(notice.textContent).toContain("Length");
-    expect(screen.queryByText(/Stage-by-stage/i)).not.toBeNull();
+    // The result line is stated under the heading and again in the About
+    // This Tool block, so presence is the assertion, not a unique match.
+    expect(screen.queryAllByText(/Stage-by-stage/i).length).toBeGreaterThan(0);
     // The stage table must be gone rather than left over from the last press.
     // The lede and the registered questions legitimately mention the critical
     // path, so the guard names the results heading itself.

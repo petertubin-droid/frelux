@@ -144,6 +144,7 @@ describe("MaterialAdvisor page", () => {
     renderPage();
     expect(
       screen.getByRole("heading", {
+        level: 1, // the page h1; the FAQ heading repeats the tool name
         name: /climate-responsive material advisor/i,
       }),
     ).toBeInTheDocument();
