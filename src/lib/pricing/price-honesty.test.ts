@@ -58,8 +58,12 @@ describe("price coverage honesty", () => {
   });
 
   it("only calls a snapshot stale past its freshness window", () => {
-    const fresh = Date.parse("2026-11-01T00:00:00.000Z");
-    const old = Date.parse("2026-12-31T00:00:00.000Z");
+    // Relative to the snapshot itself, not a fixed calendar date: a hard-coded
+    // future date silently stops testing staleness the moment the clock passes
+    // it, which is exactly what happened to the 2026-12-31 that used to be here.
+    const scanned = Date.parse(PRICE_VERIFICATION_SCANNED_AT);
+    const fresh = scanned + SNAPSHOT_STALE_DAYS * 86400000;
+    const old = scanned + (SNAPSHOT_STALE_DAYS + 5) * 86400000;
     expect(isSnapshotStale(fresh)).toBe(false);
     expect(isSnapshotStale(old)).toBe(true);
     expect(snapshotAgeDays(old)).toBeGreaterThan(SNAPSHOT_STALE_DAYS);
