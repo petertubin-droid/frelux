@@ -14,7 +14,12 @@ import type { CalculationBreakdownProps } from "./CalculationBreakdownDrawer";
 
 export interface HowCalculatedSectionProps {
   methodologyText: string;
-  assumptions?: { label: string; value: string }[];
+  /**
+   * Either a label/value pair (a value the engine chose, shown beside its
+   * name) or a plain sentence (a method statement a reader must accept). Both
+   * are real assumptions; the shape differs because the source does.
+   */
+  assumptions?: (string | { label: string; value: string })[];
   priceSourceDate?: string;
   priceSource?: string;
   breakdown?: CalculationBreakdownProps;
@@ -287,16 +292,28 @@ export default function HowCalculatedSection({
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t("Active assumptions")}
               </p>
-              {assumptions.map((a) => (
-                <div key={a.label} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground dark:text-muted-foreground">
-                    {a.label}
-                  </span>
-                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
-                    {a.value}
-                  </span>
-                </div>
-              ))}
+              {assumptions.map((a, index) => {
+                if (typeof a === "string") {
+                  return (
+                    <p
+                      key={`${index}-${a.slice(0, 24)}`}
+                      className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed"
+                    >
+                      {a}
+                    </p>
+                  );
+                }
+                return (
+                  <div key={a.label} className="flex justify-between text-xs">
+                    <span className="text-muted-foreground dark:text-muted-foreground">
+                      {a.label}
+                    </span>
+                    <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
+                      {a.value}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
 

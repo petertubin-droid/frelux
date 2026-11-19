@@ -44,6 +44,7 @@ export const TOOL_ROUTES: ReadonlySet<string> = new Set([
   "/drainage-calculator",
   "/drywall-calculator",
   "/earthworks-cut-fill",
+  "/eifs-wall-estimator",
   "/electrical",
   "/electrical-conduit-wiring-estimator",
   "/estimate-refresh",
@@ -166,6 +167,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/insulation-calculator",
         label: "Insulation Takeoff",
+        benefit: "",
+      },
+      {
+        to: "/eifs-wall-estimator",
+        label: "EIFS / ETICS Wall Estimator",
         benefit: "",
       },
       {
