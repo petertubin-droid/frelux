@@ -6,10 +6,19 @@
 // public.price_digest_tokens (same pattern as signup-digest),
 // so anyone without the token gets 401.
 //
-// What it sends: the current tracked material prices with the
-// change versus the previous week (from material_price_history
-// plus the current live price), to every active subscriber,
-// plus the owner as a blind copy so deliverability is visible.
+// What it sends:
+//   1. Newsletter subscribers: the current tracked material
+//      prices with the change versus the previous week (from
+//      material_price_history plus the current live price).
+//   2. Intelligence users who switched price alerts on: their
+//      OWN market's prices from market_material_prices, with
+//      only the moves that cross the threshold they set. The
+//      market and threshold have been stored since the
+//      dashboard shipped and nothing read them, so a UK user
+//      received Nigerian prices every week whether or not a
+//      material had moved.
+//   3. The owner as a blind copy of the newsletter digest so
+//      deliverability is visible.
 //
 // Behavioural rules:
 //  - Zero active subscribers: sends ONE heartbeat to the
@@ -58,6 +67,11 @@ async function resolveResendKey(): Promise<string | null> {
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  buildAlertDigest,
+  marketAlertRows,
+  type MarketPriceRow,
+} from "../_shared/price-alert-digest.ts";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 const FROM = "Frelux <noreply@freluxtools.com>";
@@ -209,8 +223,119 @@ const handler = async (req: Request): Promise<Response> => {
   const priceList = (prices ?? []) as MaterialPrice[];
   const changeList = (changes ?? []) as PriceChange[];
 
-  // Heartbeat when nobody has subscribed yet.
-  if (activeSubscribers.length === 0) {
+  // Intelligence users who asked for price alerts, each with the market and
+  // threshold they chose.
+  const { data: alertPrefs } = await db
+    .from("intelligence_preferences")
+    .select("user_id, market_code, price_move_threshold, digest_frequency")
+    .eq("price_alerts", true)
+    .limit(5000);
+
+  const alertRecipients = (alertPrefs ?? [])
+    .map((row: Record<string, unknown>) => ({
+      userId: String(row.user_id ?? ""),
+      market: String(row.market_code ?? "")
+        .trim()
+        .toUpperCase(),
+      threshold: Number(row.price_move_threshold ?? 0),
+      cadence: row.digest_frequency ? String(row.digest_frequency) : null,
+    }))
+    .filter((r: { userId: string; market: string }) => r.userId && r.market);
+
+  // One email address per opted-in user.
+  const emails = new Map<string, string>();
+  const userIds = alertRecipients.map((r: { userId: string }) => r.userId);
+  for (let i = 0; i < userIds.length; i += 400) {
+    const chunk = userIds.slice(i, i + 400);
+    const { data: profileRows } = await db
+      .from("profiles")
+      .select("id, email")
+      .in("id", chunk);
+    for (const profile of profileRows ?? []) {
+      if (profile.email) emails.set(String(profile.id), String(profile.email));
+    }
+  }
+
+  // The market books the recipients actually live in, fetched once.
+  const wantedMarkets = Array.from(
+    new Set(alertRecipients.map((r: { market: string }) => r.market)),
+  );
+  const marketPrices = new Map<
+    string,
+    { rows: MarketPriceRow[]; name: string | null }
+  >();
+  for (let i = 0; i < wantedMarkets.length; i += 20) {
+    const chunk = wantedMarkets.slice(i, i + 20);
+    const { data: rows } = await db
+      .from("market_material_prices")
+      .select(
+        "market, market_name, material_slug, product_name, unit, currency, current_price, previous_price, price_change_percent, verification_status, supplier_name, last_verified_at",
+      )
+      .in("market", chunk)
+      .order("current_price", { ascending: false })
+      .limit(2000);
+    for (const row of (rows ?? []) as (MarketPriceRow & {
+      market_name?: string;
+    })[]) {
+      const key = String(row.market ?? "").toUpperCase();
+      const bucket = marketPrices.get(key) ?? { rows: [], name: null };
+      bucket.rows.push(row);
+      if (!bucket.name && row.market_name) bucket.name = row.market_name;
+      marketPrices.set(key, bucket);
+    }
+  }
+
+  let alertsSent = 0;
+  let alertsFailed = 0;
+  let alertsSkipped = 0;
+  for (const recipient of alertRecipients as {
+    userId: string;
+    market: string;
+    threshold: number;
+    cadence: string | null;
+  }[]) {
+    const email = emails.get(recipient.userId);
+    if (!email) {
+      alertsSkipped += 1;
+      continue;
+    }
+    const book = marketPrices.get(recipient.market);
+    const { prices: marketRows, unusable } = marketAlertRows(
+      book?.rows ?? [],
+      recipient.market,
+    );
+    const digest = buildAlertDigest({
+      market: recipient.market,
+      marketName: book?.name ?? null,
+      prices: marketRows,
+      thresholdPct: recipient.threshold,
+      unusable,
+      cadence: recipient.cadence,
+    });
+    try {
+      const res = await fetch(RESEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: FROM,
+          reply_to: REPLY_TO,
+          to: [email],
+          subject: digest.subject,
+          html: digest.html,
+        }),
+      });
+      if (res.ok) alertsSent += 1;
+      else alertsFailed += 1;
+    } catch {
+      alertsFailed += 1;
+    }
+  }
+
+  // Heartbeat when nobody has subscribed yet and nobody asked for alerts.
+  if (activeSubscribers.length === 0 && alertRecipients.length === 0) {
     if (ownerEmail) {
       await fetch(RESEND_ENDPOINT, {
         method: "POST",
@@ -229,6 +354,23 @@ const handler = async (req: Request): Promise<Response> => {
     }
     return new Response(
       JSON.stringify({ sent: 0, subscribers: 0, prices: priceList.length }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
+  // Newsletter subscribers can be empty while alert recipients exist: the
+  // newsletter loop below then simply sends nothing.
+  if (activeSubscribers.length === 0) {
+    return new Response(
+      JSON.stringify({
+        sent: 0,
+        failed: 0,
+        subscribers: 0,
+        prices: priceList.length,
+        alertsSent,
+        alertsFailed,
+        alertsSkipped,
+      }),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   }
@@ -265,6 +407,9 @@ const handler = async (req: Request): Promise<Response> => {
       failed,
       subscribers: activeSubscribers.length,
       prices: priceList.length,
+      alertsSent,
+      alertsFailed,
+      alertsSkipped,
     }),
     { status: 200, headers: { "Content-Type": "application/json" } },
   );
