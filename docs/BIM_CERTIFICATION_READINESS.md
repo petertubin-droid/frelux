@@ -77,8 +77,10 @@ Cost, timeline and acceptance are decided by buildingSMART, not by FRELUX.
 - [x] Real-wasm tests against IFC4 geometry and quantity fixtures.
 - [ ] Official buildingSMART test corpus run, with results recorded per file.
 - [ ] IFC4.3 support (IFC4 and IFC2x3 only today).
-- [ ] Property-set coverage beyond quantities (e.g. Pset_WallCommon fire rating,
-      acoustic rating) for code-compliance checks.
+- [~] Property-set coverage beyond quantities: DONE for single-value and enumerated
+  properties (2026-11-19); complex, list and bounded properties are counted and
+  skipped, not read. Remaining example (e.g. Pset_WallCommon fire rating,
+  acoustic rating) for code-compliance checks.
 - [ ] Submission to the IFC Validation Service and third-party verification.
 
 ## 5. Next concrete steps
