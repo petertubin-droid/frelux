@@ -75,7 +75,10 @@ const EIFS_FAQ = [
   },
 ];
 
+import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
+
 export default function EifsWallEstimator() {
+  const { t: tLabel } = useTechnicalLabels();
   useSeo({
     title: "EIFS Wall Estimator, Insulation, Mesh, Base Coat & Finish Takeoff",
     description:
@@ -1328,11 +1331,11 @@ export default function EifsWallEstimator() {
                           variant="outline"
                           className="text-[10px] font-sans capitalize"
                         >
-                          {item.category}
+                          {tLabel(item.category)}
                         </Badge>
                       </td>
                       <td className="py-2 px-3 font-sans text-foreground">
-                        {item.description}
+                        {tLabel(item.description)}
                       </td>
                       <td className="py-2 px-3 text-right font-bold text-foreground">
                         {item.quantity.toLocaleString()}

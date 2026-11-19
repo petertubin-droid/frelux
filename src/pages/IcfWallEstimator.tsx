@@ -84,7 +84,10 @@ const ICF_FAQ = [
   },
 ];
 
+import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
+
 export default function IcfWallEstimator() {
+  const { t: tLabel } = useTechnicalLabels();
   useSeo({
     title: "ICF Wall Estimator, Form Blocks, Concrete Core & Rebar Takeoff",
     description:
@@ -1384,14 +1387,14 @@ export default function IcfWallEstimator() {
                         {item.code}
                       </td>
                       <td className="p-2.5 text-xs font-medium text-foreground">
-                        {item.description}
+                        {tLabel(item.description)}
                       </td>
                       <td className="p-2.5 text-xs capitalize">
                         <Badge
                           variant="outline"
                           className="text-[10px] font-normal"
                         >
-                          {item.category}
+                          {tLabel(item.category)}
                         </Badge>
                       </td>
                       <td className="p-2.5 text-right text-xs font-semibold text-foreground">
