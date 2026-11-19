@@ -14,10 +14,10 @@ import { calculateIcfWall, type IcfWallInput } from "../icf-engine";
 import { calculateEifsWall, type EifsWallInput } from "../eifs-engine";
 import { MATERIAL_ROLES } from "../market-materials";
 
-const SEED = resolve(
-  __dirname,
+const SEEDS = [
   "../../../../supabase/migrations/20261119150000_icf_eifs_gb_au_roles.sql",
-);
+  "../../../../supabase/migrations/20261119170000_icf_eifs_gb_remaining_roles.sql",
+].map((rel) => resolve(__dirname, rel));
 
 const icfInput: IcfWallInput = {
   wallLengthM: 40,
@@ -73,7 +73,13 @@ interface SeededRole {
 }
 
 function seededRoles(): SeededRole[] {
-  const sql = readFileSync(SEED, "utf8");
+  const rows: SeededRole[] = [];
+  for (const seed of SEEDS) rows.push(...seededRolesIn(seed));
+  return rows;
+}
+
+function seededRolesIn(seed: string): SeededRole[] {
+  const sql = readFileSync(seed, "utf8");
   const rows: SeededRole[] = [];
   const pattern =
     /\(\s*'(GB|AU)',\s*'([a-z-]+)',\s*'([a-z0-9-]+)',\s*'[^']*',\s*'([^']+)'/g;
