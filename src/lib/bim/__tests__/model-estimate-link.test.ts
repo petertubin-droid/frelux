@@ -187,3 +187,43 @@ describe("buildEstimateLines (5D linking)", () => {
     });
   });
 });
+
+describe("estimate lines carry declared specification attributes", () => {
+  it("attaches accuracy attributes and review flags to the line", () => {
+    const element = {
+      expressID: 1,
+      globalId: "door-1",
+      ifcClass: "IFCDOOR",
+      name: "FD60-SS",
+      quantities: [{ name: "Area", kind: "area" as const, value: 2.1 }],
+      geometry: [],
+      properties: [
+        { pset: "Pset_DoorCommon", name: "FireRating", value: "FD60" },
+        { pset: "Pset_DoorCommon", name: "IsExternal", value: true },
+      ],
+    } as unknown as IfcModelElement;
+
+    const index = buildEstimateLines([element]);
+    expect(index.lines.length).toBeGreaterThan(0);
+    const line = index.lines[0];
+    expect(line.attributes?.fireRating).toBe("FD60");
+    expect(line.attributes?.isExternal).toBe(true);
+    // undeclared stays null, never assumed
+    expect(line.attributes?.loadBearing).toBeNull();
+    expect(line.reviewFlags?.join(" ")).toMatch(/certified fire-rated unit/);
+  });
+
+  it("adds no review flags when the element declares no properties", () => {
+    const element = {
+      expressID: 2,
+      globalId: "slab-1",
+      ifcClass: "IFCSLAB",
+      name: "Slab",
+      quantities: [{ name: "NetVolume", kind: "volume" as const, value: 3.4 }],
+      geometry: [],
+    } as unknown as IfcModelElement;
+    const index = buildEstimateLines([element]);
+    expect(index.lines[0].reviewFlags).toBeUndefined();
+    expect(index.lines[0].attributes?.fireRating).toBeNull();
+  });
+});

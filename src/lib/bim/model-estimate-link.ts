@@ -9,6 +9,11 @@
  */
 
 import type { IfcModelElement, IfcQuantityValue } from "./ifc-model-loader";
+import {
+  accuracyReviewFlags,
+  readAccuracyAttributes,
+  type ElementAccuracyAttributes,
+} from "./model-attributes";
 
 export type EstimateCategory =
   "concrete" | "formwork" | "rebar" | "roof" | "openings" | "other";
@@ -24,6 +29,14 @@ export interface EstimateLine {
   /** "declared" = straight from IfcQuantity; "indicative" = derived. */
   provenance: "declared" | "indicative";
   note: string;
+  /**
+   * Specification attributes the model declares for this line's element
+   * (fire rating, exposure, U-value...). Nulls mean "not declared", never
+   * "assumed". These select the rate; they are not a price.
+   */
+  attributes?: ElementAccuracyAttributes;
+  /** What a human must confirm before applying a rate to this line. */
+  reviewFlags?: string[];
 }
 
 export interface BiLinkIndex {
@@ -101,12 +114,34 @@ export function buildEstimateLines(
   const elementIdsByLine = new Map<string, string[]>();
   const lineById = new Map<string, EstimateLine>();
 
+  const attributesByElement = new Map<string, ElementAccuracyAttributes>();
+  const attributesFor = (
+    element: IfcModelElement,
+  ): ElementAccuracyAttributes => {
+    const cached = attributesByElement.get(element.globalId);
+    if (cached) return cached;
+    const read = readAccuracyAttributes(element);
+    attributesByElement.set(element.globalId, read);
+    return read;
+  };
+
   const add = (
     element: IfcModelElement,
-    line: Omit<EstimateLine, "id" | "elementIds">,
+    line: Omit<
+      EstimateLine,
+      "id" | "elementIds" | "attributes" | "reviewFlags"
+    >,
   ) => {
     const id = `${line.category}-${line.label}-${element.globalId}`;
-    const full: EstimateLine = { ...line, id, elementIds: [element.globalId] };
+    const attributes = attributesFor(element);
+    const flags = accuracyReviewFlags(element.ifcClass, attributes);
+    const full: EstimateLine = {
+      ...line,
+      id,
+      elementIds: [element.globalId],
+      attributes,
+      ...(flags.length > 0 ? { reviewFlags: flags } : {}),
+    };
     lines.push(full);
     lineById.set(id, full);
     elementIdsByLine.set(id, [element.globalId]);
