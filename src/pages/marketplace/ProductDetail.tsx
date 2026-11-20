@@ -20,6 +20,8 @@ import {
   fetchProductCategories,
 } from "@/lib/marketplace-products";
 import { supabase } from "@/lib/supabase";
+import InquiryThread from "@/components/marketplace/InquiryThread";
+import { getMyInquiryForProduct } from "@/lib/marketplace-inquiry-thread";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { useTurnstileGate } from "@/components/security/useTurnstileGate";
 import type {
@@ -62,6 +64,12 @@ export default function ProductDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [inquirySent, setInquirySent] = useState(false);
   const [inquiryError, setInquiryError] = useState<string | null>(null);
+  // The buyer's own inquiry on this product, so a seller's reply has somewhere
+  // to land instead of the buyer having to remember which listing they asked.
+  const [myInquiry, setMyInquiry] = useState<{
+    id: string;
+    viewerId: string;
+  } | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<
     DbMarketplaceProduct[]
@@ -150,6 +158,24 @@ export default function ProductDetail() {
 
   const turnstile = useTurnstileGate("inquiry");
 
+  useEffect(() => {
+    if (!product?.id) return;
+    let cancelled = false;
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const existing = await getMyInquiryForProduct(product.id);
+      if (!cancelled && existing) {
+        setMyInquiry({ id: existing.id, viewerId: user.id });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id]);
+
   async function handleInquiry() {
     const {
       data: { user },
@@ -186,7 +212,7 @@ export default function ProductDetail() {
     setSubmitting(true);
     setInquiryError(null);
     try {
-      await createInquiry({
+      const created = await createInquiry({
         product_id: product.id,
         buyer_id: user.id,
         message,
@@ -194,6 +220,8 @@ export default function ProductDetail() {
         contact_phone: inquiryPhone.trim() || undefined,
       });
       setInquirySent(true);
+      // The question just sent is the first message of the thread.
+      if (created?.id) setMyInquiry({ id: created.id, viewerId: user.id });
     } catch (_e) {
       // The old code swallowed this, so a rejected inquiry looked like a sent one.
       setInquiryError(
@@ -587,6 +615,18 @@ export default function ProductDetail() {
                 {tr(
                   "Your inquiry has been sent. The seller will get back to you.",
                 )}
+              </div>
+            )}
+
+            {myInquiry && (
+              <div className="mt-4">
+                <h2 className="mb-2 text-sm font-semibold text-card-foreground dark:text-foreground">
+                  {tr("Your conversation with the seller")}
+                </h2>
+                <InquiryThread
+                  inquiryId={myInquiry.id}
+                  viewerId={myInquiry.viewerId}
+                />
               </div>
             )}
 

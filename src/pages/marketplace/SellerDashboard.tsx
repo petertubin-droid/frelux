@@ -17,6 +17,7 @@ import {
   MessageSquare,
   Mail,
 } from "lucide-react";
+import InquiryThread from "@/components/marketplace/InquiryThread";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import {
@@ -76,6 +77,10 @@ export default function SellerDashboard() {
   const [inquiryPage, setInquiryPage] = useState(0);
   const [pendingInquiries, setPendingInquiries] = useState(0);
   const [inquiryBusyId, setInquiryBusyId] = useState<string | null>(null);
+  // Which inquiry's thread is open. Replying used to link to the Pro Connect
+  // inbox, which never holds a marketplace inquiry, so the seller landed in an
+  // empty page and the buyer got no answer.
+  const [openThreadId, setOpenThreadId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -568,8 +573,14 @@ export default function SellerDashboard() {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        to="/messages"
+                      <Button
+                        variant="ghost"
+                        aria-expanded={openThreadId === inquiry.id}
+                        onClick={() =>
+                          setOpenThreadId(
+                            openThreadId === inquiry.id ? null : inquiry.id,
+                          )
+                        }
                         className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10"
                       >
                         <MessageSquare
@@ -577,7 +588,7 @@ export default function SellerDashboard() {
                           className="h-3.5 w-3.5"
                         />
                         {t("Reply")}
-                      </Link>
+                      </Button>
                       {inquiry.status === "pending" && (
                         <Button
                           variant="ghost"
@@ -604,6 +615,14 @@ export default function SellerDashboard() {
                       )}
                     </div>
                   </div>
+
+                  {openThreadId === inquiry.id && sellerId && (
+                    <InquiryThread
+                      inquiryId={inquiry.id}
+                      viewerId={sellerId}
+                      className="mt-3"
+                    />
+                  )}
                 </li>
               ))}
             </ul>
