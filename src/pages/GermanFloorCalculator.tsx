@@ -59,12 +59,14 @@ export default function GermanFloorCalculator() {
   }>({});
 
   useEffect(() => {
-    supabase
-      .from("material_prices")
-      .select("name, unit_price, is_active")
-      .eq("is_active", true)
-      .then(({ data }) => {
-        if (!data) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from("material_prices")
+          .select("name, unit_price, is_active")
+          .eq("is_active", true);
+        if (cancelled || !data) return;
         const prices: { cement?: number; sand?: number; granite?: number } = {};
         for (const item of data) {
           const lower = (item.name || "").toLowerCase();
@@ -75,8 +77,13 @@ export default function GermanFloorCalculator() {
           else if (lower.includes("granite") && (lower.includes("trip") || lower.includes("tipper"))) prices.granite = price;
         }
         setMaterialPrices(prices);
-      })
-      .catch(() => {});
+      } catch {
+        // fail gracefully
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
   const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
   // A custom plot is measured on site, so the two dimensions default to feet

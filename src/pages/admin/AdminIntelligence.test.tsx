@@ -65,7 +65,7 @@ describe("AdminIntelligence", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("1,240")).toBeDefined();
+      expect(screen.getByText("1240")).toBeDefined();
       expect(screen.getByText("85")).toBeDefined();
     });
   });

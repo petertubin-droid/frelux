@@ -15,14 +15,14 @@ import {
  * neutral-900/40 backdrop, close button.
  */
 export function AdminModal({
-  open,
+  open = true,
   onClose,
   title,
   description,
   children,
   maxWidth = "max-w-2xl",
 }: {
-  open: boolean;
+  open?: boolean;
   onClose: () => void;
   title: string;
   description?: string;

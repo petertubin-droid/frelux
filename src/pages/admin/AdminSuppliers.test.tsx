@@ -11,7 +11,7 @@ vi.mock("@/lib/supabase", () => ({
         mockData = [
           {
             id: "sup-1",
-            business_name: "Lagos Sand & Granite Depot",
+            company_name: "Lagos Sand & Granite Depot",
             slug: "lagos-sand-granite",
             verification_status: "verified",
             market: "NG",
@@ -35,6 +35,7 @@ vi.mock("@/lib/supabase", () => ({
         order: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
+        not: vi.fn().mockReturnThis(),
         then: vi.fn().mockImplementation((fn) =>
           Promise.resolve(fn({ data: mockData, error: null })),
         ),
@@ -58,7 +59,9 @@ describe("AdminSuppliers", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Supplier network/i)).toBeDefined();
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Supplier network/i);
+    });
   });
 
   it("loads and displays verified supplier profiles", async () => {

@@ -44,6 +44,8 @@ vi.mock("@/lib/supabase", async (importOriginal) => {
         if (prop === "then")
           return (resolve: (v: unknown) => void) =>
             resolve({ data: null, error: null, count: 0 });
+        if (prop === "catch")
+          return (reject?: (v: unknown) => void) => chainable;
         return vi.fn().mockReturnValue(chainable);
       },
     },
@@ -99,6 +101,8 @@ vi.mock("@/lib/supabase-lazy", async (importOriginal) => {
         if (prop === "then")
           return (resolve: (v: unknown) => void) =>
             resolve({ data: null, error: null, count: 0 });
+        if (prop === "catch")
+          return (reject?: (v: unknown) => void) => lazyChainable;
         return vi.fn().mockReturnValue(lazyChainable);
       },
     },

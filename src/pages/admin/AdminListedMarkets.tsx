@@ -222,7 +222,7 @@ export default function AdminListedMarkets() {
                       <p className="text-xs text-muted-foreground">{p.slug}</p>
                     </td>
                     <td className="py-2 pr-3 text-xs text-muted-foreground">
-                      {p.capabilities.join(", ")}
+                      {(p.capabilities ?? []).join(", ")}
                     </td>
                     <td className="py-2 pr-3 text-xs">
                       {p.has_key ? (

@@ -7,7 +7,8 @@ vi.mock("@/lib/ai-foundation/engines-registry", () => ({
   listEngines: vi.fn().mockReturnValue([
     {
       id: "engine-fence-block",
-      name: "Perimeter Fence Block Engine",
+      title: "Perimeter Fence Block Engine",
+      domain: "masonry",
       description: "Calculates block count, mortar bags, sand tonnes and pillars",
       version: "1.2.0",
       category: "masonry",

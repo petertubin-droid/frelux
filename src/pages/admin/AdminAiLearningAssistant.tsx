@@ -11,6 +11,8 @@ import {
   ListOrdered,
   GitCompare,
   Send,
+  Save,
+  CheckCircle2,
 } from "lucide-react";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import {
@@ -314,7 +316,7 @@ export default function AdminAiLearningAssistant() {
                 </h2>
                 <div className="flex items-center gap-2">
                   <AdminButton
-                    variant="default"
+                    variant="primary"
                     type="button"
                     onClick={handleSaveDraft}
                     disabled={savingDraft}

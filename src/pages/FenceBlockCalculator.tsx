@@ -48,6 +48,10 @@ export default function FenceBlockCalculator() {
   const { t } = useLanguage();
 
   const [market, setMarket] = useState("NG");
+  const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
+  const [custom, setCustom] = useState({ length: "30.48", width: "15.24" });
+  const [coaches, setCoaches] = useState(5);
+  const [unitKey, setUnitKey] = useState<MasonryUnitKey>("ng-block-9");
   const [materialPrices, setMaterialPrices] = useState<{
     block?: number;
     cement?: number;
@@ -55,12 +59,14 @@ export default function FenceBlockCalculator() {
   }>({});
 
   useEffect(() => {
-    supabase
-      .from("material_prices")
-      .select("name, unit_price, is_active")
-      .eq("is_active", true)
-      .then(({ data }) => {
-        if (!data) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from("material_prices")
+          .select("name, unit_price, is_active")
+          .eq("is_active", true);
+        if (cancelled || !data) return;
         const prices: { block?: number; cement?: number; sand?: number } = {};
         for (const item of data) {
           const lower = (item.name || "").toLowerCase();
@@ -81,13 +87,14 @@ export default function FenceBlockCalculator() {
           }
         }
         setMaterialPrices(prices);
-      })
-      .catch(() => {});
+      } catch {
+        // fail gracefully
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [unitKey]);
-  const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
-  const [custom, setCustom] = useState({ length: "30.48", width: "15.24" });
-  const [coaches, setCoaches] = useState(5);
-  const [unitKey, setUnitKey] = useState<MasonryUnitKey>("ng-block-9");
   const [gateWidth, setGateWidth] = useState("3");
   const [gateCoaches, setGateCoaches] = useState("4");
   const [foundationCourses, setFoundationCourses] = useState("3");

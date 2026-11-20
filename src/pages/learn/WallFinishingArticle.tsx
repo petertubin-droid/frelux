@@ -87,7 +87,7 @@ const themeLabels: Record<string, string> = {
  * reviewed section, and market-scoped navigation.
  */
 export default function WallFinishingArticle() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { marketCode = "", articleSlug = "" } = useParams<{
     marketCode: string;
     articleSlug: string;

@@ -20,7 +20,7 @@ vi.mock("@/lib/supabase", () => ({
             created_at: "2026-11-19T10:00:00Z",
           },
         ];
-      } else if (table === "marketplace_travel_approvals") {
+      } else if (table === "cross_state_approvals") {
         data = [];
       } else if (table === "pro_profiles") {
         data = [
@@ -31,7 +31,7 @@ vi.mock("@/lib/supabase", () => ({
             service_area_text: "Lagos only",
           },
         ];
-      } else if (table === "marketplace_worker_settings") {
+      } else if (table === "worker_safety_settings") {
         return {
           select: vi.fn().mockReturnThis(),
           maybeSingle: vi.fn().mockResolvedValue({
@@ -45,6 +45,7 @@ vi.mock("@/lib/supabase", () => ({
         order: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
+        not: vi.fn().mockReturnThis(),
         then: vi.fn().mockImplementation((fn) => Promise.resolve(fn({ data, error: null }))),
       };
     }),
@@ -63,6 +64,6 @@ describe("AdminTravelApprovals", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Cross-state and travel approvals/i)).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Travel approvals/i);
   });
 });

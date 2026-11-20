@@ -220,7 +220,7 @@ export default function AdminSiteIntelligence() {
                       </p>
                     </td>
                     <td className="px-3 py-2 text-xs">
-                      {r.report_type.replace(/_/g, " ")}
+                      {r.report_type ? r.report_type.replace(/_/g, " ") : "Not specified"}
                     </td>
                     <td className="px-3 py-2 text-xs">
                       {r.bearing_capacity_kpa

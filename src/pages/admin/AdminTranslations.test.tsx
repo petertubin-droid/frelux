@@ -46,8 +46,8 @@ describe("AdminTranslations", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Translation review/i)).toBeDefined();
-    expect(screen.getByText(/Pick an article and target locale/i)).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Content Translations/i);
+    expect(screen.getByText(/Generate a machine draft/i)).toBeDefined();
   });
 
   it("lists translation entries and allows selecting locales", async () => {

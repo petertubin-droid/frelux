@@ -70,7 +70,7 @@ describe("SeoPerformance", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/SEO performance/i)).toBeDefined();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/SEO performance/i);
     });
   });
 

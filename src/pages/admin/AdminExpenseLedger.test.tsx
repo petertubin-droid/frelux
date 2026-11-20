@@ -20,7 +20,8 @@ vi.mock("@/lib/supabase", () => ({
                 currency: "NGN",
                 category: "materials",
                 expense_date: "2026-11-15",
-                vendor: "Dangote Direct Depot",
+                name: "Dangote Direct Depot",
+                spent_at: "2026-11-15",
                 description: "50 bags cement delivery",
                 receipt_url: null,
                 created_at: "2026-11-15T10:00:00Z",
@@ -32,7 +33,8 @@ vi.mock("@/lib/supabase", () => ({
                 currency: "USD",
                 category: "equipment",
                 expense_date: "2026-11-18",
-                vendor: "Caterpillar Rental",
+                name: "Caterpillar Rental",
+                spent_at: "2026-11-18",
                 description: "Excavator daily rental",
                 receipt_url: null,
                 created_at: "2026-11-18T14:00:00Z",
@@ -58,8 +60,8 @@ describe("AdminExpenseLedger", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Company Expense Ledger/i)).toBeDefined();
-    expect(screen.getByText(/Every recorded project expense/i)).toBeDefined();
+    expect(screen.getByText(/Expense ledger/i)).toBeDefined();
+    expect(screen.getByText(/What the business has spent/i)).toBeDefined();
   });
 
   it("renders currency summary cards for loaded expenses", async () => {

@@ -4,28 +4,33 @@ import { MemoryRouter } from "react-router-dom";
 import AdminBoqTemplates from "@/pages/admin/AdminBoqTemplates";
 
 vi.mock("@/lib/boq/queries", () => ({
-  fetchAllTemplates: vi.fn().mockResolvedValue([
-    {
-      id: "tpl-1",
-      slug: "residential-nigeria",
-      title: "Residential Building (Nigeria Standard)",
-      description: "Standard BOQ template with NRM2 structure",
-      market_code: "NG",
-      measurement_standard: "NRM2",
-      currency: "NGN",
-      is_default: true,
-      created_at: "2026-10-01T00:00:00Z",
-    },
-  ]),
-  fetchAllSections: vi.fn().mockResolvedValue([
-    {
-      id: "sec-1",
-      code: "SUB",
-      title: "Substructure & Foundations",
-      category: "structural",
-      sort_order: 10,
-    },
-  ]),
+  fetchAllTemplates: vi.fn().mockResolvedValue({
+    templates: [
+      {
+        id: "tpl-1",
+        name: "Residential Building (Nigeria Standard)",
+        standard: "Commercial",
+        rounding_step: 1,
+        show_labour_rate: true,
+        show_equipment_rate: true,
+        show_material_rate: true,
+      },
+    ],
+    error: null,
+  }),
+  fetchAllSections: vi.fn().mockResolvedValue({
+    sections: [
+      {
+        id: "sec-1",
+        standard: "Commercial",
+        code: "SUB",
+        title: "Substructure & Foundations",
+        sort_order: 10,
+        is_active: true,
+      },
+    ],
+    error: null,
+  }),
   saveTemplate: vi.fn().mockResolvedValue({ error: null }),
   saveSection: vi.fn().mockResolvedValue({ error: null }),
 }));
@@ -42,7 +47,7 @@ describe("AdminBoqTemplates", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/BOQ Templates/i)).toBeDefined();
+    expect(screen.getByRole("heading", { name: /BOQ templates/i })).toBeDefined();
   });
 
   it("displays loaded template titles and sections", async () => {
@@ -53,7 +58,8 @@ describe("AdminBoqTemplates", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Residential Building \(Nigeria Standard\)/i)).toBeDefined();
+      expect(screen.getByDisplayValue(/Residential Building \(Nigeria Standard\)/i)).toBeDefined();
+      expect(screen.getByDisplayValue(/Substructure & Foundations/i)).toBeDefined();
     });
   });
 });

@@ -3,31 +3,48 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminFinance from "@/pages/admin/AdminFinance";
 
+vi.mock("@/lib/marketplace-disputes", () => ({
+  DISPUTE_CATEGORIES: {},
+  loadOpenDisputes: vi.fn().mockResolvedValue([]),
+}));
+
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     rpc: vi.fn().mockImplementation((fn: string) => {
       if (fn === "admin_money_summary") {
         return Promise.resolve({
           data: {
-            topups_by_currency: [
-              { currency: "NGN", topups: 42, amount_minor: 125000000 },
-              { currency: "USD", topups: 8, amount_minor: 48000 },
+            window_days: 30,
+            subscriptions: [
+              { currency: "NGN", purchases: 10, buyers: 8, amount_minor: 5000000 },
             ],
-            purchases_by_currency: [],
-            escrow_by_currency: [
+            token_packs: [{ purchases: 5, tokens: 250, amount_minor: 125000 }],
+            token_packs_pending: 0,
+            api_wallet: [{ topups: 4, amount_usd: 120 }],
+            api_wallet_refused: 0,
+            escrow: [
               {
                 currency: "NGN",
-                contracts: 5,
-                contracted_minor: 50000000,
                 held_minor: 25000000,
-                released_minor: 20000000,
-                refunded_minor: 5000000,
-                fee_minor: 1250000,
+                released_minor: 10000000,
+                contracts: 2,
               },
             ],
-            orders_by_currency: [],
-            tokens: { buyers: 15, tokens: 3200 },
-            credits: { balances: 1800, grants: 2500, consumed: 700, accounts: 12 },
+            escrow_open_contracts: 2,
+            marketplace: [
+              {
+                currency: "NGN",
+                orders: 3,
+                agreed_value: 300000,
+                completed: 2,
+                disputed: 1,
+              },
+            ],
+            daily: [],
+            ai_credits: [
+              { type: "earn", entries: 50, credits: 1000 },
+              { type: "spend", entries: 30, credits: 600 },
+            ],
           },
           error: null,
         });
@@ -39,6 +56,7 @@ vi.mock("@/lib/supabase", () => ({
       order: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
       then: vi.fn().mockImplementation((fn) =>
         Promise.resolve(fn({ data: [], error: null })),
       ),
@@ -64,7 +82,7 @@ describe("AdminFinance", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Money, in one place/i)).toBeDefined();
+    expect(screen.getByText(/Every stream that takes or holds money/i)).toBeDefined();
   });
 
   it("loads and displays multi-currency summary totals", async () => {
@@ -75,8 +93,9 @@ describe("AdminFinance", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("NGN")).toBeDefined();
-      expect(screen.getByText("USD")).toBeDefined();
+      expect(screen.getByText(/Token packs/i)).toBeDefined();
+      expect(screen.getByText(/API wallet top-ups/i)).toBeDefined();
+      expect(screen.getByText(/Escrow held/i)).toBeDefined();
     });
   });
 });

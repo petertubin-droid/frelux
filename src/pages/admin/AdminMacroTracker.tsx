@@ -272,7 +272,7 @@ export default function AdminMacroTracker() {
         pct_change_90d: Number(indicatorForm.pct_change_90d) || 0,
         pct_change_yoy: Number(indicatorForm.pct_change_yoy) || 0,
         source_name: indicatorForm.source_name.trim(),
-        source_url: indicatorForm.source_url.trim() || null,
+        source_url: indicatorForm.source_url.trim() || undefined,
       };
 
       if (editingIndicator) {
@@ -367,7 +367,7 @@ export default function AdminMacroTracker() {
         ...(editingRule ? { id: editingRule.id } : {}),
         market_code: selectedMarket,
         material_category: ruleForm.material_category.trim().toLowerCase(),
-        commodity_trigger: ruleForm.commodity_trigger,
+        commodity_trigger: ruleForm.commodity_trigger as CommodityCategory,
         elasticity_multiplier: Number(ruleForm.elasticity_multiplier) || 1.0,
         activation_threshold_pct:
           Number(ruleForm.activation_threshold_pct) || 3.0,

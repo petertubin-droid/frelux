@@ -3,7 +3,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminAiLearningAssistant from "@/pages/admin/AdminAiLearningAssistant";
 
-const mockInsert = vi.fn().mockResolvedValue({ error: null });
+const { mockInsert } = vi.hoisted(() => ({
+  mockInsert: vi.fn().mockResolvedValue({ error: null }),
+}));
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

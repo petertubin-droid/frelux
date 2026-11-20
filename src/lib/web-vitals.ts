@@ -77,22 +77,25 @@ function reportVital(name: string, value: number): void {
   if (typeof window !== 'undefined') {
     const device = window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
     const connection = (navigator as unknown as { connection?: { effectiveType?: string } })?.connection?.effectiveType || null;
-    supabase
-      .from('web_vitals')
-      .insert({
-        metric: name,
-        value: roundedVal,
-        rating,
-        path: currentPath,
-        device,
-        connection,
-      })
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase
+          .from('web_vitals')
+          .insert({
+            metric: name,
+            value: roundedVal,
+            rating,
+            path: currentPath,
+            device,
+            connection,
+          });
         if (error && import.meta.env.DEV) {
           console.debug('[WebVitals] Persist error:', error.message);
         }
-      })
-      .catch(() => {});
+      } catch {
+        // ignore background metric logging failures
+      }
+    })();
   }
 
   if (import.meta.env.DEV) {

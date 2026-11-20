@@ -20,11 +20,11 @@ vi.mock("@/lib/supabase", () => ({
             data: {
               providers: [
                 {
-                  id: "ngx-official",
-                  name: "Nigerian Exchange Group (NGX)",
-                  market_code: "NG",
-                  is_operational: true,
-                  last_synced_at: "2026-11-20T11:00:00Z",
+                  slug: "ngx-official",
+                  label: "Nigerian Exchange Group (NGX)",
+                  capabilities: ["stocks", "indices"],
+                  has_key: true,
+                  update_frequency_minutes: 60,
                 },
               ],
             },
@@ -98,7 +98,7 @@ describe("AdminListedMarkets", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Market Intelligence control panel/i)).toBeDefined();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Market Intelligence control panel/i);
     });
   });
 
@@ -110,8 +110,8 @@ describe("AdminListedMarkets", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Dangote Cement Plc/i)).toBeDefined();
-      expect(screen.getByText(/BUA Cement Plc/i)).toBeDefined();
+      expect(screen.getByText(/DANGCEM/i)).toBeDefined();
+      expect(screen.getByText(/BUACEMENT/i)).toBeDefined();
     });
   });
 });

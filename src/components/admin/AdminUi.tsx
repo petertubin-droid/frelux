@@ -64,19 +64,25 @@ export function AdminButton({
   disabled,
   className,
   title,
+  icon: Icon,
+  loading,
 }: {
   children: ReactNode;
-  onClick?: () => void;
-  variant?: "primary" | "secondary" | "danger" | "success" | "link";
-  type?: "button" | "submit";
+  onClick?: (() => void) | ((e: any) => void | Promise<void>);
+  variant?: "primary" | "secondary" | "danger" | "success" | "link" | "default";
+  type?: "button" | "submit" | "reset";
   disabled?: boolean;
   className?: string;
   title?: string;
+  icon?: any;
+  loading?: boolean;
 }) {
   const base =
     "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2";
-  const variants = {
+  const variants: Record<string, string> = {
     primary:
+      "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-[0_1px_2px_rgba(16,12,40,0.12),0_8px_20px_-8px_hsl(var(--primary)/0.65)] hover:shadow-[0_2px_6px_rgba(16,12,40,0.14),0_12px_26px_-10px_hsl(var(--primary)/0.7)]",
+    default:
       "bg-gradient-to-b from-primary to-primary/90 text-primary-foreground shadow-[0_1px_2px_rgba(16,12,40,0.12),0_8px_20px_-8px_hsl(var(--primary)/0.65)] hover:shadow-[0_2px_6px_rgba(16,12,40,0.14),0_12px_26px_-10px_hsl(var(--primary)/0.7)]",
     secondary:
       "border border-border/70 bg-card/70 text-foreground backdrop-blur hover:border-primary/30 hover:bg-card dark:border-white/10 dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10",
@@ -90,10 +96,11 @@ export function AdminButton({
     <Button
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
       title={title}
-      className={classNames(base, variants[variant], className)}
+      className={classNames(base, variants[variant] || variants.primary, className)}
     >
+      {Icon && <Icon aria-hidden="true" className="h-4 w-4 mr-1.5" />}
       {children}
     </Button>
   );
@@ -177,22 +184,28 @@ export function Toggle({
 export function AdminField({
   label,
   hint,
+  helpText,
   error,
+  required,
   children,
 }: {
   label: string;
   hint?: string;
+  helpText?: string;
   error?: string;
+  required?: boolean;
   children: ReactNode;
 }) {
+  const displayHint = hint || helpText;
   return (
     <label className="block">
       <span className="block text-[13px] font-semibold tracking-wide text-foreground">
         {label}
+        {required && <span className="ml-1 text-red-500">*</span>}
       </span>
-      {hint && (
+      {displayHint && (
         <span className="mt-0.5 block text-xs text-muted-foreground dark:text-muted-foreground">
-          {hint}
+          {displayHint}
         </span>
       )}
       <div className="mt-1.5">{children}</div>

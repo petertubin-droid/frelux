@@ -4,28 +4,30 @@ import { MemoryRouter } from "react-router-dom";
 import AdminPriceIndex from "@/pages/admin/AdminPriceIndex";
 
 vi.mock("@/lib/price-index/queries", () => ({
-  fetchListings: vi.fn().mockResolvedValue([
-    {
-      id: "listing-1",
-      material_id: "mat-1",
-      material_name: "Portland Cement (50kg)",
-      category: "masonry",
-      market_code: "NG",
-      city_id: "city-lagos",
-      city_name: "Lagos",
-      unit: "bag",
-      price_kind: "median_spot",
-      unit_price: 8500,
-      currency: "NGN",
-      published: true,
-      last_observed_at: "2026-11-20T10:00:00Z",
-    },
-  ]),
-  fetchPendingSubmissions: vi.fn().mockResolvedValue([]),
-  fetchCities: vi.fn().mockResolvedValue([
-    { id: "city-lagos", name: "Lagos", market_code: "NG" },
-  ]),
-  fetchAuditTrail: vi.fn().mockResolvedValue([]),
+  fetchListings: vi.fn().mockResolvedValue({
+    listings: [
+      {
+        material_id: "mat-1",
+        name: "Portland Cement (50kg)",
+        slug: "portland-cement-50kg",
+        category: "masonry",
+        sale_unit: "50kg bag",
+        price_ngn: 8500,
+        currency: "NGN",
+        city_slug: "lagos",
+        is_published: true,
+      },
+    ],
+    error: null,
+  }),
+  fetchPendingSubmissions: vi.fn().mockResolvedValue({ rows: [], error: null }),
+  fetchCities: vi.fn().mockResolvedValue({
+    cities: [
+      { slug: "lagos", name: "Lagos", country_code: "NG", is_active: true, sort_order: 1 },
+    ],
+    error: null,
+  }),
+  fetchAuditTrail: vi.fn().mockResolvedValue({ rows: [], error: null }),
   categoryLabel: vi.fn((cat: string) => cat.toUpperCase()),
 }));
 
@@ -41,7 +43,7 @@ describe("AdminPriceIndex", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText(/Live Material Price Index/i)).toBeDefined();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Material Price Index/i);
   });
 
   it("renders loaded market listings", async () => {

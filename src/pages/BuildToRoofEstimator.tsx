@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import type { OpeningGroup } from "@/lib/estimation/openings";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";

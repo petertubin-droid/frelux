@@ -68,10 +68,10 @@ export default function AdminPriceIndex() {
         fetchListings({ limit: 800 }),
         fetchAuditTrail(60),
       ]);
-    setSubmissions(submissionResult.rows);
-    setCities(cityResult.cities);
-    setListings(listingResult.listings);
-    setAudit(auditResult.rows);
+    setSubmissions(submissionResult.rows ?? []);
+    setCities(cityResult.cities ?? []);
+    setListings(listingResult.listings ?? []);
+    setAudit(auditResult.rows ?? []);
     setLoadError(
       submissionResult.error ??
         cityResult.error ??

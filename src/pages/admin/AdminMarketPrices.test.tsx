@@ -5,6 +5,7 @@ import AdminMarketPrices from "@/pages/admin/AdminMarketPrices";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
+    rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
     from: vi.fn().mockImplementation((table: string) => {
       let mockData: unknown[] = [];
       if (table === "market_material_prices") {
@@ -31,6 +32,10 @@ vi.mock("@/lib/supabase", () => ({
         order: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
+        in: vi.fn().mockReturnThis(),
+        like: vi.fn().mockReturnThis(),
+        gte: vi.fn().mockReturnThis(),
+        not: vi.fn().mockReturnThis(),
         then: vi.fn().mockImplementation((fn) =>
           Promise.resolve(fn({ data: mockData, error: null })),
         ),

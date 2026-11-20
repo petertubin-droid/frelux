@@ -394,7 +394,7 @@ export default function AdminFinance() {
             <AdminCard>
               <p className="admin-eyebrow">Money in by day</p>
               <div className="mt-2 max-h-56 overflow-x-auto overflow-y-auto">
-                {summary.daily.length === 0 ? (
+                {(summary.daily ?? []).length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Nothing settled in this window.
                   </p>
@@ -409,7 +409,7 @@ export default function AdminFinance() {
                       </tr>
                     </thead>
                     <tbody>
-                      {summary.daily.map((row) => (
+                      {(summary.daily ?? []).map((row) => (
                         <tr
                           key={row.day}
                           className="border-t border-border/60 dark:border-white/5"
