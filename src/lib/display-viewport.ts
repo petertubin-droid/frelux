@@ -153,6 +153,7 @@ export function deviceTakesTouch(win: Window = window): boolean {
  * it, which are exactly the loads our own scaling could confuse.
  */
 export const DEVICE_SHORT_EDGE_KEY = "frelux_device_short_edge_v1";
+export const OAUTH_MOBILE_KEY = "frelux_oauth_mobile_v1";
 
 function readStoredShortEdge(win: Window = window): number {
   try {
@@ -183,18 +184,55 @@ function viewportIsUntouched(doc: Document = document): boolean {
   return meta.content === NEUTRAL_VIEWPORT || meta.content === "";
 }
 
+/** Checks whether the current window load is an OAuth or auth redirect round-trip. */
+export function isAuthRedirect(win: Window = window): boolean {
+  try {
+    const loc = win.location;
+    const h = loc?.hash || "";
+    const s = loc?.search || "";
+    return (
+      h.includes("access_token") ||
+      s.includes("code=") ||
+      s.includes("redirect=") ||
+      win.localStorage?.getItem(OAUTH_MOBILE_KEY) === "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
 /** The device's short edge: the phone's own width when held upright. */
 export function deviceCssShortEdge(win: Window = window): number {
   const screenWidth = win.screen?.width ?? 0;
   const screenHeight = win.screen?.height ?? 0;
-  const short = Math.min(screenWidth, screenHeight);
-  const measured = short > 0 ? short : win.innerWidth;
+  const rawShort = Math.min(screenWidth, screenHeight);
+  let short = rawShort > 0 ? rawShort : win.innerWidth;
+
+  // On some high-DPI Android devices or WebViews, screen dimensions are reported
+  // in physical device pixels instead of CSS pixels (e.g. 1080 instead of 392).
+  const dpr = win.devicePixelRatio || 1;
+  if (
+    short > PHONE_MAX_SHORT_EDGE &&
+    dpr > 1 &&
+    short / dpr <= PHONE_MAX_SHORT_EDGE
+  ) {
+    short = Math.round(short / dpr);
+  }
+
+  const stored = readStoredShortEdge(win);
+
+  // If this load is returning from an OAuth redirect (such as Google Sign In)
+  // or carrying an OAuth mobile marker, the phone's layout may be reporting
+  // widened dimensions from the pre-redirect viewport. Prefer the stored phone edge.
+  if (stored > 0 && stored <= PHONE_MAX_SHORT_EDGE && isAuthRedirect(win)) {
+    return stored;
+  }
 
   if (viewportIsUntouched(win.document)) {
-    rememberShortEdge(measured, win);
-    return measured;
+    rememberShortEdge(short, win);
+    return short;
   }
-  return readStoredShortEdge(win) || measured;
+  return stored || short;
 }
 
 /** The width to lay out for at 100%, in the current orientation. */

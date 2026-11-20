@@ -180,6 +180,16 @@ export default function Login() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user && !hasPendingOAuthProfile && !oauthProfileProcessing) {
+      try {
+        localStorage.removeItem("frelux_oauth_mobile_v1");
+      } catch {
+        /* ignore storage error */
+      }
+    }
+  }, [user, hasPendingOAuthProfile, oauthProfileProcessing]);
+
   if (
     user &&
     !showSuccess &&

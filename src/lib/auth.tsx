@@ -11,6 +11,12 @@ import { isSupabaseConfigured, getSupabase } from "@/lib/supabase-lazy";
 import type { DbProfile, DbUserPaidStatus } from "@/types/database";
 import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
 import { publishEntitlement } from "@/lib/entitlement-store";
+import {
+  DEVICE_SHORT_EDGE_KEY,
+  OAUTH_MOBILE_KEY,
+  PHONE_MAX_SHORT_EDGE,
+  deviceCssShortEdge,
+} from "@/lib/display-viewport";
 
 export type AccountType = "client" | "pro_worker";
 
@@ -382,6 +388,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem("frelux_pending_account_type", accountType);
         } else {
           localStorage.removeItem("frelux_pending_account_type");
+        }
+        try {
+          const edge = deviceCssShortEdge();
+          if (edge > 0 && edge <= PHONE_MAX_SHORT_EDGE) {
+            localStorage.setItem(OAUTH_MOBILE_KEY, "1");
+            localStorage.setItem(
+              DEVICE_SHORT_EDGE_KEY,
+              String(Math.round(edge)),
+            );
+          }
+        } catch {
+          /* ignore storage error */
         }
         const supabase = await getSupabase();
         try {

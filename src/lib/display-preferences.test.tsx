@@ -13,7 +13,11 @@ import {
   readDisplayPreferences,
   useDisplayPreferences,
 } from "./display-preferences";
-import { DEVICE_SHORT_EDGE_KEY, deviceCssShortEdge } from "./display-viewport";
+import {
+  DEVICE_SHORT_EDGE_KEY,
+  OAUTH_MOBILE_KEY,
+  deviceCssShortEdge,
+} from "./display-viewport";
 
 /**
  * The inline display script, found by what it does rather than by position:
@@ -482,5 +486,53 @@ describe("a phone after signing in", () => {
     expect(document.documentElement.dataset.freluxScale).toBe(
       String(DEFAULT_MOBILE_SCALE),
     );
+  });
+
+  it("keeps 80% on fresh page load when returning from Google OAuth redirect", () => {
+    const html = readFileSync("index.html", "utf8");
+    const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1])
+      .find((body) => body.includes("frelux_display_preferences_v1"));
+    expect(inline, "pre-paint display script").toBeTruthy();
+
+    localStorage.setItem(DEVICE_SHORT_EDGE_KEY, "390");
+    localStorage.setItem(OAUTH_MOBILE_KEY, "1");
+    localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+    document.head.innerHTML =
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+    setDevice(780, 1690);
+    new Function(inline!)();
+
+    expect(document.documentElement.dataset.freluxScale).toBe(
+      String(DEFAULT_MOBILE_SCALE),
+    );
+    expect(deviceCssShortEdge()).toBe(390);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
+  });
+
+  it("keeps 80% when returning with an auth redirect query even if viewport was reset to neutral", () => {
+    const html = readFileSync("index.html", "utf8");
+    const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1])
+      .find((body) => body.includes("frelux_display_preferences_v1"));
+    expect(inline, "pre-paint display script").toBeTruthy();
+
+    localStorage.setItem(DEVICE_SHORT_EDGE_KEY, "390");
+    localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+    localStorage.removeItem(OAUTH_MOBILE_KEY);
+    delete (window as any).location;
+    (window as any).location = new URL(
+      "https://freluxtools.com/login?redirect=/dashboard",
+    );
+    document.head.innerHTML =
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+    setDevice(780, 1690);
+    new Function(inline!)();
+
+    expect(document.documentElement.dataset.freluxScale).toBe(
+      String(DEFAULT_MOBILE_SCALE),
+    );
+    expect(deviceCssShortEdge()).toBe(390);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
   });
 });
