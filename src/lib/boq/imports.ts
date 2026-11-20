@@ -75,6 +75,11 @@ export const CALCULATOR_SECTIONS: Record<
     aliases: ["build-to-roof-estimator", "btr-estimator"],
     section: { code: "05", title: "Concrete Works" },
   },
+  envelope: {
+    label: "4-View Envelope Takeoff",
+    aliases: ["four-view-envelope", "envelope-takeoff", "envelope-estimator"],
+    section: { code: "07", title: "Blockwork" },
+  },
   safety: {
     label: "Site Safety & PPE Estimator",
     aliases: [

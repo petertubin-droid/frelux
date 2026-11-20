@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, Plus, Trash2 } from "lucide-react";
+import { Download, Plus, Sparkles, Trash2 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import EnvelopeViewer3D from "@/components/geometry/EnvelopeViewer3D";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { formatNumber } from "@/lib/convert/units";
@@ -27,6 +29,12 @@ import {
   envelopeDxfFileName,
   type DxfOpening,
 } from "@/lib/geometry/envelope-dxf";
+import {
+  detectCorners,
+  type CornerDetection,
+} from "@/lib/geometry/corner-detect";
+import { buildEnvelopeBoqLines } from "@/lib/geometry/envelope-boq";
+import type { SceneOpening } from "@/lib/geometry/envelope-scene";
 
 /**
  * Four-view envelope and plan generator.
@@ -60,6 +68,10 @@ export default function FourViewEnvelope() {
   const [faces, setFaces] = useState<Record<ViewId, FaceState>>(initialFaces);
   const [active, setActive] = useState<ViewId>("front");
   const [tolerancePct, setTolerancePct] = useState("2");
+  const [detecting, setDetecting] = useState<ViewId | null>(null);
+  const [detections, setDetections] = useState<
+    Partial<Record<ViewId, CornerDetection>>
+  >({});
 
   const geometry = useMemo(() => {
     const out = {} as Record<ViewId, FaceGeometry>;
@@ -89,6 +101,38 @@ export default function FourViewEnvelope() {
 
   const envelope = outcome?.ok ? outcome.envelope : null;
 
+  const boqBuild = useMemo(
+    () =>
+      envelope
+        ? buildEnvelopeBoqLines(envelope)
+        : {
+            lines: [] as ReturnType<typeof buildEnvelopeBoqLines>["lines"],
+            notes: [] as string[],
+            totals: {},
+          },
+    [envelope],
+  );
+
+  /**
+   * Openings as the 3D view needs them: measured width, height and offset from
+   * the left edge of each elevation, which is where the hole is cut.
+   */
+  const sceneOpenings = useMemo(() => {
+    const out: Partial<Record<ViewId, SceneOpening[]>> = {};
+    for (const view of VIEW_ORDER) {
+      const measured = geometry[view].openings;
+      if (measured.length === 0) continue;
+      out[view] = measured.map((opening) => ({
+        kind: opening.kind,
+        widthMm: opening.widthMm,
+        heightMm: opening.heightMm,
+        offsetMm: opening.offsetMm,
+        sillMm: opening.kind === "door" ? 0 : undefined,
+      }));
+    }
+    return out;
+  }, [geometry]);
+
   function updateFace(view: ViewId, patch: Partial<FaceState>) {
     setFaces((current) => ({
       ...current,
@@ -104,6 +148,40 @@ export default function FourViewEnvelope() {
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  /**
+   * Ask for the wall corners in the active photograph.
+   *
+   * The model only proposes: every corner it returns lands on the canvas as a
+   * handle the visitor can drag, and the measurement still needs the stated
+   * length. A refusal leaves the face exactly as it was.
+   */
+  async function detectActiveCorners(view: ViewId) {
+    const image = faces[view].image;
+    if (!image) return;
+    setDetecting(view);
+    const result = await detectCorners(image, {
+      viewLabel: VIEW_LABELS[view],
+    });
+    setDetections((current) => ({ ...current, [view]: result }));
+    setDetecting(null);
+    if (result.status !== "detected" || !result.quad) return;
+
+    const openings = result.openings.map((opening) => ({
+      id: crypto.randomUUID(),
+      kind: opening.kind,
+      rect: opening.rect,
+    }));
+    setFaces((current) => ({
+      ...current,
+      [view]: {
+        ...current[view],
+        quad: result.quad!,
+        ridge: result.ridge ?? current[view].ridge,
+        openings: openings.length > 0 ? openings : current[view].openings,
+      },
+    }));
   }
 
   function downloadDxf() {
@@ -247,6 +325,40 @@ export default function FourViewEnvelope() {
                   <Plus className="mr-2 h-4 w-4" /> Ridge
                 </Button>
               </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => detectActiveCorners(active)}
+                  disabled={!faces[active].image || detecting !== null}
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {detecting === active
+                    ? "Reading the photograph…"
+                    : "Detect corners with AI"}
+                </Button>
+                <span className="text-[11px] text-muted-foreground">
+                  Proposes the four corners, the ridge and any openings. Every
+                  proposal lands as a handle you can drag, and nothing is
+                  measured until you state the known length.
+                </span>
+              </div>
+
+              {detections[active] && (
+                <p
+                  className={classNames(
+                    "mt-2 rounded-lg border p-2 text-[11px]",
+                    detections[active]!.status === "detected"
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+                      : "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+                  )}
+                >
+                  {detections[active]!.status === "detected"
+                    ? `${VIEW_LABELS[active]}: ${detections[active]!.reason} Confidence ${Math.round(detections[active]!.confidence * 100)}%.`
+                    : `${VIEW_LABELS[active]}: ${detections[active]!.reason}`}
+                </p>
+              )}
 
               <FaceCanvas
                 view={active}
@@ -398,6 +510,61 @@ export default function FourViewEnvelope() {
                     ))}
                   </ul>
                 )}
+
+                <div className="mt-4">
+                  <h3 className="mb-2 text-sm font-semibold">
+                    The measured solid
+                  </h3>
+                  <EnvelopeViewer3D
+                    envelope={envelope}
+                    openings={sceneOpenings}
+                  />
+                </div>
+
+                <div className="mt-4 rounded-xl border border-border p-3">
+                  <h3 className="text-sm font-semibold">
+                    Send the quantities to a BOQ
+                  </h3>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {boqBuild.lines.length} measured line
+                    {boqBuild.lines.length === 1 ? "" : "s"} (wall, slab,
+                    footing, DPC, roof) with the rate columns left blank. Save
+                    it to a project, then import it in BOQ Studio: nothing is
+                    priced here and no rate is invented.
+                  </p>
+                  <div className="mt-2">
+                    <SaveToProjectButton
+                      calculatorType="cost"
+                      calculatorSlug="four-view-envelope"
+                      calcTitle="4-View envelope takeoff"
+                      calcData={{
+                        widthMm: envelope.widthMm,
+                        depthMm: envelope.depthMm,
+                        eaveHeightMm: envelope.eaveHeightMm,
+                        roofRiseMm: envelope.roofRiseMm,
+                        roofPitchDeg: envelope.roofPitchDeg,
+                        roofSlopeFactor: envelope.roofSlopeFactor,
+                        checks: envelope.checks,
+                        audit: envelope.audit,
+                        warnings: envelope.warnings,
+                        boq_notes: boqBuild.notes,
+                      }}
+                      resultSummary={boqBuild.totals}
+                      materials={boqBuild.lines.map((line) => ({
+                        name: line.name,
+                        category: line.category,
+                        quantity: line.quantity,
+                        unit: line.unit,
+                      }))}
+                      label="Send to BOQ"
+                    />
+                  </div>
+                  <ul className="mt-2 space-y-1 text-[11px] text-muted-foreground">
+                    {boqBuild.notes.map((note) => (
+                      <li key={note}>· {note}</li>
+                    ))}
+                  </ul>
+                </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button type="button" onClick={downloadDxf}>

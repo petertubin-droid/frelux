@@ -179,6 +179,41 @@ GROUP BY scan_confidence;
 
 - 2026-11 UI & Theme Configuration update: added administrative toggle switches for the mobile bottom navigation bar and the floating AI live chat assistant widget in Admin Settings and Admin AI Settings (both defaulted to toggled off). Updated website default visual mode from dark to light mode across theme provider, pre-paint inline script in index.html, and admin theme unmount restoration.
 
+## 4-View Envelope: stage 1 detection, BOQ handoff, 3D (2026-11-20)
+
+The generator shipped measuring only. Three gaps are now closed in code:
+
+1. Stage 1 (corner detection). `supabase/functions/ai-envelope-detect` follows the
+   count-vision contract exactly (ai_enabled gate, GEMINI_API_KEY edge secret, AI
+   rate limit, photo never stored, strict validation: four in-frame corners, at
+   least 4% of the frame, no self-intersection, 50% confidence floor). The client
+   `src/lib/geometry/corner-detect.ts` re-validates and separates the states the
+   page must tell apart: detected / unclear / disabled / unavailable / error. A
+   proposal lands as draggable handles; it never sets the scale.
+   STATUS: written, NOT DEPLOYED. Every SUPABASE_ACCESS_TOKEN in the sandbox is
+   stale (401), so `supabase functions deploy ai-envelope-detect` needs a fresh
+   token. Until then the button reports "not deployed on this project yet" and
+   the manual path is unaffected.
+
+2. BOQ handoff. `src/lib/geometry/envelope-boq.ts` turns a reconciled envelope
+   into five measured pay items (blockwork net area, concrete floor slab,
+   foundation trench/footing length, DPC length, roof covering true area), all
+   unpriced by design. `envelope` is registered in `CALCULATOR_SECTIONS`
+   (aliases four-view-envelope / envelope-takeoff) so BOQ Studio routes it, and
+   the page uses SaveToProjectButton (calculator_type "cost", slug
+   "four-view-envelope") because project_calculations constrains the type set.
+   Line descriptions are chosen to hit the keyword router: "Blockwork" 07,
+   "Concrete floor slab" 05, "Foundation" 04, "Roof covering" 08. Never say
+   "external" in a description: the router reads it as External Works (18).
+
+3. 3D. `src/lib/geometry/envelope-scene.ts` builds the solid headless (four
+   extruded walls with real holes, slab, two roof planes on the measured pitch,
+   flat roof + disclosure when no rise was measured); `EnvelopeViewer3D` is the
+   WebGL shell with OrbitControls. GOTCHA: centre the extrusion on its own
+   footprint before rotating, or the back wall mirrors and the bounds double.
+
+Tests: 90 across src/lib/geometry, the page and the BOQ importer. tsc 0.
+
 ## Wave 2.1 ICF + EIFS (2026-11-19)
 
 See commit for engine/pricing/template changes; 12 verified price rows and 4 templates applied live.
