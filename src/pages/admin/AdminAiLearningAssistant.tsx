@@ -155,6 +155,43 @@ export default function AdminAiLearningAssistant() {
     }
   }
 
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+
+  async function handleSaveDraft() {
+    if (!result) return;
+    setSavingDraft(true);
+    setError("");
+    setSaveSuccess(null);
+    try {
+      const slugBase = (topic.trim() || "ai-article")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const slug = `${slugBase}-${Date.now().toString(36)}`;
+      const titleText = topic.trim() || result.split("\n")[0].replace(/^#+\s*/, "").slice(0, 100) || "AI Generated Article";
+      const excerptText = result.slice(0, 180).replace(/[\r\n#*`]/g, " ").trim();
+
+      const { error: insertErr } = await supabase.from("learn_articles").insert({
+        title: titleText,
+        slug,
+        content: result,
+        excerpt: excerptText,
+        status: "draft",
+        editorial_review_status: "in_review",
+        wall_market_code: "NG",
+        wall_language_code: "en",
+      });
+
+      if (insertErr) throw insertErr;
+      setSaveSuccess(`Saved as draft article: "${titleText}"`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save article draft.");
+    } finally {
+      setSavingDraft(false);
+    }
+  }
+
   async function handleCopyResult() {
     await navigator.clipboard.writeText(result);
   }
@@ -275,15 +312,32 @@ export default function AdminAiLearningAssistant() {
                 <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
                   {t("Result")}
                 </h2>
-                <AdminButton
-                  variant="secondary"
-                  type="button"
-                  onClick={handleCopyResult}
-                  className="text-xs"
-                >
-                  <Send aria-hidden="true" className="h-3 w-3" /> {t("Copy")}
-                </AdminButton>
+                <div className="flex items-center gap-2">
+                  <AdminButton
+                    variant="default"
+                    type="button"
+                    onClick={handleSaveDraft}
+                    disabled={savingDraft}
+                    className="text-xs"
+                  >
+                    <Save aria-hidden="true" className="h-3 w-3" />
+                    {savingDraft ? t("Saving…") : t("Save as Draft Article")}
+                  </AdminButton>
+                  <AdminButton
+                    variant="secondary"
+                    type="button"
+                    onClick={handleCopyResult}
+                    className="text-xs"
+                  >
+                    <Send aria-hidden="true" className="h-3 w-3" /> {t("Copy")}
+                  </AdminButton>
+                </div>
               </div>
+              {saveSuccess && (
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300">
+                  <CheckCircle2 aria-hidden="true" className="h-4 w-4" /> {saveSuccess}
+                </div>
+              )}
               <div className="max-h-[500px] overflow-y-auto rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-4">
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/60">
                   {result}

@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { useEffect } from 'react';
 import { track } from '@/lib/analytics';
 
@@ -62,13 +63,37 @@ let ttfbValue = 0;
 
 function reportVital(name: string, value: number): void {
   const rating = getRating(name, value);
+  const roundedVal = Math.round(value * 100) / 100;
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+
   track('ai_request_failed', {
     type: 'web_vital',
     name,
-    value: Math.round(value * 100) / 100,
+    value: roundedVal,
     rating,
-    path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    path: currentPath,
   });
+
+  if (typeof window !== 'undefined') {
+    const device = window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
+    const connection = (navigator as unknown as { connection?: { effectiveType?: string } })?.connection?.effectiveType || null;
+    supabase
+      .from('web_vitals')
+      .insert({
+        metric: name,
+        value: roundedVal,
+        rating,
+        path: currentPath,
+        device,
+        connection,
+      })
+      .then(({ error }) => {
+        if (error && import.meta.env.DEV) {
+          console.debug('[WebVitals] Persist error:', error.message);
+        }
+      })
+      .catch(() => {});
+  }
 
   if (import.meta.env.DEV) {
     console.debug(`[WebVitals] ${name}: ${value.toFixed(2)} (${rating})`);

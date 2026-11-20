@@ -223,6 +223,28 @@ export default function WallFinishingArticle() {
         return;
       }
       const row = data as WallArticle;
+
+      // International localization: check for published translations if language is not English
+      if (language && language !== "en") {
+        try {
+          const { data: translation } = await supabase
+            .from("content_translations")
+            .select("title, description, body_md")
+            .eq("content_key", articleSlug)
+            .eq("locale", language)
+            .eq("status", "published")
+            .maybeSingle();
+
+          if (translation) {
+            if (translation.title) row.title = translation.title;
+            if (translation.description) row.excerpt = translation.description;
+            if (translation.body_md) row.content = translation.body_md;
+          }
+        } catch {
+          // Fall back gracefully to base English content
+        }
+      }
+
       setArticle(row);
       setStatus("ready");
       if (typeof window !== "undefined") {
@@ -292,7 +314,7 @@ export default function WallFinishingArticle() {
     return () => {
       alive = false;
     };
-  }, [articleSlug, market]);
+  }, [articleSlug, market, language]);
 
   // Keep the document language in step with the article, so a French or
   // Japanese version is not served inside an English <html lang> shell.

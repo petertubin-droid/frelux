@@ -641,6 +641,64 @@ export default function BuildToRoofEstimator({
       if (marketCode === "NG") {
         setMarketCementNote(null);
         setMarketRebarNote(null);
+        // Query dynamic material prices and labor rates from admin database
+        try {
+          const [{ data: matData }, { data: labData }] = await Promise.all([
+            supabase.from("material_prices").select("name, unit_price, is_active").eq("is_active", true),
+            supabase.from("labor_rates").select("role, rate_per_unit, is_active").eq("is_active", true),
+          ]);
+
+          if (matData && matData.length > 0) {
+            const priceUpdates: Partial<BuildToRoofInput["prices"]> = {};
+            for (const item of matData) {
+              const lower = (item.name || "").toLowerCase();
+              const price = Number(item.unit_price) || 0;
+              if (price <= 0) continue;
+              if (lower.includes("cement")) priceUpdates.cement_per_bag = price;
+              else if (lower.includes("sand") && (lower.includes("trip") || lower.includes("tipper"))) priceUpdates.sand_per_trip = price;
+              else if (lower.includes("sand")) priceUpdates.sand_per_m3 = price;
+              else if (lower.includes("granite") && (lower.includes("trip") || lower.includes("tipper"))) priceUpdates.granite_per_trip = price;
+              else if (lower.includes("granite")) priceUpdates.granite_per_m3 = price;
+              else if (lower.includes("9-inch") || lower.includes("9 inch") || lower.includes("block")) priceUpdates.block_per_piece = price;
+              else if (lower.includes("12mm")) priceUpdates.rebar_12mm_per_length = price;
+              else if (lower.includes("16mm")) priceUpdates.rebar_16mm_per_length = price;
+              else if (lower.includes("20mm")) priceUpdates.rebar_20mm_per_length = price;
+              else if (lower.includes("25mm")) priceUpdates.rebar_25mm_per_length = price;
+              else if (lower.includes("binding wire")) priceUpdates.binding_wire_per_kg = price;
+              else if (lower.includes("timber")) priceUpdates.timber_per_m = price;
+              else if (lower.includes("roofing sheet") || lower.includes("aluminium")) priceUpdates.roofing_sheet_per_piece = price;
+            }
+            if (Object.keys(priceUpdates).length > 0) {
+              setInput((prev) => ({
+                ...prev,
+                prices: { ...prev.prices, ...priceUpdates },
+              }));
+            }
+          }
+
+          if (labData && labData.length > 0) {
+            const labourUpdates: Partial<BuildToRoofInput["labour"]> = {};
+            for (const item of labData) {
+              const lower = (item.role || "").toLowerCase();
+              const rate = Number(item.rate_per_unit) || 0;
+              if (rate <= 0) continue;
+              if (lower.includes("block") || lower.includes("mason")) labourUpdates.blockwork_per_block = rate;
+              else if (lower.includes("concrete")) labourUpdates.concrete_per_m3 = rate;
+              else if (lower.includes("steel") || lower.includes("rebar")) labourUpdates.reinforcement_per_tonne = rate;
+              else if (lower.includes("carpenter") || lower.includes("formwork")) labourUpdates.formwork_per_m2 = rate;
+              else if (lower.includes("roof")) labourUpdates.roofing_per_m2 = rate;
+              else if (lower.includes("excavat")) labourUpdates.excavation_per_m3 = rate;
+            }
+            if (Object.keys(labourUpdates).length > 0) {
+              setInput((prev) => ({
+                ...prev,
+                labour: { ...prev.labour, ...labourUpdates },
+              }));
+            }
+          }
+        } catch {
+          // Retain default prices if fetch fails
+        }
         return;
       }
       const [cement, sandM3, rebar] = await Promise.all([
