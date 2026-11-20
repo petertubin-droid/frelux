@@ -18,6 +18,7 @@ import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { formatByCode } from "@/lib/international/currency-format";
 import { resolvePriceCurrency } from "@/lib/international/price-currency";
+import SmartMarketCurrencyFilter from "@/components/ui/SmartMarketCurrencyFilter";
 import { useLanguage } from "@/lib/i18n";
 import {
   classifyEvidence,
@@ -291,23 +292,13 @@ export default function MaterialPrices() {
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         {/* Filters */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            {["all", ...currencies].map((c) => (
-              <button
-                key={c}
-                onClick={() => setCurrencyFilter(c)}
-                className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  currencyFilter === c
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-card text-muted-foreground hover:border-brand-purple/40 hover:text-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground"
-                }`}
-              >
-                {c === "all" ? "All currencies" : c}
-              </button>
-            ))}
-          </div>
-          <div className="relative w-full max-w-xs">
+        <div className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.75fr)] lg:items-start">
+          <SmartMarketCurrencyFilter
+            value={currencyFilter}
+            onChange={setCurrencyFilter}
+            availableCurrencies={currencies}
+          />
+          <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               aria-label={t("Search materials")}
@@ -366,21 +357,21 @@ export default function MaterialPrices() {
                     role="region"
                     aria-label={`${prettyCategory(category)} material prices`}
                     tabIndex={0}
-                    className="w-full overflow-x-auto overscroll-x-contain focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                    className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                   >
-                    <table className="w-full min-w-[44rem] text-sm">
+                    <table className="w-full table-fixed text-sm">
                       <thead>
                         <tr className="border-b border-border/60 text-left text-xs uppercase tracking-wider text-muted-foreground dark:border-white/5">
-                          <th className="px-5 py-3 font-semibold">
+                          <th className="w-[34%] px-3 py-3 font-semibold sm:w-[38%] sm:px-5">
                             {t("Material")}
                           </th>
-                          <th className="px-5 py-3 text-right font-semibold">
+                          <th className="w-[23%] px-2 py-3 text-right font-semibold sm:w-[20%] sm:px-5">
                             {t("Price")}
                           </th>
-                          <th className="min-w-48 px-5 py-3 font-semibold">
+                          <th className="w-[25%] px-2 py-3 font-semibold sm:px-5">
                             {t("Source")}
                           </th>
-                          <th className="min-w-36 px-5 py-3 font-semibold">
+                          <th className="w-[18%] px-2 py-3 font-semibold sm:px-5">
                             {t("Effective")}
                           </th>
                         </tr>
@@ -401,7 +392,7 @@ export default function MaterialPrices() {
                               key={`${r.category}-${r.name}-${r.market}`}
                               className="border-b border-border/40 last:border-0 dark:border-white/5"
                             >
-                              <td className="px-5 py-3.5">
+                              <td className="break-words px-3 py-3.5 sm:px-5">
                                 <span className="font-medium text-foreground dark:text-primary-foreground">
                                   {r.name}
                                 </span>
@@ -431,13 +422,13 @@ export default function MaterialPrices() {
                                   </span>
                                 )}
                               </td>
-                              <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
+                              <td className="break-words px-2 py-3.5 text-right font-semibold text-foreground dark:text-primary-foreground">
                                 {money(r.price, r.currency)}
                                 <span className="ml-1 text-xs font-normal text-muted-foreground">
                                   {r.currency}
                                 </span>
                               </td>
-                              <td className="px-5 py-3.5 text-xs text-muted-foreground">
+                              <td className="break-words px-2 py-3.5 text-xs text-muted-foreground sm:px-5">
                                 <span className="block">
                                   {r.price_source ?? "Source not recorded"}
                                 </span>
@@ -459,7 +450,7 @@ export default function MaterialPrices() {
                                   </span>
                                 </span>
                               </td>
-                              <td className="whitespace-nowrap px-5 py-3.5 text-xs text-muted-foreground">
+                              <td className="break-words px-2 py-3.5 text-xs text-muted-foreground sm:px-5">
                                 {r.effective_date ?? "—"}
                               </td>
                             </tr>

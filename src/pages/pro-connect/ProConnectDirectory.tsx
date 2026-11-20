@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useLanguage } from "@/lib/i18n";
 import PageHeader from "@/components/ui/PageHeader";
+import DirectoryFilterPanel from "@/components/ui/DirectoryFilterPanel";
 import Container from "@/components/ui/Container";
 import AdSlot from "@/components/ui/AdSlot";
 import { normalizeProConnectSearchQuery } from "@/lib/pro-connect-search";
@@ -151,7 +152,8 @@ export default function ProConnectDirectory() {
     [trades, searchQuery],
   );
   const matchedTradeIds = useMemo(
-    () => (matchedTrades.length > 0 ? tradeIdsFor(matchedTrades) : EMPTY_TRADE_IDS),
+    () =>
+      matchedTrades.length > 0 ? tradeIdsFor(matchedTrades) : EMPTY_TRADE_IDS,
     [matchedTrades],
   );
   const matchedTradeIdsKey = matchedTradeIds.join(",");
@@ -266,7 +268,6 @@ export default function ProConnectDirectory() {
     ? services.filter((s) => s.category_id === selectedCategory)
     : services;
 
-
   function clearFilters() {
     setPage(1);
     setSelectedCategory(null);
@@ -364,8 +365,15 @@ export default function ProConnectDirectory() {
 
         {/* Filters panel */}
         {showFilters && (
-          <div className="mb-6 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DirectoryFilterPanel
+            title={t("Filter professionals")}
+            description={t(
+              "Narrow the directory by location, trade, availability, and verification.",
+            )}
+            className="mb-6"
+            bodyClassName="pt-4"
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {/* Category */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
@@ -378,7 +386,7 @@ export default function ProConnectDirectory() {
                     setSelectedCategory(e.target.value || null);
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("All categories")}</option>
                   {categories.map((c) => (
@@ -401,7 +409,7 @@ export default function ProConnectDirectory() {
                     setSelectedService(e.target.value || null);
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("All services")}</option>
                   {filteredServices.map((s) => (
@@ -426,7 +434,7 @@ export default function ProConnectDirectory() {
                     setSelectedCity(null);
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("All countries")}</option>
                   {COUNTRY_OPTIONS.map((g) => (
@@ -447,7 +455,7 @@ export default function ProConnectDirectory() {
                     setSelectedCity(null);
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("All states")}</option>
                   {states.map((s) => (
@@ -471,7 +479,7 @@ export default function ProConnectDirectory() {
                     setPage(1);
                   }}
                   disabled={!selectedState}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("All cities")}</option>
                   {cities.map((c) => (
@@ -496,7 +504,7 @@ export default function ProConnectDirectory() {
                     setAvailabilityFilter(e.target.value || null);
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("Any availability")}</option>
                   <option value="available">{t("Available now")}</option>
@@ -516,7 +524,7 @@ export default function ProConnectDirectory() {
                     );
                     setPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
                 >
                   <option value="">{t("Any rating")}</option>
                   <option value="3">3.0+</option>
@@ -551,7 +559,7 @@ export default function ProConnectDirectory() {
                 </Button>
               )}
             </div>
-          </div>
+          </DirectoryFilterPanel>
         )}
 
         {/* Trade chips: search-aware, and never the full wall at once.
@@ -706,7 +714,11 @@ export default function ProConnectDirectory() {
                   <X className="h-4 w-4" /> {t("Clear filters")}
                 </Button>
               )}
-              <Button asChild size="sm" className="w-full gap-2 text-xs font-semibold sm:w-auto">
+              <Button
+                asChild
+                size="sm"
+                className="w-full gap-2 text-xs font-semibold sm:w-auto"
+              >
                 <Link to="/pro-connect/register">
                   {t("Are you a professional? List your business")}
                 </Link>

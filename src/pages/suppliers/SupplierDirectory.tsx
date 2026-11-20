@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/shadcn/badge";
 import { useAuth } from "@/lib/auth";
 import { useSeo, SITE_URL } from "@/lib/seo";
 import Container from "@/components/ui/Container";
+import DirectoryFilterPanel from "@/components/ui/DirectoryFilterPanel";
 import PageHeader from "@/components/ui/PageHeader";
 import { classNames } from "@/lib/utils";
 import { formatByCode } from "@/lib/international/currency-format";
@@ -368,8 +369,13 @@ export default function SupplierDirectory() {
       />
 
       <Container className="max-w-6xl pb-12 pt-8">
-        <section className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:p-4">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <DirectoryFilterPanel
+          title="Search suppliers"
+          description="Find providers by product, market, city, category, stock, and verification status."
+          className="mt-6"
+          bodyClassName="pt-4"
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className="relative block">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
@@ -383,7 +389,7 @@ export default function SupplierDirectory() {
             <select
               value={marketCode}
               onChange={(e) => setMarketCode(e.target.value)}
-              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
               aria-label="Market"
             >
               {MARKETS.map((country) => (
@@ -401,7 +407,7 @@ export default function SupplierDirectory() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
               aria-label="Material category"
             >
               <option value="">All material categories</option>
@@ -416,7 +422,7 @@ export default function SupplierDirectory() {
             <select
               value={verification}
               onChange={(e) => setVerification(e.target.value)}
-              className="h-9 rounded-md border border-slate-200 bg-white px-2"
+              className="min-h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 sm:w-auto"
               aria-label="Verification level"
             >
               <option value="any">Any verification level</option>
@@ -455,7 +461,7 @@ export default function SupplierDirectory() {
               </Link>
             ) : null}
           </div>
-        </section>
+        </DirectoryFilterPanel>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div>

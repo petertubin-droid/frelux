@@ -651,12 +651,12 @@ function JobsTab(props: {
 
       {/* Filters */}
       {props.showFilters && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-5 grid gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
           <select
             aria-label="Filter by trade"
             value={props.projectType}
             onChange={(e) => props.setProjectType(e.target.value)}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
           >
             <option value="">{tx("All trades")}</option>
             {PROJECT_TYPES.map((t) => (
@@ -668,8 +668,11 @@ function JobsTab(props: {
           <select
             aria-label="Filter by country"
             value={props.country}
-            onChange={(e) => { props.setCountry(e.target.value); props.setState(""); }}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            onChange={(e) => {
+              props.setCountry(e.target.value);
+              props.setState("");
+            }}
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
           >
             <option value="">{tx("All countries")}</option>
             {COUNTRY_OPTIONS.map((g) => (
@@ -689,7 +692,7 @@ function JobsTab(props: {
               placeholder={tx("Region or city")}
               value={props.state}
               onChange={(e) => props.setState(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
             />
           ) : (
             <select
@@ -697,7 +700,7 @@ function JobsTab(props: {
               value={props.state}
               disabled={!props.country}
               onChange={(e) => props.setState(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
             >
               <option value="">{tx("All states / regions")}</option>
               {getMarketRegions(props.country).map((s) => (
@@ -1013,12 +1016,12 @@ function ProductsTab(props: {
 
       {/* Filters */}
       {props.showFilters && (
-        <div className="mb-4 flex flex-wrap gap-2">
+        <div className="mb-5 grid gap-3 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
           <select
             aria-label="Filter by condition"
             value={props.condition}
             onChange={(e) => props.setCondition(e.target.value)}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
           >
             <option value="">{tx("Any condition")}</option>
             {Object.entries(PRODUCT_CONDITION_LABELS).map(([v, l]) => (
@@ -1030,8 +1033,11 @@ function ProductsTab(props: {
           <select
             aria-label="Filter by country"
             value={props.country}
-            onChange={(e) => { props.setCountry(e.target.value); props.setState(""); }}
-            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            onChange={(e) => {
+              props.setCountry(e.target.value);
+              props.setState("");
+            }}
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
           >
             <option value="">{tx("All countries")}</option>
             {COUNTRY_OPTIONS.map((g) => (
@@ -1051,7 +1057,7 @@ function ProductsTab(props: {
               placeholder={tx("Region or city")}
               value={props.state}
               onChange={(e) => props.setState(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
             />
           ) : (
             <select
@@ -1059,7 +1065,7 @@ function ProductsTab(props: {
               value={props.state}
               disabled={!props.country}
               onChange={(e) => props.setState(e.target.value)}
-              className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 dark:border-white/10"
             >
               <option value="">{tx("All states / regions")}</option>
               {getMarketRegions(props.country).map((s) => (

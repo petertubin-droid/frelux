@@ -133,7 +133,7 @@ describe("MaterialPrices", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps price source and effective-date columns available in a scrollable table on mobile", async () => {
+  it("keeps price source and effective-date columns in a responsive table on mobile", async () => {
     renderPage();
     await waitFor(() => {
       expect(screen.getByText("Cement (25kg)")).toBeInTheDocument();
@@ -142,7 +142,10 @@ describe("MaterialPrices", () => {
     const scrollRegion = screen.getByRole("region", {
       name: "Cement material prices",
     });
-    expect(scrollRegion.className).toContain("overflow-x-auto");
+    expect(scrollRegion.className).not.toContain("overflow-x-auto");
+    expect(scrollRegion.querySelector("table")?.className).toContain(
+      "table-fixed",
+    );
     expect(scrollRegion.getAttribute("tabindex")).toBe("0");
     expect(
       screen.getByRole("columnheader", { name: "Source" }),
@@ -154,14 +157,34 @@ describe("MaterialPrices", () => {
     expect(screen.getByText("2026-10-05")).toBeInTheDocument();
   });
 
-  it("filters by currency chip", async () => {
+  it("searches available currencies and filters by the selected result", async () => {
     renderPage();
     await waitFor(() =>
       expect(screen.getByText("Cement (25kg)")).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByRole("button", { name: "GBP" }));
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: "Search market or currency" }),
+      {
+        target: { value: "gb" },
+      },
+    );
+    fireEvent.click(screen.getByRole("option", { name: /British Pound/ }));
     expect(screen.getByText("Cement (25kg)")).toBeInTheDocument();
     expect(screen.queryByText("₦15,500")).not.toBeInTheDocument();
+  });
+
+  it("shows an unavailable message when a known currency has no catalog prices", async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getByText("Cement (25kg)")).toBeInTheDocument(),
+    );
+    fireEvent.change(
+      screen.getByRole("searchbox", { name: "Search market or currency" }),
+      {
+        target: { value: "cad" },
+      },
+    );
+    expect(screen.getByText("Currently not available")).toBeInTheDocument();
   });
 
   it("shows a movement percentage when history exists", async () => {
