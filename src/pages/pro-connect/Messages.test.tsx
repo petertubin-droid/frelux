@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 const conversations = vi.hoisted(() => ({
@@ -104,5 +104,19 @@ describe("Pro Connect messages", () => {
         screen.getByText("Select a conversation to view messages"),
       ).toBeInTheDocument(),
     );
+  });
+
+  it("keeps the draft visible and reports an error when sending fails", async () => {
+    conversations.list = [convo];
+    const { sendMessage } = await import("@/lib/pro-connect");
+    vi.mocked(sendMessage).mockResolvedValue({ error: "Not enough FRELUX Credits. Sending costs 5 credits." });
+    renderAt("/messages/convo-1");
+
+    const input = await screen.findByPlaceholderText("Type a message...");
+    fireEvent.change(input, { target: { value: "Can you help with this job?" } });
+    fireEvent.click(screen.getByRole("button", { name: /send/i }));
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Not enough FRELUX Credits"));
+    expect(input).toHaveValue("Can you help with this job?");
   });
 });

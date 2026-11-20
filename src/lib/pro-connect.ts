@@ -905,71 +905,48 @@ export async function getConversationById(
   conversationId: string,
 ): Promise<DbProConversation | null> {
   if (!isSupabaseConfigured) return null;
-  const { data, error } = await supabase
-    .from("pro_conversations")
-    .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
-    )
-    .eq("id", conversationId)
-    .maybeSingle();
-  if (error) {
-    if (import.meta.env.DEV)
-      console.error("[pro-connect] getConversationById:", error.message);
-    return null;
+  const { data: rows, error: listError } = await supabase.rpc("get_my_pro_conversations");
+  if (!listError && Array.isArray(rows)) {
+    const row = (rows as Array<{
+      conversation: DbProConversation;
+      other_party: DbProConversation["other_party"];
+      last_message_body: string | null;
+      unread_count: number | string;
+    }>).find((item) => item.conversation?.id === conversationId);
+    if (row) {
+      return {
+        ...row.conversation,
+        other_party: row.other_party,
+        last_message: row.last_message_body || undefined,
+        unread_count: Number(row.unread_count) || 0,
+      };
+    }
   }
-  return (data as DbProConversation) ?? null;
+  if (import.meta.env.DEV && listError)
+    console.error("[pro-connect] getConversationById:", listError.message);
+  return null;
 }
 
 export async function getMyConversations(): Promise<DbProConversation[]> {
   if (!isSupabaseConfigured) return [];
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  // Get conversations where user is the customer
-  const { data: asCustomer, error: err1 } = await supabase
-    .from("pro_conversations")
-    .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
-    )
-    .eq("customer_id", user.id)
-    .order("last_message_at DESC", { nullsFirst: false });
-
-  // Get conversations where user is the professional
-  const { data: proProfile } = await supabase
-    .from("pro_profiles")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  let asProfessional: DbProConversation[] = [];
-  if (proProfile) {
-    const { data: proConvos } = await supabase
-      .from("pro_conversations")
-      .select(
-        "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
-      )
-      .eq("professional_id", (proProfile as { id: string }).id)
-      .order("last_message_at DESC", { nullsFirst: false });
-    asProfessional = (proConvos || []) as DbProConversation[];
-  }
-
-  if (err1) {
+  const { data, error } = await supabase.rpc("get_my_pro_conversations");
+  if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] getMyConversations:", err1.message);
+      console.error("[pro-connect] getMyConversations:", error.message);
     return [];
   }
 
-  // Merge and deduplicate
-  const all = [...(asCustomer || []), ...asProfessional] as DbProConversation[];
-  const seen = new Set<string>();
-  const unique = all.filter((c) => {
-    if (seen.has(c.id)) return false;
-    seen.add(c.id);
-    return true;
-  });
-  return unique;
+  return ((data || []) as Array<{
+    conversation: DbProConversation;
+    other_party: DbProConversation["other_party"];
+    last_message_body: string | null;
+    unread_count: number | string;
+  }>).map((row) => ({
+    ...row.conversation,
+    other_party: row.other_party,
+    last_message: row.last_message_body || undefined,
+    unread_count: Number(row.unread_count) || 0,
+  }));
 }
 
 export async function getMessages(
@@ -994,86 +971,68 @@ export async function sendMessage(
   body: string,
   attachmentUrl?: string,
 ): Promise<
-  | {
-      id: string;
-      body: string;
-      sender_id: string;
-      conversation_id: string;
-      created_at: string;
-    }
+  | { id: string; body: string; sender_id: string; conversation_id: string; created_at: string }
+  | { error: string; code?: string; requiredCredits?: number; currentBalance?: number }
   | null
-  | boolean
+  | false
 > {
   if (!isSupabaseConfigured) return false;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
 
-  const { data: msgData, error } = await supabase
-    .from("pro_messages")
-    .insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      body,
-      attachment_url: attachmentUrl || null,
-    })
-    .select("id, body, sender_id, conversation_id, created_at")
-    .single();
-  if (error || !msgData) {
+  const idempotencyKey = globalThis.crypto?.randomUUID?.() ||
+    `msg_${Date.now()}_${Math.random().toString(36).slice(2, 14)}`;
+  const { data, error } = await supabase.rpc("send_pro_message_with_credits", {
+    p_conversation_id: conversationId,
+    p_body: body.trim(),
+    p_attachment_url: attachmentUrl || null,
+    p_idempotency_key: idempotencyKey,
+  });
+
+  if (error) {
     if (import.meta.env.DEV)
-      console.error("[pro-connect] sendMessage:", error?.message);
-    return null;
+      console.error("[pro-connect] sendMessage:", error.message);
+    return { error: "Message could not be sent. Please try again.", code: "SEND_FAILED" };
   }
 
-  // Update conversation's last_message_at
-  await supabase
-    .from("pro_conversations")
-    .update({ last_message_at: new Date().toISOString() })
-    .eq("id", conversationId);
+  const result = data as {
+    success?: boolean;
+    code?: string;
+    error?: string;
+    required_credits?: number;
+    current_balance?: number;
+    message?: { id: string; body: string; sender_id: string; conversation_id: string; created_at: string };
+  } | null;
+  if (!result?.success || !result.message) {
+    const message = result?.code === "INSUFFICIENT_CREDITS"
+      ? `Not enough FRELUX Credits. Sending costs ${result.required_credits ?? 5} credits${result.current_balance == null ? "." : `; you have ${result.current_balance}.`}`
+      : result?.error || "Message could not be sent. Please try again.";
+    return { error: message, code: result?.code, requiredCredits: result?.required_credits, currentBalance: result?.current_balance };
+  }
 
-  // Send push notification to the recipient
+  // Push is an enhancement; database insert + realtime are authoritative.
   try {
-    // Get conversation to find recipient
     const { data: convo } = await supabase
       .from("pro_conversations")
-      .select("customer_id, professional_id, pro_profiles(display_name)")
+      .select("customer_id, professional_id, pro_profiles(user_id, display_name)")
       .eq("id", conversationId)
       .maybeSingle();
-
     if (convo) {
-      // If sender is the pro, recipient is the customer; if sender is the customer, recipient is the pro
-      let pushRecipientId: string | null = null;
-      if (convo.customer_id === user.id) {
-        // Sender is customer, notify the professional's user_id
-        const { data: profProfile } = await supabase
-          .from("pro_profiles")
-          .select("user_id")
-          .eq("id", convo.professional_id)
-          .maybeSingle();
-        pushRecipientId = profProfile?.user_id || null;
-      } else {
-        pushRecipientId = convo.customer_id;
-      }
-
-      if (pushRecipientId) {
-        const senderName = convo.pro_profiles?.[0]?.display_name || "Someone";
+      const profile = Array.isArray(convo.pro_profiles) ? convo.pro_profiles[0] : convo.pro_profiles;
+      const recipientId = convo.customer_id === user.id ? profile?.user_id : convo.customer_id;
+      if (recipientId) {
+        const senderName = convo.customer_id === user.id
+          ? "A customer"
+          : profile?.display_name || "A professional";
         const pushBody = body.length > 50 ? body.slice(0, 50) + "…" : body;
-        await sendPushToUser(
-          pushRecipientId,
-          `New message from ${senderName}`,
-          pushBody,
-          `/messages/${conversationId}`,
-        );
+        await sendPushToUser(recipientId, `New message from ${senderName}`, pushBody, `/messages/${conversationId}`);
       }
     }
   } catch (err) {
-    if (import.meta.env.DEV)
-      console.error("[pro-connect] Push notification failed:", err);
-    // Don't fail the message send if push fails
+    if (import.meta.env.DEV) console.error("[pro-connect] Push notification failed:", err);
   }
 
-  return msgData;
+  return result.message;
 }
 
 export async function markMessagesRead(

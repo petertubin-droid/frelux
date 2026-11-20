@@ -871,15 +871,15 @@ export default function ProConnectDashboard() {
                 >
                   <div>
                     <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
-                      {convo.professional?.display_name || "Customer"}
+                      {convo.other_party?.display_name || convo.professional?.display_name || "Customer"}
                     </p>
                     <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                      {convo.last_message_at
+                      {convo.last_message || (convo.last_message_at
                         ? new Date(convo.last_message_at).toLocaleDateString(
                             "en-GB",
                             { day: "numeric", month: "short" },
                           )
-                        : "No messages yet"}
+                        : "No messages yet")}
                     </p>
                   </div>
                   <MessageSquare

@@ -171,6 +171,16 @@ export interface DbProReview {
 
 export type ProConversationStatus = "active" | "archived" | "blocked";
 
+export interface DbProConversationParticipant {
+  id?: string;
+  user_id?: string;
+  display_name: string;
+  business_name?: string | null;
+  avatar_url?: string | null;
+  slug?: string | null;
+  is_pro?: boolean;
+}
+
 export interface DbProConversation {
   id: string;
   professional_id: string;
@@ -182,6 +192,16 @@ export interface DbProConversation {
   created_at: string;
   updated_at: string;
   professional?: DbProProfile;
+  customer?: {
+    id: string;
+    full_name?: string;
+    display_name?: string;
+    business_name?: string | null;
+    avatar_url?: string | null;
+    slug?: string | null;
+    is_pro?: boolean;
+  };
+  other_party?: DbProConversationParticipant;
   last_message?: string;
   unread_count?: number;
 }

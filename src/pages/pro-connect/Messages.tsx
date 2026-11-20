@@ -1,7 +1,7 @@
 import { sanitizeHttpUrl } from "@/lib/sanitization";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Send, Paperclip } from "lucide-react";
+import { ArrowLeft, Send, Paperclip, Coins } from "lucide-react";
 import {
   getConversationById,
   getMyConversations,
@@ -29,6 +29,8 @@ export default function Messages() {
     null,
   );
   const [messageText, setMessageText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   // A conversation the list did not return, looked up on its own. `unavailable`
@@ -116,31 +118,46 @@ export default function Messages() {
   }
 
   async function handleSend() {
-    if (!messageText.trim() || !activeConvo || !user) return;
+    if (!messageText.trim() || !activeConvo || !user || sending) return;
     const body = messageText.trim();
-    setMessageText("");
-    const msg = (await sendMessage(activeConvo.id, body)) as
-      { id: string; body: string; conversation_id: string } | null | false;
-    if (msg) {
-      // Trigger AI moderation with OpenAI
-      try {
-        await supabase.functions.invoke("moderate-pro-message", {
-          body: {
-            messageId: msg.id,
-            content: msg.body,
-            conversationId: msg.conversation_id,
-            userId: user.id,
-          },
-        });
-      } catch {
-        // Moderation failure is silent, don't block the user experience
-      }
+    setSending(true);
+    setSendError(null);
+    let result: Awaited<ReturnType<typeof sendMessage>>;
+    try {
+      result = await sendMessage(activeConvo.id, body);
+    } catch {
+      setSendError("Message could not be sent. Your draft is still here; please try again.");
+      setSending(false);
+      return;
     }
-    // Refresh messages
+    const msg = result && typeof result === "object" && "id" in result
+      ? result as { id: string; body: string; conversation_id: string }
+      : null;
+    if (!msg) {
+      const error = result && typeof result === "object" && "error" in result
+        ? result.error
+        : "Message could not be sent. Your draft is still here; please try again.";
+      setSendError(error);
+      setSending(false);
+      return;
+    }
+
+    setMessageText("");
+    // Show it immediately; realtime may also arrive, so de-duplicate by id.
+    setMessages((current) => current.some((item) => item.id === msg.id) ? current : [...current, msg as DbProMessage]);
+    try {
+      await supabase.functions.invoke("moderate-pro-message", {
+        body: { messageId: msg.id, content: msg.body, conversationId: msg.conversation_id, userId: user.id },
+      });
+    } catch {
+      // Delivery is already confirmed; moderation is a separate follow-up.
+    }
     await loadMessages(activeConvo.id);
+    setSending(false);
   }
 
   function getDisplayName(convo: DbProConversation): string {
+    if (convo.other_party?.display_name) return convo.other_party.display_name;
     if (convo.professional) return convo.professional.display_name;
     return "Conversation";
   }
@@ -227,12 +244,12 @@ export default function Messages() {
                         {getDisplayName(convo)}
                       </p>
                       <p className="truncate text-xs text-muted-foreground dark:text-muted-foreground">
-                        {convo.last_message_at
+                        {convo.last_message || (convo.last_message_at
                           ? new Date(convo.last_message_at).toLocaleDateString(
                               "en-GB",
                               { day: "numeric", month: "short" },
                             )
-                          : "No messages yet"}
+                          : "No messages yet")}
                       </p>
                     </div>
                   </Button>
@@ -269,11 +286,14 @@ export default function Messages() {
                   </div>
                   <div>
                     <Link
-                      to={`/pro-connect/${activeConvo.professional?.slug}/`}
+                      to={`/pro-connect/${activeConvo.other_party?.slug || activeConvo.professional?.slug || ""}/`}
                       className="text-sm font-medium text-foreground hover:text-brand-purple dark:text-primary-foreground"
                     >
                       {getDisplayName(activeConvo)}
                     </Link>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {activeConvo.other_party?.is_pro ? t("Professional") : t("Customer")}
+                    </p>
                     {activeConvo.project_context && (
                       <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                         {(activeConvo.project_context as { service?: string })
@@ -375,11 +395,20 @@ export default function Messages() {
 
                 {/* Composer */}
                 <div className="border-t border-border/50 p-4 dark:border-white/5">
+                  <p className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Coins aria-hidden="true" className="h-3.5 w-3.5" />
+                    {t("Each message costs 5 FRELUX Credits.")}
+                  </p>
+                  {sendError && (
+                    <p role="alert" className="mb-2 text-sm text-destructive">{t(sendError)}</p>
+                  )}
                   <div className="flex gap-2">
                     <input
                       type="text"
                       value={messageText}
-                      onChange={(e) => setMessageText(e.target.value)}
+                      onChange={(e) => { setMessageText(e.target.value); setSendError(null); }}
+                      disabled={sending}
+                      maxLength={4000}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
@@ -391,11 +420,12 @@ export default function Messages() {
                     />
                     <Button
                       variant="default"
+                      aria-label={t("Send message")}
                       onClick={handleSend}
-                      disabled={!messageText.trim()}
+                      disabled={!messageText.trim() || sending}
                       className="rounded-lg p-2.5 disabled:opacity-50"
                     >
-                      <Send aria-hidden="true" className="h-5 w-5" />
+                      {sending ? <span className="text-xs">{t("Sending...")}</span> : <Send aria-hidden="true" className="h-5 w-5" />}
                     </Button>
                   </div>
                 </div>
