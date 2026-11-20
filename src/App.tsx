@@ -593,6 +593,7 @@ const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
 const BimIfcImport = lazy(() => import("@/pages/BimIfcImport"));
+const FourViewEnvelope = lazy(() => import("@/pages/FourViewEnvelope"));
 const ConversationalEstimator = lazy(
   () => import("@/pages/ConversationalEstimator"),
 );
@@ -2190,6 +2191,10 @@ export default function App() {
                         <Route
                           path="/bim-ifc-import"
                           element={<BimIfcImport />}
+                        />
+                        <Route
+                          path="/four-view-envelope"
+                          element={<FourViewEnvelope />}
                         />
                         <Route
                           path="/conversational-estimator"

@@ -54,6 +54,7 @@ export const TOOL_ROUTES: ReadonlySet<string> = new Set([
   "/flooring",
   "/foundation",
   "/foundation-calculator",
+  "/four-view-envelope",
   "/generator",
   "/german-floor-calculator",
   "/global-site-safety-estimator",
@@ -536,6 +537,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/bim-ifc-import",
         label: "BIM / IFC Import",
+        benefit: "",
+      },
+      {
+        to: "/four-view-envelope",
+        label: "4-View Envelope & Plan Generator",
         benefit: "",
       },
       {

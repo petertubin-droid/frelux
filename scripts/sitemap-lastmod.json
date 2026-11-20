@@ -1,7 +1,7 @@
 {
   "/": {
     "lastmod": "2026-11-20",
-    "hash": "a0a6b7c7b29c5df2"
+    "hash": "5b64325060f19e8a"
   },
   "/about": {
     "lastmod": "2026-11-20",
@@ -1374,6 +1374,10 @@
   "/foundation-calculator": {
     "lastmod": "2026-11-20",
     "hash": "111aeadcbcea5a1c"
+  },
+  "/four-view-envelope": {
+    "lastmod": "2026-11-20",
+    "hash": null
   },
   "/gallery": {
     "lastmod": "2026-11-20",

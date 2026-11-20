@@ -414,6 +414,7 @@ const routes = [
   { path: "/ai-disclaimer", priority: "0.3", changefreq: "yearly" },
   // ── Engine & calculator pages (crawl priority 0.9) ──
   { path: "/bim-ifc-import", priority: "0.9", changefreq: "monthly" },
+  { path: "/four-view-envelope", priority: "0.8", changefreq: "monthly" },
   { path: "/solar-pv-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/conversational-estimator", priority: "0.9", changefreq: "monthly" },
   { path: "/field-sync", priority: "0.8", changefreq: "monthly" },

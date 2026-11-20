@@ -20,7 +20,7 @@ describe("catalogue routes", () => {
       (tool) => !declaredPaths.has(tool.to),
     ).map((tool) => `${tool.slug} -> ${tool.to}`);
     expect(missing).toEqual([]);
-    expect(CONSTRUCTION_TOOLS.length).toBe(82);
+    expect(CONSTRUCTION_TOOLS.length).toBe(83);
   });
 
   it("gives each tool its own address", () => {
@@ -42,7 +42,7 @@ describe("catalogue copy in every approved market", () => {
       }
     }
     expect(gaps).toEqual([]);
-    expect(ALL_MARKET_CODES.length * CONSTRUCTION_TOOLS.length).toBe(2624);
+    expect(ALL_MARKET_CODES.length * CONSTRUCTION_TOOLS.length).toBe(2656);
   });
 
   it("names the market's own practice where the terminology module knows it", () => {

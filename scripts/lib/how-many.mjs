@@ -379,6 +379,10 @@ export const HOW_MANY = {
     q: "How do I get quantities out of a BIM model?",
     a: "Import the IFC model and the elements are read into a takeoff you can measure and price, instead of re-entering dimensions from drawings.",
   },
+  "/four-view-envelope": {
+    q: "How do I measure a building from photographs?",
+    a: "Mark the four wall corners on each elevation and state one length you know: the footprint, net wall area and true roof area follow from the homography and the scale ratio, with the working shown for every number.",
+  },
   "/field-sync": {
     q: "How do I record site work with no network?",
     a: "Captures queue on the device and sync when connectivity returns, one by one, so a measurement taken in a basement is not lost and is not silently overwritten.",

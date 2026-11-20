@@ -1567,6 +1567,24 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "four-view-envelope",
+    title: "4-View Envelope & Plan Generator",
+    category: "pro",
+    icon: Ruler,
+    does: "Turn four phone photos of a building into reconciled dimensions, net wall areas and a roof takeoff.",
+    enters:
+      "Front, back, left and right photographs, plus one length you know.",
+    gets: "Footprint, perimeter, net wall area, true roof area and a DXF plan.",
+    heading: "4-View Envelope & Plan Generator",
+    lede: "Photograph the four elevations, drag the corners onto each wall, and state one length you know. A homography flattens each photo, one ratio sets the scale, and trigonometry reconciles the shell: every dimension carries its working, so the takeoff is auditable rather than guessed.",
+    seoTitle:
+      "4-View Envelope & Plan Generator: Elevations to Takeoff | FRELUX",
+    seoDescription:
+      "Measure a building from four elevation photos: drag the wall corners, state one known length, and get reconciled dimensions, net wall areas, roof pitch, true roof area and a DXF plan. All maths runs in your browser.",
+    to: "/four-view-envelope",
+    navVisible: true,
+  },
+  {
     slug: "field-sync",
     title: "Field Sync",
     category: "pro",

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layers, Info, AlertTriangle, Ruler } from "lucide-react";
 import ToolShell from "@/components/tools/ToolShell";
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
 import {
   calculatePlasterRender,
@@ -305,6 +306,50 @@ export default function PlasterRenderCalculator() {
                   {result.netAreaDisplay.value.toLocaleString()}{" "}
                   {result.netAreaDisplay.unit} net
                 </p>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <ShareEstimateButton
+                  showPdf
+                  compact
+                  estimate={{
+                    kind: `Plaster / render: ${result.systemLabel}`,
+                    summaryLines: [
+                      {
+                        label: "System",
+                        value: `${result.standardRef} · ${result.marketCode}`,
+                      },
+                      {
+                        label: "Net area",
+                        value: `${result.netAreaDisplay.value.toLocaleString()} ${result.netAreaDisplay.unit}`,
+                      },
+                      {
+                        label: "Substrate",
+                        value: result.substrate.label,
+                      },
+                    ],
+                    lineItems: [...result.layers, ...result.accessories].map(
+                      (line) => ({
+                        description: t(line.material),
+                        quantity: `${line.quantity.toLocaleString()} ${line.unit}`,
+                        section: line.optional ? "Optional" : undefined,
+                      }),
+                    ),
+                    totals: [
+                      {
+                        label: "Bags of plaster",
+                        value: `${result.totals.bags.toLocaleString()}`,
+                        emphasized: true,
+                      },
+                    ],
+                    notes: [
+                      result.substrate.note,
+                      ...result.assumptions,
+                      ...result.warnings,
+                    ],
+                    link: "/plaster-render-calculator",
+                  }}
+                />
               </div>
 
               <table className="mt-4 w-full text-sm">

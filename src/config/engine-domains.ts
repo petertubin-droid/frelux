@@ -99,6 +99,8 @@ export const TOOL_DOMAINS: Readonly<Record<string, EngineDomain>> = {
   solar: "mep",
   generator: "mep",
   "heat-comfort": "mep",
+  // qs-renovation: survey and takeoff from photographs
+  "four-view-envelope": "qs-renovation",
   // qs-renovation
   "renovation-estimator": "qs-renovation",
   boq: "qs-renovation",
