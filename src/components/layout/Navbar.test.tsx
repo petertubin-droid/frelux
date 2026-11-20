@@ -170,4 +170,40 @@ describe("Navbar", () => {
     const header = container.querySelector("header");
     expect(header).not.toBeNull();
   });
+
+  it("excludes AI credits section and legacy dashboard card from mobile drawer", async () => {
+    await renderNavbar();
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.click(trigger);
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    expect(within(drawer).queryByText(/AI Credits/i)).toBeNull();
+    expect(within(drawer).queryByText(/Credit balance/i)).toBeNull();
+    expect(within(drawer).queryByText(/Quick tools/i)).toBeNull();
+  });
+
+  it("renders categorized dropdowns for tools in mobile drawer and supports folding", async () => {
+    await renderNavbar();
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.click(trigger);
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    fireEvent.click(
+      within(drawer).getByRole("button", { name: "Construction Tools" }),
+    );
+
+    const structureBtn = await within(drawer).findByRole("button", {
+      name: /Building Structure/i,
+    });
+    expect(structureBtn).toBeDefined();
+
+    expect(
+      within(drawer).getByRole("link", { name: /German Floor/i }),
+    ).toBeDefined();
+
+    fireEvent.click(structureBtn);
+    expect(structureBtn.getAttribute("aria-expanded")).toBe("false");
+  });
 });

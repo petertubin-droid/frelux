@@ -17,6 +17,7 @@ import {
   ChevronRight,
   ClipboardList,
   Crown,
+  DoorOpen,
   FileStack,
   BookOpen,
   Building2,
@@ -32,13 +33,16 @@ import {
   Menu,
   Moon,
   Package,
+  Paintbrush,
   Search,
   ShoppingBag,
+  Sparkles,
   Sun,
   User,
   UserCircle,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 const PremiumBadge = lazy(() =>
   import("@/components/ui/PremiumBadge").then((m) => ({
@@ -95,6 +99,89 @@ function preloadChromeControls() {
   void import("@/components/ui/LanguageSwitcher");
   void import("@/components/ui/CurrencySwitcher");
   void import("@/components/ui/MarketSelector");
+}
+
+const SECTION_ORDER = [
+  "Building Structure",
+  "Materials & Finishes",
+  "Building Components",
+  "Building Services",
+  "Project & Cost",
+  "AI Assistants",
+  "Pro & Field",
+  "Home Decor",
+];
+
+function sortSections(
+  sections: { section: string | null; items: NavChild[] }[],
+) {
+  return [...sections].sort((a, b) => {
+    if (!a.section) return -1;
+    if (!b.section) return 1;
+    const ai = SECTION_ORDER.indexOf(a.section);
+    const bi = SECTION_ORDER.indexOf(b.section);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.section.localeCompare(b.section);
+  });
+}
+
+function getSectionIcon(section: string) {
+  const s = section.toLowerCase();
+  if (
+    s.includes("finish") ||
+    s.includes("material") ||
+    s.includes("surface") ||
+    s.includes("paint")
+  )
+    return Paintbrush;
+  if (
+    s.includes("structur") ||
+    s.includes("civil") ||
+    s.includes("concrete") ||
+    s.includes("masonry")
+  )
+    return Building2;
+  if (
+    s.includes("service") ||
+    s.includes("mep") ||
+    s.includes("electr") ||
+    s.includes("plumb")
+  )
+    return Zap;
+  if (
+    s.includes("component") ||
+    s.includes("enclosure") ||
+    s.includes("door") ||
+    s.includes("window")
+  )
+    return DoorOpen;
+  if (s.includes("decor") || s.includes("interior")) return Sparkles;
+  if (
+    s.includes("cost") ||
+    s.includes("project") ||
+    s.includes("commercial") ||
+    s.includes("estimate")
+  )
+    return Calculator;
+  if (s.includes("ai") || s.includes("assist")) return Bot;
+  if (s.includes("pro") || s.includes("field")) return Briefcase;
+  return LayoutGrid;
+}
+
+function getWorkspaceIcon(label: string) {
+  const l = label.toLowerCase();
+  if (l.includes("construction") || l.includes("tool")) return Calculator;
+  if (l.includes("convert") || l.includes("explore")) return SlidersHorizontal;
+  if (l.includes("market intelligence") || l.includes("market overview"))
+    return BarChart3;
+  if (l.includes("service") || l.includes("marketplace")) return ShoppingBag;
+  if (l.includes("color")) return Sparkles;
+  if (l.includes("project")) return FileStack;
+  if (l.includes("learn")) return BookOpen;
+  if (l.includes("pricing")) return Crown;
+  return LayoutGrid;
 }
 
 export default function Navbar() {
@@ -849,7 +936,7 @@ export default function Navbar() {
           {/* Scrim: pointer-only; keyboard dismissal is handled by Escape. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[3px] transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
           {/* Drawer */}
@@ -863,7 +950,7 @@ export default function Navbar() {
               // Logical anchoring: in Arabic the drawer must enter from the
               // right edge, not the left one. `start-2` follows the writing
               // direction, and the closed transform mirrors with it.
-              "surface-sheet absolute start-2 top-2 flex h-[calc(100%-1rem)] w-[318px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] transition-transform duration-300 ease-out",
+              "surface-sheet absolute start-2 top-2 flex h-[calc(100%-1rem)] w-[332px] max-w-[88vw] flex-col overflow-hidden rounded-[26px] border border-border/50 shadow-2xl transition-transform duration-300 ease-out dark:border-white/10",
               "translate-x-0",
             )}
           >
@@ -872,7 +959,7 @@ export default function Navbar() {
             <BrandBackdrop variant="drawer" />
             <div className="relative flex-1 overflow-y-auto overscroll-contain">
               {/* Drawer header */}
-              <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/75 px-4 py-3 backdrop-blur-xl dark:border-white/5 dark:bg-card/70">
+              <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[26px] border-b border-border/50 bg-card/85 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-card/80">
                 <Link
                   to="/"
                   onClick={() => setMobileOpen(false)}
@@ -881,196 +968,66 @@ export default function Navbar() {
                 >
                   <Logo decorative />
                 </Link>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                  aria-label="Close menu"
-                  data-menu-close
-                >
-                  <X className="h-[18px] w-[18px]" />
-                </Button>
-              </div>
-
-              {/* Quick tools are the surfaces people ask for by name, so
-              they sit above the workspaces. Rendered as one disclosure
-              row rather than a tile grid, so the drawer reads as a single
-              vertical list from top to bottom. */}
-              <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() =>
-                    setMobileExpanded(
-                      mobileExpanded === "__quick_tools"
-                        ? null
-                        : "__quick_tools",
-                    )
-                  }
-                  aria-expanded={mobileExpanded === "__quick_tools"}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                >
-                  Quick tools
-                  <ChevronDown
-                    aria-hidden="true"
-                    className={classNames(
-                      "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                      mobileExpanded === "__quick_tools" && "rotate-180",
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={toggle}
+                    aria-label="Toggle dark mode"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/60 dark:hover:bg-white/5"
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="h-4 w-4" />
+                    ) : (
+                      <Moon className="h-4 w-4" />
                     )}
-                  />
-                </Button>
-                {mobileExpanded === "__quick_tools" && (
-                  <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                    {[
-                      {
-                        label: "Unit Converter",
-                        to: "/unit-converter",
-                        icon: Calculator,
-                      },
-                      {
-                        label: "Building types",
-                        to: "/building-types",
-                        icon: Building2,
-                      },
-                      {
-                        label: "ICF Wall Estimator",
-                        to: "/icf-wall-estimator",
-                        icon: Building2,
-                      },
-                      {
-                        label: "EIFS Wall Estimator",
-                        to: "/eifs-wall-estimator",
-                        icon: Building2,
-                      },
-                      {
-                        label: "Plaster & Render",
-                        to: "/plaster-render-calculator",
-                        icon: Building2,
-                      },
-                      { label: "Explore Map", to: "/map", icon: Map },
-                      { label: "Price book", to: "/prices", icon: BookOpen },
-                      {
-                        label: "All tools",
-                        to: "/construction-tools",
-                        icon: LayoutGrid,
-                      },
-                    ].map((item) => (
-                      <Link
-                        key={item.to}
-                        to={item.to}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                      >
-                        <item.icon
-                          aria-hidden="true"
-                          className="h-4 w-4 shrink-0 text-muted-foreground/70"
-                        />
-                        <span className="min-w-0 flex-1 truncate">
-                          {item.label}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => setMobileOpen(false)}
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-transparent text-muted-foreground transition-colors hover:border-border/60 hover:bg-muted/60 dark:hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
+                    aria-label="Close menu"
+                    data-menu-close
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
-              {/* Identity: who you are signed in as, or the way in. A menu that
-                never says whose account it is leaves people guessing on a
-                shared phone. */}
-              <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
-                {user ? (
-                  <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/70 p-3 dark:border-white/10 dark:bg-white/5">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-primary-deep text-sm font-semibold text-primary-foreground">
-                      {avatarError || !profile?.avatar_url ? (
-                        <UserCircle
-                          aria-hidden="true"
-                          className="h-5 w-5 opacity-90"
-                        />
-                      ) : (
-                        <img
-                          src={profile.avatar_url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                          onError={() => setAvatarError(true)}
-                        />
-                      )}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-card-foreground">
-                        {profile?.full_name?.trim() ||
-                          profile?.email ||
-                          t("Your account")}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {isPaid ? t("Paid plan") : t("Free plan")}
-                      </p>
-                    </div>
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setMobileOpen(false)}
-                      className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-muted/60 dark:text-brand-purple-lighter focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                    >
-                      {t("My dashboard")}
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      to="/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex h-10 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-card/70 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/60 dark:border-white/10 dark:bg-white/5 dark:text-foreground"
-                    >
-                      <LogIn aria-hidden="true" className="h-4 w-4" />
-                      {t("Sign in")}
-                    </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary-deep text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-95"
-                    >
-                      <User aria-hidden="true" className="h-4 w-4" />
-                      {t("Create account")}
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Search across every workspace, tool and page name. Matches are
-                shown flat with their workspace underneath, so a result is
-                never ambiguous about where it lives. */}
-              <div className="border-b border-border/50 px-3 py-3 dark:border-white/5">
+              {/* Search across every workspace, tool and page name */}
+              <div className="border-b border-border/50 px-3 py-2.5 dark:border-white/5">
                 <label htmlFor="mobile-nav-search" className="sr-only">
                   {t("Search tools and pages")}
                 </label>
                 <div className="relative">
                   <Search
                     aria-hidden="true"
-                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/70"
                   />
                   <input
                     id="mobile-nav-search"
                     type="search"
                     value={navQuery}
                     onChange={(event) => setNavQuery(event.target.value)}
-                    placeholder={t("Search tools and pages")}
+                    placeholder={t("Search tools, calculators, pages...")}
                     autoComplete="off"
-                    className="h-10 w-full rounded-xl border border-border/60 bg-card/80 pl-9 pr-9 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-brand-purple/50 focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5"
+                    className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 pl-8 pr-8 text-xs font-medium text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-brand-purple/50 focus:bg-background focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5"
                   />
                   {navQuery && (
                     <button
                       type="button"
                       onClick={() => setNavQuery("")}
                       aria-label={t("Clear search")}
-                      className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground dark:hover:bg-white/10"
+                      className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground dark:hover:bg-white/10"
                     >
-                      <X aria-hidden="true" className="h-3.5 w-3.5" />
+                      <X aria-hidden="true" className="h-3 w-3" />
                     </button>
                   )}
                 </div>
               </div>
 
-              <div className="px-3 py-3">
+              <div className="px-3 py-2.5">
                 {(() => {
                   const query = navQuery.trim().toLowerCase();
                   if (query) {
@@ -1113,22 +1070,22 @@ export default function Navbar() {
                     }
 
                     return (
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         {matches.map((entry, index) => (
                           <Link
                             key={`${entry.path}-${index}`}
                             to={entry.path}
                             onClick={() => setMobileOpen(false)}
-                            className="block rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
+                            className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:bg-white/5"
                           >
-                            <span className="block text-sm font-medium text-card-foreground">
+                            <span className="truncate text-xs font-medium text-card-foreground">
                               {getMarketNavigationLabel(
                                 entry.path,
                                 marketCode,
                                 entry.label,
                               )}
                             </span>
-                            <span className="block text-xs text-muted-foreground">
+                            <span className="ml-2 shrink-0 rounded-full bg-muted/60 px-1.5 py-0.2 text-[10px] text-muted-foreground dark:bg-white/10">
                               {t(entry.workspace)}
                             </span>
                           </Link>
@@ -1144,16 +1101,16 @@ export default function Navbar() {
                         onClick={() => setMobileOpen(false)}
                         className={({ isActive }) =>
                           classNames(
-                            "relative flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                            "relative mb-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors",
                             isActive
-                              ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                              : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
+                              ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                              : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:bg-white/5",
                           )
                         }
                       >
                         <LayoutDashboard
                           aria-hidden="true"
-                          className="h-4 w-4 shrink-0 opacity-70"
+                          className="h-3.5 w-3.5 shrink-0 opacity-70"
                         />
                         {t("Home")}
                       </NavLink>
@@ -1163,219 +1120,282 @@ export default function Navbar() {
                           (workspace) => workspace.path !== "/",
                         ),
                       ).map(({ group, workspaces }) => (
-                        <div key={group.key} className="mt-4 first:mt-2">
-                          <p className="px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
+                        <div key={group.key} className="mt-3 first:mt-1">
+                          <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground/70">
                             {t(group.label)}
                           </p>
-                          <p className="mb-1 px-3 text-xs text-muted-foreground">
+                          <p className="mb-1.5 px-2 text-[10px] text-muted-foreground/70">
                             {t(group.description)}
                           </p>
-                          {workspaces.map((workspace) => (
-                            <div key={workspace.label} className="mb-0.5">
-                              {workspace.children ? (
-                                <>
-                                  <Button
-                                    variant="ghost"
-                                    onClick={() =>
-                                      setMobileExpanded(
-                                        mobileExpanded === workspace.label
-                                          ? null
-                                          : workspace.label,
-                                      )
-                                    }
-                                    aria-expanded={
-                                      mobileExpanded === workspace.label
-                                    }
-                                    className={classNames(
-                                      "relative flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
-                                      location.pathname.startsWith(
-                                        workspace.path,
-                                      )
-                                        ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                        : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
-                                    )}
-                                  >
-                                    <span className="min-w-0 flex-1 truncate text-left">
-                                      {t(workspace.label)}
-                                    </span>
-                                    <ChevronDown
-                                      aria-hidden="true"
-                                      className={classNames(
-                                        "h-4 w-4 shrink-0 transition-transform duration-200",
-                                        mobileExpanded === workspace.label &&
-                                          "rotate-180",
-                                      )}
-                                    />
-                                  </Button>
-                                  {mobileExpanded === workspace.label && (
-                                    <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                                      {/* Where the visitor is, in words. */}
-                                      {(() => {
-                                        const activeChild = (
-                                          workspace.children ?? []
-                                        ).find(
-                                          (child) =>
-                                            location.pathname === child.path ||
-                                            location.pathname.startsWith(
-                                              `${child.path}/`,
-                                            ),
-                                        );
-                                        if (!activeChild?.section) return null;
-                                        return (
-                                          <p
-                                            aria-label={`${t(workspace.label)}: ${t(activeChild.section)}`}
-                                            className="flex items-center gap-1 px-3 pb-1 pt-1.5 text-xs text-muted-foreground"
-                                          >
-                                            <span className="truncate">
-                                              {t(workspace.label)}
-                                            </span>
-                                            <ChevronRight
-                                              aria-hidden="true"
-                                              className="h-3 w-3 shrink-0 opacity-60"
-                                            />
-                                            <span className="truncate font-medium text-foreground/70 dark:text-foreground/80">
-                                              {t(activeChild.section)}
-                                            </span>
-                                          </p>
-                                        );
-                                      })()}
-                                      {groupBySection(workspace.children).map(
-                                        (group, gi) => {
-                                          const groupKey = `${workspace.label}/${group.section ?? "general"}`;
-                                          const renderLinks = () =>
-                                            group.items.map((child) => (
-                                              <NavLink
-                                                key={child.path}
-                                                to={child.path}
-                                                onClick={() =>
-                                                  setMobileOpen(false)
-                                                }
-                                                className={({ isActive }) =>
-                                                  classNames(
-                                                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                                                    isActive
-                                                      ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                                      : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
-                                                  )
-                                                }
+                          <div className="space-y-0.5">
+                            {workspaces.map((workspace) => {
+                              const WorkspaceIcon = getWorkspaceIcon(
+                                workspace.label,
+                              );
+                              return (
+                                <div key={workspace.label}>
+                                  {workspace.children ? (
+                                    <>
+                                      <Button
+                                        variant="ghost"
+                                        onClick={() =>
+                                          setMobileExpanded(
+                                            mobileExpanded === workspace.label
+                                              ? null
+                                              : workspace.label,
+                                          )
+                                        }
+                                        aria-expanded={
+                                          mobileExpanded === workspace.label
+                                        }
+                                        className={classNames(
+                                          "relative flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors",
+                                          location.pathname.startsWith(
+                                            workspace.path,
+                                          )
+                                            ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:hover:bg-white/5",
+                                        )}
+                                      >
+                                        <div className="flex min-w-0 items-center gap-2">
+                                          <WorkspaceIcon
+                                            aria-hidden="true"
+                                            className="h-3.5 w-3.5 shrink-0 opacity-70"
+                                          />
+                                          <span className="truncate text-left">
+                                            {t(workspace.label)}
+                                          </span>
+                                        </div>
+                                        <div
+                                          className="flex items-center gap-1.5"
+                                          aria-hidden="true"
+                                        >
+                                          <span className="rounded-full bg-muted/60 px-1.5 py-0.2 text-[9px] font-medium text-muted-foreground dark:bg-white/10">
+                                            {workspace.children.length}
+                                          </span>
+                                          <ChevronDown
+                                            aria-hidden="true"
+                                            className={classNames(
+                                              "h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200",
+                                              mobileExpanded ===
+                                                workspace.label && "rotate-180",
+                                            )}
+                                          />
+                                        </div>
+                                      </Button>
+                                      {mobileExpanded === workspace.label && (
+                                        <div className="ml-2.5 mt-1 border-l border-border/50 pl-2.5 dark:border-white/10">
+                                          {/* Where the visitor is, in words */}
+                                          {(() => {
+                                            const activeChild = (
+                                              workspace.children ?? []
+                                            ).find(
+                                              (child) =>
+                                                location.pathname ===
+                                                  child.path ||
+                                                location.pathname.startsWith(
+                                                  `${child.path}/`,
+                                                ),
+                                            );
+                                            if (!activeChild?.section)
+                                              return null;
+                                            return (
+                                              <p
+                                                aria-label={`${t(workspace.label)}: ${t(activeChild.section)}`}
+                                                className="flex items-center gap-1 px-2 pb-1 pt-1 text-[10px] text-muted-foreground"
                                               >
+                                                <span className="truncate">
+                                                  {t(workspace.label)}
+                                                </span>
                                                 <ChevronRight
                                                   aria-hidden="true"
-                                                  className="h-3.5 w-3.5 shrink-0 opacity-50"
+                                                  className="h-2.5 w-2.5 shrink-0 opacity-60"
                                                 />
-                                                {getMarketNavigationLabel(
-                                                  child.path,
-                                                  marketCode,
-                                                  child.label,
-                                                )}
-                                              </NavLink>
-                                            ));
-                                          if (!group.section) {
+                                                <span className="truncate font-medium text-foreground/80">
+                                                  {t(activeChild.section)}
+                                                </span>
+                                              </p>
+                                            );
+                                          })()}
+
+                                          {/* Categories with smart sorting & dropdowns */}
+                                          {sortSections(
+                                            groupBySection(workspace.children),
+                                          ).map((group, gi) => {
+                                            const groupKey = `${workspace.label}/${group.section ?? "general"}`;
+                                            const renderLinks = () =>
+                                              group.items.map((child) => (
+                                                <NavLink
+                                                  key={child.path}
+                                                  to={child.path}
+                                                  onClick={() =>
+                                                    setMobileOpen(false)
+                                                  }
+                                                  className={({ isActive }) =>
+                                                    classNames(
+                                                      "group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors",
+                                                      isActive
+                                                        ? "bg-primary/10 font-semibold text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground dark:text-muted-foreground dark:hover:bg-white/5",
+                                                    )
+                                                  }
+                                                >
+                                                  <div className="flex min-w-0 items-center gap-1.5">
+                                                    <ChevronRight
+                                                      aria-hidden="true"
+                                                      className="h-3 w-3 shrink-0 opacity-40 group-hover:opacity-80 transition-opacity"
+                                                    />
+                                                    <span className="truncate">
+                                                      {getMarketNavigationLabel(
+                                                        child.path,
+                                                        marketCode,
+                                                        child.label,
+                                                      )}
+                                                    </span>
+                                                  </div>
+                                                  {child.description && (
+                                                    <span
+                                                      aria-hidden="true"
+                                                      className="hidden sm:inline-block max-w-[90px] truncate text-[9px] text-muted-foreground/60"
+                                                    >
+                                                      {child.description}
+                                                    </span>
+                                                  )}
+                                                </NavLink>
+                                              ));
+
+                                            if (!group.section) {
+                                              return (
+                                                <div
+                                                  key={gi}
+                                                  className="mb-1 space-y-0.5"
+                                                >
+                                                  {renderLinks()}
+                                                </div>
+                                              );
+                                            }
+
+                                            const folded =
+                                              foldedSections.includes(groupKey);
+                                            const SectionIcon = getSectionIcon(
+                                              group.section,
+                                            );
+
                                             return (
                                               <div
                                                 key={gi}
-                                                className="mb-1 space-y-0.5"
+                                                className="mb-1 rounded-xl border border-border/40 bg-card/40 dark:border-white/5 dark:bg-white/[0.02]"
                                               >
-                                                {renderLinks()}
+                                                <button
+                                                  type="button"
+                                                  aria-expanded={!folded}
+                                                  aria-controls={groupKey}
+                                                  onClick={() =>
+                                                    setFoldedSections(
+                                                      (current) =>
+                                                        current.includes(
+                                                          groupKey,
+                                                        )
+                                                          ? current.filter(
+                                                              (key) =>
+                                                                key !==
+                                                                groupKey,
+                                                            )
+                                                          : [
+                                                              ...current,
+                                                              groupKey,
+                                                            ],
+                                                    )
+                                                  }
+                                                  className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-card-foreground transition-colors hover:bg-muted/30 hover:text-foreground"
+                                                >
+                                                  <div className="flex min-w-0 items-center gap-1.5">
+                                                    <SectionIcon
+                                                      aria-hidden="true"
+                                                      className="h-3.5 w-3.5 shrink-0 text-brand-purple/80 dark:text-brand-purple-lighter/80"
+                                                    />
+                                                    <span className="truncate">
+                                                      {t(group.section)}
+                                                    </span>
+                                                  </div>
+                                                  <div className="flex items-center gap-1">
+                                                    <span className="rounded-full bg-muted/60 px-1.5 py-0.2 text-[9px] font-medium text-muted-foreground dark:bg-white/10">
+                                                      {group.items.length}
+                                                    </span>
+                                                    <ChevronDown
+                                                      aria-hidden="true"
+                                                      className={classNames(
+                                                        "h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200",
+                                                        folded && "-rotate-90",
+                                                      )}
+                                                    />
+                                                  </div>
+                                                </button>
+                                                <div
+                                                  id={groupKey}
+                                                  hidden={folded}
+                                                  className="space-y-0.5 border-t border-border/30 px-1 pb-1 pt-0.5 dark:border-white/5"
+                                                >
+                                                  {renderLinks()}
+                                                </div>
                                               </div>
                                             );
-                                          }
-                                          // Each section folds, but starts
-                                          // open: opening Construction Tools
-                                          // shows every tool, and anyone who
-                                          // wants a shorter list can close a
-                                          // group without losing the rest.
-                                          const folded =
-                                            foldedSections.includes(groupKey);
-                                          return (
-                                            <div key={gi} className="mb-1">
-                                              <button
-                                                type="button"
-                                                aria-expanded={!folded}
-                                                aria-controls={groupKey}
-                                                onClick={() =>
-                                                  setFoldedSections(
-                                                    (current) =>
-                                                      current.includes(groupKey)
-                                                        ? current.filter(
-                                                            (key) =>
-                                                              key !== groupKey,
-                                                          )
-                                                        : [
-                                                            ...current,
-                                                            groupKey,
-                                                          ],
-                                                  )
-                                                }
-                                                className="flex w-full items-center justify-between gap-2 rounded-md px-3 pb-0.5 pt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground/80 transition-colors hover:text-foreground"
-                                              >
-                                                <span className="truncate">
-                                                  {t(group.section)}
-                                                </span>
-                                                <ChevronDown
-                                                  aria-hidden="true"
-                                                  className={classNames(
-                                                    "h-3 w-3 shrink-0 transition-transform duration-200",
-                                                    folded && "-rotate-90",
-                                                  )}
-                                                />
-                                              </button>
-                                              <div
-                                                id={groupKey}
-                                                hidden={folded}
-                                                className="space-y-0.5"
-                                              >
-                                                {renderLinks()}
-                                              </div>
-                                            </div>
-                                          );
-                                        },
+                                          })}
+                                        </div>
                                       )}
-                                    </div>
+                                    </>
+                                  ) : workspace.external ? (
+                                    <a
+                                      href={workspace.path}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground dark:hover:bg-white/5"
+                                    >
+                                      <WorkspaceIcon
+                                        aria-hidden="true"
+                                        className="h-3.5 w-3.5 shrink-0 opacity-70"
+                                      />
+                                      <span>{t(workspace.label)}</span>
+                                    </a>
+                                  ) : (
+                                    <NavLink
+                                      to={workspace.path}
+                                      onClick={() => setMobileOpen(false)}
+                                      className={({ isActive }) =>
+                                        classNames(
+                                          "relative flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold transition-colors",
+                                          isActive
+                                            ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                            : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground dark:hover:bg-white/5",
+                                        )
+                                      }
+                                    >
+                                      <WorkspaceIcon
+                                        aria-hidden="true"
+                                        className="h-3.5 w-3.5 shrink-0 opacity-70"
+                                      />
+                                      <span>{t(workspace.label)}</span>
+                                    </NavLink>
                                   )}
-                                </>
-                              ) : workspace.external ? (
-                                <a
-                                  href={workspace.path}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                                >
-                                  {t(workspace.label)}
-                                </a>
-                              ) : (
-                                <NavLink
-                                  to={workspace.path}
-                                  onClick={() => setMobileOpen(false)}
-                                  className={({ isActive }) =>
-                                    classNames(
-                                      "relative block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
-                                      isActive
-                                        ? "bg-primary/10 text-brand-purple before:absolute before:left-0 before:top-1/2 before:h-5 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                        : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5",
-                                    )
-                                  }
-                                >
-                                  {t(workspace.label)}
-                                </NavLink>
-                              )}
-                            </div>
-                          ))}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       ))}
                     </>
                   );
                 })()}
 
-                {/* Display and accessibility controls live in the hamburger menu */}
-                <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
-                  <div className="flex items-center justify-between gap-3 px-3 py-2">
+                {/* Preferences & System Switchers */}
+                <div className="mt-3 border-t border-border/50 pt-2.5 dark:border-white/5">
+                  <div className="flex items-center justify-between gap-3 px-2 py-1">
                     <div>
-                      <p className="text-sm font-semibold text-card-foreground">
-                        Display & layout
+                      <p className="text-xs font-semibold text-card-foreground">
+                        {t("Display & layout")}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        Scale and calculator view
+                      <p className="text-[10px] text-muted-foreground">
+                        {t("Scale and calculator view")}
                       </p>
                     </div>
                     <Suspense fallback={null}>
@@ -1389,113 +1409,94 @@ export default function Navbar() {
                       <CurrencySwitcher inline={true} />
                       <MarketSelector inline={true} />
                     </Suspense>
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={toggle}
-                      aria-label="Toggle dark mode"
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                    >
-                      {theme === "dark" ? (
-                        <Sun className="h-4 w-4" />
-                      ) : (
-                        <Moon className="h-4 w-4" />
-                      )}
-                      <span>Dark mode</span>
-                      <span
-                        className={classNames(
-                          "ml-auto text-xs",
-                          theme === "dark"
-                            ? "text-brand-purple dark:text-brand-purple-lighter"
-                            : "text-muted-foreground",
-                        )}
-                      >
-                        {theme === "dark" ? "On" : "Off"}
-                      </span>
-                    </Button>
                   </div>
                 </div>
 
-                {user && (
-                  <Button
-                    variant="ghost"
-                    type="button"
-                    onClick={async () => {
-                      setMobileOpen(false);
-                      await signOut();
-                    }}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                  >
-                    <LogOut aria-hidden="true" className="h-4 w-4" />
-                    <span>{t("Sign out")}</span>
-                  </Button>
-                )}
-
-                {/* Email contact */}
-                <a
-                  href={`mailto:${siteConfig.email}`}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-white/5"
-                >
-                  <Mail className="h-4 w-4" />
-                  <span>Email us</span>
-                </a>
-
-                {/* AI Credit info */}
-                {user && (
-                  <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-primary/5 to-transparent p-3 dark:from-primary/10">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground">
-                        <Bot className="h-3.5 w-3.5" />
-                      </span>
-                      <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
-                        AI Credits
-                      </p>
-                      <Link
-                        to="/rewards/"
-                        onClick={() => setMobileOpen(false)}
-                        className="ml-auto text-xs font-medium text-brand-purple dark:text-brand-purple-lighter"
-                      >
-                        Manage →
-                      </Link>
-                    </div>
-                    <div className="mt-2.5 flex items-center justify-between gap-2">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                          Available
+                {/* Account status / Auth action (Compact SaaS style) */}
+                <div className="mt-3 border-t border-border/50 pt-2.5 dark:border-white/5">
+                  {user ? (
+                    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 p-2 dark:border-white/10 dark:bg-white/5">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-primary-deep text-[11px] font-semibold text-primary-foreground">
+                          {avatarError || !profile?.avatar_url ? (
+                            (profile?.full_name ||
+                              profile?.email ||
+                              user?.email ||
+                              "U")[0].toUpperCase()
+                          ) : (
+                            <img
+                              src={profile.avatar_url}
+                              alt=""
+                              className="h-full w-full object-cover"
+                              onError={() => setAvatarError(true)}
+                            />
+                          )}
                         </span>
-                        <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
-                          {wallet?.balance ?? 0}
-                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-card-foreground">
+                            {profile?.full_name?.trim() ||
+                              profile?.email ||
+                              user?.email}
+                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center rounded-full bg-primary/10 px-1.5 py-0.2 text-[9px] font-semibold text-brand-purple dark:bg-primary/20 dark:text-brand-purple-lighter">
+                              {isPaid ? "PRO" : "FREE"}
+                            </span>
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setMobileOpen(false)}
+                              className="text-[10px] font-medium text-muted-foreground hover:text-foreground underline underline-offset-2"
+                            >
+                              {t("Dashboard")}
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                      <div className="h-8 w-px bg-muted dark:bg-white/10" />
-                      <Link
-                        to="/rewards/"
-                        onClick={() => setMobileOpen(false)}
-                        className="flex flex-col transition-opacity hover:opacity-70"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        onClick={async () => {
+                          setMobileOpen(false);
+                          await signOut();
+                        }}
+                        className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-destructive dark:hover:bg-white/5"
+                        aria-label={t("Sign out")}
+                        title={t("Sign out")}
                       >
-                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                          Total Owned
-                        </span>
-                        <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                          {wallet?.total_earned ?? 0}
-                        </span>
+                        <LogOut aria-hidden="true" className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        to="/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex h-8 items-center justify-center gap-1.5 rounded-xl border border-border/60 bg-muted/30 text-xs font-semibold text-card-foreground transition-colors hover:bg-muted/60 dark:border-white/10 dark:bg-white/5 dark:text-foreground"
+                      >
+                        <LogIn aria-hidden="true" className="h-3.5 w-3.5" />
+                        {t("Sign in")}
                       </Link>
-                      <div className="h-8 w-px bg-muted dark:bg-white/10" />
                       <Link
-                        to="/pricing/"
+                        to="/register"
                         onClick={() => setMobileOpen(false)}
-                        className="flex flex-col transition-opacity hover:opacity-70"
+                        className="flex h-8 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary-deep text-xs font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-95"
                       >
-                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                          Plan
-                        </span>
-                        <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
-                          {isPaid ? <PremiumBadge size="xs" minimal /> : "Free"}
-                        </span>
+                        <User aria-hidden="true" className="h-3.5 w-3.5" />
+                        {t("Create account")}
                       </Link>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {/* Direct Contact */}
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    <span>{t("Email us")}</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
