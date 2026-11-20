@@ -25,4 +25,11 @@ describe("PlasterRenderCalculator", () => {
     expect(screen.getAllByText(/Topcoat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/primer/i).length).toBeGreaterThan(0);
   });
+
+  it("carries the how-to, cost and about blocks a catalogued calculator owes", () => {
+    renderPage();
+    expect(screen.getByText(/How to use this calculator/i)).toBeTruthy();
+    expect(screen.getByText(/How much does plastering cost/i)).toBeTruthy();
+    expect(screen.getByTestId("about-this-tool")).toBeTruthy();
+  });
 });
