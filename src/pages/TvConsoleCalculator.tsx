@@ -27,7 +27,11 @@ import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import { useToast } from "@/components/ui/Toast";
 import { supabase } from "@/lib/supabase";
 import { useCurrencyCode } from "@/lib/international/market-context";
-import { TV_CONSOLE_TEMPLATES } from "@/lib/tv-console/templates";
+import {
+  TV_CONSOLE_TEMPLATES,
+  fetchTvConsoleTemplates,
+  type TvConsoleTemplate,
+} from "@/lib/tv-console/templates";
 import ConsoleElevation from "@/components/tv-console/ConsoleElevation";
 import {
   extractionErrorMessage,
@@ -150,6 +154,16 @@ export default function TvConsoleCalculator() {
     setLedMetres(0);
   };
   const marketCurrency = useCurrencyCode();
+  const [templates, setTemplates] =
+    useState<TvConsoleTemplate[]>(TV_CONSOLE_TEMPLATES);
+
+  useEffect(() => {
+    fetchTvConsoleTemplates().then((loaded) => {
+      if (loaded && loaded.length > 0) {
+        setTemplates(loaded);
+      }
+    });
+  }, []);
   const [selectedId, setSelectedId] = useState(TV_CONSOLE_TEMPLATES[0].id);
   const [width, setWidth] = useState(1800);
   const [height, setHeight] = useState(400);
@@ -216,7 +230,10 @@ export default function TvConsoleCalculator() {
     if (marketCurrency) setCurrency(marketCurrency);
   }, [marketCurrency]);
 
-  const selected = TV_CONSOLE_TEMPLATES.find((t) => t.id === selectedId)!;
+  const selected =
+    templates.find((t) => t.id === selectedId) ||
+    templates[0] ||
+    TV_CONSOLE_TEMPLATES[0];
   const optional = (value: string) => (value === "" ? null : Number(value));
 
   // The engine throws a precise reason for every refusal. Swallowing it left
@@ -301,7 +318,9 @@ export default function TvConsoleCalculator() {
   ]);
 
   const applyTemplate = (id: string) => {
-    const template = TV_CONSOLE_TEMPLATES.find((t) => t.id === id)!;
+    const template =
+      templates.find((t) => t.id === id) ||
+      TV_CONSOLE_TEMPLATES.find((t) => t.id === id)!;
     setSelectedId(id);
     setWidth(template.widthMm);
     setHeight(template.heightMm);
@@ -478,64 +497,66 @@ export default function TvConsoleCalculator() {
                 </p>
               </div>
               <Badge variant="outline">
-                {TV_CONSOLE_TEMPLATES.length} editable presets
+                {templates.length} editable presets
               </Badge>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {TV_CONSOLE_TEMPLATES.slice(
-                page * PRESETS_PER_PAGE,
-                page * PRESETS_PER_PAGE + PRESETS_PER_PAGE,
-              ).map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => applyTemplate(item.id)}
-                  aria-pressed={selectedId === item.id}
-                  className={`group overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-lg ${selectedId === item.id ? "border-primary ring-2 ring-primary/20" : "border-border"}`}
-                >
-                  <div className="relative flex aspect-[2/1] items-center justify-center bg-muted/40 p-4">
-                    <ConsoleElevation
-                      layout={{
-                        widthMm: item.widthMm,
-                        heightMm: item.heightMm,
-                        thicknessMm: item.layout.thicknessMm,
-                        shelves: item.layout.shelves,
-                        dividers: item.layout.dividers,
-                        drawers: item.layout.drawers,
-                        drawerFrontHeightMm: item.layout.drawerFrontHeightMm,
-                        doors: item.layout.doors,
-                        revealMm: item.layout.revealMm,
-                      }}
-                      depthMm={item.depthMm}
-                      context={{
-                        tvInches: item.tvInches,
-                        wallTreatment: item.wallTreatment,
-                        wallPanelHeightMm: item.wallPanelHeightMm,
-                        mounting: item.mounting,
-                        ledProfileMetres: item.ledProfileMetres,
-                      }}
-                      label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
-                    />
-                    <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs backdrop-blur">
-                      Calculated elevation
-                    </span>
-                    {selectedId === item.id && (
-                      <span className="absolute left-3 top-3 rounded-full bg-primary p-1.5 text-primary-foreground">
-                        <Check className="h-3.5 w-3.5" />
+              {templates
+                .slice(
+                  page * PRESETS_PER_PAGE,
+                  page * PRESETS_PER_PAGE + PRESETS_PER_PAGE,
+                )
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => applyTemplate(item.id)}
+                    aria-pressed={selectedId === item.id}
+                    className={`group overflow-hidden rounded-2xl border text-left transition hover:-translate-y-0.5 hover:shadow-lg ${selectedId === item.id ? "border-primary ring-2 ring-primary/20" : "border-border"}`}
+                  >
+                    <div className="relative flex aspect-[2/1] items-center justify-center bg-muted/40 p-4">
+                      <ConsoleElevation
+                        layout={{
+                          widthMm: item.widthMm,
+                          heightMm: item.heightMm,
+                          thicknessMm: item.layout.thicknessMm,
+                          shelves: item.layout.shelves,
+                          dividers: item.layout.dividers,
+                          drawers: item.layout.drawers,
+                          drawerFrontHeightMm: item.layout.drawerFrontHeightMm,
+                          doors: item.layout.doors,
+                          revealMm: item.layout.revealMm,
+                        }}
+                        depthMm={item.depthMm}
+                        context={{
+                          tvInches: item.tvInches,
+                          wallTreatment: item.wallTreatment,
+                          wallPanelHeightMm: item.wallPanelHeightMm,
+                          mounting: item.mounting,
+                          ledProfileMetres: item.ledProfileMetres,
+                        }}
+                        label={`${item.name} front elevation, ${item.widthMm} by ${item.heightMm} millimetres, ${item.layout.dividers + 1} bays, ${item.layout.drawers} drawers, ${item.layout.doors} doors${item.tvInches ? `, drawn with a ${item.tvInches} inch screen` : ""}${item.wallTreatment && item.wallTreatment !== "none" ? `, ${item.wallTreatment} panelled wall ${item.wallPanelHeightMm} millimetres high` : ""}`}
+                      />
+                      <span className="absolute right-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-xs backdrop-blur">
+                        Calculated elevation
                       </span>
-                    )}
-                  </div>
-                  <div className="space-y-2 p-4">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">
-                      {item.material} · {item.feature}
-                    </p>
-                    <p className="text-xs font-medium tabular-nums text-foreground">
-                      {item.widthMm} × {item.heightMm} × {item.depthMm} mm
-                    </p>
-                  </div>
-                </button>
-              ))}
+                      {selectedId === item.id && (
+                        <span className="absolute left-3 top-3 rounded-full bg-primary p-1.5 text-primary-foreground">
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2 p-4">
+                      <h3 className="font-semibold">{item.name}</h3>
+                      <p className="line-clamp-1 text-xs text-muted-foreground">
+                        {item.material} · {item.feature}
+                      </p>
+                      <p className="text-xs font-medium tabular-nums text-foreground">
+                        {item.widthMm} × {item.heightMm} × {item.depthMm} mm
+                      </p>
+                    </div>
+                  </button>
+                ))}
             </div>
 
             {/*
@@ -549,13 +570,13 @@ export default function TvConsoleCalculator() {
             >
               <p className="text-xs text-muted-foreground" aria-live="polite">
                 Page {page + 1} of{" "}
-                {Math.ceil(TV_CONSOLE_TEMPLATES.length / PRESETS_PER_PAGE)} ·
-                showing {page * PRESETS_PER_PAGE + 1}–
+                {Math.ceil(templates.length / PRESETS_PER_PAGE)} · showing{" "}
+                {page * PRESETS_PER_PAGE + 1}–
                 {Math.min(
                   (page + 1) * PRESETS_PER_PAGE,
                   TV_CONSOLE_TEMPLATES.length,
                 )}{" "}
-                of {TV_CONSOLE_TEMPLATES.length}
+                of {templates.length}
               </p>
               <div className="flex items-center gap-2">
                 <Button

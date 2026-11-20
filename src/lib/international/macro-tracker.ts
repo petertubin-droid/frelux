@@ -509,3 +509,123 @@ export function simulateMacroImpact(params: {
     };
   });
 }
+
+/**
+ * Create a new macro indicator record in Supabase.
+ */
+export async function createMacroIndicator(
+  indicator: Omit<MacroIndicator, "id">,
+): Promise<{ data: MacroIndicator | null; error: Error | null }> {
+  try {
+    const supabase = await db();
+    const { data, error } = await supabase
+      .from("macro_economic_indicators")
+      .insert({
+        ...indicator,
+        market_code: indicator.market_code.toUpperCase(),
+        published_at: indicator.published_at || new Date().toISOString(),
+        last_synced_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) return { data: null, error: new Error(error.message) };
+    return { data: data as MacroIndicator, error: null };
+  } catch (err) {
+    return { data: null, error: err as Error };
+  }
+}
+
+/**
+ * Update an existing macro indicator in Supabase.
+ */
+export async function updateMacroIndicator(
+  id: string,
+  updates: Partial<MacroIndicator>,
+): Promise<{ data: MacroIndicator | null; error: Error | null }> {
+  try {
+    const supabase = await db();
+    const { data, error } = await supabase
+      .from("macro_economic_indicators")
+      .update({
+        ...updates,
+        last_synced_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) return { data: null, error: new Error(error.message) };
+    return { data: data as MacroIndicator, error: null };
+  } catch (err) {
+    return { data: null, error: err as Error };
+  }
+}
+
+/**
+ * Delete a macro indicator record from Supabase.
+ */
+export async function deleteMacroIndicator(
+  id: string,
+): Promise<{ ok: boolean; error: Error | null }> {
+  try {
+    const supabase = await db();
+    const { error } = await supabase
+      .from("macro_economic_indicators")
+      .delete()
+      .eq("id", id);
+
+    if (error) return { ok: false, error: new Error(error.message) };
+    return { ok: true, error: null };
+  } catch (err) {
+    return { ok: false, error: err as Error };
+  }
+}
+
+/**
+ * Create or update an elasticity rule in Supabase.
+ */
+export async function upsertElasticityRule(
+  rule: Partial<MacroElasticityRule>,
+): Promise<{ data: MacroElasticityRule | null; error: Error | null }> {
+  try {
+    const supabase = await db();
+    const payload = {
+      ...rule,
+      market_code: (rule.market_code || "*").toUpperCase(),
+      updated_at: new Date().toISOString(),
+    };
+    const { data, error } = await supabase
+      .from("macro_elasticity_rules")
+      .upsert(payload, {
+        onConflict: "market_code,material_category,commodity_trigger",
+      })
+      .select()
+      .single();
+
+    if (error) return { data: null, error: new Error(error.message) };
+    return { data: data as MacroElasticityRule, error: null };
+  } catch (err) {
+    return { data: null, error: err as Error };
+  }
+}
+
+/**
+ * Delete an elasticity rule from Supabase.
+ */
+export async function deleteElasticityRule(
+  id: string,
+): Promise<{ ok: boolean; error: Error | null }> {
+  try {
+    const supabase = await db();
+    const { error } = await supabase
+      .from("macro_elasticity_rules")
+      .delete()
+      .eq("id", id);
+
+    if (error) return { ok: false, error: new Error(error.message) };
+    return { ok: true, error: null };
+  } catch (err) {
+    return { ok: false, error: err as Error };
+  }
+}

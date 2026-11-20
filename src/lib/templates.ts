@@ -334,6 +334,11 @@ export const CALCULATOR_META: Record<
   // /eifs-calculator already redirect to them.
   icf: { label: "ICF Wall", path: "/icf-wall-estimator", icon: "icf" },
   eifs: { label: "EIFS Facade", path: "/eifs-wall-estimator", icon: "eifs" },
+  tv_console: {
+    label: "TV Console",
+    path: "/tv-console-calculator",
+    icon: "tv",
+  },
 };
 
 export function calculatorLabel(type: CalculatorType): string {

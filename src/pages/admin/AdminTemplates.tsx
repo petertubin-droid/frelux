@@ -32,7 +32,16 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
-const CALC_TYPES: CalculatorType[] = ["paint", "tile", "pop", "screeding"];
+const CALC_TYPES: CalculatorType[] = [
+  "paint",
+  "tile",
+  "pop",
+  "screeding",
+  "build_to_roof",
+  "icf",
+  "eifs",
+  "tv_console",
+];
 
 export default function AdminTemplates() {
   const { t: tr } = useLanguage();

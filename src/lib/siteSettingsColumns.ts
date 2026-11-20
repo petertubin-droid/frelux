@@ -96,6 +96,11 @@ export const SITE_SETTINGS_COLUMNS_WITHOUT_BANNER = [
   "adsense_additional_publisher_ids",
   "ad_provider_mode",
   "ad_provider_slug",
+  "seo_keywords",
+  "seo_canonical_base",
+  "og_image_url",
+  "twitter_handle",
+  "robots_txt_custom",
 ].join(",");
 
 /** True when a query failed only because the maintenance banner columns are absent. */

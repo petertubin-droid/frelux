@@ -132,6 +132,11 @@ export interface DbSiteSettings {
   maintenance_banner_message: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  seo_keywords?: string | null;
+  seo_canonical_base?: string | null;
+  og_image_url?: string | null;
+  twitter_handle?: string | null;
+  robots_txt_custom?: string | null;
   // AI access control
   ai_enabled: boolean;
   ai_access_mode: AiAccessMode;
@@ -1621,7 +1626,8 @@ export type CalculatorType =
   // and public templates exist for both, so the type was the only thing
   // stopping them from being first-class.
   | "icf"
-  | "eifs";
+  | "eifs"
+  | "tv_console";
 export type TemplateVisibility = "private" | "public" | "unlisted";
 
 export interface DbCalculatorTemplate {
@@ -1640,6 +1646,11 @@ export interface DbCalculatorTemplate {
   slug: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  seo_keywords?: string | null;
+  seo_canonical_base?: string | null;
+  og_image_url?: string | null;
+  twitter_handle?: string | null;
+  robots_txt_custom?: string | null;
   created_at: string;
   updated_at: string;
 }

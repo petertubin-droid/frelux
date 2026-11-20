@@ -1,13 +1,20 @@
 import { describe, it, expect } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { ToastProvider } from "@/components/ui/Toast";
 import AdminMacroTracker from "./AdminMacroTracker";
+
+function renderPage() {
+  return render(
+    <ToastProvider>
+      <AdminMacroTracker />
+    </ToastProvider>,
+  );
+}
 
 describe("AdminMacroTracker Page", () => {
   it("renders System A Fluctuation Filter and simulation sandbox", async () => {
-    render(<AdminMacroTracker />);
+    renderPage();
 
-    // The title renders through the shared admin header, which reveals it word
-    // by word, so assert on the level-one heading's normalised text.
     expect(
       screen.getByRole("heading", {
         level: 1,
@@ -22,5 +29,27 @@ describe("AdminMacroTracker Page", () => {
         screen.getByText(/Central Bank & Commodity Baseline Feeds \(Kenya\)/i),
       ).toBeDefined();
     });
+  });
+
+  it("switches markets via chips and updates heading", async () => {
+    renderPage();
+
+    const ngChip = screen.getByText("NG");
+    fireEvent.click(ngChip);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Central Bank & Commodity Baseline Feeds \(Nigeria\)/i,
+        ),
+      ).toBeDefined();
+    });
+  });
+
+  it("renders Add Indicator and Add Rule buttons", async () => {
+    renderPage();
+
+    expect(screen.getByText("Add Indicator")).toBeDefined();
+    expect(screen.getByText("Add Rule")).toBeDefined();
   });
 });

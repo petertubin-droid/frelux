@@ -396,3 +396,57 @@ export const TV_CONSOLE_TEMPLATES: TvConsoleTemplate[] = [
     ledProfileMetres: 1.8,
   },
 ];
+
+import { getSupabase } from "@/lib/supabase-lazy";
+
+/**
+ * Fetch dynamic TV console templates from Supabase and merge with static fallbacks.
+ * Templates created or modified in Admin (/admin/templates) automatically appear here.
+ */
+export async function fetchTvConsoleTemplates(): Promise<TvConsoleTemplate[]> {
+  try {
+    const supabase = await getSupabase();
+    const { data, error } = await supabase
+      .from("calculator_templates")
+      .select("id, name, description, input_data, slug")
+      .eq("calculator_type", "tv_console")
+      .eq("is_published", true)
+      .order("display_order", { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      return TV_CONSOLE_TEMPLATES;
+    }
+
+    const dbTemplates: TvConsoleTemplate[] = data.map((row) => {
+      const input = (row.input_data ?? {}) as Record<string, any>;
+      return {
+        id: row.slug || row.id,
+        name: row.name,
+        widthMm: Number(input.widthMm) || 1800,
+        heightMm: Number(input.heightMm) || 400,
+        depthMm: Number(input.depthMm) || 350,
+        material: String(input.material || "Cabinet board"),
+        feature:
+          row.description ||
+          String(input.feature || "Custom TV console design"),
+        layout: input.layout || layout({ shelves: 1, dividers: 2 }),
+        tvInches: input.tvInches ? Number(input.tvInches) : undefined,
+        wallTreatment: input.wallTreatment,
+        wallPanelHeightMm: input.wallPanelHeightMm
+          ? Number(input.wallPanelHeightMm)
+          : undefined,
+        mounting: input.mounting,
+        ledProfileMetres: input.ledProfileMetres
+          ? Number(input.ledProfileMetres)
+          : undefined,
+      };
+    });
+
+    // Merge: DB templates first, then built-in templates not already covered by slug/id
+    const dbIds = new Set(dbTemplates.map((t) => t.id));
+    const extra = TV_CONSOLE_TEMPLATES.filter((t) => !dbIds.has(t.id));
+    return [...dbTemplates, ...extra];
+  } catch {
+    return TV_CONSOLE_TEMPLATES;
+  }
+}
