@@ -121,3 +121,27 @@ describe("no page inherits another page's structured data", () => {
     expect(prerenderSrc).toContain('id="breadcrumb-structured-data"');
   });
 });
+
+describe("the prerendered ICF page states what the engine now calculates", () => {
+  // The static body is copied into the served HTML before React runs, so a
+  // retired figure there is published copy even after the engine is corrected.
+  const icfStart = seoMapSrc.indexOf('"/icf-wall-estimator"');
+  const icfBody = seoMapSrc.slice(icfStart, icfStart + 4000);
+
+  it("quotes the lap and bracing the engine uses", () => {
+    expect(icfBody).toContain("40 bar diameters");
+    expect(icfBody).toContain("1.8 m centres");
+  });
+
+  it("drops the figures the engine no longer produces", () => {
+    for (const retired of [
+      "48 bar diameter",
+      "every 2.0 meters",
+      "R-22 standard EPS",
+      "R-22 rating",
+      "1.5% for polypropylene tie webs",
+    ]) {
+      expect(icfBody, retired).not.toContain(retired);
+    }
+  });
+});

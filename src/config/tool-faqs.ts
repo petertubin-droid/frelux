@@ -633,15 +633,15 @@ const ICF_FAQ_GROUPS: ToolFaqGroup[] = [
       },
       {
         q: "What rebar schedule does an ICF wall require?",
-        a: "Vertical reinforcing steel spaced at 400mm or 600mm centers with matching footing starter dowels, continuous horizontal runs in molded web saddles at 400mm or 800mm vertical increments with 48 bar diameter lap splices, and reinforced lintel header cages with top and bottom tensile steel plus shear stirrups over door and window openings spanning 0.8m or wider.",
+        a: "Vertical reinforcing steel spaced at 400mm or 600mm centers with matching footing starter dowels, continuous horizontal runs in molded web saddles at 400mm or 800mm vertical increments with lap splices of 40 bar diameters, and reinforced lintel header cages with top and bottom tensile steel plus shear stirrups over door and window openings spanning 0.8m or wider.",
       },
       {
         q: "Why is turnbuckle alignment bracing required?",
-        a: "Lightweight EPS forms must be held plumb, aligned, and braced against hydrostatic concrete pressure and wind before and during the pour. The estimator sizes adjustable turnbuckle strongbacks every 2.0 meters along the wall perimeter plus additional units at all corners, along with integrated catwalk scaffolding brackets for safe placement access.",
+        a: "Lightweight EPS forms must be held plumb, aligned, and braced against hydrostatic concrete pressure and wind before and during the pour. The estimator sizes adjustable turnbuckle strongbacks at 1.8 m centres along the wall perimeter plus additional units at all corners, and repeats the bracing on a second row once the wall passes 4.5 m, along with integrated catwalk scaffolding brackets for safe placement access.",
       },
       {
         q: "What are the fire, acoustic and thermal ratings of ICF?",
-        a: "Double 64mm EPS panels provide continuous insulation with an R-22 rating (RSI 3.87) or R-28.5 (RSI 5.02) for graphite Neopor. The solid concrete core delivers STC 48 to STC 58 acoustic isolation and a 1.5 to 4-hour fire rating depending on thickness. Building codes mandate a 15-minute thermal barrier (such as 12.5mm gypsum board) on all interior living surfaces.",
+        a: "The continuous R-value follows the foam type, thickness and core you enter, so 64 mm EPS near R-3.85 per inch and graphite near R-4.4 give different answers, each with its metric U-value. The core gives an indicative acoustic band, and the fire resistance follows the tested lining: no lining is reported as not rated, and a habitable room needs a thermal barrier over the foam.",
       },
     ],
   },

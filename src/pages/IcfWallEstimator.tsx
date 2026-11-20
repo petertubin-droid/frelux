@@ -1571,11 +1571,11 @@ export default function IcfWallEstimator() {
         <HowCalculatedSection
           methodologyText={`1. Block Geometry & Corner Allocation: Gross wall perimeter and height define total surface area. Window and door openings are deducted to establish net face area. Nominal block face dimensions (1200mm x 400mm = 0.48 m²) determine base unit counts, with corner units and T-junctions segregated course by course.
 
-2. Concrete Core Volume & Lift Rates: Core volume is computed from net wall area and core cavity width (100mm to 300mm), with a 1.5% deduction for internal polypropylene webs and a 4% pump hopper allowance. Vertical pour rate must be restricted to 1.2 m/hr (4 ft/hr) to avoid exceeding hydrostatic lateral form pressure limits.
+2. Concrete Core Volume & Lift Rates: Core volume is computed from net wall area and core cavity width (100mm to 300mm), with the internal web deduction taken from the chosen form family's fill factor and an explicit pump hopper allowance. Vertical pour rate must be restricted to 1.2 m/hr (4 ft/hr) to avoid exceeding hydrostatic lateral form pressure limits.
 
-3. Reinforcement Grid & Lintel Headers: Footing starter dowels, vertical rebar grid (400mm or 600mm centers), and horizontal courses with 48 bar diameter lap splices are calculated. Openings spanning 0.8m or wider receive reinforced lintel header cages with top and bottom tensile steel and shear stirrups.
+3. Reinforcement Grid & Lintel Headers: Footing starter dowels, vertical rebar grid (400mm or 600mm centers), and horizontal courses are lapped 40 bar diameters, and the footing dowel is sized as embedment plus that lap. Openings spanning 0.8m or wider receive reinforced lintel header cages with top and bottom tensile steel and shear stirrups.
 
-4. Turnbuckle Alignment Bracing: Adjustable turnbuckle strongback jacks are spaced every 2.0 meters along the wall perimeter, with additional jacks located within 600mm of every corner, paired with catwalk scaffolding brackets for safe placement and consolidation.`}
+4. Turnbuckle Alignment Bracing: Adjustable turnbuckle strongback jacks are spaced at 1.8 m centres along the wall perimeter, with additional jacks at every corner and splay, and a second row once the wall passes 4.5 m, paired with catwalk scaffolding brackets for safe placement and consolidation.`}
           assumptions={[
             { label: "Nominal Block Face", value: "1200mm x 400mm (0.48 m²)" },
             {
