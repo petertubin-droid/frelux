@@ -27,6 +27,25 @@ import {
 } from "@/lib/international/room-unit-defaults";
 import { toMeters, fromMeters } from "@/lib/measurement/units";
 
+/** Counts of an opening schedule stored as openingGroups, by category. */
+function openingCounts(d: Record<string, unknown>) {
+  const groups = Array.isArray(d.openingGroups)
+    ? (d.openingGroups as {
+        category?: string;
+        count?: number;
+      }[])
+    : [];
+  const tally = { window: 0, internal_door: 0, entrance_door: 0 };
+  for (const g of groups) {
+    const c = g.category;
+    const n = Number(g.count) || 0;
+    if (c === "window" || c === "internal_door" || c === "entrance_door") {
+      tally[c] += n;
+    }
+  }
+  return tally;
+}
+
 /** Per-calculator dimension fields stored in input_data (canonical meters). */
 const DIM_FIELDS: Record<string, string[]> = {
   paint: ["length", "width", "wallHeight"],
@@ -187,6 +206,29 @@ export function templateDimsSentence(
       if (d.wasteMargin) parts.push(`${d.wasteMargin}% waste`);
       break;
     }
+    case "build_to_roof": {
+      // A footprint plus how many openings of each kind, because the schedule
+      // is the part of a build-to-roof template a visitor actually recognises.
+      if (Number(d.building_length) > 0 && Number(d.building_width) > 0)
+        parts.push(
+          `${fmt(d.building_length)} × ${fmt(d.building_width)} ${u} footprint`,
+        );
+      if (Number(d.number_of_floors) > 0)
+        parts.push(
+          `${d.number_of_floors} floor${Number(d.number_of_floors) === 1 ? "" : "s"}`,
+        );
+      const counts = openingCounts(d);
+      const windows = counts.window;
+      const internal = counts.internal_door;
+      const entrance = counts.entrance_door;
+      if (windows > 0)
+        parts.push(`${windows} window${windows === 1 ? "" : "s"}`);
+      if (internal > 0)
+        parts.push(`${internal} internal door${internal === 1 ? "" : "s"}`);
+      if (entrance > 0)
+        parts.push(`${entrance} entrance door${entrance === 1 ? "" : "s"}`);
+      break;
+    }
     case "pop": {
       if (Number(d.roomLength) > 0 && Number(d.roomWidth) > 0)
         parts.push(`${fmt(d.roomLength)} × ${fmt(d.roomWidth)} ${u} room`);
@@ -274,6 +316,32 @@ export function templateSummaryForMarket(
   const fmt = (v: unknown) =>
     typeof v === "number" ? String(roundForDisplay(v, unit)) : String(v);
   const parts: TemplateSummaryItem[] = [];
+
+  if (template.calculator_type === "build_to_roof") {
+    const counts = openingCounts(d);
+    if (Number(d.building_length) > 0)
+      parts.push({ label: "Length", value: `${fmt(d.building_length)} ${u}` });
+    if (Number(d.building_width) > 0)
+      parts.push({ label: "Width", value: `${fmt(d.building_width)} ${u}` });
+    if (Number(d.number_of_floors) > 0)
+      parts.push({ label: "Floors", value: String(d.number_of_floors) });
+    if (counts.window > 0)
+      parts.push({ label: "Windows", value: String(counts.window) });
+    if (counts.internal_door > 0)
+      parts.push({
+        label: "Internal doors",
+        value: String(counts.internal_door),
+      });
+    if (counts.entrance_door > 0)
+      parts.push({
+        label: "Entrance doors",
+        value: String(counts.entrance_door),
+      });
+    if (d.block_size)
+      parts.push({ label: "Blocks", value: String(d.block_size) });
+    if (d.roofing_material)
+      parts.push({ label: "Roofing", value: String(d.roofing_material) });
+  }
 
   if (template.calculator_type === "paint") {
     if (d.length)

@@ -4,6 +4,11 @@ import {
   type StructuralTypologyType,
   type TypologyAssemblyResult,
 } from "./typology-assemblies";
+import {
+  normaliseOpenings,
+  openingTotals,
+  structuralDeduction,
+} from "./openings";
 // =========================================================
 // FRELUX Build-to-Roof Construction Cost Estimator
 // Calculation Engine, Phase 30 (Audited & Corrected)
@@ -1781,11 +1786,17 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   // Internal wall area
   const internalGrossArea = input.internal_wall_length * wallHeight;
 
-  // Opening deductions
-  const openingArea = (input.openings ?? []).reduce(
-    (sum, o) => sum + o.width * o.height * o.count,
-    0,
+  // Opening deductions, through the shared openings model.
+  //
+  // A structural wall deducts an opening in full: block is not laid where a
+  // window goes. That is deliberately different from the finishing-trade rule
+  // (85% between 0.5 and 3 m2), and both policies now live in one place.
+  const openingSchedule = normaliseOpenings(
+    input.openingGroups ?? input.openings ?? [],
+    { metres: !input.openingGroups },
   );
+  const openingScheduleTotals = openingTotals(openingSchedule.groups);
+  const openingArea = structuralDeduction(openingSchedule.groups).deductionM2;
 
   const netWallArea = Math.max(
     0,
@@ -2902,6 +2913,15 @@ export function calculateBuildToRoof(
   const resolvedTypology: StructuralTypologyType =
     input.structural_typology ?? resolveDefaultTypology(marketCode);
 
+  // Same shared model as the wall deduction, so the typology assembly, the
+  // wall quantities and the schedule shown to the user can never disagree about
+  // how many openings there are or how big they are.
+  const openingScheduleTotals = openingTotals(
+    normaliseOpenings(input.openingGroups ?? input.openings ?? [], {
+      metres: !input.openingGroups,
+    }).groups,
+  );
+
   const typologyAssembly: TypologyAssemblyResult = calculateTypologyAssembly({
     typology: resolvedTypology,
     market_code: marketCode,
@@ -2910,14 +2930,8 @@ export function calculateBuildToRoof(
     floor_to_floor_height_m: normalized.floor_to_floor_height,
     number_of_floors: normalized.number_of_floors,
     internal_wall_length_m: normalized.internal_wall_length,
-    openings_area_m2: (normalized.openings ?? []).reduce(
-      (s, o) => s + o.width * o.height * o.count,
-      0,
-    ),
-    openings_count: (normalized.openings ?? []).reduce(
-      (s, o) => s + o.count,
-      0,
-    ),
+    openings_area_m2: openingScheduleTotals.totalAreaM2,
+    openings_count: openingScheduleTotals.totalCount,
     roof_slope_deg: input.roof_pitch_degrees,
   });
 
@@ -3002,6 +3016,14 @@ export function calculateBuildToRoof(
     wastage_allowance: round(wastageAllowance),
     contingency: round(contingency),
     grand_total: round(grandTotal),
+    // The opening schedule the takeoff actually used, by category.
+    openings_schedule: {
+      groups: openingScheduleTotals.groups,
+      totalCount: openingScheduleTotals.totalCount,
+      totalAreaM2: openingScheduleTotals.totalAreaM2,
+      revealPerimeterM: openingScheduleTotals.revealPerimeterM,
+      byCategory: openingScheduleTotals.byCategory,
+    },
     assumptions,
     limitations,
     missing_info: missingInfo,

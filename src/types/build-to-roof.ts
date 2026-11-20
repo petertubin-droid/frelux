@@ -6,6 +6,8 @@
 // Stops at "ready for finishing", no plastering, painting, tiling, doors, etc.
 // =========================================================
 
+import type { OpeningGroup } from "@/lib/estimation/openings";
+
 // ── Enums / Union types ──
 
 export type StructuralTypologyType =
@@ -120,6 +122,12 @@ export interface BuildToRoofInput {
 
   // Openings (doors/windows), used for wall deductions only
   openings: OpeningInput[];
+  /**
+   * Opening schedule in the shared canonical shape: millimetres, one group per
+   * size, with internal doors separate from entrance/security doors. When
+   * present this is authoritative and `openings` is ignored.
+   */
+  openingGroups?: OpeningGroup[];
 
   // Foundation
   foundation_type: FoundationType;
@@ -416,6 +424,20 @@ export interface BuildToRoofResult {
   wastage_allowance: number; // extra cost due to wastage
   contingency: number;
   grand_total: number;
+
+  /**
+   * The opening schedule the takeoff actually used, by category, after the
+   * shared model normalised and clamped it. Rendered as a schedule so a user
+   * can see that the toilet window and the living room window are different
+   * sizes, and that entrance doors are counted apart from internal doors.
+   */
+  openings_schedule?: {
+    groups: import("@/lib/estimation/openings").NormalisedOpening[];
+    totalCount: number;
+    totalAreaM2: number;
+    revealPerimeterM: number;
+    byCategory: import("@/lib/estimation/openings").OpeningTotals["byCategory"];
+  };
 
   // Assumptions
   assumptions: string[];

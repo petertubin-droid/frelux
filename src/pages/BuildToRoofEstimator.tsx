@@ -1,3 +1,4 @@
+import type { OpeningGroup } from "@/lib/estimation/openings";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import AdSlot from "@/components/ui/AdSlot";
@@ -506,9 +507,25 @@ export default function BuildToRoofEstimator({
     wall_thickness: 0.225,
     internal_wall_length: 25,
     internal_wall_thickness: 0.15,
-    openings: [
-      { type: "door", width: 0.9, height: 2.1, count: 4 },
-      { type: "window", width: 1.2, height: 1.2, count: 6 },
+    openings: [],
+    // Same areas as the old flat pair (4 doors at 0.9 x 2.1, 6 windows at
+    // 1.2 x 1.2), so the default takeoff does not move. The schedule is now
+    // the authoritative shape because a real building has several sizes.
+    openingGroups: [
+      {
+        category: "internal_door",
+        label: "Internal doors",
+        widthMm: 900,
+        heightMm: 2100,
+        count: 4,
+      },
+      {
+        category: "window",
+        label: "Windows",
+        widthMm: 1200,
+        heightMm: 1200,
+        count: 6,
+      },
     ],
     foundation_type: "strip_footing",
     foundation_depth: 0.9,
@@ -957,9 +974,22 @@ export default function BuildToRoofEstimator({
                         wall_thickness: 0.225,
                         internal_wall_length: 25,
                         internal_wall_thickness: 0.15,
-                        openings: [
-                          { type: "door", width: 0.9, height: 2.1, count: 4 },
-                          { type: "window", width: 1.2, height: 1.2, count: 6 },
+                        openings: [],
+                        openingGroups: [
+                          {
+                            category: "internal_door",
+                            label: "Internal doors",
+                            widthMm: 900,
+                            heightMm: 2100,
+                            count: 4,
+                          },
+                          {
+                            category: "window",
+                            label: "Windows",
+                            widthMm: 1200,
+                            heightMm: 1200,
+                            count: 6,
+                          },
                         ],
                         foundation_type: "strip_footing",
                         foundation_depth: 0.9,
@@ -1303,108 +1333,142 @@ export default function BuildToRoofEstimator({
                           purchase and installation costs are NOT included in
                           the Build-to-Roof total.
                         </p>
-                        <div className="space-y-3">
-                          {input.openings.map((opening, i) => (
-                            <div
-                              key={i}
-                              className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
-                            >
-                              <div>
-                                <label
-                                  htmlFor={`opening-type-${i}`}
-                                  className="text-xs font-medium text-muted-foreground mb-1 block"
-                                >
-                                  {t("Type")}
-                                </label>
-                                <select
-                                  id={`opening-type-${i}`}
-                                  aria-label={`Opening ${i + 1} type`}
-                                  value={opening.type}
-                                  onChange={(e) => {
-                                    const openings = [...input.openings];
-                                    openings[i] = {
-                                      ...opening,
-                                      type: e.target.value as "door" | "window",
-                                    };
-                                    update("openings", openings);
-                                  }}
-                                  className="w-full rounded-lg border border-border px-2.5 py-2 text-sm"
-                                >
-                                  <option value="door">{t("Door")}</option>
-                                  <option value="window">{t("Window")}</option>
-                                </select>
-                              </div>
-                              <Field
-                                label={`Width (${input.measurement_unit})`}
-                                value={opening.width}
-                                onChange={(v) => {
-                                  const openings = [...input.openings];
-                                  openings[i] = {
-                                    ...opening,
-                                    width: parseFloat(v) || 0,
-                                  };
-                                  update("openings", openings);
-                                }}
-                                step="0.1"
-                              />
-                              <Field
-                                label={`Height (${input.measurement_unit})`}
-                                value={opening.height}
-                                onChange={(v) => {
-                                  const openings = [...input.openings];
-                                  openings[i] = {
-                                    ...opening,
-                                    height: parseFloat(v) || 0,
-                                  };
-                                  update("openings", openings);
-                                }}
-                                step="0.1"
-                              />
-                              <Field
-                                label="Count"
-                                value={opening.count}
-                                onChange={(v) => {
-                                  const openings = [...input.openings];
-                                  openings[i] = {
-                                    ...opening,
-                                    count: parseInt(v) || 0,
-                                  };
-                                  update("openings", openings);
-                                }}
-                              />
-                              <Button
-                                variant="ghost"
-                                onClick={() =>
-                                  update(
-                                    "openings",
-                                    input.openings.filter(
-                                      (_, idx) => idx !== i,
-                                    ),
-                                  )
-                                }
-                                className="text-sm text-red-500 hover:text-red-700 font-medium"
+                        <div className="space-y-4">
+                          {(
+                            [
+                              { key: "window", label: "Windows" },
+                              {
+                                key: "internal_door",
+                                label: "Internal doors",
+                              },
+                              {
+                                key: "entrance_door",
+                                label: "Entrance / security doors",
+                              },
+                            ] as const
+                          ).map(({ key, label }) => {
+                            const groups = input.openingGroups ?? [];
+                            const rows = groups
+                              .map((g, idx) => ({ g, idx }))
+                              .filter((r) => r.g.category === key);
+                            const count = rows.reduce(
+                              (t, r) => t + (r.g.count || 0),
+                              0,
+                            );
+                            const area = rows.reduce(
+                              (t, r) =>
+                                t +
+                                ((r.g.widthMm * r.g.heightMm) / 1e6) *
+                                  (r.g.count || 0),
+                              0,
+                            );
+                            const setAt = (
+                              idx: number,
+                              patch: Partial<OpeningGroup>,
+                            ) => {
+                              update(
+                                "openingGroups",
+                                groups.map((g, i) =>
+                                  i === idx ? { ...g, ...patch } : g,
+                                ),
+                              );
+                            };
+                            return (
+                              <div
+                                key={key}
+                                className="rounded-xl border border-border/50 bg-muted/30 p-3 space-y-2"
                               >
-                                {t("Remove")}
-                              </Button>
-                            </div>
-                          ))}
-                          <Button
-                            variant="ghost"
-                            onClick={() =>
-                              update("openings", [
-                                ...input.openings,
-                                {
-                                  type: "window",
-                                  width: 1.2,
-                                  height: 1.2,
-                                  count: 1,
-                                },
-                              ])
-                            }
-                            className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium flex items-center gap-1"
-                          >
-                            + Add opening
-                          </Button>
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    {t(label)}
+                                  </h4>
+                                  <span className="text-xs text-muted-foreground">
+                                    {count} total, {area.toFixed(2)} m²
+                                  </span>
+                                </div>
+                                {rows.length === 0 && (
+                                  <p className="text-xs text-muted-foreground">
+                                    None entered yet.
+                                  </p>
+                                )}
+                                {rows.map(({ g, idx }) => (
+                                  <div
+                                    key={idx}
+                                    className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end"
+                                  >
+                                    <Field
+                                      label={t("Label")}
+                                      value={g.label ?? ""}
+                                      onChange={(v) => setAt(idx, { label: v })}
+                                    />
+                                    <Field
+                                      label="Width (mm)"
+                                      value={g.widthMm}
+                                      onChange={(v) =>
+                                        setAt(idx, {
+                                          widthMm: parseFloat(v) || 0,
+                                        })
+                                      }
+                                    />
+                                    <Field
+                                      label="Height (mm)"
+                                      value={g.heightMm}
+                                      onChange={(v) =>
+                                        setAt(idx, {
+                                          heightMm: parseFloat(v) || 0,
+                                        })
+                                      }
+                                    />
+                                    <Field
+                                      label={t("Count")}
+                                      value={g.count}
+                                      onChange={(v) =>
+                                        setAt(idx, {
+                                          count: parseInt(v) || 0,
+                                        })
+                                      }
+                                    />
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() =>
+                                        update(
+                                          "openingGroups",
+                                          groups.filter((_, i) => i !== idx),
+                                        )
+                                      }
+                                      className="text-sm text-red-500 hover:text-red-700 font-medium"
+                                    >
+                                      {t("Remove")}
+                                    </Button>
+                                  </div>
+                                ))}
+                                <Button
+                                  variant="ghost"
+                                  onClick={() =>
+                                    update("openingGroups", [
+                                      ...groups,
+                                      {
+                                        category: key,
+                                        label: "",
+                                        widthMm:
+                                          key === "window"
+                                            ? 1200
+                                            : key === "internal_door"
+                                              ? 900
+                                              : 1000,
+                                        heightMm:
+                                          key === "window" ? 1200 : 2100,
+                                        count: 1,
+                                      },
+                                    ])
+                                  }
+                                  className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium flex items-center gap-1"
+                                >
+                                  + {t("Add size")}
+                                </Button>
+                              </div>
+                            );
+                          })}
                         </div>
                       </SectionCard>
                       <SectionCard
