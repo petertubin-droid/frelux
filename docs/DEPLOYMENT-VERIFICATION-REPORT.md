@@ -182,25 +182,32 @@ SELECT outputs are quoted in the conversation record for this work._
 
 Checked against project `nfgaaohweygwydoelxnf` (freluxproject, eu-west-1, ACTIVE_HEALTHY).
 
-- Migrations: 776 applied, 761 files in the repo, **0 pending**. Every file in
-  `supabase/migrations` is already applied.
-- Edge functions: 87 deployed, 86 directories in `supabase/functions`, **0
-  missing and 0 stale** by last-commit date against deployment time.
+- Migrations: **779 applied, 779 in the repo, zero drift.** Three were pending and
+  were applied in this pass: `icf_eifs_coatings_prices`, `release_notices`,
+  `defs_dictionary_terms`.
+- Edge functions: **88 deployed, 87 in the repo, none missing.** `ai-envelope-detect`
+  was missing and was deployed (version 1, ACTIVE).
 
-Two drift findings, both the same shape: production has objects the repo cannot
-rebuild.
+### What the pass changed
 
-1. Fifteen migrations are applied with no file in the repo:
-   `paint_coverage_restore_measured_rates`, `supplier_bills`,
-   `saved_estimate_allowance`, `vendor_price_locks`, `price_scan_cadence_dispatch`,
-   `icf_eifs_gb_au_roles`, `benchmark_materials`, `icf_eifs_gb_remaining_roles`,
-   `new_table_grants_and_force_rls`, `au_queued_role_mappings`,
-   `bim_project_persistence`, `bim_tables_force_rls`, `profile_country_and_phone`,
-   `marketplace_inquiry_thread`, `pro_connect_messaging_fixes_and_credit_gating`.
-2. One edge function, `stripe-checkout`, is deployed with no source directory.
+`defs_dictionary_terms` failed on first run: it passed NULL for `country` and
+`region`, which are NOT NULL with defaults of NG and West Africa. The four DEFS
+terms are the ones the North American estimator uses, so the migration now
+records US and North America rather than inheriting a Nigerian default, and the
+reason is written into the file.
 
-`scripts/check-migration-drift.mjs` now reports both conditions and exits non
-zero, so the gap cannot grow unnoticed:
+### Two things to know
+
+1. Applying SQL through the Management API does not record a version in
+   `supabase_migrations.schema_migrations`. The three versions were inserted by
+   hand afterwards. Any future run through that endpoint must do the same, or
+   the migration will look pending for ever and may be replayed.
+2. `stripe-checkout` is deployed with no source directory in the repo. It is the
+   only function in that state, and it cannot be redeployed or reviewed from
+   source until it is captured.
+
+`scripts/check-migration-drift.mjs` reports pending files and versions that have
+no file, and exits non zero on either:
 
 ```
 SUPABASE_ACCESS_TOKEN=... node scripts/check-migration-drift.mjs

@@ -6,6 +6,11 @@
 --   cement sheathing board, alkali-resistant joint tape,
 --   weep screed track, corrosion-resistant board screws.
 --
+-- country and region are NOT NULL on this table and default to NG and West
+-- Africa. These are the DEFS (direct-applied exterior finish) terms used by the
+-- North American estimator, so they are recorded as US and North America rather
+-- than inheriting a default that would claim Nigerian provenance.
+--
 -- English rows only. No translation is invented here: translations are added
 -- through the admin dictionary workflow, where a human verifies them, and the
 -- construction_terms CHECK gates keep provisional rows from claiming
@@ -36,7 +41,7 @@ INSERT INTO public.construction_terms (
     'Fix the cement sheathing board before the base coat.',
     ARRAY['base coat', 'joint tape'],
     ARRAY['Using interior plasterboard where a moisture-resistant board is required'],
-    NULL, NULL, NULL, 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
+    NULL, 'US', 'North America', 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
     0.9, false, NULL, 'provisional', false, false, NULL, 1
   ),
   (
@@ -51,7 +56,7 @@ INSERT INTO public.construction_terms (
     'Bed the alkali-resistant joint tape at every board seam.',
     ARRAY['cement sheathing board', 'base coat'],
     ARRAY['Skipping the tape because the full-field mesh is specified anyway'],
-    NULL, NULL, NULL, 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
+    NULL, 'US', 'North America', 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
     0.9, false, NULL, 'provisional', false, false, NULL, 1
   ),
   (
@@ -66,7 +71,7 @@ INSERT INTO public.construction_terms (
     'Set the weep screed track before the first board goes on.',
     ARRAY['casing bead', 'base coat'],
     ARRAY['Running the base coat to the ground with no drainage path'],
-    NULL, NULL, NULL, 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
+    NULL, 'US', 'North America', 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
     0.9, false, NULL, 'provisional', false, false, NULL, 1
   ),
   (
@@ -81,7 +86,7 @@ INSERT INTO public.construction_terms (
     'Use corrosion-resistant board screws at the published spacing.',
     ARRAY['cement sheathing board'],
     ARRAY['Using drywall screws that corrode and bleed through the finish'],
-    NULL, NULL, NULL, 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
+    NULL, 'US', 'North America', 'FRELUX DEFS estimator (Wave 2.1)', '2026-11-20',
     0.9, false, NULL, 'provisional', false, false, NULL, 1
   )
 ON CONFLICT (canonical_term, language) DO NOTHING;
