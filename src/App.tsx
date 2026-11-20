@@ -62,6 +62,7 @@ const CookieBanner = lazy(() =>
   })),
 );
 import Layout from "@/components/layout/Layout";
+import { scrollToPageTop } from "@/lib/ux/scroll-to-top";
 import EntryExperience, {
   hasEnteredBefore,
   markEntered,
@@ -651,7 +652,7 @@ const GeneratorEstimator = lazy(() => import("@/pages/GeneratorEstimator"));
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollToPageTop({ behavior: "auto" });
   }, [pathname]);
   return null;
 }

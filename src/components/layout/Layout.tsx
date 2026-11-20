@@ -49,6 +49,8 @@ import { useWidgetSettings } from "@/lib/widget-settings";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
 import { shouldLoadAdSdks, shouldAnimate } from "@/lib/network";
+import BackToTopButton from "@/components/ui/BackToTopButton";
+import { isForwardStepLabel, scrollToPageTop } from "@/lib/ux/scroll-to-top";
 
 /**
  * The viewport frame animates a registered custom property, which the browser
@@ -132,6 +134,41 @@ export default function Layout() {
   const location = useLocation();
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
   const { bottomNavEnabled, liveChatEnabled } = useWidgetSettings();
+
+  // One shared behavior for forward-step controls across calculators and tools.
+  // Capture clicks from the main content only, then scroll after React has
+  // committed the next step so the new section starts at the viewport top.
+  useEffect(() => {
+    let firstFrame = 0;
+    let secondFrame = 0;
+    const handleForwardStepClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const control = target.closest("button, [role=button], a[href]");
+      if (!control || control.hasAttribute("disabled")) return;
+      // Navigation-contained Next controls are pagination, not workflow steps.
+      if (control.closest("nav, [aria-label*=pagination i]")) return;
+      const main = document.getElementById("main-content");
+      if (!main?.contains(control)) return;
+      const label =
+        control.getAttribute("aria-label") || control.textContent || "";
+      if (!isForwardStepLabel(label)) return;
+
+      if (typeof window.requestAnimationFrame === "function") {
+        firstFrame = window.requestAnimationFrame(() => {
+          secondFrame = window.requestAnimationFrame(() => scrollToPageTop());
+        });
+      } else {
+        setTimeout(() => scrollToPageTop(), 0);
+      }
+    };
+    document.addEventListener("click", handleForwardStepClick, true);
+    return () => {
+      document.removeEventListener("click", handleForwardStepClick, true);
+      if (firstFrame) window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }, []);
 
   // Track visit and check onboarding on first load
   const mountedRef = useRef(true);
@@ -769,6 +806,7 @@ export default function Layout() {
       <div className="lg:pl-[var(--rail-w)]">
         <Footer />
       </div>
+      <BackToTopButton />
       <ErrorBoundary boundaryName="offline-indicator" silent>
         <Suspense fallback={null}>
           <OfflineIndicator />
