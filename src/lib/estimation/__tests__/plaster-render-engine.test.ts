@@ -9,6 +9,7 @@ import {
   GYPSUM_KG_PER_M2_PER_10MM,
   MESH_ROLL_M2,
   packagingForRegion,
+  plasterSearchCopy,
   plasterAreasFromModel,
   regionForMarket,
   substrateProfile,
@@ -325,5 +326,24 @@ describe("plasterAreasFromModel", () => {
     const result = plasterAreasFromModel([]);
     expect(result.coveringAreaM2).toBe(0);
     expect(result.notes.join(" ")).toMatch(/No IfcCovering/i);
+  });
+});
+
+describe("plasterSearchCopy", () => {
+  it("targets the German, UK, US and Nigerian query sets in their own words", () => {
+    expect(plasterSearchCopy("dach_eu").title).toContain("Gipsputz Rechner");
+    expect(plasterSearchCopy("dach_eu").title).toContain("Außenputz");
+    expect(plasterSearchCopy("uk").title).toContain(
+      "Silicone Render Calculator",
+    );
+    expect(plasterSearchCopy("north_america").title).toContain("Stucco");
+    expect(plasterSearchCopy("africa").title).toContain("Tyrolene");
+    expect(plasterSearchCopy("africa").title).toContain("Nigeria");
+  });
+
+  it("names the standard a reader in that market expects", () => {
+    expect(plasterSearchCopy("dach_eu").description).toContain("EN 13279");
+    expect(plasterSearchCopy("north_america").description).toContain("ASTM");
+    expect(plasterSearchCopy("africa").description).toMatch(/1:4|1:6/);
   });
 });

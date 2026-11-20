@@ -6,6 +6,8 @@ import { useSeo } from "@/lib/seo";
 import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
 import {
   calculatePlasterRender,
+  plasterSearchCopy,
+  regionForMarket,
   type PlasterRenderInput,
   type PlasterSubstrate,
   type PlasterSystem,
