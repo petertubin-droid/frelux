@@ -36,10 +36,7 @@ import {
   loadTileMaterialFacts,
   renderTilePriceFacts,
 } from "./lib/tile-price-facts.mjs";
-import {
-  ROLES_BY_TYPE,
-  ROLE_LABELS,
-} from "./lib/template-price-roles.mjs";
+import { ROLES_BY_TYPE, ROLE_LABELS } from "./lib/template-price-roles.mjs";
 import {
   isHubIndexable,
   isTemplatePageIndexable,
@@ -139,22 +136,34 @@ const routes = [
           {
             "@type": "Question",
             name: "Do FRELUX standards references certify that an estimate complies with building codes?",
-            acceptedAnswer: { "@type": "Answer", text: "No. References describe context documented in selected tool implementations. They are not a compliance certificate, and current standards, local amendments, project specifications and professional review still apply." },
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. References describe context documented in selected tool implementations. They are not a compliance certificate, and current standards, local amendments, project specifications and professional review still apply.",
+            },
           },
           {
             "@type": "Question",
             name: "Are all FRELUX calculators verified for every market?",
-            acceptedAnswer: { "@type": "Answer", text: "No. Market availability, product data and documented calculation scope vary by tool. A configured market does not by itself prove that every input, material or local requirement has been independently validated." },
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. Market availability, product data and documented calculation scope vary by tool. A configured market does not by itself prove that every input, material or local requirement has been independently validated.",
+            },
           },
           {
             "@type": "Question",
             name: "How does FRELUX calculate material quantities?",
-            acceptedAnswer: { "@type": "Answer", text: "Each selected tool uses its documented inputs and calculation method. Where a tool exposes a methodology breakdown, review the measurements, product coverage, allowances and package rounding shown there; confirm product-specific values with current manufacturer data." },
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Each selected tool uses its documented inputs and calculation method. Where a tool exposes a methodology breakdown, review the measurements, product coverage, allowances and package rounding shown there; confirm product-specific values with current manufacturer data.",
+            },
           },
           {
             "@type": "Question",
             name: "Does FRELUX provide structural or professional design approval?",
-            acceptedAnswer: { "@type": "Answer", text: "No. Quantity estimates and preliminary calculations do not replace structural design, code-compliance checks, site investigation or review by a qualified professional." },
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. Quantity estimates and preliminary calculations do not replace structural design, code-compliance checks, site investigation or review by a qualified professional.",
+            },
           },
         ],
       },
@@ -162,8 +171,18 @@ const routes = [
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
-          { "@type": "ListItem", position: 2, name: "Engineering & Accuracy", item: `${SITE_URL}/engineering-standards/` },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Engineering & Accuracy",
+            item: `${SITE_URL}/engineering-standards/`,
+          },
         ],
       },
     ],
@@ -748,7 +767,8 @@ const routes = [
   {
     path: "/wallpaper-calculator",
     title: "Wallpaper Calculator: Rolls, Repeat & Waste | FRELUX",
-    description: "Enter wall area, roll size, pattern repeat and trimming allowance to get the rolls to buy, the waste and the cost at your market's price.",
+    description:
+      "Enter wall area, roll size, pattern repeat and trimming allowance to get the rolls to buy, the waste and the cost at your market's price.",
     priority: "0.8",
     changefreq: "monthly",
     structuredData: [
@@ -765,16 +785,25 @@ const routes = [
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-          { "@type": "ListItem", position: 2, name: "Construction Tools", item: `${SITE_URL}/construction-tools` },
-          { "@type": "ListItem", position: 3, name: "Wallpaper Calculator", item: `${SITE_URL}/wallpaper-calculator` },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Wallpaper Calculator",
+            item: `${SITE_URL}/wallpaper-calculator`,
+          },
         ],
       },
     ],
   },
   {
     path: "/mineral-stone-calculator",
-    title:
-      "Mineral Stone Calculator: Quantity & Cost | FRELUX",
+    title: "Mineral Stone Calculator: Quantity & Cost | FRELUX",
     description:
       "Enter the area and the stone product's coverage to get bags or packs, the waste allowance and the cost from the product data you select.",
     priority: "0.7",
@@ -1081,8 +1110,7 @@ const routes = [
   },
   {
     path: "/finish-estimator",
-    title:
-      "Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX",
+    title: "Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX",
     description:
       "Cost a wall finish across paint, tyrolene and grafitex from the same measurements, with quantities, containers and your own market rates.",
     priority: "0.7",
@@ -1399,8 +1427,7 @@ const routes = [
   },
   {
     path: "/material-prices",
-    title:
-      "Material Price Tracker: Building Prices Today | FRELUX",
+    title: "Material Price Tracker: Building Prices Today | FRELUX",
     description:
       "Track cement, sand, blocks, paint and steel prices by market, with the date each price was verified and where the number came from.",
     priority: "0.7",
@@ -1548,8 +1575,7 @@ const routes = [
   },
   {
     path: "/prices",
-    title:
-      "Construction Material Prices by Market | FRELUX",
+    title: "Construction Material Prices by Market | FRELUX",
     description:
       "See what building materials cost in each market FRELUX covers, with the verified date, the currency and the source behind every price.",
     priority: "0.8",
@@ -1915,8 +1941,7 @@ const routes = [
   },
   {
     path: "/templates/living-room-ceiling-screeding",
-    title:
-      "Screeding Template: Living Room and Ceiling | FRELUX",
+    title: "Screeding Template: Living Room and Ceiling | FRELUX",
     description:
       "Pre-filled screeding template for a living room plus its ceiling: measured areas, coat thickness and mix, giving cement, sand and cost.",
     priority: "0.5",
@@ -1956,8 +1981,7 @@ const routes = [
   },
   {
     path: "/templates/single-feature-wall-screeding",
-    title:
-      "Screeding Template: Single Feature Wall | FRELUX",
+    title: "Screeding Template: Single Feature Wall | FRELUX",
     description:
       "Pre-filled screeding template for one feature wall: area, coat thickness and mix, giving cement, sand and the cost at the rate you enter.",
     priority: "0.5",
@@ -2053,37 +2077,47 @@ const routes = [
   {
     path: "/tv-console-calculator",
     title: "TV Console & Media Unit Calculator | FRELUX",
-    description: "Choose from 10 TV-console concepts, adjust dimensions, and review a preliminary board-area estimate. AI image parsing is optional and Pro-gated.",
+    description:
+      "Choose from 10 TV-console concepts, adjust dimensions, and review a preliminary board-area estimate. AI image parsing is optional and Pro-gated.",
     priority: "0.7",
     changefreq: "monthly",
   },
   {
     path: "/tall-building-structure",
     title: "Skyscraper Structure and Foundation Calculator | FRELUX",
-    description: "Screen a high rise: lateral system by height, ASCE 7-22 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and programme. Deterministic arithmetic, not a structural design.",
+    description:
+      "Screen a high rise: lateral system by height, ASCE 7-22 wind base shear and drift, seismic base shear, raft and pile foundation sizing, quantities and programme. Deterministic arithmetic, not a structural design.",
     priority: "0.8",
     changefreq: "monthly",
   },
   {
     path: "/mathematical-plan-elevation",
     title: "Mathematical Building Elevation Calculator | FRELUX",
-    description: "Create an indicative building elevation and preliminary quantity schedule from dimensions you enter. Includes roof-pitch geometry; it does not interpret uploaded plans or verify structural design or code compliance.",
+    description:
+      "Create an indicative building elevation and preliminary quantity schedule from dimensions you enter. Includes roof-pitch geometry; it does not interpret uploaded plans or verify structural design or code compliance.",
     priority: "0.7",
     changefreq: "monthly",
-    structuredData: [{
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: "FRELUX Mathematical Plan Elevation",
-      applicationCategory: "CalculatorApplication",
-      operatingSystem: "Web",
-      description: "Create an indicative elevation and quantity schedule from manually entered dimensions. No plan-image interpretation or code-compliance review.",
-      featureList: ["Dimension-based roof pitch geometry", "Animated elevation illustration", "Preliminary quantity schedule", "Optional user-entered supplier rates"],
-    }],
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        name: "FRELUX Mathematical Plan Elevation",
+        applicationCategory: "CalculatorApplication",
+        operatingSystem: "Web",
+        description:
+          "Create an indicative elevation and quantity schedule from manually entered dimensions. No plan-image interpretation or code-compliance review.",
+        featureList: [
+          "Dimension-based roof pitch geometry",
+          "Animated elevation illustration",
+          "Preliminary quantity schedule",
+          "Optional user-entered supplier rates",
+        ],
+      },
+    ],
   },
   {
     path: "/build-to-roof-estimator",
-    title:
-      "Build-to-Roof Estimator: Foundation to Roof | FRELUX",
+    title: "Build-to-Roof Estimator: Foundation to Roof | FRELUX",
     description:
       "Cost a building from foundation to roof: concrete, blocks, timber, roofing sheets and labour, with quantities from your own measurements.",
     priority: "0.9",
@@ -2189,8 +2223,7 @@ const routes = [
   },
   {
     path: "/smart-calculator",
-    title:
-      "AI Photo & Smart Calculator: Estimate from a Photo | FRELUX",
+    title: "AI Photo & Smart Calculator: Estimate from a Photo | FRELUX",
     description:
       "Describe the job or upload a photo and get a structured material and cost estimate you can edit, using your market's units and prices.",
     priority: "0.8",
@@ -2821,6 +2854,49 @@ const routes = [
     ],
   },
   {
+    path: "/plaster-render-calculator",
+    title:
+      "Plaster & Render Calculator: Gipsputz, Aussenputz, Tyrolene | FRELUX",
+    description:
+      "Calculate gypsum plaster to EN 13279, exterior render to EN 15824 and Tyrolene by layer: primer, plaster or topcoat, mesh with 100 mm overlaps, beads and sealer, in local bag and pail sizes.",
+    priority: "0.9",
+    changefreq: "monthly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Construction Tools",
+            item: `${SITE_URL}/construction-tools`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Plaster & Render Calculator",
+            item: `${SITE_URL}/plaster-render-calculator`,
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUX Plaster & Render Calculator",
+        operatingSystem: "Web",
+        applicationCategory: "DesignApplication",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      },
+    ],
+  },
+  {
     path: "/eifs-wall-estimator",
     title: "EIFS / ETICS Wall Estimator: Insulation, Mesh & Finish | FRELUX",
     description:
@@ -2880,8 +2956,7 @@ const routes = [
   },
   {
     path: "/electrical-conduit-wiring-estimator",
-    title:
-      "Conduit & Wiring Estimator: Cable and Conduit | FRELUX",
+    title: "Conduit & Wiring Estimator: Cable and Conduit | FRELUX",
     description:
       "Count points and runs to get conduit, cable, boxes, switches and accessories for the circuit schedule you enter, priced at your rates.",
   },
@@ -2893,8 +2968,7 @@ const routes = [
   },
   {
     path: "/borehole-water-system-estimator",
-    title:
-      "Borehole & Water Supply System Estimator | FRELUX",
+    title: "Borehole & Water Supply System Estimator | FRELUX",
     description:
       "Cost a borehole from drilling depth, casing, pump, tank and pipe runs, with every item listed separately at the rates you enter.",
     priority: "0.8",
@@ -2999,8 +3073,7 @@ const routes = [
   },
   {
     path: "/structural-steel-i-beam-calculator",
-    title:
-      "Steel I-Beam Calculator: Weight and Cost | FRELUX",
+    title: "Steel I-Beam Calculator: Weight and Cost | FRELUX",
     description:
       "Pick a section and span to get beam weight per metre, total tonnage, priming area and cost, with the section table you selected.",
   },
@@ -3066,7 +3139,8 @@ const routes = [
   },
   {
     path: "/planning-approvals",
-    title: "Building Permit and Setback Guide by State and Country | FRELUX SMART CALC",
+    title:
+      "Building Permit and Setback Guide by State and Country | FRELUX SMART CALC",
     description:
       "Who issues the building permit in every Nigerian state and the FCT, the law they work under, the approval stages from plot check to certificate of fitness, and an honest note where set back figures are not published.",
   },
@@ -3265,8 +3339,7 @@ const routes = [
   },
   {
     path: "/tools/visual-finishing-estimator",
-    title:
-      "Visual Finishing Estimator: Finish by Area | FRELUX",
+    title: "Visual Finishing Estimator: Finish by Area | FRELUX",
     description:
       "Estimate paint, tile, screed and cladding finishes from measured areas, with quantities, waste and cost at your own market rates.",
   },
@@ -4913,10 +4986,13 @@ for (const m of marketLandingRoutes) {
       `<p>These templates pre-fill a whole job: room sizes, ceiling heights, openings and coats for the common ${m.countryName} painting, screeding, POP ceiling and tiling scopes. Pick one, adjust what differs on site, and the estimate runs in ${m.currency} (${m.currencySymbol}) with ${m.countryName} material prices.</p>` +
       `<h2>What is priced in ${m.countryName} today</h2>` +
       `<p>${indexableChildren} of the ${TEMPLATE_CATALOG.length} templates below carry verified ${m.countryName} material prices right now: ${TEMPLATE_CATALOG.filter(
-        (t) => isTemplatePageIndexable({ hasLocalPrices: pageHasLocalPrices(t) }),
+        (t) =>
+          isTemplatePageIndexable({ hasLocalPrices: pageHasLocalPrices(t) }),
       )
         .map((t) => t.name)
-        .join(", ")}. The rest run with your own entered prices, clearly marked, rather than borrowing another country's rate.</p>` +
+        .join(
+          ", ",
+        )}. The rest run with your own entered prices, clearly marked, rather than borrowing another country's rate.</p>` +
       `<p>Local practice sets the quantities: ${m.blockName.toLowerCase()} wall units, ${m.cementBagKg} kg cement bags, ${m.electricalStandard} wiring at ${m.electricalVoltage}, and ${m.plumbingStandard} plumbing. A template from another market would measure a different wall.</p>` +
       `<h2>Local practice behind these estimates</h2>` +
       `<table><tbody>` +
@@ -4973,7 +5049,12 @@ for (const m of marketLandingRoutes) {
     const categorySection =
       t.type === "tile"
         ? ""
-        : renderCategoryPrices(marketPriceFacts, m.code, priceFamily, m.countryName);
+        : renderCategoryPrices(
+            marketPriceFacts,
+            m.code,
+            priceFamily,
+            m.countryName,
+          );
     // The page's own evidence decides: a verified local price for a material
     // this template consumes makes the page local, and it is indexed with its
     // own price table. Without one it is the canonical template wearing a
@@ -5172,7 +5253,8 @@ for (const route of routes) {
     `<p>With the ${m.blockName} used in this market and a 10 mm joint, one square metre of wall takes about ` +
     `${blocksPerSqm.toFixed(2)} blocks. A 100 m2 wall therefore needs roughly ${per100} blocks once 5% cutting and breakage is allowed, before any openings are deducted.</p>` +
     templatePriceSection(m, { type: "paint" });
-  contentMap[route.path] = `${contentMap[route.path] ?? route.content ?? ""}${extra}`;
+  contentMap[route.path] =
+    `${contentMap[route.path] ?? route.content ?? ""}${extra}`;
 }
 
 // Reciprocal hreflang: the global template page declares its 32 market
@@ -5227,14 +5309,24 @@ for (const route of routes) {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: `${SITE_URL}/`,
+            },
             {
               "@type": "ListItem",
               position: 2,
               name: "Construction Tools",
               item: `${SITE_URL}/construction-tools/`,
             },
-            { "@type": "ListItem", position: 3, name: t.name, item: `${SITE_URL}${t.path}/` },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: t.name,
+              item: `${SITE_URL}${t.path}/`,
+            },
           ],
         },
       ],
@@ -5289,7 +5381,9 @@ for (const faqRoute of faqPrerenderRoutes) {
     route.description = description;
     aligned += 1;
   }
-  console.log(`[prerender] listing copy aligned to the tool registry: ${aligned} routes`);
+  console.log(
+    `[prerender] listing copy aligned to the tool registry: ${aligned} routes`,
+  );
 }
 
 // Search results cut a title at roughly 60 characters, so a brand suffix that
