@@ -118,6 +118,38 @@ export const VERIFIED_STANDARDS: Record<
       use: "The assessment framework the embodied-carbon figures follow.",
     },
   ],
+  "plaster-render-calculator": [
+    {
+      code: "EN 13279-1",
+      name: "Gypsum binders and gypsum plasters",
+      geography: "Europe",
+      use: "The plaster class and the single coat thickness range the interior system is described against.",
+    },
+    {
+      code: "EN 15824",
+      name: "Specifications for external renders and internal plasters based on organic binders",
+      geography: "Europe",
+      use: "The binder classification the exterior silicone and mineral topcoats follow.",
+    },
+    {
+      code: "ASTM C587",
+      name: "Standard specification for gypsum veneer plaster",
+      geography: "United States",
+      use: "The one coat veneer plaster name used on the North American copy.",
+    },
+    {
+      code: "ASTM C926",
+      name: "Standard specification for application of portland cement based plaster",
+      geography: "United States",
+      use: "The stucco finish coat application practice the US naming refers to.",
+    },
+    {
+      code: "ETAG 004 / EAD 040083-00-0404",
+      name: "External thermal insulation composite systems with rendering",
+      geography: "Europe",
+      use: "The 100 mm mesh overlap the reinforcing allowance is sized from.",
+    },
+  ],
   "eifs-wall-estimator": [
     {
       code: "ASTM C920",

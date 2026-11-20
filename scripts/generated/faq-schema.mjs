@@ -810,6 +810,10 @@ export const faqSchemaByPath = {
       "a": "Absorption decides both the quantity of primer and whether a bonding coat is mandatory. Autoclaved aerated concrete and sandcrete block are highly absorbent and must be primed, or the plaster dries before it cures and the surface dusts. Smooth concrete gives the plaster nothing to key into, so a bonding agent or a spatterdash coat is required. Insulation boards need the system primer before the reinforcing layer. The calculator applies a stated multiplier and prints the requirement beside the line."
     },
     {
+      "q": "How much does plastering or rendering cost per square metre?",
+      "a": "The page sizes materials rather than prices. A 25 kg bag, a 25 kg pail, a 50 square metre mesh roll and a box of beads are the purchases it returns, and those are the lines a merchant invoice will carry. Labour, scaffold, access and drying time sit on top and vary more between markets than the materials do. The price library holds no verified plaster band, so the page does not publish a rate it cannot support; instead it hands over quantities and the system they belong to, which is what a local quote has to be checked against. Three choices move the material cost most: which system is being built, the grain of an exterior topcoat, and whether the substrate forces a bonding primer."
+    },
+    {
       "q": "Can I use gypsum plaster in a bathroom?",
       "a": "Gypsum plaster is a dry area material, and the calculator raises a warning as soon as a wet zone is marked rather than pricing standard plaster as though it were suitable. Bathrooms, kitchens and laundries need a cement based or water resistant system, and the warning names the class to switch to. Getting this wrong is expensive to correct, because the plaster has to come off the wall before a suitable system can go on."
     }
@@ -834,6 +838,10 @@ export const faqSchemaByPath = {
     {
       "q": "Why does the substrate change the primer quantity?",
       "a": "Absorption decides both the quantity of primer and whether a bonding coat is mandatory. Autoclaved aerated concrete and sandcrete block are highly absorbent and must be primed, or the plaster dries before it cures and the surface dusts. Smooth concrete gives the plaster nothing to key into, so a bonding agent or a spatterdash coat is required. Insulation boards need the system primer before the reinforcing layer. The calculator applies a stated multiplier and prints the requirement beside the line."
+    },
+    {
+      "q": "How much does plastering or rendering cost per square metre?",
+      "a": "The page sizes materials rather than prices. A 25 kg bag, a 25 kg pail, a 50 square metre mesh roll and a box of beads are the purchases it returns, and those are the lines a merchant invoice will carry. Labour, scaffold, access and drying time sit on top and vary more between markets than the materials do. The price library holds no verified plaster band, so the page does not publish a rate it cannot support; instead it hands over quantities and the system they belong to, which is what a local quote has to be checked against. Three choices move the material cost most: which system is being built, the grain of an exterior topcoat, and whether the substrate forces a bonding primer."
     },
     {
       "q": "Can I use gypsum plaster in a bathroom?",

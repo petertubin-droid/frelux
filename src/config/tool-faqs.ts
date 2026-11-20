@@ -774,6 +774,10 @@ const PLASTER_RENDER_FAQ_GROUPS: ToolFaqGroup[] = [
         a: "Absorption decides how much primer the wall drinks and whether a bonding coat is mandatory. AAC and sandcrete block are highly absorbent and must be primed or the plaster dries before it cures, while smooth concrete and EPS or mineral wool insulation boards need a bonding primer for adhesion. The calculator applies a stated multiplier and flags the requirement instead of using one primer rate everywhere.",
       },
       {
+        q: "How much does plastering or rendering cost per square metre?",
+        a: "The calculator sizes materials, not prices: the bags, pails, mesh rolls and beads it returns are what a merchant charges for. Labour, scaffold and drying time are separate and vary more between markets. No verified plaster price band exists, so the page gives quantities for a local quote to be checked against. Cost is moved most by the system, the topcoat grain and the primer the substrate forces.",
+      },
+      {
         q: "Can I use gypsum plaster in a bathroom?",
         a: "No. Gypsum plaster is a dry-area material, and the calculator raises a warning the moment a wet zone is selected instead of pricing it as if it were suitable. Wet rooms need a cement-based or water-resistant system, and the warning states which system class to switch to.",
       },

@@ -943,6 +943,11 @@ export default function Navbar() {
                         to: "/eifs-wall-estimator",
                         icon: Building2,
                       },
+                      {
+                        label: "Plaster & Render",
+                        to: "/plaster-render-calculator",
+                        icon: Building2,
+                      },
                       { label: "Explore Map", to: "/map", icon: Map },
                       { label: "Price book", to: "/prices", icon: BookOpen },
                       {

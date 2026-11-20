@@ -1,13 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layers, Info, AlertTriangle, Ruler } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
-import { useSeo } from "@/lib/seo";
+import ToolShell from "@/components/tools/ToolShell";
 import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
 import {
   calculatePlasterRender,
-  plasterSearchCopy,
-  regionForMarket,
   type PlasterRenderInput,
   type PlasterSubstrate,
   type PlasterSystem,
@@ -87,13 +84,6 @@ export default function PlasterRenderCalculator() {
   const [wastePercent, setWastePercent] = useState("10");
   const [wetZone, setWetZone] = useState(false);
 
-  useSeo({
-    title:
-      "Plaster & Render Calculator — Gipsputz, Außenputz, Tyrolene | FRELUX",
-    description:
-      "Layered plaster and facade render calculator: gypsum plaster (EN 13279), exterior render (EN 15824) and Tyrolene, with regional bag and pail packaging.",
-  });
-
   const input: PlasterRenderInput = useMemo(
     () => ({
       system,
@@ -128,13 +118,10 @@ export default function PlasterRenderCalculator() {
   const result = useMemo(() => calculatePlasterRender(input), [input]);
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Plaster & render"
-        title="Plaster and facade render calculator"
-        subtitle="Three systems, calculated as layered assemblies, packaged the way your market sells them."
-      />
-
+    <ToolShell
+      route="/plaster-render-calculator"
+      subtitle="Three systems, calculated as layered assemblies, packaged the way your market sells them."
+    >
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
           {/* Inputs */}
@@ -417,7 +404,57 @@ export default function PlasterRenderCalculator() {
             </p>
           </section>
         </div>
+
+        <section className="mt-10 rounded-2xl border border-border bg-muted/30 p-5 text-sm">
+          <h2 className="mb-2 font-semibold text-foreground">
+            How to use this calculator
+          </h2>
+          <ol className="list-decimal space-y-1.5 pl-5 text-muted-foreground">
+            <li>
+              Choose the system you are building. Gypsum plaster, exterior
+              render and Tyrolene are priced by different rules, so the system
+              decides which layers appear.
+            </li>
+            <li>
+              Enter the net wall area, or the length, height and number of walls
+              with the openings you want deducted. Render is not ordered for the
+              openings it does not cover.
+            </li>
+            <li>
+              Pick the substrate. AAC, sandcrete, smooth concrete and insulation
+              boards raise the primer requirement and the multiplier, and the
+              reason is printed beside the line.
+            </li>
+            <li>
+              Set the thickness for plaster or the grain for an exterior
+              topcoat, and the textured coat thickness for Tyrolene. Add corner
+              heights and reveal perimeters so beads are counted.
+            </li>
+            <li>
+              Read the layer table against the pack counts, then check the
+              warnings before ordering. Each line prints the arithmetic behind
+              it.
+            </li>
+          </ol>
+        </section>
+
+        <section className="mt-6 rounded-2xl border border-border bg-card p-5 text-sm">
+          <h2 className="mb-2 font-semibold text-foreground">
+            How much does plastering cost?
+          </h2>
+          <p className="text-muted-foreground">
+            This page sizes materials, which is the part that can be calculated
+            honestly: bags of plaster, pails of topcoat, mesh rolls and beads.
+            The price of those materials depends on the merchant and the market,
+            and the labour, scaffold and drying time on top vary even more. The
+            price library holds no verified plaster band, so the page does not
+            publish a rate it cannot support. Take the quantities and the system
+            from here and check a local quote line by line: the three choices
+            that move the material cost most are the system, the topcoat grain,
+            and whether the substrate forces a bonding primer.
+          </p>
+        </section>
       </div>
-    </>
+    </ToolShell>
   );
 }

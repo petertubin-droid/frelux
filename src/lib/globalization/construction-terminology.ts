@@ -194,6 +194,89 @@ export function getConstructionTerm(
  * page without one), so a missing market reads as the catalogue's own copy
  * rather than throwing on the way to paint.
  */
+/**
+ * Plaster is called three different things in the markets FRELUX serves, and
+ * the name is the search: Gipsputz and Aussenputz in DACH, silicone render in
+ * the UK, stucco finish coat in North America, Tyrolene in West Africa. The
+ * page and its card therefore follow the market rather than shipping one
+ * English title everywhere.
+ */
+const GENERIC_PLASTER_COPY: MarketToolCopy = {
+  title: "Plaster & Render Calculator",
+  heading: "Plaster and facade render calculator",
+  does: "Calculate gypsum plaster, exterior render and Tyrolene as layered systems, with the bags, pails, mesh rolls and beads each market sells.",
+  enters:
+    "System, net wall area or length by height, substrate, plaster thickness or topcoat grain, corner and reveal lengths, waste and wet-zone status.",
+  gets: "Layer by layer quantities in kilograms, litres, square metres and linear metres, with pack counts in local bag, pail and bead sizes and warnings where a system is unsuitable.",
+};
+
+const PLASTER_RENDER_COPY: Record<string, MarketToolCopy> = {
+  DE: {
+    title: "Gipsputz und Außenputz Rechner",
+    heading: "Gipsputz, Außenputz und Oberputz berechnen",
+    does: "Gipsputz nach DIN EN 13279, Außenputz und Silikonharzputz nach EN 15824 als Schichtaufbau berechnen: Haftgrund, Putz, Gewebe, Eckenprofile und Sackgrößen.",
+    enters:
+      "System, Netto-Wandfläche oder Länge mal Höhe, Untergrund (Porenbeton, Ziegel, Beton, Dämmplatte), Putzdicke oder Körnung, Ecken- und Laibungslängen, Verschnitt und Feuchtbereich.",
+    gets: "Mengen je Schicht in Kilogramm, Litern, Quadratmetern und laufenden Metern, mit Sack- und Eimerzahlen in den hier üblichen Größen und Hinweisen, wenn ein System ungeeignet ist.",
+  },
+  AT: {
+    title: "Gipsputz und Außenputz Rechner",
+    heading: "Gipsputz, Außenputz und Oberputz berechnen",
+    does: "Gipsputz nach DIN EN 13279, Außenputz und Silikonharzputz nach EN 15824 als Schichtaufbau berechnen: Haftgrund, Putz, Gewebe, Eckenprofile und Sackgrößen.",
+    enters:
+      "System, Netto-Wandfläche oder Länge mal Höhe, Untergrund, Putzdicke oder Körnung, Ecken- und Laibungslängen, Verschnitt und Feuchtbereich.",
+    gets: "Mengen je Schicht in Kilogramm, Litern, Quadratmetern und laufenden Metern, mit Sack- und Eimerzahlen in den hier üblichen Größen.",
+  },
+  CH: {
+    title: "Gipsputz und Aussenputz Rechner",
+    heading: "Gipsputz, Aussenputz und Oberputz berechnen",
+    does: "Gipsputz nach EN 13279, Aussenputz und Silikonharzputz nach EN 15824 als Schichtaufbau berechnen: Haftgrund, Putz, Gewebe, Eckenprofile und Sackgrössen.",
+    enters:
+      "System, Netto-Wandfläche oder Länge mal Höhe, Untergrund, Putzdicke oder Körnung, Ecken- und Laibungslängen, Verschnitt und Feuchtbereich.",
+    gets: "Mengen je Schicht in Kilogramm, Litern, Quadratmetern und laufenden Metern, mit Sack- und Eimerzahlen in den hier üblichen Grössen.",
+  },
+  GB: {
+    title: "Gypsum Plaster and Render Calculator",
+    heading: "Gypsum plaster and silicone render calculator",
+    does: "Calculate gypsum plaster to EN 13279 and silicone or mineral render to EN 15824 by layer: primer, plaster or topcoat, mesh with 100 mm overlaps, beads and bags.",
+    enters:
+      "System, net wall area or length by height, substrate, plaster thickness or topcoat grain, corner and reveal lengths, waste and wet-zone status.",
+    gets: "Layer by layer quantities in kilograms, litres, square metres and linear metres, with 25 kg bags and pails, 50 square metre mesh rolls and bead counts.",
+  },
+  US: {
+    title: "Gypsum Plaster and Stucco Finish Calculator",
+    heading: "Veneer plaster and stucco finish coat calculator",
+    does: "Calculate one coat veneer gypsum plaster (ASTM C587) and acrylic or silicone stucco finish coats (ASTM C926) by layer, in square feet and pounds.",
+    enters:
+      "System, net wall area or length by height, substrate, plaster thickness or finish grain, corner and reveal lengths, waste and wet-zone status.",
+    gets: "Layer by layer quantities with 50 lb bags, 5 gallon pails, fibreglass mesh rolls and bead counts, plus the primer the substrate requires.",
+  },
+  CA: {
+    title: "Gypsum Plaster and Stucco Finish Calculator",
+    heading: "Veneer plaster and stucco finish coat calculator",
+    does: "Calculate veneer gypsum plaster (ASTM C587) and acrylic or silicone stucco finish coats (ASTM C926) by layer, with imperial bag and pail sizes.",
+    enters:
+      "System, net wall area or length by height, substrate, plaster thickness or finish grain, corner and reveal lengths, waste and wet-zone status.",
+    gets: "Layer by layer quantities with 50 lb bags, 5 gallon pails, mesh rolls and bead counts, plus the primer the substrate requires.",
+  },
+  NG: {
+    title: "German Wall Plaster and Tyrolene Calculator",
+    heading: "German plaster and Tyrolene calculator",
+    does: "Calculate German wall plaster and Tyrolene as layers: sand cement backing at 1:4 or 1:6, textured coat, sealer, cement bags, sharp sand and mesh.",
+    enters:
+      "System, net wall area or length by height, substrate (sandcrete, block, concrete), backing and coat thickness, corner and reveal lengths, waste.",
+    gets: "Cement bags, sand volume, textured coat bags, mesh rolls and bead counts, with the mix and allowance each figure came from.",
+  },
+  GH: {
+    title: "German Wall Plaster and Tyrolene Calculator",
+    heading: "German plaster and Tyrolene calculator",
+    does: "Calculate German wall plaster and Tyrolene as layers: sand cement backing at 1:4 or 1:6, textured coat, sealer, cement bags, sharp sand and mesh.",
+    enters:
+      "System, net wall area or length by height, substrate, backing and coat thickness, corner and reveal lengths, waste.",
+    gets: "Cement bags, sand volume, textured coat bags, mesh rolls and bead counts, with the mix each figure came from.",
+  },
+};
+
 export function getMarketToolCopy<T extends MarketToolCopy>(
   slug: string,
   marketCode: string | null | undefined,
@@ -222,6 +305,8 @@ export function getMarketToolCopy<T extends MarketToolCopy>(
           heading: `${getConstructionTerm("reinforcement", code)} Estimator`,
         }
       : GENERIC_REINFORCEMENT_COPY;
+  } else if (slug === "plaster-render-calculator") {
+    localized = PLASTER_RENDER_COPY[code] ?? GENERIC_PLASTER_COPY;
   }
 
   return localized ? { ...base, ...localized } : base;

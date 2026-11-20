@@ -727,59 +727,6 @@ export function calculatePlasterRender(
 }
 
 /* ------------------------------------------------------------------ */
-/* Search copy per market                                              */
-/* ------------------------------------------------------------------ */
-
-export interface PlasterSearchCopy {
-  title: string;
-  description: string;
-}
-
-/**
- * What a contractor in each region actually types. The page is one route, so
- * its title and description follow the active market instead of shipping four
- * near-duplicate pages that compete with each other.
- */
-export function plasterSearchCopy(region: PlasterRegion): PlasterSearchCopy {
-  switch (region) {
-    case "dach_eu":
-      return {
-        title:
-          "Gipsputz Rechner m², Außenputz Verbrauch berechnen, Silikonharzputz Menge | FRELUX",
-        description:
-          "Gipsputz Rechner nach DIN EN 13279, Außenputz und Silikonharzputz Verbrauch nach EN 15824: Schichten, Gewebe, Eckenprofile und Sackgrößen für Deutschland, Österreich und die Schweiz.",
-      };
-    case "uk":
-      return {
-        title:
-          "Gypsum Plaster Calculator m², Silicone Render Calculator | FRELUX",
-        description:
-          "Gypsum plaster and silicone render calculator in square metres: EN 13279 plaster by thickness, EN 15824 render by grain size, mesh with 100 mm overlaps, beads and 25 kg bags and pails.",
-      };
-    case "north_america":
-      return {
-        title:
-          "Gypsum Plaster and Acrylic Stucco Finish Coat Calculator | FRELUX",
-        description:
-          "One-coat veneer gypsum plaster (ASTM C587) and acrylic or silicone stucco finish coat (ASTM C926) calculator in square feet, with 50 lb bags, 5 gallon pails and fibreglass mesh.",
-      };
-    case "africa":
-      return {
-        title:
-          "German Wall Plaster Calculator Nigeria, Tyrolene and Cement Mix Calculator | FRELUX",
-        description:
-          "German plaster and Tyrolene calculator for Nigeria and West Africa: sand cement backing at 1:4 or 1:6, textured coat at 3 to 5 mm, cement bags, sharp sand and 25 kg Tyrolene bags.",
-      };
-    default:
-      return {
-        title: "Plaster and Render Systems Calculator | FRELUX",
-        description:
-          "Gypsum plaster, exterior render and Tyrolene calculator by layer: primer, plaster or topcoat, mesh, beads and sealer, packaged for the market you buy in.",
-      };
-  }
-}
-
-/* ------------------------------------------------------------------ */
 /* BIM / 5D hook                                                       */
 /* ------------------------------------------------------------------ */
 

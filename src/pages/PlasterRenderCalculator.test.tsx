@@ -14,9 +14,13 @@ function renderPage() {
 describe("PlasterRenderCalculator", () => {
   it("renders the system choices and a calculated result", () => {
     renderPage();
-    expect(screen.getByText(/Interior gypsum plaster/i)).toBeTruthy();
-    expect(screen.getByText(/Exterior render/i)).toBeTruthy();
-    expect(screen.getByText(/Tyrolene textured render/i)).toBeTruthy();
+    expect(
+      screen.getAllByText(/Interior gypsum plaster/i).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Exterior render/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/Tyrolene textured render/i).length,
+    ).toBeGreaterThan(0);
     // default system is exterior render: its topcoat line must appear
     expect(screen.getAllByText(/Topcoat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/primer/i).length).toBeGreaterThan(0);
