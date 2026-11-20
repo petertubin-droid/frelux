@@ -10,6 +10,7 @@ import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MaintenanceTicker from "@/components/layout/MaintenanceTicker";
+import { ReleaseNoticeBanner } from "@/components/notices/ReleaseNoticeBanner";
 // The desktop rail is chrome for a viewport the first paint may not even have;
 // keeping it out of the entry lets a phone skip its code entirely.
 const AppRail = lazy(() =>
@@ -683,6 +684,9 @@ export default function Layout() {
         {maintenanceBanner.enabled && (
           <MaintenanceTicker message={maintenanceBanner.message} />
         )}
+        {/* Reads release_notices at runtime, so a published notice appears
+            without a deploy and hides itself when it expires. */}
+        <ReleaseNoticeBanner />
         {/* The market caveat qualifies a calculation result, so it is scoped
             to calculator pages rather than printed above every route. */}
         {[

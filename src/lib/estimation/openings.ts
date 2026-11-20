@@ -43,6 +43,21 @@ export interface OpeningGroup {
   widthMm: number;
   heightMm: number;
   count: number;
+  /**
+   * Optional identity and location. Arithmetic ignores all of these; they exist
+   * so a schedule can be compared between revisions and read floor by floor
+   * instead of being an anonymous count.
+   */
+  id?: string;
+  level?: string;
+  room?: string;
+  /** Height of the sill above finished floor, for window schedules. */
+  sillMm?: number;
+  /**
+   * Depth of the reveal on this opening. EIFS clads the returns, so a deeper
+   * reveal adds area; engines that do not clad reveals ignore it.
+   */
+  revealDepthMm?: number;
 }
 
 export interface NormalisedOpening extends OpeningGroup {
@@ -160,6 +175,18 @@ export function normaliseOpenings(
       widthMm: clampedWidth,
       heightMm: clampedHeight,
       count: clampedCount,
+      id: typeof entry.id === "string" ? entry.id : undefined,
+      level: typeof entry.level === "string" ? entry.level : undefined,
+      room: typeof entry.room === "string" ? entry.room : undefined,
+      sillMm:
+        Number(entry.sillMm) >= 0 && Number.isFinite(Number(entry.sillMm))
+          ? Math.round(Number(entry.sillMm))
+          : undefined,
+      revealDepthMm:
+        Number(entry.revealDepthMm) > 0 &&
+        Number.isFinite(Number(entry.revealDepthMm))
+          ? Math.round(Number(entry.revealDepthMm))
+          : undefined,
     });
   }
 
@@ -237,6 +264,10 @@ export function tradeDeduction(
     const w = g.widthMm / 1000;
     const h = g.heightMm / 1000;
     const area = w * h;
+    // A per-opening reveal depth wins: a door in a thick wall has a deeper
+    // return than a window in the same wall.
+    const groupRevealM =
+      g.revealDepthMm && g.revealDepthMm > 0 ? g.revealDepthMm / 1000 : revealM;
     for (let i = 0; i < g.count; i += 1) {
       if (area <= 0.5) {
         out.small += 1;
@@ -246,7 +277,7 @@ export function tradeDeduction(
       } else {
         out.full += 1;
         out.deductionM2 += area;
-        out.revealAdditionM2 += (2 * h + w) * revealM;
+        out.revealAdditionM2 += (2 * h + w) * groupRevealM;
       }
     }
   }
@@ -440,4 +471,122 @@ export function defaultOpeningGroups(
     });
   }
   return groups;
+}
+
+// =========================================================
+// Legacy adapters
+//
+// Each calculator grew its own opening shape before this module existed. These
+// read those shapes into the canonical model so an engine can accept the shared
+// schedule without breaking a saved draft or template that still holds the old
+// one. They are read-only: nothing here writes back to the legacy shape.
+// =========================================================
+
+/** Paint's shape: width and height in the calculator's display unit. */
+export interface LegacyDisplayOpening {
+  quantity?: number;
+  count?: number;
+  width?: number;
+  height?: number;
+}
+
+/** Drywall and EIFS shape: metres, with a quantity or count. */
+export interface LegacyMetreOpening {
+  widthM?: number;
+  heightM?: number;
+  quantity?: number;
+  count?: number;
+  label?: string;
+  category?: OpeningCategory;
+}
+
+export type LengthUnit = "mm" | "cm" | "m" | "ft" | "in";
+
+const TO_MM: Record<LengthUnit, number> = {
+  mm: 1,
+  cm: 10,
+  m: 1000,
+  ft: 304.8,
+  in: 25.4,
+};
+
+/**
+ * Convert a list measured in metres (drywall, EIFS) into canonical groups.
+ *
+ * The category defaults to window because these engines never recorded one;
+ * callers that know better pass it explicitly.
+ */
+export function fromMetreOpenings(
+  list: LegacyMetreOpening[] | undefined | null,
+  defaultCategory: OpeningCategory = "window",
+): OpeningGroup[] {
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter((o) => Number(o?.widthM) > 0 && Number(o?.heightM) > 0)
+    .map((o) => ({
+      category: o.category ?? defaultCategory,
+      label: o.label,
+      widthMm: Math.round(Number(o.widthM) * 1000),
+      heightMm: Math.round(Number(o.heightM) * 1000),
+      count: Math.max(1, Math.round(Number(o.quantity ?? o.count ?? 1))),
+    }));
+}
+
+/**
+ * Convert a list measured in a display unit (paint) into canonical groups.
+ * A unit of feet is not a detail: 3 ft read as 3 m triples the opening.
+ */
+export function fromDisplayOpenings(
+  list: LegacyDisplayOpening[] | undefined | null,
+  unit: LengthUnit = "m",
+  defaultCategory: OpeningCategory = "window",
+): OpeningGroup[] {
+  if (!Array.isArray(list)) return [];
+  const factor = TO_MM[unit] ?? 1000;
+  return list
+    .filter((o) => Number(o?.width) > 0 && Number(o?.height) > 0)
+    .map((o) => ({
+      category: defaultCategory,
+      widthMm: Math.round(Number(o.width) * factor),
+      heightMm: Math.round(Number(o.height) * factor),
+      count: Math.max(1, Math.round(Number(o.quantity ?? o.count ?? 1))),
+    }));
+}
+
+/**
+ * The groups an engine should price with: the shared schedule when the caller
+ * supplied one, otherwise the legacy list converted, otherwise nothing.
+ *
+ * Precedence is explicit rather than merged, because adding the two would
+ * double every opening a user re-entered in the new shape.
+ */
+/**
+ * Canonical groups in the metre shape the system engines already use
+ * internally. One conversion point, so an engine keeps its tested internals and
+ * still accepts the shared schedule.
+ */
+export function toMetreOpenings(groups: OpeningGroup[]): Array<{
+  widthM: number;
+  heightM: number;
+  count: number;
+  label?: string;
+  revealDepthMm?: number;
+}> {
+  return groups.map((g) => ({
+    widthM: g.widthMm / 1000,
+    heightM: g.heightMm / 1000,
+    count: g.count,
+    label: g.label,
+    revealDepthMm: g.revealDepthMm,
+  }));
+}
+
+export function resolveOpenings(
+  openingGroups: OpeningGroup[] | undefined | null,
+  legacy: OpeningGroup[] | undefined | null,
+): OpeningGroup[] {
+  if (Array.isArray(openingGroups) && openingGroups.length > 0) {
+    return normaliseOpenings(openingGroups).groups;
+  }
+  return legacy ?? [];
 }

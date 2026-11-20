@@ -24,6 +24,16 @@ Three unrelated opening shapes existed: build-to-roof carried `{type: "door" | "
 - Build-to-roof templates: three public templates (3-bedroom bungalow, 2-storey duplex, US single family home) carry full schedules, in the database and in the offline fallback list.
 - Globaliser: build-to-roof templates now produce a dimension sentence ("15 x 12 m footprint, 1 floor, 10 windows, 5 internal doors, 1 entrance door") instead of an empty string.
 
+## Adoption status
+
+ICF and EIFS engines now accept `openingGroups` and prefer it over their legacy metre list, converting at the boundary with `toMetreOpenings` so their tested internals, including ICF lintel cages and EIFS reveal depths, are untouched. Parity is pinned by test: the same openings produce identical block counts, concrete volumes, board counts and reveal areas whichever shape they arrive in.
+
+`OpeningGroup` gained optional `id`, `level`, `room`, `sillMm` and `revealDepthMm`. Arithmetic ignores the first four; they exist so a schedule can be compared between revisions and read floor by floor. `revealDepthMm` is used by EIFS, where a deeper reveal adds clad area.
+
+Legacy adapters (`fromMetreOpenings`, `fromDisplayOpenings`) read the old shapes into the canonical model, including the unit trap: 1.2 ft is 366 mm, not 1200 mm.
+
+Still to do: the ICF and EIFS **pages** still render their own metre-based opening editors. The engines accept both shapes, so nothing is broken and no saved draft changes meaning, but the shared editor component has not been swapped into those two pages yet.
+
 ## Not yet adopted
 
 Paint, screeding, drywall and EIFS still hold their own opening inputs. Paint's tiered rule is the source of `tradeDeduction`, so the policy is shared even though the input shape is not. Moving those pages onto `OpeningGroup` is a separate change and should be done one calculator at a time with before/after numbers on existing fixtures, because it changes inputs users have already saved.

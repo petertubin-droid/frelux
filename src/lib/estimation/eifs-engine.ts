@@ -26,6 +26,11 @@
  */
 
 import type { MaterialRole } from "@/lib/estimation/market-materials";
+import {
+  normaliseOpenings,
+  toMetreOpenings,
+  type OpeningGroup,
+} from "./openings";
 import { ceilU } from "./shared/purchase-rounding";
 
 export type EifsSubstrateType =
@@ -92,6 +97,8 @@ export interface EifsWallInput {
   finishTexture?: EifsFinishTexture;
   /** Fenestration openings deducted from gross facade area. */
   openings?: EifsOpening[];
+  /** Shared opening schedule; takes precedence over `openings` when present. */
+  openingGroups?: OpeningGroup[];
   /** Outside 90-degree building corners (default 4). */
   exteriorCornersCount?: number;
   /** Height of ground-level high-impact mesh zone in meters (default 2.0m). Set to 0 to disable. */
@@ -308,7 +315,21 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
 
   // 1. Geometry & Deductions
   const grossAreaM2 = Math.round(wallLengthM * wallHeightM * 100) / 100;
-  const openings = input.openings ?? [];
+  // The shared schedule wins when supplied; the legacy metre list is converted
+  // so a saved draft keeps pricing, including its per-opening reveal depth.
+  const openings =
+    input.openingGroups && input.openingGroups.length > 0
+      ? toMetreOpenings(normaliseOpenings(input.openingGroups).groups).map(
+          (o, i) => ({
+            id: `g${i}`,
+            label: o.label ?? "",
+            widthM: o.widthM,
+            heightM: o.heightM,
+            count: o.count,
+            revealDepthMm: o.revealDepthMm,
+          }),
+        )
+      : (input.openings ?? []);
 
   let openingsAreaM2 = 0;
   let openingsPerimeterM = 0;

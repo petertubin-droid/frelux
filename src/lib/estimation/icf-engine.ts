@@ -23,6 +23,11 @@
  */
 
 import type { MaterialRole } from "@/lib/estimation/market-materials";
+import {
+  normaliseOpenings,
+  toMetreOpenings,
+  type OpeningGroup,
+} from "./openings";
 import { ceilU } from "./shared/purchase-rounding";
 import { resolveCementBag } from "@/config/cement-bag";
 import { getStructuralJurisdictionScope } from "@/lib/engineering/structural-jurisdiction-scope";
@@ -70,6 +75,8 @@ export interface IcfWallInput {
   foamType?: IcfFoamType;
   /** Window and door openings subtracted from gross area. */
   openings?: IcfOpening[];
+  /** Shared opening schedule; takes precedence over `openings` when present. */
+  openingGroups?: OpeningGroup[];
   /** Count of 90-degree corner units per course (default 4 for rectangular). */
   corners90Count?: number;
   /** Count of 45-degree splay/bay corners per course. */
@@ -491,7 +498,13 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       : input.coreThicknessMm || 150;
   const foamType: IcfFoamType =
     input.foamType === "graphite_neopor" ? "graphite_neopor" : "standard_eps";
-  const openings = input.openings || [];
+  // The shared schedule wins when supplied; the legacy list is converted so a
+  // saved draft keeps pricing. One conversion point keeps the rest of this
+  // engine, including the lintel cages, untouched.
+  const openings =
+    input.openingGroups && input.openingGroups.length > 0
+      ? toMetreOpenings(normaliseOpenings(input.openingGroups).groups)
+      : input.openings || [];
   const corners90 = Math.max(0, input.corners90Count ?? 4);
   const corners45 = Math.max(0, input.corners45Count ?? 0);
   const tWalls = Math.max(0, input.tWallsCount ?? 0);
