@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -47,6 +48,42 @@ export default function FenceBlockCalculator() {
   const { t } = useLanguage();
 
   const [market, setMarket] = useState("NG");
+  const [materialPrices, setMaterialPrices] = useState<{
+    block?: number;
+    cement?: number;
+    sand?: number;
+  }>({});
+
+  useEffect(() => {
+    supabase
+      .from("material_prices")
+      .select("name, unit_price, is_active")
+      .eq("is_active", true)
+      .then(({ data }) => {
+        if (!data) return;
+        const prices: { block?: number; cement?: number; sand?: number } = {};
+        for (const item of data) {
+          const lower = (item.name || "").toLowerCase();
+          const price = Number(item.unit_price) || 0;
+          if (price <= 0) continue;
+          if (unitKey.includes("9") && (lower.includes("9-inch") || lower.includes("9 inch") || (lower.includes("block") && !lower.includes("6")))) {
+            prices.block = price;
+          } else if (unitKey.includes("6") && (lower.includes("6-inch") || lower.includes("6 inch"))) {
+            prices.block = price;
+          } else if (!prices.block && lower.includes("block")) {
+            prices.block = price;
+          }
+          if (lower.includes("cement") && !lower.includes("white")) {
+            prices.cement = price;
+          }
+          if (lower.includes("sand") && (lower.includes("trip") || lower.includes("tipper"))) {
+            prices.sand = price;
+          }
+        }
+        setMaterialPrices(prices);
+      })
+      .catch(() => {});
+  }, [unitKey]);
   const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
   const [custom, setCustom] = useState({ length: "30.48", width: "15.24" });
   const [coaches, setCoaches] = useState(5);
@@ -132,8 +169,7 @@ export default function FenceBlockCalculator() {
         item: `Blocks (${result.unit.label})`,
         quantity: result.blocks.total,
         unit: result.unit.noun,
-        unitCost: "",
-        lineTotal: "",
+        unitCost: materialPrices.block || "", lineTotal: materialPrices.block ? Math.round(result.blocks.total * materialPrices.block) : "",
       },
       {
         section: "Blocks",
@@ -813,6 +849,50 @@ export default function FenceBlockCalculator() {
                       </span>
                     </li>
                   </ul>
+
+                  {(materialPrices.block || materialPrices.cement || materialPrices.sand) && (
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+                      <p className="font-semibold text-foreground">
+                        {t("Estimated Materials Budget (Admin Price Book)")}
+                      </p>
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                        {materialPrices.block && (
+                          <div>
+                            <span className="block">{t("Blocks")}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round(result.blocks.total * materialPrices.block)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {materialPrices.cement && (
+                          <div>
+                            <span className="block">{t(vocab.cementBagLabel)}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round(result.cement.bags * materialPrices.cement)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {materialPrices.sand && (
+                          <div>
+                            <span className="block">{t("Sand")}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round((result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <span className="block font-semibold text-foreground">{t("Total Material Est.")}</span>
+                          <span className="font-bold text-primary">
+                            ₦{(
+                              (materialPrices.block ? result.blocks.total * materialPrices.block : 0) +
+                              (materialPrices.cement ? result.cement.bags * materialPrices.cement : 0) +
+                              (materialPrices.sand ? (result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand : 0)
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="rounded-lg bg-muted px-3 py-3">
                     <p className="text-xs font-semibold text-foreground">

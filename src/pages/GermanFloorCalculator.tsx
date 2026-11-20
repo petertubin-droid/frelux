@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -51,6 +52,32 @@ export default function GermanFloorCalculator() {
   const { t } = useLanguage();
 
   const [market, setMarket] = useState("NG");
+  const [materialPrices, setMaterialPrices] = useState<{
+    cement?: number;
+    sand?: number;
+    granite?: number;
+  }>({});
+
+  useEffect(() => {
+    supabase
+      .from("material_prices")
+      .select("name, unit_price, is_active")
+      .eq("is_active", true)
+      .then(({ data }) => {
+        if (!data) return;
+        const prices: { cement?: number; sand?: number; granite?: number } = {};
+        for (const item of data) {
+          const lower = (item.name || "").toLowerCase();
+          const price = Number(item.unit_price) || 0;
+          if (price <= 0) continue;
+          if (lower.includes("cement") && !lower.includes("white")) prices.cement = price;
+          else if (lower.includes("sand") && (lower.includes("trip") || lower.includes("tipper"))) prices.sand = price;
+          else if (lower.includes("granite") && (lower.includes("trip") || lower.includes("tipper"))) prices.granite = price;
+        }
+        setMaterialPrices(prices);
+      })
+      .catch(() => {});
+  }, []);
   const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
   // A custom plot is measured on site, so the two dimensions default to feet
   // and are converted to metres for the engine.
@@ -468,6 +495,50 @@ export default function GermanFloorCalculator() {
                       </span>
                     </li>
                   </ul>
+
+                  {(materialPrices.cement || materialPrices.sand || materialPrices.granite) && (
+                    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+                      <p className="font-semibold text-foreground">
+                        {t("Estimated Concrete Materials (Admin Price Book)")}
+                      </p>
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                        {materialPrices.cement && (
+                          <div>
+                            <span className="block">{t("Cement")}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round(result.cement.bags * materialPrices.cement)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {materialPrices.sand && (
+                          <div>
+                            <span className="block">{t("Sharp Sand")}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round((result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {materialPrices.granite && (
+                          <div>
+                            <span className="block">{t("Granite")}</span>
+                            <span className="font-medium text-foreground">
+                              ₦{(Math.round((result.aggregate.trips.length > 0 ? result.aggregate.trips[0].count : 1) * materialPrices.granite)).toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <span className="block font-semibold text-foreground">{t("Total Est.")}</span>
+                          <span className="font-bold text-primary">
+                            ₦{(
+                              (materialPrices.cement ? result.cement.bags * materialPrices.cement : 0) +
+                              (materialPrices.sand ? (result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand : 0) +
+                              (materialPrices.granite ? (result.aggregate.trips.length > 0 ? result.aggregate.trips[0].count : 1) * materialPrices.granite : 0)
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="rounded-lg bg-muted px-3 py-3">
                     <p className="text-xs font-semibold text-foreground">
