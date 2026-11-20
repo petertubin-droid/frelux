@@ -171,8 +171,11 @@ export interface EifsWallResult {
     totalVolumeM3: number;
     continuousRValueUS: number;
     rsiMetric: number;
+    /** U-factor of the INSULATION LAYER plus air films, not the whole wall. */
     uFactorMetric: number;
+    uFactorBasis: string;
     complianceScore: "exceeds" | "meets" | "minimum";
+    complianceBasis: string;
   };
 
   attachment: {
@@ -423,12 +426,18 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
   // U-factor = 1 / (RSI + 0.17 air film resistances)
   const uFactorMetric = Math.round((1 / (rsiMetric + 0.17)) * 1000) / 1000;
 
+  const uFactorBasis =
+    `U = 1 / (RSI of the ${insulationThicknessMm} mm board + 0.17 m2.K/W air films). ` +
+    "Insulation layer only: the whole-wall U-factor also depends on the substrate, framing and interior finish.";
   let complianceScore: "exceeds" | "meets" | "minimum" = "minimum";
   if (continuousRValueUS >= 15 || uFactorMetric <= 0.22) {
     complianceScore = "exceeds";
   } else if (continuousRValueUS >= 7.5 || uFactorMetric <= 0.45) {
     complianceScore = "meets";
   }
+  const complianceBasis =
+    "Banded from the continuous-insulation R-value only (R-15 or U 0.22 and better = exceeds; R-7.5 or U 0.45 = meets). " +
+    "The target that applies to a building comes from its energy code and its whole-wall assembly, not from this band.";
 
   // 4. Attachment (Adhesive & Mechanical Fasteners)
   // Spread rate: 4.5 kg/m² on smooth sheathing, 5.5 kg/m² on CMU/masonry
@@ -767,7 +776,9 @@ export function calculateEifsWall(input: EifsWallInput): EifsWallResult {
       continuousRValueUS,
       rsiMetric,
       uFactorMetric,
+      uFactorBasis,
       complianceScore,
+      complianceBasis,
     },
     attachment: {
       method: attachmentMethod,

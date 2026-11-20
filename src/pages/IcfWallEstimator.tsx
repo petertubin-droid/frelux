@@ -1,5 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import { resolveIcfPrices } from "@/lib/estimation/icf-eifs-market";
+import { BoqPricingPanel } from "@/components/tools/BoqPricingPanel";
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useSeo, useFaqJsonLd, useBreadcrumbJsonLd } from "@/lib/seo";
 
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -111,6 +114,23 @@ export default function IcfWallEstimator() {
     { name: "ICF Wall Estimator", path: "/icf-wall-estimator" },
   ]);
   const { marketCode } = useMarket();
+  const [priceResolution, setPriceResolution] = useState<Awaited<
+    ReturnType<typeof resolveIcfPrices>
+  > | null>(null);
+  const [pricesLoading, setPricesLoading] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setPricesLoading(true);
+    resolveIcfPrices(marketCode).then((res) => {
+      if (!cancelled) {
+        setPriceResolution(res);
+        setPricesLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [marketCode]);
 
   // Unit system toggle
   const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
@@ -1528,6 +1548,18 @@ export default function IcfWallEstimator() {
             </div>
           </CardContent>
         </Card>
+
+        <BoqPricingPanel
+          boq={engineResult.boq.map((b) => ({
+            code: b.code,
+            description: b.description,
+            quantity: b.quantity,
+            unit: b.unit,
+          }))}
+          resolution={priceResolution}
+          currencyCode={getActiveDisplayCurrency()}
+          loading={pricesLoading}
+        />
 
         {/* International Building Code Alignment */}
         <Card className="border-border/80">

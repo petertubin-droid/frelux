@@ -496,6 +496,11 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
     input.customCoreThicknessMm !== undefined
       ? Math.min(400, Math.max(75, Number(input.customCoreThicknessMm) || 150))
       : input.coreThicknessMm || 150;
+  // ACI 318-19 14.3.5 caps reinforcement spacing in a wall at three times
+  // the thickness, and at 450 mm. A 600 mm grid is therefore only lawful on
+  // cores of 200 mm or more, so an out-of-code grid is flagged rather than
+  // silently scheduled.
+  const aciMaxSpacingMm = Math.min(3 * coreThicknessMm, 450);
   const foamType: IcfFoamType =
     input.foamType === "graphite_neopor" ? "graphite_neopor" : "standard_eps";
   // The shared schedule wins when supplied; the legacy list is converted so a
@@ -511,9 +516,15 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
   const verticalRebarSize: IcfRebarSize = input.verticalRebarSize || "12M";
   const verticalSpacingMm: IcfVerticalSpacingMm =
     input.verticalRebarSpacingMm || 400;
+  if (verticalSpacingMm > aciMaxSpacingMm) {
+    warnings.push(
+      `Vertical bars at ${verticalSpacingMm} mm exceed the ACI 318-19 14.3.5 limit for a ${coreThicknessMm} mm core, which is ${aciMaxSpacingMm} mm (three times the thickness, capped at 450 mm). Use 400 mm centers or a thicker core, and confirm the local code if you are not building to ACI.`,
+    );
+  }
   const horizontalCourses: IcfHorizontalCourses =
     input.horizontalRebarCourses || "every_course";
   const dowelLengthM = Math.max(0.4, Number(input.dowelLengthM) || 0.75);
+
   const wastePct = Math.max(
     0,
     Math.min(25, Number(input.wasteFactorPercent) || 4),

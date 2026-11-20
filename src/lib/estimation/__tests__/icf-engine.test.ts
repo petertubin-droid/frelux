@@ -453,3 +453,72 @@ describe("ICF Engineering & Takeoff Engine", () => {
     });
   });
 });
+
+describe("ICF block face geometry (Wave 2.1)", () => {
+  it("defaults to the metric 1200 x 400 mm form and honours the North American 48 in x 16 in form", () => {
+    const metric = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 150,
+    });
+    expect(metric.blocks.blockFaceLengthM).toBeCloseTo(1.2, 4);
+    expect(metric.blocks.blockFaceHeightM).toBeCloseTo(0.4, 4);
+    expect(metric.blocks.nominalBlockAreaM2).toBeCloseTo(0.48, 5);
+
+    const northAmerican = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 150,
+      blockFaceLengthMm: 1219,
+      blockFaceHeightMm: 406,
+    });
+    expect(northAmerican.blocks.blockFaceLengthM).toBeCloseTo(1.219, 4);
+    expect(northAmerican.blocks.blockFaceHeightM).toBeCloseTo(0.406, 4);
+    // 1.219 x 0.406 = 0.494914 m2, about 3% more face per block
+    expect(northAmerican.blocks.nominalBlockAreaM2).toBeCloseTo(0.494914, 5);
+  });
+
+  it("accepts a custom form face dimension", () => {
+    const r = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 150,
+      blockFaceLengthMm: 1000,
+      blockFaceHeightMm: 250,
+    });
+    expect(r.blocks.nominalBlockAreaM2).toBeCloseTo(0.25, 5);
+    expect(r.geometry.wallHeightCourses).toBe(Math.ceil(2.8 / 0.25));
+  });
+});
+
+describe("ICF rebar spacing vs ACI 318 14.3.5 (Wave 2.1)", () => {
+  it("warns when 600 mm bars exceed three times a 100 mm core", () => {
+    const r = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 100,
+      verticalRebarSpacingMm: 600,
+    });
+    expect(r.warnings.some((w) => w.includes("14.3.5"))).toBe(true);
+  });
+
+  it("does not warn for 400 mm bars in a 150 mm core", () => {
+    const r = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 150,
+      verticalRebarSpacingMm: 400,
+    });
+    expect(r.warnings.some((w) => w.includes("14.3.5"))).toBe(false);
+  });
+
+  it("warns when 600 mm bars exceed 450 mm even for a 200 mm core", () => {
+    const r = calculateIcfWall({
+      wallLengthM: 10,
+      wallHeightM: 2.8,
+      coreThicknessMm: 200,
+      verticalRebarSpacingMm: 600,
+    });
+    expect(r.warnings.some((w) => w.includes("14.3.5"))).toBe(true);
+  });
+});
