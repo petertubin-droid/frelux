@@ -119,7 +119,6 @@ export default function Footer() {
     },
     { title: "Explore", links: [...exploreLinks, ...companyLinks] },
     { title: "Resources", links: resourcesLinks },
-    { title: "Markets", links: marketHubLinks },
     { title: "Legal", links: legalLinks },
   ];
 
@@ -128,7 +127,7 @@ export default function Footer() {
       role="contentinfo"
       aria-label="Site footer"
       className="neon-edge-soft relative overflow-hidden rounded-t-[2rem] border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "520px" }}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "700px" }}
     >
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
@@ -139,20 +138,20 @@ export default function Footer() {
       {/* relative: stack the content ABOVE the absolutely-positioned
           BrandBackdrop. Without it the light-mode scrim (85% opaque
           background) paints over the text and hides it. */}
-      <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <div className="grid grid-cols-1 gap-x-5 gap-y-2 md:grid-cols-3 md:gap-y-6 lg:grid-cols-7 lg:gap-x-8">
-          <div className="col-span-1 md:col-span-3 lg:col-span-2">
+      <div className="relative mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-6">
+        <div className="grid grid-cols-1 gap-x-5 gap-y-1.5 md:grid-cols-3 md:gap-y-4 lg:grid-cols-12 lg:gap-x-6">
+          <div className="col-span-1 md:col-span-3 lg:col-span-4">
             <Logo size="md" />
-            <div className="mt-2 text-xs font-semibold tracking-wide text-foreground">
+            <div className="mt-1.5 text-xs font-semibold tracking-wide text-foreground">
               FRELUX Technologies Ltd.
             </div>
-            <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-relaxed text-muted-foreground sm:mt-2 sm:line-clamp-none sm:text-sm">
+            <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-snug text-muted-foreground sm:mt-1.5 sm:line-clamp-none sm:text-[13px] sm:leading-snug">
               Construction intelligence and quantity takeoff tools for projects
               across markets, with localized data availability disclosed by
               location.
             </p>
 
-            <div className="mt-3 sm:mt-4">
+            <div className="mt-2 sm:mt-2.5">
               <Suspense fallback={null}>
                 <NewsletterSignup source="footer" />
               </Suspense>
@@ -162,7 +161,7 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2">
               <a
                 href={`mailto:${siteConfig.email}`}
                 aria-label="Email us"
@@ -176,7 +175,7 @@ export default function Footer() {
               </span>
             </div>
 
-            <p className="mt-3 hidden flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground sm:flex">
+            <p className="mt-2 hidden flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground sm:flex">
               <span className="font-medium text-foreground dark:text-primary-foreground/90">
                 {t("International market profiles")}
               </span>
@@ -184,7 +183,7 @@ export default function Footer() {
             </p>
 
             {/* Google Publisher & E-E-A-T Quality Indicators */}
-            <ul className="mt-3 hidden list-none flex-wrap items-center gap-x-4 gap-y-1 border-t border-border/40 pt-2.5 text-xs text-muted-foreground sm:flex dark:border-white/5">
+            <ul className="mt-2 hidden list-none flex-wrap items-center gap-x-4 gap-y-0.5 border-t border-border/40 pt-2 text-[11px] text-muted-foreground sm:flex dark:border-white/5">
               <li className="inline-flex items-center gap-1">
                 <ShieldCheck
                   aria-hidden="true"
@@ -202,8 +201,13 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-6 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/5">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+        {/* Market hubs are a flat list of country names, so they read as one
+            wrapped band instead of a column that grows a row per market. Same
+            links, a quarter of the height. */}
+        <FooterMarketBand links={marketHubLinks} />
+
+        <div className="mt-3 flex items-start justify-between gap-3 border-t border-border/60 pt-3 sm:flex-row sm:items-center dark:border-white/5">
+          <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-4">
             <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} {siteConfig.name}. All rights
               reserved.
@@ -219,7 +223,7 @@ export default function Footer() {
             onClick={() => withdrawConsent()}
             aria-label="Cookie preferences"
             title="Cookie preferences"
-            className="h-8 w-8 shrink-0 self-start rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+            className="h-8 w-8 shrink-0 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
           >
             <Cookie className="h-4 w-4" aria-hidden="true" />
           </Button>
@@ -245,23 +249,59 @@ function FooterColumn({
   const { t } = useLanguage();
   return (
     <nav aria-label={t(title)}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
         {t(title)}
       </h3>
       <ul
         id={`footer-${title.toLowerCase()}`}
-        className={`mt-1 gap-x-4 ${
-          links.length > 4 ? "columns-2 md:columns-1" : "columns-1"
+        className={`mt-0.5 gap-x-3 sm:gap-x-4 ${
+          links.length > 12
+            ? "columns-3"
+            : links.length > 5
+              ? "columns-2"
+              : "flex flex-wrap"
         }`}
       >
         {links.map((link) => (
           <li
             key={link.path}
-            className="break-inside-avoid leading-[1.15] md:mb-1.5"
+            className="break-inside-avoid leading-[1.1] md:mb-0.5"
           >
             <Link
               to={link.path}
-              className="inline-flex min-h-6 items-center rounded text-[12px] leading-[1.35] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-sm dark:hover:text-brand-purple-lighter"
+              className="inline-flex min-h-6 items-center rounded text-[12px] leading-[1.25] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-[13px] dark:hover:text-brand-purple-lighter"
+            >
+              {t(link.label)}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+function FooterMarketBand({
+  links,
+}: {
+  links: { label: string; path: string }[];
+}) {
+  // One wrapped band of country links. A column would add a row per market
+  // (thirty-two of them), which is what made the footer tall on every screen.
+  const { t } = useLanguage();
+  return (
+    <nav
+      aria-label={t("Markets")}
+      className="mt-3 border-t border-border/40 pt-2.5 dark:border-white/5"
+    >
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
+        {t("Markets")}
+      </h3>
+      <ul className="mt-0.5 flex flex-wrap gap-x-2.5 gap-y-0 sm:columns-3 sm:flex-none sm:gap-x-4 lg:columns-4">
+        {links.map((link) => (
+          <li key={link.path} className="break-inside-avoid leading-[1.05]">
+            <Link
+              to={link.path}
+              className="inline-flex min-h-4 items-center whitespace-nowrap rounded text-[10px] leading-[1.15] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:min-h-6 sm:text-[12px] sm:leading-[1.2] dark:hover:text-brand-purple-lighter"
             >
               {t(link.label)}
             </Link>

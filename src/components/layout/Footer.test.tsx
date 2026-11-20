@@ -48,7 +48,7 @@ describe("Footer", () => {
   it("uses compact vertical padding", () => {
     const { container } = renderComponent();
     const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-8");
+    expect(inner?.className).toContain("py-6");
     expect(inner?.className).not.toContain("py-16");
   });
 });
@@ -71,12 +71,15 @@ describe("Footer theme + mobile compaction", () => {
     const titles = Array.from(container.querySelectorAll("footer nav h3")).map(
       (h) => h.textContent,
     );
+    // Four link groups in the grid, then the Markets band, which sits below
+    // the grid so thirty-two country links cost a wrapped row instead of a
+    // thirty-two row column.
     expect(titles).toEqual([
       "Calculators",
       "Explore",
       "Resources",
-      "Markets",
       "Legal",
+      "Markets",
     ]);
   });
 
@@ -116,16 +119,19 @@ describe("Footer theme + mobile compaction", () => {
     for (const nav of navs) {
       const list = nav.querySelector("ul") as HTMLUListElement;
       expect(list.className).not.toContain("hidden");
-      // Long groups use two columns on phones; short ones stay single.
+      // Long groups flow into three columns on phones, mid groups into two,
+      // and a short group reads as one wrapped line.
       const count = within(list).getAllByRole("link").length;
-      expect(list.className).toContain(count > 4 ? "columns-2" : "columns-1");
+      const expected =
+        count > 12 ? "columns-3" : count > 5 ? "columns-2" : "flex flex-wrap";
+      expect(list.className).toContain(expected);
     }
   });
 
   it("keeps compact mobile vertical padding", () => {
     const { container } = renderComponent();
     const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-5");
+    expect(inner?.className).toContain("py-4");
     expect(inner?.className).not.toContain("py-16");
   });
 });

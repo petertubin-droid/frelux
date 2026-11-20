@@ -12,22 +12,17 @@ const navbar = readFileSync("src/components/layout/Navbar.tsx", "utf8");
 const bottomNav = readFileSync("src/components/ui/MobileBottomNav.tsx", "utf8");
 
 describe("footer chrome", () => {
-  it("gives the brand block and five groups seven tracks", () => {
-    // Two tracks for the brand plus five groups is seven. At six the Legal
-    // group wrapped onto a second row under the brand block.
-    expect(footer).toContain("lg:grid-cols-7");
-    expect(footer).not.toContain("lg:grid-cols-6");
-    // Five groups plus the brand block: Calculators, Explore, Resources,
-    // Markets and Legal.
-    for (const title of [
-      "Calculators",
-      "Explore",
-      "Resources",
-      "Markets",
-      "Legal",
-    ]) {
+  it("gives the brand block and four groups twelve tracks", () => {
+    // The brand takes four of twelve tracks and each group two, so the wide
+    // groups can carry two columns of links. Markets is no longer a track: it
+    // is a wrapped band below the grid, because a column of thirty-two
+    // countries was the single tallest thing in the footer.
+    expect(footer).toContain("lg:grid-cols-12");
+    expect(footer).not.toContain("lg:grid-cols-7");
+    for (const title of ["Calculators", "Explore", "Resources", "Legal"]) {
       expect(footer).toContain(`title: "${title}"`);
     }
+    expect(footer).toContain("FooterMarketBand");
   });
 
   it("states the opening hours without dashes or a repeated promise", () => {
