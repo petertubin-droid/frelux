@@ -177,3 +177,31 @@ _Verification artifacts: Management API reads performed 2026-10-14 and
 2026-10-15 (schema_migrations, pg_policies, pg_proc, triggers,
 storage.buckets, integration_keys_public, function listings). Live
 SELECT outputs are quoted in the conversation record for this work._
+
+## Migration and edge function state, 2026-11-20
+
+Checked against project `nfgaaohweygwydoelxnf` (freluxproject, eu-west-1, ACTIVE_HEALTHY).
+
+- Migrations: 776 applied, 761 files in the repo, **0 pending**. Every file in
+  `supabase/migrations` is already applied.
+- Edge functions: 87 deployed, 86 directories in `supabase/functions`, **0
+  missing and 0 stale** by last-commit date against deployment time.
+
+Two drift findings, both the same shape: production has objects the repo cannot
+rebuild.
+
+1. Fifteen migrations are applied with no file in the repo:
+   `paint_coverage_restore_measured_rates`, `supplier_bills`,
+   `saved_estimate_allowance`, `vendor_price_locks`, `price_scan_cadence_dispatch`,
+   `icf_eifs_gb_au_roles`, `benchmark_materials`, `icf_eifs_gb_remaining_roles`,
+   `new_table_grants_and_force_rls`, `au_queued_role_mappings`,
+   `bim_project_persistence`, `bim_tables_force_rls`, `profile_country_and_phone`,
+   `marketplace_inquiry_thread`, `pro_connect_messaging_fixes_and_credit_gating`.
+2. One edge function, `stripe-checkout`, is deployed with no source directory.
+
+`scripts/check-migration-drift.mjs` now reports both conditions and exits non
+zero, so the gap cannot grow unnoticed:
+
+```
+SUPABASE_ACCESS_TOKEN=... node scripts/check-migration-drift.mjs
+```
